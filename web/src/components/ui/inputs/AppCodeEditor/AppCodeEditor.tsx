@@ -8,7 +8,7 @@ import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderC
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-//import './MonacoWebWorker';
+import './MonacoWebWorker';
 import { configureMonacoToUseYaml } from './yamlHelper';
 
 //import GithubLightTheme from 'monaco-themes/themes/Github Light.json';

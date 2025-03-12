@@ -7,7 +7,7 @@ import { BusterRoutes } from '@/routes';
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { NewDatasetModal } from '@/components/features/modal/NewDatasetModal';
-import { useIndividualDataset } from '@/context/Datasets';
+import { useIndividualDataset } from '@/api/buster_rest';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemoizedFn } from '@/hooks';

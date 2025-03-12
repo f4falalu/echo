@@ -7,10 +7,10 @@ import { AppTooltip } from '@/components/ui/tooltip';
 import { Plus } from '@/components/ui/icons';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useBusterTermsIndividual } from '@/context/Terms';
 import { useMemoizedFn } from '@/hooks';
 import { NewTermModal } from '@/components/features/modal/NewTermModal';
 import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
+import { useGetTerm } from '@/api/buster_rest/terms';
 
 export const TermsHeader: React.FC<{
   termId?: string;
@@ -18,8 +18,7 @@ export const TermsHeader: React.FC<{
   setOpenNewTermsModal?: (open: boolean) => void;
 }> = React.memo(({ termId, openNewTermsModal, setOpenNewTermsModal }) => {
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
-
-  const { term: selectedTerm } = useBusterTermsIndividual({ termId: termId || '' });
+  const { data: term } = useGetTerm(termId);
 
   const onOpenNewTermsModal = useMemoizedFn(() => {
     setOpenNewTermsModal?.(true);
@@ -33,7 +32,7 @@ export const TermsHeader: React.FC<{
   return (
     <>
       <div className="flex w-full items-center justify-between space-x-1">
-        <TermsBreadcrumb termName={selectedTerm?.name} />
+        <TermsBreadcrumb termName={term?.name} />
 
         <div className="flex items-center space-x-0">
           {isAdmin && (

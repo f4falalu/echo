@@ -4,7 +4,7 @@ import React from 'react';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { Button } from '@/components/ui/buttons';
 import { useMemoizedFn } from '@/hooks';
-import { useBusterTermsIndividualContextSelector } from '@/context/Terms';
+import { useDeleteTerm } from '@/api/buster_rest/terms';
 
 export const TermListSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -30,12 +30,16 @@ const DeleteButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const onDeleteTerm = useBusterTermsIndividualContextSelector((x) => x.onDeleteTerm);
+  const { mutateAsync: onDeleteTerm, isPending: isPendingDeleteTerm } = useDeleteTerm();
 
   const onDeleteClick = useMemoizedFn(async () => {
     await onDeleteTerm({ ids: selectedRowKeys });
     onSelectChange([]);
   });
 
-  return <Button onClick={onDeleteClick}>Delete</Button>;
+  return (
+    <Button onClick={onDeleteClick} loading={isPendingDeleteTerm}>
+      Delete
+    </Button>
+  );
 };

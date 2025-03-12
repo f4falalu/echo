@@ -1,9 +1,5 @@
 'use client';
 
-import {
-  useDataSourceIndividualContextSelector,
-  useDataSourceListContextSelector
-} from '@/context/DataSources';
 import React from 'react';
 import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
 import type { DataSourceListItem } from '@/api/asset_interfaces';
@@ -17,14 +13,12 @@ import { Button } from '@/components/ui/buttons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Plus, Dots, Trash } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
+import { useDeleteDatasource, useListDatasources } from '@/api/buster_rest/datasource';
 
 export const DatasourceList: React.FC = () => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
-  const dataSourcesList = useDataSourceListContextSelector((x) => x.dataSourcesList) || [];
-  const isFetchedDatasourcesList = useDataSourceListContextSelector(
-    (state) => state.isFetchedDatasourcesList
-  );
-
+  const { data: dataSourcesList, isFetched: isFetchedDatasourcesList } = useListDatasources();
+  const { mutateAsync: onDeleteDataSource } = useDeleteDatasource();
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const hasDataSources = dataSourcesList.length > 0 && !isFetchedDatasourcesList;
 
@@ -35,7 +29,7 @@ export const DatasourceList: React.FC = () => {
       {!isFetchedDatasourcesList ? (
         <SkeletonLoader />
       ) : hasDataSources ? (
-        <DataSourceItems sources={dataSourcesList} />
+        <DataSourceItems sources={dataSourcesList} onDeleteDataSource={onDeleteDataSource} />
       ) : (
         <SettingsEmptyState
           showButton={isAdmin}
@@ -72,11 +66,14 @@ const AddSourceHeader: React.FC<{ isAdmin: boolean }> = ({ isAdmin }) => {
   );
 };
 
-const DataSourceItems: React.FC<{ sources: DataSourceListItem[] }> = ({ sources }) => {
+const DataSourceItems: React.FC<{
+  sources: DataSourceListItem[];
+  onDeleteDataSource: (dataSourceId: string) => Promise<void>;
+}> = ({ sources, onDeleteDataSource }) => {
   return (
     <div className="flex flex-col space-y-4">
       {sources.map((source) => {
-        return <ListItem key={source.id} source={source} />;
+        return <ListItem key={source.id} source={source} onDeleteDataSource={onDeleteDataSource} />;
       })}
     </div>
   );
@@ -84,9 +81,8 @@ const DataSourceItems: React.FC<{ sources: DataSourceListItem[] }> = ({ sources 
 
 const ListItem: React.FC<{
   source: DataSourceListItem;
-}> = ({ source }) => {
-  const onDeleteDataSource = useDataSourceIndividualContextSelector((x) => x.onDeleteDataSource);
-
+  onDeleteDataSource: (dataSourceId: string) => Promise<void>;
+}> = ({ source, onDeleteDataSource }) => {
   const dropdownItems: DropdownItems = [
     {
       label: 'Delete',

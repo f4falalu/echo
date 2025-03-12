@@ -15,8 +15,8 @@ export const ThemeList: React.FC<{
   return (
     <div
       className={cn(
-        'bg-item-active rounded-sm border px-1',
-        'flex w-full flex-col space-y-0 overflow-y-auto'
+        'bg-item-select rounded-sm border p-1',
+        'flex w-full flex-col space-y-0.5 overflow-y-auto'
       )}>
       {themes.map((theme) => (
         <ColorOption
@@ -41,17 +41,15 @@ const ColorOption: React.FC<{
     <div
       onClick={() => onChangeColorTheme(theme)}
       className={cn(
-        'bg-item-active rounded-sm border p-1',
-        'cursor-pointer px-1.5 py-3',
-        'bg-item-hover hover:shadow-[inset_0_0_0_0.5px]',
-        selected && 'bg-item-active hover:bg-item-active border shadow-[inset_0_0_0_0.5px]',
-        'flex w-full items-center justify-between'
+        'flex w-full items-center justify-between space-x-2.5 overflow-hidden',
+        'cursor-pointer rounded-sm px-3 py-2',
+        selected ? 'bg-background border' : 'bg-item-active hover:bg-nav-item-hover'
       )}>
-      <div className="flex items-center space-x-2">
-        <Text>{name}</Text>
-      </div>
+      <Text truncate variant={selected ? 'default' : 'secondary'}>
+        {name}
+      </Text>
 
-      <ThemeColorDots colors={colors} />
+      <ThemeColorDots selected={selected} colors={colors} />
     </div>
   );
 });

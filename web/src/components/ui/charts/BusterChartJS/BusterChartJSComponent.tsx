@@ -67,7 +67,6 @@ export const BusterChartJSComponent = React.memo(
         xAxisTimeInterval,
         //TODO
         xAxisDataZoom,
-        useRapidResizeObserver = false,
         ...rest
       },
       ref

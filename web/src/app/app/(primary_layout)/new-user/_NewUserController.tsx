@@ -11,11 +11,12 @@ import { BusterRoutes } from '@/routes/busterRoutes';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { Button } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs';
+import { useCreateUserOrganization } from '@/api/buster_rest/users';
 
 export const NewUserController = () => {
   const [started, setStarted] = useState(false);
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  const onCreateUserOrganization = useUserConfigContextSelector((s) => s.onCreateUserOrganization);
+  const onCreateUserOrganization = useCreateUserOrganization();
   const user = useUserConfigContextSelector((s) => s.user);
   const userOrganizations = useUserConfigContextSelector((s) => s.userOrganizations);
   const { openInfoMessage } = useBusterNotifications();

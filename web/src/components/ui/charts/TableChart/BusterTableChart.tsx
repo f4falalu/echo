@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import type { BusterTableChartConfig } from './interfaces';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { formatLabel } from '@/lib/columnFormatter';
 import isEqual from 'lodash/isEqual';
 import {
@@ -30,7 +30,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   onInitialAnimationEnd,
   tableColumnFontColor
 }) => {
-  const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
+  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
     (x) => x.onUpdateMetricChartConfig
   );
   const containerWidth = useChartWrapperContextSelector(({ width }) => width);

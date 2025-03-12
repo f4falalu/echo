@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
 import type { MetricViewProps } from '../config';
-import { useMetricIndividual } from '@/context/Metrics';
+import { useMetricIndividual } from '@/api/buster_rest/metrics';
 import { useMemoizedFn, useUnmount } from '@/hooks';
 import { IDataResult } from '@/api/asset_interfaces';
 import { useMetricLayout } from '../useMetricLayout';
-
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
 import { useSQLContextSelector } from '@/context/SQL';
 import { AppSplitterRef } from '@/components/ui/layouts';

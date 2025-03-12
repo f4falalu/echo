@@ -7,6 +7,7 @@ import {
   updateDatasource
 } from './requests';
 import { queryKeys } from '@/api/query_keys';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const useListDatasources = () => {
   return useQuery({
@@ -25,8 +26,20 @@ export const useGetDatasource = (id: string | undefined) => {
 
 export const useDeleteDatasource = () => {
   const queryClient = useQueryClient();
+  const { openConfirmModal } = useBusterNotifications();
+
+  const mutationFn = async (dataSourceId: string) => {
+    await openConfirmModal({
+      title: 'Delete Data Source',
+      content: 'Are you sure you want to delete this data source?',
+      onOk: async () => {
+        await deleteDatasource(dataSourceId);
+      }
+    });
+  };
+
   return useMutation({
-    mutationFn: deleteDatasource,
+    mutationFn,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.datasourceGetList.queryKey

@@ -1,14 +1,13 @@
-import { Plus, Trash } from '@/components/ui/icons';
+import { Trash } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { Button } from '@/components/ui/buttons';
 import React from 'react';
 
 export const CollectionIndividualSelectedPopup: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-  onDeleteClick: () => Promise<void>;
-}> = ({ selectedRowKeys, onSelectChange, onDeleteClick }) => {
+  onRemoveFromCollection: () => Promise<void>;
+}> = ({ selectedRowKeys, onSelectChange, onRemoveFromCollection }) => {
   const show = selectedRowKeys.length > 0;
 
   return (
@@ -20,7 +19,7 @@ export const CollectionIndividualSelectedPopup: React.FC<{
           key="delete"
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
-          onDeleteClick={onDeleteClick}
+          onRemoveFromCollection={onRemoveFromCollection}
         />
       ]}
       show={show}
@@ -31,14 +30,10 @@ export const CollectionIndividualSelectedPopup: React.FC<{
 const CollectionDeleteButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-  onDeleteClick: () => Promise<void>;
-}> = ({ selectedRowKeys, onSelectChange, onDeleteClick }) => {
-  const onBulkAddRemoveToCollection = useBusterCollectionIndividualContextSelector(
-    (x) => x.onBulkAddRemoveToCollection
-  );
-
+  onRemoveFromCollection: () => Promise<void>;
+}> = ({ onRemoveFromCollection }) => {
   return (
-    <Button prefix={<Trash />} onClick={onDeleteClick}>
+    <Button prefix={<Trash />} onClick={onRemoveFromCollection}>
       Delete
     </Button>
   );

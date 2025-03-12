@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createTerm, deleteTerms, getTerm, getTermsList, updateTerm } from './requests';
-import { TermsListParams } from '@/api/request_interfaces/terms';
+import { TermDeleteParams, TermsListParams } from '@/api/request_interfaces/terms';
 import { queryKeys } from '@/api/query_keys';
 import { BusterTerm } from '@/api/asset_interfaces/terms';
 import { useMemo } from 'react';
+import { useMemoizedFn } from '@/hooks';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const useGetTermsList = (params?: Omit<TermsListParams, 'page' | 'page_size'>) => {
   const compiledParams: TermsListParams = useMemo(
@@ -17,10 +19,11 @@ export const useGetTermsList = (params?: Omit<TermsListParams, 'page' | 'page_si
   });
 };
 
-export const useGetTerm = (id: string) => {
+export const useGetTerm = (id: string | undefined) => {
   return useQuery({
-    ...queryKeys.termsGetTerm(id),
-    queryFn: () => getTerm(id)
+    ...queryKeys.termsGetTerm(id!),
+    queryFn: () => getTerm(id!),
+    enabled: !!id
   });
 };
 
@@ -50,9 +53,28 @@ export const useUpdateTerm = () => {
 
 export const useDeleteTerm = () => {
   const queryClient = useQueryClient();
+  const { openConfirmModal } = useBusterNotifications();
+  const mutationFn = useMemoizedFn(
+    ({ ids, ignoreConfirm = false }: TermDeleteParams & { ignoreConfirm?: boolean }) => {
+      const method = async () => {
+        deleteTerms(ids);
+      };
+
+      if (ignoreConfirm) {
+        return method();
+      }
+
+      return openConfirmModal({
+        title: 'Delete term',
+        content: 'Are you sure you want to delete this term?',
+        onOk: method
+      });
+    }
+  );
+
   return useMutation({
-    mutationFn: deleteTerms,
-    onSuccess: (data) => {
+    mutationFn,
+    onSuccess: () => {
       const options = queryKeys.termsGetList;
       queryClient.invalidateQueries({ queryKey: options.queryKey });
     }

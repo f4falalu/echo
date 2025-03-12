@@ -76,7 +76,6 @@ export const EditShowHeadline: React.FC<{
         />
       </LabelAndInput>
     );
-  },
-  () => true
+  }
 );
 EditShowHeadline.displayName = 'EditShowHeadline';

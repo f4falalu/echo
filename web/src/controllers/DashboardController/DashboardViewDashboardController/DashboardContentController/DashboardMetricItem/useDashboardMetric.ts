@@ -1,7 +1,7 @@
 import { useDashboardContentControllerContextSelector } from '../DashboardContentControllerContext';
 import { useEffect, useMemo, useRef } from 'react';
 import { useInViewport } from '@/hooks';
-import { useMetricIndividual } from '@/context/Metrics';
+import { useMetricIndividual } from '@/api/buster_rest/metrics';
 
 export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
   const { metric, metricData, metricDataUpdatedAt, isFetchedMetricData } = useMetricIndividual({

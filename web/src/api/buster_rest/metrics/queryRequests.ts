@@ -15,6 +15,9 @@ import { upgradeMetricToIMetric } from '@/lib/chat';
 import { queryKeys } from '@/api/query_keys';
 import { useMemo } from 'react';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
+import { resolveEmptyMetric } from '@/lib/metrics/resolve';
+import { useGetUserFavorites } from '../users';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const useGetMetric = (params: GetMetricParams) => {
   const queryClient = useQueryClient();
@@ -133,5 +136,173 @@ export const useDeleteMetric = () => {
         });
       }
     }
+  });
+};
+
+export const useMetricIndividual = ({ metricId }: { metricId: string }) => {
+  const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
+  const assetPassword = getAssetPassword(metricId);
+
+  const {
+    data: metric,
+    isFetched: isMetricFetched,
+    error: metricError,
+    refetch: refetchMetric
+  } = useGetMetric({
+    id: metricId,
+    password: assetPassword.password
+  });
+
+  const {
+    data: metricData,
+    isFetched: isFetchedMetricData,
+    refetch: refetchMetricData,
+    dataUpdatedAt: metricDataUpdatedAt,
+    error: metricDataError
+  } = useGetMetricData({ id: metricId });
+
+  return useMemo(
+    () => ({
+      metric: resolveEmptyMetric(metric, metricId),
+      isMetricFetched,
+      refetchMetric,
+      metricError,
+      metricData,
+      isFetchedMetricData,
+      refetchMetricData,
+      metricDataUpdatedAt,
+      metricDataError
+    }),
+    [
+      metric,
+      metricId,
+      isMetricFetched,
+      refetchMetric,
+      metricError,
+      metricData,
+      isFetchedMetricData,
+      refetchMetricData,
+      metricDataUpdatedAt,
+      metricDataError
+    ]
+  );
+};
+
+export const useSaveMetricToCollection = () => {
+  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
+  const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
+
+  const saveMetricToCollection = useMemoizedFn(
+    async ({ metricId, collectionIds }: { metricId: string; collectionIds: string[] }) => {
+      const collectionIsInFavorites = userFavorites.some((f) => {
+        const searchId = f.collection_id || f.id;
+        return collectionIds.includes(searchId);
+      });
+
+      await updateMetricMutation({
+        id: metricId,
+        add_to_collections: collectionIds
+      });
+
+      if (collectionIsInFavorites) {
+        await refreshFavoritesList();
+      }
+    }
+  );
+
+  return useMutation({
+    mutationFn: saveMetricToCollection,
+    mutationKey: ['saveMetricToCollection']
+  });
+};
+
+export const useRemoveMetricFromCollection = () => {
+  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
+  const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
+  const queryClient = useQueryClient();
+
+  const removeMetricFromCollection = useMemoizedFn(
+    async ({ metricId, collectionId }: { metricId: string; collectionId: string }) => {
+      const currentMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(metricId).queryKey);
+      const collectionIsInFavorites =
+        currentMetric &&
+        userFavorites.some((f) => {
+          const searchId = f.collection_id || f.id;
+          return currentMetric.collections.some((c) => c.id === searchId);
+        });
+
+      await updateMetricMutation({
+        id: metricId,
+        remove_from_collections: [collectionId]
+      });
+
+      if (collectionIsInFavorites) {
+        await refreshFavoritesList();
+      }
+    }
+  );
+
+  return useMutation({
+    mutationFn: removeMetricFromCollection
+  });
+};
+
+export const useSaveMetricToDashboard = () => {
+  const queryClient = useQueryClient();
+  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
+
+  const saveMetricToDashboard = useMemoizedFn(
+    async ({ metricId, dashboardIds }: { metricId: string; dashboardIds: string[] }) => {
+      await updateMetricMutation({
+        id: metricId,
+        save_to_dashboard: dashboardIds
+      });
+    }
+  );
+
+  return useMutation({
+    mutationFn: saveMetricToDashboard,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: variables.dashboardIds.map((id) => queryKeys.dashboardGetDashboard(id).queryKey)
+      });
+    }
+  });
+};
+
+export const useRemoveMetricFromDashboard = () => {
+  const queryClient = useQueryClient();
+  const { openConfirmModal } = useBusterNotifications();
+  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
+
+  const removeMetricFromDashboard = useMemoizedFn(
+    async ({
+      metricId,
+      dashboardId,
+      useConfirmModal = true
+    }: {
+      metricId: string;
+      dashboardId: string;
+      useConfirmModal?: boolean;
+    }) => {
+      const method = async () => {
+        await updateMetricMutation({
+          id: metricId,
+          remove_from_dashboard: [dashboardId]
+        });
+      };
+
+      if (!useConfirmModal) return await method();
+
+      return await openConfirmModal({
+        title: 'Remove from dashboard',
+        content: 'Are you sure you want to remove this metric from this dashboard?',
+        onOk: method
+      });
+    }
+  );
+
+  return useMutation({
+    mutationFn: removeMetricFromDashboard
   });
 };

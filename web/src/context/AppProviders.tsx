@@ -3,15 +3,10 @@ import { BusterWebSocketProvider } from './BusterWebSocket';
 import { SupabaseContextProvider } from './Supabase/SupabaseContextProvider';
 import { UseSupabaseContextType } from './Supabase/getSupabaseServerContext';
 import { BusterReactQueryProvider } from './BusterReactQuery/BusterReactQueryAndApi';
-import { DatasetProviders } from './Datasets';
 import { AppLayoutProvider } from './BusterAppLayout';
 import { BusterDashboardProvider } from './Dashboards/DashboardProvider';
 import { BusterUserConfigProvider } from './Users/UserConfigProvider';
-import { BusterCollectionsProvider } from './Collections/CollectionsProvider';
-import { DataSourceProvider } from './DataSources';
 import { BusterSQLProvider } from './SQL/useSQLProvider';
-import { BusterTermsProvider } from './Terms/BusterTermsProvider';
-import { BusterSearchProvider } from './Search';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
 import { BusterPosthogProvider } from './Posthog/usePosthog';
 import { BusterChatProvider } from './Chats';
@@ -38,28 +33,18 @@ export const AppProviders: React.FC<
           <AppLayoutProvider>
             <BusterUserConfigProvider userInfo={userInfo}>
               <BusterAssetsProvider>
-                <BusterSearchProvider>
-                  <DataSourceProvider>
-                    <DatasetProviders>
-                      <BusterCollectionsProvider>
-                        <BusterMetricsProvider>
-                          <BusterDashboardProvider>
-                            <BusterSQLProvider>
-                              <BusterTermsProvider>
-                                <BusterChatProvider>
-                                  <BusterPosthogProvider>
-                                    {children}
-                                    <RoutePrefetcher />
-                                  </BusterPosthogProvider>
-                                </BusterChatProvider>
-                              </BusterTermsProvider>
-                            </BusterSQLProvider>
-                          </BusterDashboardProvider>
-                        </BusterMetricsProvider>
-                      </BusterCollectionsProvider>
-                    </DatasetProviders>
-                  </DataSourceProvider>
-                </BusterSearchProvider>
+                <BusterMetricsProvider>
+                  <BusterDashboardProvider>
+                    <BusterSQLProvider>
+                      <BusterChatProvider>
+                        <BusterPosthogProvider>
+                          {children}
+                          <RoutePrefetcher />
+                        </BusterPosthogProvider>
+                      </BusterChatProvider>
+                    </BusterSQLProvider>
+                  </BusterDashboardProvider>
+                </BusterMetricsProvider>
               </BusterAssetsProvider>
             </BusterUserConfigProvider>
           </AppLayoutProvider>

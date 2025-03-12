@@ -1,26 +1,26 @@
 'use client';
 
 import React from 'react';
-import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
+
 import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';
 import { Text } from '@/components/ui/typography';
 import { DatasetList } from './TermDatasetSelect';
+import { useGetTerm, useUpdateTerm } from '@/api/buster_rest/terms';
 
 export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termId }) => {
-  const updateTerm = useBusterTermsIndividualContextSelector((x) => x.updateTerm);
-  const { term: selectedTerm } = useBusterTermsIndividual({ termId });
+  const { mutateAsync: updateTerm } = useUpdateTerm();
+  const { data: term } = useGetTerm(termId);
 
-  const datasets = selectedTerm?.datasets || [];
+  const datasets = term?.datasets || [];
 
   const onChangeDatasets = async (datasets: string[]) => {
     const add_to_dataset = datasets.filter(
-      (item) => !selectedTerm?.datasets?.some((dataset) => dataset.id === item)
+      (item) => !term?.datasets?.some((dataset) => dataset.id === item)
     );
     const remove_from_dataset =
-      selectedTerm?.datasets
-        ?.filter((dataset) => !datasets.includes(dataset.id))
-        .map((item) => item.id) || [];
+      term?.datasets?.filter((dataset) => !datasets.includes(dataset.id)).map((item) => item.id) ||
+      [];
 
     await updateTerm({
       id: termId,
@@ -45,12 +45,12 @@ export const TermIndividualContentSider: React.FC<{ termId: string }> = ({ termI
         </Text>
 
         <div className="flex items-center space-x-1.5">
-          <Avatar size={24} name={selectedTerm?.created_by.name} />
-          <Text>{selectedTerm?.created_by.name}</Text>
+          <Avatar size={24} name={term?.created_by.name} />
+          <Text>{term?.created_by.name}</Text>
           <Text variant="secondary">
             (
             {formatDate({
-              date: selectedTerm?.created_at!,
+              date: term?.created_at!,
               format: 'LL'
             })}
             )

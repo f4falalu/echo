@@ -5,7 +5,6 @@ import { AppPageLayoutContent } from '@/components/ui/layouts/AppPageLayoutConte
 import { Avatar } from '@/components/ui/avatar';
 import { formatDate, makeHumanReadble } from '@/lib';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import {
   BusterList,
   BusterListColumn,
@@ -20,34 +19,38 @@ import { CollectionListSelectedPopup } from './CollectionListSelectedPopup';
 export const CollectionsListContent: React.FC<{
   openNewCollectionModal: boolean;
   setOpenNewCollectionModal: (open: boolean) => void;
-}> = React.memo(({ openNewCollectionModal, setOpenNewCollectionModal }) => {
-  const isCollectionListFetched = useBusterCollectionListContextSelector(
-    (x) => x.isCollectionListFetched
-  );
-  const collectionsList = useBusterCollectionListContextSelector((x) => x.collectionsList) || [];
+  isCollectionListFetched: boolean;
+  collectionsList: BusterCollectionListItem[];
+}> = React.memo(
+  ({
+    openNewCollectionModal,
+    setOpenNewCollectionModal,
+    isCollectionListFetched,
+    collectionsList
+  }) => {
+    const onCloseNewCollectionModal = useMemoizedFn(() => {
+      setOpenNewCollectionModal(false);
+    });
 
-  const onCloseNewCollectionModal = useMemoizedFn(() => {
-    setOpenNewCollectionModal(false);
-  });
+    return (
+      <>
+        <AppPageLayoutContent>
+          <CollectionList
+            collectionsList={collectionsList}
+            setOpenNewCollectionModal={setOpenNewCollectionModal}
+            loadedCollections={isCollectionListFetched}
+          />
+        </AppPageLayoutContent>
 
-  return (
-    <>
-      <AppPageLayoutContent>
-        <CollectionList
-          collectionsList={collectionsList}
-          setOpenNewCollectionModal={setOpenNewCollectionModal}
-          loadedCollections={isCollectionListFetched}
+        <NewCollectionModal
+          open={openNewCollectionModal}
+          onClose={onCloseNewCollectionModal}
+          useChangePage={true}
         />
-      </AppPageLayoutContent>
-
-      <NewCollectionModal
-        open={openNewCollectionModal}
-        onClose={onCloseNewCollectionModal}
-        useChangePage={true}
-      />
-    </>
-  );
-});
+      </>
+    );
+  }
+);
 CollectionsListContent.displayName = 'CollectionsListContent';
 
 const columns: BusterListColumn[] = [

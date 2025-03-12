@@ -124,3 +124,9 @@ export const useDeleteDataset = () => {
     onSuccess
   });
 };
+
+export const useIndividualDataset = ({ datasetId }: { datasetId: string }) => {
+  const dataset = useGetDatasetMetadata(datasetId);
+  const datasetData = useGetDatasetData(datasetId);
+  return { dataset, datasetData };
+};

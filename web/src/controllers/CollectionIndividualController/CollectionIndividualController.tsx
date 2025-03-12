@@ -3,15 +3,14 @@
 import React, { useState } from 'react';
 import { CollectionsIndividualHeader } from './CollectionIndividualHeader';
 import { CollectionIndividualContent } from './CollectionIndividualContent';
-import { useCollectionIndividual } from '@/context/Collections';
 import { AppPageLayout } from '@/components/ui/layouts';
+import { useGetCollection } from '@/api/buster_rest/collections';
 
 export const CollectionIndividualController: React.FC<{
   collectionId: string;
 }> = ({ collectionId }) => {
   const [openAddTypeModal, setOpenAddTypeModal] = useState(false);
-
-  const { collection, isCollectionFetched } = useCollectionIndividual({ collectionId });
+  const { data: collection, isFetched: isCollectionFetched } = useGetCollection(collectionId);
 
   return (
     <AppPageLayout

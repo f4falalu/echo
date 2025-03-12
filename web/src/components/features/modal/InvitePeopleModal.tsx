@@ -1,23 +1,18 @@
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { AppModal } from '@/components/ui/modal';
-import { useUserConfigContextSelector } from '@/context/Users';
 import { TagInput } from '@/components/ui/inputs/InputTagInput';
+import { useInviteUser } from '@/api/buster_rest/users';
 
 export const InvitePeopleModal: React.FC<{
   open: boolean;
   onClose: () => void;
 }> = React.memo(({ open, onClose }) => {
   const [emails, setEmails] = React.useState<string[]>([]);
-  const [inviting, setInviting] = React.useState<boolean>(false);
-  const inviteUsers = useUserConfigContextSelector((state) => state.inviteUsers);
-  const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
-  const userTeams = useUserConfigContextSelector((state) => state.userTeams);
+  const { mutateAsync: inviteUsers, isPending: inviting } = useInviteUser();
 
   const handleInvite = useMemoizedFn(async () => {
-    setInviting(true);
-    await inviteUsers(emails);
-    setInviting(false);
+    await inviteUsers({ emails });
     onClose();
   });
 

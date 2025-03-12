@@ -8,7 +8,7 @@ import {
   DetermineSelectedChartType,
   disableTypeMethod
 } from './SelectedChartTypeMethod';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { addOpacityToColor, NUMBER_TYPES } from '@/lib';
 import { cn } from '@/lib/classMerge';
@@ -34,7 +34,7 @@ export const SelectChartType: React.FC<SelectChartTypeProps> = ({
   columnSettings,
   selectedAxis
 }) => {
-  const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
+  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
     ({ onUpdateMetricChartConfig }) => onUpdateMetricChartConfig
   );
 

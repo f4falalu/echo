@@ -5,14 +5,22 @@ import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useUserConfigContextSelector } from '@/context/Users';
-import { useBusterCollectionListContextSelector } from '@/context/Collections';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { useDeleteMetric } from '@/api/buster_rest/metrics';
+import {
+  useDeleteMetric,
+  useRemoveMetricFromCollection,
+  useSaveMetricToCollection
+} from '@/api/buster_rest/metrics';
+import {
+  useAddUserFavorite,
+  useDeleteUserFavorite,
+  useGetUserFavorites
+} from '@/api/buster_rest/users';
+import { ShareAssetType } from '@/api/asset_interfaces/share';
 
 export const ChatSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -56,14 +64,8 @@ const CollectionsButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const saveMetricToCollection = useBusterMetricsIndividualContextSelector(
-    (state) => state.saveMetricToCollection
-  );
-  const removeMetricFromCollection = useBusterMetricsIndividualContextSelector(
-    (state) => state.removeMetricFromCollection
-  );
-
-  const collectionsList = useBusterCollectionListContextSelector((state) => state.collectionsList);
+  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollection();
+  const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
 
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
@@ -71,6 +73,7 @@ const CollectionsButton: React.FC<{
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     setSelectedCollections(collectionIds);
+    console.warn('TODO: save to collection', collectionIds);
     const allSaves: Promise<void>[] = selectedRowKeys.map((metricId) => {
       return saveMetricToCollection({
         metricId,
@@ -139,29 +142,37 @@ const ThreeDotButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const bulkEditFavorites = useUserConfigContextSelector((state) => state.bulkEditFavorites);
-  const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
+  const { mutateAsync: removeUserFavorite, isPending: removingFromFavorites } =
+    useDeleteUserFavorite();
+  const { mutateAsync: addUserFavorite, isPending: addingToFavorites } = useAddUserFavorite();
+  const { data: userFavorites } = useGetUserFavorites();
 
   const dropdownOptions: DropdownItems = [
     {
       label: 'Add to favorites',
       icon: <Star />,
       value: 'add-to-favorites',
+      loading: addingToFavorites,
       onClick: async () => {
-        const allFavorites: string[] = [...userFavorites.map((f) => f.id), ...selectedRowKeys];
-        //   bulkEditFavorites(allFavorites);
-        alert('TODO - feature not implemented yet');
+        await addUserFavorite(
+          selectedRowKeys.map((id) => ({
+            id,
+            asset_type: ShareAssetType.METRIC,
+            name: 'Metric'
+          }))
+        );
       }
     },
     {
       label: 'Remove from favorites',
       icon: <Xmark />,
+      loading: removingFromFavorites,
       value: 'remove-from-favorites',
       onClick: async () => {
-        const allFavorites: string[] = userFavorites
-          .map((f) => f.id)
-          .filter((id) => !selectedRowKeys.includes(id));
-        bulkEditFavorites(allFavorites);
+        const allFavorites: Parameters<typeof removeUserFavorite>[0] = userFavorites
+          .filter((f) => !selectedRowKeys.includes(f.id))
+          .map((f) => ({ id: f.id, asset_type: ShareAssetType.METRIC }));
+        await removeUserFavorite(allFavorites);
       }
     }
   ];

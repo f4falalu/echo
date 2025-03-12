@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { AppPageLayoutContent } from '@/components/ui/layouts/AppPageLayoutContent';
-import { useBusterTermsIndividualContextSelector, useBusterTermsIndividual } from '@/context/Terms';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import { useDebounceFn } from '@/hooks';
@@ -14,27 +13,21 @@ import clamp from 'lodash/clamp';
 import { Text } from '@/components/ui/typography';
 import { BusterRoutes } from '@/routes';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-  CardContent
-} from '@/components/ui/card/CardBase';
+import { Card, CardHeader, CardContent } from '@/components/ui/card/CardBase';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
+import { useDeleteTerm, useGetTerm, useUpdateTerm } from '@/api/buster_rest/terms';
 
 export const TermIndividualContent: React.FC<{
   termId: string;
 }> = ({ termId }) => {
-  const updateTerm = useBusterTermsIndividualContextSelector((x) => x.updateTerm);
-  const { term: selectedTerm } = useBusterTermsIndividual({ termId });
-  const loadingSelectedTerm = !selectedTerm?.id;
+  const { mutateAsync: updateTerm } = useUpdateTerm();
+  const { data: term } = useGetTerm(termId);
+  const loadingSelectedTerm = !term?.id;
 
   const [editingTermName, setEditingTermName] = useState(false);
-  const [termName, setTermName] = useState(selectedTerm?.name || '');
-  const [termDefinition, setTermDefinition] = useState(selectedTerm?.definition || '');
-  const [termSQL, setTermSQL] = useState(selectedTerm?.sql_snippet || '');
+  const [termName, setTermName] = useState(term?.name || '');
+  const [termDefinition, setTermDefinition] = useState(term?.definition || '');
+  const [termSQL, setTermSQL] = useState(term?.sql_snippet || '');
   const [sqlHeight, setSqlHeight] = useState(300);
 
   const onSetTermName = (value: string) => {
@@ -65,10 +58,10 @@ export const TermIndividualContent: React.FC<{
   );
 
   useEffect(() => {
-    setTermName(selectedTerm?.name || '');
-    setTermDefinition(selectedTerm?.definition || '');
-    setTermSQL(selectedTerm?.sql_snippet || '');
-  }, [selectedTerm?.name, selectedTerm?.definition]);
+    setTermName(term?.name || '');
+    setTermDefinition(term?.definition || '');
+    setTermSQL(term?.sql_snippet || '');
+  }, [term?.name, term?.definition]);
 
   return (
     <AppPageLayoutContent className="overflow-auto p-8">
@@ -93,7 +86,7 @@ export const TermIndividualContent: React.FC<{
                 <Text variant="secondary">
                   Last updated:{' '}
                   {formatDate({
-                    date: selectedTerm?.updated_at!,
+                    date: term?.updated_at!,
                     format: 'lll'
                   })}
                 </Text>
@@ -109,8 +102,8 @@ export const TermIndividualContent: React.FC<{
             <ItemContainer title="Definition">
               <div className={'overflow-hidden'}>
                 <InputTextArea
-                  key={selectedTerm?.id || 'default'}
-                  defaultValue={selectedTerm?.definition || termDefinition}
+                  key={term?.id || 'default'}
+                  defaultValue={term?.definition || termDefinition}
                   autoResize={{ minRows: 3, maxRows: 20 }}
                   placeholder={'Enter definition...'}
                   onBlur={(e) => {
@@ -164,11 +157,11 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
   termId,
   setEditingTermName
 }) => {
-  const onDeleteTerm = useBusterTermsIndividualContextSelector((x) => x.onDeleteTerm);
+  const { mutateAsync: deleteTerm, isPending: isPendingDeleteTerm } = useDeleteTerm();
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
 
   const onDeleteTermsPreflight = async () => {
-    await onDeleteTerm({ ids: [termId] })
+    await deleteTerm({ ids: [termId] })
       .then(() => {
         onChangePage({
           route: BusterRoutes.APP_TERMS
@@ -193,6 +186,7 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
         value: 'delete',
         icon: <Trash />,
         label: 'Delete term',
+        loading: isPendingDeleteTerm,
         onClick: onDeleteTermsPreflight
       }
     ],

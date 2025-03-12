@@ -10,7 +10,7 @@ import {
   ChartType,
   ScatterAxis
 } from '@/api/asset_interfaces/metric/charts';
-import { useMetricIndividual } from '@/context/Metrics';
+import { useMetricIndividual } from '@/api/buster_rest/metrics';
 
 export const MetricStylingApp: React.FC<{
   metricId: string;

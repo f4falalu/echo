@@ -18,6 +18,7 @@ import { SupportModal } from '../modal/SupportModal';
 import { InvitePeopleModal } from '../modal/InvitePeopleModal';
 import { useMemoizedFn } from '@/hooks';
 import { SidebarUserFooter } from './SidebarUserFooter/SidebarUserFooter';
+import { useGetUserFavorites } from '@/api/buster_rest';
 
 const topItems: ISidebarList = {
   items: [
@@ -106,7 +107,7 @@ const tryGroup = (onClickInvitePeople: () => void, onClickLeaveFeedback: () => v
 
 export const SidebarPrimary = React.memo(() => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
-  const favorites = useUserConfigContextSelector((state) => state.userFavorites);
+  const { data: favorites } = useGetUserFavorites();
   const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
   const onToggleSupportModal = useAppLayoutContextSelector((s) => s.onToggleSupportModal);
   const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);

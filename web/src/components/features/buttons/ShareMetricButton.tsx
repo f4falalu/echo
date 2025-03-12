@@ -2,7 +2,7 @@ import React from 'react';
 import { ShareButton } from './ShareButton';
 import { ShareMenu } from '../ShareMenu';
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { useMetricIndividual } from '@/context/Metrics/BusterMetricsIndividualProvider';
+import { useMetricIndividual } from '@/api/buster_rest/metrics';
 
 export const ShareMetricButton = React.memo(({ metricId }: { metricId: string }) => {
   const { metric } = useMetricIndividual({ metricId });

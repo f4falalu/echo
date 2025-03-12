@@ -2,28 +2,26 @@
 
 import React, { useEffect, useMemo } from 'react';
 import { AppModal } from '@/components/ui/modal';
-import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
 import { inputHasText } from '@/lib/text';
 import { useMemoizedFn } from '@/hooks';
 import { Input } from '@/components/ui/inputs';
+import { useCreateCollection } from '@/api/buster_rest/collections';
 
 export const NewCollectionModal: React.FC<{
   open: boolean;
   onClose: () => void;
   useChangePage?: boolean;
-  onCollectionCreated?: (collectionId: string) => Promise<void>;
-}> = React.memo(({ onCollectionCreated, onClose, open, useChangePage = true }) => {
+  onCollectionCreated?: (collectionId: string) => void;
+}> = React.memo(({ onClose, open, useChangePage = true, onCollectionCreated }) => {
   const [title, setTitle] = React.useState('');
-  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  const createNewCollection = useBusterCollectionIndividualContextSelector(
-    (x) => x.createNewCollection
-  );
-  const isCreatingCollection = useBusterCollectionIndividualContextSelector(
-    (x) => x.isCreatingCollection
-  );
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const { mutateAsync: createNewCollection, isPending: isCreatingCollection } =
+    useCreateCollection();
+
+  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
+
   const disableSubmit = !inputHasText(title);
 
   const memoizedHeader = useMemo(() => {
@@ -35,11 +33,14 @@ export const NewCollectionModal: React.FC<{
 
   const onCreateNewCollection = useMemoizedFn(async () => {
     if (isCreatingCollection || disableSubmit) return;
-    const res = await createNewCollection({ name: title, onCollectionCreated });
-    if (useChangePage) {
+    const res = await createNewCollection({ name: title, description: '' });
+    if (onCollectionCreated && res) {
+      onCollectionCreated(res.id);
+    }
+    if (useChangePage && res) {
       onChangePage({
         route: BusterRoutes.APP_COLLECTIONS_ID,
-        collectionId: (res as any).id
+        collectionId: res.id
       });
     }
     setTimeout(() => {

@@ -22,14 +22,14 @@ function makeQueryClient(params?: {
         queryFn: () => Promise.resolve(),
         retry: (failureCount, error) => {
           if (params?.openErrorNotification) {
-            //    params.openErrorNotification(error);
+            params.openErrorNotification(error);
           }
           return false;
         }
       },
       mutations: {
         retry: (failureCount, error) => {
-          if (params?.openErrorNotification && failureCount > 0) {
+          if (params?.openErrorNotification) {
             params.openErrorNotification(error);
           }
           return false;

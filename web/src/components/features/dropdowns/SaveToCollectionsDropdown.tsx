@@ -1,14 +1,14 @@
 import { Dropdown, type DropdownItem, type DropdownProps } from '@/components/ui/dropdown';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useMemoizedFn } from '@/hooks';
 import React, { useMemo } from 'react';
-import type { BusterCollectionListItem } from '@/api/asset_interfaces';
+import type { BusterCollectionListItem } from '@/api/asset_interfaces/collection';
 import { NewCollectionModal } from '../modal/NewCollectionModal';
 import { Plus } from '@/components/ui/icons';
 import { Button } from '@/components/ui/buttons';
+import { useGetCollectionsList } from '@/api/buster_rest/collections';
 
 export const SaveToCollectionsDropdown: React.FC<{
   children: React.ReactNode;
@@ -16,7 +16,7 @@ export const SaveToCollectionsDropdown: React.FC<{
   onSaveToCollection: (collectionId: string[]) => Promise<void>;
   onRemoveFromCollection: (collectionId: string) => Promise<void>;
 }> = React.memo(({ children, onRemoveFromCollection, onSaveToCollection, selectedCollections }) => {
-  const collectionsList = useBusterCollectionListContextSelector((x) => x.collectionsList);
+  const { data: collectionsList } = useGetCollectionsList({});
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const [openCollectionModal, setOpenCollectionModal] = React.useState(false);
   const [showDropdown, setShowDropdown] = React.useState(false);

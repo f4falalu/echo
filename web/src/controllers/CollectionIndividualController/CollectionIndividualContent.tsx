@@ -1,6 +1,5 @@
 'use client';
 
-import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import React, { useMemo, useState } from 'react';
 import {} from '@/components/ui/icons';
 import { Avatar } from '@/components/ui/avatar';
@@ -19,6 +18,7 @@ import { useMemoizedFn } from '@/hooks';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { CollectionIndividualSelectedPopup } from './CollectionsIndividualPopup';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
+import { useUpdateCollection } from '@/api/buster_rest/collections';
 
 export const CollectionIndividualContent: React.FC<{
   collection: BusterCollection | undefined;
@@ -105,9 +105,7 @@ const CollectionList: React.FC<{
   selectedCollection: BusterCollection;
   loadedAsset: string;
 }> = React.memo(({ setOpenAddTypeModal, selectedCollection, assetList, loadedAsset }) => {
-  const onBulkAddRemoveToCollection = useBusterCollectionIndividualContextSelector(
-    (x) => x.onBulkAddRemoveToCollection
-  );
+  const { mutateAsync: updateCollection, isPending: isUpdatingCollection } = useUpdateCollection();
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const items: BusterListRow[] = useMemo(() => {
@@ -125,16 +123,15 @@ const CollectionList: React.FC<{
     setSelectedRowKeys(selectedRowKeys);
   });
 
-  const onDeleteClick = useMemoizedFn(async () => {
+  const onRemoveFromCollection = useMemoizedFn(async () => {
     const assets = assetList
       .filter((v) => !selectedRowKeys.includes(v.id))
       .map((v) => ({
         type: v.asset_type,
         id: v.id
       }));
-
-    await onBulkAddRemoveToCollection({
-      collectionId: selectedCollection.id,
+    await updateCollection({
+      id: selectedCollection.id,
       assets
     });
     setSelectedRowKeys([]);
@@ -168,7 +165,7 @@ const CollectionList: React.FC<{
       <CollectionIndividualSelectedPopup
         selectedRowKeys={selectedRowKeys}
         onSelectChange={onSelectChange}
-        onDeleteClick={onDeleteClick}
+        onRemoveFromCollection={onRemoveFromCollection}
       />
     </div>
   );
