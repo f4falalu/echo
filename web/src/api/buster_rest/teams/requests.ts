@@ -7,5 +7,5 @@ export const createTeam = async (params: CreateTeamParams) => {
 };
 
 export const getTeamsList = async (params: TeamListParams) => {
-  return mainApi.get<BusterUserTeam[]>('/teams/list', { params }).then((res) => res.data);
+  return mainApi.get<BusterUserTeam[]>('/teams', { params }).then((res) => res.data);
 };

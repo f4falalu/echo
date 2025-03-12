@@ -26,11 +26,11 @@ export const getMetricData = async ({ id }: { id: string }) => {
 };
 
 export const listMetrics = async (params: ListMetricsParams) => {
-  return mainApi.get<BusterMetricListItem[]>('/metrics/list', { params }).then((res) => res.data);
+  return mainApi.get<BusterMetricListItem[]>('/metrics', { params }).then((res) => res.data);
 };
 
 export const listMetrics_server = async (params: ListMetricsParams) => {
-  return await serverFetch<BusterMetricListItem[]>('/metrics/list', { params });
+  return await serverFetch<BusterMetricListItem[]>('/metrics', { params });
 };
 
 export const updateMetric = async (params: UpdateMetricParams) => {
