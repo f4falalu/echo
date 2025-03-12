@@ -5,7 +5,7 @@ const meta: Meta<typeof AppDataGrid> = {
   title: 'UI/table/AppDataGrid',
   component: AppDataGrid,
   parameters: {
-    layout: 'centered'
+    layout: 'fullscreen'
   },
   tags: ['autodocs']
 };

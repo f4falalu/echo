@@ -6,21 +6,15 @@
   }
 }
 
-// This approach has very limited browser support
-:root {
-  --globalScrollTimeline: none; // Define the timeline globally
-}
-
 .scroll-shadow-container {
   position: relative;
-  scroll-timeline-name: --globalScrollTimeline;
   @apply relative;
 
   .scroll-header {
     @apply fixed top-[30px] right-0 left-0 h-2 w-full;
     animation: shadowAnimation linear;
     animation-range: 0px 125px;
-    animation-timeline: --globalScrollTimeline;
+    animation-timeline: scroll(block start);
     animation-fill-mode: forwards;
   }
 
