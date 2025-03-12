@@ -7,6 +7,5 @@
 //! - interaction_tools: Tools for user interaction and UI manipulation
 //! - planning_tools: Tools for planning and scheduling
 
-pub mod agents_as_tools;
 pub mod file_tools;
 pub mod planning_tools; 
