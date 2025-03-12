@@ -1,19 +1,19 @@
-use anyhow::{Result, anyhow};
+use agents::{Agent, AgentMessage};
+use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use database::{
-    models::{User, Dataset, MetricFile},
+    models::{Dataset, MetricFile},
     pool::get_pg_pool,
-    schema::{dashboard_files, metric_files, datasets},
+    schema::{dashboard_files, datasets, metric_files},
 };
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
-use agents::{AgentMessage, Agent};
 use litellm::MessageProgress;
 use middleware::AuthenticatedUser;
 use serde_json::Value;
+use std::collections::HashSet;
 use std::sync::Arc;
 use uuid::Uuid;
-use std::collections::HashSet;
 
 use super::ContextLoader;
 
@@ -29,9 +29,16 @@ impl DashboardContextLoader {
 
 #[async_trait]
 impl ContextLoader for DashboardContextLoader {
-    async fn load_context(&self, user: &AuthenticatedUser, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>> {
+    async fn load_context(
+        &self,
+        user: &AuthenticatedUser,
+        agent: &Arc<Agent>,
+    ) -> Result<Vec<AgentMessage>> {
         let mut conn = get_pg_pool().get().await.map_err(|e| {
-            anyhow!("Failed to get database connection for dashboard context loading: {}", e)
+            anyhow!(
+                "Failed to get database connection for dashboard context loading: {}",
+                e
+            )
         })?;
 
         // First verify the dashboard exists and user has access
@@ -46,9 +53,7 @@ impl ContextLoader for DashboardContextLoader {
             })?;
 
         // Parse dashboard content to DashboardYml
-        let dashboard_yml: database::types::DashboardYml = 
-            serde_json::from_value(dashboard.content.clone())
-            .map_err(|e| anyhow!("Failed to parse dashboard content as YAML for dashboard {}: {}", dashboard.name, e))?;
+        let dashboard_yml = dashboard.content;
 
         // Collect all metric IDs from the dashboard
         let mut metric_ids = HashSet::new();
@@ -67,19 +72,12 @@ impl ContextLoader for DashboardContextLoader {
             match metric_files::table
                 .filter(metric_files::id.eq(metric_id))
                 .first::<MetricFile>(&mut conn)
-                .await 
+                .await
             {
                 Ok(metric) => {
                     // Parse metric content
-                    match serde_json::from_value::<database::types::MetricYml>(metric.content.clone()) {
-                        Ok(metric_yml) => {
-                            all_dataset_ids.extend(metric_yml.dataset_ids);
-                            metrics_vec.push(metric);
-                        }
-                        Err(e) => {
-                            failed_metric_loads.push((metric_id, format!("Failed to parse metric content: {}", e)));
-                        }
-                    }
+                    all_dataset_ids.extend(metric.content.dataset_ids.clone());
+                    metrics_vec.push(metric);
                 }
                 Err(e) => {
                     failed_metric_loads.push((metric_id, format!("Failed to load metric: {}", e)));
@@ -103,7 +101,7 @@ impl ContextLoader for DashboardContextLoader {
             match datasets::table
                 .filter(datasets::id.eq(dataset_id))
                 .first::<Dataset>(&mut conn)
-                .await 
+                .await
             {
                 Ok(dataset) => datasets_vec.push(dataset),
                 Err(e) => failed_dataset_loads.push((dataset_id, e.to_string())),
@@ -119,25 +117,34 @@ impl ContextLoader for DashboardContextLoader {
         }
 
         // Set agent state based on loaded assets
-        agent.set_state_value(String::from("dashboards_available"), Value::Bool(true))
+        agent
+            .set_state_value(String::from("dashboards_available"), Value::Bool(true))
             .await;
-            
-        agent.set_state_value(String::from("files_available"), Value::Bool(true))
+
+        agent
+            .set_state_value(String::from("files_available"), Value::Bool(true))
             .await;
-        
+
         if !metrics_vec.is_empty() {
-            agent.set_state_value(String::from("metrics_available"), Value::Bool(true))
+            agent
+                .set_state_value(String::from("metrics_available"), Value::Bool(true))
                 .await;
         };
-        
+
         if !datasets_vec.is_empty() {
-            agent.set_state_value(String::from("data_context"), Value::Bool(true))
+            agent
+                .set_state_value(String::from("data_context"), Value::Bool(true))
                 .await;
         };
 
         // Format the context message with dashboard, metrics, and dataset information
-        let dashboard_yaml = serde_yaml::to_string(&dashboard_yml)
-            .map_err(|e| anyhow!("Failed to serialize dashboard {} to YAML: {}", dashboard.name, e))?;
+        let dashboard_yaml = serde_yaml::to_string(&dashboard_yml).map_err(|e| {
+            anyhow!(
+                "Failed to serialize dashboard {} to YAML: {}",
+                dashboard.name,
+                e
+            )
+        })?;
 
         let mut context_message = format!(
             "This conversation is continuing with context from the dashboard. Here is the relevant information:\n\nDashboard Definition:\n{}\n\n",
@@ -147,15 +154,10 @@ impl ContextLoader for DashboardContextLoader {
         if !metrics_vec.is_empty() {
             context_message.push_str("Referenced Metrics:\n");
             for metric in metrics_vec {
-                match serde_json::from_value::<database::types::MetricYml>(metric.content) {
-                    Ok(metric_yml) => {
-                        match serde_yaml::to_string(&metric_yml) {
-                            Ok(yaml) => context_message.push_str(&format!("\n{}\n", yaml)),
-                            Err(e) => tracing::warn!("Failed to serialize metric {} to YAML: {}", metric.id, e),
-                        }
-                    }
-                    Err(e) => tracing::warn!("Failed to parse metric {} content: {}", metric.id, e),
-                }
+                context_message.push_str(&format!(
+                    "\n{}\n",
+                    serde_yaml::to_string(&metric.content).unwrap()
+                ));
             }
         }
 
@@ -179,4 +181,4 @@ impl ContextLoader for DashboardContextLoader {
             initial: true,
         }])
     }
-} 
+}
