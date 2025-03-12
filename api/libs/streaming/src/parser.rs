@@ -1,9 +1,14 @@
 use anyhow::Result;
 use regex::Regex;
 use serde_json::Value;
+use std::collections::HashMap;
+use uuid::Uuid;
 
 use crate::processor::ProcessorRegistry;
-use crate::types::ProcessedOutput;
+use crate::types::{
+    File, FileContent, FileMetadata, ProcessedOutput, ProcessorType, ReasoningFile, ReasoningPill,
+    ReasoningText, ThoughtPill, ThoughtPillContainer,
+};
 
 /// StreamingParser handles parsing of incomplete JSON streams
 pub struct StreamingParser {
@@ -132,7 +137,7 @@ impl StreamingParser {
         processed_json
     }
 
-    /// Helper method to complete JSON structure (shared functionality)
+    /// Complete JSON structure by adding missing brackets and braces
     fn complete_json_structure(&self, json: String) -> String {
         let mut processed = String::with_capacity(json.len());
         let mut nesting_stack = Vec::new();
@@ -181,6 +186,138 @@ impl StreamingParser {
         }
 
         processed
+    }
+
+    /// Process file data for metric and dashboard files
+    pub fn process_file_data(
+        &mut self,
+        id: String,
+        file_type: String,
+        json: &str,
+    ) -> Result<Option<ProcessedOutput>> {
+        // Process the chunk with the appropriate processor type
+        if !json.is_empty() {
+            self.buffer.push_str(json);
+        }
+        
+        // Complete any incomplete JSON structure
+        let processed_json = self.complete_json_structure(self.buffer.clone());
+        
+        // Try to parse the JSON
+        if let Ok(value) = serde_json::from_str::<Value>(&processed_json) {
+            return self.convert_file_to_message(id, value, file_type);
+        }
+        
+        // If we can't parse the JSON, try to process it with the appropriate processor type
+        self.process_chunk(id, "", &file_type)
+    }
+
+    /// Helper method to convert file JSON to message
+    pub fn convert_file_to_message(
+        &self,
+        id: String,
+        value: Value,
+        file_type: String,
+    ) -> Result<Option<ProcessedOutput>> {
+        // Check if we have a files array
+        if let Some(obj) = value.as_object() {
+            if let Some(files) = obj.get("files").and_then(|v| v.as_array()) {
+                let mut file_ids = Vec::new();
+                let mut file_map = HashMap::new();
+
+                // Process each file in the array
+                for file_value in files {
+                    if let Some(file_obj) = file_value.as_object() {
+                        // Extract file properties
+                        let file_id = file_obj
+                            .get("id")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or_default()
+                            .to_string();
+                        let file_name = file_obj
+                            .get("name")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or_default()
+                            .to_string();
+                        let yml_content = file_obj
+                            .get("yml_content")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or_default()
+                            .to_string();
+
+                        // Generate deterministic version ID
+                        let version_id = match self.generate_deterministic_uuid(&id, &file_name, &file_type) {
+                            Ok(id) => id,
+                            Err(e) => {
+                                eprintln!("Failed to generate version ID: {}", e);
+                                continue;
+                            }
+                        };
+
+                        // Create file content
+                        let file_content = FileContent {
+                            text: Some(yml_content),
+                            text_chunk: None,
+                            modifided: None,
+                        };
+
+                        // Create file
+                        let file = File {
+                            id: file_id.clone(),
+                            file_type: file_type.clone(),
+                            file_name: file_name.clone(),
+                            version_number: 1,
+                            version_id: version_id.to_string(),
+                            status: "completed".to_string(),
+                            file: file_content,
+                            metadata: Some(vec![]),
+                        };
+
+                        // Add to file map and IDs
+                        file_ids.push(file_id.clone());
+                        file_map.insert(file_id, file);
+                    }
+                }
+
+                // If we have files, create a ReasoningFile
+                if !file_map.is_empty() {
+                    let title = format!("Created {} {} files", file_map.len(), file_type);
+                    let reasoning_file = ReasoningFile {
+                        id,
+                        message_type: "files".to_string(),
+                        title,
+                        secondary_title: "".to_string(),
+                        status: "completed".to_string(),
+                        file_ids,
+                        files: file_map,
+                    };
+
+                    return Ok(Some(ProcessedOutput::File(reasoning_file)));
+                }
+            }
+        }
+
+        Ok(None)
+    }
+
+    /// Generate a deterministic UUID based on input parameters
+    fn generate_deterministic_uuid(&self, id: &str, file_name: &str, file_type: &str) -> Result<Uuid> {
+        use sha2::{Digest, Sha256};
+        use uuid::Uuid;
+        
+        // Create a deterministic string to hash
+        let combined = format!("{}:{}:{}", id, file_name, file_type);
+        
+        // Hash the combined string
+        let mut hasher = Sha256::new();
+        hasher.update(combined.as_bytes());
+        let result = hasher.finalize();
+        
+        // Convert the first 16 bytes of the hash to a UUID
+        let mut bytes = [0u8; 16];
+        bytes.copy_from_slice(&result[0..16]);
+        
+        Ok(Uuid::from_bytes(bytes))
     }
 }
 
@@ -309,6 +446,4 @@ mod tests {
         assert!(yml_content.contains("key: value"));
         assert!(yml_content.contains("list:"));
     }
-
-
 }

@@ -18,10 +18,10 @@ use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
     enums::Verification,
-    models::{Chat, DashboardFile, Message, MessageToFile, MetricFile, User},
+    models::{Chat, Message, MessageToFile},
     pool::get_pg_pool,
-    schema::{chats, dashboard_files, messages, messages_to_files, metric_files},
-    types::{DashboardYml, MetricYml},
+    schema::{chats, messages, messages_to_files},
+    types::{DashboardYml},
 };
 use diesel::{insert_into, ExpressionMethods};
 use diesel_async::RunQueryDsl;
@@ -31,11 +31,9 @@ use litellm::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use streaming::processors;
-use streaming::types::{
-    ProcessedOutput, ReasoningText, ReasoningFile, ReasoningPill,
-    File, FileContent, FileMetadata, ThoughtPill, ThoughtPillContainer
-};
+use streaming::{processors, types::{ProcessedOutput, ReasoningText, ReasoningFile, ReasoningPill, File, FileContent, FileMetadata, ThoughtPill, ThoughtPillContainer}};
+use streaming::processors::{SearchProcessor, MetricProcessor, DashboardProcessor, PlanProcessor};
+use streaming::StreamingParser;
 use uuid::Uuid;
 
 use crate::chats::{
@@ -44,7 +42,6 @@ use crate::chats::{
         metric_context::MetricContextLoader, validate_context_request, ContextLoader,
     },
     get_chat_handler,
-    streaming_parser::StreamingParser,
 };
 use crate::messages::types::{ChatMessage, ChatUserMessage};
 
@@ -346,7 +343,7 @@ pub async fn post_chat_handler(
     let mut initial_messages = vec![];
 
     // Initialize agent to add context
-    let agent = BusterSuperAgent::new(user.clone(), chat_id).await?;
+    let mut agent = BusterSuperAgent::new(user.clone(), chat_id).await?;
 
     // Load context if provided
     if let Some(existing_chat_id) = request.chat_id {
@@ -1538,7 +1535,7 @@ fn assistant_data_catalog_search(
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::SearchProcessor::new()));
 
-    if let Ok(Some(message)) = parser.process_search_data_catalog_chunk(id.clone(), &content) {
+    if let Ok(Some(message)) = parser.process_chunk(id.clone(), &content, "search_data_catalog") {
         match message {
             ProcessedOutput::Text(mut text) => {
                 text.status = Some("loading".to_string());
@@ -1608,7 +1605,7 @@ fn assistant_create_metrics(
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::MetricProcessor::new()));
 
-    match parser.process_metric_chunk(id.clone(), &content) {
+    match parser.process_chunk(id.clone(), &content, "metric") {
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
@@ -1633,7 +1630,7 @@ fn assistant_modify_metrics(
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::MetricProcessor::new()));
 
-    match parser.process_metric_chunk(id.clone(), &content) {
+    match parser.process_chunk(id.clone(), &content, "metric") {
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
@@ -1658,7 +1655,7 @@ fn assistant_create_dashboards(
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::DashboardProcessor::new()));
 
-    match parser.process_dashboard_chunk(id.clone(), &content) {
+    match parser.process_chunk(id.clone(), &content, "dashboard") {
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
@@ -1684,7 +1681,7 @@ fn assistant_modify_dashboards(
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::DashboardProcessor::new()));
 
-    match parser.process_dashboard_chunk(id.clone(), &content) {
+    match parser.process_chunk(id.clone(), &content, "dashboard") {
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
@@ -1709,7 +1706,7 @@ fn assistant_create_plan(
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::PlanProcessor::new()));
 
-    match parser.process_plan_chunk(id.clone(), &content) {
+    match parser.process_chunk(id.clone(), &content, "plan") {
         Ok(Some(message)) => {
             match message {
                 ProcessedOutput::Text(mut text) => {
