@@ -234,7 +234,6 @@ function SegmentedTriggerComponent<T extends string = string>(props: SegmentedTr
           if (el) tabRefs.current.set(item.value, el);
         }}
         className={cn(
-          'focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           triggerVariants({
             size,
             block,
