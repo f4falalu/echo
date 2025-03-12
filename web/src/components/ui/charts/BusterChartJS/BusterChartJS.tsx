@@ -21,7 +21,6 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
   loading = false,
   showLegendHeadline,
   columnMetadata = DEFAULT_COLUMN_METADATA,
-  useRapidResizeObserver = false,
   onChartMounted,
   onInitialAnimationEnd,
   columnSettings = DEFAULT_CHART_CONFIG.columnSettings,
@@ -74,7 +73,6 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
         columnSettings={columnSettings}
         {...props}
         className={className}
-        useRapidResizeObserver={useRapidResizeObserver}
       />
     </BusterChartJSLegendWrapper>
   );

@@ -45,7 +45,7 @@ export const SQLContainer: React.FC<{
           className
         )}>
         <AppCodeEditor
-          className="overflow-hidden"
+          className="overflow-hidden border-x-0 border-t-0"
           value={sql}
           onChange={setDatasetSQL}
           onMetaEnter={onRunQueryPreflight}

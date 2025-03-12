@@ -23,8 +23,6 @@ export const MetricController: React.FC<{
       ? MetricViewComponents[selectedFileView as MetricFileView]
       : () => <></>;
 
-  console.log(selectedFileView);
-
   return (
     <>
       {showLoader && <FileIndeterminateLoader />}

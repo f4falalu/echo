@@ -11,7 +11,6 @@ export type BusterChartProps = {
   id?: string;
   error?: string;
   columnMetadata?: ColumnMetaData[];
-  useRapidResizeObserver?: boolean;
   editable?: boolean;
   onInitialAnimationEnd?: () => void;
   onChartMounted?: (chart?: any) => void;
