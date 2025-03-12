@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { BusterChart } from './BusterChart';
-import { ChartType } from '../../../api/asset_interfaces/metric/charts/enum';
-import { IColumnLabelFormat } from '../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
-import { generateBarChartData } from '../../../mocks/chart/chartMocks';
-import { sharedMeta } from './BusterChart.shared';
+import { BusterChart } from '../BusterChart';
+import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
+import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import { generateBarChartData } from '../../../../mocks/chart/chartMocks';
+import { sharedMeta } from './BusterChartShared';
 import { faker } from '@faker-js/faker';
 
 type BarChartData = ReturnType<typeof generateBarChartData>[0];

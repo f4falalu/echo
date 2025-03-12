@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { BusterChart } from './BusterChart';
-import { ChartType } from '../../../api/asset_interfaces/metric/charts/enum';
-import { IColumnLabelFormat } from '../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
-import { generateLineChartData } from '../../../mocks/chart/chartMocks';
-import { sharedMeta } from './BusterChart.shared';
+import { BusterChart } from '../BusterChart';
+import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
+import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import { generateLineChartData } from '../../../../mocks/chart/chartMocks';
+import { sharedMeta } from './BusterChartShared';
 
 type LineChartData = ReturnType<typeof generateLineChartData>[0];
 
