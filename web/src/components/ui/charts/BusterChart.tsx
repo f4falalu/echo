@@ -45,6 +45,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
     editable,
     selectedChartType,
     columnLabelFormats = DEFAULT_CHART_CONFIG.columnLabelFormats,
+    columnSettings = DEFAULT_CHART_CONFIG.columnSettings,
     ...props
   }) => {
     const isTable = selectedChartType === ChartType.Table;
@@ -142,6 +143,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
         columnLabelFormats,
         selectedChartType,
         loading,
+        columnSettings,
         ...props
       };
 

@@ -121,6 +121,7 @@ export const useSeriesOptions = ({
   ]);
 
   const datasetSeries: ChartProps<ChartJSChartType>['data']['datasets'] = useMemo(() => {
+    console.log(columnSettings, selectedChartType);
     return dataBuilderRecord[selectedChartType]({
       selectedDataset,
       allYAxisKeysIndexes,

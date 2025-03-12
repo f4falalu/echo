@@ -6,7 +6,10 @@ import { LabelBuilderProps } from './useSeriesOptions';
 import { formatChartLabelDelimiter } from '../../../commonHelpers';
 import { addOpacityToColor, createDayjsDate } from '@/lib';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
-import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS
+} from '@/api/asset_interfaces/metric/defaults';
 import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 import { formatBarAndLineDataLabel } from '../../helpers';
 
@@ -68,8 +71,8 @@ export const lineBuilder = (
     order
   } = props;
   const yKey = extractFieldsFromChain(yAxisItem.name).at(-1)?.key!;
-  const columnSetting = columnSettings[yKey];
-  const columnLabelFormat = columnLabelFormats[yKey];
+  const columnSetting = columnSettings[yKey] || DEFAULT_COLUMN_SETTINGS;
+  const columnLabelFormat = columnLabelFormats[yKey] || DEFAULT_COLUMN_LABEL_FORMAT;
   const {
     showDataLabels,
     lineSymbolSize = DEFAULT_COLUMN_SETTINGS.lineSymbolSize,
