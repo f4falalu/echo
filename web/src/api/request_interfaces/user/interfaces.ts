@@ -7,10 +7,10 @@ export interface UsersFavoritePostPayload {
   name: string;
 }
 
-export interface UserFavoriteDeletePayload {
+export type UserFavoriteDeletePayload = {
   id: string;
   asset_type: ShareAssetType;
-}
+}[];
 
 export interface UserUpdateFavoritesPayload {
   favorites: string[]; // Array of favorite ids

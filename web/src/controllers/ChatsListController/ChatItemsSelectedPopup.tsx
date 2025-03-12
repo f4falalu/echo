@@ -6,12 +6,17 @@ import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemoizedFn } from '@/hooks';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { useDeleteMetric } from '@/api/buster_rest/metrics';
+import {
+  useAddUserFavorite,
+  useDeleteUserFavorite,
+  useGetUserFavorites
+} from '@/api/buster_rest/users';
+import { ShareAssetType } from '@/api/asset_interfaces/share';
 
 export const ChatSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -137,8 +142,8 @@ const ThreeDotButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const bulkEditFavorites = useUserConfigContextSelector((state) => state.bulkEditFavorites);
-  const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
+  const { mutateAsync: removeUserFavorite } = useDeleteUserFavorite();
+  const { data: userFavorites } = useGetUserFavorites();
 
   const dropdownOptions: DropdownItems = [
     {
@@ -156,10 +161,10 @@ const ThreeDotButton: React.FC<{
       icon: <Xmark />,
       value: 'remove-from-favorites',
       onClick: async () => {
-        const allFavorites: string[] = userFavorites
-          .map((f) => f.id)
-          .filter((id) => !selectedRowKeys.includes(id));
-        bulkEditFavorites(allFavorites);
+        const allFavorites: Parameters<typeof removeUserFavorite>[0] = userFavorites
+          .filter((f) => !selectedRowKeys.includes(f.id))
+          .map((f) => ({ id: f.id, asset_type: ShareAssetType.METRIC }));
+        await removeUserFavorite(allFavorites);
       }
     }
   ];

@@ -11,12 +11,15 @@ import {
   deleteUserFavorite,
   updateUserFavorites,
   getUserList,
-  getUserList_server
+  getUserList_server,
+  inviteUser
 } from './requests';
 import { useMemoizedFn } from '@/hooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 import type { UserRequestUserListPayload } from '@/api/request_interfaces/user/interfaces';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useCreateOrganization } from '../organizations/queryRequests';
 
 export const useGetMyUserInfo = () => {
   return useQuery({
@@ -115,7 +118,7 @@ export const useDeleteUserFavorite = () => {
     mutationFn: deleteUserFavorite,
     onMutate: (params) => {
       queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, (prev) => {
-        return prev?.filter((fav) => fav.id !== params.id);
+        return prev?.filter((fav) => !params.some((p) => p.id === fav.id));
       });
     },
     onSettled: () => {
@@ -160,4 +163,39 @@ export const prefetchGetUserList = async (
     queryFn: () => getUserList_server(params)
   });
   return queryClient;
+};
+
+export const useInviteUser = () => {
+  const { openSuccessMessage } = useBusterNotifications();
+
+  return useMutation({
+    mutationFn: inviteUser,
+    onSuccess: () => {
+      openSuccessMessage('Invites sent');
+      // queryClient.invalidateQueries(queryKeys.userGetUserList);
+    }
+  });
+};
+
+export const useCreateUserOrganization = () => {
+  const { data: userResponse, refetch: refetchUserResponse } = useGetMyUserInfo();
+  const { mutateAsync: createOrganization } = useCreateOrganization();
+  const { mutateAsync: updateUserInfo } = useUpdateUser();
+
+  const onCreateUserOrganization = useMemoizedFn(
+    async ({ name, company }: { name: string; company: string }) => {
+      const alreadyHasOrganization = !!userResponse?.organizations?.[0];
+
+      if (!alreadyHasOrganization) await createOrganization({ name: company });
+      if (userResponse)
+        await updateUserInfo({
+          userId: userResponse.user.id,
+          name
+        });
+
+      await refetchUserResponse();
+    }
+  );
+
+  return onCreateUserOrganization;
 };

@@ -1,9 +1,8 @@
 import { useMemoizedFn } from '@/hooks';
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
-import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useUpdateMetricConfig } from './useMetricUpdateConfig';
-
+import { useGetUserFavorites } from '@/api/buster_rest/users';
 export const useUpdateMetricAssosciations = ({
   getMetricMemoized,
   updateMetricMutation
@@ -11,8 +10,7 @@ export const useUpdateMetricAssosciations = ({
   getMetricMemoized: ({ metricId }: { metricId?: string }) => IBusterMetric;
   updateMetricMutation: ReturnType<typeof useUpdateMetricConfig>['updateMetricMutation'];
 }) => {
-  const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
-  const refreshFavoritesList = useUserConfigContextSelector((x) => x.refreshFavoritesList);
+  const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
 
   const { openConfirmModal } = useBusterNotifications();
 

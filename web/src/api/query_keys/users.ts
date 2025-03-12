@@ -14,7 +14,9 @@ import type { UserRequestUserListPayload } from '@/api/request_interfaces/user/i
 
 const favoritesGetList = queryOptions<BusterUserFavorite[]>({
   queryKey: ['users', 'favorites', 'list'] as const,
-  staleTime: 1000 * 60 * 60 // 1 hour
+  staleTime: 1000 * 60 * 60, // 1 hour,
+  initialData: [],
+  initialDataUpdatedAt: 0
 });
 
 const userGetUserMyself = queryOptions<BusterUserResponse>({
