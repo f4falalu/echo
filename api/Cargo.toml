@@ -173,3 +173,11 @@ async-trait = { workspace = true }
 
 [profile.release]
 debug = false
+incremental = true
+
+[profile.dev]
+incremental = true
+
+opt-level = 0  # Ensure this is 0 for faster debug builds
+debug = 1      # Reduce debug info slightly while keeping enough for backtraces
+
