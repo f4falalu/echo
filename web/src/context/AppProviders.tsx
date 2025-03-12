@@ -7,7 +7,6 @@ import { AppLayoutProvider } from './BusterAppLayout';
 import { BusterDashboardProvider } from './Dashboards/DashboardProvider';
 import { BusterUserConfigProvider } from './Users/UserConfigProvider';
 import { BusterSQLProvider } from './SQL/useSQLProvider';
-import { BusterTermsProvider } from './Terms/BusterTermsProvider';
 import { BusterSearchProvider } from './Search';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
 import { BusterPosthogProvider } from './Posthog/usePosthog';
@@ -39,14 +38,12 @@ export const AppProviders: React.FC<
                   <BusterMetricsProvider>
                     <BusterDashboardProvider>
                       <BusterSQLProvider>
-                        <BusterTermsProvider>
-                          <BusterChatProvider>
-                            <BusterPosthogProvider>
-                              {children}
-                              <RoutePrefetcher />
-                            </BusterPosthogProvider>
-                          </BusterChatProvider>
-                        </BusterTermsProvider>
+                        <BusterChatProvider>
+                          <BusterPosthogProvider>
+                            {children}
+                            <RoutePrefetcher />
+                          </BusterPosthogProvider>
+                        </BusterChatProvider>
                       </BusterSQLProvider>
                     </BusterDashboardProvider>
                   </BusterMetricsProvider>

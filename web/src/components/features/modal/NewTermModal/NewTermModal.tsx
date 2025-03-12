@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useBusterTermsIndividualContextSelector } from '@/context/Terms';
 import { Text } from '@/components/ui/typography';
 import { AppModal } from '@/components/ui/modal';
 import { useMemoizedFn } from '@/hooks';
@@ -8,14 +7,14 @@ import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 import { Input } from '@/components/ui/inputs/Input';
 import { SelectMultiple } from '@/components/ui/select/SelectMultiple';
 import { SelectItem } from '@/components/ui/select';
+import { useCreateTerm } from '@/api/buster_rest/terms';
 
 export const NewTermModal: React.FC<{
   open: boolean;
   onClose: () => void;
 }> = React.memo(({ open, onClose }) => {
   const titleRef = React.useRef<HTMLInputElement>(null);
-  const createTerm = useBusterTermsIndividualContextSelector((x) => x.createTerm);
-  const isCreatingTerm = useBusterTermsIndividualContextSelector((x) => x.isCreatingTerm);
+  const { mutateAsync: createTerm, isPending: isCreatingTerm } = useCreateTerm();
   const [title, setTitle] = useState('');
   const [definition, setDefinition] = useState('');
   const [selectedDatasets, setSelectedDatasets] = useState<string[]>([]);
