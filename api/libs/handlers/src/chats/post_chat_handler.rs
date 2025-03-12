@@ -31,6 +31,7 @@ use litellm::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use streaming::processors;
 use uuid::Uuid;
 
 use crate::chats::{
@@ -1628,6 +1629,7 @@ fn assistant_data_catalog_search(
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
+    parser.register_processor(Box::new(streaming::processors::SearchProcessor::new()));
 
     if let Ok(Some(message)) = parser.process_search_data_catalog_chunk(id.clone(), &content) {
         match message {
@@ -1697,6 +1699,7 @@ fn assistant_create_metrics(
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
+    parser.register_processor(Box::new(streaming::processors::MetricProcessor::new()));
 
     match parser.process_metric_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
@@ -1721,6 +1724,7 @@ fn assistant_modify_metrics(
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
+    parser.register_processor(Box::new(streaming::processors::MetricProcessor::new()));
 
     match parser.process_metric_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
@@ -1745,6 +1749,7 @@ fn assistant_create_dashboards(
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
+    parser.register_processor(Box::new(streaming::processors::DashboardProcessor::new()));
 
     match parser.process_dashboard_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
@@ -1770,6 +1775,7 @@ fn assistant_modify_dashboards(
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
+    parser.register_processor(Box::new(streaming::processors::DashboardProcessor::new()));
 
     match parser.process_dashboard_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
@@ -1794,6 +1800,7 @@ fn assistant_create_plan(
     initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
+    parser.register_processor(Box::new(streaming::processors::PlanProcessor::new()));
 
     match parser.process_plan_chunk(id.clone(), &content) {
         Ok(Some(message)) => {

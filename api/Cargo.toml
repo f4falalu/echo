@@ -6,6 +6,7 @@ members = [
     "libs/database",
     "libs/agents",
     "libs/query_engine",
+    "libs/streaming",
 ]
 
 # Define shared dependencies for all workspace members
