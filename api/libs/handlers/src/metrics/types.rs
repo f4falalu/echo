@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use database::{enums::Verification, types::VersionHistory};
+use database::{enums::Verification, types::{ChartConfig, VersionHistory}};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -30,7 +30,7 @@ pub struct BusterMetric {
     pub datasets: Vec<Dataset>,
     pub data_source_id: String,
     pub error: Option<String>,
-    pub chart_config: Option<Value>, // BusterChartConfigProps
+    pub chart_config: Option<ChartConfig>, // BusterChartConfigProps
     pub data_metadata: Option<DataMetadata>,
     pub status: Verification,
     pub evaluation_score: Option<String>, // "Moderate" | "High" | "Low"

@@ -9,10 +9,10 @@ use uuid::Uuid;
 use crate::metrics::types::{
     BusterMetric, ColumnMetaData, ColumnType, DataMetadata, Dataset, MinMaxValue, SimpleType,
 };
-use database::types::MetricYml;
 use database::enums::Verification;
 use database::pool::get_pg_pool;
 use database::schema::{datasets, metric_files};
+use database::types::MetricYml;
 
 use super::Version;
 
@@ -22,7 +22,7 @@ struct QueryableMetricFile {
     id: Uuid,
     name: String,
     file_name: String,
-    content: Value,
+    content: MetricYml,
     verification: Verification,
     evaluation_obj: Option<Value>,
     evaluation_summary: Option<String>,
@@ -80,9 +80,6 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
             _ => anyhow!("Database error: {}", e),
         })?;
 
-    // Parse the content as MetricYml
-    let metric_yml: MetricYml = serde_json::from_value(metric_file.content.clone())?;
-
     // Map evaluation score to High/Moderate/Low
     let evaluation_score = metric_file.evaluation_score.map(|score| {
         if score >= 0.8 {
@@ -93,6 +90,8 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
             "Low".to_string()
         }
     });
+
+    let metric_yml = metric_file.content.clone();
 
     // Convert content to pretty YAML
     let file = match serde_yaml::to_string(&metric_file.content) {
@@ -178,7 +177,7 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
         datasets,
         data_source_id: "".to_string(), // This would need to be fetched from another source
         error: None,
-        chart_config: Some(serde_json::to_value(&metric_yml.chart_config)?),
+        chart_config: Some(metric_yml.chart_config),
         data_metadata,
         status: metric_file.verification,
         evaluation_score,
