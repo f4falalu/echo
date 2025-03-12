@@ -21,7 +21,7 @@ use database::{
     models::{Chat, Message, MessageToFile},
     pool::get_pg_pool,
     schema::{chats, messages, messages_to_files},
-    types::{DashboardYml},
+    types::DashboardYml,
 };
 use diesel::{insert_into, ExpressionMethods};
 use diesel_async::RunQueryDsl;
@@ -31,9 +31,15 @@ use litellm::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use streaming::{processors, types::{ProcessedOutput, ReasoningText, ReasoningFile, ReasoningPill, File, FileContent, FileMetadata, ThoughtPill, ThoughtPillContainer}};
-use streaming::processors::{SearchProcessor, MetricProcessor, DashboardProcessor, PlanProcessor};
+use streaming::processors::{DashboardProcessor, MetricProcessor, PlanProcessor, SearchProcessor};
 use streaming::StreamingParser;
+use streaming::{
+    processors,
+    types::{
+        File, FileContent, FileMetadata, ProcessedOutput, ReasoningFile, ReasoningPill,
+        ReasoningText, ThoughtPill, ThoughtPillContainer,
+    },
+};
 use uuid::Uuid;
 
 use crate::chats::{
@@ -42,6 +48,7 @@ use crate::chats::{
         metric_context::MetricContextLoader, validate_context_request, ContextLoader,
     },
     get_chat_handler,
+    helpers::initialize_chat,
 };
 use crate::messages::types::{ChatMessage, ChatUserMessage};
 
@@ -188,7 +195,8 @@ impl FileMessageTracker {
 
         // Complex case: We have both dashboards and metrics or multiple dashboards
         let mut filtered_messages = Vec::new();
-        let mut metrics_in_dashboards: std::collections::HashSet<String> = std::collections::HashSet::new();
+        let mut metrics_in_dashboards: std::collections::HashSet<String> =
+            std::collections::HashSet::new();
 
         // First add all dashboards
         filtered_messages.extend(self.dashboards.clone());
@@ -201,14 +209,19 @@ impl FileMessageTracker {
                     if let ProcessedOutput::File(file) = &reasoning.reasoning {
                         if file.message_type == "files" && file.status == "completed" {
                             for (_, file_content) in &file.files {
-                                if file_content.file_type == "dashboard" && file_content.file_name == *file_name {
+                                if file_content.file_type == "dashboard"
+                                    && file_content.file_name == *file_name
+                                {
                                     // Found the dashboard content, parse it to get metric IDs
                                     if let Some(text) = &file_content.file.text {
-                                        if let Ok(dashboard) = serde_yaml::from_str::<DashboardYml>(text) {
+                                        if let Ok(dashboard) =
+                                            serde_yaml::from_str::<DashboardYml>(text)
+                                        {
                                             // Collect all metric IDs from the dashboard
                                             for row in dashboard.rows {
                                                 for item in row.items {
-                                                    metrics_in_dashboards.insert(item.id.to_string());
+                                                    metrics_in_dashboards
+                                                        .insert(item.id.to_string());
                                                 }
                                             }
                                         }
@@ -237,8 +250,9 @@ impl FileMessageTracker {
         // Clear existing collections since we'll rebuild them from reasoning messages
         self.metrics.clear();
         self.dashboards.clear();
-        
-        let mut metrics_in_dashboards: std::collections::HashSet<String> = std::collections::HashSet::new();
+
+        let mut metrics_in_dashboards: std::collections::HashSet<String> =
+            std::collections::HashSet::new();
 
         // First process all reasoning messages to create file messages and collect dashboard metric IDs
         for container in containers {
@@ -274,10 +288,13 @@ impl FileMessageTracker {
                                     self.dashboards.push(chat_message.clone());
                                     // If this is a dashboard, parse its content for metric IDs
                                     if let Some(text) = &file_content.file.text {
-                                        if let Ok(dashboard) = serde_yaml::from_str::<DashboardYml>(text) {
+                                        if let Ok(dashboard) =
+                                            serde_yaml::from_str::<DashboardYml>(text)
+                                        {
                                             for row in dashboard.rows {
                                                 for item in row.items {
-                                                    metrics_in_dashboards.insert(item.id.to_string());
+                                                    metrics_in_dashboards
+                                                        .insert(item.id.to_string());
                                                 }
                                             }
                                         }
@@ -319,8 +336,14 @@ pub async fn post_chat_handler(
     };
 
     // Initialize chat - either get existing or create new
-    let (chat_id, message_id, mut chat_with_messages) =
-        initialize_chat(&request, &user, user_org_id).await?;
+    let (chat_id, message_id, mut chat_with_messages) = initialize_chat(
+        request.prompt.clone(),
+        request.message_id.clone(),
+        request.chat_id.clone(),
+        &user,
+        user_org_id,
+    )
+    .await?;
 
     tracing::info!(
         "Starting post_chat_handler for chat_id: {}, message_id: {}, organization_id: {}, user_id: {}",
@@ -458,7 +481,11 @@ pub async fn post_chat_handler(
                                                 // Collect file messages instead of sending immediately
                                                 file_tracker.add_message(chat.clone());
                                             }
-                                            BusterChatMessage::Text { message: Some(_), message_chunk: None, .. } => {
+                                            BusterChatMessage::Text {
+                                                message: Some(_),
+                                                message_chunk: None,
+                                                ..
+                                            } => {
                                                 // Send text messages immediately
                                                 tx.send(Ok((container, thread_event))).await?;
                                             }
@@ -508,7 +535,7 @@ pub async fn post_chat_handler(
                 ThreadEvent::GeneratingResponseMessage,
             )))
             .await?;
-            
+
             // Store the filtered file messages
             if let Ok(value) = serde_json::to_value(&file_message.response_message) {
                 final_response_messages.push(value);
@@ -542,7 +569,8 @@ pub async fn post_chat_handler(
     let reasoning_duration = reasoning_duration.elapsed().as_secs();
 
     // Transform all messages for final storage
-    let (response_messages, reasoning_messages) = prepare_final_message_state(&all_transformed_containers)?;
+    let (response_messages, reasoning_messages) =
+        prepare_final_message_state(&all_transformed_containers)?;
 
     // Create and store message in the database with final state
     let db_message = Message {
@@ -646,9 +674,7 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
                 let should_include = match &reasoning.reasoning {
                     ProcessedOutput::Pill(thought) => thought.status == "completed",
                     ProcessedOutput::File(file) => file.status == "completed",
-                    ProcessedOutput::Text(text) => {
-                        text.status.as_deref() == Some("completed")
-                    }
+                    ProcessedOutput::Text(text) => text.status.as_deref() == Some("completed"),
                 };
 
                 if should_include {
@@ -886,13 +912,11 @@ pub async fn transform_message(
                         for reasoning_container in messages {
                             // Create reasoning message container
                             containers.push((
-                                BusterContainer::ReasoningMessage(
-                                    ReasoningMessageContainer {
-                                        reasoning: reasoning_container,
-                                        chat_id: *chat_id,
-                                        message_id: *message_id,
-                                    },
-                                ),
+                                BusterContainer::ReasoningMessage(ReasoningMessageContainer {
+                                    reasoning: reasoning_container,
+                                    chat_id: *chat_id,
+                                    message_id: *message_id,
+                                }),
                                 ThreadEvent::GeneratingReasoningMessage,
                             ));
                         }
@@ -933,13 +957,11 @@ pub async fn transform_message(
                         for reasoning_container in messages {
                             // Create reasoning message container
                             containers.push((
-                                BusterContainer::ReasoningMessage(
-                                    ReasoningMessageContainer {
-                                        reasoning: reasoning_container,
-                                        chat_id: *chat_id,
-                                        message_id: *message_id,
-                                    },
-                                ),
+                                BusterContainer::ReasoningMessage(ReasoningMessageContainer {
+                                    reasoning: reasoning_container,
+                                    chat_id: *chat_id,
+                                    message_id: *message_id,
+                                }),
                                 ThreadEvent::GeneratingReasoningMessage,
                             ));
                         }
@@ -1846,84 +1868,4 @@ pub async fn generate_conversation_title(
     }
 
     Ok(title)
-}
-
-async fn initialize_chat(
-    request: &ChatCreateNewChat,
-    user: &AuthenticatedUser,
-    user_org_id: Uuid,
-) -> Result<(Uuid, Uuid, ChatWithMessages)> {
-    let message_id = request.message_id.unwrap_or_else(Uuid::new_v4);
-
-    if let Some(existing_chat_id) = request.chat_id {
-        // Get existing chat - no need to create new chat in DB
-        let mut existing_chat = get_chat_handler(&existing_chat_id, &user.id).await?;
-
-        // Create new message
-        let message = ChatMessage::new_with_messages(
-            message_id,
-            ChatUserMessage {
-                request: request.prompt.clone(),
-                sender_id: user.id.clone(),
-                sender_name: user.name.clone().unwrap_or_default(),
-                sender_avatar: None,
-            },
-            Vec::new(),
-            Vec::new(),
-            None,
-        );
-
-        // Add message to existing chat
-        existing_chat.add_message(message);
-
-        Ok((existing_chat_id, message_id, existing_chat))
-    } else {
-        // Create new chat since we don't have an existing one
-        let chat_id = Uuid::new_v4();
-        let chat = Chat {
-            id: chat_id,
-            title: request.prompt.clone(),
-            organization_id: user_org_id,
-            created_by: user.id.clone(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-            updated_by: user.id.clone(),
-            publicly_accessible: false,
-            publicly_enabled_by: None,
-            public_expiry_date: None,
-        };
-
-        // Create initial message
-        let message = ChatMessage::new_with_messages(
-            message_id,
-            ChatUserMessage {
-                request: request.prompt.clone(),
-                sender_id: user.id.clone(),
-                sender_name: user.name.clone().unwrap_or_default(),
-                sender_avatar: None,
-            },
-            Vec::new(),
-            Vec::new(),
-            None,
-        );
-
-        let mut chat_with_messages = ChatWithMessages::new(
-            request.prompt.clone(),
-            user.id.to_string(),
-            user.name.clone().unwrap_or_default(),
-            None,
-        );
-        chat_with_messages.id = chat_id;
-        chat_with_messages.add_message(message);
-
-        // Only create new chat in DB if this is a new chat
-        let mut conn = get_pg_pool().get().await?;
-        insert_into(chats::table)
-            .values(&chat)
-            .execute(&mut conn)
-            .await?;
-
-        Ok((chat_id, message_id, chat_with_messages))
-    }
 }

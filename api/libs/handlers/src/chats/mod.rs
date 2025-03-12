@@ -5,6 +5,7 @@ pub mod delete_chats_handler;
 pub mod types;
 pub mod context_loaders;
 pub mod list_chats_handler;
+pub mod helpers;
 
 pub use get_chat_handler::get_chat_handler;
 pub use post_chat_handler::post_chat_handler;
