@@ -103,7 +103,7 @@ export const useAddUserFavorite = () => {
     mutationFn: createUserFavorite,
     onMutate: (params) => {
       queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, (prev) => {
-        return [params, ...(prev || [])];
+        return [...params, ...(prev || [])];
       });
     },
     onSettled: () => {

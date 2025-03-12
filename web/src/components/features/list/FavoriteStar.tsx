@@ -1,6 +1,5 @@
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { useUserConfigContextSelector } from '@/context/Users';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { Button } from '@/components/ui/buttons';
@@ -49,11 +48,13 @@ export const FavoriteStar: React.FC<{
     e.stopPropagation();
     e.preventDefault();
     if (!isFavorited)
-      return await addItemToFavorite({
-        asset_type: type,
-        id,
-        name
-      });
+      return await addItemToFavorite([
+        {
+          asset_type: type,
+          id,
+          name
+        }
+      ]);
 
     await removeItemFromFavorite([
       {

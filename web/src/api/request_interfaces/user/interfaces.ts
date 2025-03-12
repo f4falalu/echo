@@ -1,11 +1,11 @@
 import type { ShareAssetType } from '@/api/asset_interfaces/share';
 
-export interface UsersFavoritePostPayload {
+export type UsersFavoritePostPayload = {
   id: string;
   asset_type: ShareAssetType;
   index?: number;
   name: string;
-}
+}[];
 
 export type UserFavoriteDeletePayload = {
   id: string;

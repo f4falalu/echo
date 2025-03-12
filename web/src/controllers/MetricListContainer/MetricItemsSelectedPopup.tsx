@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { VerificationStatus } from '@/api/asset_interfaces';
+import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemoizedFn } from '@/hooks';
@@ -12,6 +12,11 @@ import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { StatusBadgeButton } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
 import { useDeleteMetric } from '@/api/buster_rest/metrics';
+import {
+  useAddUserFavorite,
+  useDeleteUserFavorite,
+  useGetUserFavorites
+} from '@/api/buster_rest/users';
 
 export const MetricSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -174,8 +179,9 @@ const ThreeDotButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const bulkEditFavorites = useUserConfigContextSelector((state) => state.bulkEditFavorites);
-  const userFavorites = useUserConfigContextSelector((state) => state.userFavorites);
+  const { mutateAsync: addUserFavorite } = useAddUserFavorite();
+  const { mutateAsync: removeUserFavorite } = useDeleteUserFavorite();
+  const { data: userFavorites } = useGetUserFavorites();
 
   const dropdownOptions: DropdownItems = [
     {
@@ -183,9 +189,12 @@ const ThreeDotButton: React.FC<{
       icon: <Star />,
       value: 'add-to-favorites',
       onClick: async () => {
-        const allFavorites: string[] = [...userFavorites.map((f) => f.id), ...selectedRowKeys];
-        //   bulkEditFavorites(allFavorites);
-        alert('TODO - feature not implemented yet');
+        const allFavorites: Parameters<typeof addUserFavorite>[0] = selectedRowKeys.map((id) => ({
+          id,
+          asset_type: ShareAssetType.METRIC,
+          name: 'Metric'
+        }));
+        await addUserFavorite(allFavorites);
       }
     },
     {
@@ -193,10 +202,11 @@ const ThreeDotButton: React.FC<{
       icon: <Xmark />,
       value: 'remove-from-favorites',
       onClick: async () => {
-        const allFavorites: string[] = userFavorites
+        const allFavorites: Parameters<typeof removeUserFavorite>[0] = userFavorites
           .map((f) => f.id)
-          .filter((id) => !selectedRowKeys.includes(id));
-        bulkEditFavorites(allFavorites);
+          .filter((id) => !selectedRowKeys.includes(id))
+          .map((id) => ({ id, asset_type: ShareAssetType.METRIC }));
+        await removeUserFavorite(allFavorites);
       }
     }
   ];

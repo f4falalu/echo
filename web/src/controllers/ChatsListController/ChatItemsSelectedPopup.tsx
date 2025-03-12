@@ -142,7 +142,9 @@ const ThreeDotButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const { mutateAsync: removeUserFavorite } = useDeleteUserFavorite();
+  const { mutateAsync: removeUserFavorite, isPending: removingFromFavorites } =
+    useDeleteUserFavorite();
+  const { mutateAsync: addUserFavorite, isPending: addingToFavorites } = useAddUserFavorite();
   const { data: userFavorites } = useGetUserFavorites();
 
   const dropdownOptions: DropdownItems = [
@@ -150,15 +152,21 @@ const ThreeDotButton: React.FC<{
       label: 'Add to favorites',
       icon: <Star />,
       value: 'add-to-favorites',
+      loading: addingToFavorites,
       onClick: async () => {
-        const allFavorites: string[] = [...userFavorites.map((f) => f.id), ...selectedRowKeys];
-        //   bulkEditFavorites(allFavorites);
-        alert('TODO - feature not implemented yet');
+        await addUserFavorite(
+          selectedRowKeys.map((id) => ({
+            id,
+            asset_type: ShareAssetType.METRIC,
+            name: 'Metric'
+          }))
+        );
       }
     },
     {
       label: 'Remove from favorites',
       icon: <Xmark />,
+      loading: removingFromFavorites,
       value: 'remove-from-favorites',
       onClick: async () => {
         const allFavorites: Parameters<typeof removeUserFavorite>[0] = userFavorites
