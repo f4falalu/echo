@@ -32,6 +32,10 @@ use litellm::{
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use streaming::processors;
+use streaming::types::{
+    ProcessedOutput, ReasoningText, ReasoningFile, ReasoningPill,
+    File, FileContent, FileMetadata, ThoughtPill, ThoughtPillContainer
+};
 use uuid::Uuid;
 
 use crate::chats::{
@@ -144,7 +148,7 @@ impl ChunkTracker {
 struct FileMessageTracker {
     metrics: Vec<BusterChatMessageContainer>,
     dashboards: Vec<BusterChatMessageContainer>,
-    reasoning_messages: Vec<BusterReasoningMessageContainer>,
+    reasoning_messages: Vec<ReasoningMessageContainer>,
 }
 
 impl FileMessageTracker {
@@ -160,7 +164,7 @@ impl FileMessageTracker {
         // We no longer need this since we'll create messages from reasoning messages
     }
 
-    fn add_reasoning_message(&mut self, container: BusterReasoningMessageContainer) {
+    fn add_reasoning_message(&mut self, container: ReasoningMessageContainer) {
         self.reasoning_messages.push(container);
     }
 
@@ -197,7 +201,7 @@ impl FileMessageTracker {
             if let BusterChatMessage::File { file_name, .. } = &dashboard.response_message {
                 // Find the corresponding reasoning message that contains the dashboard content
                 for reasoning in &self.reasoning_messages {
-                    if let BusterReasoningMessage::File(file) = &reasoning.reasoning {
+                    if let ProcessedOutput::File(file) = &reasoning.reasoning {
                         if file.message_type == "files" && file.status == "completed" {
                             for (_, file_content) in &file.files {
                                 if file_content.file_type == "dashboard" && file_content.file_name == *file_name {
@@ -242,7 +246,7 @@ impl FileMessageTracker {
         // First process all reasoning messages to create file messages and collect dashboard metric IDs
         for container in containers {
             if let BusterContainer::ReasoningMessage(reasoning) = container {
-                if let BusterReasoningMessage::File(file) = &reasoning.reasoning {
+                if let ProcessedOutput::File(file) = &reasoning.reasoning {
                     if file.message_type == "files" && file.status == "completed" {
                         // Create file messages for each file
                         for (file_id, file_content) in &file.files {
@@ -466,7 +470,7 @@ pub async fn post_chat_handler(
                                     }
                                     BusterContainer::ReasoningMessage(reasoning) => {
                                         // Store reasoning messages that contain file information
-                                        if let BusterReasoningMessage::File(_) = &reasoning.reasoning {
+                                        if let ProcessedOutput::File(_) = &reasoning.reasoning {
                                             file_tracker.add_reasoning_message(reasoning.clone());
                                         }
                                         tx.send(Ok((container, thread_event))).await?
@@ -643,9 +647,9 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
             BusterContainer::ReasoningMessage(reasoning) => {
                 // Only include reasoning messages that are explicitly marked as completed
                 let should_include = match &reasoning.reasoning {
-                    BusterReasoningMessage::Pill(thought) => thought.status == "completed",
-                    BusterReasoningMessage::File(file) => file.status == "completed",
-                    BusterReasoningMessage::Text(text) => {
+                    ProcessedOutput::Pill(thought) => thought.status == "completed",
+                    ProcessedOutput::File(file) => file.status == "completed",
+                    ProcessedOutput::Text(text) => {
                         text.status.as_deref() == Some("completed")
                     }
                 };
@@ -654,9 +658,9 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
                     if let Ok(value) = serde_json::to_value(&reasoning.reasoning) {
                         // Get the ID from the reasoning message
                         let id = match &reasoning.reasoning {
-                            BusterReasoningMessage::Pill(thought) => thought.id.clone(),
-                            BusterReasoningMessage::File(file) => file.id.clone(),
-                            BusterReasoningMessage::Text(text) => text.id.clone(),
+                            ProcessedOutput::Pill(thought) => thought.id.clone(),
+                            ProcessedOutput::File(file) => file.id.clone(),
+                            ProcessedOutput::Text(text) => text.id.clone(),
                         };
 
                         // If this is a new message ID, add it to the order tracking
@@ -710,7 +714,7 @@ async fn process_completed_files(
     for (container, _) in transformed_messages {
         match container {
             BusterContainer::ReasoningMessage(msg) => match &msg.reasoning {
-                BusterReasoningMessage::File(file) if file.message_type == "files" => {
+                ProcessedOutput::File(file) if file.message_type == "files" => {
                     for file_id in &file.file_ids {
                         // Skip if we've already processed this file ID
                         if !processed_file_ids.insert(file_id.clone()) {
@@ -748,42 +752,6 @@ async fn process_completed_files(
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub enum BusterChatContainer {
-    ChatMessage(BusterChatMessageContainer),
-    Thought(BusterReasoningPill),
-    File(BusterReasoningFile),
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct BusterChatContainerContainer {
-    pub container: BusterChatContainer,
-    pub chat_id: Uuid,
-    pub message_id: Uuid,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct BusterChatMessageContainer {
-    pub response_message: BusterChatMessage,
-    pub chat_id: Uuid,
-    pub message_id: Uuid,
-}
-
-#[derive(Debug, Serialize, Clone)]
-#[serde(untagged)]
-pub enum BusterReasoningMessage {
-    Pill(BusterReasoningPill),
-    File(BusterReasoningFile),
-    Text(BusterReasoningText),
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct BusterReasoningMessageContainer {
-    pub reasoning: BusterReasoningMessage,
-    pub chat_id: Uuid,
-    pub message_id: Uuid,
-}
-
-#[derive(Debug, Serialize, Clone)]
 pub struct BusterChatResponseFileMetadata {
     pub status: String,
     pub message: String,
@@ -812,78 +780,17 @@ pub enum BusterChatMessage {
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct BusterReasoningPill {
-    pub id: String,
-    #[serde(rename = "type")]
-    pub thought_type: String,
-    pub title: String,
-    pub secondary_title: String,
-    pub pill_containers: Option<Vec<BusterThoughtPillContainer>>,
-    pub status: String,
+pub struct BusterChatMessageContainer {
+    pub response_message: BusterChatMessage,
+    pub chat_id: Uuid,
+    pub message_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct BusterReasoningText {
-    pub id: String,
-    #[serde(rename = "type")]
-    pub reasoning_type: String,
-    pub title: String,
-    pub secondary_title: String,
-    pub message: Option<String>,
-    pub message_chunk: Option<String>,
-    pub status: Option<String>,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct BusterThoughtPillContainer {
-    pub title: String,
-    pub pills: Vec<BusterThoughtPill>,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct BusterThoughtPill {
-    pub id: String,
-    pub text: String,
-    #[serde(rename = "type")]
-    pub thought_file_type: String,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct BusterFile {
-    pub id: String,
-    pub file_type: String,
-    pub file_name: String,
-    pub version_number: i32,
-    pub version_id: String,
-    pub status: String,
-    pub file: BusterFileContent,
-    pub metadata: Option<Vec<BusterFileMetadata>>,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct BusterFileContent {
-    pub text: Option<String>,
-    pub text_chunk: Option<String>,
-    pub modifided: Option<Vec<(i32, i32)>>,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct BusterReasoningFile {
-    pub id: String,
-    #[serde(rename = "type")]
-    pub message_type: String,
-    pub title: String,
-    pub secondary_title: String,
-    pub status: String,
-    pub file_ids: Vec<String>,
-    pub files: HashMap<String, BusterFile>,
-}
-
-#[derive(Debug, Serialize, Clone)]
-pub struct BusterFileMetadata {
-    pub status: String,
-    pub message: String,
-    pub timestamp: Option<i64>,
+pub struct ReasoningMessageContainer {
+    pub reasoning: ProcessedOutput,
+    pub chat_id: Uuid,
+    pub message_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -891,7 +798,7 @@ pub struct BusterFileMetadata {
 pub enum BusterContainer {
     Chat(ChatWithMessages),
     ChatMessage(BusterChatMessageContainer),
-    ReasoningMessage(BusterReasoningMessageContainer),
+    ReasoningMessage(ReasoningMessageContainer),
     GeneratingTitle(BusterGeneratingTitle),
 }
 
@@ -946,7 +853,7 @@ pub async fn transform_message(
 
                 // Add the "Finished reasoning" message if we're just starting
                 if initial {
-                    let reasoning_message = BusterReasoningMessage::Text(BusterReasoningText {
+                    let reasoning_message = ProcessedOutput::Text(ReasoningText {
                         id: Uuid::new_v4().to_string(),
                         reasoning_type: "text".to_string(),
                         title: "Finished reasoning".to_string(),
@@ -957,7 +864,7 @@ pub async fn transform_message(
                     });
 
                     let reasoning_container =
-                        BusterContainer::ReasoningMessage(BusterReasoningMessageContainer {
+                        BusterContainer::ReasoningMessage(ReasoningMessageContainer {
                             reasoning: reasoning_message,
                             chat_id: *chat_id,
                             message_id: *message_id,
@@ -983,7 +890,7 @@ pub async fn transform_message(
                             // Create reasoning message container
                             containers.push((
                                 BusterContainer::ReasoningMessage(
-                                    BusterReasoningMessageContainer {
+                                    ReasoningMessageContainer {
                                         reasoning: reasoning_container,
                                         chat_id: *chat_id,
                                         message_id: *message_id,
@@ -1030,7 +937,7 @@ pub async fn transform_message(
                             // Create reasoning message container
                             containers.push((
                                 BusterContainer::ReasoningMessage(
-                                    BusterReasoningMessageContainer {
+                                    ReasoningMessageContainer {
                                         reasoning: reasoning_container,
                                         chat_id: *chat_id,
                                         message_id: *message_id,
@@ -1102,7 +1009,7 @@ fn transform_tool_message(
     content: String,
     chat_id: Uuid,
     message_id: Uuid,
-) -> Result<Vec<BusterReasoningMessage>> {
+) -> Result<Vec<ProcessedOutput>> {
     // Use required ID (tool call ID) for all function calls
     let messages = match name.as_str() {
         "search_data_catalog" => tool_data_catalog_search(id.clone(), content)?,
@@ -1117,7 +1024,7 @@ fn transform_tool_message(
     Ok(messages)
 }
 
-fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
+fn tool_create_plan(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
     println!("MESSAGE_STREAM: Processing tool create plan message");
 
     let plan_markdown = match serde_json::from_str::<CreatePlanOutput>(&content) {
@@ -1128,7 +1035,7 @@ fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMe
         }
     };
 
-    let buster_file = BusterReasoningMessage::Text(BusterReasoningText {
+    let buster_file = ProcessedOutput::Text(ReasoningText {
         id,
         reasoning_type: "text".to_string(),
         title: "Plan".to_string(),
@@ -1142,7 +1049,7 @@ fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMe
 }
 
 // Update tool_create_metrics to require ID
-fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
+fn tool_create_metrics(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
     println!("MESSAGE_STREAM: Processing tool create metrics message");
 
     // Parse the CreateMetricFilesOutput from content
@@ -1166,14 +1073,14 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
 
-        let buster_file = BusterFile {
+        let buster_file = File {
             id: file_id.clone(),
             file_type: "metric".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
             version_id: file.id.to_string(),
             status: "completed".to_string(),
-            file: BusterFileContent {
+            file: FileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
                 modifided: None,
@@ -1185,7 +1092,7 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
     }
 
     // Create the BusterReasoningFile
-    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+    let buster_file = ProcessedOutput::File(ReasoningFile {
         id,
         message_type: "files".to_string(),
         title: format!("Created {} metric files", files_count),
@@ -1199,7 +1106,7 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
 }
 
 // Update tool_modify_metrics to require ID
-fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
+fn tool_modify_metrics(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
     println!("MESSAGE_STREAM: Processing tool modify metrics message");
 
     // Parse the ModifyFilesOutput from content
@@ -1223,14 +1130,14 @@ fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
 
-        let buster_file = BusterFile {
+        let buster_file = File {
             id: file_id.clone(),
             file_type: "metric".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
             version_id: file.id.to_string(),
             status: "completed".to_string(),
-            file: BusterFileContent {
+            file: FileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
                 modifided: None,
@@ -1242,7 +1149,7 @@ fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
     }
 
     // Create the BusterReasoningFile
-    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+    let buster_file = ProcessedOutput::File(ReasoningFile {
         id,
         message_type: "files".to_string(),
         title: format!("Modified {} metric files", files_count),
@@ -1256,7 +1163,7 @@ fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
 }
 
 // Update tool_create_dashboards to require ID
-fn tool_create_dashboards(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
+fn tool_create_dashboards(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
     println!("MESSAGE_STREAM: Processing tool create dashboards message");
 
     // Parse the CreateDashboardFilesOutput from content
@@ -1281,14 +1188,14 @@ fn tool_create_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
 
-        let buster_file = BusterFile {
+        let buster_file = File {
             id: file_id.clone(),
             file_type: "dashboard".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
             version_id: file.id.to_string(),
             status: "completed".to_string(),
-            file: BusterFileContent {
+            file: FileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
                 modifided: None,
@@ -1300,7 +1207,7 @@ fn tool_create_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
     }
 
     // Create the BusterReasoningFile
-    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+    let buster_file = ProcessedOutput::File(ReasoningFile {
         id,
         message_type: "files".to_string(),
         title: format!("Created {} dashboard files", files_count),
@@ -1314,7 +1221,7 @@ fn tool_create_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
 }
 
 // Update tool_modify_dashboards to require ID
-fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
+fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
     println!("MESSAGE_STREAM: Processing tool modify dashboards message");
 
     // Parse the ModifyFilesOutput from content
@@ -1338,14 +1245,14 @@ fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
 
-        let buster_file = BusterFile {
+        let buster_file = File {
             id: file_id.clone(),
             file_type: "dashboard".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
             version_id: file.id.to_string(),
             status: "completed".to_string(),
-            file: BusterFileContent {
+            file: FileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
                 modifided: None,
@@ -1357,7 +1264,7 @@ fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
     }
 
     // Create the BusterReasoningFile
-    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+    let buster_file = ProcessedOutput::File(ReasoningFile {
         id,
         message_type: "files".to_string(),
         title: format!("Modified {} dashboard files", files_count),
@@ -1371,7 +1278,7 @@ fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
 }
 
 // Restore the original tool_data_catalog_search function
-fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
+fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
     let data_catalog_result = match serde_json::from_str::<SearchDataCatalogOutput>(&content) {
         Ok(result) => result,
         Err(e) => {
@@ -1393,7 +1300,7 @@ fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<BusterRea
     };
 
     let buster_thought = if result_count > 0 {
-        BusterReasoningMessage::Pill(BusterReasoningPill {
+        ProcessedOutput::Pill(ReasoningPill {
             id: id.clone(),
             thought_type: "pills".to_string(),
             title: format!("Found {} results", result_count),
@@ -1402,14 +1309,14 @@ fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<BusterRea
             status: "completed".to_string(),
         })
     } else {
-        BusterReasoningMessage::Pill(BusterReasoningPill {
+        ProcessedOutput::Pill(ReasoningPill {
             id: id.clone(),
             thought_type: "pills".to_string(),
             title: "No data catalog items found".to_string(),
             secondary_title: format!("{} seconds", duration),
-            pill_containers: Some(vec![BusterThoughtPillContainer {
+            pill_containers: Some(vec![ThoughtPillContainer {
                 title: "No results found".to_string(),
-                pills: vec![BusterThoughtPill {
+                pills: vec![ThoughtPill {
                     id: "".to_string(),
                     text: query_params,
                     thought_file_type: "empty".to_string(),
@@ -1424,9 +1331,9 @@ fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<BusterRea
 
 fn proccess_data_catalog_search_results(
     results: SearchDataCatalogOutput,
-) -> Result<Vec<BusterThoughtPillContainer>> {
+) -> Result<Vec<ThoughtPillContainer>> {
     if results.results.is_empty() {
-        return Ok(vec![BusterThoughtPillContainer {
+        return Ok(vec![ThoughtPillContainer {
             title: "No results found".to_string(),
             pills: vec![],
         }]);
@@ -1436,7 +1343,7 @@ fn proccess_data_catalog_search_results(
 
     // Create a pill for each result
     for result in results.results {
-        dataset_pills.push(BusterThoughtPill {
+        dataset_pills.push(ThoughtPill {
             id: result.id.to_string(),
             text: result.name.clone().unwrap_or_default(),
             thought_file_type: "dataset".to_string(), // Set type to "dataset" for all pills
@@ -1444,7 +1351,7 @@ fn proccess_data_catalog_search_results(
     }
 
     // Create a single container with all dataset pills
-    let container = BusterThoughtPillContainer {
+    let container = ThoughtPillContainer {
         title: String::from("Datasets"),
         pills: dataset_pills,
     };
@@ -1458,7 +1365,7 @@ fn transform_assistant_tool_message(
     initial: bool,
     chat_id: Uuid,
     message_id: Uuid,
-) -> Result<Vec<BusterReasoningMessage>> {
+) -> Result<Vec<ProcessedOutput>> {
     let mut all_messages = Vec::new();
     let tracker = get_chunk_tracker();
 
@@ -1505,11 +1412,11 @@ fn transform_assistant_tool_message(
             _ => vec![],
         };
 
-        let containers: Vec<BusterReasoningMessage> = messages
+        let containers: Vec<ProcessedOutput> = messages
             .into_iter()
             .map(|reasoning| {
                 let updated_reasoning = match reasoning {
-                    BusterReasoningMessage::Text(mut text) => {
+                    ProcessedOutput::Text(mut text) => {
                         match progress {
                             MessageProgress::Complete => {
                                 // For completed messages, use accumulated text or final message
@@ -1521,7 +1428,7 @@ fn transform_assistant_tool_message(
                                 // Always set status to loading for assistant messages
                                 text.status = Some("loading".to_string());
                                 tracker.clear_chunk(text.id.clone());
-                                Some(BusterReasoningMessage::Text(text))
+                                Some(ProcessedOutput::Text(text))
                             }
                             MessageProgress::InProgress => {
                                 if let Some(chunk) = text.message_chunk.clone() {
@@ -1530,7 +1437,7 @@ fn transform_assistant_tool_message(
                                         text.message_chunk = Some(delta);
                                         text.message = None;
                                         text.status = Some("loading".to_string());
-                                        Some(BusterReasoningMessage::Text(text))
+                                        Some(ProcessedOutput::Text(text))
                                     } else {
                                         None
                                     }
@@ -1540,7 +1447,7 @@ fn transform_assistant_tool_message(
                             }
                         }
                     }
-                    BusterReasoningMessage::File(mut file) => {
+                    ProcessedOutput::File(mut file) => {
                         match progress {
                             MessageProgress::Complete => {
                                 let mut updated_files = std::collections::HashMap::new();
@@ -1567,7 +1474,7 @@ fn transform_assistant_tool_message(
                                 // Always set status to loading
                                 file.status = "loading".to_string();
                                 file.files = updated_files;
-                                Some(BusterReasoningMessage::File(file))
+                                Some(ProcessedOutput::File(file))
                             }
                             MessageProgress::InProgress => {
                                 let mut has_updates = false;
@@ -1596,17 +1503,17 @@ fn transform_assistant_tool_message(
                                 if has_updates {
                                     file.status = "loading".to_string();
                                     file.files = updated_files;
-                                    Some(BusterReasoningMessage::File(file))
+                                    Some(ProcessedOutput::File(file))
                                 } else {
                                     None
                                 }
                             }
                         }
                     }
-                    BusterReasoningMessage::Pill(mut pill) => {
+                    ProcessedOutput::Pill(mut pill) => {
                         // Always set status to loading for pills
                         pill.status = "loading".to_string();
-                        Some(BusterReasoningMessage::Pill(pill))
+                        Some(ProcessedOutput::Pill(pill))
                     }
                 };
 
@@ -1621,21 +1528,21 @@ fn transform_assistant_tool_message(
     Ok(all_messages)
 }
 
-// Fix the assistant_data_catalog_search function to return BusterReasoningMessage instead of BusterChatContainer
+// Fix the assistant_data_catalog_search function to return ProcessedOutput instead of BusterChatContainer
 fn assistant_data_catalog_search(
     id: String,
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<BusterReasoningMessage>> {
+) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::SearchProcessor::new()));
 
     if let Ok(Some(message)) = parser.process_search_data_catalog_chunk(id.clone(), &content) {
         match message {
-            BusterReasoningMessage::Text(mut text) => {
+            ProcessedOutput::Text(mut text) => {
                 text.status = Some("loading".to_string());
-                return Ok(vec![BusterReasoningMessage::Text(text)]);
+                return Ok(vec![ProcessedOutput::Text(text)]);
             }
             _ => unreachable!("Data catalog search should only return Text type"),
         }
@@ -1663,7 +1570,7 @@ fn assistant_data_catalog_search(
     };
 
     let thought = if result_count > 0 {
-        BusterReasoningMessage::Pill(BusterReasoningPill {
+        ProcessedOutput::Pill(ReasoningPill {
             id: id.clone(),
             thought_type: "thought".to_string(),
             title: format!("Found {} results", result_count),
@@ -1672,14 +1579,14 @@ fn assistant_data_catalog_search(
             status: "loading".to_string(),
         })
     } else {
-        BusterReasoningMessage::Pill(BusterReasoningPill {
+        ProcessedOutput::Pill(ReasoningPill {
             id: id.clone(),
             thought_type: "thought".to_string(),
             title: "No data catalog items found".to_string(),
             secondary_title: format!("{} seconds", duration),
-            pill_containers: Some(vec![BusterThoughtPillContainer {
+            pill_containers: Some(vec![ThoughtPillContainer {
                 title: "No results found".to_string(),
-                pills: vec![BusterThoughtPill {
+                pills: vec![ThoughtPill {
                     id: "".to_string(),
                     text: query_params,
                     thought_file_type: "empty".to_string(),
@@ -1697,7 +1604,7 @@ fn assistant_create_metrics(
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<BusterReasoningMessage>> {
+) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::MetricProcessor::new()));
 
@@ -1705,9 +1612,9 @@ fn assistant_create_metrics(
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
-                BusterReasoningMessage::File(mut file) => {
+                ProcessedOutput::File(mut file) => {
                     file.status = "loading".to_string();
-                    Ok(vec![BusterReasoningMessage::File(file)])
+                    Ok(vec![ProcessedOutput::File(file)])
                 }
                 _ => Ok(vec![message]),
             }
@@ -1722,7 +1629,7 @@ fn assistant_modify_metrics(
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<BusterReasoningMessage>> {
+) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::MetricProcessor::new()));
 
@@ -1730,9 +1637,9 @@ fn assistant_modify_metrics(
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
-                BusterReasoningMessage::File(mut file) => {
+                ProcessedOutput::File(mut file) => {
                     file.status = "loading".to_string();
-                    Ok(vec![BusterReasoningMessage::File(file)])
+                    Ok(vec![ProcessedOutput::File(file)])
                 }
                 _ => Ok(vec![message]),
             }
@@ -1747,7 +1654,7 @@ fn assistant_create_dashboards(
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<BusterReasoningMessage>> {
+) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::DashboardProcessor::new()));
 
@@ -1755,9 +1662,9 @@ fn assistant_create_dashboards(
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
-                BusterReasoningMessage::File(mut file) => {
+                ProcessedOutput::File(mut file) => {
                     file.status = "loading".to_string();
-                    Ok(vec![BusterReasoningMessage::File(file)])
+                    Ok(vec![ProcessedOutput::File(file)])
                 }
                 _ => Ok(vec![message]),
             }
@@ -1767,13 +1674,13 @@ fn assistant_create_dashboards(
     }
 }
 
-// Fix for the modify_dashboards function to return BusterReasoningMessage instead of BusterChatContainer
+// Fix for the modify_dashboards function to return ProcessedOutput instead of BusterChatContainer
 fn assistant_modify_dashboards(
     id: String,
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<BusterReasoningMessage>> {
+) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::DashboardProcessor::new()));
 
@@ -1781,9 +1688,9 @@ fn assistant_modify_dashboards(
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
-                BusterReasoningMessage::File(mut file) => {
+                ProcessedOutput::File(mut file) => {
                     file.status = "loading".to_string();
-                    Ok(vec![BusterReasoningMessage::File(file)])
+                    Ok(vec![ProcessedOutput::File(file)])
                 }
                 _ => Ok(vec![message]),
             }
@@ -1798,17 +1705,17 @@ fn assistant_create_plan(
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<BusterReasoningMessage>> {
+) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
     parser.register_processor(Box::new(streaming::processors::PlanProcessor::new()));
 
     match parser.process_plan_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             match message {
-                BusterReasoningMessage::Text(mut text) => {
+                ProcessedOutput::Text(mut text) => {
                     // Always set status to loading for assistant messages
                     text.status = Some("loading".to_string());
-                    Ok(vec![BusterReasoningMessage::Text(text)])
+                    Ok(vec![ProcessedOutput::Text(text)])
                 }
                 _ => Ok(vec![message]),
             }

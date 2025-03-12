@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// The main output type for processors
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
 pub enum ProcessedOutput {
     /// A text-based reasoning message
     Text(ReasoningText),
