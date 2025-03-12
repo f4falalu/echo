@@ -7,6 +7,7 @@ use chrono::{DateTime, Utc};
 use database::{pool::get_pg_pool, schema::datasets};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use tracing::{debug, error, warn};
@@ -260,7 +261,7 @@ impl ToolExecutor for SearchDataCatalogTool {
     type Output = SearchDataCatalogOutput;
     type Params = SearchDataCatalogParams;
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, tool_call_id: String, user: AuthenticatedUser) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         // Fetch all non-deleted datasets

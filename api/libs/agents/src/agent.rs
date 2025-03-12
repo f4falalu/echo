@@ -4,11 +4,12 @@ use litellm::{
     AgentMessage, ChatCompletionRequest, DeltaToolCall, FunctionCall, LiteLLMClient,
     MessageProgress, Metadata, Tool, ToolCall, ToolChoice,
 };
+use middleware::AuthenticatedUser;
 use serde_json::Value;
+use std::time::{Duration, Instant};
 use std::{collections::HashMap, env, sync::Arc};
 use tokio::sync::{broadcast, RwLock};
 use uuid::Uuid;
-use std::time::{Duration, Instant};
 
 use crate::models::AgentThread;
 
@@ -33,7 +34,6 @@ struct MessageBuffer {
     message_id: Option<String>,
     first_message_sent: bool,
 }
-
 
 impl MessageBuffer {
     fn new() -> Self {
@@ -80,7 +80,11 @@ impl MessageBuffer {
         // Create and send the message
         let message = AgentMessage::assistant(
             self.message_id.clone(),
-            if self.content.is_empty() { None } else { Some(self.content.clone()) },
+            if self.content.is_empty() {
+                None
+            } else {
+                Some(self.content.clone())
+            },
             tool_calls,
             MessageProgress::InProgress,
             Some(!self.first_message_sent),
@@ -88,7 +92,7 @@ impl MessageBuffer {
         );
 
         agent.get_stream_sender().await.send(Ok(message))?;
-        
+
         // Update state
         self.first_message_sent = true;
         self.last_flush = Instant::now();
@@ -97,8 +101,6 @@ impl MessageBuffer {
         Ok(())
     }
 }
-
-
 
 #[derive(Clone)]
 /// The Agent struct is responsible for managing conversations with the LLM
@@ -122,7 +124,7 @@ pub struct Agent {
     /// Sender for streaming messages from this agent and sub-agents
     stream_tx: Arc<RwLock<Option<broadcast::Sender<MessageResult>>>>,
     /// The user ID for the current thread
-    user_id: Uuid,
+    user: AuthenticatedUser,
     /// The session ID for the current thread
     session_id: Uuid,
     /// Agent name
@@ -136,7 +138,7 @@ impl Agent {
     pub fn new(
         model: String,
         tools: HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>,
-        user_id: Uuid,
+        user: AuthenticatedUser,
         session_id: Uuid,
         name: String,
     ) -> Self {
@@ -155,7 +157,7 @@ impl Agent {
             state: Arc::new(RwLock::new(HashMap::new())),
             current_thread: Arc::new(RwLock::new(None)),
             stream_tx: Arc::new(RwLock::new(Some(tx))),
-            user_id,
+            user,
             session_id,
             shutdown_tx: Arc::new(RwLock::new(shutdown_tx)),
             name,
@@ -176,7 +178,7 @@ impl Agent {
             state: Arc::clone(&existing_agent.state),
             current_thread: Arc::clone(&existing_agent.current_thread),
             stream_tx: Arc::clone(&existing_agent.stream_tx),
-            user_id: existing_agent.user_id,
+            user: existing_agent.user.clone(),
             session_id: existing_agent.session_id,
             shutdown_tx: Arc::clone(&existing_agent.shutdown_tx),
             name,
@@ -241,7 +243,11 @@ impl Agent {
     }
 
     pub fn get_user_id(&self) -> Uuid {
-        self.user_id
+        self.user.id
+    }
+
+    pub fn get_user(&self) -> AuthenticatedUser {
+        self.user.clone()
     }
 
     pub fn get_session_id(&self) -> Uuid {
@@ -450,7 +456,8 @@ impl Agent {
                     if let Some(tool_calls) = &delta.tool_calls {
                         for tool_call in tool_calls {
                             let id = tool_call.id.clone().unwrap_or_else(|| {
-                                buffer.tool_calls
+                                buffer
+                                    .tool_calls
                                     .keys()
                                     .next()
                                     .map(|s| s.clone())
@@ -458,7 +465,8 @@ impl Agent {
                             });
 
                             // Get or create the pending tool call
-                            let pending_call = buffer.tool_calls
+                            let pending_call = buffer
+                                .tool_calls
                                 .entry(id.clone())
                                 .or_insert_with(PendingToolCall::new);
 
@@ -484,7 +492,8 @@ impl Agent {
         // Create and send the final message
         let final_tool_calls: Option<Vec<ToolCall>> = if !buffer.tool_calls.is_empty() {
             Some(
-                buffer.tool_calls
+                buffer
+                    .tool_calls
                     .values()
                     .map(|p| p.clone().into_tool_call())
                     .collect(),
@@ -495,7 +504,11 @@ impl Agent {
 
         let final_message = AgentMessage::assistant(
             buffer.message_id,
-            if buffer.content.is_empty() { None } else { Some(buffer.content) },
+            if buffer.content.is_empty() {
+                None
+            } else {
+                Some(buffer.content)
+            },
             final_tool_calls.clone(),
             MessageProgress::Complete,
             Some(false),
@@ -527,7 +540,7 @@ impl Agent {
             for tool_call in tool_calls {
                 if let Some(tool) = self.tools.read().await.get(&tool_call.function.name) {
                     let params: Value = serde_json::from_str(&tool_call.function.arguments)?;
-                    let result = tool.execute(params, tool_call.id.clone()).await?;
+                    let result = tool.execute(params, tool_call.id.clone(), self.get_user()).await?;
                     let result_str = serde_json::to_string(&result)?;
                     let tool_message = AgentMessage::tool(
                         None,
@@ -671,12 +684,32 @@ mod tests {
     use super::*;
     use crate::tools::ToolExecutor;
     use async_trait::async_trait;
+    use chrono::{Utc};
     use litellm::MessageProgress;
     use serde_json::{json, Value};
     use uuid::Uuid;
+    use middleware::types::AuthenticatedUser;
 
     fn setup() {
         dotenv::dotenv().ok();
+        std::env::set_var("LLM_API_KEY", "test_key");
+        std::env::set_var("LLM_BASE_URL", "http://localhost:8000");
+    }
+
+    // Create a mock AuthenticatedUser for testing
+    fn create_test_user() -> AuthenticatedUser {
+        AuthenticatedUser {
+            id: Uuid::new_v4(),
+            email: "test@example.com".to_string(),
+            name: Some("Test User".to_string()),
+            config: json!({}),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            attributes: json!({}),
+            avatar_url: None,
+            organizations: vec![],
+            teams: vec![],
+        }
     }
 
     struct WeatherTool {
@@ -696,13 +729,8 @@ mod tests {
             tool_id: String,
             progress: MessageProgress,
         ) -> Result<()> {
-            let message = AgentMessage::tool(
-                None,
-                content,
-                tool_id,
-                Some(self.get_name()),
-                progress,
-            );
+            let message =
+                AgentMessage::tool(None, content, tool_id, Some(self.get_name()), progress);
             self.agent.get_stream_sender().await.send(Ok(message))?;
             Ok(())
         }
@@ -713,7 +741,12 @@ mod tests {
         type Output = Value;
         type Params = Value;
 
-        async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
+        async fn execute(
+            &self,
+            params: Self::Params,
+            tool_call_id: String,
+            user: AuthenticatedUser,
+        ) -> Result<Self::Output> {
             self.send_progress(
                 "Fetching weather data...".to_string(),
                 "123".to_string(),
@@ -778,14 +811,14 @@ mod tests {
         let agent = Agent::new(
             "o1".to_string(),
             HashMap::new(),
-            Uuid::new_v4(),
+            create_test_user(),
             Uuid::new_v4(),
             "test_agent".to_string(),
         );
 
         let thread = AgentThread::new(
             None,
-            Uuid::new_v4(),
+            create_test_user().id,
             vec![AgentMessage::user("Hello, world!".to_string())],
         );
 
@@ -803,7 +836,7 @@ mod tests {
         let mut agent = Agent::new(
             "o1".to_string(),
             HashMap::new(),
-            Uuid::new_v4(),
+            create_test_user(),
             Uuid::new_v4(),
             "test_agent".to_string(),
         );
@@ -816,7 +849,7 @@ mod tests {
 
         let thread = AgentThread::new(
             None,
-            Uuid::new_v4(),
+            create_test_user().id,
             vec![AgentMessage::user(
                 "What is the weather in vineyard ut?".to_string(),
             )],
@@ -836,7 +869,7 @@ mod tests {
         let mut agent = Agent::new(
             "o1".to_string(),
             HashMap::new(),
-            Uuid::new_v4(),
+            create_test_user(),
             Uuid::new_v4(),
             "test_agent".to_string(),
         );
@@ -847,7 +880,7 @@ mod tests {
 
         let thread = AgentThread::new(
             None,
-            Uuid::new_v4(),
+            create_test_user().id,
             vec![AgentMessage::user(
                 "What is the weather in vineyard ut and san francisco?".to_string(),
             )],
@@ -867,7 +900,7 @@ mod tests {
         let agent = Agent::new(
             "o1".to_string(),
             HashMap::new(),
-            Uuid::new_v4(),
+            create_test_user(),
             Uuid::new_v4(),
             "test_agent".to_string(),
         );

@@ -1,9 +1,18 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
+use diesel::{
+    deserialize::FromSql,
+    pg::Pg,
+    serialize::{IsNull, Output, ToSql},
+    sql_types::Jsonb,
+    AsExpression, FromSqlRow,
+};
 use serde::{Deserialize, Serialize};
+use std::io::Write;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, FromSqlRow, AsExpression)]
+#[diesel(sql_type = Jsonb)]
 pub struct DashboardYml {
     pub name: String,
     pub description: Option<String>,
@@ -94,5 +103,20 @@ impl DashboardYml {
         }
 
         Ok(())
+    }
+}
+
+impl FromSql<Jsonb, Pg> for DashboardYml {
+    fn from_sql(bytes: diesel::pg::PgValue) -> diesel::deserialize::Result<Self> {
+        let value = <serde_json::Value as FromSql<Jsonb, Pg>>::from_sql(bytes)?;
+        Ok(serde_json::from_value(value)?)
+    }
+}
+
+impl ToSql<Jsonb, Pg> for DashboardYml {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> diesel::serialize::Result {
+        out.write_all(&[1])?; // JSONB version 1 header
+        out.write_all(&serde_json::to_vec(self)?)?;
+        Ok(IsNull::No)
     }
 }

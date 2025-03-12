@@ -1,13 +1,17 @@
+use std::collections::HashMap;
+
+use chrono::{DateTime, Utc};
 use database::enums::{AssetPermissionRole, Verification};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::metrics::types::BusterMetric;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BusterDashboardListItem {
-    pub created_at: String,
-    pub id: String,
-    pub last_edited: String,
+    pub created_at: DateTime<Utc>,
+    pub id: Uuid,
+    pub last_edited: DateTime<Utc>,
     pub members: Vec<DashboardMember>,
     pub name: String,
     pub owner: DashboardMember,
@@ -18,7 +22,7 @@ pub struct BusterDashboardListItem {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DashboardMember {
     pub avatar_url: Option<String>,
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
 }
 
@@ -26,7 +30,7 @@ pub struct DashboardMember {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BusterDashboardResponse {
     pub access: AssetPermissionRole,
-    pub metrics: Vec<BusterMetric>,
+    pub metrics: HashMap<Uuid, BusterMetric>,
     pub dashboard: BusterDashboard,
     pub permission: AssetPermissionRole,
     pub public_password: Option<String>,
@@ -37,14 +41,13 @@ pub struct BusterDashboardResponse {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BusterDashboard {
     pub config: DashboardConfig,
-    pub created_at: String,
-    pub created_by: String,
-    pub deleted_at: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub created_by: Uuid,
     pub description: Option<String>,
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
-    pub updated_at: Option<String>,
-    pub updated_by: String,
+    pub updated_at: Option<DateTime<Utc>>,
+    pub updated_by: Uuid,
     pub status: Verification,
     pub version_number: i32,
     pub file: String, // yaml file

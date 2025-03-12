@@ -1,4 +1,5 @@
 use anyhow::Result;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -97,12 +98,12 @@ impl BusterSuperAgent {
         Ok(())
     }
 
-    pub async fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
+    pub async fn new(user: AuthenticatedUser, session_id: Uuid) -> Result<Self> {
         // Create agent with empty tools map
         let agent = Arc::new(Agent::new(
             "o3-mini".to_string(),
             HashMap::new(),
-            user_id,
+            user,
             session_id,
             "buster_super_agent".to_string(),
         ));

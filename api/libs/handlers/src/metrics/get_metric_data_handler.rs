@@ -1,11 +1,11 @@
-use agents::tools::file_tools::file_types::metric_yml::MetricYml;
 use anyhow::{anyhow, Result};
+use database::types::MetricYml;
 use indexmap::IndexMap;
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use uuid::Uuid;
 use std::collections::HashSet;
+use uuid::Uuid;
 
 use query_engine::data_source_helpers;
 use query_engine::data_types::DataType;
@@ -174,14 +174,14 @@ pub async fn get_metric_data_handler(
             }
 
             let (simple_type, column_type) = determine_types(sample_value);
-            
+
             // Only include min/max for numeric and date types
             let (min_value, max_value) = match simple_type {
                 SimpleType::Number | SimpleType::Date => (
                     min_value.unwrap_or(serde_json::Value::Null),
-                    max_value.unwrap_or(serde_json::Value::Null)
+                    max_value.unwrap_or(serde_json::Value::Null),
                 ),
-                _ => (serde_json::Value::Null, serde_json::Value::Null)
+                _ => (serde_json::Value::Null, serde_json::Value::Null),
             };
 
             column_metadata.push(ColumnMetaData {
@@ -263,11 +263,9 @@ fn update_numeric_min_max(
             *max_value = Some(value);
         }
         (Some(current_min), Some(current_max)) => {
-            if let (Some(current_min), Some(current_max), Some(new_val)) = (
-                current_min.as_f64(),
-                current_max.as_f64(),
-                value.as_f64(),
-            ) {
+            if let (Some(current_min), Some(current_max), Some(new_val)) =
+                (current_min.as_f64(), current_max.as_f64(), value.as_f64())
+            {
                 if new_val < current_min {
                     *min_value = Some(value.clone());
                 }
@@ -292,11 +290,9 @@ fn update_string_min_max(
             *max_value = Some(value);
         }
         (Some(current_min), Some(current_max)) => {
-            if let (Some(current_min), Some(current_max), Some(new_val)) = (
-                current_min.as_str(),
-                current_max.as_str(),
-                value.as_str(),
-            ) {
+            if let (Some(current_min), Some(current_max), Some(new_val)) =
+                (current_min.as_str(), current_max.as_str(), value.as_str())
+            {
                 if new_val < current_min {
                     *min_value = Some(value.clone());
                 }

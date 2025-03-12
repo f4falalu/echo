@@ -47,15 +47,7 @@ impl ContextLoader for MetricContextLoader {
             })?;
 
         // Get the metric content as MetricYml
-        let metric_yml: agents::tools::categories::file_tools::file_types::metric_yml::MetricYml =
-            serde_json::from_value(metric.content.clone()).map_err(|e| {
-                anyhow!(
-                    "Failed to parse metric content as YAML for metric {}: {}",
-                    metric.name,
-                    e
-                )
-            })?;
-
+        let metric_yml = metric.content;
         // Load all referenced datasets
         let dataset_ids = &metric_yml.dataset_ids;
         let mut datasets_vec = Vec::new();

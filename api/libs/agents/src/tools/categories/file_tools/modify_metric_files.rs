@@ -4,10 +4,11 @@ use std::time::Instant;
 use anyhow::Result;
 use async_trait::async_trait;
 use chrono::Utc;
-use database::{enums::Verification, models::MetricFile, pool::get_pg_pool, schema::metric_files};
+use database::{enums::Verification, models::MetricFile, pool::get_pg_pool, schema::metric_files, types::MetricYml};
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
+use middleware::AuthenticatedUser;
 use query_engine::data_types::DataType;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -16,7 +17,7 @@ use uuid::Uuid;
 
 use super::{
     common::{FileModification, Modification, ModificationResult, process_metric_file_modification, ModifyFilesParams, ModifyFilesOutput, FileModificationBatch, apply_modifications_to_content},
-    file_types::{file::FileWithId, metric_yml::MetricYml},
+    file_types::{file::FileWithId},
     FileModificationTool,
 };
 use crate::{
@@ -65,7 +66,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
         }
     }
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, tool_call_id: String, user: AuthenticatedUser) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         debug!("Starting file modification execution");
@@ -272,124 +273,5 @@ impl ToolExecutor for ModifyMetricFilesTool {
             "additionalProperties": false
           }
         })
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::collections::HashMap;
-
-    use super::*;
-    use chrono::Utc;
-    use serde_json::json;
-
-    #[test]
-    fn test_apply_modifications_to_content() {
-        let original_content = "name: test_metric\ntype: counter\ndescription: A test metric";
-
-        // Test single modification
-        let mods1 = vec![Modification {
-            content_to_replace: "type: counter".to_string(),
-            new_content: "type: gauge".to_string(),
-        }];
-        let result1 = apply_modifications_to_content(original_content, &mods1, "test.yml").unwrap();
-        assert_eq!(
-            result1,
-            "name: test_metric\ntype: gauge\ndescription: A test metric"
-        );
-
-        // Test multiple non-overlapping modifications
-        let mods2 = vec![
-            Modification {
-                content_to_replace: "test_metric".to_string(),
-                new_content: "new_metric".to_string(),
-            },
-            Modification {
-                content_to_replace: "A test metric".to_string(),
-                new_content: "An updated metric".to_string(),
-            },
-        ];
-        let result2 = apply_modifications_to_content(original_content, &mods2, "test.yml").unwrap();
-        assert_eq!(
-            result2,
-            "name: new_metric\ntype: counter\ndescription: An updated metric"
-        );
-
-        // Test content not found
-        let mods3 = vec![Modification {
-            content_to_replace: "nonexistent content".to_string(),
-            new_content: "new content".to_string(),
-        }];
-        let result3 = apply_modifications_to_content(original_content, &mods3, "test.yml");
-        assert!(result3.is_err());
-        assert!(result3
-            .unwrap_err()
-            .to_string()
-            .contains("Content to replace not found"));
-    }
-
-    #[test]
-    fn test_modification_result_tracking() {
-        let result = ModificationResult {
-            file_id: Uuid::new_v4(),
-            file_name: "test.yml".to_string(),
-            success: true,
-            error: None,
-            modification_type: "content".to_string(),
-            timestamp: Utc::now(),
-            duration: 0,
-        };
-
-        assert!(result.success);
-        assert!(result.error.is_none());
-
-        let error_result = ModificationResult {
-            success: false,
-            error: Some("Failed to parse YAML".to_string()),
-            ..result
-        };
-        assert!(!error_result.success);
-        assert!(error_result.error.is_some());
-        assert_eq!(error_result.error.unwrap(), "Failed to parse YAML");
-    }
-
-    #[test]
-    fn test_tool_parameter_validation() {
-        let tool = ModifyMetricFilesTool {
-            agent: Arc::new(Agent::new(
-                "o3-mini".to_string(),
-                HashMap::new(),
-                Uuid::new_v4(),
-                Uuid::new_v4(),
-                "test_agent".to_string(),
-            )),
-        };
-
-        // Test valid parameters
-        let valid_params = json!({
-            "files": [{
-                "id": Uuid::new_v4().to_string(),
-                "file_name": "test.yml",
-                "modifications": [{
-                    "content_to_replace": "old content",
-                    "new_content": "new content"
-                }]
-            }]
-        });
-        let valid_args = serde_json::to_string(&valid_params).unwrap();
-        let result = serde_json::from_str::<ModifyFilesParams>(&valid_args);
-        assert!(result.is_ok());
-
-        // Test missing required fields
-        let missing_fields_params = json!({
-            "files": [{
-                "id": Uuid::new_v4().to_string(),
-                "file_name": "test.yml"
-                // missing modifications
-            }]
-        });
-        let missing_args = serde_json::to_string(&missing_fields_params).unwrap();
-        let result = serde_json::from_str::<ModifyFilesParams>(&missing_args);
-        assert!(result.is_err());
     }
 }

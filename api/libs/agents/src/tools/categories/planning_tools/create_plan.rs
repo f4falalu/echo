@@ -1,5 +1,6 @@
 use anyhow::Result;
 use async_trait::async_trait;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
@@ -36,7 +37,7 @@ impl ToolExecutor for CreatePlan {
         "create_plan".to_string()
     }
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, tool_call_id: String, user: AuthenticatedUser) -> Result<Self::Output> {
         self.agent
             .set_state_value(String::from("plan_available"), Value::Bool(true))
             .await;

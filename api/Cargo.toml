@@ -164,6 +164,7 @@ database = { path = "libs/database" }
 agents = { path = "libs/agents" }
 query_engine = { path = "libs/query_engine" }
 middleware = { path = "libs/middleware" }
+workspace = "0.4.2"
 
 [dev-dependencies]
 mockito = { workspace = true }
@@ -172,3 +173,11 @@ async-trait = { workspace = true }
 
 [profile.release]
 debug = false
+incremental = true
+
+[profile.dev]
+incremental = true
+
+opt-level = 0  # Ensure this is 0 for faster debug builds
+debug = 1      # Reduce debug info slightly while keeping enough for backtraces
+

@@ -13,7 +13,7 @@ use database::pool::get_pg_pool;
 use database::schema::{chats, messages, users};
 
 #[derive(Queryable)]
-pub struct ThreadWithUser {
+pub struct ChatWithUser {
     pub id: Uuid,
     pub title: String,
     pub created_at: DateTime<Utc>,
@@ -64,7 +64,7 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                     users::email,
                     users::attributes,
                 ))
-                .first::<ThreadWithUser>(&mut conn)
+                .first::<ChatWithUser>(&mut conn)
                 .await
         })
     };

@@ -1,6 +1,8 @@
 use anyhow::Result;
+use middleware::AuthenticatedUser;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_json::Value;
+use uuid::Uuid;
 
 /// A trait that defines how tools should be implemented.
 /// Any struct that wants to be used as a tool must implement this trait.
@@ -13,7 +15,7 @@ pub trait ToolExecutor: Send + Sync {
     type Params: DeserializeOwned + Send;
 
     /// Execute the tool with the given parameters and tool call ID.
-    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output>;
+    async fn execute(&self, params: Self::Params, tool_call_id: String, user_id: AuthenticatedUser) -> Result<Self::Output>;
 
     /// Get the JSON schema for this tool
     fn get_schema(&self) -> Value;
@@ -53,9 +55,9 @@ where
     type Output = Value;
     type Params = Value;
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, tool_call_id: String, user: AuthenticatedUser) -> Result<Self::Output> {
         let params = serde_json::from_value(params)?;
-        let result = self.inner.execute(params, tool_call_id).await?;
+        let result = self.inner.execute(params, tool_call_id, user).await?;
         Ok(serde_json::to_value(result)?)
     }
 
@@ -78,8 +80,8 @@ impl<T: ToolExecutor<Output = Value, Params = Value> + Send + Sync> ToolExecutor
     type Output = Value;
     type Params = Value;
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
-        (**self).execute(params, tool_call_id).await
+    async fn execute(&self, params: Self::Params, tool_call_id: String, user: AuthenticatedUser) -> Result<Self::Output> {
+        (**self).execute(params, tool_call_id, user).await
     }
 
     fn get_schema(&self) -> Value {
