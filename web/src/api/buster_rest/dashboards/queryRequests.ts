@@ -6,19 +6,27 @@ import {
   dashboardsUpdateDashboard,
   dashboardsDeleteDashboard
 } from './requests';
-import type {
-  DashboardsListRequest,
-  DashboardCreateRequest,
-  DashboardUpdateRequest,
-  DashboardDeleteRequest
-} from '@/api/request_interfaces/dashboards/interfaces';
+import type { DashboardsListRequest } from '@/api/request_interfaces/dashboards/interfaces';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { BusterDashboard } from '@/api/asset_interfaces/dashboard';
+import { useMemo } from 'react';
+import { useMemoizedFn } from '@/hooks';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 
-export const useGetDashboardsList = (params: DashboardsListRequest) => {
+export const useGetDashboardsList = (
+  params: Omit<DashboardsListRequest, 'page_token' | 'page_size'>
+) => {
+  const filters = useMemo(() => {
+    return {
+      ...params,
+      page_token: 0,
+      page_size: 3000
+    };
+  }, [params]);
+
   return useQuery({
-    ...dashboardQueryKeys.dashboardGetList(params),
-    queryFn: () => dashboardsGetList(params)
+    ...dashboardQueryKeys.dashboardGetList(filters),
+    queryFn: () => dashboardsGetList(filters)
   });
 };
 
@@ -68,12 +76,44 @@ export const useUpdateDashboard = () => {
 
 export const useDeleteDashboards = () => {
   const queryClient = useQueryClient();
+  const { openConfirmModal } = useBusterNotifications();
+
+  const onDeleteDashboard = useMemoizedFn(
+    async ({
+      dashboardId,
+      ignoreConfirm
+    }: {
+      dashboardId: string | string[];
+      ignoreConfirm?: boolean;
+    }) => {
+      const method = () => {
+        const ids = typeof dashboardId === 'string' ? [dashboardId] : dashboardId;
+        dashboardsDeleteDashboard({ ids });
+      };
+      if (ignoreConfirm) {
+        return method();
+      }
+      return await openConfirmModal({
+        title: 'Delete Dashboard',
+        content: 'Are you sure you want to delete this dashboard?',
+        onOk: () => {
+          method();
+        },
+        useReject: true
+      });
+    }
+  );
+
   return useMutation({
-    mutationFn: dashboardsDeleteDashboard,
+    mutationFn: onDeleteDashboard,
     onMutate: (variables) => {
       const queryKey = dashboardQueryKeys.dashboardGetList({}).queryKey;
       queryClient.setQueryData(queryKey, (v) => {
-        return v?.filter((t) => !variables.ids.includes(t.id)) || [];
+        const ids =
+          typeof variables.dashboardId === 'string'
+            ? [variables.dashboardId]
+            : variables.dashboardId;
+        return v?.filter((t) => !ids.includes(t.id)) || [];
       });
     }
   });

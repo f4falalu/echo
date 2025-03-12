@@ -5,7 +5,6 @@ import { useMemoizedFn } from '@/hooks';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { queryKeys } from '@/api/query_keys';
 import { useDashboardAssosciations } from './useDashboardAssosciations';
-import { useDashboardCreate } from './useDashboardCreate';
 import { useDashboardUpdateConfig } from './useDashboardUpdateConfig';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -27,13 +26,8 @@ export const useBusterDashboards = () => {
     updateDashboardMutation
   });
 
-  const dashboardCreate = useDashboardCreate({
-    onUpdateDashboard
-  });
-
   return {
     ...dashboardAssosciations,
-    ...dashboardCreate,
     ...dashboardUpdateConfig,
     getDashboardMemoized
   };

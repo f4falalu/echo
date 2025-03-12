@@ -39,7 +39,7 @@ export interface DashboardUnsubscribeRequest {
  */
 export interface DashboardCreateRequest {
   /** The name of the dashboard */
-  name: string;
+  name?: string;
   /** Optional description of the dashboard */
   description?: string | null;
 }

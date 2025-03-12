@@ -8,7 +8,9 @@ import { DashboardsListRequest } from '../request_interfaces/dashboards/interfac
 const dashboardGetList = (filters: Omit<DashboardsListRequest, 'page_token' | 'page_size'>) =>
   queryOptions<BusterDashboardListItem[]>({
     queryKey: ['dashboard', 'list', filters] as const,
-    staleTime: 10 * 1000
+    staleTime: 10 * 1000,
+    initialData: [],
+    initialDataUpdatedAt: 0
   });
 
 const dashboardGetDashboard = (dashboardId: string) =>

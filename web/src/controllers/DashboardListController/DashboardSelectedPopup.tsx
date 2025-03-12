@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
-import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
@@ -15,6 +14,7 @@ import {
   useGetUserFavorites
 } from '@/api/buster_rest/users';
 import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { useDeleteDashboards } from '@/api/buster_rest/dashboards';
 
 export const DashboardSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -100,7 +100,7 @@ const DeleteButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const onDeleteDashboard = useBusterDashboardContextSelector((state) => state.onDeleteDashboard);
+  const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useDeleteDashboards();
   const { openConfirmModal } = useBusterNotifications();
 
   const onDeleteClick = useMemoizedFn(async () => {
@@ -108,7 +108,7 @@ const DeleteButton: React.FC<{
       title: 'Delete dashboard',
       content: 'Are you sure you want to delete these dashboards?',
       onOk: async () => {
-        await onDeleteDashboard(selectedRowKeys, true);
+        await deleteDashboard({ dashboardId: selectedRowKeys });
         onSelectChange([]);
       }
     });

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';
 import {
@@ -15,6 +14,8 @@ import { useMemoizedFn } from '@/hooks';
 import { DashboardSelectedOptionPopup } from './DashboardSelectedPopup';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator/helpers';
+import { useCreateDashboard } from '@/api/buster_rest/dashboards';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 const columns: BusterListColumn[] = [
   {
@@ -58,12 +59,8 @@ export const DashboardListContent: React.FC<{
   dashboardsList: BusterDashboardListItem[];
   className?: string;
 }> = React.memo(({ loading, dashboardsList, className = '' }) => {
-  const onCreateNewDashboard = useBusterDashboardContextSelector(
-    (state) => state.onCreateNewDashboard
-  );
-  const isCreatingDashboard = useBusterDashboardContextSelector(
-    (state) => state.isCreatingDashboard
-  );
+  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useCreateDashboard();
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const [selectedDashboardIds, setSelectedDashboardIds] = useState<string[]>([]);
 
   const rows: BusterListRow[] = useMemo(() => {
@@ -80,7 +77,13 @@ export const DashboardListContent: React.FC<{
   }, [dashboardsList]);
 
   const onClickEmptyState = useMemoizedFn(async () => {
-    await onCreateNewDashboard({ rerouteToDashboard: true });
+    const res = await createDashboard({});
+    if (res?.dashboard?.id) {
+      onChangePage({
+        route: BusterRoutes.APP_DASHBOARD_ID,
+        dashboardId: res.dashboard.id
+      });
+    }
   });
 
   return (

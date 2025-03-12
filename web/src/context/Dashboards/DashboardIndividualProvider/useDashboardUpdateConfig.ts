@@ -5,7 +5,6 @@ import {
 } from '@/api/asset_interfaces';
 import { useMemoizedFn } from '@/hooks';
 import { create } from 'mutative';
-import { useQueryClient } from '@tanstack/react-query';
 import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
 import type { DashboardUpdateRequest } from '@/api/request_interfaces/dashboards/interfaces';
 

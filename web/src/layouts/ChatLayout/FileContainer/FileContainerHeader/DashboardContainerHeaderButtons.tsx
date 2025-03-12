@@ -13,6 +13,7 @@ import { Dots, Plus, Trash } from '@/components/ui/icons';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
+import { useDeleteDashboards } from '@/api/buster_rest/dashboards';
 
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   () => {
@@ -50,7 +51,7 @@ const AddContentToDashboardButton = React.memo(() => {
 AddContentToDashboardButton.displayName = 'AddContentToDashboardButton';
 
 const ThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
-  const onDeleteDashboard = useBusterDashboardContextSelector((x) => x.onDeleteDashboard);
+  const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useDeleteDashboards();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
 
   const items: DropdownItems = useMemo(() => {
@@ -60,12 +61,12 @@ const ThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
         value: 'delete',
         icon: <Trash />,
         onClick: async () => {
-          await onDeleteDashboard(dashboardId);
+          await deleteDashboard({ dashboardId });
           onChangePage({ route: BusterRoutes.APP_DASHBOARDS });
         }
       }
     ];
-  }, [dashboardId, onDeleteDashboard, onChangePage]);
+  }, [dashboardId, deleteDashboard, onChangePage]);
 
   return (
     <Dropdown items={items}>

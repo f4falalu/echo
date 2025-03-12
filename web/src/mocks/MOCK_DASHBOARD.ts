@@ -4,7 +4,7 @@ import {
   VerificationStatus
 } from '@/api/asset_interfaces';
 import { ShareRole } from '@/api/asset_interfaces';
-import { createMockMetric } from '../../../mocks/metric';
+import { createMockMetric } from './metric';
 
 interface DashboardMockResponse {
   dashboard: BusterDashboard;

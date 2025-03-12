@@ -3,15 +3,16 @@
 import React, { useState } from 'react';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardListContent } from './DashboardListContent';
-import { useBusterDashboardListByFilter } from '@/context/Dashboards';
 import { AppPageLayout } from '@/components/ui/layouts';
+import { useGetDashboardsList } from '@/api/buster_rest/dashboards';
 
 export const DashboardListController: React.FC = () => {
   const [dashboardListFilters, setDashboardListFilters] = useState<{
     shared_with_me?: boolean;
     only_my_dashboards?: boolean;
   }>({});
-  const { list, isFetchedDashboardsList } = useBusterDashboardListByFilter(dashboardListFilters);
+  const { data: dashboardsList, isFetched: isFetchedDashboardsList } =
+    useGetDashboardsList(dashboardListFilters);
 
   return (
     <AppPageLayout
@@ -21,7 +22,7 @@ export const DashboardListController: React.FC = () => {
           onSetDashboardListFilters={setDashboardListFilters}
         />
       }>
-      <DashboardListContent loading={!isFetchedDashboardsList} dashboardsList={list || []} />
+      <DashboardListContent loading={!isFetchedDashboardsList} dashboardsList={dashboardsList} />
     </AppPageLayout>
   );
 };
