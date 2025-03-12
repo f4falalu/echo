@@ -41,7 +41,7 @@ const ColorOption: React.FC<{
     <div
       onClick={() => onChangeColorTheme(theme)}
       className={cn(
-        'flex w-full items-center justify-between space-x-1 overflow-hidden',
+        'flex w-full items-center justify-between space-x-2.5 overflow-hidden',
         'cursor-pointer rounded-sm px-3 py-2',
         selected ? 'bg-background border' : 'bg-item-active hover:bg-nav-item-hover'
       )}>

@@ -15,7 +15,7 @@ const meta: Meta<typeof ThemeList> = {
       {
         name: 'Ocean Breeze',
         selected: true,
-        colors: ['#1E88E5', '#00ACC1', '#00897B', '#43A047', '#7CB342']
+        colors: ['#1E88E5', '#00ACC1', '#00897B', '#43A047', '#7CB342', '#673AB7', '#3F51B5']
       },
       {
         name: 'Sunset',
@@ -25,7 +25,21 @@ const meta: Meta<typeof ThemeList> = {
       {
         name: 'Berry',
         selected: false,
-        colors: ['#EC407A', '#AB47BC', '#7E57C2', '#5C6BC0', '#42A5F5']
+        colors: [
+          '#EC407A',
+          '#AB47BC',
+          '#7E57C2',
+          '#5C6BC0',
+          '#42A5F5',
+          '#29B6F6',
+          '#00BCD4',
+          '#0097A7',
+          '#00897B',
+          '#43A047',
+          '#7CB342',
+          '#673AB7',
+          '#3F51B5'
+        ]
       },
       {
         name: 'Earth Tones',

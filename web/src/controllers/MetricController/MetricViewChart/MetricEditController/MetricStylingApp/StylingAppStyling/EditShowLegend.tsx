@@ -22,8 +22,6 @@ export const EditShowLegend: React.FC<{
       allYAxisColumnNames
     });
 
-    console.log('showLegend', showLegend);
-
     return (
       <LabelAndInput label={'Show legend'}>
         <div className="flex justify-end">
