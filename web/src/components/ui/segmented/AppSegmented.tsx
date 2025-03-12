@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { useEffect, useState, useLayoutEffect, useTransition } from 'react';
 import { cva } from 'class-variance-authority';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMergedRefs, useSize, useThrottleFn } from '@/hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 
 export interface SegmentedItem<T extends string | number = string> {
@@ -100,115 +100,115 @@ type AppSegmentedComponent = (<T extends string = string>(
 
 // Update the component definition to properly handle generics
 export const AppSegmented: AppSegmentedComponent = React.memo(
-  React.forwardRef(
-    <T extends string | number = string>(
-      {
-        options,
-        type = 'track',
-        value,
-        onChange,
-        className,
-        size = 'default',
-        block = false
-      }: AppSegmentedProps<T>,
-      ref: React.ForwardedRef<HTMLDivElement>
-    ) => {
-      const tabRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
-      const [selectedValue, setSelectedValue] = useState(value || options[0]?.value);
-      const [gliderStyle, setGliderStyle] = useState({
-        width: 0,
-        transform: 'translateX(0)'
-      });
-      const [isMeasured, setIsMeasured] = useState(false);
-      const [isPending, startTransition] = useTransition();
+  <T extends string | number = string>({
+    options,
+    type = 'track',
+    value,
+    onChange,
+    className,
+    size = 'default',
+    block = false
+  }: AppSegmentedProps<T>) => {
+    const rootRef = React.useRef<HTMLDivElement>(null);
+    const elementSize = useSize(rootRef);
+    const tabRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
+    const [selectedValue, setSelectedValue] = useState(value || options[0]?.value);
+    const [gliderStyle, setGliderStyle] = useState({
+      width: 0,
+      transform: 'translateX(0)'
+    });
+    const [isMeasured, setIsMeasured] = useState(false);
+    const [isPending, startTransition] = useTransition();
 
-      useEffect(() => {
-        if (value !== undefined && value !== selectedValue) {
+    const handleTabClick = useMemoizedFn((value: string) => {
+      const item = options.find((item) => item.value === value);
+      if (item && !item.disabled) {
+        startTransition(() => {
+          setSelectedValue(item.value);
+          onChange?.(item);
+        });
+      }
+    });
+
+    const updateGliderStyle = useMemoizedFn(() => {
+      const selectedTab = tabRefs.current.get(selectedValue as string);
+      if (selectedTab) {
+        const { offsetWidth, offsetLeft } = selectedTab;
+        if (offsetWidth > 0) {
           startTransition(() => {
-            setSelectedValue(value);
+            setGliderStyle({
+              width: offsetWidth,
+              transform: `translateX(${offsetLeft}px)`
+            });
+            setIsMeasured(true);
           });
         }
-      }, [value, selectedValue]);
+      }
+    });
 
-      // Use useLayoutEffect to measure before paint
-      useLayoutEffect(() => {
-        const updateGliderStyle = () => {
-          const selectedTab = tabRefs.current.get(selectedValue as string);
-          if (selectedTab) {
-            const { offsetWidth, offsetLeft } = selectedTab;
-            if (offsetWidth > 0) {
-              startTransition(() => {
-                setGliderStyle({
-                  width: offsetWidth,
-                  transform: `translateX(${offsetLeft}px)`
-                });
-                setIsMeasured(true);
-              });
-            }
-          }
-        };
+    const { run: throttledUpdateGliderStyle } = useThrottleFn(updateGliderStyle, {
+      wait: 15,
+      leading: true
+    });
 
-        // Run immediately
-        updateGliderStyle();
+    // Use useLayoutEffect to measure before paint
+    useLayoutEffect(() => {
+      updateGliderStyle();
+    }, [selectedValue]);
 
-        // Also run after a short delay to ensure DOM is fully rendered
-        const timeoutId = setTimeout(updateGliderStyle, 25);
+    useEffect(() => {
+      throttledUpdateGliderStyle();
+    }, [elementSize?.width]);
 
-        return () => clearTimeout(timeoutId);
-      }, [selectedValue]);
+    useEffect(() => {
+      if (value !== undefined && value !== selectedValue) {
+        startTransition(() => {
+          setSelectedValue(value);
+        });
+      }
+    }, [value, selectedValue]);
 
-      const handleTabClick = useMemoizedFn((value: string) => {
-        const item = options.find((item) => item.value === value);
-        if (item && !item.disabled) {
-          startTransition(() => {
-            setSelectedValue(item.value);
-            onChange?.(item);
-          });
-        }
-      });
-
-      return (
-        <Tabs.Root
-          ref={ref}
-          value={selectedValue as string}
-          onValueChange={handleTabClick}
-          className={cn(segmentedVariants({ block, type }), heightVariants({ size }), className)}>
-          {isMeasured && (
-            <motion.div
-              className={cn(gliderVariants({ type }), heightVariants({ size }))}
-              initial={{
-                width: gliderStyle.width,
-                x: parseInt(gliderStyle.transform.replace('translateX(', '').replace('px)', ''))
-              }}
-              animate={{
-                width: gliderStyle.width,
-                x: parseInt(gliderStyle.transform.replace('translateX(', '').replace('px)', ''))
-              }}
-              transition={{
-                type: 'spring',
-                stiffness: 400,
-                damping: 35
-              }}
+    return (
+      <Tabs.Root
+        ref={rootRef}
+        value={selectedValue as string}
+        onValueChange={handleTabClick}
+        className={cn(segmentedVariants({ block, type }), heightVariants({ size }), className)}>
+        {isMeasured && (
+          <motion.div
+            className={cn(gliderVariants({ type }), heightVariants({ size }))}
+            initial={{
+              width: gliderStyle.width,
+              x: parseInt(gliderStyle.transform.replace('translateX(', '').replace('px)', ''))
+            }}
+            animate={{
+              width: gliderStyle.width,
+              x: parseInt(gliderStyle.transform.replace('translateX(', '').replace('px)', ''))
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 400,
+              damping: 35
+            }}
+          />
+        )}
+        <Tabs.List
+          className="relative z-10 flex w-full items-center gap-0.5"
+          aria-label="Segmented Control">
+          {options.map((item) => (
+            <SegmentedTrigger
+              key={item.value}
+              item={item as SegmentedItem<string>}
+              selectedValue={selectedValue as string}
+              size={size}
+              block={block}
+              tabRefs={tabRefs}
             />
-          )}
-          <Tabs.List
-            className="relative z-10 flex w-full items-center gap-0.5"
-            aria-label="Segmented Control">
-            {options.map((item) => (
-              <SegmentedTrigger
-                key={item.value}
-                item={item as SegmentedItem<string>}
-                selectedValue={selectedValue as string}
-                size={size}
-                block={block}
-                tabRefs={tabRefs}
-              />
-            ))}
-          </Tabs.List>
-        </Tabs.Root>
-      );
-    }
-  )
+          ))}
+        </Tabs.List>
+      </Tabs.Root>
+    );
+  }
 ) as AppSegmentedComponent;
 
 AppSegmented.displayName = 'AppSegmented';

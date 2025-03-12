@@ -12,7 +12,7 @@ export const EditShowDataLabel: React.FC<{
   ({ showDataLabels, rowCount, onUpdateColumnSettingConfig }) => {
     return (
       <LabelAndInput label="Show data labels">
-        <div className="flex justify-end space-x-2">
+        <div className="flex w-full justify-end space-x-2">
           <WarningIcon rowCount={rowCount} />
           <Switch
             defaultChecked={showDataLabels}

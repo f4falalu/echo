@@ -12,7 +12,7 @@ export const BusterChartWrapper = React.memo<{
   loading: boolean;
 }>(({ children, id, className, loading }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const size = useSize(ref);
+  const size = useSize(ref, 25);
   const width = size?.width ?? 400;
 
   return (

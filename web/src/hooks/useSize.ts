@@ -11,10 +11,12 @@ interface Size {
 /**
  * A hook that tracks the size of an element using ResizeObserver
  * @param ref React ref object containing the element to observe
+ * @param debounceDelay Optional delay in milliseconds to debounce size updates (default: 0)
  * @returns The current size (width and height) of the element
  */
 export function useSize(
-  ref: React.RefObject<HTMLElement | null> | React.RefObject<HTMLDivElement | null> | null
+  ref: React.RefObject<HTMLElement | null> | React.RefObject<HTMLDivElement | null> | null,
+  debounceDelay: number = 0
 ): Size | undefined {
   const [size, setSize] = useState<Size>();
 
@@ -26,10 +28,19 @@ export function useSize(
     const entry = entries[0];
     const { width, height } = entry.contentRect;
 
-    setSize((prevSize) => {
-      const hasChanged = !prevSize || prevSize.width !== width || prevSize.height !== height;
-      return hasChanged ? { width, height } : prevSize;
-    });
+    const updateSize = () => {
+      setSize((prevSize) => {
+        const hasChanged = !prevSize || prevSize.width !== width || prevSize.height !== height;
+        return hasChanged ? { width, height } : prevSize;
+      });
+    };
+
+    if (debounceDelay > 0) {
+      const timeoutId = setTimeout(updateSize, debounceDelay);
+      return () => clearTimeout(timeoutId);
+    } else {
+      updateSize();
+    }
   });
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 export * from './useMemoizedFn';
+export * from './useMergedRefs';
 export * from './useRequest';
 export * from './useWebSocket';
 export * from './useMount';
