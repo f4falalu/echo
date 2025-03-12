@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -24,9 +26,17 @@ import { ChartMountedPlugin } from './core/plugins';
 import ChartDeferred from 'chartjs-plugin-deferred';
 import ChartJsAnnotationPlugin from 'chartjs-plugin-annotation';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { DEFAULT_CHART_THEME } from '@/api/asset_interfaces/metric/charts/configColors';
+import { isServer } from '@tanstack/react-query';
 
 import 'chartjs-adapter-dayjs-4';
-import { DEFAULT_CHART_THEME } from '@/api/asset_interfaces/metric/charts/configColors';
+
+const fontFamily = isServer
+  ? 'Roobert_Pro'
+  : getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
+const color = isServer
+  ? '#575859'
+  : getComputedStyle(document.documentElement).getPropertyValue('--color-text-secondary');
 
 ChartJS.register(
   LineController,
@@ -60,10 +70,11 @@ ChartJS.register(
 
 ChartJS.defaults.responsive = true;
 ChartJS.defaults.maintainAspectRatio = false;
-ChartJS.defaults.color = 'var(--text-secondary)';
+ChartJS.defaults.color = color;
 ChartJS.defaults.backgroundColor = DEFAULT_CHART_THEME;
 ChartJS.defaults.font = {
-  family: 'var(--font-sans)',
+  ...ChartJS.defaults.font,
+  family: fontFamily,
   size: 12,
   weight: 'normal'
 };
@@ -97,7 +108,7 @@ ChartJS.defaults.plugins = {
     font: {
       weight: 'normal',
       size: 10,
-      family: 'var(--font-sans)'
+      family: fontFamily
     }
   },
   tooltipHoverBar: {
