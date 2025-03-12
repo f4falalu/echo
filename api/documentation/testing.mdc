@@ -120,7 +120,6 @@ mod tests {
 ## Database Testing
 - Use a separate test database for integration tests
 - Clean up test data after tests complete
-- Test database transactions and rollbacks
 - Test database connection error handling
 
 ## Test Output

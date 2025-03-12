@@ -137,7 +137,6 @@ let results = try_join_all(futures).await?;
 
 Remember to always consider:
 1. Connection pool limits when designing concurrent operations
-2. Transaction boundaries for data consistency
-3. Error propagation and cleanup
-4. Memory usage and ownership
-5. Please use comments to help document your code and make it more readable.
+2. Error propagation and cleanup
+3. Memory usage and ownership
+4. Please use comments to help document your code and make it more readable.
