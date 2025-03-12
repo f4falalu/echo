@@ -18,7 +18,7 @@ use crate::{
     tools::{
         file_tools::{
             common::{process_metric_file, METRIC_YML_SCHEMA},
-            file_types::{file::FileWithId, metric_yml::MetricYml},
+            file_types::{file::FileWithId},
         },
         ToolExecutor,
     },

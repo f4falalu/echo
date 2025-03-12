@@ -3,7 +3,9 @@ use std::time::Instant;
 
 use anyhow::Result;
 use async_trait::async_trait;
-use database::{models::DashboardFile, pool::get_pg_pool, schema::dashboard_files};
+use database::{
+    models::DashboardFile, pool::get_pg_pool, schema::dashboard_files, types::DashboardYml,
+};
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
@@ -13,10 +15,10 @@ use tracing::{debug, error, info};
 
 use super::{
     common::{
-        apply_modifications_to_content, process_dashboard_file_modification, FileModificationBatch,
-        ModificationResult, ModifyFilesOutput, ModifyFilesParams,
+        apply_modifications_to_content, FileModificationBatch, ModificationResult,
+        ModifyFilesOutput, ModifyFilesParams,
     },
-    file_types::{dashboard_yml::DashboardYml, file::FileWithId},
+    file_types::file::FileWithId,
     FileModificationTool,
 };
 use crate::{
@@ -96,34 +98,6 @@ impl ToolExecutor for ModifyDashboardFilesTool {
             {
                 Ok(dashboard_file) => {
                     let duration = start_time.elapsed().as_millis() as i64;
-
-                    // Process the modification
-                    match process_dashboard_file_modification(
-                        dashboard_file,
-                        &modification,
-                        duration,
-                    )
-                    .await
-                    {
-                        Ok((
-                            dashboard_file,
-                            dashboard_yml,
-                            results,
-                            validation_message,
-                            validation_results,
-                        )) => {
-                            batch.files.push(dashboard_file);
-                            batch.ymls.push(dashboard_yml);
-                            batch.modification_results.extend(results);
-                            batch.validation_messages.push(validation_message);
-                            batch.validation_results.push(validation_results);
-                        }
-                        Err(e) => {
-                            batch
-                                .failed_modifications
-                                .push((modification.file_name.clone(), e.to_string()));
-                        }
-                    }
                 }
                 Err(e) => {
                     batch.failed_modifications.push((
@@ -249,7 +223,7 @@ mod tests {
 
     use super::*;
     use crate::tools::categories::file_tools::common::{
-        Modification, ModificationResult, apply_modifications_to_content,
+        apply_modifications_to_content, Modification, ModificationResult,
     };
     use chrono::Utc;
     use serde_json::json;

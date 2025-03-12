@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::metrics::types::{
     BusterMetric, ColumnMetaData, ColumnType, DataMetadata, Dataset, MinMaxValue, SimpleType,
 };
-use agents::tools::file_tools::file_types::metric_yml::MetricYml;
+use database::types::MetricYml;
 use database::enums::Verification;
 use database::pool::get_pg_pool;
 use database::schema::{datasets, metric_files};
@@ -168,7 +168,7 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
 
     // Construct BusterMetric
     Ok(BusterMetric {
-        id: metric_file.id.to_string(),
+        id: metric_file.id,
         metric_type: "metric".to_string(),
         title: metric_file.name,
         version_number: 1,
@@ -184,9 +184,9 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
         evaluation_score,
         evaluation_summary: metric_file.evaluation_summary.unwrap_or_default(),
         file,
-        created_at: metric_file.created_at.to_rfc3339(),
-        updated_at: metric_file.updated_at.to_rfc3339(),
-        sent_by_id: metric_file.created_by.to_string(),
+        created_at: metric_file.created_at,
+        updated_at: metric_file.updated_at,
+        sent_by_id: metric_file.created_by,
         sent_by_name: "".to_string(),
         sent_by_avatar_url: None,
         code: None,

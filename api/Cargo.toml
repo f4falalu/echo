@@ -164,6 +164,7 @@ database = { path = "libs/database" }
 agents = { path = "libs/agents" }
 query_engine = { path = "libs/query_engine" }
 middleware = { path = "libs/middleware" }
+workspace = "0.4.2"
 
 [dev-dependencies]
 mockito = { workspace = true }

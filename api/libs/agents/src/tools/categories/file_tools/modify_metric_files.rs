@@ -4,7 +4,7 @@ use std::time::Instant;
 use anyhow::Result;
 use async_trait::async_trait;
 use chrono::Utc;
-use database::{enums::Verification, models::MetricFile, pool::get_pg_pool, schema::metric_files};
+use database::{enums::Verification, models::MetricFile, pool::get_pg_pool, schema::metric_files, types::MetricYml};
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
@@ -16,7 +16,7 @@ use uuid::Uuid;
 
 use super::{
     common::{FileModification, Modification, ModificationResult, process_metric_file_modification, ModifyFilesParams, ModifyFilesOutput, FileModificationBatch, apply_modifications_to_content},
-    file_types::{file::FileWithId, metric_yml::MetricYml},
+    file_types::{file::FileWithId},
     FileModificationTool,
 };
 use crate::{

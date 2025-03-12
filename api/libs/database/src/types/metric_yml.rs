@@ -2,8 +2,13 @@ use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use std::io::Write;
+use diesel::{
+    deserialize::{FromSql, FromSqlRow}, expression::AsExpression, pg::Pg, serialize::{IsNull, Output, ToSql}, sql_types::Jsonb
+};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, FromSqlRow, AsExpression)]
+#[diesel(sql_type = Jsonb)]
 pub struct MetricYml {
     pub name: String,
     pub description: Option<String>,
@@ -295,6 +300,21 @@ impl MetricYml {
     //TODO: Need to validate a metric deeply.
     pub fn validate(&self) -> Result<()> {
         Ok(())
+    }
+}
+
+impl FromSql<Jsonb, Pg> for MetricYml {
+    fn from_sql(bytes: diesel::pg::PgValue) -> diesel::deserialize::Result<Self> {
+        let value = <serde_json::Value as FromSql<Jsonb, Pg>>::from_sql(bytes)?;
+        Ok(serde_json::from_value(value)?)
+    }
+}
+
+impl ToSql<Jsonb, Pg> for MetricYml {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> diesel::serialize::Result {
+        out.write_all(&[1])?; // JSONB version 1 header
+        out.write_all(&serde_json::to_vec(self)?)?;
+        Ok(IsNull::No)
     }
 }
 

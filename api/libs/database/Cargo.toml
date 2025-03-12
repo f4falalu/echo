@@ -24,6 +24,8 @@ sqlx = { workspace = true }
 tokio-postgres = { workspace = true }
 tokio-postgres-rustls = { workspace = true }
 bb8-redis = { workspace = true }
+serde_yaml = { workspace = true }
+
 
 [dev-dependencies]
 tokio-test = { workspace = true } 

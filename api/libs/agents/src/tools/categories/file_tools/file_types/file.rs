@@ -1,12 +1,10 @@
 use chrono::{DateTime, Utc};
+use database::types::{DashboardYml, MetricYml};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use query_engine::data_types::DataType;
-
-use super::dashboard_yml::DashboardYml;
-use super::metric_yml::MetricYml;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct File {

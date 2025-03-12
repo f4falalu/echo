@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use database::{enums::Verification, types::VersionHistory};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use uuid::Uuid;
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -18,7 +19,7 @@ pub struct Version {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BusterMetric {
-    pub id: String,
+    pub id: Uuid,
     #[serde(rename = "type")]
     pub metric_type: String, // Always "metric"
     pub title: String,
@@ -35,9 +36,9 @@ pub struct BusterMetric {
     pub evaluation_score: Option<String>, // "Moderate" | "High" | "Low"
     pub evaluation_summary: String,
     pub file: String, // yaml file
-    pub created_at: String,
-    pub updated_at: String,
-    pub sent_by_id: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub sent_by_id: Uuid,
     pub sent_by_name: String,
     pub sent_by_avatar_url: Option<String>,
     pub code: Option<String>,

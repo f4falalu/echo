@@ -1,11 +1,12 @@
 use crate::enums::*;
 use crate::schema::*;
+use crate::types::VersionHistory;
+use crate::types::{DashboardYml, MetricYml};
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
-use crate::types::VersionHistory;
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug)]
 #[diesel(belongs_to(User, foreign_key = owner_id))]
@@ -26,7 +27,7 @@ pub struct DashboardFile {
     pub id: Uuid,
     pub name: String,
     pub file_name: String,
-    pub content: Value,
+    pub content: DashboardYml,
     pub filter: Option<String>,
     pub organization_id: Uuid,
     pub created_by: Uuid,
@@ -74,7 +75,7 @@ pub struct MetricFile {
     pub id: Uuid,
     pub name: String,
     pub file_name: String,
-    pub content: Value,
+    pub content: MetricYml,
     pub verification: Verification,
     pub evaluation_obj: Option<Value>,
     pub evaluation_summary: Option<String>,

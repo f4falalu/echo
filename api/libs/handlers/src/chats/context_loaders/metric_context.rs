@@ -47,7 +47,7 @@ impl ContextLoader for MetricContextLoader {
             })?;
 
         // Get the metric content as MetricYml
-        let metric_yml: agents::tools::categories::file_tools::file_types::metric_yml::MetricYml =
+        let metric_yml: database::types::MetricYml =
             serde_json::from_value(metric.content.clone()).map_err(|e| {
                 anyhow!(
                     "Failed to parse metric content as YAML for metric {}: {}",

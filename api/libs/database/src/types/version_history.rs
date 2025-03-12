@@ -11,6 +11,8 @@ use diesel::{
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use super::{DashboardYml, MetricYml};
+
 #[derive(Debug, Serialize, Deserialize, FromSqlRow, AsExpression, Clone)]
 #[diesel(sql_type = Jsonb)]
 #[serde(transparent)]
@@ -20,26 +22,45 @@ pub struct VersionHistory(pub std::collections::HashMap<String, Version>);
 pub struct Version {
     pub version_number: i32,
     pub updated_at: DateTime<Utc>,
-    pub content: Value,
+    pub content: VersionContent,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum VersionContent {
+    MetricYml(MetricYml),
+    DashboardYml(DashboardYml),
+}
+
+impl From<MetricYml> for VersionContent {
+    fn from(value: MetricYml) -> Self {
+        VersionContent::MetricYml(value)
+    }
+}
+
+impl From<DashboardYml> for VersionContent {
+    fn from(value: DashboardYml) -> Self {
+        VersionContent::DashboardYml(value)
+    }
 }
 
 impl VersionHistory {
-    pub fn new(version_number: i32, content: Value) -> Self {
+    pub fn new(version_number: i32, content: impl Into<VersionContent>) -> Self {
         Self(std::collections::HashMap::from([(
             version_number.to_string(),
             Version {
-                content,
+                content: content.into(),
                 version_number,
                 updated_at: Utc::now(),
             },
         )]))
     }
 
-    pub fn add_version(&mut self, version_number: i32, content: Value) {
+    pub fn add_version(&mut self, version_number: i32, content: impl Into<VersionContent>) {
         self.0.insert(
             version_number.to_string(),
             Version {
-                content,
+                content: content.into(),
                 version_number,
                 updated_at: Utc::now(),
             },

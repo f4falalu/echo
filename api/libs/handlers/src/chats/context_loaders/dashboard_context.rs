@@ -46,7 +46,7 @@ impl ContextLoader for DashboardContextLoader {
             })?;
 
         // Parse dashboard content to DashboardYml
-        let dashboard_yml: agents::tools::categories::file_tools::file_types::dashboard_yml::DashboardYml = 
+        let dashboard_yml: database::types::DashboardYml = 
             serde_json::from_value(dashboard.content.clone())
             .map_err(|e| anyhow!("Failed to parse dashboard content as YAML for dashboard {}: {}", dashboard.name, e))?;
 
@@ -71,7 +71,7 @@ impl ContextLoader for DashboardContextLoader {
             {
                 Ok(metric) => {
                     // Parse metric content
-                    match serde_json::from_value::<agents::tools::categories::file_tools::file_types::metric_yml::MetricYml>(metric.content.clone()) {
+                    match serde_json::from_value::<database::types::MetricYml>(metric.content.clone()) {
                         Ok(metric_yml) => {
                             all_dataset_ids.extend(metric_yml.dataset_ids);
                             metrics_vec.push(metric);
@@ -147,7 +147,7 @@ impl ContextLoader for DashboardContextLoader {
         if !metrics_vec.is_empty() {
             context_message.push_str("Referenced Metrics:\n");
             for metric in metrics_vec {
-                match serde_json::from_value::<agents::tools::categories::file_tools::file_types::metric_yml::MetricYml>(metric.content) {
+                match serde_json::from_value::<database::types::MetricYml>(metric.content) {
                     Ok(metric_yml) => {
                         match serde_yaml::to_string(&metric_yml) {
                             Ok(yaml) => context_message.push_str(&format!("\n{}\n", yaml)),

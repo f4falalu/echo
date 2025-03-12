@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use anyhow::{anyhow, Result};
 use diesel::{ExpressionMethods, QueryDsl, Queryable, Selectable};
 use diesel_async::RunQueryDsl;
@@ -10,7 +12,7 @@ use serde_yaml;
 use crate::files::dashboard_files::types::{
     BusterDashboard, BusterDashboardResponse, DashboardConfig, DashboardRow, DashboardRowItem,
 };
-use crate::metrics::get_metric_handler;
+use crate::metrics::{get_metric_handler, BusterMetric};
 use database::enums::{AssetPermissionRole, Verification};
 use database::pool::get_pg_pool;
 use database::schema::dashboard_files;
@@ -29,7 +31,7 @@ struct QueryableDashboardFile {
     updated_at: chrono::DateTime<chrono::Utc>,
 }
 
-pub async fn get_dashboard(dashboard_id: &Uuid, user_id: &Uuid) -> Result<BusterDashboardResponse> {
+pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid) -> Result<BusterDashboardResponse> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
@@ -94,26 +96,22 @@ pub async fn get_dashboard(dashboard_id: &Uuid, user_id: &Uuid) -> Result<Buster
         .collect();
 
     let metric_results = join_all(metric_futures).await;
-    let metrics: Vec<_> = metric_results
+    let metrics: HashMap<Uuid, BusterMetric> = metric_results
         .into_iter()
         .filter_map(|result| result.ok())
+        .map(|metric| (metric.id, metric))
         .collect();
 
     // Construct the dashboard using content values where available
     let dashboard = BusterDashboard {
         config,
-        created_at: dashboard_file.created_at.to_string(),
-        created_by: dashboard_file.created_by.to_string(),
-        deleted_at: None,
+        created_at: dashboard_file.created_at,
+        created_by: dashboard_file.created_by,
         description: content.get("description").and_then(|v| v.as_str().map(String::from)),
-        id: content
-            .get("id")
-            .and_then(Value::as_str)
-            .unwrap_or(&dashboard_file.id.to_string())
-            .to_string(),
+        id: dashboard_file.id,
         name,
-        updated_at: Some(updated_at.to_string()),
-        updated_by: dashboard_file.created_by.to_string(),
+        updated_at: Some(updated_at),
+        updated_by: dashboard_file.created_by,
         status: Verification::Verified,
         version_number: content
             .get("version_number")

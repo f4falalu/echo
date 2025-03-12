@@ -4,7 +4,7 @@ use std::time::Instant;
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use chrono::Utc;
-use database::{models::DashboardFile, pool::get_pg_pool, schema::dashboard_files, types::VersionHistory};
+use database::{models::DashboardFile, pool::get_pg_pool, schema::dashboard_files, types::{DashboardYml, VersionHistory}};
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
@@ -19,7 +19,7 @@ use crate::{
 
 use super::{
     common::{generate_deterministic_uuid, validate_metric_ids},
-    file_types::{dashboard_yml::DashboardYml, file::FileWithId},
+    file_types::{file::FileWithId},
     FileModificationTool,
 };
 
@@ -92,16 +92,11 @@ async fn process_dashboard_file(
         }
     }
 
-    let dashboard_yml_json = match serde_json::to_value(dashboard_yml.clone()) {
-        Ok(json) => json,
-        Err(e) => return Err(format!("Failed to process dashboard: {}", e)),
-    };
-
     let dashboard_file = DashboardFile {
         id: dashboard_id,
         name: dashboard_yml.name.clone(),
         file_name: file.name.clone(),
-        content: dashboard_yml_json.clone(),
+        content: dashboard_yml.clone(),
         filter: None,
         organization_id: Uuid::new_v4(),
         created_by: Uuid::new_v4(),
@@ -111,7 +106,7 @@ async fn process_dashboard_file(
         publicly_accessible: false,
         publicly_enabled_by: None,
         public_expiry_date: None,
-        version_history: VersionHistory::new(1, dashboard_yml_json),
+        version_history: VersionHistory::new(1, dashboard_yml.clone()),
     };
 
     Ok((dashboard_file, dashboard_yml))
