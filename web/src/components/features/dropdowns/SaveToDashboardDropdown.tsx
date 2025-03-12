@@ -102,7 +102,7 @@ export const SaveToDashboardDropdown: React.FC<{
       onOpenChange={onOpenChange}
       footerContent={memoizedButton}
       items={items}>
-      <AppTooltip title={showDropdown ? '' : 'Save to collection'}>{children} </AppTooltip>
+      <AppTooltip title={showDropdown ? '' : 'Save to dashboard'}>{children} </AppTooltip>
     </Dropdown>
   );
 };

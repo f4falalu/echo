@@ -22,18 +22,18 @@ export const EditShowLegend: React.FC<{
       allYAxisColumnNames
     });
 
+    console.log('showLegend', showLegend);
+
     return (
       <LabelAndInput label={'Show legend'}>
         <div className="flex justify-end">
           <Switch
             defaultChecked={showLegend ?? false}
-            checked={showLegend}
             onCheckedChange={(v) => onUpdateChartConfig({ showLegend: v })}
           />
         </div>
       </LabelAndInput>
     );
-  },
-  () => true
+  }
 );
 EditShowLegend.displayName = 'EditShowLegend';

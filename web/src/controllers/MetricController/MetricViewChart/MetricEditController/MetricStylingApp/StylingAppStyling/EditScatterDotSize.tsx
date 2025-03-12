@@ -10,32 +10,29 @@ export const EditScatterDotSize: React.FC<{
   scatterDotSize: IBusterMetricChartConfig['scatterDotSize'];
   scatterAxis: ScatterAxis;
   onUpdateChartConfig: (config: Partial<IBusterMetricChartConfig>) => void;
-}> = React.memo(
-  ({ scatterDotSize, scatterAxis, onUpdateChartConfig }) => {
-    const hasSize = !isEmpty(scatterAxis.size);
-    const defaultValue = hasSize ? scatterDotSize : scatterDotSize[0];
+}> = React.memo(({ scatterDotSize, scatterAxis, onUpdateChartConfig }) => {
+  const hasSize = !isEmpty(scatterAxis.size);
+  const defaultValue = hasSize ? scatterDotSize : scatterDotSize[0];
 
-    const onChange = useMemoizedFn((v: number[]) => {
-      const newLower = v[0];
-      const newUpper = hasSize ? v[1] : newLower + 18;
-      const arrayFormat: [number, number] = [newLower, newUpper];
-      onUpdateChartConfig({
-        scatterDotSize: arrayFormat
-      });
+  const onChange = useMemoizedFn((v: number[]) => {
+    const newLower = v[0];
+    const newUpper = hasSize ? v[1] : newLower + 18;
+    const arrayFormat: [number, number] = [newLower, newUpper];
+    onUpdateChartConfig({
+      scatterDotSize: arrayFormat
     });
+  });
 
-    return (
-      <LabelAndInput label="Dot size">
-        <Slider
-          min={1}
-          max={50}
-          step={1}
-          defaultValue={defaultValue as number[]}
-          onValueChange={onChange}
-        />
-      </LabelAndInput>
-    );
-  },
-  () => true
-);
+  return (
+    <LabelAndInput label="Dot size">
+      <Slider
+        min={1}
+        max={50}
+        step={1}
+        defaultValue={defaultValue as number[]}
+        onValueChange={onChange}
+      />
+    </LabelAndInput>
+  );
+});
 EditScatterDotSize.displayName = 'EditScatterDotSize';
