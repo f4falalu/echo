@@ -64,14 +64,14 @@ ChartJS.defaults.color = 'var(--text-secondary)';
 ChartJS.defaults.backgroundColor = DEFAULT_CHART_THEME;
 ChartJS.defaults.font = {
   family: 'var(--font-sans)',
-  size: 10,
+  size: 12,
   weight: 'normal'
 };
 
 export const DEFAULT_CHART_LAYOUT = {
   autoPadding: true,
   padding: {
-    top: 10,
+    top: 14,
     bottom: 0,
     left: 4,
     right: 4

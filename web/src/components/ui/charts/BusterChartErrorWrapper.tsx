@@ -10,7 +10,7 @@ interface Props {
 const ErrorCardComponent: React.FC = () => {
   return (
     <StatusCard
-      title="Chart rendiner error"
+      title="Chart rendering error"
       message="Something went wrong rendering the chart. This is likely an error on our end. Please contact Buster support."
       variant={'danger'}
     />

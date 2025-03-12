@@ -87,8 +87,6 @@ export const useYAxis = ({
   });
 
   const tickCallback = useMemoizedFn(function (this: Scale, value: string | number, index: number) {
-    // const labelValue = this.getLabelForValue(index);
-    // const flipValue = this.getLabelForValue(index);
     return formatYAxisLabel(
       value,
       yAxisKeys,

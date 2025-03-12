@@ -8,7 +8,7 @@ import {
   OutLabelsPlugin
 } from './core';
 import { ChartJSOrUndefined, ChartProps } from './core/types';
-import type { ChartType as ChartJSChartType } from 'chart.js';
+import type { ChartType as ChartJSChartType, ChartOptions } from 'chart.js';
 import { useColors } from '../chartHooks';
 import { useGoalLines, useOptions, useSeriesOptions } from './hooks';
 import { useChartSpecificOptions } from './hooks/useChartSpecificOptions';
@@ -123,7 +123,7 @@ export const BusterChartJSComponent = React.memo(
         y2AxisKeys
       });
 
-      const options = useOptions({
+      const options: ChartOptions<ChartJSChartType> = useOptions({
         goalLinesAnnotations,
         trendlineAnnotations,
         colors,

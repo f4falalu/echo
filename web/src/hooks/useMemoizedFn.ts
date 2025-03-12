@@ -1,17 +1,27 @@
 'use client';
 
-import { useRef, useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
-type AnyFunction = (...args: any[]) => any;
+type noop = (this: any, ...args: any[]) => any;
 
-export function useMemoizedFn<T extends AnyFunction>(fn: T): T {
+type PickFunction<T extends noop> = (
+  this: ThisParameterType<T>,
+  ...args: Parameters<T>
+) => ReturnType<T>;
+
+export function useMemoizedFn<T extends noop>(fn: T) {
   const fnRef = useRef<T>(fn);
-  fnRef.current = fn;
 
-  return useMemo(() => {
-    const memoizedFn = (...args: Parameters<T>): ReturnType<T> => {
-      return fnRef.current(...args);
+  // why not write `fnRef.current = fn`?
+  // https://github.com/alibaba/hooks/issues/728
+  fnRef.current = useMemo<T>(() => fn, [fn]);
+
+  const memoizedFn = useRef<PickFunction<T>>();
+  if (!memoizedFn.current) {
+    memoizedFn.current = function (this, ...args) {
+      return fnRef.current.apply(this, args);
     };
-    return memoizedFn as T;
-  }, []);
+  }
+
+  return memoizedFn.current as T;
 }

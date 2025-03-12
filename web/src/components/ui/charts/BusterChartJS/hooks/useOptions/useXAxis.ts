@@ -210,11 +210,3 @@ export const useXAxis = ({
 
   return memoizedXAxisOptions;
 };
-
-const arrayOfValidTimeUnits: XAxisConfig['xAxisTimeInterval'][] = [
-  'day',
-  'week',
-  'month',
-  'quarter',
-  'year'
-];

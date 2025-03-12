@@ -40,6 +40,7 @@ export const updateChatToIChat = (
     chat.messages,
     isNewChat ? last(chat.message_ids) : undefined
   );
+  console.log(iChatMessages);
   return {
     iChat,
     iChatMessages

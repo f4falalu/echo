@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo } from 'react';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import { useMemoizedFn } from '@/hooks';
@@ -29,7 +31,8 @@ export const ChatResponseReasoning: React.FC<{
   const finalReasoningMessage = useMessageIndividual(messageId, (x) => x?.final_reasoning_message);
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
-  const isReasonginFileSelected = selectedFileType === 'reasoning' && isCompletedStream;
+  const isReasonginFileSelected = selectedFileType === 'reasoning';
+  const showShimmerText = isReasonginFileSelected ? false : !isCompletedStream;
 
   const blackBoxMessage = useQuery({
     ...queryKeys.chatsBlackBoxMessages(messageId),
@@ -57,8 +60,8 @@ export const ChatResponseReasoning: React.FC<{
         key={text}
         className="mb-3.5 flex h-[14px] max-h-[14px] w-fit cursor-pointer items-center"
         onClick={onClickReasoning}>
-        {isReasonginFileSelected ? (
-          <Text className="text-text-secondary hover:text-text-default hover:underline">
+        {!showShimmerText ? (
+          <Text variant={'secondary'} className="hover:text-text-default hover:underline">
             {text}
           </Text>
         ) : (

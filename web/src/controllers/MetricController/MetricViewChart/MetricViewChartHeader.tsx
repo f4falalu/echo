@@ -13,16 +13,20 @@ export const MetricViewChartHeader: React.FC<{
   const hasTitleOrDescription = !!title || !!description;
 
   return (
-    <div className={cn('flex min-h-[52px] flex-col space-y-0 py-2', className)}>
+    <div
+      className={cn(
+        'flex max-h-13 min-h-13 flex-col justify-center space-y-0.5 overflow-hidden',
+        className
+      )}>
       {hasTitleOrDescription ? (
         <>
-          <EditableTitle level={4} className="mb-0" inputClassName="text-md!" onChange={onSetTitle}>
+          <EditableTitle level={4} className="mb-0" inputClassName="h-auto!" onChange={onSetTitle}>
             {title}
           </EditableTitle>
           <div className="flex items-center space-x-1 whitespace-nowrap">
             {!!timeFrame && (
               <>
-                <Text size={'sm'} variant="secondary">
+                <Text size={'sm'} variant="secondary" className="leading-1.3 line-clamp-1">
                   {timeFrame}
                 </Text>
                 <Text size={'sm'} variant="secondary">
@@ -31,7 +35,7 @@ export const MetricViewChartHeader: React.FC<{
               </>
             )}
 
-            <Text size={'sm'} variant="secondary" truncate>
+            <Text size={'sm'} variant="secondary" className="leading-1.3 line-clamp-1" truncate>
               {description}
             </Text>
           </div>

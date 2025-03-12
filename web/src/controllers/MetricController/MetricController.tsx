@@ -18,14 +18,17 @@ export const MetricController: React.FC<{
 
   const showLoader = !isFetchedConfig || !isFetchedMetricData;
 
-  const Component = selectedFileView
-    ? MetricViewComponents[selectedFileView as MetricFileView]
-    : () => null;
+  const Component =
+    selectedFileView in MetricViewComponents
+      ? MetricViewComponents[selectedFileView as MetricFileView]
+      : () => <></>;
+
+  console.log(selectedFileView);
 
   return (
     <>
       {showLoader && <FileIndeterminateLoader />}
-      <Component metricId={metricId} />
+      {Component && <Component metricId={metricId} />}
     </>
   );
 });
