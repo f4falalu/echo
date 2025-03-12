@@ -1,7 +1,7 @@
 import { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useMemo } from 'react';
 import { EditMetricField } from './EditMetricField';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { EditMetricAggregate } from './EditMetricType';
 import { EditMetricHeader } from './EditMetricHeaderType';
@@ -29,7 +29,7 @@ export const StylingMetric: React.FC<{
   metricColumnId,
   columnMetadata
 }) => {
-  const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
+  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
     ({ onUpdateMetricChartConfig }) => onUpdateMetricChartConfig
   );
 

@@ -2,7 +2,6 @@
 
 import React, { useRef, useState } from 'react';
 import { useMemoizedFn } from '@/hooks';
-import { useBusterMetricsIndividualContextSelector } from '../Metrics';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { useBusterNotifications } from '../BusterNotifications';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
@@ -11,18 +10,16 @@ import { queryKeys } from '@/api/query_keys';
 import { runSQL as runSQLRest } from '@/api/buster_rest';
 import type { BusterMetricData } from '@/api/asset_interfaces/metric';
 import { useQueryClient } from '@tanstack/react-query';
+import { useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useBusterMetricsContextSelector } from '../Metrics';
 
 export const useSQLProvider = () => {
   const queryClient = useQueryClient();
   const { openSuccessNotification } = useBusterNotifications();
-  const onUpdateMetric = useBusterMetricsIndividualContextSelector((x) => x.onUpdateMetric);
-  const updateMetricMutation = useBusterMetricsIndividualContextSelector(
-    (x) => x.updateMetricMutation
-  );
-  const getMetricMemoized = useBusterMetricsIndividualContextSelector((x) => x.getMetricMemoized);
-  const onSaveMetricChanges = useBusterMetricsIndividualContextSelector(
-    (x) => x.onSaveMetricChanges
-  );
+  const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
+  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
+  const getMetricMemoized = useBusterMetricsContextSelector((x) => x.getMetricMemoized);
+  const onSaveMetricChanges = useBusterMetricsContextSelector((x) => x.onSaveMetricChanges);
 
   const [warnBeforeNavigating, setWarnBeforeNavigating] = useState(false);
 

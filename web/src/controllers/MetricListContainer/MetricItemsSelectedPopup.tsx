@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemoizedFn } from '@/hooks';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
@@ -11,7 +11,11 @@ import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { StatusBadgeButton } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
-import { useDeleteMetric } from '@/api/buster_rest/metrics';
+import {
+  useDeleteMetric,
+  useRemoveMetricFromCollection,
+  useSaveMetricToCollection
+} from '@/api/buster_rest/metrics';
 import {
   useAddUserFavorite,
   useDeleteUserFavorite,
@@ -64,12 +68,8 @@ const CollectionsButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const saveMetricToCollection = useBusterMetricsIndividualContextSelector(
-    (state) => state.saveMetricToCollection
-  );
-  const removeMetricFromCollection = useBusterMetricsIndividualContextSelector(
-    (state) => state.removeMetricFromCollection
-  );
+  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollection();
+  const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
 
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
@@ -130,9 +130,7 @@ const StatusButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const onVerifiedMetric = useBusterMetricsIndividualContextSelector(
-    (state) => state.onVerifiedMetric
-  );
+  const onVerifiedMetric = useBusterMetricsContextSelector((state) => state.onVerifiedMetric);
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
 
   const onVerify = useMemoizedFn(async (d: { id: string; status: VerificationStatus }[]) => {

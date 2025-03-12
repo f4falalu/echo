@@ -2,12 +2,13 @@ import type { BusterMetric } from '@/api/asset_interfaces';
 import { Title, Text } from '@/components/ui/typography';
 import { DotsVertical, Trash } from '@/components/ui/icons';
 import { SortableItemContext } from '@/components/ui/grid/_BusterSortableItemDragContainer';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import Link from 'next/link';
 import React, { useContext, useMemo } from 'react';
+import { useRemoveMetricFromDashboard } from '@/api/buster_rest/metrics';
 
 export const MetricTitle: React.FC<{
   title: BusterMetric['title'];
@@ -107,9 +108,7 @@ const ThreeDotMenu: React.FC<{
   dashboardId: string;
   metricId: string;
 }> = React.memo(({ dashboardId, metricId, className }) => {
-  const removeMetricFromDashboard = useBusterMetricsIndividualContextSelector(
-    (x) => x.removeMetricFromDashboard
-  );
+  const { mutateAsync: removeMetricFromDashboard } = useRemoveMetricFromDashboard();
 
   const dropdownItems: DropdownItems = useMemo(
     () => [

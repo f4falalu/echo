@@ -7,11 +7,11 @@ import { HideButtonContainer } from './HideButtonContainer';
 import { FileButtonContainer } from './FileButtonContainer';
 import { CreateChatButton } from './CreateChatButtont';
 import { SelectableButton } from './SelectableButton';
-import { useMetricIndividual } from '@/context/Metrics';
 import { SaveMetricToCollectionButton } from '../../../../components/features/buttons/SaveMetricToCollectionButton';
 import { SaveMetricToDashboardButton } from '../../../../components/features/buttons/SaveMetricToDashboardButton';
 import { ShareMetricButton } from '../../../../components/features/buttons/ShareMetricButton';
 import { Code3, SquareChartPen } from '@/components/ui/icons';
+import { useMetricIndividual } from '@/api/buster_rest/metrics';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);

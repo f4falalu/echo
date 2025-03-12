@@ -2,9 +2,11 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
 import React, { useState } from 'react';
 import { SaveToCollectionsDropdown } from '../dropdowns/SaveToCollectionsDropdown';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { CollectionButton } from './CollectionsButton';
-import { useGetCollectionsList } from '@/api/buster_rest/collections';
+import {
+  useRemoveMetricFromCollection,
+  useSaveMetricToCollection
+} from '@/api/buster_rest/metrics';
 
 export const SaveMetricToCollectionButton: React.FC<{
   metricIds: string[];
@@ -12,12 +14,8 @@ export const SaveMetricToCollectionButton: React.FC<{
   useText?: boolean;
 }> = ({ metricIds, buttonType = 'ghost', useText = false }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const saveMetricToCollection = useBusterMetricsIndividualContextSelector(
-    (state) => state.saveMetricToCollection
-  );
-  const removeMetricFromCollection = useBusterMetricsIndividualContextSelector(
-    (state) => state.removeMetricFromCollection
-  );
+  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollection();
+  const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
 
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
@@ -25,29 +23,24 @@ export const SaveMetricToCollectionButton: React.FC<{
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     setSelectedCollections(collectionIds);
-    // const allSaves: Promise<void>[] = metricIds.map((metricId) => {
-    //   return saveMetricToCollection({
-    //     metricId,
-    //     collectionIds
-    //   });
-    // });
-    // await Promise.all(allSaves);
+    await Promise.all(
+      metricIds.map((metricId) => {
+        return saveMetricToCollection({
+          metricId,
+          collectionIds
+        });
+      })
+    );
     openInfoMessage('Metrics saved to collections');
   });
 
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
-    setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
-    // const allSelectedButLast = selectedRowKeys.slice(0, -1);
-    // const lastMetricId = selectedRowKeys[selectedRowKeys.length - 1];
-    // const allRemoves: Promise<void>[] = allSelectedButLast.map((metricId) => {
-    //   return removeMetricFromCollection({ metricId, collectionId, ignoreFavoriteUpdates: true });
-    // });
-    // await removeMetricFromCollection({
-    //   metricId: lastMetricId,
-    //   collectionId,
-    //   ignoreFavoriteUpdates: false
-    // });
-    // await Promise.all(allRemoves);
+    const allSelectedButLast = selectedCollections.slice(0, -1);
+    await Promise.all(
+      allSelectedButLast.map((metricId) => {
+        return removeMetricFromCollection({ metricId, collectionId });
+      })
+    );
     openInfoMessage('Metrics removed from collections');
   });
 

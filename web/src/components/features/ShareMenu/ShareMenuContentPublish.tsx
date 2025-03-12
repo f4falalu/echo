@@ -14,10 +14,10 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { Link, Eye, EyeSlash } from '@/components/ui/icons';
 import { DatePicker } from '@/components/ui/date';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
+import { useUpdateMetric } from '@/api/buster_rest/metrics';
 
 export const ShareMenuContentPublish: React.FC<{
   onCopyLink: () => void;
@@ -36,7 +36,7 @@ export const ShareMenuContentPublish: React.FC<{
     publicExpirationDate
   }) => {
     const { openInfoMessage } = useBusterNotifications();
-    const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
+    const { mutateAsync: onShareMetric } = useUpdateMetric();
     const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
     const { mutateAsync: onShareCollection, isPending: isSharingCollection } =
       useUpdateCollection();

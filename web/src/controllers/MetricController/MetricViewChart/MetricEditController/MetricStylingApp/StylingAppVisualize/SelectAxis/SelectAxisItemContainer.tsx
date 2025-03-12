@@ -4,7 +4,7 @@ import { useSelectAxisContextSelector } from './useSelectAxisContext';
 import { useMemoizedFn } from '@/hooks';
 import { chartTypeToAxis, SelectAxisContainerId, zoneIdToAxis } from './config';
 import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { CollapseDelete } from '../../Common/CollapseDelete';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
@@ -29,7 +29,7 @@ export const SelectAxisItemContainer = React.memo(
       );
       const selectedAxis = useSelectAxisContextSelector((x) => x.selectedAxis);
       const selectedChartType = useSelectAxisContextSelector((x) => x.selectedChartType);
-      const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
+      const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
         (x) => x.onUpdateMetricChartConfig
       );
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { SelectAxisContainerId } from '../config';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { EditShowTooltip } from './EditShowTooltip';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { useMemoizedFn } from '@/hooks';
@@ -10,7 +10,7 @@ export const TooltipAxisSettingContent: React.FC<{
 }> = React.memo(({}) => {
   const disableTooltip = useSelectAxisContextSelector((x) => x.disableTooltip);
 
-  const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
+  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
     ({ onUpdateMetricChartConfig }) => onUpdateMetricChartConfig
   );
 

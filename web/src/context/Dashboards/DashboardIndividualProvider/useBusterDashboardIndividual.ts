@@ -1,7 +1,7 @@
 import type { BusterDashboardResponse } from '@/api/asset_interfaces';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useMemoizedFn } from '@/hooks';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 
 export const useBusterDashboardIndividual = ({
@@ -9,9 +9,7 @@ export const useBusterDashboardIndividual = ({
 }: {
   dashboardId: string | undefined;
 }) => {
-  const onInitializeMetric = useBusterMetricsIndividualContextSelector(
-    (state) => state.onInitializeMetric
-  );
+  const onInitializeMetric = useBusterMetricsContextSelector((state) => state.onInitializeMetric);
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
   const { password } = getAssetPassword(dashboardId);
 

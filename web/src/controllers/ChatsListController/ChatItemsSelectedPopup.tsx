@@ -5,12 +5,16 @@ import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { useDeleteMetric } from '@/api/buster_rest/metrics';
+import {
+  useDeleteMetric,
+  useRemoveMetricFromCollection,
+  useSaveMetricToCollection
+} from '@/api/buster_rest/metrics';
 import {
   useAddUserFavorite,
   useDeleteUserFavorite,
@@ -60,12 +64,8 @@ const CollectionsButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const saveMetricToCollection = useBusterMetricsIndividualContextSelector(
-    (state) => state.saveMetricToCollection
-  );
-  const removeMetricFromCollection = useBusterMetricsIndividualContextSelector(
-    (state) => state.removeMetricFromCollection
-  );
+  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollection();
+  const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
 
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']

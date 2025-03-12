@@ -1,10 +1,10 @@
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import React from 'react';
 import { SaveToDashboardDropdown } from '../dropdowns/SaveToDashboardDropdown';
 import type { BusterMetric } from '@/api/asset_interfaces';
 import { Button } from '@/components/ui/buttons';
 import { ASSET_ICONS } from '../config/assetIcons';
+import { useRemoveMetricFromDashboard, useSaveMetricToDashboard } from '@/api/buster_rest/metrics';
 
 const EMPTY_SELECTED_DASHBOARDS: BusterMetric['dashboards'] = [];
 
@@ -14,21 +14,23 @@ export const SaveMetricToDashboardButton: React.FC<{
   selectedDashboards?: BusterMetric['dashboards'];
 }> = React.memo(
   ({ metricIds, disabled = false, selectedDashboards = EMPTY_SELECTED_DASHBOARDS }) => {
-    const saveMetricToDashboard = useBusterMetricsIndividualContextSelector(
-      (state) => state.saveMetricToDashboard
-    );
-    const removeMetricFromDashboard = useBusterMetricsIndividualContextSelector(
-      (state) => state.removeMetricFromDashboard
-    );
+    const { mutateAsync: saveMetricToDashboard } = useSaveMetricToDashboard();
+    const { mutateAsync: removeMetricFromDashboard } = useRemoveMetricFromDashboard();
 
     const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
-      console.warn('TODO: save metric to dashboard', dashboardIds);
-      //  await saveMetricToDashboard({ metricId, dashboardIds });
+      await Promise.all(
+        metricIds.map((metricId) => {
+          return saveMetricToDashboard({ metricId, dashboardIds });
+        })
+      );
     });
 
     const onRemoveFromDashboard = useMemoizedFn(async (dashboardId: string) => {
-      console.warn('TODO: remove metric from dashboard', dashboardId);
-      //  return await removeMetricFromDashboard({ metricId, dashboardId, useConfirmModal: false });
+      await Promise.all(
+        metricIds.map((metricId) => {
+          return removeMetricFromDashboard({ metricId, dashboardId });
+        })
+      );
     });
 
     return (

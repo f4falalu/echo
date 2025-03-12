@@ -15,12 +15,13 @@ import { ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { inputHasText } from '@/lib/text';
 import { UserGroup, ChevronRight } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
 import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
+import { useUpdateMetric } from '@/api/buster_rest/metrics';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
@@ -78,9 +79,9 @@ const ShareMenuContentShare: React.FC<{
   assetId: string;
 }> = React.memo(({ setOpenShareWithGroupAndTeam, assetType, individual_permissions, assetId }) => {
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
-  const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
   const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
-  const { mutateAsync: onShareCollection, isPending: isSharingCollection } = useUpdateCollection();
+  const { mutateAsync: onShareMetric } = useUpdateMetric();
+  const { mutateAsync: onShareCollection } = useUpdateCollection();
   const [inputValue, setInputValue] = React.useState<string>('');
   const [isInviting, setIsInviting] = React.useState<boolean>(false);
   const [defaultPermissionLevel, setDefaultPermissionLevel] = React.useState<ShareRole>(

@@ -4,7 +4,7 @@ import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { getChartTypeDropZones } from './helper';
 import { ISelectAxisContext, SelectAxisProvider } from './useSelectAxisContext';
 import { useMemoizedFn } from '@/hooks';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { chartTypeToAxis, zoneIdToAxis } from './config';
 import {
   CategoryAxisStyleConfig,
@@ -23,7 +23,7 @@ export const SelectAxis: React.FC<
     Required<Y2AxisConfig> &
     ISelectAxisContext
 > = React.memo(({ selectedChartType, columnMetadata, selectedAxis, ...props }) => {
-  const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
+  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
     (x) => x.onUpdateMetricChartConfig
   );
 

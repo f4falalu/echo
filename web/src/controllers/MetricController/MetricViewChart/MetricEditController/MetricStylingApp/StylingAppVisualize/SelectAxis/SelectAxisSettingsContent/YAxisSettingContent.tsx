@@ -5,7 +5,7 @@ import { EditShowAxisTitle } from './EditShowAxisTitle';
 import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib';
 import { useMemoizedFn } from '@/hooks';
-import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { EditShowAxisLabel } from './EditShowAxisLabel';
 import { EditAxisScale } from './EditAxisScale';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
@@ -14,7 +14,7 @@ import { AXIS_TITLE_SEPARATOR } from '@/components/ui/charts/commonHelpers/axisH
 export const YAxisSettingContent: React.FC<{
   zoneId: SelectAxisContainerId;
 }> = React.memo(({}) => {
-  const onUpdateMetricChartConfig = useBusterMetricsIndividualContextSelector(
+  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
     ({ onUpdateMetricChartConfig }) => onUpdateMetricChartConfig
   );
   const yAxisAxisTitle = useSelectAxisContextSelector((x) => x.yAxisAxisTitle);

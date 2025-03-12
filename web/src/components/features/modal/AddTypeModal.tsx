@@ -12,7 +12,6 @@ import {
 } from '@/api/asset_interfaces';
 import { CircleSpinnerLoaderContainer } from '@/components/ui/loaders';
 import { BusterCollection } from '@/api/asset_interfaces';
-import { useBusterSearchContextSelector } from '@/context/Search';
 import isEmpty from 'lodash/isEmpty';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { type SegmentedItem } from '@/components/ui/segmented';
@@ -36,7 +35,6 @@ export const AddTypeModal: React.FC<{
   dashboardResponse?: BusterDashboardResponse;
   collection?: BusterCollection;
 }> = React.memo(({ type = 'collection', open, onClose, collection, dashboardResponse }) => {
-  const onBusterSearch = useBusterSearchContextSelector((state) => state.onBusterSearch);
   const onBulkAddRemoveToDashboard = useBusterDashboardContextSelector(
     (state) => state.onBulkAddRemoveToDashboard
   );
@@ -229,6 +227,10 @@ export const AddTypeModal: React.FC<{
   const onModalOkay = useMemoizedFn(async () => {
     await onSubmit();
     onClose();
+  });
+
+  const onBusterSearch = useMemoizedFn(async ({ query }: { query: string }) => {
+    return [];
   });
 
   const onChangeSearchInput = useMemoizedFn((value: React.ChangeEvent<HTMLInputElement>) => {
