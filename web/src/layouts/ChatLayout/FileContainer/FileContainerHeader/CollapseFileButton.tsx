@@ -1,4 +1,4 @@
-import { DoubleChevronRight, DoubleChevronLeft } from '@/components/ui/icons';
+import { DoubleChevronRight } from '@/components/ui/icons';
 import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -6,30 +6,21 @@ import { useMemoizedFn } from '@/hooks';
 
 export const CollapseFileButton: React.FC<{
   showCollapseButton: boolean;
-  isOpen: boolean;
-  collapseDirection: 'left' | 'right';
   onCollapseFileClick: (value?: boolean) => void;
-}> = React.memo(({ showCollapseButton, isOpen, collapseDirection, onCollapseFileClick }) => {
-  const icon = useMemo(() => {
-    if (collapseDirection === 'left') {
-      return isOpen ? <DoubleChevronLeft /> : <DoubleChevronRight />;
-    }
-    return isOpen ? <DoubleChevronRight /> : <DoubleChevronLeft />;
-  }, [isOpen, collapseDirection]);
+}> = React.memo(({ showCollapseButton, onCollapseFileClick }) => {
+  const icon = <DoubleChevronRight />;
 
   const onClick = useMemoizedFn(() => {
     onCollapseFileClick();
   });
 
   const animation = useMemo(() => {
-    const baseAnimation = {
+    return {
       initial: { opacity: 0 },
       animate: { opacity: 1 },
       exit: { opacity: 0 }
     };
-
-    return baseAnimation;
-  }, [collapseDirection, isOpen]);
+  }, []);
 
   return (
     <AnimatePresence mode="wait" initial={false}>

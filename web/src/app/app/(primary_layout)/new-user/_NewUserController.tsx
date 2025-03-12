@@ -38,7 +38,7 @@ export const NewUserController = () => {
       });
 
       onChangePage({
-        route: BusterRoutes.APP_METRIC
+        route: BusterRoutes.APP_HOME
       });
     } catch (error) {
       //
@@ -81,7 +81,6 @@ export const NewUserController = () => {
             placeholder="What is your full name"
             className="w-full"
             value={name || ''}
-            defaultValue={user?.name || ''}
             name="name"
             onChange={(e) => setName(e.target.value)}
           />

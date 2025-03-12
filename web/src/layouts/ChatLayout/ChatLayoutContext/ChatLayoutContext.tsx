@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContextSelector } from 'use-context-selector';
-import React, { PropsWithChildren, useTransition } from 'react';
+import React, { PropsWithChildren } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import type { AppSplitterRef } from '@/components/ui/layouts';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from './config';
@@ -38,9 +38,7 @@ export const useChatLayout = ({ appSplitterRef }: UseChatSplitterProps) => {
     renderViewLayoutKey
   } = useSelectedFileAndLayout({ animateOpenSplitter });
 
-  const { collapseDirection, isCollapseOpen, onCollapseFileClick } = useLayoutCollapse({
-    selectedFile,
-    selectedLayout,
+  const { onCollapseFileClick } = useLayoutCollapse({
     animateOpenSplitter
   });
 
@@ -56,8 +54,6 @@ export const useChatLayout = ({ appSplitterRef }: UseChatSplitterProps) => {
     renderViewLayoutKey,
     selectedFileType: selectedFile?.type,
     selectedFile,
-    collapseDirection,
-    isCollapseOpen,
     onCollapseFileClick,
     onSetSelectedFile,
     animateOpenSplitter

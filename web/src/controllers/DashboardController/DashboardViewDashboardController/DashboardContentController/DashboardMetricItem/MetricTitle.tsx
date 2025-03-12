@@ -53,7 +53,7 @@ export const MetricTitle: React.FC<{
             <Title
               {...titleConfig}
               as="h4"
-              className="text-md! max-w-[calc(100%_-_22px)]"
+              className="text-md! max-w-[calc(100%_-_22px)] whitespace-nowrap"
               style={{ fontSize: '14px' }}>
               {`${title}`}
             </Title>
@@ -96,11 +96,7 @@ const ThreeDotPlaceholder: React.FC<{
 }> = React.memo(({ className }) => {
   return (
     <div className={`relative h-[24px] w-[24px] ${className}`}>
-      {/* <Button
-        className="absolute top-[-2px] hidden"
-        type="text"
-        icon={<AppMaterialIcons icon="more_vert" />}
-      /> */}
+      <Button variant="link" prefix={<DotsVertical />} />
     </div>
   );
 });

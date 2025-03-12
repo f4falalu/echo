@@ -38,6 +38,7 @@ export const SidebarUserFooterComponent: React.FC<{
   email: string;
   signOut: () => Promise<{ error: string }>;
 }> = React.memo(({ name, avatarUrl, email, signOut }) => {
+  if (!name || !email) return null;
   return (
     <SidebarUserDropdown signOut={signOut}>
       <div className="flex w-full">

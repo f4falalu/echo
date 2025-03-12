@@ -2,32 +2,16 @@
 
 import { queryOptions } from '@tanstack/react-query';
 import type {
-  BusterMetricData,
   BusterMetricListItem,
   IBusterMetric,
   IBusterMetricData
 } from '@/api/asset_interfaces/metric';
-import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { ListMetricsParams } from '../buster_rest/metrics';
 
 export const metricsGetMetric = (metricId: string) => {
   return queryOptions<IBusterMetric>({
     queryKey: ['metrics', 'get', metricId] as const,
-    staleTime: 30 * 60 * 1000,
-    enabled: false
-  });
-};
-
-export const useMetricsGetMetric = (metricId: string) => {
-  const setAssetPasswordError = useBusterAssetsContextSelector(
-    (state) => state.setAssetPasswordError
-  );
-  return queryOptions<IBusterMetric>({
-    ...metricsGetMetric(metricId),
-    throwOnError: (error, query) => {
-      setAssetPasswordError(metricId, error.message || 'An error occurred');
-      return false;
-    }
+    staleTime: 30 * 60 * 1000
   });
 };
 
@@ -45,7 +29,6 @@ export const metricsGetData = (id: string) =>
 
 export const metricsQueryKeys = {
   metricsGetMetric,
-  useMetricsGetMetric,
   metricsGetList,
   metricsGetData
 };

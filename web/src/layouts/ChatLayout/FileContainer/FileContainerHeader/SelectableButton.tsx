@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Button } from '@/components/ui/buttons';
 import { AppTooltip } from '@/components/ui/tooltip';
-import {} from '@/components/ui/icons';
 
 export const SelectableButton = React.memo<{
   tooltipText: string;

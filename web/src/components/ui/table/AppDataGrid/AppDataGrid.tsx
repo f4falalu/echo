@@ -1,6 +1,6 @@
 'use client';
 
-import { DataGrid } from 'react-data-grid';
+import DataGrid from 'react-data-grid';
 import type {
   Column,
   CalculatedColumn,
@@ -16,6 +16,7 @@ import { Text } from '@/components/ui/typography';
 import round from 'lodash/round';
 import { ErrorBoundary } from '@/components/ui/error';
 import { CaretDown } from '../../icons/NucleoIconFilled';
+import styles from './AppDataGrid.module.css';
 
 //https://www.npmjs.com/package/react-spreadsheet-grid#live-playground
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -35,7 +36,6 @@ import {
   defaultHeaderFormat,
   MIN_WIDTH
 } from './helpers';
-import styles from './AppDataGrid.module.css';
 
 type Row = Record<string, string | number | null | Date>;
 
@@ -204,30 +204,27 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
       }
     });
 
-    const onColumnResize = useMemoizedFn(
-      (column: CalculatedColumn<Row, unknown>, width: number) => {
-        const index = columns.findIndex((c) => c.key === column.key);
-        const newSizes = columns.reduce<Record<string, number>>((acc, column, i) => {
-          if (!column.key) return acc;
+    const onColumnResize = useMemoizedFn((index: number, width: number) => {
+      const newSizes = columns.reduce<Record<string, number>>((acc, column, i) => {
+        if (!column.key) return acc;
 
-          acc[column.key] = i === index ? round(width) : (column.width as number);
-          return acc;
-        }, {});
-        const columnArray = columns
-          .map((column) => ({
-            key: column.key,
-            size: newSizes[column.key]
-          }))
-          .sort(
-            (a, b) =>
-              columnsOrder.indexOf(columns.findIndex((c) => c.key === a.key)) -
-              columnsOrder.indexOf(columns.findIndex((c) => c.key === b.key))
-          );
+        acc[column.key] = i === index ? round(width) : (column.width as number);
+        return acc;
+      }, {});
+      const columnArray = columns
+        .map((column) => ({
+          key: column.key,
+          size: newSizes[column.key]
+        }))
+        .sort(
+          (a, b) =>
+            columnsOrder.indexOf(columns.findIndex((c) => c.key === a.key)) -
+            columnsOrder.indexOf(columns.findIndex((c) => c.key === b.key))
+        );
 
-        onResizeColumnsDebounce(columnArray);
-        onColumnResizeDebounce();
-      }
-    );
+      onResizeColumnsDebounce(columnArray);
+      onColumnResizeDebounce();
+    });
 
     const { run: onResizeColumnsDebounce } = useDebounceFn(
       (columnArray: { key: string; size: number }[]) => {
@@ -359,7 +356,6 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
               enableVirtualization={rows.length > 60}
               onCopy={handleCopy}
               onColumnResize={onColumnResize}
-              // onColumnResize={onColumnResize}
               onColumnsReorder={onColumnsReorder}
               defaultColumnOptions={DEFAULT_COLUMN_WIDTH}
               direction={'ltr'}
