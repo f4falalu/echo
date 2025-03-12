@@ -13,11 +13,8 @@ import { Text } from '@/components/ui/typography';
 import { UserGroup } from '@/components/ui/icons';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
-import {
-  useBusterCollectionIndividualContextSelector,
-  useCollectionIndividual
-} from '@/context/Collections';
 import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
+import { useGetCollection, useUpdateCollection } from '@/api/buster_rest/collections';
 
 export const ShareWithGroupAndTeam: React.FC<{
   goBack: () => void;
@@ -29,16 +26,13 @@ export const ShareWithGroupAndTeam: React.FC<{
   const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
   const getMetric = useBusterMetricsIndividualContextSelector((state) => state.getMetricMemoized);
   const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
-  const onShareCollection = useBusterCollectionIndividualContextSelector(
-    (x) => x.onShareCollection
-  );
-
+  const { mutateAsync: onShareCollection, isPending: isSharingCollection } = useUpdateCollection();
   const { dashboardResponse } = useBusterDashboardIndividual({
     dashboardId: assetType === ShareAssetType.DASHBOARD ? assetId : undefined
   });
-  const { collection } = useCollectionIndividual({
-    collectionId: assetType === ShareAssetType.COLLECTION ? assetId : undefined
-  });
+  const { data: collection } = useGetCollection(
+    assetType === ShareAssetType.COLLECTION ? assetId : undefined
+  );
 
   const metric = useMemo(
     () =>

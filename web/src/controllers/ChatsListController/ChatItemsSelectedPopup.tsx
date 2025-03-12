@@ -7,7 +7,6 @@ import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { useMemoizedFn } from '@/hooks';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -63,14 +62,13 @@ const CollectionsButton: React.FC<{
     (state) => state.removeMetricFromCollection
   );
 
-  const collectionsList = useBusterCollectionListContextSelector((state) => state.collectionsList);
-
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
   >([]);
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     setSelectedCollections(collectionIds);
+    console.warn('TODO: save to collection', collectionIds);
     const allSaves: Promise<void>[] = selectedRowKeys.map((metricId) => {
       return saveMetricToCollection({
         metricId,

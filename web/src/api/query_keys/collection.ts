@@ -5,7 +5,9 @@ import type { GetCollectionListParams } from '@/api/request_interfaces/collectio
 const collectionsGetList = (filters?: GetCollectionListParams) =>
   queryOptions<BusterCollectionListItem[]>({
     queryKey: ['collections', 'list', filters] as const,
-    staleTime: 4 * 1000
+    staleTime: 4 * 1000,
+    initialData: [],
+    initialDataUpdatedAt: 0
   });
 
 const collectionsGetCollection = (collectionId: string) =>

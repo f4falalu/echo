@@ -15,13 +15,13 @@ import { BusterCollection } from '@/api/asset_interfaces';
 import { useBusterSearchContextSelector } from '@/context/Search';
 import isEmpty from 'lodash/isEmpty';
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
-import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
 import { type SegmentedItem } from '@/components/ui/segmented';
 import { Speaker, Xmark } from '@/components/ui/icons';
 import { AppModal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/buttons';
 import { Separator } from '@/components/ui/seperator';
 import { SearchParams } from '@/api/request_interfaces/search/interfaces';
+import { useUpdateCollection } from '@/api/buster_rest/collections';
 
 const filterOptions = [
   { label: 'All', value: 'all' },
@@ -40,9 +40,8 @@ export const AddTypeModal: React.FC<{
   const onBulkAddRemoveToDashboard = useBusterDashboardContextSelector(
     (state) => state.onBulkAddRemoveToDashboard
   );
-  const onBulkAddRemoveToCollection = useBusterCollectionIndividualContextSelector(
-    (state) => state.onBulkAddRemoveToCollection
-  );
+  const { mutateAsync: updateCollection, isPending: isUpdatingCollection } = useUpdateCollection();
+
   const [selectedFilter, setSelectedFilter] = React.useState<string>(filterOptions[0]!.value);
   const [inputValue, setInputValue] = React.useState<string>('');
   const [ongoingSearchItems, setOngoingSearchItems] = React.useState<BusterSearchResult[]>([]);
@@ -213,8 +212,8 @@ export const AddTypeModal: React.FC<{
           id
         };
       });
-      await onBulkAddRemoveToCollection({
-        collectionId: collection!.id,
+      await updateCollection({
+        id: collection!.id,
         assets
       });
     } else if (type === 'dashboard') {

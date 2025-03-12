@@ -7,7 +7,6 @@ import { DatasetProviders } from './Datasets';
 import { AppLayoutProvider } from './BusterAppLayout';
 import { BusterDashboardProvider } from './Dashboards/DashboardProvider';
 import { BusterUserConfigProvider } from './Users/UserConfigProvider';
-import { BusterCollectionsProvider } from './Collections/CollectionsProvider';
 import { DataSourceProvider } from './DataSources';
 import { BusterSQLProvider } from './SQL/useSQLProvider';
 import { BusterTermsProvider } from './Terms/BusterTermsProvider';
@@ -41,22 +40,20 @@ export const AppProviders: React.FC<
                 <BusterSearchProvider>
                   <DataSourceProvider>
                     <DatasetProviders>
-                      <BusterCollectionsProvider>
-                        <BusterMetricsProvider>
-                          <BusterDashboardProvider>
-                            <BusterSQLProvider>
-                              <BusterTermsProvider>
-                                <BusterChatProvider>
-                                  <BusterPosthogProvider>
-                                    {children}
-                                    <RoutePrefetcher />
-                                  </BusterPosthogProvider>
-                                </BusterChatProvider>
-                              </BusterTermsProvider>
-                            </BusterSQLProvider>
-                          </BusterDashboardProvider>
-                        </BusterMetricsProvider>
-                      </BusterCollectionsProvider>
+                      <BusterMetricsProvider>
+                        <BusterDashboardProvider>
+                          <BusterSQLProvider>
+                            <BusterTermsProvider>
+                              <BusterChatProvider>
+                                <BusterPosthogProvider>
+                                  {children}
+                                  <RoutePrefetcher />
+                                </BusterPosthogProvider>
+                              </BusterChatProvider>
+                            </BusterTermsProvider>
+                          </BusterSQLProvider>
+                        </BusterDashboardProvider>
+                      </BusterMetricsProvider>
                     </DatasetProviders>
                   </DataSourceProvider>
                 </BusterSearchProvider>

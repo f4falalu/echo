@@ -72,6 +72,7 @@ const CollectionsButton: React.FC<{
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     setSelectedCollections(collectionIds);
+    console.warn('TODO: save to collection', collectionIds);
     const allSaves: Promise<void>[] = selectedRowKeys.map((metricId) => {
       return saveMetricToCollection({
         metricId,

@@ -1,23 +1,18 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import {
-  canEditCollection,
-  useBusterCollectionIndividualContextSelector
-} from '@/context/Collections';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { FavoriteStar } from '@/components/features/list/FavoriteStar';
 import { ShareMenu } from '@/components/features/ShareMenu';
 import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
-import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { measureTextWidth } from '@/lib/canvas';
 import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
 import { Dots, Pencil, Plus, ShareAllRight, Trash } from '@/components/ui/icons';
+import { useDeleteCollection, useUpdateCollection } from '@/api/buster_rest/collections';
 
 export const CollectionsIndividualHeader: React.FC<{
   openAddTypeModal: boolean;
@@ -25,7 +20,7 @@ export const CollectionsIndividualHeader: React.FC<{
   collection: BusterCollection | undefined;
   isFetched: boolean;
 }> = ({ openAddTypeModal, setOpenAddTypeModal, collection, isFetched }) => {
-  const updateCollection = useBusterCollectionIndividualContextSelector((x) => x.updateCollection);
+  const { mutateAsync: updateCollection, isPending: isUpdatingCollection } = useUpdateCollection();
   const [editingTitle, setEditingTitle] = React.useState(false);
 
   const collectionTitle = collection?.name || 'No collection title';
@@ -40,26 +35,6 @@ export const CollectionsIndividualHeader: React.FC<{
       name: value
     });
   });
-
-  const collectionItemBreadcrumb = useMemo(() => {
-    if (!isFetched) return { title: '' };
-    return {
-      title: editingTitle ? (
-        <EditableTitle
-          level={5}
-          editing={editingTitle}
-          style={{ width: textWidth.width }}
-          onSetValue={onSetTitleValue}
-          onChange={onSetTitleValue}
-          onEdit={setEditingTitle}
-          className="w-full">
-          {collectionTitle}
-        </EditableTitle>
-      ) : (
-        <Text truncate>{collectionTitle}</Text>
-      )
-    };
-  }, [collectionTitle, editingTitle, textWidth.width, onSetTitleValue, setEditingTitle, isFetched]);
 
   return (
     <div className="flex h-full w-full items-center justify-between space-x-3 overflow-hidden">
@@ -119,8 +94,8 @@ const ThreeDotDropdown: React.FC<{
   collection: BusterCollection;
   setEditingTitle: (editing: boolean) => void;
 }> = React.memo(({ collection, setEditingTitle }) => {
-  const deleteCollection = useBusterCollectionIndividualContextSelector((x) => x.deleteCollection);
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
+  const { mutateAsync: deleteCollection, isPending: isDeletingCollection } = useDeleteCollection();
 
   const items: DropdownItems = useMemo(
     () => [
@@ -130,12 +105,13 @@ const ThreeDotDropdown: React.FC<{
         icon: <Trash />,
         onClick: async () => {
           try {
-            await deleteCollection(collection.id);
+            await deleteCollection({ id: collection.id });
             onChangePage({ route: BusterRoutes.APP_COLLECTIONS });
           } catch (error) {
             //
           }
-        }
+        },
+        disabled: isDeletingCollection
       },
       {
         value: 'rename',
@@ -178,3 +154,7 @@ const CollectionBreadcrumb: React.FC<{
   return <Breadcrumb items={items} />;
 });
 CollectionBreadcrumb.displayName = 'CollectionBreadcrumb';
+
+const canEditCollection = (collection: BusterCollection) => {
+  return collection.permission === 'owner' || collection.permission === 'editor';
+};

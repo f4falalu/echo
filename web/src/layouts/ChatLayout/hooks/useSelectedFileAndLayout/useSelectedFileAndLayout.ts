@@ -50,6 +50,8 @@ export const useSelectedFileAndLayout = ({
 
     const isSameAsCurrentFile = selectedFile?.id === fileId;
 
+    console.log('onSetSelectedFile', isSameAsCurrentFile, file);
+
     setRenderViewLayoutKey('both');
     setSelectedFile(file);
     await onChangePage(route);

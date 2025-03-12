@@ -1,9 +1,10 @@
 import { Trash } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
+
 import { useMemoizedFn } from '@/hooks';
 import { Button } from '@/components/ui/buttons';
 import React from 'react';
+import { useDeleteCollection } from '@/api/buster_rest/collections';
 
 export const CollectionListSelectedPopup: React.FC<{
   selectedRowKeys: string[];
@@ -31,12 +32,11 @@ const CollectionDeleteButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const deleteCollection = useBusterCollectionIndividualContextSelector((x) => x.deleteCollection);
+  const { mutateAsync: deleteCollection, isPending: isDeletingCollection } = useDeleteCollection();
 
   const onDeleteClick = useMemoizedFn(async () => {
     try {
-      const deletePromises = selectedRowKeys.map((v) => deleteCollection(v, false));
-      await Promise.all(deletePromises);
+      await deleteCollection({ id: selectedRowKeys });
       onSelectChange([]);
     } catch (error) {
       //  openErrorMessage('Failed to delete collection');
@@ -44,7 +44,7 @@ const CollectionDeleteButton: React.FC<{
   });
 
   return (
-    <Button prefix={<Trash />} onClick={onDeleteClick}>
+    <Button disabled={isDeletingCollection} prefix={<Trash />} onClick={onDeleteClick}>
       Delete
     </Button>
   );

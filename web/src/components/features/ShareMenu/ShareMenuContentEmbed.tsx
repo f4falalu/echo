@@ -1,5 +1,5 @@
 import { ShareAssetType } from '@/api/asset_interfaces';
-import { useBusterCollectionIndividualContextSelector } from '@/context/Collections';
+
 import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { Button } from '@/components/ui/buttons';
@@ -11,6 +11,7 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { Link, BracketsCurly } from '@/components/ui/icons';
 import { Separator } from '@/components/ui/seperator';
+import { useUpdateCollection } from '@/api/buster_rest/collections';
 
 export const ShareMenuContentEmbed: React.FC<{
   assetType: ShareAssetType;
@@ -87,9 +88,7 @@ export const ShareMenuContentEmbedFooter = ({
 }) => {
   const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
   const onShareMetric = useBusterMetricsIndividualContextSelector((state) => state.onShareMetric);
-  const onShareCollection = useBusterCollectionIndividualContextSelector(
-    (state) => state.onShareCollection
-  );
+  const { mutateAsync: onShareCollection, isPending: isSharingCollection } = useUpdateCollection();
   const { openSuccessMessage } = useBusterNotifications();
 
   const onPublish = useMemoizedFn(async () => {

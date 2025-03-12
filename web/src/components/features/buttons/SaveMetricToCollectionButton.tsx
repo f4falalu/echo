@@ -1,10 +1,10 @@
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useBusterCollectionListContextSelector } from '@/context/Collections';
 import { useMemoizedFn } from '@/hooks';
 import React, { useState } from 'react';
 import { SaveToCollectionsDropdown } from '../dropdowns/SaveToCollectionsDropdown';
 import { useBusterMetricsIndividualContextSelector } from '@/context/Metrics';
 import { CollectionButton } from './CollectionsButton';
+import { useGetCollectionsList } from '@/api/buster_rest/collections';
 
 export const SaveMetricToCollectionButton: React.FC<{
   metricIds: string[];
@@ -18,8 +18,6 @@ export const SaveMetricToCollectionButton: React.FC<{
   const removeMetricFromCollection = useBusterMetricsIndividualContextSelector(
     (state) => state.removeMetricFromCollection
   );
-
-  const collectionsList = useBusterCollectionListContextSelector((state) => state.collectionsList);
 
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
