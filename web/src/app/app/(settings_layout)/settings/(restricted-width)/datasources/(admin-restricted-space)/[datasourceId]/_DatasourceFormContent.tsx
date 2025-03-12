@@ -2,10 +2,9 @@
 
 import type { DataSource, DataSourceTypes } from '@/api/asset_interfaces';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useDataSourceIndividualContextSelector } from '@/context/DataSources/DataSourceIndividualProvider';
 import { BusterRoutes } from '@/routes';
 import { useMemoizedFn } from '@/hooks';
-import React, { useState } from 'react';
+import React from 'react';
 import { PostgresForm } from './_forms/PostgresForm';
 import { DatasourceCreateCredentials } from '@/api/request_interfaces/datasources';
 import { MySqlForm } from './_forms/MySqlForm';
@@ -16,6 +15,7 @@ import { DataBricksForm } from './_forms/DataBricksForm';
 import { useConfetti } from '@/hooks/useConfetti';
 import { SqlServerForm } from './_forms/SqlServerForm';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useCreateDatasource, useUpdateDatasource } from '@/api/buster_rest/datasource';
 
 const FormRecord: Record<
   DataSourceTypes,
@@ -45,24 +45,19 @@ export const DataSourceFormContent: React.FC<{
   type: DataSourceTypes;
 }> = ({ dataSource, type, useConnection = false }) => {
   const SelectedForm = FormRecord[type];
-  const onUpdateDataSource = useDataSourceIndividualContextSelector(
-    (state) => state.onUpdateDataSource
-  );
-  const onCreateDataSource = useDataSourceIndividualContextSelector(
-    (state) => state.onCreateDataSource
-  );
+  const { mutateAsync: onUpdateDataSource, isPending: isUpdatingDataSource } =
+    useUpdateDatasource();
+  const { mutateAsync: onCreateDataSource, isPending: isCreatingDataSource } =
+    useCreateDatasource();
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const { openConfirmModal } = useBusterNotifications();
   const { fireConfetti } = useConfetti();
 
-  const [submitting, setSubmitting] = useState(false);
-
   const onSubmit = useMemoizedFn(async (credentials: DatasourceCreateCredentials) => {
-    setSubmitting(true);
     try {
       const name = credentials.datasource_name;
 
-      if (!useConnection) {
+      if (!useConnection && !isUpdatingDataSource && !isCreatingDataSource) {
         await onUpdateDataSource({
           id: dataSource!.id,
           name,
@@ -92,8 +87,6 @@ export const DataSourceFormContent: React.FC<{
     } catch (error) {
       // TODO: handle error
     }
-
-    setSubmitting(false);
   });
 
   return (
@@ -105,7 +98,7 @@ export const DataSourceFormContent: React.FC<{
       {SelectedForm && (
         <SelectedForm
           dataSource={dataSource}
-          submitting={submitting}
+          submitting={isUpdatingDataSource || isCreatingDataSource}
           onSubmit={onSubmit}
           useConnection={useConnection}
         />

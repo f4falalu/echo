@@ -1,12 +1,11 @@
 'use client';
 
-import { useIndividualDataset } from '@/context/Datasets';
 import { useSelectedLayoutSegment } from 'next/navigation';
 import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import { DatasetApps } from './config';
 import { createContext, useContextSelector } from 'use-context-selector';
 import { useDebounce, useMemoizedFn } from '@/hooks';
-import { useDeployDataset } from '@/api/buster_rest';
+import { useDeployDataset, useIndividualDataset } from '@/api/buster_rest';
 
 export const useDatasetPageContext = ({ datasetId }: { datasetId: string }) => {
   const segments = useSelectedLayoutSegment() as DatasetApps;

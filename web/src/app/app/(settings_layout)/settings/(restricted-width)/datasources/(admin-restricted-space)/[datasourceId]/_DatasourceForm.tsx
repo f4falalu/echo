@@ -4,23 +4,17 @@ import type { DataSource } from '@/api/asset_interfaces';
 import { PulseLoader } from '@/components/ui/loaders';
 import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
 import { formatDate } from '@/lib';
-import { Button } from '@/components/ui/buttons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
-import { Separator } from '@/components/ui/seperator';
 import React from 'react';
 import { DataSourceFormContent } from './_DatasourceFormContent';
 import { Title, Text } from '@/components/ui/typography';
-import {
-  useDataSourceIndividual,
-  useDataSourceIndividualContextSelector
-} from '@/context/DataSources';
 import { Trash } from '@/components/ui/icons';
+import { useDeleteDatasource, useGetDatasource } from '@/api/buster_rest/datasource';
 
 export const DatasourceForm: React.FC<{ datasourceId: string }> = ({ datasourceId }) => {
-  const { dataSource } = useDataSourceIndividual(datasourceId);
-  const loadingDataSource = !dataSource?.id;
+  const { data: dataSource, isFetched: isFetchedDataSource } = useGetDatasource(datasourceId);
 
-  if (loadingDataSource) {
+  if (!isFetchedDataSource || !dataSource) {
     return <SkeletonLoader />;
   }
 
@@ -59,9 +53,7 @@ const DataSourceFormHeader: React.FC<{ dataSource: DataSource }> = ({ dataSource
 };
 
 const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource }) => {
-  const onDeleteDataSource = useDataSourceIndividualContextSelector(
-    (state) => state.onDeleteDataSource
-  );
+  const { mutateAsync: onDeleteDataSource } = useDeleteDatasource();
 
   const dropdownItems: DropdownItems = [
     {
