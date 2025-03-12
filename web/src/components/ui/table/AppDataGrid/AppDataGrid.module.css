@@ -1,6 +1,6 @@
 .dataGrid {
   block-size: 100%;
-  border-width: 0.5px;
+  border-width: 0px;
 
   --rdg-color: var(--color-text-default);
   --rdg-border-color: var(--color-border);
@@ -22,7 +22,6 @@
 .dataGrid :global(.rdg-header-row .rdg-cell) {
   font-weight: 500;
   overflow: hidden;
-  border-width: 0.5px;
 }
 
 .dataGrid :global(.rdg-header-row .rdg-cell .rdg-header-sort-name) {
@@ -42,12 +41,21 @@
   border-right: 0px solid;
 }
 
+.dataGrid :global(.rdg-cell:first-child) {
+  border-left: 0px solid;
+}
+
+.dataGrid :global(.rdg-cell) {
+  border-right: 0.5px solid var(--color-border);
+  border-bottom: 0.5px solid var(--color-border);
+}
+
 .dataGrid :global(.rdg-row .rdg-cell) {
   border-bottom-color: var(--color-border);
   white-space: break-spaces;
   word-wrap: break-word;
   overflow-y: auto;
-  border-width: 0.5px;
+  border-right: 0.5px solid var(--color-border);
 }
 
 .dataGrid :global(.rdg-row .rdg-cell:last-child) {
