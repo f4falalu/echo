@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { BusterChart } from './BusterChart';
 import { ChartType } from '../../../api/asset_interfaces/metric/charts/enum';
 import { IColumnLabelFormat } from '../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import { DEFAULT_CHART_CONFIG } from '../../../api/asset_interfaces/metric/defaults';
 import {
   generateBarChartData,
   generateLineChartData,
@@ -22,10 +23,35 @@ const meta: Meta<typeof BusterChart> = {
     layout: 'centered'
   },
   argTypes: {
-    className: {
-      control: false,
-      defaultValue: 'w-[800px] h-[400px]'
+    colors: {
+      description:
+        'Array of colors to be used for the chart series. If not provided, defaults to the theme colors.',
+      control: 'array',
+      table: {
+        type: { summary: 'string[]' },
+        defaultValue: { summary: 'DEFAULT_CHART_THEME' }
+      }
+    },
+    selectedChartType: {
+      control: 'select',
+      description: 'The type of chart to display.',
+      defaultValue: ChartType.Table,
+      options: Object.values(ChartType)
+    },
+    xAxisTimeInterval: {
+      control: 'select',
+      description:
+        'Time interval for x-axis when displaying time series data. Only applies to combo and line charts.',
+      options: ['day', 'week', 'month', 'quarter', 'year', null],
+      table: {
+        type: { summary: "'day' | 'week' | 'month' | 'quarter' | 'year' | null" },
+        defaultValue: { summary: 'null' }
+      }
     }
+  },
+  args: {
+    ...DEFAULT_CHART_CONFIG,
+    className: 'w-[800px] h-[400px]'
   }
 };
 
@@ -33,6 +59,7 @@ export default meta;
 type Story = StoryObj<typeof BusterChart>;
 
 export const LineChart: Story = {
+  argTypes: meta.argTypes,
   args: {
     selectedChartType: ChartType.Line,
     data: generateLineChartData(),

@@ -1,8 +1,8 @@
 export type BarAndLineAxis = {
-  x: string[]; //the column ids to use for the x axis. If multiple column ids are provided, they will be grouped together and summed. The LLM should NEVER set multiple x axis columns. Only the user can set this.
-  y: string[]; //the column ids to use for the y axis.
-  category: string[]; //the column ids to use for the category axis. If multiple column ids are provided, they will be grouped together. THE LLM SHOULD NEVER SET MULTIPLE CATEGORY COLUMNS. ONLY THE USER CAN SET THIS.
-  tooltip?: string[] | null; //if null the y axis will automatically be used, the y axis will be used for the tooltip.
+  x: string[]; // the column ids to use for the x axis. If multiple column ids are provided, they will be grouped together and summed. The LLM should NEVER set multiple x axis columns. Only the user can set this.
+  y: string[]; // the column ids to use for the y axis.
+  category: string[]; // the column ids to use for the category axis. If multiple column ids are provided, they will be grouped together. THE LLM SHOULD NEVER SET MULTIPLE CATEGORY COLUMNS. ONLY THE USER CAN SET THIS.
+  tooltip?: string[] | null; // if null the y axis will automatically be used, the y axis will be used for the tooltip.
 };
 
 export type ScatterAxis = {

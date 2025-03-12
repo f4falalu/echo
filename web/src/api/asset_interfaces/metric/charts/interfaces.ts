@@ -10,7 +10,7 @@ export type BusterChartProps = {
   animateLegend?: boolean;
   id?: string;
   error?: string;
-  columnMetadata: ColumnMetaData[] | undefined;
+  columnMetadata?: ColumnMetaData[];
   useRapidResizeObserver?: boolean;
   editable?: boolean;
   onInitialAnimationEnd?: () => void;
