@@ -2,10 +2,9 @@ use crate::routes::rest::ApiResponse;
 use axum::extract::Path;
 use axum::http::StatusCode;
 use axum::Extension;
-use handlers::files::dashboard_files::get_dashboard_handler::get_dashboard_handler;
-use handlers::files::dashboard_files::BusterDashboardResponse;
-use uuid::Uuid;
+use handlers::dashboards::{get_dashboard_handler, BusterDashboardResponse};
 use middleware::AuthenticatedUser;
+use uuid::Uuid;
 
 pub async fn get_dashboard_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,

@@ -9,9 +9,9 @@ use crate::metrics::types::BusterMetric;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BusterDashboardListItem {
-    pub created_at: String,
-    pub id: String,
-    pub last_edited: String,
+    pub created_at: DateTime<Utc>,
+    pub id: Uuid,
+    pub last_edited: DateTime<Utc>,
     pub members: Vec<DashboardMember>,
     pub name: String,
     pub owner: DashboardMember,
@@ -22,7 +22,7 @@ pub struct BusterDashboardListItem {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DashboardMember {
     pub avatar_url: Option<String>,
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
 }
 

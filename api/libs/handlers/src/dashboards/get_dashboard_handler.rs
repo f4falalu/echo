@@ -9,13 +9,13 @@ use futures::future::{try_join_all, join_all};
 use chrono::{DateTime, Utc};
 use serde_yaml;
 
-use crate::files::dashboard_files::types::{
-    BusterDashboard, BusterDashboardResponse, DashboardConfig, DashboardRow, DashboardRowItem,
-};
+
 use crate::metrics::{get_metric_handler, BusterMetric};
 use database::enums::{AssetPermissionRole, Verification};
 use database::pool::get_pg_pool;
 use database::schema::dashboard_files;
+
+use super::{BusterDashboard, BusterDashboardResponse, DashboardConfig, DashboardRow, DashboardRowItem};
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = dashboard_files)]
