@@ -48,6 +48,8 @@ export const useSelectedFileAndLayout = ({
         ? createChatAssetRoute({ chatId, assetId: fileId, type: fileType })
         : createFileRoute({ assetId: fileId, type: fileType });
 
+    const isSameAsCurrentFile = selectedFile?.id === fileId;
+
     setRenderViewLayoutKey('both');
     setSelectedFile(file);
     await onChangePage(route);

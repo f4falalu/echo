@@ -110,7 +110,7 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
     block = false
   }: AppSegmentedProps<T>) => {
     const rootRef = React.useRef<HTMLDivElement>(null);
-    const elementSize = useSize(rootRef);
+    const elementSize = useSize(rootRef, 25);
     const tabRefs = React.useRef<Map<string, HTMLButtonElement>>(new Map());
     const [selectedValue, setSelectedValue] = useState(value || options[0]?.value);
     const [gliderStyle, setGliderStyle] = useState({
@@ -146,19 +146,10 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
       }
     });
 
-    const { run: throttledUpdateGliderStyle } = useThrottleFn(updateGliderStyle, {
-      wait: 15,
-      leading: true
-    });
-
     // Use useLayoutEffect to measure before paint
     useLayoutEffect(() => {
       updateGliderStyle();
-    }, [selectedValue]);
-
-    useEffect(() => {
-      throttledUpdateGliderStyle();
-    }, [elementSize?.width]);
+    }, [selectedValue, elementSize?.width]);
 
     useEffect(() => {
       if (value !== undefined && value !== selectedValue) {

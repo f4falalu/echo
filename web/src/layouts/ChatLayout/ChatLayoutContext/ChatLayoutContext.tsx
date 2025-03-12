@@ -15,13 +15,19 @@ interface UseChatSplitterProps {
 export const useChatLayout = ({ appSplitterRef }: UseChatSplitterProps) => {
   const animateOpenSplitter = useMemoizedFn((side: 'left' | 'right' | 'both') => {
     if (appSplitterRef.current) {
-      const { animateWidth } = appSplitterRef.current;
+      const { animateWidth, sizes } = appSplitterRef.current;
+      const leftSize = sizes[0] ?? 0;
+      const rightSize = sizes[1] ?? 0;
+
       if (side === 'left') {
         animateWidth('100%', 'left');
       } else if (side === 'right') {
         animateWidth('100%', 'right');
       } else if (side === 'both') {
-        //&& (isSideClosed('right') || isSideClosed('left'))
+        const shouldAnimate = Number(leftSize) < 200 || Number(rightSize) < 340;
+
+        if (!shouldAnimate) return;
+
         animateWidth(DEFAULT_CHAT_OPTION_SIDEBAR_SIZE, 'left');
         setRenderViewLayoutKey('both');
         fileLayoutContext?.closeSecondaryView();
