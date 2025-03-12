@@ -1,3 +1,5 @@
+'use client';
+
 import type { ChartProps } from '../../core';
 import type { ChartSpecificOptionsProps } from './interfaces';
 import type { ChartType as ChartJSChartType } from 'chart.js';
@@ -40,6 +42,13 @@ export const piePluginsHandler = ({
 }: ChartSpecificOptionsProps): DeepPartial<PluginChartOptions<ChartJSChartType>>['plugins'] => {
   let returnValue: DeepPartial<PluginChartOptions<ChartJSChartType>>['plugins'] = {};
 
+  const titleColor = getComputedStyle(document.documentElement).getPropertyValue(
+    '--color-text-secondary'
+  );
+  const valueColor = getComputedStyle(document.documentElement).getPropertyValue(
+    '--color-text-default'
+  );
+
   if (pieShowInnerLabel && pieDonutWidth !== 0) {
     const annotation: AnnotationPluginOptions = {
       annotations: {
@@ -61,8 +70,14 @@ export const piePluginsHandler = ({
               )
             ];
           },
-          font: [{ size: 14 }, { size: 22 }],
-          color: ['var(--color-text-tertiary)', 'var(--color-text-default)']
+          font: ({ chart }) => {
+            const minDimension = Math.min(chart.width, chart.height);
+            return [
+              { size: Math.max(20, minDimension * 0.02) }, // title font
+              { size: Math.max(42, minDimension * 0.042) } // value font
+            ];
+          },
+          color: [titleColor, valueColor]
         }
       }
     };

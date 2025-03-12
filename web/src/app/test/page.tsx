@@ -25,9 +25,9 @@ export default function TestPage() {
     <div className="flex h-screen w-screen items-center justify-center">
       <BusterChart
         data={[
-          { segment: 'A', value1: 30, value2: 45 },
-          { segment: 'B', value1: 20, value2: 25 },
-          { segment: 'C', value1: 50, value2: 30 }
+          { segment: 'A', value1: 302323, value2: 45 },
+          { segment: 'B', value1: 20340, value2: 25 },
+          { segment: 'C', value1: 5777770, value2: 30 }
         ]}
         selectedChartType={ChartType.Pie}
         pieChartAxis={{
