@@ -5,10 +5,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 use crate::processor::ProcessorRegistry;
-use crate::types::{
-    File, FileContent, FileMetadata, ProcessedOutput, ProcessorType, ReasoningFile, ReasoningPill,
-    ReasoningText, ThoughtPill, ThoughtPillContainer,
-};
+use crate::types::{File, FileContent, ProcessedOutput, ReasoningFile};
 
 /// StreamingParser handles parsing of incomplete JSON streams
 pub struct StreamingParser {
@@ -26,10 +23,8 @@ impl StreamingParser {
         StreamingParser {
             buffer: String::new(),
             processors: ProcessorRegistry::new(),
-            yml_content_regex: Regex::new(
-                r#""yml_content":\s*"((?:[^"\\]|\\.|[\r\n])*?)(?:"|$)"#,
-            )
-            .unwrap(),
+            yml_content_regex: Regex::new(r#""yml_content":\s*"((?:[^"\\]|\\.|[\r\n])*?)(?:"|$)"#)
+                .unwrap(),
         }
     }
 
@@ -38,10 +33,8 @@ impl StreamingParser {
         StreamingParser {
             buffer: String::new(),
             processors,
-            yml_content_regex: Regex::new(
-                r#""yml_content":\s*"((?:[^"\\]|\\.|[\r\n])*?)(?:"|$)"#,
-            )
-            .unwrap(),
+            yml_content_regex: Regex::new(r#""yml_content":\s*"((?:[^"\\]|\\.|[\r\n])*?)(?:"|$)"#)
+                .unwrap(),
         }
     }
 
@@ -199,15 +192,15 @@ impl StreamingParser {
         if !json.is_empty() {
             self.buffer.push_str(json);
         }
-        
+
         // Complete any incomplete JSON structure
         let processed_json = self.complete_json_structure(self.buffer.clone());
-        
+
         // Try to parse the JSON
         if let Ok(value) = serde_json::from_str::<Value>(&processed_json) {
             return self.convert_file_to_message(id, value, file_type);
         }
-        
+
         // If we can't parse the JSON, try to process it with the appropriate processor type
         self.process_chunk(id, "", &file_type)
     }
@@ -246,13 +239,14 @@ impl StreamingParser {
                             .to_string();
 
                         // Generate deterministic version ID
-                        let version_id = match self.generate_deterministic_uuid(&id, &file_name, &file_type) {
-                            Ok(id) => id,
-                            Err(e) => {
-                                eprintln!("Failed to generate version ID: {}", e);
-                                continue;
-                            }
-                        };
+                        let version_id =
+                            match self.generate_deterministic_uuid(&id, &file_name, &file_type) {
+                                Ok(id) => id,
+                                Err(e) => {
+                                    eprintln!("Failed to generate version ID: {}", e);
+                                    continue;
+                                }
+                            };
 
                         // Create file content
                         let file_content = FileContent {
@@ -301,22 +295,27 @@ impl StreamingParser {
     }
 
     /// Generate a deterministic UUID based on input parameters
-    fn generate_deterministic_uuid(&self, id: &str, file_name: &str, file_type: &str) -> Result<Uuid> {
+    fn generate_deterministic_uuid(
+        &self,
+        id: &str,
+        file_name: &str,
+        file_type: &str,
+    ) -> Result<Uuid> {
         use sha2::{Digest, Sha256};
         use uuid::Uuid;
-        
+
         // Create a deterministic string to hash
         let combined = format!("{}:{}:{}", id, file_name, file_type);
-        
+
         // Hash the combined string
         let mut hasher = Sha256::new();
         hasher.update(combined.as_bytes());
         let result = hasher.finalize();
-        
+
         // Convert the first 16 bytes of the hash to a UUID
         let mut bytes = [0u8; 16];
         bytes.copy_from_slice(&result[0..16]);
-        
+
         Ok(Uuid::from_bytes(bytes))
     }
 }
@@ -362,7 +361,7 @@ mod tests {
         // Test basic completion
         let incomplete = r#"{"key": "value"#;
         let completed = parser.complete_json_structure(incomplete.to_string());
-        
+
         // Parse the completed JSON to verify it's valid
         let parsed_json: serde_json::Value = serde_json::from_str(&completed).unwrap();
         assert_eq!(parsed_json["key"], "value");
@@ -372,10 +371,13 @@ mod tests {
         let completed = parser.complete_json_structure(incomplete.to_string());
 
         println!("Completed JSON: {}", completed);
-        
+
         // Parse the completed JSON to verify it's valid
         let parsed_json: serde_json::Value = serde_json::from_str(&completed).unwrap();
-        assert_eq!(parsed_json["key"].as_str().unwrap(), r#"value with "quotes""#);
+        assert_eq!(
+            parsed_json["key"].as_str().unwrap(),
+            r#"value with "quotes""#
+        );
     }
 
     #[test]
@@ -384,21 +386,15 @@ mod tests {
         parser.register_processor(Box::new(TestProcessor));
 
         // Test with valid data for the processor
-        let result = parser.process_chunk(
-            "test_id".to_string(),
-            r#"{"test_key": "value"}"#,
-            "test",
-        );
+        let result =
+            parser.process_chunk("test_id".to_string(), r#"{"test_key": "value"}"#, "test");
         assert!(result.is_ok());
         assert!(result.unwrap().is_some());
 
         // Test with invalid data for the processor
         parser.clear_buffer();
-        let result = parser.process_chunk(
-            "test_id".to_string(),
-            r#"{"other_key": "value"}"#,
-            "test",
-        );
+        let result =
+            parser.process_chunk("test_id".to_string(), r#"{"other_key": "value"}"#, "test");
         assert!(result.is_ok());
         assert!(result.unwrap().is_none());
 
@@ -420,10 +416,10 @@ mod tests {
         // Test with yml_content
         let json = r#"{"files":[{"name":"test.yml","yml_content":"key: value\nlist:\n  - item1\n  - item2"}]}"#;
         let processed = parser.process_yml_content(json.to_string());
-        
+
         // Parse the processed JSON to verify it's valid
         let value: Value = serde_json::from_str(&processed).unwrap();
-        
+
         // Check that the yml_content was properly processed
         let yml_content = value["files"][0]["yml_content"].as_str().unwrap();
         assert!(yml_content.contains("key: value"));
@@ -437,10 +433,10 @@ mod tests {
         // Test with invalid JSON
         let json = r#"{"files":[{"name":"test.yml","yml_content":"key: value\nlist:\n  - item1\n  - item2"}]"#;
         let processed = parser.process_yml_content(json.to_string());
-        
+
         // Parse the processed JSON to verify it's valid
         let value: Value = serde_json::from_str(&processed).unwrap();
-        
+
         // Check that the yml_content was properly processed
         let yml_content = value["files"][0]["yml_content"].as_str().unwrap();
         assert!(yml_content.contains("key: value"));

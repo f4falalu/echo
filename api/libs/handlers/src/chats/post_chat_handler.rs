@@ -1560,7 +1560,7 @@ fn assistant_data_catalog_search(
     initial: bool,
 ) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::SearchProcessor::new()));
+    parser.register_processor(Box::new(streaming::processors::SearchDataCatalogProcessor::new()));
 
     if let Ok(Some(message)) = parser.process_chunk(id.clone(), &content, "search_data_catalog") {
         match message {
@@ -1630,7 +1630,7 @@ fn assistant_create_metrics(
     initial: bool,
 ) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::MetricProcessor::new()));
+    parser.register_processor(Box::new(streaming::processors::CreateMetricsProcessor::new()));
 
     match parser.process_chunk(id.clone(), &content, "metric") {
         Ok(Some(message)) => {
@@ -1655,7 +1655,7 @@ fn assistant_modify_metrics(
     initial: bool,
 ) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::MetricProcessor::new()));
+    parser.register_processor(Box::new(streaming::processors::CreateMetricsProcessor::new()));
 
     match parser.process_chunk(id.clone(), &content, "metric") {
         Ok(Some(message)) => {
@@ -1680,7 +1680,7 @@ fn assistant_create_dashboards(
     initial: bool,
 ) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::DashboardProcessor::new()));
+    parser.register_processor(Box::new(streaming::processors::CreateDashboardsProcessor::new()));
 
     match parser.process_chunk(id.clone(), &content, "dashboard") {
         Ok(Some(message)) => {
@@ -1706,7 +1706,7 @@ fn assistant_modify_dashboards(
     initial: bool,
 ) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::DashboardProcessor::new()));
+    parser.register_processor(Box::new(streaming::processors::CreateDashboardsProcessor::new()));
 
     match parser.process_chunk(id.clone(), &content, "dashboard") {
         Ok(Some(message)) => {
@@ -1731,7 +1731,7 @@ fn assistant_create_plan(
     initial: bool,
 ) -> Result<Vec<ProcessedOutput>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::PlanProcessor::new()));
+    parser.register_processor(Box::new(streaming::processors::CreatePlanProcessor::new()));
 
     match parser.process_chunk(id.clone(), &content, "plan") {
         Ok(Some(message)) => {

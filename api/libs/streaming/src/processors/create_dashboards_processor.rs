@@ -7,12 +7,12 @@ use crate::processor::Processor;
 use crate::types::{File, FileContent, ProcessedOutput, ProcessorType, ReasoningFile};
 
 /// Processor for dashboard files
-pub struct DashboardProcessor;
+pub struct CreateDashboardsProcessor;
 
-impl DashboardProcessor {
+impl CreateDashboardsProcessor {
     /// Creates a new DashboardProcessor
     pub fn new() -> Self {
-        DashboardProcessor
+        CreateDashboardsProcessor
     }
 
     /// Generate a deterministic UUID based on input parameters
@@ -35,7 +35,7 @@ impl DashboardProcessor {
     }
 }
 
-impl Processor for DashboardProcessor {
+impl Processor for CreateDashboardsProcessor {
     fn processor_type(&self) -> ProcessorType {
         ProcessorType::Dashboard
     }
@@ -124,7 +124,7 @@ mod tests {
 
     #[test]
     fn test_can_process() {
-        let processor = DashboardProcessor::new();
+        let processor = CreateDashboardsProcessor::new();
 
         // Test with valid dashboard data
         let json = r#"{"files":[{"name":"test_dashboard.yml","yml_content":"name: Test Dashboard\ndescription: A test dashboard"}]}"#;
@@ -149,7 +149,7 @@ mod tests {
 
     #[test]
     fn test_process() {
-        let processor = DashboardProcessor::new();
+        let processor = CreateDashboardsProcessor::new();
         let id = "test_id".to_string();
 
         // Test with valid dashboard data

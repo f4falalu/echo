@@ -7,12 +7,12 @@ use crate::processor::Processor;
 use crate::types::{File, FileContent, ProcessedOutput, ProcessorType, ReasoningFile};
 
 /// Processor for metric files
-pub struct MetricProcessor;
+pub struct CreateMetricsProcessor;
 
-impl MetricProcessor {
+impl CreateMetricsProcessor {
     /// Creates a new MetricProcessor
     pub fn new() -> Self {
-        MetricProcessor
+        CreateMetricsProcessor
     }
 
     /// Generate a deterministic UUID based on input parameters
@@ -35,7 +35,7 @@ impl MetricProcessor {
     }
 }
 
-impl Processor for MetricProcessor {
+impl Processor for CreateMetricsProcessor {
     fn processor_type(&self) -> ProcessorType {
         ProcessorType::Metric
     }
@@ -124,7 +124,7 @@ mod tests {
 
     #[test]
     fn test_can_process() {
-        let processor = MetricProcessor::new();
+        let processor = CreateMetricsProcessor::new();
 
         // Test with valid metric data
         let json = r#"{"files":[{"name":"test_metric.yml","yml_content":"name: Test Metric\ndescription: A test metric"}]}"#;
@@ -149,7 +149,7 @@ mod tests {
 
     #[test]
     fn test_process() {
-        let processor = MetricProcessor::new();
+        let processor = CreateMetricsProcessor::new();
         let id = "test_id".to_string();
 
         // Test with valid metric data
