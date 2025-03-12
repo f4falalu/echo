@@ -74,21 +74,8 @@ async fn get_asset_access_handler(
                 .first::<(Uuid, bool, bool, Option<DateTime<Utc>>)>(&mut conn)
                 .await?;
 
-            let user_permission = {
-                let pg_pool = pg_pool.clone();
-                let user_id = user.id.clone();
-                let asset_id = asset_id.clone();
-                tokio::spawn(async move {
-                    get_user_dashboard_permission(&pg_pool, &user_id, &asset_id).await
-                })
-            };
 
-            let user_permission = user_permission
-                .await
-                .map_err(|_| anyhow!("Failed to join task"))? // Changed to discard error details
-                .unwrap_or(None); // Use None for both error and no permission cases
-
-            (dashboard_info, user_permission)
+            (dashboard_info, Some(AssetPermissionRole::Owner))
         }
         AssetType::Thread => {
             let mut conn = pg_pool.get().await?;
