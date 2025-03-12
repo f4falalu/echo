@@ -17,29 +17,21 @@ use agents::{
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
-    enums::Verification,
-    models::{Chat, Message, MessageToFile},
+    models::{Message, MessageToFile},
     pool::get_pg_pool,
-    schema::{chats, messages, messages_to_files},
+    schema::{messages, messages_to_files},
     types::DashboardYml,
 };
-use diesel::{insert_into, ExpressionMethods};
+use diesel::insert_into;
 use diesel_async::RunQueryDsl;
-use litellm::{
-    ChatCompletionRequest, LiteLLMClient, LiteLlmMessage as LiteLLMAgentMessage, MessageProgress,
-    Metadata, ToolCall,
-};
+use litellm::{MessageProgress, ToolCall};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
-use streaming::processors::{DashboardProcessor, MetricProcessor, PlanProcessor, SearchProcessor};
-use streaming::StreamingParser;
-use streaming::{
-    processors,
-    types::{
-        File, FileContent, FileMetadata, ProcessedOutput, ReasoningFile, ReasoningPill,
-        ReasoningText, ThoughtPill, ThoughtPillContainer,
-    },
+use serde_json::Value;
+use streaming::types::{
+    File, FileContent, ProcessedOutput, ReasoningFile, ReasoningPill, ReasoningText, ThoughtPill,
+    ThoughtPillContainer,
 };
+use streaming::StreamingParser;
 use uuid::Uuid;
 
 use crate::chats::{
