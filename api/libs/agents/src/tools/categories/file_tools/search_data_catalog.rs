@@ -15,7 +15,7 @@ use uuid::Uuid;
 
 use crate::{agent::Agent, tools::ToolExecutor};
 
-use litellm::{ChatCompletionRequest, LiteLLMClient, AgentMessage, Metadata, ResponseFormat};
+use litellm::{ChatCompletionRequest, LiteLLMClient, LiteLlmMessage, Metadata, ResponseFormat};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchDataCatalogParams {
@@ -128,7 +128,7 @@ impl SearchDataCatalogTool {
         while retry_count < MAX_RETRIES {
             let request = ChatCompletionRequest {
                 model: "o3-mini".to_string(),
-                messages: vec![AgentMessage::User {
+                messages: vec![LiteLlmMessage::User {
                     id: None,
                     content: current_prompt.clone(),
                     name: None,
@@ -160,7 +160,7 @@ impl SearchDataCatalogTool {
 
             // Parse LLM response
             let content = match &response.choices[0].message {
-                AgentMessage::Assistant {
+                LiteLlmMessage::Assistant {
                     content: Some(content),
                     ..
                 } => content,

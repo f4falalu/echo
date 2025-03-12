@@ -11,7 +11,7 @@ use agents::{
         },
         planning_tools::CreatePlanOutput,
     },
-    AgentExt, AgentMessage, AgentThread, BusterSuperAgent,
+    AgentExt, AgentThread, BusterSuperAgent, LiteLlmMessage,
 };
 
 use anyhow::{anyhow, Result};
@@ -26,7 +26,7 @@ use database::{
 use diesel::{insert_into, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use litellm::{
-    AgentMessage as LiteLLMAgentMessage, ChatCompletionRequest, LiteLLMClient, MessageProgress,
+    ChatCompletionRequest, LiteLLMClient, LiteLlmMessage as LiteLLMAgentMessage, MessageProgress,
     Metadata, ToolCall,
 };
 use serde::{Deserialize, Serialize};
@@ -47,12 +47,11 @@ use crate::chats::{
         chat_context::ChatContextLoader, dashboard_context::DashboardContextLoader,
         metric_context::MetricContextLoader, validate_context_request, ContextLoader,
     },
-    get_chat_handler,
-    helpers::initialize_chat,
+    helpers::{generate_conversation_title, initialize_chat},
 };
 use crate::messages::types::{ChatMessage, ChatUserMessage};
 
-use super::types::ChatWithMessages;
+use super::{helpers::generate_conversation_title::BusterGeneratingTitle, types::ChatWithMessages};
 use tokio::sync::mpsc;
 
 static CHUNK_TRACKER: OnceCell<ChunkTracker> = OnceCell::new();
@@ -390,7 +389,7 @@ pub async fn post_chat_handler(
     }
 
     // Add the new user message
-    initial_messages.push(AgentMessage::user(request.prompt.clone()));
+    initial_messages.push(LiteLlmMessage::user(request.prompt.clone()));
 
     // Initialize raw_llm_messages with initial_messages
     let mut raw_llm_messages = initial_messages.clone();
@@ -399,14 +398,28 @@ pub async fn post_chat_handler(
     // Initialize the agent thread
     let mut chat = AgentThread::new(Some(chat_id), user.id, initial_messages);
 
-    let title_handle = {
+    let title_handle: tokio::task::JoinHandle<Result<BusterGeneratingTitle, anyhow::Error>> = {
         let tx = tx.clone();
         let chat_id = chat_id.clone();
         let message_id = message_id.clone();
         let user_id = user.id.clone();
         let chat_messages = chat.messages.clone();
         tokio::spawn(async move {
-            generate_conversation_title(&chat_messages, &message_id, &user_id, &chat_id, tx).await
+            let title =
+                generate_conversation_title(&chat_messages, &message_id, &user_id, &chat_id)
+                    .await
+                    .map_err(|e| anyhow!("Failed to generate conversation title: {}", e))?;
+
+            if let Some(tx) = tx {
+                tx.send(Ok((
+                    BusterContainer::GeneratingTitle(title.clone()),
+                    ThreadEvent::GeneratingTitle,
+                )))
+                .await
+                .map_err(|e| anyhow!("Failed to send title: {}", e))?;
+            };
+
+            Ok(title)
         })
     };
 
@@ -414,7 +427,7 @@ pub async fn post_chat_handler(
     let mut rx = agent.run(&mut chat).await?;
 
     // Collect all messages for final processing
-    let mut all_messages: Vec<AgentMessage> = Vec::new();
+    let mut all_messages: Vec<LiteLlmMessage> = Vec::new();
     let mut all_transformed_containers: Vec<BusterContainer> = Vec::new();
 
     // Modify the message processing section:
@@ -423,7 +436,7 @@ pub async fn post_chat_handler(
     // Process all messages from the agent
     while let Ok(message_result) = rx.recv().await {
         match message_result {
-            Ok(AgentMessage::Done) => {
+            Ok(LiteLlmMessage::Done) => {
                 // Agent has finished processing, break the loop
                 break;
             }
@@ -433,7 +446,7 @@ pub async fn post_chat_handler(
 
                 // Only store completed messages in raw_llm_messages
                 match &msg {
-                    AgentMessage::Assistant {
+                    LiteLlmMessage::Assistant {
                         progress, content, ..
                     } => {
                         if let Some(content) = content {
@@ -444,7 +457,7 @@ pub async fn post_chat_handler(
                             if raw_response_message.is_empty() {
                                 raw_llm_messages.push(msg.clone());
                             } else {
-                                raw_llm_messages.push(AgentMessage::Assistant {
+                                raw_llm_messages.push(LiteLlmMessage::Assistant {
                                     id: None,
                                     content: Some(raw_response_message.clone()),
                                     name: None,
@@ -455,12 +468,12 @@ pub async fn post_chat_handler(
                             }
                         }
                     }
-                    AgentMessage::Tool { progress, .. } => {
+                    LiteLlmMessage::Tool { progress, .. } => {
                         if matches!(progress, MessageProgress::Complete) {
                             raw_llm_messages.push(msg.clone());
                         }
                     }
-                    AgentMessage::User { .. } => {
+                    LiteLlmMessage::User { .. } => {
                         raw_llm_messages.push(msg.clone());
                     }
                     _ => {}
@@ -718,7 +731,7 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
 async fn process_completed_files(
     conn: &mut diesel_async::AsyncPgConnection,
     message: &Message,
-    messages: &[AgentMessage],
+    messages: &[LiteLlmMessage],
     organization_id: &Uuid,
     user_id: &Uuid,
 ) -> Result<()> {
@@ -828,13 +841,13 @@ pub enum BusterContainer {
 pub async fn transform_message(
     chat_id: &Uuid,
     message_id: &Uuid,
-    message: AgentMessage,
+    message: LiteLlmMessage,
     tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<Vec<(BusterContainer, ThreadEvent)>> {
     println!("MESSAGE_STREAM: Transforming message: {:?}", message);
 
     match message {
-        AgentMessage::Assistant {
+        LiteLlmMessage::Assistant {
             id,
             content,
             name,
@@ -935,7 +948,7 @@ pub async fn transform_message(
                 Ok(vec![])
             }
         }
-        AgentMessage::Tool {
+        LiteLlmMessage::Tool {
             id,
             content,
             tool_call_id,
@@ -1742,130 +1755,4 @@ fn assistant_create_plan(
         Ok(None) => Ok(vec![]),
         Err(e) => Err(e),
     }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
-pub enum BusterGeneratingTitleProgress {
-    Completed,
-    InProgress,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct BusterGeneratingTitle {
-    pub chat_id: Uuid,
-    pub message_id: Uuid,
-    pub title: Option<String>,
-    pub title_chunk: Option<String>,
-    pub progress: BusterGeneratingTitleProgress,
-}
-
-// Conversation title generation functionality
-// -----------------------------------------
-
-// Constants for title generation
-const TITLE_GENERATION_PROMPT: &str = r#"
-You are a conversation title generator. Your task is to generate a clear, concise, and descriptive title for a conversation based on the user messages and assistant responses provided.
-
-Guidelines:
-1. The title should be 3-10 words and should capture the core topic or intent of the conversation
-2. Focus on key topics, questions, or themes from the conversation
-3. Be specific rather than generic when possible
-4. Avoid phrases like "Conversation about..." or "Discussion on..."
-5. Don't include mentions of yourself in the title
-6. The title should make sense out of context
-7. Pay attention to the most recent messages to guide topic changes, etc.
-
-Conversation:
-{conversation_messages}
-
-Return only the title text with no additional formatting, explanation, quotes, new lines, special characters, etc.
-"#;
-
-/// Generates a title for a conversation by processing user and assistant messages.
-/// The function streams the title back as it's being generated.
-type BusterContainerResult = Result<(BusterContainer, ThreadEvent)>;
-
-pub async fn generate_conversation_title(
-    messages: &[AgentMessage],
-    message_id: &Uuid,
-    user_id: &Uuid,
-    session_id: &Uuid,
-    tx: Option<mpsc::Sender<BusterContainerResult>>,
-) -> Result<BusterGeneratingTitle> {
-    // Format conversation messages for the prompt
-    let mut formatted_messages = vec![];
-    for message in messages {
-        if message.get_role() == "user"
-            || (message.get_role() == "assistant" && message.get_content().is_some())
-        {
-            formatted_messages.push(format!(
-                "{}: {}",
-                message.get_role(),
-                message.get_content().unwrap_or_default()
-            ));
-        }
-    }
-
-    let formatted_messages = formatted_messages.join("\n\n");
-    // Create the prompt with the formatted messages
-    let prompt = TITLE_GENERATION_PROMPT.replace("{conversation_messages}", &formatted_messages);
-
-    // Set up LiteLLM client
-    let llm_client = LiteLLMClient::new(None, None);
-
-    // Create the request
-    let request = ChatCompletionRequest {
-        model: "gemini-2".to_string(),
-        messages: vec![LiteLLMAgentMessage::User {
-            id: None,
-            content: prompt,
-            name: None,
-        }],
-        metadata: Some(Metadata {
-            generation_name: "conversation_title".to_string(),
-            user_id: user_id.to_string(),
-            session_id: session_id.to_string(),
-            trace_id: session_id.to_string(),
-        }),
-        ..Default::default()
-    };
-
-    // Get streaming response - use chat_completion with stream parameter set to true
-    let response = match llm_client.chat_completion(request).await {
-        Ok(response) => response,
-        Err(e) => {
-            return Err(anyhow::anyhow!("Failed to start title generation: {}", e));
-        }
-    };
-
-    // Parse LLM response
-    let content = match &response.choices[0].message {
-        AgentMessage::Assistant {
-            content: Some(content),
-            ..
-        } => content,
-        _ => {
-            tracing::error!("LLM response missing content");
-            return Err(anyhow::anyhow!("LLM response missing content"));
-        }
-    };
-
-    let title = BusterGeneratingTitle {
-        chat_id: session_id.clone(),
-        message_id: message_id.clone(),
-        title: Some(content.clone().replace("\n", "")),
-        title_chunk: None,
-        progress: BusterGeneratingTitleProgress::Completed,
-    };
-
-    if let Some(tx) = tx {
-        tx.send(Ok((
-            BusterContainer::GeneratingTitle(title.clone()),
-            ThreadEvent::GeneratingTitle,
-        )))
-        .await?;
-    }
-
-    Ok(title)
 }

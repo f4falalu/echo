@@ -20,14 +20,14 @@ use crate::{
     Agent, AgentError, AgentExt, AgentThread,
 };
 
-use litellm::AgentMessage as AgentMessage;
+use litellm::LiteLlmMessage;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BusterSuperAgentOutput {
     pub message: String,
     pub duration: i64,
     pub thread_id: Uuid,
-    pub messages: Vec<AgentMessage>,
+    pub messages: Vec<LiteLlmMessage>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -127,7 +127,7 @@ impl BusterSuperAgent {
     pub async fn run(
         &self,
         thread: &mut AgentThread,
-    ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
+    ) -> Result<broadcast::Receiver<Result<LiteLlmMessage, AgentError>>> {
         thread.set_developer_message(BUSTER_SUPER_AGENT_PROMPT.to_string());
 
         // Get shutdown receiver

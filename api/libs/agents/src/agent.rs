@@ -1,7 +1,7 @@
 use crate::tools::{IntoToolCallExecutor, ToolExecutor};
 use anyhow::Result;
 use litellm::{
-    AgentMessage, ChatCompletionRequest, DeltaToolCall, FunctionCall, LiteLLMClient,
+    LiteLlmMessage, ChatCompletionRequest, DeltaToolCall, FunctionCall, LiteLLMClient,
     MessageProgress, Metadata, Tool, ToolCall, ToolChoice,
 };
 use middleware::AuthenticatedUser;
@@ -24,7 +24,7 @@ impl std::fmt::Display for AgentError {
     }
 }
 
-type MessageResult = Result<AgentMessage, AgentError>;
+type MessageResult = Result<LiteLlmMessage, AgentError>;
 
 #[derive(Debug)]
 struct MessageBuffer {
@@ -78,7 +78,7 @@ impl MessageBuffer {
         };
 
         // Create and send the message
-        let message = AgentMessage::assistant(
+        let message = LiteLlmMessage::assistant(
             self.message_id.clone(),
             if self.content.is_empty() {
                 None
@@ -259,7 +259,7 @@ impl Agent {
     }
 
     /// Get the complete conversation history of the current thread
-    pub async fn get_conversation_history(&self) -> Option<Vec<AgentMessage>> {
+    pub async fn get_conversation_history(&self) -> Option<Vec<LiteLlmMessage>> {
         self.current_thread
             .read()
             .await
@@ -268,7 +268,7 @@ impl Agent {
     }
 
     /// Update the current thread with a new message
-    async fn update_current_thread(&self, message: AgentMessage) -> Result<()> {
+    async fn update_current_thread(&self, message: LiteLlmMessage) -> Result<()> {
         let mut thread_lock = self.current_thread.write().await;
         if let Some(thread) = thread_lock.as_mut() {
             thread.messages.push(message);
@@ -322,7 +322,7 @@ impl Agent {
     ///
     /// # Returns
     /// * A Result containing the final Message from the assistant
-    pub async fn process_thread(&self, thread: &AgentThread) -> Result<AgentMessage> {
+    pub async fn process_thread(&self, thread: &AgentThread) -> Result<LiteLlmMessage> {
         let mut rx = self.process_thread_streaming(thread).await?;
 
         let mut final_message = None;
@@ -359,13 +359,13 @@ impl Agent {
                         let err_msg = format!("Error processing thread: {:?}", e);
                         let _ = agent_clone.get_stream_sender().await.send(Err(AgentError(err_msg)));
                         // Send Done message after error
-                        let _ = agent_clone.get_stream_sender().await.send(Ok(AgentMessage::Done));
+                        let _ = agent_clone.get_stream_sender().await.send(Ok(LiteLlmMessage::Done));
                     }
                 },
                 _ = shutdown_rx.recv() => {
                     // Send shutdown notification
                     let _ = agent_clone.get_stream_sender().await.send(
-                        Ok(AgentMessage::assistant(
+                        Ok(LiteLlmMessage::assistant(
                             Some("shutdown_message".to_string()),
                             Some("Processing interrupted due to shutdown signal".to_string()),
                             None,
@@ -375,7 +375,7 @@ impl Agent {
                         ))
                     );
                     // Send Done message after shutdown
-                    let _ = agent_clone.get_stream_sender().await.send(Ok(AgentMessage::Done));
+                    let _ = agent_clone.get_stream_sender().await.send(Ok(LiteLlmMessage::Done));
                 }
             }
         });
@@ -395,7 +395,7 @@ impl Agent {
         }
 
         if recursion_depth >= 30 {
-            let message = AgentMessage::assistant(
+            let message = LiteLlmMessage::assistant(
                 Some("max_recursion_depth_message".to_string()),
                 Some("I apologize, but I've reached the maximum number of actions (30). Please try breaking your request into smaller parts.".to_string()),
                 None,
@@ -502,7 +502,7 @@ impl Agent {
             None
         };
 
-        let final_message = AgentMessage::assistant(
+        let final_message = LiteLlmMessage::assistant(
             buffer.message_id,
             if buffer.content.is_empty() {
                 None
@@ -528,7 +528,7 @@ impl Agent {
             // Send Done message and return
             self.get_stream_sender()
                 .await
-                .send(Ok(AgentMessage::Done))?;
+                .send(Ok(LiteLlmMessage::Done))?;
             return Ok(());
         }
 
@@ -542,7 +542,7 @@ impl Agent {
                     let params: Value = serde_json::from_str(&tool_call.function.arguments)?;
                     let result = tool.execute(params, tool_call.id.clone(), self.get_user()).await?;
                     let result_str = serde_json::to_string(&result)?;
-                    let tool_message = AgentMessage::tool(
+                    let tool_message = LiteLlmMessage::tool(
                         None,
                         result_str,
                         tool_call.id.clone(),
@@ -571,7 +571,7 @@ impl Agent {
             // Send Done message and return
             self.get_stream_sender()
                 .await
-                .send(Ok(AgentMessage::Done))?;
+                .send(Ok(LiteLlmMessage::Done))?;
             Ok(())
         }
     }
@@ -670,7 +670,7 @@ pub trait AgentExt {
         (*self.get_agent()).process_thread_streaming(thread).await
     }
 
-    async fn process_thread(&self, thread: &AgentThread) -> Result<AgentMessage> {
+    async fn process_thread(&self, thread: &AgentThread) -> Result<LiteLlmMessage> {
         (*self.get_agent()).process_thread(thread).await
     }
 
@@ -730,7 +730,7 @@ mod tests {
             progress: MessageProgress,
         ) -> Result<()> {
             let message =
-                AgentMessage::tool(None, content, tool_id, Some(self.get_name()), progress);
+                LiteLlmMessage::tool(None, content, tool_id, Some(self.get_name()), progress);
             self.agent.get_stream_sender().await.send(Ok(message))?;
             Ok(())
         }
@@ -819,7 +819,7 @@ mod tests {
         let thread = AgentThread::new(
             None,
             create_test_user().id,
-            vec![AgentMessage::user("Hello, world!".to_string())],
+            vec![LiteLlmMessage::user("Hello, world!".to_string())],
         );
 
         let response = match agent.process_thread(&thread).await {
@@ -850,7 +850,7 @@ mod tests {
         let thread = AgentThread::new(
             None,
             create_test_user().id,
-            vec![AgentMessage::user(
+            vec![LiteLlmMessage::user(
                 "What is the weather in vineyard ut?".to_string(),
             )],
         );
@@ -881,7 +881,7 @@ mod tests {
         let thread = AgentThread::new(
             None,
             create_test_user().id,
-            vec![AgentMessage::user(
+            vec![LiteLlmMessage::user(
                 "What is the weather in vineyard ut and san francisco?".to_string(),
             )],
         );
