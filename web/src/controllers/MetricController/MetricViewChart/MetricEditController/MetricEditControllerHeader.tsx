@@ -4,9 +4,18 @@ import { Button } from '@/components/ui/buttons';
 import { Xmark } from '@/components/ui/icons';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { cn } from '@/lib/classMerge';
+import { AppTooltip } from '@/components/ui/tooltip';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export const MetricEditControllerHeader: React.FC = React.memo(() => {
   const closeSecondaryView = useChatLayoutContextSelector((x) => x.closeSecondaryView);
+  const selectedFileViewSecondary = useChatLayoutContextSelector(
+    (x) => x.selectedFileViewSecondary
+  );
+
+  useHotkeys('esc', () => closeSecondaryView(), {
+    enabled: !!selectedFileViewSecondary
+  });
 
   return (
     <div
@@ -16,7 +25,9 @@ export const MetricEditControllerHeader: React.FC = React.memo(() => {
         'px-4 py-2.5'
       )}>
       <Text>Edit chart</Text>
-      <Button onClick={closeSecondaryView} variant="ghost" prefix={<Xmark />} />
+      <AppTooltip title="Close" shortcuts={['esc']}>
+        <Button onClick={closeSecondaryView} variant="ghost" prefix={<Xmark />} />
+      </AppTooltip>
     </div>
   );
 });
