@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import React from 'react';
 import { BusterChart } from '../BusterChart';
 import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
 import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
@@ -130,5 +131,42 @@ export const DonutMultipleValues: Story = {
     pieDisplayLabelAs: 'percent',
     pieDonutWidth: 0.7,
     className: 'w-[500px] h-[500px]'
+  }
+};
+
+export const ResizableContainer: Story = {
+  render: (args) => (
+    <div className="h-[500px] min-h-[200px] w-[500px] min-w-[200px] resize overflow-auto rounded-lg border border-gray-200 p-4">
+      <BusterChart {...args} className="h-full w-full" />
+    </div>
+  ),
+  args: {
+    selectedChartType: ChartType.Pie,
+    data: generatePieChartData(),
+    pieChartAxis: {
+      x: ['segment'],
+      y: ['value']
+    },
+    columnLabelFormats: {
+      segment: {
+        columnType: 'text',
+        style: 'string'
+      } satisfies IColumnLabelFormat,
+      value: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
+    pieDisplayLabelAs: 'percent',
+    pieDonutWidth: 0
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'This story provides a resizable container. Drag the bottom-right corner to resize the chart.'
+      }
+    }
   }
 };

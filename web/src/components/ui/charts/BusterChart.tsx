@@ -132,6 +132,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
 
       const chartProps: BusterChartRenderComponentProps = {
         ...DEFAULT_CHART_CONFIG,
+        columnMetadata: props.columnMetadata ?? [],
         data,
         onChartMounted,
         onInitialAnimationEnd: onInitialAnimationEndPreflight,
