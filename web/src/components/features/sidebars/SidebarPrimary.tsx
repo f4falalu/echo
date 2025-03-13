@@ -38,7 +38,7 @@ const topItems: ISidebarList = {
 };
 
 const yourStuff: ISidebarGroup = {
-  label: 'Your stuffs',
+  label: 'Your stuff',
   items: [
     {
       label: 'Metrics',
