@@ -50,7 +50,7 @@ const DialogContent = React.memo(
         <DialogPrimitive.Close
           asChild
           className={cn(
-            'absolute top-4 right-4 opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none'
+            'absolute top-6 right-6 opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none'
           )}>
           <Button prefix={<Xmark />} variant="ghost" />
         </DialogPrimitive.Close>

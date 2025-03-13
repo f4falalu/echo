@@ -26,8 +26,6 @@ export const useChatLayout = ({ appSplitterRef }: UseChatSplitterProps) => {
       } else if (side === 'both') {
         const shouldAnimate = Number(leftSize) < 200 || parseInt(rightSize as string) < 340;
 
-        console.log(shouldAnimate, leftSize, rightSize);
-
         if (!shouldAnimate) return;
 
         animateWidth(DEFAULT_CHAT_OPTION_SIDEBAR_SIZE, 'left');
