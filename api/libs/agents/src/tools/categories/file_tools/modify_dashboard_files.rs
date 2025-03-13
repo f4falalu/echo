@@ -16,7 +16,7 @@ use tracing::{debug, error, info};
 use super::{
     common::{
         apply_modifications_to_content, FileModificationBatch, ModificationResult,
-        ModifyFilesOutput, ModifyFilesParams,
+        ModifyFilesOutput, ModifyFilesParams, process_dashboard_file_modification,
     },
     file_types::file::FileWithId,
     FileModificationTool,
@@ -98,6 +98,34 @@ impl ToolExecutor for ModifyDashboardFilesTool {
             {
                 Ok(dashboard_file) => {
                     let duration = start_time.elapsed().as_millis() as i64;
+                    
+                    // Process the dashboard file modification
+                    match process_dashboard_file_modification(
+                        dashboard_file,
+                        &modification,
+                        duration,
+                    )
+                    .await
+                    {
+                        Ok((
+                            dashboard_file,
+                            dashboard_yml,
+                            results,
+                            validation_message,
+                            validation_results,
+                        )) => {
+                            batch.files.push(dashboard_file);
+                            batch.ymls.push(dashboard_yml);
+                            batch.modification_results.extend(results);
+                            batch.validation_messages.push(validation_message);
+                            batch.validation_results.push(validation_results);
+                        }
+                        Err(e) => {
+                            batch
+                                .failed_modifications
+                                .push((modification.file_name.clone(), e.to_string()));
+                        }
+                    }
                 }
                 Err(e) => {
                     batch.failed_modifications.push((
