@@ -14,7 +14,8 @@ import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
 import {
   useDeleteMetric,
   useRemoveMetricFromCollection,
-  useSaveMetricToCollection
+  useSaveMetricToCollection,
+  useUpdateMetric
 } from '@/api/buster_rest/metrics';
 import {
   useAddUserFavorite,
@@ -130,11 +131,18 @@ const StatusButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const onVerifiedMetric = useBusterMetricsContextSelector((state) => state.onVerifiedMetric);
+  const { mutateAsync: updateMetric } = useUpdateMetric();
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
 
   const onVerify = useMemoizedFn(async (d: { id: string; status: VerificationStatus }[]) => {
-    //   await onVerifiedMetric(d);
+    await Promise.all(
+      d.map(({ id, status }) => {
+        return updateMetric({
+          id,
+          status
+        });
+      })
+    );
     onSelectChange([]);
   });
 

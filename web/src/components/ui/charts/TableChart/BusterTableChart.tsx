@@ -22,12 +22,12 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   columnLabelFormats = DEFAULT_CHART_CONFIG.columnLabelFormats,
   tableColumnWidths = DEFAULT_CHART_CONFIG.tableColumnWidths,
   editable = true,
+  onInitialAnimationEnd,
   //TODO
   tableHeaderBackgroundColor,
   tableHeaderFontColor,
   isDarkMode,
   animate,
-  onInitialAnimationEnd,
   tableColumnFontColor
 }) => {
   const onUpdateMetricChartConfig = useBusterMetricsContextSelector(

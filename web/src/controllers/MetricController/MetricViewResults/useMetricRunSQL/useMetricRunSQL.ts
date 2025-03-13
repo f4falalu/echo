@@ -8,14 +8,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest';
-import { useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useSaveMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
 
 export const useMetricRunSQL = () => {
   const queryClient = useQueryClient();
-  const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
   const getMetricMemoized = useBusterMetricsContextSelector((x) => x.getMetricMemoized);
-  const onSaveMetricChanges = useBusterMetricsContextSelector((x) => x.onSaveMetricChanges);
   const { mutateAsync: updateMetricMutation } = useUpdateMetric();
+  const { mutateAsync: saveMetric } = useSaveMetric();
   const { mutateAsync: runSQLMutation } = useRunSQLQuery();
   const { openSuccessNotification } = useBusterNotifications();
 
@@ -88,7 +87,7 @@ export const useMetricRunSQL = () => {
           data_metadata,
           code: sql
         });
-        onUpdateMetric({
+        updateMetricMutation({
           id: metricId,
           chart_config: totallyDefaultChartConfig
         });
@@ -121,7 +120,7 @@ export const useMetricRunSQL = () => {
     setWarnBeforeNavigating(false);
     if (!originalConfigs.current) return;
     const oldConfig = originalConfigs.current?.chartConfig;
-    onUpdateMetric({
+    updateMetricMutation({
       id: metricId,
       chart_config: oldConfig
     });
@@ -161,14 +160,10 @@ export const useMetricRunSQL = () => {
         }
       }
 
-      await updateMetricMutation({
+      await saveMetric({
         id: metricId,
-        sql: sql
-      });
-      await onSaveMetricChanges({
-        metricId,
-        save_draft: true,
-        save_as_metric_state: metricId
+        sql: sql,
+        save_draft: true
       });
 
       setWarnBeforeNavigating(false);

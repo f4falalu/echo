@@ -10,7 +10,7 @@ import {
   listMetrics_server,
   updateMetric
 } from './requests';
-import type { GetMetricParams, ListMetricsParams } from './interfaces';
+import type { GetMetricParams, ListMetricsParams, UpdateMetricParams } from './interfaces';
 import { upgradeMetricToIMetric } from '@/lib/chat';
 import { queryKeys } from '@/api/query_keys';
 import { useMemo } from 'react';
@@ -19,6 +19,8 @@ import { resolveEmptyMetric } from '@/lib/metrics/resolve';
 import { useGetUserFavorites } from '../users';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
+import { create } from 'mutative';
+import { prepareMetricUpdateMetric } from '@/lib/metrics/saveToServerHelpers';
 
 export const useGetMetric = <TData = IBusterMetric>(
   id: string | undefined,
@@ -119,11 +121,15 @@ export const prefetchGetMetricDataClient = async (
   });
 };
 
-export const useUpdateMetric = () => {
+/**
+ * This is a mutation that saves a metric to the server.
+ * It will simply use the params passed in and not do any special logic.
+ */
+export const useSaveMetric = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateMetric,
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data) => {
       const hasDraftSessionId = data.draft_session_id;
       const metricId = data.id;
       const options = queryKeys.metricsGetMetric(metricId);
@@ -135,6 +141,38 @@ export const useUpdateMetric = () => {
         });
       }
     }
+  });
+};
+
+/**
+ * This is a mutation that updates a metric.
+ * It will create a new metric with the new values combined with the old values and save it to the server.
+ * It will also strip out any values that are not changed from the DEFAULT_CHART_CONFIG.
+ * It will also update the draft_session_id if it exists.
+ */
+export const useUpdateMetric = () => {
+  const queryClient = useQueryClient();
+  const { mutateAsync: saveMetric } = useSaveMetric();
+  const mutationFn = useMemoizedFn(
+    async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
+      const metricId = newMetricPartial.id;
+      const options = queryKeys.metricsGetMetric(metricId);
+      const prevMetric = queryClient.getQueryData(options.queryKey);
+      const newMetric = create(prevMetric, (draft) => {
+        Object.assign(draft || {}, newMetricPartial);
+      });
+
+      if (prevMetric && newMetric) {
+        const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
+        if (changedValues) {
+          return saveMetric(changedValues);
+        }
+      }
+      return Promise.resolve(newMetric!);
+    }
+  );
+  return useMutation({
+    mutationFn
   });
 };
 
@@ -202,8 +240,8 @@ export const useMetricIndividual = ({ metricId }: { metricId: string }) => {
 };
 
 export const useSaveMetricToCollection = () => {
-  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
   const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
+  const { mutateAsync: saveMetric } = useSaveMetric();
 
   const saveMetricToCollection = useMemoizedFn(
     async ({ metricId, collectionIds }: { metricId: string; collectionIds: string[] }) => {
@@ -212,7 +250,7 @@ export const useSaveMetricToCollection = () => {
         return collectionIds.includes(searchId);
       });
 
-      await updateMetricMutation({
+      await saveMetric({
         id: metricId,
         add_to_collections: collectionIds
       });
@@ -230,8 +268,8 @@ export const useSaveMetricToCollection = () => {
 };
 
 export const useRemoveMetricFromCollection = () => {
-  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
   const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
+  const { mutateAsync: saveMetric } = useSaveMetric();
   const queryClient = useQueryClient();
 
   const removeMetricFromCollection = useMemoizedFn(
@@ -244,7 +282,7 @@ export const useRemoveMetricFromCollection = () => {
           return currentMetric.collections.some((c) => c.id === searchId);
         });
 
-      await updateMetricMutation({
+      await saveMetric({
         id: metricId,
         remove_from_collections: [collectionId]
       });
@@ -262,11 +300,11 @@ export const useRemoveMetricFromCollection = () => {
 
 export const useSaveMetricToDashboard = () => {
   const queryClient = useQueryClient();
-  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
+  const { mutateAsync: saveMetric } = useSaveMetric();
 
   const saveMetricToDashboard = useMemoizedFn(
     async ({ metricId, dashboardIds }: { metricId: string; dashboardIds: string[] }) => {
-      await updateMetricMutation({
+      await saveMetric({
         id: metricId,
         save_to_dashboard: dashboardIds
       });
@@ -275,7 +313,7 @@ export const useSaveMetricToDashboard = () => {
 
   return useMutation({
     mutationFn: saveMetricToDashboard,
-    onSuccess: (data, variables, context) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
         queryKey: variables.dashboardIds.map((id) => queryKeys.dashboardGetDashboard(id).queryKey)
       });
@@ -284,10 +322,8 @@ export const useSaveMetricToDashboard = () => {
 };
 
 export const useRemoveMetricFromDashboard = () => {
-  const queryClient = useQueryClient();
   const { openConfirmModal } = useBusterNotifications();
-  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
-
+  const { mutateAsync: saveMetric } = useSaveMetric();
   const removeMetricFromDashboard = useMemoizedFn(
     async ({
       metricId,
@@ -299,7 +335,7 @@ export const useRemoveMetricFromDashboard = () => {
       useConfirmModal?: boolean;
     }) => {
       const method = async () => {
-        await updateMetricMutation({
+        await saveMetric({
           id: metricId,
           remove_from_dashboard: [dashboardId]
         });

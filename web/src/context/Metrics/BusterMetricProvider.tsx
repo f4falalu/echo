@@ -3,10 +3,9 @@
 import React, { PropsWithChildren, useTransition } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import {
-  BusterMetric,
   ColumnSettings,
   DEFAULT_CHART_CONFIG,
-  IColumnLabelFormat,
+  type IColumnLabelFormat,
   type IBusterMetric,
   type IBusterMetricChartConfig
 } from '@/api/asset_interfaces/metric';
@@ -14,13 +13,9 @@ import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 import { useDebounceFn, useMemoizedFn } from '@/hooks';
-import {
-  prepareMetricUpdateMetric,
-  resolveEmptyMetric,
-  upgradeMetricToIMetric
-} from '@/lib/metrics';
+import { prepareMetricUpdateMetric, resolveEmptyMetric } from '@/lib/metrics';
 import { create } from 'mutative';
-import { ShareRole, VerificationStatus } from '@/api/asset_interfaces/share';
+import { ShareRole } from '@/api/asset_interfaces/share';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
 
 const useBusterMetrics = () => {
@@ -44,7 +39,7 @@ const useBusterMetrics = () => {
 
   // STATE UPDATERS
 
-  const setMetricToState = useMemoizedFn((metric: IBusterMetric) => {
+  const _setMetricToState = useMemoizedFn((metric: IBusterMetric) => {
     const metricId = getMetricId(metric.id);
     const options = queryKeys.metricsGetMetric(metricId);
     queryClient.setQueryData(options.queryKey, metric);
@@ -57,7 +52,7 @@ const useBusterMetrics = () => {
       const newMetric = create(currentMetric, (draft) => {
         Object.assign(draft, newMetricPartial);
       });
-      setMetricToState(newMetric);
+      _setMetricToState(newMetric);
       //This will trigger a rerender and push prepareMetricUpdateMetric off UI metric
       startTransition(() => {
         const isReadyOnly = currentMetric.permission === ShareRole.VIEWER;
@@ -73,7 +68,7 @@ const useBusterMetrics = () => {
     useMemoizedFn((newMetric: IBusterMetric, oldMetric: IBusterMetric) => {
       const changedValues = prepareMetricUpdateMetric(newMetric, oldMetric);
       if (changedValues) {
-        updateMetricMutation(changedValues);
+        //   updateMetricMutation(changedValues);
       }
     }),
     { wait: 750 }
@@ -173,32 +168,12 @@ const useBusterMetrics = () => {
     }
   );
 
-  const onSaveMetricChanges = useMemoizedFn(
-    async (params: { metricId: string; save_draft: boolean; save_as_metric_state?: string }) => {
-      return updateMetricMutation({
-        id: params.metricId,
-        ...params
-      });
-    }
-  );
-
-  const onVerifiedMetric = useMemoizedFn(
-    async ({ metricId, status }: { metricId: string; status: VerificationStatus }) => {
-      return await onUpdateMetric({
-        id: metricId,
-        status
-      });
-    }
-  );
-
   return {
     getMetricMemoized,
     onUpdateMetric,
     onUpdateMetricChartConfig,
     onUpdateColumnLabelFormat,
-    onUpdateColumnSetting,
-    onSaveMetricChanges,
-    onVerifiedMetric
+    onUpdateColumnSetting
   };
 };
 
