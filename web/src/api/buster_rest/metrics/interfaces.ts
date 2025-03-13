@@ -41,4 +41,6 @@ export type UpdateMetricParams = {
   feedback?: 'negative';
   /** Admin only: verification status update */
   status?: VerificationStatus;
+  /** file in yaml format to update */
+  file?: string;
 } & ShareRequest;

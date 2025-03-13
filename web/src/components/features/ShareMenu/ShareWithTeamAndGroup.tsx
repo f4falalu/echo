@@ -10,7 +10,7 @@ import { UserGroup } from '@/components/ui/icons';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 import { useGetCollection, useUpdateCollection } from '@/api/buster_rest/collections';
-import { useGetMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useGetMetric, useSaveMetric } from '@/api/buster_rest/metrics';
 import { useGetDashboard, useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
 export const ShareWithGroupAndTeam: React.FC<{
@@ -21,7 +21,7 @@ export const ShareWithGroupAndTeam: React.FC<{
 }> = ({ assetType, assetId, goBack, onCopyLink }) => {
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
   const { mutateAsync: onShareDashboard } = useUpdateDashboard();
-  const { mutateAsync: onShareMetric } = useUpdateMetric();
+  const { mutateAsync: onShareMetric } = useSaveMetric();
   const { mutateAsync: onShareCollection } = useUpdateCollection();
   const { data: dashboardResponse } = useGetDashboard(
     assetType === ShareAssetType.DASHBOARD ? assetId : undefined

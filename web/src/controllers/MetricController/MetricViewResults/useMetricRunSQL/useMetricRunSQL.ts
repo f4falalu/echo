@@ -2,20 +2,19 @@ import type { BusterMetricData, IBusterMetricChartConfig } from '@/api/asset_int
 import { RunSQLResponse } from '@/api/asset_interfaces/sql';
 import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest';
-import { useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useSaveMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useGetMetricMemoized } from '@/context/Metrics';
 
 export const useMetricRunSQL = () => {
   const queryClient = useQueryClient();
-  const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
-  const getMetricMemoized = useBusterMetricsContextSelector((x) => x.getMetricMemoized);
-  const onSaveMetricChanges = useBusterMetricsContextSelector((x) => x.onSaveMetricChanges);
+  const getMetricMemoized = useGetMetricMemoized();
   const { mutateAsync: updateMetricMutation } = useUpdateMetric();
+  const { mutateAsync: saveMetric } = useSaveMetric();
   const { mutateAsync: runSQLMutation } = useRunSQLQuery();
   const { openSuccessNotification } = useBusterNotifications();
 
@@ -61,7 +60,7 @@ export const useMetricRunSQL = () => {
     (d: RunSQLResponse, sql: string, { metricId }: { metricId?: string }) => {
       if (metricId) {
         const { data, data_metadata } = d;
-        const metricMessage = getMetricMemoized({ metricId });
+        const metricMessage = getMetricMemoized(metricId);
         const currentMessageData = getDataByMetricIdMemoized(metricId);
         if (!originalConfigs.current) {
           originalConfigs.current = {
@@ -88,7 +87,7 @@ export const useMetricRunSQL = () => {
           data_metadata,
           code: sql
         });
-        onUpdateMetric({
+        updateMetricMutation({
           id: metricId,
           chart_config: totallyDefaultChartConfig
         });
@@ -121,7 +120,7 @@ export const useMetricRunSQL = () => {
     setWarnBeforeNavigating(false);
     if (!originalConfigs.current) return;
     const oldConfig = originalConfigs.current?.chartConfig;
-    onUpdateMetric({
+    updateMetricMutation({
       id: metricId,
       chart_config: oldConfig
     });
@@ -146,7 +145,7 @@ export const useMetricRunSQL = () => {
       dataSourceId?: string;
     }) => {
       const ogConfigs = originalConfigs.current;
-      const currentMetric = getMetricMemoized({ metricId });
+      const currentMetric = getMetricMemoized(metricId);
       const dataSourceId = dataSourceIdProp || currentMetric?.data_source_id;
 
       if ((!ogConfigs || ogConfigs.code !== sql) && dataSourceId) {
@@ -161,14 +160,10 @@ export const useMetricRunSQL = () => {
         }
       }
 
-      await updateMetricMutation({
+      await saveMetric({
         id: metricId,
-        sql: sql
-      });
-      await onSaveMetricChanges({
-        metricId,
-        save_draft: true,
-        save_as_metric_state: metricId
+        sql: sql,
+        save_draft: true
       });
 
       setWarnBeforeNavigating(false);

@@ -2,7 +2,6 @@
 
 import { useMemoizedFn, useUnmount } from '@/hooks';
 import sample from 'lodash/sample';
-import { useBusterChatContextSelector } from '../ChatProvider';
 import random from 'lodash/random';
 import last from 'lodash/last';
 import { useRef } from 'react';
@@ -10,10 +9,11 @@ import { IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import { ChatEvent_GeneratingReasoningMessage } from '@/api/buster_socket/chats';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
+import { useGetChatMemoized } from '@/api/buster_rest/chats';
 
 export const useBlackBoxMessage = () => {
   const timeoutRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
-  const getChatMessageMemoized = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
+  const getChatMessageMemoized = useGetChatMemoized();
   const queryClient = useQueryClient();
 
   const clearTimeoutRef = useMemoizedFn((messageId: string) => {

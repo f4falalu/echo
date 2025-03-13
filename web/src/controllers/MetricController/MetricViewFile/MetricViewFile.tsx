@@ -1,16 +1,15 @@
 import React, { useEffect } from 'react';
 import type { MetricViewProps } from '../config';
 import { CodeCard } from '@/components/ui/card';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMetricIndividual } from '@/api/buster_rest/metrics';
+import { useMetricIndividual, useUpdateMetric } from '@/api/buster_rest/metrics';
 
 export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId }) => {
   const { metric } = useMetricIndividual({ metricId });
   const { openSuccessMessage } = useBusterNotifications();
-  const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
+  const { mutateAsync: updateMetric } = useUpdateMetric();
 
   const { file: fileProp, file_name } = metric;
 
@@ -23,8 +22,9 @@ export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId 
   });
 
   const onSaveFile = useMemoizedFn(async () => {
-    await onUpdateMetric({
-      file
+    await updateMetric({
+      file,
+      id: metricId
     });
     openSuccessMessage(`${file_name} saved`);
   });

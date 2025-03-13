@@ -6,7 +6,6 @@ import { EditHideYAxis } from './EditHideYAxis';
 import { EditShowDataLabels } from './EditShowDataLabels';
 import { useMemoizedFn } from '@/hooks';
 import { IBusterMetricChartConfig, ColumnMetaData } from '@/api/asset_interfaces';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { EditBarSorting } from './EditBarAxisSorting';
 import { EditGrouping } from '../StylingAppVisualize/SelectAxis/SelectAxisSettingsContent/EditGrouping';
 import { EditBarRoundnessGlobal } from './EditBarRoundnessGlobal';
@@ -31,6 +30,7 @@ import {
 } from '@/api/asset_interfaces/metric/charts';
 import { StylingAppStylingNotSupported } from './StylingAppStylingNotSupported';
 import { EditScatterDotSize } from './EditScatterDotSize';
+import { useUpdateMetricChart } from '@/context/Metrics';
 
 const sectionClass = 'flex w-full flex-col space-y-3 my-3 ';
 const UNSUPPORTED_CHART_TYPES: ChartType[] = [ChartType.Table, ChartType.Metric];
@@ -96,9 +96,7 @@ export const StylingAppStyling: React.FC<{
   yAxisShowAxisTitle,
   rowCount
 }) => {
-  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
-    (x) => x.onUpdateMetricChartConfig
-  );
+  const { onUpdateMetricChartConfig } = useUpdateMetricChart();
 
   const onUpdateDataLabel = useMemoizedFn((v: boolean) => {
     const newColumnSettings: IBusterMetricChartConfig['columnSettings'] = Object.keys(

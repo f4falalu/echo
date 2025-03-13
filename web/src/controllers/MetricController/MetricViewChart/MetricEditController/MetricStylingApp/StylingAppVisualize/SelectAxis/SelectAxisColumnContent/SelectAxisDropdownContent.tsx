@@ -2,7 +2,6 @@ import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { useMemoizedFn } from '@/hooks';
 import React, { useMemo } from 'react';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { formatLabel } from '@/lib';
 import { EditTitle } from './EditTitle';
 import { EditDisplayAs } from './EditDisplayAs';
@@ -31,6 +30,7 @@ import { EditLineStyle } from './EditLineStyle';
 import isEmpty from 'lodash/isEmpty';
 import { useGetCurrencies } from '@/api/buster_rest/nextjs/currency';
 import { cn } from '@/lib/classMerge';
+import { useUpdateMetricChart } from '@/context/Metrics';
 
 export const SelectAxisDropdownContent: React.FC<{
   columnSetting: IBusterMetricChartConfig['columnSettings'][string];
@@ -63,12 +63,7 @@ export const SelectAxisDropdownContent: React.FC<{
   hideTitle = false,
   classNames
 }) => {
-  const onUpdateColumnLabelFormat = useBusterMetricsContextSelector(
-    ({ onUpdateColumnLabelFormat }) => onUpdateColumnLabelFormat
-  );
-  const onUpdateColumnSetting = useBusterMetricsContextSelector(
-    ({ onUpdateColumnSetting }) => onUpdateColumnSetting
-  );
+  const { onUpdateColumnLabelFormat, onUpdateColumnSetting } = useUpdateMetricChart();
 
   const { displayName } = columnLabelFormat;
   const formattedTitle = useMemo(() => {

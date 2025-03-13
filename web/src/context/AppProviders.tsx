@@ -6,10 +6,9 @@ import { BusterReactQueryProvider } from './BusterReactQuery/BusterReactQueryAnd
 import { AppLayoutProvider } from './BusterAppLayout';
 import { BusterUserConfigProvider } from './Users/UserConfigProvider';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
-import { BusterPosthogProvider } from './Posthog/usePosthog';
+import { BusterPosthogProvider } from './Posthog';
 import { BusterChatProvider } from './Chats';
 import { RoutePrefetcher } from './RoutePrefetcher';
-import { BusterMetricsProvider } from './Metrics';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
 
 // scan({
@@ -31,14 +30,12 @@ export const AppProviders: React.FC<
           <AppLayoutProvider>
             <BusterUserConfigProvider userInfo={userInfo}>
               <BusterAssetsProvider>
-                <BusterMetricsProvider>
-                  <BusterChatProvider>
-                    <BusterPosthogProvider>
-                      {children}
-                      <RoutePrefetcher />
-                    </BusterPosthogProvider>
-                  </BusterChatProvider>
-                </BusterMetricsProvider>
+                <BusterChatProvider>
+                  <BusterPosthogProvider>
+                    {children}
+                    <RoutePrefetcher />
+                  </BusterPosthogProvider>
+                </BusterChatProvider>
               </BusterAssetsProvider>
             </BusterUserConfigProvider>
           </AppLayoutProvider>

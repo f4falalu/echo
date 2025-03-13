@@ -6,14 +6,14 @@ import type {
 } from '@/api/asset_interfaces/chat';
 import { BarContainer } from '../BarContainer';
 import { ReasoningMessage_File } from './ReasoningMessageFile';
-import { useMessageIndividual } from '@/context/Chats';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 
 const getReasoningMessage = (x: BusterChatMessage | undefined, reasoningMessageId: string) =>
   x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files;
 
 export const ReasoningMessage_Files: React.FC<ReasoningMessageProps> = React.memo(
   ({ isCompletedStream, chatId, reasoningMessageId, messageId }) => {
-    const file_ids = useMessageIndividual(
+    const file_ids = useGetChatMessage(
       messageId,
       (x) => getReasoningMessage(x, reasoningMessageId)?.file_ids
     );

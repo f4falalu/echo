@@ -1,6 +1,6 @@
 'use client';
 
-import { useMessageIndividual } from '@/context/Chats';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 import type { SelectedFile } from '../interfaces';
 import { useEffect, useRef } from 'react';
 
@@ -12,11 +12,11 @@ export const useAutoChangeLayout = ({
   onSetSelectedFile: (file: SelectedFile) => void;
 }) => {
   const previousLastMessageId = useRef<string | null>(null);
-  const reasoningMessagesLength = useMessageIndividual(
+  const reasoningMessagesLength = useGetChatMessage(
     lastMessageId,
     (x) => x?.reasoning_message_ids?.length || 0
   );
-  const isCompletedStream = useMessageIndividual(lastMessageId, (x) => x?.isCompletedStream);
+  const isCompletedStream = useGetChatMessage(lastMessageId, (x) => x?.isCompletedStream);
   const hasReasoning = !!reasoningMessagesLength;
 
   //change the page to reasoning file if we get a reasoning message

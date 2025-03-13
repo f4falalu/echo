@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChatResponseMessage_File } from './ChatResponseMessage_File';
 import type { BusterChatMessageResponse } from '@/api/asset_interfaces';
-import { useMessageIndividual } from '@/context/Chats';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { ChatResponseMessage_Text } from './ChatResponseMessage_Text';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
@@ -29,7 +29,7 @@ export interface ChatResponseMessageSelectorProps {
 
 export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorProps> = React.memo(
   ({ responseMessageId, messageId, isCompletedStream }) => {
-    const messageType = useMessageIndividual(
+    const messageType = useGetChatMessage(
       messageId,
       (x) => x?.response_messages?.[responseMessageId]?.type || 'text'
     );

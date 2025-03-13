@@ -9,13 +9,13 @@ import { StatusIndicator } from '@/components/ui/indicators';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { VersionPill } from '@/components/ui/tags/VersionPill';
 import { StreamingMessage_File } from '@/components/ui/streaming/StreamingMessage_File';
-import { useMessageIndividual } from '@/context/Chats';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { useMemoizedFn } from '@/hooks';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
   ({ isCompletedStream, responseMessageId, messageId }) => {
-    const responseMessage = useMessageIndividual(
+    const responseMessage = useGetChatMessage(
       messageId,
       (x) => x?.response_messages?.[responseMessageId]
     ) as BusterChatResponseMessage_file;

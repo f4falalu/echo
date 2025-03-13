@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import type { BusterTableChartConfig } from './interfaces';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { formatLabel } from '@/lib/columnFormatter';
 import isEqual from 'lodash/isEqual';
 import {
@@ -14,7 +13,11 @@ import AppDataGrid from '@/components/ui/table/AppDataGrid/AppDataGrid';
 
 export interface BusterTableChartProps extends BusterTableChartConfig, BusterChartPropsBase {}
 
-const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
+const BusterTableChartBase: React.FC<
+  BusterTableChartProps & {
+    onChangeConfig?: (config: Partial<IBusterMetricChartConfig>) => void;
+  }
+> = ({
   className = '',
   onMounted,
   data,
@@ -22,17 +25,15 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   columnLabelFormats = DEFAULT_CHART_CONFIG.columnLabelFormats,
   tableColumnWidths = DEFAULT_CHART_CONFIG.tableColumnWidths,
   editable = true,
+  onInitialAnimationEnd,
+  onChangeConfig,
   //TODO
   tableHeaderBackgroundColor,
   tableHeaderFontColor,
   isDarkMode,
   animate,
-  onInitialAnimationEnd,
   tableColumnFontColor
 }) => {
-  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
-    (x) => x.onUpdateMetricChartConfig
-  );
   const containerWidth = useChartWrapperContextSelector(({ width }) => width);
 
   //THIS MUST BE A USE CALLBACK
@@ -56,9 +57,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
       tableColumnOrder: columns
     };
 
-    onUpdateMetricChartConfig({
-      chartConfig: config
-    });
+    onChangeConfig?.(config);
   });
 
   const onUpdateTableColumnSize = useMemoizedFn((columns: { key: string; size: number }[]) => {
@@ -69,9 +68,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
         return acc;
       }, {})
     };
-    onUpdateMetricChartConfig({
-      chartConfig: config
-    });
+    onChangeConfig?.(config);
   });
 
   const onReady = useMemoizedFn(() => {

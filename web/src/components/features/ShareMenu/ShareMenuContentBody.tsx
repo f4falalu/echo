@@ -17,7 +17,7 @@ import { UserGroup, ChevronRight } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
 import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
-import { useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useSaveMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
 export const ShareMenuContentBody: React.FC<{
@@ -77,7 +77,7 @@ const ShareMenuContentShare: React.FC<{
 }> = React.memo(({ setOpenShareWithGroupAndTeam, assetType, individual_permissions, assetId }) => {
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
   const { mutateAsync: onShareDashboard } = useUpdateDashboard();
-  const { mutateAsync: onShareMetric } = useUpdateMetric();
+  const { mutateAsync: onShareMetric } = useSaveMetric();
   const { mutateAsync: onShareCollection } = useUpdateCollection();
   const [inputValue, setInputValue] = React.useState<string>('');
   const [isInviting, setIsInviting] = React.useState<boolean>(false);

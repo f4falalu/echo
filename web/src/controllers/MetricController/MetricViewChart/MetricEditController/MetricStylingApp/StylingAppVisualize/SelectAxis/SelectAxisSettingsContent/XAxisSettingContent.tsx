@@ -1,4 +1,3 @@
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import React, { useMemo } from 'react';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
@@ -9,11 +8,10 @@ import { EditShowAxisTitle } from './EditShowAxisTitle';
 import { EditShowAxisLabel } from './EditShowAxisLabel';
 import { EditAxisLabelRotation } from './EditAxisLabelRotation';
 import { AXIS_TITLE_SEPARATOR } from '@/components/ui/charts/commonHelpers/axisHelper';
+import { useUpdateMetricChart } from '@/context/Metrics';
 
 export const XAxisSettingContent: React.FC<{}> = React.memo(({}) => {
-  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
-    ({ onUpdateMetricChartConfig }) => onUpdateMetricChartConfig
-  );
+  const { onUpdateMetricChartConfig } = useUpdateMetricChart();
   const xAxisAxisTitle = useSelectAxisContextSelector((x) => x.xAxisAxisTitle);
   const columnLabelFormats = useSelectAxisContextSelector((x) => x.columnLabelFormats);
   const xAxisShowAxisLabel = useSelectAxisContextSelector((x) => x.xAxisShowAxisLabel);

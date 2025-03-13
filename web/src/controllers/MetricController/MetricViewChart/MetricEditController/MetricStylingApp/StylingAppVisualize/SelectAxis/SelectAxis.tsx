@@ -4,7 +4,6 @@ import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { getChartTypeDropZones } from './helper';
 import { ISelectAxisContext, SelectAxisProvider } from './useSelectAxisContext';
 import { useMemoizedFn } from '@/hooks';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { chartTypeToAxis, zoneIdToAxis } from './config';
 import {
   CategoryAxisStyleConfig,
@@ -15,6 +14,7 @@ import {
 } from '@/api/asset_interfaces/metric/charts';
 import isEmpty from 'lodash/isEmpty';
 import { SelectAxisEmptyState } from './SelectAxisEmptyState';
+import { useUpdateMetricChart } from '@/context/Metrics';
 
 export const SelectAxis: React.FC<
   Required<YAxisConfig> &
@@ -23,9 +23,7 @@ export const SelectAxis: React.FC<
     Required<Y2AxisConfig> &
     ISelectAxisContext
 > = React.memo(({ selectedChartType, columnMetadata, selectedAxis, ...props }) => {
-  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
-    (x) => x.onUpdateMetricChartConfig
-  );
+  const { onUpdateMetricChartConfig } = useUpdateMetricChart();
 
   const items: SelectAxisItem[] = useMemo(() => {
     return columnMetadata.map((column) => column.name);

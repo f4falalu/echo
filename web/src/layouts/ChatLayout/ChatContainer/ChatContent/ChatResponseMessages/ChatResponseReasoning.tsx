@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { AnimatePresence } from 'framer-motion';
 import { Text } from '@/components/ui/typography';
 import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
-import { useMessageIndividual } from '@/context/Chats';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 
@@ -24,11 +24,11 @@ export const ChatResponseReasoning: React.FC<{
   isCompletedStream: boolean;
   messageId: string;
 }> = React.memo(({ reasoningMessageId, isCompletedStream, messageId }) => {
-  const lastMessageTitle = useMessageIndividual(
+  const lastMessageTitle = useGetChatMessage(
     messageId,
     (x) => x?.reasoning_messages?.[reasoningMessageId ?? '']?.title
   );
-  const finalReasoningMessage = useMessageIndividual(messageId, (x) => x?.final_reasoning_message);
+  const finalReasoningMessage = useGetChatMessage(messageId, (x) => x?.final_reasoning_message);
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
   const isReasonginFileSelected = selectedFileType === 'reasoning';

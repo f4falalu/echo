@@ -86,8 +86,7 @@ export const useDeleteCollection = () => {
         return await openConfirmModal({
           title: 'Delete Collection',
           content: 'Are you sure you want to delete this collection?',
-          onOk: deleteMethod,
-          useReject: true
+          onOk: deleteMethod
         });
       }
 

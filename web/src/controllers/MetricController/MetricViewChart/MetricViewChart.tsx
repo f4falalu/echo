@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
-import { useMetricIndividual } from '@/api/buster_rest/metrics';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useMetricIndividual, useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
@@ -11,7 +10,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 
 export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
-  const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
+  const { mutateAsync: updateMetric } = useUpdateMetric();
   const { metric, metricData, metricDataError, isFetchedMetricData } = useMetricIndividual({
     metricId
   });
@@ -24,7 +23,8 @@ export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ met
 
   const onSetTitle = useMemoizedFn((title: string) => {
     if (inputHasText(title)) {
-      onUpdateMetric({
+      updateMetric({
+        id: metricId,
         title
       });
     }
