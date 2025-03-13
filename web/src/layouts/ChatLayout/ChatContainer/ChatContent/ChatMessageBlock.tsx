@@ -1,13 +1,13 @@
 import React from 'react';
 import { ChatUserMessage } from './ChatUserMessage';
 import { ChatResponseMessages } from './ChatResponseMessages';
-import { useMessageIndividual } from '@/context/Chats';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 
 export const ChatMessageBlock: React.FC<{
   messageId: string;
 }> = React.memo(({ messageId }) => {
-  const requestMessage = useMessageIndividual(messageId, (message) => message?.request_message);
-  const isCompletedStream = useMessageIndividual(messageId, (x) => x?.isCompletedStream);
+  const requestMessage = useGetChatMessage(messageId, (message) => message?.request_message);
+  const isCompletedStream = useGetChatMessage(messageId, (x) => x?.isCompletedStream);
 
   if (!requestMessage) return null;
 

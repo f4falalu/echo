@@ -3,7 +3,7 @@ import {
   BusterChatMessageReasoning_file,
   BusterChatMessageReasoning_files
 } from '@/api/asset_interfaces';
-import { useMessageIndividual } from '@/context/Chats';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { ReasoningFileButtons } from './ReasoningFileButtons';
 import { StreamingMessageCode } from '@/components/ui/streaming/StreamingMessageCode';
 import isEmpty from 'lodash/isEmpty';
@@ -22,7 +22,7 @@ export type ReasoningMessageFileProps = {
 
 export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.memo(
   ({ isCompletedStream, fileId, chatId, messageId, reasoningMessageId }) => {
-    const file: BusterChatMessageReasoning_file | undefined = useMessageIndividual(
+    const file: BusterChatMessageReasoning_file | undefined = useGetChatMessage(
       messageId,
       (x) =>
         (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.files?.[

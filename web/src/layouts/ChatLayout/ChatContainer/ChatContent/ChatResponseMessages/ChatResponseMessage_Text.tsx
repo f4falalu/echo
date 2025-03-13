@@ -2,11 +2,11 @@ import React from 'react';
 import { ChatResponseMessageProps } from './ChatResponseMessageSelector';
 import { StreamingMessage_Text } from '@/components/ui/streaming/StreamingMessage_Text';
 import { BusterChatResponseMessage_text } from '@/api/asset_interfaces';
-import { useMessageIndividual } from '@/context/Chats';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 
 export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = React.memo(
   ({ responseMessageId, messageId, isCompletedStream }) => {
-    const responseMessage = useMessageIndividual(
+    const responseMessage = useGetChatMessage(
       messageId,
       (x) => x?.response_messages?.[responseMessageId]
     ) as BusterChatResponseMessage_text;

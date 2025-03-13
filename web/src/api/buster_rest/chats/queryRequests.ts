@@ -9,7 +9,7 @@ import {
   deleteChat,
   getListLogs
 } from './requests';
-import type { IBusterChat } from '@/api/asset_interfaces/chat';
+import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import { queryKeys } from '@/api/query_keys';
 import { updateChatToIChat } from '@/lib/chat';
 import { RustApiError } from '@/api/buster_rest/errors';
@@ -133,4 +133,28 @@ export const useDeleteChat = () => {
       });
     }
   });
+};
+
+export const useGetChatMemoized = () => {
+  const queryClient = useQueryClient();
+
+  const getChatMessageMemoized = useMemoizedFn((messageId: string) => {
+    const options = queryKeys.chatsMessages(messageId);
+    const queryKey = options.queryKey;
+    return queryClient.getQueryData<IBusterChatMessage>(queryKey);
+  });
+
+  return getChatMessageMemoized;
+};
+
+export const useGetChatMessage = <TData = IBusterChatMessage>(
+  messageId: string,
+  selector?: (message: IBusterChatMessage) => TData
+) => {
+  const { data } = useQuery({
+    ...queryKeys.chatsMessages(messageId),
+    enabled: false, //this will come from the chat
+    select: selector
+  });
+  return data || ({} as TData);
 };

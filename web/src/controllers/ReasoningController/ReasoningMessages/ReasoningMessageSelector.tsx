@@ -6,7 +6,7 @@ import type {
 import { ReasoningMessage_PillsContainer } from './ReasoningMessage_PillContainers';
 import { ReasoningMessage_Files } from './ReasoningMessage_Files';
 import { ReasoningMessage_Text } from './ReasoningMessage_Text';
-import { useMessageIndividual } from '@/context/Chats';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BarContainer } from './BarContainer';
 
@@ -67,7 +67,7 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
   chatId,
   messageId
 }) => {
-  const { title, type, secondary_title, status, hasMessage } = useMessageIndividual(
+  const { title, type, secondary_title, status, hasMessage } = useGetChatMessage(
     messageId,
     (x) => ({
       title: x?.reasoning_messages[reasoningMessageId]?.title,

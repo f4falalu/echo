@@ -2,7 +2,7 @@ import React from 'react';
 import { MessageContainer } from '../MessageContainer';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 import { ChatResponseReasoning } from './ChatResponseReasoning';
-import { useMessageIndividual } from '@/context/Chats';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 
 interface ChatResponseMessagesProps {
   isCompletedStream: boolean;
@@ -11,18 +11,12 @@ interface ChatResponseMessagesProps {
 
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
   ({ isCompletedStream, messageId }) => {
-    const responseMessageIds = useMessageIndividual(
-      messageId,
-      (x) => x?.response_message_ids || []
-    );
-    const lastReasoningMessageId = useMessageIndividual(
+    const responseMessageIds = useGetChatMessage(messageId, (x) => x?.response_message_ids || []);
+    const lastReasoningMessageId = useGetChatMessage(
       messageId,
       (x) => x?.reasoning_message_ids?.[x.reasoning_message_ids.length - 1]
     );
-    const finalReasoningMessage = useMessageIndividual(
-      messageId,
-      (x) => x?.final_reasoning_message
-    );
+    const finalReasoningMessage = useGetChatMessage(messageId, (x) => x?.final_reasoning_message);
 
     return (
       <MessageContainer className="flex w-full flex-col space-y-3 overflow-hidden">

@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemoizedFn } from '@/hooks';
-import { useBusterChatContextSelector } from '../ChatProvider';
 import type { BusterChat, IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import type {
   ChatEvent_GeneratingReasoningMessage,
@@ -22,13 +21,14 @@ import {
   updateResponseMessage,
   updateReasoningMessage
 } from './chatStreamMessageHelper';
+import { useGetChatMemoized } from '@/api/buster_rest/chats';
+import { useChatUpdate } from './useChatUpdate';
 
 export const useChatStreamMessage = () => {
   const queryClient = useQueryClient();
-  const getChatMessage = useBusterChatContextSelector((x) => x.getChatMessageMemoized);
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const onUpdateChat = useBusterChatContextSelector((x) => x.onUpdateChat);
-  const onUpdateChatMessage = useBusterChatContextSelector((x) => x.onUpdateChatMessage);
+  const getChatMessageMemoized = useGetChatMemoized();
+  const { onUpdateChat, onUpdateChatMessage } = useChatUpdate();
   const chatRef = useRef<Record<string, IBusterChat>>({});
   const chatRefMessages = useRef<Record<string, IBusterChatMessage>>({});
   const [isPending, startTransition] = useTransition();
@@ -96,7 +96,7 @@ export const useChatStreamMessage = () => {
 
   const replaceMessageCallback = useMemoizedFn(
     ({ prompt, messageId }: { prompt: string; messageId: string }) => {
-      const currentMessage = getChatMessage(messageId);
+      const currentMessage = getChatMessageMemoized(messageId);
       const currentRequestMessage = currentMessage?.request_message!;
       onUpdateChatMessage({
         id: messageId,

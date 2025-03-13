@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useMessageIndividual } from '@/context/Chats';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { ReasoningMessageSelector } from './ReasoningMessages';
 import { BlackBoxMessage } from './ReasoningMessages/ReasoningBlackBoxMessage';
 import { useGetChat } from '@/api/buster_rest/chats';
@@ -15,8 +15,8 @@ interface ReasoningControllerProps {
 export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId, messageId }) => {
   const { data: hasChat } = useGetChat({ id: chatId || '' }, (x) => !!x.id);
 
-  const reasoningMessageIds = useMessageIndividual(messageId, (x) => x?.reasoning_message_ids);
-  const isCompletedStream = useMessageIndividual(messageId, (x) => x?.isCompletedStream);
+  const reasoningMessageIds = useGetChatMessage(messageId, (x) => x?.reasoning_message_ids);
+  const isCompletedStream = useGetChatMessage(messageId, (x) => x?.isCompletedStream);
 
   if (!hasChat || !reasoningMessageIds) return <FileIndeterminateLoader />;
 
