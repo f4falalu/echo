@@ -1,21 +1,14 @@
-use axum::{
-    extract::Json,
-    http::StatusCode, Extension,
-};
-use uuid::Uuid;
-use handlers::favorites::{FavoriteEnum, UserFavoritesReq, update_favorites};
+use axum::{extract::Json, http::StatusCode, Extension};
+use handlers::favorites::{update_favorites, FavoriteEnum};
 use middleware::AuthenticatedUser;
+use uuid::Uuid;
 
 pub async fn update_favorites_handler(
-    Extension(user): Extension<AuthenticatedUser>,    Json(payload): Json<UserFavoritesReq>,
+    Extension(user): Extension<AuthenticatedUser>,
+    Json(payload): Json<Vec<Uuid>>,
 ) -> Result<Json<Vec<FavoriteEnum>>, (StatusCode, String)> {
-    let favorite_ids: Vec<Uuid> = payload
-        .favorites
-        .into_iter()
-        .map(|favorite| favorite.id)
-        .collect();
 
-    match update_favorites(&user, &favorite_ids).await {
+    match update_favorites(&user, &payload).await {
         Ok(_) => {
             // After updating, fetch the updated list to return
             match handlers::favorites::list_favorites(&user).await {
@@ -28,7 +21,7 @@ pub async fn update_favorites_handler(
                     ))
                 }
             }
-        },
+        }
         Err(e) => {
             tracing::error!("Error updating favorites: {:?}", e);
             Err((

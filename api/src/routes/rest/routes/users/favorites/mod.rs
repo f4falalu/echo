@@ -14,5 +14,5 @@ pub fn router() -> Router {
         .route("/", get(list_favorites::list_favorites_handler))
         .route("/", post(create_favorite::create_favorite_handler))
         .route("/:id", delete(delete_favorite::delete_favorite_handler))
-        .route("/order", put(update_favorites::update_favorites_handler))
+        .route("/", put(update_favorites::update_favorites_handler))
 }
