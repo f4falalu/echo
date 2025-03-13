@@ -18,7 +18,7 @@ use middleware::AuthenticatedUser;
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct FavoriteIdAndType {
     pub id: Uuid,
-    #[serde(rename = "type")]
+    #[serde(rename = "asset_type")]
     pub type_: AssetType,
 }
 
@@ -32,7 +32,7 @@ pub struct CollectionFavorites {
     pub collection_id: Uuid,
     pub collection_name: String,
     pub assets: Vec<FavoriteObject>,
-    #[serde(rename = "type")]
+    #[serde(rename = "asset_type")]
     pub type_: AssetType,
 }
 
@@ -40,7 +40,7 @@ pub struct CollectionFavorites {
 pub struct FavoriteObject {
     pub id: Uuid,
     pub name: String,
-    #[serde(rename = "type")]
+    #[serde(rename = "asset_type")]
     pub type_: AssetType,
 }
 
