@@ -7,11 +7,8 @@ export default async function MetricPage(props: {
   searchParams: Promise<{ embed?: string }>;
 }) {
   const searchParams = await props.searchParams;
-
-  const { embed } = searchParams;
-
   const params = await props.params;
-
+  const { embed } = searchParams;
   const { metricId } = params;
 
   const embedView = embed === 'true';

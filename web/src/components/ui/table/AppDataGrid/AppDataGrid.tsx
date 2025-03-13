@@ -36,6 +36,7 @@ import {
   defaultHeaderFormat,
   MIN_WIDTH
 } from './helpers';
+import { cn } from '@/lib/classMerge';
 
 type Row = Record<string, string | number | null | Date>;
 
@@ -46,6 +47,7 @@ const DEFAULT_COLUMN_WIDTH = {
 };
 
 export interface AppDataGridProps {
+  className?: string;
   initialWidth?: number;
   animate?: boolean;
   resizable?: boolean;
@@ -68,6 +70,7 @@ export interface AppDataGridProps {
 
 export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
   ({
+    className = '',
     resizable = true,
     draggable = true,
     sortable = true,
@@ -341,10 +344,11 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
         <ErrorBoundary onError={handleErrorBoundary}>
           <div
             ref={containerRef}
-            className={'bg-background flex h-full w-full flex-col'}
-            style={{
-              transition: animate ? 'opacity 0.25s' : undefined
-            }}>
+            className={cn(
+              'bg-background flex h-full w-full flex-col',
+              //   animate && 'animate-in fade-in',
+              className
+            )}>
             <DataGrid
               className={styles.dataGrid}
               columns={reorderedColumns}
@@ -393,7 +397,7 @@ const HeaderCell: React.FC<
       </Text>
       {sortable && sortDirection && (
         <div
-          className="text-icon-color text-xs transition"
+          className="text-icon-color text-2xs ml-1 transition"
           style={{
             transform: `rotate(${sortDirection === 'ASC' ? 0 : 180}deg)`
           }}>

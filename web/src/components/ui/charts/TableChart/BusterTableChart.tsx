@@ -10,6 +10,7 @@ import {
 import { useMemoizedFn } from '@/hooks';
 import { useChartWrapperContextSelector } from '../chartHooks/useChartWrapperProvider';
 import AppDataGrid from '@/components/ui/table/AppDataGrid/AppDataGrid';
+import './TableChart.css';
 
 export interface BusterTableChartProps extends BusterTableChartConfig, BusterChartPropsBase {}
 
@@ -80,6 +81,7 @@ const BusterTableChartBase: React.FC<
 
   return (
     <AppDataGrid
+      className={'buster-table-chart'}
       key={data.length}
       rows={data}
       initialWidth={containerWidth}

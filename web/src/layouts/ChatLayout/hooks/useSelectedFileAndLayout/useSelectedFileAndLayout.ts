@@ -31,9 +31,7 @@ export const useSelectedFileAndLayout = ({
       return 'chat';
     }
 
-    if (selectedFile) return 'file';
-
-    return 'chat';
+    return 'file';
   }, [selectedFile]);
 
   const [renderViewLayoutKey, setRenderViewLayoutKey] = useState<ChatLayoutView>(
