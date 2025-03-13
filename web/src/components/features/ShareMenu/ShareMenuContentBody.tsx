@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { validate } from 'email-validator';
 import { useMemoizedFn } from '@/hooks';
 import { BusterShare, ShareRole, ShareAssetType } from '@/api/asset_interfaces';
@@ -13,15 +12,13 @@ import { ShareMenuContentPublish } from './ShareMenuContentPublish';
 import { ShareWithGroupAndTeam } from './ShareWithTeamAndGroup';
 import { ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useBusterDashboardContextSelector } from '@/context/Dashboards';
-
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { inputHasText } from '@/lib/text';
 import { UserGroup, ChevronRight } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
 import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
@@ -79,7 +76,7 @@ const ShareMenuContentShare: React.FC<{
   assetId: string;
 }> = React.memo(({ setOpenShareWithGroupAndTeam, assetType, individual_permissions, assetId }) => {
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
-  const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
+  const { mutateAsync: onShareDashboard } = useUpdateDashboard();
   const { mutateAsync: onShareMetric } = useUpdateMetric();
   const { mutateAsync: onShareCollection } = useUpdateCollection();
   const [inputValue, setInputValue] = React.useState<string>('');

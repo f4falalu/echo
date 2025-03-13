@@ -8,10 +8,11 @@ import {
 } from './requests';
 import type { DashboardsListRequest } from '@/api/request_interfaces/dashboards/interfaces';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
-import { BusterDashboard } from '@/api/asset_interfaces/dashboard';
+import { BusterDashboard, BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { create } from 'mutative';
 
 export const useGetDashboardsList = (
   params: Omit<DashboardsListRequest, 'page_token' | 'page_size'>
@@ -56,21 +57,45 @@ export const useUpdateDashboard = () => {
     mutationFn: dashboardsUpdateDashboard,
     onMutate: (variables) => {
       const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey;
-      const previousData = queryClient.getQueryData(queryKey);
-      if (previousData) {
-        const newDashboard: BusterDashboard = {
-          ...previousData.dashboard,
-          ...variables
-        };
-        const {} = variables;
+      queryClient.setQueryData(queryKey, (previousData) => {
+        const newDashboardState: BusterDashboardResponse = create(previousData!, (draft) => {
+          draft.dashboard = create(draft.dashboard, (draft) => {
+            Object.assign(draft, variables);
+          });
+        });
+        return newDashboardState!;
+      });
+    }
+  });
+};
 
-        //TODO: optimistically update the dashboard
+export const useUpdateDashboardConfig = () => {
+  const { mutateAsync } = useUpdateDashboard();
+  const queryClient = useQueryClient();
 
-        queryClient.setQueryData(queryKey, (v) => {
-          return { ...v!, dashboard: newDashboard };
+  const method = useMemoizedFn(
+    async (
+      newDashboard: Partial<BusterDashboard['config']> & {
+        id: string;
+      }
+    ) => {
+      const options = dashboardQueryKeys.dashboardGetDashboard(newDashboard.id);
+      const previousDashboard = queryClient.getQueryData(options.queryKey);
+      const previousConfig = previousDashboard?.dashboard?.config;
+      if (previousConfig) {
+        const newConfig = create(previousConfig!, (draft) => {
+          Object.assign(draft, newDashboard);
+        });
+        return mutateAsync({
+          id: newDashboard.id,
+          config: newConfig
         });
       }
     }
+  );
+
+  return useMutation({
+    mutationFn: method
   });
 };
 

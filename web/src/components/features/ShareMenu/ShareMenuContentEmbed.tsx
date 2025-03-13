@@ -1,6 +1,4 @@
 import { ShareAssetType } from '@/api/asset_interfaces';
-
-import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { Button } from '@/components/ui/buttons';
 import { Text } from '@/components/ui/typography';
@@ -8,11 +6,11 @@ import { Input } from '@/components/ui/inputs';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { Link, BracketsCurly } from '@/components/ui/icons';
 import { Separator } from '@/components/ui/seperator';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
 export const ShareMenuContentEmbed: React.FC<{
   assetType: ShareAssetType;
@@ -87,7 +85,7 @@ export const ShareMenuContentEmbedFooter = ({
   assetId: string;
   assetType: ShareAssetType;
 }) => {
-  const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
+  const { mutateAsync: onShareDashboard } = useUpdateDashboard();
   const { mutateAsync: onShareMetric } = useUpdateMetric();
   const { mutateAsync: onShareCollection, isPending: isSharingCollection } = useUpdateCollection();
   const { openSuccessMessage } = useBusterNotifications();

@@ -4,10 +4,7 @@ import { BackButton, Button } from '@/components/ui/buttons';
 import { AccessDropdown } from './AccessDropdown';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { ShareRole } from '@/api/asset_interfaces';
-import {
-  useBusterDashboardContextSelector,
-  useBusterDashboardIndividual
-} from '@/context/Dashboards';
+import { useBusterDashboardIndividual } from '@/context/Dashboards';
 import { useMemoizedFn } from '@/hooks';
 import { Text } from '@/components/ui/typography';
 import { UserGroup } from '@/components/ui/icons';
@@ -16,6 +13,7 @@ import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 import { useGetCollection, useUpdateCollection } from '@/api/buster_rest/collections';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
 export const ShareWithGroupAndTeam: React.FC<{
   goBack: () => void;
@@ -25,9 +23,9 @@ export const ShareWithGroupAndTeam: React.FC<{
 }> = ({ assetType, assetId, goBack, onCopyLink }) => {
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
   const getMetric = useBusterMetricsContextSelector((state) => state.getMetricMemoized);
-  const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
+  const { mutateAsync: onShareDashboard } = useUpdateDashboard();
   const { mutateAsync: onShareMetric } = useUpdateMetric();
-  const { mutateAsync: onShareCollection, isPending: isSharingCollection } = useUpdateCollection();
+  const { mutateAsync: onShareCollection } = useUpdateCollection();
   const { dashboardResponse } = useBusterDashboardIndividual({
     dashboardId: assetType === ShareAssetType.DASHBOARD ? assetId : undefined
   });

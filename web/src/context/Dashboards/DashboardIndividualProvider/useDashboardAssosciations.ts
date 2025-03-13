@@ -1,14 +1,14 @@
 import { useMemoizedFn } from '@/hooks';
 import { type BusterDashboardResponse } from '@/api/asset_interfaces';
-import { useDashboardUpdateConfig } from './useDashboardUpdateConfig';
+import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
 export const useDashboardAssosciations = ({
-  getDashboardMemoized,
-  updateDashboardMutation
+  getDashboardMemoized
 }: {
   getDashboardMemoized: (dashboardId: string) => BusterDashboardResponse | undefined;
-  updateDashboardMutation: ReturnType<typeof useDashboardUpdateConfig>['updateDashboardMutation'];
 }) => {
+  const { mutateAsync: updateDashboardMutation } = useUpdateDashboard();
+
   const onAddToCollection = useMemoizedFn(
     async ({
       dashboardId,
