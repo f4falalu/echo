@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Sidebar } from './Sidebar';
-import { BusterRoutes } from '@/routes';
+import { BusterRoutes } from '../../../routes';
 import { Window, WindowUser, WindowSettings, WindowAlert } from '../icons/NucleoIconOutlined';
+import React from 'react';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof Sidebar> = {
   title: 'UI/Sidebar/Sidebar',
@@ -146,5 +148,26 @@ export const ScrollAndTruncationTest: Story = {
       }
     ],
     footer: <div className="text-sm text-gray-500">Footer for Scroll Test</div>
+  }
+};
+
+export const WithRemovableItems: Story = {
+  args: {
+    header: <div className="text-xl font-semibold">My App</div>,
+    content: [
+      {
+        label: 'Removable Items',
+        items: mockItems.map((item) => ({
+          ...item,
+          onRemove: fn()
+        }))
+      },
+      {
+        label: 'Fixed Items',
+        items: mockItems
+      }
+    ],
+    activeItem: '1',
+    footer: <div className="text-sm text-gray-500">Footer</div>
   }
 };

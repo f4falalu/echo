@@ -3,9 +3,11 @@ import Link from 'next/link';
 import { cn } from '@/lib/classMerge';
 import { type ISidebarItem } from './interfaces';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { Xmark } from '../icons';
+import { Button } from '../buttons/Button';
 
 const itemVariants = cva(
-  'flex items-center gap-2 rounded px-1.5 py-1.5 text-base transition-colors cursor-pointer min-h-7',
+  'flex items-center group justify-between rounded px-1.5 min-h-7 max-h-7 text-base transition-colors cursor-pointer',
   {
     variants: {
       variant: {
@@ -57,19 +59,42 @@ const itemVariants = cva(
 );
 
 export const SidebarItem: React.FC<ISidebarItem & VariantProps<typeof itemVariants>> = React.memo(
-  ({ label, icon, route, id, disabled = false, active = false, variant = 'default' }) => {
+  ({
+    label,
+    icon,
+    route,
+    id,
+    disabled = false,
+    active = false,
+    variant = 'default',
+    onRemove,
+    onClick
+  }) => {
     const ItemNode = disabled || !route ? 'div' : Link;
 
     return (
-      <ItemNode href={route || ''} className={cn(itemVariants({ active, disabled, variant }))}>
-        <span
-          className={cn('text-icon-size! text-icon-color', {
-            'text-text-disabled': disabled,
-            'pl-4.5': !icon //hmmm... maybe this should be a prop?
-          })}>
-          {icon}
-        </span>
-        <span className="truncate">{label}</span>
+      <ItemNode
+        href={route || ''}
+        className={cn(itemVariants({ active, disabled, variant }))}
+        onClick={onClick}>
+        <div className="flex items-center gap-2">
+          <span
+            className={cn('text-icon-size! text-icon-color', {
+              'text-text-disabled': disabled,
+              'pl-4.5': !icon //hmmm... maybe this should be a prop?
+            })}>
+            {icon}
+          </span>
+          <span className="truncate">{label}</span>
+        </div>
+        {onRemove && (
+          <Button
+            className="hidden group-hover:flex"
+            variant="ghost"
+            size={'small'}
+            prefix={<Xmark />}
+            onClick={onRemove}></Button>
+        )}
       </ItemNode>
     );
   }
