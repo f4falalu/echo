@@ -18,6 +18,7 @@ export interface ISidebarGroup {
   variant?: 'collapsible' | 'icon'; //default is collapsible
   defaultOpen?: boolean; //will default to true
   isSortable?: boolean;
+  onItemsReorder?: (ids: string[]) => void;
 }
 
 export interface ISidebarList {

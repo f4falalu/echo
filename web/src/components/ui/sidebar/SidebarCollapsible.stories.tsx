@@ -3,6 +3,7 @@ import { SidebarCollapsible } from './SidebarCollapsible';
 import { HouseModern, MapSettings, User } from '../icons/NucleoIconOutlined';
 import { BusterRoutes } from '../../../routes';
 import React from 'react';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof SidebarCollapsible> = {
   title: 'UI/Sidebar/SidebarCollapsible',
@@ -50,7 +51,9 @@ export const Default: Story = {
 
 export const Sortable: Story = {
   args: {
-    ...Default.args,
-    isSortable: true
+    label: 'Sortable',
+    isSortable: true,
+    items: Default.args!.items!,
+    onItemsReorder: fn()
   }
 };

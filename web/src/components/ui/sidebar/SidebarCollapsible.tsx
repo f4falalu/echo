@@ -100,12 +100,15 @@ const SortableSidebarItem: React.FC<SortableSidebarItemProps> = React.memo(({ it
 
 SortableSidebarItem.displayName = 'SortableSidebarItem';
 
-export const SidebarCollapsible: React.FC<ISidebarGroup & { activeItem?: string }> = React.memo(
+export const SidebarCollapsible: React.FC<
+  ISidebarGroup & { activeItem?: string; onItemsReorder?: (ids: string[]) => void }
+> = React.memo(
   ({
     label,
     items,
     isSortable = false,
     activeItem,
+    onItemsReorder,
     variant = 'collapsible',
     icon,
     defaultOpen = true
@@ -133,7 +136,9 @@ export const SidebarCollapsible: React.FC<ISidebarGroup & { activeItem?: string 
         setSortedItems((items) => {
           const oldIndex = items.findIndex((item) => item.id === active.id);
           const newIndex = items.findIndex((item) => item.id === over?.id);
-          return arrayMove(items, oldIndex, newIndex);
+          const moveddArray = arrayMove(items, oldIndex, newIndex);
+          onItemsReorder?.(moveddArray.map((item) => item.id));
+          return moveddArray;
         });
       }
     });

@@ -209,6 +209,10 @@ GlobalModals.displayName = 'GlobalModals';
 const favoritesDropdown = (favorites: BusterUserFavorite[]): ISidebarGroup => {
   return {
     label: 'Favorites',
+    isSortable: true,
+    onItemsReorder: (itemIds) => {
+      console.warn('onItemsReorder', itemIds);
+    },
     items: favorites.map((favorite) => {
       const Icon = assetTypeToIcon(favorite.asset_type);
       const route = assetTypeToRoute(favorite.asset_type, favorite.id);
