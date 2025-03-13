@@ -2,7 +2,6 @@ import type { BusterMetric } from '@/api/asset_interfaces';
 import { Title, Text } from '@/components/ui/typography';
 import { DotsVertical, Trash } from '@/components/ui/icons';
 import { SortableItemContext } from '@/components/ui/grid/_BusterSortableItemDragContainer';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';

@@ -4,7 +4,6 @@ import { Toaster } from '@/components/ui/toaster/Toaster';
 import React, { PropsWithChildren } from 'react';
 import { toast, type ExternalToast } from 'sonner';
 import { useContextSelector, createContext } from 'use-context-selector';
-// import { Toaster } from '@/components/ui/toaster/Toaster';
 
 export type NotificationType = 'success' | 'info' | 'warning' | 'error';
 

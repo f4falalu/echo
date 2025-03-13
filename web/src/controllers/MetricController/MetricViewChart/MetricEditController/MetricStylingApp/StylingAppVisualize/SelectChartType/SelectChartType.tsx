@@ -8,10 +8,10 @@ import {
   DetermineSelectedChartType,
   disableTypeMethod
 } from './SelectedChartTypeMethod';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { addOpacityToColor, NUMBER_TYPES } from '@/lib';
 import { cn } from '@/lib/classMerge';
+import { useUpdateMetricChart } from '@/context/Metrics';
 
 export interface SelectChartTypeProps {
   selectedChartType: ChartType;
@@ -34,10 +34,7 @@ export const SelectChartType: React.FC<SelectChartTypeProps> = ({
   columnSettings,
   selectedAxis
 }) => {
-  const onUpdateMetricChartConfig = useBusterMetricsContextSelector(
-    ({ onUpdateMetricChartConfig }) => onUpdateMetricChartConfig
-  );
-
+  const { onUpdateMetricChartConfig } = useUpdateMetricChart();
   const hasAreaStyle = useMemo(() => {
     if (selectedChartType !== 'line') return false;
     return selectedAxis.y.some((y) => columnSettings[y]?.lineStyle === 'area');

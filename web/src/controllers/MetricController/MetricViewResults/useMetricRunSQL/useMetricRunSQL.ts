@@ -2,17 +2,17 @@ import type { BusterMetricData, IBusterMetricChartConfig } from '@/api/asset_int
 import { RunSQLResponse } from '@/api/asset_interfaces/sql';
 import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest';
 import { useSaveMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useGetMetricMemoized } from '@/context/Metrics';
 
 export const useMetricRunSQL = () => {
   const queryClient = useQueryClient();
-  const getMetricMemoized = useBusterMetricsContextSelector((x) => x.getMetricMemoized);
+  const getMetricMemoized = useGetMetricMemoized();
   const { mutateAsync: updateMetricMutation } = useUpdateMetric();
   const { mutateAsync: saveMetric } = useSaveMetric();
   const { mutateAsync: runSQLMutation } = useRunSQLQuery();
@@ -60,7 +60,7 @@ export const useMetricRunSQL = () => {
     (d: RunSQLResponse, sql: string, { metricId }: { metricId?: string }) => {
       if (metricId) {
         const { data, data_metadata } = d;
-        const metricMessage = getMetricMemoized({ metricId });
+        const metricMessage = getMetricMemoized(metricId);
         const currentMessageData = getDataByMetricIdMemoized(metricId);
         if (!originalConfigs.current) {
           originalConfigs.current = {
@@ -145,7 +145,7 @@ export const useMetricRunSQL = () => {
       dataSourceId?: string;
     }) => {
       const ogConfigs = originalConfigs.current;
-      const currentMetric = getMetricMemoized({ metricId });
+      const currentMetric = getMetricMemoized(metricId);
       const dataSourceId = dataSourceIdProp || currentMetric?.data_source_id;
 
       if ((!ogConfigs || ogConfigs.code !== sql) && dataSourceId) {

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces';
-import { useBusterMetricsContextSelector } from '@/context/Metrics';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemoizedFn } from '@/hooks';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
