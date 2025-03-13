@@ -17,6 +17,7 @@ export interface ISidebarGroup {
   items: ISidebarItem[];
   variant?: 'collapsible' | 'icon'; //default is collapsible
   defaultOpen?: boolean; //will default to true
+  isSortable?: boolean;
 }
 
 export interface ISidebarList {
@@ -30,4 +31,5 @@ export interface SidebarProps {
   content: SidebarContent[];
   footer?: React.ReactNode;
   activeItem: string;
+  isSortable?: boolean;
 }

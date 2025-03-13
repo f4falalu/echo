@@ -4,14 +4,19 @@ import { SidebarCollapsible } from './SidebarCollapsible';
 import { SidebarItem } from './SidebarItem';
 
 export const Sidebar: React.FC<SidebarProps> = React.memo(
-  ({ header, content, footer, activeItem }) => {
+  ({ header, content, footer, activeItem, isSortable = false }) => {
     return (
       <div className="flex h-full flex-col overflow-hidden px-3.5 pt-4.5">
         <div className="flex flex-col space-y-4.5 overflow-hidden">
           <div className="mb-5"> {header}</div>
           <div className="flex flex-grow flex-col space-y-4.5 overflow-y-auto pb-3">
             {content.map((item, index) => (
-              <ContentSelector key={index} content={item} activeItem={activeItem} />
+              <ContentSelector
+                key={index}
+                content={item}
+                activeItem={activeItem}
+                isSortable={isSortable}
+              />
             ))}
           </div>
         </div>
@@ -26,9 +31,10 @@ Sidebar.displayName = 'Sidebar';
 const ContentSelector: React.FC<{
   content: SidebarProps['content'][number];
   activeItem: SidebarProps['activeItem'];
-}> = React.memo(({ content, activeItem }) => {
+  isSortable: SidebarProps['isSortable'];
+}> = React.memo(({ content, activeItem, isSortable }) => {
   if (isSidebarGroup(content)) {
-    return <SidebarCollapsible {...content} activeItem={activeItem} />;
+    return <SidebarCollapsible {...content} activeItem={activeItem} isSortable={isSortable} />;
   }
 
   return <SidebarList items={content.items} activeItem={activeItem} />;

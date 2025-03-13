@@ -40,7 +40,15 @@ const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpe
 SidebarTrigger.displayName = 'SidebarTrigger';
 
 export const SidebarCollapsible: React.FC<ISidebarGroup & { activeItem?: string }> = React.memo(
-  ({ label, items, activeItem, variant = 'collapsible', icon, defaultOpen = true }) => {
+  ({
+    label,
+    items,
+    isSortable = false,
+    activeItem,
+    variant = 'collapsible',
+    icon,
+    defaultOpen = true
+  }) => {
     const [isOpen, setIsOpen] = React.useState(defaultOpen);
 
     return (
