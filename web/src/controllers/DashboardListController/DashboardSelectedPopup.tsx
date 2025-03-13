@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/buttons';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
-import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
 import {
@@ -14,7 +13,11 @@ import {
   useGetUserFavorites
 } from '@/api/buster_rest/users';
 import { ShareAssetType } from '@/api/asset_interfaces/share';
-import { useDeleteDashboards } from '@/api/buster_rest/dashboards';
+import {
+  useAddDashboardToCollection,
+  useDeleteDashboards,
+  useRemoveDashboardFromCollection
+} from '@/api/buster_rest/dashboards';
 
 export const DashboardSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -52,35 +55,38 @@ const CollectionsButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const onAddToCollection = useBusterDashboardContextSelector((state) => state.onAddToCollection);
-  const onRemoveFromCollection = useBusterDashboardContextSelector(
-    (state) => state.onRemoveFromCollection
-  );
+  const { mutateAsync: onAddDashboardToCollection } = useAddDashboardToCollection();
+  const { mutateAsync: onRemoveDashboardFromCollection } = useRemoveDashboardFromCollection();
 
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
   >([]);
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
-    setSelectedCollections(collectionIds);
-    console.warn('TODO: save to collection', collectionIds);
-    const allSaves: Promise<void>[] = selectedRowKeys.map((dashboardId) => {
-      return onAddToCollection({
-        dashboardId,
-        collectionId: collectionIds
-      });
-    });
-    await Promise.all(allSaves);
+    await Promise.all(
+      selectedRowKeys.map((dashboardId) => {
+        return onAddDashboardToCollection({
+          dashboardId,
+          collectionId: collectionIds
+        });
+      })
+    );
+    setSelectedCollections([]);
+    onSelectChange([]);
     openInfoMessage('Dashboards saved to collections');
   });
 
   const onRemoveFromCollectionPreflight = useMemoizedFn(async (collectionId: string) => {
-    setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
-    const allRemoves = selectedRowKeys.map((dashboardId) => {
-      return onRemoveFromCollection({ dashboardId, collectionId });
-    });
-
-    await Promise.all(allRemoves);
+    await Promise.all(
+      selectedRowKeys.map((dashboardId) => {
+        return onRemoveDashboardFromCollection({
+          dashboardId,
+          collectionId
+        });
+      })
+    );
+    setSelectedCollections([]);
+    onSelectChange([]);
     openInfoMessage('Dashboards removed from collections');
   });
 

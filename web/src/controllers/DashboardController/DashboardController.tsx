@@ -1,33 +1,29 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useBusterDashboardIndividual } from '@/context/Dashboards';
 import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
 import { DashboardFileView, useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { DashboardViewComponents } from './config';
 import { AddTypeModal } from '@/components/features/modal/AddTypeModal';
 import { useMemoizedFn } from '@/hooks';
+import { useGetDashboard } from '@/api/buster_rest/dashboards';
 
 export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboardId }) => {
-  const { dashboardResponse } = useBusterDashboardIndividual({
-    dashboardId
-  });
+  const { data: dashboardResponse, isFetched: isFetchedDashboard } = useGetDashboard(dashboardId);
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView) || 'dashboard';
   const [openAddTypeModal, setOpenAddTypeModal] = useState(false);
   const onCloseModal = useMemoizedFn(() => {
     setOpenAddTypeModal(false);
   });
 
-  const showLoader = !dashboardResponse?.dashboard?.id;
-
   const Component =
-    selectedFileView && dashboardResponse
+    selectedFileView && isFetchedDashboard
       ? DashboardViewComponents[selectedFileView as DashboardFileView]
       : () => null;
 
   return (
     <>
-      {showLoader && <FileIndeterminateLoader />}
+      {!isFetchedDashboard && <FileIndeterminateLoader />}
       <Component dashboardId={dashboardId} />
 
       <AddTypeModal

@@ -5,8 +5,7 @@ import { useMemoizedFn, useRequest } from '@/hooks';
 import type { IDataResult } from '@/api/asset_interfaces';
 import { EditorApps, EditorContainerSubHeader } from './EditorContainerSubHeader';
 import { MetadataContainer } from './MetadataContainer';
-import { runSQL } from '@/api/buster_rest';
-import type { RustApiError } from '@/api/buster_rest/errors';
+import { useRunSQL } from '@/api/buster_rest';
 import isEmpty from 'lodash/isEmpty';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { useDatasetPageContextSelector } from '../_DatasetsLayout/DatasetPageContext';
@@ -25,9 +24,9 @@ export const EditorContent: React.FC<{
   const setSQL = useDatasetPageContextSelector((state) => state.setSQL);
   const ymlFile = useDatasetPageContextSelector((state) => state.ymlFile);
   const setYmlFile = useDatasetPageContextSelector((state) => state.setYmlFile);
+  const { mutateAsync: runSQLMutation, error: runSQLError } = useRunSQL();
 
   const [tempData, setTempData] = useState<IDataResult>(datasetData.data || []);
-  const [runSQLError, setRunSQLError] = useState<string>('');
 
   const shownData = useMemo(() => {
     return isEmpty(tempData) ? datasetData.data || [] : tempData;
@@ -35,15 +34,10 @@ export const EditorContent: React.FC<{
 
   const { runAsync: runQuery, loading: fetchingTempData } = useRequest(
     async () => {
-      try {
-        setRunSQLError('');
-        const res = await runSQL({ data_source_id: dataset?.data_source_id!, sql });
-        const data = res.data;
-        setTempData(data);
-        return data;
-      } catch (error) {
-        setRunSQLError((error as unknown as RustApiError)?.message || 'Something went wrong');
-      }
+      const res = await runSQLMutation({ data_source_id: dataset?.data_source_id!, sql });
+      const data = res.data;
+      setTempData(data);
+      return data;
     },
     { manual: true }
   );
@@ -77,7 +71,7 @@ export const EditorContent: React.FC<{
             ref={splitterRef}
             sql={sql}
             setSQL={setSQL}
-            runSQLError={runSQLError}
+            runSQLError={runSQLError?.message || null}
             onRunQuery={onRunQuery}
             data={shownData}
             fetchingData={fetchingInitialData || fetchingTempData}

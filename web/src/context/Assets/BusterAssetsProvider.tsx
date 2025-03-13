@@ -1,14 +1,14 @@
 'use client';
 
 import { useMemoizedFn } from '@/hooks';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 
 const useBusterAssets = () => {
-  const [assetsToPasswords, setAssetsToPasswords] = React.useState<Record<string, string>>({});
-  const [assetsPasswordErrors, setAssetsPasswordErrors] = React.useState<
-    Record<string, string | null>
-  >({});
+  const [assetsToPasswords, setAssetsToPasswords] = useState<Record<string, string>>({});
+  const [assetsPasswordErrors, setAssetsPasswordErrors] = useState<Record<string, string | null>>(
+    {}
+  );
 
   const setAssetPassword = useMemoizedFn((assetId: string, password: string) => {
     setAssetsToPasswords((prev) => ({ ...prev, [assetId]: password }));

@@ -191,12 +191,6 @@ const useBusterMetrics = () => {
     }
   );
 
-  const onInitializeMetric = useMemoizedFn((newMetric: BusterMetric) => {
-    const oldMetric = getMetricMemoized({ metricId: newMetric.id });
-    const upgradedMetric = upgradeMetricToIMetric(newMetric, oldMetric);
-    onUpdateMetric(upgradedMetric, false);
-  });
-
   return {
     getMetricMemoized,
     onUpdateMetric,
@@ -204,8 +198,7 @@ const useBusterMetrics = () => {
     onUpdateColumnLabelFormat,
     onUpdateColumnSetting,
     onSaveMetricChanges,
-    onVerifiedMetric,
-    onInitializeMetric
+    onVerifiedMetric
   };
 };
 

@@ -5,9 +5,9 @@ import { useMemoizedFn, useUnmount } from '@/hooks';
 import { IDataResult } from '@/api/asset_interfaces';
 import { useMetricLayout } from '../useMetricLayout';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
-import { useSQLContextSelector } from '@/context/SQL';
 import { AppSplitterRef } from '@/components/ui/layouts';
 import { AppVerticalCodeSplitter } from '@/components/features/layouts/AppVerticalCodeSplitter';
+import { useMetricRunSQL } from './useMetricRunSQL';
 
 const autoSaveId = 'metric-view-results';
 
@@ -17,9 +17,9 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
     (x) => x.selectedFileViewSecondary
   );
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const runSQL = useSQLContextSelector((x) => x.runSQL);
-  const resetRunSQLData = useSQLContextSelector((x) => x.resetRunSQLData);
-  const saveSQL = useSQLContextSelector((x) => x.saveSQL);
+
+  const { runSQL, resetRunSQLData, saveSQL, warnBeforeNavigating, setWarnBeforeNavigating } =
+    useMetricRunSQL();
 
   const { metric, metricData } = useMetricIndividual({ metricId });
 

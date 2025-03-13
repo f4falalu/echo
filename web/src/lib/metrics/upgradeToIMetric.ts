@@ -9,9 +9,6 @@ export const upgradeMetricToIMetric = (
   return {
     ...oldMetric,
     ...metric,
-    chart_config,
-    fetched: true,
-    fetching: false,
-    fetchedAt: Date.now()
+    chart_config
   };
 };

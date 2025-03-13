@@ -15,6 +15,8 @@ export interface GetCollectionListParams {
 export interface GetCollectionParams {
   /** Unique identifier of the collection to retrieve */
   id: string;
+  /** Password for the collection */
+  password?: string;
 }
 
 export interface CreateCollectionParams {

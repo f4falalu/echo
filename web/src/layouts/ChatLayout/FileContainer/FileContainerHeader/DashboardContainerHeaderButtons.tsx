@@ -10,7 +10,6 @@ import { ShareDashboardButton } from '@/components/features/buttons/ShareDashboa
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Dots, Plus, Trash } from '@/components/ui/icons';
-import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
 import { useDeleteDashboards } from '@/api/buster_rest/dashboards';

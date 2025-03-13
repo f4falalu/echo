@@ -11,13 +11,13 @@ import { SaveMetricToCollectionButton } from '../../../../components/features/bu
 import { SaveMetricToDashboardButton } from '../../../../components/features/buttons/SaveMetricToDashboardButton';
 import { ShareMetricButton } from '../../../../components/features/buttons/ShareMetricButton';
 import { Code3, SquareChartPen } from '@/components/ui/icons';
-import { useMetricIndividual } from '@/api/buster_rest/metrics';
+import { useGetMetric } from '@/api/buster_rest/metrics';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);
   const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
   const metricId = selectedFileId;
-  const { isMetricFetched } = useMetricIndividual({ metricId });
+  const { isFetched: isMetricFetched } = useGetMetric(metricId);
 
   if (!isMetricFetched) return null;
 

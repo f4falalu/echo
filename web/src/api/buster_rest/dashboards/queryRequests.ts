@@ -13,6 +13,10 @@ import { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { create } from 'mutative';
+import { upgradeMetricToIMetric } from '@/lib/chat';
+import { queryKeys } from '@/api/query_keys';
+import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
+import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 
 export const useGetDashboardsList = (
   params: Omit<DashboardsListRequest, 'page_token' | 'page_size'>
@@ -31,11 +35,35 @@ export const useGetDashboardsList = (
   });
 };
 
-export const useGetDashboard = (id: string | undefined) => {
+export const useGetDashboard = <TData = BusterDashboardResponse>(
+  id: string | undefined,
+  select?: (data: BusterDashboardResponse) => TData
+) => {
+  const queryClient = useQueryClient();
+  const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
+  const { password } = getAssetPassword(id!);
+
+  const initializeMetrics = useMemoizedFn((metrics: BusterDashboardResponse['metrics']) => {
+    for (const metric of metrics) {
+      const prevMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(metric.id).queryKey);
+      const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
+      queryClient.setQueryData(queryKeys.metricsGetMetric(metric.id).queryKey, upgradedMetric);
+      prefetchGetMetricDataClient({ id: metric.id });
+    }
+  });
+
+  const queryFn = useMemoizedFn(async () => {
+    return dashboardsGetDashboard({ id: id!, password }).then((data) => {
+      initializeMetrics(data.metrics);
+      return data;
+    });
+  });
+
   return useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id!),
-    queryFn: () => dashboardsGetDashboard(id!),
-    enabled: !!id
+    queryFn: queryFn,
+    enabled: !!id,
+    select
   });
 };
 
@@ -141,5 +169,65 @@ export const useDeleteDashboards = () => {
         return v?.filter((t) => !ids.includes(t.id)) || [];
       });
     }
+  });
+};
+
+export const useAddDashboardToCollection = () => {
+  const { mutateAsync: updateDashboardMutation } = useUpdateDashboard();
+
+  const mutationFn = useMemoizedFn(
+    async (variables: { dashboardId: string; collectionId: string | string[] }) => {
+      const { dashboardId, collectionId } = variables;
+      return updateDashboardMutation({
+        id: dashboardId,
+        add_to_collections: typeof collectionId === 'string' ? [collectionId] : collectionId
+      });
+    }
+  );
+
+  return useMutation({
+    mutationFn
+  });
+};
+
+export const useRemoveDashboardFromCollection = () => {
+  const { mutateAsync: updateDashboardMutation } = useUpdateDashboard();
+
+  const mutationFn = useMemoizedFn(
+    async (variables: { dashboardId: string; collectionId: string | string[] }) => {
+      const { dashboardId, collectionId } = variables;
+      return updateDashboardMutation({
+        id: dashboardId,
+        remove_from_collections: typeof collectionId === 'string' ? [collectionId] : collectionId
+      });
+    }
+  );
+
+  return useMutation({
+    mutationFn
+  });
+};
+
+export const useRemoveItemFromDashboard = () => {
+  const { mutateAsync: updateDashboardMutation } = useUpdateDashboard();
+  const queryClient = useQueryClient();
+  const mutationFn = useMemoizedFn(
+    async (variables: { dashboardId: string; metricId: string | string[] }) => {
+      const { dashboardId, metricId } = variables;
+      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
+      const prevDashboard = queryClient.getQueryData(options.queryKey);
+
+      if (prevDashboard) {
+        const prevMetrics = prevDashboard?.metrics;
+        const newMetrics = prevMetrics?.filter((t) => !metricId.includes(t.id)).map((t) => t.id);
+        return updateDashboardMutation({
+          id: dashboardId,
+          metrics: newMetrics
+        });
+      }
+    }
+  );
+  return useMutation({
+    mutationFn
   });
 };

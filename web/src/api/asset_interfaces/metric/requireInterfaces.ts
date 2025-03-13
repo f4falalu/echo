@@ -10,7 +10,4 @@ export type IBusterMetricChartConfig = Required<
 
 export interface IBusterMetric extends Required<BusterMetric> {
   chart_config: IBusterMetricChartConfig;
-  fetched: boolean;
-  fetching: boolean;
-  fetchedAt: number;
 }
