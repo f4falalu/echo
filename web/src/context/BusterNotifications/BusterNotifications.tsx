@@ -1,9 +1,11 @@
 'use client';
 
+import { ConfirmModal, ConfirmProps } from '@/components/ui/modal/ConfirmModal';
 import { Toaster } from '@/components/ui/toaster/Toaster';
 import React, { PropsWithChildren } from 'react';
 import { toast, type ExternalToast } from 'sonner';
 import { useContextSelector, createContext } from 'use-context-selector';
+import { useOpenConfirmModal } from './useConfirmModal';
 
 export type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
@@ -103,47 +105,7 @@ const openSuccessMessage = (message: string) => {
   return openMessage({ type: 'success', message });
 };
 
-const openConfirmModal = (props: {
-  title: string | React.ReactNode;
-  content: string | React.ReactNode;
-  onOk: () => void;
-  onCancel?: () => void;
-  icon?: React.ReactNode;
-  width?: string | number;
-  useReject?: boolean;
-  cancelButtonProps?: {
-    className?: string;
-  };
-}): Promise<void> => {
-  const useReject = props.useReject ?? true;
-
-  return new Promise((resolve, reject) => {
-    // modal.confirm({
-    //   icon: props.icon || <></>,
-    //   ...props,
-    //   className: cx(styles.modal, ''),
-    //   cancelButtonProps: {
-    //     ...props.cancelButtonProps,
-    //     type: 'text'
-    //   },
-    //   okButtonProps: {
-    //     ...props.okButtonProps,
-    //     type: 'default'
-    //   },
-    //   onOk: async () => {
-    //     await props.onOk();
-    //     resolve();
-    //   },
-    //   onCancel: async () => {
-    //     await props.onCancel?.();
-    //     if (useReject) reject();
-    //     else resolve();
-    //   }
-    // });
-  });
-};
-
-export const useBusterNotificationsInternal = () => {
+const useBusterNotificationsInternal = () => {
   return {
     openErrorNotification,
     openInfoNotification,
@@ -152,29 +114,32 @@ export const useBusterNotificationsInternal = () => {
     openErrorMessage,
     openInfoMessage,
     openSuccessMessage,
-    openConfirmModal,
     openNotification
   };
 };
 
-const BusterNotifications = createContext<ReturnType<typeof useBusterNotificationsInternal>>(
-  {} as ReturnType<typeof useBusterNotificationsInternal>
+type BusterNotificationsContext = ReturnType<typeof useBusterNotificationsInternal> & {
+  openConfirmModal: ReturnType<typeof useOpenConfirmModal>['openConfirmModal'];
+};
+
+const BusterNotifications = createContext<BusterNotificationsContext>(
+  {} as BusterNotificationsContext
 );
 
 export const BusterNotificationsProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  const { openConfirmModal, confirmModalProps } = useOpenConfirmModal();
   const value = useBusterNotificationsInternal();
 
   return (
-    <BusterNotifications.Provider value={value}>
+    <BusterNotifications.Provider value={{ ...value, openConfirmModal }}>
       {children}
       <Toaster />
+      <ConfirmModal {...confirmModalProps} />
     </BusterNotifications.Provider>
   );
 };
 
-const useBusterNotificationsSelector = <T,>(
-  selector: (state: ReturnType<typeof useBusterNotificationsInternal>) => T
-) => {
+const useBusterNotificationsSelector = <T,>(selector: (state: BusterNotificationsContext) => T) => {
   return useContextSelector(BusterNotifications, selector);
 };
 

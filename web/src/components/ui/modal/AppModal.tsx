@@ -34,8 +34,8 @@ export interface ModalProps {
     };
   };
   header: {
-    title: string;
-    description?: string;
+    title: React.ReactNode;
+    description?: React.ReactNode;
   };
   width?: number;
   children?: React.ReactNode;

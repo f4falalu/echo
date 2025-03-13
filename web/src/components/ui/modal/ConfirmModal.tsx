@@ -1,0 +1,55 @@
+import React from 'react';
+import { AppModal } from './AppModal';
+
+export interface ConfirmProps {
+  title: string | React.ReactNode;
+  description?: string | React.ReactNode;
+  content: string | React.ReactNode;
+  onOk: () => Promise<void> | void;
+  onCancel?: () => Promise<void> | void;
+  width?: number;
+  cancelButtonProps?: {
+    className?: string;
+    text?: string;
+  };
+  primaryButtonProps?: {
+    className?: string;
+    text?: string;
+  };
+}
+
+export interface ConfirmModalProps extends ConfirmProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export const ConfirmModal: React.FC<ConfirmModalProps> = React.memo(
+  ({ title, content, onOk, onCancel, width, cancelButtonProps, description, open, onClose }) => {
+    return (
+      <AppModal
+        open={open}
+        width={width}
+        onClose={onClose}
+        header={{
+          title,
+          description
+        }}
+        footer={{
+          secondaryButton: onCancel
+            ? {
+                text: cancelButtonProps?.text ?? 'Cancel',
+                onClick: onCancel
+              }
+            : undefined,
+          primaryButton: {
+            text: 'OK',
+            onClick: onOk
+          }
+        }}>
+        {content}
+      </AppModal>
+    );
+  }
+);
+
+ConfirmModal.displayName = 'ConfirmModal';

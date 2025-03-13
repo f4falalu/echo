@@ -149,10 +149,7 @@ export const useDeleteDashboards = () => {
       return await openConfirmModal({
         title: 'Delete Dashboard',
         content: 'Are you sure you want to delete this dashboard?',
-        onOk: () => {
-          method();
-        },
-        useReject: true
+        onOk: method
       });
     }
   );

@@ -31,7 +31,6 @@ export const ApiKeysController: React.FC = () => {
   const handleDeleteApiKey = useMemoizedFn(async (id: string) => {
     openConfirmModal({
       title: 'Delete API key',
-      useReject: false,
       content: 'Are you sure you want to delete this API key? This action cannot be undone.',
       onOk: async () => {
         try {
