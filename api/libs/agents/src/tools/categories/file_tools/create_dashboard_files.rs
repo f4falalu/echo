@@ -11,7 +11,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::{self, json, Value};
 use tracing::debug;
 use uuid::Uuid;
-use middleware::AuthenticatedUser;
 
 use crate::{
     agent::Agent,
@@ -132,7 +131,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
         }
     }
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String, user: AuthenticatedUser) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         let files = params.files;

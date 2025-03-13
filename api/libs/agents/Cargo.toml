@@ -15,7 +15,6 @@ uuid = { workspace = true }
 litellm = { path = "../litellm" }
 database = { path = "../database" }
 query_engine = { path = "../query_engine" }
-middleware = { path = "../middleware" }
 serde_json = { workspace = true }
 futures = { workspace = true }
 futures-util = { workspace = true }

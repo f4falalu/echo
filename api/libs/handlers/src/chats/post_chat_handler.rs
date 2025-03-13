@@ -3,14 +3,10 @@ use once_cell::sync::OnceCell;
 use std::{collections::HashMap, sync::Mutex, time::Instant};
 
 use agents::{
-    tools::{
-        file_tools::{
-            common::ModifyFilesOutput, create_dashboard_files::CreateDashboardFilesOutput,
-            create_metric_files::CreateMetricFilesOutput,
-            search_data_catalog::SearchDataCatalogOutput,
-        },
-        planning_tools::CreatePlanOutput,
-    },
+    tools::{file_tools::{
+        common::ModifyFilesOutput, create_dashboard_files::CreateDashboardFilesOutput,
+        create_metric_files::CreateMetricFilesOutput, search_data_catalog::SearchDataCatalogOutput,
+    }, planning_tools::CreatePlanOutput},
     AgentExt, AgentMessage, AgentThread, BusterSuperAgent,
 };
 
@@ -179,7 +175,7 @@ pub async fn post_chat_handler(
     let mut initial_messages = vec![];
 
     // Initialize agent to add context
-    let agent = BusterSuperAgent::new(user.clone(), chat_id).await?;
+    let agent = BusterSuperAgent::new(user.id, chat_id).await?;
 
     // Load context if provided
     if let Some(existing_chat_id) = request.chat_id {
@@ -420,8 +416,7 @@ pub async fn post_chat_handler(
 fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Value>, Vec<Value>)> {
     let mut response_messages = Vec::new();
     // Use a Vec to maintain order, with a HashMap to track latest version of each message
-    let mut reasoning_map: std::collections::HashMap<String, (usize, Value)> =
-        std::collections::HashMap::new();
+    let mut reasoning_map: std::collections::HashMap<String, (usize, Value)> = std::collections::HashMap::new();
     let mut reasoning_order = Vec::new();
 
     for container in containers {
@@ -471,7 +466,7 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
                         if !reasoning_map.contains_key(&id) {
                             reasoning_order.push(id.clone());
                         }
-
+                        
                         // Store or update the message in the map with its position
                         reasoning_map.insert(id, (reasoning_order.len() - 1, value));
                     }
@@ -969,10 +964,10 @@ fn transform_text_message(
             let complete_text = tracker
                 .get_complete_text(id.clone())
                 .unwrap_or_else(|| content.clone());
-
+            
             // Clear the tracker for this chunk
             tracker.clear_chunk(id.clone());
-
+            
             Ok(vec![BusterChatMessage::Text {
                 id: id.clone(),
                 message: Some(complete_text),
@@ -1434,8 +1429,7 @@ fn transform_assistant_tool_message(
                                 let mut updated_files = std::collections::HashMap::new();
 
                                 for (file_id, file_content) in file.files.iter() {
-                                    let chunk_id =
-                                        format!("{}_{}", file.id, file_content.file_name);
+                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
                                     let complete_text = tracker
                                         .get_complete_text(chunk_id.clone())
                                         .unwrap_or_else(|| {
@@ -1462,12 +1456,10 @@ fn transform_assistant_tool_message(
                                 let mut updated_files = std::collections::HashMap::new();
 
                                 for (file_id, file_content) in file.files.iter() {
-                                    let chunk_id =
-                                        format!("{}_{}", file.id, file_content.file_name);
+                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
 
                                     if let Some(chunk) = &file_content.file.text_chunk {
-                                        let delta =
-                                            tracker.add_chunk(chunk_id.clone(), chunk.clone());
+                                        let delta = tracker.add_chunk(chunk_id.clone(), chunk.clone());
 
                                         if !delta.is_empty() {
                                             let mut updated_content = file_content.clone();
