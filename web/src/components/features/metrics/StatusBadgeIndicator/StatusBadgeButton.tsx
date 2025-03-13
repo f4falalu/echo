@@ -47,7 +47,7 @@ export const StatusBadgeButton: React.FC<{
         onOpenChange={setIsOpenDropdown}>
         <AppTooltip title={showButtonTooltip ? '' : 'Request verification from data team'}>
           <Button
-            disabled={disabled || ((!id || status === 'VERIFIED') && !isAdmin)}
+            disabled={disabled || ((!id || status === VerificationStatus.VERIFIED) && !isAdmin)}
             prefix={<StatusBadgeIndicator showTooltip={false} status={status} size={16} />}
             variant={variant}>
             {buttonText}
