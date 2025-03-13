@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { SidebarCollapsible } from './SidebarCollapsible';
-//import { Home, Settings, User } from 'lucide-react';
 import { HouseModern, MapSettings, User } from '../icons/NucleoIconOutlined';
-import { BusterRoutes } from '@/routes';
+import { BusterRoutes } from '../../../routes';
+import React from 'react';
 
 const meta: Meta<typeof SidebarCollapsible> = {
   title: 'UI/Sidebar/SidebarCollapsible',
@@ -45,5 +45,12 @@ export const Default: Story = {
         route: BusterRoutes.APP_METRIC
       }
     ]
+  }
+};
+
+export const Sortable: Story = {
+  args: {
+    ...Default.args,
+    isSortable: true
   }
 };

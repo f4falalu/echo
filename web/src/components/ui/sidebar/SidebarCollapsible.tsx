@@ -10,6 +10,26 @@ import { type ISidebarGroup } from './interfaces';
 import { SidebarItem } from './SidebarItem';
 import { CaretDown } from '../icons/NucleoIconFilled';
 import { cn } from '@/lib/classMerge';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+  DragStartEvent,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { useMemoizedFn } from '@/hooks';
 
 interface SidebarTriggerProps {
   label: string;
@@ -39,6 +59,47 @@ const SidebarTrigger: React.FC<SidebarTriggerProps> = React.memo(({ label, isOpe
 
 SidebarTrigger.displayName = 'SidebarTrigger';
 
+interface SortableSidebarItemProps {
+  item: ISidebarGroup['items'][0];
+  active?: boolean;
+}
+
+const SortableSidebarItem: React.FC<SortableSidebarItemProps> = React.memo(({ item, active }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item.id,
+    disabled: item.disabled
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0 : 1
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isDragging) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onClick={handleClick}
+      className={cn(isDragging && 'pointer-events-none')}>
+      <div onClick={isDragging ? (e) => e.stopPropagation() : undefined}>
+        <SidebarItem {...item} active={active} />
+      </div>
+    </div>
+  );
+});
+
+SortableSidebarItem.displayName = 'SortableSidebarItem';
+
 export const SidebarCollapsible: React.FC<ISidebarGroup & { activeItem?: string }> = React.memo(
   ({
     label,
@@ -50,6 +111,34 @@ export const SidebarCollapsible: React.FC<ISidebarGroup & { activeItem?: string 
     defaultOpen = true
   }) => {
     const [isOpen, setIsOpen] = React.useState(defaultOpen);
+    const [sortedItems, setSortedItems] = React.useState(items);
+    const [draggingId, setDraggingId] = React.useState<string | null>(null);
+
+    const sensors = useSensors(
+      useSensor(PointerSensor),
+      useSensor(KeyboardSensor, {
+        coordinateGetter: sortableKeyboardCoordinates
+      })
+    );
+
+    const handleDragStart = useMemoizedFn((event: DragStartEvent) => {
+      setDraggingId(event.active.id as string);
+    });
+
+    const handleDragEnd = useMemoizedFn((event: DragEndEvent) => {
+      const { active, over } = event;
+      setDraggingId(null);
+
+      if (active.id !== over?.id) {
+        setSortedItems((items) => {
+          const oldIndex = items.findIndex((item) => item.id === active.id);
+          const newIndex = items.findIndex((item) => item.id === over?.id);
+          return arrayMove(items, oldIndex, newIndex);
+        });
+      }
+    });
+
+    const draggingItem = draggingId ? sortedItems.find((item) => item.id === draggingId) : null;
 
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-0.5">
@@ -74,13 +163,40 @@ export const SidebarCollapsible: React.FC<ISidebarGroup & { activeItem?: string 
 
         <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up pl-0">
           <div className="space-y-0.5">
-            {items.map((item) => (
-              <SidebarItem
-                key={item.id + item.route}
-                {...item}
-                active={activeItem === item.id || item.active}
-              />
-            ))}
+            {isSortable ? (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}>
+                <SortableContext
+                  items={sortedItems.map((item) => item.id)}
+                  strategy={verticalListSortingStrategy}>
+                  {sortedItems.map((item) => (
+                    <SortableSidebarItem
+                      key={item.id}
+                      item={item}
+                      active={activeItem === item.id || item.active}
+                    />
+                  ))}
+                </SortableContext>
+                <DragOverlay>
+                  {draggingId && draggingItem ? (
+                    <div className="opacity-70 shadow">
+                      <SidebarItem {...draggingItem} active={draggingItem.active} />
+                    </div>
+                  ) : null}
+                </DragOverlay>
+              </DndContext>
+            ) : (
+              items.map((item) => (
+                <SidebarItem
+                  key={item.id + item.route}
+                  {...item}
+                  active={activeItem === item.id || item.active}
+                />
+              ))
+            )}
           </div>
         </CollapsibleContent>
       </Collapsible>
