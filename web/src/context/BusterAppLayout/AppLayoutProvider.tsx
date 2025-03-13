@@ -11,22 +11,11 @@ export const useAppLayout = () => {
   const { push } = useRouter();
   const pathname = usePathname();
   const params = useParams();
-  const currentSegment = useSelectedLayoutSegment();
   const currentRoute = pathNameToRoute(pathname, params);
-  const previousRoute = usePrevious(currentRoute);
   const [openInviteModal, setOpenInviteModal] = React.useState(false);
-  const [openSupportModal, setOpenSupportModal] = React.useState(false);
 
   const onToggleInviteModal = useMemoizedFn((v?: boolean) => {
     setOpenInviteModal(v ?? !openInviteModal);
-  });
-
-  const onToggleSupportModal = useMemoizedFn((v?: boolean) => {
-    setOpenSupportModal(v ?? !openSupportModal);
-  });
-
-  const createPageLink = useMemoizedFn((params: BusterRoutesWithArgsRoute) => {
-    return createBusterRoute(params);
   });
 
   const onChangePage = useMemoizedFn(
@@ -65,16 +54,11 @@ export const useAppLayout = () => {
   );
 
   return {
-    createPageLink,
     currentRoute,
-    currentSegment,
     onToggleInviteModal,
     openInviteModal,
     onChangePage,
-    pathname,
-    openSupportModal,
-    previousRoute,
-    onToggleSupportModal
+    pathname
   };
 };
 

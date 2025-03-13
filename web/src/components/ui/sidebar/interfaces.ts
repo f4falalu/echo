@@ -8,6 +8,7 @@ export interface ISidebarItem {
   disabled?: boolean;
   active?: boolean;
   onRemove?: () => void;
+  onClick?: () => void;
 }
 
 export interface ISidebarGroup {

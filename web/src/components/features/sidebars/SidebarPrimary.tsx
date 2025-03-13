@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Sidebar } from '@/components/ui/sidebar/Sidebar';
 import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -85,7 +85,10 @@ const adminTools: ISidebarGroup = {
   ]
 };
 
-const tryGroup = (onClickInvitePeople: () => void, onClickLeaveFeedback: () => void) => ({
+const tryGroup = (
+  onClickInvitePeople: () => void,
+  onClickLeaveFeedback: () => void
+): ISidebarGroup => ({
   label: 'Try',
   items: [
     {
@@ -109,8 +112,8 @@ export const SidebarPrimary = React.memo(() => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
   const { data: favorites } = useGetUserFavorites();
   const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
-  const onToggleSupportModal = useAppLayoutContextSelector((s) => s.onToggleSupportModal);
   const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
+  const [openSupportModal, setOpenSupportModal] = useState(false);
 
   const sidebarItems: SidebarProps['content'] = useMemo(() => {
     const items = [topItems];
@@ -125,10 +128,12 @@ export const SidebarPrimary = React.memo(() => {
       items.push(favoritesDropdown(favorites));
     }
 
-    items.push(tryGroup(onToggleInviteModal, onToggleSupportModal));
+    items.push(tryGroup(onToggleInviteModal, () => setOpenSupportModal(true)));
 
     return items;
   }, [isAdmin, favorites, currentRoute]);
+
+  const onCloseSupportModal = useMemoizedFn(() => setOpenSupportModal(false));
 
   return (
     <>
@@ -139,7 +144,7 @@ export const SidebarPrimary = React.memo(() => {
         footer={<SidebarUserFooter />}
       />
 
-      <GlobalModals />
+      <GlobalModals openSupportModal={openSupportModal} onCloseSupportModal={onCloseSupportModal} />
     </>
   );
 });
@@ -176,25 +181,29 @@ const SidebarPrimaryHeader = React.memo(() => {
 
 SidebarPrimaryHeader.displayName = 'SidebarPrimaryHeader';
 
-const GlobalModals = React.memo(() => {
-  const onToggleSupportModal = useAppLayoutContextSelector((s) => s.onToggleSupportModal);
-  const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
-  const openSupportModal = useAppLayoutContextSelector((s) => s.openSupportModal);
-  const openInviteModal = useAppLayoutContextSelector((s) => s.openInviteModal);
-  const isAnonymousUser = useUserConfigContextSelector((state) => state.isAnonymousUser);
+const GlobalModals = React.memo(
+  ({
+    openSupportModal,
+    onCloseSupportModal
+  }: {
+    openSupportModal: boolean;
+    onCloseSupportModal: () => void;
+  }) => {
+    const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
+    const openInviteModal = useAppLayoutContextSelector((s) => s.openInviteModal);
+    const onCloseInviteModal = useMemoizedFn(() => onToggleInviteModal(false));
+    const isAnonymousUser = useUserConfigContextSelector((state) => state.isAnonymousUser);
 
-  const onCloseInviteModal = useMemoizedFn(() => onToggleInviteModal(false));
-  const onCloseSupportModal = useMemoizedFn(() => onToggleSupportModal(false));
+    if (isAnonymousUser) return null;
 
-  if (isAnonymousUser) return null;
-
-  return (
-    <>
-      <InvitePeopleModal open={openInviteModal} onClose={onCloseInviteModal} />
-      <SupportModal open={openSupportModal} onClose={onCloseSupportModal} />
-    </>
-  );
-});
+    return (
+      <>
+        <InvitePeopleModal open={openInviteModal} onClose={onCloseInviteModal} />
+        <SupportModal open={openSupportModal} onClose={onCloseSupportModal} />
+      </>
+    );
+  }
+);
 GlobalModals.displayName = 'GlobalModals';
 
 const favoritesDropdown = (favorites: BusterUserFavorite[]): ISidebarGroup => {
