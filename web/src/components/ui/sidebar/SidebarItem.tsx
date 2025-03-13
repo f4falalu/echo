@@ -58,7 +58,12 @@ const itemVariants = cva(
   }
 );
 
-export const SidebarItem: React.FC<ISidebarItem & VariantProps<typeof itemVariants>> = React.memo(
+export const SidebarItem: React.FC<
+  ISidebarItem &
+    VariantProps<typeof itemVariants> & {
+      className?: string;
+    }
+> = React.memo(
   ({
     label,
     icon,
@@ -68,6 +73,7 @@ export const SidebarItem: React.FC<ISidebarItem & VariantProps<typeof itemVarian
     active = false,
     variant = 'default',
     onRemove,
+    className = '',
     onClick
   }) => {
     const ItemNode = disabled || !route ? 'div' : Link;
@@ -75,7 +81,7 @@ export const SidebarItem: React.FC<ISidebarItem & VariantProps<typeof itemVarian
     return (
       <ItemNode
         href={route || ''}
-        className={cn(itemVariants({ active, disabled, variant }))}
+        className={cn(itemVariants({ active, disabled, variant }), className)}
         onClick={onClick}>
         <div className="flex items-center gap-2">
           <span
