@@ -16,12 +16,10 @@ import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import { prepareMetricUpdateMetric, resolveEmptyMetric } from '@/lib/metrics';
 import { create } from 'mutative';
 import { ShareRole } from '@/api/asset_interfaces/share';
-import { useUpdateMetric } from '@/api/buster_rest/metrics';
 
 const useBusterMetrics = () => {
   const [isPending, startTransition] = useTransition();
   const { metricId: selectedMetricId } = useParams<{ metricId: string }>();
-  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
   const queryClient = useQueryClient();
 
   const getMetricId = useMemoizedFn((metricId?: string): string => {

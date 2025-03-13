@@ -1,6 +1,9 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import useLatest from './useLatest';
+import debounce from 'lodash/debounce';
+import { useUnmount } from './useUnmount';
 
 interface DebounceOptions {
   wait?: number;
@@ -8,78 +11,37 @@ interface DebounceOptions {
   leading?: boolean;
 }
 
-export function useDebounceFn<T extends (...args: any[]) => any>(
-  fn: T,
-  options: DebounceOptions = {}
-) {
-  const { wait = 1000, maxWait, leading = false } = options;
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const maxTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const fnRef = useRef<T>(fn);
-  const argsRef = useRef<Parameters<T> | null>(null);
-  const lastCallTime = useRef<number>(0);
+type noop = (...args: any[]) => any;
 
-  // Update the function ref when fn changes
-  useEffect(() => {
-    fnRef.current = fn;
-  }, [fn]);
+export function useDebounceFn<T extends noop>(fn: T, options?: DebounceOptions) {
+  const fnRef = useLatest(fn);
 
-  const cancel = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    if (maxTimeoutRef.current) {
-      clearTimeout(maxTimeoutRef.current);
-    }
-  }, []);
+  const wait = options?.wait ?? 1000;
 
-  const run = useCallback(
-    (...args: Parameters<T>) => {
-      argsRef.current = args;
-      const now = Date.now();
-
-      if (leading && !timeoutRef.current) {
-        fnRef.current(...args);
-        lastCallTime.current = now;
-      }
-
-      cancel();
-
-      timeoutRef.current = setTimeout(() => {
-        if (!leading && argsRef.current) {
-          fnRef.current(...argsRef.current);
-        }
-        lastCallTime.current = now;
-      }, wait);
-
-      // Handle maxWait
-      if (maxWait && !maxTimeoutRef.current && !leading) {
-        const timeSinceLastCall = now - lastCallTime.current;
-        const maxWaitTimeRemaining = Math.max(0, maxWait - timeSinceLastCall);
-
-        maxTimeoutRef.current = setTimeout(() => {
-          if (timeoutRef.current && argsRef.current) {
-            clearTimeout(timeoutRef.current);
-            fnRef.current(...argsRef.current);
-            lastCallTime.current = Date.now();
-          }
-          maxTimeoutRef.current = undefined;
-        }, maxWaitTimeRemaining);
-      }
-    },
-    [wait, maxWait, leading, cancel]
+  const debounced = useMemo(
+    () =>
+      debounce(
+        (...args: Parameters<T>): ReturnType<T> => {
+          return fnRef.current(...args);
+        },
+        wait,
+        options
+      ),
+    []
   );
 
-  // Clean up timeouts on unmount
-  useEffect(() => {
-    return () => cancel();
-  }, [cancel]);
+  useUnmount(() => {
+    debounced.cancel();
+  });
 
   return {
-    run,
-    cancel
+    run: debounced,
+    cancel: debounced.cancel,
+    flush: debounced.flush
   };
 }
+
+export default useDebounceFn;
 
 export function useDebounce<T>(value: T, options: DebounceOptions = {}) {
   const { wait = 1000, maxWait } = options;

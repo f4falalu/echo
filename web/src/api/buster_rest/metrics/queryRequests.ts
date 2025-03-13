@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useDebounceFn } from '@/hooks';
 import {
   deleteMetrics,
   getMetric,
@@ -13,7 +13,7 @@ import {
 import type { GetMetricParams, ListMetricsParams, UpdateMetricParams } from './interfaces';
 import { upgradeMetricToIMetric } from '@/lib/chat';
 import { queryKeys } from '@/api/query_keys';
-import { useMemo } from 'react';
+import { useMemo, useTransition } from 'react';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { resolveEmptyMetric } from '@/lib/metrics/resolve';
 import { useGetUserFavorites } from '../users';
@@ -150,10 +150,13 @@ export const useSaveMetric = () => {
  * It will also strip out any values that are not changed from the DEFAULT_CHART_CONFIG.
  * It will also update the draft_session_id if it exists.
  */
-export const useUpdateMetric = () => {
+export const useUpdateMetric = (params?: { wait?: number }) => {
+  const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
   const { mutateAsync: saveMetric } = useSaveMetric();
-  const mutationFn = useMemoizedFn(
+  const waitTime = params?.wait || 0;
+
+  const combineAndSaveMetric = useMemoizedFn(
     async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
       const metricId = newMetricPartial.id;
       const options = queryKeys.metricsGetMetric(metricId);
@@ -163,17 +166,41 @@ export const useUpdateMetric = () => {
       });
 
       if (prevMetric && newMetric) {
-        const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
-        if (changedValues) {
-          return saveMetric(changedValues);
-        }
+        queryClient.setQueryData(options.queryKey, newMetric);
+      }
+
+      return { newMetric, prevMetric };
+    }
+  );
+
+  const mutationFn = useMemoizedFn(
+    async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
+      const { newMetric, prevMetric } = await combineAndSaveMetric(newMetricPartial);
+      if (newMetric && prevMetric) {
+        startTransition(() => {
+          const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
+          if (changedValues) {
+            saveMetric(changedValues);
+          }
+        });
       }
       return Promise.resolve(newMetric!);
     }
   );
-  return useMutation({
-    mutationFn
+
+  const mutationRes = useMutation({
+    mutationFn: mutationFn
   });
+
+  const { run: mutateDebounced } = useDebounceFn(mutationRes.mutateAsync, { wait: waitTime });
+
+  return useMemo(
+    () => ({
+      ...mutationRes,
+      mutateDebounced
+    }),
+    [mutationRes, mutateDebounced]
+  );
 };
 
 export const useDeleteMetric = () => {
