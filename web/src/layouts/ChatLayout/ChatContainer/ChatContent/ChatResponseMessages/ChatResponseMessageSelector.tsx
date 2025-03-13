@@ -32,7 +32,7 @@ export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorPr
     const messageType = useGetChatMessage(
       messageId,
       (x) => x?.response_messages?.[responseMessageId]?.type || 'text'
-    );
+    )!;
     const ChatResponseMessage = ChatResponseMessageRecord[messageType];
 
     return (

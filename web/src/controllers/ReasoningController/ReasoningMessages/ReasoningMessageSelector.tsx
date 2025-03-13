@@ -67,20 +67,18 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
   chatId,
   messageId
 }) => {
-  const { title, type, secondary_title, status, hasMessage } = useGetChatMessage(
-    messageId,
-    (x) => ({
-      title: x?.reasoning_messages[reasoningMessageId]?.title,
-      secondary_title: x?.reasoning_messages[reasoningMessageId]?.secondary_title,
-      type: x?.reasoning_messages[reasoningMessageId]?.type,
-      status: x?.reasoning_messages[reasoningMessageId]?.status,
-      hasMessage: !!(x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_text)
-        ?.message
-    })
-  );
+  const messageStuff = useGetChatMessage(messageId, (x) => ({
+    title: x?.reasoning_messages[reasoningMessageId]?.title,
+    secondary_title: x?.reasoning_messages[reasoningMessageId]?.secondary_title,
+    type: x?.reasoning_messages[reasoningMessageId]?.type,
+    status: x?.reasoning_messages[reasoningMessageId]?.status,
+    hasMessage: !!(x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_text)
+      ?.message
+  }));
+  const { title, secondary_title, type, status, hasMessage } = messageStuff || {};
 
   const showBar = useMemo(() => {
-    if (type === 'text') return hasMessage;
+    if (type === 'text') return !!hasMessage;
     return true;
   }, [type, hasMessage]);
 

@@ -156,5 +156,5 @@ export const useGetChatMessage = <TData = IBusterChatMessage>(
     enabled: false, //this will come from the chat
     select: selector
   });
-  return data || ({} as TData);
+  return data;
 };

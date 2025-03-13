@@ -11,7 +11,7 @@ interface ChatResponseMessagesProps {
 
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
   ({ isCompletedStream, messageId }) => {
-    const responseMessageIds = useGetChatMessage(messageId, (x) => x?.response_message_ids || []);
+    const responseMessageIds = useGetChatMessage(messageId, (x) => x?.response_message_ids || [])!;
     const lastReasoningMessageId = useGetChatMessage(
       messageId,
       (x) => x?.reasoning_message_ids?.[x.reasoning_message_ids.length - 1]
