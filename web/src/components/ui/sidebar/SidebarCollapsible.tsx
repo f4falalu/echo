@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Collapsible,
   CollapsibleContent,
@@ -118,7 +118,11 @@ export const SidebarCollapsible: React.FC<
     const [draggingId, setDraggingId] = React.useState<string | null>(null);
 
     const sensors = useSensors(
-      useSensor(PointerSensor),
+      useSensor(PointerSensor, {
+        activationConstraint: {
+          distance: 2
+        }
+      }),
       useSensor(KeyboardSensor, {
         coordinateGetter: sortableKeyboardCoordinates
       })
@@ -144,6 +148,10 @@ export const SidebarCollapsible: React.FC<
     });
 
     const draggingItem = draggingId ? sortedItems.find((item) => item.id === draggingId) : null;
+
+    useEffect(() => {
+      setSortedItems(items);
+    }, [items]);
 
     return (
       <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-0.5">

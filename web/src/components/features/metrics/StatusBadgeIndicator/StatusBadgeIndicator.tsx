@@ -26,17 +26,15 @@ export const StatusBadgeIndicator: React.FC<{
     const isNotVerified =
       status === VerificationStatus.NOT_VERIFIED || VerificationStatus.NOT_REQUESTED;
     const sharedClass = cn(`flex items-center justify-center rounded-full`, colorClasses);
-    const _size = isNotVerified ? size : 16;
-
     return (
       <AppTooltip title={showTooltip ? tooltipText : ''}>
         <div
           className={`rounded-full ${className} ${sharedClass} ${isNotVerified ? '' : ''}`}
           style={{
-            width: _size,
-            height: _size
+            width: size,
+            height: size
           }}>
-          <Icon size={_size} />
+          <Icon size={size} />
         </div>
       </AppTooltip>
     );
@@ -54,6 +52,7 @@ const statusRecordIcon: Record<VerificationStatus, React.FC<any>> = {
 };
 
 const getIcon = (status: BusterMetricListItem['status']) => {
+  console.log(status, statusRecordIcon);
   return statusRecordIcon[status] || (() => <React.Fragment />);
 };
 

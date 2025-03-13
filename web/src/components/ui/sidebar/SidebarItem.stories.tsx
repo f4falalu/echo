@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { SidebarItem } from './SidebarItem';
-import { HouseModern } from '@/components/ui/icons';
-import { BusterRoutes } from '@/routes';
-
+import { HouseModern } from '../icons/NucleoIconOutlined';
+import { BusterRoutes } from '../../../routes';
+import React from 'react';
 const meta: Meta<typeof SidebarItem> = {
   title: 'UI/Sidebar/SidebarItem',
   component: SidebarItem,

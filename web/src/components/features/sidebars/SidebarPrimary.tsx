@@ -18,9 +18,14 @@ import { SupportModal } from '../modal/SupportModal';
 import { InvitePeopleModal } from '../modal/InvitePeopleModal';
 import { useMemoizedFn } from '@/hooks';
 import { SidebarUserFooter } from './SidebarUserFooter/SidebarUserFooter';
-import { useGetUserFavorites, useUpdateUserFavorites } from '@/api/buster_rest';
+import {
+  useDeleteUserFavorite,
+  useGetUserFavorites,
+  useUpdateUserFavorites
+} from '@/api/buster_rest';
 
 const topItems: ISidebarList = {
+  id: 'top-items',
   items: [
     {
       label: 'Home',
@@ -39,6 +44,7 @@ const topItems: ISidebarList = {
 
 const yourStuff: ISidebarGroup = {
   label: 'Your stuff',
+  id: 'your-stuff',
   items: [
     {
       label: 'Metrics',
@@ -63,6 +69,7 @@ const yourStuff: ISidebarGroup = {
 
 const adminTools: ISidebarGroup = {
   label: 'Admin tools',
+  id: 'admin-tools',
   items: [
     {
       label: 'Logs',
@@ -90,6 +97,7 @@ const tryGroup = (
   onClickLeaveFeedback: () => void
 ): ISidebarGroup => ({
   label: 'Try',
+  id: 'try',
   items: [
     {
       label: 'Invite people',
@@ -115,6 +123,7 @@ export const SidebarPrimary = React.memo(() => {
   const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
   const [openSupportModal, setOpenSupportModal] = useState(false);
   const { mutateAsync: updateUserFavorites } = useUpdateUserFavorites();
+  const { mutateAsync: deleteUserFavorite } = useDeleteUserFavorite();
 
   const onFavoritesReorder = useMemoizedFn((itemIds: string[]) => {
     updateUserFavorites(itemIds);
@@ -130,7 +139,7 @@ export const SidebarPrimary = React.memo(() => {
     items.push(yourStuff);
 
     if (favorites && favorites.length > 0) {
-      items.push(favoritesDropdown(favorites, onFavoritesReorder));
+      items.push(favoritesDropdown(favorites, { deleteUserFavorite, onFavoritesReorder }));
     }
 
     items.push(tryGroup(onToggleInviteModal, () => setOpenSupportModal(true)));
@@ -213,12 +222,19 @@ GlobalModals.displayName = 'GlobalModals';
 
 const favoritesDropdown = (
   favorites: BusterUserFavorite[],
-  onItemsReorder: (itemIds: string[]) => void
+  {
+    onFavoritesReorder,
+    deleteUserFavorite
+  }: {
+    onFavoritesReorder: (itemIds: string[]) => void;
+    deleteUserFavorite: (itemId: string) => void;
+  }
 ): ISidebarGroup => {
   return {
     label: 'Favorites',
+    id: 'favorites',
     isSortable: true,
-    onItemsReorder,
+    onItemsReorder: onFavoritesReorder,
     items: favorites.map((favorite) => {
       const Icon = assetTypeToIcon(favorite.asset_type);
       const route = assetTypeToRoute(favorite.asset_type, favorite.id);
@@ -226,7 +242,8 @@ const favoritesDropdown = (
         label: favorite.name,
         icon: <Icon />,
         route,
-        id: route
+        id: route,
+        onRemove: () => deleteUserFavorite(favorite.id)
       };
     })
   };

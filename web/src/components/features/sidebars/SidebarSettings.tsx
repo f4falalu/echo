@@ -12,6 +12,7 @@ import { SidebarUserFooter } from './SidebarUserFooter/SidebarUserFooter';
 const accountItems: ISidebarGroup = {
   label: 'Account',
   variant: 'icon',
+  id: 'account',
   icon: <CircleUser />,
   items: [
     {
@@ -25,6 +26,7 @@ const accountItems: ISidebarGroup = {
 const workspaceItems: ISidebarGroup = {
   label: 'Workspace',
   variant: 'icon',
+  id: 'workspace',
   icon: <ApartmentBuilding />,
   items: [
     {
@@ -38,6 +40,7 @@ const workspaceItems: ISidebarGroup = {
 const permissionAndSecurityItems: ISidebarGroup = {
   label: 'Permission & Security',
   variant: 'icon',
+  id: 'permission-and-security',
   icon: <LockCircle />,
   items: [
     {

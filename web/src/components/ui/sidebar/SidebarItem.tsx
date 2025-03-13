@@ -83,7 +83,7 @@ export const SidebarItem: React.FC<
         href={route || ''}
         className={cn(itemVariants({ active, disabled, variant }), className)}
         onClick={onClick}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-hidden">
           <span
             className={cn('text-icon-size! text-icon-color', {
               'text-text-disabled': disabled,
@@ -99,7 +99,11 @@ export const SidebarItem: React.FC<
             variant="ghost"
             size={'small'}
             prefix={<Xmark />}
-            onClick={onRemove}></Button>
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onRemove();
+            }}></Button>
         )}
       </ItemNode>
     );

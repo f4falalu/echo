@@ -14,6 +14,7 @@ export interface ISidebarItem {
 export interface ISidebarGroup {
   label: string;
   icon?: React.ReactNode;
+  id: string;
   items: ISidebarItem[];
   variant?: 'collapsible' | 'icon'; //default is collapsible
   defaultOpen?: boolean; //will default to true
@@ -23,6 +24,7 @@ export interface ISidebarGroup {
 
 export interface ISidebarList {
   items: ISidebarItem[];
+  id: string;
 }
 
 type SidebarContent = ISidebarGroup | ISidebarList;

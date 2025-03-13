@@ -2,21 +2,16 @@ import React from 'react';
 import { ISidebarGroup, ISidebarList, SidebarProps } from './interfaces';
 import { SidebarCollapsible } from './SidebarCollapsible';
 import { SidebarItem } from './SidebarItem';
-import { useMemoizedFn } from '@/hooks';
 
 export const Sidebar: React.FC<SidebarProps> = React.memo(
   ({ header, content, footer, activeItem }) => {
-    const onItemsReorder = useMemoizedFn((ids: string[], contentIndex: number) => {
-      console.log('onItemsReorder', ids);
-    });
-
     return (
       <div className="flex h-full flex-col overflow-hidden px-3.5 pt-4.5">
         <div className="flex flex-col space-y-4.5 overflow-hidden">
           <div className="mb-5"> {header}</div>
           <div className="flex flex-grow flex-col space-y-4.5 overflow-y-auto pb-3">
-            {content.map((item, index) => (
-              <ContentSelector key={index} content={item} activeItem={activeItem} />
+            {content.map((item) => (
+              <ContentSelector key={item.id} content={item} activeItem={activeItem} />
             ))}
           </div>
         </div>

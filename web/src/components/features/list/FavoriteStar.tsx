@@ -5,6 +5,7 @@ import { useMemoizedFn } from '@/hooks';
 import { Button } from '@/components/ui/buttons';
 import { cn } from '@/lib/classMerge';
 import { Star } from '@/components/ui/icons';
+import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { cva } from 'class-variance-authority';
 import {
   useAddUserFavorite,
@@ -62,7 +63,7 @@ export const FavoriteStar: React.FC<{
   return (
     <AppTooltip title={tooltipText} key={tooltipText}>
       <Button
-        className={cn(className, 'flex')}
+        className={cn('flex transition-none', isFavorited && 'opacity-100!', className)}
         onClick={onFavoriteClick}
         variant="ghost"
         prefix={
@@ -73,7 +74,7 @@ export const FavoriteStar: React.FC<{
                 isFavorited
               })
             )}>
-            <Star />
+            {isFavorited ? <StarFilled /> : <Star />}
           </div>
         }
       />
