@@ -2,24 +2,18 @@ import {
   ColumnSettings,
   DEFAULT_CHART_CONFIG,
   IColumnLabelFormat,
-  type IBusterMetric,
   type IBusterMetricChartConfig
 } from '@/api/asset_interfaces/metric';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
-import { queryKeys } from '@/api/query_keys';
 import { useMemoizedFn } from '@/hooks';
-import { resolveEmptyMetric } from '@/lib/metrics/resolve';
-import { useQueryClient } from '@tanstack/react-query';
+import { useGetMetricMemoized } from './useGetMetricMemoized';
+import { useParams } from 'next/navigation';
 
-export const useUpdateMetricChart = ({ metricId }: { metricId: string }) => {
-  const queryClient = useQueryClient();
+export const useUpdateMetricChart = (props?: { metricId?: string }) => {
+  const params = useParams<{ metricId?: string }>();
+  const metricId = props?.metricId ?? params.metricId ?? '';
   const { mutateDebounced: onUpdateMetricDebounced } = useUpdateMetric({ wait: 600 });
-
-  const getMetricMemoized = useMemoizedFn((metricIdProp?: string): IBusterMetric => {
-    const options = queryKeys.metricsGetMetric(metricIdProp || metricId);
-    const data = queryClient.getQueryData(options.queryKey);
-    return resolveEmptyMetric(data, metricIdProp || metricId);
-  });
+  const getMetricMemoized = useGetMetricMemoized();
 
   const onUpdateMetricChartConfig = useMemoizedFn(
     ({
@@ -29,7 +23,7 @@ export const useUpdateMetricChart = ({ metricId }: { metricId: string }) => {
       chartConfig: Partial<IBusterMetricChartConfig>;
       ignoreUndoRedo?: boolean;
     }) => {
-      const currentMetric = getMetricMemoized();
+      const currentMetric = getMetricMemoized(metricId);
 
       if (!ignoreUndoRedo) {
         // undoRedoParams.addToUndoStack({
@@ -59,7 +53,7 @@ export const useUpdateMetricChart = ({ metricId }: { metricId: string }) => {
       columnId: string;
       columnLabelFormat: Partial<IColumnLabelFormat>;
     }) => {
-      const currentMetric = getMetricMemoized();
+      const currentMetric = getMetricMemoized(metricId);
       const existingColumnLabelFormats = currentMetric.chart_config.columnLabelFormats;
       const existingColumnLabelFormat = existingColumnLabelFormats[columnId];
       const newColumnLabelFormat = {
@@ -80,7 +74,7 @@ export const useUpdateMetricChart = ({ metricId }: { metricId: string }) => {
 
   const onUpdateColumnSetting = useMemoizedFn(
     ({ columnId, columnSetting }: { columnId: string; columnSetting: Partial<ColumnSettings> }) => {
-      const currentMetric = getMetricMemoized();
+      const currentMetric = getMetricMemoized(metricId);
       const existingColumnSettings = currentMetric.chart_config.columnSettings;
       const existingColumnSetting = currentMetric.chart_config.columnSettings[columnId];
       const newColumnSetting: Required<ColumnSettings> = {
