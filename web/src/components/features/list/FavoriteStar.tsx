@@ -48,20 +48,13 @@ export const FavoriteStar: React.FC<{
     e.stopPropagation();
     e.preventDefault();
     if (!isFavorited)
-      return await addItemToFavorite([
-        {
-          asset_type: type,
-          id,
-          name
-        }
-      ]);
-
-    await removeItemFromFavorite([
-      {
+      return await addItemToFavorite({
         asset_type: type,
-        id
-      }
-    ]);
+        id,
+        name
+      });
+
+    await removeItemFromFavorite(id);
   });
 
   const tooltipText = isFavorited ? 'Remove from favorites' : 'Add to favorites';

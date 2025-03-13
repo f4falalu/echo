@@ -167,7 +167,7 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; chatId
         <div className="flex items-center" onClick={onFavoriteDivClick}>
           <FavoriteStar
             id={chatId}
-            type={ShareAssetType.METRIC}
+            type={ShareAssetType.CHAT}
             iconStyle="tertiary"
             title={title}
             className="hidden! group-hover:flex!"

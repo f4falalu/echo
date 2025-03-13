@@ -38,14 +38,14 @@ export interface BusterUserFavorite {
   collection_id?: string;
   assets?: {
     id: string;
-    type: ShareAssetType;
+    asset_type: ShareAssetType;
     name: string;
   }[];
 }
 
 export type BusterUserFavoriteAsset = {
   id: string;
-  asset_type: ShareAssetType;
+  ype: ShareAssetType;
   index?: number;
   title: string;
 };

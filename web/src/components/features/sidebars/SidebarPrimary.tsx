@@ -18,7 +18,7 @@ import { SupportModal } from '../modal/SupportModal';
 import { InvitePeopleModal } from '../modal/InvitePeopleModal';
 import { useMemoizedFn } from '@/hooks';
 import { SidebarUserFooter } from './SidebarUserFooter/SidebarUserFooter';
-import { useGetUserFavorites } from '@/api/buster_rest';
+import { useGetUserFavorites, useUpdateUserFavorites } from '@/api/buster_rest';
 
 const topItems: ISidebarList = {
   items: [
@@ -114,6 +114,11 @@ export const SidebarPrimary = React.memo(() => {
   const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
   const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
   const [openSupportModal, setOpenSupportModal] = useState(false);
+  const { mutateAsync: updateUserFavorites } = useUpdateUserFavorites();
+
+  const onFavoritesReorder = useMemoizedFn((itemIds: string[]) => {
+    updateUserFavorites(itemIds);
+  });
 
   const sidebarItems: SidebarProps['content'] = useMemo(() => {
     const items = [topItems];
@@ -125,13 +130,13 @@ export const SidebarPrimary = React.memo(() => {
     items.push(yourStuff);
 
     if (favorites && favorites.length > 0) {
-      items.push(favoritesDropdown(favorites));
+      items.push(favoritesDropdown(favorites, onFavoritesReorder));
     }
 
     items.push(tryGroup(onToggleInviteModal, () => setOpenSupportModal(true)));
 
     return items;
-  }, [isAdmin, favorites, currentRoute]);
+  }, [isAdmin, favorites, currentRoute, onFavoritesReorder]);
 
   const onCloseSupportModal = useMemoizedFn(() => setOpenSupportModal(false));
 
@@ -206,13 +211,14 @@ const GlobalModals = React.memo(
 );
 GlobalModals.displayName = 'GlobalModals';
 
-const favoritesDropdown = (favorites: BusterUserFavorite[]): ISidebarGroup => {
+const favoritesDropdown = (
+  favorites: BusterUserFavorite[],
+  onItemsReorder: (itemIds: string[]) => void
+): ISidebarGroup => {
   return {
     label: 'Favorites',
     isSortable: true,
-    onItemsReorder: (itemIds) => {
-      console.warn('onItemsReorder', itemIds);
-    },
+    onItemsReorder,
     items: favorites.map((favorite) => {
       const Icon = assetTypeToIcon(favorite.asset_type);
       const route = assetTypeToRoute(favorite.asset_type, favorite.id);

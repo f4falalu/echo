@@ -10,9 +10,9 @@ import {
   createUserFavorite,
   deleteUserFavorite,
   updateUserFavorites,
+  inviteUser,
   getUserList,
-  getUserList_server,
-  inviteUser
+  getUserList_server
 } from './requests';
 import { useMemoizedFn } from '@/hooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
@@ -103,11 +103,11 @@ export const useAddUserFavorite = () => {
     mutationFn: createUserFavorite,
     onMutate: (params) => {
       queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, (prev) => {
-        return [...params, ...(prev || [])];
+        return [params, ...(prev || [])];
       });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(queryKeys.favoritesGetList);
+    onSuccess: (data) => {
+      queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, data);
     }
   });
 };
@@ -116,13 +116,13 @@ export const useDeleteUserFavorite = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteUserFavorite,
-    onMutate: (params) => {
+    onMutate: (id) => {
       queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, (prev) => {
-        return prev?.filter((fav) => !params.some((p) => p.id === fav.id));
+        return prev?.filter((fav) => fav.id !== id);
       });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(queryKeys.favoritesGetList);
+    onSuccess: (data) => {
+      queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, data);
     }
   });
 };
@@ -140,6 +140,10 @@ export const useUpdateUserFavorites = () => {
           return { ...favorite, index };
         });
       });
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      // queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, data);
     }
   });
 };
@@ -167,12 +171,19 @@ export const prefetchGetUserList = async (
 
 export const useInviteUser = () => {
   const { openSuccessMessage } = useBusterNotifications();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: inviteUser,
     onSuccess: () => {
       openSuccessMessage('Invites sent');
-      // queryClient.invalidateQueries(queryKeys.userGetUserList);
+      const user = queryClient.getQueryData(queryKeys.userGetUserMyself.queryKey);
+      const teamId = user?.organizations?.[0]?.id;
+      if (teamId) {
+        queryClient.invalidateQueries({
+          queryKey: [queryKeys.userGetUserList({ team_id: teamId }).queryKey]
+        });
+      }
     }
   });
 };

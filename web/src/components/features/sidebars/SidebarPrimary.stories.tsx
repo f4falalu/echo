@@ -25,7 +25,7 @@ const mockFavorites = [
   {
     id: '123',
     name: 'Favorite Dashboard',
-    asset_type: ShareAssetType.DASHBOARD,
+    ype: ShareAssetType.DASHBOARD,
     asset_id: '123',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -35,7 +35,7 @@ const mockFavorites = [
     id: '456',
     name: 'Important Metrics',
     route: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: '456' }),
-    asset_type: ShareAssetType.METRIC,
+    ype: ShareAssetType.METRIC,
     asset_id: '456',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -44,7 +44,7 @@ const mockFavorites = [
     id: '789',
     name: 'Favorite Metric 3',
     route: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: '789' }),
-    asset_type: ShareAssetType.METRIC,
+    ype: ShareAssetType.METRIC,
     asset_id: '789',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()

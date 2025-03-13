@@ -6,10 +6,8 @@ import type {
   BusterUserListItem
 } from '@/api/asset_interfaces/users';
 import type {
-  UsersFavoritePostPayload,
-  UserFavoriteDeletePayload,
-  UserUpdateFavoritesPayload,
-  UserRequestUserListPayload
+  UserRequestUserListPayload,
+  UsersFavoritePostPayload
 } from '@/api/request_interfaces/user/interfaces';
 import { mainApi } from '../instances';
 import { serverFetch } from '../../createServerInstance';
@@ -82,11 +80,13 @@ export const inviteUser = async ({
   emails: string[];
   team_ids?: string[];
 }) => {
-  return mainApi.post(`/users/invite`, {
+  return mainApi.post<null>(`/users/invite`, {
     emails,
     team_ids
   });
 };
+
+//USER FAVORITES
 
 export const getUserFavorites = async () => {
   return mainApi.get<BusterUserFavorite[]>(`/users/favorites`).then((response) => response.data);
@@ -109,38 +109,39 @@ export const createUserFavorite_server = async (payload: UsersFavoritePostPayloa
   });
 };
 
-export const deleteUserFavorite = async (payload: UserFavoriteDeletePayload) => {
+export const deleteUserFavorite = async (id: string) => {
   return mainApi
-    .delete<BusterUserFavorite[]>(`/users/favorites`, { data: payload })
+    .delete<BusterUserFavorite[]>(`/users/favorites/${id}`)
     .then((response) => response.data);
 };
 
-export const deleteUserFavorite_server = async (payload: UserFavoriteDeletePayload) => {
-  return serverFetch<BusterUserFavorite[]>(`/users/favorites`, {
-    method: 'DELETE',
-    body: JSON.stringify(payload)
+export const deleteUserFavorite_server = async (id: string) => {
+  return serverFetch<BusterUserFavorite[]>(`/users/favorites/${id}`, {
+    method: 'DELETE'
   });
 };
 
-export const updateUserFavorites = async (payload: UserUpdateFavoritesPayload) => {
+export const updateUserFavorites = async (payload: string[]) => {
   return mainApi
     .put<BusterUserFavorite[]>(`/users/favorites`, payload)
     .then((response) => response.data);
 };
 
-export const updateUserFavorites_server = async (payload: UserUpdateFavoritesPayload) => {
+export const updateUserFavorites_server = async (payload: string[]) => {
   return serverFetch<BusterUserFavorite[]>(`/users/favorites`, {
     method: 'PUT',
     body: JSON.stringify(payload)
   });
 };
 
+//USER LIST
+
 export const getUserList = async (payload: UserRequestUserListPayload) => {
   return mainApi
-    .get<BusterUserListItem[]>(`/users/list`, { params: payload })
+    .get<BusterUserListItem[]>(`/users`, { params: payload })
     .then((response) => response.data);
 };
 
 export const getUserList_server = async (payload: UserRequestUserListPayload) => {
-  return serverFetch<BusterUserListItem[]>(`/users/list`, { params: payload });
+  return serverFetch<BusterUserListItem[]>(`/users`, { params: payload });
 };

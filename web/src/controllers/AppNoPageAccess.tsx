@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces';
 import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { Title } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -10,10 +9,9 @@ import { Button } from '@/components/ui/buttons';
 import Link from 'next/link';
 
 export const AppNoPageAccess: React.FC<{
-  asset_type: ShareAssetType;
   metricId?: string;
   dashboardId?: string;
-}> = React.memo(({ asset_type }) => {
+}> = React.memo(({}) => {
   const { openInfoMessage } = useBusterNotifications();
 
   return (

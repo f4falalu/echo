@@ -194,12 +194,16 @@ const ThreeDotButton: React.FC<{
       icon: <Star />,
       value: 'add-to-favorites',
       onClick: async () => {
-        const allFavorites: Parameters<typeof addUserFavorite>[0] = selectedRowKeys.map((id) => ({
-          id,
-          asset_type: ShareAssetType.METRIC,
-          name: 'Metric'
-        }));
-        await addUserFavorite(allFavorites);
+        await Promise.all(
+          selectedRowKeys.map((id) => {
+            const name = userFavorites?.find((f) => f.id === id)?.name || '';
+            return addUserFavorite({
+              id,
+              asset_type: ShareAssetType.METRIC,
+              name
+            });
+          })
+        );
       }
     },
     {
@@ -207,11 +211,7 @@ const ThreeDotButton: React.FC<{
       icon: <Xmark />,
       value: 'remove-from-favorites',
       onClick: async () => {
-        const allFavorites: Parameters<typeof removeUserFavorite>[0] = userFavorites
-          .map((f) => f.id)
-          .filter((id) => !selectedRowKeys.includes(id))
-          .map((id) => ({ id, asset_type: ShareAssetType.METRIC }));
-        await removeUserFavorite(allFavorites);
+        await Promise.all(selectedRowKeys.map((id) => removeUserFavorite(id)));
       }
     }
   ];

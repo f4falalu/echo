@@ -72,11 +72,7 @@ export const AppAssetCheckLayout: React.FC<
   if (!has_access && !pagePublic) {
     return (
       <ClientSideAnonCheck jwtToken={jwtToken}>
-        <AppNoPageAccess
-          asset_type={type as ShareAssetType}
-          metricId={props.metricId}
-          dashboardId={props.dashboardId}
-        />
+        <AppNoPageAccess metricId={props.metricId} dashboardId={props.dashboardId} />
       </ClientSideAnonCheck>
     );
   }

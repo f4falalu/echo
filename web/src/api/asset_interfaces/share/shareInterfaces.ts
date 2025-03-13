@@ -7,7 +7,8 @@ export enum ShareRole {
 export enum ShareAssetType {
   METRIC = 'metric',
   DASHBOARD = 'dashboard',
-  COLLECTION = 'collection'
+  COLLECTION = 'collection',
+  CHAT = 'chat'
 }
 
 export interface BusterShare {

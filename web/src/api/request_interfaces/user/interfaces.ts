@@ -4,17 +4,8 @@ export type UsersFavoritePostPayload = {
   id: string;
   asset_type: ShareAssetType;
   index?: number;
-  name: string;
-}[];
-
-export type UserFavoriteDeletePayload = {
-  id: string;
-  asset_type: ShareAssetType;
-}[];
-
-export interface UserUpdateFavoritesPayload {
-  favorites: string[]; // Array of favorite ids
-}
+  name: string; //just used for the UI for optimistic update
+};
 
 export interface UserRequestUserListPayload {
   team_id: string;
