@@ -2,11 +2,11 @@ import { useMemoizedFn } from '@/hooks';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { Input } from '@/components/ui/inputs';
 import React from 'react';
-import { useBusterDashboards } from '@/context/Dashboards';
+import { type useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
 export const DashboardEditTitles: React.FC<{
   title: string;
-  onUpdateDashboard: ReturnType<typeof useBusterDashboards>['onUpdateDashboard'];
+  onUpdateDashboard: ReturnType<typeof useUpdateDashboard>['mutateAsync'];
   description: string;
   allowEdit?: boolean;
   dashboardId: string;

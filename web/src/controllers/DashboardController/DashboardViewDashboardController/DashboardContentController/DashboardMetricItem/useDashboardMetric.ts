@@ -4,9 +4,10 @@ import { useInViewport } from '@/hooks';
 import { useMetricIndividual } from '@/api/buster_rest/metrics';
 
 export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
-  const { metric, metricData, metricDataUpdatedAt, isFetchedMetricData } = useMetricIndividual({
-    metricId
-  });
+  const { metric, metricData, isMetricFetched, metricDataUpdatedAt, isFetchedMetricData } =
+    useMetricIndividual({
+      metricId
+    });
   const dashboard = useDashboardContentControllerContextSelector(({ dashboard }) => dashboard);
   const metricMetadata = useDashboardContentControllerContextSelector(
     ({ metricMetadata }) => metricMetadata[metricId]
@@ -31,7 +32,7 @@ export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
 
   const initialAnimationEnded = metricMetadata?.initialAnimationEnded || false;
   const renderChart =
-    (metricMetadata?.hasBeenScrolledIntoView || isOnFirstTwoRows) && metric?.fetched;
+    (metricMetadata?.hasBeenScrolledIntoView || isOnFirstTwoRows) && isMetricFetched;
 
   useEffect(() => {
     if (inViewport) {
@@ -47,6 +48,7 @@ export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
     initialAnimationEnded,
     setInitialAnimationEnded,
     metricDataUpdatedAt,
-    isFetchedMetricData
+    isFetchedMetricData,
+    isMetricFetched
   };
 };

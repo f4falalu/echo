@@ -2,7 +2,8 @@ import mainApi from '@/api/buster_rest/instances';
 import type {
   DashboardsListRequest,
   DashboardCreateRequest,
-  DashboardUpdateRequest
+  DashboardUpdateRequest,
+  DashboardSubscribeRequest
 } from '@/api/request_interfaces/dashboards/interfaces';
 import type {
   BusterDashboardListItem,
@@ -15,7 +16,7 @@ export const dashboardsGetList = async (params: DashboardsListRequest) => {
     .then((res) => res.data);
 };
 
-export const dashboardsGetDashboard = async (id: string) => {
+export const dashboardsGetDashboard = async ({ id, password }: DashboardSubscribeRequest) => {
   return await mainApi.get<BusterDashboardResponse>(`/dashboards/${id}`).then((res) => res.data);
 };
 

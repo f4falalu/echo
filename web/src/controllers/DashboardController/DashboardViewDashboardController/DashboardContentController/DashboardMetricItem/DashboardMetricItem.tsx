@@ -29,8 +29,8 @@ const DashboardMetricItemBase: React.FC<{
     metricData,
     initialAnimationEnded,
     setInitialAnimationEnded,
-    metricDataUpdatedAt,
-    isFetchedMetricData
+    isFetchedMetricData,
+    isMetricFetched
   } = useDashboardMetric({ metricId });
 
   const loadingMetricData = !!metric && !isFetchedMetricData;
@@ -46,7 +46,7 @@ const DashboardMetricItemBase: React.FC<{
     if (metric.error) {
       return metric.error;
     }
-    if (metric.code === null && metric.fetched) {
+    if (metric.code === null && isMetricFetched) {
       return 'No code was generated for this request';
     }
     return undefined;

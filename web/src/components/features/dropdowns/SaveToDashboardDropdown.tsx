@@ -1,8 +1,4 @@
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import {
-  useBusterDashboardContextSelector,
-  useBusterDashboardListByFilter
-} from '@/context/Dashboards';
 import { useMemoizedFn } from '@/hooks';
 import React, { useMemo, useState } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
@@ -11,6 +7,7 @@ import { Dropdown, type DropdownProps } from '@/components/ui/dropdown/Dropdown'
 import { AppTooltip } from '@/components/ui/tooltip';
 import { Plus } from '@/components/ui/icons';
 import type { BusterMetric, BusterDashboardListItem } from '@/api/asset_interfaces';
+import { useCreateDashboard, useGetDashboardsList } from '@/api/buster_rest/dashboards';
 
 export const SaveToDashboardDropdown: React.FC<{
   children: React.ReactNode;
@@ -18,10 +15,9 @@ export const SaveToDashboardDropdown: React.FC<{
   onSaveToDashboard: (dashboardId: string[]) => Promise<void>;
   onRemoveFromDashboard: (dashboardId: string) => void;
 }> = ({ children, onRemoveFromDashboard, onSaveToDashboard, selectedDashboards }) => {
-  const onCreateNewDashboard = useBusterDashboardContextSelector((x) => x.onCreateNewDashboard);
-  const isCreatingDashboard = useBusterDashboardContextSelector((x) => x.isCreatingDashboard);
+  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useCreateDashboard();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const { list: dashboardsList } = useBusterDashboardListByFilter({});
+  const { data: dashboardsList } = useGetDashboardsList({});
 
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -53,22 +49,13 @@ export const SaveToDashboardDropdown: React.FC<{
   );
 
   const onClickNewDashboardButton = useMemoizedFn(async () => {
-    const res = await onCreateNewDashboard({
-      rerouteToDashboard: false
-    });
+    const res = await createDashboard({});
 
-    if (res?.id) {
-      await onSaveToDashboard([res.id]);
-      // await saveMetricToDashboard({
-      //   metricId,
-      //   dashboardIds: [res.id]
-      // });
-    }
-
-    if (res?.id) {
+    if (res?.dashboard?.id) {
+      await onSaveToDashboard([res.dashboard.id]);
       onChangePage({
         route: BusterRoutes.APP_DASHBOARD_ID,
-        dashboardId: res.id
+        dashboardId: res.dashboard.id
       });
     }
 

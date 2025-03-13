@@ -12,11 +12,10 @@ import { FileIndeterminateLoader } from '@/components/features/FileIndeterminate
 export const MetricController: React.FC<{
   metricId: string;
 }> = React.memo(({ metricId }) => {
-  const { metric, isFetchedMetricData } = useMetricIndividual({ metricId });
+  const { isMetricFetched, isFetchedMetricData } = useMetricIndividual({ metricId });
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView) || 'chart';
-  const isFetchedConfig = metric.fetched;
 
-  const showLoader = !isFetchedConfig || !isFetchedMetricData;
+  const showLoader = !isMetricFetched || !isFetchedMetricData;
 
   const Component =
     selectedFileView in MetricViewComponents

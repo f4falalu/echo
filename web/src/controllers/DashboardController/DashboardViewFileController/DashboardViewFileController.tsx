@@ -4,16 +4,13 @@ import { useMemoizedFn } from '@/hooks';
 import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { DashboardViewProps } from '../config';
-import {
-  useBusterDashboardIndividual,
-  useBusterDashboardContextSelector
-} from '@/context/Dashboards';
+import { useGetDashboard, useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
 export const DashboardViewFileController: React.FC<DashboardViewProps> = React.memo(
   ({ dashboardId }) => {
-    const { dashboard } = useBusterDashboardIndividual({ dashboardId });
+    const { data: dashboard } = useGetDashboard(dashboardId, (data) => data.dashboard);
     const { openSuccessMessage } = useBusterNotifications();
-    const onUpdateDashboard = useBusterDashboardContextSelector((x) => x.onUpdateDashboard);
+    const { mutateAsync: onUpdateDashboard } = useUpdateDashboard();
 
     const { file: fileProp, file_name } = dashboard || {};
 

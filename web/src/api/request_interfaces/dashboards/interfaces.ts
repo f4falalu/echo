@@ -39,7 +39,7 @@ export interface DashboardUnsubscribeRequest {
  */
 export interface DashboardCreateRequest {
   /** The name of the dashboard */
-  name: string;
+  name?: string;
   /** Optional description of the dashboard */
   description?: string | null;
 }
@@ -66,6 +66,8 @@ export type DashboardUpdateRequest = {
   remove_users?: string[];
   /** Array of metric IDs associated with the dashboard */
   metrics?: string[];
+  /** The file content of the dashboard */
+  file?: string;
 } & ShareRequest;
 
 /**

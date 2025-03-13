@@ -18,26 +18,34 @@ import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsPro
 import { resolveEmptyMetric } from '@/lib/metrics/resolve';
 import { useGetUserFavorites } from '../users';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 
-export const useGetMetric = (params: GetMetricParams) => {
+export const useGetMetric = <TData = IBusterMetric>(
+  id: string | undefined,
+  select?: (data: IBusterMetric) => TData
+) => {
+  const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
+  const setAssetPasswordError = useBusterAssetsContextSelector((x) => x.setAssetPasswordError);
+  const { password } = getAssetPassword(id!);
+
   const queryClient = useQueryClient();
-  const setAssetPasswordError = useBusterAssetsContextSelector(
-    (state) => state.setAssetPasswordError
-  );
+  const options = queryKeys.metricsGetMetric(id!);
 
   const queryFn = useMemoizedFn(async () => {
-    const result = await getMetric(params);
-    const oldMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(params.id).queryKey);
+    const result = await getMetric({ id: id!, password });
+    const oldMetric = queryClient.getQueryData(options.queryKey);
     return upgradeMetricToIMetric(result, oldMetric || null);
   });
 
   return useQuery({
-    ...queryKeys.metricsGetMetric(params.id),
+    ...options,
+    queryFn,
+    select,
+    enabled: !!id,
     throwOnError: (error, query) => {
-      setAssetPasswordError(params.id, error.message || 'An error occurred');
+      setAssetPasswordError(id!, error.message || 'An error occurred');
       return false;
-    },
-    queryFn
+    }
   });
 };
 
@@ -100,6 +108,17 @@ export const useGetMetricData = (params: { id: string }) => {
   });
 };
 
+export const prefetchGetMetricDataClient = async (
+  params: { id: string },
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+  await queryClient.prefetchQuery({
+    ...queryKeys.metricsGetData(params.id),
+    queryFn: () => getMetricData(params)
+  });
+};
+
 export const useUpdateMetric = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -140,18 +159,12 @@ export const useDeleteMetric = () => {
 };
 
 export const useMetricIndividual = ({ metricId }: { metricId: string }) => {
-  const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
-  const assetPassword = getAssetPassword(metricId);
-
   const {
     data: metric,
     isFetched: isMetricFetched,
     error: metricError,
     refetch: refetchMetric
-  } = useGetMetric({
-    id: metricId,
-    password: assetPassword.password
-  });
+  } = useGetMetric(metricId);
 
   const {
     data: metricData,

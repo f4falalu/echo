@@ -13,7 +13,7 @@ import type {
   DashboardConfig
 } from '@/api/asset_interfaces';
 import { DashboardEmptyState } from './DashboardEmptyState';
-import { useBusterDashboards } from '@/context/Dashboards';
+import { type useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
 const DEFAULT_EMPTY_METRICS: BusterMetric[] = [];
@@ -23,7 +23,7 @@ export const DashboardContentController: React.FC<{
   allowEdit?: boolean;
   metrics: BusterDashboardResponse['metrics'] | undefined;
   dashboard: BusterDashboardResponse['dashboard'] | undefined;
-  onUpdateDashboardConfig: ReturnType<typeof useBusterDashboards>['onUpdateDashboardConfig'];
+  onUpdateDashboardConfig: ReturnType<typeof useUpdateDashboardConfig>['mutateAsync'];
   onOpenAddContentModal: () => void;
 }> = React.memo(
   ({
@@ -52,7 +52,7 @@ export const DashboardContentController: React.FC<{
           }))
         };
       });
-      onUpdateDashboardConfig({ rows: formattedRows }, dashboard!.id);
+      onUpdateDashboardConfig({ rows: formattedRows, id: dashboard!.id });
     });
 
     const remapMetrics = useMemo(() => {
@@ -98,7 +98,7 @@ export const DashboardContentController: React.FC<{
 
     useEffect(() => {
       if (remapMetrics && dashboard?.id) {
-        debouncedForInitialRenderOnUpdateDashboardConfig({ rows }, dashboard.id);
+        debouncedForInitialRenderOnUpdateDashboardConfig({ rows, id: dashboard.id });
       }
     }, [dashboard?.id, remapMetrics]);
 

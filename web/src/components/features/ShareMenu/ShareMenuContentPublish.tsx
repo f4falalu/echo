@@ -8,9 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { PulseLoader } from '@/components/ui/loaders';
 import { useMemoizedFn } from '@/hooks';
 import { createDayjsDate } from '@/lib/date';
-import { useBusterDashboardContextSelector } from '@/context/Dashboards';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -18,6 +16,7 @@ import { Link, Eye, EyeSlash } from '@/components/ui/icons';
 import { DatePicker } from '@/components/ui/date';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
 export const ShareMenuContentPublish: React.FC<{
   onCopyLink: () => void;
@@ -37,9 +36,8 @@ export const ShareMenuContentPublish: React.FC<{
   }) => {
     const { openInfoMessage } = useBusterNotifications();
     const { mutateAsync: onShareMetric } = useUpdateMetric();
-    const onShareDashboard = useBusterDashboardContextSelector((state) => state.onShareDashboard);
-    const { mutateAsync: onShareCollection, isPending: isSharingCollection } =
-      useUpdateCollection();
+    const { mutateAsync: onShareDashboard } = useUpdateDashboard();
+    const { mutateAsync: onShareCollection } = useUpdateCollection();
     const [isPublishing, setIsPublishing] = useState<boolean>(false);
     const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(!!password);
     const [_password, _setPassword] = React.useState<string>(password || '');

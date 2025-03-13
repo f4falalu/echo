@@ -1,25 +1,23 @@
-'use client';
-
-import React, { useRef, useState } from 'react';
-import { useMemoizedFn } from '@/hooks';
-import { createContext, useContextSelector } from 'use-context-selector';
-import { useBusterNotifications } from '../BusterNotifications';
-import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
-import { type IBusterMetricChartConfig, type RunSQLResponse } from '@/api/asset_interfaces';
+import type { BusterMetricData, IBusterMetricChartConfig } from '@/api/asset_interfaces/metric';
+import { RunSQLResponse } from '@/api/asset_interfaces/sql';
 import { queryKeys } from '@/api/query_keys';
-import { runSQL as runSQLRest } from '@/api/buster_rest';
-import type { BusterMetricData } from '@/api/asset_interfaces/metric';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useBusterMetricsContextSelector } from '@/context/Metrics';
+import { useMemoizedFn } from '@/hooks';
 import { useQueryClient } from '@tanstack/react-query';
+import { useRef, useState } from 'react';
+import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
+import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
-import { useBusterMetricsContextSelector } from '../Metrics';
 
-export const useSQLProvider = () => {
+export const useMetricRunSQL = () => {
   const queryClient = useQueryClient();
-  const { openSuccessNotification } = useBusterNotifications();
   const onUpdateMetric = useBusterMetricsContextSelector((x) => x.onUpdateMetric);
-  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
   const getMetricMemoized = useBusterMetricsContextSelector((x) => x.getMetricMemoized);
   const onSaveMetricChanges = useBusterMetricsContextSelector((x) => x.onSaveMetricChanges);
+  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
+  const { mutateAsync: runSQLMutation } = useRunSQLQuery();
+  const { openSuccessNotification } = useBusterNotifications();
 
   const [warnBeforeNavigating, setWarnBeforeNavigating] = useState(false);
 
@@ -30,17 +28,12 @@ export const useSQLProvider = () => {
     }
   );
 
-  const originalConfigs = useRef<
-    Record<
-      string,
-      {
-        chartConfig: IBusterMetricChartConfig;
-        code: string;
-        data: BusterMetricData['data'];
-        dataMetadata: BusterMetricData['data_metadata'];
-      }
-    >
-  >({});
+  const originalConfigs = useRef<{
+    chartConfig: IBusterMetricChartConfig;
+    code: string;
+    data: BusterMetricData['data'];
+    dataMetadata: BusterMetricData['data_metadata'];
+  } | null>(null);
 
   const onSetDataForMetric = ({
     metricId,
@@ -64,14 +57,14 @@ export const useSQLProvider = () => {
     });
   };
 
-  const _onResponseRunSQL = useMemoizedFn(
+  const onResponseRunSQL = useMemoizedFn(
     (d: RunSQLResponse, sql: string, { metricId }: { metricId?: string }) => {
       if (metricId) {
         const { data, data_metadata } = d;
         const metricMessage = getMetricMemoized({ metricId });
         const currentMessageData = getDataByMetricIdMemoized(metricId);
-        if (!originalConfigs.current[metricId]) {
-          originalConfigs.current[metricId] = {
+        if (!originalConfigs.current) {
+          originalConfigs.current = {
             chartConfig: metricMessage?.chart_config!,
             code: metricMessage?.code!,
             data: currentMessageData?.data!,
@@ -115,38 +108,31 @@ export const useSQLProvider = () => {
       metricId?: string;
       sql: string;
     }) => {
-      try {
-        const result = await runSQLRest({
-          data_source_id: dataSourceId,
-          sql
-        });
-
-        _onResponseRunSQL(result, sql, { metricId });
-
-        return result;
-      } catch (error) {
-        //
-      }
+      const result = await runSQLMutation({
+        data_source_id: dataSourceId,
+        sql
+      });
+      onResponseRunSQL(result, sql, { metricId });
+      return result;
     }
   );
 
   const resetRunSQLData = useMemoizedFn(({ metricId }: { metricId: string }) => {
     setWarnBeforeNavigating(false);
-
-    if (!originalConfigs.current[metricId]) return;
-    const oldConfig = originalConfigs.current[metricId]?.chartConfig;
+    if (!originalConfigs.current) return;
+    const oldConfig = originalConfigs.current?.chartConfig;
     onUpdateMetric({
       id: metricId,
       chart_config: oldConfig
     });
     onSetDataForMetric({
       metricId,
-      data: originalConfigs.current[metricId]?.data!,
-      data_metadata: originalConfigs.current[metricId]?.dataMetadata!,
-      code: originalConfigs.current[metricId]?.code!,
+      data: originalConfigs.current?.data!,
+      data_metadata: originalConfigs.current?.dataMetadata!,
+      code: originalConfigs.current?.code!,
       isDataFromRerun: false
     });
-    delete originalConfigs.current[metricId];
+    originalConfigs.current = null;
   });
 
   const saveSQL = useMemoizedFn(
@@ -159,7 +145,7 @@ export const useSQLProvider = () => {
       sql: string;
       dataSourceId?: string;
     }) => {
-      const ogConfigs = originalConfigs.current[metricId];
+      const ogConfigs = originalConfigs.current;
       const currentMetric = getMetricMemoized({ metricId });
       const dataSourceId = dataSourceIdProp || currentMetric?.data_source_id;
 
@@ -187,12 +173,12 @@ export const useSQLProvider = () => {
 
       setWarnBeforeNavigating(false);
 
-      if (originalConfigs.current[metricId]) {
+      if (originalConfigs.current) {
         onSetDataForMetric({
           metricId,
-          data: originalConfigs.current[metricId]?.data!,
-          data_metadata: originalConfigs.current[metricId]?.dataMetadata!,
-          code: originalConfigs.current[metricId]?.code!,
+          data: originalConfigs.current?.data!,
+          data_metadata: originalConfigs.current?.dataMetadata!,
+          code: originalConfigs.current?.code!,
           isDataFromRerun: false
         });
       }
@@ -204,7 +190,7 @@ export const useSQLProvider = () => {
         });
       }, 120);
 
-      delete originalConfigs.current[metricId];
+      originalConfigs.current = null;
     }
   );
 
@@ -216,17 +202,3 @@ export const useSQLProvider = () => {
     saveSQL
   };
 };
-
-const BusterSQL = createContext<ReturnType<typeof useSQLProvider>>(
-  {} as ReturnType<typeof useSQLProvider>
-);
-
-export const BusterSQLProvider: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  return <BusterSQL.Provider value={useSQLProvider()}>{children}</BusterSQL.Provider>;
-};
-
-export const useSQLContextSelector = <T,>(
-  selector: (state: ReturnType<typeof useSQLProvider>) => T
-) => useContextSelector(BusterSQL, selector);

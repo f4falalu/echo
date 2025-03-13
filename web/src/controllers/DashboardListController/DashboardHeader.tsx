@@ -4,11 +4,13 @@ import React, { useMemo } from 'react';
 import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/buttons';
 import { BusterRoutes } from '@/routes';
-import { useBusterDashboardContextSelector } from '@/context/Dashboards';
+
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';
 import { Plus } from '@/components/ui/icons';
 import type { DashboardsListRequest } from '@/api/request_interfaces/dashboards';
+import { useCreateDashboard } from '@/api/buster_rest/dashboards';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 export const DashboardHeader: React.FC<{
   dashboardFilters: {
@@ -20,12 +22,8 @@ export const DashboardHeader: React.FC<{
     only_my_dashboards?: boolean;
   }) => void;
 }> = React.memo(({ dashboardFilters, onSetDashboardListFilters }) => {
-  const onCreateNewDashboard = useBusterDashboardContextSelector(
-    (state) => state.onCreateNewDashboard
-  );
-  const isCreatingDashboard = useBusterDashboardContextSelector(
-    (state) => state.isCreatingDashboard
-  );
+  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useCreateDashboard();
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const dashboardTitle = 'Dashboards';
   const showFilters = true;
 
@@ -42,7 +40,13 @@ export const DashboardHeader: React.FC<{
   );
 
   const onClickNewDashboardButton = useMemoizedFn(async () => {
-    await onCreateNewDashboard({ rerouteToDashboard: true });
+    const res = await createDashboard({});
+    if (res?.dashboard?.id) {
+      onChangePage({
+        route: BusterRoutes.APP_DASHBOARD_ID,
+        dashboardId: res.dashboard.id
+      });
+    }
   });
 
   return (

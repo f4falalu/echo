@@ -144,7 +144,6 @@ export const DEFAULT_IBUSTER_METRIC: Required<IBusterMetric> = {
   version_number: 1,
   description: '',
   time_frame: '',
-  fetchedAt: 0,
   code: null,
   feedback: null,
   dataset_id: '',
@@ -175,9 +174,7 @@ export const DEFAULT_IBUSTER_METRIC: Required<IBusterMetric> = {
   public_expiry_date: null,
   public_enabled_by: null,
   publicly_accessible: false,
-  public_password: null,
-  fetched: false,
-  fetching: false
+  public_password: null
 };
 
 export const DEFAULT_BUSTER_METRIC_LIST_ITEM: Required<BusterMetricListItem> = {

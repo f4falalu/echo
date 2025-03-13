@@ -11,6 +11,7 @@ import type { GetCollectionListParams } from '@/api/request_interfaces/collectio
 import { useMemo } from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
+import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 
 export const useGetCollectionsList = (
   filters: Omit<GetCollectionListParams, 'page' | 'page_size'>
@@ -26,9 +27,12 @@ export const useGetCollectionsList = (
 };
 
 export const useGetCollection = (collectionId: string | undefined) => {
+  const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
+  const { password } = getAssetPassword(collectionId!);
+
   return useQuery({
     ...collectionQueryKeys.collectionsGetCollection(collectionId!),
-    queryFn: () => collectionsGetCollection({ id: collectionId! }),
+    queryFn: () => collectionsGetCollection({ id: collectionId!, password }),
     enabled: !!collectionId
   });
 };

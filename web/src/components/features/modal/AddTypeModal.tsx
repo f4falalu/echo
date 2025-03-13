@@ -13,7 +13,7 @@ import {
 import { CircleSpinnerLoaderContainer } from '@/components/ui/loaders';
 import { BusterCollection } from '@/api/asset_interfaces';
 import isEmpty from 'lodash/isEmpty';
-import { useBusterDashboardContextSelector } from '@/context/Dashboards';
+
 import { type SegmentedItem } from '@/components/ui/segmented';
 import { Speaker, Xmark } from '@/components/ui/icons';
 import { AppModal } from '@/components/ui/modal';
@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/buttons';
 import { Separator } from '@/components/ui/seperator';
 import { SearchParams } from '@/api/request_interfaces/search/interfaces';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
+import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
 const filterOptions = [
   { label: 'All', value: 'all' },
@@ -35,11 +36,8 @@ export const AddTypeModal: React.FC<{
   dashboardResponse?: BusterDashboardResponse;
   collection?: BusterCollection;
 }> = React.memo(({ type = 'collection', open, onClose, collection, dashboardResponse }) => {
-  const onBulkAddRemoveToDashboard = useBusterDashboardContextSelector(
-    (state) => state.onBulkAddRemoveToDashboard
-  );
-  const { mutateAsync: updateCollection, isPending: isUpdatingCollection } = useUpdateCollection();
-
+  const { mutateAsync: updateCollection } = useUpdateCollection();
+  const { mutateAsync: updateDashboard } = useUpdateDashboard();
   const [selectedFilter, setSelectedFilter] = React.useState<string>(filterOptions[0]!.value);
   const [inputValue, setInputValue] = React.useState<string>('');
   const [ongoingSearchItems, setOngoingSearchItems] = React.useState<BusterSearchResult[]>([]);
@@ -215,9 +213,9 @@ export const AddTypeModal: React.FC<{
         assets
       });
     } else if (type === 'dashboard') {
-      await onBulkAddRemoveToDashboard({
-        dashboardId: dashboard!.id,
-        metricIds: selectedIds
+      await updateDashboard({
+        id: dashboard!.id,
+        metrics: selectedIds
       });
     }
     setSubmitting(false);
