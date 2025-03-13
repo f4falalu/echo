@@ -76,7 +76,7 @@ impl LiteLLMClient {
         let response: ChatCompletionResponse = serde_json::from_str(&response_text)?;
 
         // Print tool calls if present
-        if let Some(LiteLlmMessage::Assistant {
+        if let Some(AgentMessage::Assistant {
             tool_calls: Some(tool_calls),
             ..
         }) = response.choices.first().map(|c| &c.message)
@@ -221,8 +221,8 @@ mod tests {
         (api_key, base_url)
     }
 
-    fn create_test_message() -> LiteLlmMessage {
-        LiteLlmMessage::user("Hello".to_string())
+    fn create_test_message() -> AgentMessage {
+        AgentMessage::user("Hello".to_string())
     }
 
     fn create_test_request() -> ChatCompletionRequest {
@@ -281,7 +281,7 @@ mod tests {
 
         let response = client.chat_completion(request).await.unwrap();
         assert_eq!(response.id, "test-id");
-        if let LiteLlmMessage::Assistant { content, .. } = response.choices[0].message.clone() {
+        if let AgentMessage::Assistant { content, .. } = response.choices[0].message.clone() {
             assert_eq!(content.unwrap(), "Hello there!");
         } else {
             panic!("Expected assistant message");
@@ -416,7 +416,7 @@ mod tests {
 
         let response = client.chat_completion(request).await.unwrap();
         assert_eq!(response.id, "test-id");
-        if let LiteLlmMessage::Assistant {
+        if let AgentMessage::Assistant {
             content,
             tool_calls,
             ..
@@ -471,7 +471,7 @@ mod tests {
 
         let request = ChatCompletionRequest {
             model: "o1".to_string(),
-            messages: vec![LiteLlmMessage::user("Hello, world!".to_string())],
+            messages: vec![AgentMessage::user("Hello, world!".to_string())],
             ..Default::default()
         };
 

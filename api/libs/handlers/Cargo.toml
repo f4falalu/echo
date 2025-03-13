@@ -31,7 +31,6 @@ litellm = { path = "../litellm" }
 query_engine = { path = "../query_engine" }
 middleware = { path = "../middleware" }
 sharing = { path = "../sharing" }
-streaming = { path = "../streaming" }
 
 # Add any handler-specific dependencies here 
 

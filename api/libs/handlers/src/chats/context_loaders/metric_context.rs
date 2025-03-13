@@ -1,4 +1,4 @@
-use agents::{Agent, LiteLlmMessage};
+use agents::{Agent, AgentMessage};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use database::{
@@ -27,7 +27,7 @@ impl MetricContextLoader {
 
 #[async_trait]
 impl ContextLoader for MetricContextLoader {
-    async fn load_context(&self, user: &AuthenticatedUser, agent: &Arc<Agent>) -> Result<Vec<LiteLlmMessage>> {
+    async fn load_context(&self, user: &AuthenticatedUser, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>> {
         let mut conn = get_pg_pool().get().await.map_err(|e| {
             anyhow!(
                 "Failed to get database connection for metric context loading: {}",
@@ -107,7 +107,7 @@ impl ContextLoader for MetricContextLoader {
             }
         }
 
-        Ok(vec![LiteLlmMessage::Assistant {
+        Ok(vec![AgentMessage::Assistant {
             id: None,
             content: Some(context_message),
             name: None,

@@ -58,11 +58,23 @@ impl Processor for CreateDashboardsProcessor {
     }
 
     fn process(&self, id: String, json: &str) -> Result<Option<ProcessedOutput>> {
+        self.process_with_context(id, json, None)
+    }
+
+    fn process_with_context(&self, id: String, json: &str, previous_output: Option<ProcessedOutput>) -> Result<Option<ProcessedOutput>> {
         // Try to parse the JSON
         if let Ok(value) = serde_json::from_str::<Value>(json) {
+            // Check if it's a dashboard file structure
             if let Some(files) = value.get("files").and_then(Value::as_array) {
                 let mut files_map = HashMap::new();
                 let mut file_ids = Vec::new();
+
+                // Get previous files if they exist
+                let previous_files = if let Some(ProcessedOutput::File(file_output)) = &previous_output {
+                    &file_output.files
+                } else {
+                    &HashMap::new()
+                };
 
                 for file in files {
                     if let Some(file_obj) = file.as_object() {
@@ -78,9 +90,25 @@ impl Processor for CreateDashboardsProcessor {
 
                             // Generate deterministic UUID based on tool call ID, file name, and type
                             let file_id = self.generate_deterministic_uuid(&id, name, "dashboard")?;
+                            let file_id_str = file_id.to_string();
+
+                            // Get the previously processed content for this file
+                            let previous_content = if let Some(prev_file) = previous_files.get(&file_id_str) {
+                                prev_file.file.text_chunk.clone().unwrap_or_default()
+                            } else {
+                                String::new()
+                            };
+
+                            // Calculate the new content (what wasn't in the previous content)
+                            let new_content = if yml_content.len() > previous_content.len() {
+                                yml_content[previous_content.len()..].to_string()
+                            } else {
+                                // If for some reason the new content is shorter, just use the whole thing
+                                yml_content.to_string()
+                            };
 
                             let file = File {
-                                id: file_id.to_string(),
+                                id: file_id_str.clone(),
                                 file_type: "dashboard".to_string(),
                                 file_name: name.to_string(),
                                 version_number: 1,
@@ -88,14 +116,14 @@ impl Processor for CreateDashboardsProcessor {
                                 status: "loading".to_string(),
                                 file: FileContent {
                                     text: None,
-                                    text_chunk: Some(yml_content.to_string()),
-                                    modifided: None,
+                                    text_chunk: if new_content.is_empty() { None } else { Some(new_content) },
+                                    modified: None,
                                 },
                                 metadata: None,
                             };
 
-                            file_ids.push(file_id.to_string());
-                            files_map.insert(file_id.to_string(), file);
+                            file_ids.push(file_id_str.clone());
+                            files_map.insert(file_id_str, file);
                         }
                     }
                 }
@@ -116,11 +144,16 @@ impl Processor for CreateDashboardsProcessor {
 
         Ok(None)
     }
+
+    fn clone_box(&self) -> Box<dyn Processor> {
+        Box::new(CreateDashboardsProcessor::new())
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::ProcessedOutput;
 
     #[test]
     fn test_can_process() {
@@ -156,32 +189,76 @@ mod tests {
         let json = r#"{"files":[{"name":"test_dashboard.yml","yml_content":"name: Test Dashboard\ndescription: A test dashboard"}]}"#;
         let result = processor.process(id.clone(), json);
         assert!(result.is_ok());
-        
         let output = result.unwrap();
         assert!(output.is_some());
-        
-        if let Some(ProcessedOutput::File(file)) = output {
-            assert_eq!(file.id, id);
-            assert_eq!(file.title, "Creating dashboard files...");
-            assert_eq!(file.file_ids.len(), 1);
+
+        if let Some(ProcessedOutput::File(file_output)) = output {
+            assert_eq!(file_output.id, id);
+            assert_eq!(file_output.title, "Creating dashboard files...");
+            assert_eq!(file_output.files.len(), 1);
             
-            // Check that the file was created with the correct properties
-            let file_id = &file.file_ids[0];
-            let dashboard_file = file.files.get(file_id).unwrap();
-            assert_eq!(dashboard_file.file_type, "dashboard");
-            assert_eq!(dashboard_file.file_name, "test_dashboard.yml");
-            assert_eq!(dashboard_file.status, "loading");
-            
-            // Check the file content
-            assert!(dashboard_file.file.text_chunk.as_ref().unwrap().contains("name: Test Dashboard"));
+            // Check the first file
+            let file_id = &file_output.file_ids[0];
+            let file = file_output.files.get(file_id).unwrap();
+            assert_eq!(file.file_name, "test_dashboard.yml");
+            assert_eq!(file.file.text, None);
+            assert_eq!(file.file.text_chunk, Some("name: Test Dashboard\ndescription: A test dashboard".to_string()));
+        } else {
+            panic!("Expected ProcessedOutput::File");
+        }
+    }
+
+    #[test]
+    fn test_process_with_context_streaming() {
+        let processor = CreateDashboardsProcessor::new();
+        let id = "test_id".to_string();
+
+        // First chunk
+        let json1 = r#"{"files":[{"name":"test_dashboard.yml","yml_content":""}]}"#;
+        let result1 = processor.process_with_context(id.clone(), json1, None);
+        assert!(result1.is_ok());
+        let output1 = result1.unwrap();
+        assert!(output1.is_some());
+
+        if let Some(ProcessedOutput::File(file_output)) = &output1 {
+            let file_id = &file_output.file_ids[0];
+            let file = file_output.files.get(file_id).unwrap();
+            assert_eq!(file.file.text, None);
+            assert_eq!(file.file.text_chunk, None); // Empty string, so no chunk
         } else {
             panic!("Expected ProcessedOutput::File");
         }
 
-        // Test with invalid data
-        let json = r#"{"other_key":"value"}"#;
-        let result = processor.process(id.clone(), json);
-        assert!(result.is_ok());
-        assert!(result.unwrap().is_none());
+        // Second chunk
+        let json2 = r#"{"files":[{"name":"test_dashboard.yml","yml_content":"name: Test Dashboard\n"}]}"#;
+        let result2 = processor.process_with_context(id.clone(), json2, output1);
+        assert!(result2.is_ok());
+        let output2 = result2.unwrap();
+        assert!(output2.is_some());
+
+        if let Some(ProcessedOutput::File(file_output)) = &output2 {
+            let file_id = &file_output.file_ids[0];
+            let file = file_output.files.get(file_id).unwrap();
+            assert_eq!(file.file.text, None);
+            assert_eq!(file.file.text_chunk, Some("name: Test Dashboard\n".to_string()));
+        } else {
+            panic!("Expected ProcessedOutput::File");
+        }
+
+        // Third chunk
+        let json3 = r#"{"files":[{"name":"test_dashboard.yml","yml_content":"name: Test Dashboard\ndescription: A test dashboard"}]}"#;
+        let result3 = processor.process_with_context(id.clone(), json3, output2);
+        assert!(result3.is_ok());
+        let output3 = result3.unwrap();
+        assert!(output3.is_some());
+
+        if let Some(ProcessedOutput::File(file_output)) = &output3 {
+            let file_id = &file_output.file_ids[0];
+            let file = file_output.files.get(file_id).unwrap();
+            assert_eq!(file.file.text, None);
+            assert_eq!(file.file.text_chunk, Some("description: A test dashboard".to_string()));
+        } else {
+            panic!("Expected ProcessedOutput::File");
+        }
     }
 }

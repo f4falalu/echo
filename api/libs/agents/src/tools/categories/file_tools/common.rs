@@ -345,6 +345,7 @@ definitions:
             required:
               - x
               - y
+              - category
           bar_layout:
             type: string
             enum: ["horizontal", "vertical"]

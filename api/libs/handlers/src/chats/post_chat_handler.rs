@@ -3,35 +3,29 @@ use once_cell::sync::OnceCell;
 use std::{collections::HashMap, sync::Mutex, time::Instant};
 
 use agents::{
-    tools::{
-        file_tools::{
-            common::ModifyFilesOutput, create_dashboard_files::CreateDashboardFilesOutput,
-            create_metric_files::CreateMetricFilesOutput,
-            search_data_catalog::SearchDataCatalogOutput,
-        },
-        planning_tools::CreatePlanOutput,
-    },
-    AgentExt, AgentThread, BusterSuperAgent, LiteLlmMessage,
+    tools::{file_tools::{
+        common::ModifyFilesOutput, create_dashboard_files::CreateDashboardFilesOutput,
+        create_metric_files::CreateMetricFilesOutput, search_data_catalog::SearchDataCatalogOutput,
+    }, planning_tools::CreatePlanOutput},
+    AgentExt, AgentMessage, AgentThread, BusterSuperAgent,
 };
 
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
-    models::{Message, MessageToFile},
+    enums::Verification,
+    models::{Chat, DashboardFile, Message, MessageToFile, MetricFile, User},
     pool::get_pg_pool,
-    schema::{messages, messages_to_files},
-    types::DashboardYml,
+    schema::{chats, dashboard_files, messages, messages_to_files, metric_files},
 };
-use diesel::insert_into;
+use diesel::{insert_into, ExpressionMethods};
 use diesel_async::RunQueryDsl;
-use litellm::{MessageProgress, ToolCall};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use streaming::types::{
-    File, FileContent, ProcessedOutput, ReasoningFile, ReasoningPill, ReasoningText, ThoughtPill,
-    ThoughtPillContainer,
+use litellm::{
+    AgentMessage as LiteLLMAgentMessage, ChatCompletionRequest, LiteLLMClient, MessageProgress,
+    Metadata, ToolCall,
 };
-use streaming::StreamingParser;
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
 use uuid::Uuid;
 
 use crate::chats::{
@@ -39,11 +33,12 @@ use crate::chats::{
         chat_context::ChatContextLoader, dashboard_context::DashboardContextLoader,
         metric_context::MetricContextLoader, validate_context_request, ContextLoader,
     },
-    helpers::{generate_conversation_title, initialize_chat},
+    get_chat_handler,
+    streaming_parser::StreamingParser,
 };
 use crate::messages::types::{ChatMessage, ChatUserMessage};
 
-use super::{helpers::generate_conversation_title::BusterGeneratingTitle, types::ChatWithMessages};
+use super::types::ChatWithMessages;
 use tokio::sync::mpsc;
 
 static CHUNK_TRACKER: OnceCell<ChunkTracker> = OnceCell::new();
@@ -139,177 +134,6 @@ impl ChunkTracker {
     }
 }
 
-// Add this new struct before post_chat_handler
-struct FileMessageTracker {
-    metrics: Vec<BusterChatMessageContainer>,
-    dashboards: Vec<BusterChatMessageContainer>,
-    reasoning_messages: Vec<ReasoningMessageContainer>,
-}
-
-impl FileMessageTracker {
-    fn new() -> Self {
-        Self {
-            metrics: Vec::new(),
-            dashboards: Vec::new(),
-            reasoning_messages: Vec::new(),
-        }
-    }
-
-    fn add_message(&mut self, container: BusterChatMessageContainer) {
-        // We no longer need this since we'll create messages from reasoning messages
-    }
-
-    fn add_reasoning_message(&mut self, container: ReasoningMessageContainer) {
-        self.reasoning_messages.push(container);
-    }
-
-    fn get_filtered_messages(&self) -> Vec<BusterChatMessageContainer> {
-        // If no files, return empty vec
-        if self.metrics.is_empty() && self.dashboards.is_empty() {
-            return Vec::new();
-        }
-
-        // Apply the filtering rules
-        if self.dashboards.is_empty() {
-            // No dashboards - return all metrics
-            if self.metrics.len() == 1 {
-                // Single metric case
-                return vec![self.metrics[0].clone()];
-            } else {
-                // Multiple metrics case
-                return self.metrics.clone();
-            }
-        } else if self.dashboards.len() == 1 && self.metrics.is_empty() {
-            // Single dashboard, no metrics
-            return vec![self.dashboards[0].clone()];
-        }
-
-        // Complex case: We have both dashboards and metrics or multiple dashboards
-        let mut filtered_messages = Vec::new();
-        let mut metrics_in_dashboards: std::collections::HashSet<String> =
-            std::collections::HashSet::new();
-
-        // First add all dashboards
-        filtered_messages.extend(self.dashboards.clone());
-
-        // Collect metrics that are in dashboards
-        for dashboard in &self.dashboards {
-            if let BusterChatMessage::File { file_name, .. } = &dashboard.response_message {
-                // Find the corresponding reasoning message that contains the dashboard content
-                for reasoning in &self.reasoning_messages {
-                    if let ProcessedOutput::File(file) = &reasoning.reasoning {
-                        if file.message_type == "files" && file.status == "completed" {
-                            for (_, file_content) in &file.files {
-                                if file_content.file_type == "dashboard"
-                                    && file_content.file_name == *file_name
-                                {
-                                    // Found the dashboard content, parse it to get metric IDs
-                                    if let Some(text) = &file_content.file.text {
-                                        if let Ok(dashboard) =
-                                            serde_yaml::from_str::<DashboardYml>(text)
-                                        {
-                                            // Collect all metric IDs from the dashboard
-                                            for row in dashboard.rows {
-                                                for item in row.items {
-                                                    metrics_in_dashboards
-                                                        .insert(item.id.to_string());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Add metrics that aren't in any dashboard
-        for metric in &self.metrics {
-            if let BusterChatMessage::File { id, .. } = &metric.response_message {
-                if !metrics_in_dashboards.contains(id) {
-                    filtered_messages.push(metric.clone());
-                }
-            }
-        }
-
-        filtered_messages
-    }
-
-    fn analyze_dashboard_contents(&mut self, containers: &[BusterContainer]) {
-        // Clear existing collections since we'll rebuild them from reasoning messages
-        self.metrics.clear();
-        self.dashboards.clear();
-
-        let mut metrics_in_dashboards: std::collections::HashSet<String> =
-            std::collections::HashSet::new();
-
-        // First process all reasoning messages to create file messages and collect dashboard metric IDs
-        for container in containers {
-            if let BusterContainer::ReasoningMessage(reasoning) = container {
-                if let ProcessedOutput::File(file) = &reasoning.reasoning {
-                    if file.message_type == "files" && file.status == "completed" {
-                        // Create file messages for each file
-                        for (file_id, file_content) in &file.files {
-                            let response_message = BusterChatMessage::File {
-                                id: file_content.id.clone(),
-                                file_type: file_content.file_type.clone(),
-                                file_name: file_content.file_name.clone(),
-                                version_number: file_content.version_number,
-                                version_id: file_content.version_id.clone(),
-                                filter_version_id: None,
-                                metadata: Some(vec![BusterChatResponseFileMetadata {
-                                    status: "completed".to_string(),
-                                    message: format!("File {} completed", file_content.file_name),
-                                    timestamp: Some(Utc::now().timestamp()),
-                                }]),
-                            };
-
-                            let chat_message = BusterChatMessageContainer {
-                                response_message,
-                                chat_id: reasoning.chat_id,
-                                message_id: reasoning.message_id,
-                            };
-
-                            // Add to appropriate collection based on file type
-                            match file_content.file_type.as_str() {
-                                "metric" => self.metrics.push(chat_message),
-                                "dashboard" => {
-                                    self.dashboards.push(chat_message.clone());
-                                    // If this is a dashboard, parse its content for metric IDs
-                                    if let Some(text) = &file_content.file.text {
-                                        if let Ok(dashboard) =
-                                            serde_yaml::from_str::<DashboardYml>(text)
-                                        {
-                                            for row in dashboard.rows {
-                                                for item in row.items {
-                                                    metrics_in_dashboards
-                                                        .insert(item.id.to_string());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                _ => {}
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Filter out metrics that are in dashboards by comparing their id
-        self.metrics.retain(|metric| {
-            if let BusterChatMessage::File { id, .. } = &metric.response_message {
-                !metrics_in_dashboards.contains(id)
-            } else {
-                false
-            }
-        });
-    }
-}
-
 pub async fn post_chat_handler(
     request: ChatCreateNewChat,
     user: AuthenticatedUser,
@@ -327,14 +151,8 @@ pub async fn post_chat_handler(
     };
 
     // Initialize chat - either get existing or create new
-    let (chat_id, message_id, mut chat_with_messages) = initialize_chat(
-        request.prompt.clone(),
-        request.message_id.clone(),
-        request.chat_id.clone(),
-        &user,
-        user_org_id,
-    )
-    .await?;
+    let (chat_id, message_id, mut chat_with_messages) =
+        initialize_chat(&request, &user, user_org_id).await?;
 
     tracing::info!(
         "Starting post_chat_handler for chat_id: {}, message_id: {}, organization_id: {}, user_id: {}",
@@ -357,7 +175,7 @@ pub async fn post_chat_handler(
     let mut initial_messages = vec![];
 
     // Initialize agent to add context
-    let mut agent = BusterSuperAgent::new(user.clone(), chat_id).await?;
+    let agent = BusterSuperAgent::new(user.id, chat_id).await?;
 
     // Load context if provided
     if let Some(existing_chat_id) = request.chat_id {
@@ -381,7 +199,7 @@ pub async fn post_chat_handler(
     }
 
     // Add the new user message
-    initial_messages.push(LiteLlmMessage::user(request.prompt.clone()));
+    initial_messages.push(AgentMessage::user(request.prompt.clone()));
 
     // Initialize raw_llm_messages with initial_messages
     let mut raw_llm_messages = initial_messages.clone();
@@ -390,28 +208,14 @@ pub async fn post_chat_handler(
     // Initialize the agent thread
     let mut chat = AgentThread::new(Some(chat_id), user.id, initial_messages);
 
-    let title_handle: tokio::task::JoinHandle<Result<BusterGeneratingTitle, anyhow::Error>> = {
+    let title_handle = {
         let tx = tx.clone();
         let chat_id = chat_id.clone();
         let message_id = message_id.clone();
         let user_id = user.id.clone();
         let chat_messages = chat.messages.clone();
         tokio::spawn(async move {
-            let title =
-                generate_conversation_title(&chat_messages, &message_id, &user_id, &chat_id)
-                    .await
-                    .map_err(|e| anyhow!("Failed to generate conversation title: {}", e))?;
-
-            if let Some(tx) = tx {
-                tx.send(Ok((
-                    BusterContainer::GeneratingTitle(title.clone()),
-                    ThreadEvent::GeneratingTitle,
-                )))
-                .await
-                .map_err(|e| anyhow!("Failed to send title: {}", e))?;
-            };
-
-            Ok(title)
+            generate_conversation_title(&chat_messages, &message_id, &user_id, &chat_id, tx).await
         })
     };
 
@@ -419,16 +223,13 @@ pub async fn post_chat_handler(
     let mut rx = agent.run(&mut chat).await?;
 
     // Collect all messages for final processing
-    let mut all_messages: Vec<LiteLlmMessage> = Vec::new();
+    let mut all_messages: Vec<AgentMessage> = Vec::new();
     let mut all_transformed_containers: Vec<BusterContainer> = Vec::new();
-
-    // Modify the message processing section:
-    let mut file_tracker = FileMessageTracker::new();
 
     // Process all messages from the agent
     while let Ok(message_result) = rx.recv().await {
         match message_result {
-            Ok(LiteLlmMessage::Done) => {
+            Ok(AgentMessage::Done) => {
                 // Agent has finished processing, break the loop
                 break;
             }
@@ -438,7 +239,7 @@ pub async fn post_chat_handler(
 
                 // Only store completed messages in raw_llm_messages
                 match &msg {
-                    LiteLlmMessage::Assistant {
+                    AgentMessage::Assistant {
                         progress, content, ..
                     } => {
                         if let Some(content) = content {
@@ -449,7 +250,7 @@ pub async fn post_chat_handler(
                             if raw_response_message.is_empty() {
                                 raw_llm_messages.push(msg.clone());
                             } else {
-                                raw_llm_messages.push(LiteLlmMessage::Assistant {
+                                raw_llm_messages.push(AgentMessage::Assistant {
                                     id: None,
                                     content: Some(raw_response_message.clone()),
                                     name: None,
@@ -460,57 +261,44 @@ pub async fn post_chat_handler(
                             }
                         }
                     }
-                    LiteLlmMessage::Tool { progress, .. } => {
+                    AgentMessage::Tool { progress, .. } => {
                         if matches!(progress, MessageProgress::Complete) {
                             raw_llm_messages.push(msg.clone());
                         }
                     }
-                    LiteLlmMessage::User { .. } => {
+                    // User messages and other types don't have progress, so we store them all
+                    AgentMessage::User { .. } => {
                         raw_llm_messages.push(msg.clone());
                     }
-                    _ => {}
+                    _ => {} // Ignore other message types
                 }
 
-                // Transform and handle messages
+                // Always transform the message
                 match transform_message(&chat_id, &message_id, msg, tx.as_ref()).await {
                     Ok(containers) => {
-                        for (container, thread_event) in containers {
+                        // Store all transformed containers
+                        for (container, _) in containers.clone() {
                             all_transformed_containers.push(container.clone());
+                        }
 
-                            // If we have a tx channel, handle message sending
-                            if let Some(tx) = &tx {
-                                match &container {
-                                    BusterContainer::ChatMessage(chat) => {
-                                        match &chat.response_message {
-                                            BusterChatMessage::File { .. } => {
-                                                // Collect file messages instead of sending immediately
-                                                file_tracker.add_message(chat.clone());
-                                            }
-                                            BusterChatMessage::Text {
-                                                message: Some(_),
-                                                message_chunk: None,
-                                                ..
-                                            } => {
-                                                // Send text messages immediately
-                                                tx.send(Ok((container, thread_event))).await?;
-                                            }
-                                            _ => {}
-                                        }
-                                    }
-                                    BusterContainer::ReasoningMessage(reasoning) => {
-                                        // Store reasoning messages that contain file information
-                                        if let ProcessedOutput::File(_) = &reasoning.reasoning {
-                                            file_tracker.add_reasoning_message(reasoning.clone());
-                                        }
-                                        tx.send(Ok((container, thread_event))).await?
-                                    }
-                                    _ => tx.send(Ok((container, thread_event))).await?,
+                        // If we have a tx channel, send the transformed messages
+                        if let Some(tx) = &tx {
+                            for (container, thread_event) in containers {
+                                if tx.send(Ok((container, thread_event))).await.is_err() {
+                                    // Client disconnected, but continue processing messages
+                                    tracing::warn!(
+                                        "Client disconnected, but continuing to process messages"
+                                    );
+                                    break;
                                 }
                             }
                         }
                     }
                     Err(e) => {
+                        // Log the error but continue processing
                         tracing::error!("Error transforming message: {}", e);
+
+                        // If we have a tx channel, send the error
                         if let Some(tx) = &tx {
                             let _ = tx.send(Err(e)).await;
                         }
@@ -518,54 +306,16 @@ pub async fn post_chat_handler(
                 }
             }
             Err(e) => {
+                // If we have a tx channel, send the error
                 if let Some(tx) = &tx {
                     let _ = tx
                         .send(Err(anyhow!("Error receiving message from agent: {}", e)))
                         .await;
                 }
+
                 tracing::error!("Error receiving message from agent: {}", e);
+                // Don't return early, continue processing remaining messages
                 break;
-            }
-        }
-    }
-
-    // After processing all messages, analyze dashboard contents and send filtered file messages
-    let mut final_response_messages = Vec::new();
-    if let Some(tx) = &tx {
-        file_tracker.analyze_dashboard_contents(&all_transformed_containers);
-        let filtered_messages = file_tracker.get_filtered_messages();
-        for file_message in &filtered_messages {
-            tx.send(Ok((
-                BusterContainer::ChatMessage(file_message.clone()),
-                ThreadEvent::GeneratingResponseMessage,
-            )))
-            .await?;
-
-            // Store the filtered file messages
-            if let Ok(value) = serde_json::to_value(&file_message.response_message) {
-                final_response_messages.push(value);
-            }
-        }
-    }
-
-    // Add the final text message if it exists
-    if let Some(final_text_message) = all_transformed_containers.iter().rev().find(|container| {
-        if let BusterContainer::ChatMessage(chat) = container {
-            matches!(
-                chat.response_message,
-                BusterChatMessage::Text {
-                    message: Some(_),
-                    message_chunk: None,
-                    ..
-                }
-            )
-        } else {
-            false
-        }
-    }) {
-        if let BusterContainer::ChatMessage(chat) = final_text_message {
-            if let Ok(value) = serde_json::to_value(&chat.response_message) {
-                final_response_messages.push(value);
             }
         }
     }
@@ -577,16 +327,32 @@ pub async fn post_chat_handler(
     let (response_messages, reasoning_messages) =
         prepare_final_message_state(&all_transformed_containers)?;
 
+    // Update chat_with_messages with final state
+    let message = ChatMessage::new_with_messages(
+        message_id,
+        ChatUserMessage {
+            request: request.prompt.clone(),
+            sender_id: user.id.clone(),
+            sender_name: user.name.clone().unwrap_or_default(),
+            sender_avatar: None,
+        },
+        response_messages.clone(),
+        reasoning_messages.clone(),
+        Some(format!("Reasoned for {} seconds", reasoning_duration).to_string()),
+    );
+
+    chat_with_messages.update_message(message);
+
     // Create and store message in the database with final state
     let db_message = Message {
         id: message_id,
-        request_message: request.prompt.clone(),
+        request_message: request.prompt,
         chat_id,
         created_by: user.id.clone(),
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
-        response_messages: serde_json::to_value(&final_response_messages)?,
+        response_messages: serde_json::to_value(&response_messages)?,
         reasoning: serde_json::to_value(&reasoning_messages)?,
         final_reasoning_message: format!("Reasoned for {} seconds", reasoning_duration),
         title: title.title.clone().unwrap_or_default(),
@@ -599,22 +365,6 @@ pub async fn post_chat_handler(
         .execute(&mut conn)
         .await?;
 
-    // Update chat_with_messages with final state
-    let message = ChatMessage::new_with_messages(
-        message_id,
-        ChatUserMessage {
-            request: request.prompt.clone(),
-            sender_id: user.id.clone(),
-            sender_name: user.name.clone().unwrap_or_default(),
-            sender_avatar: None,
-        },
-        final_response_messages.clone(),
-        reasoning_messages.clone(),
-        Some(format!("Reasoned for {} seconds", reasoning_duration).to_string()),
-    );
-
-    chat_with_messages.update_message(message);
-
     // First process completed files (database updates only)
     let _ = process_completed_files(
         &mut conn,
@@ -624,6 +374,26 @@ pub async fn post_chat_handler(
         &user.id,
     )
     .await?;
+
+    // Then send text response messages
+    if let Some(tx) = &tx {
+        for container in &all_transformed_containers {
+            if let BusterContainer::ChatMessage(chat) = container {
+                if let BusterChatMessage::Text {
+                    message: Some(_),
+                    message_chunk: None,
+                    ..
+                } = &chat.response_message
+                {
+                    tx.send(Ok((
+                        BusterContainer::ChatMessage(chat.clone()),
+                        ThreadEvent::GeneratingResponseMessage,
+                    )))
+                    .await?;
+                }
+            }
+        }
+    }
 
     if let Some(title) = title.title {
         chat_with_messages.title = title;
@@ -646,8 +416,7 @@ pub async fn post_chat_handler(
 fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Value>, Vec<Value>)> {
     let mut response_messages = Vec::new();
     // Use a Vec to maintain order, with a HashMap to track latest version of each message
-    let mut reasoning_map: std::collections::HashMap<String, (usize, Value)> =
-        std::collections::HashMap::new();
+    let mut reasoning_map: std::collections::HashMap<String, (usize, Value)> = std::collections::HashMap::new();
     let mut reasoning_order = Vec::new();
 
     for container in containers {
@@ -677,25 +446,27 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
             BusterContainer::ReasoningMessage(reasoning) => {
                 // Only include reasoning messages that are explicitly marked as completed
                 let should_include = match &reasoning.reasoning {
-                    ProcessedOutput::Pill(thought) => thought.status == "completed",
-                    ProcessedOutput::File(file) => file.status == "completed",
-                    ProcessedOutput::Text(text) => text.status.as_deref() == Some("completed"),
+                    BusterReasoningMessage::Pill(thought) => thought.status == "completed",
+                    BusterReasoningMessage::File(file) => file.status == "completed",
+                    BusterReasoningMessage::Text(text) => {
+                        text.status.as_deref() == Some("completed")
+                    }
                 };
 
                 if should_include {
                     if let Ok(value) = serde_json::to_value(&reasoning.reasoning) {
                         // Get the ID from the reasoning message
                         let id = match &reasoning.reasoning {
-                            ProcessedOutput::Pill(thought) => thought.id.clone(),
-                            ProcessedOutput::File(file) => file.id.clone(),
-                            ProcessedOutput::Text(text) => text.id.clone(),
+                            BusterReasoningMessage::Pill(thought) => thought.id.clone(),
+                            BusterReasoningMessage::File(file) => file.id.clone(),
+                            BusterReasoningMessage::Text(text) => text.id.clone(),
                         };
 
                         // If this is a new message ID, add it to the order tracking
                         if !reasoning_map.contains_key(&id) {
                             reasoning_order.push(id.clone());
                         }
-
+                        
                         // Store or update the message in the map with its position
                         reasoning_map.insert(id, (reasoning_order.len() - 1, value));
                     }
@@ -723,7 +494,7 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
 async fn process_completed_files(
     conn: &mut diesel_async::AsyncPgConnection,
     message: &Message,
-    messages: &[LiteLlmMessage],
+    messages: &[AgentMessage],
     organization_id: &Uuid,
     user_id: &Uuid,
 ) -> Result<()> {
@@ -742,7 +513,7 @@ async fn process_completed_files(
     for (container, _) in transformed_messages {
         match container {
             BusterContainer::ReasoningMessage(msg) => match &msg.reasoning {
-                ProcessedOutput::File(file) if file.message_type == "files" => {
+                BusterReasoningMessage::File(file) if file.message_type == "files" => {
                     for file_id in &file.file_ids {
                         // Skip if we've already processed this file ID
                         if !processed_file_ids.insert(file_id.clone()) {
@@ -780,6 +551,42 @@ async fn process_completed_files(
 }
 
 #[derive(Debug, Serialize, Clone)]
+pub enum BusterChatContainer {
+    ChatMessage(BusterChatMessageContainer),
+    Thought(BusterReasoningPill),
+    File(BusterReasoningFile),
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct BusterChatContainerContainer {
+    pub container: BusterChatContainer,
+    pub chat_id: Uuid,
+    pub message_id: Uuid,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct BusterChatMessageContainer {
+    pub response_message: BusterChatMessage,
+    pub chat_id: Uuid,
+    pub message_id: Uuid,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(untagged)]
+pub enum BusterReasoningMessage {
+    Pill(BusterReasoningPill),
+    File(BusterReasoningFile),
+    Text(BusterReasoningText),
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct BusterReasoningMessageContainer {
+    pub reasoning: BusterReasoningMessage,
+    pub chat_id: Uuid,
+    pub message_id: Uuid,
+}
+
+#[derive(Debug, Serialize, Clone)]
 pub struct BusterChatResponseFileMetadata {
     pub status: String,
     pub message: String,
@@ -808,17 +615,78 @@ pub enum BusterChatMessage {
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct BusterChatMessageContainer {
-    pub response_message: BusterChatMessage,
-    pub chat_id: Uuid,
-    pub message_id: Uuid,
+pub struct BusterReasoningPill {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub thought_type: String,
+    pub title: String,
+    pub secondary_title: String,
+    pub pill_containers: Option<Vec<BusterThoughtPillContainer>>,
+    pub status: String,
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct ReasoningMessageContainer {
-    pub reasoning: ProcessedOutput,
-    pub chat_id: Uuid,
-    pub message_id: Uuid,
+pub struct BusterReasoningText {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub reasoning_type: String,
+    pub title: String,
+    pub secondary_title: String,
+    pub message: Option<String>,
+    pub message_chunk: Option<String>,
+    pub status: Option<String>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct BusterThoughtPillContainer {
+    pub title: String,
+    pub pills: Vec<BusterThoughtPill>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct BusterThoughtPill {
+    pub id: String,
+    pub text: String,
+    #[serde(rename = "type")]
+    pub thought_file_type: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct BusterFile {
+    pub id: String,
+    pub file_type: String,
+    pub file_name: String,
+    pub version_number: i32,
+    pub version_id: String,
+    pub status: String,
+    pub file: BusterFileContent,
+    pub metadata: Option<Vec<BusterFileMetadata>>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct BusterFileContent {
+    pub text: Option<String>,
+    pub text_chunk: Option<String>,
+    pub modifided: Option<Vec<(i32, i32)>>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct BusterReasoningFile {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub message_type: String,
+    pub title: String,
+    pub secondary_title: String,
+    pub status: String,
+    pub file_ids: Vec<String>,
+    pub files: HashMap<String, BusterFile>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct BusterFileMetadata {
+    pub status: String,
+    pub message: String,
+    pub timestamp: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -826,20 +694,20 @@ pub struct ReasoningMessageContainer {
 pub enum BusterContainer {
     Chat(ChatWithMessages),
     ChatMessage(BusterChatMessageContainer),
-    ReasoningMessage(ReasoningMessageContainer),
+    ReasoningMessage(BusterReasoningMessageContainer),
     GeneratingTitle(BusterGeneratingTitle),
 }
 
 pub async fn transform_message(
     chat_id: &Uuid,
     message_id: &Uuid,
-    message: LiteLlmMessage,
+    message: AgentMessage,
     tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<Vec<(BusterContainer, ThreadEvent)>> {
     println!("MESSAGE_STREAM: Transforming message: {:?}", message);
 
     match message {
-        LiteLlmMessage::Assistant {
+        AgentMessage::Assistant {
             id,
             content,
             name,
@@ -881,7 +749,7 @@ pub async fn transform_message(
 
                 // Add the "Finished reasoning" message if we're just starting
                 if initial {
-                    let reasoning_message = ProcessedOutput::Text(ReasoningText {
+                    let reasoning_message = BusterReasoningMessage::Text(BusterReasoningText {
                         id: Uuid::new_v4().to_string(),
                         reasoning_type: "text".to_string(),
                         title: "Finished reasoning".to_string(),
@@ -892,7 +760,7 @@ pub async fn transform_message(
                     });
 
                     let reasoning_container =
-                        BusterContainer::ReasoningMessage(ReasoningMessageContainer {
+                        BusterContainer::ReasoningMessage(BusterReasoningMessageContainer {
                             reasoning: reasoning_message,
                             chat_id: *chat_id,
                             message_id: *message_id,
@@ -915,13 +783,55 @@ pub async fn transform_message(
                 ) {
                     Ok(messages) => {
                         for reasoning_container in messages {
-                            // Create reasoning message container
+                            // Only process file response messages when they're completed
+                            match &reasoning_container {
+                                BusterReasoningMessage::File(file)
+                                    if matches!(progress, MessageProgress::Complete)
+                                        && file.status == "completed"
+                                        && file.message_type == "files" =>
+                                {
+                                    // For each completed file, create and send a file response message
+                                    for (file_id, file_content) in &file.files {
+                                        let response_message = BusterChatMessage::File {
+                                            id: file_content.id.clone(),
+                                            file_type: file_content.file_type.clone(),
+                                            file_name: file_content.file_name.clone(),
+                                            version_number: file_content.version_number,
+                                            version_id: file_content.version_id.clone(),
+                                            filter_version_id: None,
+                                            metadata: Some(vec![BusterChatResponseFileMetadata {
+                                                status: "completed".to_string(),
+                                                message: format!(
+                                                    "File {} completed",
+                                                    file_content.file_name
+                                                ),
+                                                timestamp: Some(Utc::now().timestamp()),
+                                            }]),
+                                        };
+
+                                        containers.push((
+                                            BusterContainer::ChatMessage(
+                                                BusterChatMessageContainer {
+                                                    response_message,
+                                                    chat_id: *chat_id,
+                                                    message_id: *message_id,
+                                                },
+                                            ),
+                                            ThreadEvent::GeneratingResponseMessage,
+                                        ));
+                                    }
+                                }
+                                _ => {}
+                            }
+
                             containers.push((
-                                BusterContainer::ReasoningMessage(ReasoningMessageContainer {
-                                    reasoning: reasoning_container,
-                                    chat_id: *chat_id,
-                                    message_id: *message_id,
-                                }),
+                                BusterContainer::ReasoningMessage(
+                                    BusterReasoningMessageContainer {
+                                        reasoning: reasoning_container,
+                                        chat_id: *chat_id,
+                                        message_id: *message_id,
+                                    },
+                                ),
                                 ThreadEvent::GeneratingReasoningMessage,
                             ));
                         }
@@ -940,7 +850,7 @@ pub async fn transform_message(
                 Ok(vec![])
             }
         }
-        LiteLlmMessage::Tool {
+        AgentMessage::Tool {
             id,
             content,
             tool_call_id,
@@ -960,13 +870,55 @@ pub async fn transform_message(
                 ) {
                     Ok(messages) => {
                         for reasoning_container in messages {
-                            // Create reasoning message container
+                            // Only process file response messages when they're completed
+                            match &reasoning_container {
+                                BusterReasoningMessage::File(file)
+                                    if matches!(progress, MessageProgress::Complete)
+                                        && file.status == "completed"
+                                        && file.message_type == "files" =>
+                                {
+                                    // For each completed file, create and send a file response message
+                                    for (file_id, file_content) in &file.files {
+                                        let response_message = BusterChatMessage::File {
+                                            id: file_content.id.clone(),
+                                            file_type: file_content.file_type.clone(),
+                                            file_name: file_content.file_name.clone(),
+                                            version_number: file_content.version_number,
+                                            version_id: file_content.version_id.clone(),
+                                            filter_version_id: None,
+                                            metadata: Some(vec![BusterChatResponseFileMetadata {
+                                                status: "completed".to_string(),
+                                                message: format!(
+                                                    "File {} completed",
+                                                    file_content.file_name
+                                                ),
+                                                timestamp: Some(Utc::now().timestamp()),
+                                            }]),
+                                        };
+
+                                        containers.push((
+                                            BusterContainer::ChatMessage(
+                                                BusterChatMessageContainer {
+                                                    response_message,
+                                                    chat_id: *chat_id,
+                                                    message_id: *message_id,
+                                                },
+                                            ),
+                                            ThreadEvent::GeneratingResponseMessage,
+                                        ));
+                                    }
+                                }
+                                _ => {}
+                            }
+
                             containers.push((
-                                BusterContainer::ReasoningMessage(ReasoningMessageContainer {
-                                    reasoning: reasoning_container,
-                                    chat_id: *chat_id,
-                                    message_id: *message_id,
-                                }),
+                                BusterContainer::ReasoningMessage(
+                                    BusterReasoningMessageContainer {
+                                        reasoning: reasoning_container,
+                                        chat_id: *chat_id,
+                                        message_id: *message_id,
+                                    },
+                                ),
                                 ThreadEvent::GeneratingReasoningMessage,
                             ));
                         }
@@ -1012,10 +964,10 @@ fn transform_text_message(
             let complete_text = tracker
                 .get_complete_text(id.clone())
                 .unwrap_or_else(|| content.clone());
-
+            
             // Clear the tracker for this chunk
             tracker.clear_chunk(id.clone());
-
+            
             Ok(vec![BusterChatMessage::Text {
                 id: id.clone(),
                 message: Some(complete_text),
@@ -1033,7 +985,7 @@ fn transform_tool_message(
     content: String,
     chat_id: Uuid,
     message_id: Uuid,
-) -> Result<Vec<ProcessedOutput>> {
+) -> Result<Vec<BusterReasoningMessage>> {
     // Use required ID (tool call ID) for all function calls
     let messages = match name.as_str() {
         "search_data_catalog" => tool_data_catalog_search(id.clone(), content)?,
@@ -1048,7 +1000,7 @@ fn transform_tool_message(
     Ok(messages)
 }
 
-fn tool_create_plan(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
+fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     println!("MESSAGE_STREAM: Processing tool create plan message");
 
     let plan_markdown = match serde_json::from_str::<CreatePlanOutput>(&content) {
@@ -1059,7 +1011,7 @@ fn tool_create_plan(id: String, content: String) -> Result<Vec<ProcessedOutput>>
         }
     };
 
-    let buster_file = ProcessedOutput::Text(ReasoningText {
+    let buster_file = BusterReasoningMessage::Text(BusterReasoningText {
         id,
         reasoning_type: "text".to_string(),
         title: "Plan".to_string(),
@@ -1073,7 +1025,7 @@ fn tool_create_plan(id: String, content: String) -> Result<Vec<ProcessedOutput>>
 }
 
 // Update tool_create_metrics to require ID
-fn tool_create_metrics(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
+fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     println!("MESSAGE_STREAM: Processing tool create metrics message");
 
     // Parse the CreateMetricFilesOutput from content
@@ -1097,14 +1049,14 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<ProcessedOutpu
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
 
-        let buster_file = File {
+        let buster_file = BusterFile {
             id: file_id.clone(),
             file_type: "metric".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
             version_id: file.id.to_string(),
             status: "completed".to_string(),
-            file: FileContent {
+            file: BusterFileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
                 modifided: None,
@@ -1116,7 +1068,7 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<ProcessedOutpu
     }
 
     // Create the BusterReasoningFile
-    let buster_file = ProcessedOutput::File(ReasoningFile {
+    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
         id,
         message_type: "files".to_string(),
         title: format!("Created {} metric files", files_count),
@@ -1130,7 +1082,7 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<ProcessedOutpu
 }
 
 // Update tool_modify_metrics to require ID
-fn tool_modify_metrics(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
+fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     println!("MESSAGE_STREAM: Processing tool modify metrics message");
 
     // Parse the ModifyFilesOutput from content
@@ -1154,14 +1106,14 @@ fn tool_modify_metrics(id: String, content: String) -> Result<Vec<ProcessedOutpu
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
 
-        let buster_file = File {
+        let buster_file = BusterFile {
             id: file_id.clone(),
             file_type: "metric".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
             version_id: file.id.to_string(),
             status: "completed".to_string(),
-            file: FileContent {
+            file: BusterFileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
                 modifided: None,
@@ -1173,7 +1125,7 @@ fn tool_modify_metrics(id: String, content: String) -> Result<Vec<ProcessedOutpu
     }
 
     // Create the BusterReasoningFile
-    let buster_file = ProcessedOutput::File(ReasoningFile {
+    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
         id,
         message_type: "files".to_string(),
         title: format!("Modified {} metric files", files_count),
@@ -1187,7 +1139,7 @@ fn tool_modify_metrics(id: String, content: String) -> Result<Vec<ProcessedOutpu
 }
 
 // Update tool_create_dashboards to require ID
-fn tool_create_dashboards(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
+fn tool_create_dashboards(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     println!("MESSAGE_STREAM: Processing tool create dashboards message");
 
     // Parse the CreateDashboardFilesOutput from content
@@ -1212,14 +1164,14 @@ fn tool_create_dashboards(id: String, content: String) -> Result<Vec<ProcessedOu
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
 
-        let buster_file = File {
+        let buster_file = BusterFile {
             id: file_id.clone(),
             file_type: "dashboard".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
             version_id: file.id.to_string(),
             status: "completed".to_string(),
-            file: FileContent {
+            file: BusterFileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
                 modifided: None,
@@ -1231,7 +1183,7 @@ fn tool_create_dashboards(id: String, content: String) -> Result<Vec<ProcessedOu
     }
 
     // Create the BusterReasoningFile
-    let buster_file = ProcessedOutput::File(ReasoningFile {
+    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
         id,
         message_type: "files".to_string(),
         title: format!("Created {} dashboard files", files_count),
@@ -1245,7 +1197,7 @@ fn tool_create_dashboards(id: String, content: String) -> Result<Vec<ProcessedOu
 }
 
 // Update tool_modify_dashboards to require ID
-fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
+fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     println!("MESSAGE_STREAM: Processing tool modify dashboards message");
 
     // Parse the ModifyFilesOutput from content
@@ -1269,14 +1221,14 @@ fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<ProcessedOu
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
 
-        let buster_file = File {
+        let buster_file = BusterFile {
             id: file_id.clone(),
             file_type: "dashboard".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
             version_id: file.id.to_string(),
             status: "completed".to_string(),
-            file: FileContent {
+            file: BusterFileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
                 modifided: None,
@@ -1288,7 +1240,7 @@ fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<ProcessedOu
     }
 
     // Create the BusterReasoningFile
-    let buster_file = ProcessedOutput::File(ReasoningFile {
+    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
         id,
         message_type: "files".to_string(),
         title: format!("Modified {} dashboard files", files_count),
@@ -1302,7 +1254,7 @@ fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<ProcessedOu
 }
 
 // Restore the original tool_data_catalog_search function
-fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<ProcessedOutput>> {
+fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
     let data_catalog_result = match serde_json::from_str::<SearchDataCatalogOutput>(&content) {
         Ok(result) => result,
         Err(e) => {
@@ -1324,7 +1276,7 @@ fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<Processed
     };
 
     let buster_thought = if result_count > 0 {
-        ProcessedOutput::Pill(ReasoningPill {
+        BusterReasoningMessage::Pill(BusterReasoningPill {
             id: id.clone(),
             thought_type: "pills".to_string(),
             title: format!("Found {} results", result_count),
@@ -1333,14 +1285,14 @@ fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<Processed
             status: "completed".to_string(),
         })
     } else {
-        ProcessedOutput::Pill(ReasoningPill {
+        BusterReasoningMessage::Pill(BusterReasoningPill {
             id: id.clone(),
             thought_type: "pills".to_string(),
             title: "No data catalog items found".to_string(),
             secondary_title: format!("{} seconds", duration),
-            pill_containers: Some(vec![ThoughtPillContainer {
+            pill_containers: Some(vec![BusterThoughtPillContainer {
                 title: "No results found".to_string(),
-                pills: vec![ThoughtPill {
+                pills: vec![BusterThoughtPill {
                     id: "".to_string(),
                     text: query_params,
                     thought_file_type: "empty".to_string(),
@@ -1355,9 +1307,9 @@ fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<Processed
 
 fn proccess_data_catalog_search_results(
     results: SearchDataCatalogOutput,
-) -> Result<Vec<ThoughtPillContainer>> {
+) -> Result<Vec<BusterThoughtPillContainer>> {
     if results.results.is_empty() {
-        return Ok(vec![ThoughtPillContainer {
+        return Ok(vec![BusterThoughtPillContainer {
             title: "No results found".to_string(),
             pills: vec![],
         }]);
@@ -1367,7 +1319,7 @@ fn proccess_data_catalog_search_results(
 
     // Create a pill for each result
     for result in results.results {
-        dataset_pills.push(ThoughtPill {
+        dataset_pills.push(BusterThoughtPill {
             id: result.id.to_string(),
             text: result.name.clone().unwrap_or_default(),
             thought_file_type: "dataset".to_string(), // Set type to "dataset" for all pills
@@ -1375,7 +1327,7 @@ fn proccess_data_catalog_search_results(
     }
 
     // Create a single container with all dataset pills
-    let container = ThoughtPillContainer {
+    let container = BusterThoughtPillContainer {
         title: String::from("Datasets"),
         pills: dataset_pills,
     };
@@ -1389,7 +1341,7 @@ fn transform_assistant_tool_message(
     initial: bool,
     chat_id: Uuid,
     message_id: Uuid,
-) -> Result<Vec<ProcessedOutput>> {
+) -> Result<Vec<BusterReasoningMessage>> {
     let mut all_messages = Vec::new();
     let tracker = get_chunk_tracker();
 
@@ -1436,11 +1388,11 @@ fn transform_assistant_tool_message(
             _ => vec![],
         };
 
-        let containers: Vec<ProcessedOutput> = messages
+        let containers: Vec<BusterReasoningMessage> = messages
             .into_iter()
             .map(|reasoning| {
                 let updated_reasoning = match reasoning {
-                    ProcessedOutput::Text(mut text) => {
+                    BusterReasoningMessage::Text(mut text) => {
                         match progress {
                             MessageProgress::Complete => {
                                 // For completed messages, use accumulated text or final message
@@ -1452,7 +1404,7 @@ fn transform_assistant_tool_message(
                                 // Always set status to loading for assistant messages
                                 text.status = Some("loading".to_string());
                                 tracker.clear_chunk(text.id.clone());
-                                Some(ProcessedOutput::Text(text))
+                                Some(BusterReasoningMessage::Text(text))
                             }
                             MessageProgress::InProgress => {
                                 if let Some(chunk) = text.message_chunk.clone() {
@@ -1461,7 +1413,7 @@ fn transform_assistant_tool_message(
                                         text.message_chunk = Some(delta);
                                         text.message = None;
                                         text.status = Some("loading".to_string());
-                                        Some(ProcessedOutput::Text(text))
+                                        Some(BusterReasoningMessage::Text(text))
                                     } else {
                                         None
                                     }
@@ -1471,14 +1423,13 @@ fn transform_assistant_tool_message(
                             }
                         }
                     }
-                    ProcessedOutput::File(mut file) => {
+                    BusterReasoningMessage::File(mut file) => {
                         match progress {
                             MessageProgress::Complete => {
                                 let mut updated_files = std::collections::HashMap::new();
 
                                 for (file_id, file_content) in file.files.iter() {
-                                    let chunk_id =
-                                        format!("{}_{}", file.id, file_content.file_name);
+                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
                                     let complete_text = tracker
                                         .get_complete_text(chunk_id.clone())
                                         .unwrap_or_else(|| {
@@ -1498,19 +1449,17 @@ fn transform_assistant_tool_message(
                                 // Always set status to loading
                                 file.status = "loading".to_string();
                                 file.files = updated_files;
-                                Some(ProcessedOutput::File(file))
+                                Some(BusterReasoningMessage::File(file))
                             }
                             MessageProgress::InProgress => {
                                 let mut has_updates = false;
                                 let mut updated_files = std::collections::HashMap::new();
 
                                 for (file_id, file_content) in file.files.iter() {
-                                    let chunk_id =
-                                        format!("{}_{}", file.id, file_content.file_name);
+                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
 
                                     if let Some(chunk) = &file_content.file.text_chunk {
-                                        let delta =
-                                            tracker.add_chunk(chunk_id.clone(), chunk.clone());
+                                        let delta = tracker.add_chunk(chunk_id.clone(), chunk.clone());
 
                                         if !delta.is_empty() {
                                             let mut updated_content = file_content.clone();
@@ -1527,17 +1476,17 @@ fn transform_assistant_tool_message(
                                 if has_updates {
                                     file.status = "loading".to_string();
                                     file.files = updated_files;
-                                    Some(ProcessedOutput::File(file))
+                                    Some(BusterReasoningMessage::File(file))
                                 } else {
                                     None
                                 }
                             }
                         }
                     }
-                    ProcessedOutput::Pill(mut pill) => {
+                    BusterReasoningMessage::Pill(mut pill) => {
                         // Always set status to loading for pills
                         pill.status = "loading".to_string();
-                        Some(ProcessedOutput::Pill(pill))
+                        Some(BusterReasoningMessage::Pill(pill))
                     }
                 };
 
@@ -1552,21 +1501,20 @@ fn transform_assistant_tool_message(
     Ok(all_messages)
 }
 
-// Fix the assistant_data_catalog_search function to return ProcessedOutput instead of BusterChatContainer
+// Fix the assistant_data_catalog_search function to return BusterReasoningMessage instead of BusterChatContainer
 fn assistant_data_catalog_search(
     id: String,
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<ProcessedOutput>> {
+) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::SearchDataCatalogProcessor::new()));
 
-    if let Ok(Some(message)) = parser.process_chunk(id.clone(), &content, "search_data_catalog") {
+    if let Ok(Some(message)) = parser.process_search_data_catalog_chunk(id.clone(), &content) {
         match message {
-            ProcessedOutput::Text(mut text) => {
+            BusterReasoningMessage::Text(mut text) => {
                 text.status = Some("loading".to_string());
-                return Ok(vec![ProcessedOutput::Text(text)]);
+                return Ok(vec![BusterReasoningMessage::Text(text)]);
             }
             _ => unreachable!("Data catalog search should only return Text type"),
         }
@@ -1594,7 +1542,7 @@ fn assistant_data_catalog_search(
     };
 
     let thought = if result_count > 0 {
-        ProcessedOutput::Pill(ReasoningPill {
+        BusterReasoningMessage::Pill(BusterReasoningPill {
             id: id.clone(),
             thought_type: "thought".to_string(),
             title: format!("Found {} results", result_count),
@@ -1603,14 +1551,14 @@ fn assistant_data_catalog_search(
             status: "loading".to_string(),
         })
     } else {
-        ProcessedOutput::Pill(ReasoningPill {
+        BusterReasoningMessage::Pill(BusterReasoningPill {
             id: id.clone(),
             thought_type: "thought".to_string(),
             title: "No data catalog items found".to_string(),
             secondary_title: format!("{} seconds", duration),
-            pill_containers: Some(vec![ThoughtPillContainer {
+            pill_containers: Some(vec![BusterThoughtPillContainer {
                 title: "No results found".to_string(),
-                pills: vec![ThoughtPill {
+                pills: vec![BusterThoughtPill {
                     id: "".to_string(),
                     text: query_params,
                     thought_file_type: "empty".to_string(),
@@ -1628,17 +1576,16 @@ fn assistant_create_metrics(
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<ProcessedOutput>> {
+) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::CreateMetricsProcessor::new()));
 
-    match parser.process_chunk(id.clone(), &content, "metric") {
+    match parser.process_metric_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
-                ProcessedOutput::File(mut file) => {
+                BusterReasoningMessage::File(mut file) => {
                     file.status = "loading".to_string();
-                    Ok(vec![ProcessedOutput::File(file)])
+                    Ok(vec![BusterReasoningMessage::File(file)])
                 }
                 _ => Ok(vec![message]),
             }
@@ -1653,17 +1600,16 @@ fn assistant_modify_metrics(
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<ProcessedOutput>> {
+) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::CreateMetricsProcessor::new()));
 
-    match parser.process_chunk(id.clone(), &content, "metric") {
+    match parser.process_metric_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
-                ProcessedOutput::File(mut file) => {
+                BusterReasoningMessage::File(mut file) => {
                     file.status = "loading".to_string();
-                    Ok(vec![ProcessedOutput::File(file)])
+                    Ok(vec![BusterReasoningMessage::File(file)])
                 }
                 _ => Ok(vec![message]),
             }
@@ -1678,17 +1624,16 @@ fn assistant_create_dashboards(
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<ProcessedOutput>> {
+) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::CreateDashboardsProcessor::new()));
 
-    match parser.process_chunk(id.clone(), &content, "dashboard") {
+    match parser.process_dashboard_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
-                ProcessedOutput::File(mut file) => {
+                BusterReasoningMessage::File(mut file) => {
                     file.status = "loading".to_string();
-                    Ok(vec![ProcessedOutput::File(file)])
+                    Ok(vec![BusterReasoningMessage::File(file)])
                 }
                 _ => Ok(vec![message]),
             }
@@ -1698,23 +1643,22 @@ fn assistant_create_dashboards(
     }
 }
 
-// Fix for the modify_dashboards function to return ProcessedOutput instead of BusterChatContainer
+// Fix for the modify_dashboards function to return BusterReasoningMessage instead of BusterChatContainer
 fn assistant_modify_dashboards(
     id: String,
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<ProcessedOutput>> {
+) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::CreateDashboardsProcessor::new()));
 
-    match parser.process_chunk(id.clone(), &content, "dashboard") {
+    match parser.process_dashboard_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             // Always set status to loading, regardless of progress
             match message {
-                ProcessedOutput::File(mut file) => {
+                BusterReasoningMessage::File(mut file) => {
                     file.status = "loading".to_string();
-                    Ok(vec![ProcessedOutput::File(file)])
+                    Ok(vec![BusterReasoningMessage::File(file)])
                 }
                 _ => Ok(vec![message]),
             }
@@ -1729,22 +1673,227 @@ fn assistant_create_plan(
     content: String,
     progress: MessageProgress,
     initial: bool,
-) -> Result<Vec<ProcessedOutput>> {
+) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
-    parser.register_processor(Box::new(streaming::processors::CreatePlanProcessor::new()));
 
-    match parser.process_chunk(id.clone(), &content, "plan") {
+    match parser.process_plan_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
             match message {
-                ProcessedOutput::Text(mut text) => {
+                BusterReasoningMessage::Text(mut text) => {
                     // Always set status to loading for assistant messages
                     text.status = Some("loading".to_string());
-                    Ok(vec![ProcessedOutput::Text(text)])
+                    Ok(vec![BusterReasoningMessage::Text(text)])
                 }
                 _ => Ok(vec![message]),
             }
         }
         Ok(None) => Ok(vec![]),
         Err(e) => Err(e),
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum BusterGeneratingTitleProgress {
+    Completed,
+    InProgress,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BusterGeneratingTitle {
+    pub chat_id: Uuid,
+    pub message_id: Uuid,
+    pub title: Option<String>,
+    pub title_chunk: Option<String>,
+    pub progress: BusterGeneratingTitleProgress,
+}
+
+// Conversation title generation functionality
+// -----------------------------------------
+
+// Constants for title generation
+const TITLE_GENERATION_PROMPT: &str = r#"
+You are a conversation title generator. Your task is to generate a clear, concise, and descriptive title for a conversation based on the user messages and assistant responses provided.
+
+Guidelines:
+1. The title should be 3-10 words and should capture the core topic or intent of the conversation
+2. Focus on key topics, questions, or themes from the conversation
+3. Be specific rather than generic when possible
+4. Avoid phrases like "Conversation about..." or "Discussion on..."
+5. Don't include mentions of yourself in the title
+6. The title should make sense out of context
+7. Pay attention to the most recent messages to guide topic changes, etc.
+
+Conversation:
+{conversation_messages}
+
+Return only the title text with no additional formatting, explanation, quotes, new lines, special characters, etc.
+"#;
+
+/// Generates a title for a conversation by processing user and assistant messages.
+/// The function streams the title back as it's being generated.
+type BusterContainerResult = Result<(BusterContainer, ThreadEvent)>;
+
+pub async fn generate_conversation_title(
+    messages: &[AgentMessage],
+    message_id: &Uuid,
+    user_id: &Uuid,
+    session_id: &Uuid,
+    tx: Option<mpsc::Sender<BusterContainerResult>>,
+) -> Result<BusterGeneratingTitle> {
+    // Format conversation messages for the prompt
+    let mut formatted_messages = vec![];
+    for message in messages {
+        if message.get_role() == "user"
+            || (message.get_role() == "assistant" && message.get_content().is_some())
+        {
+            formatted_messages.push(format!(
+                "{}: {}",
+                message.get_role(),
+                message.get_content().unwrap_or_default()
+            ));
+        }
+    }
+
+    let formatted_messages = formatted_messages.join("\n\n");
+    // Create the prompt with the formatted messages
+    let prompt = TITLE_GENERATION_PROMPT.replace("{conversation_messages}", &formatted_messages);
+
+    // Set up LiteLLM client
+    let llm_client = LiteLLMClient::new(None, None);
+
+    // Create the request
+    let request = ChatCompletionRequest {
+        model: "gemini-2".to_string(),
+        messages: vec![LiteLLMAgentMessage::User {
+            id: None,
+            content: prompt,
+            name: None,
+        }],
+        metadata: Some(Metadata {
+            generation_name: "conversation_title".to_string(),
+            user_id: user_id.to_string(),
+            session_id: session_id.to_string(),
+            trace_id: session_id.to_string(),
+        }),
+        ..Default::default()
+    };
+
+    // Get streaming response - use chat_completion with stream parameter set to true
+    let response = match llm_client.chat_completion(request).await {
+        Ok(response) => response,
+        Err(e) => {
+            return Err(anyhow::anyhow!("Failed to start title generation: {}", e));
+        }
+    };
+
+    // Parse LLM response
+    let content = match &response.choices[0].message {
+        AgentMessage::Assistant {
+            content: Some(content),
+            ..
+        } => content,
+        _ => {
+            tracing::error!("LLM response missing content");
+            return Err(anyhow::anyhow!("LLM response missing content"));
+        }
+    };
+
+    let title = BusterGeneratingTitle {
+        chat_id: session_id.clone(),
+        message_id: message_id.clone(),
+        title: Some(content.clone().replace("\n", "")),
+        title_chunk: None,
+        progress: BusterGeneratingTitleProgress::Completed,
+    };
+
+    if let Some(tx) = tx {
+        tx.send(Ok((
+            BusterContainer::GeneratingTitle(title.clone()),
+            ThreadEvent::GeneratingTitle,
+        )))
+        .await?;
+    }
+
+    Ok(title)
+}
+
+async fn initialize_chat(
+    request: &ChatCreateNewChat,
+    user: &AuthenticatedUser,
+    user_org_id: Uuid,
+) -> Result<(Uuid, Uuid, ChatWithMessages)> {
+    let message_id = request.message_id.unwrap_or_else(Uuid::new_v4);
+
+    if let Some(existing_chat_id) = request.chat_id {
+        // Get existing chat - no need to create new chat in DB
+        let mut existing_chat = get_chat_handler(&existing_chat_id, &user.id).await?;
+
+        // Create new message
+        let message = ChatMessage::new_with_messages(
+            message_id,
+            ChatUserMessage {
+                request: request.prompt.clone(),
+                sender_id: user.id.clone(),
+                sender_name: user.name.clone().unwrap_or_default(),
+                sender_avatar: None,
+            },
+            Vec::new(),
+            Vec::new(),
+            None,
+        );
+
+        // Add message to existing chat
+        existing_chat.add_message(message);
+
+        Ok((existing_chat_id, message_id, existing_chat))
+    } else {
+        // Create new chat since we don't have an existing one
+        let chat_id = Uuid::new_v4();
+        let chat = Chat {
+            id: chat_id,
+            title: request.prompt.clone(),
+            organization_id: user_org_id,
+            created_by: user.id.clone(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            updated_by: user.id.clone(),
+            publicly_accessible: false,
+            publicly_enabled_by: None,
+            public_expiry_date: None,
+        };
+
+        // Create initial message
+        let message = ChatMessage::new_with_messages(
+            message_id,
+            ChatUserMessage {
+                request: request.prompt.clone(),
+                sender_id: user.id.clone(),
+                sender_name: user.name.clone().unwrap_or_default(),
+                sender_avatar: None,
+            },
+            Vec::new(),
+            Vec::new(),
+            None,
+        );
+
+        let mut chat_with_messages = ChatWithMessages::new(
+            request.prompt.clone(),
+            user.id.to_string(),
+            user.name.clone().unwrap_or_default(),
+            None,
+        );
+        chat_with_messages.id = chat_id;
+        chat_with_messages.add_message(message);
+
+        // Only create new chat in DB if this is a new chat
+        let mut conn = get_pg_pool().get().await?;
+        insert_into(chats::table)
+            .values(&chat)
+            .execute(&mut conn)
+            .await?;
+
+        Ok((chat_id, message_id, chat_with_messages))
     }
 }

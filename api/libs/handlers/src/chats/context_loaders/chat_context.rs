@@ -9,7 +9,7 @@ use database::{
 };
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
-use agents::{Agent, LiteLlmMessage};
+use agents::{Agent, AgentMessage};
 use middleware::AuthenticatedUser;
 use serde_json::Value;
 use uuid::Uuid;
@@ -26,8 +26,8 @@ impl ChatContextLoader {
     }
 
     // Helper function to check for tool usage and set appropriate context
-    async fn update_context_from_tool_calls(agent: &Arc<Agent>, message: &LiteLlmMessage) {
-        if let LiteLlmMessage::Assistant { tool_calls: Some(tool_calls), .. } = message {
+    async fn update_context_from_tool_calls(agent: &Arc<Agent>, message: &AgentMessage) {
+        if let AgentMessage::Assistant { tool_calls: Some(tool_calls), .. } = message {
             for tool_call in tool_calls {
                 match tool_call.function.name.as_str() {
                     "search_data_catalog" => {
@@ -55,7 +55,7 @@ impl ChatContextLoader {
 
 #[async_trait]
 impl ContextLoader for ChatContextLoader {
-    async fn load_context(&self, user: &AuthenticatedUser, agent: &Arc<Agent>) -> Result<Vec<LiteLlmMessage>> {
+    async fn load_context(&self, user: &AuthenticatedUser, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>> {
         let mut conn = get_pg_pool().get().await?;
 
         // First verify the chat exists and user has access
@@ -78,7 +78,7 @@ impl ContextLoader for ChatContextLoader {
         let mut agent_messages = Vec::new();
         
         // Process only the most recent message's raw LLM messages
-        if let Ok(raw_messages) = serde_json::from_value::<Vec<LiteLlmMessage>>(message.raw_llm_messages) {
+        if let Ok(raw_messages) = serde_json::from_value::<Vec<AgentMessage>>(message.raw_llm_messages) {
             // Check each message for tool calls and update context
             for agent_message in &raw_messages {
                 Self::update_context_from_tool_calls(agent, agent_message).await;

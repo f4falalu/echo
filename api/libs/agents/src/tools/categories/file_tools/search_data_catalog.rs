@@ -7,7 +7,6 @@ use chrono::{DateTime, Utc};
 use database::{pool::get_pg_pool, schema::datasets};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
-use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use tracing::{debug, error, warn};
@@ -15,7 +14,7 @@ use uuid::Uuid;
 
 use crate::{agent::Agent, tools::ToolExecutor};
 
-use litellm::{ChatCompletionRequest, LiteLLMClient, LiteLlmMessage, Metadata, ResponseFormat};
+use litellm::{ChatCompletionRequest, LiteLLMClient, AgentMessage, Metadata, ResponseFormat};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchDataCatalogParams {
@@ -128,7 +127,7 @@ impl SearchDataCatalogTool {
         while retry_count < MAX_RETRIES {
             let request = ChatCompletionRequest {
                 model: "o3-mini".to_string(),
-                messages: vec![LiteLlmMessage::User {
+                messages: vec![AgentMessage::User {
                     id: None,
                     content: current_prompt.clone(),
                     name: None,
@@ -160,7 +159,7 @@ impl SearchDataCatalogTool {
 
             // Parse LLM response
             let content = match &response.choices[0].message {
-                LiteLlmMessage::Assistant {
+                AgentMessage::Assistant {
                     content: Some(content),
                     ..
                 } => content,
@@ -261,7 +260,7 @@ impl ToolExecutor for SearchDataCatalogTool {
     type Output = SearchDataCatalogOutput;
     type Params = SearchDataCatalogParams;
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String, user: AuthenticatedUser) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         // Fetch all non-deleted datasets

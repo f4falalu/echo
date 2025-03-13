@@ -1,8 +1,11 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+use chrono::{DateTime, Utc};
+use uuid::Uuid;
+use serde_json::Value;
 
 /// The main output type for processors
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(untagged)]
 pub enum ProcessedOutput {
     /// A text-based reasoning message
@@ -14,7 +17,7 @@ pub enum ProcessedOutput {
 }
 
 /// Represents a text-based reasoning message
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct ReasoningText {
     pub id: String,
     #[serde(rename = "type")]
@@ -27,7 +30,7 @@ pub struct ReasoningText {
 }
 
 /// Represents a file-based reasoning message
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct ReasoningFile {
     pub id: String,
     #[serde(rename = "type")]
@@ -40,7 +43,7 @@ pub struct ReasoningFile {
 }
 
 /// Represents a reasoning pill message
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct ReasoningPill {
     pub id: String,
     #[serde(rename = "type")]
@@ -52,14 +55,14 @@ pub struct ReasoningPill {
 }
 
 /// Represents a container for thought pills
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct ThoughtPillContainer {
     pub title: String,
     pub pills: Vec<ThoughtPill>,
 }
 
 /// Represents an individual thought pill
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct ThoughtPill {
     pub id: String,
     pub text: String,
@@ -68,7 +71,7 @@ pub struct ThoughtPill {
 }
 
 /// Represents a file in the system
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct File {
     pub id: String,
     pub file_type: String,
@@ -81,15 +84,15 @@ pub struct File {
 }
 
 /// Represents the content of a file
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct FileContent {
     pub text: Option<String>,
     pub text_chunk: Option<String>,
-    pub modifided: Option<Vec<(i32, i32)>>,
+    pub modified: Option<Vec<(i32, i32)>>,
 }
 
 /// Represents metadata for a file
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct FileMetadata {
     pub key: String,
     pub value: String,
@@ -127,4 +130,58 @@ impl From<&str> for ProcessorType {
             custom => ProcessorType::Custom(custom.to_string()),
         }
     }
+}
+
+/// Represents the different types of LiteLlmMessages that can be processed
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub enum MessageType {
+    /// An Assistant message with tool calls (not null)
+    AssistantToolCall,
+    /// An Assistant message with content (text response)
+    AssistantResponse,
+    /// A Tool message (output from executed tool call)
+    ToolOutput,
+}
+
+/// A tool call with its associated information
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct ToolCallInfo {
+    /// The ID of the tool call
+    pub id: String,
+    /// The name of the tool
+    pub name: String,
+    /// The input parameters
+    pub input: Value,
+    /// The output content (if available)
+    pub output: Option<Value>,
+    /// The timestamp when the tool call was created
+    pub timestamp: DateTime<Utc>,
+    /// The current state of the tool call
+    pub state: ToolCallState,
+    /// The chunks received so far for this tool call
+    pub chunks: Vec<String>,
+}
+
+/// The state of a tool call
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub enum ToolCallState {
+    /// The tool call is in progress
+    InProgress,
+    /// The tool call is complete
+    Complete,
+    /// The tool call has an output
+    HasOutput,
+}
+
+/// A processed message
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct ProcessedMessage {
+    /// The ID of the message
+    pub id: String,
+    /// The type of the message
+    pub message_type: MessageType,
+    /// The processed content
+    pub content: ProcessedOutput,
+    /// The timestamp when the message was created
+    pub timestamp: DateTime<Utc>,
 }

@@ -12,7 +12,6 @@ use indexmap::IndexMap;
 use query_engine::data_types::DataType;
 use serde_json::Value;
 use tracing::{debug, error, info};
-use middleware::AuthenticatedUser;
 
 use super::{
     common::{
@@ -68,7 +67,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
         }
     }
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String, user: AuthenticatedUser) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         debug!("Starting file modification execution");
@@ -215,5 +214,129 @@ impl ToolExecutor for ModifyDashboardFilesTool {
             },
             "description": "Makes content-based modifications to one or more existing dashboard YAML files in a single call. Each modification specifies the exact content to replace and its replacement. If you need to update chart config or other sections within a file, use this. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::*;
+    use crate::tools::categories::file_tools::common::{
+        apply_modifications_to_content, Modification, ModificationResult,
+    };
+    use chrono::Utc;
+    use serde_json::json;
+    use uuid::Uuid;
+
+    #[test]
+    fn test_apply_modifications_to_content() {
+        let original_content =
+            "name: test_dashboard\ntype: dashboard\ndescription: A test dashboard";
+
+        // Test single modification
+        let mods1 = vec![Modification {
+            content_to_replace: "type: dashboard".to_string(),
+            new_content: "type: custom_dashboard".to_string(),
+        }];
+        let result1 = apply_modifications_to_content(original_content, &mods1, "test.yml").unwrap();
+        assert_eq!(
+            result1,
+            "name: test_dashboard\ntype: custom_dashboard\ndescription: A test dashboard"
+        );
+
+        // Test multiple non-overlapping modifications
+        let mods2 = vec![
+            Modification {
+                content_to_replace: "test_dashboard".to_string(),
+                new_content: "new_dashboard".to_string(),
+            },
+            Modification {
+                content_to_replace: "A test dashboard".to_string(),
+                new_content: "An updated dashboard".to_string(),
+            },
+        ];
+        let result2 = apply_modifications_to_content(original_content, &mods2, "test.yml").unwrap();
+        assert_eq!(
+            result2,
+            "name: new_dashboard\ntype: dashboard\ndescription: An updated dashboard"
+        );
+
+        // Test content not found
+        let mods3 = vec![Modification {
+            content_to_replace: "nonexistent content".to_string(),
+            new_content: "new content".to_string(),
+        }];
+        let result3 = apply_modifications_to_content(original_content, &mods3, "test.yml");
+        assert!(result3.is_err());
+        assert!(result3
+            .unwrap_err()
+            .to_string()
+            .contains("Content to replace not found"));
+    }
+
+    #[test]
+    fn test_modification_result_tracking() {
+        let result = ModificationResult {
+            file_id: Uuid::new_v4(),
+            file_name: "test.yml".to_string(),
+            success: true,
+            error: None,
+            modification_type: "content".to_string(),
+            timestamp: Utc::now(),
+            duration: 0,
+        };
+
+        assert!(result.success);
+        assert!(result.error.is_none());
+
+        let error_result = ModificationResult {
+            success: false,
+            error: Some("Failed to parse YAML".to_string()),
+            ..result
+        };
+        assert!(!error_result.success);
+        assert!(error_result.error.is_some());
+        assert_eq!(error_result.error.unwrap(), "Failed to parse YAML");
+    }
+
+    #[test]
+    fn test_tool_parameter_validation() {
+        let tool = ModifyDashboardFilesTool {
+            agent: Arc::new(Agent::new(
+                "o3-mini".to_string(),
+                HashMap::new(),
+                Uuid::new_v4(),
+                Uuid::new_v4(),
+                "test_agent".to_string(),
+            )),
+        };
+
+        // Test valid parameters
+        let valid_params = json!({
+            "files": [{
+                "id": Uuid::new_v4().to_string(),
+                "file_name": "test.yml",
+                "modifications": [{
+                    "content_to_replace": "old content",
+                    "new_content": "new content"
+                }]
+            }]
+        });
+        let valid_args = serde_json::to_string(&valid_params).unwrap();
+        let result = serde_json::from_str::<ModifyFilesParams>(&valid_args);
+        assert!(result.is_ok());
+
+        // Test missing required fields
+        let missing_fields_params = json!({
+            "files": [{
+                "id": Uuid::new_v4().to_string(),
+                "file_name": "test.yml"
+                // missing modifications
+            }]
+        });
+        let missing_args = serde_json::to_string(&missing_fields_params).unwrap();
+        let result = serde_json::from_str::<ModifyFilesParams>(&missing_args);
+        assert!(result.is_err());
     }
 }

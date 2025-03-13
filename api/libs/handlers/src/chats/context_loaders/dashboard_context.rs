@@ -1,4 +1,4 @@
-use agents::{Agent, LiteLlmMessage};
+use agents::{Agent, AgentMessage};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use database::{
@@ -33,7 +33,7 @@ impl ContextLoader for DashboardContextLoader {
         &self,
         user: &AuthenticatedUser,
         agent: &Arc<Agent>,
-    ) -> Result<Vec<LiteLlmMessage>> {
+    ) -> Result<Vec<AgentMessage>> {
         let mut conn = get_pg_pool().get().await.map_err(|e| {
             anyhow!(
                 "Failed to get database connection for dashboard context loading: {}",
@@ -172,7 +172,7 @@ impl ContextLoader for DashboardContextLoader {
             }
         }
 
-        Ok(vec![LiteLlmMessage::Assistant {
+        Ok(vec![AgentMessage::Assistant {
             id: None,
             content: Some(context_message),
             name: None,
