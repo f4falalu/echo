@@ -5,7 +5,8 @@ import { NextRequest } from 'next/server';
 const assetCheckPages: BusterRoutes[] = [
   BusterRoutes.APP_METRIC_ID,
   BusterRoutes.APP_DASHBOARD_ID,
-  BusterRoutes.APP_DASHBOARD_METRICS_ID
+  BusterRoutes.APP_DASHBOARD_METRICS_ID,
+  BusterRoutes.APP_CHAT
 ];
 
 const publicPages: BusterRoutes[] = [

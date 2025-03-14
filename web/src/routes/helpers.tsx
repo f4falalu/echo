@@ -6,6 +6,13 @@ export const pathNameToRoute = (pathName: string, params: any): BusterRoutes => 
   });
 
   const paramRoutesToParent: Record<string, BusterRoutes> = {
+    [BusterRoutes.APP_CHAT_ID]: BusterRoutes.APP_CHAT,
+    [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID]: BusterRoutes.APP_CHAT,
+    [BusterRoutes.APP_CHAT_ID_METRIC_ID]: BusterRoutes.APP_CHAT,
+    [BusterRoutes.APP_CHAT_ID_COLLECTION_ID]: BusterRoutes.APP_CHAT,
+    [BusterRoutes.APP_CHAT_ID_REASONING_ID]: BusterRoutes.APP_CHAT,
+    [BusterRoutes.APP_CHAT_ID_TERM_ID]: BusterRoutes.APP_CHAT,
+    [BusterRoutes.APP_CHAT_ID_VALUE_ID]: BusterRoutes.APP_CHAT,
     [BusterRoutes.APP_METRIC_ID]: BusterRoutes.APP_METRIC,
     [BusterRoutes.APP_DASHBOARD_METRICS_ID]: BusterRoutes.APP_DASHBOARDS,
     [BusterRoutes.APP_DASHBOARD_ID]: BusterRoutes.APP_DASHBOARDS,
