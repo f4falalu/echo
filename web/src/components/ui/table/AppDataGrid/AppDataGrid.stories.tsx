@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { AppDataGrid } from './AppDataGrid';
 
 const meta: Meta<typeof AppDataGrid> = {
-  title: 'UI/table/AppDataGrid',
+  title: 'UI/Table/AppDataGrid',
   component: AppDataGrid,
   parameters: {
     layout: 'fullscreen'

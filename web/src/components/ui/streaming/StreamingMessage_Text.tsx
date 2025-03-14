@@ -39,7 +39,7 @@ export const StreamingMessage_Text: React.FC<StreamingMessage_TextProps> = React
     }, [message]);
 
     return (
-      <div className={''}>
+      <div className={'whitespace-pre-wrap'}>
         {textChunksRef.current.map((chunk, index) => (
           <AnimatedSpan key={index} isCompletedStream={isCompletedStream}>
             {chunk}

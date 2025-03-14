@@ -2,8 +2,8 @@
 
 import type { Meta, StoryObj } from '@storybook/react';
 import { StreamingMessage_Text } from './StreamingMessage_Text';
-import { useState } from 'react';
-import { Button } from '@/components/ui/buttons';
+import React, { useState } from 'react';
+import { Button } from '../buttons/Button';
 import { faker } from '@faker-js/faker';
 
 const meta: Meta<typeof StreamingMessage_Text> = {
@@ -29,6 +29,20 @@ export const Loading: Story = {
   args: {
     message: 'This message is still streaming...',
     isCompletedStream: false
+  }
+};
+
+export const SuperLongWithNewLines: Story = {
+  args: {
+    message: Array.from({ length: 100 })
+      .map((_, index) => {
+        if (index > 0 && index % 8 === 0) {
+          return `\n${faker.lorem.word()}`;
+        }
+        return faker.lorem.word();
+      })
+      .join(' '),
+    isCompletedStream: true
   }
 };
 

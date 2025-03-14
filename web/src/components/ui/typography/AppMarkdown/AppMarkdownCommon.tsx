@@ -62,7 +62,7 @@ export const CustomParagraph: React.FC<
   );
 };
 
-const headingVariants = cva('leading-1.3 my-2', {
+const headingVariants = cva('leading-1.3', {
   variants: {
     level: {
       1: 'text-3xl ',
