@@ -18,9 +18,10 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
   ({ image, name, className, useToolTip, size, fallbackClassName }) => {
     const hasName = !!name;
     const nameLetters = createNameLetters(name);
+    const hasImage = !!image;
 
     return (
-      <Tooltip delayDuration={550} title={useToolTip ? name || '' : ''}>
+      <Tooltip delayDuration={300} title={useToolTip ? name || '' : ''}>
         <AvatarBase
           className={className}
           style={{
@@ -29,7 +30,11 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
           }}>
           {image && <AvatarImage src={image} />}
           {hasName ? (
-            <NameLettersFallback fallbackClassName={fallbackClassName} nameLetters={nameLetters} />
+            <NameLettersFallback
+              fallbackClassName={fallbackClassName}
+              nameLetters={nameLetters}
+              hasImage={hasImage}
+            />
           ) : (
             <BusterAvatarFallback fallbackClassName={fallbackClassName} />
           )}
@@ -40,16 +45,21 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
 );
 Avatar.displayName = 'Avatar';
 
-const NameLettersFallback: React.FC<{ fallbackClassName?: string; nameLetters: string }> = ({
-  fallbackClassName,
-  nameLetters
-}) => {
-  return <AvatarFallback className={cn(fallbackClassName)}>{nameLetters}</AvatarFallback>;
+const NameLettersFallback: React.FC<{
+  fallbackClassName?: string;
+  nameLetters: string;
+  hasImage: boolean;
+}> = ({ fallbackClassName, hasImage, nameLetters }) => {
+  return (
+    <AvatarFallback className={cn(fallbackClassName)} delayMs={hasImage ? 300 : 0}>
+      {nameLetters}
+    </AvatarFallback>
+  );
 };
 
 const BusterAvatarFallback: React.FC<{ fallbackClassName?: string }> = ({ fallbackClassName }) => {
   return (
-    <AvatarFallback className={cn('border bg-white', fallbackClassName)}>
+    <AvatarFallback className={cn('border bg-white', fallbackClassName)} delayMs={0}>
       <div className="text-foreground flex h-full w-full items-center justify-center">
         <BusterLogo className="h-full w-full translate-x-[1px] p-1" />
       </div>

@@ -56,3 +56,9 @@ export const SingleLetter: Story = {
 export const NoName: Story = {
   args: {}
 };
+
+export const ProblematicLeadingCharacter: Story = {
+  args: {
+    name: 'jared yes @'
+  }
+};
