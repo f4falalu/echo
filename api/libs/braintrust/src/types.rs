@@ -113,9 +113,9 @@ impl Span {
         self
     }
 
-    /// Alias for add_metadata
-    pub fn with_metadata(self, key: &str, value: &str) -> Self {
-        self.add_metadata(key, value)
+    /// Alias for add_metadata that converts any displayable value to a string
+    pub fn with_metadata<T: std::fmt::Display>(self, key: &str, value: T) -> Self {
+        self.add_metadata(key, &value.to_string())
     }
 
     /// Get the span ID

@@ -12,7 +12,13 @@ pub struct GetRawLlmMessagesRequest {
     pub chat_id: Uuid,
 }
 
-pub async fn get_raw_llm_messages_handler(chat_id: Uuid) -> Result<Value> {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetRawLlmMessagesResponse {
+    pub chat_id: Uuid,
+    pub raw_llm_messages: Value,
+}
+
+pub async fn get_raw_llm_messages_handler(chat_id: Uuid) -> Result<GetRawLlmMessagesResponse> {
     let pool = get_pg_pool();
     let mut conn = pool.get().await?;
 
@@ -26,5 +32,8 @@ pub async fn get_raw_llm_messages_handler(chat_id: Uuid) -> Result<Value> {
         .first::<Value>(&mut conn)
         .await?;
 
-    Ok(raw_llm_messages)
+    Ok(GetRawLlmMessagesResponse {
+        chat_id,
+        raw_llm_messages,
+    })
 }
