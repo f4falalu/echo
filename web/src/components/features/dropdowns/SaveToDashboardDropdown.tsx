@@ -84,7 +84,7 @@ export const SaveToDashboardDropdown: React.FC<{
     <Dropdown
       side="bottom"
       align="start"
-      menuHeader={'Save to a dashboard'}
+      menuHeader={items.length > 0 ? 'Save to a dashboard' : undefined}
       open={showDropdown}
       onOpenChange={onOpenChange}
       footerContent={memoizedButton}

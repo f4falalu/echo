@@ -159,7 +159,9 @@ export const DropdownBase = <T,>({
       onOpenChange={onOpenChange}
       dir={dir}
       modal={modal}>
-      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
+        <span className="dropdown-trigger">{children}</span>
+      </DropdownMenuTrigger>
       <DropdownMenuContent
         className={cn('max-w-72 min-w-44', className)}
         align={align}

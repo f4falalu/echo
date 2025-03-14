@@ -16,7 +16,7 @@ export const SaveToCollectionsDropdown: React.FC<{
   onSaveToCollection: (collectionId: string[]) => Promise<void>;
   onRemoveFromCollection: (collectionId: string) => Promise<void>;
 }> = React.memo(({ children, onRemoveFromCollection, onSaveToCollection, selectedCollections }) => {
-  const { data: collectionsList } = useGetCollectionsList({});
+  const { data: collectionsList, isPending: isCreatingCollection } = useGetCollectionsList({});
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const [openCollectionModal, setOpenCollectionModal] = React.useState(false);
   const [showDropdown, setShowDropdown] = React.useState(false);
@@ -34,14 +34,7 @@ export const SaveToCollectionsDropdown: React.FC<{
         })
       };
     });
-
-    return [
-      ...collectionsItems,
-      {
-        value: 'new',
-        label: 'New collection'
-      }
-    ];
+    return collectionsItems;
   }, [collectionsList, selectedCollections]);
 
   const onClickItem = useMemoizedFn((collection: BusterCollectionListItem) => {
@@ -69,34 +62,38 @@ export const SaveToCollectionsDropdown: React.FC<{
 
   const onOpenChange = useMemoizedFn((open: boolean) => {
     setShowDropdown(open);
-    console.log('open', open);
   });
 
-  const onClick = useMemoizedFn(() => {
+  const onOpenNewCollectionModal = useMemoizedFn(() => {
     setOpenCollectionModal(true);
     setShowDropdown(false);
   });
 
   const memoizedButton = useMemo(() => {
     return (
-      <Button variant="ghost" block className="justify-start!" prefix={<Plus />} onClick={onClick}>
+      <Button
+        variant="ghost"
+        block
+        loading={isCreatingCollection}
+        className="justify-start!"
+        prefix={<Plus />}
+        onClick={onOpenNewCollectionModal}>
         New collection
       </Button>
     );
-  }, [onClick]);
+  }, [onOpenNewCollectionModal]);
 
   return (
     <>
       <Dropdown
         side="bottom"
-        align="start"
-        menuHeader={'Save to a collection'}
+        align="center"
+        menuHeader={items.length > 0 ? 'Save to a collection' : undefined}
         onOpenChange={onOpenChange}
         footerContent={memoizedButton}
+        emptyStateText="No collections found"
         items={items}>
-        <div>
-          <AppTooltip title={showDropdown ? '' : 'Save to collection'}>{children} </AppTooltip>
-        </div>
+        <AppTooltip title={showDropdown ? '' : 'Save to collection'}>{children} </AppTooltip>
       </Dropdown>
 
       <NewCollectionModal

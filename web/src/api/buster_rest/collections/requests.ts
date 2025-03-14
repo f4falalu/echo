@@ -15,15 +15,19 @@ export const collectionsGetList = async (params: GetCollectionListParams) => {
 };
 
 export const collectionsGetCollection = async (params: GetCollectionParams) => {
-  return await mainApi.get<BusterCollection>('/collections', { params }).then((res) => res.data);
+  return await mainApi
+    .get<BusterCollection>(`/collections/${params.id}`, { params })
+    .then((res) => res.data);
 };
 
 export const collectionsCreateCollection = async (params: CreateCollectionParams) => {
-  return await mainApi.post<BusterCollection>('/collections', { params }).then((res) => res.data);
+  return await mainApi.post<BusterCollection>('/collections', params).then((res) => res.data);
 };
 
 export const collectionsUpdateCollection = async (params: UpdateCollectionParams) => {
-  return await mainApi.put<BusterCollection>('/collections', { params }).then((res) => res.data);
+  return await mainApi
+    .put<BusterCollection>(`/collections/${params.id}`, params)
+    .then((res) => res.data);
 };
 
 export const collectionsDeleteCollection = async (params: DeleteCollectionParams) => {
