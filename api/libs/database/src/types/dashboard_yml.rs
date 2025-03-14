@@ -8,6 +8,7 @@ use diesel::{
     AsExpression, FromSqlRow,
 };
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::io::Write;
 use uuid::Uuid;
 
@@ -103,6 +104,11 @@ impl DashboardYml {
         }
 
         Ok(())
+    }
+
+    pub fn to_value(&self) -> Result<Value> {
+        serde_json::to_value(self)
+            .map_err(|e| anyhow::anyhow!("Failed to serialize dashboard yml: {}", e))
     }
 }
 
