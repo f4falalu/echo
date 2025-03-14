@@ -113,7 +113,7 @@ const ShareMetricButtonLocal = React.memo(({ metricId }: { metricId: string }) =
 ShareMetricButtonLocal.displayName = 'ShareMetricButtonLocal';
 
 const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
-  const { mutateAsync: deleteMetric } = useDeleteMetric();
+  const { mutateAsync: deleteMetric, isPending: isDeletingMetric } = useDeleteMetric();
   const { openSuccessMessage } = useBusterNotifications();
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
 
@@ -123,6 +123,7 @@ const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
         label: 'Delete',
         value: 'delete',
         icon: <Trash />,
+        loading: isDeletingMetric,
         onClick: async () => {
           await deleteMetric({ ids: [metricId] });
           openSuccessMessage('Metric deleted');
@@ -130,7 +131,7 @@ const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
         }
       }
     ],
-    [deleteMetric, metricId, openSuccessMessage, onSetSelectedFile]
+    [deleteMetric, isDeletingMetric, metricId, openSuccessMessage, onSetSelectedFile]
   );
 
   return (

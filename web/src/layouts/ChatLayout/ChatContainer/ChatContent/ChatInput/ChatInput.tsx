@@ -43,6 +43,7 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
         onChange={onChange}
         onStop={onStopChat}
         loading={loading}
+        value={inputValue}
         disabledSubmit={disableSubmit}
         autoFocus
         ref={textAreaRef}
