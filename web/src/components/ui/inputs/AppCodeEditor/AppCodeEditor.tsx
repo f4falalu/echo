@@ -160,6 +160,6 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
 AppCodeEditor.displayName = 'AppCodeEditor';
 
 const LoadingContainer = React.memo(() => {
-  return <CircleSpinnerLoaderContainer />;
+  return <CircleSpinnerLoaderContainer className="animate-in fade-in-0 duration-300" />;
 });
 LoadingContainer.displayName = 'LoadingContainer';

@@ -81,8 +81,9 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
   });
 
   return (
-    <div ref={containerRef} className="h-full w-full p-3">
+    <div ref={containerRef} className="swag h-full w-full p-5">
       <AppVerticalCodeSplitter
+        className="shadow"
         ref={appSplitterRef}
         autoSaveId={autoSaveId}
         sql={sql}

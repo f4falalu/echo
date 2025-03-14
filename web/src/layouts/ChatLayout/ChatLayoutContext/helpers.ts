@@ -80,3 +80,7 @@ export const createFileRoute = ({ assetId, type }: { assetId: string; type: File
   if (!routeBuilder) return '';
   return routeBuilder(assetId);
 };
+
+export const createChatRoute = (chatId: string) => {
+  return createBusterRoute({ route: BusterRoutes.APP_CHAT_ID, chatId });
+};

@@ -75,7 +75,11 @@ const MetricViewChartCard: React.FC<{
   }, [isTable, loadingData, errorData]);
 
   return (
-    <div className={cn(cardClass, 'bg-background flex flex-col overflow-hidden rounded border')}>
+    <div
+      className={cn(
+        'bg-background flex flex-col overflow-hidden rounded border shadow',
+        cardClass
+      )}>
       {children}
     </div>
   );

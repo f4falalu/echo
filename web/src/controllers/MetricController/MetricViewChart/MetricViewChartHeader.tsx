@@ -20,7 +20,7 @@ export const MetricViewChartHeader: React.FC<{
       )}>
       {hasTitleOrDescription ? (
         <>
-          <EditableTitle level={4} className="mb-0" inputClassName="h-auto!" onChange={onSetTitle}>
+          <EditableTitle level={4} className="" inputClassName="h-auto!" onChange={onSetTitle}>
             {title}
           </EditableTitle>
           <div className="flex items-center space-x-1 whitespace-nowrap">

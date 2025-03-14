@@ -34,7 +34,7 @@ export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId 
   }, [fileProp]);
 
   return (
-    <div className="relative h-full overflow-hidden p-3">
+    <div className="relative h-full overflow-hidden p-5">
       <CodeCard
         code={file}
         language="yaml"
