@@ -1,5 +1,6 @@
 use crate::tools::{IntoToolCallExecutor, ToolExecutor};
 use anyhow::Result;
+use braintrust::BraintrustClient;
 use litellm::{
     AgentMessage, ChatCompletionRequest, DeltaToolCall, FunctionCall, LiteLLMClient,
     MessageProgress, Metadata, Tool, ToolCall, ToolChoice,
@@ -388,6 +389,11 @@ impl Agent {
             *current = Some(thread.clone());
         }
 
+        let client = BraintrustClient::new(
+            None,
+            "c7b996a6-1c7c-482d-b23f-3d39de16f433"
+        )?;
+
         if recursion_depth >= 30 {
             let message = AgentMessage::assistant(
                 Some("max_recursion_depth_message".to_string()),
@@ -416,7 +422,7 @@ impl Agent {
                 generation_name: "agent".to_string(),
                 user_id: thread.user_id.to_string(),
                 session_id: thread.id.to_string(),
-                trace_id: thread.id.to_string(),
+                trace_id: None,
             }),
             ..Default::default()
         };

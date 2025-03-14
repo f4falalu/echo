@@ -163,6 +163,7 @@ litellm = { path = "libs/litellm" }
 database = { path = "libs/database" }
 agents = { path = "libs/agents" }
 query_engine = { path = "libs/query_engine" }
+braintrust = { path = "libs/braintrust" }
 middleware = { path = "libs/middleware" }
 workspace = "0.4.2"
 
