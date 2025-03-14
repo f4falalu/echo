@@ -1,7 +1,6 @@
 export * from './text';
 export * from './date';
 export * from './timeout';
-export * from './data';
 export * from './element';
 export * from './array';
 export * from './url';

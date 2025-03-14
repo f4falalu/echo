@@ -1,6 +1,7 @@
 import {
   useDeleteMetric,
   useGetMetric,
+  useGetMetricData,
   useRemoveMetricFromCollection,
   useRemoveMetricFromDashboard,
   useSaveMetricToCollection,
@@ -23,14 +24,16 @@ import {
 } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
-import { useMemo } from 'react';
+import {
+  MetricFileViewSecondary,
+  useChatLayoutContextSelector
+} from '@/layouts/ChatLayout/ChatLayoutContext';
+import { useMemo, useState } from 'react';
 import { Dropdown } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import React from 'react';
 import { timeFromNow } from '@/lib/date';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { StatusNotRequestedIcon } from '@/assets';
 import { useSaveToDashboardDropdownContent } from '@/components/features/dropdowns/SaveToDashboardDropdown';
 import { useMemoizedFn } from '@/hooks';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
@@ -38,6 +41,7 @@ import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces/share
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/StatusDropdownContent';
 import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
 import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
+import { exportJSONToCSV } from '@/lib/exportUtils';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { mutateAsync: deleteMetric, isPending: isDeletingMetric } = useDeleteMetric();
@@ -48,7 +52,11 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
   const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
   const collectionSelectMenu = useCollectionSelectMenu({ metricId });
   const statusSelectMenu = useStatusSelectMenu({ metricId });
-  const favoriteMetric = useFavoriteMetric({ metricId });
+  const favoriteMetric = useFavoriteMetricSelectMenu({ metricId });
+  const editChartMenu = useEditChartSelectMenu();
+  const resultsViewMenu = useResultsViewSelectMenu();
+  const sqlEditorMenu = useSQLEditorSelectMenu();
+  const downloadCSVMenu = useDownloadCSVSelectMenu({ metricId });
 
   const items: DropdownItems = useMemo(
     () => [
@@ -64,49 +72,19 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
       collectionSelectMenu,
       favoriteMetric,
       { type: 'divider' },
-      {
-        label: 'Edit chart',
-        value: 'edit-chart',
-        icon: <SquareChartPen />,
-        onClick: () => {
-          console.log('edit chart');
-        }
-      },
-      {
-        label: 'Results view',
-        value: 'results-view',
-        icon: <Table />,
-        onClick: () => {
-          console.log('results view');
-        }
-      },
-      {
-        label: 'SQL Editor',
-        value: 'sql-editor',
-        icon: <SquareCode />,
-        onClick: () => {
-          console.log('sql editor');
-        },
-        versionHistoryItems
-      },
-
+      editChartMenu,
+      resultsViewMenu,
+      sqlEditorMenu,
       { type: 'divider' },
-      {
-        label: 'Download as CSV',
-        value: 'download-csv',
-        icon: <Download4 />,
-        onClick: () => {
-          console.log('download csv');
-        }
-      },
-      {
-        label: 'Download as PNG',
-        value: 'download-png',
-        icon: <SquareChart />,
-        onClick: () => {
-          console.log('download png');
-        }
-      },
+      downloadCSVMenu,
+      //   {
+      //     label: 'Download as PNG',
+      //     value: 'download-png',
+      //     icon: <SquareChart />,
+      //     onClick: () => {
+      //       console.log('download png');
+      //     }
+      //   },
       { type: 'divider' },
       {
         label: 'Rename metric',
@@ -137,7 +115,10 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
       versionHistoryItems,
       favoriteMetric,
       statusSelectMenu,
-      collectionSelectMenu
+      collectionSelectMenu,
+      editChartMenu,
+      resultsViewMenu,
+      sqlEditorMenu
     ]
   );
 
@@ -300,7 +281,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
   return statusDropdownItem;
 };
 
-const useFavoriteMetric = ({ metricId }: { metricId: string }) => {
+const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
   const { data: title } = useGetMetric(metricId, (x) => x.title);
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: metricId,
@@ -319,4 +300,81 @@ const useFavoriteMetric = ({ metricId }: { metricId: string }) => {
   );
 
   return item;
+};
+
+const useEditChartSelectMenu = () => {
+  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
+  const editableSecondaryView: MetricFileViewSecondary = 'chart-edit';
+  const onClickButton = useMemoizedFn(() => {
+    onSetFileView({ secondaryView: editableSecondaryView, fileView: 'chart' });
+  });
+  return useMemo(
+    () => ({
+      label: 'Edit chart',
+      value: 'edit-chart',
+      onClick: onClickButton,
+      icon: <SquareChartPen />
+    }),
+    []
+  );
+};
+
+const useResultsViewSelectMenu = () => {
+  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
+
+  const onClickButton = useMemoizedFn(() => {
+    onSetFileView({ secondaryView: null, fileView: 'results' });
+  });
+
+  return useMemo(
+    () => ({
+      label: 'Results view',
+      value: 'edit-chart',
+      onClick: onClickButton,
+      icon: <SquareChartPen />
+    }),
+    []
+  );
+};
+
+const useSQLEditorSelectMenu = () => {
+  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
+  const editableSecondaryView: MetricFileViewSecondary = 'sql-edit';
+
+  const onClickButton = useMemoizedFn(() => {
+    onSetFileView({ secondaryView: editableSecondaryView, fileView: 'results' });
+  });
+
+  return useMemo(
+    () => ({
+      label: 'SQL Editor',
+      value: 'sql-editor',
+      onClick: onClickButton,
+      icon: <SquareCode />
+    }),
+    [onClickButton]
+  );
+};
+
+const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const { data: metricData } = useGetMetricData({ id: metricId });
+  const { data: title } = useGetMetric(metricId, (x) => x.title);
+
+  return useMemo(
+    () => ({
+      label: 'Download as CSV',
+      value: 'download-csv',
+      icon: <Download4 />,
+      onClick: async () => {
+        const data = metricData?.data;
+        if (data && title) {
+          setIsDownloading(true);
+          await exportJSONToCSV(data, `${title}.csv`);
+          setIsDownloading(false);
+        }
+      }
+    }),
+    [metricData, title]
+  );
 };
