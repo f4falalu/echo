@@ -13,7 +13,7 @@ describe('parsePathnameSegments', () => {
   });
 
   it('should parse chat with metric pathname correctly', () => {
-    const pathname = '/app/chats/c2adc995-82b9-45a6-8dff-1cf897665fb0/metric/1234567890';
+    const pathname = '/app/chats/c2adc995-82b9-45a6-8dff-1cf897665fb0/metrics/1234567890';
     const result = parsePathnameSegments(pathname);
 
     expect(result).toEqual({
@@ -64,7 +64,7 @@ describe('parsePathnameSegments', () => {
   });
 
   it('should parse collection pathname correctly', () => {
-    const pathname = '/app/collection/c2adc995-82b9-45a6-8dff-1cf897665fb0';
+    const pathname = '/app/collections/c2adc995-82b9-45a6-8dff-1cf897665fb0';
     const result = parsePathnameSegments(pathname);
 
     expect(result).toEqual({

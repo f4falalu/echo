@@ -34,11 +34,11 @@ export const parsePathnameSegments = (pathname: string): ChatURLParsed => {
     }
 
     // Check for metric segment
-    if (segment === 'metric' && segments[index + 1]) {
+    if (segment === 'metrics' && segments[index + 1]) {
       params.metricId = segments[index + 1];
     }
 
-    if (segment === 'collection' && segments[index + 1]) {
+    if (segment === 'collections' && segments[index + 1]) {
       params.collectionId = segments[index + 1];
     }
   });

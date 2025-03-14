@@ -26,7 +26,7 @@ export const MetricViewChartHeader: React.FC<{
           <div className="flex items-center space-x-1 whitespace-nowrap">
             {!!timeFrame && (
               <>
-                <Text size={'sm'} variant="secondary" className="leading-1.3 line-clamp-1">
+                <Text size={'sm'} variant="secondary" className="leading-1.3">
                   {timeFrame}
                 </Text>
                 <Text size={'sm'} variant="secondary">
@@ -35,7 +35,7 @@ export const MetricViewChartHeader: React.FC<{
               </>
             )}
 
-            <Text size={'sm'} variant="secondary" className="leading-1.3 line-clamp-1" truncate>
+            <Text size={'sm'} variant="secondary" className="leading-1.3" truncate>
               {description}
             </Text>
           </div>

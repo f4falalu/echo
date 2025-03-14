@@ -140,10 +140,6 @@ export const useUpdateUserFavorites = () => {
           return { ...favorite, index };
         });
       });
-    },
-    onSuccess: (data) => {
-      console.log(data);
-      // queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, data);
     }
   });
 };

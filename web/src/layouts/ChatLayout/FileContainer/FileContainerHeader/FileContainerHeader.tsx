@@ -23,7 +23,7 @@ export const FileContainerHeader: React.FC = React.memo(() => {
     () =>
       selectedFileType && SelectedFileSegmentRecord[selectedFileType]
         ? SelectedFileSegmentRecord[selectedFileType]
-        : () => <>no segment</>,
+        : () => <></>,
     [selectedFileType]
   );
 

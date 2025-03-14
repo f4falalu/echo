@@ -52,7 +52,6 @@ const statusRecordIcon: Record<VerificationStatus, React.FC<any>> = {
 };
 
 const getIcon = (status: BusterMetricListItem['status']) => {
-  console.log(status, statusRecordIcon);
   return statusRecordIcon[status] || (() => <React.Fragment />);
 };
 
