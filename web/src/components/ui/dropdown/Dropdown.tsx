@@ -325,9 +325,9 @@ const DropdownItem = <T,>({
       <>
         {icon && !loading && <span className="text-icon-color">{icon}</span>}
 
-        <div className={cn('flex flex-col gap-y-1', truncate && 'overflow-hidden')}>
+        <div className={cn('flex flex-col space-y-2', truncate && 'overflow-hidden')}>
           <span className={cn(truncate && 'truncate')}>{label}</span>
-          {secondaryLabel && <span className="text-gray-light text2xs">{secondaryLabel}</span>}
+          {secondaryLabel && <span className="text-gray-light text-xs">{secondaryLabel}</span>}
         </div>
         {loading && <CircleSpinnerLoader size={9} />}
         {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
@@ -367,7 +367,8 @@ const DropdownItem = <T,>({
     );
   }
 
-  if (selectType === 'single') {
+  //I do not think this selected check is stable... look into refactoring
+  if (selectType === 'single' || selected) {
     return (
       <DropdownMenuCheckboxItemSingle
         checked={selected}
@@ -426,7 +427,7 @@ const DropdownSubMenuWrapper = <T,>({
     <DropdownMenuSub>
       <DropdownMenuSubTrigger>{children}</DropdownMenuSubTrigger>
       <DropdownMenuPortal>
-        <DropdownMenuSubContent>
+        <DropdownMenuSubContent sideOffset={8}>
           {items?.map((item, index) => (
             <DropdownItemSelector
               key={dropdownItemKey(item, index)}

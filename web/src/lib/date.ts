@@ -107,6 +107,7 @@ const extractDateForFormatting = (
   if (isDate(date)) return new Date(date);
   return String(date);
 };
+
 export const formatDate = ({
   date,
   format,

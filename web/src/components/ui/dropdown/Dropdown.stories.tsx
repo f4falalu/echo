@@ -320,15 +320,14 @@ export const WithSecondaryLabel: Story = {
         value: '1',
         label: 'Profile Settings',
         secondaryLabel: 'User preferences',
-        onClick: fn(),
-        icon: <PaintRoller />
+        onClick: fn()
       },
       {
         value: '2',
         label: 'Storage',
         secondaryLabel: '45GB used',
         onClick: fn(),
-        icon: <Storage />
+        selected: true
       },
       { type: 'divider' },
       {

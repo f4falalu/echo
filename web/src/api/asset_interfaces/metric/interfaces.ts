@@ -35,6 +35,10 @@ export type BusterMetric = {
     id: string;
     name: string;
   }[];
+  versions: {
+    version_number: number;
+    updated_at: string;
+  }[];
 } & BusterShare;
 
 export type DataMetadata = {
