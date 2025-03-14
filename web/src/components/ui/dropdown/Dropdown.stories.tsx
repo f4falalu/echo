@@ -540,6 +540,13 @@ export const WithFooterContent: Story = {
   }
 };
 
+export const WithFooterAndHeader: Story = {
+  args: {
+    ...WithFooterContent.args,
+    menuHeader: 'Menu...'
+  }
+};
+
 // Example with numbered items
 export const WithNumberedItemsNoFilter: Story = {
   args: {
@@ -565,6 +572,7 @@ export const WithNumberedItemsNoFilter: Story = {
         label: 'Third Item',
         onClick: fn(),
         icon: <Storage />,
+        searchLabel: 'Third Item with secondary label',
         secondaryLabel: 'With secondary label'
       },
       {

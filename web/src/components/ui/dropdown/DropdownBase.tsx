@@ -68,20 +68,24 @@ const DropdownMenuContent = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content> & {
     footerContent?: React.ReactNode;
+    headerContent?: React.ReactNode;
   }
->(({ className, children, sideOffset = 4, footerContent, ...props }, ref) => {
-  const NodeWrapper = footerContent ? 'div' : 'span';
-  const nodeWrapperProps = footerContent ? { className: 'p-2' } : { className: '' };
-
+>(({ className, children, sideOffset = 4, footerContent, headerContent, ...props }, ref) => {
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
-        className={cn(baseContentClass, 'shadow', footerContent && 'p-0', className)}
+        className={cn(baseContentClass, 'shadow', 'p-0', className)}
         {...props}>
-        <NodeWrapper {...nodeWrapperProps}>{children}</NodeWrapper>
-        {footerContent && <div className="border-t p-2">{footerContent}</div>}
+        {headerContent && (
+          <div className="flex flex-col">
+            <div className="p-1">{headerContent}</div>
+            <div className="bg-border h-[0.5px] w-full" />
+          </div>
+        )}
+        <div className="used-for-ref-purpose">{children}</div>
+        {footerContent && <div className="border-t p-1">{footerContent}</div>}
       </DropdownMenuPrimitive.Content>
     </DropdownMenuPrimitive.Portal>
   );
@@ -102,6 +106,7 @@ const DropdownMenuItem = React.forwardRef<
     className={cn(
       'relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-base outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
       'focus:bg-item-hover focus:text-foreground',
+      'dropdown-item mx-1 [&.dropdown-item:first-child]:mt-1! [&.dropdown-item:has(+.dropdown-separator)]:mb-1 [&.dropdown-item:has(~.dropdown-separator)]:mt-1 [&.dropdown-item:last-child]:mb-1!',
       inset && 'pl-8',
       truncate && 'overflow-hidden',
       'group',
@@ -123,7 +128,8 @@ const itemClass = cn(
   'focus:bg-item-hover focus:text-foreground',
   'relative flex cursor-pointer items-center rounded-sm py-1.5 text-sm outline-none select-none',
   'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-  'gap-1.5'
+  'gap-1.5',
+  'mx-1 dropdown-item [&.dropdown-item:has(+.dropdown-separator)]:mb-1 [&.dropdown-item:has(~.dropdown-separator)]:mt-1 [&.dropdown-item:first-child]:mt-1! [&.dropdown-item:last-child]:mb-1!'
 );
 
 const DropdownMenuCheckboxItemSingle = React.forwardRef<

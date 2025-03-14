@@ -164,9 +164,9 @@ export const DropdownBase = <T,>({
         className={cn('max-w-72 min-w-44', className)}
         align={align}
         side={side}
-        footerContent={footerContent}>
-        {menuHeader && (
-          <>
+        footerContent={footerContent}
+        headerContent={
+          menuHeader && (
             <DropdownMenuHeaderSelector
               menuHeader={menuHeader}
               onChange={handleSearchChange}
@@ -174,10 +174,8 @@ export const DropdownBase = <T,>({
               onSelectItem={onSelectItem}
               showIndex={showIndex}
             />
-            <DropdownMenuSeparator />
-          </>
-        )}
-
+          )
+        }>
         <div className="max-h-[375px] overflow-y-auto">
           {hasShownItem ? (
             <>
@@ -324,11 +322,12 @@ const DropdownItem = <T,>({
     const content = (
       <>
         {icon && !loading && <span className="text-icon-color">{icon}</span>}
-        {loading && <CircleSpinnerLoader size={9} />}
+
         <div className={cn('flex flex-col gap-y-1', truncate && 'overflow-hidden')}>
           <span className={cn(truncate && 'truncate')}>{label}</span>
           {secondaryLabel && <span className="text-gray-light text2xs">{secondaryLabel}</span>}
         </div>
+        {loading && <CircleSpinnerLoader size={9} />}
         {shortcut && <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut>}
         {link && (
           <DropdownMenuLink
@@ -511,6 +510,7 @@ const DropdownMenuHeaderSearch = <T,>({
       <Input
         autoFocus
         variant={'ghost'}
+        size={'small'}
         placeholder={placeholder}
         value={text}
         onChange={onChangePreflight}
