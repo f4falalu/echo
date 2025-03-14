@@ -96,7 +96,7 @@ async fn test_real_trace_with_spans() -> Result<()> {
     
     // Add a root span
     let root_span = trace.add_span("Root Operation", "function").await?;
-    let root_span = root_span
+    let mut root_span = root_span
         .with_input(json!({
             "operation": "root",
             "parameters": {
@@ -107,11 +107,24 @@ async fn test_real_trace_with_spans() -> Result<()> {
         .with_metadata("test_id", trace_id.clone());
     
     // Log the root span
+    client.log_span(root_span.clone()).await?;
+
+    sleep(Duration::from_secs(10)).await;
+
+    root_span = root_span
+    .with_output(json!({
+        "result": "success",
+        "parameters": {
+            "test": true,
+            "timestamp": chrono::Utc::now().to_rfc3339()
+        }
+    }));
+
     client.log_span(root_span).await?;
     
     // Add an LLM span
     let llm_span = trace.add_span("LLM Call", "llm").await?;
-    let llm_span = llm_span
+    let mut llm_span = llm_span
         .with_input(json!({
             "messages": [
                 {
@@ -120,22 +133,27 @@ async fn test_real_trace_with_spans() -> Result<()> {
                 }
             ]
         }))
-        .with_output(json!({
-            "choices": [
-                {
-                    "message": {
-                        "role": "assistant",
-                        "content": "Hello! I'm responding to your integration test message."
-                    }
-                }
-            ]
-        }))
-        .with_tokens(15, 12)
         .with_metadata("model", "test-model");
     
     // Log the LLM span
-    client.log_span(llm_span).await?;
+    client.log_span(llm_span.clone()).await?;
     
+    sleep(Duration::from_secs(15)).await;
+
+    llm_span = llm_span
+    .with_output(json!({
+        "choices": [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": "Hello! I'm responding to your integration test message."
+                }
+            }
+        ]
+    }));
+
+    client.log_span(llm_span).await?;
+
     // Add a tool span
     let tool_span = trace.add_span("Tool Execution", "tool").await?;
     let tool_span = tool_span
@@ -164,7 +182,7 @@ async fn test_real_trace_with_spans() -> Result<()> {
     trace.finish().await?;
     
     // Allow some time for async processing
-    sleep(Duration::from_millis(200)).await;
+    sleep(Duration::from_secs(30)).await;
     
     Ok(())
 }
