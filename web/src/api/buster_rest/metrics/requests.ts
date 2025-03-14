@@ -34,9 +34,7 @@ export const listMetrics_server = async (params: ListMetricsParams) => {
 };
 
 export const updateMetric = async (params: UpdateMetricParams) => {
-  return mainApi
-    .put<BusterMetric>(`/metrics/update/${params.id}`, { params })
-    .then((res) => res.data);
+  return mainApi.put<BusterMetric>(`/metrics/${params.id}`, params).then((res) => res.data);
 };
 
 export const deleteMetrics = async (params: { ids: string[] }) => {
