@@ -242,7 +242,7 @@ const favoritesDropdown = (
         label: favorite.name,
         icon: <Icon />,
         route,
-        id: route,
+        id: favorite.id,
         onRemove: () => deleteUserFavorite(favorite.id)
       };
     })

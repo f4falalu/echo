@@ -159,7 +159,7 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; metric
           <StatusBadgeIndicator status={status} />
         </div>
         <Text truncate>{title}</Text>
-        <div className="flex items-center" onClick={onFavoriteDivClick}>
+        <div className="mr-2 flex items-center" onClick={onFavoriteDivClick}>
           <FavoriteStar
             id={metricId}
             type={ShareAssetType.METRIC}

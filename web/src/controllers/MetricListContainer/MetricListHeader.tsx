@@ -15,7 +15,7 @@ export const MetricListHeader: React.FC<{
 
   return (
     <div className="flex w-full items-center justify-between">
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-3">
         <Text>{'Metrics'}</Text>
         {showFilters && <MetricsFilters filters={filters} onSetFilters={onSetFilters} />}
       </div>

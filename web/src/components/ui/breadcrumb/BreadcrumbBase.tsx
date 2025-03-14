@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { ChevronRight, Dots } from '../icons';
-import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
 
@@ -10,7 +9,9 @@ const Breadcrumb = React.forwardRef<
   React.ComponentPropsWithoutRef<'nav'> & {
     separator?: React.ReactNode;
   }
->(({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />);
+>(({ ...props }, ref) => (
+  <nav ref={ref} aria-label="breadcrumb" {...props} className={cn('flex', props.className)} />
+));
 Breadcrumb.displayName = 'Breadcrumb';
 
 const BreadcrumbList = React.forwardRef<HTMLOListElement, React.ComponentPropsWithoutRef<'ol'>>(

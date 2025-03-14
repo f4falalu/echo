@@ -164,7 +164,7 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; chatId
     return (
       <div className="flex w-full items-center space-x-2">
         <Text truncate>{title}</Text>
-        <div className="flex items-center" onClick={onFavoriteDivClick}>
+        <div className="mr-2 flex items-center" onClick={onFavoriteDivClick}>
           <FavoriteStar
             id={chatId}
             type={ShareAssetType.CHAT}

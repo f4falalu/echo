@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
+import React from 'react';
+import { Text } from '@/components/ui/typography';
 import { Button } from '@/components/ui/buttons';
 import { BusterRoutes } from '@/routes';
 
@@ -24,20 +24,7 @@ export const DashboardHeader: React.FC<{
 }> = React.memo(({ dashboardFilters, onSetDashboardListFilters }) => {
   const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useCreateDashboard();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const dashboardTitle = 'Dashboards';
   const showFilters = true;
-
-  const breadcrumbItems: BreadcrumbItem[] = useMemo(
-    () => [
-      {
-        label: dashboardTitle,
-        route: {
-          route: BusterRoutes.APP_DASHBOARDS
-        }
-      }
-    ],
-    [dashboardTitle]
-  );
 
   const onClickNewDashboardButton = useMemoizedFn(async () => {
     const res = await createDashboard({});
@@ -52,7 +39,7 @@ export const DashboardHeader: React.FC<{
   return (
     <>
       <div className="flex space-x-3">
-        <Breadcrumb items={breadcrumbItems} />
+        <Text>{'Dashboards'}</Text>
         {showFilters && (
           <DashboardFilters
             activeFilters={dashboardFilters}
@@ -72,28 +59,29 @@ export const DashboardHeader: React.FC<{
 
 DashboardHeader.displayName = 'DashboardHeader';
 
+const filters: SegmentedItem<string>[] = [
+  {
+    label: 'All ',
+    value: JSON.stringify({})
+  },
+  {
+    label: 'My dashboards',
+    value: JSON.stringify({
+      only_my_dashboards: true
+    })
+  },
+  {
+    label: 'Shared with me',
+    value: JSON.stringify({
+      shared_with_me: true
+    })
+  }
+];
+
 const DashboardFilters: React.FC<{
   onChangeFilter: (v: { shared_with_me?: boolean; only_my_dashboards?: boolean }) => void;
   activeFilters?: NonNullable<Omit<DashboardsListRequest, 'page_token' | 'page_size'>>;
 }> = ({ onChangeFilter, activeFilters }) => {
-  const filters: SegmentedItem<string>[] = [
-    {
-      label: 'All ',
-      value: JSON.stringify({})
-    },
-    {
-      label: 'My dashboards',
-      value: JSON.stringify({
-        only_my_dashboards: true
-      })
-    },
-    {
-      label: 'Shared with me',
-      value: JSON.stringify({
-        shared_with_me: true
-      })
-    }
-  ];
   const selectedFilter =
     filters.find((filter) => {
       return JSON.stringify(activeFilters) === filter.value;
@@ -104,6 +92,7 @@ const DashboardFilters: React.FC<{
       <AppSegmented
         options={filters}
         value={selectedFilter?.value}
+        type="button"
         onChange={(v) => {
           const parsedValue = JSON.parse(v.value) as {
             shared_with_me?: boolean;

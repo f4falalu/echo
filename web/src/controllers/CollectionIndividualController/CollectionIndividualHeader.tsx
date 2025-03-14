@@ -44,7 +44,6 @@ export const CollectionsIndividualHeader: React.FC<{
         {collection && (
           <div className="flex items-center space-x-0">
             <ThreeDotDropdown collection={collection} setEditingTitle={setEditingTitle} />
-
             <FavoriteStar
               id={collection.id}
               type={ShareAssetType.COLLECTION}

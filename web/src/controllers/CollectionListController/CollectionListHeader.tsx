@@ -34,14 +34,7 @@ export const CollectionListHeader: React.FC<{
   }) => {
     const { data: collection } = useGetCollection(collectionId);
     const collectionTitle = collection?.name || 'Collections';
-
-    const showFilters = useMemo(
-      () =>
-        (isCollectionListFetched && collectionsList?.length !== 0) ||
-        !isEmpty(collectionsList) ||
-        !isEmpty(omit(collectionListFilters, 'page', 'page_size')),
-      [isCollectionListFetched, collectionsList?.length, collectionListFilters]
-    );
+    const showFilters = true;
 
     const breadcrumbItems: BreadcrumbItem[] = useMemo(
       () => [
@@ -64,7 +57,7 @@ export const CollectionListHeader: React.FC<{
 
     return (
       <>
-        <div className="flex space-x-1">
+        <div className="flex space-x-3">
           <Breadcrumb items={breadcrumbItems} />
           {showFilters && (
             <CollectionFilters
@@ -123,7 +116,7 @@ const CollectionFilters: React.FC<{
 
   return (
     <div className="flex items-center space-x-1">
-      <AppSegmented options={filters} value={value} onChange={onChangeFilter} />
+      <AppSegmented options={filters} value={value} type="button" onChange={onChangeFilter} />
     </div>
   );
 });
