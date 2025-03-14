@@ -1,3 +1,5 @@
+'use client';
+
 import 'intersection-observer';
 import { useState } from 'react';
 import type { BasicTarget } from '../lib/domTarget';
@@ -13,7 +15,7 @@ export interface Options {
   callback?: CallbackType;
 }
 
-function useInViewport(target: BasicTarget | BasicTarget[], options?: Options) {
+export function useInViewport(target: BasicTarget | BasicTarget[], options?: Options) {
   const { callback, ...option } = options || {};
 
   const [state, setState] = useState<boolean>();
@@ -54,5 +56,3 @@ function useInViewport(target: BasicTarget | BasicTarget[], options?: Options) {
 
   return [state, ratio] as const;
 }
-
-export default useInViewport;
