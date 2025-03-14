@@ -17,7 +17,7 @@ export interface AvatarProps {
 export const Avatar: React.FC<AvatarProps> = React.memo(
   ({ image, name, className, useToolTip, size, fallbackClassName }) => {
     const hasName = !!name;
-    const nameLetters = hasName ? createNameLetters(name, image) : '';
+    const nameLetters = createNameLetters(name);
 
     return (
       <Tooltip delayDuration={550} title={useToolTip ? name || '' : ''}>
@@ -28,10 +28,11 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
             height: size
           }}>
           {image && <AvatarImage src={image} />}
-          <AvatarFallback
-            className={cn(!hasName && !image && 'border bg-white', fallbackClassName)}>
-            {nameLetters || <BusterAvatarFallback />}
-          </AvatarFallback>
+          {hasName ? (
+            <NameLettersFallback fallbackClassName={fallbackClassName} nameLetters={nameLetters} />
+          ) : (
+            <BusterAvatarFallback fallbackClassName={fallbackClassName} />
+          )}
         </AvatarBase>
       </Tooltip>
     );
@@ -39,20 +40,28 @@ export const Avatar: React.FC<AvatarProps> = React.memo(
 );
 Avatar.displayName = 'Avatar';
 
-const BusterAvatarFallback: React.FC = () => {
+const NameLettersFallback: React.FC<{ fallbackClassName?: string; nameLetters: string }> = ({
+  fallbackClassName,
+  nameLetters
+}) => {
+  return <AvatarFallback className={cn(fallbackClassName)}>{nameLetters}</AvatarFallback>;
+};
+
+const BusterAvatarFallback: React.FC<{ fallbackClassName?: string }> = ({ fallbackClassName }) => {
   return (
-    <div className="text-foreground flex h-full w-full items-center justify-center">
-      <BusterLogo className="h-full w-full translate-x-[1px] p-1" />
-    </div>
+    <AvatarFallback className={cn('border bg-white', fallbackClassName)}>
+      <div className="text-foreground flex h-full w-full items-center justify-center">
+        <BusterLogo className="h-full w-full translate-x-[1px] p-1" />
+      </div>
+    </AvatarFallback>
   );
 };
 
-const createNameLetters = (name?: string | null, image?: string | null | React.ReactNode) => {
-  if (name && !image) {
+const createNameLetters = (name?: string | null) => {
+  if (name) {
     const firstTwoLetters = getFirstTwoCapitalizedLetters(name);
     if (firstTwoLetters.length == 2) return firstTwoLetters;
 
-    //Get First Name Initial
     const _name = name.split(' ') as [string, string];
     const returnName = `${_name[0][0]}`.toUpperCase().replace('@', '');
 

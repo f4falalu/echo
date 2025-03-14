@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Avatar } from './Avatar';
+import { faker } from '@faker-js/faker';
 
 const meta = {
-  title: 'UI/Avatar',
+  title: 'UI/Avatar/Avatar',
   component: Avatar,
   parameters: {
     layout: 'centered'
@@ -22,7 +23,13 @@ export const Default: Story = {
 export const WithImage: Story = {
   args: {
     name: 'John Doe',
-    image: 'https://github.com/shadcn.png'
+    image: faker.image.avatar()
+  }
+};
+
+export const WithImageAndNoName: Story = {
+  args: {
+    image: faker.image.avatar()
   }
 };
 
