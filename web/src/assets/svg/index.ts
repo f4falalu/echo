@@ -1,1 +1,1 @@
-export * from './Status_NotRequested';
+export * from '../../components/ui/icons/customIcons/Status_NotRequested';

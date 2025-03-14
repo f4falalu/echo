@@ -591,3 +591,28 @@ export const WithNumberedItemsWithFilter: Story = {
     menuHeader: 'Search items...'
   }
 };
+
+export const WithReactNodeSubMenu: Story = {
+  args: {
+    children: <Button>Numbered Menu</Button>,
+    items: [
+      {
+        label: 'Option 1',
+        value: '1',
+        items: [
+          { label: 'Sub Option 1', value: '1-1' },
+          { label: 'Sub Option 2', value: '1-2' }
+        ]
+      },
+      {
+        label: 'Option 2',
+        value: '2',
+        items: [
+          <div key="test" className="min-w-[300px] bg-red-100">
+            sasdf
+          </div>
+        ]
+      }
+    ]
+  }
+};

@@ -62,7 +62,11 @@ export interface DropdownProps<T = string> extends DropdownMenuProps {
   className?: string;
   footerContent?: React.ReactNode;
   showIndex?: boolean;
+  contentClassName?: string;
 }
+
+export interface DropdownContentProps<T = string>
+  extends Omit<DropdownProps<T>, 'align' | 'side'> {}
 
 const dropdownItemKey = <T,>(item: DropdownItems<T>[number], index: number): string => {
   if ((item as DropdownDivider).type === 'divider') return `divider-${index}`;
@@ -74,6 +78,7 @@ export const DropdownBase = <T,>({
   items,
   selectType = 'none',
   menuHeader,
+  contentClassName = '',
   closeOnSelect = true,
   onSelect,
   children,
@@ -81,13 +86,53 @@ export const DropdownBase = <T,>({
   side = 'bottom',
   open,
   onOpenChange,
-  emptyStateText = 'No items found',
+  emptyStateText,
   className,
   footerContent,
   dir,
   modal,
   showIndex = false
 }: DropdownProps<T>) => {
+  return (
+    <DropdownMenu
+      open={open}
+      defaultOpen={open}
+      onOpenChange={onOpenChange}
+      dir={dir}
+      modal={modal}>
+      <DropdownMenuTrigger asChild>
+        <span className="dropdown-trigger">{children}</span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className={cn('max-w-72 min-w-44', className)} align={align} side={side}>
+        <DropdownContent
+          items={items}
+          selectType={selectType}
+          menuHeader={menuHeader}
+          closeOnSelect={closeOnSelect}
+          onSelect={onSelect}
+          showIndex={showIndex}
+          emptyStateText={emptyStateText}
+          footerContent={footerContent}
+          className={contentClassName}
+        />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+DropdownBase.displayName = 'Dropdown';
+export const Dropdown = React.memo(DropdownBase) as unknown as typeof DropdownBase;
+
+export const DropdownContent = <T,>({
+  items,
+  selectType,
+  menuHeader,
+  closeOnSelect = true,
+  showIndex = false,
+  emptyStateText = 'No items found',
+  footerContent,
+  className,
+  onSelect
+}: DropdownContentProps<T>) => {
   const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
     items,
     searchPredicate: (item, searchText) => {
@@ -153,22 +198,10 @@ export const DropdownBase = <T,>({
   });
 
   return (
-    <DropdownMenu
-      open={open}
-      defaultOpen={open}
-      onOpenChange={onOpenChange}
-      dir={dir}
-      modal={modal}>
-      <DropdownMenuTrigger asChild>
-        <span className="dropdown-trigger">{children}</span>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        className={cn('max-w-72 min-w-44', className)}
-        align={align}
-        side={side}
-        footerContent={footerContent}
-        headerContent={
-          menuHeader && (
+    <>
+      {menuHeader && (
+        <div className="flex flex-col">
+          <div className="p-1">
             <DropdownMenuHeaderSelector
               menuHeader={menuHeader}
               onChange={handleSearchChange}
@@ -176,65 +209,67 @@ export const DropdownBase = <T,>({
               onSelectItem={onSelectItem}
               showIndex={showIndex}
             />
-          )
-        }>
-        <div className="max-h-[375px] overflow-y-auto">
-          {hasShownItem ? (
-            <>
-              {selectedItems.map((item) => {
-                // Only increment index for selectable items
-                if ((item as DropdownItem).value && !(item as DropdownItem).items) {
-                  hotkeyIndex++;
-                }
-
-                return (
-                  <DropdownItemSelector
-                    key={dropdownItemKey(item, hotkeyIndex)}
-                    item={item}
-                    index={hotkeyIndex}
-                    selectType={selectType}
-                    onSelect={onSelect}
-                    onSelectItem={onSelectItem}
-                    closeOnSelect={closeOnSelect}
-                    showIndex={showIndex}
-                  />
-                );
-              })}
-
-              {selectedItems.length > 0 && <DropdownMenuSeparator />}
-
-              {dropdownItems.map((item) => {
-                // Only increment index for selectable items
-                if ((item as DropdownItem).value && !(item as DropdownItem).items) {
-                  hotkeyIndex++;
-                }
-
-                return (
-                  <DropdownItemSelector
-                    item={item as DropdownItems<T>[number]}
-                    index={hotkeyIndex}
-                    selectType={selectType}
-                    onSelect={onSelect}
-                    onSelectItem={onSelectItem}
-                    closeOnSelect={closeOnSelect}
-                    key={dropdownItemKey(item, hotkeyIndex)}
-                    showIndex={showIndex}
-                  />
-                );
-              })}
-            </>
-          ) : (
-            <DropdownMenuItem disabled className="text-gray-light text-center">
-              {emptyStateText}
-            </DropdownMenuItem>
-          )}
+          </div>
+          <div className="bg-border h-[0.5px] w-full" />
         </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      )}
+
+      <div className={cn('max-h-[375px] overflow-y-auto', className)}>
+        {hasShownItem ? (
+          <>
+            {selectedItems.map((item) => {
+              // Only increment index for selectable items
+              if ((item as DropdownItem).value && !(item as DropdownItem).items) {
+                hotkeyIndex++;
+              }
+
+              return (
+                <DropdownItemSelector
+                  key={dropdownItemKey(item, hotkeyIndex)}
+                  item={item}
+                  index={hotkeyIndex}
+                  selectType={selectType}
+                  onSelect={onSelect}
+                  onSelectItem={onSelectItem}
+                  closeOnSelect={closeOnSelect}
+                  showIndex={showIndex}
+                />
+              );
+            })}
+
+            {selectedItems.length > 0 && <DropdownMenuSeparator />}
+
+            {dropdownItems.map((item) => {
+              // Only increment index for selectable items
+              if ((item as DropdownItem).value && !(item as DropdownItem).items) {
+                hotkeyIndex++;
+              }
+
+              return (
+                <DropdownItemSelector
+                  item={item as DropdownItems<T>[number]}
+                  index={hotkeyIndex}
+                  selectType={selectType}
+                  onSelect={onSelect}
+                  onSelectItem={onSelectItem}
+                  closeOnSelect={closeOnSelect}
+                  key={dropdownItemKey(item, hotkeyIndex)}
+                  showIndex={showIndex}
+                />
+              );
+            })}
+          </>
+        ) : (
+          <DropdownMenuItem disabled className="text-gray-light text-center">
+            {emptyStateText}
+          </DropdownMenuItem>
+        )}
+      </div>
+
+      {footerContent && <div className="border-t p-1">{footerContent}</div>}
+    </>
   );
 };
-DropdownBase.displayName = 'Dropdown';
-export const Dropdown = React.memo(DropdownBase) as unknown as typeof DropdownBase;
 
 const DropdownItemSelector = React.memo(
   <T,>({
@@ -323,8 +358,7 @@ const DropdownItem = <T,>({
   const renderContent = () => {
     const content = (
       <>
-        {icon && !loading && <span className="text-icon-color">{icon}</span>}
-
+        {icon && !loading && <span className="text-icon-color text-lg">{icon}</span>}
         <div className={cn('flex flex-col space-y-2', truncate && 'overflow-hidden')}>
           <span className={cn(truncate && 'truncate')}>{label}</span>
           {secondaryLabel && <span className="text-gray-light text-xs">{secondaryLabel}</span>}

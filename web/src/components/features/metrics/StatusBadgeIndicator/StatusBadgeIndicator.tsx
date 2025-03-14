@@ -1,7 +1,7 @@
 import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
 import { AppTooltip } from '@/components/ui/tooltip';
 import React from 'react';
-import { StatusNotRequestedIcon } from '@/assets/svg/Status_NotRequested';
+import { StatusNotRequestedIcon } from '@/components/ui/icons/customIcons/Status_NotRequested';
 import { CircleCheck, CircleXmark } from '@/components/ui/icons/NucleoIconFilled';
 import { getTooltipText } from './helpers';
 import { cn } from '@/lib/classMerge';

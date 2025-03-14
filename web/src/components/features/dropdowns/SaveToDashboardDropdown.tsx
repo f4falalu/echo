@@ -15,11 +15,45 @@ export const SaveToDashboardDropdown: React.FC<{
   onSaveToDashboard: (dashboardId: string[]) => Promise<void>;
   onRemoveFromDashboard: (dashboardId: string) => void;
 }> = ({ children, onRemoveFromDashboard, onSaveToDashboard, selectedDashboards }) => {
-  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useCreateDashboard();
-  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const { data: dashboardsList } = useGetDashboardsList({});
-
   const [showDropdown, setShowDropdown] = useState(false);
+
+  const onOpenChange = useMemoizedFn((open: boolean) => {
+    setShowDropdown(open);
+  });
+
+  const dropdownProps = useSaveToDashboardDropdownContent({
+    selectedDashboards,
+    onSaveToDashboard,
+    onRemoveFromDashboard
+  });
+
+  return (
+    <Dropdown
+      side="bottom"
+      align="start"
+      open={showDropdown}
+      onOpenChange={onOpenChange}
+      {...dropdownProps}>
+      <AppTooltip title={showDropdown ? '' : 'Save to dashboard'}>{children} </AppTooltip>
+    </Dropdown>
+  );
+};
+
+export const useSaveToDashboardDropdownContent = ({
+  selectedDashboards,
+  onSaveToDashboard,
+  onRemoveFromDashboard
+}: {
+  selectedDashboards: BusterMetric['dashboards'];
+  onSaveToDashboard: (dashboardId: string[]) => Promise<void>;
+  onRemoveFromDashboard: (dashboardId: string) => void;
+}): Pick<
+  DropdownProps,
+  'items' | 'footerContent' | 'menuHeader' | 'selectType' | 'emptyStateText'
+> => {
+  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useCreateDashboard();
+  const { data: dashboardsList } = useGetDashboardsList({});
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
 
   const onClickItem = useMemoizedFn(async (dashboard: BusterDashboardListItem) => {
     const isSelected = selectedDashboards.some((d) => d.id === dashboard.id);
@@ -28,6 +62,18 @@ export const SaveToDashboardDropdown: React.FC<{
     } else {
       const allDashboardsAndSelected = selectedDashboards.map((d) => d.id).concat(dashboard.id);
       await onSaveToDashboard(allDashboardsAndSelected);
+    }
+  });
+
+  const onClickNewDashboardButton = useMemoizedFn(async () => {
+    const res = await createDashboard({});
+
+    if (res?.dashboard?.id) {
+      await onSaveToDashboard([res.dashboard.id]);
+      onChangePage({
+        route: BusterRoutes.APP_DASHBOARD_ID,
+        dashboardId: res.dashboard.id
+      });
     }
   });
 
@@ -48,25 +94,7 @@ export const SaveToDashboardDropdown: React.FC<{
     [dashboardsList]
   );
 
-  const onClickNewDashboardButton = useMemoizedFn(async () => {
-    const res = await createDashboard({});
-
-    if (res?.dashboard?.id) {
-      await onSaveToDashboard([res.dashboard.id]);
-      onChangePage({
-        route: BusterRoutes.APP_DASHBOARD_ID,
-        dashboardId: res.dashboard.id
-      });
-    }
-
-    setShowDropdown(false);
-  });
-
-  const onOpenChange = useMemoizedFn((open: boolean) => {
-    setShowDropdown(open);
-  });
-
-  const memoizedButton = useMemo(() => {
+  const footerContent = useMemo(() => {
     return (
       <Button
         variant="ghost"
@@ -80,16 +108,18 @@ export const SaveToDashboardDropdown: React.FC<{
     );
   }, [isCreatingDashboard, onClickNewDashboardButton]);
 
-  return (
-    <Dropdown
-      side="bottom"
-      align="start"
-      menuHeader={items.length > 0 ? 'Save to a dashboard' : undefined}
-      open={showDropdown}
-      onOpenChange={onOpenChange}
-      footerContent={memoizedButton}
-      items={items}>
-      <AppTooltip title={showDropdown ? '' : 'Save to dashboard'}>{children} </AppTooltip>
-    </Dropdown>
+  const menuHeader = useMemo(() => {
+    return items.length > 0 ? 'Save to a dashboard' : undefined;
+  }, [items.length]);
+
+  return useMemo(
+    () => ({
+      items,
+      footerContent,
+      menuHeader,
+      emptyStateText: 'No dashboards found',
+      selectType: 'multiple'
+    }),
+    [items, footerContent, menuHeader]
   );
 };

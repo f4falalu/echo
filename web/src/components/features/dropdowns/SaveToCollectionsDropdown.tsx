@@ -16,10 +16,56 @@ export const SaveToCollectionsDropdown: React.FC<{
   onSaveToCollection: (collectionId: string[]) => Promise<void>;
   onRemoveFromCollection: (collectionId: string) => Promise<void>;
 }> = React.memo(({ children, onRemoveFromCollection, onSaveToCollection, selectedCollections }) => {
+  const [showDropdown, setShowDropdown] = React.useState(false);
+
+  const onOpenChange = useMemoizedFn((open: boolean) => {
+    setShowDropdown(open);
+  });
+
+  const { modal, selectType, footerContent, menuHeader, items } =
+    useSaveToCollectionsDropdownContent({
+      selectedCollections,
+      onSaveToCollection,
+      onRemoveFromCollection
+    });
+
+  return (
+    <>
+      <Dropdown
+        side="bottom"
+        align="center"
+        selectType={selectType}
+        menuHeader={menuHeader}
+        onOpenChange={onOpenChange}
+        footerContent={footerContent}
+        emptyStateText="No collections found"
+        items={items}>
+        <AppTooltip title={showDropdown ? '' : 'Save to collection'}>{children} </AppTooltip>
+      </Dropdown>
+
+      <>{modal}</>
+    </>
+  );
+});
+
+SaveToCollectionsDropdown.displayName = 'SaveToCollectionsDropdown';
+
+export const useSaveToCollectionsDropdownContent = ({
+  selectedCollections,
+  onSaveToCollection,
+  onRemoveFromCollection
+}: {
+  selectedCollections: string[];
+  onSaveToCollection: (collectionId: string[]) => Promise<void>;
+  onRemoveFromCollection: (collectionId: string) => Promise<void>;
+}): Pick<
+  DropdownProps,
+  'items' | 'footerContent' | 'menuHeader' | 'selectType' | 'emptyStateText'
+> & {
+  modal: React.ReactNode;
+} => {
   const { data: collectionsList, isPending: isCreatingCollection } = useGetCollectionsList({});
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  const [openCollectionModal, setOpenCollectionModal] = React.useState(false);
-  const [showDropdown, setShowDropdown] = React.useState(false);
 
   const items: DropdownProps['items'] = useMemo(() => {
     const collectionsItems = (collectionsList || []).map<DropdownItem>((collection) => {
@@ -37,39 +83,21 @@ export const SaveToCollectionsDropdown: React.FC<{
     return collectionsItems;
   }, [collectionsList, selectedCollections]);
 
-  const onClickItem = useMemoizedFn((collection: BusterCollectionListItem) => {
-    const isSelected = selectedCollections.some((id) => id === collection.id);
-    if (isSelected) {
-      onRemoveFromCollection(collection.id);
-    } else {
-      const allCollectionsAndSelected = selectedCollections.map((id) => id).concat(collection.id);
-      onSaveToCollection(allCollectionsAndSelected);
-    }
-  });
+  const [openCollectionModal, setOpenCollectionModal] = React.useState(false);
 
-  const onCollectionCreated = useMemoizedFn(async (collectionId: string) => {
-    await onSaveToCollection([collectionId]);
-    onChangePage({
-      route: BusterRoutes.APP_COLLECTIONS_ID,
-      collectionId
-    });
-  });
+  const menuHeader = useMemo(() => {
+    return items.length > 0 ? 'Save to a collection' : undefined;
+  }, [items.length]);
 
   const onCloseCollectionModal = useMemoizedFn(() => {
     setOpenCollectionModal(false);
-    setShowDropdown(false);
-  });
-
-  const onOpenChange = useMemoizedFn((open: boolean) => {
-    setShowDropdown(open);
   });
 
   const onOpenNewCollectionModal = useMemoizedFn(() => {
     setOpenCollectionModal(true);
-    setShowDropdown(false);
   });
 
-  const memoizedButton = useMemo(() => {
+  const footerContent = useMemo(() => {
     return (
       <Button
         variant="ghost"
@@ -83,27 +111,46 @@ export const SaveToCollectionsDropdown: React.FC<{
     );
   }, [onOpenNewCollectionModal]);
 
-  return (
-    <>
-      <Dropdown
-        side="bottom"
-        align="center"
-        menuHeader={items.length > 0 ? 'Save to a collection' : undefined}
-        onOpenChange={onOpenChange}
-        footerContent={memoizedButton}
-        emptyStateText="No collections found"
-        items={items}>
-        <AppTooltip title={showDropdown ? '' : 'Save to collection'}>{children} </AppTooltip>
-      </Dropdown>
+  const onCollectionCreated = useMemoizedFn(async (collectionId: string) => {
+    await onSaveToCollection([collectionId]);
+    onChangePage({
+      route: BusterRoutes.APP_COLLECTIONS_ID,
+      collectionId
+    });
+  });
 
-      <NewCollectionModal
-        open={openCollectionModal}
-        onClose={onCloseCollectionModal}
-        useChangePage={false}
-        onCollectionCreated={onCollectionCreated}
-      />
-    </>
-  );
-});
+  const onClickItem = useMemoizedFn((collection: BusterCollectionListItem) => {
+    const isSelected = selectedCollections.some((id) => id === collection.id);
+    if (isSelected) {
+      onRemoveFromCollection(collection.id);
+    } else {
+      const allCollectionsAndSelected = selectedCollections.map((id) => id).concat(collection.id);
+      onSaveToCollection(allCollectionsAndSelected);
+    }
+  });
 
-SaveToCollectionsDropdown.displayName = 'SaveToCollectionsDropdown';
+  return useMemo(() => {
+    return {
+      items,
+      menuHeader,
+      footerContent,
+      selectType: 'multiple',
+      emptyStateText: 'No collections found',
+      modal: (
+        <NewCollectionModal
+          open={openCollectionModal}
+          onClose={onCloseCollectionModal}
+          useChangePage={false}
+          onCollectionCreated={onCollectionCreated}
+        />
+      )
+    };
+  }, [
+    items,
+    menuHeader,
+    footerContent,
+    openCollectionModal,
+    onCloseCollectionModal,
+    onCollectionCreated
+  ]);
+};

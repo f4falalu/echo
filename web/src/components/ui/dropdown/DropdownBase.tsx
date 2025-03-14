@@ -45,7 +45,7 @@ DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayNam
 const baseContentClass = cn(
   `data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] overflow-hidden `,
   'bg-background text-foreground ',
-  'rounded-md border'
+  'rounded-md border min-w-48'
 );
 
 const DropdownMenuSubContent = React.forwardRef<
@@ -62,26 +62,16 @@ DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayNam
 
 const DropdownMenuContent = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content> & {
-    footerContent?: React.ReactNode;
-    headerContent?: React.ReactNode;
-  }
->(({ className, children, sideOffset = 4, footerContent, headerContent, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
+>(({ className, children, sideOffset = 4, ...props }, ref) => {
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
-        className={cn(baseContentClass, 'shadow', 'p-0', className)}
+        className={cn(baseContentClass, 'p-0 shadow', className)}
         {...props}>
-        {headerContent && (
-          <div className="flex flex-col">
-            <div className="p-1">{headerContent}</div>
-            <div className="bg-border h-[0.5px] w-full" />
-          </div>
-        )}
         <div className="used-for-ref-purpose">{children}</div>
-        {footerContent && <div className="border-t p-1">{footerContent}</div>}
       </DropdownMenuPrimitive.Content>
     </DropdownMenuPrimitive.Portal>
   );

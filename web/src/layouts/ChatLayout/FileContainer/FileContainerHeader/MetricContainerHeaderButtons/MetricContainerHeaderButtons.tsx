@@ -10,18 +10,8 @@ import { SelectableButton } from '../SelectableButton';
 import { SaveMetricToCollectionButton } from '../../../../../components/features/buttons/SaveMetricToCollectionButton';
 import { SaveMetricToDashboardButton } from '../../../../../components/features/buttons/SaveMetricToDashboardButton';
 import { ShareMetricButton } from '../../../../../components/features/buttons/ShareMetricButton';
-import {
-  Code3,
-  Dots,
-  DotsVertical,
-  SquareChartPen,
-  SquareCode,
-  Trash
-} from '@/components/ui/icons';
-import { useDeleteMetric, useGetMetric } from '@/api/buster_rest/metrics';
-import { Button } from '@/components/ui/buttons';
-import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
-import { useBusterNotifications } from '@/context/BusterNotifications';
+import { SquareChartPen, SquareCode } from '@/components/ui/icons';
+import { useGetMetric } from '@/api/buster_rest/metrics';
 import { ThreeDotMenuButton } from './MetricThreeDotMenu';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
@@ -37,7 +27,7 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
       <EditChartButton />
       <EditSQLButton />
       <SaveToCollectionButton metricId={metricId} />
-      <SaveToDashboardButton />
+      <SaveToDashboardButton metricId={metricId} />
       <ShareMetricButton metricId={metricId} />
       <ThreeDotMenuButton metricId={metricId} />
       <HideButtonContainer show={renderViewLayoutKey === 'file'}>
@@ -102,9 +92,8 @@ const SaveToCollectionButton = React.memo(({ metricId }: { metricId: string }) =
 });
 SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 
-const SaveToDashboardButton = React.memo(() => {
-  const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
-  return <SaveMetricToDashboardButton metricIds={[selectedFileId]} />;
+const SaveToDashboardButton = React.memo(({ metricId }: { metricId: string }) => {
+  return <SaveMetricToDashboardButton metricIds={[metricId]} />;
 });
 SaveToDashboardButton.displayName = 'SaveToDashboardButton';
 
