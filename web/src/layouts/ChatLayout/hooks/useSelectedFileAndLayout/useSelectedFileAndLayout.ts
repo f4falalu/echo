@@ -40,27 +40,34 @@ export const useSelectedFileAndLayout = ({
   );
 
   const onSetSelectedFile = useMemoizedFn(async (file: SelectedFile | null) => {
-    const fileType = file?.type;
-    const fileId = file?.id;
-    const isSameAsCurrentFile = selectedFile?.id === fileId;
+    const isSameAsCurrentFile = file?.id === selectedFile?.id;
 
-    if (!file || !fileType || !fileId || !chatId) {
+    // Handle file deselection or invalid file data
+    if (!file?.type || !file?.id || !chatId || isSameAsCurrentFile) {
+      const route = chatId
+        ? createChatRoute(chatId)
+        : createBusterRoute({ route: BusterRoutes.APP_HOME });
+
+      setSelectedFile(null);
+      await onChangePage(route);
+
       if (chatId) {
-        await onChangePage(createChatRoute(chatId));
-        setSelectedFile(null);
         animateOpenSplitter('left');
-      } else {
-        await onChangePage(createBusterRoute({ route: BusterRoutes.APP_HOME }));
       }
       return;
     }
 
-    const route = isSameAsCurrentFile
-      ? createChatRoute(chatId)
-      : createChatAssetRoute({ chatId, assetId: fileId, type: fileType });
+    // Handle valid file selection
+    const route = createChatAssetRoute({
+      chatId,
+      assetId: file.id,
+      type: file.type
+    });
+
     setRenderViewLayoutKey('both');
-    setSelectedFile(isSameAsCurrentFile ? null : file);
+    setSelectedFile(file);
     await onChangePage(route);
+
     startTransition(() => {
       onChangePage(route); //this is hack for now...
       animateOpenSplitter(isSameAsCurrentFile ? 'left' : 'both');

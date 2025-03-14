@@ -7,6 +7,10 @@ export interface ChatURLParsed {
   messageId?: string;
 }
 
+/*
+This file is a hack because nextjs was not parsing the params with the useParams hook. Maybe future nextjs will fix this.
+*/
+
 export const parsePathnameSegments = (pathname: string): ChatURLParsed => {
   const params: ChatURLParsed = {};
 

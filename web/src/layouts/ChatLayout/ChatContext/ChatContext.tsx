@@ -13,7 +13,7 @@ const useChatIndividualContext = ({
   onSetSelectedFile
 }: {
   chatId?: string;
-  selectedFile?: SelectedFile;
+  selectedFile: SelectedFile | null;
   onSetSelectedFile: (file: SelectedFile) => void;
 }) => {
   const selectedFileId = selectedFile?.id;
@@ -90,7 +90,7 @@ export const ChatContextProvider = React.memo(
     children
   }: PropsWithChildren<{
     chatId: string | undefined;
-    selectedFile: SelectedFile | undefined;
+    selectedFile: SelectedFile | null;
     onSetSelectedFile: (file: SelectedFile) => void;
   }>) => {
     const useChatContextValue = useChatIndividualContext({

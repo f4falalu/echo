@@ -20,3 +20,4 @@ export * from './useSet';
 export * from './useUpdateLayoutEffect';
 export * from './useScroll';
 export * from './useUpdateEffect';
+export * from './useWhyDidYouUpdate';
