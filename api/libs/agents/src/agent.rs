@@ -1,6 +1,6 @@
 use crate::tools::{IntoToolCallExecutor, ToolExecutor};
 use anyhow::Result;
-use braintrust::BraintrustClient;
+use braintrust::{BraintrustClient, TraceBuilder};
 use litellm::{
     AgentMessage, ChatCompletionRequest, DeltaToolCall, FunctionCall, LiteLLMClient,
     MessageProgress, Metadata, Tool, ToolCall, ToolChoice,
@@ -389,15 +389,6 @@ impl Agent {
             *current = Some(thread.clone());
         }
 
-        // Initialize Braintrust client
-        let client = BraintrustClient::new(
-            None,
-            "c7b996a6-1c7c-482d-b23f-3d39de16f433"
-        )?;
-        
-        // Create a root span for this thread
-        let root_span_id = thread.id.to_string();
-        
         if recursion_depth >= 30 {
             let message = AgentMessage::assistant(
                 Some("max_recursion_depth_message".to_string()),
@@ -415,6 +406,11 @@ impl Agent {
         // Collect all registered tools and their schemas
         let tools = self.get_enabled_tools().await;
 
+        // Get the most recent user message for logging
+        let user_message = thread.messages.last()
+            .filter(|msg| matches!(msg, AgentMessage::User { .. }))
+            .cloned();
+
         // Create the tool-enabled request
         let request = ChatCompletionRequest {
             model: self.model.clone(),
@@ -430,22 +426,13 @@ impl Agent {
             }),
             ..Default::default()
         };
-
-        // Create a span for the LLM call
-        let llm_span = client.create_span(
-            "llm_call", 
-            "llm", 
-            Some(&root_span_id),
-            None
-        ).with_input(serde_json::to_value(&request)?);
-
+        
         // Get the streaming response from the LLM
         let mut stream_rx = match self.llm_client.stream_chat_completion(request).await {
             Ok(rx) => rx,
             Err(e) => {
                 // Log error in span
                 let error_message = format!("Error starting stream: {:?}", e);
-                client.log_span(llm_span.with_output(serde_json::json!({"error": error_message}))).await?;
                 return Err(anyhow::anyhow!(error_message));
             },
         };
@@ -503,7 +490,6 @@ impl Agent {
                 Err(e) => {
                     // Log error in span
                     let error_message = format!("Error in stream: {:?}", e);
-                    client.log_span(llm_span.with_output(serde_json::json!({"error": error_message}))).await?;
                     return Err(anyhow::anyhow!(error_message));
                 },
             }
@@ -530,24 +516,6 @@ impl Agent {
             Some(self.name.clone()),
         );
 
-        // Log the LLM response in Braintrust
-        let llm_output = if let Some(content) = &final_message.get_content() {
-            serde_json::json!({
-                "content": content,
-                "tool_calls": final_tool_calls
-            })
-        } else {
-            serde_json::json!({
-                "tool_calls": final_tool_calls
-            })
-        };
-
-        // Clone the span_id before moving llm_span
-        let llm_span_id = llm_span.clone().span_id().to_string();
-
-        // Now we can safely move llm_span
-        client.log_span(llm_span.with_output(llm_output)).await?;
-
         // Broadcast the final assistant message
         self.get_stream_sender()
             .await
@@ -572,17 +540,15 @@ impl Agent {
             // Execute each requested tool
             for tool_call in tool_calls {
                 if let Some(tool) = self.tools.read().await.get(&tool_call.function.name) {
-                    // Create a span for the tool call
-                    let tool_span = client.create_span(
-                        &tool_call.function.name, 
-                        "tool", 
-                        Some(&root_span_id),
-                        Some(&llm_span_id)
-                    );
-                    
-                    // Parse the parameters and log them
+                    // Parse the parameters - log only the tool call as input
                     let params: Value = serde_json::from_str(&tool_call.function.arguments)?;
-                    let tool_span = tool_span.with_input(params.clone());
+                    let tool_input = serde_json::json!({
+                        "function": {
+                            "name": tool_call.function.name,
+                            "arguments": params
+                        },
+                        "id": tool_call.id
+                    });
                     
                     // Execute the tool
                     let result = match tool.execute(params, tool_call.id.clone()).await {
@@ -590,13 +556,9 @@ impl Agent {
                         Err(e) => {
                             // Log error in tool span
                             let error_message = format!("Tool execution error: {:?}", e);
-                            client.log_span(tool_span.with_output(serde_json::json!({"error": error_message}))).await?;
                             return Err(anyhow::anyhow!(error_message));
                         }
                     };
-                    
-                    // Log the tool result
-                    client.log_span(tool_span.with_output(result.clone())).await?;
                     
                     let result_str = serde_json::to_string(&result)?;
                     let tool_message = AgentMessage::tool(
@@ -623,6 +585,8 @@ impl Agent {
             new_thread.messages.push(final_message);
             new_thread.messages.extend(results);
 
+            // For recursive calls, we'll continue with the same trace
+            // We don't finish the trace here to keep all interactions in one trace
             Box::pin(self.process_thread_with_depth(&new_thread, recursion_depth + 1)).await
         } else {
             // Send Done message and return
