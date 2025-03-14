@@ -34,9 +34,10 @@ import { StatusNotRequestedIcon } from '@/assets';
 import { useSaveToDashboardDropdownContent } from '@/components/features/dropdowns/SaveToDashboardDropdown';
 import { useMemoizedFn } from '@/hooks';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
-import { VerificationStatus } from '@/api/asset_interfaces/share';
+import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces/share';
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/StatusDropdownContent';
 import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
+import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { mutateAsync: deleteMetric, isPending: isDeletingMetric } = useDeleteMetric();
@@ -47,6 +48,7 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
   const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
   const collectionSelectMenu = useCollectionSelectMenu({ metricId });
   const statusSelectMenu = useStatusSelectMenu({ metricId });
+  const favoriteMetric = useFavoriteMetric({ metricId });
 
   const items: DropdownItems = useMemo(
     () => [
@@ -54,23 +56,13 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
         label: 'Share',
         value: 'share',
         icon: <ShareRight />,
-        items: [],
-        onClick: () => {
-          console.log('share metric');
-        }
+        items: []
       },
       statusSelectMenu,
       { type: 'divider' },
       dashboardSelectMenu,
       collectionSelectMenu,
-      {
-        label: 'Add to favorites',
-        value: 'add-to-favorites',
-        icon: <Star />,
-        onClick: () => {
-          console.log('add to favorites');
-        }
-      },
+      favoriteMetric,
       { type: 'divider' },
       {
         label: 'Edit chart',
@@ -138,12 +130,14 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
     ],
     [
       dashboardSelectMenu,
-      deleteMetric,
       isDeletingMetric,
       metricId,
       openSuccessMessage,
       onSetSelectedFile,
-      versionHistoryItems
+      versionHistoryItems,
+      favoriteMetric,
+      statusSelectMenu,
+      collectionSelectMenu
     ]
   );
 
@@ -210,10 +204,7 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
       label: `Version ${x.version_number}`,
       secondaryLabel: timeFromNow(x.updated_at, false),
       value: x.version_number.toString(),
-      selected: x.version_number === version_number,
-      onClick: () => {
-        console.log('version history', x.version_number);
-      }
+      selected: x.version_number === version_number
     }));
   }, [versions, version_number]);
 
@@ -307,4 +298,25 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
   );
 
   return statusDropdownItem;
+};
+
+const useFavoriteMetric = ({ metricId }: { metricId: string }) => {
+  const { data: title } = useGetMetric(metricId, (x) => x.title);
+  const { isFavorited, onFavoriteClick } = useFavoriteStar({
+    id: metricId,
+    type: ShareAssetType.METRIC,
+    name: title || ''
+  });
+
+  const item: DropdownItem = useMemo(
+    () => ({
+      label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
+      value: 'add-to-favorites',
+      icon: isFavorited ? <StarFilled /> : <Star />,
+      onClick: onFavoriteClick
+    }),
+    [isFavorited, onFavoriteClick]
+  );
+
+  return item;
 };

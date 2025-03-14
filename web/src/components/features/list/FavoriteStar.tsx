@@ -37,26 +37,7 @@ export const FavoriteStar: React.FC<{
   className?: string;
   iconStyle?: 'default' | 'tertiary';
 }> = React.memo(({ title: name, id, type, className = '', iconStyle = 'default' }) => {
-  const { data: userFavorites } = useGetUserFavorites();
-  const { mutateAsync: removeItemFromFavorite } = useDeleteUserFavorite();
-  const { mutateAsync: addItemToFavorite } = useAddUserFavorite();
-
-  const isFavorited = useMemo(() => {
-    return userFavorites?.some((favorite) => favorite.id === id || favorite.collection_id === id);
-  }, [userFavorites, id]);
-
-  const onFavoriteClick = useMemoizedFn(async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (!isFavorited)
-      return await addItemToFavorite({
-        asset_type: type,
-        id,
-        name
-      });
-
-    await removeItemFromFavorite(id);
-  });
+  const { isFavorited, onFavoriteClick } = useFavoriteStar({ id, type, name });
 
   const tooltipText = isFavorited ? 'Remove from favorites' : 'Add to favorites';
 
@@ -82,3 +63,43 @@ export const FavoriteStar: React.FC<{
   );
 });
 FavoriteStar.displayName = 'FavoriteStar';
+
+export const useFavoriteStar = ({
+  id,
+  type,
+  name
+}: {
+  id: string;
+  type: ShareAssetType;
+  name: string;
+}) => {
+  const { data: userFavorites } = useGetUserFavorites();
+  const { mutateAsync: removeItemFromFavorite } = useDeleteUserFavorite();
+  const { mutateAsync: addItemToFavorite } = useAddUserFavorite();
+
+  const isFavorited = useMemo(() => {
+    return userFavorites?.some((favorite) => favorite.id === id || favorite.collection_id === id);
+  }, [userFavorites, id]);
+
+  console.log('userFavorites', isFavorited, userFavorites);
+
+  const onFavoriteClick = useMemoizedFn(async (e?: React.MouseEvent<HTMLButtonElement>) => {
+    e?.stopPropagation();
+    e?.preventDefault();
+    if (!isFavorited)
+      return await addItemToFavorite({
+        asset_type: type,
+        id,
+        name
+      });
+    await removeItemFromFavorite(id);
+  });
+
+  return useMemo(
+    () => ({
+      isFavorited,
+      onFavoriteClick
+    }),
+    [isFavorited, onFavoriteClick]
+  );
+};
