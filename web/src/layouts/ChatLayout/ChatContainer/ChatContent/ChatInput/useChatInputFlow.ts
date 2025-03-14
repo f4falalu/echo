@@ -45,7 +45,7 @@ export const useChatInputFlow = ({
 
     switch (flow) {
       case 'followup-chat':
-        await onFollowUpChat({ prompt: inputValue, chatId: chatId });
+        await onFollowUpChat({ prompt: inputValue, chatId });
         break;
 
       case 'followup-metric':
