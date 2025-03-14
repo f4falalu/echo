@@ -91,7 +91,7 @@ const DropdownMenuItem = React.forwardRef<
     ref={ref}
     className={cn(
       'relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-base outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0',
-      'focus:bg-item-hover focus:text-foreground',
+      'focus:bg-item-select focus:text-foreground',
       'dropdown-item mx-1 [&.dropdown-item:first-child]:mt-1! [&.dropdown-item:has(+.dropdown-separator)]:mb-1 [&.dropdown-item:has(~.dropdown-separator)]:mt-1 [&.dropdown-item:last-child]:mb-1!',
       inset && 'pl-8',
       truncate && 'overflow-hidden',
@@ -132,7 +132,7 @@ const DropdownMenuCheckboxItemSingle = React.forwardRef<
   ) => (
     <DropdownMenuPrimitive.CheckboxItem
       ref={ref}
-      className={cn(itemClass, 'data-[state=checked]:bg-item-hover', 'pr-6 pl-2', className)}
+      className={cn(itemClass, 'data-[state=checked]:bg-item-select', 'pr-6 pl-2', className)}
       checked={checked}
       onClick={(e) => {
         if (closeOnSelect) {
@@ -143,9 +143,9 @@ const DropdownMenuCheckboxItemSingle = React.forwardRef<
       }}
       {...props}>
       {children}
-      <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+      <span className="absolute right-2 flex h-3.5 w-fit items-center justify-center space-x-1">
         <DropdownMenuPrimitive.ItemIndicator>
-          <div className="text-icon-color flex h-4 w-4 items-center justify-center text-sm">
+          <div className="text-icon-color flex items-center justify-center text-sm">
             <Check />
           </div>
         </DropdownMenuPrimitive.ItemIndicator>

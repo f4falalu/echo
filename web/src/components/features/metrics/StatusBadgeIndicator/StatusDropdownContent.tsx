@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { getTooltipText } from './helpers';
 import { useMemoizedFn } from '@/hooks';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
-import { Dropdown, DropdownItem } from '@/components/ui/dropdown';
+import { Dropdown, DropdownItem, DropdownProps } from '@/components/ui/dropdown';
 
 const statuses = [
   VerificationStatus.NOT_REQUESTED,
@@ -26,6 +26,32 @@ export const StatusDropdownContent: React.FC<{
   onChangeStatus: (status: VerificationStatus) => void;
   onOpenChange: (open: boolean) => void;
 }> = React.memo(({ isAdmin, status, onChangeStatus, children, onOpenChange }) => {
+  const dropdownProps = useStatusDropdownContent({
+    isAdmin,
+    selectedStatus: status,
+    onChangeStatus
+  });
+
+  return (
+    <Dropdown {...dropdownProps} onOpenChange={onOpenChange}>
+      {children}
+    </Dropdown>
+  );
+});
+StatusDropdownContent.displayName = 'StatusDropdownContent';
+
+export const useStatusDropdownContent = ({
+  isAdmin,
+  selectedStatus,
+  onChangeStatus
+}: {
+  isAdmin: boolean;
+  selectedStatus: VerificationStatus;
+  onChangeStatus: (status: VerificationStatus) => void;
+}): Pick<
+  DropdownProps<VerificationStatus>,
+  'showIndex' | 'items' | 'emptyStateText' | 'menuHeader' | 'selectType'
+> => {
   const items = useMemo(() => {
     return statuses.map<DropdownItem<VerificationStatus>>((status) => {
       const requiresAdmin = requiresAdminItems.includes(status);
@@ -34,6 +60,7 @@ export const StatusDropdownContent: React.FC<{
         value: status,
         icon: <StatusBadgeIndicator status={status} showTooltip={false} />,
         disabled: requiresAdmin && !isAdmin,
+        selected: status === selectedStatus,
         onClick: () => {
           if (!requiresAdmin || isAdmin) {
             onChangeStatus(status);
@@ -43,21 +70,14 @@ export const StatusDropdownContent: React.FC<{
     });
   }, [isAdmin, status, onChangeStatus]);
 
-  const onSelect = useMemoizedFn((item: VerificationStatus) => {
-    onChangeStatus(item);
-  });
-
-  return (
-    <Dropdown
-      emptyStateText="Nothing to see here..."
-      items={items}
-      showIndex
-      onOpenChange={onOpenChange}
-      onSelect={onSelect}
-      selectType="single"
-      menuHeader="Verification status...">
-      {children}
-    </Dropdown>
+  return useMemo(
+    () => ({
+      emptyStateText: 'Nothing to see here...',
+      menuHeader: 'Verification status...',
+      items,
+      selectType: 'single',
+      showIndex: true
+    }),
+    [items]
   );
-});
-StatusDropdownContent.displayName = 'StatusDropdownContent';
+};

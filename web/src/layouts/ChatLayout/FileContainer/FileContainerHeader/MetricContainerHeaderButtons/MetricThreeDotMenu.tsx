@@ -4,7 +4,8 @@ import {
   useRemoveMetricFromCollection,
   useRemoveMetricFromDashboard,
   useSaveMetricToCollection,
-  useSaveMetricToDashboard
+  useSaveMetricToDashboard,
+  useUpdateMetric
 } from '@/api/buster_rest/metrics';
 import { DropdownContent, DropdownItem, DropdownItems } from '@/components/ui/dropdown';
 import {
@@ -33,6 +34,9 @@ import { StatusNotRequestedIcon } from '@/assets';
 import { useSaveToDashboardDropdownContent } from '@/components/features/dropdowns/SaveToDashboardDropdown';
 import { useMemoizedFn } from '@/hooks';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
+import { VerificationStatus } from '@/api/asset_interfaces/share';
+import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/StatusDropdownContent';
+import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { mutateAsync: deleteMetric, isPending: isDeletingMetric } = useDeleteMetric();
@@ -40,8 +44,9 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
 
   const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
-  const versionHistoryItems = useVersionHistoryItems({ metricId });
+  const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
   const collectionSelectMenu = useCollectionSelectMenu({ metricId });
+  const statusSelectMenu = useStatusSelectMenu({ metricId });
 
   const items: DropdownItems = useMemo(
     () => [
@@ -54,15 +59,7 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
           console.log('share metric');
         }
       },
-      {
-        label: 'Request verification',
-        value: 'request-verification',
-        icon: <StatusNotRequestedIcon />,
-        items: [],
-        onClick: () => {
-          console.log('share metric');
-        }
-      },
+      statusSelectMenu,
       { type: 'divider' },
       dashboardSelectMenu,
       collectionSelectMenu,
@@ -193,10 +190,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
       label: 'Add to dashboard',
       value: 'add-to-dashboard',
       icon: <ASSET_ICONS.dashboardAdd />,
-      items: [<React.Fragment key="dashboard-sub-menu">{dashboardSubMenu}</React.Fragment>],
-      onClick: () => {
-        console.log('add to dashboard');
-      }
+      items: [<React.Fragment key="dashboard-sub-menu">{dashboardSubMenu}</React.Fragment>]
     }),
     [dashboardSubMenu]
   );
@@ -204,7 +198,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
   return dashboardDropdownItem;
 };
 
-const useVersionHistoryItems = ({ metricId }: { metricId: string }) => {
+const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
   const { data } = useGetMetric(metricId, (x) => ({
     versions: x.versions,
     version_number: x.version_number
@@ -276,13 +270,41 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
         <React.Fragment key="collection-sub-menu">
           {collectionSubMenu} {modal}
         </React.Fragment>
-      ],
-      onClick: () => {
-        console.log('add to collection');
-      }
+      ]
     }),
     [collectionSubMenu]
   );
 
   return collectionDropdownItem;
+};
+
+const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
+  const { data: metric } = useGetMetric(metricId, (x) => x);
+  const { mutateAsync: updateMetric } = useUpdateMetric();
+
+  const onChangeStatus = useMemoizedFn(async (status: VerificationStatus) => {
+    await updateMetric({ id: metricId, status });
+  });
+
+  const dropdownProps = useStatusDropdownContent({
+    isAdmin: true,
+    selectedStatus: metric?.status || VerificationStatus.NOT_REQUESTED,
+    onChangeStatus
+  });
+
+  const statusSubMenu = useMemo(() => {
+    return <DropdownContent {...dropdownProps} />;
+  }, [dropdownProps]);
+
+  const statusDropdownItem: DropdownItem = useMemo(
+    () => ({
+      label: 'Status',
+      value: 'status',
+      icon: <StatusBadgeIndicator status={metric?.status || VerificationStatus.NOT_REQUESTED} />,
+      items: [<React.Fragment key="status-sub-menu">{statusSubMenu}</React.Fragment>]
+    }),
+    [statusSubMenu]
+  );
+
+  return statusDropdownItem;
 };
