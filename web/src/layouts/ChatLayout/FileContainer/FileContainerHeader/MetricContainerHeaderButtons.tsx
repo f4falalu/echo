@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FileContainerButtonsProps } from './interfaces';
 import { MetricFileViewSecondary, useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useMemoizedFn } from '@/hooks';
@@ -10,8 +10,18 @@ import { SelectableButton } from './SelectableButton';
 import { SaveMetricToCollectionButton } from '../../../../components/features/buttons/SaveMetricToCollectionButton';
 import { SaveMetricToDashboardButton } from '../../../../components/features/buttons/SaveMetricToDashboardButton';
 import { ShareMetricButton } from '../../../../components/features/buttons/ShareMetricButton';
-import { Code3, SquareChartPen } from '@/components/ui/icons';
-import { useGetMetric } from '@/api/buster_rest/metrics';
+import {
+  Code3,
+  Dots,
+  DotsVertical,
+  SquareChartPen,
+  SquareCode,
+  Trash
+} from '@/components/ui/icons';
+import { useDeleteMetric, useGetMetric } from '@/api/buster_rest/metrics';
+import { Button } from '@/components/ui/buttons';
+import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);
@@ -28,6 +38,7 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
       <SaveToCollectionButton metricId={metricId} />
       <SaveToDashboardButton />
       <ShareMetricButton metricId={metricId} />
+      <ThreeDotMenuButton metricId={metricId} />
       <HideButtonContainer show={renderViewLayoutKey === 'file'}>
         <CreateChatButton />
       </HideButtonContainer>
@@ -77,7 +88,7 @@ const EditSQLButton = React.memo(() => {
   return (
     <SelectableButton
       tooltipText="Edit SQL"
-      icon={<Code3 />}
+      icon={<SquareCode />}
       onClick={onClickButton}
       selected={isSelectedView}
     />
@@ -100,3 +111,32 @@ const ShareMetricButtonLocal = React.memo(({ metricId }: { metricId: string }) =
   return <ShareMetricButton metricId={metricId} />;
 });
 ShareMetricButtonLocal.displayName = 'ShareMetricButtonLocal';
+
+const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
+  const { mutateAsync: deleteMetric } = useDeleteMetric();
+  const { openSuccessMessage } = useBusterNotifications();
+  const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
+
+  const items: DropdownItems = useMemo(
+    () => [
+      {
+        label: 'Delete',
+        value: 'delete',
+        icon: <Trash />,
+        onClick: async () => {
+          await deleteMetric({ ids: [metricId] });
+          openSuccessMessage('Metric deleted');
+          onSetSelectedFile(null);
+        }
+      }
+    ],
+    [deleteMetric, metricId, openSuccessMessage, onSetSelectedFile]
+  );
+
+  return (
+    <Dropdown items={items}>
+      <Button prefix={<Dots />} variant="ghost" />
+    </Dropdown>
+  );
+});
+ThreeDotMenuButton.displayName = 'ThreeDotMenuButton';

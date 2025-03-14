@@ -22,7 +22,7 @@ export const CreateChatButton = React.memo(() => {
         variant="black"
         className="ml-1.5"
         prefix={<Stars />}>
-        Edit
+        Start chat
       </Button>
     </AppTooltip>
   );
