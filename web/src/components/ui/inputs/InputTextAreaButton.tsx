@@ -13,7 +13,7 @@ const inputTextAreaButtonVariants = cva(
     variants: {
       variant: {
         default:
-          'has-[textarea:hover]:border-foreground shadow has-[textarea:focus]:border-foreground has-[textarea:disabled]:border-border'
+          'has-[textarea:hover]:border-foreground shadow bg-background has-[textarea:focus]:border-foreground has-[textarea:disabled]:border-border'
       }
     }
   }

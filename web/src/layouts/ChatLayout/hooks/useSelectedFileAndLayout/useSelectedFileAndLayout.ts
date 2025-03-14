@@ -5,11 +5,7 @@ import type { ChatLayoutView, SelectedFile } from '../../interfaces';
 import { usePathname } from 'next/navigation';
 import { parsePathnameSegments } from './parsePathnameSegments';
 import { useMemoizedFn } from '@/hooks';
-import {
-  createChatAssetRoute,
-  createChatRoute,
-  createFileRoute
-} from '../../ChatLayoutContext/helpers';
+import { createChatAssetRoute, createChatRoute } from '../../ChatLayoutContext/helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { initializeSelectedFile } from './initializeSelectedFile';
 import { BusterRoutes, createBusterRoute } from '@/routes';
@@ -26,7 +22,7 @@ export const useSelectedFileAndLayout = ({
 
   const { chatId } = params;
 
-  const [selectedFile, setSelectedFile] = useState<SelectedFile | undefined>(() =>
+  const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(() =>
     initializeSelectedFile(params)
   );
 
@@ -51,6 +47,7 @@ export const useSelectedFileAndLayout = ({
     if (!file || !fileType || !fileId || !chatId) {
       if (chatId) {
         await onChangePage(createChatRoute(chatId));
+        setSelectedFile(null);
         animateOpenSplitter('left');
       } else {
         await onChangePage(createBusterRoute({ route: BusterRoutes.APP_HOME }));
@@ -62,7 +59,7 @@ export const useSelectedFileAndLayout = ({
       ? createChatRoute(chatId)
       : createChatAssetRoute({ chatId, assetId: fileId, type: fileType });
     setRenderViewLayoutKey('both');
-    setSelectedFile(isSameAsCurrentFile ? undefined : file);
+    setSelectedFile(isSameAsCurrentFile ? null : file);
     await onChangePage(route);
     startTransition(() => {
       onChangePage(route); //this is hack for now...

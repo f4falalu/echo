@@ -1,7 +1,6 @@
 'use client';
 
 import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
-import { StatusCard } from '@/components/ui/card/StatusCard';
 import { ReasoningController } from '@/controllers/ReasoningController';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 
@@ -15,12 +14,8 @@ export default function Page(params: { params: { chatId: string } }) {
 
   return (
     <>
-      <FileIndeterminateLoader />
-      <div className="p-5">
-        <StatusCard
-          title="Error"
-          message="If you are seeing this, tell Nate and screenshot this whole page including the URL and logs..."
-        />
+      <div className="animate-in fade-in hidden delay-300 duration-500">
+        <FileIndeterminateLoader />
       </div>
     </>
   );

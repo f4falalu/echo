@@ -1,7 +1,7 @@
 import type { SelectedFile } from '../../interfaces';
 import type { ChatURLParsed } from './parsePathnameSegments';
 
-export const initializeSelectedFile = (params: ChatURLParsed): SelectedFile | undefined => {
+export const initializeSelectedFile = (params: ChatURLParsed): SelectedFile | null => {
   const { metricId, collectionId, datasetId, dashboardId, chatId, messageId } = params;
 
   if (metricId) {
@@ -25,5 +25,5 @@ export const initializeSelectedFile = (params: ChatURLParsed): SelectedFile | un
     };
   }
 
-  return undefined;
+  return null;
 };

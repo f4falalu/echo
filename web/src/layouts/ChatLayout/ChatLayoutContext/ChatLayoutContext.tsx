@@ -44,9 +44,7 @@ export const useChatLayout = ({ appSplitterRef }: UseChatSplitterProps) => {
     renderViewLayoutKey
   } = useSelectedFileAndLayout({ animateOpenSplitter });
 
-  const { onCollapseFileClick } = useLayoutCollapse({
-    animateOpenSplitter
-  });
+  const onCollapseFileClick = useLayoutCollapse({ onSetSelectedFile });
 
   const fileLayoutContext = useChatFileLayout({
     selectedFileId: selectedFile?.id,
