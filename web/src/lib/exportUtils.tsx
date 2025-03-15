@@ -1,3 +1,5 @@
+'use client';
+
 import { timeout } from './timeout';
 
 export async function exportJSONToCSV(
@@ -38,44 +40,6 @@ export async function exportJSONToCSV(
   downloadFile(`${fileName}.csv`, blob);
 }
 
-export async function exportToCsv<R, SR>(gridElement: HTMLDivElement, fileName: string) {
-  const { head, body, foot } = await getGridContent(gridElement);
-  const content = [...head, ...body, ...foot]
-    .map((cells) => cells.map(serialiseCellValue).join(','))
-    .join('\n');
-
-  downloadFile(fileName, new Blob([content], { type: 'text/csv;charset=utf-8;' }));
-}
-
-async function getGridContent<R, SR>(gridElement: HTMLDivElement) {
-  const grid = gridElement as HTMLDivElement;
-  const hasrdgClass = grid.classList.contains('rdg');
-  if (!hasrdgClass) {
-    throw new Error('Element is not a valid ReactDataGrid instance');
-  }
-  return {
-    head: getRows('.rdg-header-row'),
-    body: getRows('.rdg-row:not(.rdg-summary-row)'),
-    foot: getRows('.rdg-summary-row')
-  };
-
-  function getRows(selector: string) {
-    return Array.from(grid.querySelectorAll<HTMLDivElement>(selector)).map((gridRow) => {
-      return Array.from(gridRow.querySelectorAll<HTMLDivElement>('.rdg-cell')).map(
-        (gridCell) => gridCell.innerText
-      );
-    });
-  }
-}
-
-function serialiseCellValue(value: unknown) {
-  if (typeof value === 'string') {
-    const formattedValue = value.replace(/"/g, '""');
-    return formattedValue.includes(',') ? `"${formattedValue}"` : formattedValue;
-  }
-  return value;
-}
-
 function downloadFile(fileName: string, data: Blob) {
   const downloadLink = document.createElement('a');
   downloadLink.download = fileName;
@@ -93,6 +57,11 @@ export async function exportElementToImage(element: HTMLElement) {
   const domToImage = (await import('dom-to-image').then((m) => m.default)) as any;
   const dataUrl = (await domToImage.toPng(element)) as string;
   return dataUrl;
+}
+
+export async function downloadElementToImage(element: HTMLElement, fileName: string) {
+  const imageData = await exportElementToImage(element);
+  downloadImageData(imageData, fileName);
 }
 
 export async function downloadImageData(imageData: string, fileName: string) {

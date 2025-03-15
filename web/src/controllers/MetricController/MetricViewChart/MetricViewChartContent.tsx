@@ -3,6 +3,7 @@ import { ChartType } from '@/api/asset_interfaces/metric/charts';
 import { BusterChart } from '@/components/ui/charts';
 import { cn } from '@/lib/classMerge';
 import React, { useMemo } from 'react';
+import { METRIC_CHART_CONTAINER_ID } from './config';
 
 interface MetricViewChartContentProps {
   className?: string;
@@ -11,10 +12,19 @@ interface MetricViewChartContentProps {
   dataMetadata: DataMetadata | undefined;
   fetchedData: boolean;
   errorMessage: string | null | undefined;
+  metricId: string;
 }
 
 export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = React.memo(
-  ({ className, chartConfig, metricData = null, dataMetadata, fetchedData, errorMessage }) => {
+  ({
+    className,
+    chartConfig,
+    metricData = null,
+    dataMetadata,
+    fetchedData,
+    errorMessage,
+    metricId
+  }) => {
     const columnMetadata = dataMetadata?.column_metadata;
     const isTable = chartConfig?.selectedChartType === ChartType.Table;
 
@@ -30,6 +40,7 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = Rea
           error={errorMessage || undefined}
           data={metricData}
           columnMetadata={columnMetadata}
+          id={METRIC_CHART_CONTAINER_ID(metricId)}
           {...chartConfig}
         />
       </div>

@@ -91,6 +91,7 @@ export const createMockMetric = (id: string): IBusterMetric => {
     data_metadata: dataMetadata,
     status: VerificationStatus.NOT_REQUESTED,
     evaluation_score: 'Moderate',
+    versions: [],
     evaluation_summary: faker.lorem.sentence(33),
     file: `
   metric:

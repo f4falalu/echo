@@ -41,7 +41,8 @@ import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces/share
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/StatusDropdownContent';
 import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
 import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
-import { exportJSONToCSV } from '@/lib/exportUtils';
+import { downloadElementToImage, exportElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
+import { METRIC_CHART_CONTAINER_ID } from '@/controllers/MetricController/MetricViewChart/config';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { mutateAsync: deleteMetric, isPending: isDeletingMetric } = useDeleteMetric();
@@ -57,6 +58,9 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
   const resultsViewMenu = useResultsViewSelectMenu();
   const sqlEditorMenu = useSQLEditorSelectMenu();
   const downloadCSVMenu = useDownloadCSVSelectMenu({ metricId });
+  const downloadPNGMenu = useDownloadPNGSelectMenu({ metricId });
+  const deleteMetricMenu = useDeleteMetricSelectMenu({ metricId });
+  const renameMetricMenu = useRenameMetricSelectMenu({ metricId });
 
   const items: DropdownItems = useMemo(
     () => [
@@ -77,37 +81,16 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
       sqlEditorMenu,
       { type: 'divider' },
       downloadCSVMenu,
-      //   {
-      //     label: 'Download as PNG',
-      //     value: 'download-png',
-      //     icon: <SquareChart />,
-      //     onClick: () => {
-      //       console.log('download png');
-      //     }
-      //   },
+      downloadPNGMenu,
       { type: 'divider' },
-      {
-        label: 'Rename metric',
-        value: 'rename',
-        icon: <Pencil />,
-        onClick: () => {
-          console.log('rename');
-        }
-      },
-      {
-        label: 'Delete metric',
-        value: 'delete',
-        icon: <Trash />,
-        loading: isDeletingMetric,
-        onClick: async () => {
-          await deleteMetric({ ids: [metricId] });
-          openSuccessMessage('Metric deleted');
-          onSetSelectedFile(null);
-        }
-      }
+      renameMetricMenu,
+      deleteMetricMenu
     ],
     [
       dashboardSelectMenu,
+      deleteMetricMenu,
+      downloadCSVMenu,
+      downloadPNGMenu,
       isDeletingMetric,
       metricId,
       openSuccessMessage,
@@ -366,6 +349,7 @@ const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
       label: 'Download as CSV',
       value: 'download-csv',
       icon: <Download4 />,
+      loading: isDownloading,
       onClick: async () => {
         const data = metricData?.data;
         if (data && title) {
@@ -375,6 +359,73 @@ const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
         }
       }
     }),
-    [metricData, title]
+    [metricData, isDownloading, title]
+  );
+};
+
+const useDownloadPNGSelectMenu = ({ metricId }: { metricId: string }) => {
+  const { openSuccessMessage, openErrorMessage } = useBusterNotifications();
+  const { data: title } = useGetMetric(metricId, (x) => x.title);
+  const { data: selectedChartType } = useGetMetric(
+    metricId,
+    (x) => x.chart_config?.selectedChartType
+  );
+
+  const canDownload = selectedChartType && selectedChartType !== 'table';
+
+  return useMemo(
+    () => ({
+      label: 'Download as PNG',
+      value: 'download-png',
+      disabled: !canDownload,
+      icon: <SquareChart />,
+      onClick: async () => {
+        const node = document.getElementById(METRIC_CHART_CONTAINER_ID(metricId)) as HTMLElement;
+        if (node) {
+          try {
+            return await downloadElementToImage(node, `${title}.png`);
+          } catch (error) {
+            console.error(error);
+          }
+        }
+
+        openErrorMessage('Failed to download PNG');
+      }
+    }),
+    [canDownload]
+  );
+};
+
+const useDeleteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
+  const { mutateAsync: deleteMetric } = useDeleteMetric();
+
+  return useMemo(
+    () => ({
+      label: 'Delete metric',
+      value: 'delete-metric',
+      icon: <Trash />,
+      onClick: async () => {
+        await deleteMetric({ ids: [metricId] });
+      }
+    }),
+    [metricId]
+  );
+};
+
+const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
+  const { mutateAsync: updateMetric } = useUpdateMetric();
+
+  return useMemo(
+    () => ({
+      label: 'Rename metric',
+      value: 'rename-metric',
+      icon: <Pencil />,
+      onClick: async () => {
+        console.log('rename');
+        alert('TODO: Implement rename metric');
+        //  await updateMetric({ id: metricId, title: 'New title' });
+      }
+    }),
+    [metricId]
   );
 };

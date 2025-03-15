@@ -174,7 +174,8 @@ export const DEFAULT_IBUSTER_METRIC: Required<IBusterMetric> = {
   public_expiry_date: null,
   public_enabled_by: null,
   publicly_accessible: false,
-  public_password: null
+  public_password: null,
+  versions: []
 };
 
 export const DEFAULT_BUSTER_METRIC_LIST_ITEM: Required<BusterMetricListItem> = {
