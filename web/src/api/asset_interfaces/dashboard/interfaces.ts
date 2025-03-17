@@ -51,4 +51,8 @@ export interface BusterDashboard
   version_number: number;
   file: string; //yaml file
   file_name: string;
+  versions: {
+    version_number: number;
+    updated_at: string;
+  }[];
 }

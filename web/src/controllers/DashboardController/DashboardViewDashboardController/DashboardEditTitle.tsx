@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/inputs';
 import React from 'react';
 import { type useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
+export const DASHBOARD_TITLE_INPUT_ID = 'dashboard-title-input';
+
 export const DashboardEditTitles: React.FC<{
   title: string;
   onUpdateDashboard: ReturnType<typeof useUpdateDashboard>['mutateAsync'];
@@ -31,6 +33,7 @@ export const DashboardEditTitles: React.FC<{
         className="w-full truncate"
         disabled={!allowEdit}
         onChange={onChangeTitle}
+        id={DASHBOARD_TITLE_INPUT_ID}
         placeholder="New Dashboard"
         level={3}>
         {title}

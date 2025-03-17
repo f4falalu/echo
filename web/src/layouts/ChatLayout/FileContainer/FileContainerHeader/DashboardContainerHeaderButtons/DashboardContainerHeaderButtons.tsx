@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-import { FileContainerButtonsProps } from './interfaces';
-import { FileButtonContainer } from './FileButtonContainer';
-import { useChatIndividualContextSelector } from '../../ChatContext';
+import { FileContainerButtonsProps } from '../interfaces';
+import { FileButtonContainer } from '../FileButtonContainer';
+import { useChatIndividualContextSelector } from '../../../ChatContext';
 import { SaveDashboardToCollectionButton } from '@/components/features/buttons/SaveDashboardToCollectionButton';
-import { HideButtonContainer } from './HideButtonContainer';
-import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
-import { CreateChatButton } from './CreateChatButtont';
+import { HideButtonContainer } from '../HideButtonContainer';
+import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
+import { CreateChatButton } from '../CreateChatButtont';
 import { ShareDashboardButton } from '@/components/features/buttons/ShareDashboardButton';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';

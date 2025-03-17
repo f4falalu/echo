@@ -75,6 +75,7 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
       editChartMenu,
       resultsViewMenu,
       sqlEditorMenu,
+      versionHistoryItems,
       { type: 'divider' },
       downloadCSVMenu,
       downloadPNGMenu,
