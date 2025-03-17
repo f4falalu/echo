@@ -15,7 +15,7 @@ import { useMemoizedFn } from './useMemoizedFn';
  * @example
  * ```tsx
  * const { start, stop, isActive } = useSetInterval(() => {
- *   console.log('This runs every second');
+ *   //
  * }, 1000);
  * ```
  */

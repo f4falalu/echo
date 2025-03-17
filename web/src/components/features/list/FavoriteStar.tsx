@@ -81,8 +81,6 @@ export const useFavoriteStar = ({
     return userFavorites?.some((favorite) => favorite.id === id || favorite.collection_id === id);
   }, [userFavorites, id]);
 
-  console.log('userFavorites', isFavorited, userFavorites);
-
   const onFavoriteClick = useMemoizedFn(async (e?: React.MouseEvent<HTMLButtonElement>) => {
     e?.stopPropagation();
     e?.preventDefault();

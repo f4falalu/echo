@@ -3,6 +3,8 @@ import { Text } from '@/components/ui/typography';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { cn } from '@/lib/classMerge';
 
+export const METRIC_CHART_TITLE_INPUT_ID = 'metric-chart-title-input';
+
 export const MetricViewChartHeader: React.FC<{
   className?: string;
   title: string | undefined;
@@ -20,7 +22,12 @@ export const MetricViewChartHeader: React.FC<{
       )}>
       {hasTitleOrDescription ? (
         <>
-          <EditableTitle level={4} className="" inputClassName="h-auto!" onChange={onSetTitle}>
+          <EditableTitle
+            id={METRIC_CHART_TITLE_INPUT_ID}
+            level={4}
+            className=""
+            inputClassName="h-auto!"
+            onChange={onSetTitle}>
             {title}
           </EditableTitle>
           <div className="flex items-center space-x-1 whitespace-nowrap">

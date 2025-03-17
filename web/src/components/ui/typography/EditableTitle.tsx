@@ -35,10 +35,12 @@ export const EditableTitle = React.memo(
       placeholder?: string;
       style?: React.CSSProperties;
       inputClassName?: string;
+      id?: string;
     } & VariantProps<typeof editableTitleVariants>
   >(
     (
       {
+        id,
         style,
         disabled,
         className = '',
@@ -76,10 +78,11 @@ export const EditableTitle = React.memo(
           <Input
             placeholder={placeholder}
             ref={inputRef}
+            id={id}
             disabled={disabled}
             variant="ghost"
             className={cn(
-              'w-full cursor-text! px-0! py-0! leading-1',
+              'w-full cursor-text! rounded-none! px-0! py-0! leading-1',
               editableTitleVariants({ level }),
               inputClassName
             )}

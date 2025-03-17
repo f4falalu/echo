@@ -17,7 +17,6 @@ import {
   Download4,
   History,
   SquareCode,
-  Table,
   SquareChartPen,
   Star,
   ShareRight
@@ -43,6 +42,8 @@ import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeI
 import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
 import { downloadElementToImage, exportElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
 import { METRIC_CHART_CONTAINER_ID } from '@/controllers/MetricController/MetricViewChart/config';
+import { timeout } from '@/lib';
+import { METRIC_CHART_TITLE_INPUT_ID } from '@/controllers/MetricController/MetricViewChart/MetricViewChartHeader';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { mutateAsync: deleteMetric, isPending: isDeletingMetric } = useDeleteMetric();
@@ -61,15 +62,11 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
   const downloadPNGMenu = useDownloadPNGSelectMenu({ metricId });
   const deleteMetricMenu = useDeleteMetricSelectMenu({ metricId });
   const renameMetricMenu = useRenameMetricSelectMenu({ metricId });
+  const shareMenu = useShareMenuSelectMenu({ metricId });
 
   const items: DropdownItems = useMemo(
     () => [
-      {
-        label: 'Share',
-        value: 'share',
-        icon: <ShareRight />,
-        items: []
-      },
+      shareMenu,
       statusSelectMenu,
       { type: 'divider' },
       dashboardSelectMenu,
@@ -87,6 +84,7 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
       deleteMetricMenu
     ],
     [
+      renameMetricMenu,
       dashboardSelectMenu,
       deleteMetricMenu,
       downloadCSVMenu,
@@ -101,7 +99,8 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
       collectionSelectMenu,
       editChartMenu,
       resultsViewMenu,
-      sqlEditorMenu
+      sqlEditorMenu,
+      shareMenu
     ]
   );
 
@@ -312,7 +311,7 @@ const useResultsViewSelectMenu = () => {
   return useMemo(
     () => ({
       label: 'Results view',
-      value: 'edit-chart',
+      value: 'results-view',
       onClick: onClickButton,
       icon: <SquareChartPen />
     }),
@@ -354,7 +353,7 @@ const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
         const data = metricData?.data;
         if (data && title) {
           setIsDownloading(true);
-          await exportJSONToCSV(data, `${title}.csv`);
+          await exportJSONToCSV(data, title);
           setIsDownloading(false);
         }
       }
@@ -414,6 +413,7 @@ const useDeleteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 
 const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: updateMetric } = useUpdateMetric();
+  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
 
   return useMemo(
     () => ({
@@ -421,11 +421,29 @@ const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
       value: 'rename-metric',
       icon: <Pencil />,
       onClick: async () => {
-        console.log('rename');
-        alert('TODO: Implement rename metric');
-        //  await updateMetric({ id: metricId, title: 'New title' });
+        onSetFileView({ fileView: 'chart' });
+        await timeout(125);
+        const input = document.getElementById(METRIC_CHART_TITLE_INPUT_ID) as HTMLInputElement;
+        if (input) {
+          input.focus();
+          input.select();
+        }
       }
     }),
     [metricId]
+  );
+};
+
+export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
+  const { mutateAsync: updateMetric } = useUpdateMetric();
+
+  return useMemo(
+    () => ({
+      label: 'Share metric',
+      value: 'share-metric',
+      icon: <ShareRight />,
+      items: [<div className="bg-red-200 p-2">SWAG</div>]
+    }),
+    []
   );
 };
