@@ -6,7 +6,7 @@ import { AppTooltip } from '@/components/ui/tooltip';
 import { useMemoizedFn } from '@/hooks';
 import { BusterShare, ShareAssetType } from '@/api/asset_interfaces';
 import { ShareMenuContent } from './ShareMenuContent';
-import { isShareMenuVisible } from './publicHelpers';
+import { isShareMenuVisible } from './helpers';
 import { ShareMenuTopBar, ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 import { useBusterNotifications } from '@/context/BusterNotifications';

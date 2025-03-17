@@ -412,9 +412,7 @@ const useDeleteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { mutateAsync: updateMetric } = useUpdateMetric();
   const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
-
   return useMemo(
     () => ({
       label: 'Rename metric',
@@ -444,6 +442,6 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
       icon: <ShareRight />,
       items: [<div className="bg-red-200 p-2">SWAG</div>]
     }),
-    []
+    [metricId]
   );
 };

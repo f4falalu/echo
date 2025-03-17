@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ShareRole } from '@/api/asset_interfaces';
-import { DropdownItem, DropdownItems, DropdownLabel } from '@/components/ui/dropdown';
+import { DropdownItem, DropdownLabel } from '@/components/ui/dropdown';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { Separator } from '@/components/ui/seperator';
