@@ -153,6 +153,7 @@ export const MOCK_CHAT = (): BusterChat => {
     id: faker.string.uuid(),
     title: faker.lorem.sentence(),
     is_favorited: faker.datatype.boolean(),
+    feedback: null,
     message_ids: messageIds,
     messages: messages.reduce<Record<string, BusterChatMessage>>((acc, m) => {
       acc[m.id] = m;

@@ -1,8 +1,9 @@
 'use client';
 
-import { Text } from '@/components/ui/typography';
-import React from 'react';
+import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useUpdateChat } from '@/api/buster_rest/chats';
+import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 
 const animation = {
   initial: { opacity: 0 },
@@ -11,15 +12,29 @@ const animation = {
   transition: { duration: 0.25 }
 };
 
+export const CHAT_HEADER_TITLE_ID = 'chat-header-title';
+
 export const ChatHeaderTitle: React.FC<{
   chatTitle: string;
-}> = React.memo(({ chatTitle }) => {
+  chatId: string;
+  isCompletedStream: boolean;
+}> = React.memo(({ chatTitle, chatId }) => {
+  const { mutateAsync: updateChat } = useUpdateChat();
+
   if (!chatTitle) return <div></div>;
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      <motion.div {...animation} key={chatTitle} className="flex items-center overflow-hidden">
-        <Text truncate>{chatTitle}</Text>
+      <motion.div
+        {...animation}
+        key={chatTitle}
+        className="flex w-full items-center overflow-hidden">
+        <EditableTitle
+          className="w-full"
+          id={CHAT_HEADER_TITLE_ID}
+          onChange={(value) => updateChat({ id: chatId, title: value })}>
+          {chatTitle}
+        </EditableTitle>
       </motion.div>
     </AnimatePresence>
   );

@@ -73,7 +73,6 @@ export const TermIndividualContent: React.FC<{
             <div className="mb-5 flex flex-col space-y-0.5">
               <div className={'overflow-hidden'}>
                 <EditableTitle
-                  editing={editingTermName}
                   onEdit={setEditingTermName}
                   onChange={(v) => {
                     onSetTermName(v);
@@ -94,7 +93,7 @@ export const TermIndividualContent: React.FC<{
             </div>
 
             <div>
-              <MoreDropdown termId={termId} setEditingTermName={setEditingTermName} />
+              <MoreDropdown termId={termId} />
             </div>
           </div>
 
@@ -153,10 +152,7 @@ const SkeletonLoader: React.FC = () => {
   return <div className="p-4">{/* <Skeleton /> */}</div>;
 };
 
-const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boolean) => void }> = ({
-  termId,
-  setEditingTermName
-}) => {
+const MoreDropdown: React.FC<{ termId: string }> = ({ termId }) => {
   const { mutateAsync: deleteTerm, isPending: isPendingDeleteTerm } = useDeleteTerm();
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
 
@@ -177,10 +173,7 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
       {
         value: 'edit',
         icon: <EditSquare />,
-        label: 'Edit term title',
-        onClick: () => {
-          setEditingTermName(true);
-        }
+        label: 'Edit term title'
       },
       {
         value: 'delete',
@@ -190,7 +183,7 @@ const MoreDropdown: React.FC<{ termId: string; setEditingTermName: (value: boole
         onClick: onDeleteTermsPreflight
       }
     ],
-    [setEditingTermName, onDeleteTermsPreflight]
+    [onDeleteTermsPreflight]
   );
 
   return (

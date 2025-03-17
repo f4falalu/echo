@@ -30,7 +30,6 @@ export const EditableTitle = React.memo(
       onSetValue?: (value: string) => void;
       onPressEnter?: () => void;
       disabled?: boolean;
-      editing?: boolean;
       className?: string;
       placeholder?: string;
       style?: React.CSSProperties;
@@ -47,7 +46,6 @@ export const EditableTitle = React.memo(
         inputClassName = '',
         placeholder,
         onPressEnter,
-        editing,
         children,
         level = 4,
         onEdit,
@@ -62,13 +60,6 @@ export const EditableTitle = React.memo(
       useLayoutEffect(() => {
         setValue(children);
       }, [children]);
-
-      useEffect(() => {
-        if (editing) {
-          inputRef.current?.focus();
-          inputRef.current?.select();
-        }
-      }, [editing]);
 
       return (
         <div

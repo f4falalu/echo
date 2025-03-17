@@ -19,10 +19,6 @@ const meta: Meta<typeof EditableTitle> = {
       control: 'boolean',
       description: 'Whether the title is editable or not'
     },
-    editing: {
-      control: 'boolean',
-      description: 'Whether the title is currently in edit mode'
-    },
     placeholder: {
       control: 'text',
       description: 'Placeholder text when the title is empty'
@@ -44,20 +40,14 @@ type Story = StoryObj<typeof EditableTitle>;
 // Helper component to control editable state in Storybook
 const EditableTitleContainer = (args: React.ComponentProps<typeof EditableTitle>) => {
   const [value, setValue] = React.useState(args.children);
-  const [isEditing, setIsEditing] = React.useState(args.editing || false);
 
   return (
     <EditableTitle
       {...args}
       children={value}
-      editing={isEditing}
       onChange={(newValue) => {
         setValue(newValue);
         args.onChange?.(newValue);
-      }}
-      onEdit={(editing) => {
-        setIsEditing(editing);
-        args.onEdit?.(editing);
       }}
     />
   );
@@ -131,7 +121,6 @@ export const InitiallyEditing: Story = {
   args: {
     children: 'Initially in Edit Mode',
     level: 4,
-    editing: true,
     onChange: fn(),
     onEdit: fn()
   }

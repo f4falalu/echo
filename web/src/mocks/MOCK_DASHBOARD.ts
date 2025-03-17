@@ -107,7 +107,8 @@ refresh_interval: 300`,
     public_password: null,
     public_expiry_date: null,
     public_enabled_by: null,
-    password_secret_id: null
+    password_secret_id: null,
+    versions: []
   };
 
   const response: BusterDashboardResponse = {
