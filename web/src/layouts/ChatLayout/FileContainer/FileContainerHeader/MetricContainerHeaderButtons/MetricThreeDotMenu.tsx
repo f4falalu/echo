@@ -40,16 +40,15 @@ import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces/share
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/StatusDropdownContent';
 import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
 import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
-import { downloadElementToImage, exportElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
+import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
 import { METRIC_CHART_CONTAINER_ID } from '@/controllers/MetricController/MetricViewChart/config';
 import { timeout } from '@/lib';
 import { METRIC_CHART_TITLE_INPUT_ID } from '@/controllers/MetricController/MetricViewChart/MetricViewChartHeader';
+import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
-  const { mutateAsync: deleteMetric, isPending: isDeletingMetric } = useDeleteMetric();
   const { openSuccessMessage } = useBusterNotifications();
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
-
   const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
   const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
   const collectionSelectMenu = useCollectionSelectMenu({ metricId });
@@ -89,7 +88,6 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
       deleteMetricMenu,
       downloadCSVMenu,
       downloadPNGMenu,
-      isDeletingMetric,
       metricId,
       openSuccessMessage,
       onSetSelectedFile,
@@ -105,7 +103,7 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
   );
 
   return (
-    <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit">
+    <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
       <Button prefix={<Dots />} variant="ghost" />
     </Dropdown>
   );
@@ -433,14 +431,21 @@ const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { mutateAsync: updateMetric } = useUpdateMetric();
+  const { data: metric } = useGetMetric(metricId);
 
   return useMemo(
     () => ({
       label: 'Share metric',
       value: 'share-metric',
       icon: <ShareRight />,
-      items: [<div className="bg-red-200 p-2">SWAG</div>]
+      items: [
+        <ShareMenuContent
+          key={metricId}
+          shareAssetConfig={metric!}
+          assetId={metricId}
+          assetType={ShareAssetType.METRIC}
+        />
+      ]
     }),
     [metricId]
   );
