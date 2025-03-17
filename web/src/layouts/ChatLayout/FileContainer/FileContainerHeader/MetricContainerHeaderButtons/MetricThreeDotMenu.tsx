@@ -36,7 +36,7 @@ import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { useSaveToDashboardDropdownContent } from '@/components/features/dropdowns/SaveToDashboardDropdown';
 import { useMemoizedFn } from '@/hooks';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
-import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces/share';
+import { ShareAssetType, ShareRole, VerificationStatus } from '@/api/asset_interfaces/share';
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/StatusDropdownContent';
 import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
 import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
@@ -432,20 +432,24 @@ const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 
 export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
   const { data: metric } = useGetMetric(metricId);
+  const isOwner = metric?.permission === ShareRole.OWNER;
 
   return useMemo(
     () => ({
       label: 'Share metric',
       value: 'share-metric',
       icon: <ShareRight />,
-      items: [
-        <ShareMenuContent
-          key={metricId}
-          shareAssetConfig={metric!}
-          assetId={metricId}
-          assetType={ShareAssetType.METRIC}
-        />
-      ]
+      disabled: !isOwner,
+      items: isOwner
+        ? [
+            <ShareMenuContent
+              key={metricId}
+              shareAssetConfig={metric!}
+              assetId={metricId}
+              assetType={ShareAssetType.METRIC}
+            />
+          ]
+        : undefined
     }),
     [metricId]
   );

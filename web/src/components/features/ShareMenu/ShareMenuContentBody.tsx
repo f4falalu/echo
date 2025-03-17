@@ -203,14 +203,14 @@ const ShareMenuContentShare: React.FC<{
           </div>
         )}
 
-        {hasUserTeams && (
+        {/* {hasUserTeams && (
           <>
-            <div className="bg-border my-2 h-[0.5px]" />
+            {hasIndividualPermissions && <div className="bg-border my-2 h-[0.5px]" />}
             <ShareWithGroupAndTeamOption
               onOpenShareWithGroupAndTeam={onOpenShareWithGroupAndTeam}
             />
           </>
-        )}
+        )} */}
       </div>
     );
   }
@@ -223,7 +223,7 @@ const ShareWithGroupAndTeamOption: React.FC<{
   return (
     <div
       onClick={onOpenShareWithGroupAndTeam}
-      className={cn('hover:bg-item-hover flex cursor-pointer items-center space-x-1.5 px-3 py-2')}>
+      className={cn('hover:bg-item-hover flex cursor-pointer items-center space-x-1.5')}>
       <Button prefix={<UserGroup />} />
       <div className={cn('flex w-full items-center justify-between space-x-1.5')}>
         <Text>Share with groups & teams</Text>

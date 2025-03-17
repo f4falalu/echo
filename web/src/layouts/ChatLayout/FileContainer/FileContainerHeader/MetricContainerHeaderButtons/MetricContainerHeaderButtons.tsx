@@ -30,6 +30,7 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
       <SaveToDashboardButton metricId={metricId} />
       <ShareMetricButton metricId={metricId} />
       <ThreeDotMenuButton metricId={metricId} />
+
       <HideButtonContainer show={renderViewLayoutKey === 'file'}>
         <CreateChatButton />
       </HideButtonContainer>
@@ -78,7 +79,7 @@ const EditSQLButton = React.memo(() => {
 
   return (
     <SelectableButton
-      tooltipText="Edit SQL"
+      tooltipText="SQL editor"
       icon={<SquareCode />}
       onClick={onClickButton}
       selected={isSelectedView}

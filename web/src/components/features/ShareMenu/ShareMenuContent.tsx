@@ -1,5 +1,5 @@
 import { type BusterShare, ShareAssetType, ShareRole } from '@/api/asset_interfaces';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { ShareMenuTopBar, ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { ShareMenuContentBody } from './ShareMenuContentBody';
 import { useMemoizedFn } from '@/hooks';
