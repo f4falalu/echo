@@ -3,6 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { useMemoizedFn, useDebounceFn } from '@/hooks';
 import {
   deleteMetrics,
+  duplicateMetric,
   getMetric,
   getMetric_server,
   getMetricData,
@@ -380,5 +381,11 @@ export const useRemoveMetricFromDashboard = () => {
 
   return useMutation({
     mutationFn: removeMetricFromDashboard
+  });
+};
+
+export const useDuplicateMetric = () => {
+  return useMutation({
+    mutationFn: duplicateMetric
   });
 };

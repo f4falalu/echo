@@ -2,6 +2,7 @@ import { mainApi } from '../instances';
 import { serverFetch } from '../../createServerInstance';
 import type { BusterChatListItem, BusterChat } from '@/api/asset_interfaces/chat';
 import type {
+  DuplicateChatParams,
   GetChatListParams,
   GetChatParams,
   UpdateChatParams
@@ -54,4 +55,14 @@ export const updateChat = async ({ id, ...data }: UpdateChatParams): Promise<Bus
 
 export const deleteChat = async (ids: string[]): Promise<void> => {
   return mainApi.delete(`${CHATS_BASE}`, { data: { ids } }).then((res) => res.data);
+};
+
+export const duplicateChat = async ({
+  id,
+  message_id,
+  share_with_same_people
+}: DuplicateChatParams): Promise<BusterChat> => {
+  return mainApi
+    .post(`${CHATS_BASE}/duplicate`, { id, message_id, share_with_same_people })
+    .then((res) => res.data);
 };

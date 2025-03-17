@@ -37,8 +37,6 @@ export type UpdateMetricParams = {
   chart_config?: BusterChartConfigProps;
   /** Flag to save the current draft state */
   save_draft?: boolean;
-  /** Feedback status for the metric */
-  feedback?: 'negative';
   /** Admin only: verification status update */
   status?: VerificationStatus;
   /** file in yaml format to update */

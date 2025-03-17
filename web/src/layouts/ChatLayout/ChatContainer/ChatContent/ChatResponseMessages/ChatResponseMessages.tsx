@@ -3,14 +3,16 @@ import { MessageContainer } from '../MessageContainer';
 import { ChatResponseMessageSelector } from './ChatResponseMessageSelector';
 import { ChatResponseReasoning } from './ChatResponseReasoning';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
+import { ChatMessageOptions } from '../ChatMessageOptions';
 
 interface ChatResponseMessagesProps {
   isCompletedStream: boolean;
   messageId: string;
+  chatId: string;
 }
 
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
-  ({ isCompletedStream, messageId }) => {
+  ({ chatId, isCompletedStream, messageId }) => {
     const responseMessageIds = useGetChatMessage(messageId, (x) => x?.response_message_ids || [])!;
     const lastReasoningMessageId = useGetChatMessage(
       messageId,
@@ -36,6 +38,8 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
             />
           </React.Fragment>
         ))}
+
+        {isCompletedStream && <ChatMessageOptions messageId={messageId} chatId={chatId} />}
       </MessageContainer>
     );
   }

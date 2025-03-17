@@ -51,6 +51,8 @@ export interface UpdateChatParams {
   title?: string;
   /** Optional flag to set the chat's favorite status */
   is_favorited?: boolean;
+  /** Optional feedback to set for the chat */
+  feedback?: 'negative' | null;
 }
 
 export interface ChatsSearchParams {
@@ -63,6 +65,13 @@ export interface DuplicateChatParams {
   id: string;
   /** The message ID to start the duplication from */
   message_id: string;
-  /** The target chat ID to duplicate content to */
-  chat_id: string;
+  /** Whether to share the duplicated chat with the same people as the source chat */
+  share_with_same_people: boolean;
+}
+
+export interface DuplicateChatResponse {
+  /** The unique identifier of the duplicated chat */
+  id: string;
+  /** The title of the duplicated chat */
+  title: string;
 }

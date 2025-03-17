@@ -8,6 +8,7 @@ import { ChatInput } from './ChatInput';
 const autoClass = 'mx-auto max-w-[600px] w-full';
 
 export const ChatContent: React.FC<{}> = React.memo(({}) => {
+  const chatId = useChatIndividualContextSelector((state) => state.chatId);
   const chatMessageIds = useChatIndividualContextSelector((state) => state.chatMessageIds);
 
   return (
@@ -16,7 +17,7 @@ export const ChatContent: React.FC<{}> = React.memo(({}) => {
         <div className="pb-8">
           {chatMessageIds?.map((messageId) => (
             <div key={messageId} className={autoClass}>
-              <ChatMessageBlock key={messageId} messageId={messageId} />
+              <ChatMessageBlock key={messageId} messageId={messageId} chatId={chatId || ''} />
             </div>
           ))}
         </div>

@@ -7,7 +7,8 @@ import {
   getChat_server,
   updateChat,
   deleteChat,
-  getListLogs
+  getListLogs,
+  duplicateChat
 } from './requests';
 import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import { queryKeys } from '@/api/query_keys';
@@ -115,10 +116,22 @@ export const prefetchGetChat = async (
 };
 
 export const useUpdateChat = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateChat,
-    onMutate: () => {
+    onMutate: (data) => {
       //this is actually handled in @useChatUpdate file
+
+      //except for the chat title and feedback
+      if (data.title || data.feedback !== undefined) {
+        const options = queryKeys.chatsGetChat(data.id);
+        queryClient.setQueryData(options.queryKey, (old) => {
+          return {
+            ...old!,
+            ...data
+          };
+        });
+      }
     }
   });
 };
@@ -157,4 +170,10 @@ export const useGetChatMessage = <TData = IBusterChatMessage>(
     select: selector
   });
   return data;
+};
+
+export const useDuplicateChat = () => {
+  return useMutation({
+    mutationFn: duplicateChat
+  });
 };
