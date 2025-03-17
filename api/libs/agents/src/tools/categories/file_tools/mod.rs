@@ -1,17 +1,17 @@
 pub mod common;
-pub mod create_dashboard_files;
-pub mod create_metric_files;
+pub mod create_dashboards;
+pub mod create_metrics;
 pub mod file_types;
 // pub mod filter_dashboards;
-pub mod modify_dashboard_files;
-pub mod modify_metric_files;
+pub mod modify_dashboards;
+pub mod modify_metrics;
 pub mod search_data_catalog;
 
-pub use create_dashboard_files::CreateDashboardFilesTool;
-pub use create_metric_files::CreateMetricFilesTool;
+pub use create_dashboards::CreateDashboardFilesTool;
+pub use create_metrics::CreateMetricFilesTool;
 // pub use filter_dashboards::FilterDashboardsTool;
-pub use modify_dashboard_files::ModifyDashboardFilesTool;
-pub use modify_metric_files::ModifyMetricFilesTool;
+pub use modify_dashboards::ModifyDashboardFilesTool;
+pub use modify_metrics::ModifyMetricFilesTool;
 pub use search_data_catalog::SearchDataCatalogTool;
 
 use crate::tools::ToolExecutor;
