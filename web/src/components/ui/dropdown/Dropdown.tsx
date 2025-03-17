@@ -63,6 +63,7 @@ export interface DropdownProps<T = string> extends DropdownMenuProps {
   footerContent?: React.ReactNode;
   showIndex?: boolean;
   contentClassName?: string;
+  footerClassName?: string;
 }
 
 export interface DropdownContentProps<T = string>
@@ -91,6 +92,7 @@ export const DropdownBase = <T,>({
   footerContent,
   dir,
   modal,
+  footerClassName = '',
   showIndex = false
 }: DropdownProps<T>) => {
   return (
@@ -114,6 +116,7 @@ export const DropdownBase = <T,>({
           emptyStateText={emptyStateText}
           footerContent={footerContent}
           className={contentClassName}
+          footerClassName={footerClassName}
         />
       </DropdownMenuContent>
     </DropdownMenu>
@@ -131,6 +134,7 @@ export const DropdownContent = <T,>({
   emptyStateText = 'No items found',
   footerContent,
   className,
+  footerClassName,
   onSelect
 }: DropdownContentProps<T>) => {
   const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
@@ -266,7 +270,7 @@ export const DropdownContent = <T,>({
         )}
       </div>
 
-      {footerContent && <div className="border-t p-1">{footerContent}</div>}
+      {footerContent && <div className={cn('border-t p-1', footerClassName)}>{footerContent}</div>}
     </>
   );
 };

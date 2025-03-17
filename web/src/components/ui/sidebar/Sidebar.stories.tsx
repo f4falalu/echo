@@ -43,6 +43,7 @@ const mockItems = [
 
 const mockGroupedContent = [
   {
+    id: 'notifications',
     items: [
       {
         id: '4',
@@ -59,6 +60,7 @@ const mockGroupedContent = [
     ]
   },
   {
+    id: 'main-menu',
     label: 'Main Menu',
     items: mockItems
   }
@@ -80,6 +82,7 @@ export const WithLongContent: Story = {
     header: <div className="text-xl font-semibold">My App</div>,
     content: [
       {
+        id: 'main-menu',
         label: 'Main Menu',
         items: [...Array(20)].map((_, i) => ({
           id: `item-${i}`,
@@ -108,9 +111,11 @@ export const ScrollAndTruncationTest: Story = {
     activeItem: 'long-4',
     content: [
       {
+        id: 'default-items',
         items: mockItems
       },
       {
+        id: 'short-items',
         label: 'Short Items',
         items: [...Array(20)].map((_, i) => ({
           id: `short-${i}`,
@@ -120,6 +125,7 @@ export const ScrollAndTruncationTest: Story = {
         }))
       },
       {
+        id: 'long-items',
         label: 'Long Items',
         items: [
           {
@@ -156,6 +162,7 @@ export const WithRemovableItems: Story = {
     header: <div className="text-xl font-semibold">My App</div>,
     content: [
       {
+        id: 'removable-items',
         label: 'Removable Items',
         items: mockItems.map((item) => ({
           ...item,
@@ -163,6 +170,7 @@ export const WithRemovableItems: Story = {
         }))
       },
       {
+        id: 'fixed-items',
         label: 'Fixed Items',
         items: mockItems
       }

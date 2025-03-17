@@ -5,7 +5,7 @@ import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/char
 import { generateLineChartData } from '../../../../mocks/chart/chartMocks';
 import { sharedMeta } from './BusterChartShared';
 
-type LineChartData = ReturnType<typeof generateLineChartData>[0];
+type LineChartData = ReturnType<typeof generateLineChartData>;
 
 const meta: Meta<typeof BusterChart> = {
   ...sharedMeta,

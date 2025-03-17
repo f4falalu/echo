@@ -78,7 +78,6 @@ export const WithHeaderContent: Story = {
   args: {
     children: <Button>With Header</Button>,
     content: <div className="text-base">This is the main content of the popover</div>,
-    headerContent: 'Important Information',
     align: 'center',
     side: 'bottom'
   }
@@ -88,7 +87,6 @@ export const WithCustomHeaderContent: Story = {
   args: {
     children: <Button>Custom Header</Button>,
     content: <div className="text-base">Detailed information below the custom header</div>,
-    headerContent: <div className="text-primary font-semibold">Custom Header Component</div>,
     align: 'center',
     side: 'bottom'
   }

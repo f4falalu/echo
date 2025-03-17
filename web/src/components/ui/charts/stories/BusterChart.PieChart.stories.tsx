@@ -6,7 +6,7 @@ import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/char
 import { generatePieChartData } from '../../../../mocks/chart/chartMocks';
 import { sharedMeta } from './BusterChartShared';
 
-type PieChartData = ReturnType<typeof generatePieChartData>[0];
+type PieChartData = ReturnType<typeof generatePieChartData>;
 
 const meta: Meta<typeof BusterChart> = {
   ...sharedMeta,
@@ -26,7 +26,7 @@ export const Default: Story = {
     },
     columnLabelFormats: {
       segment: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat,
       value: {
@@ -55,7 +55,7 @@ export const MultipleValues: Story = {
     },
     columnLabelFormats: {
       segment: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat,
       value1: {
@@ -85,7 +85,7 @@ export const Donut: Story = {
     },
     columnLabelFormats: {
       segment: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat,
       value: {
@@ -114,7 +114,7 @@ export const DonutMultipleValues: Story = {
     },
     columnLabelFormats: {
       segment: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat,
       value1: {
@@ -149,7 +149,7 @@ export const ResizableContainer: Story = {
     },
     columnLabelFormats: {
       segment: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat,
       value: {

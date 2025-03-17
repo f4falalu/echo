@@ -14,8 +14,6 @@ export interface PopoverProps
   children: React.ReactNode;
   content: React.ReactNode;
   className?: string;
-  headerContent?: string | React.ReactNode;
-  footerContent?: string | React.ReactNode;
   trigger?: PopoverTriggerType;
   size?: PopoverContentVariant['size'];
   sideOffset?: number;
@@ -28,10 +26,8 @@ export const Popover = React.memo<PopoverProps>(
     align,
     side,
     className = '',
-    headerContent,
     trigger = 'click',
     size = 'default',
-    footerContent,
     sideOffset,
     ...props
   }) => {
@@ -45,9 +41,7 @@ export const Popover = React.memo<PopoverProps>(
           side={side}
           className={className}
           size={size}
-          sideOffset={sideOffset}
-          headerContent={headerContent && <PopoverHeaderContent title={headerContent} />}
-          footerContent={footerContent && <PopoverFooterContent title={footerContent} />}>
+          sideOffset={sideOffset}>
           {content}
         </PopoverContent>
       </PopoverBase>
@@ -55,21 +49,21 @@ export const Popover = React.memo<PopoverProps>(
   }
 );
 
-const PopoverHeaderContent: React.FC<{
-  title: string | React.ReactNode;
-}> = ({ title }) => {
-  return (
-    <div className="flex flex-col">
-      <div className="p-2">{title}</div>
-      <Separator />
-    </div>
-  );
-};
+// const PopoverHeaderContent: React.FC<{
+//   title: string | React.ReactNode;
+// }> = ({ title }) => {
+//   return (
+//     <div className="flex flex-col">
+//       <div className="p-2">{title}</div>
+//       <Separator />
+//     </div>
+//   );
+// };
 
-const PopoverFooterContent: React.FC<{
-  title: string | React.ReactNode;
-}> = ({ title }) => {
-  return <div className="p-2">{title}</div>;
-};
+// const PopoverFooterContent: React.FC<{
+//   title: string | React.ReactNode;
+// }> = ({ title }) => {
+//   return <div className="p-2">{title}</div>;
+// };
 
 Popover.displayName = 'Popover';

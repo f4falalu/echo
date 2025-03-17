@@ -1,51 +1,37 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ShareMenuContent } from './ShareMenuContent';
 import { BusterShare, ShareAssetType, ShareRole } from '@/api/asset_interfaces';
-import { ShareMenuTopBarOptions } from './ShareMenuTopBar';
 
 const meta: Meta<typeof ShareMenuContent> = {
-  title: 'Features/Share/ShareMenuContent',
+  title: 'Features/ShareMenu/ShareMenuContent',
   component: ShareMenuContent,
   parameters: {
     layout: 'centered'
   },
-  decorators: [
-    (Story) => (
-      <div
-        style={{
-          width: '400px',
-          height: '400px',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-        <Story />
-      </div>
-    )
-  ]
+  tags: ['autodocs']
 };
 
 export default meta;
 type Story = StoryObj<typeof ShareMenuContent>;
 
-const mockShareAssetConfig: BusterShare = {
-  sharingKey: 'test-key',
+const mockShareConfig: BusterShare = {
+  sharingKey: 'mock-sharing-key',
   individual_permissions: [
     {
-      email: 'test@example.com',
-      role: ShareRole.VIEWER,
       id: '1',
+      email: 'test_with_a_long_name_like_super_long_name@test.com',
+      role: ShareRole.VIEWER,
       name: 'Test User'
-    }
-  ],
-  team_permissions: [
+    },
     {
-      name: 'Engineering',
-      id: 'team-1',
-      role: ShareRole.EDITOR
+      id: '2',
+      email: 'test2@test.com',
+      role: ShareRole.VIEWER,
+      name: 'Test User 2 with a long name like super long name'
     }
   ],
-  organization_permissions: [],
+  team_permissions: null,
+  organization_permissions: null,
   password_secret_id: null,
   public_expiry_date: null,
   public_enabled_by: null,
@@ -54,61 +40,48 @@ const mockShareAssetConfig: BusterShare = {
   permission: ShareRole.OWNER
 };
 
-export const ShareTab: Story = {
+export const MetricShare: Story = {
   args: {
-    shareAssetConfig: mockShareAssetConfig,
-    assetId: 'test-asset-id',
+    assetId: 'metric-123',
     assetType: ShareAssetType.METRIC,
-    selectedOptions: ShareMenuTopBarOptions.Share,
-    onCopyLink: () => console.log('Copy link clicked'),
-    setOpenShareWithGroupAndTeam: () => console.log('Open share with group and team'),
-    goBack: () => console.log('Go back clicked')
+    shareAssetConfig: mockShareConfig
   }
 };
 
-export const PublishTab: Story = {
+export const DashboardShare: Story = {
   args: {
-    ...ShareTab.args,
-    selectedOptions: ShareMenuTopBarOptions.Publish
+    assetId: 'dashboard-456',
+    assetType: ShareAssetType.DASHBOARD,
+    shareAssetConfig: mockShareConfig
   }
 };
 
-export const EmbedTab: Story = {
+export const CollectionShare: Story = {
   args: {
-    ...ShareTab.args,
-    selectedOptions: ShareMenuTopBarOptions.Embed
+    assetId: 'collection-789',
+    assetType: ShareAssetType.COLLECTION,
+    shareAssetConfig: mockShareConfig
   }
 };
 
-export const ShareWithGroupAndTeamTab: Story = {
+export const PubliclyAccessible: Story = {
   args: {
-    ...ShareTab.args,
-    selectedOptions: ShareMenuTopBarOptions.ShareWithGroupAndTeam
-  }
-};
-
-export const DashboardAsset: Story = {
-  args: {
-    ...ShareTab.args,
-    assetType: ShareAssetType.DASHBOARD
-  }
-};
-
-export const CollectionAsset: Story = {
-  args: {
-    ...ShareTab.args,
-    assetType: ShareAssetType.COLLECTION
-  }
-};
-
-export const WithPublicAccess: Story = {
-  args: {
-    ...ShareTab.args,
+    assetId: 'metric-123',
+    assetType: ShareAssetType.METRIC,
     shareAssetConfig: {
-      ...mockShareAssetConfig,
-      publicly_accessible: true,
-      public_password: 'test-password',
-      public_expiry_date: '2024-12-31T23:59:59Z'
+      ...mockShareConfig,
+      publicly_accessible: true
+    }
+  }
+};
+
+export const ViewerPermission: Story = {
+  args: {
+    assetId: 'metric-123',
+    assetType: ShareAssetType.METRIC,
+    shareAssetConfig: {
+      ...mockShareConfig,
+      permission: ShareRole.VIEWER
     }
   }
 };

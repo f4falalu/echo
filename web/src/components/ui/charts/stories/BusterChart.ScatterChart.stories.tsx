@@ -5,7 +5,7 @@ import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/char
 import { generateScatterChartData } from '../../../../mocks/chart/chartMocks';
 import { sharedMeta } from './BusterChartShared';
 
-type ScatterChartData = ReturnType<typeof generateScatterChartData>[0];
+type ScatterChartData = ReturnType<typeof generateScatterChartData>;
 
 const meta: Meta<typeof BusterChart> = {
   ...sharedMeta,
@@ -44,7 +44,7 @@ export const Default: Story = {
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat,
       category: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof ScatterChartData, IColumnLabelFormat>,

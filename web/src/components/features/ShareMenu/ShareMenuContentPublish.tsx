@@ -20,9 +20,9 @@ import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
 
 export const ShareMenuContentPublish: React.FC<{
   onCopyLink: () => void;
-  publicExpirationDate: string;
+  publicExpirationDate: string | null | undefined;
   publicly_accessible: boolean;
-  password: string | null;
+  password: string | null | undefined;
   assetType: ShareAssetType;
   assetId: string;
 }> = React.memo(
@@ -35,12 +35,15 @@ export const ShareMenuContentPublish: React.FC<{
     publicExpirationDate
   }) => {
     const { openInfoMessage } = useBusterNotifications();
-    const { mutateAsync: onShareMetric } = useUpdateMetric();
-    const { mutateAsync: onShareDashboard } = useUpdateDashboard();
-    const { mutateAsync: onShareCollection } = useUpdateCollection();
-    const [isPublishing, setIsPublishing] = useState<boolean>(false);
+    const { mutateAsync: onShareMetric, isPending: isPublishingMetric } = useUpdateMetric();
+    const { mutateAsync: onShareDashboard, isPending: isPublishingDashboard } =
+      useUpdateDashboard();
+    const { mutateAsync: onShareCollection, isPending: isPublishingCollection } =
+      useUpdateCollection();
     const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(!!password);
     const [_password, _setPassword] = React.useState<string>(password || '');
+
+    const isPublishing = isPublishingMetric || isPublishingDashboard || isPublishingCollection;
 
     const linkExpiry = useMemo(() => {
       return publicExpirationDate ? new Date(publicExpirationDate) : null;
@@ -59,7 +62,6 @@ export const ShareMenuContentPublish: React.FC<{
     }, [assetId, assetType]);
 
     const onTogglePublish = useMemoizedFn(async (v?: boolean) => {
-      setIsPublishing(true);
       const linkExp = linkExpiry ? linkExpiry.toISOString() : null;
       const payload = {
         id: assetId,
@@ -74,8 +76,6 @@ export const ShareMenuContentPublish: React.FC<{
       } else if (assetType === ShareAssetType.COLLECTION) {
         await onShareCollection(payload);
       }
-
-      setIsPublishing(false);
     });
 
     const onSetPasswordProtected = useMemoizedFn(async (v: boolean) => {
@@ -121,8 +121,8 @@ export const ShareMenuContentPublish: React.FC<{
     }, [password]);
 
     return (
-      <div className="pt-3">
-        <div className="space-y-3 px-3 pb-3">
+      <div className="">
+        <div className="space-y-3 pb-3">
           {publicly_accessible ? (
             <>
               <IsPublishedInfo isPublished={publicly_accessible} />
@@ -142,7 +142,7 @@ export const ShareMenuContentPublish: React.FC<{
               />
             </>
           ) : (
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col space-y-2.5">
               <Text variant="secondary">Anyone with the link will be able to view.</Text>
 
               <Button
@@ -302,5 +302,3 @@ const SetAPassword: React.FC<{
 );
 
 SetAPassword.displayName = 'SetAPassword';
-
-const iconRender = () => <></>;

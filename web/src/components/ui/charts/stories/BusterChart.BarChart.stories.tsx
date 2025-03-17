@@ -5,8 +5,9 @@ import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/char
 import { generateBarChartData } from '../../../../mocks/chart/chartMocks';
 import { sharedMeta } from './BusterChartShared';
 import { faker } from '@faker-js/faker';
+import { BarAndLineAxis } from '@/api/asset_interfaces/metric';
 
-type BarChartData = ReturnType<typeof generateBarChartData>[0];
+type BarChartData = ReturnType<typeof generateBarChartData>;
 
 const meta: Meta<typeof BusterChart> = {
   ...sharedMeta,
@@ -27,7 +28,7 @@ export const Default: Story = {
     },
     columnLabelFormats: {
       category: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat,
       sales: {
@@ -57,12 +58,11 @@ export const MultipleYAxis: Story = {
     barAndLineAxis: {
       x: ['category'],
       y: ['sales', 'units'],
-      y2: ['returns'],
       category: []
-    },
+    } satisfies BarAndLineAxis,
     columnLabelFormats: {
       category: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat,
       sales: {
@@ -104,11 +104,11 @@ export const WithCategory: Story = {
     },
     columnLabelFormats: {
       region: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat,
       product: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat,
       sales: {
@@ -176,7 +176,7 @@ export const HorizontalBar: Story = {
     },
     columnLabelFormats: {
       category: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat,
       sales: {
@@ -221,7 +221,7 @@ export const WithDataLabels: Story = {
     },
     columnLabelFormats: {
       category: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string'
       } satisfies IColumnLabelFormat,
       sales: {

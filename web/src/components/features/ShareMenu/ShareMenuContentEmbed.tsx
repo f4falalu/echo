@@ -6,8 +6,7 @@ import { Input } from '@/components/ui/inputs';
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { Link, BracketsCurly } from '@/components/ui/icons';
-import { Separator } from '@/components/ui/seperator';
+import { Link } from '@/components/ui/icons';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
@@ -53,20 +52,10 @@ export const ShareMenuContentEmbed: React.FC<{
 
   return (
     <div className="flex flex-col">
-      <div className="w-full p-3">
-        <div className="w-full">
-          <Input size="small" value={createIframe(embedURL)} />
-          <Button prefix={<Link />} className="flex" onClick={onCopyLink} />
-        </div>
-
-        <div className="mt-3 flex justify-end">
-          <Button prefix={<BracketsCurly />} onClick={onCopyLink}>
-            Copy code snippet
-          </Button>
-        </div>
+      <div className="flex w-full items-center space-x-1">
+        <Input size="small" defaultValue={createIframe(embedURL)} readOnly />
+        <Button prefix={<Link />} className="flex" onClick={onCopyLink} />
       </div>
-
-      <Separator />
     </div>
   );
 });

@@ -13,8 +13,10 @@ interface ComboChartDataPoint {
 }
 
 // Generate mock data for combo chart with revenue, orders, and average order value
-const generateComboChartData = (pointCount = 10): ComboChartDataPoint[] => {
-  const data: ComboChartDataPoint[] = [];
+const generateComboChartData = (
+  pointCount = 10
+): Record<string, string | number | Date | null>[] => {
+  const data: Record<string, string | number | Date | null>[] = [];
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - pointCount);
 
