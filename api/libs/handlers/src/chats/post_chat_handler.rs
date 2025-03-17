@@ -4,8 +4,8 @@ use std::{collections::HashMap, sync::Mutex, time::Instant};
 
 use agents::{
     tools::{file_tools::{
-        common::ModifyFilesOutput, create_dashboard_files::CreateDashboardFilesOutput,
-        create_metric_files::CreateMetricFilesOutput, search_data_catalog::SearchDataCatalogOutput,
+        common::ModifyFilesOutput, create_dashboards::CreateDashboardFilesOutput,
+        create_metrics::CreateMetricFilesOutput, search_data_catalog::SearchDataCatalogOutput,
     }, planning_tools::CreatePlanOutput},
     AgentExt, AgentMessage, AgentThread, BusterSuperAgent,
 };
