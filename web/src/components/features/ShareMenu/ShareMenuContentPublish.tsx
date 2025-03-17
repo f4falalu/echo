@@ -17,6 +17,7 @@ import { DatePicker } from '@/components/ui/date';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
+import { SelectSingleEventHandler } from 'react-day-picker';
 
 export const ShareMenuContentPublish: React.FC<{
   onCopyLink: () => void;
@@ -127,8 +128,8 @@ export const ShareMenuContentPublish: React.FC<{
             <>
               <IsPublishedInfo isPublished={publicly_accessible} />
 
-              <div className="w-full!">
-                <Input size="small" value={url} />
+              <div className="flex w-full space-x-0.5">
+                <Input size="small" readOnly value={url} />
                 <Button variant="default" className="flex" prefix={<Link />} onClick={onCopyLink} />
               </div>
 
@@ -160,15 +161,18 @@ export const ShareMenuContentPublish: React.FC<{
           <>
             <Separator />
 
-            <div className="flex justify-end space-x-2 px-3 py-2">
+            <div className="flex justify-end space-x-2 py-2.5">
               <Button
+                block
                 loading={isPublishing}
                 onClick={async (v) => {
                   onTogglePublish(false);
                 }}>
                 Unpublish
               </Button>
-              <Button onClick={onCopyLink}>Copy link</Button>
+              <Button block onClick={onCopyLink}>
+                Copy link
+              </Button>
             </div>
           </>
         )}
@@ -201,16 +205,21 @@ const LinkExpiration: React.FC<{
   }, []);
 
   const maxDate = useMemo(() => {
-    return createDayjsDate(new Date()).add(3, 'year');
+    return createDayjsDate(new Date()).add(2, 'year');
   }, []);
+
+  const onSelect: SelectSingleEventHandler = useMemoizedFn((date) => {
+    onChangeLinkExpiry(date || null);
+  });
 
   return (
     <div className="flex items-center justify-between space-x-2">
-      <Text>Link expiration</Text>
+      <Text truncate>Link expiration</Text>
 
       <DatePicker
-        date={linkExpiry || new Date()}
-        onSelect={onChangeLinkExpiry}
+        selected={linkExpiry || new Date()}
+        onSelect={onSelect}
+        mode="single"
         dateFormat={dateFormat}
         placeholder="Never"
         disabled={(date) => {
@@ -276,7 +285,7 @@ const SetAPassword: React.FC<{
         {isPasswordProtected && (
           <div className="flex w-full items-center space-x-2">
             <div className="flex w-full">
-              <div className="w-full">
+              <div className="relative flex w-full space-x-0.5">
                 <Input
                   value={password}
                   onChange={onChangePassword}
@@ -285,7 +294,9 @@ const SetAPassword: React.FC<{
                 />
 
                 <Button
-                  className="h-full!"
+                  variant="ghost"
+                  size="small"
+                  className="absolute top-1/2 right-[7px] -translate-y-1/2"
                   prefix={!visibilityToggle ? <Eye /> : <EyeSlash />}
                   onClick={onClickVisibilityToggle}></Button>
               </div>

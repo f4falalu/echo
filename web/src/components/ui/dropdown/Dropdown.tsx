@@ -64,6 +64,7 @@ export interface DropdownProps<T = string> extends DropdownMenuProps {
   showIndex?: boolean;
   contentClassName?: string;
   footerClassName?: string;
+  sideOffset?: number;
 }
 
 export interface DropdownContentProps<T = string>
@@ -92,6 +93,7 @@ export const DropdownBase = <T,>({
   footerContent,
   dir,
   modal,
+  sideOffset,
   footerClassName = '',
   showIndex = false
 }: DropdownProps<T>) => {
@@ -105,7 +107,11 @@ export const DropdownBase = <T,>({
       <DropdownMenuTrigger asChild>
         <span className="dropdown-trigger">{children}</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className={cn('max-w-72 min-w-44', className)} align={align} side={side}>
+      <DropdownMenuContent
+        className={cn('max-w-72 min-w-44', className)}
+        align={align}
+        side={side}
+        sideOffset={sideOffset}>
         <DropdownContent
           items={items}
           selectType={selectType}

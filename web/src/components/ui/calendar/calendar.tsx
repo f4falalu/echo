@@ -1,27 +1,18 @@
 'use client';
 
 import * as React from 'react';
-import { ChevronLeft } from '@/components/ui/icons';
-import { DayPicker, DayPickerProps } from 'react-day-picker';
+import { DayPicker } from 'react-day-picker';
+import { ChevronRight, ChevronLeft } from '../icons';
+
 import { cn } from '@/lib/utils';
-import { buttonVariants } from '@/components/ui/buttons';
 
-export type CalendarProps = DayPickerProps;
+export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
-function Calendar({
-  className,
-  classNames,
-  showOutsideDays = true,
-  required = false,
-  ...props
-}: CalendarProps) {
+function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn('p-3', className)}
-      required={true}
-      mode="single"
-      selected={undefined}
       classNames={{
         months: 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
         month: 'space-y-4',
@@ -29,8 +20,7 @@ function Calendar({
         caption_label: 'text-sm font-medium',
         nav: 'space-x-1 flex items-center',
         nav_button: cn(
-          buttonVariants({ variant: 'default' }),
-          'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100'
+          'h-7 w-7 bg-transparent p-0 opacity-50 cursor-pointer hover:opacity-100 rounded flex items-center justify-center hover:bg-item-hover'
         ),
         nav_button_previous: 'absolute left-1',
         nav_button_next: 'absolute right-1',
@@ -45,25 +35,29 @@ function Calendar({
             : '[&:has([aria-selected])]:rounded-md'
         ),
         day: cn(
-          buttonVariants({ variant: 'ghost' }),
-          'h-8 w-8 p-0 font-normal aria-selected:opacity-100'
+          'h-8 w-8 p-0 cursor-pointer font-normal aria-selected:opacity-100 hover:bg-item-hover rounded'
         ),
         day_range_start: 'day-range-start',
         day_range_end: 'day-range-end',
         day_selected:
-          'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
+          'bg-primary text-background hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground',
         day_today: 'bg-accent text-accent-foreground',
         day_outside:
           'day-outside text-muted-foreground aria-selected:bg-accent/50 aria-selected:text-muted-foreground',
-        day_disabled: 'text-muted-foreground opacity-50',
+        day_disabled: 'text-muted-foreground opacity-50 cursor-not-allowed!',
         day_range_middle: 'aria-selected:bg-accent aria-selected:text-accent-foreground',
         day_hidden: 'invisible',
         ...classNames
       }}
       components={{
-        Chevron: ({ className, ...props }) => (
-          <div className={cn('flex items-center justify-center', className)} {...props}>
+        IconLeft: ({ className, ...props }) => (
+          <div className={cn(className)} {...props}>
             <ChevronLeft />
+          </div>
+        ),
+        IconRight: ({ className, ...props }) => (
+          <div className={cn(className)} {...props}>
+            <ChevronRight />
           </div>
         )
       }}

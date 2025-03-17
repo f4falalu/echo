@@ -85,3 +85,16 @@ export const ViewerPermission: Story = {
     }
   }
 };
+
+export const PublishedMetric: Story = {
+  args: {
+    assetId: 'metric-123',
+    assetType: ShareAssetType.METRIC,
+    shareAssetConfig: {
+      ...mockShareConfig,
+      publicly_accessible: true,
+      public_expiry_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+      public_enabled_by: 'test@example.com'
+    }
+  }
+};

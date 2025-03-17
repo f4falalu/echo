@@ -69,6 +69,7 @@ export const AccessDropdown: React.FC<{
       footerContent={<FooterContent />}
       footerClassName="p-0!"
       onSelect={onSelectMenuItem}
+      sideOffset={9}
       selectType="single"
       align="end"
       side="bottom">

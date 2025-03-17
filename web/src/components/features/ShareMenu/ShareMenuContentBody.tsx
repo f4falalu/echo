@@ -175,7 +175,7 @@ const ShareMenuContentShare: React.FC<{
                 <AccessDropdown
                   showRemove={false}
                   groupShare={false}
-                  className="absolute right-[10px]"
+                  className="absolute top-[50%] right-[10px] -translate-y-1/2"
                   shareLevel={defaultPermissionLevel}
                   onChangeShareLevel={onChangeAccessDropdown}
                 />
