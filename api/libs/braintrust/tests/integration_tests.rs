@@ -85,7 +85,7 @@ async fn test_real_trace_with_spans() -> Result<()> {
     }
     
     // Create client (None means use env var)
-    let client = BraintrustClient::new(None, "c7b996a6-1c7c-482d-b23f-3d39de16f433")?;
+    let client = BraintrustClient::new(None, "172afc4a-16b7-4d59-978e-4c87cade87b6")?;
     
     // Create a trace
     let trace_id = uuid::Uuid::new_v4().to_string();

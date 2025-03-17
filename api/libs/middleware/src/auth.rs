@@ -12,8 +12,14 @@ use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, env};
 use uuid::Uuid;
+use lazy_static::lazy_static;
 
 use crate::types::{AuthenticatedUser, OrganizationMembership, TeamMembership};
+
+lazy_static! {
+    static ref JWT_SECRET: String = env::var("JWT_SECRET").expect("JWT_SECRET is not set");
+    static ref WEBHOOK_TOKEN: String = env::var("BUSTER_WH_TOKEN").expect("BUSTER_WH_TOKEN is not set");
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct JwtClaims {
@@ -44,8 +50,6 @@ pub async fn auth(mut req: Request, next: Next) -> Result<Response, StatusCode> 
         }
     };
 
-    let buster_wh_token = env::var("BUSTER_WH_TOKEN").expect("BUSTER_WH_TOKEN is not set");
-
     let bearer_token = req.headers().get("Authorization").and_then(|value| {
         value.to_str().ok().and_then(|v| {
             if v.starts_with("Bearer ") {
@@ -57,7 +61,7 @@ pub async fn auth(mut req: Request, next: Next) -> Result<Response, StatusCode> 
     });
 
     if let Some(token) = bearer_token {
-        if token == buster_wh_token {
+        if token == *WEBHOOK_TOKEN {
             return Ok(next.run(req).await);
         }
     }
@@ -95,20 +99,11 @@ pub async fn auth(mut req: Request, next: Next) -> Result<Response, StatusCode> 
 }
 
 async fn authorize_current_user(token: &str) -> Result<Option<AuthenticatedUser>> {
-    let pg_pool = get_pg_pool();
-
-    let _conn = pg_pool.get().await.map_err(|e| {
-        tracing::error!("Pool connection error in auth: {:?}", e);
-        anyhow!("Database connection error in auth")
-    })?;
-
-    let key = env::var("JWT_SECRET").expect("JWT_SECRET is not set");
-
     let mut validation = Validation::new(Algorithm::HS256);
     validation.set_audience(&["authenticated", "api"]);
 
     let token_data =
-        match decode::<JwtClaims>(token, &DecodingKey::from_secret(key.as_ref()), &validation) {
+        match decode::<JwtClaims>(token, &DecodingKey::from_secret(JWT_SECRET.as_ref()), &validation) {
             Ok(jwt_claims) => jwt_claims.claims,
             Err(e) => {
                 return Err(anyhow!("Error while decoding the token: {}", e));
