@@ -13,6 +13,7 @@ export async function middleware(request: NextRequest) {
     nextPathnameMiddleware(request, supabaseResponse);
 
     if (performUserCheck && !user) {
+      console.log(performUserCheck, user, request.nextUrl.pathname);
       return NextResponse.redirect(
         new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), process.env.NEXT_PUBLIC_URL)
       );

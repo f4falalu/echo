@@ -9,13 +9,13 @@ export default async function Login() {
   const supabase = await getSupabaseServerContext();
   const { user } = supabase;
 
-  if (user?.id) {
-    return redirect(
-      createBusterRoute({
-        route: BusterRoutes.APP_HOME
-      })
-    );
-  }
+  // if (user?.id && !user?.is_anonymous) {
+  //   return redirect(
+  //     createBusterRoute({
+  //       route: BusterRoutes.APP_HOME
+  //     })
+  //   );
+  // }
 
   return <LoginForm user={user} />;
 }
