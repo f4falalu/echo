@@ -116,7 +116,7 @@ export const signUp = async ({ email, password }: { email: string; password: str
 
   return redirect(
     createBusterRoute({
-      route: BusterRoutes.APP_ROOT
+      route: BusterRoutes.APP_HOME
     })
   );
 };

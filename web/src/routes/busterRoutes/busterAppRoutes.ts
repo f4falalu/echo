@@ -1,5 +1,4 @@
 export enum BusterAppRoutes {
-  APP_ROOT = '/app',
   APP_HOME = '/app/home',
   APP_COLLECTIONS = '/app/collections',
   APP_COLLECTIONS_ID = '/app/collections/:collectionId',
@@ -38,7 +37,6 @@ export enum BusterAppRoutes {
 }
 
 export type BusterAppRoutesWithArgs = {
-  [BusterAppRoutes.APP_ROOT]: { route: BusterAppRoutes.APP_ROOT };
   [BusterAppRoutes.APP_HOME]: { route: BusterAppRoutes.APP_HOME };
   [BusterAppRoutes.APP_COLLECTIONS]: { route: BusterAppRoutes.APP_COLLECTIONS };
   [BusterAppRoutes.APP_COLLECTIONS_ID]: {

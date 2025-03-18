@@ -17,7 +17,7 @@ type Story = StoryObj<typeof Breadcrumb>;
 export const Default: Story = {
   args: {
     items: [
-      { label: 'Home', route: { route: BusterRoutes.APP_ROOT } },
+      { label: 'Home', route: { route: BusterRoutes.APP_HOME } },
       { label: 'Datasets', route: { route: BusterRoutes.APP_DATASETS } },
       { label: 'Current Dataset' }
     ]
@@ -27,7 +27,7 @@ export const Default: Story = {
 export const WithDropdown: Story = {
   args: {
     items: [
-      { label: 'Home', route: { route: BusterRoutes.APP_ROOT } },
+      { label: 'Home', route: { route: BusterRoutes.APP_HOME } },
       {
         label: null,
         dropdown: [
@@ -44,7 +44,7 @@ export const WithDropdown: Story = {
 export const CustomActiveIndex: Story = {
   args: {
     items: [
-      { label: 'Home', route: { route: BusterRoutes.APP_ROOT } },
+      { label: 'Home', route: { route: BusterRoutes.APP_HOME } },
       { label: 'Datasets', route: { route: BusterRoutes.APP_DATASETS } },
       { label: 'Settings', route: { route: BusterRoutes.SETTINGS_API_KEYS } },
       { label: 'Profile' }

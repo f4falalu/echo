@@ -38,7 +38,7 @@ export const Default: Story = {
   args: {
     label: 'Home',
     icon: <HouseModern />,
-    route: BusterRoutes.APP_ROOT,
+    route: BusterRoutes.APP_HOME,
     id: 'home'
   }
 };

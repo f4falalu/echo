@@ -46,7 +46,7 @@ export const RoutePrefetcher: React.FC = React.memo(() => {
         PRIORITY_ROUTES.forEach((route) => {
           // For routes that don't require additional parameters
           if (
-            route === BusterRouteEnum.APP_ROOT ||
+            route === BusterRouteEnum.APP_HOME ||
             route === BusterRouteEnum.APP_COLLECTIONS ||
             route === BusterRouteEnum.APP_DASHBOARDS ||
             route === BusterRouteEnum.APP_METRIC ||

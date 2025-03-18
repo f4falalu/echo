@@ -12,7 +12,7 @@ export default async function Login() {
   if (user?.id) {
     return redirect(
       createBusterRoute({
-        route: BusterRoutes.APP_ROOT
+        route: BusterRoutes.APP_HOME
       })
     );
   }

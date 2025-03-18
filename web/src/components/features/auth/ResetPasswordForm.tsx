@@ -37,7 +37,7 @@ export const ResetPasswordForm: React.FC<{
       setCountdown((prev) => {
         if (prev === 0) {
           clearInterval(interval);
-          router.replace(createBusterRoute({ route: BusterRoutes.APP_ROOT }));
+          router.replace(createBusterRoute({ route: BusterRoutes.APP_HOME }));
           return 0;
         }
         return prev - 1;

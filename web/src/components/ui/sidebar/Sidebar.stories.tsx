@@ -25,7 +25,7 @@ const mockItems = [
     id: '1',
     label: 'Home',
     icon: <Window />,
-    route: BusterRoutes.APP_ROOT
+    route: BusterRoutes.APP_HOME
   },
   {
     id: '2',
@@ -88,7 +88,7 @@ export const WithLongContent: Story = {
           id: `item-${i}`,
           label: `Menu Item ${i + 1}`,
           icon: <Window width="1.25em" height="1.25em" />,
-          route: BusterRoutes.APP_ROOT
+          route: BusterRoutes.APP_HOME
         }))
       }
     ],
@@ -121,7 +121,7 @@ export const ScrollAndTruncationTest: Story = {
           id: `short-${i}`,
           label: `Item ${i + 1}`,
           icon: <Window width="1.25em" height="1.25em" />,
-          route: BusterRoutes.APP_ROOT
+          route: BusterRoutes.APP_HOME
         }))
       },
       {
