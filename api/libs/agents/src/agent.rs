@@ -105,7 +105,11 @@ impl MessageBuffer {
             Some(agent.name.clone()),
         );
 
-        agent.get_stream_sender().await.send(Ok(message))?;
+        // Continue on error with broadcast::error::SendError
+        if let Err(e) = agent.get_stream_sender().await.send(Ok(message)) {
+            // Log warning but don't fail the operation
+            tracing::warn!("Channel send error, message may be dropped: {}", e);
+        }
         
         // Update state
         self.first_message_sent = true;
@@ -164,8 +168,10 @@ impl Agent {
 
         let llm_client = LiteLLMClient::new(Some(llm_api_key), Some(llm_base_url));
 
-        let (tx, _rx) = broadcast::channel(1000);
-        let (shutdown_tx, _) = broadcast::channel(1);
+        // When creating a new agent, initialize broadcast channel with higher capacity for better concurrency
+        let (tx, _rx) = broadcast::channel(5000);
+        // Increase shutdown channel capacity to avoid blocking
+        let (shutdown_tx, _) = broadcast::channel(100);
 
         Self {
             llm_client,
@@ -465,7 +471,9 @@ impl Agent {
                 None,
                 Some(self.name.clone()),
             );
-            self.get_stream_sender().await.send(Ok(message))?;
+            if let Err(e) = self.get_stream_sender().await.send(Ok(message)) {
+                tracing::warn!("Channel send error when sending recursion limit message: {}", e);
+            }
             self.close().await;
             return Ok(());
         }
@@ -776,10 +784,10 @@ impl Agent {
                         }
                     }
 
-                    // Broadcast the tool message as soon as we receive it
-                    self.get_stream_sender()
-                        .await
-                        .send(Ok(tool_message.clone()))?;
+                    // Broadcast the tool message as soon as we receive it - use try_send to avoid blocking
+                    if let Err(e) = self.get_stream_sender().await.send(Ok(tool_message.clone())) {
+                        tracing::warn!("Channel send error when sending tool message: {}", e);
+                    }
 
                     // Update thread with tool response
                     self.update_current_thread(tool_message.clone()).await?;
@@ -850,22 +858,25 @@ impl Agent {
             return Ok(());
         }
         
-        // Get the session ID 
-        let session_id = self.session_id;
-        
-        // Create and log a completion span non-blockingly
-        if let Some(client) = &*BRAINTRUST_CLIENT {
-            // Create a new empty span for completion
-            let completion_span = client.create_span(
-                "Trace Completion", 
-                "completion",
-                None,
-                None
-            ).with_metadata("chat_id", session_id.to_string());
+        // Only create a completion span if we have an actual trace
+        if let Some(trace_builder) = trace {
+            // Get the trace root span ID to properly link the completion
+            let root_span_id = trace_builder.root_span_id();
             
-            // Log span non-blockingly (client handles the background processing)
-            if let Err(e) = client.log_span(completion_span).await {
-                error!("Failed to log completion span: {}", e);
+            // Create and log a completion span non-blockingly
+            if let Some(client) = &*BRAINTRUST_CLIENT {
+                // Create a new span for completion linked to the trace
+                let completion_span = client.create_span(
+                    "Trace Completion", 
+                    "completion",
+                    Some(root_span_id),  // Link to the trace's root span
+                    Some(root_span_id)   // Set parent to also be the root span
+                ).with_metadata("chat_id", self.session_id.to_string());
+                
+                // Log span non-blockingly (client handles the background processing)
+                if let Err(e) = client.log_span(completion_span).await {
+                    error!("Failed to log completion span: {}", e);
+                }
             }
         }
         

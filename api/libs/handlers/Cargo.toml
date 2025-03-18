@@ -33,6 +33,7 @@ middleware = { path = "../middleware" }
 sharing = { path = "../sharing" }
 
 # Add any handler-specific dependencies here 
+dashmap = "5.5.3"
 
 [dev-dependencies]
 tokio-test = { workspace = true } 
