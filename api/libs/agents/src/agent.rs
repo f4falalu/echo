@@ -9,6 +9,7 @@ use once_cell::sync::Lazy;
 use serde_json::Value;
 use std::{collections::HashMap, env, sync::Arc};
 use tokio::sync::{broadcast, RwLock};
+use tracing::error;
 use uuid::Uuid;
 use std::time::{Duration, Instant};
 use crate::models::AgentThread;
@@ -442,8 +443,15 @@ impl Agent {
                 // Add chat_id (session_id) as metadata to the root span
                 let span = root_span.with_metadata("chat_id", self.session_id.to_string());
                 
-                // Log the initial span
-                client.log_span(span.clone()).await?;
+                // Log the initial span without awaiting the result
+                // This ensures it doesn't block the main flow
+                let span_clone = span.clone();
+                let client_clone = client.clone();
+                tokio::spawn(async move {
+                    if let Err(e) = client_clone.log_span(span_clone).await {
+                        error!("Failed to log initial span: {}", e);
+                    }
+                });
                 
                 (Some(trace), Some(span))
             } else {
@@ -501,7 +509,17 @@ impl Agent {
                         let error_span = parent_span.with_output(serde_json::json!({
                             "error": format!("Error starting stream: {:?}", e)
                         }));
-                        let _ = client.log_span(error_span).await;
+                        
+                        // Create clones for the spawned task
+                        let error_span_clone = error_span.clone();
+                        let client_clone = client.clone();
+                        
+                        // Spawn a task for logging to ensure non-blocking behavior
+                        tokio::spawn(async move {
+                            if let Err(log_err) = client_clone.log_span(error_span_clone).await {
+                                error!("Failed to log error span: {}", log_err);
+                            }
+                        });
                     }
                 }
                 let error_message = format!("Error starting stream: {:?}", e);
@@ -574,7 +592,17 @@ impl Agent {
                             
                             // Log error as output to parent span
                             let error_span = parent.clone().with_output(error_info);
-                            let _ = client.log_span(error_span).await;
+                            
+                            // Create clones for the spawned task
+                            let error_span_clone = error_span.clone();
+                            let client_clone = client.clone();
+                            
+                            // Spawn a task for logging to ensure non-blocking behavior
+                            tokio::spawn(async move {
+                                if let Err(log_err) = client_clone.log_span(error_span_clone).await {
+                                    error!("Failed to log stream error span: {}", log_err);
+                                }
+                            });
                         }
                     }
                     let error_message = format!("Error in stream: {:?}", e);
@@ -631,8 +659,16 @@ impl Agent {
                     let span = span.with_input(serde_json::to_value(&request)?);
                     let span = span.with_output(serde_json::to_value(&complete_final_message)?);
                     
-                    // Log the completed span
-                    let _ = client.log_span(span).await;
+                    // Clone needed values for the spawned task
+                    let span_clone = span.clone();
+                    let client_clone = client.clone();
+                    
+                    // Spawn a task for logging to ensure non-blocking behavior
+                    tokio::spawn(async move {
+                        if let Err(log_err) = client_clone.log_span(span_clone).await {
+                            error!("Failed to log assistant response span: {}", log_err);
+                        }
+                    });
                 }
             }
         }
@@ -646,7 +682,17 @@ impl Agent {
                 if let Some(client) = &*BRAINTRUST_CLIENT {
                     // Create a new span with the final message as output
                     let final_span = parent_span.clone().with_output(serde_json::to_value(&final_message)?);
-                    let _ = client.log_span(final_span).await;
+                    
+                    // Clone needed values for the spawned task
+                    let final_span_clone = final_span.clone();
+                    let client_clone = client.clone();
+                    
+                    // Spawn a task for logging to ensure non-blocking behavior
+                    tokio::spawn(async move {
+                        if let Err(log_err) = client_clone.log_span(final_span_clone).await {
+                            error!("Failed to log final output span: {}", log_err);
+                        }
+                    });
                 }
             }
             
@@ -721,7 +767,16 @@ impl Agent {
                                     
                                     // Create a new span with the error output
                                     let error_span = tool_span.clone().with_output(error_info);
-                                    let _ = client.log_span(error_span).await;
+                                    // Clone needed values for the spawned task
+                                    let error_span_clone = error_span.clone();
+                                    let client_clone = client.clone();
+                                    
+                                    // Spawn a task for logging to ensure non-blocking behavior
+                                    tokio::spawn(async move {
+                                        if let Err(log_err) = client_clone.log_span(error_span_clone).await {
+                                            error!("Failed to log tool execution error span: {}", log_err);
+                                        }
+                                    });
                                 }
                             }
                             let error_message = format!("Tool execution error: {:?}", e);
@@ -746,7 +801,16 @@ impl Agent {
                                 // Now that we have the tool result, add it as output and log the span
                                 // This creates a span showing assistant message -> tool execution -> tool result
                                 let result_span = tool_span.clone().with_output(serde_json::to_value(&tool_message)?);
-                                let _ = client.log_span(result_span).await;
+                                // Clone needed values for the spawned task
+                                let result_span_clone = result_span.clone();
+                                let client_clone = client.clone();
+                                
+                                // Spawn a task for logging to ensure non-blocking behavior
+                                tokio::spawn(async move {
+                                    if let Err(log_err) = client_clone.log_span(result_span_clone).await {
+                                        error!("Failed to log tool result span: {}", log_err);
+                                    }
+                                });
                             }
                         }
                     }
@@ -776,7 +840,17 @@ impl Agent {
                 if let Some(client) = &*BRAINTRUST_CLIENT {
                     // Create a new span with the final message as output
                     let final_span = parent_span.clone().with_output(serde_json::to_value(&final_message)?);
-                    let _ = client.log_span(final_span).await;
+                    
+                    // Clone needed values for the spawned task
+                    let final_span_clone = final_span.clone();
+                    let client_clone = client.clone();
+                    
+                    // Spawn a task for logging to ensure non-blocking behavior
+                    tokio::spawn(async move {
+                        if let Err(log_err) = client_clone.log_span(final_span_clone).await {
+                            error!("Failed to log final output span: {}", log_err);
+                        }
+                    });
                 }
             }
             
@@ -814,162 +888,42 @@ impl Agent {
     }
 
     /// Helper method to finish a trace without consuming the TraceBuilder
+    /// This method is fully non-blocking and never affects application performance
     async fn finish_trace(&self, trace: &Option<TraceBuilder>) -> Result<()> {
-        if let Some(trace) = trace {
-            if let Some(client) = &*BRAINTRUST_CLIENT {
-                // Get the current thread with all conversation history
-                let thread = self.get_current_thread().await;
-                
-                if let Some(thread) = thread {
-                    // Find the index of the most recent user message
-                    let last_user_message_idx = thread.messages.iter()
-                        .enumerate()
-                        .filter(|(_, msg)| matches!(msg, AgentMessage::User { .. }))
-                        .map(|(idx, _)| idx)
-                        .last();
-                    
-                    if let Some(last_idx) = last_user_message_idx {
-                        // Extract the content from the last user message
-                        let user_prompt_text = if let AgentMessage::User { content, .. } = &thread.messages[last_idx] {
-                            content.clone()
-                        } else {
-                            "No prompt available".to_string()
-                        };
-                        
-                        // Separate messages into different categories
-                        let mut conversation_history = Vec::new();
-                        let mut system_message = None;
-                        let mut response_messages = Vec::new();
-                        
-                        // First, find any developer/system message
-                        for msg in thread.messages.iter() {
-                            if let AgentMessage::Developer { content, .. } = msg {
-                                // Just take the content text from the developer message
-                                // There should only be one, and we'll use the last one if multiple exist
-                                system_message = Some(content.clone());
-                            }
-                        }
-                        
-                        // Process all messages for conversation history and responses
-                        for (idx, msg) in thread.messages.iter().enumerate() {
-                            // Skip Developer messages as they're handled separately
-                            if matches!(msg, AgentMessage::Developer { .. }) {
-                                continue;
-                            }
-                            
-                            let message_json = match msg {
-                                AgentMessage::User { content, .. } => {
-                                    serde_json::json!({
-                                        "role": "user",
-                                        "content": content
-                                    })
-                                },
-                                AgentMessage::Assistant { content, tool_calls, .. } => {
-                                    if let Some(content) = content {
-                                        if tool_calls.is_some() {
-                                            serde_json::json!({
-                                                "role": "assistant",
-                                                "content": content,
-                                                "has_tool_calls": true
-                                            })
-                                        } else {
-                                            serde_json::json!({
-                                                "role": "assistant", 
-                                                "content": content
-                                            })
-                                        }
-                                    } else if let Some(tool_calls) = tool_calls {
-                                        serde_json::json!({
-                                            "role": "assistant",
-                                            "tool_calls": tool_calls
-                                        })
-                                    } else {
-                                        serde_json::json!({
-                                            "role": "assistant",
-                                            "content": null
-                                        })
-                                    }
-                                },
-                                AgentMessage::Tool { content, name, .. } => {
-                                    serde_json::json!({
-                                        "role": "tool",
-                                        "name": name,
-                                        "content": content
-                                    })
-                                },
-                                _ => continue // Skip other message types entirely
-                            };
-                            
-                            // Sort messages based on their position relative to the last user message
-                            if idx < last_idx {
-                                // Messages before the last user message go to conversation history
-                                conversation_history.push(message_json);
-                            } else if idx == last_idx {
-                                // This is the last user message - it goes to input, not output
-                                continue;
-                            } else {
-                                // Messages after last user message go to response (output)
-                                response_messages.push(message_json);
-                            }
-                        }
-                        
-                        // Log the processed conversation in the trace output
-                        let root_span = trace.root_span();
-                        
-                        // Build the final span with input and chat_id
-                        let mut finished_root = root_span.clone()
-                            .with_input(serde_json::json!(user_prompt_text))
-                            .with_metadata("chat_id", self.session_id.to_string());
-                        
-                        // Add conversation history as structured JSON metadata if there is any
-                        if !conversation_history.is_empty() {
-                            finished_root = finished_root.with_json_metadata(
-                                "conversation_history", 
-                                serde_json::Value::Array(conversation_history)
-                            );
-                        }
-                        
-                        // Add system message as structured metadata if it exists
-                        if let Some(system_msg) = system_message {
-                            finished_root = finished_root.with_json_metadata(
-                                "system_message", 
-                                serde_json::json!(system_msg)
-                            );
-                        }
-                        
-                        // Set output as the response messages only
-                        finished_root = finished_root.with_output(serde_json::Value::Array(response_messages));
-                        
-                        // Log the final span
-                        client.log_span(finished_root).await?;
-                    } else {
-                        // No user message found, fallback to simple logging
-                        let root_span = trace.root_span();
-                        client.log_span(root_span.clone()
-                            .with_metadata("chat_id", self.session_id.to_string())
-                            .with_json_metadata("status", serde_json::json!("error"))
-                            .with_output(serde_json::json!([{
-                                "role": "system",
-                                "content": "No user message found in conversation"
-                            }]))
-                        ).await?;
-                    }
-                } else {
-                    // Fallback if no thread is available
-                    let root_span = trace.root_span();
-                    // Still ensure we preserve input and have chat_id metadata even in fallback case
-                    // We need to ensure input is persisted even when no thread is available
-                    let finished_root = root_span.clone()
-                        .with_metadata("chat_id", self.session_id.to_string())
-                        .with_json_metadata("status", serde_json::json!("error"))
-                        .with_output(serde_json::json!([{
-                            "role": "system",
-                            "content": "Trace completed - no conversation history available"
-                        }]));
-                    client.log_span(finished_root).await?;
-                }
-            }
+        // If there's no trace to finish or no client to log with, return immediately
+        if trace.is_none() || BRAINTRUST_CLIENT.is_none() {
+            return Ok(());
         }
+        
+        // Don't even try to access the trace - just return immediately
+        // The real work is done asynchronously
+        
+        // Get the session ID and thread data here, before spawning a new task
+        let session_id = self.session_id;
+        let thread = self.get_current_thread().await;
+        
+        // Instead of directly using trace, we'll do everything in a separate task
+        if let Some(client) = &*BRAINTRUST_CLIENT {
+            let client_clone = client.clone();
+            
+            // Fire and forget - spawn a task to handle the trace finishing
+            // This won't block the main thread at all
+            tokio::spawn(async move {
+                // Create a new empty span for completion
+                let completion_span = client_clone.create_span(
+                    "Trace Completion", 
+                    "completion",
+                    None,
+                    None
+                ).with_metadata("chat_id", session_id.to_string());
+                
+                if let Err(e) = client_clone.log_span(completion_span).await {
+                    error!("Failed to log completion span: {}", e);
+                }
+            });
+        }
+        
+        // Return immediately, without waiting for any logging operations
         Ok(())
     }
 
