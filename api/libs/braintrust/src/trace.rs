@@ -32,6 +32,7 @@ impl TraceBuilder {
     }
 
     /// Immediately create and log a span, return it for further updates
+    /// Logging happens asynchronously in the background
     ///
     /// # Arguments
     /// * `name` - Name of the span
@@ -42,11 +43,13 @@ impl TraceBuilder {
     pub async fn add_span(&self, name: &str, span_type: &str) -> Result<Span> {
         let span = Span::new(name, span_type, &self.root_span.span_id, Some(&self.root_span.span_id));
         debug!("Adding span '{}' with ID: {} to trace", name, span.span_id());
+        // Log span non-blockingly (client handles the background processing)
         self.client.log_span(span.clone()).await?;
         Ok(span)
     }
 
     /// Create a child span from a parent span
+    /// Logging happens asynchronously in the background
     ///
     /// # Arguments
     /// * `name` - Name of the span
@@ -59,6 +62,7 @@ impl TraceBuilder {
         let span = Span::new(name, span_type, &self.root_span.span_id, Some(parent_span.span_id()));
         debug!("Adding child span '{}' with ID: {} to parent: {}", 
                name, span.span_id(), parent_span.span_id());
+        // Log span non-blockingly (client handles the background processing)
         self.client.log_span(span.clone()).await?;
         Ok(span)
     }
@@ -74,12 +78,14 @@ impl TraceBuilder {
     }
 
     /// Finish and log the root span
+    /// Logging happens asynchronously in the background
     ///
     /// # Returns
-    /// Result indicating success or failure
+    /// Result indicating success or failure of queuing the span (always Ok)
     pub async fn finish(self) -> Result<()> {
         debug!("Finishing trace with root span ID: {}", self.root_span.span_id);
         let finished_root = self.root_span.set_output(serde_json::json!("Trace completed"));
+        // Log span non-blockingly (client handles the background processing)
         self.client.log_span(finished_root).await?;
         Ok(())
     }

@@ -120,13 +120,11 @@ impl BraintrustClient {
         // Clone the sender to avoid awaiting on the send operation
         let log_sender = self.log_sender.clone();
         
-        // Fire and forget - spawn a task that won't block the caller
-        tokio::spawn(async move {
-            if let Err(e) = log_sender.send(span).await {
-                // Just log the error and continue, don't propagate it to the caller
-                error!("Failed to queue span for logging: {}", e);
-            }
-        });
+        // Fire and forget - handle internally without requiring caller to spawn
+        if let Err(e) = log_sender.send(span).await {
+            // Just log the error and continue, don't propagate it to the caller
+            error!("Failed to queue span for logging: {}", e);
+        }
         
         // Return immediately without awaiting the log operation
         Ok(())
