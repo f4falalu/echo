@@ -7,7 +7,6 @@ import { ClientRedirect } from '../../components/ui/layouts/ClientRedirect';
 import { LayoutClient } from './layoutClient';
 import { prefetchGetMyUserInfo } from '@/api/buster_rest';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import path from 'path';
 
 export const dynamic = 'force-dynamic';
 

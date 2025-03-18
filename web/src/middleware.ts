@@ -11,7 +11,8 @@ export async function middleware(request: NextRequest) {
     const performUserCheck = !isPublicPage(request);
     cspPolicyMiddleware(request);
     nextPathnameMiddleware(request, supabaseResponse);
-    if (performUserCheck && !user && !request.nextUrl.pathname.includes('/test/')) {
+
+    if (performUserCheck && !user) {
       return NextResponse.redirect(
         new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), process.env.NEXT_PUBLIC_URL)
       );

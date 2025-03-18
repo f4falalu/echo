@@ -1,4 +1,5 @@
 import { BusterAuthRoutes } from '@/routes/busterRoutes/busterAuthRoutes';
+import { BusterEmbedRoutes } from '@/routes/busterRoutes/busterEmbedRoutes';
 import { BusterRoutes, createPathnameToBusterRoute } from '@/routes/busterRoutes/busterRoutes';
 import { NextRequest } from 'next/server';
 
@@ -13,6 +14,7 @@ const publicPages: BusterRoutes[] = [
   BusterRoutes.APP_METRIC_ID,
   BusterRoutes.APP_DASHBOARD_ID,
   BusterRoutes.APP_DASHBOARD_METRICS_ID,
+  ...Object.values(BusterEmbedRoutes),
   ...Object.values(BusterAuthRoutes)
 ];
 
