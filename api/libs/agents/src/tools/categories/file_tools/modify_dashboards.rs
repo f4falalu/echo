@@ -203,6 +203,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                 "properties": {
                     "files": {
                         "type": "array",
+                        "description": get_modify_dashboards_yml_description().await,
                         "items": {
                             "type": "object",
                             "required": ["id", "file_name", "modifications"],
@@ -213,35 +214,34 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                                 },
                                 "file_name": {
                                     "type": "string",
-                                    "description": "The name of the dashboard file being modified"
+                                    "description": get_modify_dashboards_file_name_description().await
                                 },
                                 "modifications": {
                                     "type": "array",
+                                    "description": get_modify_dashboards_modifications_description().await,
                                     "items": {
                                         "type": "object",
                                         "required": ["content_to_replace", "new_content"],
                                         "properties": {
                                             "content_to_replace": {
                                                 "type": "string",
-                                                "description": "The exact content in the file that should be replaced. Must match exactly."
+                                                "description": get_modify_dashboards_content_to_replace_description().await
                                             },
                                             "new_content": {
                                                 "type": "string",
-                                                "description": "The new content that will replace the matched content. Make sure to include proper indentation and formatting."
+                                                "description": get_modify_dashboards_new_content_description().await
                                             }
                                         },
                                         "additionalProperties": false
-                                    },
-                                    "description": "List of content replacements to apply to the file."
+                                    }
                                 }
                             },
                             "additionalProperties": false
-                        },
-                        "description": get_modify_dashboards_yml_description().await
+                        }
                     }
                 },
                 "additionalProperties": false
-            },
+            }
         })
     }
 }
@@ -282,11 +282,71 @@ async fn get_dashboard_modification_id_description() -> String {
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
-    match get_prompt_system_message(&client, "modify-dashboards-id-description").await {
+    match get_prompt_system_message(&client, "1d9cda62-53eb-4c5c-9c33-d3f81667b249").await {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
             "UUID of the file to modify".to_string()
+        }
+    }
+}
+
+async fn get_modify_dashboards_file_name_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Name of the dashboard file to modify".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "5e0761df-2668-40f3-874e-84eb54c66e4d").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Name of the dashboard file to modify".to_string()
+        }
+    }
+}
+
+async fn get_modify_dashboards_modifications_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "List of content modifications to make to the dashboard file".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "ee5789a9-fd99-4afd-a5c4-88f2ebe58fe9").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "List of content modifications to make to the dashboard file".to_string()
+        }
+    }
+}
+
+async fn get_modify_dashboards_new_content_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "The new content to replace the existing content with".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "258a84a6-ec1a-4f45-b586-04853272deeb").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "The new content to replace the existing content with".to_string()
+        }
+    }
+}
+
+async fn get_modify_dashboards_content_to_replace_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "The exact content in the file that should be replaced. Must match exactly.".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "7e89b1f9-30ed-4f0c-b4da-32ce03f31635").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "The exact content in the file that should be replaced. Must match exactly.".to_string()
         }
     }
 }
@@ -392,8 +452,8 @@ mod tests {
                 "id": Uuid::new_v4().to_string(),
                 "file_name": "test.yml",
                 "modifications": [{
-                    "content_to_replace": "old content",
-                    "new_content": "new content"
+                    "new_content": "new content",
+                    "line_numbers": [1, 2]
                 }]
             }]
         });

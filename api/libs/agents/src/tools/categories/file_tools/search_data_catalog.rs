@@ -94,18 +94,33 @@ impl SearchDataCatalogTool {
         true
     }
 
-    fn format_search_prompt(query_params: &[String], datasets: &[DatasetRecord]) -> Result<String> {
+    async fn format_search_prompt(query_params: &[String], datasets: &[DatasetRecord]) -> Result<String> {
         let datasets_json = datasets
             .iter()
             .map(|d| d.to_llm_format())
             .collect::<Vec<_>>();
 
-        Ok(CATALOG_SEARCH_PROMPT
+        Ok(SearchDataCatalogTool::get_search_prompt().await
             .replace("{queries_joined_with_newlines}", &query_params.join("\n"))
             .replace(
                 "{datasets_array_as_json}",
                 &serde_json::to_string_pretty(&datasets_json)?,
             ))
+    }
+
+    async fn get_search_prompt() -> String {
+        if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+            return CATALOG_SEARCH_PROMPT.to_string();
+        }
+    
+        let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+        match get_prompt_system_message(&client, "812b3f76-20d5-49e3-884c-2c8084800b43").await {
+            Ok(message) => message,
+            Err(e) => {
+                eprintln!("Failed to get prompt system message: {}", e);
+                CATALOG_SEARCH_PROMPT.to_string()
+            }
+        }
     }
 
     async fn perform_llm_search(
@@ -277,7 +292,7 @@ impl ToolExecutor for SearchDataCatalogTool {
         }
 
         // Format prompt and perform search
-        let prompt = Self::format_search_prompt(&[params.search_requirements.clone()], &datasets)?;
+        let prompt = Self::format_search_prompt(&[params.search_requirements.clone()], &datasets).await?;
         let search_results = match Self::perform_llm_search(
             prompt,
             &self.agent.get_user_id(),
