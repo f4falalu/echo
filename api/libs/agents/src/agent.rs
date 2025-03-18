@@ -821,10 +821,29 @@ impl Agent {
                 let thread = self.get_current_thread().await;
                 
                 if let Some(thread) = thread {
-                    // Extract all messages and format them for better readability
-                    let formatted_conversation: Vec<serde_json::Value> = thread.messages.iter()
-                        .map(|msg| {
-                            match msg {
+                    // Find the index of the most recent user message
+                    let last_user_message_idx = thread.messages.iter()
+                        .enumerate()
+                        .filter(|(_, msg)| matches!(msg, AgentMessage::User { .. }))
+                        .map(|(idx, _)| idx)
+                        .last();
+                    
+                    if let Some(last_idx) = last_user_message_idx {
+                        // Extract the content from the last user message
+                        let user_prompt_text = if let AgentMessage::User { content, .. } = &thread.messages[last_idx] {
+                            content.clone()
+                        } else {
+                            "No prompt available".to_string()
+                        };
+                        
+                        // Separate messages into different categories
+                        let mut conversation_history = Vec::new();
+                        let mut system_messages = Vec::new();
+                        let mut response_messages = Vec::new();
+                        
+                        // Process all messages
+                        for (idx, msg) in thread.messages.iter().enumerate() {
+                            let message_json = match msg {
                                 AgentMessage::User { content, .. } => {
                                     serde_json::json!({
                                         "role": "user",
@@ -876,37 +895,72 @@ impl Agent {
                                     "role": "system", 
                                     "content": "Unknown message type"
                                 })
-                            }
-                        })
-                        .collect();
-                    
-                    // Get the most recent user message to ensure input is preserved
-                    let user_input_message = thread.messages.iter()
-                        .filter(|msg| matches!(msg, AgentMessage::User { .. }))
-                        .last()
-                        .cloned();
-                    
-                    // Extract the content from the user message
-                    let user_prompt_text = user_input_message
-                        .as_ref()
-                        .and_then(|msg| {
-                            if let AgentMessage::User { content, .. } = msg {
-                                Some(content.clone())
+                            };
+                            
+                            // Sort messages based on their position and type
+                            if idx < last_idx {
+                                // Messages before the last user message go to conversation history
+                                if matches!(msg, AgentMessage::User { .. } | AgentMessage::Assistant { .. } | AgentMessage::Tool { .. }) {
+                                    conversation_history.push(message_json);
+                                } else {
+                                    // Developer and system messages always go to system_messages
+                                    system_messages.push(message_json);
+                                }
+                            } else if idx == last_idx {
+                                // This is the last user message - it goes to input, not output
+                                continue;
                             } else {
-                                None
+                                // Messages after last user message go to response (output)
+                                if matches!(msg, AgentMessage::Developer { .. }) {
+                                    // Developer messages after user query still go to system_messages
+                                    system_messages.push(message_json);
+                                } else {
+                                    // All other messages after user query are the actual response
+                                    response_messages.push(message_json);
+                                }
                             }
-                        })
-                        .unwrap_or_else(|| "No prompt available".to_string());
-                    
-                    // Log the complete formatted conversation as the trace output
-                    let root_span = trace.root_span();
-                    
-                    // Always ensure the root span has the chat_id metadata and preserves the input
-                    let finished_root = root_span.clone()
-                        .with_input(serde_json::json!(user_prompt_text))
-                        .with_metadata("chat_id", self.session_id.to_string())
-                        .with_output(serde_json::Value::Array(formatted_conversation)); // Don't nest under "conversation" key
-                    client.log_span(finished_root).await?;
+                        }
+                        
+                        // Log the processed conversation in the trace output
+                        let root_span = trace.root_span();
+                        
+                        // Build the final span with all metadata and proper output
+                        let mut finished_root = root_span.clone()
+                            .with_input(serde_json::json!(user_prompt_text))
+                            .with_metadata("chat_id", self.session_id.to_string());
+                        
+                        // Add conversation history as metadata if there is any
+                        if !conversation_history.is_empty() {
+                            finished_root = finished_root.with_metadata(
+                                "conversation_history", 
+                                serde_json::Value::Array(conversation_history)
+                            );
+                        }
+                        
+                        // Add system messages as metadata if there are any
+                        if !system_messages.is_empty() {
+                            finished_root = finished_root.with_metadata(
+                                "system_messages", 
+                                serde_json::Value::Array(system_messages)
+                            );
+                        }
+                        
+                        // Set output as the response messages only
+                        finished_root = finished_root.with_output(serde_json::Value::Array(response_messages));
+                        
+                        // Log the final span
+                        client.log_span(finished_root).await?;
+                    } else {
+                        // No user message found, fallback to simple logging
+                        let root_span = trace.root_span();
+                        client.log_span(root_span.clone()
+                            .with_metadata("chat_id", self.session_id.to_string())
+                            .with_output(serde_json::json!([{
+                                "role": "system",
+                                "content": "No user message found in conversation"
+                            }]))
+                        ).await?;
+                    }
                 } else {
                     // Fallback if no thread is available
                     let root_span = trace.root_span();
