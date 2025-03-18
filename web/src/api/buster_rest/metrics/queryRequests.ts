@@ -301,6 +301,7 @@ export const useSaveMetricToDashboard = () => {
 export const useRemoveMetricFromDashboard = () => {
   const { openConfirmModal } = useBusterNotifications();
   const { mutateAsync: saveMetric } = useSaveMetric();
+  const queryClient = useQueryClient();
   const removeMetricFromDashboard = useMemoizedFn(
     async ({
       metricId,
@@ -329,7 +330,26 @@ export const useRemoveMetricFromDashboard = () => {
   );
 
   return useMutation({
-    mutationFn: removeMetricFromDashboard
+    mutationFn: removeMetricFromDashboard,
+    onMutate: async (variables) => {
+      const currentDashboard = queryClient.getQueryData(
+        dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey
+      );
+      if (currentDashboard) {
+        queryClient.setQueryData(
+          dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey,
+          (currentDashboard) => {
+            if (currentDashboard?.dashboard.config.rows) {
+              currentDashboard.dashboard.config.rows.forEach((row) => {
+                row.items = row.items.filter((item) => item.id !== variables.metricId);
+              });
+            }
+            delete currentDashboard!.metrics[variables.metricId];
+            return currentDashboard;
+          }
+        );
+      }
+    }
   });
 };
 

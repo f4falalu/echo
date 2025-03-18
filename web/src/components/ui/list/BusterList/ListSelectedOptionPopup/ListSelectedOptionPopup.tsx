@@ -38,12 +38,12 @@ const SelectedButton: React.FC<{
       className={cn(
         'flex items-center',
         'bg-bg-container rounded pl-2',
-        'min-h-[28px]',
+        'min-h-[24px]',
         'border-border-default border border-dashed'
       )}>
       <Text>{text}</Text>
 
-      <div className="border-border-default ml-1.5 min-h-[28px] border-l border-dashed" />
+      <div className="border-border-default ml-1.5 min-h-[24px] border-l border-dashed" />
 
       <div
         onClick={() => {

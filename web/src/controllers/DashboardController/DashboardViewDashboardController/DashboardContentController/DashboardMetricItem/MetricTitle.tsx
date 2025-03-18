@@ -43,8 +43,6 @@ export const MetricTitle: React.FC<{
       };
     }, [title, useEllipsis]);
 
-    console.log(readOnly, isDragOverlay);
-
     return (
       <Link href={metricLink}>
         <div
@@ -64,7 +62,7 @@ export const MetricTitle: React.FC<{
               <></>
             ) : (
               <ThreeDotMenu
-                className="absolute top-[5px] right-[12px] opacity-0 transition group-hover:opacity-100"
+                className="absolute top-[10px] right-[12px] opacity-0 transition group-hover:opacity-100"
                 dashboardId={dashboardId}
                 metricId={metricId}
               />
@@ -137,7 +135,7 @@ const ThreeDotMenu: React.FC<{
 
   return (
     <div onClick={onClick} className={`w-[24px] ${className}`}>
-      <Dropdown items={dropdownItems}>
+      <Dropdown items={dropdownItems} side="bottom">
         <Button variant="ghost" prefix={<DotsVertical />} />
       </Dropdown>
     </div>

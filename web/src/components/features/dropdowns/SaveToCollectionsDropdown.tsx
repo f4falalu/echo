@@ -40,7 +40,7 @@ export const SaveToCollectionsDropdown: React.FC<{
         footerContent={footerContent}
         emptyStateText="No collections found"
         items={items}>
-        <AppTooltip title={showDropdown ? '' : 'Save to collection'}>{children} </AppTooltip>
+        {children}
       </Dropdown>
 
       <>{modal}</>
