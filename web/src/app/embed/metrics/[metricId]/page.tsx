@@ -12,5 +12,5 @@ export default function EmbedMetricsPage({ params }: { params: { metricId: strin
     return <CircleSpinnerLoaderContainer className="min-h-screen" />;
   }
 
-  return <MetricViewChart metricId={metricId} readOnly={true} />;
+  return <MetricViewChart metricId={metricId} readOnly={true} cardClassName="max-h-screen!" />;
 }

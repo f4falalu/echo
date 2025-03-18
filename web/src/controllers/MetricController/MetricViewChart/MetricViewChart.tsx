@@ -13,64 +13,71 @@ import { ShareRole } from '@/api/asset_interfaces';
 export const MetricViewChart: React.FC<{
   metricId: string;
   readOnly?: boolean;
-}> = React.memo(({ metricId, readOnly: readOnlyProp = false }) => {
-  const { metric, metricData, metricDataError, isFetchedMetricData } = useMetricIndividual({
-    metricId
-  });
-  const { mutateAsync: updateMetric } = useUpdateMetric();
-  const { title, description, time_frame, evaluation_score, evaluation_summary } = metric;
-  const isTable = metric.chart_config.selectedChartType === ChartType.Table;
+  className?: string;
+  cardClassName?: string;
+}> = React.memo(
+  ({ metricId, readOnly: readOnlyProp = false, className = '', cardClassName = '' }) => {
+    const { metric, metricData, metricDataError, isFetchedMetricData } = useMetricIndividual({
+      metricId
+    });
+    const { mutateAsync: updateMetric } = useUpdateMetric();
+    const { title, description, time_frame, evaluation_score, evaluation_summary } = metric;
+    const isTable = metric.chart_config.selectedChartType === ChartType.Table;
 
-  const readOnly =
-    readOnlyProp ||
-    !(metric.permission === ShareRole.OWNER || metric.permission === ShareRole.EDITOR);
+    const readOnly =
+      readOnlyProp ||
+      !(metric.permission === ShareRole.OWNER || metric.permission === ShareRole.EDITOR);
 
-  const loadingData = !isFetchedMetricData;
-  const errorData = !!metricDataError;
-  const showEvaluation = !!evaluation_score && !!evaluation_summary;
+    const loadingData = !isFetchedMetricData;
+    const errorData = !!metricDataError;
+    const showEvaluation = !!evaluation_score && !!evaluation_summary;
 
-  const onSetTitle = useMemoizedFn((title: string) => {
-    console.log('here?');
-    if (updateMetric && inputHasText(title)) {
-      updateMetric({
-        id: metricId,
-        title
-      });
-    }
-  });
+    const onSetTitle = useMemoizedFn((title: string) => {
+      if (updateMetric && inputHasText(title)) {
+        updateMetric({
+          id: metricId,
+          title
+        });
+      }
+    });
 
-  return (
-    <div className={'m-5 flex h-full flex-col justify-between space-y-3.5'}>
-      <MetricViewChartCard loadingData={loadingData} errorData={errorData} isTable={isTable}>
-        <MetricViewChartHeader
-          className="px-4"
-          title={title}
-          description={description}
-          timeFrame={time_frame}
-          onSetTitle={onSetTitle}
-          readOnly={readOnly}
-        />
-        <div className={'border-border border-b'} />
-        <MetricViewChartContent
-          chartConfig={metric.chart_config}
-          metricData={metricData?.data || []}
-          dataMetadata={metricData?.data_metadata}
-          fetchedData={isFetchedMetricData}
-          errorMessage={metricDataError?.message}
-          metricId={metricId}
-          readOnly={readOnly}
-        />
-      </MetricViewChartCard>
+    return (
+      <div className={cn('flex h-full flex-col justify-between space-y-3.5 p-5', className)}>
+        <MetricViewChartCard
+          loadingData={loadingData}
+          errorData={errorData}
+          isTable={isTable}
+          className={cardClassName}>
+          <MetricViewChartHeader
+            className="px-4"
+            title={title}
+            description={description}
+            timeFrame={time_frame}
+            onSetTitle={onSetTitle}
+            readOnly={readOnly}
+          />
+          <div className={'border-border border-b'} />
+          <MetricViewChartContent
+            chartConfig={metric.chart_config}
+            metricData={metricData?.data || []}
+            dataMetadata={metricData?.data_metadata}
+            fetchedData={isFetchedMetricData}
+            errorMessage={metricDataError?.message}
+            metricId={metricId}
+            readOnly={readOnly}
+          />
+        </MetricViewChartCard>
 
-      <AnimatePresenceWrapper show={showEvaluation}>
-        <MetricChartEvaluation
-          evaluationScore={evaluation_score}
-          evaluationSummary={evaluation_summary}
-        />
-      </AnimatePresenceWrapper>
-    </div>
-  );
-});
+        <AnimatePresenceWrapper show={showEvaluation}>
+          <MetricChartEvaluation
+            evaluationScore={evaluation_score}
+            evaluationSummary={evaluation_summary}
+          />
+        </AnimatePresenceWrapper>
+      </div>
+    );
+  }
+);
 
 MetricViewChart.displayName = 'MetricViewChart';
 
@@ -79,7 +86,8 @@ const MetricViewChartCard: React.FC<{
   loadingData: boolean;
   errorData: boolean;
   isTable: boolean;
-}> = ({ children, loadingData, errorData, isTable }) => {
+  className?: string;
+}> = ({ children, loadingData, errorData, isTable, className }) => {
   const cardClass = useMemo(() => {
     if (loadingData || errorData) return 'h-full max-h-[600px]';
     if (isTable) return '';
@@ -90,7 +98,8 @@ const MetricViewChartCard: React.FC<{
     <div
       className={cn(
         'bg-background flex flex-col overflow-hidden rounded border shadow',
-        cardClass
+        cardClass,
+        className
       )}>
       {children}
     </div>
