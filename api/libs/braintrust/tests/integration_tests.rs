@@ -85,7 +85,7 @@ async fn test_real_trace_with_spans() -> Result<()> {
     }
     
     // Create client (None means use env var)
-    let client = BraintrustClient::new(None, "172afc4a-16b7-4d59-978e-4c87cade87b6")?;
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff")?;
     
     // Create a trace
     let trace_id = uuid::Uuid::new_v4().to_string();
@@ -249,7 +249,7 @@ async fn test_real_get_prompt() -> Result<()> {
     }
     
     // Create client (None means use env var)
-    let client = BraintrustClient::new(None, "c7b996a6-1c7c-482d-b23f-3d39de16f433")?;
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff")?;
     
     // Attempt to fetch the prompt with ID "7f6fbd7a-d03a-42e7-a115-b87f5e9f86ee"
     let prompt_id = "7f6fbd7a-d03a-42e7-a115-b87f5e9f86ee";
