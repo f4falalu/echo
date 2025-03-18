@@ -82,6 +82,21 @@ const defaultRows = [
     ],
     columnSizes: [4, 4, 4],
     rowHeight: MIN_ROW_HEIGHT
+  },
+  {
+    id: uuidv4(),
+    items: [
+      {
+        id: uuidv4(),
+        children: <ExampleContent text="Item 6" />
+      },
+      {
+        id: uuidv4(),
+        children: <ExampleContent text="Item 7" />
+      }
+    ],
+    columnSizes: [4, 4],
+    rowHeight: MIN_ROW_HEIGHT
   }
 ];
 
