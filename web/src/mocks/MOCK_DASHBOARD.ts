@@ -113,7 +113,7 @@ refresh_interval: 300`,
 
   const response: BusterDashboardResponse = {
     access: ShareRole.EDITOR,
-    metrics,
+    metrics: metrics.reduce((acc, metric) => ({ ...acc, [metric.id]: metric }), {}),
     dashboard,
     permission: ShareRole.EDITOR,
     public_password: null,

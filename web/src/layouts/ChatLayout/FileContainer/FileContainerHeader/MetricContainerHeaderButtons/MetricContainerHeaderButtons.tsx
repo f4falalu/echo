@@ -20,6 +20,8 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
   const metricId = selectedFileId;
   const { isFetched: isMetricFetched } = useGetMetric(metricId);
 
+  console.log('here?');
+
   if (!isMetricFetched) return null;
 
   return (

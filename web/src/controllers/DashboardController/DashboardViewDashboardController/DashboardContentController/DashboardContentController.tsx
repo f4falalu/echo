@@ -16,7 +16,7 @@ import { DashboardEmptyState } from './DashboardEmptyState';
 import { type useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
-const DEFAULT_EMPTY_METRICS: BusterMetric[] = [];
+const DEFAULT_EMPTY_METRICS: Record<string, BusterMetric> = {};
 const DEFAULT_EMPTY_CONFIG: DashboardConfig = {};
 
 export const DashboardContentController: React.FC<{
@@ -37,6 +37,7 @@ export const DashboardContentController: React.FC<{
     const configRows = dashboardConfig?.rows || DEFAULT_EMPTY_ROWS;
     const hasMetrics = !isEmpty(metrics);
     const [draggingId, setDraggingId] = useState<string | null>(null);
+    const numberOfMetrics = Object.values(metrics).length;
 
     const { run: debouncedForInitialRenderOnUpdateDashboardConfig } = useDebounceFn(
       onUpdateDashboardConfig,
@@ -79,7 +80,7 @@ export const DashboardContentController: React.FC<{
                     metricId={item.id}
                     dashboardId={dashboard!.id}
                     allowEdit={allowEdit}
-                    numberOfMetrics={metrics.length}
+                    numberOfMetrics={numberOfMetrics}
                   />
                 )
               };
@@ -119,7 +120,7 @@ export const DashboardContentController: React.FC<{
                     allowEdit={false}
                     dashboardId={dashboard.id}
                     isDragOverlay
-                    numberOfMetrics={metrics.length}
+                    numberOfMetrics={numberOfMetrics}
                   />
                 )
               }

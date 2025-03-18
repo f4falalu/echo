@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/buttons';
 import React from 'react';
 import { timeFromNow } from '@/lib/date';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useWhyDidYouUpdate } from '@/hooks';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { ShareAssetType, ShareRole } from '@/api/asset_interfaces/share';
 import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
@@ -32,7 +32,7 @@ import { timeout } from '@/lib';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
 import { DASHBOARD_TITLE_INPUT_ID } from '@/controllers/DashboardController/DashboardViewDashboardController/DashboardEditTitle';
 
-export const ThreeDotMenuButton = React.memo(({ dashboardId }: { dashboardId: string }) => {
+export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });
   const collectionSelectMenu = useCollectionSelectMenu({ dashboardId });
   const favoriteDashboard = useFavoriteDashboardSelectMenu({ dashboardId });
@@ -72,22 +72,25 @@ export const ThreeDotMenuButton = React.memo(({ dashboardId }: { dashboardId: st
     </Dropdown>
   );
 });
-ThreeDotMenuButton.displayName = 'ThreeDotMenuButton';
+DashboardThreeDotMenu.displayName = 'ThreeDotMenuButton';
 
 const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) => {
+  const DEFAULT_VERSION_HISTORY_ITEMS: DropdownItems = [];
   const { data } = useGetDashboard(dashboardId, (x) => ({
     versions: x?.dashboard?.versions,
     version_number: x?.dashboard?.version_number
   }));
-  const { versions = [], version_number } = data || {};
+  const { versions, version_number } = data || {};
 
   const versionHistoryItems: DropdownItems = useMemo(() => {
-    return versions.map((x) => ({
-      label: `Version ${x.version_number}`,
-      secondaryLabel: timeFromNow(x.updated_at, false),
-      value: x.version_number.toString(),
-      selected: x.version_number === version_number
-    }));
+    return (
+      versions?.map((x) => ({
+        label: `Version ${x.version_number}`,
+        secondaryLabel: timeFromNow(x.updated_at, false),
+        value: x.version_number.toString(),
+        selected: x.version_number === version_number
+      })) || DEFAULT_VERSION_HISTORY_ITEMS
+    );
   }, [versions, version_number]);
 
   return useMemo(

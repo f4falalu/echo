@@ -8,9 +8,10 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 export const normalizeNewMetricsIntoGrid = (
-  metrics: BusterMetric[],
+  metricsRecord: Record<string, BusterMetric>,
   grid: DashboardConfig['rows'] = []
 ): BusterResizeableGridRow[] => {
+  const metrics = Object.values(metricsRecord);
   const newMetrics = getAddedMetrics(metrics, grid);
   const removedMetrics = getRemovedMetrics(metrics, grid);
   const numberOfNewMetrics = newMetrics.length;
@@ -112,23 +113,27 @@ export const normalizeNewMetricsIntoGrid = (
 };
 
 export const hasUnmappedMetrics = (
-  metrics: BusterMetric[],
+  metrics: Record<string, BusterMetric>,
   configRows: DashboardConfig['rows'] = []
 ) => {
-  return !metrics.every((m) => configRows.some((r) => r.items.some((t) => t.id === m.id)));
+  return !Object.values(metrics).every((m) =>
+    configRows.some((r) => r.items.some((t) => t.id === m.id))
+  );
 };
 
 export const hasRemovedMetrics = (
-  metrics: BusterMetric[],
+  metrics: Record<string, BusterMetric>,
   configRows: BusterResizeableGridRow[]
 ) => {
   const allGridItemsLength = configRows.flatMap((r) => r.items).length;
 
-  if (allGridItemsLength !== metrics.length) {
+  if (allGridItemsLength !== Object.values(metrics).length) {
     return true;
   }
 
-  return !configRows.every((r) => r.items.some((t) => metrics.some((m) => t.id === m.id)));
+  return !configRows.every((r) =>
+    r.items.some((t) => Object.values(metrics).some((m) => t.id === m.id))
+  );
 };
 
 const getRemovedMetrics = (metrics: BusterMetric[], configRows: DashboardConfig['rows'] = []) => {

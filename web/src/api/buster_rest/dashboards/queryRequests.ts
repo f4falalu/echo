@@ -44,11 +44,11 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
   const { password } = getAssetPassword(id!);
 
   const initializeMetrics = useMemoizedFn((metrics: BusterDashboardResponse['metrics']) => {
-    for (const metric of metrics) {
+    for (const metric of Object.values(metrics)) {
       const prevMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(metric.id).queryKey);
       const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
       queryClient.setQueryData(queryKeys.metricsGetMetric(metric.id).queryKey, upgradedMetric);
-      prefetchGetMetricDataClient({ id: metric.id });
+      prefetchGetMetricDataClient({ id: metric.id }, queryClient);
     }
   });
 
@@ -215,11 +215,11 @@ export const useRemoveItemFromDashboard = () => {
       const prevDashboard = queryClient.getQueryData(options.queryKey);
 
       if (prevDashboard) {
-        const prevMetrics = prevDashboard?.metrics;
-        const newMetrics = prevMetrics?.filter((t) => !metricId.includes(t.id)).map((t) => t.id);
+        const prevMetricsIds = Object.keys(prevDashboard?.metrics);
+        const newMetricsIds = prevMetricsIds?.filter((t) => !metricId.includes(t));
         return updateDashboardMutation({
           id: dashboardId,
-          metrics: newMetrics
+          metrics: newMetricsIds
         });
       }
     }

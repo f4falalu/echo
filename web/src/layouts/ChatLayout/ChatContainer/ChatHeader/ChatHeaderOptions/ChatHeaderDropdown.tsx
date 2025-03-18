@@ -1,8 +1,8 @@
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import React, { useMemo } from 'react';
 import { useChatIndividualContextSelector } from '../../../ChatContext';
-import { Copy, Trash, TextA, Pencil } from '@/components/ui/icons';
-import { duplicateChat, useDeleteChat, useDuplicateChat } from '@/api/buster_rest/chats';
+import { Copy, Trash, Pencil } from '@/components/ui/icons';
+import { useDeleteChat, useDuplicateChat } from '@/api/buster_rest/chats';
 import { CHAT_HEADER_TITLE_ID } from '../ChatHeaderTitle';
 import { timeout } from '@/lib';
 
@@ -40,7 +40,6 @@ export const ChatContainerHeaderDropdown: React.FC<{
             await timeout(25);
             input.focus();
             input.select();
-            console.log('input', input.select);
           }
         }
       }

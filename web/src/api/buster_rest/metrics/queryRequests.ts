@@ -113,13 +113,16 @@ export const useGetMetricData = (params: { id: string }) => {
 
 export const prefetchGetMetricDataClient = async (
   params: { id: string },
-  queryClientProp?: QueryClient
+  queryClient: QueryClient
 ) => {
-  const queryClient = queryClientProp || new QueryClient();
-  await queryClient.prefetchQuery({
-    ...queryKeys.metricsGetData(params.id),
-    queryFn: () => getMetricData(params)
-  });
+  const options = queryKeys.metricsGetData(params.id);
+  const existingData = queryClient.getQueryData(options.queryKey);
+  if (!existingData) {
+    await queryClient.prefetchQuery({
+      ...options,
+      queryFn: () => getMetricData(params)
+    });
+  }
 };
 
 /**

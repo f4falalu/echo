@@ -23,7 +23,7 @@ export interface BusterDashboardListItem {
 
 export interface BusterDashboardResponse extends BusterShare {
   access: ShareRole;
-  metrics: BusterMetric[];
+  metrics: Record<string, BusterMetric>;
   dashboard: BusterDashboard;
   permission: ShareRole;
   public_password: string | null;

@@ -17,7 +17,9 @@ export const dashboardsGetList = async (params: DashboardsListRequest) => {
 };
 
 export const dashboardsGetDashboard = async ({ id, password }: DashboardSubscribeRequest) => {
-  return await mainApi.get<BusterDashboardResponse>(`/dashboards/${id}`).then((res) => res.data);
+  return await mainApi
+    .get<BusterDashboardResponse>(`/dashboards/${id}`, { params: { password } })
+    .then((res) => res.data);
 };
 
 export const dashboardsCreateDashboard = async (params: DashboardCreateRequest) => {

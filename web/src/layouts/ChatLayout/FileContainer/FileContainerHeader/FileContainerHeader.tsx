@@ -10,10 +10,12 @@ import { MetricContainerHeaderSegment } from './MetricContainerHeaderSegment';
 import { MetricContainerHeaderButtons } from './MetricContainerHeaderButtons';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { ReasoningContainerHeaderSegment } from './ReasoningContainerHeaderSegment';
+import { useAssetCheck } from '@/api/buster_rest/assets/queryRequests';
 
 export const FileContainerHeader: React.FC = React.memo(() => {
-  const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
+  const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFile?.type);
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView);
+  const selectedFileId = useChatLayoutContextSelector((x) => x.selectedFile?.id);
   const onCollapseFileClick = useChatLayoutContextSelector((state) => state.onCollapseFileClick);
   const renderViewLayoutKey = useChatLayoutContextSelector((state) => state.renderViewLayoutKey);
 
@@ -35,6 +37,12 @@ export const FileContainerHeader: React.FC = React.memo(() => {
     [selectedFileType]
   );
 
+  const { data: assetCheck } = useAssetCheck({
+    assetId: selectedFileId,
+    fileType: selectedFileType
+  });
+  const hasAccess = assetCheck?.has_access;
+
   return (
     <>
       <div className="flex items-center gap-1.5">
@@ -42,9 +50,11 @@ export const FileContainerHeader: React.FC = React.memo(() => {
           showCollapseButton={showCollapseButton}
           onCollapseFileClick={onCollapseFileClick}
         />
-        {selectedFileView && <SelectedFileSegment selectedFileView={selectedFileView} />}
+        {hasAccess && selectedFileView && (
+          <SelectedFileSegment selectedFileView={selectedFileView} />
+        )}
       </div>
-      <SelectedFileButtons selectedFileView={selectedFileView} />
+      {hasAccess && <SelectedFileButtons selectedFileView={selectedFileView} />}
     </>
   );
 });

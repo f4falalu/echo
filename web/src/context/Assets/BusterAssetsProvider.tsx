@@ -40,7 +40,12 @@ const useBusterAssets = () => {
     });
   });
 
-  return { setAssetPasswordError, removeAssetPasswordError, setAssetPassword, getAssetPassword };
+  return {
+    setAssetPasswordError,
+    removeAssetPasswordError,
+    setAssetPassword,
+    getAssetPassword
+  };
 };
 
 const BusterAssetsContext = createContext<ReturnType<typeof useBusterAssets>>(

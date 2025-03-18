@@ -1,5 +1,4 @@
 import React from 'react';
-import { getAssetCheck } from '@/api/buster_rest/assets/requests';
 import { getSupabaseServerContext } from '@/context/Supabase/getSupabaseServerContext';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { ClientSideAnonCheck } from './ClientSideAnonCheck';
@@ -8,6 +7,8 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
 import { signInWithAnonymousUser } from '@/server_context/supabaseAuthMethods';
+import { prefetchAssetCheck } from '@/api/buster_rest/assets/queryRequests';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
 export type AppAssetCheckLayoutProps = {
   metricId?: string;
@@ -34,48 +35,50 @@ export const AppAssetCheckLayout: React.FC<
     return <div>No user found 🫣</div>;
   }
 
-  const res = await getAssetCheck({
-    type,
-    id: isMetric ? props.metricId! : props.dashboardId!,
+  const { res, queryClient } = await prefetchAssetCheck({
+    fileType: type,
+    assetId: isMetric ? props.metricId! : props.dashboardId!,
     jwtToken
-  })
-    .then((v) => v)
-    .catch((e) => null);
+  });
 
   if (!res) {
     return redirect(
       createBusterRoute({
-        route: BusterRoutes.APP_METRIC
+        route: BusterRoutes.APP_HOME
       })
     );
   }
 
   const { has_access, password_required, public: pagePublic } = res;
 
-  if (has_access || (pagePublic && !password_required)) {
-    return <ClientSideAnonCheck jwtToken={jwtToken}>{children}</ClientSideAnonCheck>;
-  }
+  const Component = (() => {
+    if (has_access || (pagePublic && !password_required)) {
+      return <ClientSideAnonCheck jwtToken={jwtToken}>{children}</ClientSideAnonCheck>;
+    }
 
-  if (pagePublic && password_required) {
-    return (
-      <ClientSideAnonCheck jwtToken={jwtToken}>
-        <AppPasswordAccess
-          metricId={props.metricId}
-          dashboardId={props.dashboardId}
-          type={type as ShareAssetType}>
-          {children}
-        </AppPasswordAccess>
-      </ClientSideAnonCheck>
-    );
-  }
+    if (pagePublic && password_required) {
+      return (
+        <ClientSideAnonCheck jwtToken={jwtToken}>
+          <AppPasswordAccess
+            metricId={props.metricId}
+            dashboardId={props.dashboardId}
+            type={type as ShareAssetType}>
+            {children}
+          </AppPasswordAccess>
+        </ClientSideAnonCheck>
+      );
+    }
 
-  if (!has_access && !pagePublic) {
-    return (
-      <ClientSideAnonCheck jwtToken={jwtToken}>
-        <AppNoPageAccess metricId={props.metricId} dashboardId={props.dashboardId} />
-      </ClientSideAnonCheck>
-    );
-  }
+    if (!has_access && !pagePublic) {
+      return (
+        <ClientSideAnonCheck jwtToken={jwtToken}>
+          <AppNoPageAccess metricId={props.metricId} dashboardId={props.dashboardId} />
+        </ClientSideAnonCheck>
+      );
+    }
 
-  return <>{children}</>;
+    return <>{children}</>;
+  })();
+
+  return <HydrationBoundary state={dehydrate(queryClient)}>{Component}</HydrationBoundary>;
 };

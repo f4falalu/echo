@@ -174,13 +174,12 @@ export const AddTypeModal: React.FC<{
 
   const initSelectedItems = useMemoizedFn(() => {
     if (dashboardResponse) {
-      const objectMetrics = dashboardResponse.metrics.reduce<Record<string, boolean>>(
-        (acc, metric) => {
-          acc[metric.id] = true;
-          return acc;
-        },
-        {}
-      );
+      const objectMetrics = Object.values(dashboardResponse.metrics).reduce<
+        Record<string, boolean>
+      >((acc, metric) => {
+        acc[metric.id] = true;
+        return acc;
+      }, {});
       setSelectedItemIds(objectMetrics);
     } else if (collection) {
       const objectMetrics = (collection.assets || []).reduce<Record<string, boolean>>(
@@ -421,7 +420,7 @@ const ModalFooter: React.FC<{
     if (isEmpty(selectedItemIds)) return true;
 
     if (dashboardResponse) {
-      const metricIds = dashboardResponse.metrics.map((metric) => metric.id);
+      const metricIds = Object.values(dashboardResponse.metrics).map((metric) => metric.id);
       const allSelectedIds = Object.entries(selectedItemIds)
         .filter(([, value]) => value)
         .map(([key]) => key);

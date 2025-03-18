@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { FileContainerButtonsProps } from '../interfaces';
 import { FileButtonContainer } from '../FileButtonContainer';
 import { useChatIndividualContextSelector } from '../../../ChatContext';
@@ -8,11 +8,8 @@ import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
 import { CreateChatButton } from '../CreateChatButtont';
 import { ShareDashboardButton } from '@/components/features/buttons/ShareDashboardButton';
 import { Button } from '@/components/ui/buttons';
-import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
-import { Dots, Plus, Trash } from '@/components/ui/icons';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { BusterRoutes } from '@/routes';
-import { useDeleteDashboards } from '@/api/buster_rest/dashboards';
+import { Plus } from '@/components/ui/icons';
+import { DashboardThreeDotMenu } from './DashboardThreeDotMenu';
 
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   () => {
@@ -23,7 +20,7 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
       <FileButtonContainer>
         <SaveToCollectionButton />
         <ShareDashboardButton dashboardId={selectedFileId} /> <AddContentToDashboardButton />
-        <ThreeDotMenu dashboardId={selectedFileId} />
+        <DashboardThreeDotMenu dashboardId={selectedFileId} />
         <HideButtonContainer show={renderViewLayoutKey === 'file'}>
           <CreateChatButton />
         </HideButtonContainer>
@@ -48,29 +45,3 @@ const AddContentToDashboardButton = React.memo(() => {
   );
 });
 AddContentToDashboardButton.displayName = 'AddContentToDashboardButton';
-
-const ThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
-  const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useDeleteDashboards();
-  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-
-  const items: DropdownItems = useMemo(() => {
-    return [
-      {
-        label: 'Delete',
-        value: 'delete',
-        icon: <Trash />,
-        onClick: async () => {
-          await deleteDashboard({ dashboardId });
-          onChangePage({ route: BusterRoutes.APP_DASHBOARDS });
-        }
-      }
-    ];
-  }, [dashboardId, deleteDashboard, onChangePage]);
-
-  return (
-    <Dropdown items={items}>
-      <Button variant="ghost" prefix={<Dots />} />
-    </Dropdown>
-  );
-});
-ThreeDotMenu.displayName = 'ThreeDotMenu';

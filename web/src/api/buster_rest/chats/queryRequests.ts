@@ -13,7 +13,6 @@ import {
 import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import { queryKeys } from '@/api/query_keys';
 import { updateChatToIChat } from '@/lib/chat';
-import { RustApiError } from '@/api/buster_rest/errors';
 import { useMemo } from 'react';
 
 export const useGetListChats = (

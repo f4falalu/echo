@@ -1,8 +1,9 @@
 import { BASE_URL } from '@/api/buster_rest/config';
 import { PublicAssetResponse } from './interface';
 import { FileType } from '@/api/asset_interfaces/chat';
+import { mainApi } from '@/api/buster_rest/instances';
 
-export const getAssetCheck = async ({
+export const getAssetCheck_server = async ({
   type,
   id,
   jwtToken
@@ -31,4 +32,14 @@ export const getAssetCheck = async ({
     });
 
   return data;
+};
+
+export const getAssetCheck = async ({
+  type,
+  id
+}: {
+  type: FileType;
+  id: string;
+}): Promise<PublicAssetResponse> => {
+  return mainApi.get<PublicAssetResponse>(`/assets/${type}/${id}`).then((res) => res.data);
 };

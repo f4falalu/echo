@@ -18,7 +18,6 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   const { data: dashboardResponse } = useGetDashboard(dashboardId);
   const { mutateAsync: onUpdateDashboard } = useUpdateDashboard();
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
-
   const [openAddContentModal, setOpenAddContentModal] = useState(false);
 
   const allowEdit = dashboardResponse?.permission !== ShareRole.VIEWER && !isAnonymousUser;
