@@ -40,7 +40,6 @@ export interface BusterChartRenderComponentProps
     | 'metricValueLabel'
     | 'id'
     | 'bordered'
-    | 'editable'
     | 'groupByMethod'
     | 'error'
     | 'pieChartAxis'

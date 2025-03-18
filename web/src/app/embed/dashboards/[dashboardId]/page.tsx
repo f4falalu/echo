@@ -1,7 +1,11 @@
-export default function EmbedDashboardsPage({
-  params: { dashboardId }
-}: {
-  params: { dashboardId: string };
+import { DashboardController } from '@/controllers/DashboardController';
+
+export default async function EmbedDashboardsPage(props: {
+  params: Promise<{ dashboardId: string }>;
 }) {
-  return <div>EmbedDashboardsPage {dashboardId}</div>;
+  const params = await props.params;
+
+  const { dashboardId } = params;
+
+  return <DashboardController dashboardId={dashboardId} />;
 }

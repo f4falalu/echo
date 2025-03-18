@@ -20,7 +20,7 @@ const DEFAULT_EMPTY_METRICS: Record<string, BusterMetric> = {};
 const DEFAULT_EMPTY_CONFIG: DashboardConfig = {};
 
 export const DashboardContentController: React.FC<{
-  allowEdit?: boolean;
+  readOnly?: boolean;
   metrics: BusterDashboardResponse['metrics'] | undefined;
   dashboard: BusterDashboardResponse['dashboard'] | undefined;
   onUpdateDashboardConfig: ReturnType<typeof useUpdateDashboardConfig>['mutateAsync'];
@@ -29,7 +29,7 @@ export const DashboardContentController: React.FC<{
   ({
     onOpenAddContentModal,
     dashboard,
-    allowEdit,
+    readOnly = false,
     metrics = DEFAULT_EMPTY_METRICS,
     onUpdateDashboardConfig
   }) => {
@@ -79,7 +79,7 @@ export const DashboardContentController: React.FC<{
                     key={item.id}
                     metricId={item.id}
                     dashboardId={dashboard!.id}
-                    allowEdit={allowEdit}
+                    readOnly={readOnly}
                     numberOfMetrics={numberOfMetrics}
                   />
                 )
@@ -87,7 +87,7 @@ export const DashboardContentController: React.FC<{
             })
           };
         });
-    }, [rows]);
+    }, [rows, readOnly, dashboard?.id]);
 
     const onDragEnd = useMemoizedFn(() => {
       setDraggingId(null);
@@ -109,7 +109,7 @@ export const DashboardContentController: React.FC<{
           <DashboardContentControllerProvider dashboard={dashboard}>
             <BusterResizeableGrid
               rows={dashboardRows}
-              allowEdit={allowEdit}
+              readOnly={readOnly}
               onRowLayoutChange={onRowLayoutChange}
               onStartDrag={onStartDrag}
               onEndDrag={onDragEnd}
@@ -117,7 +117,7 @@ export const DashboardContentController: React.FC<{
                 draggingId && (
                   <DashboardMetricItem
                     metricId={draggingId}
-                    allowEdit={false}
+                    readOnly={false}
                     dashboardId={dashboard.id}
                     isDragOverlay
                     numberOfMetrics={numberOfMetrics}

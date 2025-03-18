@@ -13,9 +13,9 @@ const DashboardMetricItemBase: React.FC<{
   numberOfMetrics: number;
   className?: string;
   isDragOverlay?: boolean;
-  allowEdit?: boolean;
+  readOnly?: boolean;
 }> = ({
-  allowEdit,
+  readOnly,
   dashboardId,
   className = '',
   metricId,
@@ -74,10 +74,8 @@ const DashboardMetricItemBase: React.FC<{
   return (
     <Card
       ref={conatinerRef}
-      className={`metric-item flex h-full w-full flex-col overflow-auto ${className}`}
-      // classNames={cardClassNamesMemoized}
-    >
-      <CardHeader size="small" className="hover:bg-item-hover">
+      className={`metric-item flex h-full w-full flex-col overflow-auto ${className}`}>
+      <CardHeader size="small" className="hover:bg-item-hover border-b">
         <MetricTitle
           title={metric.title}
           timeFrame={metric.time_frame}
@@ -85,7 +83,7 @@ const DashboardMetricItemBase: React.FC<{
           isDragOverlay={isDragOverlay}
           metricId={metricId}
           dashboardId={dashboardId}
-          allowEdit={allowEdit}
+          readOnly={readOnly}
           description={metric.description}
         />
       </CardHeader>
@@ -105,7 +103,7 @@ const DashboardMetricItemBase: React.FC<{
             animate={!isDragOverlay && animate}
             animateLegend={false}
             columnMetadata={metricData?.data_metadata?.column_metadata}
-            editable={allowEdit} //this is really only to resize the columns of a table
+            readOnly={true}
             {...chartOptions}
           />
         )}

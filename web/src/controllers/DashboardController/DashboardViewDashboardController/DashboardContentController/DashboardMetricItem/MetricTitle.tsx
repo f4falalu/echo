@@ -17,11 +17,11 @@ export const MetricTitle: React.FC<{
   isDragOverlay: boolean;
   metricId: string;
   dashboardId: string;
-  allowEdit?: boolean;
+  readOnly?: boolean;
 }> = React.memo(
   ({
     metricId,
-    allowEdit = true,
+    readOnly = true,
     dashboardId,
     title,
     description,
@@ -43,6 +43,8 @@ export const MetricTitle: React.FC<{
       };
     }, [title, useEllipsis]);
 
+    console.log(readOnly, isDragOverlay);
+
     return (
       <Link href={metricLink}>
         <div
@@ -58,7 +60,7 @@ export const MetricTitle: React.FC<{
               {`${title}`}
             </Title>
 
-            {isDragOverlay || !allowEdit ? (
+            {isDragOverlay || readOnly ? (
               <></>
             ) : (
               <ThreeDotMenu

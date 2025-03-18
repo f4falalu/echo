@@ -15,7 +15,7 @@ type ContainerProps = {
   items: ResizeableGridDragItem[];
   index: number;
   columnSizes: number[] | undefined;
-  allowEdit?: boolean;
+  readOnly?: boolean;
   onRowLayoutChange: (layout: number[], rowId: string) => void;
   fluid?: boolean;
 };
@@ -25,15 +25,15 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
   onRowLayoutChange = () => {},
   index: rowIndex,
   columnSizes,
-  allowEdit = true,
+  readOnly = true,
   items = [],
   fluid = true
 }) => {
   const { setNodeRef, isOver, active, over } = useSortable({
     id: rowId,
-    disabled: !allowEdit
+    disabled: readOnly
   });
-  const mouse = useMouse({ moveThrottleMs: 50, disabled: !allowEdit || !over });
+  const mouse = useMouse({ moveThrottleMs: 50, disabled: readOnly || !over });
   const [isDragginResizeColumn, setIsDraggingResizeColumn] = useState<number | null>(null);
   const columnMarkerColumnIndex = useMemo(
     () => (typeof isDragginResizeColumn === 'number' ? isDragginResizeColumn + 1 : null),
@@ -97,6 +97,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
   }, [activeDragId, items, active?.id]);
 
   const memoizedStyle = useMemo(() => {
+    console.log(isOver);
     return {
       backgroundColor: isOver ? 'rgba(0, 0, 0, 0.25)' : undefined
     };
@@ -128,7 +129,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
   const sashRender = useMemoizedFn((index: number, active: boolean) => {
     return (
       <ColumnSash
-        allowEdit={allowEdit && canResize}
+        allowEdit={!readOnly && canResize}
         isDraggingId={isDragginResizeColumn}
         active={active}
         index={index}
@@ -154,7 +155,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
           autoSizeId="resize-column"
           split="vertical"
           sizes={sizes}
-          allowResize={allowEdit && canResize}
+          allowResize={!readOnly && canResize}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
           sashRender={sashRender}
@@ -176,7 +177,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
                     !!over && insertPosition(item.id, index, mouse.clientX) === Position.Before
                   }
                 />
-                <BusterSortableItemDragContainer itemId={item.id} allowEdit={allowEdit}>
+                <BusterSortableItemDragContainer itemId={item.id} allowEdit={!readOnly}>
                   {item.children}
                 </BusterSortableItemDragContainer>
                 <DropzonePlaceholder

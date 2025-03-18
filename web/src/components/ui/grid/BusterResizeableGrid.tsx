@@ -44,9 +44,9 @@ export const BusterResizeableGrid: React.FC<{
   onStartDrag?: (d: { id: string }) => void;
   onEndDrag?: (d: { id: string }) => void;
   overlayComponent?: React.ReactNode;
-  allowEdit?: boolean;
+  readOnly?: boolean;
 }> = ({
-  allowEdit = true,
+  readOnly = true,
   className = '',
   overlayComponent,
   rows: serverRows,
@@ -56,6 +56,8 @@ export const BusterResizeableGrid: React.FC<{
 }) => {
   const [rows, setRows] = useState<BusterResizeableGridRow[]>(serverRows);
   const styleRef = useRef<HTMLStyleElement>(undefined);
+
+  console.log(serverRows);
 
   const onRowLayoutChangePreflight = useMemoizedFn((newLayout: BusterResizeableGridRow[]) => {
     const filteredRows = newRowPreflight(newLayout);
@@ -335,12 +337,12 @@ export const BusterResizeableGrid: React.FC<{
         <BusterResizeRows
           rows={rows}
           className={className}
-          allowEdit={allowEdit}
+          readOnly={readOnly}
           onRowLayoutChange={onRowLayoutChangePreflight}
         />
       </div>
 
-      {allowEdit && (
+      {!readOnly && (
         <BusterSortableOverlay
           activeId={activeId}
           overlayComponent={overlayComponent}

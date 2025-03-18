@@ -13,9 +13,9 @@ import { cn } from '@/lib/classMerge';
 export const BusterResizeRows: React.FC<{
   rows: BusterResizeableGridRow[];
   className: string;
-  allowEdit?: boolean;
+  readOnly?: boolean;
   onRowLayoutChange: (rows: BusterResizeableGridRow[]) => void;
-}> = ({ allowEdit = true, rows, className, onRowLayoutChange }) => {
+}> = ({ readOnly = false, rows, className, onRowLayoutChange }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isDraggingResizeId, setIsDraggingResizeId] = useState<number | null>(null);
   const [sizes, setSizes] = useState<number[]>(rows.map((r) => r.rowHeight ?? MIN_ROW_HEIGHT));
@@ -69,7 +69,7 @@ export const BusterResizeRows: React.FC<{
         active={false}
         setIsDraggingResizeId={setIsDraggingResizeId}
         onResize={handleResize}
-        allowEdit={allowEdit}
+        readOnly={readOnly}
       />
 
       {rows.map((row, index) => (
@@ -83,7 +83,7 @@ export const BusterResizeRows: React.FC<{
             rowId={row.id}
             items={row.items}
             index={index}
-            allowEdit={allowEdit}
+            readOnly={readOnly}
             columnSizes={row.columnSizes}
             onRowLayoutChange={onRowLayoutChangePreflight}
           />
@@ -95,13 +95,13 @@ export const BusterResizeRows: React.FC<{
             active={isDraggingResizeId === index}
             setIsDraggingResizeId={setIsDraggingResizeId}
             onResize={handleResize}
-            allowEdit={allowEdit}
+            readOnly={readOnly}
             hideDropzone={index === rows.length - 1}
           />
         </div>
       ))}
 
-      {allowEdit && <BusterNewItemDropzone />}
+      {!readOnly && <BusterNewItemDropzone />}
     </div>
   );
 };
@@ -112,15 +112,15 @@ const ResizeRowHandle: React.FC<{
   sizes: number[];
   setIsDraggingResizeId: (index: number | null) => void;
   onResize: (index: number, size: number) => void;
-  allowEdit: boolean;
+  readOnly: boolean;
   active: boolean;
   top?: boolean; //if true we will not use dragging, just dropzone
   hideDropzone?: boolean;
 }> = React.memo(
-  ({ hideDropzone, top, id, active, allowEdit, setIsDraggingResizeId, index, sizes, onResize }) => {
+  ({ hideDropzone, top, id, active, readOnly, setIsDraggingResizeId, index, sizes, onResize }) => {
     const { setNodeRef, isOver, over } = useDroppable({
       id: `${NEW_ROW_ID}_${id}}`,
-      disabled: !allowEdit,
+      disabled: readOnly,
       data: { id }
     });
     const showDropzone = !!over?.id && !hideDropzone;
@@ -158,14 +158,14 @@ const ResizeRowHandle: React.FC<{
       };
     }, [top]);
 
-    const showActive = (active || isDropzoneActive) && allowEdit;
+    const showActive = (active || isDropzoneActive) && !readOnly;
 
     return (
       <div className="relative">
         <div
           id={id}
           className={cn(
-            allowEdit && 'hover:bg-border cursor-row-resize',
+            !readOnly && 'hover:bg-border cursor-row-resize',
             showActive && 'bg-primary! z-10 opacity-100',
             'h-[4px] w-full rounded-sm transition-colors duration-200 ease-in-out select-none',
             !top && 'dragger absolute'

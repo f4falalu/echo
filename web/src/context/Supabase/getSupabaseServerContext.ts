@@ -14,7 +14,7 @@ export const getSupabaseServerContext = async () => {
   if (!userData.data?.user) {
     const { session: anonSession } = await signInWithAnonymousUser();
     return {
-      user: anonSession?.user,
+      user: anonSession?.user || null,
       accessToken: anonSession?.access_token,
       refreshToken: anonSession?.refresh_token,
       expiresAt: anonSession?.expires_at

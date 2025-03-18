@@ -65,8 +65,7 @@ export const BusterSortableOverlay: React.FC<{
   return (
     <DragOverlay
       dropAnimation={dropAnimationConfig}
-      modifiers={[useSnapToCenter ? snapCenterToCursor : adjustTranslate]}
-      style={{}}>
+      modifiers={[useSnapToCenter ? snapCenterToCursor : adjustTranslate]}>
       {activeId && (
         <BusterSortableItemContent
           itemId={activeId}
@@ -75,7 +74,6 @@ export const BusterSortableOverlay: React.FC<{
           style={
             {
               maxWidth: widthOfItem,
-              // maxWidth: '320px',
               height: '100%',
               width: '100%',
               '--scale': scale
