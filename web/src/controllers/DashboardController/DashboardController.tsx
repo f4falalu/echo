@@ -8,7 +8,10 @@ import { AddTypeModal } from '@/components/features/modal/AddTypeModal';
 import { useMemoizedFn } from '@/hooks';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 
-export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboardId }) => {
+export const DashboardController: React.FC<{ dashboardId: string; readOnly?: boolean }> = ({
+  dashboardId,
+  readOnly = false
+}) => {
   const { data: dashboardResponse, isFetched: isFetchedDashboard } = useGetDashboard(dashboardId);
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView) || 'dashboard';
   const [openAddTypeModal, setOpenAddTypeModal] = useState(false);

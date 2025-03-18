@@ -1,11 +1,16 @@
-import { DashboardController } from '@/controllers/DashboardController';
+'use client';
 
-export default async function EmbedDashboardsPage(props: {
-  params: Promise<{ dashboardId: string }>;
-}) {
-  const params = await props.params;
+import { useGetDashboard } from '@/api/buster_rest/dashboards';
+import { CircleSpinnerLoaderContainer } from '@/components/ui/loaders';
+import { DashboardViewDashboardController } from '@/controllers/DashboardController/DashboardViewDashboardController';
 
-  const { dashboardId } = params;
+export default function EmbedDashboardsPage(props: { params: { dashboardId: string } }) {
+  const { dashboardId } = props.params;
+  const { isFetched: isFetchedDashboard } = useGetDashboard(dashboardId);
 
-  return <DashboardController dashboardId={dashboardId} />;
+  if (!isFetchedDashboard) {
+    return <CircleSpinnerLoaderContainer className="min-h-screen" />;
+  }
+
+  return <DashboardViewDashboardController dashboardId={dashboardId} readOnly={true} />;
 }

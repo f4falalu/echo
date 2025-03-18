@@ -9,6 +9,7 @@ import { BusterDragColumnMarkers } from './_BusterDragColumnMarkers';
 import { calculateColumnSpan, columnSpansToPercent } from './config';
 import SplitPane, { Pane } from '../layouts/AppSplitter/SplitPane';
 import { cn } from '@/lib/classMerge';
+import '../layouts/AppSplitter/splitterStyles.css';
 
 type ContainerProps = {
   rowId: string;

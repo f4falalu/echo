@@ -6,7 +6,7 @@ import { MetricViewChart } from '@/controllers/MetricController/MetricViewChart/
 
 export default function EmbedMetricsPage({ params }: { params: { metricId: string } }) {
   const { metricId } = params;
-  const { data, isFetched, error } = useGetMetric(metricId);
+  const { isFetched } = useGetMetric(metricId);
 
   if (!isFetched) {
     return <CircleSpinnerLoaderContainer className="min-h-screen" />;

@@ -5,6 +5,7 @@ import React from 'react';
 
 export interface DashboardViewProps {
   dashboardId: string;
+  readOnly?: boolean;
 }
 
 export const DashboardViewComponents: Record<DashboardFileView, React.FC<DashboardViewProps>> = {

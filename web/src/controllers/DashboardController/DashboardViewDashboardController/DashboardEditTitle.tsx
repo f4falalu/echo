@@ -10,20 +10,16 @@ export const DashboardEditTitles: React.FC<{
   title: string;
   onUpdateDashboard: ReturnType<typeof useUpdateDashboard>['mutateAsync'];
   description: string;
-  allowEdit?: boolean;
+  readOnly?: boolean;
   dashboardId: string;
-}> = React.memo(({ onUpdateDashboard, allowEdit, title, description, dashboardId }) => {
+}> = React.memo(({ onUpdateDashboard, readOnly, title, description, dashboardId }) => {
   const onChangeTitle = useMemoizedFn((name: string) => {
-    onUpdateDashboard({ name, id: dashboardId });
-  });
-
-  const onChangeDescription = useMemoizedFn((description: string) => {
-    onUpdateDashboard({ description, id: dashboardId });
+    if (!readOnly) onUpdateDashboard({ name, id: dashboardId });
   });
 
   const onChangeDashboardDescription = useMemoizedFn(
     (value: React.ChangeEvent<HTMLInputElement>) => {
-      onChangeDescription(value.target.value);
+      if (!readOnly) onUpdateDashboard({ description: value.target.value, id: dashboardId });
     }
   );
 
@@ -31,7 +27,7 @@ export const DashboardEditTitles: React.FC<{
     <div className="flex flex-col space-y-0">
       <EditableTitle
         className="w-full truncate"
-        disabled={!allowEdit}
+        readOnly={readOnly}
         onChange={onChangeTitle}
         id={DASHBOARD_TITLE_INPUT_ID}
         placeholder="New Dashboard"
@@ -39,11 +35,11 @@ export const DashboardEditTitles: React.FC<{
         {title}
       </EditableTitle>
 
-      {(description || allowEdit) && (
+      {(description || !readOnly) && (
         <Input
           variant="ghost"
           className={'pl-0!'}
-          disabled={!allowEdit}
+          readOnly={readOnly}
           onChange={onChangeDashboardDescription}
           defaultValue={description}
           placeholder="Add description..."

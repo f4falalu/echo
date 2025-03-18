@@ -13,14 +13,18 @@ import {
   useUpdateDashboardConfig
 } from '@/api/buster_rest/dashboards';
 
-export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({ dashboardId }) => {
+export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
+  dashboardId,
+  readOnly = false
+}) => {
   const isAnonymousUser = useUserConfigContextSelector((state) => state.isAnonymousUser);
   const { data: dashboardResponse } = useGetDashboard(dashboardId);
   const { mutateAsync: onUpdateDashboard } = useUpdateDashboard();
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
   const [openAddContentModal, setOpenAddContentModal] = useState(false);
 
-  const allowEdit = dashboardResponse?.permission !== ShareRole.VIEWER && !isAnonymousUser;
+  const allowEdit =
+    !readOnly && dashboardResponse?.permission !== ShareRole.VIEWER && !isAnonymousUser;
   const metrics = dashboardResponse?.metrics;
   const dashboard = dashboardResponse?.dashboard;
 
@@ -33,7 +37,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
       <DashboardEditTitles
         onUpdateDashboard={onUpdateDashboard}
         dashboardId={dashboardId}
-        allowEdit={allowEdit}
+        readOnly={readOnly}
         title={dashboardResponse?.dashboard?.name || ''}
         description={dashboardResponse?.dashboard?.description || ''}
       />
@@ -43,6 +47,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
         dashboard={dashboard}
         onUpdateDashboardConfig={onUpdateDashboardConfig}
         onOpenAddContentModal={onOpenAddContentModal}
+        readOnly={readOnly}
       />
     </div>
   );
