@@ -32,7 +32,11 @@ export const AppAssetCheckLayout: React.FC<
   }
 
   if (!jwtToken) {
-    return <div>No user found 🫣</div>;
+    return redirect(
+      createBusterRoute({
+        route: BusterRoutes.AUTH_LOGIN
+      })
+    );
   }
 
   const { res, queryClient } = await prefetchAssetCheck({
