@@ -1,8 +1,8 @@
-use std::sync::Arc;
-use std::time::Instant;
+use std::{env, sync::Arc, time::Instant};
 
 use anyhow::Result;
 use async_trait::async_trait;
+use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::Utc;
 use database::{enums::Verification, models::MetricFile, pool::get_pg_pool, schema::metric_files, types::MetricYml};
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
@@ -212,10 +212,10 @@ impl ToolExecutor for ModifyMetricFilesTool {
         Ok(output)
     }
 
-    fn get_schema(&self) -> Value {
+    async fn get_schema(&self) -> Value {
         serde_json::json!({
           "name": self.get_name(),
-          "description": "Modifies existing metric configuration files by replacing specified content with new content",
+          "description": get_modify_metrics_description().await,
           "strict": true,
           "parameters": {
             "type": "object",
@@ -225,7 +225,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
             "properties": {
               "files": {
                 "type": "array",
-                "description": METRIC_YML_SCHEMA,
+                "description": get_modify_metrics_yml_description().await,
                 "items": {
                   "type": "object",
                   "required": [
@@ -236,7 +236,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                   "properties": {
                     "id": {
                       "type": "string",
-                      "description": "UUID of the file to modify"
+                      "description": get_metric_id_description().await
                     },
                     "file_name": {
                       "type": "string",
@@ -272,6 +272,52 @@ impl ToolExecutor for ModifyMetricFilesTool {
             "additionalProperties": false
           }
         })
+    }
+}
+
+async fn get_modify_metrics_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Modifies existing metric configuration files by replacing specified content with new content".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "d7aafe5a-95bc-4ad4-9c02-27e9124a9cd4").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Modifies existing metric configuration files by replacing specified content with new content".to_string()
+        }
+    }
+}
+
+async fn get_modify_metrics_yml_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return METRIC_YML_SCHEMA.to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "54d01b7c-07c9-4c80-8ec7-8026ab8242a9").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            METRIC_YML_SCHEMA.to_string()
+        }
+    }
+}
+
+
+async fn get_metric_id_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "UUID of the file to modify".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "modify-metrics-id-description").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "UUID of the file to modify".to_string()
+        }
     }
 }
 

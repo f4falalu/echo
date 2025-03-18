@@ -1,8 +1,9 @@
-use std::sync::Arc;
+use std::{env, sync::Arc};
 use std::time::Instant;
 
 use anyhow::Result;
 use async_trait::async_trait;
+use braintrust::{get_prompt_system_message, BraintrustClient};
 use database::{
     models::DashboardFile, pool::get_pg_pool, schema::dashboard_files, types::DashboardYml,
 };
@@ -191,9 +192,10 @@ impl ToolExecutor for ModifyDashboardFilesTool {
         Ok(output)
     }
 
-    fn get_schema(&self) -> Value {
+    async fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
+            "description": get_modify_dashboards_description().await,
             "strict": true,
             "parameters": {
                 "type": "object",
@@ -207,7 +209,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                             "properties": {
                                 "id": {
                                     "type": "string",
-                                    "description": "The UUID of the dashboard file to modify"
+                                    "description": get_dashboard_modification_id_description().await
                                 },
                                 "file_name": {
                                     "type": "string",
@@ -235,13 +237,57 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                             },
                             "additionalProperties": false
                         },
-                        "description": DASHBOARD_YML_SCHEMA
+                        "description": get_modify_dashboards_yml_description().await
                     }
                 },
                 "additionalProperties": false
             },
-            "description": "Makes content-based modifications to one or more existing dashboard YAML files in a single call. Each modification specifies the exact content to replace and its replacement. If you need to update chart config or other sections within a file, use this. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
         })
+    }
+}
+
+async fn get_modify_dashboards_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Modifies existing dashboard configuration files by replacing specified content with new content".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "e48ea999-fd99-4b17-9dbe-8b048af96eab").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Modifies existing dashboard configuration files by replacing specified content with new content".to_string()
+        }
+    }
+}
+
+async fn get_modify_dashboards_yml_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return DASHBOARD_YML_SCHEMA.to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "9d2cc19b-32be-49bf-a2c2-1a82d0806230").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            DASHBOARD_YML_SCHEMA.to_string()
+        }
+    }
+}
+
+async fn get_dashboard_modification_id_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "UUID of the file to modify".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "modify-dashboards-id-description").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "UUID of the file to modify".to_string()
+        }
     }
 }
 

@@ -194,7 +194,7 @@ impl Agent {
             if tool.is_enabled().await {
                 enabled_tools.push(Tool {
                     tool_type: "function".to_string(),
-                    function: tool.get_schema(),
+                    function: tool.get_schema().await,
                 });
             }
         }
@@ -777,7 +777,7 @@ mod tests {
             true
         }
 
-        fn get_schema(&self) -> Value {
+        async fn get_schema(&self) -> Value {
             json!({
                 "name": "get_weather",
                 "description": "Get current weather information for a specific location",

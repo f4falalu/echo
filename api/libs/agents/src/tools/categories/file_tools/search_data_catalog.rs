@@ -1,8 +1,8 @@
-use std::sync::Arc;
-use std::time::Instant;
+use std::{env, sync::Arc, time::Instant};
 
 use anyhow::Result;
 use async_trait::async_trait;
+use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::{DateTime, Utc};
 use database::{pool::get_pg_pool, schema::datasets};
 use diesel::prelude::*;
@@ -338,10 +338,10 @@ impl ToolExecutor for SearchDataCatalogTool {
         "search_data_catalog".to_string()
     }
 
-    fn get_schema(&self) -> Value {
+    async fn get_schema(&self) -> Value {
         serde_json::json!({
           "name": "search_data_catalog",
-          "description": "Use to search across a user's data catalog for metadata, documentation, column definitions, or business terminology.",
+          "description": get_search_data_catalog_description().await,
           "parameters": {
             "type": "object",
             "required": [
@@ -350,12 +350,42 @@ impl ToolExecutor for SearchDataCatalogTool {
             "properties": {
               "search_requirements": {
                 "type": "string",
-                "description": "Write a brief outline that explains the documentation (mostly datasets) that you would like to search the data catalog for. It should start with 'I need...' and then proceed to briefly describe the needed documentation. Specifically, you should describe the types of datasets and topics that you will likely need to understand to accomplish your task or workflow. You don't know exactly what data exists, so your request needs to be broad and general."
+                "description": get_search_requirements_description().await
               }
             },
             "additionalProperties": false
           }
         })
+    }
+}
+
+async fn get_search_data_catalog_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Use to search across a user's data catalog for metadata, documentation, column definitions, or business terminology.".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "865efb24-4355-4abb-aaf7-260af0f06794").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Use to search across a user's data catalog for metadata, documentation, column definitions, or business terminology.".to_string()
+        }
+    }
+}
+
+async fn get_search_requirements_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Write a brief outline that explains the documentation (mostly datasets) that you would like to search the data catalog for. It should start with 'I need...' and then proceed to briefly describe the needed documentation. Specifically, you should describe the types of datasets and topics that you will likely need to understand to accomplish your task or workflow. You don't know exactly what data exists, so your request needs to be broad and general.".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "2f13acae-7cf7-4f75-bf6b-9c8838f818fb").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Write a brief outline that explains the documentation (mostly datasets) that you would like to search the data catalog for. It should start with 'I need...' and then proceed to briefly describe the needed documentation. Specifically, you should describe the types of datasets and topics that you will likely need to understand to accomplish your task or workflow. You don't know exactly what data exists, so your request needs to be broad and general.".to_string()
+        }
     }
 }
 

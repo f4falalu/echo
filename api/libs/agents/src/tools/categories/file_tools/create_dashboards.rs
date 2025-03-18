@@ -1,10 +1,16 @@
-use std::sync::Arc;
 use std::time::Instant;
+use std::{env, sync::Arc};
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
+use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::Utc;
-use database::{models::DashboardFile, pool::get_pg_pool, schema::dashboard_files, types::{DashboardYml, VersionHistory}};
+use database::{
+    models::DashboardFile,
+    pool::get_pg_pool,
+    schema::dashboard_files,
+    types::{DashboardYml, VersionHistory},
+};
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
@@ -19,7 +25,7 @@ use crate::{
 
 use super::{
     common::{generate_deterministic_uuid, validate_metric_ids},
-    file_types::{file::FileWithId},
+    file_types::file::FileWithId,
     FileModificationTool,
 };
 
@@ -243,7 +249,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
         })
     }
 
-    fn get_schema(&self) -> Value {
+    async fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
             "strict": true,
@@ -259,11 +265,11 @@ impl ToolExecutor for CreateDashboardFilesTool {
                             "properties": {
                                 "name": {
                                     "type": "string",
-                                    "description": "The name of the dashboard file to be created. Do not include the file_extension."
+                                    "description": get_dashboard_name_description().await
                                 },
                                 "yml_content": {
                                     "type": "string",
-                                    "description": DASHBOARD_YML_SCHEMA
+                                    "description": get_dashboard_yml_description().await
                                 }
                             },
                             "additionalProperties": false
@@ -273,7 +279,52 @@ impl ToolExecutor for CreateDashboardFilesTool {
                 },
                 "additionalProperties": false
             },
-            "description": "Creates **new** dashboard files. Use this if no existing dashboard file can fulfill the user's needs. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed."
+            "description": get_dashboard_description().await
         })
+    }
+}
+
+async fn get_dashboard_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Creates **new** dashboard files. Use this if no existing dashboard file can fulfill the user's needs. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed.".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "7ec9d087-e222-4af3-8896-77d5c135f3c3").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Creates **new** dashboard files. Use this if no existing dashboard file can fulfill the user's needs. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed.".to_string()
+        }
+    }
+}
+
+async fn get_dashboard_yml_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return DASHBOARD_YML_SCHEMA.to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "9d2cc19b-32be-49bf-a2c2-1a82d0806230").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            DASHBOARD_YML_SCHEMA.to_string()
+        }
+    }
+}
+
+async fn get_dashboard_name_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "The name of the dashboard file to be created. Do not include the file extension.".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "c8d19094-5530-4d5f-aaeb-4665ef292450").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "The name of the dashboard file to be created. Do not include the file extension.".to_string()
+        }
     }
 }

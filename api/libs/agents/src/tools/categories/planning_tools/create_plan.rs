@@ -1,7 +1,9 @@
 use anyhow::Result;
 use async_trait::async_trait;
+use braintrust::{get_prompt_system_message, BraintrustClient};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::env;
 use std::sync::Arc;
 
 use crate::{agent::Agent, tools::ToolExecutor};
@@ -54,16 +56,16 @@ impl ToolExecutor for CreatePlan {
         }
     }
 
-    fn get_schema(&self) -> Value {
+    async fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Creates a structured plan for data analysis that is tailored to the user's request. Use this tool when you have sufficient context about the user's needs and want to outline a clear approach.",
+            "description": get_create_plan_description().await,
             "parameters": {
                 "type": "object",
                 "properties": {
                     "plan_markdown": {
                         "type": "string",
-                        "description": PLAN_TEMPLATE
+                        "description": get_plan_markdown_description().await
                     },
                 },
                 "required": [
@@ -71,6 +73,36 @@ impl ToolExecutor for CreatePlan {
                 ]
             }
         })
+    }
+}
+
+async fn get_create_plan_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Creates a structured plan for data analysis that is tailored to the user's request. Use this tool when you have sufficient context about the user's needs and want to outline a clear approach.".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "96ccd8a8-f537-4363-bd72-aad557cef620").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Creates a structured plan for data analysis that is tailored to the user's request. Use this tool when you have sufficient context about the user's needs and want to outline a clear approach.".to_string()
+        }
+    }
+}
+
+async fn get_plan_markdown_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return PLAN_TEMPLATE.to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "f6e90035-721e-41a9-be51-e2f8d86f1835").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            PLAN_TEMPLATE.to_string()
+        }
     }
 }
 
