@@ -6,7 +6,7 @@ use tracing::{debug, error};
 use std::env;
 use uuid::Uuid;
 
-use crate::types::{Span, EventPayload};
+use crate::types::{Span, EventPayload, Prompt};
 use crate::API_BASE;
 
 /// Environment variable name for Braintrust API key
@@ -156,5 +156,42 @@ impl BraintrustClient {
     /// Get the project ID
     pub fn project_id(&self) -> &str {
         &self.project_id
+    }
+
+    /// Fetch a prompt by its ID
+    ///
+    /// # Arguments
+    /// * `prompt_id` - ID of the prompt to fetch
+    ///
+    /// # Returns
+    /// Result containing the Prompt if successful, or an error if the request fails
+    ///
+    /// # Errors
+    /// Returns an error if the API request fails or if the response cannot be parsed
+    pub async fn get_prompt(&self, prompt_id: &str) -> Result<Prompt> {
+        let url = format!("{}/prompt/{}", API_BASE, prompt_id);
+        
+        debug!("Fetching prompt: {}", prompt_id);
+        
+        let response = self.client
+            .get(&url)
+            .header("Authorization", format!("Bearer {}", self.api_key))
+            .header("Content-Type", "application/json")
+            .send()
+            .await
+            .map_err(|e| anyhow!("Failed to fetch prompt: {}", e))?;
+            
+        if !response.status().is_success() {
+            let status = response.status();
+            let error_text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+            return Err(anyhow!("Failed to fetch prompt: HTTP {}, error: {}", status, error_text));
+        }
+        
+        let prompt = response.json::<Prompt>().await
+            .map_err(|e| anyhow!("Failed to parse prompt response: {}", e))?;
+            
+        debug!("Successfully fetched prompt: {}", prompt_id);
+        
+        Ok(prompt)
     }
 }

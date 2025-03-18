@@ -16,8 +16,7 @@ use crate::utils::user::user_info::get_user_organization_id;
 use database::enums::{AssetPermissionRole, AssetType, UserOrganizationRole};
 use database::pool::{get_pg_pool, PgPool};
 use database::schema::{
-    asset_permissions, collections_to_assets, dashboards, metric_files, teams_to_users,
-    threads_deprecated, threads_to_dashboards, users_to_organizations,
+    asset_permissions, collections_to_assets, dashboard_files, dashboards, metric_files, teams_to_users, threads_deprecated, threads_to_dashboards, users_to_organizations
 };
 
 pub async fn get_asset_access(
@@ -135,14 +134,27 @@ async fn get_asset_access_handler(
                 .first::<(Uuid, bool, Option<DateTime<Utc>>)>(&mut conn)
                 .await?;
 
-            let metric_info = (
-                metric_info.0,
-                metric_info.1,
-                false,
-                metric_info.2,
-            );
+            let metric_info = (metric_info.0, metric_info.1, false, metric_info.2);
 
             (metric_info, Some(AssetPermissionRole::Owner))
+        }
+        AssetType::DashboardFile => {
+            let mut conn = pg_pool.get().await?;
+
+            let dashboard_info = dashboard_files::table
+                .select((
+                    dashboard_files::id,
+                    dashboard_files::publicly_accessible,
+                    dashboard_files::public_expiry_date,
+                ))
+                .filter(dashboard_files::id.eq(&asset_id))
+                .filter(dashboard_files::deleted_at.is_null())
+                .first::<(Uuid, bool, Option<DateTime<Utc>>)>(&mut conn)
+                .await?;
+
+            let dashboard_info = (dashboard_info.0, dashboard_info.1, false, dashboard_info.2);
+
+            (dashboard_info, Some(AssetPermissionRole::Owner))
         }
         _ => {
             return Err(anyhow!("Public access is not supported for chats yet"));

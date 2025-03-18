@@ -1,6 +1,7 @@
 use anyhow::Result;
+use braintrust::{get_prompt_system_message, BraintrustClient};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{collections::HashMap, env};
 use std::sync::Arc;
 use tokio::sync::broadcast;
 use uuid::Uuid;
@@ -9,17 +10,17 @@ use crate::{
     tools::{
         categories::{
             file_tools::{
-                SearchDataCatalogTool, CreateDashboardFilesTool, CreateMetricFilesTool,
-                ModifyDashboardFilesTool, ModifyMetricFilesTool,
+                CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
+                ModifyMetricFilesTool, SearchDataCatalogTool,
             },
             planning_tools::CreatePlan,
         },
-        ToolExecutor, IntoToolCallExecutor,
+        IntoToolCallExecutor, ToolExecutor,
     },
     Agent, AgentError, AgentExt, AgentThread,
 };
 
-use litellm::AgentMessage as AgentMessage;
+use litellm::AgentMessage;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BusterSuperAgentOutput {
@@ -127,7 +128,7 @@ impl BusterSuperAgent {
         &self,
         thread: &mut AgentThread,
     ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
-        thread.set_developer_message(BUSTER_SUPER_AGENT_PROMPT.to_string());
+        thread.set_developer_message(get_system_message().await);
 
         // Get shutdown receiver
         let rx = self.stream_process_thread(thread).await?;
@@ -138,6 +139,21 @@ impl BusterSuperAgent {
     /// Shutdown the manager agent and all its tools
     pub async fn shutdown(&self) -> Result<()> {
         self.get_agent().shutdown().await
+    }
+}
+
+async fn get_system_message() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return BUSTER_SUPER_AGENT_PROMPT.to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "12e4cf21-0b49-4de7-9c3f-a73c3e233dad").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            BUSTER_SUPER_AGENT_PROMPT.to_string()
+        }
     }
 }
 

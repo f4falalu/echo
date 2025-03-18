@@ -236,3 +236,66 @@ async fn test_real_error_handling() -> Result<()> {
     
     Ok(())
 }
+
+#[tokio::test]
+async fn test_real_get_prompt() -> Result<()> {
+    // Initialize environment
+    init_env()?;
+    
+    // Skip test if no API key is available
+    if env::var("BRAINTRUST_API_KEY").is_err() {
+        println!("Skipping test_real_get_prompt: No API key available");
+        return Ok(());
+    }
+    
+    // Create client (None means use env var)
+    let client = BraintrustClient::new(None, "c7b996a6-1c7c-482d-b23f-3d39de16f433")?;
+    
+    // Attempt to fetch the prompt with ID "7f6fbd7a-d03a-42e7-a115-b87f5e9f86ee"
+    let prompt_id = "7f6fbd7a-d03a-42e7-a115-b87f5e9f86ee";
+    
+    println!("Fetching prompt with ID: {}", prompt_id);
+    
+    match client.get_prompt(prompt_id).await {
+        Ok(prompt) => {
+            println!("Successfully fetched prompt: {}", prompt.name);
+            println!("Prompt ID: {}", prompt.id);
+            println!("Project ID: {}", prompt.project_id);
+            
+            // Verify the prompt ID matches what we requested
+            assert_eq!(prompt.id, prompt_id, "Prompt ID should match the requested ID");
+            
+            if let Some(description) = &prompt.description {
+                println!("Description: {}", description);
+            }
+            
+            if let Some(prompt_data) = &prompt.prompt_data {
+                if let Some(content) = &prompt_data.prompt {
+                    println!("Prompt type: {}", content.content_type);
+                    println!("Prompt content: {:?}", content.content);
+                    println!("Prompt messages: {:?}", content.messages);
+                }
+                
+                if let Some(options) = &prompt_data.options {
+                    if let Some(model) = &options.model {
+                        println!("Model: {}", model);
+                    }
+                }
+            }
+            
+            if let Some(tags) = &prompt.tags {
+                println!("Tags: {:?}", tags);
+            }
+        },
+        Err(e) => {
+            println!("Failed to fetch prompt '{}': {}", prompt_id, e);
+            println!("This is expected if the prompt doesn't exist in your Braintrust project");
+            println!("You can create a prompt with this ID in your Braintrust project for this test to pass");
+            
+            // Fail the test if we can't fetch the prompt
+            panic!("Could not fetch prompt with ID: {}", prompt_id);
+        }
+    }
+    
+    Ok(())
+}

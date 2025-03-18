@@ -236,6 +236,7 @@ impl FromSql<sql_types::StoredValuesStatusEnum, Pg> for StoredValuesStatus {
 #[diesel(sql_type = sql_types::AssetTypeEnum)]
 #[serde(rename_all = "snake_case")]
 pub enum AssetType {
+    #[serde(rename = "dashboard_deprecated")]
     Dashboard,
     Thread,
     Collection,

@@ -124,6 +124,157 @@ impl Span {
     }
 }
 
+/// Prompt data structure from Braintrust API
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Prompt {
+    pub id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub _xact_id: Option<String>,
+    pub project_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub log_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub org_id: Option<String>,
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub slug: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_data: Option<PromptData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tags: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub function_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub function_data: Option<FunctionData>,
+}
+
+/// Function data containing type information
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct FunctionData {
+    #[serde(rename = "type")]
+    pub function_type: String,
+}
+
+/// Prompt data containing the actual prompt content and configuration
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct PromptData {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt: Option<PromptContent>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<PromptOptions>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parser: Option<PromptParser>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tool_functions: Option<Vec<ToolFunction>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub origin: Option<PromptOrigin>,
+}
+
+/// Content of the prompt - can be either completion or chat type
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct PromptContent {
+    #[serde(rename = "type")]
+    pub content_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub content: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tools: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub messages: Option<Vec<ChatMessage>>,
+}
+
+/// Chat message for chat-type prompts
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ChatMessage {
+    pub role: String,
+    pub content: String,
+}
+
+/// Options for prompt execution
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct PromptOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub params: Option<PromptParams>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub position: Option<String>,
+}
+
+/// Parameters for prompt execution
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct PromptParams {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub use_cache: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub temperature: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub top_p: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_completion_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub frequency_penalty: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub presence_penalty: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub response_format: Option<ResponseFormat>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tool_choice: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub function_call: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub n: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stop: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reasoning_effort: Option<String>,
+}
+
+/// Response format specification
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ResponseFormat {
+    #[serde(rename = "type")]
+    pub format_type: String,
+}
+
+/// Parser configuration for prompt outputs
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct PromptParser {
+    #[serde(rename = "type")]
+    pub parser_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub use_cot: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub choice_scores: Option<HashMap<String, f32>>,
+}
+
+/// Tool function definition
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct ToolFunction {
+    #[serde(rename = "type")]
+    pub function_type: String,
+    pub id: String,
+}
+
+/// Origin information for the prompt
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct PromptOrigin {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prompt_version: Option<String>,
+}
+
 // Custom serializer for DateTime<Utc> to convert to timestamp
 fn serialize_datetime_as_timestamp<S>(date: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Error>
 where
