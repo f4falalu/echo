@@ -251,7 +251,11 @@ const useFilterDashboardSelectMenu = () => {
       label: 'Filter dashboard',
       value: 'filter-dashboard',
       icon: <Filter />,
-      items: [<div key="coming-soon">Coming soon...</div>]
+      items: [
+        <div className="p-2" key="coming-soon">
+          Coming soon...
+        </div>
+      ]
     }),
     []
   );

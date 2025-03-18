@@ -164,3 +164,61 @@ export const CustomOverlay: Story = {
     )
   }
 };
+
+export const EmptyColumnSizes: Story = {
+  args: {
+    rows: [
+      {
+        id: uuidv4(),
+        items: [
+          {
+            id: uuidv4(),
+            children: <ExampleContent text="Row 1 Item 1" />
+          },
+          {
+            id: uuidv4(),
+            children: <ExampleContent text="Row 1 Item 2" />
+          }
+        ],
+        columnSizes: [],
+        rowHeight: MIN_ROW_HEIGHT
+      },
+      {
+        id: uuidv4(),
+        items: [
+          {
+            id: uuidv4(),
+            children: <ExampleContent text="Row 2 Item 1" />
+          },
+          {
+            id: uuidv4(),
+            children: <ExampleContent text="Row 2 Item 2" />
+          },
+          {
+            id: uuidv4(),
+            children: <ExampleContent text="Row 2 Item 3" />
+          }
+        ],
+        columnSizes: [],
+        rowHeight: MIN_ROW_HEIGHT
+      },
+      {
+        id: uuidv4(),
+        items: [
+          {
+            id: uuidv4(),
+            children: <ExampleContent text="Row 3 Item 1" />
+          },
+          {
+            id: uuidv4(),
+            children: <ExampleContent text="Row 3 Item 2" />
+          }
+        ],
+        columnSizes: [],
+        rowHeight: MIN_ROW_HEIGHT
+      }
+    ],
+    onRowLayoutChange: fn(),
+    readOnly: false
+  }
+};

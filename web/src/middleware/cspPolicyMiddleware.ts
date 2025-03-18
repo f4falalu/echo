@@ -43,7 +43,7 @@ const embedCspHeader = {
     // Fonts
     "font-src 'self' https://fonts.gstatic.com",
     // Frame ancestors - allow embedding from any domain for /embed routes
-    'frame-ancestors *',
+    `frame-ancestors 'self' *`,
     // Connect sources for API calls
     "connect-src 'self' https://*.vercel.app https://*.supabase.co wss://*.supabase.co",
     // Media
@@ -65,15 +65,23 @@ export const cspPolicyMiddleware = (request: NextRequest) => {
   // Add CSP headers based on route
   request.headers.set(
     'Content-Security-Policy',
-    isEmbedRoute
+    (isEmbedRoute
       ? embedCspHeader['Content-Security-Policy']
       : defaultCspHeader['Content-Security-Policy']
+    ).trim()
   );
 
   // Add additional security headers
-  if (!isEmbedRoute) request.headers.set('X-Frame-Options', 'DENY');
+  if (isEmbedRoute) {
+    request.headers.set('X-Frame-Options', 'ALLOW-FROM *');
+  } else {
+    request.headers.set('X-Frame-Options', 'DENY');
+  }
   request.headers.set('X-Content-Type-Options', 'nosniff');
   request.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  request.headers.set('frame-ancestors', '*');
+
+  console.log('request.headers', isEmbedRoute ? 'embed' : 'default', request.headers);
 
   return request;
 };

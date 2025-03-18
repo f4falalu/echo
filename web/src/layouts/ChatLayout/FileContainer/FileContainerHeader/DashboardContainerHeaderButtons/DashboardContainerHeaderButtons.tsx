@@ -10,6 +10,7 @@ import { ShareDashboardButton } from '@/components/features/buttons/ShareDashboa
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';
 import { DashboardThreeDotMenu } from './DashboardThreeDotMenu';
+import { AppTooltip } from '@/components/ui/tooltip';
 
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   () => {
@@ -19,7 +20,8 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
     return (
       <FileButtonContainer>
         <SaveToCollectionButton />
-        <ShareDashboardButton dashboardId={selectedFileId} /> <AddContentToDashboardButton />
+        <ShareDashboardButton dashboardId={selectedFileId} />
+        <AddContentToDashboardButton />
         <DashboardThreeDotMenu dashboardId={selectedFileId} />
         <HideButtonContainer show={renderViewLayoutKey === 'file'}>
           <CreateChatButton />
@@ -39,9 +41,9 @@ SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 
 const AddContentToDashboardButton = React.memo(() => {
   return (
-    <div>
+    <AppTooltip title="Add to dashboard">
       <Button variant="ghost" prefix={<Plus />} />
-    </div>
+    </AppTooltip>
   );
 });
 AddContentToDashboardButton.displayName = 'AddContentToDashboardButton';
