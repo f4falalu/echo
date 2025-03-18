@@ -29,3 +29,10 @@ export const assetPermissionCheck = (request: NextRequest): boolean => {
   const matchedRoute = createPathnameToBusterRoute(route);
   return assetCheckPages.includes(matchedRoute);
 };
+
+const embedPages: BusterRoutes[] = Object.values(BusterEmbedRoutes);
+export const isEmbedPage = (request: NextRequest): boolean => {
+  const route = request.nextUrl.pathname;
+  const matchedRoute = createPathnameToBusterRoute(route);
+  return embedPages.includes(matchedRoute);
+};
