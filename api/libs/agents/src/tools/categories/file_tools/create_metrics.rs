@@ -1,8 +1,8 @@
-use std::sync::Arc;
-use std::time::Instant;
+use std::{env, sync::Arc, time::Instant};
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
+use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::Utc;
 use database::{pool::get_pg_pool, schema::metric_files};
 use diesel::insert_into;
@@ -190,10 +190,10 @@ impl ToolExecutor for CreateMetricFilesTool {
         })
     }
 
-    fn get_schema(&self) -> Value {
+    async fn get_schema(&self) -> Value {
         serde_json::json!({
           "name": self.get_name(),
-          "description": "Creates metric configuration files with YAML content following the metric schema specification",
+          "description": get_create_metrics_description().await,
           "strict": true,
           "parameters": {
             "type": "object",
@@ -207,11 +207,11 @@ impl ToolExecutor for CreateMetricFilesTool {
                   "properties": {
                     "name": {
                       "type": "string",
-                      "description": "This is a natural language name/title for the metric. It will be used to identify the metric in the UI."
+                      "description": get_metric_name_description().await
                     },
                     "yml_content": {
                       "type": "string",
-                      "description": METRIC_YML_SCHEMA
+                      "description": get_metric_yml_description().await
                     }
                   },
                   "additionalProperties": false
@@ -222,5 +222,50 @@ impl ToolExecutor for CreateMetricFilesTool {
             "additionalProperties": false
           }
         })
+    }
+}
+
+async fn get_create_metrics_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Creates metric configuration files with YAML content following the metric schema specification".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "d53d2ab6-932a-496d-a38d-4858c281beb0").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Creates metric configuration files with YAML content following the metric schema specification".to_string()
+        }
+    }
+}
+
+async fn get_metric_name_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "This is a natural language name/title for the metric. It will be used to identify the metric in the UI.".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "fb906ebe-9fee-4e62-ab11-ec8f4b473c07").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "This is a natural language name/title for the metric. It will be used to identify the metric in the UI.".to_string()
+        }
+    }
+}
+
+async fn get_metric_yml_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return METRIC_YML_SCHEMA.to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "54d01b7c-07c9-4c80-8ec7-8026ab8242a9").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            METRIC_YML_SCHEMA.to_string()
+        }
     }
 }

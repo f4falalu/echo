@@ -1,8 +1,8 @@
-use std::sync::Arc;
-use std::time::Instant;
+use std::{env, sync::Arc};
 
 use anyhow::Result;
 use async_trait::async_trait;
+use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::Utc;
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
@@ -431,74 +431,51 @@ impl ToolExecutor for FilterDashboardsTool {
         Ok(output)
     }
 
-    fn get_schema(&self) -> Value {
+    async fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Modifies metric files within a dashboard to apply filtering conditions",
-            "strict": true,
+            "description": get_filter_dashboards_description().await,
             "parameters": {
                 "type": "object",
-                "required": [
-                    "dashboard_id",
-                    "files"
-                ],
+                "required": ["query"],
                 "properties": {
-                    "dashboard_id": {
+                    "query": {
                         "type": "string",
-                        "description": "UUID of the dashboard whose metrics should be filtered"
-                    },
-                    "files": {
-                        "type": "array",
-                        "description": "List of metric files within the dashboard to modify with filtering conditions",
-                        "items": {
-                            "type": "object",
-                            "required": [
-                                "id",
-                                "file_name",
-                                "modifications"
-                            ],
-                            "properties": {
-                                "id": {
-                                    "type": "string",
-                                    "description": "UUID of the metric file to modify"
-                                },
-                                "file_name": {
-                                    "type": "string",
-                                    "description": "Name of the metric file to modify"
-                                },
-                                "modifications": {
-                                    "type": "array",
-                                    "description": "List of filtering modifications to apply to the metric",
-                                    "items": {
-                                        "type": "object",
-                                        "required": [
-                                            "new_content",
-                                            "line_numbers"
-                                        ],
-                                        "properties": {
-                                            "new_content": {
-                                                "type": "string",
-                                                "description": "The new content containing the filtering conditions (e.g., time range filters)"
-                                            },
-                                            "line_numbers": {
-                                                "type": "array",
-                                                "description": "Array of line numbers where filter modifications should be applied",
-                                                "items": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        },
-                                        "additionalProperties": false
-                                    }
-                                }
-                            },
-                            "additionalProperties": false
-                        }
+                        "description": get_filter_query_description().await
                     }
-                },
-                "additionalProperties": false
+                }
             }
         })
+    }
+}
+
+async fn get_filter_dashboards_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Filters and returns dashboard files based on specified criteria".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "filter-dashboards-description").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Filters and returns dashboard files based on specified criteria".to_string()
+        }
+    }
+}
+
+async fn get_filter_query_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Natural language query to filter dashboards by. Will search across dashboard titles, descriptions, and metric names.".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "filter-dashboards-query-description").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Natural language query to filter dashboards by. Will search across dashboard titles, descriptions, and metric names.".to_string()
+        }
     }
 }
 

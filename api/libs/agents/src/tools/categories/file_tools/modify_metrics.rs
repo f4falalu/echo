@@ -1,22 +1,29 @@
-use std::sync::Arc;
-use std::time::Instant;
+use std::{env, sync::Arc, time::Instant};
 
 use anyhow::Result;
 use async_trait::async_trait;
+use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::Utc;
-use database::{enums::Verification, models::MetricFile, pool::get_pg_pool, schema::metric_files, types::MetricYml};
+use database::{
+    enums::Verification, models::MetricFile, pool::get_pg_pool, schema::metric_files,
+    types::MetricYml,
+};
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
 use query_engine::data_types::DataType;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use tracing::{debug, info, error};
+use tracing::{debug, error, info};
 use uuid::Uuid;
 
 use super::{
-    common::{FileModification, Modification, ModificationResult, process_metric_file_modification, ModifyFilesParams, ModifyFilesOutput, FileModificationBatch, apply_modifications_to_content},
-    file_types::{file::FileWithId},
+    common::{
+        apply_modifications_to_content, process_metric_file_modification, FileModification,
+        FileModificationBatch, Modification, ModificationResult, ModifyFilesOutput,
+        ModifyFilesParams,
+    },
+    file_types::file::FileWithId,
     FileModificationTool,
 };
 use crate::{
@@ -195,56 +202,52 @@ impl ToolExecutor for ModifyMetricFilesTool {
         };
 
         // Add files to output
-        output.files.extend(batch.files.iter().enumerate().map(|(i, file)| {
-            let yml = &batch.ymls[i];
-            FileWithId {
-                id: file.id,
-                name: file.name.clone(),
-                file_type: "metric".to_string(),
-                yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
-                result_message: Some(batch.validation_messages[i].clone()),
-                results: Some(batch.validation_results[i].clone()),
-                created_at: file.created_at,
-                updated_at: file.updated_at,
-            }
-        }));
+        output
+            .files
+            .extend(batch.files.iter().enumerate().map(|(i, file)| {
+                let yml = &batch.ymls[i];
+                FileWithId {
+                    id: file.id,
+                    name: file.name.clone(),
+                    file_type: "metric".to_string(),
+                    yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
+                    result_message: Some(batch.validation_messages[i].clone()),
+                    results: Some(batch.validation_results[i].clone()),
+                    created_at: file.created_at,
+                    updated_at: file.updated_at,
+                }
+            }));
 
         Ok(output)
     }
 
-    fn get_schema(&self) -> Value {
+    async fn get_schema(&self) -> Value {
         serde_json::json!({
           "name": self.get_name(),
-          "description": "Modifies existing metric configuration files by replacing specified content with new content",
+          "description": get_modify_metrics_description().await,
           "strict": true,
           "parameters": {
             "type": "object",
-            "required": [
-              "files"
-            ],
+            "required": ["files"],
             "properties": {
               "files": {
                 "type": "array",
-                "description": METRIC_YML_SCHEMA,
+                "description": get_modify_metrics_yml_description().await,
                 "items": {
                   "type": "object",
-                  "required": [
-                    "id",
-                    "file_name",
-                    "modifications"
-                  ],
+                  "required": ["id", "file_name", "modifications"],
                   "properties": {
                     "id": {
                       "type": "string",
-                      "description": "UUID of the file to modify"
+                      "description": get_metric_id_description().await
                     },
                     "file_name": {
                       "type": "string",
-                      "description": "Name of the file to modify"
+                      "description": get_modify_metrics_file_name_description().await
                     },
                     "modifications": {
                       "type": "array",
-                      "description": "List of content replacements to apply to the file",
+                      "description": get_modify_metrics_modifications_description().await,
                       "items": {
                         "type": "object",
                         "required": [
@@ -254,11 +257,11 @@ impl ToolExecutor for ModifyMetricFilesTool {
                         "properties": {
                           "content_to_replace": {
                             "type": "string",
-                            "description": "The exact content in the file that should be replaced. Must match exactly."
+                            "description": get_modify_metrics_content_to_replace_description().await
                           },
                           "new_content": {
                             "type": "string",
-                            "description": "The new content that will replace the matched content. Make sure to include proper indentation and formatting."
+                            "description": get_modify_metrics_new_content_description().await
                           }
                         },
                         "additionalProperties": false
@@ -272,6 +275,111 @@ impl ToolExecutor for ModifyMetricFilesTool {
             "additionalProperties": false
           }
         })
+    }
+}
+
+async fn get_modify_metrics_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Modifies existing metric configuration files by replacing specified content with new content".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "d7aafe5a-95bc-4ad4-9c02-27e9124a9cd4").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Modifies existing metric configuration files by replacing specified content with new content".to_string()
+        }
+    }
+}
+
+async fn get_modify_metrics_yml_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return METRIC_YML_SCHEMA.to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "54d01b7c-07c9-4c80-8ec7-8026ab8242a9").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            METRIC_YML_SCHEMA.to_string()
+        }
+    }
+}
+
+async fn get_modify_metrics_file_name_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "Name of the metric file to modify".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "5e9e0a31-760a-483f-8876-41f2027bf731").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "Name of the metric file to modify".to_string()
+        }
+    }
+}
+
+async fn get_modify_metrics_modifications_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "List of content modifications to make to the metric file".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "c56d3034-e527-45b6-aa2e-18fb5e3240de").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "List of content modifications to make to the metric file".to_string()
+        }
+    }
+}
+
+async fn get_modify_metrics_new_content_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "The new content to replace the existing content with".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "28467bdb-6cab-49ce-bca5-193d26c620b2").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "The new content to replace the existing content with".to_string()
+        }
+    }
+}
+
+async fn get_modify_metrics_content_to_replace_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "The exact content in the file that should be replaced. Must match exactly.".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "ad7e79f0-dd3a-4239-9548-ee7f4ef3be5a").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "The exact content in the file that should be replaced. Must match exactly.".to_string()
+        }
+    }
+}
+
+async fn get_metric_id_description() -> String {
+    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        return "UUID of the file to modify".to_string();
+    }
+
+    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
+    match get_prompt_system_message(&client, "471a0880-72f9-4989-bf47-397884a944fd").await {
+        Ok(message) => message,
+        Err(e) => {
+            eprintln!("Failed to get prompt system message: {}", e);
+            "UUID of the file to modify".to_string()
+        }
     }
 }
 
@@ -371,8 +479,8 @@ mod tests {
                 "id": Uuid::new_v4().to_string(),
                 "file_name": "test.yml",
                 "modifications": [{
-                    "content_to_replace": "old content",
-                    "new_content": "new content"
+                    "new_content": "new content",
+                    "line_numbers": [1, 2]
                 }]
             }]
         });

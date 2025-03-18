@@ -16,7 +16,7 @@ pub trait ToolExecutor: Send + Sync {
     async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output>;
 
     /// Get the JSON schema for this tool
-    fn get_schema(&self) -> Value;
+    async fn get_schema(&self) -> Value;
 
     /// Get the name of this tool
     fn get_name(&self) -> String;
@@ -59,8 +59,8 @@ where
         Ok(serde_json::to_value(result)?)
     }
 
-    fn get_schema(&self) -> Value {
-        self.inner.get_schema()
+    async fn get_schema(&self) -> Value {
+        self.inner.get_schema().await
     }
 
     fn get_name(&self) -> String {
@@ -82,8 +82,8 @@ impl<T: ToolExecutor<Output = Value, Params = Value> + Send + Sync> ToolExecutor
         (**self).execute(params, tool_call_id).await
     }
 
-    fn get_schema(&self) -> Value {
-        (**self).get_schema()
+    async fn get_schema(&self) -> Value {
+        (**self).get_schema().await
     }
 
     fn get_name(&self) -> String {
