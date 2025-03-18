@@ -25,7 +25,7 @@ pub struct Span {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub span_attributes: Option<HashMap<String, String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<HashMap<String, String>>,
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
 }
 
 /// Metrics for tracking span performance
@@ -105,10 +105,18 @@ impl Span {
         self
     }
 
-    /// Add metadata
+    /// Add metadata as string value
     pub fn add_metadata(mut self, key: &str, value: &str) -> Self {
         let mut metadata = self.metadata.unwrap_or_default();
-        metadata.insert(key.to_string(), value.to_string());
+        metadata.insert(key.to_string(), serde_json::Value::String(value.to_string()));
+        self.metadata = Some(metadata);
+        self
+    }
+
+    /// Add structured JSON metadata
+    pub fn add_json_metadata(mut self, key: &str, value: serde_json::Value) -> Self {
+        let mut metadata = self.metadata.unwrap_or_default();
+        metadata.insert(key.to_string(), value);
         self.metadata = Some(metadata);
         self
     }
@@ -116,6 +124,11 @@ impl Span {
     /// Alias for add_metadata that converts any displayable value to a string
     pub fn with_metadata<T: std::fmt::Display>(self, key: &str, value: T) -> Self {
         self.add_metadata(key, &value.to_string())
+    }
+    
+    /// Alias for add_json_metadata that accepts a JSON value
+    pub fn with_json_metadata(self, key: &str, value: serde_json::Value) -> Self {
+        self.add_json_metadata(key, value)
     }
 
     /// Get the span ID

@@ -838,11 +838,25 @@ impl Agent {
                         
                         // Separate messages into different categories
                         let mut conversation_history = Vec::new();
-                        let mut system_messages = Vec::new();
+                        let mut system_message = None;
                         let mut response_messages = Vec::new();
                         
-                        // Process all messages
+                        // First, find any developer/system message
+                        for msg in thread.messages.iter() {
+                            if let AgentMessage::Developer { content, .. } = msg {
+                                // Just take the content text from the developer message
+                                // There should only be one, and we'll use the last one if multiple exist
+                                system_message = Some(content.clone());
+                            }
+                        }
+                        
+                        // Process all messages for conversation history and responses
                         for (idx, msg) in thread.messages.iter().enumerate() {
+                            // Skip Developer messages as they're handled separately
+                            if matches!(msg, AgentMessage::Developer { .. }) {
+                                continue;
+                            }
+                            
                             let message_json = match msg {
                                 AgentMessage::User { content, .. } => {
                                     serde_json::json!({
@@ -883,65 +897,43 @@ impl Agent {
                                         "content": content
                                     })
                                 },
-                                AgentMessage::Developer { id, content, name } => {
-                                    serde_json::json!({
-                                        "role": "developer",
-                                        "id": id,
-                                        "content": content,
-                                        "name": name
-                                    })
-                                },
-                                _ => serde_json::json!({
-                                    "role": "system", 
-                                    "content": "Unknown message type"
-                                })
+                                _ => continue // Skip other message types entirely
                             };
                             
-                            // Sort messages based on their position and type
+                            // Sort messages based on their position relative to the last user message
                             if idx < last_idx {
                                 // Messages before the last user message go to conversation history
-                                if matches!(msg, AgentMessage::User { .. } | AgentMessage::Assistant { .. } | AgentMessage::Tool { .. }) {
-                                    conversation_history.push(message_json);
-                                } else {
-                                    // Developer and system messages always go to system_messages
-                                    system_messages.push(message_json);
-                                }
+                                conversation_history.push(message_json);
                             } else if idx == last_idx {
                                 // This is the last user message - it goes to input, not output
                                 continue;
                             } else {
                                 // Messages after last user message go to response (output)
-                                if matches!(msg, AgentMessage::Developer { .. }) {
-                                    // Developer messages after user query still go to system_messages
-                                    system_messages.push(message_json);
-                                } else {
-                                    // All other messages after user query are the actual response
-                                    response_messages.push(message_json);
-                                }
+                                response_messages.push(message_json);
                             }
                         }
                         
                         // Log the processed conversation in the trace output
                         let root_span = trace.root_span();
                         
-                        // Build the final span with all metadata and proper output
+                        // Build the final span with input and chat_id
                         let mut finished_root = root_span.clone()
                             .with_input(serde_json::json!(user_prompt_text))
                             .with_metadata("chat_id", self.session_id.to_string());
                         
-                        // Add conversation history as metadata if there is any
+                        // Add conversation history as structured JSON metadata if there is any
                         if !conversation_history.is_empty() {
-                            finished_root = finished_root.with_metadata(
+                            finished_root = finished_root.with_json_metadata(
                                 "conversation_history", 
                                 serde_json::Value::Array(conversation_history)
                             );
                         }
                         
-                        // Add system messages as metadata if there are any
-                        if !system_messages.is_empty() {
-                            finished_root = finished_root.with_metadata(
-                                "system_messages", 
-                                serde_json::Value::Array(system_messages)
+                        // Add system message as structured metadata if it exists
+                        if let Some(system_msg) = system_message {
+                            finished_root = finished_root.with_json_metadata(
+                                "system_message", 
+                                serde_json::json!(system_msg)
                             );
                         }
                         
@@ -955,6 +947,7 @@ impl Agent {
                         let root_span = trace.root_span();
                         client.log_span(root_span.clone()
                             .with_metadata("chat_id", self.session_id.to_string())
+                            .with_json_metadata("status", serde_json::json!("error"))
                             .with_output(serde_json::json!([{
                                 "role": "system",
                                 "content": "No user message found in conversation"
@@ -968,6 +961,7 @@ impl Agent {
                     // We need to ensure input is persisted even when no thread is available
                     let finished_root = root_span.clone()
                         .with_metadata("chat_id", self.session_id.to_string())
+                        .with_json_metadata("status", serde_json::json!("error"))
                         .with_output(serde_json::json!([{
                             "role": "system",
                             "content": "Trace completed - no conversation history available"
