@@ -1,6 +1,5 @@
 'use client';
 
-import './splitterStyles.css';
 import { useMemoizedFn } from '@/hooks';
 import React, {
   useEffect,
@@ -21,6 +20,7 @@ import {
 } from './helper';
 import Cookies from 'js-cookie';
 import { cn } from '@/lib/classMerge';
+import './splitterStyles.css';
 
 // First, define the ref type
 export interface AppSplitterRef {

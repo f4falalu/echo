@@ -7,6 +7,7 @@ import { useContext } from 'react';
 import { SortableItemContext } from './_BusterSortableItemDragContainer';
 import { Hand } from '../icons';
 import { cn } from '@/lib/classMerge';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof BusterResizeableGrid> = {
   title: 'UI/Grid/BusterResizeableGrid',
@@ -32,7 +33,7 @@ const ExampleContent: React.FC<{ text: string }> = ({ text }) => {
   const { attributes, listeners, isDragging } = useContext(SortableItemContext);
 
   return (
-    <div className="flex h-full w-full items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-4">
+    <div className="bg-gray-light/15 flex h-full w-full items-center justify-center rounded-lg border p-4">
       <div
         className={cn(
           'handle text-background absolute top-1 left-1 cursor-pointer bg-gray-500 p-2',
@@ -87,24 +88,24 @@ const defaultRows = [
 export const Default: Story = {
   args: {
     rows: defaultRows,
-    onRowLayoutChange: (newLayout) => alert(`Layout changed: ${JSON.stringify(newLayout)}`),
-    allowEdit: true
+    onRowLayoutChange: fn(),
+    readOnly: false
   }
 };
 
 export const ReadOnly: Story = {
   args: {
     rows: defaultRows,
-    onRowLayoutChange: (newLayout) => alert(`Layout changed: ${JSON.stringify(newLayout)}`),
-    allowEdit: false
+    onRowLayoutChange: fn(),
+    readOnly: true
   }
 };
 
 export const SingleRow: Story = {
   args: {
     rows: [defaultRows[0]],
-    onRowLayoutChange: (newLayout) => alert(`Layout changed: ${JSON.stringify(newLayout)}`),
-    allowEdit: true
+    onRowLayoutChange: fn(),
+    readOnly: false
   }
 };
 
@@ -131,16 +132,16 @@ export const ThreeColumns: Story = {
         rowHeight: 200
       }
     ],
-    onRowLayoutChange: (newLayout) => alert(`Layout changed: ${JSON.stringify(newLayout)}`),
-    allowEdit: true
+    onRowLayoutChange: fn(),
+    readOnly: false
   }
 };
 
 export const CustomOverlay: Story = {
   args: {
     rows: defaultRows,
-    onRowLayoutChange: (newLayout) => alert(`Layout changed: ${JSON.stringify(newLayout)}`),
-    allowEdit: true,
+    onRowLayoutChange: fn(),
+    readOnly: false,
     overlayComponent: (
       <div className="flex h-full w-full items-center justify-center rounded-lg border-2 border-dashed border-blue-400 bg-blue-50 p-4">
         Dragging...

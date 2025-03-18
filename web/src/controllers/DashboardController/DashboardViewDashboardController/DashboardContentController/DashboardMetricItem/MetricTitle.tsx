@@ -73,9 +73,7 @@ export const MetricTitle: React.FC<{
 
           <div className="flex w-full items-center overflow-hidden">
             <Text
-              className={`flex w-full pr-2 text-nowrap ${
-                timeFrame || description ? 'visible' : 'hidden'
-              }`}
+              className={`w-full pr-2 ${timeFrame || description ? 'visible' : 'hidden'}`}
               size="sm"
               variant="secondary"
               truncate={true}>

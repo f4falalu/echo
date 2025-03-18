@@ -96,13 +96,6 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
     return activeDragId ? items.findIndex((item) => item.id === active?.id) : -1;
   }, [activeDragId, items, active?.id]);
 
-  const memoizedStyle = useMemo(() => {
-    console.log(isOver);
-    return {
-      backgroundColor: isOver ? 'rgba(0, 0, 0, 0.25)' : undefined
-    };
-  }, [isOver]);
-
   const onChangeLayout = useMemoizedFn((sizes: number[]) => {
     setSizes(sizes);
     setStagedLayoutColumns(calculateColumnSpan(sizes));
@@ -143,7 +136,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
 
   return (
     <SortableContext id={rowId} items={items} disabled={false}>
-      <div ref={setNodeRef} className="relative h-full w-full" style={memoizedStyle}>
+      <div ref={setNodeRef} className="relative h-full w-full">
         <BusterDragColumnMarkers
           isDraggingIndex={columnMarkerColumnIndex}
           itemsLength={items.length}
