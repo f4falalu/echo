@@ -31,7 +31,7 @@
 
   /* Firefox scrollbar styling */
   scrollbar-width: thin;
-  scrollbar-color: var(--color-border) transparent;
+  scrollbar-color: color-mix(in srgb, var(--color-border) 50%, transparent) transparent;
 }
 
 .dataGrid :global(.rdg-header-row) {
@@ -93,4 +93,11 @@
   border-width: revert-layer;
   border-style: revert-layer;
   border-color: var(--color-border);
+}
+
+.dataGrid :global(.cj343x07-0-0-beta-47) {
+  &[aria-selected='true'] {
+    outline: 1px solid var(--rdg-selection-color);
+    outline-offset: -1px;
+  }
 }

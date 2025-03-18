@@ -15,7 +15,7 @@ const itemVariants = cva(
         emphasized: 'shadow bg-background border border-border text-text-default'
       },
       active: {
-        true: 'cursor-default',
+        true: '',
         false: ''
       },
       disabled: {

@@ -10,7 +10,7 @@ import type {
 export const getMetric = async ({ id, password }: GetMetricParams) => {
   return mainApi
     .get<BusterMetric>(`/metrics/${id}`, {
-      params: { id, ...(password && { password }) }
+      params: { ...(password && { password }) }
     })
     .then((res) => res.data);
 };

@@ -9,9 +9,8 @@ import { Button } from '@/components/ui/buttons';
 import Link from 'next/link';
 
 export const AppNoPageAccess: React.FC<{
-  metricId?: string;
-  dashboardId?: string;
-}> = React.memo(({}) => {
+  assetId: string;
+}> = React.memo(({ assetId }) => {
   const { openInfoMessage } = useBusterNotifications();
 
   return (

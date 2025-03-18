@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
-import { useMemoizedFn, useDebounceFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks';
 import {
   deleteMetrics,
   duplicateMetric,
@@ -11,17 +11,16 @@ import {
   listMetrics_server,
   updateMetric
 } from './requests';
-import type { GetMetricParams, ListMetricsParams, UpdateMetricParams } from './interfaces';
-import { upgradeMetricToIMetric } from '@/lib/chat';
-import { queryKeys } from '@/api/query_keys';
-import { useMemo, useTransition } from 'react';
+import type { GetMetricParams, ListMetricsParams } from './interfaces';
+import { upgradeMetricToIMetric } from '@/lib/metrics';
+import { metricsQueryKeys } from '@/api/query_keys/metric';
+import { useMemo } from 'react';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { resolveEmptyMetric } from '@/lib/metrics/resolve';
 import { useGetUserFavorites } from '../users';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
-import { create } from 'mutative';
-import { prepareMetricUpdateMetric } from '@/lib/metrics/saveToServerHelpers';
+import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 
 export const useGetMetric = <TData = IBusterMetric>(
   id: string | undefined,
@@ -32,7 +31,7 @@ export const useGetMetric = <TData = IBusterMetric>(
   const { password } = getAssetPassword(id!);
 
   const queryClient = useQueryClient();
-  const options = queryKeys.metricsGetMetric(id!);
+  const options = metricsQueryKeys.metricsGetMetric(id!);
 
   const queryFn = useMemoizedFn(async () => {
     const result = await getMetric({ id: id!, password });
@@ -45,8 +44,10 @@ export const useGetMetric = <TData = IBusterMetric>(
     queryFn,
     select,
     enabled: !!id,
-    throwOnError: (error, query) => {
-      setAssetPasswordError(id!, error.message || 'An error occurred');
+    retry(failureCount, error) {
+      if (error?.message !== undefined) {
+        setAssetPasswordError(id!, error.message || 'An error occurred');
+      }
       return false;
     }
   });
@@ -55,7 +56,7 @@ export const useGetMetric = <TData = IBusterMetric>(
 export const prefetchGetMetric = async (params: GetMetricParams, queryClientProp?: QueryClient) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
-    ...queryKeys.metricsGetMetric(params.id),
+    ...metricsQueryKeys.metricsGetMetric(params.id),
     queryFn: async () => {
       const result = await getMetric_server(params);
       return upgradeMetricToIMetric(result, null);
@@ -76,7 +77,7 @@ export const useGetMetricsList = (params: Omit<ListMetricsParams, 'page_token' |
   });
 
   const res = useQuery({
-    ...queryKeys.metricsGetList(compiledParams),
+    ...metricsQueryKeys.metricsGetList(compiledParams),
     queryFn
   });
 
@@ -93,7 +94,7 @@ export const prefetchGetMetricsList = async (
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...queryKeys.metricsGetList(params),
+    ...metricsQueryKeys.metricsGetList(params),
     queryFn: () => listMetrics_server(params)
   });
 
@@ -105,7 +106,7 @@ export const useGetMetricData = (params: { id: string }) => {
     return getMetricData(params);
   });
   return useQuery({
-    ...queryKeys.metricsGetData(params.id),
+    ...metricsQueryKeys.metricsGetData(params.id),
     queryFn,
     enabled: !!params.id
   });
@@ -115,7 +116,7 @@ export const prefetchGetMetricDataClient = async (
   params: { id: string },
   queryClient: QueryClient
 ) => {
-  const options = queryKeys.metricsGetData(params.id);
+  const options = metricsQueryKeys.metricsGetData(params.id);
   const existingData = queryClient.getQueryData(options.queryKey);
   if (!existingData) {
     await queryClient.prefetchQuery({
@@ -136,7 +137,7 @@ export const useSaveMetric = () => {
     onSuccess: (data) => {
       const hasDraftSessionId = data.draft_session_id;
       const metricId = data.id;
-      const options = queryKeys.metricsGetMetric(metricId);
+      const options = metricsQueryKeys.metricsGetMetric(metricId);
       const currentMetric = queryClient.getQueryData(options.queryKey);
       if (hasDraftSessionId && !currentMetric?.draft_session_id && currentMetric) {
         queryClient.setQueryData(options.queryKey, {
@@ -148,78 +149,19 @@ export const useSaveMetric = () => {
   });
 };
 
-/**
- * This is a mutation that updates a metric.
- * It will create a new metric with the new values combined with the old values and save it to the server.
- * It will also strip out any values that are not changed from the DEFAULT_CHART_CONFIG.
- * It will also update the draft_session_id if it exists.
- */
-export const useUpdateMetric = (params?: { wait?: number }) => {
-  const [isPending, startTransition] = useTransition();
-  const queryClient = useQueryClient();
-  const { mutateAsync: saveMetric } = useSaveMetric();
-  const waitTime = params?.wait || 0;
-
-  const combineAndSaveMetric = useMemoizedFn(
-    async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
-      const metricId = newMetricPartial.id;
-      const options = queryKeys.metricsGetMetric(metricId);
-      const prevMetric = queryClient.getQueryData(options.queryKey);
-      const newMetric = create(prevMetric, (draft) => {
-        Object.assign(draft || {}, newMetricPartial);
-      });
-
-      if (prevMetric && newMetric) {
-        queryClient.setQueryData(options.queryKey, newMetric);
-      }
-
-      return { newMetric, prevMetric };
-    }
-  );
-
-  const mutationFn = useMemoizedFn(
-    async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
-      const { newMetric, prevMetric } = await combineAndSaveMetric(newMetricPartial);
-      if (newMetric && prevMetric) {
-        startTransition(() => {
-          const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
-          if (changedValues) {
-            saveMetric(changedValues);
-          }
-        });
-      }
-      return Promise.resolve(newMetric!);
-    }
-  );
-
-  const mutationRes = useMutation({
-    mutationFn: mutationFn
-  });
-
-  const { run: mutateDebounced } = useDebounceFn(mutationRes.mutateAsync, { wait: waitTime });
-
-  return useMemo(
-    () => ({
-      ...mutationRes,
-      mutateDebounced
-    }),
-    [mutationRes, mutateDebounced]
-  );
-};
-
 export const useDeleteMetric = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteMetrics,
     onMutate: async (variables) => {
       const metricIds = variables.ids;
-      const options = queryKeys.metricsGetList();
+      const options = metricsQueryKeys.metricsGetList();
       queryClient.setQueryData(options.queryKey, (oldData) => {
         return oldData?.filter((metric) => !metricIds.includes(metric.id));
       });
       for (const metricId of metricIds) {
         queryClient.removeQueries({
-          queryKey: queryKeys.metricsGetMetric(metricId).queryKey,
+          queryKey: metricsQueryKeys.metricsGetMetric(metricId).queryKey,
           exact: true
         });
       }
@@ -305,7 +247,9 @@ export const useRemoveMetricFromCollection = () => {
 
   const removeMetricFromCollection = useMemoizedFn(
     async ({ metricId, collectionId }: { metricId: string; collectionId: string }) => {
-      const currentMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(metricId).queryKey);
+      const currentMetric = queryClient.getQueryData(
+        metricsQueryKeys.metricsGetMetric(metricId).queryKey
+      );
       const collectionIsInFavorites =
         currentMetric &&
         userFavorites.some((f) => {
@@ -346,7 +290,9 @@ export const useSaveMetricToDashboard = () => {
     mutationFn: saveMetricToDashboard,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: variables.dashboardIds.map((id) => queryKeys.dashboardGetDashboard(id).queryKey)
+        queryKey: variables.dashboardIds.map(
+          (id) => dashboardQueryKeys.dashboardGetDashboard(id).queryKey
+        )
       });
     }
   });

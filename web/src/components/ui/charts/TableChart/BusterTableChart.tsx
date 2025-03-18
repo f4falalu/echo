@@ -25,13 +25,12 @@ const BusterTableChartBase: React.FC<
   tableColumnOrder,
   columnLabelFormats = DEFAULT_CHART_CONFIG.columnLabelFormats,
   tableColumnWidths = DEFAULT_CHART_CONFIG.tableColumnWidths,
-  editable = true,
+  readOnly = false,
   onInitialAnimationEnd,
   onChangeConfig,
   //TODO
   tableHeaderBackgroundColor,
   tableHeaderFontColor,
-  isDarkMode,
   animate,
   tableColumnFontColor
 }) => {
@@ -53,7 +52,7 @@ const BusterTableChartBase: React.FC<
   );
 
   const onUpdateTableColumnOrder = useMemoizedFn((columns: string[]) => {
-    if (!editable) return;
+    if (readOnly) return;
     const config: Partial<IBusterMetricChartConfig> = {
       tableColumnOrder: columns
     };
@@ -62,7 +61,7 @@ const BusterTableChartBase: React.FC<
   });
 
   const onUpdateTableColumnSize = useMemoizedFn((columns: { key: string; size: number }[]) => {
-    if (!editable) return;
+    if (readOnly) return;
     const config: Partial<IBusterMetricChartConfig> = {
       tableColumnWidths: columns.reduce<Record<string, number>>((acc, { key, size }) => {
         acc[key] = size;
@@ -87,8 +86,8 @@ const BusterTableChartBase: React.FC<
       initialWidth={containerWidth}
       columnOrder={tableColumnOrder || undefined}
       columnWidths={tableColumnWidths || undefined}
-      draggable={editable}
-      resizable={true}
+      draggable={!readOnly}
+      resizable={!readOnly}
       onReady={onReady}
       headerFormat={onFormatHeader}
       cellFormat={onFormatCell}

@@ -434,7 +434,6 @@ const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
   const { data: metric } = useGetMetric(metricId);
   const isOwner = metric?.permission === ShareRole.OWNER;
-  console.log('hit?');
 
   return useMemo(
     () => ({

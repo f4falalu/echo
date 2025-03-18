@@ -11,7 +11,8 @@ export const MetricViewChartHeader: React.FC<{
   description: string | undefined | null;
   timeFrame: string | undefined;
   onSetTitle: (value: string) => void;
-}> = React.memo(({ className, title = '', description, timeFrame, onSetTitle }) => {
+  readOnly: boolean;
+}> = React.memo(({ className, title = '', description, timeFrame, onSetTitle, readOnly }) => {
   const hasTitleOrDescription = !!title || !!description;
 
   return (
@@ -25,7 +26,7 @@ export const MetricViewChartHeader: React.FC<{
           <EditableTitle
             id={METRIC_CHART_TITLE_INPUT_ID}
             level={4}
-            className=""
+            readOnly={readOnly}
             inputClassName="h-auto!"
             onChange={onSetTitle}>
             {title}

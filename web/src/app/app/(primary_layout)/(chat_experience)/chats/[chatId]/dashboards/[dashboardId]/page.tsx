@@ -6,7 +6,7 @@ export default async function DashboardPage(props: { params: Promise<{ dashboard
   const { dashboardId } = params;
 
   return (
-    <AppAssetCheckLayout dashboardId={dashboardId} type="dashboard">
+    <AppAssetCheckLayout assetId={dashboardId} type="dashboard">
       <>TODO: Dashboard Page</>
     </AppAssetCheckLayout>
   );

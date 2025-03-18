@@ -2,8 +2,6 @@ import type { BusterChat, BusterChatMessage } from '@/api/asset_interfaces/chat'
 import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import { create } from 'mutative';
 import omit from 'lodash/omit';
-import { BusterMetric, IBusterMetric } from '@/api/asset_interfaces/metric';
-import { createDefaultChartConfig } from './messageAutoChartHandler';
 import last from 'lodash/last';
 
 const chatUpgrader = (chat: BusterChat, { isNewChat }: { isNewChat: boolean }): IBusterChat => {
@@ -43,17 +41,5 @@ export const updateChatToIChat = (
   return {
     iChat,
     iChatMessages
-  };
-};
-
-export const upgradeMetricToIMetric = (
-  metric: BusterMetric,
-  oldMetric: IBusterMetric | null | undefined
-): IBusterMetric => {
-  const chart_config = createDefaultChartConfig(metric);
-  return {
-    ...oldMetric,
-    ...metric,
-    chart_config
   };
 };

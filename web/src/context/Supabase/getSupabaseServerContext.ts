@@ -1,3 +1,4 @@
+import { signInWithAnonymousUser } from '@/server_context/supabaseAuthMethods';
 import { createClient } from './server';
 
 type PromiseType<T extends Promise<any>> = T extends Promise<infer U> ? U : never;
@@ -9,6 +10,16 @@ export const getSupabaseServerContext = async () => {
     supabase.auth.getUser(),
     supabase.auth.getSession()
   ]);
+
+  if (!userData.data?.user) {
+    const { session: anonSession } = await signInWithAnonymousUser();
+    return {
+      user: anonSession?.user,
+      accessToken: anonSession?.access_token,
+      refreshToken: anonSession?.refresh_token,
+      expiresAt: anonSession?.expires_at
+    };
+  }
 
   const user = userData.data?.user;
   const accessToken = sessionData.data?.session?.access_token;

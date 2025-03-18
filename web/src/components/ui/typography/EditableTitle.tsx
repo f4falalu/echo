@@ -35,11 +35,13 @@ export const EditableTitle = React.memo(
       style?: React.CSSProperties;
       inputClassName?: string;
       id?: string;
+      readOnly?: boolean;
     } & VariantProps<typeof editableTitleVariants>
   >(
     (
       {
         id,
+        readOnly,
         style,
         disabled,
         className = '',
@@ -71,6 +73,7 @@ export const EditableTitle = React.memo(
             ref={inputRef}
             id={id}
             disabled={disabled}
+            readOnly={readOnly}
             variant="ghost"
             className={cn(
               'w-full cursor-text! rounded-none! px-0! py-0! leading-1',

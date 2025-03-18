@@ -48,8 +48,8 @@ const routeToRegex = (route: string): RegExp => {
   return new RegExp(`^${regexPattern}$`);
 };
 
+const routes = Object.values(BusterRoutes) as string[];
 const matchDynamicUrlToRoute = (pathname: string): BusterAppRoutes | null => {
-  const routes = Object.values(BusterAppRoutes) as string[];
   for (const route of routes) {
     const regex = routeToRegex(route);
     if (regex.test(pathname)) {

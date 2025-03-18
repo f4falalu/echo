@@ -13,6 +13,7 @@ interface MetricViewChartContentProps {
   fetchedData: boolean;
   errorMessage: string | null | undefined;
   metricId: string;
+  readOnly: boolean;
 }
 
 export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = React.memo(
@@ -23,7 +24,8 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = Rea
     dataMetadata,
     fetchedData,
     errorMessage,
-    metricId
+    metricId,
+    readOnly
   }) => {
     const columnMetadata = dataMetadata?.column_metadata;
     const isTable = chartConfig?.selectedChartType === ChartType.Table;
@@ -41,6 +43,7 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = Rea
           data={metricData}
           columnMetadata={columnMetadata}
           id={METRIC_CHART_CONTAINER_ID(metricId)}
+          readOnly={readOnly}
           {...chartConfig}
         />
       </div>

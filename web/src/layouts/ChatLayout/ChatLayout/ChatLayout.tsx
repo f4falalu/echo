@@ -23,7 +23,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const defaultSplitterLayout = useMemo(() => {
     if (selectedLayout === 'chat') return ['100%', '0%'];
     if (selectedLayout === 'file') return ['0%', '100%'];
-    return ['325px', 'auto'];
+    return ['380px', 'auto'];
   }, [selectedLayout]);
 
   const rightHidden = renderViewLayoutKey === 'chat';

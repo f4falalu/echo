@@ -8,21 +8,30 @@ import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
+import { ShareRole } from '@/api/asset_interfaces';
 
-export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
-  const { mutateAsync: updateMetric } = useUpdateMetric();
+export const MetricViewChart: React.FC<{
+  metricId: string;
+  readOnly?: boolean;
+}> = React.memo(({ metricId, readOnly: readOnlyProp = false }) => {
   const { metric, metricData, metricDataError, isFetchedMetricData } = useMetricIndividual({
     metricId
   });
+  const { mutateAsync: updateMetric } = useUpdateMetric();
   const { title, description, time_frame, evaluation_score, evaluation_summary } = metric;
   const isTable = metric.chart_config.selectedChartType === ChartType.Table;
+
+  const readOnly =
+    readOnlyProp ||
+    !(metric.permission === ShareRole.OWNER || metric.permission === ShareRole.EDITOR);
 
   const loadingData = !isFetchedMetricData;
   const errorData = !!metricDataError;
   const showEvaluation = !!evaluation_score && !!evaluation_summary;
 
   const onSetTitle = useMemoizedFn((title: string) => {
-    if (inputHasText(title)) {
+    console.log('here?');
+    if (updateMetric && inputHasText(title)) {
       updateMetric({
         id: metricId,
         title
@@ -31,7 +40,7 @@ export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ met
   });
 
   return (
-    <div className={cn('m-5 flex h-full flex-col justify-between space-y-3.5', 'overflow-hidden')}>
+    <div className={'m-5 flex h-full flex-col justify-between space-y-3.5'}>
       <MetricViewChartCard loadingData={loadingData} errorData={errorData} isTable={isTable}>
         <MetricViewChartHeader
           className="px-4"
@@ -39,6 +48,7 @@ export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ met
           description={description}
           timeFrame={time_frame}
           onSetTitle={onSetTitle}
+          readOnly={readOnly}
         />
         <div className={'border-border border-b'} />
         <MetricViewChartContent
@@ -48,6 +58,7 @@ export const MetricViewChart: React.FC<{ metricId: string }> = React.memo(({ met
           fetchedData={isFetchedMetricData}
           errorMessage={metricDataError?.message}
           metricId={metricId}
+          readOnly={readOnly}
         />
       </MetricViewChartCard>
 

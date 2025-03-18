@@ -13,7 +13,7 @@ import { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { create } from 'mutative';
-import { upgradeMetricToIMetric } from '@/lib/chat';
+import { upgradeMetricToIMetric } from '@/lib/metrics';
 import { queryKeys } from '@/api/query_keys';
 import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';

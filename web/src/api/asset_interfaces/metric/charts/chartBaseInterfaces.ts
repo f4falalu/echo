@@ -6,5 +6,5 @@ export type BusterChartPropsBase = {
   animate?: boolean;
   data: Record<string, string | null | Date | number>[];
   isDarkMode?: boolean;
-  editable?: boolean;
+  readOnly?: boolean;
 };

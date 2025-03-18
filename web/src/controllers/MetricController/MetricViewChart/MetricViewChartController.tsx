@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useRef } from 'react';
 import type { MetricViewProps } from '../config';
 import { AppSplitter, AppSplitterRef } from '@/components/ui/layouts';

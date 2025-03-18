@@ -6,13 +6,11 @@ import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
-import { signInWithAnonymousUser } from '@/server_context/supabaseAuthMethods';
 import { prefetchAssetCheck } from '@/api/buster_rest/assets/queryRequests';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
 export type AppAssetCheckLayoutProps = {
-  metricId?: string;
-  dashboardId?: string;
+  assetId: string;
   type: 'metric' | 'dashboard';
 };
 
@@ -20,16 +18,8 @@ export const AppAssetCheckLayout: React.FC<
   {
     children: React.ReactNode;
   } & AppAssetCheckLayoutProps
-> = async ({ children, type, ...props }) => {
-  const { accessToken, user } = await getSupabaseServerContext();
-  const isMetric = type === 'metric';
-
-  let jwtToken = accessToken;
-
-  if (!user || !accessToken) {
-    const { session } = await signInWithAnonymousUser();
-    jwtToken = session?.access_token! || accessToken;
-  }
+> = async ({ children, type, assetId }) => {
+  const { accessToken: jwtToken, user } = await getSupabaseServerContext();
 
   if (!jwtToken) {
     return redirect(
@@ -39,9 +29,9 @@ export const AppAssetCheckLayout: React.FC<
     );
   }
 
-  const { res, queryClient } = await prefetchAssetCheck({
+  let { res, queryClient } = await prefetchAssetCheck({
     fileType: type,
-    assetId: isMetric ? props.metricId! : props.dashboardId!,
+    assetId: assetId,
     jwtToken
   });
 
@@ -63,10 +53,7 @@ export const AppAssetCheckLayout: React.FC<
     if (pagePublic && password_required) {
       return (
         <ClientSideAnonCheck jwtToken={jwtToken}>
-          <AppPasswordAccess
-            metricId={props.metricId}
-            dashboardId={props.dashboardId}
-            type={type as ShareAssetType}>
+          <AppPasswordAccess assetId={assetId} type={type as ShareAssetType}>
             {children}
           </AppPasswordAccess>
         </ClientSideAnonCheck>
@@ -76,7 +63,7 @@ export const AppAssetCheckLayout: React.FC<
     if (!has_access && !pagePublic) {
       return (
         <ClientSideAnonCheck jwtToken={jwtToken}>
-          <AppNoPageAccess metricId={props.metricId} dashboardId={props.dashboardId} />
+          <AppNoPageAccess assetId={assetId} />
         </ClientSideAnonCheck>
       );
     }

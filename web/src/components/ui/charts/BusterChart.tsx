@@ -27,6 +27,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
     className = '',
     animate = true,
     animateLegend = true,
+    readOnly = true,
     id,
     error,
     tableColumnOrder,
@@ -41,7 +42,6 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
     metricValueLabel,
     onChartMounted: onChartMountedProp,
     onInitialAnimationEnd,
-    editable,
     selectedChartType,
     columnLabelFormats = DEFAULT_CHART_CONFIG.columnLabelFormats,
     columnSettings = DEFAULT_CHART_CONFIG.columnSettings,
@@ -103,7 +103,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
             tableHeaderFontColor={tableHeaderFontColor}
             tableColumnFontColor={tableColumnFontColor}
             columnLabelFormats={columnLabelFormats}
-            editable={editable}
+            readOnly={readOnly}
             data={data}
             type={ChartType.Table}
             onMounted={onChartMounted}
@@ -143,6 +143,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
         selectedChartType,
         loading,
         columnSettings,
+        readOnly,
         ...props
       };
 

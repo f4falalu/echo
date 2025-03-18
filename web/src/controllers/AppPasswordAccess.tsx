@@ -10,26 +10,18 @@ import { Button } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs';
 
 export const AppPasswordAccess: React.FC<{
-  metricId?: string;
-  dashboardId?: string;
+  assetId: string;
   type: ShareAssetType;
   children: React.ReactNode;
-}> = React.memo(({ children, metricId, dashboardId, type }) => {
+}> = React.memo(({ children, assetId }) => {
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
-  const { password, error } = getAssetPassword(metricId || dashboardId || '');
+  const { password, error } = getAssetPassword(assetId);
 
   if (password && !error) {
     return <>{children}</>;
   }
 
-  return (
-    <AppPasswordInputComponent
-      password={password}
-      error={error}
-      metricId={metricId}
-      dashboardId={dashboardId}
-    />
-  );
+  return <AppPasswordInputComponent password={password} error={error} assetId={assetId} />;
 });
 
 AppPasswordAccess.displayName = 'AppPasswordAccess';
@@ -37,14 +29,13 @@ AppPasswordAccess.displayName = 'AppPasswordAccess';
 const AppPasswordInputComponent: React.FC<{
   password: string | undefined;
   error: string | null;
-  metricId?: string;
-  dashboardId?: string;
-}> = ({ password, error, metricId, dashboardId }) => {
+  assetId: string;
+}> = ({ password, error, assetId }) => {
   const setAssetPassword = useBusterAssetsContextSelector((state) => state.setAssetPassword);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const onEnterPassword = useMemoizedFn((v: string) => {
-    setAssetPassword(metricId || dashboardId!, v);
+    setAssetPassword(assetId, v);
   });
 
   const onPressEnter = useMemoizedFn((v: React.KeyboardEvent<HTMLInputElement>) => {

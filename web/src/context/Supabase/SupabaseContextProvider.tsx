@@ -24,7 +24,7 @@ const useSupabaseContextInternal = ({
 }: {
   supabaseContext: UseSupabaseContextType;
 }) => {
-  const refreshTimerRef = useRef<any>(undefined);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const refreshToken = useRef(supabaseContext.refreshToken || '');
   const expiresAt = useRef(supabaseContext.expiresAt || 5000);
   const isRefreshing = useRef(false);

@@ -14,7 +14,7 @@ export default async function MetricPage(props: {
   const embedView = embed === 'true';
 
   return (
-    <AppAssetCheckLayout metricId={metricId} type="metric">
+    <AppAssetCheckLayout assetId={metricId} type="metric">
       <MetricController metricId={metricId} />
     </AppAssetCheckLayout>
   );

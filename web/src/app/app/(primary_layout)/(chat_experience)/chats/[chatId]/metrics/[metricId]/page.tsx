@@ -9,7 +9,7 @@ export default async function Page(props: {
   const { chatId, metricId } = params;
 
   return (
-    <AppAssetCheckLayout metricId={metricId} type="metric">
+    <AppAssetCheckLayout assetId={metricId} type="metric">
       <MetricController metricId={metricId} />
     </AppAssetCheckLayout>
   );

@@ -7,7 +7,7 @@ export default async function Page(props: { params: Promise<{ dashboardId: strin
   const { dashboardId } = params;
 
   return (
-    <AppAssetCheckLayout dashboardId={dashboardId} type="dashboard">
+    <AppAssetCheckLayout assetId={dashboardId} type="dashboard">
       <DashboardController dashboardId={dashboardId} />
     </AppAssetCheckLayout>
   );
