@@ -38,7 +38,7 @@ pub async fn create_collection_handler(
         created_by: *user_id,
         updated_by: *user_id,
         deleted_at: None,
-        organization_id,
+        organization_id: *organization_id,
     };
 
     let insert_task_user_id = *user_id;
@@ -97,7 +97,7 @@ pub async fn create_collection_handler(
     // Update search index
     let collection_id_for_search = collection_id;
     let collection_name = collection.name.clone();
-    let organization_id_for_search = organization_id;
+    let organization_id_for_search = *organization_id;
 
     let collection_search_handle = tokio::spawn(async move {
         let mut conn = match get_pg_pool().get().await {
@@ -143,8 +143,6 @@ pub async fn create_collection_handler(
         collection,
         assets: None,
         permission: AssetPermissionRole::Owner,
-        individual_permissions: None,
-        team_permissions: None,
         organization_permissions: false,
     })
 }

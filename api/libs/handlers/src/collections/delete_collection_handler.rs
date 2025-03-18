@@ -25,15 +25,6 @@ pub async fn delete_collection_handler(
     ids: Vec<Uuid>,
 ) -> Result<DeleteCollectionResponse> {
 
-    // Filter out collections where the user only has viewer permission
-    let filtered_ids_to_delete: Vec<Uuid> = ids
-        .into_iter()
-        .filter(|id| match roles.get(id) {
-            Some(role) if *role != AssetPermissionRole::Viewer => true,
-            _ => false,
-        })
-        .collect();
-
     // Get database connection
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
@@ -44,7 +35,7 @@ pub async fn delete_collection_handler(
 
     // Soft delete the collections
     match update(collections::table)
-        .filter(collections::id.eq_any(&filtered_ids_to_delete))
+        .filter(collections::id.eq_any(&ids))
         .set(collections::deleted_at.eq(Some(Utc::now())))
         .execute(&mut conn)
         .await
@@ -57,6 +48,6 @@ pub async fn delete_collection_handler(
 
     // Return the IDs of the deleted collections
     Ok(DeleteCollectionResponse {
-        ids: filtered_ids_to_delete,
+        ids,
     })
 }

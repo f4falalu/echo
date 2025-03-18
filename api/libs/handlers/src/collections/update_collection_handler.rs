@@ -1,12 +1,13 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType},
+    collections::fetch_collection,
+    enums::AssetPermissionRole,
     models::CollectionToAsset,
     pool::get_pg_pool,
     schema::{collections, collections_to_assets},
 };
-use diesel::{dsl::not, update, AsChangeset, BoolExpressionMethods, ExpressionMethods};
+use diesel::{dsl::not, update, BoolExpressionMethods, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use std::sync::Arc;
 use tokio;
@@ -58,19 +59,6 @@ pub async fn update_collection_handler(
     };
 
     // Wait for all update operations to complete
-    if let Some(update_collection_permissions_handle) = update_collection_permissions_handle {
-        match update_collection_permissions_handle.await {
-            Ok(Ok(_)) => (),
-            Ok(Err(e)) => {
-                tracing::error!("Error updating collection permissions: {}", e);
-                return Err(anyhow!("Error updating collection permissions: {}", e));
-            }
-            Err(e) => {
-                tracing::error!("Error updating collection permissions: {}", e);
-                return Err(anyhow!("Error updating collection permissions: {}", e));
-            }
-        }
-    }
 
     if let Some(update_collection_record_handle) = update_collection_record_handle {
         match update_collection_record_handle.await {
@@ -101,13 +89,22 @@ pub async fn update_collection_handler(
     }
 
     // Get the updated collection
-    let collection = database::utils::collections::get_collection_by_id(user_id.as_ref(), &req.id).await?;
-    
-    Ok(collection)
+    let collection = match fetch_collection(&req.id).await? {
+        Some(collection) => collection,
+        None => return Err(anyhow!("Collection not found")),
+    };
+
+    Ok(CollectionState {
+        collection,
+        assets: None,
+        permission: AssetPermissionRole::Owner,
+        organization_permissions: false,
+    })
 }
 
 /// Update collection record in the database
 ///
+/// # Arguments
 /// # Arguments
 /// * `user_id` - The ID of the user updating the collection
 /// * `collection_id` - The ID of the collection to update
@@ -176,7 +173,7 @@ async fn update_collection_record(
             let query = diesel::sql_query(
                 "UPDATE asset_search 
                 SET content = $1, updated_at = NOW()
-                WHERE asset_id = $2 AND asset_type = 'collection'"
+                WHERE asset_id = $2 AND asset_type = 'collection'",
             )
             .bind::<diesel::sql_types::Text, _>(collection_name)
             .bind::<diesel::sql_types::Uuid, _>(*collection_id);
@@ -248,7 +245,7 @@ async fn update_collection_assets(
                     updated_by: *user_id,
                 })
                 .collect();
-            
+
             match diesel::insert_into(collections_to_assets::table)
                 .values(&new_asset_records)
                 .on_conflict((

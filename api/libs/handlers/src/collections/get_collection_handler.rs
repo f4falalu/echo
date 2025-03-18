@@ -1,4 +1,5 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
+use database::{collections::fetch_collection, enums::AssetPermissionRole};
 use uuid::Uuid;
 
 use crate::collections::types::{CollectionState, GetCollectionRequest};
@@ -16,7 +17,15 @@ pub async fn get_collection_handler(
     req: GetCollectionRequest,
 ) -> Result<CollectionState> {
     // Reuse the existing collection_utils function
-    let collection = database::utils::collections::get_collection_by_id(user_id, &req.id).await?;
-    
-    Ok(collection)
+    let collection = match fetch_collection(&req.id).await? {
+        Some(collection) => collection,
+        None => return Err(anyhow!("Collection not found")),
+    };
+
+    Ok(CollectionState {
+        collection,
+        assets: None,
+        permission: AssetPermissionRole::Owner,
+        organization_permissions: false,
+    })
 }

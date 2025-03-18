@@ -1,12 +1,11 @@
 use axum::{
-    extract::{Path, State},
+    extract::Path,
     http::StatusCode,
-    Json,
+    Extension, Json,
 };
-use handlers::collections::{get_collection_handler, CollectionState};
+use handlers::collections::{get_collection_handler, CollectionState, GetCollectionRequest};
 use middleware::AuthenticatedUser;
 use uuid::Uuid;
-use axum::extract::Extension;
 
 /// Get a collection by ID
 ///
@@ -15,8 +14,10 @@ pub async fn get_collection(
     Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<CollectionState>, (StatusCode, String)> {
+    let request = GetCollectionRequest { id };
+    
     // Call the handler
-    match get_collection_handler(&user.id, &id).await {
+    match get_collection_handler(&user.id, request).await {
         Ok(collection) => Ok(Json(collection)),
         Err(e) => {
             tracing::error!("Error getting collection: {}", e);

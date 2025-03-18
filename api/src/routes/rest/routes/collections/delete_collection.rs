@@ -1,11 +1,9 @@
-use axum::{
-    http::StatusCode,
-    Json,
+use axum::{http::StatusCode, Extension, Json};
+use handlers::collections::{
+    delete_collection_handler, DeleteCollectionRequest, DeleteCollectionResponse,
 };
-use handlers::collections::{delete_collection_handler, DeleteCollectionRequest, DeleteCollectionResponse};
 use middleware::AuthenticatedUser;
 use uuid::Uuid;
-use database::utils::user::get_user_organization_id;
 
 /// Delete a collection
 ///
@@ -14,12 +12,17 @@ pub async fn delete_collection(
     Extension(user): Extension<AuthenticatedUser>,
     Json(req): Json<DeleteCollectionRequest>,
 ) -> Result<Json<DeleteCollectionResponse>, (StatusCode, String)> {
+    let user_organization = match user.organizations.first() {
+        Some(org) => org,
+        None => return Err((StatusCode::NOT_FOUND, "User not found".to_string())),
+    };
+
     // Call the handler
-    match delete_collection_handler(&user.id, &user.organization_id, req.ids).await {
+    match delete_collection_handler(&user.id, &user_organization.id, req.ids).await {
         Ok(response) => Ok(Json(response)),
         Err(e) => {
             tracing::error!("Error deleting collection: {}", e);
-            
+
             // Return appropriate error response based on the error
             if e.to_string().contains("not found") {
                 Err((
@@ -27,10 +30,7 @@ pub async fn delete_collection(
                     format!("Collection not found: {}", e),
                 ))
             } else if e.to_string().contains("permission") {
-                Err((
-                    StatusCode::FORBIDDEN,
-                    format!("Permission denied: {}", e),
-                ))
+                Err((StatusCode::FORBIDDEN, format!("Permission denied: {}", e)))
             } else {
                 Err((
                     StatusCode::INTERNAL_SERVER_ERROR,

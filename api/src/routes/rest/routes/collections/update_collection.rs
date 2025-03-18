@@ -1,6 +1,6 @@
 use axum::{
     http::StatusCode,
-    Json,
+    Extension, Json,
 };
 use handlers::collections::{update_collection_handler, UpdateCollectionRequest, CollectionState};
 use middleware::AuthenticatedUser;

@@ -96,17 +96,12 @@ pub struct UpdateCollectionAssetsRequest {
     pub type_: AssetType,
 }
 
-// #[derive(Debug, Clone, Deserialize, Serialize)]
-// pub struct UpdateCollectionRequest {
-//     pub id: Uuid,
-//     #[serde(flatten)]
-//     pub collection: Option<UpdateCollectionObject>,
-//     pub assets: Option<Vec<UpdateCollectionAssetsRequest>>,
-//     pub team_permissions: Option<Vec<database::utils::sharing::asset_sharing::ShareWithTeamsReqObject>>,
-//     pub user_permissions: Option<Vec<database::utils::sharing::asset_sharing::ShareWithUsersReqObject>>,
-//     pub remove_teams: Option<Vec<Uuid>>,
-//     pub remove_users: Option<Vec<Uuid>>,
-// }
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct UpdateCollectionRequest {
+    pub id: Uuid,
+    pub collection: Option<UpdateCollectionObject>,
+    pub assets: Option<Vec<UpdateCollectionAssetsRequest>>,
+}
 
 // Delete collection types
 #[derive(Serialize, Deserialize, Debug, Clone)]
