@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use chrono::Utc;
 use database::{
-    enums::{AssetType, IdentityType},
+    enums::{AssetPermissionRole, AssetType, IdentityType},
     pool::get_pg_pool,
     schema::asset_permissions,
 };
@@ -9,7 +9,7 @@ use diesel::ExpressionMethods;
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
-use crate::{errors::SharingError, user_lookup::find_user_by_email};
+use crate::{check_access, errors::SharingError, user_lookup::find_user_by_email};
 
 /// Removes a sharing record for a specific user + asset combination
 pub async fn remove_share(
@@ -55,6 +55,8 @@ pub async fn remove_share(
 }
 
 /// Removes a sharing record identified by user email
+/// 
+/// Requires the caller to have Owner or FullAccess permission on the asset.
 pub async fn remove_share_by_email(
     email: &str,
     asset_id: Uuid,
@@ -64,6 +66,24 @@ pub async fn remove_share_by_email(
     // Validate email format
     if !email.contains('@') {
         return Err(SharingError::InvalidEmail(email.to_string()).into());
+    }
+
+    // Validate that the caller has permission to remove shares (Owner or FullAccess)
+    let caller_role = check_access(asset_id, asset_type, updated_by, IdentityType::User).await?;
+    
+    match caller_role {
+        Some(AssetPermissionRole::Owner) | Some(AssetPermissionRole::FullAccess) => {
+            // Caller has permission to remove shares
+        },
+        Some(_) => {
+            return Err(SharingError::InsufficientPermissions.into());
+        },
+        None => {
+            return Err(SharingError::PermissionDenied(format!(
+                "User does not have permission to access asset {} of type {:?}",
+                asset_id, asset_type
+            )).into());
+        }
     }
 
     // Find the user by email
@@ -78,7 +98,7 @@ pub async fn remove_share_by_email(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use database::enums::{AssetType, IdentityType};
+    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
     use uuid::Uuid;
 
     #[test]
@@ -95,4 +115,17 @@ mod tests {
         let err = result.unwrap_err().to_string();
         assert!(err.contains("Invalid email"));
     }
+
+    // Note: The following tests are commented out as they would require 
+    // more complex integration test setup with database access.
+    // In a real implementation, we would use integration tests to cover these cases.
+    
+    // Test case: User has CanEdit permission but not Owner or FullAccess
+    // Expected result: InsufficientPermissions error
+    
+    // Test case: User not found by email
+    // Expected result: UserNotFound error
+    
+    // Test case: Successful removal when user has Owner permission
+    // Expected result: Success
 }
