@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use database::types::VersionHistory;
-use diesel::{ExpressionMethods, QueryDsl, Queryable, Selectable, SelectableHelper};
+use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use serde_json::Value;
 use serde_yaml;
@@ -9,9 +9,9 @@ use uuid::Uuid;
 use crate::metrics::types::{
     BusterMetric, ColumnMetaData, ColumnType, DataMetadata, Dataset, MinMaxValue, SimpleType,
 };
-use database::enums::{AssetPermissionRole, Verification};
+use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
 use database::pool::get_pg_pool;
-use database::schema::{datasets, metric_files};
+use database::schema::{asset_permissions, datasets, metric_files, users};
 use database::types::MetricYml;
 
 use super::Version;
@@ -31,6 +31,9 @@ struct QueryableMetricFile {
     created_at: chrono::DateTime<chrono::Utc>,
     updated_at: chrono::DateTime<chrono::Utc>,
     version_history: VersionHistory,
+    publicly_accessible: bool,
+    publicly_enabled_by: Option<Uuid>,
+    public_expiry_date: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 #[derive(Queryable)]
@@ -39,20 +42,34 @@ struct DatasetInfo {
     name: String,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Selectable)]
 #[diesel(table_name = users)]
 struct UserInfo {
+    id: Uuid,
+    email: String,
     #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Text>)]
     name: Option<String>,
     #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Text>)]
     avatar_url: Option<String>,
 }
 
+#[derive(Queryable)]
+struct AssetPermissionInfo {
+    identity_id: Uuid,
+    role: AssetPermissionRole,
+    email: String,
+    name: Option<String>,
+}
+
 /// Handler to retrieve a metric by ID with optional version number
-/// 
+///
 /// If version_number is provided, returns that specific version of the metric.
 /// If version_number is None, returns the latest version of the metric.
-pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid, version_number: Option<i32>) -> Result<BusterMetric> {
+pub async fn get_metric_handler(
+    metric_id: &Uuid,
+    user_id: &Uuid,
+    version_number: Option<i32>,
+) -> Result<BusterMetric> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
@@ -75,6 +92,9 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid, version_number
             metric_files::created_at,
             metric_files::updated_at,
             metric_files::version_history,
+            metric_files::publicly_accessible,
+            metric_files::publicly_enabled_by,
+            metric_files::public_expiry_date,
         ))
         .first::<QueryableMetricFile>(&mut conn)
         .await
@@ -99,8 +119,10 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid, version_number
         // Get the specific version if it exists
         if let Some(v) = metric_file.version_history.get_version(version) {
             match &v.content {
-                database::types::VersionContent::MetricYml(content) => (content.clone(), v.version_number),
-                _ => return Err(anyhow!("Invalid version content type"))
+                database::types::VersionContent::MetricYml(content) => {
+                    (content.clone(), v.version_number)
+                }
+                _ => return Err(anyhow!("Invalid version content type")),
             }
         } else {
             return Err(anyhow!("Version {} not found", version));
@@ -109,8 +131,10 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid, version_number
         // Get the latest version
         if let Some(v) = metric_file.version_history.get_latest_version() {
             match &v.content {
-                database::types::VersionContent::MetricYml(content) => (content.clone(), v.version_number),
-                _ => return Err(anyhow!("Invalid version content type"))
+                database::types::VersionContent::MetricYml(content) => {
+                    (content.clone(), v.version_number)
+                }
+                _ => return Err(anyhow!("Invalid version content type")),
             }
         } else {
             // Fall back to current content if no version history
@@ -189,10 +213,59 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid, version_number
             updated_at: v.updated_at,
         })
         .collect();
-    
+
     // Sort versions by version_number in ascending order
     versions.sort_by(|a, b| a.version_number.cmp(&b.version_number));
-        
+
+    // Query individual permissions for this metric
+    let individual_permissions_query = asset_permissions::table
+        .inner_join(users::table.on(users::id.eq(asset_permissions::identity_id)))
+        .filter(asset_permissions::asset_id.eq(metric_id))
+        .filter(asset_permissions::asset_type.eq(AssetType::MetricFile))
+        .filter(asset_permissions::identity_type.eq(IdentityType::User))
+        .filter(asset_permissions::deleted_at.is_null())
+        .select((
+            asset_permissions::identity_id,
+            asset_permissions::role,
+            users::email,
+            users::name,
+        ))
+        .load::<AssetPermissionInfo>(&mut conn)
+        .await;
+
+    // Get the user info for publicly_enabled_by if it exists
+    let public_enabled_by_user = if let Some(enabled_by_id) = metric_file.publicly_enabled_by {
+        users::table
+            .filter(users::id.eq(enabled_by_id))
+            .select(users::email)
+            .first::<String>(&mut conn)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
+    // Convert AssetPermissionInfo to BusterShareIndividual
+    let individual_permissions = match individual_permissions_query {
+        Ok(permissions) => {
+            if permissions.is_empty() {
+                None
+            } else {
+                Some(
+                    permissions
+                        .into_iter()
+                        .map(|p| crate::metrics::types::BusterShareIndividual {
+                            email: p.email,
+                            role: p.role,
+                            name: p.name,
+                        })
+                        .collect::<Vec<crate::metrics::types::BusterShareIndividual>>(),
+                )
+            }
+        }
+        Err(_) => None,
+    };
+
     // Construct BusterMetric
     Ok(BusterMetric {
         id: metric_file.id,
@@ -223,5 +296,11 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid, version_number
         // TODO: get the actual access check
         permission: AssetPermissionRole::Owner,
         sql: metric_content.sql,
+        // New sharing fields
+        individual_permissions,
+        publicly_accessible: metric_file.publicly_accessible,
+        public_expiry_date: metric_file.public_expiry_date,
+        public_enabled_by: public_enabled_by_user,
+        public_password: None, // Currently not stored in the database
     })
 }
