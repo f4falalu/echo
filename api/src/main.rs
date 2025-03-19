@@ -39,7 +39,12 @@ async fn main() {
     tracing_subscriber::registry()
         .with(
             EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| EnvFilter::new(tracing::Level::DEBUG.to_string())),
+                .unwrap_or_else(|_| {
+                    let log_level = env::var("LOG_LEVEL")
+                        .unwrap_or_else(|_| "warn".to_string())
+                        .to_uppercase();
+                    EnvFilter::new(log_level)
+                }),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();

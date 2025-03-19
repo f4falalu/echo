@@ -165,12 +165,17 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
         })
         .collect();
 
+    // Get the latest version number from version history
+    let latest_version = metric_file.version_history.get_latest_version()
+        .map(|v| v.version_number)
+        .unwrap_or(1);
+        
     // Construct BusterMetric
     Ok(BusterMetric {
         id: metric_file.id,
         metric_type: "metric".to_string(),
         title: metric_file.name,
-        version_number: 1,
+        version_number: latest_version,
         description: metric_yml.description,
         file_name: metric_file.file_name,
         time_frame: metric_yml.time_frame,
