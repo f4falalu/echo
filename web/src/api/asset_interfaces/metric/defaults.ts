@@ -162,7 +162,6 @@ export const DEFAULT_IBUSTER_METRIC: Required<IBusterMetric> = {
   sent_by_name: '',
   permission: ShareRole.CAN_VIEW,
   sent_by_avatar_url: null,
-  draft_session_id: null,
   dashboards: [],
   collections: [],
   chart_config: DEFAULT_CHART_CONFIG,

@@ -131,21 +131,8 @@ export const prefetchGetMetricDataClient = async (
  * It will simply use the params passed in and not do any special logic.
  */
 export const useSaveMetric = () => {
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updateMetric,
-    onSuccess: (data) => {
-      const hasDraftSessionId = data.draft_session_id;
-      const metricId = data.id;
-      const options = metricsQueryKeys.metricsGetMetric(metricId);
-      const currentMetric = queryClient.getQueryData(options.queryKey);
-      if (hasDraftSessionId && !currentMetric?.draft_session_id && currentMetric) {
-        queryClient.setQueryData(options.queryKey, {
-          ...currentMetric,
-          draft_session_id: data.draft_session_id
-        });
-      }
-    }
+    mutationFn: updateMetric
   });
 };
 

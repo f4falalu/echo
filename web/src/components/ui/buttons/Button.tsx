@@ -80,19 +80,23 @@ export const buttonVariants = cva(
 export const buttonIconVariants = cva('', {
   variants: {
     variant: {
-      default: 'text-icon-color!',
-      black: 'text-white!',
-      primary: 'text-white!',
-      ghost: 'text-icon-color!',
-      link: 'text-icon-color!',
-      danger: 'text-danger-foreground!',
-      warning: 'text-warning-foreground!',
-      success: 'text-success-foreground!'
+      default: 'text-icon-color',
+      black: 'text-white',
+      primary: 'text-white',
+      ghost: 'text-icon-color',
+      link: 'text-icon-color',
+      danger: 'text-danger-foreground',
+      warning: 'text-warning-foreground',
+      success: 'text-success-foreground'
     },
     size: {
       default: 'text-icon-size',
       tall: 'text-icon-size-lg',
       small: 'text-icon-size-sm'
+    },
+    disabled: {
+      true: 'text-gray-light',
+      false: ''
     }
   }
 });
@@ -158,14 +162,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           <LoadingIcon variant={variant} size={size} />
         ) : (
           prefix && (
-            <span className={cn(buttonIconVariants({ variant, size }), prefixClassName)}>
+            <span className={cn(buttonIconVariants({ disabled, variant, size }), prefixClassName)}>
               {prefix}
             </span>
           )
         )}
         {hasChildren && <span className="">{children}</span>}
         {suffix && (
-          <span className={cn(buttonIconVariants({ variant, size }), suffixClassName)}>
+          <span className={cn(buttonIconVariants({ disabled, variant, size }), suffixClassName)}>
             {suffix}
           </span>
         )}

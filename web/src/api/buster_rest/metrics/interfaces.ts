@@ -5,6 +5,7 @@ import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 export interface GetMetricParams {
   id: string;
   password?: string;
+  version_number?: number; //api will default to latest if not provided
 }
 
 export interface ListMetricsParams {

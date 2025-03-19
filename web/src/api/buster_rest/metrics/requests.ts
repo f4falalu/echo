@@ -7,10 +7,10 @@ import type {
   BusterMetricListItem
 } from '@/api/asset_interfaces/metric';
 
-export const getMetric = async ({ id, password }: GetMetricParams) => {
+export const getMetric = async ({ id, password, version_number }: GetMetricParams) => {
   return mainApi
     .get<BusterMetric>(`/metrics/${id}`, {
-      params: { ...(password && { password }) }
+      params: { password, version_number }
     })
     .then((res) => res.data);
 };

@@ -154,7 +154,6 @@ export const createMockMetric = (id: string): IBusterMetric => {
   )
   SELECT * FROM records;`,
     feedback: null,
-    draft_session_id: null,
     collections: [],
     dashboards: [],
     sharingKey: '',

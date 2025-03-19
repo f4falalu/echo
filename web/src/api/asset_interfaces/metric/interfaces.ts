@@ -26,7 +26,6 @@ export type BusterMetric = {
   sent_by_avatar_url: string | null;
   code: string | null;
   feedback: 'negative' | null;
-  draft_session_id: string | null; //DO WE NEED THIS?
   dashboards: {
     id: string;
     name: string;

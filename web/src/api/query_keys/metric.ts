@@ -6,9 +6,9 @@ import type {
 } from '@/api/asset_interfaces/metric';
 import { ListMetricsParams } from '../buster_rest/metrics';
 
-export const metricsGetMetric = (metricId: string) => {
+export const metricsGetMetric = (metricId: string, version_number?: number) => {
   return queryOptions<IBusterMetric>({
-    queryKey: ['metrics', 'get', metricId] as const,
+    queryKey: ['metrics', 'get', metricId, version_number] as const,
     staleTime: 30 * 60 * 1000
   });
 };
