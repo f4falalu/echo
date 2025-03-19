@@ -1,5 +1,11 @@
 # API Dashboards Sharing - List Endpoint PRD
 
+## Implementation Status
+✅ Implemented the REST handler for listing dashboard sharing permissions
+✅ Implemented the business logic handler
+✅ Added tests
+✅ Connected to the existing sharing library
+
 ## Problem Statement
 Users need the ability to view all sharing permissions for a dashboard via a REST API endpoint.
 
