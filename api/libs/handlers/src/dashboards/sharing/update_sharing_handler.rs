@@ -84,7 +84,7 @@ pub async fn update_dashboard_sharing_handler(
     }
 
     // 3. Process each email-role pair and update sharing permissions
-    for (email, role) in emails_and_roles {
+    for (email, role) in &emails_and_roles {
         // Validate email format
         if !email.contains('@') {
             error!("Invalid email format: {}", email);
@@ -93,7 +93,7 @@ pub async fn update_dashboard_sharing_handler(
 
         // Update (or create if not exists) the permission using create_share_by_email
         // The create_share_by_email function handles both creation and updates with upsert
-        match create_share_by_email(&email, *dashboard_id, AssetType::DashboardFile, role, *user_id)
+        match create_share_by_email(&email, *dashboard_id, AssetType::DashboardFile, *role, *user_id)
             .await
         {
             Ok(_) => {
