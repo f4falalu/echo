@@ -13,11 +13,13 @@ tracing = { workspace = true }
 uuid = { workspace = true }
 diesel = { workspace = true }
 diesel-async = { workspace = true }
+thiserror = { workspace = true }
 
 database = { path = "../database" }
 
 [dev-dependencies]
 tokio-test = { workspace = true }
+mockito = { workspace = true }
 
 [features]
-default = [] 
+default = []
