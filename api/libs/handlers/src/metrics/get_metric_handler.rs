@@ -180,7 +180,7 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid, version_number
     //     .await
     //     .map_err(|e| anyhow!("Failed to get user information: {}", e))?;
 
-    let versions = metric_file
+    let mut versions: Vec<Version> = metric_file
         .version_history
         .0
         .values()
@@ -189,6 +189,9 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid, version_number
             updated_at: v.updated_at,
         })
         .collect();
+    
+    // Sort versions by version_number in ascending order
+    versions.sort_by(|a, b| a.version_number.cmp(&b.version_number));
         
     // Construct BusterMetric
     Ok(BusterMetric {
