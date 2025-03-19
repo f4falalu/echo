@@ -10,7 +10,7 @@ import type {
   OrganizationUser,
   BusterUserListItem
 } from '@/api/asset_interfaces/users';
-import type { UserRequestUserListPayload } from '@/api/request_interfaces/user/interfaces';
+import { getUserList } from '../buster_rest/users/requests';
 
 const favoritesGetList = queryOptions<BusterUserFavorite[]>({
   queryKey: ['users', 'favorites', 'list'] as const,
@@ -54,7 +54,7 @@ const userGetUserDatasetGroups = (userId: string) =>
     queryKey: ['users', userId, 'datasetGroups'] as const
   });
 
-const userGetUserList = (params: UserRequestUserListPayload) =>
+const userGetUserList = (params: Parameters<typeof getUserList>[0]) =>
   queryOptions<BusterUserListItem[]>({
     queryKey: ['users', 'list', params] as const
   });

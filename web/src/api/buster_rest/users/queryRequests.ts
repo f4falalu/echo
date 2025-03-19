@@ -17,9 +17,8 @@ import {
 import { useMemoizedFn } from '@/hooks';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
-import type { UserRequestUserListPayload } from '@/api/request_interfaces/user/interfaces';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useCreateOrganization } from '../organizations/queryRequests';
+import { useCreateOrganization } from '../organizations';
 
 export const useGetMyUserInfo = () => {
   return useQuery({
@@ -144,7 +143,7 @@ export const useUpdateUserFavorites = () => {
   });
 };
 
-export const useGetUserList = (params: UserRequestUserListPayload) => {
+export const useGetUserList = (params: Parameters<typeof getUserList>[0]) => {
   const queryFn = useMemoizedFn(() => getUserList(params));
 
   return useQuery({
@@ -154,7 +153,7 @@ export const useGetUserList = (params: UserRequestUserListPayload) => {
 };
 
 export const prefetchGetUserList = async (
-  params: UserRequestUserListPayload,
+  params: Parameters<typeof getUserList>[0],
   queryClientProp?: QueryClient
 ) => {
   const queryClient = queryClientProp || new QueryClient();

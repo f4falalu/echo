@@ -5,10 +5,7 @@ import type {
   BusterUserFavorite,
   BusterUserListItem
 } from '@/api/asset_interfaces/users';
-import type {
-  UserRequestUserListPayload,
-  UsersFavoritePostPayload
-} from '@/api/request_interfaces/user/interfaces';
+import type { UsersFavoritePostPayload } from '@/api/request_interfaces/user/interfaces';
 import { mainApi } from '../instances';
 import { serverFetch } from '../../createServerInstance';
 
@@ -136,12 +133,16 @@ export const updateUserFavorites_server = async (payload: string[]) => {
 
 //USER LIST
 
-export const getUserList = async (payload: UserRequestUserListPayload) => {
+export const getUserList = async (payload: {
+  team_id: string;
+  page?: number;
+  page_size?: number;
+}) => {
   return mainApi
     .get<BusterUserListItem[]>(`/users`, { params: payload })
     .then((response) => response.data);
 };
 
-export const getUserList_server = async (payload: UserRequestUserListPayload) => {
+export const getUserList_server = async (payload: Parameters<typeof getUserList>[0]) => {
   return serverFetch<BusterUserListItem[]>(`/users`, { params: payload });
 };
