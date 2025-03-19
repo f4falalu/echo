@@ -8,8 +8,7 @@ import { type SegmentedItem } from '@/components/ui/segmented';
 export enum ShareMenuTopBarOptions {
   Share = 'Share',
   Publish = 'Publish',
-  Embed = 'Embed',
-  ShareWithGroupAndTeam = 'ShareWithGroupAndTeam'
+  Embed = 'Embed'
 }
 
 export const ShareMenuTopBar: React.FC<{

@@ -1,6 +1,5 @@
 import type { DashboardConfig } from '@/api/asset_interfaces/dashboard';
 import { VerificationStatus } from '@/api/asset_interfaces/share';
-import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 
 /**
  * Interface for dashboard list request parameters
@@ -68,7 +67,7 @@ export type DashboardUpdateRequest = {
   metrics?: string[];
   /** The file content of the dashboard */
   file?: string;
-} & ShareRequest;
+};
 
 /**
  * Interface for deleting dashboards

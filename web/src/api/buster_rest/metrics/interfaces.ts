@@ -1,6 +1,5 @@
 import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric';
 import type { VerificationStatus } from '@/api/asset_interfaces/share';
-import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 
 export interface GetMetricParams {
   id: string;
@@ -42,4 +41,4 @@ export type UpdateMetricParams = {
   status?: VerificationStatus;
   /** file in yaml format to update */
   file?: string;
-} & ShareRequest;
+};

@@ -6,6 +6,12 @@ import type {
   BusterMetricData,
   BusterMetricListItem
 } from '@/api/asset_interfaces/metric';
+import { ShareRole } from '@/api/asset_interfaces/share';
+import {
+  ShareDeleteRequest,
+  SharePostRequest,
+  ShareUpdateRequest
+} from '@/api/asset_interfaces/shared_interfaces';
 
 export const getMetric = async ({ id, password, version_number }: GetMetricParams) => {
   return mainApi
@@ -55,4 +61,24 @@ export const duplicateMetric = async (params: {
   share_with_same_people: boolean;
 }) => {
   return mainApi.post<BusterMetric>(`/metrics/duplicate`, params).then((res) => res.data);
+};
+
+// share metrics
+
+export const shareMetric = async ({ id, params }: { id: string; params: SharePostRequest }) => {
+  return mainApi.post<BusterMetric>(`/metrics/${id}/sharing`, params).then((res) => res.data);
+};
+
+export const unshareMetric = async ({ id, data }: { id: string; data: ShareDeleteRequest }) => {
+  return mainApi.delete<BusterMetric>(`/metrics/${id}/sharing`, { data }).then((res) => res.data);
+};
+
+export const updateMetricShare = async ({
+  params,
+  id
+}: {
+  id: string;
+  params: ShareUpdateRequest;
+}) => {
+  return mainApi.put<BusterMetric>(`/metrics/${id}/sharing`, { params }).then((res) => res.data);
 };

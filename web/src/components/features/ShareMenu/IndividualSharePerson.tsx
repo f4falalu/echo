@@ -1,22 +1,20 @@
 import { Avatar } from '@/components/ui/avatar';
 import { AccessDropdown } from './AccessDropdown';
-
 import React from 'react';
 import { ShareRole } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 
 export const IndividualSharePerson: React.FC<{
-  name: string;
+  name?: string;
   email: string;
   role: ShareRole;
-  id: string;
-  onUpdateShareRole: (id: string, email: string, role: ShareRole | null) => void;
-}> = React.memo(({ name, onUpdateShareRole, email, id, role }) => {
+  onUpdateShareRole: (email: string, role: ShareRole | null) => void;
+}> = React.memo(({ name, onUpdateShareRole, email, role }) => {
   const isSameEmailName = name === email;
 
   const onChangeShareLevel = useMemoizedFn((v: ShareRole | null) => {
-    onUpdateShareRole(id, email, v);
+    onUpdateShareRole(email, v);
   });
 
   return (

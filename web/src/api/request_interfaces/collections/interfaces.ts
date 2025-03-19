@@ -1,4 +1,3 @@
-import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 import type { ShareAssetType } from '../../asset_interfaces';
 
 export interface GetCollectionListParams {
@@ -41,7 +40,7 @@ export type UpdateCollectionParams = {
   /** Share request parameters */
   share_with?: string[];
   share_type?: string;
-} & ShareRequest;
+};
 
 export interface DeleteCollectionParams {
   /** Array of collection IDs to be deleted */

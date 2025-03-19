@@ -56,7 +56,6 @@ export const SelectChartType: React.FC<SelectChartTypeProps> = ({
 
   const onSelectChartType = useMemoizedFn((chartIconType: ChartIconType) => {
     const chartConfig = selectedChartTypeMethod(chartIconType, columnSettings);
-    console.log('chartConfig', chartConfig);
     onUpdateMetricChartConfig({ chartConfig });
   });
 

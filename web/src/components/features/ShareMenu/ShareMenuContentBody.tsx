@@ -9,16 +9,15 @@ import { AccessDropdown } from './AccessDropdown';
 import { IndividualSharePerson } from './IndividualSharePerson';
 import { ShareMenuContentEmbed } from './ShareMenuContentEmbed';
 import { ShareMenuContentPublish } from './ShareMenuContentPublish';
-import { ShareWithGroupAndTeam } from './ShareWithTeamAndGroup';
 import { ShareMenuTopBarOptions } from './ShareMenuTopBar';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { inputHasText } from '@/lib/text';
 import { UserGroup, ChevronRight } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
-import type { ShareRequest } from '@/api/asset_interfaces/shared_interfaces';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
 import { useSaveMetric } from '@/api/buster_rest/metrics';
 import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
+import { ShareUpdateRequest } from '@/api/asset_interfaces/shared_interfaces';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
@@ -44,8 +43,6 @@ export const ShareMenuContentBody: React.FC<{
 
     const selectedClass = selectedOptions === ShareMenuTopBarOptions.Share ? '' : '';
     const individual_permissions = shareAssetConfig.individual_permissions;
-    const team_permissions = shareAssetConfig.team_permissions;
-    const organization_permissions = shareAssetConfig.organization_permissions;
     const publicly_accessible = shareAssetConfig.publicly_accessible;
     const publicExpirationDate = shareAssetConfig.public_expiry_date;
     const password = shareAssetConfig.public_password;
@@ -57,8 +54,6 @@ export const ShareMenuContentBody: React.FC<{
           goBack={goBack}
           onCopyLink={onCopyLink}
           individual_permissions={individual_permissions}
-          team_permissions={team_permissions}
-          organization_permissions={organization_permissions}
           publicly_accessible={publicly_accessible}
           publicExpirationDate={publicExpirationDate}
           password={password}
@@ -90,7 +85,6 @@ const ShareMenuContentShare: React.FC<{
       ShareRole.CAN_VIEW
     );
     const disableSubmit = !inputHasText(inputValue) || !validate(inputValue);
-    const hasUserTeams = userTeams?.length > 0;
     const hasIndividualPermissions = !!individual_permissions?.length;
 
     const onSubmitNewEmail = useMemoizedFn(async () => {
@@ -122,20 +116,17 @@ const ShareMenuContentShare: React.FC<{
       setInputValue('');
     });
 
-    const onUpdateShareRole = useMemoizedFn(
-      async (userId: string, email: string, role: ShareRole | null) => {
-        const payload: ShareRequest = { id: assetId };
-
-        if (!role) {
-          payload.remove_users = [userId];
-        } else {
-          payload.user_permissions = [
+    const onUpdateShareRole = useMemoizedFn(async (email: string, role: ShareRole | null) => {
+      if (role) {
+        const payload: ShareUpdateRequest & { id: string } = {
+          id: assetId,
+          users: [
             {
-              user_email: email,
+              email,
               role
             }
-          ];
-        }
+          ]
+        };
         if (assetType === ShareAssetType.METRIC) {
           await onShareMetric(payload);
         } else if (assetType === ShareAssetType.DASHBOARD) {
@@ -143,8 +134,9 @@ const ShareMenuContentShare: React.FC<{
         } else if (assetType === ShareAssetType.COLLECTION) {
           await onShareCollection(payload);
         }
+      } else {
       }
-    );
+    });
 
     const onChangeInputValue = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
       setInputValue(e.target.value);
@@ -195,7 +187,7 @@ const ShareMenuContentShare: React.FC<{
           <div className="flex flex-col space-y-2 overflow-hidden px-3">
             {individual_permissions?.map((permission) => (
               <IndividualSharePerson
-                key={permission.id}
+                key={permission.email}
                 {...permission}
                 onUpdateShareRole={onUpdateShareRole}
               />
@@ -241,8 +233,6 @@ const ContentRecord: Record<
     goBack: () => void;
     onCopyLink: () => void;
     individual_permissions: BusterShare['individual_permissions'];
-    team_permissions: BusterShare['team_permissions'];
-    organization_permissions: BusterShare['organization_permissions'];
     publicly_accessible: boolean;
     publicExpirationDate: string | null | undefined;
     password: string | null | undefined;
@@ -253,6 +243,5 @@ const ContentRecord: Record<
 > = {
   Share: ShareMenuContentShare,
   Embed: ShareMenuContentEmbed,
-  ShareWithGroupAndTeam: ShareWithGroupAndTeam,
   Publish: ShareMenuContentPublish
 };

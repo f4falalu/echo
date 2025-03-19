@@ -16,9 +16,6 @@ export enum ShareAssetType {
 export interface BusterShare {
   sharingKey: string;
   individual_permissions: null | BusterShareIndividual[];
-  team_permissions: null | { name: string; id: string; role: ShareRole }[];
-  organization_permissions: null | [];
-  password_secret_id: string | null;
   public_expiry_date: string | null;
   public_enabled_by: string | null;
   publicly_accessible: boolean;
@@ -29,6 +26,5 @@ export interface BusterShare {
 export interface BusterShareIndividual {
   email: string;
   role: ShareRole;
-  id: string;
-  name: string;
+  name?: string;
 }

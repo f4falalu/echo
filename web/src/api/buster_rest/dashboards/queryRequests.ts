@@ -4,7 +4,10 @@ import {
   dashboardsGetDashboard,
   dashboardsCreateDashboard,
   dashboardsUpdateDashboard,
-  dashboardsDeleteDashboard
+  dashboardsDeleteDashboard,
+  shareDashboard,
+  updateDashboardShare,
+  unshareDashboard
 } from './requests';
 import type { DashboardsListRequest } from '@/api/request_interfaces/dashboards/interfaces';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
@@ -226,5 +229,78 @@ export const useRemoveItemFromDashboard = () => {
   );
   return useMutation({
     mutationFn
+  });
+};
+
+export const useShareDashboard = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: shareDashboard,
+    onMutate: (variables) => {
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData) => {
+        return create(previousData!, (draft) => {
+          draft.individual_permissions?.push(...variables.params);
+        });
+      });
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(
+        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id).queryKey,
+        data
+      );
+    }
+  });
+};
+
+export const useUnshareDashboard = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: unshareDashboard,
+    onMutate: (variables) => {
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData) => {
+        return create(previousData!, (draft) => {
+          draft.individual_permissions =
+            draft.individual_permissions?.filter((t) => !variables.data.includes(t.email)) || [];
+        });
+      });
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(
+        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id).queryKey,
+        data
+      );
+    }
+  });
+};
+
+export const useUpdateDashboardShare = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateDashboardShare,
+    onMutate: (variables) => {
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData) => {
+        return create(previousData!, (draft) => {
+          draft.individual_permissions =
+            draft.individual_permissions!.map((t) => {
+              const found = variables.data.users?.find((v) => v.email === t.email);
+              if (found) return found;
+              return t;
+            }) || [];
+
+          if (variables.data.publicly_accessible !== undefined) {
+            draft.publicly_accessible = variables.data.publicly_accessible;
+          }
+          if (variables.data.public_password !== undefined) {
+            draft.public_password = variables.data.public_password;
+          }
+          if (variables.data.public_expiry_date !== undefined) {
+            draft.public_expiry_date = variables.data.public_expiry_date;
+          }
+        });
+      });
+    }
   });
 };

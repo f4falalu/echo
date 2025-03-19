@@ -1,4 +1,10 @@
+import { ShareRole } from '@/api/asset_interfaces';
 import type { BusterCollection, BusterCollectionListItem } from '@/api/asset_interfaces/collection';
+import {
+  ShareDeleteRequest,
+  SharePostRequest,
+  ShareUpdateRequest
+} from '@/api/asset_interfaces/shared_interfaces';
 import mainApi from '@/api/buster_rest/instances';
 import type {
   CreateCollectionParams,
@@ -32,4 +38,30 @@ export const collectionsUpdateCollection = async (params: UpdateCollectionParams
 
 export const collectionsDeleteCollection = async (params: DeleteCollectionParams) => {
   return await mainApi.delete<BusterCollection>('/collections', { params }).then((res) => res.data);
+};
+
+// share collections
+
+export const shareCollection = async ({ id, params }: { id: string; params: SharePostRequest }) => {
+  return mainApi
+    .post<BusterCollection>(`/collections/${id}/sharing`, params)
+    .then((res) => res.data);
+};
+
+export const unshareCollection = async ({ id, data }: { id: string; data: ShareDeleteRequest }) => {
+  return mainApi
+    .delete<BusterCollection>(`/collections/${id}/sharing`, { data })
+    .then((res) => res.data);
+};
+
+export const updateCollectionShare = async ({
+  data,
+  id
+}: {
+  id: string;
+  data: ShareUpdateRequest;
+}) => {
+  return mainApi
+    .put<BusterCollection>(`/collections/${id}/sharing`, { data })
+    .then((res) => res.data);
 };
