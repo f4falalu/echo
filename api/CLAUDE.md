@@ -1,5 +1,18 @@
 # Buster API Development Guide
 
+## Documentation
+The project's detailed documentation can be found in the `/documentation` directory. This directory contains the following files with comprehensive information on various aspects of the codebase:
+
+- `handlers.mdc` - Documentation for writing and using handlers
+- `libs.mdc` - Guidelines for library construction and organization
+- `prds.mdc` - Product Requirements Document guidelines
+- `rest.mdc` - REST API formatting rules and patterns
+- `testing.mdc` - Testing standards, utilities, and best practices
+- `tools.mdc` - Documentation for building tools
+- `websockets.mdc` - WebSocket API formatting rules
+
+When working on the codebase, please refer to these documentation files for detailed guidance on implementation patterns, code organization, and best practices.
+
 ## Build Commands
 - `make dev` - Start the development environment
 - `make stop` - Stop the development environment
@@ -20,6 +33,7 @@
 - **Async**: Use async/await with Tokio. Handle futures properly.
 - **Validation**: Validate inputs with proper error messages.
 - **Security**: Never log secrets or sensitive data.
+- **Dependencies**: All dependencies must be inherited from the workspace Cargo.toml using `{ workspace = true }`. Never specify library-specific dependency versions to ensure consistent dependency versions across the entire project.
 
 # Handler Rules and Best Practices
 
@@ -342,7 +356,7 @@ let results = try_join_all(futures).await?;
 
 Remember to always consider:
 1. Connection pool limits when designing concurrent operations
-2. Transaction boundaries for data consistency
+2. Error handling for sequential related operations
 3. Error propagation and cleanup
 4. Memory usage and ownership
 5. Please use comments to help document your code and make it more readable.

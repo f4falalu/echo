@@ -1,5 +1,5 @@
 ---
-description: This is helpful for building and designing prds for our application and how to write them.  Refe
+description: This is helpful for building and designing PRDs for our application and how to write them.
 globs: prds/**/*.md
 alwaysApply: false
 ---

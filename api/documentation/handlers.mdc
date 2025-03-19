@@ -1,5 +1,5 @@
 ---
-description: This is helpul docs for buildng hanlders in the project.l
+description: This is helpful documentation for building handlers in the project.
 globs: libs/handlers/**/*.rs
 alwaysApply: false
 ---
@@ -59,6 +59,7 @@ match operation() {
 ### Database Operations
 - Use the connection pool: `get_pg_pool().get().await?`
 - Run concurrent operations when possible
+- For related operations, use sequential operations with error handling
 - Handle database-specific errors appropriately
 - Example:
 ```rust
@@ -71,6 +72,24 @@ diesel::update(table)
     .execute(&mut conn)
     .await?
 ```
+
+Example with related operations:
+```rust
+let pool = get_pg_pool();
+let mut conn = pool.get().await?;
+
+// First operation
+diesel::insert_into(table1)
+    .values(&values1)
+    .execute(&mut conn)
+    .await?;
+    
+// Second related operation
+diesel::update(table2)
+    .filter(conditions)
+    .set(values2)
+    .execute(&mut conn)
+    .await?;
 
 ### Concurrency
 - Use `tokio::spawn` for concurrent operations
