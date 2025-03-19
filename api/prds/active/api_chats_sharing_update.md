@@ -1,10 +1,10 @@
-# API Chats Sharing - Update Endpoint PRD
+# API Chats Sharing - Update Endpoint PRD ✅
 
 ## Problem Statement
 
 Users need the ability to update sharing permissions for chats through a REST API endpoint.
 
-## Technical Design
+## Technical Design ✅
 
 ### Endpoint Specification
 
