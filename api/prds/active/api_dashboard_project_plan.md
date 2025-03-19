@@ -7,6 +7,20 @@ status: Draft
 
 # Dashboard REST Endpoints Implementation Plan
 
+## Problem Statement
+
+The dashboard functionality in our application currently has limited REST API support. While we have endpoints for listing and retrieving dashboards, we lack the ability to create, update, and delete dashboards through the REST API. This limitation prevents users from programmatically managing their dashboards, which is a critical feature for automation and integration with other systems.
+
+## Proposed Solution
+
+Implement a complete set of REST endpoints for dashboard management:
+
+1. **Create Dashboard** (POST /dashboards)
+2. **Update Dashboard** (PUT /dashboards/:id)
+3. **Delete Dashboard** (DELETE /dashboards/:id)
+
+These endpoints will complement the existing GET endpoints and provide full CRUD functionality for dashboards.
+
 ## Overview
 
 This document outlines the implementation plan for completing the dashboard REST endpoints. It details the order in which tasks should be completed, identifies dependencies between tasks, and highlights opportunities for parallel development.
@@ -23,14 +37,14 @@ The implementation is divided into phases based on dependencies and complexity. 
 
 ### Phase 1: Core Implementation (Week 1)
 
-**Tasks that can be done concurrently:**
+**PRDs that can be worked on concurrently:**
 
-- Create Dashboard Endpoint
+- [Create Dashboard Endpoint](mdc:prds/active/api_dashboard_create_endpoint.md)
   - Implement business logic handler
   - Implement REST handler
   - Update module files
 
-- Delete Dashboard Endpoint
+- [Delete Dashboard Endpoint](mdc:prds/active/api_dashboard_delete_endpoint.md)
   - Implement business logic handler
   - Implement REST handler
   - Update module files
@@ -44,9 +58,9 @@ The implementation is divided into phases based on dependencies and complexity. 
 
 ### Phase 2: Complex Implementation (Week 1-2)
 
-**Tasks:**
+**PRD to implement:**
 
-- Update Dashboard Endpoint
+- [Update Dashboard Endpoint](mdc:prds/active/api_dashboard_update_endpoint.md)
   - Implement business logic handler
   - Implement REST handler
   - Update module files
@@ -63,14 +77,14 @@ The implementation is divided into phases based on dependencies and complexity. 
 **Tasks that can be done concurrently:**
 
 - Unit Tests for all endpoints
-  - Create Dashboard tests
-  - Update Dashboard tests
-  - Delete Dashboard tests
+  - [Create Dashboard](mdc:prds/active/api_dashboard_create_endpoint.md) tests
+  - [Update Dashboard](mdc:prds/active/api_dashboard_update_endpoint.md) tests
+  - [Delete Dashboard](mdc:prds/active/api_dashboard_delete_endpoint.md) tests
 
 - Integration Tests for all endpoints
-  - Create Dashboard tests
-  - Update Dashboard tests
-  - Delete Dashboard tests
+  - [Create Dashboard](mdc:prds/active/api_dashboard_create_endpoint.md) tests
+  - [Update Dashboard](mdc:prds/active/api_dashboard_update_endpoint.md) tests
+  - [Delete Dashboard](mdc:prds/active/api_dashboard_delete_endpoint.md) tests
 
 **Rationale:**
 - Tests can be developed in parallel once the endpoints are implemented
@@ -81,7 +95,6 @@ The implementation is divided into phases based on dependencies and complexity. 
 ### Phase 4: Documentation and Finalization (Week 2)
 
 **Tasks:**
-
 - API Documentation
 - Manual Testing
 - Code Review
@@ -89,23 +102,35 @@ The implementation is divided into phases based on dependencies and complexity. 
 
 **Estimated completion time:** 1-2 days
 
+## Implementation Details
+
+Each endpoint will be implemented as a separate REST handler with a corresponding business logic handler. The implementation will follow our established patterns for REST endpoints and handlers.
+
+### Technical Stack
+
+- Rust programming language
+- Actix-web framework for REST endpoints
+- PostgreSQL database for storage
+- Existing dashboard models and types
+- Sharing library components (for ShareRequest handling)
+
 ## Dependencies
 
-### Create Dashboard Endpoint
+### [Create Dashboard Endpoint](mdc:prds/active/api_dashboard_create_endpoint.md)
 - Dependencies: None
 - Required for: Update and Delete endpoints (for testing)
 
-### Update Dashboard Endpoint
+### [Update Dashboard Endpoint](mdc:prds/active/api_dashboard_update_endpoint.md)
 - Dependencies: Existing dashboard retrieval logic
 - Benefits from: Create Dashboard endpoint
 
-### Delete Dashboard Endpoint
+### [Delete Dashboard Endpoint](mdc:prds/active/api_dashboard_delete_endpoint.md)
 - Dependencies: Existing dashboard retrieval logic
 - Benefits from: Create Dashboard endpoint (for testing)
 
 ## Parallel Development Opportunities
 
-1. **Create and Delete endpoints** can be developed simultaneously by different developers
+1. **[Create Dashboard](mdc:prds/active/api_dashboard_create_endpoint.md) and [Delete Dashboard](mdc:prds/active/api_dashboard_delete_endpoint.md) endpoints** can be developed simultaneously by different developers
 2. **Unit tests** can be developed alongside the endpoint implementation
 3. **Integration tests** can be started once the endpoints are functional
 
@@ -113,17 +138,17 @@ The implementation is divided into phases based on dependencies and complexity. 
 
 ### Single Developer Plan
 If one developer is working on all endpoints:
-1. Implement Create Dashboard endpoint
-2. Implement Delete Dashboard endpoint
-3. Implement Update Dashboard endpoint
+1. Implement [Create Dashboard](mdc:prds/active/api_dashboard_create_endpoint.md) endpoint
+2. Implement [Delete Dashboard](mdc:prds/active/api_dashboard_delete_endpoint.md) endpoint
+3. Implement [Update Dashboard](mdc:prds/active/api_dashboard_update_endpoint.md) endpoint
 4. Develop all tests
 5. Complete documentation and finalization
 
 ### Multiple Developer Plan
 If multiple developers are available:
-- Developer 1: Create Dashboard endpoint + tests
-- Developer 2: Delete Dashboard endpoint + tests
-- Developer 3: Update Dashboard endpoint + tests
+- Developer 1: [Create Dashboard](mdc:prds/active/api_dashboard_create_endpoint.md) endpoint + tests
+- Developer 2: [Delete Dashboard](mdc:prds/active/api_dashboard_delete_endpoint.md) endpoint + tests
+- Developer 3: [Update Dashboard](mdc:prds/active/api_dashboard_update_endpoint.md) endpoint + tests
 - All: Documentation and finalization
 
 ## Risk Assessment
@@ -150,7 +175,7 @@ If multiple developers are available:
 
 2. **Dependency Delays**
    - Risk: Delays in one endpoint affecting others
-   - Mitigation: Prioritize Create endpoint, use mock responses for testing
+   - Mitigation: Prioritize [Create Dashboard](mdc:prds/active/api_dashboard_create_endpoint.md) endpoint, use mock responses for testing
 
 ## Success Criteria
 

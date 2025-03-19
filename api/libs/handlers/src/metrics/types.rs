@@ -18,6 +18,13 @@ pub struct Version {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BusterShareIndividual {
+    pub email: String,
+    pub role: AssetPermissionRole,
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BusterMetric {
     pub id: Uuid,
     #[serde(rename = "type")]
@@ -47,6 +54,12 @@ pub struct BusterMetric {
     pub versions: Vec<Version>,
     pub permission: AssetPermissionRole,
     pub sql: String,
+    // Sharing fields
+    pub individual_permissions: Option<Vec<BusterShareIndividual>>,
+    pub public_expiry_date: Option<DateTime<Utc>>,
+    pub public_enabled_by: Option<String>,
+    pub publicly_accessible: bool,
+    pub public_password: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

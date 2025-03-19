@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
-use diesel::{ExpressionMethods, QueryDsl, Queryable, Selectable};
+use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable, SelectableHelper};
 use diesel_async::RunQueryDsl;
 use serde_json::{json, Value};
 use uuid::Uuid;
@@ -9,11 +9,12 @@ use futures::future::{try_join_all, join_all};
 use chrono::{DateTime, Utc};
 use serde_yaml;
 
-
+use crate::dashboards::types::BusterShareIndividual;
 use crate::metrics::{get_metric_handler, BusterMetric};
-use database::enums::{AssetPermissionRole, Verification};
+use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
 use database::pool::get_pg_pool;
-use database::schema::dashboard_files;
+use database::schema::{asset_permissions, dashboard_files, users};
+use database::types::VersionHistory;
 
 use super::{BusterDashboard, BusterDashboardResponse, DashboardConfig, DashboardRow, DashboardRowItem};
 
@@ -29,6 +30,18 @@ struct QueryableDashboardFile {
     created_by: Uuid,
     created_at: chrono::DateTime<chrono::Utc>,
     updated_at: chrono::DateTime<chrono::Utc>,
+    publicly_accessible: bool,
+    publicly_enabled_by: Option<Uuid>,
+    public_expiry_date: Option<chrono::DateTime<chrono::Utc>>,
+    version_history: VersionHistory,
+}
+
+#[derive(Queryable)]
+struct AssetPermissionInfo {
+    identity_id: Uuid,
+    role: AssetPermissionRole,
+    email: String,
+    name: Option<String>,
 }
 
 pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid) -> Result<BusterDashboardResponse> {
@@ -51,11 +64,15 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid) -> Resul
             dashboard_files::created_by,
             dashboard_files::created_at,
             dashboard_files::updated_at,
+            dashboard_files::publicly_accessible,
+            dashboard_files::publicly_enabled_by,
+            dashboard_files::public_expiry_date,
+            dashboard_files::version_history,
         ))
         .first::<QueryableDashboardFile>(&mut conn)
         .await
         .map_err(|e| match e {
-            diesel::result::Error::NotFound => anyhow!("Dashboard file not found"),
+            diesel::result::Error::NotFound => anyhow!("Dashboard file not found or unauthorized"),
             _ => anyhow!("Database error: {}", e),
         })?;
 
@@ -102,6 +119,55 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid) -> Resul
         .map(|metric| (metric.id, metric))
         .collect();
 
+    // Query individual permissions for this dashboard
+    let individual_permissions_query = asset_permissions::table
+        .inner_join(users::table.on(users::id.eq(asset_permissions::identity_id)))
+        .filter(asset_permissions::asset_id.eq(dashboard_id))
+        .filter(asset_permissions::asset_type.eq(AssetType::DashboardFile))
+        .filter(asset_permissions::identity_type.eq(IdentityType::User))
+        .filter(asset_permissions::deleted_at.is_null())
+        .select((
+            asset_permissions::identity_id,
+            asset_permissions::role,
+            users::email,
+            users::name,
+        ))
+        .load::<AssetPermissionInfo>(&mut conn)
+        .await;
+
+    // Get the user info for publicly_enabled_by if it exists
+    let public_enabled_by_user = if let Some(enabled_by_id) = dashboard_file.publicly_enabled_by {
+        users::table
+            .filter(users::id.eq(enabled_by_id))
+            .select(users::email)
+            .first::<String>(&mut conn)
+            .await
+            .ok()
+    } else {
+        None
+    };
+
+    // Convert AssetPermissionInfo to BusterShareIndividual
+    let individual_permissions = match individual_permissions_query {
+        Ok(permissions) => {
+            if permissions.is_empty() {
+                None
+            } else {
+                Some(
+                    permissions
+                        .into_iter()
+                        .map(|p| BusterShareIndividual {
+                            email: p.email,
+                            role: p.role,
+                            name: p.name,
+                        })
+                        .collect::<Vec<BusterShareIndividual>>(),
+                )
+            }
+        }
+        Err(_) => None,
+    };
+
     // Construct the dashboard using content values where available
     let dashboard = BusterDashboard {
         config,
@@ -128,6 +194,11 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid) -> Resul
         permission: AssetPermissionRole::Owner,
         public_password: None,
         collections: vec![],
+        // New sharing fields
+        individual_permissions,
+        publicly_accessible: dashboard_file.publicly_accessible,
+        public_expiry_date: dashboard_file.public_expiry_date,
+        public_enabled_by: public_enabled_by_user,
     })
 }
 

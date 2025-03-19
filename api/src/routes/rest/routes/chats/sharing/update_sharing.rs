@@ -3,37 +3,43 @@ use axum::{
     http::StatusCode,
     Extension, Json,
 };
-use database::enums::AssetPermissionRole;
+use handlers::chats::sharing::UpdateChatSharingRequest;
 use middleware::AuthenticatedUser;
-use serde::Deserialize;
 use uuid::Uuid;
-
-/// Recipient for sharing a chat
-#[derive(Debug, Deserialize)]
-pub struct ShareRecipient {
-    pub email: String,
-    pub role: AssetPermissionRole,
-}
 
 /// Update sharing permissions for a chat
 ///
 /// This endpoint updates sharing permissions for a chat with the provided details.
 /// Requires Owner or FullAccess permission.
+///
+/// Request body format:
+/// ```json
+/// {
+///     "users": [
+///         {
+///             "email": "user@example.com",
+///             "role": "Viewer"
+///         }
+///     ],
+///     "publicly_accessible": true,
+///     "public_password": "password",
+///     "public_expiration": "2023-12-31T23:59:59Z"
+/// }
+/// ```
+/// All fields are optional. If a field is not provided, it won't be updated.
+/// 
+
+
+
 pub async fn update_chat_sharing_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
-    Json(request): Json<Vec<ShareRecipient>>,
+    Json(request): Json<UpdateChatSharingRequest>,
 ) -> Result<Json<String>, (StatusCode, String)> {
     tracing::info!("Processing PUT request for chat sharing with ID: {}, user_id: {}", id, user.id);
 
-    // Convert request to a list of (email, role) pairs
-    let emails_and_roles: Vec<(String, AssetPermissionRole)> = request
-        .into_iter()
-        .map(|recipient| (recipient.email, recipient.role))
-        .collect();
-
-    // Call the handler from the handlers crate
-    match handlers::chats::sharing::update_chat_sharing_handler(&id, &user.id, emails_and_roles).await {
+    // Call the handler from the handlers crate with the updated request format
+    match handlers::chats::sharing::update_chat_sharing_handler(&id, &user.id, request).await {
         Ok(_) => Ok(Json("Sharing permissions updated successfully".to_string())),
         Err(e) => {
             tracing::error!("Error updating sharing permissions: {}", e);
