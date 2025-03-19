@@ -85,6 +85,18 @@ async fn test_update_metric_integration() -> Result<()> {
             assert!(db_metric.version_history.0.contains_key(&"1".to_string()));
             assert!(db_metric.version_history.0.contains_key(&"2".to_string()));
             
+            // Get the latest version from the version history
+            let latest_version = db_metric.version_history.get_latest_version().unwrap();
+            assert_eq!(latest_version.version_number, 2);
+            
+            // Verify the latest version's content matches the current content
+            if let database::types::VersionContent::MetricYml(latest_content) = &latest_version.content {
+                assert_eq!(latest_content.time_frame, "weekly");
+                assert_eq!(latest_content.description, Some("Updated test description".to_string()));
+            } else {
+                panic!("Expected MetricYml content in version history");
+            }
+            
             println!("Update metric test passed with ID: {}", metric_id);
         },
         Err(e) => {
@@ -133,7 +145,7 @@ async fn test_update_nonexistent_metric() -> Result<()> {
     Ok(())
 }
 
-/// Test updating specific metric fields one at a time
+/// Test updating specific metric fields one at a time and verify version increments properly
 #[tokio::test]
 async fn test_update_specific_metric_fields() -> Result<()> {
     // Setup test environment
@@ -174,6 +186,25 @@ async fn test_update_specific_metric_fields() -> Result<()> {
             // Verify other fields were not changed
             assert_eq!(metric.time_frame, "daily");
             assert_eq!(metric.status, Verification::NotRequested);
+            
+            // Verify version number was incremented
+            assert_eq!(metric.version_number, 2);
+
+            // Verify in the database
+            let mut conn = get_pg_pool().get().await?;
+            let db_metric = metric_files::table
+                .filter(metric_files::id.eq(metric_id))
+                .first::<database::models::MetricFile>(&mut conn)
+                .await?;
+                
+            // Check version history has exactly 2 versions
+            assert_eq!(db_metric.version_history.0.len(), 2);
+            assert!(db_metric.version_history.0.contains_key(&"1".to_string()));
+            assert!(db_metric.version_history.0.contains_key(&"2".to_string()));
+            
+            // Get the latest version
+            let latest_version = db_metric.version_history.get_latest_version().unwrap();
+            assert_eq!(latest_version.version_number, 2);
         },
         Err(e) => {
             cleanup_test_data(Some(metric_id), None).await?;
@@ -198,6 +229,26 @@ async fn test_update_specific_metric_fields() -> Result<()> {
             
             // Verify title remains from previous update
             assert_eq!(metric.title, "Title Only Update");
+            
+            // Verify version number increased again
+            assert_eq!(metric.version_number, 3);
+            
+            // Verify in the database
+            let mut conn = get_pg_pool().get().await?;
+            let db_metric = metric_files::table
+                .filter(metric_files::id.eq(metric_id))
+                .first::<database::models::MetricFile>(&mut conn)
+                .await?;
+                
+            // Check version history has exactly 3 versions
+            assert_eq!(db_metric.version_history.0.len(), 3);
+            assert!(db_metric.version_history.0.contains_key(&"1".to_string()));
+            assert!(db_metric.version_history.0.contains_key(&"2".to_string()));
+            assert!(db_metric.version_history.0.contains_key(&"3".to_string()));
+            
+            // Get the latest version
+            let latest_version = db_metric.version_history.get_latest_version().unwrap();
+            assert_eq!(latest_version.version_number, 3);
         },
         Err(e) => {
             cleanup_test_data(Some(metric_id), None).await?;
@@ -223,6 +274,40 @@ async fn test_update_specific_metric_fields() -> Result<()> {
             // Verify other fields remain from previous updates
             assert_eq!(metric.title, "Title Only Update");
             assert_eq!(metric.status, Verification::Verified);
+            
+            // Verify version number increased to 4
+            assert_eq!(metric.version_number, 4);
+            
+            // Verify in the database
+            let mut conn = get_pg_pool().get().await?;
+            let db_metric = metric_files::table
+                .filter(metric_files::id.eq(metric_id))
+                .first::<database::models::MetricFile>(&mut conn)
+                .await?;
+                
+            // Check version history now has 4 versions
+            assert_eq!(db_metric.version_history.0.len(), 4);
+            
+            // Verify all version numbers are present
+            for i in 1..=4 {
+                assert!(db_metric.version_history.0.contains_key(&i.to_string()), 
+                       "Version {} missing from history", i);
+            }
+            
+            // Get the latest version
+            let latest_version = db_metric.version_history.get_latest_version().unwrap();
+            assert_eq!(latest_version.version_number, 4);
+            
+            // Check the content of the latest version
+            if let database::types::VersionContent::MetricYml(latest_content) = &latest_version.content {
+                assert_eq!(latest_content.time_frame, "monthly");
+                
+                // The title should be preserved from earlier updates
+                let yaml = serde_yaml::to_string(latest_content).unwrap();
+                assert!(yaml.contains("Title Only Update"));
+            } else {
+                panic!("Expected MetricYml content in version history");
+            }
         },
         Err(e) => {
             cleanup_test_data(Some(metric_id), None).await?;

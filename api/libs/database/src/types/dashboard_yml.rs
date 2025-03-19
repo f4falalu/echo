@@ -168,3 +168,267 @@ impl ToSql<Jsonb, Pg> for DashboardYml {
         Ok(IsNull::No)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn test_dashboard_yml_camel_case_serialization() {
+        // Test case: Verify that DashboardYml serializes to camelCase
+        // Expected: JSON fields should be in camelCase format
+        
+        // Create a dashboard with one row
+        let dashboard = DashboardYml {
+            name: "Test Dashboard".to_string(),
+            description: Some("This is a test dashboard".to_string()),
+            rows: vec![
+                Row {
+                    items: vec![
+                        RowItem {
+                            id: Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap(),
+                        }
+                    ],
+                    row_height: Some(400),
+                    column_sizes: Some(vec![12]),
+                    id: Some(1),
+                }
+            ],
+        };
+        
+        // Serialize to JSON
+        let json = serde_json::to_value(&dashboard).unwrap();
+        
+        // Verify camelCase field names in the output
+        assert!(json.get("name").is_some());
+        assert!(json.get("description").is_some());
+        assert!(json.get("rows").is_some());
+        
+        // Check row fields are in camelCase
+        let row = &json["rows"][0];
+        assert!(row.get("items").is_some());
+        assert!(row.get("rowHeight").is_some());
+        assert!(row.get("columnSizes").is_some());
+        assert!(row.get("id").is_some());
+        
+        // Verify snake_case field names are NOT present
+        assert!(row.get("row_height").is_none());
+        assert!(row.get("column_sizes").is_none());
+    }
+    
+    #[test]
+    fn test_dashboard_yml_snake_case_deserialization() {
+        // Test case: Verify that DashboardYml deserializes from snake_case
+        // Expected: Both snake_case and camelCase fields should be accepted
+        
+        // Create JSON with snake_case fields
+        let json = json!({
+            "name": "Test Dashboard",
+            "description": "This is a test dashboard",
+            "rows": [
+                {
+                    "items": [
+                        {
+                            "id": "00000000-0000-0000-0000-000000000001"
+                        }
+                    ],
+                    "row_height": 400,
+                    "column_sizes": [12]
+                }
+            ]
+        });
+        
+        // Convert to YAML and use the new method to assign IDs
+        let yaml = serde_yaml::to_string(&json).unwrap();
+        let dashboard = DashboardYml::new(yaml).unwrap();
+        
+        // Verify fields were properly deserialized
+        assert_eq!(dashboard.name, "Test Dashboard");
+        assert_eq!(dashboard.description, Some("This is a test dashboard".to_string()));
+        assert_eq!(dashboard.rows.len(), 1);
+        assert_eq!(dashboard.rows[0].row_height, Some(400));
+        assert_eq!(dashboard.rows[0].column_sizes, Some(vec![12]));
+        
+        // Check that a row ID was assigned
+        assert_eq!(dashboard.rows[0].id, Some(1));
+    }
+    
+    #[test]
+    fn test_dashboard_yml_camel_case_deserialization() {
+        // Test case: Verify that DashboardYml deserializes from camelCase
+        // Expected: camelCase fields should be properly deserialized
+        
+        // Create JSON with camelCase fields
+        let json = json!({
+            "name": "Test Dashboard",
+            "description": "This is a test dashboard",
+            "rows": [
+                {
+                    "items": [
+                        {
+                            "id": "00000000-0000-0000-0000-000000000001"
+                        }
+                    ],
+                    "rowHeight": 400,
+                    "columnSizes": [12]
+                }
+            ]
+        });
+        
+        // Convert to YAML and use the new method to assign IDs
+        let yaml = serde_yaml::to_string(&json).unwrap();
+        let dashboard = DashboardYml::new(yaml).unwrap();
+        
+        // Verify fields were properly deserialized
+        assert_eq!(dashboard.name, "Test Dashboard");
+        assert_eq!(dashboard.description, Some("This is a test dashboard".to_string()));
+        assert_eq!(dashboard.rows.len(), 1);
+        assert_eq!(dashboard.rows[0].row_height, Some(400));
+        assert_eq!(dashboard.rows[0].column_sizes, Some(vec![12]));
+        
+        // Check that a row ID was assigned
+        assert_eq!(dashboard.rows[0].id, Some(1));
+    }
+    
+    #[test]
+    fn test_row_id_generation() {
+        // Test case: Verify that row IDs are properly generated
+        // Expected: Row IDs should increment by 1 for each row
+        
+        // Create a dashboard from YAML without row IDs
+        let yaml = r#"
+name: Test Dashboard
+description: This is a test dashboard
+rows:
+  - items:
+      - id: 00000000-0000-0000-0000-000000000001
+    rowHeight: 400
+    columnSizes: [12]
+  - items:
+      - id: 00000000-0000-0000-0000-000000000002
+    rowHeight: 320
+    columnSizes: [12]
+  - items:
+      - id: 00000000-0000-0000-0000-000000000003
+    rowHeight: 550
+    columnSizes: [12]
+"#;
+        
+        // Create dashboard using the new method (which should assign row IDs)
+        let dashboard = DashboardYml::new(yaml.to_string()).unwrap();
+        
+        // Verify that row IDs were assigned in sequence
+        assert_eq!(dashboard.rows[0].id, Some(1));
+        assert_eq!(dashboard.rows[1].id, Some(2));
+        assert_eq!(dashboard.rows[2].id, Some(3));
+    }
+    
+    #[test]
+    fn test_add_row_method() {
+        // Test case: Verify that the add_row method assigns the next available ID
+        // Expected: New rows get the next sequential ID
+        
+        // Create a dashboard with one row
+        let mut dashboard = DashboardYml {
+            name: "Test Dashboard".to_string(),
+            description: None,
+            rows: vec![
+                Row {
+                    items: vec![RowItem { id: Uuid::new_v4() }],
+                    row_height: None,
+                    column_sizes: None,
+                    id: Some(1),
+                }
+            ],
+        };
+        
+        // Add a second row using the add_row method
+        dashboard.add_row(
+            vec![RowItem { id: Uuid::new_v4() }],
+            Some(400),
+            Some(vec![12]),
+        );
+        
+        // Add a third row
+        dashboard.add_row(
+            vec![RowItem { id: Uuid::new_v4() }],
+            Some(320),
+            None,
+        );
+        
+        // Verify that row IDs were assigned in sequence
+        assert_eq!(dashboard.rows[0].id, Some(1));
+        assert_eq!(dashboard.rows[1].id, Some(2));
+        assert_eq!(dashboard.rows[2].id, Some(3));
+        
+        // Verify that get_next_row_id returns the expected value
+        assert_eq!(dashboard.get_next_row_id(), 4);
+    }
+    
+    #[test]
+    fn test_non_sequential_row_ids() {
+        // Test case: Verify that get_next_row_id works with non-sequential IDs
+        // Expected: Next ID should be max(id) + 1
+        
+        // Create a dashboard with rows that have non-sequential IDs
+        let dashboard = DashboardYml {
+            name: "Test Dashboard".to_string(),
+            description: None,
+            rows: vec![
+                Row {
+                    items: vec![RowItem { id: Uuid::new_v4() }],
+                    row_height: None,
+                    column_sizes: None,
+                    id: Some(1),
+                },
+                Row {
+                    items: vec![RowItem { id: Uuid::new_v4() }],
+                    row_height: None,
+                    column_sizes: None,
+                    id: Some(5), // Intentionally out of sequence
+                },
+                Row {
+                    items: vec![RowItem { id: Uuid::new_v4() }],
+                    row_height: None,
+                    column_sizes: None,
+                    id: Some(3),
+                }
+            ],
+        };
+        
+        // Verify that get_next_row_id returns max(id) + 1
+        assert_eq!(dashboard.get_next_row_id(), 6);
+    }
+    
+    #[test]
+    fn test_explicitly_provided_id() {
+        // Test case: Verify that explicitly provided IDs are preserved during deserialization
+        // Expected: Row ID should match the provided value
+        
+        // Create JSON with an explicit ID field
+        let json = json!({
+            "name": "Test Dashboard",
+            "description": "This is a test dashboard",
+            "rows": [
+                {
+                    "items": [
+                        {
+                            "id": "00000000-0000-0000-0000-000000000001"
+                        }
+                    ],
+                    "rowHeight": 400,
+                    "columnSizes": [12],
+                    "id": 42  // Explicitly set ID
+                }
+            ]
+        });
+        
+        // Convert to YAML and use the new method
+        let yaml = serde_yaml::to_string(&json).unwrap();
+        let dashboard = DashboardYml::new(yaml).unwrap();
+        
+        // Verify the explicit ID was preserved
+        assert_eq!(dashboard.rows[0].id, Some(42));
+    }
+}

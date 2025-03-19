@@ -25,6 +25,26 @@ pub struct UpdateMetricRequest {
 }
 
 /// Handler to update a metric by ID
+/// 
+/// This handler updates a metric file in the database and increments its version number.
+/// Each time a metric is updated, the previous version is saved in the version history.
+/// 
+/// # Arguments
+/// * `metric_id` - The UUID of the metric to update
+/// * `user_id` - The UUID of the user making the update
+/// * `request` - The update request containing the fields to modify
+/// 
+/// # Returns
+/// * `Result<BusterMetric>` - The updated metric on success, or an error
+/// 
+/// # Versioning
+/// The function automatically handles versioning:
+/// 1. Retrieves the current metric and extracts its content
+/// 2. Updates the content based on the request parameters
+/// 3. Increments the version number (based on the number of existing versions)
+/// 4. Adds the updated content to the version history with the new version number
+/// 5. Saves both the updated content and version history to the database
+///
 pub async fn update_metric_handler(
     metric_id: &Uuid,
     user_id: &Uuid,
