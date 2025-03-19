@@ -9,8 +9,7 @@ FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-# Add optimization flags for maximum performance
-RUN RUSTFLAGS="-C target-cpu=native -C opt-level=3" cargo build --release --bin bi_api
+RUN cargo build --release --bin bi_api
 
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
