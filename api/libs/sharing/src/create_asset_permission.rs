@@ -10,8 +10,7 @@ use diesel::{prelude::*, upsert::excluded};
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
-use crate::errors::SharingError;
-use crate::types::find_user_by_email;
+use crate::{errors::SharingError, user_lookup::find_user_by_email};
 
 #[derive(Debug)]
 pub struct ShareCreationInput {
@@ -35,7 +34,7 @@ pub async fn create_share(
 
     // Validate asset type is not deprecated
     if matches!(asset_type, AssetType::Dashboard | AssetType::Thread) {
-        anyhow::bail!("Asset type {:?} is deprecated", asset_type);
+        return Err(SharingError::DeprecatedAssetType(format!("{:?}", asset_type)).into());
     }
 
     let mut conn = get_pg_pool().get().await?;
@@ -79,7 +78,7 @@ pub async fn create_share(
 /// * `email` - The email address of the user to grant access to
 /// * `asset_id` - The ID of the asset to share
 /// * `asset_type` - The type of asset (must not be deprecated)
-/// * `role` - The permission role to assign (must be Owner or FullAccess)
+/// * `role` - The permission role to assign
 /// * `created_by` - The ID of the user creating the permission
 ///
 /// # Returns
@@ -93,22 +92,20 @@ pub async fn create_share_by_email(
 ) -> Result<AssetPermission> {
     // Validate asset type is not deprecated
     if matches!(asset_type, AssetType::Dashboard | AssetType::Thread) {
-        return Err(anyhow!(SharingError::DeprecatedAssetType(format!("{:?}", asset_type))));
+        return Err(SharingError::DeprecatedAssetType(format!("{:?}", asset_type)).into());
     }
 
-    // Validate role is either Owner or FullAccess
-    if !matches!(role, AssetPermissionRole::Owner | AssetPermissionRole::FullAccess) {
-        return Err(anyhow!(SharingError::InvalidPermissionRole(format!(
-            "Role must be Owner or FullAccess, got {:?}",
-            role
-        ))));
+    // Validate email format
+    if !email.contains('@') {
+        return Err(SharingError::InvalidEmail(email.to_string()).into());
     }
 
     // Find the user by email
-    let user = find_user_by_email(email).await?
-        .ok_or_else(|| anyhow!(SharingError::UserNotFound(email.to_string())))?;
+    let user = find_user_by_email(email)
+        .await?
+        .ok_or_else(|| SharingError::UserNotFound(email.to_string()))?;
 
-    // Create or update the permission
+    // Create the share for the user
     create_share(
         asset_id,
         asset_type,
@@ -132,7 +129,7 @@ pub async fn create_shares_bulk(
         .iter()
         .any(|s| matches!(s.asset_type, AssetType::Dashboard | AssetType::Thread))
     {
-        anyhow::bail!("Cannot create permissions for deprecated asset types");
+        return Err(SharingError::DeprecatedAssetType("Cannot create permissions for deprecated asset types".to_string()).into());
     }
 
     let permissions: Vec<AssetPermission> = shares
@@ -177,22 +174,23 @@ pub async fn create_shares_bulk(
 mod tests {
     use super::*;
     use crate::errors::SharingError;
+    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
+    use uuid::Uuid;
 
-    #[tokio::test]
-    async fn test_create_share_by_email_validates_role() {
-        // Test that only Owner and FullAccess roles are accepted
-        let result = create_share_by_email(
-            "test@example.com",
+    #[test]
+    fn test_invalid_email_format() {
+        let runtime = tokio::runtime::Runtime::new().unwrap();
+        let result = runtime.block_on(create_share_by_email(
+            "not-an-email",
             Uuid::new_v4(),
-            AssetType::Chat,
-            AssetPermissionRole::CanEdit,
+            AssetType::Collection,
+            AssetPermissionRole::Viewer,
             Uuid::new_v4(),
-        )
-        .await;
-
+        ));
+        
         assert!(result.is_err());
         let err = result.unwrap_err().to_string();
-        assert!(err.contains("Role must be Owner or FullAccess"));
+        assert!(err.contains("Invalid email"));
     }
 
     #[tokio::test]

@@ -19,6 +19,7 @@ database = { path = "../database" }
 
 [dev-dependencies]
 tokio-test = { workspace = true }
+mockito = { workspace = true }
 
 [features]
-default = [] 
+default = []

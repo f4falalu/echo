@@ -6,6 +6,7 @@ members = [
     "libs/database",
     "libs/agents",
     "libs/query_engine",
+    "libs/sharing",
 ]
 
 # Define shared dependencies for all workspace members
@@ -166,6 +167,7 @@ agents = { path = "libs/agents" }
 query_engine = { path = "libs/query_engine" }
 braintrust = { path = "libs/braintrust" }
 middleware = { path = "libs/middleware" }
+sharing = { path = "libs/sharing" }
 workspace = "0.4.2"
 
 [dev-dependencies]
@@ -182,4 +184,3 @@ incremental = true
 
 opt-level = 0  # Ensure this is 0 for faster debug builds
 debug = 1      # Reduce debug info slightly while keeping enough for backtraces
-
