@@ -26,6 +26,13 @@ pub struct DashboardMember {
     pub name: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BusterShareIndividual {
+    pub email: String,
+    pub role: AssetPermissionRole,
+    pub name: Option<String>,
+}
+
 // Note: This extends BusterShare which needs to be defined
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BusterDashboardResponse {
@@ -35,6 +42,11 @@ pub struct BusterDashboardResponse {
     pub permission: AssetPermissionRole,
     pub public_password: Option<String>,
     pub collections: Vec<Collection>,
+    // New sharing fields
+    pub individual_permissions: Option<Vec<BusterShareIndividual>>,
+    pub publicly_accessible: bool,
+    pub public_expiry_date: Option<DateTime<Utc>>,
+    pub public_enabled_by: Option<String>,
 }
 
 // Note: This extends BusterShare but omits certain fields
