@@ -48,9 +48,7 @@ mod tests {
     use super::*;
     use axum::{body::Body, http::Request, response::Response};
     use axum_test::{TestServer, TestResponse};
-    use middleware::AuthenticatedUser;
     use serde_json::{json, Value};
-    use uuid::Uuid;
 
     async fn mock_server_response(
         status_code: StatusCode,

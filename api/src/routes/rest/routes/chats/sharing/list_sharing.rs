@@ -19,11 +19,6 @@ pub struct SharingPermission {
     pub role: database::enums::AssetPermissionRole,
 }
 
-#[derive(Debug, Serialize)]
-pub struct SharingResponse {
-    pub permissions: Vec<SharingPermission>,
-}
-
 /// REST handler for listing chat sharing permissions
 ///
 /// # Arguments
@@ -37,7 +32,7 @@ pub struct SharingResponse {
 pub async fn list_chat_sharing_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
-) -> Result<ApiResponse<SharingResponse>, (StatusCode, String)> {
+) -> Result<ApiResponse<Vec<SharingPermission>>, (StatusCode, String)> {
     info!(
         chat_id = %id,
         user_id = %user.id,
@@ -46,18 +41,16 @@ pub async fn list_chat_sharing_rest_handler(
 
     match list_chat_sharing_handler(&id, &user.id).await {
         Ok(permissions) => {
-            let response = SharingResponse {
-                permissions: permissions
-                    .into_iter()
-                    .map(|p| SharingPermission {
-                        user_id: p.user.as_ref().map(|u| u.id).unwrap_or_default(),
-                        email: p.user.as_ref().map(|u| u.email.clone()).unwrap_or_default(),
-                        name: p.user.as_ref().and_then(|u| u.name.clone()),
-                        avatar_url: p.user.as_ref().and_then(|u| u.avatar_url.clone()),
-                        role: p.permission.role,
-                    })
-                    .collect(),
-            };
+            let response = permissions
+                .into_iter()
+                .map(|p| SharingPermission {
+                    user_id: p.user.as_ref().map(|u| u.id).unwrap_or_default(),
+                    email: p.user.as_ref().map(|u| u.email.clone()).unwrap_or_default(),
+                    name: p.user.as_ref().and_then(|u| u.name.clone()),
+                    avatar_url: p.user.as_ref().and_then(|u| u.avatar_url.clone()),
+                    role: p.permission.role,
+                })
+                .collect();
             Ok(ApiResponse::JsonData(response))
         }
         Err(e) => {
@@ -67,7 +60,10 @@ pub async fn list_chat_sharing_rest_handler(
             } else if e.to_string().contains("permission") {
                 return Err((StatusCode::FORBIDDEN, format!("Permission denied: {}", e)));
             } else {
-                return Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to list sharing permissions: {}", e)));
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to list sharing permissions: {}", e),
+                ));
             }
         }
     }

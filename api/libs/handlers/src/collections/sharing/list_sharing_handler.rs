@@ -30,9 +30,8 @@ pub async fn list_collection_sharing_handler(
     );
 
     // 1. Validate the collection exists
-    let collection = match fetch_collection(collection_id).await? {
-        Some(collection) => collection,
-        None => return Err(anyhow!("Collection not found")),
+    if fetch_collection(collection_id).await?.is_none() {
+        return Err(anyhow!("Collection not found"));
     };
 
     // 2. Check if user has permission to view the collection
