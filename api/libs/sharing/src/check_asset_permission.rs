@@ -90,7 +90,8 @@ pub async fn check_access(
     Ok(Some(highest_permission))
 }
 
-/// Checks if a user has a specific permission level on an asset
+<<<<<<< HEAD
+/// Checks if a user has the required permission level for an asset
 pub async fn has_permission(
     asset_id: Uuid,
     asset_type: AssetType,
@@ -102,46 +103,46 @@ pub async fn has_permission(
     
     match user_role {
         Some(role) => {
-            // Special case for Owner and FullAccess, which can do anything
-            if role == AssetPermissionRole::Owner || role == AssetPermissionRole::FullAccess {
-                return Ok(true);
-            }
-            
-            // For other roles, we need to compare them
-            match (role, required_role) {
-                // Owner and FullAccess can do anything (handled above)
-                
-                // CanEdit can edit, filter and view
-                (AssetPermissionRole::CanEdit, AssetPermissionRole::CanEdit) |
-                (AssetPermissionRole::CanEdit, AssetPermissionRole::CanFilter) |
-                (AssetPermissionRole::CanEdit, AssetPermissionRole::CanView) => Ok(true),
-                
+            // Check if user's role is sufficient for the required role based on the permission hierarchy
+            Ok(match (role, required_role) {
+                // Owner can do anything
+                (AssetPermissionRole::Owner, _) => true,
+                // FullAccess can do anything except Owner actions
+                (AssetPermissionRole::FullAccess, AssetPermissionRole::Owner) => false,
+                (AssetPermissionRole::FullAccess, _) => true,
+                // CanEdit can edit and view
+                (AssetPermissionRole::CanEdit, AssetPermissionRole::Owner | AssetPermissionRole::FullAccess) => false,
+                (AssetPermissionRole::CanEdit, AssetPermissionRole::CanEdit | AssetPermissionRole::CanFilter | AssetPermissionRole::CanView | AssetPermissionRole::Editor | AssetPermissionRole::Viewer) => true,
                 // CanFilter can filter and view
-                (AssetPermissionRole::CanFilter, AssetPermissionRole::CanFilter) |
-                (AssetPermissionRole::CanFilter, AssetPermissionRole::CanView) => Ok(true),
-                
+                (AssetPermissionRole::CanFilter, AssetPermissionRole::Owner | AssetPermissionRole::FullAccess | AssetPermissionRole::CanEdit | AssetPermissionRole::Editor) => false,
+                (AssetPermissionRole::CanFilter, AssetPermissionRole::CanFilter | AssetPermissionRole::CanView | AssetPermissionRole::Viewer) => true,
                 // CanView can only view
-                (AssetPermissionRole::CanView, AssetPermissionRole::CanView) => Ok(true),
-                
-                // Editor can edit and view
-                (AssetPermissionRole::Editor, AssetPermissionRole::Editor) |
-                (AssetPermissionRole::Editor, AssetPermissionRole::Viewer) => Ok(true),
-                
-                // Viewer can only view
-                (AssetPermissionRole::Viewer, AssetPermissionRole::Viewer) => Ok(true),
-                
-                // All other combinations are not permitted
-                _ => Ok(false),
-            }
+                (AssetPermissionRole::CanView, AssetPermissionRole::CanView | AssetPermissionRole::Viewer) => true,
+                (AssetPermissionRole::CanView, _) => false,
+                // Editor (legacy) can edit and view
+                (AssetPermissionRole::Editor, AssetPermissionRole::Owner | AssetPermissionRole::FullAccess) => false,
+                (AssetPermissionRole::Editor, AssetPermissionRole::CanEdit | AssetPermissionRole::CanFilter | AssetPermissionRole::CanView | AssetPermissionRole::Editor | AssetPermissionRole::Viewer) => true,
+                // Viewer (legacy) can only view
+                (AssetPermissionRole::Viewer, AssetPermissionRole::CanView | AssetPermissionRole::Viewer) => true,
+                (AssetPermissionRole::Viewer, _) => false,
+            })
         }
-        None => Ok(false)
+        None => Ok(false),
     }
+}
+
+/// Simpler structure for holding permission results when checking in bulk
+#[derive(Debug, Clone)]
+pub struct AssetPermissionEntry {
+    pub asset_id: Uuid,
+    pub asset_type: AssetType,
+    pub role: Option<AssetPermissionRole>,
 }
 
 /// Checks permissions for multiple assets in bulk
 pub async fn check_access_bulk(
     inputs: Vec<CheckPermissionInput>,
-) -> Result<Vec<(Uuid, AssetType, Option<AssetPermissionRole>)>> {
+) -> Result<Vec<AssetPermissionEntry>> {
     if inputs.is_empty() {
         return Ok(Vec::new());
     }
@@ -173,9 +174,10 @@ pub async fn check_access_bulk(
         let mut conn = get_pg_pool().get().await?;
         let user_id = user_inputs[0].identity_id;
 
-        // Create individual queries for each asset
-        for input in &user_inputs {
-            let permissions: Vec<AssetPermissionRole> = asset_permissions::table
+        // Process each input separately (we could optimize this in the future)
+        for input in user_inputs {
+            // For users, we need to check both direct permissions and team permissions
+            let permissions = asset_permissions::table
                 .left_join(
                     teams_to_users::table
                         .on(asset_permissions::identity_id.eq(teams_to_users::team_id)),
@@ -191,10 +193,24 @@ pub async fn check_access_bulk(
                 .filter(asset_permissions::deleted_at.is_null())
                 .load::<AssetPermissionRole>(&mut conn)
                 .await
-                .context("Failed to query user asset permissions")?;
+                .context("Failed to query asset permissions")?;
 
-            let highest_role = permissions.into_iter().reduce(|acc, role| acc.max(role));
-            results.push((input.asset_id, input.asset_type, highest_role));
+            let highest_role = if permissions.is_empty() {
+                None
+            } else {
+                Some(
+                    permissions
+                        .into_iter()
+                        .reduce(|acc, role| acc.max(role))
+                        .unwrap(),
+                )
+            };
+
+            results.push(AssetPermissionEntry {
+                asset_id: input.asset_id,
+                asset_type: input.asset_type,
+                role: highest_role,
+            });
         }
     }
 
@@ -202,7 +218,8 @@ pub async fn check_access_bulk(
     for input in other_identity_inputs {
         let mut conn = get_pg_pool().get().await?;
         
-        let permissions: Vec<AssetPermissionRole> = asset_permissions::table
+        // For other identity types, just check direct permissions
+        let permissions = asset_permissions::table
             .select(asset_permissions::role)
             .filter(asset_permissions::identity_id.eq(&input.identity_id))
             .filter(asset_permissions::identity_type.eq(&input.identity_type))
@@ -213,8 +230,22 @@ pub async fn check_access_bulk(
             .await
             .context("Failed to query asset permissions")?;
 
-        let highest_role = permissions.into_iter().reduce(|acc, role| acc.max(role));
-        results.push((input.asset_id, input.asset_type, highest_role));
+        let highest_role = if permissions.is_empty() {
+            None
+        } else {
+            Some(
+                permissions
+                    .into_iter()
+                    .reduce(|acc, role| acc.max(role))
+                    .unwrap(),
+            )
+        };
+
+        results.push(AssetPermissionEntry {
+            asset_id: input.asset_id,
+            asset_type: input.asset_type,
+            role: highest_role,
+        });
     }
 
     Ok(results)
@@ -224,15 +255,16 @@ pub async fn check_access_bulk(
 pub async fn check_permissions(
     inputs: Vec<CheckPermissionInput>,
 ) -> Result<Vec<AssetPermissionResult>> {
-    let permissions = check_access_bulk(inputs.clone()).await?;
+    let permissions_entries = check_access_bulk(inputs.clone()).await?;
 
-    let results = permissions
+    // Convert entries to results
+    let results = permissions_entries
         .into_iter()
-        .map(|(asset_id, asset_type, role)| {
+        .map(|entry| {
             AssetPermissionResult {
-                asset_id,
-                asset_type,
-                role,
+                asset_id: entry.asset_id,
+                asset_type: entry.asset_type,
+                role: entry.role,
             }
         })
         .collect();

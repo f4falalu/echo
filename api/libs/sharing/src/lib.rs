@@ -6,8 +6,11 @@ pub mod remove_asset_permissions;
 pub mod types;
 pub mod user_lookup;
 
+#[cfg(test)]
+pub mod tests;
+
 // Export the primary functions
-pub use check_asset_permission::{check_access, check_permissions, has_permission};
+pub use check_asset_permission::{check_access, check_access_bulk, check_permissions, has_permission};
 pub use create_asset_permission::{create_share, create_share_by_email, create_shares_bulk};
 pub use list_asset_permissions::{list_shares, list_shares_by_identity_type};
 pub use remove_asset_permissions::{remove_share, remove_share_by_email};
