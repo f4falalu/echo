@@ -67,7 +67,7 @@ pub async fn create_chat_sharing_handler(
 }
 
 /// Helper function to check if a chat exists
-async fn get_chat_exists(chat_id: &Uuid) -> Result<bool> {
+pub async fn get_chat_exists(chat_id: &Uuid) -> Result<bool> {
     let mut conn = get_pg_pool().get().await?;
     
     let chat_exists = chats::table

@@ -3,39 +3,39 @@ use axum::{
     http::StatusCode,
     Extension,
 };
-use database::enums::AssetPermissionRole;
-use handlers::metrics::sharing::update_metric_sharing_handler;
+use handlers::metrics::sharing::UpdateMetricSharingRequest;
 use middleware::AuthenticatedUser;
-use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::routes::rest::ApiResponse;
 
-/// Structure for a single share recipient with their role
-#[derive(Debug, Deserialize)]
-pub struct ShareRecipient {
-    pub email: String,
-    pub role: AssetPermissionRole,
-}
-
 /// REST handler for updating sharing permissions for a metric
+///
+/// # Arguments
+///
+/// * `user` - The authenticated user making the request
+/// * `id` - The unique identifier of the metric
+/// * `request` - An UpdateMetricSharingRequest object with optional fields:
+///   - users: List of users to share with (email and role)
+///   - publicly_accessible: Whether the metric should be publicly accessible
+///   - public_password: Password for public access (null to remove)
+///   - public_expiration: Expiration date for public access (null to remove)
+///
+/// # Returns
+///
+/// A success message or appropriate error response
 pub async fn update_metric_sharing_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
-    Json(request): Json<Vec<ShareRecipient>>,
+    Json(request): Json<UpdateMetricSharingRequest>,
 ) -> Result<ApiResponse<String>, (StatusCode, String)> {
     tracing::info!(
-        "Processing PUT request for metric sharing with ID: {}, user_id: {}",
-        id,
-        user.id
+        metric_id = %id,
+        user_id = %user.id,
+        "Processing PUT request for metric sharing permissions"
     );
 
-    let emails_and_roles: Vec<(String, AssetPermissionRole)> = request
-        .into_iter()
-        .map(|recipient| (recipient.email, recipient.role))
-        .collect();
-
-    match update_metric_sharing_handler(&id, &user.id, emails_and_roles).await {
+    match handlers::metrics::sharing::update_metric_sharing_handler(&id, &user.id, request).await {
         Ok(_) => Ok(ApiResponse::JsonData(
             "Sharing permissions updated successfully".to_string(),
         )),
