@@ -12,6 +12,7 @@ import { useMemoizedFn } from '@/hooks';
 import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
 import { Dots, Pencil, Plus, ShareAllRight, ShareRight, Trash } from '@/components/ui/icons';
 import { useDeleteCollection, useUpdateCollection } from '@/api/buster_rest/collections';
+import { canEdit } from '@/lib/share';
 
 export const CollectionsIndividualHeader: React.FC<{
   openAddTypeModal: boolean;
@@ -47,7 +48,7 @@ export const CollectionsIndividualHeader: React.FC<{
         )}
       </div>
 
-      {collection && canEditCollection(collection) && (
+      {collection && canEdit(collection.permission) && (
         <ContentRight
           collection={collection}
           openAddTypeModal={openAddTypeModal}
@@ -146,7 +147,3 @@ const CollectionBreadcrumb: React.FC<{
   return <Breadcrumb items={items} />;
 });
 CollectionBreadcrumb.displayName = 'CollectionBreadcrumb';
-
-const canEditCollection = (collection: BusterCollection) => {
-  return collection.permission === 'owner' || collection.permission === 'editor';
-};

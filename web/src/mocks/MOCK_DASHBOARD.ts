@@ -102,20 +102,14 @@ refresh_interval: 300`,
     config: {
       rows
     },
-    sharingKey: 'mock-sharing-key',
-    publicly_accessible: false,
-    public_password: null,
-    public_expiry_date: null,
-    public_enabled_by: null,
-    password_secret_id: null,
     versions: []
   };
 
   const response: BusterDashboardResponse = {
-    access: ShareRole.EDITOR,
+    access: ShareRole.CAN_EDIT,
     metrics: metrics.reduce((acc, metric) => ({ ...acc, [metric.id]: metric }), {}),
     dashboard,
-    permission: ShareRole.EDITOR,
+    permission: ShareRole.CAN_EDIT,
     public_password: null,
     sharingKey: 'mock-sharing-key',
     individual_permissions: null,

@@ -9,6 +9,7 @@ import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { ShareRole } from '@/api/asset_interfaces';
+import { canEdit } from '@/lib/share';
 
 export const MetricViewChart: React.FC<{
   metricId: string;
@@ -24,9 +25,7 @@ export const MetricViewChart: React.FC<{
     const { title, description, time_frame, evaluation_score, evaluation_summary } = metric;
     const isTable = metric.chart_config.selectedChartType === ChartType.Table;
 
-    const readOnly =
-      readOnlyProp ||
-      !(metric.permission === ShareRole.OWNER || metric.permission === ShareRole.EDITOR);
+    const readOnly = readOnlyProp || !canEdit(metric.permission);
 
     const loadingData = !isFetchedMetricData;
     const errorData = !!metricDataError;

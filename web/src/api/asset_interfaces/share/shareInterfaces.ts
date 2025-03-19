@@ -1,7 +1,9 @@
 export enum ShareRole {
-  OWNER = 'owner',
-  EDITOR = 'editor',
-  VIEWER = 'viewer'
+  OWNER = 'owner', //owner of the asset
+  FULL_ACCESS = 'fullAccess', //same as owner, can share with others
+  CAN_EDIT = 'canEdit', //can edit, cannot share
+  CAN_FILTER = 'canFilter', //can filter dashboard
+  CAN_VIEW = 'canView' //can view asset
 }
 
 export enum ShareAssetType {

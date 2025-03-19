@@ -87,7 +87,7 @@ const ShareMenuContentShare: React.FC<{
     const [inputValue, setInputValue] = React.useState<string>('');
     const [isInviting, setIsInviting] = React.useState<boolean>(false);
     const [defaultPermissionLevel, setDefaultPermissionLevel] = React.useState<ShareRole>(
-      ShareRole.VIEWER
+      ShareRole.CAN_VIEW
     );
     const disableSubmit = !inputHasText(inputValue) || !validate(inputValue);
     const hasUserTeams = userTeams?.length > 0;

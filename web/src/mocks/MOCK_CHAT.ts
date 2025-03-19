@@ -1,9 +1,10 @@
-import type {
-  BusterChat,
-  BusterChatMessage,
-  BusterChatMessageReasoning,
-  BusterChatMessageReasoning_file,
-  BusterChatMessageResponse
+import {
+  ShareRole,
+  type BusterChat,
+  type BusterChatMessage,
+  type BusterChatMessageReasoning,
+  type BusterChatMessageReasoning_file,
+  type BusterChatMessageResponse
 } from '@/api/asset_interfaces';
 import { faker } from '@faker-js/faker';
 
@@ -14,7 +15,8 @@ const MOCK_MESSAGE_RESPONSE = (typeProp?: 'text' | 'file'): BusterChatMessageRes
     return {
       id: faker.string.uuid(),
       type,
-      message: faker.lorem.sentence()
+      message: faker.lorem.sentence(),
+      is_final_message: false
     };
   }
 
@@ -141,7 +143,17 @@ const MOCK_MESSAGE = (): BusterChatMessage => {
       },
       {}
     ),
-    reasoning_message_ids: reasoningMessage.map((m) => m.id)
+    reasoning_message_ids: reasoningMessage.map((m) => m.id),
+    sharingKey: '',
+    individual_permissions: [],
+    team_permissions: [],
+    organization_permissions: [],
+    permission: ShareRole.CAN_VIEW,
+    public_expiry_date: null,
+    public_enabled_by: null,
+    publicly_accessible: false,
+    public_password: null,
+    password_secret_id: null
   };
 };
 

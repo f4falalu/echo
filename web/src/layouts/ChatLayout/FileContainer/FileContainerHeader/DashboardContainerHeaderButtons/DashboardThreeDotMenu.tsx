@@ -31,6 +31,7 @@ import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
 import { timeout } from '@/lib';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
 import { DASHBOARD_TITLE_INPUT_ID } from '@/controllers/DashboardController/DashboardViewDashboardController/DashboardEditTitle';
+import { isEffectiveOwner } from '@/lib/share';
 
 export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });
@@ -211,7 +212,7 @@ const useRenameDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }) 
 
 export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
   const { data: dashboard } = useGetDashboard(dashboardId);
-  const isOwner = dashboard?.permission === ShareRole.OWNER;
+  const isOwner = isEffectiveOwner(dashboard?.permission);
 
   return useMemo(
     () => ({

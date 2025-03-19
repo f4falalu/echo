@@ -5,6 +5,7 @@ import { Paragraph, Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { Dropdown } from '@/components/ui/dropdown';
 import { ChevronDown } from '@/components/ui/icons/NucleoIconFilled';
+import { canEdit } from '@/lib/share';
 
 type DropdownValue = ShareRole | 'remove' | 'notShared';
 
@@ -21,7 +22,7 @@ export const AccessDropdown: React.FC<{
   className = '',
   onChangeShareLevel
 }) => {
-  const disabled = useMemo(() => shareLevel === ShareRole.OWNER, [shareLevel]);
+  const disabled = useMemo(() => canEdit(shareLevel), [shareLevel]);
 
   const items = useMemo(() => {
     const baseItems: DropdownItem<DropdownValue>[] = [...standardItems];
@@ -47,12 +48,28 @@ export const AccessDropdown: React.FC<{
   const selectedLabel = useMemo(() => {
     const selectedItem = items.find((item) => item.selected);
     if (!selectedItem) return 'No shared';
-    if (selectedItem.value === ShareRole.OWNER) return 'Full access';
-    if (selectedItem.value === ShareRole.EDITOR) return 'Can edit';
-    if (selectedItem.value === ShareRole.VIEWER) return 'Can view';
-    if (selectedItem.value === 'remove') return 'Remove';
-    if (selectedItem.value === 'notShared') return 'Not shared';
-    return selectedItem.label;
+
+    const { value } = selectedItem;
+
+    // Using a type-safe switch to handle all ShareRole values
+    switch (value) {
+      case ShareRole.FULL_ACCESS:
+        return 'Full access';
+      case ShareRole.CAN_EDIT:
+        return 'Can edit';
+      case ShareRole.CAN_FILTER:
+        return 'Can filter';
+      case ShareRole.CAN_VIEW:
+        return 'Can view';
+      case ShareRole.OWNER:
+        return 'Full access';
+      case 'remove':
+        return 'Remove';
+      case 'notShared':
+        return 'Not shared';
+      default:
+        return typeof selectedItem.label === 'string' ? selectedItem.label : 'Selected';
+    }
   }, [items]);
 
   const onSelectMenuItem = useMemoizedFn((value: string) => {
@@ -86,19 +103,24 @@ export const AccessDropdown: React.FC<{
 
 const standardItems: DropdownItem<ShareRole>[] = [
   {
-    value: ShareRole.OWNER,
+    value: ShareRole.FULL_ACCESS,
     label: 'Full access',
     secondaryLabel: 'Can edit and share with others.'
   },
   {
-    value: ShareRole.EDITOR,
+    value: ShareRole.CAN_EDIT,
     label: 'Can edit',
     secondaryLabel: 'Can edit but not share with others.'
   },
   {
-    value: ShareRole.VIEWER,
+    value: ShareRole.CAN_FILTER,
+    label: 'Can filter',
+    secondaryLabel: 'Can filter dashboards but not edit.'
+  },
+  {
+    value: ShareRole.CAN_VIEW,
     label: 'Can view',
-    secondaryLabel: 'Can view but not edit.'
+    secondaryLabel: 'Can view asset but not edit.'
   }
 ];
 

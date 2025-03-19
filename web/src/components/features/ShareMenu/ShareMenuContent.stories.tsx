@@ -20,13 +20,13 @@ const mockShareConfig: BusterShare = {
     {
       id: '1',
       email: 'test_with_a_long_name_like_super_long_name@test.com',
-      role: ShareRole.VIEWER,
+      role: ShareRole.CAN_VIEW,
       name: 'Test User'
     },
     {
       id: '2',
       email: 'test2@test.com',
-      role: ShareRole.VIEWER,
+      role: ShareRole.FULL_ACCESS,
       name: 'Test User 2 with a long name like super long name'
     }
   ],
@@ -81,7 +81,7 @@ export const ViewerPermission: Story = {
     assetType: ShareAssetType.METRIC,
     shareAssetConfig: {
       ...mockShareConfig,
-      permission: ShareRole.VIEWER
+      permission: ShareRole.CAN_VIEW
     }
   }
 };

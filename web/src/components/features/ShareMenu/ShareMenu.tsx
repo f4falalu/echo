@@ -6,7 +6,7 @@ import { AppTooltip } from '@/components/ui/tooltip';
 import { useMemoizedFn } from '@/hooks';
 import { BusterShare, ShareAssetType } from '@/api/asset_interfaces';
 import { ShareMenuContent } from './ShareMenuContent';
-import { isShareMenuVisible } from './helpers';
+import { canShare } from '@/lib/share';
 
 export const ShareMenu: React.FC<
   PropsWithChildren<{
@@ -21,7 +21,7 @@ export const ShareMenu: React.FC<
     setIsOpen(v);
   });
 
-  const showShareMenu = shareAssetConfig && isShareMenuVisible(shareAssetConfig);
+  const showShareMenu = canShare(shareAssetConfig?.permission);
 
   if (!showShareMenu) {
     return null;

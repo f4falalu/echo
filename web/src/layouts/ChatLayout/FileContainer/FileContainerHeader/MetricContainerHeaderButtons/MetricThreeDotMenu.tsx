@@ -45,6 +45,7 @@ import { METRIC_CHART_CONTAINER_ID } from '@/controllers/MetricController/Metric
 import { timeout } from '@/lib';
 import { METRIC_CHART_TITLE_INPUT_ID } from '@/controllers/MetricController/MetricViewChart/MetricViewChartHeader';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
+import { isEffectiveOwner } from '@/lib/share';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { openSuccessMessage } = useBusterNotifications();
@@ -433,7 +434,7 @@ const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 
 export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
   const { data: metric } = useGetMetric(metricId);
-  const isOwner = metric?.permission === ShareRole.OWNER;
+  const isOwner = isEffectiveOwner(metric?.permission);
 
   return useMemo(
     () => ({

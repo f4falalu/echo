@@ -5,11 +5,12 @@ import type {
   ChatEvent_GeneratingResponseMessage,
   ChatEvent_GeneratingReasoningMessage
 } from '@/api/buster_socket/chats';
-import type {
-  BusterChatResponseMessage_text,
-  BusterChatMessageReasoning_text,
-  BusterChatMessageReasoning_files,
-  BusterChatMessageReasoning_file
+import {
+  type BusterChatResponseMessage_text,
+  type BusterChatMessageReasoning_text,
+  type BusterChatMessageReasoning_files,
+  type BusterChatMessageReasoning_file,
+  ShareRole
 } from '@/api/asset_interfaces';
 
 const createInitialMessage = (messageId: string): IBusterChatMessage => ({
@@ -26,7 +27,17 @@ const createInitialMessage = (messageId: string): IBusterChatMessage => ({
   response_messages: {},
   reasoning_messages: {},
   created_at: new Date().toISOString(),
-  final_reasoning_message: null
+  final_reasoning_message: null,
+  sharingKey: '',
+  individual_permissions: [],
+  team_permissions: [],
+  organization_permissions: [],
+  permission: ShareRole.CAN_VIEW,
+  public_expiry_date: null,
+  public_enabled_by: null,
+  publicly_accessible: false,
+  public_password: null,
+  password_secret_id: null
 });
 
 export const initializeOrUpdateMessage = (

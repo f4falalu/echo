@@ -2,18 +2,8 @@ import {
   BusterCollection,
   BusterDashboardResponse,
   BusterShare,
-  IBusterChatMessage,
-  IBusterMetric,
-  ShareRole
+  IBusterMetric
 } from '@/api/asset_interfaces';
-
-export const isShareMenuVisible = (shareAssetConfig: BusterShare | null) => {
-  return (
-    !!shareAssetConfig &&
-    (shareAssetConfig.permission === ShareRole.OWNER ||
-      shareAssetConfig.permission === ShareRole.EDITOR)
-  );
-};
 
 export const getShareAssetConfig = (
   message: IBusterMetric | BusterDashboardResponse | BusterCollection | null

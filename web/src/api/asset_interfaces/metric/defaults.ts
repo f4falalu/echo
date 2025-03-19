@@ -160,7 +160,7 @@ export const DEFAULT_IBUSTER_METRIC: Required<IBusterMetric> = {
   updated_at: '',
   sent_by_id: '',
   sent_by_name: '',
-  permission: ShareRole.VIEWER,
+  permission: ShareRole.CAN_VIEW,
   sent_by_avatar_url: null,
   draft_session_id: null,
   dashboards: [],
