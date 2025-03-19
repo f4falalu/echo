@@ -9,7 +9,10 @@ import {
   getMetricData,
   listMetrics,
   listMetrics_server,
-  updateMetric
+  updateMetric,
+  shareMetric,
+  unshareMetric,
+  updateMetricShare
 } from './requests';
 import type { GetMetricParams, ListMetricsParams } from './interfaces';
 import { upgradeMetricToIMetric } from '@/lib/metrics';
@@ -21,6 +24,7 @@ import { useGetUserFavorites } from '../users';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
+import { create } from 'mutative';
 
 export const useGetMetric = <TData = IBusterMetric>(
   { id, version_number }: { id: string | undefined; version_number?: number },
@@ -306,5 +310,80 @@ export const useRemoveMetricFromDashboard = () => {
 export const useDuplicateMetric = () => {
   return useMutation({
     mutationFn: duplicateMetric
+  });
+};
+
+export const useShareMetric = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: shareMetric,
+    onMutate: (variables) => {
+      const queryKey = metricsQueryKeys.metricsGetMetric(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData: IBusterMetric | undefined) => {
+        return create(previousData!, (draft: IBusterMetric) => {
+          draft.individual_permissions?.push(...variables.params);
+        });
+      });
+    },
+    onSuccess: (data) => {
+      const oldMetric = queryClient.getQueryData(
+        metricsQueryKeys.metricsGetMetric(data.id).queryKey
+      );
+      const upgradedMetric = upgradeMetricToIMetric(data, oldMetric || null);
+      queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(data.id).queryKey, upgradedMetric);
+    }
+  });
+};
+
+export const useUnshareMetric = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: unshareMetric,
+    onMutate: (variables) => {
+      const queryKey = metricsQueryKeys.metricsGetMetric(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData: IBusterMetric | undefined) => {
+        return create(previousData!, (draft: IBusterMetric) => {
+          draft.individual_permissions =
+            draft.individual_permissions?.filter((t) => !variables.data.includes(t.email)) || [];
+        });
+      });
+    },
+    onSuccess: (data) => {
+      const oldMetric = queryClient.getQueryData(
+        metricsQueryKeys.metricsGetMetric(data.id).queryKey
+      );
+      const upgradedMetric = upgradeMetricToIMetric(data, oldMetric || null);
+      queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(data.id).queryKey, upgradedMetric);
+    }
+  });
+};
+
+export const useUpdateMetricShare = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateMetricShare,
+    onMutate: (variables) => {
+      const queryKey = metricsQueryKeys.metricsGetMetric(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData: IBusterMetric | undefined) => {
+        return create(previousData!, (draft: IBusterMetric) => {
+          draft.individual_permissions =
+            draft.individual_permissions!.map((t) => {
+              const found = variables.params.users?.find((v) => v.email === t.email);
+              if (found) return found;
+              return t;
+            }) || [];
+
+          if (variables.params.publicly_accessible !== undefined) {
+            draft.publicly_accessible = variables.params.publicly_accessible;
+          }
+          if (variables.params.public_password !== undefined) {
+            draft.public_password = variables.params.public_password;
+          }
+          if (variables.params.public_expiry_date !== undefined) {
+            draft.public_expiry_date = variables.params.public_expiry_date;
+          }
+        });
+      });
+    }
   });
 };

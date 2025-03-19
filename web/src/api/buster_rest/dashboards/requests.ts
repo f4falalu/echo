@@ -57,13 +57,13 @@ export const unshareDashboard = async ({ id, data }: { id: string; data: ShareDe
 };
 
 export const updateDashboardShare = async ({
-  data,
+  params,
   id
 }: {
   id: string;
-  data: ShareUpdateRequest;
+  params: ShareUpdateRequest;
 }) => {
   return mainApi
-    .put<BusterDashboardResponse>(`/dashboards/${id}/sharing`, { data })
+    .put<BusterDashboardResponse>(`/dashboards/${id}/sharing`, params)
     .then((res) => res.data);
 };

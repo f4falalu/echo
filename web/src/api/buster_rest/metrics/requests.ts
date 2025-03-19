@@ -80,5 +80,5 @@ export const updateMetricShare = async ({
   id: string;
   params: ShareUpdateRequest;
 }) => {
-  return mainApi.put<BusterMetric>(`/metrics/${id}/sharing`, { params }).then((res) => res.data);
+  return mainApi.put<BusterMetric>(`/metrics/${id}/sharing`, params).then((res) => res.data);
 };

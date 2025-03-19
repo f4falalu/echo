@@ -14,31 +14,27 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { inputHasText } from '@/lib/text';
 import { UserGroup, ChevronRight } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
-import { useUpdateCollection } from '@/api/buster_rest/collections';
-import { useSaveMetric } from '@/api/buster_rest/metrics';
-import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
-import { ShareUpdateRequest } from '@/api/asset_interfaces/shared_interfaces';
+import {
+  useShareCollection,
+  useUnshareCollection,
+  useUpdateCollectionShare
+} from '@/api/buster_rest/collections';
+import { useShareMetric, useUnshareMetric, useUpdateMetricShare } from '@/api/buster_rest/metrics';
+import {
+  useShareDashboard,
+  useUnshareDashboard,
+  useUpdateDashboardShare
+} from '@/api/buster_rest/dashboards';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
-  setOpenShareWithGroupAndTeam: (open: boolean) => void;
-  goBack: () => void;
   onCopyLink: () => void;
   shareAssetConfig: BusterShare;
   assetId: string;
   assetType: ShareAssetType;
   isOwner: boolean;
 }> = React.memo(
-  ({
-    onCopyLink,
-    shareAssetConfig,
-    selectedOptions,
-    assetId,
-    isOwner,
-    assetType,
-    goBack,
-    setOpenShareWithGroupAndTeam
-  }) => {
+  ({ onCopyLink, shareAssetConfig, selectedOptions, assetId, isOwner, assetType }) => {
     const Component = ContentRecord[selectedOptions];
 
     const selectedClass = selectedOptions === ShareMenuTopBarOptions.Share ? '' : '';
@@ -50,8 +46,6 @@ export const ShareMenuContentBody: React.FC<{
     return (
       <div className={selectedClass}>
         <Component
-          setOpenShareWithGroupAndTeam={setOpenShareWithGroupAndTeam}
-          goBack={goBack}
           onCopyLink={onCopyLink}
           individual_permissions={individual_permissions}
           publicly_accessible={publicly_accessible}
@@ -68,134 +62,147 @@ export const ShareMenuContentBody: React.FC<{
 ShareMenuContentBody.displayName = 'ShareMenuContentBody';
 
 const ShareMenuContentShare: React.FC<{
-  setOpenShareWithGroupAndTeam: (open: boolean) => void;
   individual_permissions: BusterShare['individual_permissions'];
   assetType: ShareAssetType;
   assetId: string;
   isOwner: boolean;
-}> = React.memo(
-  ({ isOwner, setOpenShareWithGroupAndTeam, assetType, individual_permissions, assetId }) => {
-    const userTeams = useUserConfigContextSelector((state) => state.userTeams);
-    const { mutateAsync: onShareDashboard } = useUpdateDashboard();
-    const { mutateAsync: onShareMetric } = useSaveMetric();
-    const { mutateAsync: onShareCollection } = useUpdateCollection();
-    const [inputValue, setInputValue] = React.useState<string>('');
-    const [isInviting, setIsInviting] = React.useState<boolean>(false);
-    const [defaultPermissionLevel, setDefaultPermissionLevel] = React.useState<ShareRole>(
-      ShareRole.CAN_VIEW
-    );
-    const disableSubmit = !inputHasText(inputValue) || !validate(inputValue);
-    const hasIndividualPermissions = !!individual_permissions?.length;
+}> = React.memo(({ isOwner, assetType, individual_permissions, assetId }) => {
+  const { mutateAsync: onShareMetric } = useShareMetric();
+  const { mutateAsync: onShareDashboard } = useShareDashboard();
+  const { mutateAsync: onShareCollection } = useShareCollection();
+  const { mutateAsync: onUpdateMetricShare } = useUpdateMetricShare();
+  const { mutateAsync: onUpdateDashboardShare } = useUpdateDashboardShare();
+  const { mutateAsync: onUpdateCollectionShare } = useUpdateCollectionShare();
+  const { mutateAsync: onUnshareMetric } = useUnshareMetric();
+  const { mutateAsync: onUnshareDashboard } = useUnshareDashboard();
+  const { mutateAsync: onUnshareCollection } = useUnshareCollection();
 
-    const onSubmitNewEmail = useMemoizedFn(async () => {
-      const isValidEmail = validate(inputValue);
-      if (!isValidEmail) {
-        alert('Invalid email address');
-        return;
-      }
+  const [inputValue, setInputValue] = React.useState<string>('');
+  const [isInviting, setIsInviting] = React.useState<boolean>(false);
+  const [defaultPermissionLevel, setDefaultPermissionLevel] = React.useState<ShareRole>(
+    ShareRole.CAN_VIEW
+  );
+  const disableSubmit = !inputHasText(inputValue) || !validate(inputValue);
+  const hasIndividualPermissions = !!individual_permissions?.length;
 
-      const payload = {
+  const onSubmitNewEmail = useMemoizedFn(async () => {
+    const isValidEmail = validate(inputValue);
+    if (!isValidEmail) {
+      alert('Invalid email address');
+      return;
+    }
+
+    const payload: Parameters<typeof onShareMetric>[0] = {
+      id: assetId,
+      params: [
+        {
+          email: inputValue,
+          role: defaultPermissionLevel
+        }
+      ]
+    };
+
+    setIsInviting(true);
+    if (assetType === ShareAssetType.METRIC) {
+      await onShareMetric(payload);
+    } else if (assetType === ShareAssetType.DASHBOARD) {
+      await onShareDashboard(payload);
+    } else if (assetType === ShareAssetType.COLLECTION) {
+      await onShareCollection(payload);
+    }
+    setIsInviting(false);
+    setInputValue('');
+  });
+
+  const onUpdateShareRole = useMemoizedFn(async (email: string, role: ShareRole | null) => {
+    if (role) {
+      const payload: Parameters<typeof onUpdateMetricShare>[0] = {
         id: assetId,
-        user_permissions: [
-          {
-            user_email: inputValue,
-            role: defaultPermissionLevel
-          }
-        ]
-      };
-
-      setIsInviting(true);
-      if (assetType === ShareAssetType.METRIC) {
-        await onShareMetric(payload);
-      } else if (assetType === ShareAssetType.DASHBOARD) {
-        await onShareDashboard(payload);
-      } else if (assetType === ShareAssetType.COLLECTION) {
-        await onShareCollection(payload);
-      }
-      setIsInviting(false);
-      setInputValue('');
-    });
-
-    const onUpdateShareRole = useMemoizedFn(async (email: string, role: ShareRole | null) => {
-      if (role) {
-        const payload: ShareUpdateRequest & { id: string } = {
-          id: assetId,
+        params: {
           users: [
             {
               email,
               role
             }
           ]
-        };
-        if (assetType === ShareAssetType.METRIC) {
-          await onShareMetric(payload);
-        } else if (assetType === ShareAssetType.DASHBOARD) {
-          await onShareDashboard(payload);
-        } else if (assetType === ShareAssetType.COLLECTION) {
-          await onShareCollection(payload);
         }
-      } else {
+      };
+      if (assetType === ShareAssetType.METRIC) {
+        await onUpdateMetricShare(payload);
+      } else if (assetType === ShareAssetType.DASHBOARD) {
+        await onUpdateDashboardShare(payload);
+      } else if (assetType === ShareAssetType.COLLECTION) {
+        await onUpdateCollectionShare(payload);
       }
-    });
+    } else {
+      const payload: Parameters<typeof onUnshareMetric>[0] = {
+        id: assetId,
+        data: [email]
+      };
+      if (assetType === ShareAssetType.METRIC) {
+        await onUnshareMetric(payload);
+      } else if (assetType === ShareAssetType.DASHBOARD) {
+        await onUnshareDashboard(payload);
+      } else if (assetType === ShareAssetType.COLLECTION) {
+        await onUnshareCollection(payload);
+      }
+    }
+  });
 
-    const onChangeInputValue = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
-      setInputValue(e.target.value);
-    });
+  const onChangeInputValue = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  });
 
-    const onChangeAccessDropdown = useMemoizedFn((level: ShareRole | null) => {
-      if (level) setDefaultPermissionLevel(level);
-    });
+  const onChangeAccessDropdown = useMemoizedFn((level: ShareRole | null) => {
+    if (level) setDefaultPermissionLevel(level);
+  });
 
-    const onOpenShareWithGroupAndTeam = useMemoizedFn(() => {
-      setOpenShareWithGroupAndTeam(true);
-    });
+  return (
+    <div className="flex flex-col space-y-2.5">
+      {isOwner && (
+        <div className="flex h-full items-center space-x-2">
+          <div className="relative flex w-full items-center">
+            <Input
+              className="w-full"
+              placeholder="Invite others by email..."
+              value={inputValue}
+              onChange={onChangeInputValue}
+              onPressEnter={onSubmitNewEmail}
+            />
 
-    return (
-      <div className="flex flex-col space-y-2.5">
-        {isOwner && (
-          <div className="flex h-full items-center space-x-2">
-            <div className="relative flex w-full items-center">
-              <Input
-                className="w-full"
-                placeholder="Invite others by email..."
-                value={inputValue}
-                onChange={onChangeInputValue}
-                onPressEnter={onSubmitNewEmail}
+            {inputValue && (
+              <AccessDropdown
+                showRemove={false}
+                groupShare={false}
+                className="absolute top-[50%] right-[10px] -translate-y-1/2"
+                shareLevel={defaultPermissionLevel}
+                onChangeShareLevel={onChangeAccessDropdown}
               />
-
-              {inputValue && (
-                <AccessDropdown
-                  showRemove={false}
-                  groupShare={false}
-                  className="absolute top-[50%] right-[10px] -translate-y-1/2"
-                  shareLevel={defaultPermissionLevel}
-                  onChangeShareLevel={onChangeAccessDropdown}
-                />
-              )}
-            </div>
-            <Button
-              loading={isInviting}
-              size={'tall'}
-              onClick={onSubmitNewEmail}
-              disabled={disableSubmit}>
-              Invite
-            </Button>
+            )}
           </div>
-        )}
+          <Button
+            loading={isInviting}
+            size={'tall'}
+            onClick={onSubmitNewEmail}
+            disabled={disableSubmit}>
+            Invite
+          </Button>
+        </div>
+      )}
 
-        {hasIndividualPermissions && (
-          <div className="flex flex-col space-y-2 overflow-hidden px-3">
-            {individual_permissions?.map((permission) => (
-              <IndividualSharePerson
-                key={permission.email}
-                {...permission}
-                onUpdateShareRole={onUpdateShareRole}
-              />
-            ))}
-          </div>
-        )}
+      {hasIndividualPermissions && (
+        <div className="flex flex-col space-y-2 overflow-hidden px-3">
+          {individual_permissions?.map((permission) => (
+            <IndividualSharePerson
+              key={permission.email}
+              {...permission}
+              onUpdateShareRole={onUpdateShareRole}
+            />
+          ))}
+        </div>
+      )}
 
-        {/* {hasUserTeams && (
+      {/* {hasUserTeams && (
           <>
             {hasIndividualPermissions && <div className="bg-border my-2 h-[0.5px]" />}
             <ShareWithGroupAndTeamOption
@@ -203,10 +210,9 @@ const ShareMenuContentShare: React.FC<{
             />
           </>
         )} */}
-      </div>
-    );
-  }
-);
+    </div>
+  );
+});
 ShareMenuContentShare.displayName = 'ShareMenuContentShare';
 
 const ShareWithGroupAndTeamOption: React.FC<{
@@ -229,8 +235,6 @@ ShareWithGroupAndTeamOption.displayName = 'ShareWithGroupAndTeamOption';
 const ContentRecord: Record<
   ShareMenuTopBarOptions,
   React.FC<{
-    setOpenShareWithGroupAndTeam: (open: boolean) => void;
-    goBack: () => void;
     onCopyLink: () => void;
     individual_permissions: BusterShare['individual_permissions'];
     publicly_accessible: boolean;

@@ -5,13 +5,18 @@ import {
   collectionsGetCollection,
   collectionsCreateCollection,
   collectionsUpdateCollection,
-  collectionsDeleteCollection
+  collectionsDeleteCollection,
+  shareCollection,
+  unshareCollection,
+  updateCollectionShare
 } from './requests';
 import type { GetCollectionListParams } from '@/api/request_interfaces/collections';
 import { useMemo } from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
+import { create } from 'mutative';
+import type { BusterCollection } from '@/api/asset_interfaces/collection';
 
 export const useGetCollectionsList = (
   filters: Omit<GetCollectionListParams, 'page' | 'page_size'>
@@ -101,6 +106,79 @@ export const useDeleteCollection = () => {
       queryClient.setQueryData(queryKey, (v) => {
         const ids = Array.isArray(variables.id) ? variables.id : [variables.id];
         return v?.filter((c) => !ids.includes(c.id));
+      });
+    }
+  });
+};
+
+export const useShareCollection = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: shareCollection,
+    onMutate: (variables) => {
+      const queryKey = collectionQueryKeys.collectionsGetCollection(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData) => {
+        return create(previousData!, (draft: BusterCollection) => {
+          draft.individual_permissions?.push(...variables.params);
+        });
+      });
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(
+        collectionQueryKeys.collectionsGetCollection(data.id).queryKey,
+        data
+      );
+    }
+  });
+};
+
+export const useUnshareCollection = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: unshareCollection,
+    onMutate: (variables) => {
+      const queryKey = collectionQueryKeys.collectionsGetCollection(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData) => {
+        return create(previousData!, (draft: BusterCollection) => {
+          draft.individual_permissions =
+            draft.individual_permissions?.filter((t) => !variables.data.includes(t.email)) || [];
+        });
+      });
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(
+        collectionQueryKeys.collectionsGetCollection(data.id).queryKey,
+        data
+      );
+    }
+  });
+};
+
+export const useUpdateCollectionShare = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateCollectionShare,
+    onMutate: (variables) => {
+      const queryKey = collectionQueryKeys.collectionsGetCollection(variables.id).queryKey;
+      queryClient.setQueryData(queryKey, (previousData) => {
+        return create(previousData!, (draft) => {
+          draft.individual_permissions =
+            draft.individual_permissions!.map((t) => {
+              const found = variables.data.users?.find((v) => v.email === t.email);
+              if (found) return found;
+              return t;
+            }) || [];
+
+          if (variables.data.publicly_accessible !== undefined) {
+            draft.publicly_accessible = variables.data.publicly_accessible;
+          }
+          if (variables.data.public_password !== undefined) {
+            draft.public_password = variables.data.public_password;
+          }
+          if (variables.data.public_expiry_date !== undefined) {
+            draft.public_expiry_date = variables.data.public_expiry_date;
+          }
+        });
       });
     }
   });

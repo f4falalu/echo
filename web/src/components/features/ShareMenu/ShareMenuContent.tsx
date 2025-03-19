@@ -17,7 +17,6 @@ export const ShareMenuContent: React.FC<{
   const [selectedOptions, setSelectedOptions] = useState<ShareMenuTopBarOptions>(
     ShareMenuTopBarOptions.Share
   );
-  const previousSelection = React.useRef<ShareMenuTopBarOptions>(selectedOptions);
 
   const permission = shareAssetConfig?.permission;
   const publicly_accessible = shareAssetConfig?.publicly_accessible;
@@ -43,15 +42,6 @@ export const ShareMenuContent: React.FC<{
     openSuccessMessage('Link copied to clipboard');
   });
 
-  const setOpenShareWithGroupAndTeam = useMemoizedFn((open: boolean) => {
-    previousSelection.current = selectedOptions;
-    setSelectedOptions(ShareMenuTopBarOptions.ShareWithGroupAndTeam);
-  });
-
-  const goBack = useMemoizedFn(() => {
-    setSelectedOptions(previousSelection.current);
-  });
-
   return (
     <div className="max-w-[340px] min-w-[340px]">
       {isOwner && (
@@ -69,8 +59,6 @@ export const ShareMenuContent: React.FC<{
           assetType={assetType}
           assetId={assetId}
           selectedOptions={selectedOptions}
-          setOpenShareWithGroupAndTeam={setOpenShareWithGroupAndTeam}
-          goBack={goBack}
           onCopyLink={onCopyLink}
           isOwner={isOwner}
         />

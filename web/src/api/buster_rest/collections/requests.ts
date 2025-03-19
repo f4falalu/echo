@@ -55,13 +55,13 @@ export const unshareCollection = async ({ id, data }: { id: string; data: ShareD
 };
 
 export const updateCollectionShare = async ({
-  data,
+  params,
   id
 }: {
   id: string;
-  data: ShareUpdateRequest;
+  params: ShareUpdateRequest;
 }) => {
   return mainApi
-    .put<BusterCollection>(`/collections/${id}/sharing`, { data })
+    .put<BusterCollection>(`/collections/${id}/sharing`, params)
     .then((res) => res.data);
 };
