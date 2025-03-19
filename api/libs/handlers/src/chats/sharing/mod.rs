@@ -1,3 +1,5 @@
 mod list_sharing_handler;
+mod delete_sharing_handler;
 
 pub use list_sharing_handler::list_chat_sharing_handler;
+pub use delete_sharing_handler::delete_chat_sharing_handler;
