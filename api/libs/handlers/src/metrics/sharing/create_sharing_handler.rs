@@ -15,22 +15,19 @@ use uuid::Uuid;
 /// # Arguments
 /// * `metric_id` - The UUID of the metric to create sharing permissions for
 /// * `user_id` - The UUID of the user making the request
-/// * `emails` - List of emails to share the metric with
-/// * `role` - The role to assign to the shared users
+/// * `emails_and_roles` - List of tuples containing (email, role) pairs
 ///
 /// # Returns
 /// * `Result<()>` - Success if all sharing permissions were created
 pub async fn create_metric_sharing_handler(
     metric_id: &Uuid,
     user_id: &Uuid,
-    emails: Vec<String>,
-    role: AssetPermissionRole,
+    emails_and_roles: Vec<(String, AssetPermissionRole)>,
 ) -> Result<()> {
     info!(
         metric_id = %metric_id,
         user_id = %user_id,
-        emails_count = emails.len(),
-        role = ?role,
+        recipients_count = emails_and_roles.len(),
         "Creating sharing permissions for metric"
     );
 
@@ -53,8 +50,8 @@ pub async fn create_metric_sharing_handler(
         return Err(anyhow!("User does not have permission to share this metric"));
     }
 
-    // 3. Process each email and create sharing permissions
-    for email in emails {
+    // 3. Process each email-role pair and create sharing permissions
+    for (email, role) in emails_and_roles {
         // Validate email format
         if !email.contains('@') {
             return Err(anyhow!("Invalid email format: {}", email));
@@ -69,7 +66,7 @@ pub async fn create_metric_sharing_handler(
             *user_id,
         ).await {
             Ok(_) => {
-                info!("Created sharing permission for email: {} on metric: {}", email, metric_id);
+                info!("Created sharing permission for email: {} with role: {:?} on metric: {}", email, role, metric_id);
             },
             Err(e) => {
                 return Err(anyhow!("Failed to create sharing for email {}: {}", email, e));
@@ -89,10 +86,9 @@ mod tests {
     async fn test_create_metric_sharing_invalid_email() {
         let metric_id = Uuid::new_v4();
         let user_id = Uuid::new_v4();
-        let role = AssetPermissionRole::CanView;
-        let emails = vec!["invalid-email-format".to_string()];
+        let emails_and_roles = vec![("invalid-email-format".to_string(), AssetPermissionRole::CanView)];
 
-        let result = create_metric_sharing_handler(&metric_id, &user_id, emails, role).await;
+        let result = create_metric_sharing_handler(&metric_id, &user_id, emails_and_roles).await;
 
         assert!(result.is_err());
         let error = result.unwrap_err().to_string();

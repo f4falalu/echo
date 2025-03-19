@@ -1,8 +1,4 @@
-use axum::{
-    extract::Path,
-    http::StatusCode,
-    Extension,
-};
+use axum::{extract::Path, http::StatusCode, Extension};
 use handlers::metrics::sharing::list_metric_sharing_handler;
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
@@ -30,33 +26,41 @@ pub struct SharingPermission {
 pub async fn list_metric_sharing_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
-) -> Result<ApiResponse<SharingResponse>, (StatusCode, String)> {
-    tracing::info!("Processing GET request for metric sharing with ID: {}, user_id: {}", id, user.id);
+) -> Result<ApiResponse<Vec<SharingPermission>>, (StatusCode, String)> {
+    tracing::info!(
+        "Processing GET request for metric sharing with ID: {}, user_id: {}",
+        id,
+        user.id
+    );
 
     match list_metric_sharing_handler(&id, &user.id).await {
         Ok(permissions) => {
-            let response = SharingResponse {
-                permissions: permissions.into_iter().map(|p| SharingPermission {
+            let response = permissions
+                .into_iter()
+                .map(|p| SharingPermission {
                     user_id: p.user.as_ref().map(|u| u.id).unwrap_or_default(),
                     email: p.user.as_ref().map(|u| u.email.clone()).unwrap_or_default(),
                     name: p.user.as_ref().and_then(|u| u.name.clone()),
                     avatar_url: p.user.as_ref().and_then(|u| u.avatar_url.clone()),
                     role: p.permission.role,
-                }).collect(),
-            };
+                })
+                .collect();
             Ok(ApiResponse::JsonData(response))
-        },
+        }
         Err(e) => {
             tracing::error!("Error listing sharing permissions: {}", e);
             let error_message = e.to_string();
-            
+
             // Return appropriate status code based on error message
             if error_message.contains("not found") {
                 return Err((StatusCode::NOT_FOUND, format!("Metric not found: {}", e)));
             } else if error_message.contains("permission") {
                 return Err((StatusCode::FORBIDDEN, format!("Permission denied: {}", e)));
             } else {
-                return Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to list sharing permissions: {}", e)));
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to list sharing permissions: {}", e),
+                ));
             }
         }
     }

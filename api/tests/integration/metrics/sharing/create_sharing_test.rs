@@ -74,8 +74,12 @@ async fn test_create_metric_sharing_success() {
         .post(&format!("/metrics/{}/sharing", metric.id))
         .with_auth(&owner.id.to_string())
         .json(&json!({
-            "emails": ["shared@example.com"],
-            "role": "CanView"
+            "recipients": [
+                {
+                    "email": "shared@example.com",
+                    "role": "CanView"
+                }
+            ]
         }))
         .send()
         .await;
