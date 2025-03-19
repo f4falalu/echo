@@ -59,7 +59,7 @@ pub struct Metadata {
     pub generation_name: String,
     pub user_id: String,
     pub session_id: String,
-    pub trace_id: Option<String>,
+    pub trace_id: String,
 }
 
 impl Default for ChatCompletionRequest {
@@ -67,7 +67,7 @@ impl Default for ChatCompletionRequest {
         Self {
             model: String::new(),
             messages: Vec::new(),
-            store: None,
+            store: Some(true),
             reasoning_effort: None,
             frequency_penalty: None,
             logit_bias: None,

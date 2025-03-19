@@ -1779,7 +1779,7 @@ pub async fn generate_conversation_title(
             generation_name: "conversation_title".to_string(),
             user_id: user_id.to_string(),
             session_id: session_id.to_string(),
-            trace_id: None,
+            trace_id: session_id.to_string(),
         }),
         ..Default::default()
     };

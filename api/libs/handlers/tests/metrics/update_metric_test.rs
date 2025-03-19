@@ -61,8 +61,8 @@ async fn test_update_metric_integration() -> Result<()> {
     match update_metric_handler(&metric_id, &user_id, update_request).await {
         Ok(updated_metric) => {
             // Verify the updated values in the returned metric
-            assert_eq!(updated_metric.name, "Updated Test Metric");
-            assert_eq!(updated_metric.verification, Verification::Verified);
+            assert_eq!(updated_metric.title, "Updated Test Metric");
+            assert_eq!(updated_metric.status, Verification::Verified);
             assert_eq!(updated_metric.time_frame, "weekly");
             
             // Verify the metric was updated in the database
@@ -169,11 +169,11 @@ async fn test_update_specific_metric_fields() -> Result<()> {
     
     match update_metric_handler(&metric_id, &user_id, title_request).await {
         Ok(metric) => {
-            assert_eq!(metric.name, "Title Only Update");
+            assert_eq!(metric.title, "Title Only Update");
             
             // Verify other fields were not changed
             assert_eq!(metric.time_frame, "daily");
-            assert_eq!(metric.verification, Verification::NotRequested);
+            assert_eq!(metric.status, Verification::NotRequested);
         },
         Err(e) => {
             cleanup_test_data(Some(metric_id), None).await?;
@@ -194,10 +194,10 @@ async fn test_update_specific_metric_fields() -> Result<()> {
     
     match update_metric_handler(&metric_id, &user_id, verification_request).await {
         Ok(metric) => {
-            assert_eq!(metric.verification, Verification::Verified);
+            assert_eq!(metric.status, Verification::Verified);
             
             // Verify title remains from previous update
-            assert_eq!(metric.name, "Title Only Update");
+            assert_eq!(metric.title, "Title Only Update");
         },
         Err(e) => {
             cleanup_test_data(Some(metric_id), None).await?;
@@ -221,8 +221,8 @@ async fn test_update_specific_metric_fields() -> Result<()> {
             assert_eq!(metric.time_frame, "monthly");
             
             // Verify other fields remain from previous updates
-            assert_eq!(metric.name, "Title Only Update");
-            assert_eq!(metric.verification, Verification::Verified);
+            assert_eq!(metric.title, "Title Only Update");
+            assert_eq!(metric.status, Verification::Verified);
         },
         Err(e) => {
             cleanup_test_data(Some(metric_id), None).await?;

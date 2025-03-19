@@ -497,7 +497,7 @@ impl Agent {
                 generation_name: "agent".to_string(),
                 user_id: thread.user_id.to_string(),
                 session_id: thread.id.to_string(),
-                trace_id: None,
+                trace_id: thread.id.to_string(),
             }),
             ..Default::default()
         };

@@ -12,19 +12,14 @@ use database::{
     types::{ChartConfig, DashboardYml, MetricYml, VersionHistory},
 };
 use chrono::Utc;
-use diesel::{ExpressionMethods, QueryDsl};
+use diesel::ExpressionMethods;
 use diesel_async::RunQueryDsl;
 use dotenv::dotenv;
-use lazy_static::lazy_static;
-use std::sync::{Arc, Mutex, Once};
+use std::sync::Once;
 use uuid::Uuid;
 
 // Common test setup initializer
 static INIT: Once = Once::new();
-
-lazy_static! {
-    static ref TEST_DB_INITIALIZED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
-}
 
 /// Sets up the test environment by initializing the database pools
 /// Call this at the beginning of each integration test
@@ -35,8 +30,6 @@ pub async fn setup_test_environment() -> Result<()> {
     // Initialize database pools only once
     INIT.call_once(|| {
         init_pools();
-        let mut initialized = TEST_DB_INITIALIZED.lock().unwrap();
-        *initialized = true;
     });
 
     Ok(())
