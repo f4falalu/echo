@@ -3,6 +3,8 @@
 ## Problem Statement
 Users need the ability to view all sharing permissions for a collection via a REST API endpoint.
 
+✅ Implemented
+
 ## Technical Design
 
 ### Endpoint Specification
@@ -32,8 +34,8 @@ pub struct SharingPermission {
 ### Implementation Details
 
 #### New Files
-1. `/src/routes/rest/routes/collections/sharing/list_sharing.rs` - REST handler for listing sharing permissions
-2. `/libs/handlers/src/collections/sharing/list_sharing_handler.rs` - Business logic for listing sharing permissions
+1. `/src/routes/rest/routes/collections/sharing/list_sharing.rs` - REST handler for listing sharing permissions ✅
+2. `/libs/handlers/src/collections/sharing/list_sharing_handler.rs` - Business logic for listing sharing permissions ✅
 
 #### REST Handler Implementation
 ```rust
@@ -142,22 +144,22 @@ The handler will return appropriate error responses:
 ### Testing Strategy
 
 #### Unit Tests
-- Test permission validation logic
-- Test error handling for non-existent collections
-- Test error handling for unauthorized users
-- Test mapping from `AssetPermissionWithUser` to `SharingPermission`
+- Test permission validation logic ✅
+- Test error handling for non-existent collections ✅
+- Test error handling for unauthorized users ✅
+- Test mapping from `AssetPermissionWithUser` to `SharingPermission` ✅
 
 #### Integration Tests
-- Test GET /collections/:id/sharing with valid ID and authorized user
-- Test GET /collections/:id/sharing with valid ID and unauthorized user
-- Test GET /collections/:id/sharing with non-existent collection ID
-- Test GET /collections/:id/sharing with collection that has no sharing permissions
+- Test GET /collections/:id/sharing with valid ID and authorized user ✅
+- Test GET /collections/:id/sharing with valid ID and unauthorized user ✅
+- Test GET /collections/:id/sharing with non-existent collection ID ✅
+- Test GET /collections/:id/sharing with collection that has no sharing permissions ✅
 
 #### Test Cases
-1. Should return all sharing permissions for a collection when user has access
-2. Should return 403 when user doesn't have access to the collection
-3. Should return 404 when collection doesn't exist
-4. Should return empty array when no sharing permissions exist
+1. Should return all sharing permissions for a collection when user has access ✅
+2. Should return 403 when user doesn't have access to the collection ✅
+3. Should return 404 when collection doesn't exist ✅
+4. Should return empty array when no sharing permissions exist ✅
 
 ### Performance Considerations
 - The `list_shares` function performs a database join between asset_permissions and users tables
