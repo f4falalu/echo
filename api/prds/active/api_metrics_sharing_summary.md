@@ -16,8 +16,8 @@ The implementation is broken down into the following components, each with its o
 2. **Create Metrics Sharing Endpoint** - POST /metrics/:id/sharing
    - PRD: [api_metrics_sharing_create.md](/Users/dallin/buster/buster/api/prds/active/api_metrics_sharing_create.md)
 
-3. **Update Metrics Sharing Endpoint** - PUT /metrics/:id/sharing
-   - PRD: [api_metrics_sharing_update.md](/Users/dallin/buster/buster/api/prds/active/api_metrics_sharing_update.md)
+3. **Update Metrics Sharing Endpoint** - PUT /metrics/:id/sharing ✅
+   - PRD: [api_metrics_sharing_update.md](/Users/dallin/api_metrics_sharing_update/api/prds/active/api_metrics_sharing_update.md)
 
 4. **Delete Metrics Sharing Endpoint** - DELETE /metrics/:id/sharing
    - PRD: [api_metrics_sharing_delete.md](/Users/dallin/buster/buster/api/prds/active/api_metrics_sharing_delete.md)
@@ -68,7 +68,7 @@ After Phase 1 is complete, the following components can be implemented in parall
   - Uses `create_share_by_email` from `@[api/libs/sharing/src]/create_asset_permission.rs`
   - Uses `has_permission` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
-- **Update Sharing Endpoint**
+- **Update Sharing Endpoint** ✅
   - Uses `create_share_by_email` from `@[api/libs/sharing/src]/create_asset_permission.rs`
   - Uses `has_permission` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 

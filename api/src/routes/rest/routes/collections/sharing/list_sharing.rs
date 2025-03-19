@@ -44,7 +44,7 @@ pub async fn list_collection_sharing_rest_handler(
                     role: p.permission.role,
                 }).collect(),
             };
-            Ok(ApiResponse::Success(response))
+            Ok(ApiResponse::JsonData(response))
         },
         Err(e) => {
             tracing::error!("Error listing sharing permissions: {}", e);

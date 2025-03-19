@@ -1,4 +1,5 @@
 # API Metrics Sharing - Update Endpoint PRD
+✅ Implemented
 
 ## Problem Statement
 Users need the ability to update sharing permissions for metrics through a REST API endpoint.
