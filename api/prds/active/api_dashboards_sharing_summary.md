@@ -15,7 +15,7 @@ The implementation is broken down into the following components, each with its o
 2. **Create Dashboards Sharing Endpoint** - POST /dashboards/:id/sharing
    - PRD: [api_dashboards_sharing_create.md](/Users/dallin/buster/buster/api/prds/active/api_dashboards_sharing_create.md)
 
-3. **Update Dashboards Sharing Endpoint** - PUT /dashboards/:id/sharing
+3. **Update Dashboards Sharing Endpoint** - PUT /dashboards/:id/sharing ✅
    - PRD: [api_dashboards_sharing_update.md](/Users/dallin/buster/buster/api/prds/active/api_dashboards_sharing_update.md)
 
 4. **Delete Dashboards Sharing Endpoint** - DELETE /dashboards/:id/sharing ✅
@@ -36,7 +36,7 @@ The PRDs can be developed in the following order, with opportunities for paralle
    - These PRDs can be worked on simultaneously by different team members after the List PRD is complete.
    - They use different sharing library functions and have minimal dependencies on each other.
 
-3. **Third: Update Dashboards Sharing Endpoint PRD** (api_dashboards_sharing_update.md)
+3. **Third: Update Dashboards Sharing Endpoint PRD** (api_dashboards_sharing_update.md) ✅
    - This PRD should be completed after the Create PRD since it builds on similar concepts and uses the same underlying sharing library functions.
    - The update endpoint reuses many patterns from the create endpoint with slight modifications.
 
@@ -66,7 +66,7 @@ After Phase 1 is complete, the following components can be implemented in parall
   - Uses `create_share_by_email` from `@[api/libs/sharing/src]/create_asset_permission.rs`
   - Uses `has_permission` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
-- **Update Sharing Endpoint**
+- **Update Sharing Endpoint** ✅
   - Uses `create_share_by_email` from `@[api/libs/sharing/src]/create_asset_permission.rs`
   - Uses `has_permission` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
