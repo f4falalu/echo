@@ -90,7 +90,6 @@ pub async fn check_access(
     Ok(Some(highest_permission))
 }
 
-<<<<<<< HEAD
 /// Checks if a user has the required permission level for an asset
 pub async fn has_permission(
     asset_id: Uuid,

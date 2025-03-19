@@ -2,6 +2,9 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum SharingError {
+    #[error("Database error: {0}")]
+    DatabaseError(#[from] diesel::result::Error),
+
     #[error("User not found: {0}")]
     UserNotFound(String),
     
@@ -19,13 +22,17 @@ pub enum SharingError {
 
     #[error("Asset not found: {0}")]
     AssetNotFound(String),
+    
+    #[error("Permission not found for asset {0}")]
+    PermissionNotFound(String),
 
-    #[error("Database error: {0}")]
-    DatabaseError(#[from] diesel::result::Error),
+    #[error("Insufficient permissions to perform this action")]
+    InsufficientPermissions,
     
     #[error("Internal error: {0}")]
     InternalError(String),
     
     #[error("Unknown error: {0}")]
     Unknown(String),
+}
 }

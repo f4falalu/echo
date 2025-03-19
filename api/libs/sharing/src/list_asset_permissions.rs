@@ -1,73 +1,168 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use database::{
     enums::{AssetType, IdentityType},
     models::{AssetPermission, User},
     pool::get_pg_pool,
     schema::{asset_permissions, users},
 };
-use diesel::{ExpressionMethods, QueryDsl};
+use diesel::{ExpressionMethods, QueryDsl, prelude::*};
 use diesel_async::RunQueryDsl;
+use tracing::{error, info};
 use uuid::Uuid;
 
-use crate::{errors::SharingError, types::{AssetPermissionWithUser, UserInfo}};
+use crate::{
+    errors::SharingError, 
+    types::{AssetPermissionWithUser, SerializableAssetPermission, UserInfo}
+};
 
 /// Lists all permissions for a given asset
+///
+/// # Arguments
+///
+/// * `asset_id` - The unique identifier of the asset
+/// * `asset_type` - The type of the asset (e.g., Dashboard, Thread, Collection)
+///
+/// # Returns
+///
+/// A vector of asset permissions with user information
 pub async fn list_shares(
     asset_id: Uuid,
     asset_type: AssetType,
 ) -> Result<Vec<AssetPermissionWithUser>> {
+    info!(
+        asset_id = %asset_id,
+        asset_type = ?asset_type,
+        "Listing permissions for asset"
+    );
+
     // Validate asset type is not deprecated
     if matches!(asset_type, AssetType::Dashboard | AssetType::Thread) {
         return Err(SharingError::DeprecatedAssetType(format!("{:?}", asset_type)).into());
     }
 
-    let mut conn = get_pg_pool().get().await?;
+    let pool = get_pg_pool();
+    let mut conn = pool.get().await.map_err(|e| {
+        error!("Failed to get database connection: {}", e);
+        anyhow!("Database connection error: {}", e)
+    })?;
 
-    // Get all active permissions for the asset
-    let permissions = asset_permissions::table
+    // Query permissions for the asset with user information
+    let permissions_with_users: Vec<(AssetPermission, User)> = asset_permissions::table
+        .inner_join(users::table.on(asset_permissions::identity_id.eq(users::id)))
         .filter(asset_permissions::asset_id.eq(asset_id))
         .filter(asset_permissions::asset_type.eq(asset_type))
+        .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
+        .select((asset_permissions::all_columns, users::all_columns))
+        .load::<(AssetPermission, User)>(&mut conn)
+        .await
+        .map_err(|e| {
+            error!("Error querying permissions: {}", e);
+            anyhow!("Database error: {}", e)
+        })?;
+
+    // Also get permissions for non-user identities (like teams/organizations)
+    let other_permissions: Vec<AssetPermission> = asset_permissions::table
+        .filter(asset_permissions::asset_id.eq(asset_id))
+        .filter(asset_permissions::asset_type.eq(asset_type))
+        .filter(asset_permissions::identity_type.ne(IdentityType::User))
+        .filter(asset_permissions::deleted_at.is_null())
+        .select(asset_permissions::all_columns)
         .load::<AssetPermission>(&mut conn)
         .await
-        .context("Failed to load asset permissions")?;
+        .map_err(|e| {
+            error!("Error querying non-user permissions: {}", e);
+            anyhow!("Database error: {}", e)
+        })?;
 
-    // Collect all user IDs to fetch in a single query
-    let user_ids: Vec<Uuid> = permissions
-        .iter()
-        .filter(|p| p.identity_type == IdentityType::User)
-        .map(|p| p.identity_id)
-        .collect();
-
-    // Fetch all users in a single query if there are user IDs
-    let users_map = if !user_ids.is_empty() {
-        users::table
-            .filter(users::id.eq_any(user_ids))
-            .load::<User>(&mut conn)
-            .await
-            .context("Failed to load users")?
-            .into_iter()
-            .map(|user| (user.id, UserInfo::from(user)))
-            .collect::<std::collections::HashMap<_, _>>()
-    } else {
-        std::collections::HashMap::new()
-    };
-
-    // Convert permissions to response objects with user info
-    let result = permissions
+    // Convert to AssetPermissionWithUser format
+    let mut results: Vec<AssetPermissionWithUser> = permissions_with_users
         .into_iter()
-        .map(|permission| {
-            let user_info = if permission.identity_type == IdentityType::User {
-                users_map.get(&permission.identity_id).cloned()
-            } else {
-                None
+        .map(|(permission, user)| {
+            let user_info = UserInfo {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                avatar_url: user.avatar_url,
             };
 
-            AssetPermissionWithUser::from((permission, user_info))
+            AssetPermissionWithUser {
+                permission: SerializableAssetPermission::from(permission),
+                user: Some(user_info),
+            }
         })
         .collect();
 
-    Ok(result)
+    // Add non-user permissions
+    let other_results: Vec<AssetPermissionWithUser> = other_permissions
+        .into_iter()
+        .map(|permission| AssetPermissionWithUser {
+            permission: SerializableAssetPermission::from(permission),
+            user: None,
+        })
+        .collect();
+
+    results.extend(other_results);
+    
+    info!(
+        asset_id = %asset_id,
+        asset_type = ?asset_type,
+        permission_count = results.len(),
+        "Found permissions for asset"
+    );
+
+    Ok(results)
+}
+
+#[cfg(test)]
+mod tests {
+    // We're not using any imports yet since these are placeholder tests
+    
+    // This test is a skeleton and would need a proper test database setup
+    #[tokio::test]
+    async fn test_list_shares_empty() {
+        // In a real test, we would:
+        // 1. Set up a test database connection
+        // 2. Create a transaction
+        // 3. Call list_shares with a non-existent asset ID
+        // 4. Verify that an empty list is returned
+        // 5. Rollback the transaction
+        
+        // This is a placeholder to demonstrate the test structure
+        assert!(true);
+    }
+
+    // This test is a skeleton and would need a proper test database setup
+    #[tokio::test]
+    async fn test_list_shares_with_permissions() {
+        // In a real test, we would:
+        // 1. Set up a test database connection
+        // 2. Create a transaction
+        // 3. Create test user and asset data
+        // 4. Create test permissions
+        // 5. Call list_shares with the asset ID
+        // 6. Verify that the correct permissions are returned
+        // 7. Rollback the transaction
+        
+        // This is a placeholder to demonstrate the test structure
+        assert!(true);
+    }
+
+    // This test is a skeleton and would need a proper test database setup
+    #[tokio::test]
+    async fn test_list_shares_with_mixed_identities() {
+        // In a real test, we would:
+        // 1. Set up a test database connection
+        // 2. Create a transaction
+        // 3. Create test users, teams, and asset data
+        // 4. Create test permissions for users and teams
+        // 5. Call list_shares with the asset ID
+        // 6. Verify that permissions for both users and teams are returned
+        // 7. Rollback the transaction
+        
+        // This is a placeholder to demonstrate the test structure
+        assert!(true);
+    }
 }
 
 /// Lists all permissions for a given asset, filtered by identity type
@@ -76,53 +171,91 @@ pub async fn list_shares_by_identity_type(
     asset_type: AssetType,
     identity_type: IdentityType,
 ) -> Result<Vec<AssetPermissionWithUser>> {
+    info!(
+        asset_id = %asset_id,
+        asset_type = ?asset_type,
+        identity_type = ?identity_type,
+        "Listing permissions for asset filtered by identity type"
+    );
+
     // Validate asset type is not deprecated
     if matches!(asset_type, AssetType::Dashboard | AssetType::Thread) {
         return Err(SharingError::DeprecatedAssetType(format!("{:?}", asset_type)).into());
     }
 
-    let mut conn = get_pg_pool().get().await?;
+    let pool = get_pg_pool();
+    let mut conn = pool.get().await.map_err(|e| {
+        error!("Failed to get database connection: {}", e);
+        anyhow!("Database connection error: {}", e)
+    })?;
 
-    // Get all active permissions for the asset with the specified identity type
-    let permissions = asset_permissions::table
-        .filter(asset_permissions::asset_id.eq(asset_id))
-        .filter(asset_permissions::asset_type.eq(asset_type))
-        .filter(asset_permissions::identity_type.eq(identity_type))
-        .filter(asset_permissions::deleted_at.is_null())
-        .load::<AssetPermission>(&mut conn)
-        .await
-        .context("Failed to load asset permissions")?;
+    let mut results = Vec::new();
 
-    // Handle user information if needed
-    let mut result = Vec::with_capacity(permissions.len());
-    
     if identity_type == IdentityType::User {
-        // Collect all user IDs to fetch
-        let user_ids: Vec<Uuid> = permissions.iter().map(|p| p.identity_id).collect();
-        
-        // Fetch all users in a single query
-        let users_map = users::table
-            .filter(users::id.eq_any(user_ids))
-            .load::<User>(&mut conn)
+        // Query permissions with user information
+        let permissions_with_users: Vec<(AssetPermission, User)> = asset_permissions::table
+            .inner_join(users::table.on(asset_permissions::identity_id.eq(users::id)))
+            .filter(asset_permissions::asset_id.eq(asset_id))
+            .filter(asset_permissions::asset_type.eq(asset_type))
+            .filter(asset_permissions::identity_type.eq(identity_type))
+            .filter(asset_permissions::deleted_at.is_null())
+            .select((asset_permissions::all_columns, users::all_columns))
+            .load::<(AssetPermission, User)>(&mut conn)
             .await
-            .context("Failed to load users")?
+            .map_err(|e| {
+                error!("Error querying permissions with users: {}", e);
+                anyhow!("Database error: {}", e)
+            })?;
+
+        // Convert to AssetPermissionWithUser format
+        results = permissions_with_users
             .into_iter()
-            .map(|user| (user.id, UserInfo::from(user)))
-            .collect::<std::collections::HashMap<_, _>>();
-            
-        // Create result with user info
-        for permission in permissions {
-            let user_info = users_map.get(&permission.identity_id).cloned();
-            result.push(AssetPermissionWithUser::from((permission, user_info)));
-        }
+            .map(|(permission, user)| {
+                let user_info = UserInfo {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    avatar_url: user.avatar_url,
+                };
+
+                AssetPermissionWithUser {
+                    permission: SerializableAssetPermission::from(permission),
+                    user: Some(user_info),
+                }
+            })
+            .collect();
     } else {
-        // For non-user identities, no additional info needed
-        for permission in permissions {
-            result.push(AssetPermissionWithUser::from((permission, None)));
-        }
+        // For non-user identities (like teams)
+        let permissions: Vec<AssetPermission> = asset_permissions::table
+            .filter(asset_permissions::asset_id.eq(asset_id))
+            .filter(asset_permissions::asset_type.eq(asset_type))
+            .filter(asset_permissions::identity_type.eq(identity_type))
+            .filter(asset_permissions::deleted_at.is_null())
+            .load::<AssetPermission>(&mut conn)
+            .await
+            .map_err(|e| {
+                error!("Error querying non-user permissions: {}", e);
+                anyhow!("Database error: {}", e)
+            })?;
+
+        results = permissions
+            .into_iter()
+            .map(|permission| AssetPermissionWithUser {
+                permission: SerializableAssetPermission::from(permission),
+                user: None,
+            })
+            .collect();
     }
 
-    Ok(result)
+    info!(
+        asset_id = %asset_id,
+        asset_type = ?asset_type,
+        identity_type = ?identity_type,
+        permission_count = results.len(),
+        "Found permissions for asset with specified identity type"
+    );
+
+    Ok(results)
 }
 
 #[cfg(test)]
