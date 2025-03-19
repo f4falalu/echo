@@ -65,6 +65,7 @@ export interface DropdownProps<T = string> extends DropdownMenuProps {
   contentClassName?: string;
   footerClassName?: string;
   sideOffset?: number;
+  disabled?: boolean;
 }
 
 export interface DropdownContentProps<T = string>
@@ -95,7 +96,8 @@ export const DropdownBase = <T,>({
   modal,
   sideOffset,
   footerClassName = '',
-  showIndex = false
+  showIndex = false,
+  disabled = false
 }: DropdownProps<T>) => {
   return (
     <DropdownMenu
@@ -104,7 +106,7 @@ export const DropdownBase = <T,>({
       onOpenChange={onOpenChange}
       dir={dir}
       modal={modal}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild disabled={disabled}>
         <span className="dropdown-trigger">{children}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent

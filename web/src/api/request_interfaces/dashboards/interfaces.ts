@@ -61,10 +61,6 @@ export type DashboardUpdateRequest = {
   add_to_collections?: string[];
   /** Collection IDs to remove the dashboard from */
   remove_from_collections?: string[];
-  /** User IDs to remove access from */
-  remove_users?: string[];
-  /** Array of metric IDs associated with the dashboard */
-  metrics?: string[];
   /** The file content of the dashboard */
   file?: string;
 };

@@ -6,6 +6,7 @@ import { useMemoizedFn } from '@/hooks';
 import { Dropdown } from '@/components/ui/dropdown';
 import { ChevronDown } from '@/components/ui/icons/NucleoIconFilled';
 import { canEdit } from '@/lib/share';
+import { cn } from '@/lib/classMerge';
 
 type DropdownValue = ShareRole | 'remove' | 'notShared';
 
@@ -25,7 +26,7 @@ export const AccessDropdown: React.FC<{
   const disabled = useMemo(() => canEdit(shareLevel), [shareLevel]);
 
   const items = useMemo(() => {
-    const baseItems: DropdownItem<DropdownValue>[] = [...standardItems];
+    const baseItems: DropdownItem<DropdownValue>[] = standardItems;
 
     if (groupShare) {
       baseItems.push({
@@ -46,10 +47,11 @@ export const AccessDropdown: React.FC<{
   }, [groupShare, showRemove, shareLevel]);
 
   const selectedLabel = useMemo(() => {
-    const selectedItem = items.find((item) => item.selected);
-    if (!selectedItem) return 'No shared';
+    const selectedItem = items.find((item) => item.selected) || OWNER_ITEM;
 
     const { value } = selectedItem;
+
+    console.log(selectedItem, shareLevel);
 
     // Using a type-safe switch to handle all ShareRole values
     switch (value) {
@@ -62,13 +64,11 @@ export const AccessDropdown: React.FC<{
       case ShareRole.CAN_VIEW:
         return 'Can view';
       case ShareRole.OWNER:
-        return 'Full access';
+        return 'Owner';
       case 'remove':
         return 'Remove';
       case 'notShared':
         return 'Not shared';
-      default:
-        return typeof selectedItem.label === 'string' ? selectedItem.label : 'Selected';
     }
   }, [items]);
 
@@ -83,6 +83,7 @@ export const AccessDropdown: React.FC<{
   return (
     <Dropdown
       items={items}
+      disabled={disabled}
       footerContent={<FooterContent />}
       footerClassName="p-0!"
       onSelect={onSelectMenuItem}
@@ -93,9 +94,13 @@ export const AccessDropdown: React.FC<{
       <Text
         variant="secondary"
         size="xs"
-        className={`flex! cursor-pointer items-center! space-x-1 ${className}`}>
+        className={cn('flex! items-center! space-x-1', !disabled && 'cursor-pointer', className)}>
         <span className="truncate">{selectedLabel}</span>
-        <span className="text-2xs">{!disabled && <ChevronDown />}</span>
+        {!disabled && (
+          <span className="text-2xs text-icon-color">
+            <ChevronDown />
+          </span>
+        )}
       </Text>
     </Dropdown>
   );
@@ -123,6 +128,12 @@ const standardItems: DropdownItem<ShareRole>[] = [
     secondaryLabel: 'Can view asset but not edit.'
   }
 ];
+
+const OWNER_ITEM: DropdownItem<DropdownValue> = {
+  value: ShareRole.OWNER,
+  label: 'Owner',
+  secondaryLabel: 'Owner of the asset.'
+};
 
 const FooterContent = React.memo(() => {
   return (
