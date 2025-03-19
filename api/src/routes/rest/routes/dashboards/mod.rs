@@ -1,6 +1,6 @@
 use axum::{
     routing::delete,
-    routing::{get, post},
+    routing::{get, post, put},
     Router,
 };
 
@@ -20,6 +20,10 @@ pub fn router() -> Router {
         .route(
             "/:id/sharing",
             post(sharing::create_dashboard_sharing_rest_handler),
+        )
+        .route(
+            "/:id/sharing",
+            put(sharing::update_dashboard_sharing_rest_handler),
         )
         .route(
             "/:id/sharing",
