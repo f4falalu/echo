@@ -77,4 +77,3 @@ pub struct ListPermissionsRequest {
 pub struct ListPermissionsResponse {
     pub permissions: Vec<AssetPermissionWithUser>,
 }
-}
