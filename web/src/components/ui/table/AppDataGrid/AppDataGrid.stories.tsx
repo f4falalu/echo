@@ -110,3 +110,15 @@ export const WithInitialWidth: Story = {
     sortable: true
   }
 };
+
+export const WithOneColumn: Story = {
+  args: {
+    rows: sampleData.map((row) => ({
+      name: row.name
+    })),
+    columnOrder: ['name'],
+    columnWidths: {
+      name: 75
+    }
+  }
+};

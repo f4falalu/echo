@@ -8,7 +8,7 @@ import type {
   ColumnLabelFormat,
   IColumnLabelFormat
 } from '@/api/asset_interfaces/metric/charts';
-import { createDefaultChartConfig } from '@/lib/messageAutoChartHandler';
+import { createDefaultChartConfig } from '@/lib/metrics/messageAutoChartHandler';
 
 export const didColumnDataChange = (
   oldColumnData: ColumnMetaData[] | undefined,

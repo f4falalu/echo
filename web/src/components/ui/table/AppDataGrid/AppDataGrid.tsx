@@ -3,7 +3,6 @@
 import DataGrid from 'react-data-grid';
 import type {
   Column,
-  CalculatedColumn,
   CopyEvent,
   RenderCellProps,
   RenderHeaderCellProps,
@@ -19,15 +18,8 @@ import { CaretDown } from '../../icons/NucleoIconFilled';
 import styles from './AppDataGrid.module.css';
 
 //https://www.npmjs.com/package/react-spreadsheet-grid#live-playground
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import {
-  useDebounce,
-  useDebounceEffect,
-  useDebounceFn,
-  useMemoizedFn,
-  useMount,
-  useSize
-} from '@/hooks';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useDebounceEffect, useDebounceFn, useMemoizedFn, useMount, useSize } from '@/hooks';
 import sampleSize from 'lodash/sampleSize';
 import isEmpty from 'lodash/isEmpty';
 import {
@@ -91,11 +83,7 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
     const hasErroredOnce = useRef(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const widthOfContainer = useDebounce(useSize(containerRef)?.width ?? initialWidth, {
-      wait: 25,
-      maxWait: 500,
-      leading: true
-    });
+    const widthOfContainer = useSize(containerRef, 50)?.width ?? initialWidth;
 
     const sampleOfRows = useMemo(() => sampleSize(rows, 15), [rows]);
     const fields = useMemo(() => {
@@ -324,13 +312,9 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
       }
     }, [rows, fields]);
 
-    useDebounceEffect(
-      () => {
-        onColumnResizeOverflowCheck();
-      },
-      [widthOfContainer],
-      { wait: 100 }
-    );
+    useEffect(() => {
+      onColumnResizeOverflowCheck();
+    }, [widthOfContainer]);
 
     useMount(() => {
       requestAnimationFrame(() => {
