@@ -15,6 +15,7 @@ futures = { workspace = true }
 futures-util = { workspace = true }
 reqwest = { workspace = true }
 dotenv = { workspace = true }
+once_cell = { workspace = true }
 
 [dev-dependencies]
 mockito = { workspace = true }
