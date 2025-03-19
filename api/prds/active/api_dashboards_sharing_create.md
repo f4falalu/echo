@@ -1,4 +1,4 @@
-# API Dashboards Sharing - Create Endpoint PRD
+# API Dashboards Sharing - Create Endpoint PRD ✅
 
 ## Problem Statement
 Users need the ability to share dashboards with other users via a REST API endpoint.

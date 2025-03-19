@@ -1,3 +1,5 @@
 mod list_sharing_handler;
+mod create_sharing_handler;
 
 pub use list_sharing_handler::list_dashboard_sharing_handler;
+pub use create_sharing_handler::create_dashboard_sharing_handler;
