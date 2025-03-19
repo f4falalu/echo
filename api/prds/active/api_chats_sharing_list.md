@@ -1,4 +1,4 @@
-# API Chats Sharing - List Endpoint PRD
+# API Chats Sharing - List Endpoint PRD ✅
 
 ## Problem Statement
 Users need the ability to view all sharing permissions for a chat via a REST API endpoint.

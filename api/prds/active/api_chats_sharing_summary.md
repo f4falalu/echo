@@ -54,10 +54,10 @@ The PRDs can be developed in the following order, with opportunities for paralle
    - Update `/src/routes/rest/routes/chats/mod.rs` to include the sharing router
    - Update `/libs/handlers/src/chats/mod.rs` to export the sharing module
 
-### Phase 2: Core Endpoints (Can be Parallelized)
+### Phase 2: Core Endpoints (Can be Parallelized) ✅
 After Phase 1 is complete, the following components can be implemented in parallel by different developers:
 
-- **List Sharing Endpoint**
+- **List Sharing Endpoint** ✅
   - Uses `list_shares` from `@[api/libs/sharing/src]/list_asset_permissions.rs`
   - Uses `check_access` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
