@@ -55,6 +55,7 @@ async fn test_update_metric_integration() -> Result<()> {
         dataset_ids: Some(vec![Uuid::new_v4().to_string()]),
         verification: Some(Verification::Verified),
         file: None,
+        sql: Some("SELECT updated_value FROM updated_table".to_string()),
     };
     
     // Call the handler function to update the metric
@@ -80,6 +81,7 @@ async fn test_update_metric_integration() -> Result<()> {
             let content: MetricYml = db_metric.content;
             assert_eq!(content.time_frame, "weekly");
             assert_eq!(content.description, Some("Updated test description".to_string()));
+            assert_eq!(content.sql, "SELECT updated_value FROM updated_table");
             
             // Verify version history was updated
             assert!(db_metric.version_history.0.contains_key(&"1".to_string()));
@@ -93,6 +95,7 @@ async fn test_update_metric_integration() -> Result<()> {
             if let database::types::VersionContent::MetricYml(latest_content) = &latest_version.content {
                 assert_eq!(latest_content.time_frame, "weekly");
                 assert_eq!(latest_content.description, Some("Updated test description".to_string()));
+                assert_eq!(latest_content.sql, "SELECT updated_value FROM updated_table");
             } else {
                 panic!("Expected MetricYml content in version history");
             }
@@ -131,6 +134,7 @@ async fn test_update_nonexistent_metric() -> Result<()> {
         dataset_ids: None,
         verification: None,
         file: None,
+        sql: None,
     };
     
     // Attempt to update a nonexistent metric
@@ -177,6 +181,7 @@ async fn test_update_specific_metric_fields() -> Result<()> {
         dataset_ids: None,
         verification: None,
         file: None,
+        sql: None,
     };
     
     match update_metric_handler(&metric_id, &user_id, title_request).await {
@@ -221,6 +226,7 @@ async fn test_update_specific_metric_fields() -> Result<()> {
         dataset_ids: None,
         verification: Some(Verification::Verified),
         file: None,
+        sql: None,
     };
     
     match update_metric_handler(&metric_id, &user_id, verification_request).await {
@@ -256,22 +262,25 @@ async fn test_update_specific_metric_fields() -> Result<()> {
         }
     }
     
-    // Test 3: Update only time_frame
-    let time_frame_request = UpdateMetricRequest {
+    // Test 3: Update only SQL
+    let sql_request = UpdateMetricRequest {
         title: None,
         description: None,
         chart_config: None,
-        time_frame: Some("monthly".to_string()),
+        time_frame: None,
         dataset_ids: None,
         verification: None,
         file: None,
+        sql: Some("SELECT new_value FROM new_table".to_string()),
     };
     
-    match update_metric_handler(&metric_id, &user_id, time_frame_request).await {
+    match update_metric_handler(&metric_id, &user_id, sql_request).await {
         Ok(metric) => {
-            assert_eq!(metric.time_frame, "monthly");
+            // Parse the YAML content to verify SQL update
+            let content: MetricYml = serde_yaml::from_str(&metric.file).unwrap();
+            assert_eq!(content.sql, "SELECT new_value FROM new_table");
             
-            // Verify other fields remain from previous updates
+            // Verify other fields remain unchanged
             assert_eq!(metric.title, "Title Only Update");
             assert_eq!(metric.status, Verification::Verified);
             
@@ -300,7 +309,7 @@ async fn test_update_specific_metric_fields() -> Result<()> {
             
             // Check the content of the latest version
             if let database::types::VersionContent::MetricYml(latest_content) = &latest_version.content {
-                assert_eq!(latest_content.time_frame, "monthly");
+                assert_eq!(latest_content.sql, "SELECT new_value FROM new_table");
                 
                 // The title should be preserved from earlier updates
                 let yaml = serde_yaml::to_string(latest_content).unwrap();
