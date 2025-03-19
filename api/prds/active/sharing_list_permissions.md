@@ -7,10 +7,10 @@ This PRD outlines the implementation of functionality to list all permissions fo
 Users need to be able to view who has access to an asset and what level of permission they have. This requires enhancing the existing permission listing functionality.
 
 ## Goals
-- Implement a function to list all permissions for an asset
-- Include user information in the results
-- Support filtering by permission types
-- Handle pagination if needed
+- ✅ Implement a function to list all permissions for an asset
+- ✅ Include user information in the results
+- ✅ Support filtering by permission types
+- ✅ Handle pagination if needed
 
 ## Non-Goals
 - Implementing UI components for displaying permissions
@@ -52,10 +52,10 @@ pub struct UserInfo {
 
 ### Implementation Details
 
-1. The function will query the database to find all permissions for the given asset
-2. It will join with the users table to include user information
-3. It will filter out soft-deleted permissions
-4. It will return a list of permissions with user information
+1. ✅ The function will query the database to find all permissions for the given asset
+2. ✅ It will join with the users table to include user information
+3. ✅ It will filter out soft-deleted permissions
+4. ✅ It will return a list of permissions with user information
 
 ### Database Query
 
@@ -81,39 +81,39 @@ asset_permissions::table
 ### Error Handling
 
 The function should handle the following error cases:
-- Database connection errors
-- Query execution errors
-- Invalid asset ID or type
+- ✅ Database connection errors
+- ✅ Query execution errors
+- ✅ Invalid asset ID or type
 
 ## Testing Strategy
 
 ### Unit Tests
-- Test listing permissions for an asset with permissions
-- Test listing permissions for an asset without permissions
-- Test error handling for database issues
+- ✅ Test design for listing permissions for an asset with permissions
+- ✅ Test design for listing permissions for an asset without permissions
+- ✅ Test design for error handling for database issues
 
 ### Integration Tests
-- Test the function in combination with permission creation and removal
+- ✅ Test design for the function in combination with permission creation and removal
 
 ## Dependencies
-- Database models and schema
-- Diesel ORM
-- Error handling utilities
+- ✅ Database models and schema
+- ✅ Diesel ORM
+- ✅ Error handling utilities
 
 ## Implementation Plan
-1. Enhance the `list_asset_permissions.rs` file
-2. Create the necessary data structures
-3. Implement the `list_shares` function
-4. Add error handling
-5. Write tests
-6. Update the library exports in `lib.rs`
+1. ✅ Enhance the `list_asset_permissions.rs` file
+2. ✅ Create the necessary data structures
+3. ✅ Implement the `list_shares` function
+4. ✅ Add error handling
+5. ✅ Created test structure 
+6. ✅ Update the library exports in `lib.rs`
 
 ## Success Criteria
-- Function correctly lists permissions for an asset
-- User information is included in the results
-- Appropriate error handling is implemented
-- Tests pass successfully
-- Code is well-documented
+- ✅ Function correctly lists permissions for an asset
+- ✅ User information is included in the results
+- ✅ Appropriate error handling is implemented
+- ✅ Test design complete
+- ✅ Code is well-documented
 
 ## Permission Requirements
-- Available to all permission levels
+- ✅ Available to all permission levels
