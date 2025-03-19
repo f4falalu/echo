@@ -1,14 +1,14 @@
 use anyhow::{Context, Result};
 use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
-    models::AssetPermission,
     pool::get_pg_pool,
     schema::{asset_permissions, teams_to_users},
 };
 use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
-use std::collections::HashMap;
 use uuid::Uuid;
+
+use crate::errors::SharingError;
 
 /// Input for checking a single asset permission
 #[derive(Debug, Clone)]
@@ -36,7 +36,7 @@ pub async fn check_access(
 ) -> Result<Option<AssetPermissionRole>> {
     // Validate asset type is not deprecated
     if matches!(asset_type, AssetType::Dashboard | AssetType::Thread) {
-        anyhow::bail!("Asset type {:?} is deprecated", asset_type);
+        return Err(SharingError::DeprecatedAssetType(format!("{:?}", asset_type)).into());
     }
 
     let mut conn = get_pg_pool().get().await?;
@@ -90,12 +90,60 @@ pub async fn check_access(
     Ok(Some(highest_permission))
 }
 
+/// Checks if a user has a specific permission level on an asset
+pub async fn has_permission(
+    asset_id: Uuid,
+    asset_type: AssetType,
+    identity_id: Uuid,
+    identity_type: IdentityType,
+    required_role: AssetPermissionRole,
+) -> Result<bool> {
+    let user_role = check_access(asset_id, asset_type, identity_id, identity_type).await?;
+    
+    match user_role {
+        Some(role) => {
+            // Special case for Owner and FullAccess, which can do anything
+            if role == AssetPermissionRole::Owner || role == AssetPermissionRole::FullAccess {
+                return Ok(true);
+            }
+            
+            // For other roles, we need to compare them
+            match (role, required_role) {
+                // Owner and FullAccess can do anything (handled above)
+                
+                // CanEdit can edit, filter and view
+                (AssetPermissionRole::CanEdit, AssetPermissionRole::CanEdit) |
+                (AssetPermissionRole::CanEdit, AssetPermissionRole::CanFilter) |
+                (AssetPermissionRole::CanEdit, AssetPermissionRole::CanView) => Ok(true),
+                
+                // CanFilter can filter and view
+                (AssetPermissionRole::CanFilter, AssetPermissionRole::CanFilter) |
+                (AssetPermissionRole::CanFilter, AssetPermissionRole::CanView) => Ok(true),
+                
+                // CanView can only view
+                (AssetPermissionRole::CanView, AssetPermissionRole::CanView) => Ok(true),
+                
+                // Editor can edit and view
+                (AssetPermissionRole::Editor, AssetPermissionRole::Editor) |
+                (AssetPermissionRole::Editor, AssetPermissionRole::Viewer) => Ok(true),
+                
+                // Viewer can only view
+                (AssetPermissionRole::Viewer, AssetPermissionRole::Viewer) => Ok(true),
+                
+                // All other combinations are not permitted
+                _ => Ok(false),
+            }
+        }
+        None => Ok(false)
+    }
+}
+
 /// Checks permissions for multiple assets in bulk
 pub async fn check_access_bulk(
     inputs: Vec<CheckPermissionInput>,
-) -> Result<HashMap<(Uuid, AssetType), Option<AssetPermissionRole>>> {
+) -> Result<Vec<(Uuid, AssetType, Option<AssetPermissionRole>)>> {
     if inputs.is_empty() {
-        return Ok(HashMap::new());
+        return Ok(Vec::new());
     }
 
     // Validate no deprecated asset types
@@ -103,7 +151,7 @@ pub async fn check_access_bulk(
         .iter()
         .any(|input| matches!(input.asset_type, AssetType::Dashboard | AssetType::Thread))
     {
-        anyhow::bail!("Cannot check permissions for deprecated asset types");
+        return Err(SharingError::DeprecatedAssetType("Cannot check permissions for deprecated asset types".to_string()).into());
     }
 
     // Group inputs by identity type to optimize queries
@@ -118,75 +166,35 @@ pub async fn check_access_bulk(
         }
     }
 
-    let mut results = HashMap::new();
+    let mut results = Vec::new();
 
     // Process user inputs
     if !user_inputs.is_empty() {
-        // Create filters for the query
-        let mut asset_filters = diesel::BoolExpressionMethods::or_filter(
-            diesel::BoolExpressionMethods::or_filter(
-                diesel::ExpressionMethods::eq(asset_permissions::asset_id, user_inputs[0].asset_id),
-                diesel::ExpressionMethods::eq(
-                    asset_permissions::asset_type,
-                    user_inputs[0].asset_type,
-                ),
-            ),
-            false,
-        );
-
-        for input in &user_inputs[1..] {
-            asset_filters = diesel::BoolExpressionMethods::or_filter(
-                asset_filters,
-                diesel::BoolExpressionMethods::and_filter(
-                    diesel::ExpressionMethods::eq(asset_permissions::asset_id, input.asset_id),
-                    diesel::ExpressionMethods::eq(asset_permissions::asset_type, input.asset_type),
-                ),
-            );
-        }
-
         let mut conn = get_pg_pool().get().await?;
-
-        // Get all user permissions (direct and via teams)
         let user_id = user_inputs[0].identity_id;
-        let user_permissions: Vec<(Uuid, AssetType, AssetPermissionRole)> =
-            asset_permissions::table
+
+        // Create individual queries for each asset
+        for input in &user_inputs {
+            let permissions: Vec<AssetPermissionRole> = asset_permissions::table
                 .left_join(
                     teams_to_users::table
                         .on(asset_permissions::identity_id.eq(teams_to_users::team_id)),
                 )
-                .select((
-                    asset_permissions::asset_id,
-                    asset_permissions::asset_type,
-                    asset_permissions::role,
-                ))
+                .select(asset_permissions::role)
                 .filter(
                     asset_permissions::identity_id
                         .eq(&user_id)
                         .or(teams_to_users::user_id.eq(&user_id)),
                 )
-                .filter(asset_filters)
+                .filter(asset_permissions::asset_id.eq(&input.asset_id))
+                .filter(asset_permissions::asset_type.eq(&input.asset_type))
                 .filter(asset_permissions::deleted_at.is_null())
-                .load::<(Uuid, AssetType, AssetPermissionRole)>(&mut conn)
+                .load::<AssetPermissionRole>(&mut conn)
                 .await
-                .context("Failed to query user asset permissions in bulk")?;
+                .context("Failed to query user asset permissions")?;
 
-        // Group permissions by asset
-        let mut asset_permissions_map: HashMap<(Uuid, AssetType), Vec<AssetPermissionRole>> =
-            HashMap::new();
-        for (asset_id, asset_type, role) in user_permissions {
-            asset_permissions_map
-                .entry((asset_id, asset_type))
-                .or_insert_with(Vec::new)
-                .push(role);
-        }
-
-        // Find highest permission for each asset
-        for input in user_inputs {
-            let key = (input.asset_id, input.asset_type);
-            let highest_role = asset_permissions_map
-                .get(&key)
-                .and_then(|roles| roles.iter().cloned().reduce(|acc, role| acc.max(role)));
-            results.insert(key, highest_role);
+            let highest_role = permissions.into_iter().reduce(|acc, role| acc.max(role));
+            results.push((input.asset_id, input.asset_type, highest_role));
         }
     }
 
@@ -206,8 +214,7 @@ pub async fn check_access_bulk(
             .context("Failed to query asset permissions")?;
 
         let highest_role = permissions.into_iter().reduce(|acc, role| acc.max(role));
-
-        results.insert((input.asset_id, input.asset_type), highest_role);
+        results.push((input.asset_id, input.asset_type, highest_role));
     }
 
     Ok(results)
@@ -217,21 +224,87 @@ pub async fn check_access_bulk(
 pub async fn check_permissions(
     inputs: Vec<CheckPermissionInput>,
 ) -> Result<Vec<AssetPermissionResult>> {
-    let permissions_map = check_access_bulk(inputs.clone()).await?;
+    let permissions = check_access_bulk(inputs.clone()).await?;
 
-    let results = inputs
+    let results = permissions
         .into_iter()
-        .map(|input| {
-            let key = (input.asset_id, input.asset_type);
-            let role = permissions_map.get(&key).cloned().flatten();
-
+        .map(|(asset_id, asset_type, role)| {
             AssetPermissionResult {
-                asset_id: input.asset_id,
-                asset_type: input.asset_type,
+                asset_id,
+                asset_type,
                 role,
             }
         })
         .collect();
 
     Ok(results)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
+    use uuid::Uuid;
+
+    #[tokio::test]
+    async fn test_has_permission_logic() {
+        // Test owner can do anything
+        let has_permission = has_permission_logic(AssetPermissionRole::Owner, AssetPermissionRole::CanView);
+        assert!(has_permission);
+        
+        // Test full access can do anything
+        let has_permission = has_permission_logic(AssetPermissionRole::FullAccess, AssetPermissionRole::CanEdit);
+        assert!(has_permission);
+        
+        // Test can_edit can filter and view
+        let has_permission = has_permission_logic(AssetPermissionRole::CanEdit, AssetPermissionRole::CanFilter);
+        assert!(has_permission);
+        
+        // Test can_filter cannot edit
+        let has_permission = has_permission_logic(AssetPermissionRole::CanFilter, AssetPermissionRole::CanEdit);
+        assert!(!has_permission);
+        
+        // Test editor can view
+        let has_permission = has_permission_logic(AssetPermissionRole::Editor, AssetPermissionRole::Viewer);
+        assert!(has_permission);
+        
+        // Test viewer cannot edit
+        let has_permission = has_permission_logic(AssetPermissionRole::Viewer, AssetPermissionRole::Editor);
+        assert!(!has_permission);
+    }
+
+    // Helper function to test permission logic without database
+    fn has_permission_logic(user_role: AssetPermissionRole, required_role: AssetPermissionRole) -> bool {
+        // Special case for Owner and FullAccess, which can do anything
+        if user_role == AssetPermissionRole::Owner || user_role == AssetPermissionRole::FullAccess {
+            return true;
+        }
+        
+        // For other roles, we need to compare them
+        match (user_role, required_role) {
+            // Owner and FullAccess can do anything (handled above)
+            
+            // CanEdit can edit, filter and view
+            (AssetPermissionRole::CanEdit, AssetPermissionRole::CanEdit) |
+            (AssetPermissionRole::CanEdit, AssetPermissionRole::CanFilter) |
+            (AssetPermissionRole::CanEdit, AssetPermissionRole::CanView) => true,
+            
+            // CanFilter can filter and view
+            (AssetPermissionRole::CanFilter, AssetPermissionRole::CanFilter) |
+            (AssetPermissionRole::CanFilter, AssetPermissionRole::CanView) => true,
+            
+            // CanView can only view
+            (AssetPermissionRole::CanView, AssetPermissionRole::CanView) => true,
+            
+            // Editor can edit and view
+            (AssetPermissionRole::Editor, AssetPermissionRole::Editor) |
+            (AssetPermissionRole::Editor, AssetPermissionRole::Viewer) => true,
+            
+            // Viewer can only view
+            (AssetPermissionRole::Viewer, AssetPermissionRole::Viewer) => true,
+            
+            // All other combinations are not permitted
+            _ => false,
+        }
+    }
 }

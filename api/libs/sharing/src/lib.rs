@@ -1,9 +1,15 @@
-// pub mod check_asset_permission;
+pub mod check_asset_permission;
 pub mod create_asset_permission;
+pub mod errors;
 pub mod list_asset_permissions;
 pub mod remove_asset_permissions;
+pub mod types;
+pub mod user_lookup;
 
-// pub use check_asset_permission::check_access;
-pub use create_asset_permission::create_share;
-pub use list_asset_permissions::list_shares;
-pub use remove_asset_permissions::remove_share;
+// Export the primary functions
+pub use check_asset_permission::{check_access, check_permissions, has_permission};
+pub use create_asset_permission::{create_share, create_share_by_email, create_shares_bulk};
+pub use list_asset_permissions::{list_shares, list_shares_by_identity_type};
+pub use remove_asset_permissions::{remove_share, remove_share_by_email};
+pub use types::AssetPermissionWithUser;
+pub use user_lookup::find_user_by_email;
