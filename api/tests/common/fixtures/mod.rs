@@ -4,6 +4,7 @@ pub mod metrics;
 pub mod dashboards;
 pub mod builder;
 pub mod collections;
+pub mod chats;
 
 // Re-export commonly used fixtures
 pub use users::create_test_user;
