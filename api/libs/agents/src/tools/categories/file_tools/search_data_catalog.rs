@@ -153,6 +153,7 @@ impl SearchDataCatalogTool {
                     session_id: session_id.to_string(),
                     trace_id: session_id.to_string(),
                 }),
+                reasoning_effort: Some(String::from("low")),
                 max_completion_tokens: Some(8092),
                 ..Default::default()
             };
