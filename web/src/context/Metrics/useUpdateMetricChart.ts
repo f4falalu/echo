@@ -12,7 +12,7 @@ import { useParams } from 'next/navigation';
 export const useUpdateMetricChart = (props?: { metricId?: string }) => {
   const params = useParams<{ metricId?: string }>();
   const metricId = props?.metricId ?? params.metricId ?? '';
-  const { mutateDebounced: onUpdateMetricDebounced } = useUpdateMetric({ wait: 600 });
+  const { mutate: onUpdateMetricDebounced } = useUpdateMetric();
   const getMetricMemoized = useGetMetricMemoized();
 
   const onUpdateMetricChartConfig = useMemoizedFn(

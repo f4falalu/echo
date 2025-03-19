@@ -29,7 +29,9 @@ export const ShareWithGroupAndTeam: React.FC<{
   const { data: collection } = useGetCollection(
     assetType === ShareAssetType.COLLECTION ? assetId : undefined
   );
-  const { data: metric } = useGetMetric(assetType === ShareAssetType.METRIC ? assetId : undefined);
+  const { data: metric } = useGetMetric(
+    assetType === ShareAssetType.METRIC ? { id: assetId } : { id: undefined }
+  );
 
   const onUpdateShareRole = useMemoizedFn(
     async ({ teamId, role }: { teamId: string; role: ShareRole | null }) => {

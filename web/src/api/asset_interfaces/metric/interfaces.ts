@@ -24,7 +24,7 @@ export type BusterMetric = {
   sent_by_id: string;
   sent_by_name: string;
   sent_by_avatar_url: string | null;
-  code: string | null;
+  sql: string | null;
   feedback: 'negative' | null;
   dashboards: {
     id: string;

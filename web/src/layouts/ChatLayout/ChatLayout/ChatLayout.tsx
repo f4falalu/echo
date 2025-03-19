@@ -15,7 +15,6 @@ interface ChatSplitterProps {
 
 export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
-
   const useChatLayoutProps = useChatLayout({ appSplitterRef });
   const { renderViewLayoutKey, selectedLayout, selectedFile, onSetSelectedFile, chatId } =
     useChatLayoutProps;

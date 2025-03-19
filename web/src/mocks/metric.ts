@@ -140,7 +140,7 @@ export const createMockMetric = (id: string): IBusterMetric => {
     sent_by_id: '',
     sent_by_name: '',
     sent_by_avatar_url: '',
-    code: `WITH records AS (
+    sql: `WITH records AS (
     SELECT 
       response_time_id,
       interaction_id,

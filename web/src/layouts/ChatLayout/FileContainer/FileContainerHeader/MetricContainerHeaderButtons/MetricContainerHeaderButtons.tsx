@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { FileContainerButtonsProps } from '../interfaces';
 import { MetricFileViewSecondary, useChatLayoutContextSelector } from '../../../ChatLayoutContext';
 import { useMemoizedFn } from '@/hooks';
@@ -18,7 +18,7 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
   const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);
   const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
   const metricId = selectedFileId;
-  const { isFetched: isMetricFetched } = useGetMetric(metricId);
+  const { isFetched: isMetricFetched } = useGetMetric({ id: metricId });
 
   if (!isMetricFetched) return null;
 

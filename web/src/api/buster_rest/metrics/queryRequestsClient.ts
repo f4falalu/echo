@@ -1,11 +1,8 @@
-'use client';
-
 import { IBusterMetric } from '@/api/asset_interfaces';
 import { queryKeys } from '@/api/query_keys';
 import { useMemoizedFn, useDebounceFn } from '@/hooks';
 import { prepareMetricUpdateMetric } from '@/lib/metrics';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { useTransition, useMemo } from 'react';
 import { useSaveMetric } from './queryRequests';
 import { create } from 'mutative';
 /**
@@ -14,11 +11,19 @@ import { create } from 'mutative';
  * It will also strip out any values that are not changed from the DEFAULT_CHART_CONFIG.
  * It will also update the draft_session_id if it exists.
  */
-export const useUpdateMetric = (params?: { wait?: number }) => {
-  const [isPending, startTransition] = useTransition();
+export const useUpdateMetric = () => {
   const queryClient = useQueryClient();
   const { mutateAsync: saveMetric } = useSaveMetric();
-  const waitTime = params?.wait || 0;
+
+  const { run: saveMetricDebounced } = useDebounceFn(
+    (newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
+      const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
+      if (changedValues) {
+        saveMetric(changedValues);
+      }
+    },
+    { wait: 650 }
+  );
 
   const combineAndSaveMetric = useMemoizedFn(
     async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
@@ -41,12 +46,7 @@ export const useUpdateMetric = (params?: { wait?: number }) => {
     async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
       const { newMetric, prevMetric } = await combineAndSaveMetric(newMetricPartial);
       if (newMetric && prevMetric) {
-        startTransition(() => {
-          const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
-          if (changedValues) {
-            saveMetric(changedValues);
-          }
-        });
+        saveMetricDebounced(newMetric, prevMetric);
       }
       return Promise.resolve(newMetric!);
     }
@@ -56,13 +56,5 @@ export const useUpdateMetric = (params?: { wait?: number }) => {
     mutationFn: mutationFn
   });
 
-  const { run: mutateDebounced } = useDebounceFn(mutationRes.mutateAsync, { wait: waitTime });
-
-  return useMemo(
-    () => ({
-      ...mutationRes,
-      mutateDebounced
-    }),
-    [mutationRes, mutateDebounced]
-  );
+  return mutationRes;
 };

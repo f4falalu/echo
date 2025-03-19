@@ -34,21 +34,21 @@ const DashboardMetricItemBase: React.FC<{
   } = useDashboardMetric({ metricId });
 
   const loadingMetricData = !!metric && !isFetchedMetricData;
-  const chartOptions = metric.chart_config;
+  const chartOptions = metric?.chart_config;
   const data = metricData?.data || null;
   const loading = loadingMetricData;
   const dataLength = metricData?.data?.length || 1;
   const animate =
     !initialAnimationEnded && !isDragOverlay && dataLength < 125 && numberOfMetrics <= 30;
-  const isTable = metric.chart_config.selectedChartType === 'table';
+  const isTable = metric?.chart_config.selectedChartType === 'table';
 
   const error = useMemo(() => {
-    if (metric.error) {
+    if (metric?.error) {
       return metric.error;
     }
 
     return undefined;
-  }, [metric.error, metric.code]);
+  }, [metric?.error]);
 
   const metricLink = useMemo(() => {
     return createBusterRoute({
@@ -62,12 +62,7 @@ const DashboardMetricItemBase: React.FC<{
     setInitialAnimationEnded(metricId);
   });
 
-  // const cardClassNamesMemoized = useMemo(() => {
-  //   return {
-  //     body: `h-full w-full overflow-hidden ${isTable ? 'p-0!' : 'px-2! pt-2! pb-0.5!'} relative`,
-  //     header: cx(`p-0! min-h-[52px]! mb-0!`, styles.cardTitle)
-  //   };
-  // }, [isTable]);
+  if (!chartOptions) return null;
 
   return (
     <Card
@@ -75,14 +70,14 @@ const DashboardMetricItemBase: React.FC<{
       className={`metric-item flex h-full w-full flex-col overflow-auto ${className}`}>
       <CardHeader size="small" className="hover:bg-item-hover border-b">
         <MetricTitle
-          title={metric.title}
-          timeFrame={metric.time_frame}
+          title={metric?.title || ''}
+          timeFrame={metric?.time_frame}
           metricLink={metricLink}
           isDragOverlay={isDragOverlay}
           metricId={metricId}
           dashboardId={dashboardId}
           readOnly={readOnly}
-          description={metric.description}
+          description={metric?.description}
         />
       </CardHeader>
 

@@ -1,14 +1,13 @@
 import React, { useMemo } from 'react';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
-import { useMetricIndividual, useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useGetMetric, useGetMetricData, useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
-import { ShareRole } from '@/api/asset_interfaces';
 import { canEdit } from '@/lib/share';
 
 export const MetricViewChart: React.FC<{
@@ -18,14 +17,19 @@ export const MetricViewChart: React.FC<{
   cardClassName?: string;
 }> = React.memo(
   ({ metricId, readOnly: readOnlyProp = false, className = '', cardClassName = '' }) => {
-    const { metric, metricData, metricDataError, isFetchedMetricData } = useMetricIndividual({
-      metricId
-    });
-    const { mutateAsync: updateMetric } = useUpdateMetric();
-    const { title, description, time_frame, evaluation_score, evaluation_summary } = metric;
-    const isTable = metric.chart_config.selectedChartType === ChartType.Table;
+    const { data: metric, isFetched: isMetricFetched } = useGetMetric({ id: metricId });
+    const {
+      data: metricData,
+      isFetched: isFetchedMetricData,
 
-    const readOnly = readOnlyProp || !canEdit(metric.permission);
+      error: metricDataError
+    } = useGetMetricData({ id: metricId });
+
+    const { mutateAsync: updateMetric } = useUpdateMetric();
+    const { title, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
+    const isTable = metric?.chart_config.selectedChartType === ChartType.Table;
+
+    const readOnly = readOnlyProp || !canEdit(metric?.permission);
 
     const loadingData = !isFetchedMetricData;
     const errorData = !!metricDataError;
@@ -39,6 +43,8 @@ export const MetricViewChart: React.FC<{
         });
       }
     });
+
+    if (!metric) return null;
 
     return (
       <div className={cn('flex h-full flex-col justify-between space-y-3.5 p-5', className)}>

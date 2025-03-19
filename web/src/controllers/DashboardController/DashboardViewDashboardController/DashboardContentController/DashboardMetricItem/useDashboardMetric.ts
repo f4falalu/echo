@@ -1,13 +1,15 @@
 import { useDashboardContentControllerContextSelector } from '../DashboardContentControllerContext';
 import { useEffect, useMemo, useRef } from 'react';
 import { useInViewport } from '@/hooks';
-import { useMetricIndividual } from '@/api/buster_rest/metrics';
+import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 
 export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
-  const { metric, metricData, isMetricFetched, metricDataUpdatedAt, isFetchedMetricData } =
-    useMetricIndividual({
-      metricId
-    });
+  const { data: metric, isFetched: isMetricFetched } = useGetMetric({ id: metricId });
+  const {
+    data: metricData,
+    isFetched: isFetchedMetricData,
+    dataUpdatedAt: metricDataUpdatedAt
+  } = useGetMetricData({ id: metricId });
   const dashboard = useDashboardContentControllerContextSelector(({ dashboard }) => dashboard);
   const metricMetadata = useDashboardContentControllerContextSelector(
     ({ metricMetadata }) => metricMetadata[metricId]

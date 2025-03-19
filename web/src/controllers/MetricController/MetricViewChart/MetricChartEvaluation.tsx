@@ -9,8 +9,8 @@ import { Popover } from '@/components/ui/tooltip/Popover';
 import { Button, type ButtonProps } from '@/components/ui/buttons';
 
 export const MetricChartEvaluation: React.FC<{
-  evaluationScore: IBusterMetric['evaluation_score'];
-  evaluationSummary: string;
+  evaluationScore: IBusterMetric['evaluation_score'] | undefined;
+  evaluationSummary: string | undefined;
 }> = React.memo(({ evaluationScore, evaluationSummary }) => {
   const text = useMemo(() => {
     if (evaluationScore === 'High') return 'High confidence';

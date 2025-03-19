@@ -4,14 +4,14 @@ import { CodeCard } from '@/components/ui/card';
 import { useMemoizedFn } from '@/hooks';
 import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMetricIndividual, useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useGetMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
 
 export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId }) => {
-  const { metric } = useMetricIndividual({ metricId });
+  const { data: metric } = useGetMetric({ id: metricId });
   const { openSuccessMessage } = useBusterNotifications();
   const { mutateAsync: updateMetric } = useUpdateMetric();
 
-  const { file: fileProp, file_name } = metric;
+  const { file: fileProp, file_name } = metric || {};
 
   const [file, setFile] = React.useState(fileProp);
 
@@ -36,9 +36,9 @@ export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId 
   return (
     <div className="relative h-full overflow-hidden p-5">
       <CodeCard
-        code={file}
+        code={file || ''}
         language="yaml"
-        fileName={file_name}
+        fileName={file_name || ''}
         onChange={setFile}
         onMetaEnter={onSaveFile}
       />

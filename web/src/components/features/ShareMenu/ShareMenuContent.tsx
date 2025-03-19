@@ -6,7 +6,7 @@ import { useMemoizedFn } from '@/hooks';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ShareMenuContentEmbedFooter } from './ShareMenuContentEmbed';
-import { isEffectiveOwner } from '@/lib/share';
+import { getIsEffectiveOwner } from '@/lib/share';
 
 export const ShareMenuContent: React.FC<{
   shareAssetConfig: BusterShare;
@@ -21,7 +21,7 @@ export const ShareMenuContent: React.FC<{
 
   const permission = shareAssetConfig?.permission;
   const publicly_accessible = shareAssetConfig?.publicly_accessible;
-  const isOwner = isEffectiveOwner(permission);
+  const isOwner = getIsEffectiveOwner(permission);
 
   const onCopyLink = useMemoizedFn(() => {
     let url = '';

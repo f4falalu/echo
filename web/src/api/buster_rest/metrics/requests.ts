@@ -21,8 +21,16 @@ export const getMetric_server = async ({ id, password }: GetMetricParams) => {
   });
 };
 
-export const getMetricData = async ({ id }: { id: string }) => {
-  return mainApi.get<BusterMetricData>(`/metrics/${id}/data`).then((res) => res.data);
+export const getMetricData = async ({
+  id,
+  version_number
+}: {
+  id: string;
+  version_number?: number;
+}) => {
+  return mainApi
+    .get<BusterMetricData>(`/metrics/${id}/data`, { params: { version_number } })
+    .then((res) => res.data);
 };
 
 export const listMetrics = async (params: ListMetricsParams) => {

@@ -144,7 +144,7 @@ export const DEFAULT_IBUSTER_METRIC: Required<IBusterMetric> = {
   version_number: 1,
   description: '',
   time_frame: '',
-  code: null,
+  sql: null,
   feedback: null,
   dataset_id: '',
   dataset_name: null,

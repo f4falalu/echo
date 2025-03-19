@@ -6,7 +6,7 @@ import { useGetMetric } from '@/api/buster_rest/metrics';
 import { getShareAssetConfig } from '../ShareMenu/helpers';
 
 export const ShareMetricButton = React.memo(({ metricId }: { metricId: string }) => {
-  const { data: shareAssetConfig } = useGetMetric(metricId, getShareAssetConfig);
+  const { data: shareAssetConfig } = useGetMetric({ id: metricId }, getShareAssetConfig);
 
   return (
     <ShareMenu

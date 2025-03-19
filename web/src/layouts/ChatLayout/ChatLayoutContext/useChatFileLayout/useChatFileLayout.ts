@@ -13,6 +13,23 @@ export const useChatFileLayout = ({
 }) => {
   const [fileViews, setFileViews] = useState<Record<string, FileConfig>>({});
 
+  const selectedFileView: FileView | undefined = useMemo(() => {
+    if (!selectedFileId) return undefined;
+    return (
+      fileViews[selectedFileId]?.selectedFileView || defaultFileView[selectedFileType as FileType]
+    );
+  }, [fileViews, selectedFileId, selectedFileType]);
+
+  const selectedFileViewConfig: FileViewConfig | undefined = useMemo(() => {
+    if (!selectedFileId) return undefined;
+    return fileViews[selectedFileId]?.fileViewConfig;
+  }, [fileViews, selectedFileId]);
+
+  const selectedFileViewSecondary: FileViewSecondary | null = useMemo(() => {
+    if (!selectedFileId || !selectedFileViewConfig || !selectedFileView) return null;
+    return selectedFileViewConfig?.[selectedFileView]?.secondaryView ?? null;
+  }, [selectedFileViewConfig, selectedFileId, selectedFileView]);
+
   const onSetFileView = useMemoizedFn(
     ({
       fileView,
@@ -50,23 +67,6 @@ export const useChatFileLayout = ({
       });
     }
   );
-
-  const selectedFileView: FileView | undefined = useMemo(() => {
-    if (!selectedFileId) return undefined;
-    return (
-      fileViews[selectedFileId]?.selectedFileView || defaultFileView[selectedFileType as FileType]
-    );
-  }, [fileViews, selectedFileId, selectedFileType]);
-
-  const selectedFileViewConfig: FileViewConfig | undefined = useMemo(() => {
-    if (!selectedFileId) return undefined;
-    return fileViews[selectedFileId]?.fileViewConfig;
-  }, [fileViews, selectedFileId]);
-
-  const selectedFileViewSecondary: FileViewSecondary | null = useMemo(() => {
-    if (!selectedFileId || !selectedFileViewConfig || !selectedFileView) return null;
-    return selectedFileViewConfig?.[selectedFileView]?.secondaryView ?? null;
-  }, [selectedFileViewConfig, selectedFileId, selectedFileView]);
 
   const closeSecondaryView = useMemoizedFn(() => {
     if (!selectedFileId || !selectedFileViewConfig || !selectedFileView) return;

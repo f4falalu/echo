@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
 import type { MetricViewProps } from '../config';
-import { useMetricIndividual } from '@/api/buster_rest/metrics';
 import { useMemoizedFn, useUnmount } from '@/hooks';
 import { IDataResult } from '@/api/asset_interfaces';
 import { useMetricLayout } from '../useMetricLayout';
@@ -8,6 +7,7 @@ import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutCon
 import { AppSplitterRef } from '@/components/ui/layouts';
 import { AppVerticalCodeSplitter } from '@/components/features/layouts/AppVerticalCodeSplitter';
 import { useMetricRunSQL } from './useMetricRunSQL';
+import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 
 const autoSaveId = 'metric-view-results';
 
@@ -21,17 +21,18 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
   const { runSQL, resetRunSQLData, saveSQL, warnBeforeNavigating, setWarnBeforeNavigating } =
     useMetricRunSQL();
 
-  const { metric, metricData } = useMetricIndividual({ metricId });
+  const { data: metric } = useGetMetric({ id: metricId });
+  const { data: metricData } = useGetMetricData({ id: metricId });
 
-  const [sql, setSQL] = React.useState(metric.code || '');
+  const [sql, setSQL] = React.useState(metric?.sql || '');
   const [fetchingData, setFetchingData] = React.useState(false);
 
-  const dataSourceId = metric?.data_source_id;
+  const dataSourceId = metric?.data_source_id || '';
   const data: IDataResult = metricData?.dataFromRerun || metricData?.data || null;
 
   const disableSave = useMemo(() => {
-    return !sql || fetchingData || sql === metric.code;
-  }, [sql, fetchingData, metric.code]);
+    return !sql || fetchingData || sql === metric?.sql;
+  }, [sql, fetchingData, metric?.sql]);
 
   const onRunQuery = useMemoizedFn(async () => {
     setFetchingData(true);
@@ -71,10 +72,10 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
   });
 
   useEffect(() => {
-    if (metric.code) {
-      setSQL(metric.code);
+    if (metric?.sql) {
+      setSQL(metric.sql);
     }
-  }, [metric.code]);
+  }, [metric?.sql]);
 
   useUnmount(() => {
     resetRunSQLData({ metricId });

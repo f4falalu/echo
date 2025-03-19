@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
-import { useMemoizedFn } from '@/hooks';
+import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import {
   deleteMetrics,
   duplicateMetric,
@@ -23,7 +23,7 @@ import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 
 export const useGetMetric = <TData = IBusterMetric>(
-  id: string | undefined,
+  { id, version_number }: { id: string | undefined; version_number?: number },
   select?: (data: IBusterMetric) => TData
 ) => {
   const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
@@ -101,27 +101,33 @@ export const prefetchGetMetricsList = async (
   return queryClient;
 };
 
-export const useGetMetricData = (params: { id: string }) => {
+export const useGetMetricData = ({
+  id,
+  version_number
+}: {
+  id: string;
+  version_number?: number;
+}) => {
   const queryFn = useMemoizedFn(() => {
-    return getMetricData(params);
+    return getMetricData({ id, version_number });
   });
   return useQuery({
-    ...metricsQueryKeys.metricsGetData(params.id),
+    ...metricsQueryKeys.metricsGetData(id),
     queryFn,
-    enabled: !!params.id
+    enabled: !!id
   });
 };
 
 export const prefetchGetMetricDataClient = async (
-  params: { id: string },
+  { id }: { id: string },
   queryClient: QueryClient
 ) => {
-  const options = metricsQueryKeys.metricsGetData(params.id);
+  const options = metricsQueryKeys.metricsGetData(id);
   const existingData = queryClient.getQueryData(options.queryKey);
   if (!existingData) {
     await queryClient.prefetchQuery({
       ...options,
-      queryFn: () => getMetricData(params)
+      queryFn: () => getMetricData({ id })
     });
   }
 };
@@ -154,49 +160,6 @@ export const useDeleteMetric = () => {
       }
     }
   });
-};
-
-export const useMetricIndividual = ({ metricId }: { metricId: string }) => {
-  const {
-    data: metric,
-    isFetched: isMetricFetched,
-    error: metricError,
-    refetch: refetchMetric
-  } = useGetMetric(metricId);
-
-  const {
-    data: metricData,
-    isFetched: isFetchedMetricData,
-    refetch: refetchMetricData,
-    dataUpdatedAt: metricDataUpdatedAt,
-    error: metricDataError
-  } = useGetMetricData({ id: metricId });
-
-  return useMemo(
-    () => ({
-      metric: resolveEmptyMetric(metric, metricId),
-      isMetricFetched,
-      refetchMetric,
-      metricError,
-      metricData,
-      isFetchedMetricData,
-      refetchMetricData,
-      metricDataUpdatedAt,
-      metricDataError
-    }),
-    [
-      metric,
-      metricId,
-      isMetricFetched,
-      refetchMetric,
-      metricError,
-      metricData,
-      isFetchedMetricData,
-      refetchMetricData,
-      metricDataUpdatedAt,
-      metricDataError
-    ]
-  );
 };
 
 export const useSaveMetricToCollection = () => {

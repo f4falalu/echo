@@ -29,7 +29,7 @@ export const useMetricRunSQL = () => {
 
   const originalConfigs = useRef<{
     chartConfig: IBusterMetricChartConfig;
-    code: string;
+    sql: string;
     data: BusterMetricData['data'];
     dataMetadata: BusterMetricData['data_metadata'];
   } | null>(null);
@@ -43,7 +43,6 @@ export const useMetricRunSQL = () => {
     metricId: string;
     data: BusterMetricData['data'];
     data_metadata: BusterMetricData['data_metadata'];
-    code: string;
     isDataFromRerun: boolean;
   }) => {
     const options = queryKeys.metricsGetData(metricId);
@@ -65,7 +64,7 @@ export const useMetricRunSQL = () => {
         if (!originalConfigs.current) {
           originalConfigs.current = {
             chartConfig: metricMessage?.chart_config!,
-            code: metricMessage?.code!,
+            sql: metricMessage?.sql!,
             data: currentMessageData?.data!,
             dataMetadata: currentMessageData?.data_metadata!
           };
@@ -84,8 +83,7 @@ export const useMetricRunSQL = () => {
           metricId,
           data,
           isDataFromRerun: true,
-          data_metadata,
-          code: sql
+          data_metadata
         });
         updateMetricMutation({
           id: metricId,
@@ -128,7 +126,6 @@ export const useMetricRunSQL = () => {
       metricId,
       data: originalConfigs.current?.data!,
       data_metadata: originalConfigs.current?.dataMetadata!,
-      code: originalConfigs.current?.code!,
       isDataFromRerun: false
     });
     originalConfigs.current = null;
@@ -148,7 +145,7 @@ export const useMetricRunSQL = () => {
       const currentMetric = getMetricMemoized(metricId);
       const dataSourceId = dataSourceIdProp || currentMetric?.data_source_id;
 
-      if ((!ogConfigs || ogConfigs.code !== sql) && dataSourceId) {
+      if ((!ogConfigs || ogConfigs.sql !== sql) && dataSourceId) {
         try {
           await runSQL({
             metricId,
@@ -173,7 +170,6 @@ export const useMetricRunSQL = () => {
           metricId,
           data: originalConfigs.current?.data!,
           data_metadata: originalConfigs.current?.dataMetadata!,
-          code: originalConfigs.current?.code!,
           isDataFromRerun: false
         });
       }

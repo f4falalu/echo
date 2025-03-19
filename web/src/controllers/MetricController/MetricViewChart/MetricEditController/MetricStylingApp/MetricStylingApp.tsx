@@ -10,7 +10,7 @@ import {
   ChartType,
   ScatterAxis
 } from '@/api/asset_interfaces/metric/charts';
-import { useMetricIndividual } from '@/api/buster_rest/metrics';
+import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 
 export const MetricStylingApp: React.FC<{
   metricId: string;
@@ -18,7 +18,8 @@ export const MetricStylingApp: React.FC<{
   const [segment, setSegment] = useState<MetricStylingAppSegments>(
     MetricStylingAppSegments.VISUALIZE
   );
-  const { metric, metricData } = useMetricIndividual({ metricId });
+  const { data: metric } = useGetMetric({ id: metricId });
+  const { data: metricData } = useGetMetricData({ id: metricId });
 
   if (!metric) return null;
 

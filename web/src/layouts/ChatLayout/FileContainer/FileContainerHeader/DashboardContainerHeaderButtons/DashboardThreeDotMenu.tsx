@@ -24,14 +24,15 @@ import { Button } from '@/components/ui/buttons';
 import React from 'react';
 import { timeFromNow } from '@/lib/date';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { useMemoizedFn, useWhyDidYouUpdate } from '@/hooks';
+import { useMemoizedFn } from '@/hooks';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
-import { ShareAssetType, ShareRole } from '@/api/asset_interfaces/share';
+import { ShareAssetType } from '@/api/asset_interfaces/share';
 import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
 import { timeout } from '@/lib';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
 import { DASHBOARD_TITLE_INPUT_ID } from '@/controllers/DashboardController/DashboardViewDashboardController/DashboardEditTitle';
-import { isEffectiveOwner } from '@/lib/share';
+import { canEdit, canFilter, getIsEffectiveOwner } from '@/lib/share';
+import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 
 export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });
@@ -42,19 +43,23 @@ export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId:
   const shareMenu = useShareMenuSelectMenu({ dashboardId });
   const addContentToDashboardMenu = useAddContentToDashboardSelectMenu();
   const filterDashboardMenu = useFilterDashboardSelectMenu();
+  const { data: permission } = useGetDashboard(dashboardId, (x) => x.permission);
+  const isOwner = getIsEffectiveOwner(permission);
+  const isFilter = canFilter(permission);
+  const isEditor = canEdit(permission);
 
   const items: DropdownItems = useMemo(
     () => [
-      filterDashboardMenu,
-      addContentToDashboardMenu,
+      isFilter && filterDashboardMenu,
+      isEditor && addContentToDashboardMenu,
       { type: 'divider' },
-      shareMenu,
+      isOwner && shareMenu,
       collectionSelectMenu,
       favoriteDashboard,
       versionHistoryItems,
       { type: 'divider' },
-      renameDashboardMenu,
-      deleteDashboardMenu
+      isEditor && renameDashboardMenu,
+      isOwner && deleteDashboardMenu
     ],
     [
       filterDashboardMenu,
@@ -63,7 +68,8 @@ export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId:
       collectionSelectMenu,
       favoriteDashboard,
       versionHistoryItems,
-      renameDashboardMenu
+      renameDashboardMenu,
+      deleteDashboardMenu
     ]
   );
 
@@ -211,8 +217,8 @@ const useRenameDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }) 
 };
 
 export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
-  const { data: dashboard } = useGetDashboard(dashboardId);
-  const isOwner = isEffectiveOwner(dashboard?.permission);
+  const { data: dashboard } = useGetDashboard(dashboardId, getShareAssetConfig);
+  const isOwner = getIsEffectiveOwner(dashboard?.permission);
 
   return useMemo(
     () => ({

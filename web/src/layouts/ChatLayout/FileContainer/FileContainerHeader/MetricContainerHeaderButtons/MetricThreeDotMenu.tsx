@@ -45,10 +45,12 @@ import { METRIC_CHART_CONTAINER_ID } from '@/controllers/MetricController/Metric
 import { timeout } from '@/lib';
 import { METRIC_CHART_TITLE_INPUT_ID } from '@/controllers/MetricController/MetricViewChart/MetricViewChartHeader';
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
-import { isEffectiveOwner } from '@/lib/share';
+import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
+import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { openSuccessMessage } = useBusterNotifications();
+  const { data: permission } = useGetMetric({ id: metricId }, (x) => x.permission);
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
   const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
@@ -64,27 +66,35 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
   const renameMetricMenu = useRenameMetricSelectMenu({ metricId });
   const shareMenu = useShareMenuSelectMenu({ metricId });
 
+  const isEditor = canEdit(permission);
+  const isOwnerEffective = getIsEffectiveOwner(permission);
+  const isOwner = getIsOwner(permission);
+
   const items: DropdownItems = useMemo(
-    () => [
-      shareMenu,
-      statusSelectMenu,
-      { type: 'divider' },
-      dashboardSelectMenu,
-      collectionSelectMenu,
-      favoriteMetric,
-      { type: 'divider' },
-      editChartMenu,
-      resultsViewMenu,
-      sqlEditorMenu,
-      versionHistoryItems,
-      { type: 'divider' },
-      downloadCSVMenu,
-      downloadPNGMenu,
-      { type: 'divider' },
-      renameMetricMenu,
-      deleteMetricMenu
-    ],
+    () =>
+      [
+        isOwnerEffective && shareMenu,
+        isEditor && statusSelectMenu,
+        { type: 'divider' },
+        dashboardSelectMenu,
+        collectionSelectMenu,
+        favoriteMetric,
+        { type: 'divider' },
+        isEditor && editChartMenu,
+        resultsViewMenu,
+        sqlEditorMenu,
+        isEditor && versionHistoryItems,
+        { type: 'divider' },
+        downloadCSVMenu,
+        downloadPNGMenu,
+        { type: 'divider' },
+        isEditor && renameMetricMenu,
+        isOwner && deleteMetricMenu
+      ].filter(Boolean) as DropdownItems,
     [
+      isEditor,
+      isOwner,
+      isOwnerEffective,
       renameMetricMenu,
       dashboardSelectMenu,
       deleteMetricMenu,
@@ -115,7 +125,7 @@ ThreeDotMenuButton.displayName = 'ThreeDotMenuButton';
 const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: saveMetricToDashboard } = useSaveMetricToDashboard();
   const { mutateAsync: removeMetricFromDashboard } = useRemoveMetricFromDashboard();
-  const { data: dashboards } = useGetMetric(metricId, (x) => x.dashboards);
+  const { data: dashboards } = useGetMetric({ id: metricId }, (x) => x.dashboards);
 
   const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
     await saveMetricToDashboard({ metricId, dashboardIds });
@@ -156,7 +166,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data } = useGetMetric(metricId, (x) => ({
+  const { data } = useGetMetric({ id: metricId }, (x) => ({
     versions: x.versions,
     version_number: x.version_number
   }));
@@ -185,7 +195,7 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
 const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollection();
   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
-  const { data: collections } = useGetMetric(metricId, (x) => x.collections);
+  const { data: collections } = useGetMetric({ id: metricId }, (x) => x.collections);
   const { openInfoMessage } = useBusterNotifications();
 
   const selectedCollections = useMemo(() => {
@@ -233,7 +243,7 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: metric } = useGetMetric(metricId, (x) => x);
+  const { data: metric } = useGetMetric({ id: metricId }, (x) => x);
   const { mutateAsync: updateMetric } = useUpdateMetric();
 
   const onChangeStatus = useMemoizedFn(async (status: VerificationStatus) => {
@@ -264,7 +274,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: title } = useGetMetric(metricId, (x) => x.title);
+  const { data: title } = useGetMetric({ id: metricId }, (x) => x.title);
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: metricId,
     type: ShareAssetType.METRIC,
@@ -341,7 +351,7 @@ const useSQLEditorSelectMenu = () => {
 const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const { data: metricData } = useGetMetricData({ id: metricId });
-  const { data: title } = useGetMetric(metricId, (x) => x.title);
+  const { data: title } = useGetMetric({ id: metricId }, (x) => x.title);
 
   return useMemo(
     () => ({
@@ -363,10 +373,10 @@ const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useDownloadPNGSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { openSuccessMessage, openErrorMessage } = useBusterNotifications();
-  const { data: title } = useGetMetric(metricId, (x) => x.title);
+  const { openErrorMessage } = useBusterNotifications();
+  const { data: title } = useGetMetric({ id: metricId }, (x) => x.title);
   const { data: selectedChartType } = useGetMetric(
-    metricId,
+    { id: metricId },
     (x) => x.chart_config?.selectedChartType
   );
 
@@ -433,25 +443,22 @@ const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: metric } = useGetMetric(metricId);
-  const isOwner = isEffectiveOwner(metric?.permission);
+  const { data: metric } = useGetMetric({ id: metricId }, getShareAssetConfig);
 
   return useMemo(
     () => ({
       label: 'Share metric',
       value: 'share-metric',
       icon: <ShareRight />,
-      disabled: !isOwner,
-      items: isOwner
-        ? [
-            <ShareMenuContent
-              key={metricId}
-              shareAssetConfig={metric!}
-              assetId={metricId}
-              assetType={ShareAssetType.METRIC}
-            />
-          ]
-        : undefined
+
+      items: (
+        <ShareMenuContent
+          key={metricId}
+          shareAssetConfig={metric!}
+          assetId={metricId}
+          assetType={ShareAssetType.METRIC}
+        />
+      )
     }),
     [metricId]
   );
