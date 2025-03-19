@@ -6,9 +6,10 @@ use async_trait::async_trait;
 use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::Utc;
 use database::{
-    models::DashboardFile,
+    enums::{AssetPermissionRole, AssetType, IdentityType},
+    models::{AssetPermission, DashboardFile},
     pool::get_pg_pool,
-    schema::dashboard_files,
+    schema::{asset_permissions, dashboard_files},
     types::{DashboardYml, VersionHistory},
 };
 use diesel::insert_into;
@@ -176,6 +177,40 @@ impl ToolExecutor for CreateDashboardFilesTool {
                 .await
             {
                 Ok(_) => {
+                    // Get the user ID from the agent state
+                    let user_id = self.agent.get_user_id();
+                    
+                    // Create asset permissions for each dashboard file
+                    for dashboard_file in &dashboard_records {
+                        let asset_permission = AssetPermission {
+                            asset_id: dashboard_file.id,
+                            asset_type: AssetType::DashboardFile,
+                            identity_id: user_id,
+                            identity_type: IdentityType::User,
+                            role: AssetPermissionRole::Owner,
+                            created_by: user_id,
+                            updated_by: user_id,
+                            created_at: Utc::now(),
+                            updated_at: Utc::now(),
+                            deleted_at: None,
+                        };
+                        
+                        match diesel::insert_into(asset_permissions::table)
+                            .values(&asset_permission)
+                            .execute(&mut conn)
+                            .await
+                        {
+                            Ok(_) => (),
+                            Err(e) => {
+                                tracing::warn!(
+                                    "Failed to create asset permission for dashboard file {}: {}",
+                                    dashboard_file.id,
+                                    e
+                                );
+                            }
+                        }
+                    }
+                    
                     for (i, yml) in dashboard_ymls.into_iter().enumerate() {
                         created_files.push(FileWithId {
                             id: dashboard_records[i].id,

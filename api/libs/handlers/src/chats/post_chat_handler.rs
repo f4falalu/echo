@@ -13,10 +13,10 @@ use agents::{
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
-    enums::Verification,
-    models::{Chat, DashboardFile, Message, MessageToFile, MetricFile, User},
+    enums::{AssetPermissionRole, AssetType, IdentityType, Verification},
+    models::{AssetPermission, Chat, DashboardFile, Message, MessageToFile, MetricFile, User},
     pool::get_pg_pool,
-    schema::{chats, dashboard_files, messages, messages_to_files, metric_files},
+    schema::{asset_permissions, chats, dashboard_files, messages, messages_to_files, metric_files},
 };
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
@@ -1907,6 +1907,22 @@ async fn initialize_chat(
         let mut conn = get_pg_pool().get().await?;
         insert_into(chats::table)
             .values(&chat)
+            .execute(&mut conn)
+            .await?;
+
+        insert_into(asset_permissions::table)
+            .values(&AssetPermission {
+                asset_id: chat_id,
+                asset_type: AssetType::Chat,
+                identity_id: user.id,
+                identity_type: IdentityType::User,
+                role: AssetPermissionRole::Owner,
+                created_by: user.id,
+                updated_by: user.id,
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+                deleted_at: None,
+            })
             .execute(&mut conn)
             .await?;
 
