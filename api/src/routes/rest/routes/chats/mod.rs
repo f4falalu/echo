@@ -10,7 +10,6 @@ mod list_chats;
 mod post_chat;
 mod sharing;
 mod update_chats;
-mod sharing;
 
 pub use delete_chats::delete_chats_route;
 pub use get_chat::get_chat_route;
