@@ -708,7 +708,6 @@ pub async fn transform_message(
     tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
     tracker: &ChunkTracker,
 ) -> Result<Vec<(BusterContainer, ThreadEvent)>> {
-    println!("MESSAGE_STREAM: Transforming message: {:?}", message);
 
     match message {
         AgentMessage::Assistant {
@@ -1006,7 +1005,6 @@ fn transform_tool_message(
 }
 
 fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
-    println!("MESSAGE_STREAM: Processing tool create plan message");
 
     let plan_markdown = match serde_json::from_str::<CreatePlanOutput>(&content) {
         Ok(result) => result.plan_markdown,
@@ -1031,7 +1029,6 @@ fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMe
 
 // Update tool_create_metrics to require ID
 fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
-    println!("MESSAGE_STREAM: Processing tool create metrics message");
 
     // Parse the CreateMetricFilesOutput from content
     let create_metrics_result = match serde_json::from_str::<CreateMetricFilesOutput>(&content) {
@@ -1088,7 +1085,6 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
 
 // Update tool_modify_metrics to require ID
 fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
-    println!("MESSAGE_STREAM: Processing tool modify metrics message");
 
     // Parse the ModifyFilesOutput from content
     let modify_metrics_result = match serde_json::from_str::<ModifyFilesOutput>(&content) {
@@ -1145,7 +1141,6 @@ fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
 
 // Update tool_create_dashboards to require ID
 fn tool_create_dashboards(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
-    println!("MESSAGE_STREAM: Processing tool create dashboards message");
 
     // Parse the CreateDashboardFilesOutput from content
     let create_dashboards_result =
@@ -1203,8 +1198,6 @@ fn tool_create_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
 
 // Update tool_modify_dashboards to require ID
 fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
-    println!("MESSAGE_STREAM: Processing tool modify dashboards message");
-
     // Parse the ModifyFilesOutput from content
     let modify_dashboards_result = match serde_json::from_str::<ModifyFilesOutput>(&content) {
         Ok(result) => result,
