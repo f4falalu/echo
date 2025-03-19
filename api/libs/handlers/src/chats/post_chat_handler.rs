@@ -1,6 +1,6 @@
 use middleware::AuthenticatedUser;
-use once_cell::sync::OnceCell;
-use std::{collections::HashMap, sync::Mutex, time::Instant};
+use std::{collections::HashMap, time::Instant};
+use dashmap::DashMap;
 
 use agents::{
     tools::{file_tools::{
@@ -18,7 +18,7 @@ use database::{
     pool::get_pg_pool,
     schema::{chats, dashboard_files, messages, messages_to_files, metric_files},
 };
-use diesel::{insert_into, ExpressionMethods};
+use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 use litellm::{
     AgentMessage as LiteLLMAgentMessage, ChatCompletionRequest, LiteLLMClient, MessageProgress,
@@ -41,12 +41,6 @@ use crate::messages::types::{ChatMessage, ChatUserMessage};
 use super::types::ChatWithMessages;
 use tokio::sync::mpsc;
 
-static CHUNK_TRACKER: OnceCell<ChunkTracker> = OnceCell::new();
-
-fn get_chunk_tracker() -> &'static ChunkTracker {
-    CHUNK_TRACKER.get_or_init(|| ChunkTracker::new())
-}
-
 // Define ThreadEvent
 #[derive(Clone, Copy, Debug)]
 pub enum ThreadEvent {
@@ -66,10 +60,12 @@ pub struct ChatCreateNewChat {
     pub dashboard_id: Option<Uuid>,
 }
 
-struct ChunkTracker {
-    chunks: Mutex<HashMap<String, ChunkState>>,
+// Replace mutex-based chunk tracker with DashMap for lock-free concurrent access
+pub struct ChunkTracker {
+    chunks: DashMap<String, ChunkState>,
 }
 
+#[derive(Clone)]
 struct ChunkState {
     complete_text: String,
     last_seen_content: String,
@@ -78,59 +74,59 @@ struct ChunkState {
 impl ChunkTracker {
     pub fn new() -> Self {
         Self {
-            chunks: Mutex::new(HashMap::new()),
+            chunks: DashMap::new(),
         }
     }
 
     pub fn add_chunk(&self, chunk_id: String, new_chunk: String) -> String {
-        if let Ok(mut chunks) = self.chunks.lock() {
-            let state = chunks.entry(chunk_id).or_insert(ChunkState {
+        // Compute delta and update in one operation using DashMap
+        let mut delta_to_return = String::new();
+        
+        {
+            self.chunks.entry(chunk_id.clone()).or_insert_with(|| ChunkState {
                 complete_text: String::new(),
                 last_seen_content: String::new(),
             });
-
-            // Calculate the delta by finding what's new since last_seen_content
-            let delta = if state.last_seen_content.is_empty() {
-                // First chunk, use it as is
-                new_chunk.clone()
-            } else if new_chunk.starts_with(&state.last_seen_content) {
-                // New chunk contains all previous content at the start, extract only the new part
-                new_chunk[state.last_seen_content.len()..].to_string()
-            } else {
-                // If we can't find the previous content, try to find where the new content starts
-                match new_chunk.find(&state.last_seen_content) {
-                    Some(pos) => new_chunk[pos + state.last_seen_content.len()..].to_string(),
-                    None => {
-                        // If we can't find any overlap, this might be completely new content
-                        new_chunk.clone()
+            
+            // Now that we've initialized the entry if needed, get mutable access to update it
+            if let Some(mut entry) = self.chunks.get_mut(&chunk_id) {
+                // Calculate the delta
+                let delta = if entry.last_seen_content.is_empty() {
+                    // First chunk, use it as is
+                    new_chunk.clone()
+                } else if new_chunk.starts_with(&entry.last_seen_content) {
+                    // New chunk contains all previous content at the start, extract only the new part
+                    new_chunk[entry.last_seen_content.len()..].to_string()
+                } else {
+                    // If we can't find the previous content, try to find where the new content starts
+                    match new_chunk.find(&entry.last_seen_content) {
+                        Some(pos) => new_chunk[pos + entry.last_seen_content.len()..].to_string(),
+                        None => {
+                            // If we can't find any overlap, this might be completely new content
+                            new_chunk.clone()
+                        }
                     }
+                };
+                
+                delta_to_return = delta.clone();
+                
+                // Update tracking state only if we found new content
+                if !delta.is_empty() {
+                    entry.complete_text.push_str(&delta);
+                    entry.last_seen_content = new_chunk;
                 }
-            };
-
-            // Update tracking state only if we found new content
-            if !delta.is_empty() {
-                state.complete_text.push_str(&delta);
-                state.last_seen_content = new_chunk;
             }
-
-            delta
-        } else {
-            new_chunk
         }
+        
+        delta_to_return
     }
 
     pub fn get_complete_text(&self, chunk_id: String) -> Option<String> {
-        self.chunks.lock().ok().and_then(|chunks| {
-            chunks
-                .get(&chunk_id)
-                .map(|state| state.complete_text.clone())
-        })
+        self.chunks.get(&chunk_id).map(|state| state.complete_text.clone())
     }
 
     pub fn clear_chunk(&self, chunk_id: String) {
-        if let Ok(mut chunks) = self.chunks.lock() {
-            chunks.remove(&chunk_id);
-        }
+        self.chunks.remove(&chunk_id);
     }
 }
 
@@ -139,6 +135,8 @@ pub async fn post_chat_handler(
     user: AuthenticatedUser,
     tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<ChatWithMessages> {
+    // Create a request-local chunk tracker instance instead of using global static
+    let chunk_tracker = ChunkTracker::new();
     let reasoning_duration = Instant::now();
     validate_context_request(request.chat_id, request.metric_id, request.dashboard_id)?;
 
@@ -274,7 +272,7 @@ pub async fn post_chat_handler(
                 }
 
                 // Always transform the message
-                match transform_message(&chat_id, &message_id, msg, tx.as_ref()).await {
+                match transform_message(&chat_id, &message_id, msg, tx.as_ref(), &chunk_tracker).await {
                     Ok(containers) => {
                         // Store all transformed containers
                         for (container, _) in containers.clone() {
@@ -366,14 +364,18 @@ pub async fn post_chat_handler(
         .await?;
 
     // First process completed files (database updates only)
-    let _ = process_completed_files(
-        &mut conn,
-        &db_message,
-        &all_messages,
-        &user_org_id,
-        &user.id,
-    )
-    .await?;
+    // Use a separate connection scope to ensure prompt release
+    {
+        let _ = process_completed_files(
+            &mut conn,
+            &db_message,
+            &all_messages,
+            &user_org_id,
+            &user.id,
+            &chunk_tracker,
+        )
+        .await?;
+    }
 
     // Then send text response messages
     if let Some(tx) = &tx {
@@ -497,13 +499,14 @@ async fn process_completed_files(
     messages: &[AgentMessage],
     organization_id: &Uuid,
     user_id: &Uuid,
+    chunk_tracker: &ChunkTracker,
 ) -> Result<()> {
     let mut transformed_messages = Vec::new();
     let mut processed_file_ids = std::collections::HashSet::new();
 
     for msg in messages {
         if let Ok(containers) =
-            transform_message(&message.chat_id, &message.id, msg.clone(), None).await
+            transform_message(&message.chat_id, &message.id, msg.clone(), None, chunk_tracker).await
         {
             transformed_messages.extend(containers);
         }
@@ -703,6 +706,7 @@ pub async fn transform_message(
     message_id: &Uuid,
     message: AgentMessage,
     tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
+    tracker: &ChunkTracker,
 ) -> Result<Vec<(BusterContainer, ThreadEvent)>> {
     println!("MESSAGE_STREAM: Transforming message: {:?}", message);
 
@@ -725,6 +729,7 @@ pub async fn transform_message(
                     progress.clone(),
                     *chat_id,
                     *message_id,
+                    tracker,
                 ) {
                     Ok(messages) => messages
                         .into_iter()
@@ -780,6 +785,7 @@ pub async fn transform_message(
                     initial,
                     *chat_id,
                     *message_id,
+                    tracker,
                 ) {
                     Ok(messages) => {
                         for reasoning_container in messages {
@@ -946,9 +952,8 @@ fn transform_text_message(
     progress: MessageProgress,
     chat_id: Uuid,
     message_id: Uuid,
+    tracker: &ChunkTracker,
 ) -> Result<Vec<BusterChatMessage>> {
-    let tracker = get_chunk_tracker();
-
     match progress {
         MessageProgress::InProgress => {
             let filtered_content = tracker.add_chunk(id.clone(), content.clone());
@@ -1341,9 +1346,9 @@ fn transform_assistant_tool_message(
     initial: bool,
     chat_id: Uuid,
     message_id: Uuid,
+    tracker: &ChunkTracker,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut all_messages = Vec::new();
-    let tracker = get_chunk_tracker();
 
     for tool_call in &tool_calls {
         let tool_id = tool_call.id.clone();
@@ -1774,7 +1779,7 @@ pub async fn generate_conversation_title(
             generation_name: "conversation_title".to_string(),
             user_id: user_id.to_string(),
             session_id: session_id.to_string(),
-            trace_id: None,
+            trace_id: session_id.to_string(),
         }),
         ..Default::default()
     };

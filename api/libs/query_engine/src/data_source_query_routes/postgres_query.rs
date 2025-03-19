@@ -69,7 +69,7 @@ pub async fn postgres_query(
 
     let formatted_sql = ast[0].to_string();
 
-    let mut stream = sqlx::query(&formatted_sql).fetch(&pg_pool);
+    let mut stream = sqlx::raw_sql(&formatted_sql).fetch(&pg_pool);
 
     let mut result: Vec<IndexMap<String, DataType>> = Vec::new();
     let mut count = 0;

@@ -91,12 +91,12 @@ pub enum TeamToUserRole {
 #[serde(rename_all = "camelCase")]
 pub enum AssetPermissionRole {
     Owner,
-    Editor,
-    Viewer,
     FullAccess,
     CanEdit,
     CanFilter,
     CanView,
+    Editor,
+    Viewer,
 }
 
 impl AssetPermissionRole {
