@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use database::{enums::Verification, types::{ChartConfig, VersionHistory}};
+use database::{enums::{AssetPermissionRole, Verification}, types::{ChartConfig, VersionHistory}};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -45,6 +45,8 @@ pub struct BusterMetric {
     pub dashboards: Vec<Dashboard>,
     pub collections: Vec<Collection>,
     pub versions: Vec<Version>,
+    pub permission: AssetPermissionRole,
+    pub sql: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

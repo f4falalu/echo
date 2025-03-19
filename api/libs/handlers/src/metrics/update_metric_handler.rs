@@ -10,6 +10,40 @@ use diesel_async::RunQueryDsl;
 use serde_json::Value;
 use uuid::Uuid;
 
+/// Recursively merges two JSON objects.
+/// The second object (update) takes precedence over the first (base) where there are conflicts.
+/// 
+/// # Arguments
+/// * `base` - The base JSON value, typically the existing configuration
+/// * `update` - The update JSON value containing fields to update
+/// 
+/// # Returns
+/// * `Result<Value>` - The merged JSON value or an error
+fn merge_json_objects(base: Value, update: Value) -> Result<Value> {
+    match (base, update) {
+        // If both are objects, merge them recursively
+        (Value::Object(mut base_map), Value::Object(update_map)) => {
+            for (key, value) in update_map {
+                match base_map.get_mut(&key) {
+                    // If key exists in both, recursively merge the values
+                    Some(base_value) => {
+                        *base_value = merge_json_objects(base_value.clone(), value)?;
+                    }
+                    // If key only exists in update, just insert it
+                    None => {
+                        base_map.insert(key, value);
+                    }
+                }
+            }
+            Ok(Value::Object(base_map))
+        }
+        // For arrays, replace the entire array
+        (_, update @ Value::Array(_)) => Ok(update),
+        // For any other type, just replace the value
+        (_, update) => Ok(update),
+    }
+}
+
 use crate::metrics::get_metric_handler::get_metric_handler;
 use crate::metrics::types::BusterMetric;
 
@@ -71,7 +105,17 @@ pub async fn update_metric_handler(
             content.description = Some(description);
         }
         if let Some(chart_config) = request.chart_config {
-            content.chart_config = serde_json::from_value(chart_config)?;
+            // Instead of trying to deserialize directly, we'll merge the JSON objects first
+            // and then deserialize the combined result
+            
+            // Convert existing chart_config to Value for merging
+            let existing_config = serde_json::to_value(&content.chart_config)?;
+            
+            // Merge the incoming chart_config with the existing one
+            let merged_config = merge_json_objects(existing_config, chart_config)?;
+            
+            // Convert merged JSON back to ChartConfig
+            content.chart_config = serde_json::from_value(merged_config)?;
         }
         if let Some(time_frame) = request.time_frame {
             content.time_frame = time_frame;
@@ -169,5 +213,118 @@ mod tests {
         assert!(valid_request.dataset_ids.unwrap()[0].len() == 36);
         
         // Actual validation logic is tested in integration tests
+    }
+    
+    #[test]
+    fn test_chart_config_partial_update() {
+        // This test verifies that partial chart_config updates only change specified fields
+        
+        // Create a mock existing chart_config
+        let existing_config = serde_json::json!({
+            "selectedChartType": "bar",
+            "colors": ["#1f77b4", "#ff7f0e"],
+            "show_legend": true,
+            "grid_lines": true,
+            "bar_and_line_axis": {
+                "x": ["date"],
+                "y": ["value"]
+            },
+            "columnLabelFormats": {
+                "date": {
+                    "columnType": "date",
+                    "style": "date"
+                },
+                "value": {
+                    "columnType": "number",
+                    "style": "number"
+                }
+            }
+        });
+        
+        // Create a partial chart_config update that only changes specific fields
+        let partial_config = serde_json::json!({
+            "selectedChartType": "bar",  // Same as before
+            "colors": ["#ff0000", "#00ff00"],  // Changed
+            "show_legend": false,  // Changed
+            "columnLabelFormats": {
+                // Update just one entry
+                "value": {
+                    "style": "currency"  // Only changing style, columnType should be preserved
+                }
+            }
+        });
+        
+        // Apply the deep merge
+        let updated_config = merge_json_objects(existing_config.clone(), partial_config.clone()).unwrap();
+        
+        // Verify the updated config has the expected changes
+        
+        // Changed fields should have new values
+        assert_eq!(updated_config["colors"][0], "#ff0000");
+        assert_eq!(updated_config["colors"][1], "#00ff00");
+        assert_eq!(updated_config["show_legend"], false);
+        
+        // Unchanged fields should retain original values
+        assert_eq!(updated_config["grid_lines"], true);
+        assert_eq!(updated_config["bar_and_line_axis"]["x"][0], "date");
+        assert_eq!(updated_config["bar_and_line_axis"]["y"][0], "value");
+        
+        // Verify nested column formats are correctly merged
+        assert_eq!(updated_config["columnLabelFormats"]["date"]["columnType"], "date");
+        assert_eq!(updated_config["columnLabelFormats"]["date"]["style"], "date");
+        
+        // This entry should be partially updated - style changed but columnType preserved
+        assert_eq!(updated_config["columnLabelFormats"]["value"]["columnType"], "number");
+        assert_eq!(updated_config["columnLabelFormats"]["value"]["style"], "currency");
+    }
+    
+    #[test]
+    fn test_merge_json_objects() {
+        // Test basic object merging
+        let base = serde_json::json!({
+            "a": 1,
+            "b": 2
+        });
+        let update = serde_json::json!({
+            "b": 3,
+            "c": 4
+        });
+        
+        let result = merge_json_objects(base, update).unwrap();
+        assert_eq!(result["a"], 1);
+        assert_eq!(result["b"], 3);
+        assert_eq!(result["c"], 4);
+        
+        // Test nested object merging
+        let base = serde_json::json!({
+            "nested": {
+                "x": 1,
+                "y": 2
+            },
+            "other": "value"
+        });
+        let update = serde_json::json!({
+            "nested": {
+                "y": 3,
+                "z": 4
+            }
+        });
+        
+        let result = merge_json_objects(base, update).unwrap();
+        assert_eq!(result["nested"]["x"], 1);  // Preserved from base
+        assert_eq!(result["nested"]["y"], 3);  // Updated
+        assert_eq!(result["nested"]["z"], 4);  // Added from update
+        assert_eq!(result["other"], "value");  // Preserved from base
+        
+        // Test array replacement
+        let base = serde_json::json!({
+            "arr": [1, 2, 3]
+        });
+        let update = serde_json::json!({
+            "arr": [4, 5]
+        });
+        
+        let result = merge_json_objects(base, update).unwrap();
+        assert_eq!(result["arr"], serde_json::json!([4, 5]));  // Array is replaced, not merged
     }
 }

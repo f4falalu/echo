@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::metrics::types::{
     BusterMetric, ColumnMetaData, ColumnType, DataMetadata, Dataset, MinMaxValue, SimpleType,
 };
-use database::enums::Verification;
+use database::enums::{AssetPermissionRole, Verification};
 use database::pool::get_pg_pool;
 use database::schema::{datasets, metric_files};
 use database::types::MetricYml;
@@ -217,5 +217,8 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid, version_number
         dashboards: vec![],  // TODO: Get associated dashboards
         collections: vec![], // TODO: Get associated collections
         versions,
+        // TODO: get the actual access check
+        permission: AssetPermissionRole::Owner,
+        sql: metric_content.sql,
     })
 }
