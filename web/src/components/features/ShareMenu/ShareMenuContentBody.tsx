@@ -67,9 +67,9 @@ const ShareMenuContentShare: React.FC<{
   assetId: string;
   isOwner: boolean;
 }> = React.memo(({ isOwner, assetType, individual_permissions, assetId }) => {
-  const { mutateAsync: onShareMetric } = useShareMetric();
-  const { mutateAsync: onShareDashboard } = useShareDashboard();
-  const { mutateAsync: onShareCollection } = useShareCollection();
+  const { mutateAsync: onShareMetric, isPending: isInvitingMetric } = useShareMetric();
+  const { mutateAsync: onShareDashboard, isPending: isInvitingDashboard } = useShareDashboard();
+  const { mutateAsync: onShareCollection, isPending: isInvitingCollection } = useShareCollection();
   const { mutateAsync: onUpdateMetricShare } = useUpdateMetricShare();
   const { mutateAsync: onUpdateDashboardShare } = useUpdateDashboardShare();
   const { mutateAsync: onUpdateCollectionShare } = useUpdateCollectionShare();
@@ -77,8 +77,9 @@ const ShareMenuContentShare: React.FC<{
   const { mutateAsync: onUnshareDashboard } = useUnshareDashboard();
   const { mutateAsync: onUnshareCollection } = useUnshareCollection();
 
+  const isInviting = isInvitingMetric || isInvitingDashboard || isInvitingCollection;
+
   const [inputValue, setInputValue] = React.useState<string>('');
-  const [isInviting, setIsInviting] = React.useState<boolean>(false);
   const [defaultPermissionLevel, setDefaultPermissionLevel] = React.useState<ShareRole>(
     ShareRole.CAN_VIEW
   );
@@ -102,7 +103,6 @@ const ShareMenuContentShare: React.FC<{
       ]
     };
 
-    setIsInviting(true);
     if (assetType === ShareAssetType.METRIC) {
       await onShareMetric(payload);
     } else if (assetType === ShareAssetType.DASHBOARD) {
@@ -110,7 +110,7 @@ const ShareMenuContentShare: React.FC<{
     } else if (assetType === ShareAssetType.COLLECTION) {
       await onShareCollection(payload);
     }
-    setIsInviting(false);
+
     setInputValue('');
   });
 
