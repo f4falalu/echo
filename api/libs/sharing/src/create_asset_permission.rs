@@ -207,8 +207,8 @@ mod tests {
 
         assert!(result.is_err());
         let err = result.unwrap_err().to_string();
-        assert!(err.contains("Asset type"));
-        assert!(err.contains("is deprecated"));
+        assert!(err.contains("Deprecated asset type"));
+        assert!(err.contains("Dashboard"));
     }
 
     // Note: Additional integration tests would be needed to test the database interactions
