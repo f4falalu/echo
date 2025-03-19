@@ -22,7 +22,7 @@ export const ListEmptyStateWithButton: React.FC<{
             marginTop: '25vh'
           }}>
           <div className="flex w-[350px] flex-col justify-center space-y-3">
-            <Title as="h4" className="text-center [text-wrap:balance]">
+            <Title as="h4" className="leading-1.3 text-center [text-wrap:balance]">
               {title}
             </Title>
 

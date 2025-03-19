@@ -85,7 +85,6 @@ export const ChatItemsContainer: React.FC<{
           return date;
         }
       },
-      { dataIndex: 'dataset_name', title: 'Dataset', width: 115 },
       {
         dataIndex: 'is_shared',
         title: 'Sharing',

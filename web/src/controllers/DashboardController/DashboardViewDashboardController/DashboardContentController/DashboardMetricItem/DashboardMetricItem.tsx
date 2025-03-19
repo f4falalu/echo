@@ -46,9 +46,7 @@ const DashboardMetricItemBase: React.FC<{
     if (metric.error) {
       return metric.error;
     }
-    if (metric.code === null && isMetricFetched) {
-      return 'No code was generated for this request';
-    }
+
     return undefined;
   }, [metric.error, metric.code]);
 

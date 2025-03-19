@@ -81,7 +81,5 @@ export const cspPolicyMiddleware = (request: NextRequest) => {
   request.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   request.headers.set('frame-ancestors', '*');
 
-  console.log('request.headers', isEmbedRoute ? 'embed' : 'default', request.headers);
-
   return request;
 };

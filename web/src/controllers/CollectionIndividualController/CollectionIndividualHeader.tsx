@@ -9,9 +9,8 @@ import { FavoriteStar } from '@/components/features/list/FavoriteStar';
 import { ShareMenu } from '@/components/features/ShareMenu';
 import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
 import { useMemoizedFn } from '@/hooks';
-import { measureTextWidth } from '@/lib/canvas';
 import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
-import { Dots, Pencil, Plus, ShareAllRight, Trash } from '@/components/ui/icons';
+import { Dots, Pencil, Plus, ShareAllRight, ShareRight, Trash } from '@/components/ui/icons';
 import { useDeleteCollection, useUpdateCollection } from '@/api/buster_rest/collections';
 
 export const CollectionsIndividualHeader: React.FC<{
@@ -21,13 +20,8 @@ export const CollectionsIndividualHeader: React.FC<{
   isFetched: boolean;
 }> = ({ openAddTypeModal, setOpenAddTypeModal, collection, isFetched }) => {
   const { mutateAsync: updateCollection, isPending: isUpdatingCollection } = useUpdateCollection();
-  const [editingTitle, setEditingTitle] = React.useState(false);
 
   const collectionTitle = collection?.name || 'No collection title';
-
-  const textWidth = useMemo(() => {
-    return measureTextWidth(collectionTitle);
-  }, [collectionTitle, editingTitle]);
 
   const onSetTitleValue = useMemoizedFn((value: string) => {
     updateCollection({
@@ -37,13 +31,13 @@ export const CollectionsIndividualHeader: React.FC<{
   });
 
   return (
-    <div className="flex h-full w-full items-center justify-between space-x-3 overflow-hidden">
-      <div className="flex h-full items-center space-x-1 overflow-hidden">
+    <>
+      <div className="flex h-full items-center space-x-3 overflow-hidden">
         <CollectionBreadcrumb collectionName={collectionTitle} />
 
         {collection && (
-          <div className="flex items-center space-x-0">
-            <ThreeDotDropdown collection={collection} setEditingTitle={setEditingTitle} />
+          <div className="flex items-center space-x-3">
+            <ThreeDotDropdown collection={collection} />
             <FavoriteStar
               id={collection.id}
               type={ShareAssetType.COLLECTION}
@@ -60,7 +54,7 @@ export const CollectionsIndividualHeader: React.FC<{
           setOpenAddTypeModal={setOpenAddTypeModal}
         />
       )}
-    </div>
+    </>
   );
 };
 
@@ -79,7 +73,7 @@ const ContentRight: React.FC<{
         assetType={ShareAssetType.COLLECTION}
         assetId={collection.id}
         shareAssetConfig={collection}>
-        <Button variant="ghost" prefix={<ShareAllRight />} />
+        <Button variant="ghost" prefix={<ShareRight />} />
       </ShareMenu>
       <Button prefix={<Plus />} onClick={onButtonClick}>
         Add to collection
@@ -91,8 +85,7 @@ ContentRight.displayName = 'ContentRight';
 
 const ThreeDotDropdown: React.FC<{
   collection: BusterCollection;
-  setEditingTitle: (editing: boolean) => void;
-}> = React.memo(({ collection, setEditingTitle }) => {
+}> = React.memo(({ collection }) => {
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const { mutateAsync: deleteCollection, isPending: isDeletingCollection } = useDeleteCollection();
 
@@ -117,11 +110,11 @@ const ThreeDotDropdown: React.FC<{
         label: 'Rename collection',
         icon: <Pencil />,
         onClick: () => {
-          setEditingTitle(true);
+          //
         }
       }
     ],
-    [collection.id, deleteCollection, onChangePage, setEditingTitle]
+    [collection.id, deleteCollection, onChangePage]
   );
 
   return (

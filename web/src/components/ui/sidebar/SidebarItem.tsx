@@ -91,7 +91,7 @@ export const SidebarItem: React.FC<
             })}>
             {icon}
           </span>
-          <span className="truncate">{label}</span>
+          <span className="leading-1.3 truncate">{label}</span>
         </div>
         {onRemove && (
           <Button

@@ -23,14 +23,12 @@ export const dashboardsGetDashboard = async ({ id, password }: DashboardSubscrib
 };
 
 export const dashboardsCreateDashboard = async (params: DashboardCreateRequest) => {
-  return await mainApi
-    .post<BusterDashboardResponse>('/dashboards', { params })
-    .then((res) => res.data);
+  return await mainApi.post<BusterDashboardResponse>('/dashboards', params).then((res) => res.data);
 };
 
 export const dashboardsUpdateDashboard = async (params: DashboardUpdateRequest) => {
   return await mainApi
-    .put<BusterDashboardResponse>(`/dashboards/${params.id}`, { params })
+    .put<BusterDashboardResponse>(`/dashboards/${params.id}`, params)
     .then((res) => res.data);
 };
 

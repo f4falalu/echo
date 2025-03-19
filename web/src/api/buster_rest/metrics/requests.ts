@@ -46,5 +46,5 @@ export const duplicateMetric = async (params: {
   message_id: string;
   share_with_same_people: boolean;
 }) => {
-  return mainApi.post<BusterMetric>(`/metrics/duplicate`, { params }).then((res) => res.data);
+  return mainApi.post<BusterMetric>(`/metrics/duplicate`, params).then((res) => res.data);
 };

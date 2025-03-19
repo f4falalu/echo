@@ -162,7 +162,7 @@ export const useMetricRunSQL = () => {
 
       await saveMetric({
         id: metricId,
-        sql: sql,
+        sql,
         save_draft: true
       });
 

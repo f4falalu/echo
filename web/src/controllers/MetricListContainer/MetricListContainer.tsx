@@ -9,12 +9,12 @@ import { useGetMetricsList } from '@/api/buster_rest/metrics';
 
 export const MetricListContainer: React.FC<{}> = ({}) => {
   const [filters, setFilters] = useState<VerificationStatus[]>([]);
-  const { data: metricList, isFetching, isFetched } = useGetMetricsList({ status: filters });
+  const { data: metricList, isFetched } = useGetMetricsList({ status: filters });
 
   return (
     <AppPageLayout header={<MetricListHeader filters={filters} onSetFilters={setFilters} />}>
       <MetricItemsContainer
-        metrics={metricList || []}
+        metrics={metricList}
         loading={!isFetched}
         className="flex-col overflow-hidden"
       />

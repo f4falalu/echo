@@ -123,7 +123,7 @@ export const ShareMenuContentPublish: React.FC<{
 
     return (
       <div className="">
-        <div className="space-y-3 pb-3">
+        <div className="space-y-3">
           {publicly_accessible ? (
             <>
               <IsPublishedInfo isPublished={publicly_accessible} />

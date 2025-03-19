@@ -91,6 +91,7 @@ const DatasetFilters: React.FC<{
     <AppSegmented
       options={options}
       value={datasetFilter}
+      type="button"
       onChange={(value) => {
         setDatasetFilter(value.value);
       }}

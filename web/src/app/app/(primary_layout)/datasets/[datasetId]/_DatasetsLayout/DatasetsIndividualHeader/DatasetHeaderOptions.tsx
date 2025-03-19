@@ -35,7 +35,9 @@ export const DatasetsHeaderOptions: React.FC<{
     if (datasetId) push(keyToRoute(datasetId, value.value));
   });
 
-  return <AppSegmented options={options} value={selectedApp} onChange={onChangeSegment} />;
+  return (
+    <AppSegmented type="button" options={options} value={selectedApp} onChange={onChangeSegment} />
+  );
 });
 DatasetsHeaderOptions.displayName = 'DatasetsHeaderOptions';
 
