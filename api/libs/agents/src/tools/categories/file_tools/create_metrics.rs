@@ -4,7 +4,12 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::Utc;
-use database::{pool::get_pg_pool, schema::metric_files};
+use database::{
+    pool::get_pg_pool, 
+    schema::{metric_files, asset_permissions},
+    models::AssetPermission,
+    enums::{AssetType, IdentityType, AssetPermissionRole},
+};
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
@@ -120,6 +125,43 @@ impl ToolExecutor for CreateMetricFilesTool {
                 .await
             {
                 Ok(_) => {
+                    // Get the user ID from the agent state
+                    let user_id = self.agent.get_user_id();
+                    
+                    // Create asset permissions for each metric file
+                    let now = Utc::now();
+                    let asset_permissions: Vec<AssetPermission> = metric_records
+                        .iter()
+                        .map(|record| AssetPermission {
+                            identity_id: user_id,
+                            identity_type: IdentityType::User,
+                            asset_id: record.id,
+                            asset_type: AssetType::MetricFile,
+                            role: AssetPermissionRole::Owner,
+                            created_at: now,
+                            updated_at: now,
+                            deleted_at: None,
+                            created_by: user_id,
+                            updated_by: user_id,
+                        })
+                        .collect();
+                    
+                    // Insert asset permissions
+                    match insert_into(asset_permissions::table)
+                        .values(&asset_permissions)
+                        .execute(&mut conn)
+                        .await
+                    {
+                        Ok(_) => {
+                            tracing::debug!("Successfully inserted asset permissions for {} metric files", asset_permissions.len());
+                        },
+                        Err(e) => {
+                            tracing::error!("Error inserting asset permissions: {}", e);
+                            // Continue with the process even if permissions failed
+                            // We'll still return the created files
+                        }
+                    }
+                    
                     for (i, yml) in metric_ymls.into_iter().enumerate() {
                         created_files.push(FileWithId {
                             id: metric_records[i].id,
