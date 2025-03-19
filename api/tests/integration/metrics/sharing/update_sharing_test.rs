@@ -88,12 +88,14 @@ async fn test_update_metric_sharing_success() {
     let response = client
         .put(&format!("/metrics/{}/sharing", metric.id))
         .with_auth(&owner.id.to_string())
-        .json(&json!([
-            {
-                "email": "shared@example.com",
-                "role": "CanEdit"
-            }
-        ]))
+        .json(&json!({
+            "users": [
+                {
+                    "email": "shared@example.com",
+                    "role": "CanEdit"
+                }
+            ]
+        }))
         .send()
         .await;
     
@@ -192,12 +194,14 @@ async fn test_update_metric_sharing_unauthorized() {
     let response = client
         .put(&format!("/metrics/{}/sharing", metric.id))
         .with_auth(&unauthorized_user.id.to_string())
-        .json(&json!([
-            {
-                "email": "shared@example.com",
-                "role": "CanEdit"
-            }
-        ]))
+        .json(&json!({
+            "users": [
+                {
+                    "email": "shared@example.com",
+                    "role": "CanEdit"
+                }
+            ]
+        }))
         .send()
         .await;
     
@@ -269,12 +273,14 @@ async fn test_update_metric_sharing_invalid_email() {
     let response = client
         .put(&format!("/metrics/{}/sharing", metric.id))
         .with_auth(&owner.id.to_string())
-        .json(&json!([
-            {
-                "email": "invalid-email-format",
-                "role": "CanView"
-            }
-        ]))
+        .json(&json!({
+            "users": [
+                {
+                    "email": "invalid-email-format",
+                    "role": "CanView"
+                }
+            ]
+        }))
         .send()
         .await;
     
@@ -303,15 +309,92 @@ async fn test_update_metric_sharing_nonexistent_metric() {
     let response = client
         .put(&format!("/metrics/{}/sharing", nonexistent_id))
         .with_auth(&user.id.to_string())
-        .json(&json!([
-            {
-                "email": "share@example.com",
-                "role": "CanView"
-            }
-        ]))
+        .json(&json!({
+            "users": [
+                {
+                    "email": "share@example.com",
+                    "role": "CanView"
+                }
+            ]
+        }))
         .send()
         .await;
     
     // 4. Assert response is not found
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn test_update_metric_public_sharing() {
+    // Setup test database connection
+    let mut conn = get_pg_pool().get().await.unwrap();
+    
+    // 1. Create test owner
+    let owner = create_test_user("owner@example.com");
+    let org_id = Uuid::new_v4();
+    diesel::insert_into(users::table)
+        .values(&owner)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    
+    // 2. Create test metric
+    let metric = create_test_metric_file(&owner.id, &org_id, None);
+    diesel::insert_into(metric_files::table)
+        .values(&metric)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    
+    // 3. Create owner permission
+    let now = Utc::now();
+    let owner_permission = AssetPermission {
+        identity_id: owner.id,
+        identity_type: IdentityType::User,
+        asset_id: metric.id,
+        asset_type: AssetType::MetricFile,
+        role: AssetPermissionRole::Owner,
+        created_at: now,
+        updated_at: now,
+        deleted_at: None,
+        created_by: owner.id,
+        updated_by: owner.id,
+    };
+    
+    diesel::insert_into(asset_permissions::table)
+        .values(&owner_permission)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    
+    // 4. Create test client
+    let client = TestClient::new().await;
+    
+    // Set expiration date to 7 days from now
+    let expiration_date = (Utc::now() + chrono::Duration::days(7)).to_rfc3339();
+    
+    // 5. Send update sharing request with public access settings
+    let response = client
+        .put(&format!("/metrics/{}/sharing", metric.id))
+        .with_auth(&owner.id.to_string())
+        .json(&json!({
+            "publicly_accessible": true,
+            "public_expiration": expiration_date
+        }))
+        .send()
+        .await;
+    
+    // 6. Assert response is successful
+    assert_eq!(response.status(), StatusCode::OK);
+    
+    // 7. Check that the metric was updated with public access settings
+    let updated_metric = metric_files::table
+        .find(metric.id)
+        .first::<database::models::MetricFile>(&mut conn)
+        .await
+        .unwrap();
+    
+    assert!(updated_metric.publicly_accessible);
+    assert_eq!(updated_metric.publicly_enabled_by, Some(owner.id));
+    assert!(updated_metric.public_expiry_date.is_some());
 }

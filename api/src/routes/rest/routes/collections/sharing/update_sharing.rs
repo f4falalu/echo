@@ -3,7 +3,7 @@ use axum::{
     http::StatusCode,
     Extension, Json,
 };
-use handlers::collections::sharing::{update_collection_sharing_handler, ShareRecipient};
+use handlers::collections::sharing::UpdateCollectionSharingRequest;
 use middleware::AuthenticatedUser;
 use uuid::Uuid;
 
@@ -11,14 +11,31 @@ use uuid::Uuid;
 ///
 /// This endpoint updates sharing permissions for a collection with the provided details.
 /// Requires Owner or FullAccess permission.
+///
+/// Request body format:
+/// ```json
+/// {
+///     "users": [
+///         {
+///             "email": "user@example.com",
+///             "role": "Viewer"
+///         }
+///     ],
+///     "publicly_accessible": true,
+///     "public_password": "password",
+///     "public_expiration": "2023-12-31T23:59:59Z"
+/// }
+/// ```
+/// All fields are optional. If a field is not provided, it won't be updated.
+/// Note: Collections are not publicly accessible, so the publicly_* fields are ignored.
 pub async fn update_collection_sharing_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
-    Json(request): Json<Vec<ShareRecipient>>,
+    Json(request): Json<UpdateCollectionSharingRequest>,
 ) -> Result<Json<String>, (StatusCode, String)> {
     tracing::info!("Processing PUT request for collection sharing with ID: {}, user_id: {}", id, user.id);
 
-    match update_collection_sharing_handler(&id, &user.id, request).await {
+    match handlers::collections::sharing::update_collection_sharing_handler(&id, &user.id, request).await {
         Ok(_) => Ok(Json("Sharing permissions updated successfully".to_string())),
         Err(e) => {
             tracing::error!("Error updating sharing permissions: {}", e);
