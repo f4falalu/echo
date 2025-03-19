@@ -22,6 +22,56 @@ pub trait TestFixture: Sized {
     }
 }
 
+use anyhow::Result;
+use uuid::Uuid;
+use crate::common::fixtures::users::create_test_user;
+use diesel::result::Error as DieselError;
+use database::{
+    models::User,
+    pool::get_pg_pool,
+    schema::users,
+};
+use diesel::{ExpressionMethods, QueryDsl};
+use diesel_async::RunQueryDsl;
+
+/// Simplified user structure for tests
+#[derive(Debug, Clone)]
+pub struct TestUser {
+    pub id: Uuid,
+    pub email: String,
+    pub organization_id: Uuid,
+}
+
+/// Simple fixture builder for integration tests
+pub struct TestFixtureBuilder;
+
+impl TestFixtureBuilder {
+    /// Create a new test fixture builder
+    pub fn new() -> Self {
+        Self
+    }
+    
+    /// Create a test user with proper database entry
+    pub async fn create_user(&mut self) -> Result<TestUser> {
+        // Create a user model
+        let model_user = create_test_user();
+        
+        // Insert into database
+        let mut conn = get_pg_pool().get().await?;
+        diesel::insert_into(users::table)
+            .values(&model_user)
+            .execute(&mut conn)
+            .await?;
+            
+        // Return simplified test user
+        Ok(TestUser {
+            id: model_user.id,
+            email: model_user.email,
+            organization_id: Uuid::new_v4(), // In a real implementation, this would be properly set
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
