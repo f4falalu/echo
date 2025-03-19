@@ -8,10 +8,12 @@ import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
-  onSetSelectedFile
+  onSetSelectedFile,
+  selectedFileId
 }: {
   lastMessageId: string;
   onSetSelectedFile: (file: SelectedFile) => void;
+  selectedFileId: string | undefined;
 }) => {
   const previousLastMessageId = useRef<string | null>(null);
   const reasoningMessagesLength = useGetChatMessage(
@@ -41,7 +43,7 @@ export const useAutoChangeLayout = ({
         | BusterChatResponseMessage_file
         | undefined;
 
-      if (lastFile && lastFileId) {
+      if (lastFile && lastFileId && selectedFileId !== lastFileId) {
         onSetSelectedFile({ id: lastFileId, type: lastFile.file_type });
       }
     }

@@ -30,7 +30,6 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
       <SaveToDashboardButton metricId={metricId} />
       <ShareMetricButton metricId={metricId} />
       <ThreeDotMenuButton metricId={metricId} />
-
       <HideButtonContainer show={renderViewLayoutKey === 'file'}>
         <CreateChatButton />
       </HideButtonContainer>

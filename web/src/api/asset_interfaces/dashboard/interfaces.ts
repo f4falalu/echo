@@ -21,7 +21,7 @@ export interface BusterDashboardListItem {
   is_shared: boolean;
 }
 
-export interface BusterDashboardResponse extends BusterShare {
+export type BusterDashboardResponse = {
   access: ShareRole;
   metrics: Record<string, BusterMetric>;
   dashboard: BusterDashboard;
@@ -31,13 +31,9 @@ export interface BusterDashboardResponse extends BusterShare {
     id: string;
     name: string;
   }[];
-}
+} & BusterShare;
 
-export interface BusterDashboard
-  extends Omit<
-    BusterShare,
-    'team_permissions' | 'organization_permissions' | 'individual_permissions' | 'permission'
-  > {
+export interface BusterDashboard {
   config: DashboardConfig;
   created_at: string;
   created_by: string;
