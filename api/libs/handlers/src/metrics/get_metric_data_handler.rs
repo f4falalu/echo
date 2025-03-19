@@ -103,8 +103,8 @@ pub async fn get_metric_data_handler(
 
     let user_id = user.id;
 
-    // Retrieve the metric definition
-    let metric = get_metric_handler(&request.metric_id, &user_id).await?;
+    // Retrieve the metric definition (latest version)
+    let metric = get_metric_handler(&request.metric_id, &user_id, None).await?;
 
     // Parse the metric definition from YAML to get SQL and dataset IDs
     let metric_yml = serde_yaml::from_str::<MetricYml>(&metric.file)?;

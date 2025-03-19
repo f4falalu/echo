@@ -14,25 +14,36 @@ use crate::routes::ws::{
 #[derive(Deserialize)]
 pub struct GetMetricWsRequest {
     pub id: Uuid,
+    #[serde(rename = "version_number")]
+    pub version_number: Option<i32>,
 }
 
 pub async fn get_metric(user: &AuthenticatedUser, request: GetMetricWsRequest) -> Result<()> {
     tracing::info!(
-        "Processing WebSocket GET request for metric with ID: {}, user_id: {}",
+        "Processing WebSocket GET request for metric with ID: {}, user_id: {}, version_number: {:?}",
         request.id,
-        user.id
+        user.id,
+        request.version_number
     );
 
-    let metric = match get_metric_handler(&request.id, &user.id).await {
+    let metric = match get_metric_handler(&request.id, &user.id, request.version_number).await {
         Ok(metric) => metric,
         Err(e) => {
             tracing::error!("Error getting metric: {}", e);
+            let error_message = e.to_string();
+            // Use appropriate error code based on the error
+            let error_code = if error_message.contains("Version") && error_message.contains("not found") {
+                WsErrorCode::NotFound
+            } else {
+                WsErrorCode::InternalServerError
+            };
+            
             send_error_message(
                 &user.id.to_string(),
                 WsRoutes::Metrics(MetricRoute::Get),
                 WsEvent::Metrics(MetricEvent::GetMetric),
-                WsErrorCode::InternalServerError,
-                "Failed to get metric.".to_string(),
+                error_code,
+                format!("Failed to get metric: {}", error_message),
                 user,
             )
             .await?;
