@@ -27,6 +27,7 @@ export type BusterChatResponseMessage_text = {
   type: 'text';
   message: string;
   message_chunk?: string;
+  is_final_message: boolean;
 };
 
 export type BusterChatMessageReasoning_status = 'loading' | 'completed' | 'failed';
