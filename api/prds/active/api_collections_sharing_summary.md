@@ -12,7 +12,7 @@ The implementation is broken down into the following components, each with its o
 1. **List Collections Sharing Endpoint** - GET /collections/:id/sharing
    - PRD: [api_collections_sharing_list.md](/Users/dallin/buster/buster/api/prds/active/api_collections_sharing_list.md)
 
-2. **Create Collections Sharing Endpoint** - POST /collections/:id/sharing
+2. **Create Collections Sharing Endpoint** - POST /collections/:id/sharing ✅
    - PRD: [api_collections_sharing_create.md](/Users/dallin/buster/buster/api/prds/active/api_collections_sharing_create.md)
 
 3. **Update Collections Sharing Endpoint** - PUT /collections/:id/sharing
@@ -61,7 +61,7 @@ After Phase 1 is complete, the following components can be implemented in parall
   - Uses `list_shares` from `@[api/libs/sharing/src]/list_asset_permissions.rs`
   - Uses `check_access` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
-- **Create Sharing Endpoint**
+- **Create Sharing Endpoint** ✅
   - Uses `find_user_by_email` from `@[api/libs/sharing/src]/user_lookup.rs`
   - Uses `create_share_by_email` from `@[api/libs/sharing/src]/create_asset_permission.rs`
   - Uses `has_permission` from `@[api/libs/sharing/src]/check_asset_permission.rs`
