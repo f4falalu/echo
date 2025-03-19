@@ -89,10 +89,10 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid) -> Resul
         })
         .collect();
 
-    // Fetch all metrics concurrently
+    // Fetch all metrics concurrently (latest versions)
     let metric_futures: Vec<_> = metric_ids
         .iter()
-        .map(|metric_id| get_metric_handler(metric_id, user_id))
+        .map(|metric_id| get_metric_handler(metric_id, user_id, None))
         .collect();
 
     let metric_results = join_all(metric_futures).await;

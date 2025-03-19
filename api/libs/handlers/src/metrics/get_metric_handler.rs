@@ -48,8 +48,11 @@ struct UserInfo {
     avatar_url: Option<String>,
 }
 
-/// Handler to retrieve a metric by ID
-pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<BusterMetric> {
+/// Handler to retrieve a metric by ID with optional version number
+/// 
+/// If version_number is provided, returns that specific version of the metric.
+/// If version_number is None, returns the latest version of the metric.
+pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid, version_number: Option<i32>) -> Result<BusterMetric> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
@@ -91,16 +94,38 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
         }
     });
 
-    let metric_yml = metric_file.content.clone();
+    // Determine which version to use based on version_number parameter
+    let (metric_content, version_num) = if let Some(version) = version_number {
+        // Get the specific version if it exists
+        if let Some(v) = metric_file.version_history.get_version(version) {
+            match &v.content {
+                database::types::VersionContent::MetricYml(content) => (content.clone(), v.version_number),
+                _ => return Err(anyhow!("Invalid version content type"))
+            }
+        } else {
+            return Err(anyhow!("Version {} not found", version));
+        }
+    } else {
+        // Get the latest version
+        if let Some(v) = metric_file.version_history.get_latest_version() {
+            match &v.content {
+                database::types::VersionContent::MetricYml(content) => (content.clone(), v.version_number),
+                _ => return Err(anyhow!("Invalid version content type"))
+            }
+        } else {
+            // Fall back to current content if no version history
+            (metric_file.content.clone(), 1)
+        }
+    };
 
     // Convert content to pretty YAML
-    let file = match serde_yaml::to_string(&metric_file.content) {
+    let file = match serde_yaml::to_string(&metric_content) {
         Ok(yaml) => yaml,
         Err(e) => return Err(anyhow!("Failed to convert content to YAML: {}", e)),
     };
 
-    // Parse data metadata from MetricYml
-    let data_metadata = metric_yml.data_metadata.map(|metadata| {
+    // Parse data metadata from the selected version's MetricYml
+    let data_metadata = metric_content.data_metadata.map(|metadata| {
         DataMetadata {
             column_count: metadata.len() as i32,
             column_metadata: metadata
@@ -132,7 +157,7 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
 
     // Get dataset information for all dataset IDs
     let mut datasets = Vec::new();
-    for dataset_id in &metric_yml.dataset_ids {
+    for dataset_id in &metric_content.dataset_ids {
         if let Ok(dataset_info) = datasets::table
             .filter(datasets::id.eq(dataset_id))
             .filter(datasets::deleted_at.is_null())
@@ -164,25 +189,20 @@ pub async fn get_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<Bust
             updated_at: v.updated_at,
         })
         .collect();
-
-    // Get the latest version number from version history
-    let latest_version = metric_file.version_history.get_latest_version()
-        .map(|v| v.version_number)
-        .unwrap_or(1);
         
     // Construct BusterMetric
     Ok(BusterMetric {
         id: metric_file.id,
         metric_type: "metric".to_string(),
         title: metric_file.name,
-        version_number: latest_version,
-        description: metric_yml.description,
+        version_number: version_num,
+        description: metric_content.description,
         file_name: metric_file.file_name,
-        time_frame: metric_yml.time_frame,
+        time_frame: metric_content.time_frame,
         datasets,
         data_source_id: "".to_string(), // This would need to be fetched from another source
         error: None,
-        chart_config: Some(metric_yml.chart_config),
+        chart_config: Some(metric_content.chart_config),
         data_metadata,
         status: metric_file.verification,
         evaluation_score,

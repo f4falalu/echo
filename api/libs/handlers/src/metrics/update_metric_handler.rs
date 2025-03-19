@@ -54,8 +54,8 @@ pub async fn update_metric_handler(
     let mut conn = get_pg_pool().get().await
         .map_err(|e| anyhow!("Failed to get database connection: {}", e))?;
 
-    // Check if metric exists and user has access
-    let metric = get_metric_handler(metric_id, user_id).await?;
+    // Check if metric exists and user has access - use the latest version
+    let metric = get_metric_handler(metric_id, user_id, None).await?;
 
     // If file is provided, it takes precedence over all other fields
     let content = if let Some(file_content) = request.file {
@@ -134,8 +134,8 @@ pub async fn update_metric_handler(
             .await
     }.map_err(|e| anyhow!("Failed to update metric: {}", e))?;
 
-    // Return the updated metric
-    get_metric_handler(metric_id, user_id).await
+    // Return the updated metric - latest version
+    get_metric_handler(metric_id, user_id, None).await
 }
 
 #[cfg(test)]
