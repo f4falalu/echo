@@ -30,9 +30,8 @@ pub async fn list_metric_sharing_handler(
     );
 
     // 1. Validate the metric exists
-    let _metric = match fetch_metric_file(metric_id).await? {
-        Some(metric) => metric,
-        None => return Err(anyhow!("Metric not found")),
+    if fetch_metric_file(metric_id).await?.is_none() {
+        return Err(anyhow!("Metric not found"));
     };
 
     // 2. Check if user has permission to view the metric
@@ -61,7 +60,6 @@ mod tests {
     use super::*;
     use database::enums::{AssetPermissionRole, AssetType, IdentityType};
     use sharing::types::{AssetPermissionWithUser, SerializableAssetPermission, UserInfo};
-    use chrono::{DateTime, Utc};
     use mockall::predicate::*;
     use mockall::mock;
     use uuid::Uuid;
