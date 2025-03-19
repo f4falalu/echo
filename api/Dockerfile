@@ -9,7 +9,8 @@ FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-RUN cargo build --release --bin bi_api
+# Add optimization flags for maximum performance
+RUN RUSTFLAGS="-C target-cpu=native -C opt-level=3" cargo build --release --bin bi_api
 
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
@@ -29,6 +30,10 @@ RUN mkdir -p /root/.postgresql
 COPY cert.pem* /usr/local/share/ca-certificates/cert.crt
 COPY cert.pem* /root/.postgresql/root.crt
 RUN update-ca-certificates
+
+# Set production environment variables
+ENV RUST_LOG=warn
+ENV RUST_BACKTRACE=0
 
 COPY --from=builder /app/target/release/bi_api .
 EXPOSE 3001

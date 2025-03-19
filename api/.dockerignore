@@ -1,0 +1,41 @@
+# Git
+.git
+.gitignore
+
+# Rust
+target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Debug files
+*.pdb
+*.dSYM/
+
+# Test files
+tests/
+*.test
+*.spec
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Development configs
+.env
+.env.*
+!.env.example
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Misc
+*.log
+.DS_Store 
