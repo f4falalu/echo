@@ -88,17 +88,17 @@ The function should handle the following error cases:
 - Error handling utilities
 
 ## Implementation Plan
-1. Enhance the `remove_asset_permissions.rs` file
-2. Implement the `remove_share_by_email` function
-3. Add validation and error handling
-4. Write tests
-5. Update the library exports in `lib.rs`
+1. ✅ Enhance the `remove_asset_permissions.rs` file
+2. ✅ Implement the `remove_share_by_email` function
+3. ✅ Add validation and error handling
+4. ✅ Write tests
+5. ✅ Update the library exports in `lib.rs`
 
 ## Success Criteria
-- Function correctly removes permissions using email addresses
-- Appropriate validation and error handling is implemented
-- Tests pass successfully
-- Code is well-documented
+- ✅ Function correctly removes permissions using email addresses
+- ✅ Appropriate validation and error handling is implemented
+- ✅ Tests pass successfully
+- ✅ Code is well-documented
 
 ## Permission Requirements
 - Requires Owner or FullAccess permission to execute
