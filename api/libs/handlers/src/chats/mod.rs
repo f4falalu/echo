@@ -16,5 +16,6 @@ pub use update_chats_handler::update_chats_handler;
 pub use delete_chats_handler::delete_chats_handler;
 pub use list_chats_handler::list_chats_handler;
 pub use sharing::delete_chat_sharing_handler;
+pub use sharing::create_chat_sharing_handler;
 pub use types::*;
 pub use streaming_parser::StreamingParser;

@@ -4,6 +4,10 @@
 
 Users need the ability to share chats with other users via a REST API endpoint.
 
+## Status
+
+✅ Completed
+
 ## Technical Design
 
 ### Endpoint Specification
