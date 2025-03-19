@@ -9,12 +9,6 @@ use tracing::info;
 use uuid::Uuid;
 
 use crate::routes::rest::ApiResponse;
-
-#[derive(Debug, Serialize)]
-pub struct SharingResponse {
-    pub permissions: Vec<SharingPermission>,
-}
-
 #[derive(Debug, Serialize)]
 pub struct SharingPermission {
     pub user_id: Uuid,
@@ -37,7 +31,7 @@ pub struct SharingPermission {
 pub async fn list_dashboard_sharing_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
-) -> Result<ApiResponse<SharingResponse>, (StatusCode, &'static str)> {
+) -> Result<ApiResponse<Vec<SharingPermission>>, (StatusCode, &'static str)> {
     info!(
         dashboard_id = %id,
         user_id = %user.id,
@@ -46,8 +40,7 @@ pub async fn list_dashboard_sharing_rest_handler(
 
     match list_dashboard_sharing_handler(&id, &user.id).await {
         Ok(permissions) => {
-            let response = SharingResponse {
-                permissions: permissions
+            let response = permissions
                     .into_iter()
                     .map(|p| SharingPermission {
                         user_id: p.user.as_ref().map(|u| u.id).unwrap_or_default(),
@@ -56,8 +49,7 @@ pub async fn list_dashboard_sharing_rest_handler(
                         avatar_url: p.user.as_ref().and_then(|u| u.avatar_url.clone()),
                         role: p.permission.role,
                     })
-                    .collect(),
-            };
+                    .collect();
             Ok(ApiResponse::JsonData(response))
         }
         Err(e) => {

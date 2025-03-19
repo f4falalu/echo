@@ -14,11 +14,13 @@ Users need the ability to update sharing permissions for collections through a R
 
 ### Request Structure
 ```rust
-#[derive(Debug, Deserialize)]
-pub struct SharingRequest {
-    pub emails: Vec<String>,
+// Array of share recipients with email and role
+pub type ShareRecipient = struct {
+    pub email: String,
     pub role: AssetPermissionRole,
-}
+};
+
+pub type UpdateSharingRequest = Vec<ShareRecipient>;
 ```
 
 ### Response Structure
@@ -39,21 +41,23 @@ pub struct SharingRequest {
 pub async fn update_collection_sharing_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
-    Json(request): Json<SharingRequest>,
+    Json(request): Json<Vec<ShareRecipient>>,
 ) -> Result<ApiResponse<String>, (StatusCode, String)> {
     tracing::info!("Processing PUT request for collection sharing with ID: {}, user_id: {}", id, user.id);
 
-    match update_collection_sharing_handler(&id, &user.id, request.emails, request.role).await {
-        Ok(_) => Ok(ApiResponse::Success("Sharing permissions updated successfully".to_string())),
+    match update_collection_sharing_handler(&id, &user.id, request).await {
+        Ok(_) => Ok(ApiResponse::JsonData("Sharing permissions updated successfully".to_string())),
         Err(e) => {
             tracing::error!("Error updating sharing permissions: {}", e);
             
             // Map specific errors to appropriate status codes
-            if e.to_string().contains("not found") {
+            let error_message = e.to_string();
+            
+            if error_message.contains("not found") {
                 return Err((StatusCode::NOT_FOUND, format!("Collection not found: {}", e)));
-            } else if e.to_string().contains("permission") {
+            } else if error_message.contains("permission") {
                 return Err((StatusCode::FORBIDDEN, format!("Insufficient permissions: {}", e)));
-            } else if e.to_string().contains("invalid email") {
+            } else if error_message.contains("Invalid email") {
                 return Err((StatusCode::BAD_REQUEST, format!("Invalid email: {}", e)));
             }
             
@@ -69,8 +73,7 @@ pub async fn update_collection_sharing_rest_handler(
 pub async fn update_collection_sharing_handler(
     collection_id: &Uuid,
     user_id: &Uuid,
-    emails: Vec<String>,
-    role: AssetPermissionRole,
+    request: Vec<ShareRecipient>,
 ) -> Result<()> {
     // 1. Validate the collection exists
     let collection = match get_collection_by_id(collection_id).await {
@@ -92,8 +95,13 @@ pub async fn update_collection_sharing_handler(
         return Err(anyhow!("User does not have permission to update sharing for this collection"));
     }
 
-    // 3. Process each email and update sharing permissions
-    for email in emails {
+    // 3. Process each recipient and update sharing permissions
+    let emails_and_roles: Vec<(String, AssetPermissionRole)> = request
+        .into_iter()
+        .map(|recipient| (recipient.email, recipient.role))
+        .collect();
+
+    for (email, role) in emails_and_roles {
         // The create_share_by_email function handles both creation and updates
         // It performs an upsert operation in the database
         match create_share_by_email(
