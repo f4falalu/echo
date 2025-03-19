@@ -25,7 +25,15 @@ pub async fn fetch_dashboard_file(id: &Uuid) -> Result<Option<DashboardFile>> {
         .first::<DashboardFile>(&mut conn)
         .await
     {
-        Ok(result) => Some(result),
+        Ok(mut result) => {
+            // Ensure all rows have IDs (for backwards compatibility)
+            for (index, row) in result.content.rows.iter_mut().enumerate() {
+                if row.id.is_none() {
+                    row.id = Some((index as u32) + 1);
+                }
+            }
+            Some(result)
+        },
         Err(diesel::NotFound) => None,
         Err(e) => return Err(e.into()),
     };

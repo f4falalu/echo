@@ -116,6 +116,7 @@ pub async fn create_test_dashboard(organization_id: Uuid, created_by: Uuid) -> R
         name: "Test Dashboard".to_string(),
         description: Some("Test dashboard description".to_string()),
         rows: vec![database::types::Row {
+            id: None,
             items: vec![database::types::RowItem { id: Uuid::new_v4() }],
             row_height: Some(320),
             column_sizes: None,
