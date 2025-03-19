@@ -115,7 +115,7 @@ pub async fn list_shares(
 }
 
 #[cfg(test)]
-mod tests {
+mod list_shares_tests {
     // We're not using any imports yet since these are placeholder tests
     
     // This test is a skeleton and would need a proper test database setup
@@ -189,9 +189,7 @@ pub async fn list_shares_by_identity_type(
         anyhow!("Database connection error: {}", e)
     })?;
 
-    let mut results = Vec::new();
-
-    if identity_type == IdentityType::User {
+    let results = if identity_type == IdentityType::User {
         // Query permissions with user information
         let permissions_with_users: Vec<(AssetPermission, User)> = asset_permissions::table
             .inner_join(users::table.on(asset_permissions::identity_id.eq(users::id)))
@@ -208,7 +206,7 @@ pub async fn list_shares_by_identity_type(
             })?;
 
         // Convert to AssetPermissionWithUser format
-        results = permissions_with_users
+        permissions_with_users
             .into_iter()
             .map(|(permission, user)| {
                 let user_info = UserInfo {
@@ -223,7 +221,7 @@ pub async fn list_shares_by_identity_type(
                     user: Some(user_info),
                 }
             })
-            .collect();
+            .collect()
     } else {
         // For non-user identities (like teams)
         let permissions: Vec<AssetPermission> = asset_permissions::table
@@ -238,14 +236,14 @@ pub async fn list_shares_by_identity_type(
                 anyhow!("Database error: {}", e)
             })?;
 
-        results = permissions
+        permissions
             .into_iter()
             .map(|permission| AssetPermissionWithUser {
                 permission: SerializableAssetPermission::from(permission),
                 user: None,
             })
-            .collect();
-    }
+            .collect()
+    };
 
     info!(
         asset_id = %asset_id,
@@ -259,11 +257,7 @@ pub async fn list_shares_by_identity_type(
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use database::enums::{AssetType, IdentityType};
-    use uuid::Uuid;
-
+mod list_shares_by_identity_type_tests {
     // Additional tests would be implemented here, using a test database
     // or mocks for database interactions
 }
