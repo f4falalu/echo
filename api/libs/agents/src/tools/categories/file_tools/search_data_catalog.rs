@@ -53,9 +53,6 @@ Evaluation Criteria:
 3. Data Coverage: The dataset should cover the specific domain or business context mentioned
 4. Recency & Quality: Prefer datasets with complete metadata and documentation
 
-The YML content contains important information about the dataset including its schema, description, and other metadata.
-Only include datasets that meet AT LEAST 3 of the above criteria with high confidence.
-
 IMPORTANT: You must return your response in this exact JSON format:
 {
     "results": [
@@ -70,15 +67,13 @@ Available datasets:
 {datasets_array_as_json}
 
 Requirements:
-1. Return ONLY datasets that are highly relevant (meeting 3+ criteria)
-2. Order results from most to least relevant
-3. ALWAYS include the "results" key in your response, even if the array is empty
-4. Each result MUST ONLY include the "id" field containing the UUID string
-5. If no datasets meet the relevance criteria, return {"results": []}
-6. Exclude datasets that only tangentially relate to the query
-7. CRITICAL: Each result MUST contain ONLY a valid UUID string with the key "id" - no other fields are allowed
-8. CRITICAL: The "id" value MUST be a valid UUID string (e.g., "550e8400-e29b-41d4-a716-446655440000")
-9. Any result without a valid UUID "id" field will be rejected
+1. Order results from most to least relevant
+2. ALWAYS include the "results" key in your response, even if the array is empty
+3. Each result MUST ONLY include the "id" field containing the UUID string
+4. If no datasets meet the relevance criteria, return {"results": []}
+5. CRITICAL: Each result MUST contain ONLY a valid UUID string with the key "id" - no other fields are allowed
+6. CRITICAL: The "id" value MUST be a valid UUID string (e.g., "550e8400-e29b-41d4-a716-446655440000")
+7. Any result without a valid UUID "id" field will be rejected
 "#;
 
 pub struct SearchDataCatalogTool {
