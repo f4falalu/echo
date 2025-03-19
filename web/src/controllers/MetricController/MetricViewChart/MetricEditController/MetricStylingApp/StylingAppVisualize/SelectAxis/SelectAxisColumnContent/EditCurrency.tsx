@@ -19,7 +19,9 @@ export const EditCurrency: React.FC<{
           label: (
             <div className="flex items-center gap-1.5 overflow-hidden">
               <div className="rounded-sm">{currency.flag}</div>
-              <Text className="truncate">{currency.description}</Text>
+              <Text className="truncate">
+                {currency.description} ({currency.code})
+              </Text>
             </div>
           ),
           value: currency.code,
@@ -37,8 +39,6 @@ export const EditCurrency: React.FC<{
       onUpdateColumnConfig({ currency: value });
     });
 
-    console.log(selectedCurrency);
-
     return (
       <LabelAndInput label="Currency">
         <div className="w-full overflow-hidden">
@@ -47,8 +47,8 @@ export const EditCurrency: React.FC<{
             items={options}
             disabled={!isFetched}
             onChange={onChange}
+            defaultValue={selectedCurrency?.value}
             className="w-full!"
-            //   filterOption={onFilterOption}
           />
         </div>
       </LabelAndInput>
