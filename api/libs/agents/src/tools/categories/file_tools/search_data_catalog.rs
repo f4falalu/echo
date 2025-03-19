@@ -43,7 +43,7 @@ struct RawLLMResponse {
 
 const CATALOG_SEARCH_PROMPT: &str = r#"
 You are a dataset search assistant tasked with finding highly relevant datasets that SPECIFICALLY match the user's requirements.
-Your task is to identify only the most relevant datasets based on the following search request:
+Your task is to identify the most relevant datasets based on the following search request:
 
 {queries_joined_with_newlines}
 
@@ -158,7 +158,6 @@ impl SearchDataCatalogTool {
                     session_id: session_id.to_string(),
                     trace_id: session_id.to_string(),
                 }),
-                reasoning_effort: Some("low".to_string()),
                 max_completion_tokens: Some(8092),
                 ..Default::default()
             };
