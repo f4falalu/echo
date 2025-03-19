@@ -36,4 +36,6 @@ sharing = { path = "../sharing" }
 dashmap = "5.5.3"
 
 [dev-dependencies]
-tokio-test = { workspace = true } 
+tokio-test = { workspace = true }
+mockall = { workspace = true }
+dotenv = { workspace = true }
