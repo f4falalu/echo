@@ -49,21 +49,4 @@ export const Popover = React.memo<PopoverProps>(
   }
 );
 
-// const PopoverHeaderContent: React.FC<{
-//   title: string | React.ReactNode;
-// }> = ({ title }) => {
-//   return (
-//     <div className="flex flex-col">
-//       <div className="p-2">{title}</div>
-//       <Separator />
-//     </div>
-//   );
-// };
-
-// const PopoverFooterContent: React.FC<{
-//   title: string | React.ReactNode;
-// }> = ({ title }) => {
-//   return <div className="p-2">{title}</div>;
-// };
-
 Popover.displayName = 'Popover';

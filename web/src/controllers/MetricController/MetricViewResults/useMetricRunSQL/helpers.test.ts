@@ -6,7 +6,7 @@ import type {
 } from '../../../../api/asset_interfaces';
 import { DEFAULT_CHART_CONFIG } from '../../../../api/asset_interfaces';
 import type { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts';
-import { createDefaultChartConfig } from '../../../../lib/messageAutoChartHandler';
+import { createDefaultChartConfig } from '@/lib/metrics/messageAutoChartHandler';
 
 const createColumnMetaData = (
   name: string,
@@ -96,7 +96,7 @@ describe('simplifyChatConfigForSQLChange', () => {
   it('should preserve column formats when types have not changed', () => {
     const columnLabelFormats: Record<string, Required<IColumnLabelFormat>> = {
       col1: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string',
         displayName: '',
         numberSeparatorStyle: null,
@@ -137,7 +137,7 @@ describe('simplifyChatConfigForSQLChange', () => {
   it('should reset column format when type has changed', () => {
     const columnLabelFormats: Record<string, Required<IColumnLabelFormat>> = {
       col1: {
-        columnType: 'text',
+        columnType: 'string',
         style: 'string',
         displayName: '',
         numberSeparatorStyle: null,

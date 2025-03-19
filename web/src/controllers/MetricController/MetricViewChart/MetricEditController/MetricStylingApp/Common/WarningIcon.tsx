@@ -21,6 +21,7 @@ export const WarningIcon: React.FC<{
       <Popover
         side="left"
         align="center"
+        size="none"
         content={<div className="max-w-[200px]">{warningText}</div>}>
         <div
           className={cn(

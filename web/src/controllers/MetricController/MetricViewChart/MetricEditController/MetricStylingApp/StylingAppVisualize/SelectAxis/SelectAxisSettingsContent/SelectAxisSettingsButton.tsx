@@ -23,6 +23,7 @@ export const SelectAxisSettingsButton: React.FC<{
   return (
     <Popover
       content={<SelectAxisSettingContent zoneId={zoneId} />}
+      size="none"
       trigger="click"
       align="end"
       side="left">

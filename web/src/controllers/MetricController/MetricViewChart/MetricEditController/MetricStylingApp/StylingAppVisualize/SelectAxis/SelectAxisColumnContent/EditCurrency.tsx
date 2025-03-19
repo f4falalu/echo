@@ -32,18 +32,12 @@ export const EditCurrency: React.FC<{
       return options?.find((option) => option.value === currency);
     }, [options, currency]);
 
-    // const onFilterOption = useMemoizedFn((input: string, option: any) => {
-    //   const _option = option as (typeof options)[0];
-    //   return (
-    //     !!_option?.description?.toLowerCase().includes(input.toLowerCase()) ||
-    //     !!_option?.value?.toLowerCase().includes(input.toLowerCase())
-    //   );
-    // });
-
     const onChange = useMemoizedFn((optionValue: string) => {
       const value = optionValue;
       onUpdateColumnConfig({ currency: value });
     });
+
+    console.log(selectedCurrency);
 
     return (
       <LabelAndInput label="Currency">

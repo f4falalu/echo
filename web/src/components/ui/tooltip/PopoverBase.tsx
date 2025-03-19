@@ -67,7 +67,7 @@ export type PopoverContentVariant = VariantProps<typeof popoverContentVariant>;
 
 const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & {} & PopoverContentVariant
+  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & PopoverContentVariant
 >(({ className, align = 'center', children, sideOffset = 4, size, ...props }, ref) => (
   <PopoverPrimitive.Portal>
     <PopoverPrimitive.Content

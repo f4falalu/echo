@@ -33,7 +33,7 @@ export const SaveToCollectionsDropdown: React.FC<{
     <>
       <Dropdown
         side="bottom"
-        align="center"
+        align="end"
         selectType={selectType}
         menuHeader={menuHeader}
         onOpenChange={onOpenChange}

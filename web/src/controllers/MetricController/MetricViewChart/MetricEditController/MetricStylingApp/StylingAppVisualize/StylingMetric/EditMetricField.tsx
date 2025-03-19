@@ -86,7 +86,7 @@ const StylingPopover: React.FC<{
   columnLabelFormat: IBusterMetricChartConfig['columnLabelFormats'][string];
   onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
   rowCount: number;
-}> = ({ metricColumnId, columnLabelFormat, rowCount }) => {
+}> = React.memo(({ metricColumnId, columnLabelFormat, rowCount }) => {
   return (
     <Popover
       content={
@@ -107,8 +107,10 @@ const StylingPopover: React.FC<{
         </div>
       }
       align="end"
-      side="left">
-      <Button variant="ghost" prefix={<Dots />} />
+      side="left"
+      size="none">
+      <Button variant="ghost" prefix={<Dots />} size={'tall'} />
     </Popover>
   );
-};
+});
+StylingPopover.displayName = 'StylingPopover';

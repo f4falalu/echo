@@ -1,5 +1,12 @@
 import { ChartType, type IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
-import { Calendar, MoneyBillsDollar, TextA, Numbers, Percentage } from '@/components/ui/icons';
+import {
+  Calendar,
+  CurrencyDollar,
+  TextA,
+  Numbers,
+  Percentage,
+  Typography
+} from '@/components/ui/icons';
 import React from 'react';
 
 export const ColumnTypeIcon: Record<
@@ -11,7 +18,7 @@ export const ColumnTypeIcon: Record<
   }
 > = {
   string: {
-    icon: <TextA />,
+    icon: <Typography />,
     value: 'string',
     tooltip: 'Text'
   },
@@ -26,7 +33,7 @@ export const ColumnTypeIcon: Record<
     tooltip: 'Date'
   },
   currency: {
-    icon: <MoneyBillsDollar />,
+    icon: <CurrencyDollar />,
     value: 'currency',
     tooltip: 'Currency'
   },

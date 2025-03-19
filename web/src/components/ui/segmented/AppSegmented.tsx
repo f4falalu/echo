@@ -216,7 +216,7 @@ function SegmentedTriggerComponent<T extends string = string>(props: SegmentedTr
   const { item, selectedValue, size, block, tabRefs } = props;
 
   return (
-    <Tooltip title={item.tooltip || ''} sideOffset={10}>
+    <Tooltip title={item.tooltip || ''} sideOffset={10} delayDuration={0.15}>
       <Tabs.Trigger
         key={item.value}
         value={item.value}

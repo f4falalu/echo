@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   // Check if user is authenticated
   const { user } = await getSupabaseServerContext();
 
-  if (user) {
+  if (user && !user?.is_anonymous) {
     return NextResponse.json(currencies);
   } else {
     return NextResponse.error();

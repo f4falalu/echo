@@ -5,12 +5,7 @@ import React, { useMemo } from 'react';
 import { formatLabel } from '@/lib';
 import { EditTitle } from './EditTitle';
 import { EditDisplayAs } from './EditDisplayAs';
-import {
-  BarAndLineAxis,
-  ChartEncodes,
-  ChartType,
-  ColumnSettings
-} from '@/api/asset_interfaces/metric/charts';
+import { ChartEncodes, ChartType, ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 import { EditBarRoundness } from './EditBarRoundness';
 import { EditShowDataLabel } from './EditShowDataLabel';
 import { EditShowBarLabelAsPercentage } from './EditShowLabelAsPercentage';
@@ -168,8 +163,7 @@ const ColumnSettingComponent: React.FC<{
   const isLineVisualization = columnVisualization === 'line';
   const isTablePieChart = selectedChartType === ChartType.Table || isPieChart;
   const isTableMetricPieChart = isTablePieChart || isMetricChart;
-  const hasCategoryAxis = !isEmpty((selectedAxis as BarAndLineAxis)?.category);
-  const hasMultipleMeasures = (selectedAxis?.y.length || 0) > 1;
+
   const isPercentStacked = useMemo(() => {
     if (selectedChartType === ChartType.Bar) {
       return barGroupType === 'percentage-stack';

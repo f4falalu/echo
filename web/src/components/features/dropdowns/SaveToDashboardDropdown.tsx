@@ -30,7 +30,7 @@ export const SaveToDashboardDropdown: React.FC<{
   return (
     <Dropdown
       side="bottom"
-      align="start"
+      align="end"
       open={showDropdown}
       onOpenChange={onOpenChange}
       {...dropdownProps}>
