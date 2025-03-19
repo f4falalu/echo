@@ -35,4 +35,3 @@ pub enum SharingError {
     #[error("Unknown error: {0}")]
     Unknown(String),
 }
-}
