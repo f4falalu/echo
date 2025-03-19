@@ -189,7 +189,7 @@ pub async fn list_shares_by_identity_type(
         anyhow!("Database connection error: {}", e)
     })?;
 
-    let results = if identity_type == IdentityType::User {
+    let results: Vec<AssetPermissionWithUser> = if identity_type == IdentityType::User {
         // Query permissions with user information
         let permissions_with_users: Vec<(AssetPermission, User)> = asset_permissions::table
             .inner_join(users::table.on(asset_permissions::identity_id.eq(users::id)))
