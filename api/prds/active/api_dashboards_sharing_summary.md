@@ -31,7 +31,7 @@ The PRDs can be developed in the following order, with opportunities for paralle
    - It introduces the core response types and error handling approaches.
 
 2. **Second (Can be done in parallel):**
-   - **Create Dashboards Sharing Endpoint PRD** (api_dashboards_sharing_create.md)
+   - **Create Dashboards Sharing Endpoint PRD** (api_dashboards_sharing_create.md) ✅
    - **Delete Dashboards Sharing Endpoint PRD** (api_dashboards_sharing_delete.md)
    - These PRDs can be worked on simultaneously by different team members after the List PRD is complete.
    - They use different sharing library functions and have minimal dependencies on each other.

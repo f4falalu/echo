@@ -1,5 +1,5 @@
 use axum::{
-    routing::get,
+    routing::{get, post},
     Router,
 };
 
@@ -13,4 +13,5 @@ pub fn router() -> Router {
         .route("/:id", get(get_dashboard::get_dashboard_rest_handler))
         .route("/", get(list_dashboards::list_dashboard_rest_handler))
         .route("/:id/sharing", get(sharing::list_dashboard_sharing_rest_handler))
+        .route("/:id/sharing", post(sharing::create_dashboard_sharing_rest_handler))
 }
