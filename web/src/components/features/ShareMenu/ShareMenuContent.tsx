@@ -53,16 +53,17 @@ export const ShareMenuContent: React.FC<{
           isOwner={isOwner}
         />
       )}
-      <div className="px-3 py-2.5">
-        <ShareMenuContentBody
-          shareAssetConfig={shareAssetConfig}
-          assetType={assetType}
-          assetId={assetId}
-          selectedOptions={selectedOptions}
-          onCopyLink={onCopyLink}
-          isOwner={isOwner}
-        />
-      </div>
+
+      <ShareMenuContentBody
+        shareAssetConfig={shareAssetConfig}
+        assetType={assetType}
+        assetId={assetId}
+        selectedOptions={selectedOptions}
+        onCopyLink={onCopyLink}
+        isOwner={isOwner}
+        className="px-3 py-2.5"
+      />
+
       <ShareMenuContentFooter
         selectedOptions={selectedOptions}
         publicly_accessible={publicly_accessible!}
@@ -103,7 +104,7 @@ const ShareMenuContentFooter = React.memo<{
 }>(({ selectedOptions, publicly_accessible, assetId, assetType }) => {
   if (selectedOptions === ShareMenuTopBarOptions.Embed && !publicly_accessible) {
     return (
-      <div className="border-t p-2">
+      <div className="border-t">
         <ShareMenuContentEmbedFooter assetId={assetId} assetType={assetType} />
       </div>
     );

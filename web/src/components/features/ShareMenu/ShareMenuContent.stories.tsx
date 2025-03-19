@@ -15,24 +15,18 @@ export default meta;
 type Story = StoryObj<typeof ShareMenuContent>;
 
 const mockShareConfig: BusterShare = {
-  sharingKey: 'mock-sharing-key',
   individual_permissions: [
     {
-      id: '1',
       email: 'test_with_a_long_name_like_super_long_name@test.com',
       role: ShareRole.CAN_VIEW,
       name: 'Test User'
     },
     {
-      id: '2',
       email: 'test2@test.com',
       role: ShareRole.FULL_ACCESS,
       name: 'Test User 2 with a long name like super long name'
     }
   ],
-  team_permissions: null,
-  organization_permissions: null,
-  password_secret_id: null,
   public_expiry_date: null,
   public_enabled_by: null,
   publicly_accessible: false,

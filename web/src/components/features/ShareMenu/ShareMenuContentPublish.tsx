@@ -14,33 +14,29 @@ import { Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { Link, Eye, EyeSlash } from '@/components/ui/icons';
 import { DatePicker } from '@/components/ui/date';
-import { useUpdateCollection } from '@/api/buster_rest/collections';
-import { useUpdateMetric } from '@/api/buster_rest/metrics';
-import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
+import { useUpdateCollectionShare } from '@/api/buster_rest/collections';
+import { useUpdateMetricShare } from '@/api/buster_rest/metrics';
+import { useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
 import { SelectSingleEventHandler } from 'react-day-picker';
+import { ShareMenuContentBodyProps } from './ShareMenuContentBody';
+import { cn } from '@/lib/classMerge';
 
-export const ShareMenuContentPublish: React.FC<{
-  onCopyLink: () => void;
-  publicExpirationDate: string | null | undefined;
-  publicly_accessible: boolean;
-  password: string | null | undefined;
-  assetType: ShareAssetType;
-  assetId: string;
-}> = React.memo(
+export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = React.memo(
   ({
     assetType,
     assetId,
     password = '',
     publicly_accessible,
     onCopyLink,
-    publicExpirationDate
+    publicExpirationDate,
+    className
   }) => {
     const { openInfoMessage } = useBusterNotifications();
-    const { mutateAsync: onShareMetric, isPending: isPublishingMetric } = useUpdateMetric();
+    const { mutateAsync: onShareMetric, isPending: isPublishingMetric } = useUpdateMetricShare();
     const { mutateAsync: onShareDashboard, isPending: isPublishingDashboard } =
-      useUpdateDashboard();
+      useUpdateDashboardShare();
     const { mutateAsync: onShareCollection, isPending: isPublishingCollection } =
-      useUpdateCollection();
+      useUpdateCollectionShare();
     const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(!!password);
     const [_password, _setPassword] = React.useState<string>(password || '');
 
@@ -64,11 +60,13 @@ export const ShareMenuContentPublish: React.FC<{
 
     const onTogglePublish = useMemoizedFn(async (v?: boolean) => {
       const linkExp = linkExpiry ? linkExpiry.toISOString() : null;
-      const payload = {
+      const payload: Parameters<typeof onShareMetric>[0] = {
         id: assetId,
-        publicly_accessible: v === undefined ? true : !!v,
-        public_password: _password || null,
-        public_expiry_date: linkExp
+        params: {
+          publicly_accessible: v === undefined ? true : !!v,
+          public_password: _password || null,
+          public_expiry_date: linkExp
+        }
       };
       if (assetType === ShareAssetType.METRIC) {
         await onShareMetric(payload);
@@ -80,26 +78,24 @@ export const ShareMenuContentPublish: React.FC<{
     });
 
     const onSetPasswordProtected = useMemoizedFn(async (v: boolean) => {
-      if (!v) {
-        if (assetType === ShareAssetType.METRIC) {
-          await onShareMetric({ id: assetId, public_password: null });
-        } else if (assetType === ShareAssetType.DASHBOARD) {
-          await onShareDashboard({ id: assetId, public_password: null });
-        } else if (assetType === ShareAssetType.COLLECTION) {
-          await onShareCollection({ id: assetId, public_password: null });
-        }
-      }
-
+      onSetPassword(null);
       setIsPasswordProtected(v);
     });
 
     const onSetPassword = useMemoizedFn(async (password: string | null) => {
+      const payload: Parameters<typeof onShareMetric>[0] = {
+        id: assetId,
+        params: {
+          public_password: password
+        }
+      };
+
       if (assetType === ShareAssetType.METRIC) {
-        await onShareMetric({ id: assetId, public_password: password });
+        await onShareMetric(payload);
       } else if (assetType === ShareAssetType.DASHBOARD) {
-        await onShareDashboard({ id: assetId, public_password: password });
+        await onShareDashboard(payload);
       } else if (assetType === ShareAssetType.COLLECTION) {
-        await onShareCollection({ id: assetId, public_password: password });
+        await onShareCollection(payload);
       }
       _setPassword(password || '');
       if (password) openInfoMessage('Password updated');
@@ -107,12 +103,20 @@ export const ShareMenuContentPublish: React.FC<{
 
     const onSetExpirationDate = useMemoizedFn(async (date: Date | null) => {
       const linkExp = date ? date.toISOString() : null;
+
+      const payload: Parameters<typeof onShareMetric>[0] = {
+        id: assetId,
+        params: {
+          public_expiry_date: linkExp
+        }
+      };
+
       if (assetType === ShareAssetType.METRIC) {
-        await onShareMetric({ id: assetId, public_expiry_date: linkExp });
+        await onShareMetric(payload);
       } else if (assetType === ShareAssetType.DASHBOARD) {
-        await onShareDashboard({ id: assetId, public_expiry_date: linkExp });
+        await onShareDashboard(payload);
       } else if (assetType === ShareAssetType.COLLECTION) {
-        await onShareCollection({ id: assetId, public_expiry_date: linkExp });
+        await onShareCollection(payload);
       }
     });
 
@@ -122,8 +126,8 @@ export const ShareMenuContentPublish: React.FC<{
     }, [password]);
 
     return (
-      <div className="">
-        <div className="space-y-3">
+      <div className="flex flex-col space-y-1">
+        <div className={cn('flex flex-col space-y-3', className)}>
           {publicly_accessible ? (
             <>
               <IsPublishedInfo isPublished={publicly_accessible} />
@@ -159,9 +163,7 @@ export const ShareMenuContentPublish: React.FC<{
 
         {publicly_accessible && (
           <>
-            <Separator />
-
-            <div className="flex justify-end space-x-2 py-2.5">
+            <div className={cn('flex justify-end space-x-2 border-t', className)}>
               <Button
                 block
                 loading={isPublishing}

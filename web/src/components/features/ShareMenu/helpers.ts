@@ -11,12 +11,8 @@ export const getShareAssetConfig = (
   if (!message) return null;
 
   const {
-    sharingKey,
     permission,
     individual_permissions,
-    team_permissions,
-    organization_permissions,
-    password_secret_id,
     public_expiry_date,
     public_enabled_by,
     publicly_accessible,
@@ -24,12 +20,8 @@ export const getShareAssetConfig = (
   } = message;
 
   return {
-    sharingKey,
     permission,
     individual_permissions,
-    team_permissions,
-    organization_permissions,
-    password_secret_id,
     public_expiry_date,
     public_enabled_by,
     publicly_accessible,

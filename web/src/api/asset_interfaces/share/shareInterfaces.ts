@@ -14,7 +14,6 @@ export enum ShareAssetType {
 }
 
 export interface BusterShare {
-  sharingKey: string;
   individual_permissions: null | BusterShareIndividual[];
   public_expiry_date: string | null;
   public_enabled_by: string | null;

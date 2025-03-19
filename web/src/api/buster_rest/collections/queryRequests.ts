@@ -115,11 +115,11 @@ export const useShareCollection = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: shareCollection,
-    onMutate: (variables) => {
-      const queryKey = collectionQueryKeys.collectionsGetCollection(variables.id).queryKey;
+    onMutate: ({ params, id }) => {
+      const queryKey = collectionQueryKeys.collectionsGetCollection(id).queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         return create(previousData!, (draft: BusterCollection) => {
-          draft.individual_permissions?.push(...variables.params);
+          draft.individual_permissions?.push(...params);
         });
       });
     },
@@ -158,25 +158,25 @@ export const useUpdateCollectionShare = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateCollectionShare,
-    onMutate: (variables) => {
-      const queryKey = collectionQueryKeys.collectionsGetCollection(variables.id).queryKey;
+    onMutate: ({ params, id }) => {
+      const queryKey = collectionQueryKeys.collectionsGetCollection(id).queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         return create(previousData!, (draft) => {
           draft.individual_permissions =
-            draft.individual_permissions!.map((t) => {
-              const found = variables.data.users?.find((v) => v.email === t.email);
+            draft.individual_permissions?.map((t) => {
+              const found = params.users?.find((v) => v.email === t.email);
               if (found) return found;
               return t;
             }) || [];
 
-          if (variables.data.publicly_accessible !== undefined) {
-            draft.publicly_accessible = variables.data.publicly_accessible;
+          if (params.publicly_accessible !== undefined) {
+            draft.publicly_accessible = params.publicly_accessible;
           }
-          if (variables.data.public_password !== undefined) {
-            draft.public_password = variables.data.public_password;
+          if (params.public_password !== undefined) {
+            draft.public_password = params.public_password;
           }
-          if (variables.data.public_expiry_date !== undefined) {
-            draft.public_expiry_date = variables.data.public_expiry_date;
+          if (params.public_expiry_date !== undefined) {
+            draft.public_expiry_date = params.public_expiry_date;
           }
         });
       });

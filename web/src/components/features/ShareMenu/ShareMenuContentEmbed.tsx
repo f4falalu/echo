@@ -7,58 +7,59 @@ import React, { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { Link } from '@/components/ui/icons';
-import { useUpdateCollection } from '@/api/buster_rest/collections';
-import { useUpdateMetric } from '@/api/buster_rest/metrics';
-import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
+import { useUpdateCollectionShare } from '@/api/buster_rest/collections';
+import { useUpdateMetricShare } from '@/api/buster_rest/metrics';
+import { useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
+import { ShareMenuContentBodyProps } from './ShareMenuContentBody';
+import { cn } from '@/lib/classMerge';
 
-export const ShareMenuContentEmbed: React.FC<{
-  assetType: ShareAssetType;
-  assetId: string;
-}> = React.memo(({ assetType, assetId }) => {
-  const { openSuccessMessage } = useBusterNotifications();
+export const ShareMenuContentEmbed: React.FC<ShareMenuContentBodyProps> = React.memo(
+  ({ className, assetType, assetId }) => {
+    const { openSuccessMessage } = useBusterNotifications();
 
-  const embedURL = useMemo(() => {
-    let url = '';
+    const embedURL = useMemo(() => {
+      let url = '';
 
-    if (assetType === ShareAssetType.METRIC) {
-      url = createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID,
-        metricId: assetId
-      });
-    }
+      if (assetType === ShareAssetType.METRIC) {
+        url = createBusterRoute({
+          route: BusterRoutes.APP_METRIC_ID,
+          metricId: assetId
+        });
+      }
 
-    if (assetType === ShareAssetType.DASHBOARD) {
-      url = createBusterRoute({
-        route: BusterRoutes.APP_DASHBOARD_ID,
-        dashboardId: assetId
-      });
-    }
+      if (assetType === ShareAssetType.DASHBOARD) {
+        url = createBusterRoute({
+          route: BusterRoutes.APP_DASHBOARD_ID,
+          dashboardId: assetId
+        });
+      }
 
-    if (assetType === ShareAssetType.COLLECTION) {
-      url = createBusterRoute({
-        route: BusterRoutes.APP_COLLECTIONS_ID,
-        collectionId: assetId
-      });
-    }
+      if (assetType === ShareAssetType.COLLECTION) {
+        url = createBusterRoute({
+          route: BusterRoutes.APP_COLLECTIONS_ID,
+          collectionId: assetId
+        });
+      }
 
-    return url + '?embed=true';
-  }, [assetType, assetId]);
+      return url + '?embed=true';
+    }, [assetType, assetId]);
 
-  const onCopyLink = useMemoizedFn(() => {
-    const url = window.location.origin + embedURL;
-    navigator.clipboard.writeText(url);
-    openSuccessMessage('Link copied to clipboard');
-  });
+    const onCopyLink = useMemoizedFn(() => {
+      const url = window.location.origin + embedURL;
+      navigator.clipboard.writeText(url);
+      openSuccessMessage('Link copied to clipboard');
+    });
 
-  return (
-    <div className="flex flex-col">
-      <div className="flex w-full items-center space-x-1">
-        <Input size="small" defaultValue={createIframe(embedURL)} readOnly />
-        <Button prefix={<Link />} className="flex" onClick={onCopyLink} />
+    return (
+      <div className={cn('flex flex-col', className)}>
+        <div className="flex w-full items-center space-x-1">
+          <Input size="small" defaultValue={createIframe(embedURL)} readOnly />
+          <Button prefix={<Link />} className="flex" onClick={onCopyLink} />
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 ShareMenuContentEmbed.displayName = 'ShareMenuContentEmbed';
 
 const createIframe = (url: string) => {
@@ -74,17 +75,18 @@ export const ShareMenuContentEmbedFooter = ({
   assetId: string;
   assetType: ShareAssetType;
 }) => {
-  const { mutateAsync: onShareDashboard } = useUpdateDashboard();
-  const { mutateAsync: onShareMetric } = useUpdateMetric();
-  const { mutateAsync: onShareCollection, isPending: isSharingCollection } = useUpdateCollection();
+  const { mutateAsync: onShareDashboard } = useUpdateDashboardShare();
+  const { mutateAsync: onShareMetric } = useUpdateMetricShare();
+  const { mutateAsync: onShareCollection } = useUpdateCollectionShare();
   const { openSuccessMessage } = useBusterNotifications();
 
   const onPublish = useMemoizedFn(async () => {
-    const payload = {
+    const payload: Parameters<typeof onShareMetric>[0] = {
       id: assetId,
-      publicly_accessible: true
+      params: {
+        publicly_accessible: true
+      }
     };
-
     if (assetType === ShareAssetType.METRIC) {
       await onShareMetric(payload);
     } else if (assetType === ShareAssetType.DASHBOARD) {
@@ -96,7 +98,7 @@ export const ShareMenuContentEmbedFooter = ({
   });
 
   return (
-    <div className="bg-item-hover flex justify-start overflow-hidden rounded-b p-2 px-2.5">
+    <div className="bg-item-hover flex justify-start overflow-hidden rounded-b px-3 py-2.5">
       <Text variant="secondary" className="text-xs!">
         {`Your dashboard currently isn’t published.`}
 

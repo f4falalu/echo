@@ -28,16 +28,12 @@ const createInitialMessage = (messageId: string): IBusterChatMessage => ({
   reasoning_messages: {},
   created_at: new Date().toISOString(),
   final_reasoning_message: null,
-  sharingKey: '',
   individual_permissions: [],
-  team_permissions: [],
-  organization_permissions: [],
   permission: ShareRole.CAN_VIEW,
   public_expiry_date: null,
   public_enabled_by: null,
   publicly_accessible: false,
-  public_password: null,
-  password_secret_id: null
+  public_password: null
 });
 
 export const initializeOrUpdateMessage = (

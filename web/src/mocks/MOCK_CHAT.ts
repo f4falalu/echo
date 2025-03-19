@@ -144,16 +144,12 @@ const MOCK_MESSAGE = (): BusterChatMessage => {
       {}
     ),
     reasoning_message_ids: reasoningMessage.map((m) => m.id),
-    sharingKey: '',
     individual_permissions: [],
-    team_permissions: [],
-    organization_permissions: [],
     permission: ShareRole.CAN_VIEW,
     public_expiry_date: null,
     public_enabled_by: null,
     publicly_accessible: false,
-    public_password: null,
-    password_secret_id: null
+    public_password: null
   };
 };
 

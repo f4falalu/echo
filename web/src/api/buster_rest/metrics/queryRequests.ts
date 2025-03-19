@@ -367,7 +367,7 @@ export const useUpdateMetricShare = () => {
       queryClient.setQueryData(queryKey, (previousData: IBusterMetric | undefined) => {
         return create(previousData!, (draft: IBusterMetric) => {
           draft.individual_permissions =
-            draft.individual_permissions!.map((t) => {
+            draft.individual_permissions?.map((t) => {
               const found = variables.params.users?.find((v) => v.email === t.email);
               if (found) return found;
               return t;
