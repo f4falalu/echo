@@ -166,9 +166,6 @@ pub async fn post_chat_handler(
         .await?;
     }
 
-    // Create database connection
-    let mut conn = get_pg_pool().get().await?;
-
     // Initialize agent with context if provided
     let mut initial_messages = vec![];
 
@@ -356,6 +353,8 @@ pub async fn post_chat_handler(
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
     };
+
+    let mut conn = get_pg_pool().get().await?;
 
     // Insert message into database
     insert_into(messages::table)
