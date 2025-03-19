@@ -26,17 +26,17 @@ The implementation is broken down into the following components, each with its o
 ### PRD Development Order
 The PRDs can be developed in the following order, with opportunities for parallel work:
 
-1. **First: List Chats Sharing Endpoint PRD** (api_chats_sharing_list.md)
+1. **First: List Chats Sharing Endpoint PRD** (api_chats_sharing_list.md) ✅
    - This PRD should be completed first as it establishes the basic data structures and permission checking patterns that other PRDs will build upon.
    - It introduces the core response types and error handling approaches.
 
 2. **Second (Can be done in parallel):**
-   - **Create Chats Sharing Endpoint PRD** (api_chats_sharing_create.md)
-   - **Delete Chats Sharing Endpoint PRD** (api_chats_sharing_delete.md)
+   - **Create Chats Sharing Endpoint PRD** (api_chats_sharing_create.md) ✅
+   - **Delete Chats Sharing Endpoint PRD** (api_chats_sharing_delete.md) ✅
    - These PRDs can be worked on simultaneously by different team members after the List PRD is complete.
    - They use different sharing library functions and have minimal dependencies on each other.
 
-3. **Third: Update Chats Sharing Endpoint PRD** (api_chats_sharing_update.md)
+3. **Third: Update Chats Sharing Endpoint PRD** (api_chats_sharing_update.md) ✅
    - This PRD should be completed after the Create PRD since it builds on similar concepts and uses the same underlying sharing library functions.
    - The update endpoint reuses many patterns from the create endpoint with slight modifications.
 
@@ -61,12 +61,12 @@ After Phase 1 is complete, the following components can be implemented in parall
   - Uses `list_shares` from `@[api/libs/sharing/src]/list_asset_permissions.rs`
   - Uses `check_access` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
-- **Create Sharing Endpoint**
+- **Create Sharing Endpoint** ✅
   - Uses `find_user_by_email` from `@[api/libs/sharing/src]/user_lookup.rs`
   - Uses `create_share_by_email` from `@[api/libs/sharing/src]/create_asset_permission.rs`
   - Uses `has_permission` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
-- **Update Sharing Endpoint**
+- **Update Sharing Endpoint** ✅
   - Uses `create_share_by_email` from `@[api/libs/sharing/src]/create_asset_permission.rs`
   - Uses `has_permission` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
