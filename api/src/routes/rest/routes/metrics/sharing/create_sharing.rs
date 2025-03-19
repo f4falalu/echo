@@ -27,7 +27,7 @@ pub async fn create_metric_sharing_rest_handler(
     tracing::info!("Processing POST request for metric sharing with ID: {}, user_id: {}", id, user.id);
 
     match create_metric_sharing_handler(&id, &user.id, request.emails, request.role).await {
-        Ok(_) => Ok(ApiResponse::Success("Sharing permissions created successfully".to_string())),
+        Ok(_) => Ok(ApiResponse::JsonData("Sharing permissions created successfully".to_string())),
         Err(e) => {
             tracing::error!("Error creating sharing permissions: {}", e);
             
