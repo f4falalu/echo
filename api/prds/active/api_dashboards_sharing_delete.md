@@ -14,10 +14,8 @@ Users need the ability to remove sharing permissions for dashboards through a RE
 
 ### Request Structure
 ```rust
-#[derive(Debug, Deserialize)]
-pub struct DeleteSharingRequest {
-    pub emails: Vec<String>,
-}
+// Simple array of email strings
+pub type DeleteSharingRequest = Vec<String>;
 ```
 
 ### Response Structure
@@ -38,25 +36,27 @@ pub struct DeleteSharingRequest {
 pub async fn delete_dashboard_sharing_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
-    Json(request): Json<DeleteSharingRequest>,
+    Json(request): Json<Vec<String>>,
 ) -> Result<ApiResponse<String>, (StatusCode, String)> {
     tracing::info!("Processing DELETE request for dashboard sharing with ID: {}, user_id: {}", id, user.id);
 
-    match delete_dashboard_sharing_handler(&id, &user.id, request.emails).await {
-        Ok(_) => Ok(ApiResponse::Success("Sharing permissions removed successfully".to_string())),
+    match delete_dashboard_sharing_handler(&id, &user.id, request).await {
+        Ok(_) => Ok(ApiResponse::JsonData("Sharing permissions deleted successfully".to_string())),
         Err(e) => {
-            tracing::error!("Error removing sharing permissions: {}", e);
+            tracing::error!("Error deleting sharing permissions: {}", e);
             
             // Map specific errors to appropriate status codes
-            if e.to_string().contains("not found") {
+            let error_message = e.to_string();
+            
+            if error_message.contains("not found") {
                 return Err((StatusCode::NOT_FOUND, format!("Dashboard not found: {}", e)));
-            } else if e.to_string().contains("permission") {
+            } else if error_message.contains("permission") {
                 return Err((StatusCode::FORBIDDEN, format!("Insufficient permissions: {}", e)));
-            } else if e.to_string().contains("invalid email") {
+            } else if error_message.contains("Invalid email") {
                 return Err((StatusCode::BAD_REQUEST, format!("Invalid email: {}", e)));
             }
             
-            Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to remove sharing permissions: {}", e)))
+            Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to delete sharing permissions: {}", e)))
         }
     }
 }
@@ -77,7 +77,7 @@ pub async fn delete_dashboard_sharing_handler(
         Err(e) => return Err(anyhow!("Error fetching dashboard: {}", e)),
     };
 
-    // 2. Check if user has permission to remove sharing for the dashboard (Owner or FullAccess)
+    // 2. Check if user has permission to delete sharing for the dashboard (Owner or FullAccess)
     let has_permission = has_permission(
         *dashboard_id,
         AssetType::Dashboard,
@@ -87,22 +87,30 @@ pub async fn delete_dashboard_sharing_handler(
     ).await?;
 
     if !has_permission {
-        return Err(anyhow!("User does not have permission to remove sharing for this dashboard"));
+        return Err(anyhow!("User does not have permission to delete sharing for this dashboard"));
     }
 
-    // 3. Process each email and remove sharing permissions
+    // 3. Process each email and delete sharing permissions
     for email in emails {
+        // The remove_share_by_email function handles soft deletion of permissions
         match remove_share_by_email(
             &email,
             *dashboard_id,
             AssetType::Dashboard,
+            *user_id,
         ).await {
             Ok(_) => {
-                tracing::info!("Removed sharing permission for email: {} on dashboard: {}", email, dashboard_id);
+                tracing::info!("Deleted sharing permission for email: {} on dashboard: {}", email, dashboard_id);
             },
             Err(e) => {
-                tracing::error!("Failed to remove sharing for email {}: {}", email, e);
-                return Err(anyhow!("Failed to remove sharing for email {}: {}", email, e));
+                // If the error is because the permission doesn't exist, we can ignore it
+                if e.to_string().contains("No active permission found") {
+                    tracing::warn!("No active permission found for email {}: {}", email, e);
+                    continue;
+                }
+                
+                tracing::error!("Failed to delete sharing for email {}: {}", email, e);
+                return Err(anyhow!("Failed to delete sharing for email {}: {}", email, e));
             }
         }
     }
@@ -132,6 +140,7 @@ pub async fn remove_share_by_email(
     email: &str,
     asset_id: Uuid,
     asset_type: AssetType,
+    user_id: Uuid,
 ) -> Result<()>
 ```
 This function removes sharing permissions for a user identified by email. It handles:

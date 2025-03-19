@@ -15,7 +15,7 @@ pub struct ChatMessage {
     pub reasoning_message_ids: Vec<String>,
     #[serde(default)]
     pub reasoning_messages: HashMap<String, Value>,
-    pub created_at: String,
+    pub created_at: chrono::DateTime<chrono::Utc>,
     pub final_reasoning_message: Option<String>,
 }
 
@@ -46,7 +46,7 @@ impl ChatMessage {
             response_messages: HashMap::new(),
             reasoning_message_ids: Vec::new(),
             reasoning_messages: HashMap::new(),
-            created_at: Utc::now().to_rfc3339(),
+            created_at: Utc::now(),
             final_reasoning_message: None,
         }
     }
@@ -57,6 +57,7 @@ impl ChatMessage {
         response_messages: Vec<Value>,
         reasoning_messages: Vec<Value>,
         final_reasoning_message: Option<String>,
+        created_at: chrono::DateTime<chrono::Utc>,
     ) -> Self {
         let response_message_ids: Vec<String> = response_messages
             .iter()
@@ -91,7 +92,7 @@ impl ChatMessage {
             response_messages: response_messages_map,
             reasoning_message_ids,
             reasoning_messages: reasoning_messages_map,
-            created_at: Utc::now().to_rfc3339(),
+            created_at,
             final_reasoning_message,
         }
     }

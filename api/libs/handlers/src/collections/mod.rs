@@ -5,6 +5,7 @@ mod get_collection_handler;
 mod list_collections_handler;
 mod types;
 mod update_collection_handler;
+pub mod sharing;
 
 // Re-export types
 pub use types::*;

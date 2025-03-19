@@ -26,7 +26,7 @@ The implementation is broken down into the following components, each with its o
 ### PRD Development Order
 The PRDs can be developed in the following order, with opportunities for parallel work:
 
-1. **First: List Collections Sharing Endpoint PRD** (api_collections_sharing_list.md)
+1. **First: List Collections Sharing Endpoint PRD** (api_collections_sharing_list.md) ✅
    - This PRD should be completed first as it establishes the basic data structures and permission checking patterns that other PRDs will build upon.
    - It introduces the core response types and error handling approaches.
 
