@@ -31,12 +31,12 @@ The PRDs can be developed in the following order, with opportunities for paralle
    - It introduces the core response types and error handling approaches.
 
 2. **Second (Can be done in parallel):**
-   - **Create Collections Sharing Endpoint PRD** (api_collections_sharing_create.md)
-   - **Delete Collections Sharing Endpoint PRD** (api_collections_sharing_delete.md)
+   - **Create Collections Sharing Endpoint PRD** (api_collections_sharing_create.md) ✅
+   - **Delete Collections Sharing Endpoint PRD** (api_collections_sharing_delete.md) ✅
    - These PRDs can be worked on simultaneously by different team members after the List PRD is complete.
    - They use different sharing library functions and have minimal dependencies on each other.
 
-3. **Third: Update Collections Sharing Endpoint PRD** (api_collections_sharing_update.md)
+3. **Third: Update Collections Sharing Endpoint PRD** (api_collections_sharing_update.md) ✅
    - This PRD should be completed after the Create PRD since it builds on similar concepts and uses the same underlying sharing library functions.
    - The update endpoint reuses many patterns from the create endpoint with slight modifications.
 
@@ -57,7 +57,7 @@ The PRDs can be developed in the following order, with opportunities for paralle
 ### Phase 2: Core Endpoints (Can be Parallelized)
 After Phase 1 is complete, the following components can be implemented in parallel by different developers:
 
-- **List Sharing Endpoint**
+- **List Sharing Endpoint** ✅
   - Uses `list_shares` from `@[api/libs/sharing/src]/list_asset_permissions.rs`
   - Uses `check_access` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
@@ -66,7 +66,7 @@ After Phase 1 is complete, the following components can be implemented in parall
   - Uses `create_share_by_email` from `@[api/libs/sharing/src]/create_asset_permission.rs`
   - Uses `has_permission` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
-- **Update Sharing Endpoint**
+- **Update Sharing Endpoint** ✅
   - Uses `create_share_by_email` from `@[api/libs/sharing/src]/create_asset_permission.rs`
   - Uses `has_permission` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
