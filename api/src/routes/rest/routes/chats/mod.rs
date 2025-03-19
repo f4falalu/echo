@@ -9,6 +9,7 @@ mod get_chat_raw_llm_messages;
 mod list_chats;
 mod post_chat;
 mod update_chats;
+pub mod sharing;
 
 pub use delete_chats::delete_chats_route;
 pub use get_chat::get_chat_route;
@@ -16,6 +17,7 @@ pub use get_chat_raw_llm_messages::get_chat_raw_llm_messages;
 pub use list_chats::list_chats_route;
 pub use post_chat::post_chat_route;
 pub use update_chats::update_chats_route;
+pub use sharing::delete_chat_sharing_rest_handler;
 
 pub fn router() -> Router {
     Router::new()
@@ -25,4 +27,5 @@ pub fn router() -> Router {
         .route("/", delete(delete_chats_route))
         .route("/:id", get(get_chat_route))
         .route("/:id/raw_llm_messages", get(get_chat_raw_llm_messages))
+        .route("/:id/sharing", delete(delete_chat_sharing_rest_handler))
 }

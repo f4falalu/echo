@@ -2,28 +2,28 @@
 
 ## Problem Statement
 
-Users need the ability to remove sharing permissions for chats through a REST API endpoint.
+✅ Users need the ability to remove sharing permissions for chats through a REST API endpoint.
 
 ## Technical Design
 
 ### Endpoint Specification
 
-- **Method**: DELETE
-- **Path**: /chats/:id/sharing
-- **Description**: Removes sharing permissions for a chat
-- **Authentication**: Required
-- **Authorization**: User must have Owner or FullAccess permission for the chat
+✅ - **Method**: DELETE
+✅ - **Path**: /chats/:id/sharing
+✅ - **Description**: Removes sharing permissions for a chat
+✅ - **Authentication**: Required
+✅ - **Authorization**: User must have Owner or FullAccess permission for the chat
 
 ### Request Structure
 
-```rust
+✅ ```rust
 // Array of emails to remove sharing permissions for
 pub type DeleteShareRequest = Vec<String>;
 ```
 
 ### Response Structure
 
-```rust
+✅ ```rust
 // Success response is a simple message
 // Error responses include appropriate status codes and error messages
 ```
@@ -32,8 +32,8 @@ pub type DeleteShareRequest = Vec<String>;
 
 #### New Files
 
-1. `/src/routes/rest/routes/chats/sharing/delete_sharing.rs` - REST handler for deleting sharing permissions
-2. `/libs/handlers/src/chats/sharing/delete_sharing_handler.rs` - Business logic for deleting sharing permissions
+✅ 1. `/src/routes/rest/routes/chats/sharing/delete_sharing.rs` - REST handler for deleting sharing permissions
+✅ 2. `/libs/handlers/src/chats/sharing/delete_sharing_handler.rs` - Business logic for deleting sharing permissions
 
 #### REST Handler Implementation
 
@@ -182,11 +182,11 @@ The handler will return appropriate error responses:
 
 #### Test Cases
 
-1. Should remove sharing permissions for valid emails
-1. Should return 403 when user doesn't have Owner or FullAccess permission
-1. Should return 404 when chat doesn't exist
-1. Should return 400 when email is invalid
-1. Should handle gracefully when trying to remove sharing for a user that doesn't have access
+✅ 1. Should remove sharing permissions for valid emails
+✅ 2. Should return 403 when user doesn't have Owner or FullAccess permission
+✅ 3. Should return 404 when chat doesn't exist
+✅ 4. Should return 400 when email is invalid
+✅ 5. Should handle gracefully when trying to remove sharing for a user that doesn't have access
 
 ### Performance Considerations
 
