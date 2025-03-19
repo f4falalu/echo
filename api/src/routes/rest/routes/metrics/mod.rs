@@ -7,6 +7,7 @@ mod get_metric_data;
 mod list_metrics;
 mod post_metric_dashboard;
 mod update_metric;
+mod sharing;
 
 pub fn router() -> Router {
     Router::new()
@@ -22,4 +23,5 @@ pub fn router() -> Router {
             "/:id/dashboards",
             post(post_metric_dashboard::post_metric_dashboard_rest_handler),
         )
+        .nest("/:id/sharing", sharing::router())
 }
