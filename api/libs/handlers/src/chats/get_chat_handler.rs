@@ -82,7 +82,7 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                 .inner_join(users::table.on(messages::created_by.eq(users::id)))
                 .filter(messages::chat_id.eq(chat_id))
                 .filter(messages::deleted_at.is_null())
-                .order_by(messages::created_at.desc())
+                .order_by(messages::created_at.asc())
                 .select((
                     messages::id,
                     messages::request_message,
@@ -154,6 +154,7 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                 response_messages,
                 reasoning,
                 Some(msg.final_reasoning_message),
+                msg.created_at,
             )
         })
         .collect();

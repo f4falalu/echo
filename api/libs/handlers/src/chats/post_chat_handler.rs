@@ -350,6 +350,7 @@ pub async fn post_chat_handler(
         response_messages.clone(),
         reasoning_messages.clone(),
         Some(format!("Reasoned for {} seconds", reasoning_duration).to_string()),
+        Utc::now(),
     );
 
     chat_with_messages.update_message(message);
@@ -1854,6 +1855,7 @@ async fn initialize_chat(
             Vec::new(),
             Vec::new(),
             None,
+            Utc::now(),
         );
 
         // Add message to existing chat
@@ -1889,6 +1891,7 @@ async fn initialize_chat(
             Vec::new(),
             Vec::new(),
             None,
+            Utc::now(),
         );
 
         let mut chat_with_messages = ChatWithMessages::new(
