@@ -235,24 +235,40 @@ pub async fn post_chat_handler(
                 // Only store completed messages in raw_llm_messages
                 match &msg {
                     AgentMessage::Assistant {
-                        progress, content, ..
+                        progress, content, id, ..
                     } => {
-                        if let Some(content) = content {
-                            raw_response_message.push_str(&content);
+                        // Store chunks in the tracker to ensure deduplication
+                        if let Some(content_str) = content {
+                            // Use message ID as chunk ID, or generate a consistent one if missing
+                            let chunk_id = id.clone().unwrap_or_else(|| "assistant_message".to_string());
+                            // Add to chunk tracker to handle deduplication
+                            chunk_tracker.add_chunk(chunk_id.clone(), content_str.clone());
                         }
 
                         if matches!(progress, MessageProgress::Complete) {
-                            if raw_response_message.is_empty() {
-                                raw_llm_messages.push(msg.clone());
-                            } else {
+                            if let Some(content_str) = content {
+                                // Use message ID as chunk ID, or generate a consistent one if missing
+                                let chunk_id = id.clone().unwrap_or_else(|| "assistant_message".to_string());
+                                
+                                // Get the complete deduplicated text from the chunk tracker
+                                let complete_text = chunk_tracker.get_complete_text(chunk_id.clone())
+                                    .unwrap_or_else(|| content_str.clone());
+                                
+                                // Create a new message with the deduplicated content
                                 raw_llm_messages.push(AgentMessage::Assistant {
-                                    id: None,
-                                    content: Some(raw_response_message.clone()),
+                                    id: id.clone(),
+                                    content: Some(complete_text),
                                     name: None,
                                     tool_calls: None,
                                     progress: MessageProgress::Complete,
                                     initial: false,
                                 });
+                                
+                                // Clear the chunk from the tracker
+                                chunk_tracker.clear_chunk(chunk_id);
+                            } else {
+                                // If there's no content, just use the original message
+                                raw_llm_messages.push(msg.clone());
                             }
                         }
                     }
