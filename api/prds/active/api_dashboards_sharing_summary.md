@@ -18,7 +18,7 @@ The implementation is broken down into the following components, each with its o
 3. **Update Dashboards Sharing Endpoint** - PUT /dashboards/:id/sharing
    - PRD: [api_dashboards_sharing_update.md](/Users/dallin/buster/buster/api/prds/active/api_dashboards_sharing_update.md)
 
-4. **Delete Dashboards Sharing Endpoint** - DELETE /dashboards/:id/sharing
+4. **Delete Dashboards Sharing Endpoint** - DELETE /dashboards/:id/sharing ✅
    - PRD: [api_dashboards_sharing_delete.md](/Users/dallin/buster/buster/api/prds/active/api_dashboards_sharing_delete.md)
 
 ## PRD Development Sequence and Parallelization
@@ -54,10 +54,10 @@ The PRDs can be developed in the following order, with opportunities for paralle
    - Update `/src/routes/rest/routes/dashboards/mod.rs` to include the sharing router
    - Update `/libs/handlers/src/dashboards/mod.rs` to export the sharing module
 
-### Phase 2: Core Endpoints (Can be Parallelized)
+### Phase 2: Core Endpoints (Can be Parallelized) ✅
 After Phase 1 is complete, the following components can be implemented in parallel by different developers:
 
-- **List Sharing Endpoint**
+- **List Sharing Endpoint** ✅
   - Uses `list_shares` from `@[api/libs/sharing/src]/list_asset_permissions.rs`
   - Uses `check_access` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
@@ -70,7 +70,7 @@ After Phase 1 is complete, the following components can be implemented in parall
   - Uses `create_share_by_email` from `@[api/libs/sharing/src]/create_asset_permission.rs`
   - Uses `has_permission` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
-- **Delete Sharing Endpoint**
+- **Delete Sharing Endpoint** ✅
   - Uses `remove_share_by_email` from `@[api/libs/sharing/src]/remove_asset_permissions.rs`
   - Uses `has_permission` from `@[api/libs/sharing/src]/check_asset_permission.rs`
 
