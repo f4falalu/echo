@@ -2,6 +2,12 @@ use anyhow::Result;
 use serde_json::Value;
 use std::collections::HashMap;
 use uuid::Uuid;
+use database::models::MetricFileToDashboardFile;
+use database::pool::get_pg_pool;
+use database::schema::metric_files_to_dashboard_files;
+use database::types::dashboard_yml::DashboardYml;
+use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
+use chrono::Utc;
 
 use crate::processor::Processor;
 use crate::types::{File, FileContent, ProcessedOutput, ProcessorType, ReasoningFile};
@@ -32,6 +38,89 @@ impl CreateDashboardsProcessor {
         bytes.copy_from_slice(&result[0..16]);
         
         Ok(Uuid::from_bytes(bytes))
+    }
+    
+    /// Extract metric IDs from dashboard YAML content
+    fn extract_metric_ids_from_yaml(&self, yaml_content: &str) -> Result<Vec<Uuid>> {
+        // Parse the YAML into DashboardYml
+        let dashboard: DashboardYml = serde_yaml::from_str(yaml_content)?;
+        
+        let mut metric_ids = Vec::new();
+        
+        // Iterate through all rows and collect metric IDs
+        for row in &dashboard.rows {
+            for item in &row.items {
+                metric_ids.push(item.id);
+            }
+        }
+        
+        Ok(metric_ids)
+    }
+    
+    /// Create associations between a dashboard and its metrics
+    async fn create_dashboard_metric_associations(
+        &self,
+        dashboard_id: &Uuid,
+        yaml_content: &str,
+        user_id: Uuid,
+    ) -> Result<()> {
+        // Extract metric IDs from the dashboard YAML
+        let metric_ids = match self.extract_metric_ids_from_yaml(yaml_content) {
+            Ok(ids) => ids,
+            Err(_) => return Ok(()), // If we can't parse the YAML, just skip creating associations
+        };
+        
+        if metric_ids.is_empty() {
+            return Ok(());
+        }
+        
+        // Get database connection
+        let pool = get_pg_pool();
+        let mut conn = match pool.get().await {
+            Ok(conn) => conn,
+            Err(_) => return Ok(()), // If we can't get a connection, just skip creating associations
+        };
+        
+        // For each metric ID, create an association if the metric exists
+        for metric_id in metric_ids {
+            // Check if the metric exists
+            let metric_exists = diesel::dsl::select(
+                diesel::dsl::exists(
+                    database::schema::metric_files::table
+                        .filter(database::schema::metric_files::id.eq(metric_id))
+                        .filter(database::schema::metric_files::deleted_at.is_null())
+                )
+            )
+            .get_result::<bool>(&mut conn)
+            .await;
+            
+            // Skip if metric doesn't exist
+            if let Ok(exists) = metric_exists {
+                if !exists {
+                    continue;
+                }
+            } else {
+                continue;
+            }
+            
+            // Create the association
+            match diesel::insert_into(metric_files_to_dashboard_files::table)
+                .values((
+                    metric_files_to_dashboard_files::dashboard_file_id.eq(dashboard_id),
+                    metric_files_to_dashboard_files::metric_file_id.eq(metric_id),
+                    metric_files_to_dashboard_files::created_at.eq(Utc::now()),
+                    metric_files_to_dashboard_files::updated_at.eq(Utc::now()),
+                    metric_files_to_dashboard_files::created_by.eq(user_id),
+                ))
+                .execute(&mut conn)
+                .await
+            {
+                Ok(_) => (), // Association created successfully
+                Err(_) => continue, // Skip if there's an error (e.g., association already exists)
+            }
+        }
+        
+        Ok(())
     }
 }
 
@@ -123,7 +212,29 @@ impl Processor for CreateDashboardsProcessor {
                             };
 
                             file_ids.push(file_id_str.clone());
-                            files_map.insert(file_id_str, file);
+                            files_map.insert(file_id_str.clone(), file);
+                            
+                            // Try to create metric associations - use tokio::spawn to do this asynchronously
+                            // so we don't block the dashboard creation process
+                            let file_id_uuid = file_id;
+                            let yml_content_clone = yml_content.to_string();
+                            
+                            // Attempt to parse creator_id from metadata if available
+                            let user_id = file_obj
+                                .get("metadata")
+                                .and_then(|m| m.get("user_id"))
+                                .and_then(|u| u.as_str())
+                                .and_then(|s| Uuid::parse_str(s).ok())
+                                .unwrap_or_else(|| Uuid::nil());
+                                
+                            tokio::spawn(async move {
+                                let processor = CreateDashboardsProcessor::new();
+                                let _ = processor.create_dashboard_metric_associations(
+                                    &file_id_uuid,
+                                    &yml_content_clone,
+                                    user_id
+                                ).await;
+                            });
                         }
                     }
                 }
@@ -178,6 +289,69 @@ mod tests {
         // Test with malformed JSON
         let json = r#"{"files":[{"name":"test_dashboard.yml","yml_content":"name: Test Dashboard"}"#;
         assert!(!processor.can_process(json));
+    }
+    
+    #[test]
+    fn test_extract_metric_ids_from_yaml() {
+        let processor = CreateDashboardsProcessor::new();
+        
+        // Create a test YAML with known metric IDs
+        let yaml_content = r#"
+name: Test Dashboard
+description: A test dashboard
+rows:
+  - items:
+      - id: 00000000-0000-0000-0000-000000000001
+      - id: 00000000-0000-0000-0000-000000000002
+    rowHeight: 400
+    columnSizes: [6, 6]
+    id: 1
+  - items:
+      - id: 00000000-0000-0000-0000-000000000003
+    rowHeight: 300
+    columnSizes: [12]
+    id: 2
+"#;
+        
+        // Extract metric IDs
+        let result = processor.extract_metric_ids_from_yaml(yaml_content);
+        assert!(result.is_ok());
+        
+        let metric_ids = result.unwrap();
+        
+        // Verify the expected IDs are extracted
+        assert_eq!(metric_ids.len(), 3);
+        
+        let uuid1 = Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap();
+        let uuid2 = Uuid::parse_str("00000000-0000-0000-0000-000000000002").unwrap();
+        let uuid3 = Uuid::parse_str("00000000-0000-0000-0000-000000000003").unwrap();
+        
+        assert!(metric_ids.contains(&uuid1));
+        assert!(metric_ids.contains(&uuid2));
+        assert!(metric_ids.contains(&uuid3));
+    }
+    
+    #[test]
+    fn test_extract_metric_ids_from_invalid_yaml() {
+        let processor = CreateDashboardsProcessor::new();
+        
+        // Test with invalid YAML
+        let invalid_yaml = "this is not valid YAML";
+        let result = processor.extract_metric_ids_from_yaml(invalid_yaml);
+        assert!(result.is_err());
+        
+        // Test with valid YAML but missing items
+        let yaml_without_items = r#"
+name: Test Dashboard
+description: A test dashboard
+rows:
+  - rowHeight: 400
+    columnSizes: [6, 6]
+    id: 1
+"#;
+        let result = processor.extract_metric_ids_from_yaml(yaml_without_items);
+        assert!(result.is_ok());
+        assert!(result.unwrap().is_empty());
     }
 
     #[test]
