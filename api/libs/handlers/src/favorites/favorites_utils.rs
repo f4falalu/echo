@@ -10,7 +10,7 @@ use database::{
     enums::AssetType,
     pool::get_pg_pool,
     models::UserFavorite,
-    schema::{collections, collections_to_assets, dashboards, messages_deprecated, threads_deprecated, user_favorites, metric_files},
+    schema::{collections, collections_to_assets, dashboard_files, chats, messages_deprecated, threads_deprecated, user_favorites, metric_files},
 };
 
 use middleware::AuthenticatedUser;
@@ -113,10 +113,21 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
         tokio::spawn(async move { get_favorite_metrics(metric_ids).await })
     };
 
-    let (dashboard_fav_res, collection_fav_res, threads_fav_res, metrics_fav_res) =
-        match tokio::try_join!(dashboard_favorites, collection_favorites, threads_favorites, metrics_favorites) {
-            Ok((dashboard_fav_res, collection_fav_res, threads_fav_res, metrics_fav_res)) => {
-                (dashboard_fav_res, collection_fav_res, threads_fav_res, metrics_fav_res)
+    let chats_favorites = {
+        let chat_ids = Arc::new(
+            user_favorites
+                .iter()
+                .filter(|(_, f)| f == &AssetType::Chat)
+                .map(|f| f.0)
+                .collect::<Vec<Uuid>>(),
+        );
+        tokio::spawn(async move { get_favorite_chats(chat_ids).await })
+    };
+
+    let (dashboard_fav_res, collection_fav_res, threads_fav_res, metrics_fav_res, chats_fav_res) =
+        match tokio::try_join!(dashboard_favorites, collection_favorites, threads_favorites, metrics_favorites, chats_favorites) {
+            Ok((dashboard_fav_res, collection_fav_res, threads_fav_res, metrics_fav_res, chats_fav_res)) => {
+                (dashboard_fav_res, collection_fav_res, threads_fav_res, metrics_fav_res, chats_fav_res)
             }
             Err(e) => {
                 tracing::error!("Error getting favorite assets: {}", e);
@@ -156,6 +167,14 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
         }
     };
 
+    let favorite_chats = match chats_fav_res {
+        Ok(chats) => chats,
+        Err(e) => {
+            tracing::error!("Error getting favorite chats: {}", e);
+            return Err(anyhow!("Error getting favorite chats: {}", e));
+        }
+    };
+
     let mut favorites: Vec<FavoriteEnum> = Vec::with_capacity(user_favorites.len());
 
     for favorite in &user_favorites {
@@ -181,6 +200,11 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
             AssetType::MetricFile => {
                 if let Some(metric) = favorite_metrics.iter().find(|m| m.id == favorite.0) {
                     favorites.push(FavoriteEnum::Object(metric.clone()));
+                }
+            }
+            AssetType::Chat => {
+                if let Some(chat) = favorite_chats.iter().find(|c| c.id == favorite.0) {
+                    favorites.push(FavoriteEnum::Object(chat.clone()));
                 }
             }
             _ => {}
@@ -231,16 +255,16 @@ async fn get_favorite_dashboards(dashboard_ids: Arc<Vec<Uuid>>) -> Result<Vec<Fa
         Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
     };
 
-    let dashboard_records: Vec<(Uuid, String)> = match dashboards::table
-        .select((dashboards::id, dashboards::name))
-        .filter(dashboards::id.eq_any(dashboard_ids.as_ref()))
-        .filter(dashboards::deleted_at.is_null())
+    let dashboard_records: Vec<(Uuid, String)> = match dashboard_files::table
+        .select((dashboard_files::id, dashboard_files::name))
+        .filter(dashboard_files::id.eq_any(dashboard_ids.as_ref()))
+        .filter(dashboard_files::deleted_at.is_null())
         .load::<(Uuid, String)>(&mut conn)
         .await
     {
         Ok(dashboard_records) => dashboard_records,
-        Err(diesel::NotFound) => return Err(anyhow!("Dashboards not found")),
-        Err(e) => return Err(anyhow!("Error loading dashboard records: {:?}", e)),
+        Err(diesel::NotFound) => return Err(anyhow!("Dashboard files not found")),
+        Err(e) => return Err(anyhow!("Error loading dashboard file records: {:?}", e)),
     };
 
     let favorite_dashboards = dashboard_records
@@ -252,6 +276,35 @@ async fn get_favorite_dashboards(dashboard_ids: Arc<Vec<Uuid>>) -> Result<Vec<Fa
         })
         .collect();
     Ok(favorite_dashboards)
+}
+
+async fn get_favorite_chats(chat_ids: Arc<Vec<Uuid>>) -> Result<Vec<FavoriteObject>> {
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
+    };
+
+    let chat_records: Vec<(Uuid, String)> = match chats::table
+        .select((chats::id, chats::title))
+        .filter(chats::id.eq_any(chat_ids.as_ref()))
+        .filter(chats::deleted_at.is_null())
+        .load::<(Uuid, String)>(&mut conn)
+        .await
+    {
+        Ok(chat_records) => chat_records,
+        Err(diesel::NotFound) => return Err(anyhow!("Chats not found")),
+        Err(e) => return Err(anyhow!("Error loading chat records: {:?}", e)),
+    };
+
+    let favorite_chats = chat_records
+        .iter()
+        .map(|(id, title)| FavoriteObject {
+            id: *id,
+            name: title.clone(),
+            type_: AssetType::Chat,
+        })
+        .collect();
+    Ok(favorite_chats)
 }
 
 async fn get_assets_from_collections(
@@ -366,18 +419,18 @@ async fn get_dashboards_from_collections(
         Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
     };
 
-    let dashboard_records: Vec<(Uuid, Uuid, String)> = match dashboards::table
+    let dashboard_records: Vec<(Uuid, Uuid, String)> = match dashboard_files::table
         .inner_join(
-            collections_to_assets::table.on(dashboards::id.eq(collections_to_assets::asset_id)),
+            collections_to_assets::table.on(dashboard_files::id.eq(collections_to_assets::asset_id)),
         )
         .select((
             collections_to_assets::collection_id,
-            dashboards::id,
-            dashboards::name,
+            dashboard_files::id,
+            dashboard_files::name,
         ))
         .filter(collections_to_assets::collection_id.eq_any(collection_ids))
         .filter(collections_to_assets::asset_type.eq(AssetType::Dashboard))
-        .filter(dashboards::deleted_at.is_null())
+        .filter(dashboard_files::deleted_at.is_null())
         .filter(collections_to_assets::deleted_at.is_null())
         .load::<(Uuid, Uuid, String)>(&mut conn)
         .await

@@ -263,11 +263,27 @@ fn parse_dashboard_config(content: &Value) -> Result<DashboardConfig> {
                 })
                 .collect::<Result<Vec<_>>>()?;
 
+            // Extract column_sizes from the row if available
+            let column_sizes = row
+                .get("columnSizes")
+                .and_then(|sizes| {
+                    sizes.as_array().map(|arr| {
+                        arr.iter()
+                            .filter_map(|size| size.as_u64().map(|s| s as u32))
+                            .collect::<Vec<u32>>()
+                    })
+                });
+
+            // Extract row_height from the row if available
+            let row_height = row
+                .get("rowHeight")
+                .and_then(|height| height.as_u64().map(|h| h as u32));
+
             Ok(DashboardRow {
                 id: (index + 1).to_string(),
                 items,
-                row_height: None,
-                column_sizes: None,
+                row_height,
+                column_sizes,
             })
         })
         .collect::<Result<Vec<_>>>()?;

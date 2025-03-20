@@ -76,19 +76,24 @@ pub struct DashboardCollection {
 
 // Note: This is a placeholder for DashboardConfig which needs to be defined based on your specific needs
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct DashboardConfig {
     pub rows: Vec<DashboardRow>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct DashboardRow {
     pub id: String,
     pub items: Vec<DashboardRowItem>,
+    #[serde(alias = "rowHeight", skip_serializing_if = "Option::is_none")]
     pub row_height: Option<u32>,
+    #[serde(alias = "columnSizes", skip_serializing_if = "Option::is_none")]
     pub column_sizes: Option<Vec<u32>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct DashboardRowItem {
     pub id: String,
 }
