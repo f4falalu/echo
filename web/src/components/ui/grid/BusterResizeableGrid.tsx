@@ -23,7 +23,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useMemoizedFn } from '@/hooks';
 import isEqual from 'lodash/isEqual';
 import { BusterResizeRows } from './BusterResizeRows';
-import { NUMBER_OF_COLUMNS, NEW_ROW_ID, MIN_ROW_HEIGHT, TOP_SASH_ID } from './config';
+import { NUMBER_OF_COLUMNS, NEW_ROW_ID, MIN_ROW_HEIGHT, TOP_SASH_ID } from './helpers';
 
 const measuringConfig = {
   droppable: {

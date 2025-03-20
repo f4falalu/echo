@@ -96,3 +96,21 @@ export const updateCollectionShare = async ({
     .put<BusterCollection>(`/collections/${id}/sharing`, params)
     .then((res) => res.data);
 };
+
+export const addAssetToCollection = async (params: {
+  id: string;
+  assets: {
+    type: 'metric' | 'dashboard';
+    id: string;
+  }[];
+}) => {
+  return mainApi.post<null>(`/collections/${params.id}/assets`, params).then((res) => res.data);
+};
+
+export const removeAssetFromCollection = async (
+  params: Parameters<typeof addAssetToCollection>[0]
+) => {
+  return mainApi
+    .delete<null>(`/collections/${params.id}/assets`, { data: params })
+    .then((res) => res.data);
+};

@@ -8,7 +8,9 @@ import {
   collectionsDeleteCollection,
   shareCollection,
   unshareCollection,
-  updateCollectionShare
+  updateCollectionShare,
+  addAssetToCollection,
+  removeAssetFromCollection
 } from './requests';
 import { useMemo } from 'react';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -178,6 +180,41 @@ export const useUpdateCollectionShare = () => {
             draft.public_expiry_date = params.public_expiry_date;
           }
         });
+      });
+    }
+  });
+};
+
+export const useAddAssetToCollection = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: addAssetToCollection,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey
+      });
+    }
+  });
+};
+
+export const useRemoveAssetFromCollection = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: removeAssetFromCollection,
+    onMutate: (variables) => {
+      const queryKey = collectionQueryKeys.collectionsGetCollection(variables.id).queryKey;
+      const previousData = queryClient.getQueryData<BusterCollection>(queryKey);
+      if (!previousData) return;
+      queryClient.setQueryData(queryKey, (previousData) => {
+        const ids = variables.assets.map((a) => a.id);
+        return create(previousData!, (draft) => {
+          draft.assets = draft.assets!.filter((a) => !ids.includes(a.id));
+        });
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey
       });
     }
   });

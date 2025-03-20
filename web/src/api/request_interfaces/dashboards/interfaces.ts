@@ -55,12 +55,6 @@ export type DashboardUpdateRequest = {
   description?: string | null;
   /** Updated dashboard configuration */
   config?: DashboardConfig;
-  /** Updated verification status */
-  status?: VerificationStatus;
-  /** Collection IDs to add the dashboard to */
-  add_to_collections?: string[];
-  /** Collection IDs to remove the dashboard from */
-  remove_from_collections?: string[];
   /** The file content of the dashboard */
   file?: string;
 };

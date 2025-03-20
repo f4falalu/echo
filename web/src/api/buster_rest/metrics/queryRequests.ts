@@ -17,14 +17,18 @@ import {
 import type { GetMetricParams, ListMetricsParams } from './interfaces';
 import { upgradeMetricToIMetric } from '@/lib/metrics';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
+import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { useMemo } from 'react';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
-import { resolveEmptyMetric } from '@/lib/metrics/resolve';
 import { useGetUserFavorites } from '../users';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { create } from 'mutative';
+import {
+  useAddAssetToCollection,
+  useRemoveAssetFromCollection
+} from '../collections/queryRequests';
 
 export const useGetMetric = <TData = IBusterMetric>(
   { id, version_number }: { id: string | undefined; version_number?: number },
@@ -167,40 +171,61 @@ export const useDeleteMetric = () => {
 };
 
 export const useSaveMetricToCollection = () => {
+  const queryClient = useQueryClient();
   const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
-  const { mutateAsync: saveMetric } = useSaveMetric();
+  const { mutateAsync: addAssetToCollection } = useAddAssetToCollection();
 
   const saveMetricToCollection = useMemoizedFn(
     async ({ metricId, collectionIds }: { metricId: string; collectionIds: string[] }) => {
-      const collectionIsInFavorites = userFavorites.some((f) => {
-        const searchId = f.collection_id || f.id;
-        return collectionIds.includes(searchId);
-      });
-
-      await saveMetric({
-        id: metricId,
-        add_to_collections: collectionIds
-      });
-
-      if (collectionIsInFavorites) {
-        await refreshFavoritesList();
-      }
+      await Promise.all(
+        collectionIds.map((collectionId) =>
+          addAssetToCollection({
+            id: metricId,
+            assets: [{ id: collectionId, type: 'metric' }]
+          })
+        )
+      );
     }
   );
 
   return useMutation({
     mutationFn: saveMetricToCollection,
-    mutationKey: ['saveMetricToCollection']
+    onSuccess: (_, { collectionIds }) => {
+      const collectionIsInFavorites = userFavorites.some((f) => {
+        const searchId = f.collection_id || f.id;
+        return collectionIds.includes(searchId);
+      });
+      if (collectionIsInFavorites) refreshFavoritesList();
+      queryClient.invalidateQueries({
+        queryKey: collectionIds.map(
+          (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
+        )
+      });
+    }
   });
 };
 
 export const useRemoveMetricFromCollection = () => {
   const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
-  const { mutateAsync: saveMetric } = useSaveMetric();
+  const { mutateAsync: removeAssetFromCollection } = useRemoveAssetFromCollection();
   const queryClient = useQueryClient();
 
   const removeMetricFromCollection = useMemoizedFn(
-    async ({ metricId, collectionId }: { metricId: string; collectionId: string }) => {
+    async ({ metricId, collectionIds }: { metricId: string; collectionIds: string[] }) => {
+      await Promise.all(
+        collectionIds.map((collectionId) =>
+          removeAssetFromCollection({
+            id: metricId,
+            assets: [{ id: collectionId, type: 'metric' }]
+          })
+        )
+      );
+    }
+  );
+
+  return useMutation({
+    mutationFn: removeMetricFromCollection,
+    onSuccess: (_, { collectionIds, metricId }) => {
       const currentMetric = queryClient.getQueryData(
         metricsQueryKeys.metricsGetMetric(metricId).queryKey
       );
@@ -211,32 +236,26 @@ export const useRemoveMetricFromCollection = () => {
           return currentMetric.collections.some((c) => c.id === searchId);
         });
 
-      await saveMetric({
-        id: metricId,
-        remove_from_collections: [collectionId]
+      if (collectionIsInFavorites) refreshFavoritesList();
+
+      queryClient.invalidateQueries({
+        queryKey: collectionIds.map(
+          (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
+        )
       });
-
-      if (collectionIsInFavorites) {
-        await refreshFavoritesList();
-      }
     }
-  );
-
-  return useMutation({
-    mutationFn: removeMetricFromCollection
   });
 };
 
 export const useSaveMetricToDashboard = () => {
   const queryClient = useQueryClient();
-  const { mutateAsync: saveMetric } = useSaveMetric();
 
   const saveMetricToDashboard = useMemoizedFn(
     async ({ metricId, dashboardIds }: { metricId: string; dashboardIds: string[] }) => {
-      await saveMetric({
-        id: metricId,
-        save_to_dashboard: dashboardIds
-      });
+      // await saveMetric({
+      //   id: metricId,
+      //   save_to_dashboard: dashboardIds
+      // });
     }
   );
 
@@ -267,10 +286,10 @@ export const useRemoveMetricFromDashboard = () => {
       useConfirmModal?: boolean;
     }) => {
       const method = async () => {
-        await saveMetric({
-          id: metricId,
-          remove_from_dashboard: [dashboardId]
-        });
+        // await saveMetric({
+        //   id: metricId,
+        //   remove_from_dashboard: [dashboardId]
+        // });
       };
 
       if (!useConfirmModal) return await method();

@@ -20,6 +20,11 @@ import { upgradeMetricToIMetric } from '@/lib/metrics';
 import { queryKeys } from '@/api/query_keys';
 import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
+import {
+  useAddAssetToCollection,
+  useRemoveAssetFromCollection
+} from '../collections/queryRequests';
+import { collectionQueryKeys } from '@/api/query_keys/collection';
 
 export const useGetDashboardsList = (
   params: Omit<DashboardsListRequest, 'page_token' | 'page_size'>
@@ -173,38 +178,70 @@ export const useDeleteDashboards = () => {
 };
 
 export const useAddDashboardToCollection = () => {
-  const { mutateAsync: updateDashboardMutation } = useUpdateDashboard();
-
+  const queryClient = useQueryClient();
+  const { mutateAsync: addAssetToCollection } = useAddAssetToCollection();
   const mutationFn = useMemoizedFn(
-    async (variables: { dashboardId: string; collectionId: string | string[] }) => {
-      const { dashboardId, collectionId } = variables;
-      return updateDashboardMutation({
-        id: dashboardId,
-        add_to_collections: typeof collectionId === 'string' ? [collectionId] : collectionId
-      });
+    async (variables: { dashboardId: string; collectionIds: string[] }) => {
+      const { dashboardId, collectionIds } = variables;
+
+      await Promise.all(
+        collectionIds.map((collectionId) =>
+          addAssetToCollection({
+            id: dashboardId,
+            assets: [{ id: collectionId, type: 'dashboard' }]
+          })
+        )
+      );
     }
   );
 
   return useMutation({
-    mutationFn
+    mutationFn,
+    onSuccess: (_, { collectionIds }) => {
+      queryClient.invalidateQueries({
+        queryKey: collectionIds.map(
+          (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
+        )
+      });
+    }
   });
 };
 
 export const useRemoveDashboardFromCollection = () => {
-  const { mutateAsync: updateDashboardMutation } = useUpdateDashboard();
+  const queryClient = useQueryClient();
+  const { mutateAsync: removeAssetFromCollection } = useRemoveAssetFromCollection();
 
   const mutationFn = useMemoizedFn(
-    async (variables: { dashboardId: string; collectionId: string | string[] }) => {
-      const { dashboardId, collectionId } = variables;
-      return updateDashboardMutation({
-        id: dashboardId,
-        remove_from_collections: typeof collectionId === 'string' ? [collectionId] : collectionId
-      });
+    async (variables: { dashboardId: string; collectionIds: string[] }) => {
+      const { dashboardId, collectionIds } = variables;
+      await Promise.all(
+        collectionIds.map((collectionId) =>
+          removeAssetFromCollection({
+            id: dashboardId,
+            assets: [{ id: collectionId, type: 'dashboard' }]
+          })
+        )
+      );
     }
   );
-
   return useMutation({
-    mutationFn
+    mutationFn,
+    onMutate: (variables) => {
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey;
+      queryClient.setQueryData(queryKey, (previousData) => {
+        return create(previousData!, (draft) => {
+          draft.collections =
+            draft.collections?.filter((t) => !variables.collectionIds.includes(t.id)) || [];
+        });
+      });
+    },
+    onSuccess: (_, { collectionIds }) => {
+      queryClient.invalidateQueries({
+        queryKey: collectionIds.map(
+          (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
+        )
+      });
+    }
   });
 };
 

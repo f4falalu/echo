@@ -211,7 +211,7 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
   });
 
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
-    await removeMetricFromCollection({ metricId, collectionId });
+    await removeMetricFromCollection({ metricId, collectionIds: [collectionId] });
     openInfoMessage('Metrics removed from collections');
   });
 

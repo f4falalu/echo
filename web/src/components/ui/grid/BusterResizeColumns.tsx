@@ -6,7 +6,7 @@ import { BusterSortableItemDragContainer } from './_BusterSortableItemDragContai
 import { ResizeableGridDragItem } from './interfaces';
 import { useMemoizedFn, useMouse } from '@/hooks';
 import { BusterDragColumnMarkers } from './_BusterDragColumnMarkers';
-import { calculateColumnSpan, columnSpansToPercent } from './config';
+import { calculateColumnSpan, columnSpansToPercent } from './helpers';
 import SplitPane, { Pane } from '../layouts/AppSplitter/SplitPane';
 import { cn } from '@/lib/classMerge';
 import '../layouts/AppSplitter/splitterStyles.css';

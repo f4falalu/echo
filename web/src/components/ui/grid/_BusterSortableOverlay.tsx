@@ -7,7 +7,7 @@ import { animate } from 'framer-motion';
 import React, { useEffect, useMemo } from 'react';
 import { BusterResizeableGridRow } from './interfaces';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
-import { NUMBER_OF_COLUMNS } from './config';
+import { NUMBER_OF_COLUMNS } from './helpers';
 
 const dropAnimationConfig: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({

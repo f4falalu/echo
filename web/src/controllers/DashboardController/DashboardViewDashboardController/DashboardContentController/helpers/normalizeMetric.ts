@@ -1,11 +1,12 @@
-import type { DashboardConfig, BusterMetric } from '@/api/asset_interfaces';
-import type { BusterResizeableGridRow } from '@/components/ui/grid/interfaces';
+import { DashboardConfig } from '@/api/asset_interfaces/dashboard';
+import { BusterMetric } from '@/api/asset_interfaces/metric';
+import { BusterResizeableGridRow } from '@/components/ui/grid/interfaces';
+import { v4 as uuidv4 } from 'uuid';
 import {
   NUMBER_OF_COLUMNS,
   MAX_NUMBER_OF_ITEMS,
   MIN_ROW_HEIGHT
-} from '@/components/ui/grid/config';
-import { v4 as uuidv4 } from 'uuid';
+} from '@/components/ui/grid/helpers';
 
 export const normalizeNewMetricsIntoGrid = (
   metricsRecord: Record<string, BusterMetric>,
@@ -41,30 +42,31 @@ export const normalizeNewMetricsIntoGrid = (
     }, []);
   };
 
+  // First, remove any metrics that are no longer in the metricsRecord
   if (numberOfRemovedMetrics > 0) {
-    newGrid = grid.map((row) => {
-      const rowHasRemoved = row.items.some((item) => removedMetrics.some((m) => m.id === item.id));
-      if (!rowHasRemoved) {
-        return row;
-      }
+    newGrid = grid
+      .map((row): BusterResizeableGridRow | null => {
+        const newItems = row.items.filter((item) => metrics.some((m) => m.id === item.id));
+        if (newItems.length === 0) return null;
 
-      const newItems = row.items.filter((item) => !removedMetrics.some((m) => m.id === item.id));
-      const columnSizes = Array.from({ length: newItems.length }, () => {
-        return NUMBER_OF_COLUMNS / newItems.length;
-      });
-      return {
-        ...row,
-        items: newItems,
-        columnSizes: columnSizes
-      };
-    });
+        const columnSizes = Array.from({ length: newItems.length }, () => {
+          return NUMBER_OF_COLUMNS / newItems.length;
+        });
+        return {
+          ...row,
+          items: newItems,
+          columnSizes
+        };
+      })
+      .filter((row): row is BusterResizeableGridRow => row !== null);
   }
 
+  // Then, add new metrics
   if (numberOfNewMetrics > 0) {
-    if (numberOfRows === 0) {
+    if (numberOfRows === 0 || newGrid.length === 0) {
       newGrid = createNewOverflowRows(newMetrics);
     } else {
-      const numberOfItemsInFirstRow = grid[0].items?.length!;
+      const numberOfItemsInFirstRow = newGrid[0].items?.length!;
       const canFitInFirstRow = numberOfItemsInFirstRow + numberOfNewMetrics <= MAX_NUMBER_OF_ITEMS;
       if (canFitInFirstRow) {
         const newItems = newMetrics.map((m) => ({
@@ -77,63 +79,20 @@ export const normalizeNewMetricsIntoGrid = (
 
         newGrid = [
           {
-            ...grid[0],
-            items: [...newItems, ...grid[0].items],
-            columnSizes: columnSizes
+            ...newGrid[0],
+            items: [...newGrid[0].items, ...newItems],
+            columnSizes
           },
-          ...grid.slice(1)
+          ...newGrid.slice(1)
         ];
       } else {
-        const newRows = newMetrics.reduce((acc, metric, index) => {
-          const rowIndex = Math.floor(index / 4);
-          const selectedRow = acc[rowIndex];
-          if (!selectedRow) {
-            acc[rowIndex] = {
-              id: uuidv4(),
-              columnSizes: [NUMBER_OF_COLUMNS],
-              rowHeight: MIN_ROW_HEIGHT,
-              items: [{ id: metric.id }]
-            };
-          } else {
-            selectedRow.items.push({ id: metric.id });
-            selectedRow.columnSizes = Array.from({ length: selectedRow.items.length }, () => {
-              return NUMBER_OF_COLUMNS / selectedRow.items.length;
-            });
-          }
-
-          return acc;
-        }, [] as BusterResizeableGridRow[]);
-
-        newGrid = [...newRows, ...grid];
+        const newRows = createNewOverflowRows(newMetrics);
+        newGrid = [...newRows, ...newGrid];
       }
     }
   }
 
   return newGrid.filter((row) => row.items.length > 0);
-};
-
-export const hasUnmappedMetrics = (
-  metrics: Record<string, BusterMetric>,
-  configRows: DashboardConfig['rows'] = []
-) => {
-  return !Object.values(metrics).every((m) =>
-    configRows.some((r) => r.items.some((t) => t.id === m.id))
-  );
-};
-
-export const hasRemovedMetrics = (
-  metrics: Record<string, BusterMetric>,
-  configRows: BusterResizeableGridRow[]
-) => {
-  const allGridItemsLength = configRows.flatMap((r) => r.items).length;
-
-  if (allGridItemsLength !== Object.values(metrics).length) {
-    return true;
-  }
-
-  return !configRows.every((r) =>
-    r.items.some((t) => Object.values(metrics).some((m) => t.id === m.id))
-  );
 };
 
 const getRemovedMetrics = (metrics: BusterMetric[], configRows: DashboardConfig['rows'] = []) => {

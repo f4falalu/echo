@@ -39,26 +39,8 @@ export const DashboardContentController: React.FC<{
     const [draggingId, setDraggingId] = useState<string | null>(null);
     const numberOfMetrics = Object.values(metrics).length;
 
-    const { run: debouncedForInitialRenderOnUpdateDashboardConfig } = useDebounceFn(
-      onUpdateDashboardConfig,
-      { wait: 650, leading: true }
-    );
-
-    const onRowLayoutChange = useMemoizedFn((rows: BusterResizeableGridRow[]) => {
-      const formattedRows: DashboardConfig['rows'] = rows.map((row) => {
-        return {
-          ...row,
-          items: row.items.map((item) => ({
-            id: item.id
-          }))
-        };
-      });
-      onUpdateDashboardConfig({ rows: formattedRows, id: dashboard!.id });
-    });
-
     const remapMetrics = useMemo(() => {
-      const res = hasUnmappedMetrics(metrics, configRows) || hasRemovedMetrics(metrics, configRows);
-      return res;
+      return hasUnmappedMetrics(metrics, configRows) || hasRemovedMetrics(metrics, configRows);
     }, [metrics, configRows.length]);
 
     const rows = useMemo(() => {
@@ -87,7 +69,16 @@ export const DashboardContentController: React.FC<{
             })
           };
         });
-    }, [rows, readOnly, dashboard?.id]);
+    }, [rows, readOnly, dashboard?.id, numberOfMetrics]);
+
+    const { run: debouncedForInitialRenderOnUpdateDashboardConfig } = useDebounceFn(
+      onUpdateDashboardConfig,
+      { wait: 650, leading: true }
+    );
+
+    const onRowLayoutChange = useMemoizedFn((rows: BusterResizeableGridRow[]) => {
+      onUpdateDashboardConfig({ rows, id: dashboard!.id });
+    });
 
     const onDragEnd = useMemoizedFn(() => {
       setDraggingId(null);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NUMBER_OF_COLUMNS } from './config';
+import { NUMBER_OF_COLUMNS } from './helpers';
 import { cn } from '@/lib/utils';
 
 export const BusterDragColumnMarkers: React.FC<{
