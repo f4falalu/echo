@@ -5,6 +5,7 @@ pub mod favorites;
 pub mod logs;
 pub mod messages;
 pub mod metrics;
+pub mod utils;
 
 // Re-export commonly used types and functions
 pub use chats::types as thread_types;
