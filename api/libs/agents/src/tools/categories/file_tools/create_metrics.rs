@@ -5,10 +5,10 @@ use async_trait::async_trait;
 use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::Utc;
 use database::{
-    pool::get_pg_pool, 
-    schema::{metric_files, asset_permissions},
+    enums::{AssetPermissionRole, AssetType, IdentityType},
     models::AssetPermission,
-    enums::{AssetType, IdentityType, AssetPermissionRole},
+    pool::get_pg_pool,
+    schema::{asset_permissions, metric_files},
 };
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
@@ -23,13 +23,16 @@ use crate::{
     tools::{
         file_tools::{
             common::{process_metric_file, METRIC_YML_SCHEMA},
-            file_types::{file::FileWithId},
+            file_types::file::FileWithId,
         },
         ToolExecutor,
     },
 };
 
-use super::{common::{validate_sql, generate_deterministic_uuid}, FileModificationTool};
+use super::{
+    common::{generate_deterministic_uuid, validate_sql},
+    FileModificationTool,
+};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MetricFileParams {
@@ -99,7 +102,14 @@ impl ToolExecutor for CreateMetricFilesTool {
         let mut results_vec = vec![];
         // First pass - validate and prepare all records
         for file in files {
-            match process_metric_file(tool_call_id.clone(), file.name.clone(), file.yml_content.clone()).await {
+            match process_metric_file(
+                tool_call_id.clone(),
+                file.name.clone(),
+                file.yml_content.clone(),
+                &self.agent.get_user_id(),
+            )
+            .await
+            {
                 Ok((metric_file, metric_yml, message, results)) => {
                     metric_records.push(metric_file);
                     metric_ymls.push(metric_yml);
@@ -127,7 +137,7 @@ impl ToolExecutor for CreateMetricFilesTool {
                 Ok(_) => {
                     // Get the user ID from the agent state
                     let user_id = self.agent.get_user_id();
-                    
+
                     // Create asset permissions for each metric file
                     let now = Utc::now();
                     let asset_permissions: Vec<AssetPermission> = metric_records
@@ -145,7 +155,7 @@ impl ToolExecutor for CreateMetricFilesTool {
                             updated_by: user_id,
                         })
                         .collect();
-                    
+
                     // Insert asset permissions
                     match insert_into(asset_permissions::table)
                         .values(&asset_permissions)
@@ -153,15 +163,18 @@ impl ToolExecutor for CreateMetricFilesTool {
                         .await
                     {
                         Ok(_) => {
-                            tracing::debug!("Successfully inserted asset permissions for {} metric files", asset_permissions.len());
-                        },
+                            tracing::debug!(
+                                "Successfully inserted asset permissions for {} metric files",
+                                asset_permissions.len()
+                            );
+                        }
                         Err(e) => {
                             tracing::error!("Error inserting asset permissions: {}", e);
                             // Continue with the process even if permissions failed
                             // We'll still return the created files
                         }
                     }
-                    
+
                     for (i, yml) in metric_ymls.into_iter().enumerate() {
                         created_files.push(FileWithId {
                             id: metric_records[i].id,

@@ -22,7 +22,6 @@ Handlers are the core business logic components that implement functionality use
 - Handler functions should follow the same pattern: `[action]_[resource]_handler`
   - Example: `get_chat_handler()`, `delete_message_handler()`
 - Type definitions should be clear and descriptive
-  - Request types: `[Action][Resource]Request`
   - Response types: `[Action][Resource]Response`
 
 ## Handler Implementation Guidelines
@@ -30,14 +29,21 @@ Handlers are the core business logic components that implement functionality use
 ### Function Signatures
 ```rust
 pub async fn action_resource_handler(
-    // Parameters typically include:
-    request: ActionResourceRequest, // For REST/WS request data
-    user: User,                     // For authenticated user context
+    // Parameters should be decoupled from request types:
+    resource_id: Uuid,           // Individual parameters instead of request objects
+    options: Vec<String>,        // Specific data needed for the operation
+    user: User,                  // For authenticated user context
     // Other contextual parameters as needed
 ) -> Result<ActionResourceResponse> {
     // Implementation
 }
 ```
+
+### Decoupling from Request Types
+- Handlers should NOT take request types as inputs
+- Instead, use individual parameters that represent the exact data needed
+- This keeps handlers flexible and reusable across different contexts
+- The return type can be a specific response type, as this is what the handler produces
 
 ### Error Handling
 - Use `anyhow::Result<T>` for return types
@@ -128,10 +134,9 @@ tracing::info!(
 - Example:
 ```rust
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ResourceRequest {
+pub struct ResourceResponse {
     pub id: Uuid,
     pub name: String,
-    #[serde(default)]
     pub options: Vec<String>,
 }
 ```
@@ -144,34 +149,46 @@ pub struct ResourceRequest {
 ```rust
 // In REST route
 pub async fn rest_endpoint(
-    Json(payload): Json<HandlerRequest>,
+    Json(payload): Json<RestRequest>,
     user: User,
 ) -> Result<Json<HandlerResponse>, AppError> {
-    let result = handler::action_resource_handler(payload, user).await?;
+    // Extract specific parameters from the request
+    let result = handler::action_resource_handler(
+        payload.id,
+        payload.options,
+        user
+    ).await?;
     Ok(Json(result))
 }
 
 // In WebSocket handler
 async fn ws_message_handler(message: WsMessage, user: User) -> Result<WsResponse> {
-    let payload: HandlerRequest = serde_json::from_str(&message.payload)?;
-    let result = handler::action_resource_handler(payload, user).await?;
+    let payload: WsRequest = serde_json::from_str(&message.payload)?;
+    // Extract specific parameters from the request
+    let result = handler::action_resource_handler(
+        payload.id,
+        payload.options,
+        user
+    ).await?;
     Ok(WsResponse::new(result))
 }
 ```
 
 ## CLI Integration
-- Handler types should be reusable in CLI commands
+- CLI commands should extract specific parameters from arguments
 - CLI commands should use the same handlers as the API when possible
 - Example:
 ```rust
 // In CLI command
 pub fn cli_command(args: &ArgMatches) -> Result<()> {
-    let request = HandlerRequest {
-        // Parse from args
-    };
+    // Extract parameters from args
+    let id = Uuid::parse_str(args.value_of("id").unwrap())?;
+    let options = args.values_of("options")
+        .map(|vals| vals.map(String::from).collect())
+        .unwrap_or_default();
     
     let result = tokio::runtime::Runtime::new()?.block_on(async {
-        handler::action_resource_handler(request, mock_user()).await
+        handler::action_resource_handler(id, options, mock_user()).await
     })?;
     
     println!("{}", serde_json::to_string_pretty(&result)?);
@@ -188,11 +205,12 @@ pub fn cli_command(args: &ArgMatches) -> Result<()> {
 #[tokio::test]
 async fn test_action_resource_handler() {
     // Setup test data
-    let request = HandlerRequest { /* ... */ };
+    let id = Uuid::new_v4();
+    let options = vec!["option1".to_string(), "option2".to_string()];
     let user = mock_user();
     
     // Call handler
-    let result = action_resource_handler(request, user).await;
+    let result = action_resource_handler(id, options, user).await;
     
     // Assert expectations
     assert!(result.is_ok());
