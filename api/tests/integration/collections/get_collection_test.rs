@@ -5,7 +5,7 @@ use crate::common::{
     assertions::response::assert_api_ok,
 };
 use chrono::Utc;
-use database::enums::{AssetPermissionRole, AssetTypeEnum, IdentityTypeEnum};
+use database::enums::{AssetPermissionRole, IdentityTypeEnum};
 use diesel::sql_query;
 use diesel_async::RunQueryDsl;
 
@@ -48,6 +48,30 @@ async fn test_get_collection_with_sharing_info() {
     assert_eq!(permission["email"], "test2@example.com");
     assert_eq!(permission["role"], "viewer");
     assert_eq!(permission["name"], "Test User 2");
+    
+    // Check assets
+    assert!(data["assets"].is_array());
+    assert_eq!(data["assets"].as_array().unwrap().len(), 2);
+    
+    // Verify metric asset
+    let metric_asset = data["assets"].as_array().unwrap().iter()
+        .find(|asset| asset["asset_type"] == "metric_file")
+        .expect("Should have a metric asset");
+    
+    assert_eq!(metric_asset["name"], "Test Metric");
+    assert_eq!(metric_asset["id"], "00000000-0000-0000-0000-000000000050");
+    assert_eq!(metric_asset["created_by"]["email"], "test@example.com");
+    assert_eq!(metric_asset["created_by"]["name"], "Test User");
+    
+    // Verify dashboard asset
+    let dashboard_asset = data["assets"].as_array().unwrap().iter()
+        .find(|asset| asset["asset_type"] == "dashboard_file")
+        .expect("Should have a dashboard asset");
+    
+    assert_eq!(dashboard_asset["name"], "Test Dashboard");
+    assert_eq!(dashboard_asset["id"], "00000000-0000-0000-0000-000000000060");
+    assert_eq!(dashboard_asset["created_by"]["email"], "test@example.com");
+    assert_eq!(dashboard_asset["created_by"]["name"], "Test User");
 }
 
 // Helper functions to set up the test data
@@ -93,6 +117,61 @@ async fn create_test_collection(env: &TestEnv, user_id: Uuid) -> Uuid {
     "#)
         .bind::<diesel::sql_types::Uuid, _>(collection_id)
         .bind::<diesel::sql_types::Uuid, _>(org_id)
+        .bind::<diesel::sql_types::Uuid, _>(user_id)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    
+    // Insert test metric file
+    let metric_id = Uuid::parse_str("00000000-0000-0000-0000-000000000050").unwrap();
+    sql_query(r#"
+        INSERT INTO metric_files (id, name, file_name, content, organization_id, created_by, publicly_accessible, version_history, verification) 
+        VALUES ($1, 'Test Metric', 'test_metric.yml', '{}', $2, $3, false, '{}', 'verified')
+        ON CONFLICT DO NOTHING
+    "#)
+        .bind::<diesel::sql_types::Uuid, _>(metric_id)
+        .bind::<diesel::sql_types::Uuid, _>(org_id)
+        .bind::<diesel::sql_types::Uuid, _>(user_id)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    
+    // Insert test dashboard file
+    let dashboard_id = Uuid::parse_str("00000000-0000-0000-0000-000000000060").unwrap();
+    sql_query(r#"
+        INSERT INTO dashboard_files (id, name, file_name, content, organization_id, created_by, publicly_accessible, version_history) 
+        VALUES ($1, 'Test Dashboard', 'test_dashboard.yml', '{}', $2, $3, false, '{}')
+        ON CONFLICT DO NOTHING
+    "#)
+        .bind::<diesel::sql_types::Uuid, _>(dashboard_id)
+        .bind::<diesel::sql_types::Uuid, _>(org_id)
+        .bind::<diesel::sql_types::Uuid, _>(user_id)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    
+    // Add assets to collection
+    sql_query(r#"
+        INSERT INTO collections_to_assets (collection_id, asset_id, asset_type, created_by, updated_by) 
+        VALUES ($1, $2, $3, $4, $4)
+        ON CONFLICT DO NOTHING
+    "#)
+        .bind::<diesel::sql_types::Uuid, _>(collection_id)
+        .bind::<diesel::sql_types::Uuid, _>(metric_id)
+        .bind::<diesel::sql_types::Text, _>("metric_file")
+        .bind::<diesel::sql_types::Uuid, _>(user_id)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    
+    sql_query(r#"
+        INSERT INTO collections_to_assets (collection_id, asset_id, asset_type, created_by, updated_by) 
+        VALUES ($1, $2, $3, $4, $4)
+        ON CONFLICT DO NOTHING
+    "#)
+        .bind::<diesel::sql_types::Uuid, _>(collection_id)
+        .bind::<diesel::sql_types::Uuid, _>(dashboard_id)
+        .bind::<diesel::sql_types::Text, _>("dashboard_file")
         .bind::<diesel::sql_types::Uuid, _>(user_id)
         .execute(&mut conn)
         .await
