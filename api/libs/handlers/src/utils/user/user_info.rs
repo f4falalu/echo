@@ -1,11 +1,11 @@
 use anyhow::{anyhow, Result};
-use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
+use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
 use database::{
     pool::get_pg_pool,
-    schema::{organizations, users_to_organizations},
+    schema::users_to_organizations,
 };
 
 pub async fn get_user_organization_id(user_id: &Uuid) -> Result<Uuid> {

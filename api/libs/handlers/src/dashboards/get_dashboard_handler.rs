@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
-use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable, SelectableHelper};
+use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable};
 use diesel_async::RunQueryDsl;
-use serde_json::{json, Value};
+use serde_json::Value;
 use uuid::Uuid;
-use futures::future::{try_join_all, join_all};
+use futures::future::join_all;
 use chrono::{DateTime, Utc};
 use serde_yaml;
 
@@ -16,7 +16,7 @@ use database::pool::get_pg_pool;
 use database::schema::{asset_permissions, dashboard_files, users};
 use database::types::VersionHistory;
 
-use super::{BusterDashboard, BusterDashboardResponse, DashboardCollection, DashboardConfig, DashboardRow, DashboardRowItem};
+use super::{BusterDashboard, BusterDashboardResponse, DashboardConfig, DashboardRow, DashboardRowItem};
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = dashboard_files)]

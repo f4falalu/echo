@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use database::types::VersionHistory;
-use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable, SelectableHelper};
+use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable};
 use diesel_async::RunQueryDsl;
 use serde_json::Value;
 use serde_yaml;

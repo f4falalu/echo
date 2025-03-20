@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use chrono::Utc;
 use database::pool::get_pg_pool;
 use database::schema::dashboard_files;

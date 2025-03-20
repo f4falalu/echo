@@ -1,12 +1,6 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
-use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
-    pool::get_pg_pool,
-    schema::chats::dsl,
-};
-use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
-use diesel_async::RunQueryDsl as AsyncRunQueryDsl;
+use database::enums::{AssetPermissionRole, AssetType, IdentityType};
 use serde::{Deserialize, Serialize};
 use sharing::{create_share_by_email, has_permission};
 use tracing::info;

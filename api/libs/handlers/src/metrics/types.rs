@@ -1,7 +1,6 @@
 use chrono::{DateTime, Utc};
-use database::{enums::{AssetPermissionRole, Verification}, types::{ChartConfig, VersionHistory}};
+use database::{enums::{AssetPermissionRole, Verification}, types::ChartConfig};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use uuid::Uuid;
 use std::collections::HashMap;
 

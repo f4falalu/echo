@@ -1,7 +1,6 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
-    enums::AssetPermissionRole,
     pool::get_pg_pool,
     schema::collections,
 };

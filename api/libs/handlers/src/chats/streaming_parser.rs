@@ -1,12 +1,10 @@
 use agents::tools::categories::file_tools::common::generate_deterministic_uuid;
 use anyhow::Result;
 use serde_json::Value;
-use sha2::{Digest, Sha256};
-use uuid::Uuid;
+use sha2::Digest;
 
 use super::post_chat_handler::{
-    BusterFile, BusterFileContent, BusterReasoningFile, BusterReasoningMessage,
-    BusterReasoningPill, BusterReasoningText, BusterThoughtPill, BusterThoughtPillContainer,
+    BusterFile, BusterFileContent, BusterReasoningFile, BusterReasoningMessage, BusterReasoningText,
 };
 
 pub struct StreamingParser {

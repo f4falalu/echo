@@ -4,7 +4,6 @@ use database::{pool::get_pg_pool, schema::messages};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
-use serde_json::{json, Value};
 use std::str::FromStr;
 use uuid::Uuid;
 

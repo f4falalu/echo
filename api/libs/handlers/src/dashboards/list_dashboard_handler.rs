@@ -1,8 +1,7 @@
-use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
 use diesel::{
-    BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
+    ExpressionMethods, QueryDsl,
     Queryable, Selectable,
 };
 use diesel_async::RunQueryDsl;
@@ -11,9 +10,9 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType, Verification},
+    enums::Verification,
     pool::get_pg_pool,
-    schema::{asset_permissions, dashboard_files, users},
+    schema::dashboard_files,
 };
 
 use super::{BusterDashboardListItem, DashboardMember};
@@ -53,7 +52,7 @@ pub async fn list_dashboard_handler(
     let offset = request.page_token * request.page_size;
 
     // Build the base query
-    let mut dashboard_statement = dashboard_files::table
+    let dashboard_statement = dashboard_files::table
         .select((
             dashboard_files::id,
             dashboard_files::name,

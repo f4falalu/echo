@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
+    enums::{AssetType, IdentityType},
     pool::get_pg_pool,
     schema::chats,
 };
