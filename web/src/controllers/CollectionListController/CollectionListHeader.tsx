@@ -12,17 +12,20 @@ import omit from 'lodash/omit';
 import { useMemoizedFn } from '@/hooks';
 import { type SegmentedItem } from '@/components/ui/segmented';
 import { Plus } from '@/components/ui/icons';
-import { GetCollectionListParams } from '@/api/request_interfaces/collections';
 import { BusterCollectionListItem } from '@/api/asset_interfaces/collection';
 import { useGetCollection } from '@/api/buster_rest/collections';
+import { collectionsGetList } from '@/api/buster_rest/collections/requests';
+
+type CollectionListFilters = Omit<Parameters<typeof collectionsGetList>[0], 'page' | 'page_size'>;
+type SetCollectionListFilters = (filters: CollectionListFilters) => void;
 
 export const CollectionListHeader: React.FC<{
   collectionId?: string;
   setOpenNewCollectionModal: (open: boolean) => void;
   isCollectionListFetched: boolean;
   collectionsList: BusterCollectionListItem[];
-  collectionListFilters: Omit<GetCollectionListParams, 'page' | 'page_size'>;
-  setCollectionListFilters: (filters: Omit<GetCollectionListParams, 'page' | 'page_size'>) => void;
+  collectionListFilters: CollectionListFilters;
+  setCollectionListFilters: SetCollectionListFilters;
 }> = React.memo(
   ({
     collectionId,
@@ -96,8 +99,8 @@ const filters: SegmentedItem<string>[] = [
 ];
 
 const CollectionFilters: React.FC<{
-  setCollectionListFilters: (filters: Omit<GetCollectionListParams, 'page' | 'page_size'>) => void;
-  collectionListFilters?: Omit<GetCollectionListParams, 'page' | 'page_size'>;
+  setCollectionListFilters: SetCollectionListFilters;
+  collectionListFilters?: CollectionListFilters;
 }> = React.memo(({ setCollectionListFilters, collectionListFilters }) => {
   const value = useMemo(() => {
     const activeFiltersValue = JSON.stringify(collectionListFilters);

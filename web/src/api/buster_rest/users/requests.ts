@@ -5,9 +5,9 @@ import type {
   BusterUserFavorite,
   BusterUserListItem
 } from '@/api/asset_interfaces/users';
-import type { UsersFavoritePostPayload } from '@/api/request_interfaces/user/interfaces';
 import { mainApi } from '../instances';
 import { serverFetch } from '../../createServerInstance';
+import { ShareAssetType } from '@/api/asset_interfaces/share';
 
 export const getMyUserInfo = async (): Promise<BusterUserResponse> => {
   return mainApi.get<BusterUserResponse>(`/users`).then((response) => response.data);
@@ -93,13 +93,20 @@ export const getUserFavorites_server = async () => {
   return serverFetch<BusterUserFavorite[]>(`/users/favorites`);
 };
 
-export const createUserFavorite = async (payload: UsersFavoritePostPayload) => {
+export const createUserFavorite = async (payload: {
+  id: string;
+  asset_type: ShareAssetType;
+  index?: number;
+  name: string; //just used for the UI for optimistic update
+}) => {
   return mainApi
     .post<BusterUserFavorite[]>(`/users/favorites`, payload)
     .then((response) => response.data);
 };
 
-export const createUserFavorite_server = async (payload: UsersFavoritePostPayload) => {
+export const createUserFavorite_server = async (
+  payload: Parameters<typeof createUserFavorite>[0]
+) => {
   return serverFetch<BusterUserFavorite[]>(`/users/favorites`, {
     method: 'POST',
     body: JSON.stringify(payload)

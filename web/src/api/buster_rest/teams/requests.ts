@@ -1,8 +1,13 @@
 import { BusterUserTeam } from '@/api/asset_interfaces/users';
 import { mainApi } from '../instances';
-import type { CreateTeamParams, TeamListParams } from '@/api/request_interfaces/teams';
+import type { TeamListParams } from '@/api/request_interfaces/teams';
 
-export const createTeam = async (params: CreateTeamParams) => {
+export const createTeam = async (params: {
+  /** The name of the team */
+  name: string;
+  /** Optional description of the team */
+  description?: string;
+}) => {
   return mainApi.post<{ id: string }>('/teams', params).then((res) => res.data);
 };
 

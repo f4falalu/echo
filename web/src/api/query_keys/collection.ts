@@ -1,8 +1,8 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { BusterCollectionListItem, BusterCollection } from '@/api/asset_interfaces/collection';
-import type { GetCollectionListParams } from '@/api/request_interfaces/collections';
+import { collectionsGetList as collectionsGetListRequest } from '@/api/buster_rest/collections/requests';
 
-const collectionsGetList = (filters?: GetCollectionListParams) =>
+const collectionsGetList = (filters?: Parameters<typeof collectionsGetListRequest>[0]) =>
   queryOptions<BusterCollectionListItem[]>({
     queryKey: ['collections', 'list', filters] as const,
     staleTime: 4 * 1000,
