@@ -32,7 +32,9 @@ export const ChatHeaderTitle: React.FC<{
         <EditableTitle
           className="w-full"
           id={CHAT_HEADER_TITLE_ID}
-          onChange={(value) => updateChat({ id: chatId, title: value })}>
+          onChange={(value) =>
+            value && value !== chatTitle && updateChat({ id: chatId, title: value })
+          }>
           {chatTitle}
         </EditableTitle>
       </motion.div>

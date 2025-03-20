@@ -10,7 +10,12 @@ const Breadcrumb = React.forwardRef<
     separator?: React.ReactNode;
   }
 >(({ ...props }, ref) => (
-  <nav ref={ref} aria-label="breadcrumb" {...props} className={cn('flex', props.className)} />
+  <nav
+    ref={ref}
+    aria-label="breadcrumb"
+    {...props}
+    className={cn('flex flex-nowrap overflow-hidden', props.className)}
+  />
 ));
 Breadcrumb.displayName = 'Breadcrumb';
 
@@ -19,7 +24,7 @@ const BreadcrumbList = React.forwardRef<HTMLOListElement, React.ComponentPropsWi
     <ol
       ref={ref}
       className={cn(
-        'text-gray-dark flex flex-wrap items-center gap-1.5 text-base break-words sm:gap-2.5',
+        'text-gray-dark flex flex-nowrap items-center gap-1.5 overflow-hidden text-base break-words sm:gap-2.5',
         className
       )}
       {...props}
@@ -58,7 +63,7 @@ const BreadcrumbPage = React.forwardRef<HTMLSpanElement, React.ComponentPropsWit
       role="link"
       aria-disabled="true"
       aria-current="page"
-      className={cn('text-foreground font-normal', className)}
+      className={cn('text-foreground truncate font-normal', className)}
       {...props}
     />
   )

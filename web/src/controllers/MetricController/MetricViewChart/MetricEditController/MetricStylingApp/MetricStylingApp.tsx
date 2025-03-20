@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { MetricStylingAppSegments } from './config';
 import { MetricStylingAppSegment } from './MetricStylingAppSegment';

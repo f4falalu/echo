@@ -8,6 +8,7 @@ import { useEffect, useState, useLayoutEffect, useTransition } from 'react';
 import { cva } from 'class-variance-authority';
 import { useMemoizedFn, useMergedRefs, useSize, useThrottleFn } from '@/hooks';
 import { Tooltip } from '../tooltip/Tooltip';
+import Link from 'next/link';
 
 export interface SegmentedItem<T extends string | number = string> {
   value: T;
@@ -15,6 +16,7 @@ export interface SegmentedItem<T extends string | number = string> {
   icon?: React.ReactNode;
   disabled?: boolean;
   tooltip?: string;
+  link?: string;
 }
 
 export interface AppSegmentedProps<T extends string | number = string> {
@@ -28,11 +30,11 @@ export interface AppSegmentedProps<T extends string | number = string> {
   disabled?: boolean;
 }
 
-const heightVariants = cva('h-[24px]', {
+const heightVariants = cva('h-6', {
   variants: {
     size: {
-      default: 'h-[24px]',
-      medium: 'h-[28px]',
+      default: 'h-6',
+      medium: 'h-7',
       large: 'h-[50px]'
     }
   }
@@ -52,7 +54,7 @@ const segmentedVariants = cva('relative inline-flex items-center rounded', {
 });
 
 const triggerVariants = cva(
-  'relative z-10 flex items-center justify-center gap-x-1.5 gap-y-1 rounded transition-colors ',
+  'relative z-10 flex items-center h-6 justify-center gap-x-1.5 gap-y-1 rounded transition-colors ',
   {
     variants: {
       size: {
@@ -214,28 +216,32 @@ interface SegmentedTriggerProps<T extends string = string> {
 
 function SegmentedTriggerComponent<T extends string = string>(props: SegmentedTriggerProps<T>) {
   const { item, selectedValue, size, block, tabRefs } = props;
+  const { tooltip, label, icon, disabled, value, link } = item;
+
+  const LinkDiv = link ? Link : 'div';
 
   return (
-    <Tooltip title={item.tooltip || ''} sideOffset={10} delayDuration={0.15}>
+    <Tooltip title={tooltip || ''} sideOffset={10} delayDuration={0.15}>
       <Tabs.Trigger
-        key={item.value}
-        value={item.value}
-        disabled={item.disabled}
+        key={value}
+        value={value}
+        disabled={disabled}
+        asChild
         ref={(el) => {
-          if (el) tabRefs.current.set(item.value, el);
+          if (el) tabRefs.current.set(value, el);
         }}
         className={cn(
           triggerVariants({
             size,
             block,
-            disabled: item.disabled,
-            selected: selectedValue === item.value
+            disabled,
+            selected: selectedValue === value
           })
         )}>
-        <>
-          {item.icon && <span className={cn('flex items-center text-sm')}>{item.icon}</span>}
-          {item.label && <span className={cn('text-sm')}>{item.label}</span>}
-        </>
+        <LinkDiv href={link || ''}>
+          {icon && <span className={cn('flex items-center text-sm')}>{icon}</span>}
+          {label && <span className={cn('text-sm')}>{label}</span>}
+        </LinkDiv>
       </Tabs.Trigger>
     </Tooltip>
   );

@@ -29,7 +29,7 @@ export const IndividualSharePerson: React.FC<{
           </Text>
 
           {isSameEmailName ? null : (
-            <Text truncate size="sm" variant="tertiary">
+            <Text truncate size="xs" variant="tertiary">
               {email}
             </Text>
           )}

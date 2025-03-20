@@ -7,7 +7,6 @@ import {
 } from '@/layouts/ChatLayout/ChatLayoutContext';
 import { MetricViewComponents } from './config';
 import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
-import { useMount } from '@/hooks';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 
 export const MetricController: React.FC<{
@@ -23,12 +22,6 @@ export const MetricController: React.FC<{
     selectedFileView in MetricViewComponents
       ? MetricViewComponents[selectedFileView as MetricFileView]
       : () => <></>;
-
-  console.log('here', metricId);
-
-  useMount(() => {
-    console.log('mounted', metricId);
-  });
 
   return (
     <>

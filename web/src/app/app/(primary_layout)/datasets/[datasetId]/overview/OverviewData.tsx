@@ -19,7 +19,7 @@ export const OverviewData: React.FC<{
   });
 
   return (
-    <div className="buster-chart h-full max-h-[70vh] w-full overflow-auto rounded border">
+    <div className="scrollbar-thin h-full max-h-[70vh] w-full overflow-auto rounded border">
       {!isFetchedDatasetData ? (
         <LoadingState />
       ) : !isEmpty(data) ? (

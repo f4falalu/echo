@@ -13,25 +13,6 @@
   --rdg-row-hover-background-color: var(--color-item-hover);
   --rdg-header-draggable-background-color: var(--color-item-hover);
   --rdg-background-color: var(--color-background);
-
-  /* Webkit scrollbar styling */
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    opacity: 0.5;
-    border-radius: 2px;
-  }
-
-  /* Firefox scrollbar styling */
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--color-border) 50%, transparent) transparent;
 }
 
 .dataGrid :global(.rdg-header-row) {

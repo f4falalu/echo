@@ -40,7 +40,7 @@ export const DatasetsIndividualHeader: React.FC<{}> = React.memo(({}) => {
   return (
     <>
       <>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 overflow-hidden">
           <DatasetBreadcrumb datasetName={datasetName} />
 
           <DatasetsHeaderOptions
@@ -51,7 +51,7 @@ export const DatasetsIndividualHeader: React.FC<{}> = React.memo(({}) => {
         </div>
 
         <div className="flex items-center">
-          <div className="flex items-center">
+          <div className="flex items-center space-x-2">
             <DatasetIndividualThreeDotMenu datasetId={datasetId} />
 
             <Separator orientation="vertical" className="h-4!" />

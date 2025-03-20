@@ -1,13 +1,11 @@
-'use client';
-
 import React from 'react';
 import { Title, Text } from '@/components/ui/typography';
 
 export const PermissionTitleCard: React.FC<{}> = React.memo(({}) => {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col space-y-1">
       <Title as="h3">Dataset Permissions</Title>
-      <Text size={'lg'} variant="secondary">
+      <Text size={'md'} variant="secondary">
         Manage who can build dashboards & metrics using this dataset
       </Text>
     </div>

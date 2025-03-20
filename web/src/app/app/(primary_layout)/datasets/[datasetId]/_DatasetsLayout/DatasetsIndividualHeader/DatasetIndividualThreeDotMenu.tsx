@@ -4,7 +4,7 @@ import { BusterRoutes } from '@/routes';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
-import { DotsVertical, Trash } from '@/components/ui/icons';
+import { Dots, DotsVertical, Trash } from '@/components/ui/icons';
 
 export const DatasetIndividualThreeDotMenu: React.FC<{
   datasetId?: string;
@@ -31,8 +31,8 @@ export const DatasetIndividualThreeDotMenu: React.FC<{
   }, [datasetId, onDeleteDataset]);
 
   return (
-    <Dropdown items={items}>
-      <Button variant={'ghost'} prefix={<DotsVertical />} />
+    <Dropdown items={items} side={'bottom'}>
+      <Button variant={'ghost'} prefix={<Dots />} />
     </Dropdown>
   );
 });

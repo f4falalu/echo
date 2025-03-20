@@ -23,16 +23,17 @@ export interface BreadcrumbItem {
 
 interface BreadcrumbProps {
   items: BreadcrumbItem[];
+  className?: string;
   activeIndex?: number; //default will be the last item
 }
 
 export const Breadcrumb = React.memo(
-  React.forwardRef<HTMLElement, BreadcrumbProps>(({ items, activeIndex }, ref) => {
+  React.forwardRef<HTMLElement, BreadcrumbProps>(({ items, activeIndex, className }, ref) => {
     const chosenIndex = activeIndex ?? items.length - 1;
     const lastItemIndex = items.length - 1;
 
     return (
-      <BreadcrumbBase>
+      <BreadcrumbBase className={className}>
         <BreadcrumbList>
           {items.map((item, index) => (
             <BreadcrumbItemSelector
@@ -64,9 +65,11 @@ const BreadcrumbItemSelector: React.FC<{
     return (
       <BreadcrumbLink asChild>
         {item.route ? (
-          <Link href={createBusterRoute(item.route)}>{item.label}</Link>
+          <Link href={createBusterRoute(item.route)} className="truncate">
+            {item.label}
+          </Link>
         ) : (
-          <span>{item.label}</span>
+          <span className="truncate">{item.label}</span>
         )}
       </BreadcrumbLink>
     );
@@ -74,7 +77,7 @@ const BreadcrumbItemSelector: React.FC<{
 
   return (
     <>
-      <BreadcrumbItem>{ChosenComponent}</BreadcrumbItem>
+      <BreadcrumbItem className={isLast ? 'truncate' : ''}>{ChosenComponent}</BreadcrumbItem>
       {!isLast && <BreadcrumbSeparator />}
     </>
   );
@@ -87,7 +90,11 @@ const BreadcrumbDropdown: React.FC<{
     return items.map((item) => {
       const route = createBusterRoute(item.route);
       return {
-        label: <Link href={route}>{item.label}</Link>,
+        label: (
+          <Link href={route} className="truncate">
+            {item.label}
+          </Link>
+        ),
         value: route
       };
     });

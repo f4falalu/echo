@@ -334,7 +334,7 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
               className
             )}>
             <DataGrid
-              className={styles.dataGrid}
+              className={cn(styles.dataGrid, 'scrollbar-thin')}
               columns={reorderedColumns}
               rows={sortedRows}
               sortColumns={sortColumns}
