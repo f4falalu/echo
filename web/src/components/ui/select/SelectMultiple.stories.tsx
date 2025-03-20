@@ -10,7 +10,7 @@ const meta = {
   title: 'UI/Select/SelectMultiple',
   component: SelectMultiple,
   parameters: {
-    layout: 'centered'
+    // layout: 'fullscreen'
   },
   tags: ['autodocs']
 } satisfies Meta<typeof SelectMultiple>;
@@ -108,6 +108,23 @@ export const CustomWidth: Story = {
   },
   render: (args) => (
     <div className="w-[500px]">
+      <SelectMultiple {...args} />
+    </div>
+  )
+};
+
+export const WithHundredItems: Story = {
+  args: {
+    items: Array.from({ length: 100 }, (_, index) => ({
+      value: index.toString(),
+      label: `Option ${index + 1}`
+    })),
+    value: [],
+    onChange: fn(),
+    placeholder: 'Select multiple options...'
+  },
+  render: (args) => (
+    <div className="w-[300px]">
       <SelectMultiple {...args} />
     </div>
   )

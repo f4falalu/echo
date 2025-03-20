@@ -46,7 +46,7 @@ export const PermissionPermissionGroup: React.FC<{
         searchPlaceholder="Search by permission group"
         searchChildren={React.useMemo(
           () => (
-            <Button prefix={<Plus />} onClick={onOpenNewPermissionGroupModal}>
+            <Button className="min-w-fit" prefix={<Plus />} onClick={onOpenNewPermissionGroupModal}>
               New permission group
             </Button>
           ),

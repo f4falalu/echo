@@ -1,6 +1,5 @@
 import React from 'react';
 import { Input } from '@/components/ui/inputs';
-import { Magnifier } from '@/components/ui/icons';
 import { useMemoizedFn } from '@/hooks';
 
 export const PermissionSearch: React.FC<{
@@ -14,7 +13,7 @@ export const PermissionSearch: React.FC<{
   });
 
   return (
-    <div className={`flex w-full flex-col space-y-1.5 ${className}`}>
+    <div className={`flex flex-col space-y-1.5 ${className}`}>
       <Input
         className="w-[280px] max-w-[280px]"
         placeholder={placeholder}

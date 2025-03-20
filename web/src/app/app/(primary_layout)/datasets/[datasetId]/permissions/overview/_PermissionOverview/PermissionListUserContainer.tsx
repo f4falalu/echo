@@ -17,8 +17,6 @@ export const PermissionListUserContainer: React.FC<{
   className?: string;
   filteredUsers: DatasetPermissionOverviewUser[];
 }> = React.memo(({ className = '', filteredUsers }) => {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
-
   const numberOfUsers = filteredUsers.length;
 
   const columns: BusterListColumn[] = useMemo(
@@ -26,19 +24,13 @@ export const PermissionListUserContainer: React.FC<{
       {
         title: 'Name',
         dataIndex: 'name',
-        width: 290,
         render: (_: string, user: DatasetPermissionOverviewUser) => {
-          return <UserInfoCell user={user} />;
-        }
-      },
-      {
-        title: 'Lineage',
-        dataIndex: 'lineage',
-        render: (
-          _: DatasetPermissionOverviewUser['lineage'],
-          user: DatasetPermissionOverviewUser
-        ) => {
-          return <UserLineageCell user={user} />;
+          return (
+            <div className="flex items-center justify-between space-x-2">
+              <UserInfoCell user={user} />
+              <UserLineageCell user={user} />
+            </div>
+          );
         }
       }
     ],

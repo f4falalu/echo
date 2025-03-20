@@ -226,7 +226,12 @@ export const DropdownContent = <T,>({
         </div>
       )}
 
-      <div className={cn('max-h-[375px] overflow-y-auto', className)}>
+      <div
+        className={cn('max-h-[375px] overflow-y-auto', className)}
+        onWheel={(e) => {
+          //this is need to prevent bug when it is inside a dialog or modal
+          e.stopPropagation();
+        }}>
         {hasShownItem ? (
           <>
             {selectedItems.map((item) => {
