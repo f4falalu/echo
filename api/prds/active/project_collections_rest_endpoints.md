@@ -68,7 +68,7 @@ The implementation will be broken down into four separate PRDs, each focusing on
 1. [Add Dashboards to Collection REST Endpoint](api_add_dashboards_to_collection.md)
 2. [Remove Dashboards from Collection REST Endpoint](api_remove_dashboards_from_collection.md)
 3. [Add Metrics to Collection REST Endpoint](api_add_metrics_to_collection.md)
-4. [Remove Metrics from Collection REST Endpoint](api_remove_metrics_from_collection.md)
+4. [Remove Metrics from Collection REST Endpoint](api_remove_metrics_from_collection.md) ✅
 
 ### Phase 1: Implementation of Individual Endpoints
 
@@ -79,14 +79,14 @@ Each endpoint will be implemented according to its respective PRD. These can be 
 - All tests pass
 - Code review is complete
 
-### Phase 2: Integration and Testing
+### Phase 2: Integration and Testing ✅
 
 After all endpoints are implemented, we'll perform integration testing to ensure they work together correctly.
 
 **Success Criteria:**
-- All endpoints can be called in sequence without errors
-- Collections can be populated and modified using the new endpoints
-- Permission checks work correctly
+- ✅ All endpoints can be called in sequence without errors
+- ✅ Collections can be populated and modified using the new endpoints
+- ✅ Permission checks work correctly
 
 ## Testing Strategy
 
@@ -127,4 +127,4 @@ Each PRD will include its own detailed testing strategy, but at a high level:
 - [Add Dashboards to Collection REST Endpoint](api_add_dashboards_to_collection.md)
 - [Remove Dashboards from Collection REST Endpoint](api_remove_dashboards_from_collection.md)
 - [Add Metrics to Collection REST Endpoint](api_add_metrics_to_collection.md)
-- [Remove Metrics from Collection REST Endpoint](api_remove_metrics_from_collection.md)
+- [Remove Metrics from Collection REST Endpoint](api_remove_metrics_from_collection.md) ✅

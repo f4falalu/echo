@@ -8,11 +8,17 @@ use serde_json::Value;
 use uuid::Uuid;
 
 /// Creates a test metric file model
-pub fn create_test_metric_file(
-    user_id: &Uuid,
-    org_id: &Uuid,
+pub async fn create_test_metric_file(
+    conn: &mut diesel_async::AsyncPgConnection,
+    user_id: Uuid,
+    org_id: Option<Uuid>,
     name: Option<String>,
-) -> MetricFile {
+) -> anyhow::Result<MetricFile> {
+    use database::schema::metric_files;
+    use diesel::ExpressionMethods;
+    use diesel_async::RunQueryDsl;
+    
+    let org_id = org_id.unwrap_or_else(Uuid::new_v4);
     let metric_name = name.unwrap_or_else(|| format!("Test Metric {}", Uuid::new_v4()));
     
     // Create basic metric yaml content
@@ -32,7 +38,7 @@ pub fn create_test_metric_file(
     // Convert to JSON for storage
     let content = serde_json::to_value(metric_yml).unwrap();
     
-    MetricFile {
+    let metric = MetricFile {
         id: Uuid::new_v4(),
         name: metric_name,
         content,
@@ -40,11 +46,19 @@ pub fn create_test_metric_file(
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
-        created_by: *user_id,
-        updated_by: *user_id,
-        organization_id: *org_id,
+        created_by: user_id,
+        updated_by: user_id,
+        organization_id: org_id,
         version_history,
-    }
+    };
+    
+    // Insert the metric into the database
+    diesel::insert_into(metric_files::table)
+        .values(&metric)
+        .execute(conn)
+        .await?;
+    
+    Ok(metric)
 }
 
 /// Creates update metric request data

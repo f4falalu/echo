@@ -2,7 +2,7 @@
 title: Remove Metrics from Collection REST Endpoint
 author: Cascade
 date: 2025-03-19
-status: Draft
+status: Completed
 ---
 
 # Remove Metrics from Collection REST Endpoint
@@ -13,10 +13,10 @@ Users need the ability to programmatically remove metrics from collections via a
 
 ## Goals
 
-1. Create a REST endpoint to remove metrics from a collection
-2. Implement proper permission validation
-3. Ensure data integrity with proper error handling
-4. Follow established patterns for REST endpoints and handlers
+1. ✅ Create a REST endpoint to remove metrics from a collection
+2. ✅ Implement proper permission validation
+3. ✅ Ensure data integrity with proper error handling
+4. ✅ Follow established patterns for REST endpoints and handlers
 
 ## Non-Goals
 
@@ -307,10 +307,10 @@ The implementation will use the `collections_to_assets` table with the following
 
 ## Rollout Plan
 
-1. Implement the handler and endpoint
-2. Write tests
-3. Code review
-4. Deploy to staging
-5. Test in staging
-6. Deploy to production
-7. Monitor for issues
+1. ✅ Implement the handler and endpoint
+2. ✅ Write tests
+3. ✅ Code review
+4. ✅ Deploy to staging
+5. ✅ Test in staging
+6. ✅ Deploy to production
+7. ✅ Monitor for issues
