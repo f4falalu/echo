@@ -30,7 +30,7 @@ export const DashboardEditTitles: React.FC<{
         readOnly={readOnly}
         onChange={onChangeTitle}
         id={DASHBOARD_TITLE_INPUT_ID}
-        placeholder="New Dashboard"
+        placeholder="New dashboard"
         level={3}>
         {title}
       </EditableTitle>

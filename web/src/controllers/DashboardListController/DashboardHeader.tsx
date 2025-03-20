@@ -11,6 +11,7 @@ import { Plus } from '@/components/ui/icons';
 import type { DashboardsListRequest } from '@/api/request_interfaces/dashboards';
 import { useCreateDashboard } from '@/api/buster_rest/dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useThrottleFn } from '@/hooks';
 
 export const DashboardHeader: React.FC<{
   dashboardFilters: {
@@ -26,15 +27,22 @@ export const DashboardHeader: React.FC<{
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const showFilters = true;
 
-  const onClickNewDashboardButton = useMemoizedFn(async () => {
-    const res = await createDashboard({});
-    if (res?.dashboard?.id) {
-      onChangePage({
-        route: BusterRoutes.APP_DASHBOARD_ID,
-        dashboardId: res.dashboard.id
-      });
+  //this is a throttle function that will prevent the user from creating a dashboard too quickly
+  const { run: onClickNewDashboardButton } = useThrottleFn(
+    useMemoizedFn(async () => {
+      const res = await createDashboard({});
+      if (res?.dashboard?.id) {
+        onChangePage({
+          route: BusterRoutes.APP_DASHBOARD_ID,
+          dashboardId: res.dashboard.id
+        });
+      }
+    }),
+    {
+      wait: 1500,
+      leading: true
     }
-  });
+  );
 
   return (
     <>
@@ -50,7 +58,7 @@ export const DashboardHeader: React.FC<{
 
       <div className="flex items-center">
         <Button prefix={<Plus />} loading={isCreatingDashboard} onClick={onClickNewDashboardButton}>
-          New Dashboard
+          New dashboard
         </Button>
       </div>
     </>

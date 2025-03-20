@@ -29,13 +29,13 @@ const columns: BusterListColumn[] = [
   {
     dataIndex: 'last_edited',
     title: 'Last edited',
-    width: 120,
+    width: 140,
     render: (data) => formatDate({ date: data, format: 'lll' })
   },
   {
     dataIndex: 'created_at',
     title: 'Created at',
-    width: 120,
+    width: 140,
     render: (data) => formatDate({ date: data, format: 'lll' })
   },
   {
