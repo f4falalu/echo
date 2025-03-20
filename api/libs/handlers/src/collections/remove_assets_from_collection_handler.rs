@@ -1,100 +1,13 @@
----
-title: Remove Assets from Collection REST Endpoint
-author: Cascade
-date: 2025-03-19
-status: Draft
----
-
-# Remove Assets from Collection REST Endpoint
-
-## Problem Statement
-
-Users need the ability to programmatically remove multiple assets (dashboards, metrics, etc.) from a collection via a REST API. Currently, there are separate endpoints for removing specific asset types, but a unified endpoint for removing multiple assets of different types would improve efficiency and usability.
-
-## Goals
-
-1. ✅ Create a REST endpoint to remove multiple assets from a collection
-2. ✅ Support different asset types (dashboards, metrics, etc.) in a single request
-3. ✅ Implement proper permission validation
-4. ✅ Ensure data integrity with proper error handling
-5. ✅ Follow established patterns for REST endpoints and handlers
-
-## Non-Goals
-
-1. Modifying the existing collections functionality
-2. Creating UI components for this endpoint
-3. Replacing the asset-type specific endpoints
-
-## Technical Design
-
-### REST Endpoint
-
-**Endpoint:** `DELETE /collections/:id/assets`
-
-**Request Body:**
-```json
-{
-  "assets": [
-    {
-      "id": "uuid1",
-      "type": "dashboard"
-    },
-    {
-      "id": "uuid2",
-      "type": "metric"
-    },
-    {
-      "id": "uuid3",
-      "type": "dashboard"
-    }
-  ]
-}
-```
-
-**Response:**
-- `200 OK` - Success
-  ```json
-  {
-    "message": "Assets removed from collection successfully",
-    "removed_count": 3,
-    "failed_count": 0,
-    "failed_assets": []
-  }
-  ```
-- `400 Bad Request` - Invalid input
-- `404 Not Found` - Collection not found
-- `500 Internal Server Error` - Server error
-
-### Handler Implementation
-
-The handler will:
-1. Validate that the collection exists
-2. Check if the user has appropriate permissions (Owner, FullAccess, or CanEdit) for the collection
-3. Group assets by type for efficient processing
-4. Validate that each asset exists and the user has access to it
-5. Remove the assets from the collection by soft-deleting records in the `collections_to_assets` table
-6. Return counts of successful and failed operations
-
-### File Changes
-
-#### New Files
-
-1. `libs/handlers/src/collections/remove_assets_from_collection_handler.rs`
-```rust
 use anyhow::{anyhow, Result};
 use database::{
-    get_pg_pool,
-    models::{
-        asset_permission_role::AssetPermissionRole,
-        asset_type::AssetType,
-        collection_to_asset::CollectionToAsset,
-        identity_type::IdentityType,
-    },
+    enums::{AssetPermissionRole, AssetType, IdentityType},
+    models::CollectionToAsset,
+    pool::get_pg_pool,
     schema::{collections, collections_to_assets, dashboard_files, metric_files},
 };
-use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
-use diesel_async::RunQueryDsl as AsyncRunQueryDsl;
-use sharing::has_permission;
+use diesel::{ExpressionMethods, QueryDsl};
+use diesel_async::RunQueryDsl;
+use sharing::check_asset_permission::has_permission;
 use tracing::{error, info};
 use uuid::Uuid;
 
@@ -465,193 +378,50 @@ pub async fn remove_assets_from_collection_handler(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use uuid::Uuid;
+    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
+    use mockall::predicate::*;
+    use mockall::mock;
+    use std::sync::Arc;
 
-    #[tokio::test]
-    async fn test_remove_assets_from_collection_handler() {
-        // This is a placeholder for the actual test
-        // In a real implementation, we would use test fixtures and a test database
-        assert!(true);
-    }
-}
-```
-
-2. `src/routes/rest/routes/collections/remove_assets_from_collection.rs`
-```rust
-use axum::{
-    extract::{Extension, Json, Path},
-    http::StatusCode,
-};
-use handlers::collections::{remove_assets_from_collection_handler, AssetToRemove};
-use middleware::AuthenticatedUser;
-use serde::{Deserialize, Serialize};
-use tracing::info;
-use uuid::Uuid;
-use database::models::asset_type::AssetType;
-use crate::routes::rest::ApiResponse;
-
-#[derive(Debug, Deserialize)]
-pub struct AssetRequest {
-    pub id: Uuid,
-    pub type_: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct RemoveAssetsRequest {
-    pub assets: Vec<AssetRequest>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct FailedAsset {
-    pub id: Uuid,
-    pub type_: String,
-    pub error: String,
-}
-
-#[derive(Debug, Serialize)]
-pub struct RemoveAssetsResponse {
-    pub message: String,
-    pub removed_count: usize,
-    pub failed_count: usize,
-    pub failed_assets: Vec<FailedAsset>,
-}
-
-/// REST handler for removing multiple assets from a collection
-///
-/// # Arguments
-///
-/// * `user` - The authenticated user
-/// * `id` - The unique identifier of the collection
-/// * `request` - The assets to remove from the collection
-///
-/// # Returns
-///
-/// A JSON response with the result of the operation
-pub async fn remove_assets_from_collection_rest_handler(
-    Extension(user): Extension<AuthenticatedUser>,
-    Path(id): Path<Uuid>,
-    Json(request): Json<RemoveAssetsRequest>,
-) -> Result<ApiResponse<RemoveAssetsResponse>, (StatusCode, String)> {
-    info!(
-        collection_id = %id,
-        user_id = %user.id,
-        asset_count = request.assets.len(),
-        "Processing DELETE request to remove assets from collection"
-    );
-
-    // Convert request assets to handler assets
-    let assets: Vec<AssetToRemove> = request.assets.into_iter().filter_map(|asset| {
-        let asset_type = match asset.type_.to_lowercase().as_str() {
-            "dashboard" => Some(AssetType::DashboardFile),
-            "metric" => Some(AssetType::MetricFile),
-            _ => None,
-        };
-        
-        asset_type.map(|t| AssetToRemove {
-            id: asset.id,
-            asset_type: t,
-        })
-    }).collect();
-
-    match remove_assets_from_collection_handler(&id, assets, &user.id).await {
-        Ok(result) => {
-            let failed_assets = result.failed_assets.into_iter().map(|(id, asset_type, error)| {
-                let type_str = match asset_type {
-                    AssetType::DashboardFile => "dashboard",
-                    AssetType::MetricFile => "metric",
-                    _ => "unknown",
-                };
-                
-                FailedAsset {
-                    id,
-                    type_: type_str.to_string(),
-                    error,
-                }
-            }).collect();
-            
-            Ok(ApiResponse::JsonData(RemoveAssetsResponse {
-                message: "Assets processed".to_string(),
-                removed_count: result.removed_count,
-                failed_count: result.failed_count,
-                failed_assets,
-            }))
-        },
-        Err(e) => {
-            tracing::error!("Error removing assets from collection: {}", e);
-            
-            // Map specific errors to appropriate status codes
-            let error_message = e.to_string();
-            if error_message.contains("Collection not found") {
-                return Err((StatusCode::NOT_FOUND, format!("Collection not found: {}", e)));
-            } else if error_message.contains("permission") {
-                return Err((StatusCode::FORBIDDEN, format!("Insufficient permissions: {}", e)));
-            }
-            
-            Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to remove assets from collection: {}", e)))
+    // Mock the has_permission function from the sharing crate
+    mock! {
+        pub Permissions {}
+        impl Permissions {
+            pub async fn has_permission(
+                asset_id: Uuid,
+                asset_type: AssetType,
+                identity_id: Uuid,
+                identity_type: IdentityType,
+                minimum_role: AssetPermissionRole,
+            ) -> Result<bool>;
         }
     }
+
+    #[tokio::test]
+    async fn test_empty_assets_list() {
+        // Test case: When an empty list of assets is provided, the function should return
+        // a successful result with zero counts
+        let collection_id = Uuid::new_v4();
+        let user_id = Uuid::new_v4();
+        let assets = vec![];
+
+        let result = remove_assets_from_collection_handler(&collection_id, assets, &user_id).await;
+        
+        // Since the assets list is empty, we should get a successful result with zero counts
+        // and no further database operations should be performed
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        assert_eq!(result.removed_count, 0);
+        assert_eq!(result.failed_count, 0);
+        assert!(result.failed_assets.is_empty());
+    }
+
+    // In a real implementation, we would add more test cases:
+    // - test_collection_not_found: Test handling when collection doesn't exist
+    // - test_insufficient_collection_permissions: Test handling when user lacks permission
+    // - test_dashboard_and_metric_removal: Test successful removal of both types
+    // - test_asset_not_found: Test handling when an asset doesn't exist
+    // - test_insufficient_asset_permissions: Test handling when user lacks permission for an asset
+    // - test_asset_not_in_collection: Test handling when asset isn't in the collection
+    // - test_database_error: Test handling of database errors
 }
-```
-
-3. Update `libs/handlers/src/collections/mod.rs` to include the new handler
-4. Update `src/routes/rest/routes/collections/mod.rs` to include the new endpoint
-
-### Database Operations
-
-The implementation will use the existing `collections_to_assets` table, which has the following structure:
-- `collection_id` - The ID of the collection
-- `asset_id` - The ID of the asset
-- `asset_type` - The type of the asset (dashboard, metric, etc.)
-- `created_at` - When the record was created
-- `created_by` - Who created the record
-- `updated_at` - When the record was last updated
-- `updated_by` - Who last updated the record
-- `deleted_at` - When the record was deleted (null if not deleted)
-
-For removal, we'll soft delete the records by setting the `deleted_at` field to the current timestamp.
-
-### Unit Tests
-
-1. Test the handler with mocked database connections
-   - Test removing multiple assets from a collection
-   - Test error cases (collection not found, asset not found, insufficient permissions)
-   - Test removing assets that are not in the collection
-
-2. Test the REST endpoint
-   - Test successful request
-   - Test error cases
-
-### Integration Tests
-
-1. Test the endpoint with a test database
-   - Create a collection and add assets to it
-   - Remove assets from the collection
-   - Verify the database state
-   - Test with different user roles
-
-### Security
-
-- The endpoint requires authentication
-- Permission checks ensure users can only modify collections they have access to
-- Input validation prevents malicious data
-
-## Monitoring and Logging
-
-- Log all operations with appropriate context (collection ID, user ID, asset IDs)
-- Track errors and failed operations
-- Monitor performance metrics for the endpoint
-
-## Rollout Plan
-
-1. Implement the handler and endpoint
-2. Write unit and integration tests
-3. Deploy to staging environment
-4. Perform manual testing
-5. Deploy to production
-
-## Future Improvements
-
-1. Add support for more asset types
-2. Implement batch processing for large numbers of assets
-3. Add more detailed error reporting
-4. Consider adding an async job for very large batches
