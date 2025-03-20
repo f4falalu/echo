@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { AppModal } from '@/components/ui/modal';
-import { TagInput } from '@/components/ui/inputs/InputTagInput';
+import { InputTagInput } from '@/components/ui/inputs/InputTagInput';
 import { useInviteUser } from '@/api/buster_rest/users';
+import { validate } from 'email-validator';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const InvitePeopleModal: React.FC<{
   open: boolean;
@@ -10,14 +12,11 @@ export const InvitePeopleModal: React.FC<{
 }> = React.memo(({ open, onClose }) => {
   const [emails, setEmails] = React.useState<string[]>([]);
   const { mutateAsync: inviteUsers, isPending: inviting } = useInviteUser();
+  const { openErrorMessage } = useBusterNotifications();
 
   const handleInvite = useMemoizedFn(async () => {
     await inviteUsers({ emails });
     onClose();
-  });
-
-  const onCloseEmail = useMemoizedFn((email: string) => {
-    setEmails(emails.filter((e) => e !== email));
   });
 
   const memoizedHeader = useMemo(() => {
@@ -41,10 +40,14 @@ export const InvitePeopleModal: React.FC<{
   return (
     <AppModal open={open} onClose={onClose} header={memoizedHeader} footer={memoizedFooter}>
       <div className="flex flex-col">
-        <TagInput
-          value={emails}
+        <InputTagInput
+          tags={emails}
           onTagAdd={(v) => {
-            setEmails([...emails, v]);
+            if (validate(v)) {
+              setEmails([...emails, v]);
+            } else {
+              openErrorMessage(`Invalid email - ${v}`);
+            }
           }}
           onTagRemove={(index) => {
             setEmails(emails.filter((_, i) => i !== index));

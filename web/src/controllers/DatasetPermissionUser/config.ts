@@ -1,12 +1,12 @@
 import { SelectItem } from '@/components/ui/select';
 
-export const PERMISSION_USERS_OPTIONS: SelectItem<'true' | 'false'>[] = [
+export const PERMISSION_USERS_OPTIONS: SelectItem<'included' | 'not_included'>[] = [
   {
     label: 'Assigned',
-    value: 'true'
+    value: 'included'
   },
   {
     label: 'Not assigned',
-    value: 'false'
+    value: 'not_included'
   }
 ];

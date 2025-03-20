@@ -1,13 +1,13 @@
 'use client';
 
 import type { Meta, StoryObj } from '@storybook/react';
-import { TagInput } from './InputTagInput';
+import { InputTagInput } from './InputTagInput';
 import { useState } from 'react';
 import React from 'react';
 
-const meta: Meta<typeof TagInput> = {
+const meta: Meta<typeof InputTagInput> = {
   title: 'UI/Inputs/InputTagInput',
-  component: TagInput,
+  component: InputTagInput,
   tags: ['autodocs'],
   argTypes: {
     variant: {
@@ -31,10 +31,10 @@ const meta: Meta<typeof TagInput> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof TagInput>;
+type Story = StoryObj<typeof InputTagInput>;
 
 // Interactive component for Storybook
-const InteractiveTagInput = (args: React.ComponentProps<typeof TagInput>) => {
+const InteractiveTagInput = (args: React.ComponentProps<typeof InputTagInput>) => {
   const [tags, setTags] = useState<string[]>(args.tags || []);
 
   const handleTagAdd = (tag: string) => {
@@ -47,7 +47,9 @@ const InteractiveTagInput = (args: React.ComponentProps<typeof TagInput>) => {
     setTags(newTags);
   };
 
-  return <TagInput {...args} tags={tags} onTagAdd={handleTagAdd} onTagRemove={handleTagRemove} />;
+  return (
+    <InputTagInput {...args} tags={tags} onTagAdd={handleTagAdd} onTagRemove={handleTagRemove} />
+  );
 };
 
 export const Default: Story = {

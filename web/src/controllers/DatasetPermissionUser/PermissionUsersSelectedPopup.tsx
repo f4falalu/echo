@@ -58,10 +58,8 @@ const PermissionUsersAssignButton: React.FC<{
     return {
       selectable: true,
       items: options.map((v) => ({
-        icon: v.icon,
-        label: v.label,
-        value: v.value ? 'included' : 'not_included',
-        onClick: () => onAssignClick(v.value === 'true')
+        ...v,
+        onClick: () => onAssignClick(v.value === 'included')
       }))
     };
   }, [selectedRowKeys]);

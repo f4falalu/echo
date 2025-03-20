@@ -135,32 +135,6 @@ export const BusterInfiniteList: React.FC<BusterInfiniteListProps> = React.memo(
       return () => scrollableParent.removeEventListener('scroll', handleScroll);
     }, [onScrollEnd, scrollEndThreshold]);
 
-    useWhyDidYouUpdate('BusterInfiniteList', {
-      columns,
-      rows,
-      selectedRowKeys,
-      onSelectChange,
-      emptyState,
-      contextMenu,
-      hideLastRowBorder,
-      showSelectAll,
-      onScrollEnd,
-      loadingNewContent,
-      rowClassName,
-      scrollEndThreshold,
-      useRowClickSelectChange,
-      showHeader,
-      itemData,
-      globalCheckStatus,
-      lastChildIndex,
-      showEmptyState,
-      containerRef,
-      scrollRef,
-      onGlobalSelectChange,
-      onSelectSectionChange,
-      onSelectChangePreflight
-    });
-
     return (
       <div ref={containerRef} className="infinite-list-container relative">
         {showHeader && !showEmptyState && (

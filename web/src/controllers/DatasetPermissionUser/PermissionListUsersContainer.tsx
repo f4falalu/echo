@@ -157,9 +157,9 @@ const PermissionGroupAssignedCell: React.FC<{
     <div className="flex" onClick={(e) => e.stopPropagation()}>
       <Select
         items={PERMISSION_USERS_OPTIONS}
-        value={assigned ? 'true' : 'false'}
+        value={assigned ? 'included' : 'not_included'}
         onChange={(value) => {
-          onSelect({ id, assigned: value === 'true' });
+          onSelect({ id, assigned: value === 'included' });
         }}
       />
     </div>

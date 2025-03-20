@@ -10,8 +10,6 @@ interface EmptyStateListProps {
 
 export const EmptyStateList = React.memo(
   ({ show = true, text, variant = 'default' }: EmptyStateListProps) => {
-    console.log('hit!', show, text, variant);
-
     if (!show) return null;
 
     if (variant === 'card') {

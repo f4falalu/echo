@@ -7,18 +7,17 @@ import { useMemoizedFn } from '@/hooks';
 import { inputVariants } from './Input';
 import { InputTag } from './InputTag';
 
-export interface TagInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
-    VariantProps<typeof inputVariants> {
-  tags?: string[];
+export interface TagInputProps extends VariantProps<typeof inputVariants> {
+  tags: string[];
   onTagAdd?: (tag: string) => void;
   onTagRemove?: (index: number) => void;
   placeholder?: string;
   disabled?: boolean;
   maxTags?: number;
+  className?: string;
 }
 
-const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
+const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
   (
     {
       className,
@@ -116,6 +115,7 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
           ))}
           <input
             ref={ref}
+            {...props}
             type="text"
             value={inputValue}
             onChange={handleInputChange}
@@ -123,13 +123,12 @@ const TagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
             className="placeholder:text-gray-light min-w-[120px] flex-1 bg-transparent outline-none disabled:cursor-not-allowed disabled:opacity-50"
             placeholder={tags.length === 0 ? placeholder : undefined}
             disabled={isDisabledInput}
-            {...props}
           />
         </div>
       </div>
     );
   }
 );
-TagInput.displayName = 'TagInput';
+InputTagInput.displayName = 'TagInput';
 
-export { TagInput };
+export { InputTagInput };
