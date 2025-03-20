@@ -1,86 +1,13 @@
----
-title: Remove Dashboard from Collections REST Endpoint
-author: Cascade
-date: 2025-03-19
-status: Draft
----
-
-# Remove Dashboard from Collections REST Endpoint
-
-## Problem Statement
-
-Users need the ability to programmatically remove a dashboard from multiple collections via a REST API. Currently, this functionality is not available, limiting the ability to manage collections through the API.
-
-## Goals
-
-1. Create a REST endpoint to remove a dashboard from multiple collections
-2. Implement proper permission validation
-3. Ensure data integrity with proper error handling
-4. Follow established patterns for REST endpoints and handlers
-
-## Non-Goals
-
-1. Modifying the existing collections functionality
-2. Creating UI components for this endpoint
-
-## Technical Design
-
-### REST Endpoint
-
-**Endpoint:** `DELETE /dashboards/:id/collections`
-
-**Request Body:**
-```json
-{
-  "collection_ids": ["uuid1", "uuid2", "uuid3"]
-}
-```
-
-**Response:**
-- `200 OK` - Success
-  ```json
-  {
-    "message": "Dashboard removed from collections successfully",
-    "removed_count": 3,
-    "failed_count": 0,
-    "failed_ids": []
-  }
-  ```
-
-- `400 Bad Request` - Invalid input
-- `403 Forbidden` - Insufficient permissions
-- `404 Not Found` - Dashboard not found
-- `500 Internal Server Error` - Server error
-
-### Handler Implementation
-
-The handler will:
-
-1. Validate that the dashboard exists
-2. Check if the user has appropriate permissions for the dashboard (Owner, FullAccess, or CanEdit)
-3. For each collection in the request:
-   a. Check if the user has permission to modify the collection
-   b. Mark the dashboard association as deleted in the `collections_to_assets` table
-
-### File Changes
-
-#### New Files
-
-1. `libs/handlers/src/dashboards/remove_dashboard_from_collections_handler.rs`
-
-```rust
 use anyhow::{anyhow, Result};
 use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
-    helpers::dashboard_files::get_dashboard_file_by_id,
+    helpers::dashboard_files::fetch_dashboard_file,
     pool::get_pg_pool,
     schema::{collections, collections_to_assets},
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
-use futures::future::join_all;
 use sharing::check_asset_permission::has_permission;
-use std::collections::HashMap;
 use tracing::{error, info};
 use uuid::Uuid;
 
@@ -124,7 +51,7 @@ pub async fn remove_dashboard_from_collections_handler(
     }
 
     // 1. Validate the dashboard exists
-    let dashboard = match get_dashboard_file_by_id(dashboard_id).await {
+    let _dashboard = match fetch_dashboard_file(dashboard_id).await {
         Ok(Some(dashboard)) => dashboard,
         Ok(None) => {
             error!(
@@ -299,161 +226,68 @@ mod tests {
     use super::*;
     use database::enums::{AssetPermissionRole, AssetType, IdentityType};
     use uuid::Uuid;
+    use std::sync::Arc;
+    use mockall::predicate::*;
+    use mockall::mock;
+
+    // Mock the database and sharing functions for testing
+    mock! {
+        DashboardHelper {}
+        impl DashboardHelper {
+            async fn fetch_dashboard_file(id: &Uuid) -> Result<Option<database::models::DashboardFile>>;
+        }
+    }
+
+    mock! {
+        SharingHelper {}
+        impl SharingHelper {
+            async fn has_permission(
+                asset_id: Uuid,
+                asset_type: AssetType,
+                identity_id: Uuid,
+                identity_type: IdentityType,
+                role: AssetPermissionRole,
+            ) -> Result<bool>;
+        }
+    }
+
+    mock! {
+        DatabaseConnection {}
+        impl DatabaseConnection {
+            async fn execute_query(&self, query: &str) -> Result<u64>;
+            async fn get_results<T>(&self, query: &str) -> Result<Vec<T>>;
+        }
+    }
 
     #[tokio::test]
     async fn test_remove_dashboard_from_collections_handler() {
         // This is a placeholder for the actual test
         // In a real implementation, we would use test fixtures and a test database
-        assert!(true); 
+        
+        // For now, let's just check that the basic input validation works
+        let dashboard_id = Uuid::new_v4();
+        let user_id = Uuid::new_v4();
+        let empty_collections: Vec<Uuid> = vec![];
+
+        // Test with empty collections - should return success with 0 removed
+        let result = remove_dashboard_from_collections_handler(
+            &dashboard_id,
+            empty_collections,
+            &user_id
+        ).await;
+
+        assert!(result.is_ok());
+        if let Ok(response) = result {
+            assert_eq!(response.removed_count, 0);
+            assert_eq!(response.failed_count, 0);
+            assert!(response.failed_ids.is_empty());
+        }
+
+        // In a real test, we would mock:
+        // 1. The dashboard_files database lookup
+        // 2. The permission checks
+        // 3. The collections database lookups
+        // 4. The update operations
+        // And then verify the behavior with various inputs
     }
 }
-```
-
-2. `src/routes/rest/routes/dashboards/remove_dashboard_from_collections.rs`
-
-```rust
-use axum::{
-    extract::{Extension, Json, Path},
-    http::StatusCode,
-};
-use handlers::dashboards::remove_dashboard_from_collections_handler;
-use middleware::AuthenticatedUser;
-use serde::{Deserialize, Serialize};
-use tracing::info;
-use uuid::Uuid;
-
-use crate::routes::rest::ApiResponse;
-
-#[derive(Debug, Deserialize)]
-pub struct RemoveFromCollectionsRequest {
-    pub collection_ids: Vec<Uuid>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct RemoveFromCollectionsResponse {
-    pub message: String,
-    pub removed_count: usize,
-    pub failed_count: usize,
-    pub failed_ids: Vec<Uuid>,
-}
-
-/// REST handler for removing a dashboard from multiple collections
-///
-/// # Arguments
-///
-/// * `user` - The authenticated user making the request
-/// * `id` - The unique identifier of the dashboard
-/// * `request` - The collection IDs to remove the dashboard from
-///
-/// # Returns
-///
-/// A success message on success, or an appropriate error response
-pub async fn remove_dashboard_from_collections_rest_handler(
-    Extension(user): Extension<AuthenticatedUser>,
-    Path(id): Path<Uuid>,
-    Json(request): Json<RemoveFromCollectionsRequest>,
-) -> Result<ApiResponse<RemoveFromCollectionsResponse>, (StatusCode, String)> {
-    info!(
-        dashboard_id = %id,
-        user_id = %user.id,
-        collection_count = request.collection_ids.len(),
-        "Processing DELETE request to remove dashboard from collections"
-    );
-
-    match remove_dashboard_from_collections_handler(&id, request.collection_ids, &user.id).await {
-        Ok(result) => {
-            let response = RemoveFromCollectionsResponse {
-                message: "Dashboard removed from collections successfully".to_string(),
-                removed_count: result.removed_count,
-                failed_count: result.failed_count,
-                failed_ids: result.failed_ids,
-            };
-            Ok(ApiResponse::JsonData(response))
-        }
-        Err(e) => {
-            tracing::error!("Error removing dashboard from collections: {}", e);
-            
-            // Map specific errors to appropriate status codes
-            let error_message = e.to_string();
-            
-            if error_message.contains("Dashboard not found") {
-                return Err((StatusCode::NOT_FOUND, format!("Dashboard not found: {}", e)));
-            } else if error_message.contains("permission") {
-                return Err((StatusCode::FORBIDDEN, format!("Insufficient permissions: {}", e)));
-            }
-            
-            Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to remove dashboard from collections: {}", e)))
-        }
-    }
-}
-```
-
-3. Update `libs/handlers/src/dashboards/mod.rs` to include the new handler
-
-4. Update `src/routes/rest/routes/dashboards/mod.rs` to include the new endpoint
-
-### Database Operations
-
-The implementation will use the following database operations:
-
-1. SELECT to check if the dashboard exists
-2. SELECT to check if the collections exist
-3. UPDATE to mark dashboard associations as deleted
-
-## Testing Strategy
-
-### Unit Tests
-
-1. Test the handler with mocked database connections
-   - Test removing a dashboard from collections
-   - Test error cases (dashboard not found, collection not found, insufficient permissions)
-   - Test removing a dashboard that isn't in a collection
-
-2. Test the REST endpoint
-   - Test successful request
-   - Test error responses for various scenarios
-
-### Integration Tests
-
-1. Test the endpoint with a test database
-   - Create collections and add a dashboard to them
-   - Remove the dashboard from the collections
-   - Verify the database state
-   - Test with different user roles
-
-## Security Considerations
-
-- The endpoint requires authentication
-
-- Permission checks ensure users can only modify collections and dashboards they have access to
-
-- Input validation prevents malicious data
-
-## Monitoring and Logging
-
-- All operations are logged with appropriate context
-
-- Errors are logged with detailed information
-
-## Dependencies
-
-- `libs/sharing` - For permission checking
-
-- `libs/database` - For database operations
-  - Using existing helpers in `dashboard_files.rs` for dashboard existence checks
-
-## Rollout Plan
-
-1. ✅ Implement the handler and endpoint
-
-2. ✅ Write initial tests (Skeleton, needs connection to test database for full functionality)
-
-3. Code review
-
-4. Deploy to staging
-
-5. Test in staging
-
-6. Deploy to production
-
-7. Monitor for issues
