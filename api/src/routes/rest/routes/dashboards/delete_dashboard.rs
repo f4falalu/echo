@@ -1,38 +1,43 @@
 use axum::{
-    extract::Path,
     Extension,
     Json,
 };
-use handlers::dashboards::delete_dashboard_handler;
+use handlers::dashboards::{
+    delete_dashboards_handler, 
+    DeleteDashboardsRequest, 
+    DeleteDashboardsResponse
+};
 use middleware::AuthenticatedUser;
-use uuid::Uuid;
 use axum::http::StatusCode;
 
 use crate::routes::rest::ApiResponse;
 
-pub async fn delete_dashboard_rest_handler(
+pub async fn delete_dashboards_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,
-    Path(id): Path<Uuid>,
-) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
+    Json(request): Json<DeleteDashboardsRequest>,
+) -> Result<Json<DeleteDashboardsResponse>, (StatusCode, String)> {
     tracing::info!(
-        "Processing DELETE request for dashboard with ID: {}, user_id: {}",
-        id,
+        "Processing DELETE request for {} dashboards, user_id: {}",
+        request.ids.len(),
         user.id
     );
     
-    match delete_dashboard_handler(id, &user.id).await {
-        Ok(_) => Ok(Json(serde_json::json!({
-            "success": true,
-            "message": "Dashboard deleted successfully"
-        }))),
-        Err(e) => {
-            tracing::error!("Failed to delete dashboard: {}", e);
+    match delete_dashboards_handler(request, &user.id).await {
+        Ok(response) => {
+            tracing::info!(
+                "Successfully deleted {}/{} dashboards, user_id: {}",
+                response.deleted_count,
+                response.deleted_count + response.failed_ids.len(),
+                user.id
+            );
             
-            if e.to_string().contains("not found") {
-                Err((StatusCode::NOT_FOUND, format!("Dashboard not found: {}", e)))
-            } else {
-                Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to delete dashboard: {}", e)))
-            }
+            // Return a 200 status regardless of partial failures
+            // The response body contains detailed information about successes and failures
+            Ok(Json(response))
+        },
+        Err(e) => {
+            tracing::error!("Failed to delete dashboards: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to delete dashboards: {}", e)))
         }
     }
 }

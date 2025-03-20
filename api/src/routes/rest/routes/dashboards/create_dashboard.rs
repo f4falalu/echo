@@ -1,21 +1,26 @@
-use axum::extract::State;
-use axum::Extension;
-use handlers::dashboards::create_dashboard_handler;
+use axum::{
+    http::StatusCode,
+    Extension, Json,
+};
+use handlers::dashboards::{create_dashboard_handler, BusterDashboardResponse};
 use middleware::AuthenticatedUser;
-use uuid::Uuid;
 
-use crate::routes::rest::ApiResponse;
-use crate::AppState;
 
+/// Create a new dashboard
+///
+/// This endpoint creates a new dashboard for the authenticated user.
 pub async fn create_dashboard_rest_handler(
-    State(_state): State<AppState>,
     Extension(user): Extension<AuthenticatedUser>,
-) -> ApiResponse {
+) -> Result<Json<BusterDashboardResponse>, (StatusCode, String)> {
+    // Call the handler
     match create_dashboard_handler(&user.id).await {
-        Ok(response) => ApiResponse::JsonData(response),
+        Ok(response) => Ok(Json(response)),
         Err(e) => {
             tracing::error!("Failed to create dashboard: {}", e);
-            ApiResponse::JsonError(e.to_string())
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Error creating dashboard: {}", e),
+            ))
         }
     }
 }

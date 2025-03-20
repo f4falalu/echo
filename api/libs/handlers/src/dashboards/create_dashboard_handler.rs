@@ -10,42 +10,40 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use super::{BusterDashboard, BusterDashboardResponse, Collection, DashboardConfig};
+use crate::utils::user::user_info::get_user_organization_id;
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
 use database::schema::asset_permissions;
 use std::collections::HashMap;
-use crate::utils::user::user_info::get_user_organization_id;
 
 pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardResponse> {
     let mut conn = get_pg_pool().get().await?;
-    
+
     // Create a default dashboard YAML
     let dashboard_yml = DashboardYml {
         name: "Untitled Dashboard".to_string(),
         description: None,
         rows: vec![],
     };
-    
+
     // Convert to YAML string for the file field
     let yaml_content = serde_yaml::to_string(&dashboard_yml)?;
-    
+
     // Convert to JSON Value for the content field
     let content_value: Value = serde_json::to_value(&dashboard_yml)?;
-    
+
     // Generate a unique ID and filename
     let dashboard_id = Uuid::new_v4();
     let file_name = format!("dashboard_{}.yml", dashboard_id);
-    
+
     // Get user's organization ID
     let organization_id = get_user_organization_id(user_id).await?;
-    
+
     // Current timestamp
     let now = Utc::now();
-    
+
     // Create empty version history
-    let version_history = VersionHistory {
-        versions: vec![],
-    };
-    
+    let version_history = VersionHistory::new(1, dashboard_yml);
+
     // Insert the dashboard file
     let dashboard_file = insert_into(dashboard_files::table)
         .values((
@@ -68,9 +66,16 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
             dashboard_files::created_at,
             dashboard_files::updated_at,
         ))
-        .get_result::<(Uuid, String, String, Uuid, chrono::DateTime<chrono::Utc>, chrono::DateTime<chrono::Utc>)>(&mut conn)
+        .get_result::<(
+            Uuid,
+            String,
+            String,
+            Uuid,
+            chrono::DateTime<chrono::Utc>,
+            chrono::DateTime<chrono::Utc>,
+        )>(&mut conn)
         .await?;
-    
+
     // Insert user permission for the dashboard
     insert_into(asset_permissions::table)
         .values((
@@ -86,7 +91,7 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
         ))
         .execute(&mut conn)
         .await?;
-    
+
     // Construct the dashboard
     let dashboard = BusterDashboard {
         config: DashboardConfig { rows: vec![] },
@@ -102,7 +107,7 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
         file: yaml_content,
         file_name: dashboard_file.2,
     };
-    
+
     Ok(BusterDashboardResponse {
         access: AssetPermissionRole::Owner,
         metrics: HashMap::new(),
@@ -120,7 +125,6 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mockito;
     use uuid::Uuid;
 
     #[tokio::test]
