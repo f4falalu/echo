@@ -28,15 +28,6 @@ pub struct UserFavoritesReq {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct CollectionFavorites {
-    pub collection_id: Uuid,
-    pub collection_name: String,
-    pub assets: Vec<FavoriteObject>,
-    #[serde(rename = "asset_type")]
-    pub type_: AssetType,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
 pub struct FavoriteObject {
     pub id: Uuid,
     pub name: String,
@@ -44,14 +35,7 @@ pub struct FavoriteObject {
     pub type_: AssetType,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-#[serde(untagged)]
-pub enum FavoriteEnum {
-    Collection(CollectionFavorites),
-    Object(FavoriteObject),
-}
-
-pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<FavoriteEnum>> {
+pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<FavoriteObject>> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
@@ -73,7 +57,7 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
         let dashboard_ids = Arc::new(
             user_favorites
                 .iter()
-                .filter(|(_, f)| f == &AssetType::Dashboard)
+                .filter(|(_, f)| f == &AssetType::DashboardFile)
                 .map(|f| f.0)
                 .collect::<Vec<Uuid>>(),
         );
@@ -175,36 +159,56 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
         }
     };
 
-    let mut favorites: Vec<FavoriteEnum> = Vec::with_capacity(user_favorites.len());
+    let mut favorites: Vec<FavoriteObject> = Vec::with_capacity(user_favorites.len());
 
     for favorite in &user_favorites {
         match favorite.1 {
-            AssetType::Dashboard => {
+            AssetType::DashboardFile => {
                 if let Some(dashboard) = favorite_dashboards.iter().find(|d| d.id == favorite.0) {
-                    favorites.push(FavoriteEnum::Object(dashboard.clone()));
+                    favorites.push(FavoriteObject {
+                        id: dashboard.id,
+                        name: dashboard.name.clone(),
+                        type_: AssetType::DashboardFile,
+                    });
                 }
             }
             AssetType::Collection => {
                 if let Some(collection) = favorite_collections
                     .iter()
-                    .find(|c| c.collection_id == favorite.0)
+                    .find(|c| c.id == favorite.0)
                 {
-                    favorites.push(FavoriteEnum::Collection(collection.clone()));
+                    favorites.push(FavoriteObject {
+                        id: collection.id,
+                        name: collection.name.clone(),
+                        type_: AssetType::Collection,
+                    });
                 }
             }
             AssetType::Thread => {
                 if let Some(thread) = favorite_threads.iter().find(|t| t.id == favorite.0) {
-                    favorites.push(FavoriteEnum::Object(thread.clone()));
+                    favorites.push(FavoriteObject {
+                        id: thread.id,
+                        name: thread.name.clone(),
+                        type_: AssetType::Thread,
+                    });
                 }
             }
             AssetType::MetricFile => {
                 if let Some(metric) = favorite_metrics.iter().find(|m| m.id == favorite.0) {
-                    favorites.push(FavoriteEnum::Object(metric.clone()));
+                    favorites.push(FavoriteObject {
+                        id: metric.id,
+                        name: metric.name.clone(),
+                        type_: AssetType::MetricFile,
+                    });
                 }
             }
             AssetType::Chat => {
                 if let Some(chat) = favorite_chats.iter().find(|c| c.id == favorite.0) {
-                    favorites.push(FavoriteEnum::Object(chat.clone()));
+                    favorites.push(FavoriteObject {
+                        id: chat.id,
+                        name: chat.name.clone(),
+                        type_: AssetType::Chat,
+                    });
                 }
             }
             _ => {}
@@ -272,7 +276,7 @@ async fn get_favorite_dashboards(dashboard_ids: Arc<Vec<Uuid>>) -> Result<Vec<Fa
         .map(|(id, name)| FavoriteObject {
             id: *id,
             name: name.clone(),
-            type_: AssetType::Dashboard,
+            type_: AssetType::DashboardFile,
         })
         .collect();
     Ok(favorite_dashboards)
@@ -309,15 +313,20 @@ async fn get_favorite_chats(chat_ids: Arc<Vec<Uuid>>) -> Result<Vec<FavoriteObje
 
 async fn get_assets_from_collections(
     collection_ids: Arc<Vec<Uuid>>,
-) -> Result<Vec<CollectionFavorites>> {
+) -> Result<Vec<FavoriteObject>> {
     let dashboards_handle = {
         let collection_ids = Arc::clone(&collection_ids);
         tokio::spawn(async move { get_dashboards_from_collections(&collection_ids).await })
     };
 
-    let threads_handle = {
+    let metrics_handle = {
         let collection_ids = Arc::clone(&collection_ids);
-        tokio::spawn(async move { get_threads_from_collections(&collection_ids).await })
+        tokio::spawn(async move { get_metrics_from_collections(&collection_ids).await })
+    };
+
+    let chats_handle = {
+        let collection_ids = Arc::clone(&collection_ids);
+        tokio::spawn(async move { get_chats_from_collections(&collection_ids).await })
     };
 
     let collection_name_handle = {
@@ -325,14 +334,14 @@ async fn get_assets_from_collections(
         tokio::spawn(async move { get_collection_names(&collection_ids).await })
     };
 
-    let (dashboards_res, threads_res, collection_name_res) =
-        match tokio::join!(dashboards_handle, threads_handle, collection_name_handle) {
-            (Ok(dashboards), Ok(threads), Ok(collection_name)) => {
-                (dashboards, threads, collection_name)
+    let (dashboards_res, metrics_res, chats_res, collection_name_res) =
+        match tokio::join!(dashboards_handle, metrics_handle, chats_handle, collection_name_handle) {
+            (Ok(dashboards), Ok(metrics), Ok(chats), Ok(collection_name)) => {
+                (dashboards, metrics, chats, collection_name)
             }
             _ => {
                 return Err(anyhow!(
-                    "Error getting dashboards or threads from collection"
+                    "Error getting assets from collection"
                 ))
             }
         };
@@ -342,9 +351,14 @@ async fn get_assets_from_collections(
         Err(e) => return Err(anyhow!("Error getting dashboards from collection: {:?}", e)),
     };
 
-    let threads = match threads_res {
-        Ok(threads) => threads,
-        Err(e) => return Err(anyhow!("Error getting threads from collection: {:?}", e)),
+    let metrics = match metrics_res {
+        Ok(metrics) => metrics,
+        Err(e) => return Err(anyhow!("Error getting metrics from collection: {:?}", e)),
+    };
+
+    let chats = match chats_res {
+        Ok(chats) => chats,
+        Err(e) => return Err(anyhow!("Error getting chats from collection: {:?}", e)),
     };
 
     let collection_names = match collection_name_res {
@@ -352,7 +366,7 @@ async fn get_assets_from_collections(
         Err(e) => return Err(anyhow!("Error getting collection name: {:?}", e)),
     };
 
-    let mut collection_favorites: Vec<CollectionFavorites> = Vec::new();
+    let mut collection_favorites: Vec<FavoriteObject> = Vec::new();
 
     for (collection_id, collection_name) in collection_names {
         let mut assets = Vec::new();
@@ -370,10 +384,10 @@ async fn get_assets_from_collections(
         );
 
         assets.extend(
-            threads
+            metrics
                 .iter()
-                .filter_map(|(thread_collection_id, favorite_object)| {
-                    if *thread_collection_id == collection_id {
+                .filter_map(|(metric_collection_id, favorite_object)| {
+                    if *metric_collection_id == collection_id {
                         Some(favorite_object.clone())
                     } else {
                         None
@@ -381,10 +395,21 @@ async fn get_assets_from_collections(
                 }),
         );
 
-        collection_favorites.push(CollectionFavorites {
-            collection_id,
-            collection_name,
-            assets,
+        assets.extend(
+            chats
+                .iter()
+                .filter_map(|(chat_collection_id, favorite_object)| {
+                    if *chat_collection_id == collection_id {
+                        Some(favorite_object.clone())
+                    } else {
+                        None
+                    }
+                }),
+        );
+
+        collection_favorites.push(FavoriteObject {
+            id: collection_id,
+            name: collection_name,
             type_: AssetType::Collection,
         });
     }
@@ -429,7 +454,7 @@ async fn get_dashboards_from_collections(
             dashboard_files::name,
         ))
         .filter(collections_to_assets::collection_id.eq_any(collection_ids))
-        .filter(collections_to_assets::asset_type.eq(AssetType::Dashboard))
+        .filter(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
         .filter(dashboard_files::deleted_at.is_null())
         .filter(collections_to_assets::deleted_at.is_null())
         .load::<(Uuid, Uuid, String)>(&mut conn)
@@ -447,12 +472,100 @@ async fn get_dashboards_from_collections(
                 FavoriteObject {
                     id: *id,
                     name: name.clone(),
-                    type_: AssetType::Dashboard,
+                    type_: AssetType::DashboardFile,
                 },
             )
         })
         .collect();
     Ok(dashboard_objects)
+}
+
+async fn get_metrics_from_collections(
+    collection_ids: &[Uuid],
+) -> Result<Vec<(Uuid, FavoriteObject)>> {
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
+    };
+
+    let metric_records: Vec<(Uuid, Uuid, String)> = match metric_files::table
+        .inner_join(
+            collections_to_assets::table.on(metric_files::id.eq(collections_to_assets::asset_id)),
+        )
+        .select((
+            collections_to_assets::collection_id,
+            metric_files::id,
+            metric_files::name,
+        ))
+        .filter(collections_to_assets::collection_id.eq_any(collection_ids))
+        .filter(collections_to_assets::asset_type.eq(AssetType::MetricFile))
+        .filter(metric_files::deleted_at.is_null())
+        .filter(collections_to_assets::deleted_at.is_null())
+        .load::<(Uuid, Uuid, String)>(&mut conn)
+        .await
+    {
+        Ok(metric_records) => metric_records,
+        Err(e) => return Err(anyhow!("Error loading metric records: {:?}", e)),
+    };
+
+    let metric_objects: Vec<(Uuid, FavoriteObject)> = metric_records
+        .iter()
+        .map(|(collection_id, id, name)| {
+            (
+                *collection_id,
+                FavoriteObject {
+                    id: *id,
+                    name: name.clone(),
+                    type_: AssetType::MetricFile,
+                },
+            )
+        })
+        .collect();
+    Ok(metric_objects)
+}
+
+async fn get_chats_from_collections(
+    collection_ids: &[Uuid],
+) -> Result<Vec<(Uuid, FavoriteObject)>> {
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
+    };
+
+    let chat_records: Vec<(Uuid, Uuid, String)> = match chats::table
+        .inner_join(
+            collections_to_assets::table.on(chats::id.eq(collections_to_assets::asset_id)),
+        )
+        .select((
+            collections_to_assets::collection_id,
+            chats::id,
+            chats::title,
+        ))
+        .filter(collections_to_assets::collection_id.eq_any(collection_ids))
+        .filter(collections_to_assets::asset_type.eq(AssetType::Chat))
+        .filter(chats::deleted_at.is_null())
+        .filter(collections_to_assets::deleted_at.is_null())
+        .load::<(Uuid, Uuid, String)>(&mut conn)
+        .await
+    {
+        Ok(chat_records) => chat_records,
+        Err(e) => return Err(anyhow!("Error loading chat records: {:?}", e)),
+    };
+
+    let chat_objects: Vec<(Uuid, FavoriteObject)> = chat_records
+        .iter()
+        .map(|(collection_id, id, title)| {
+            (
+                *collection_id,
+                FavoriteObject {
+                    id: *id,
+                    name: title.clone(),
+                    type_: AssetType::Chat,
+                },
+            )
+        })
+        .collect();
+    Ok(chat_objects)
 }
 
 async fn get_threads_from_collections(

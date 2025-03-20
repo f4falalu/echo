@@ -9,4 +9,4 @@ pub use list_favorites::list_favorites;
 pub use create_favorite::{create_favorite, CreateFavoriteReq};
 pub use delete_favorite::delete_favorite;
 pub use update_favorites::update_favorites;
-pub use favorites_utils::{FavoriteEnum, FavoriteObject, CollectionFavorites, FavoriteIdAndType, UserFavoritesReq};
+pub use favorites_utils::{FavoriteObject, FavoriteIdAndType, UserFavoritesReq};

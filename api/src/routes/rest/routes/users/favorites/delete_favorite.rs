@@ -3,13 +3,13 @@ use axum::{
     http::StatusCode,
 };
 use uuid::Uuid;
-use handlers::favorites::{FavoriteEnum, delete_favorite};
+use handlers::favorites::{delete_favorite, FavoriteObject};
 use middleware::AuthenticatedUser;
 
 pub async fn delete_favorite_handler(
     Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
-) -> Result<Json<Vec<FavoriteEnum>>, (StatusCode, String)> {
+) -> Result<Json<Vec<FavoriteObject>>, (StatusCode, String)> {
     match delete_favorite(&user, &id).await {
         Ok(favorites) => Ok(Json(favorites)),
         Err(e) => {
