@@ -12,7 +12,7 @@ use database::{
     schema::user_favorites,
 };
 
-use super::favorites_utils::{list_user_favorites, FavoriteEnum};
+use super::favorites_utils::{list_user_favorites, FavoriteObject};
 
 pub struct CreateFavoriteReq {
     pub id: Uuid,
@@ -23,7 +23,7 @@ pub struct CreateFavoriteReq {
 pub async fn create_favorite(
     user: &AuthenticatedUser,
     req: &CreateFavoriteReq,
-) -> Result<Vec<FavoriteEnum>> {
+) -> Result<Vec<FavoriteObject>> {
     let index = req.index.unwrap_or(0);
 
     let mut conn = match get_pg_pool().get().await {

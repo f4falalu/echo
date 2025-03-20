@@ -1,12 +1,12 @@
 use axum::{extract::Json, http::StatusCode, Extension};
-use handlers::favorites::{update_favorites, FavoriteEnum};
+use handlers::favorites::{update_favorites, FavoriteObject};
 use middleware::AuthenticatedUser;
 use uuid::Uuid;
 
 pub async fn update_favorites_handler(
     Extension(user): Extension<AuthenticatedUser>,
     Json(payload): Json<Vec<Uuid>>,
-) -> Result<Json<Vec<FavoriteEnum>>, (StatusCode, String)> {
+) -> Result<Json<Vec<FavoriteObject>>, (StatusCode, String)> {
 
     match update_favorites(&user, &payload).await {
         Ok(_) => {

@@ -9,7 +9,8 @@ use diesel_async::RunQueryDsl;
 use serde_json::Value;
 use uuid::Uuid;
 
-use super::{BusterDashboard, BusterDashboardResponse, Collection, DashboardConfig};
+use crate::metrics::Version;
+use super::{BusterDashboard, BusterDashboardResponse, DashboardConfig};
 use crate::utils::user::user_info::get_user_organization_id;
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
 use database::schema::asset_permissions;
@@ -33,7 +34,6 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
 
     // Generate a unique ID and filename
     let dashboard_id = Uuid::new_v4();
-    let file_name = format!("dashboard_{}.yml", dashboard_id);
 
     // Get user's organization ID
     let organization_id = get_user_organization_id(user_id).await?;
@@ -41,15 +41,16 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
     // Current timestamp
     let now = Utc::now();
 
-    // Create empty version history
-    let version_history = VersionHistory::new(1, dashboard_yml);
+    // Create version history with initial version
+    let mut version_history = VersionHistory::new(0, dashboard_yml.clone());
+    version_history.add_version(1, dashboard_yml);
 
     // Insert the dashboard file
     let dashboard_file = insert_into(dashboard_files::table)
         .values((
             dashboard_files::id.eq(dashboard_id),
             dashboard_files::name.eq("Untitled Dashboard"),
-            dashboard_files::file_name.eq(&file_name),
+            dashboard_files::file_name.eq("Untitled Dashboard"),
             dashboard_files::content.eq(&content_value),
             dashboard_files::organization_id.eq(organization_id),
             dashboard_files::created_by.eq(user_id),
@@ -108,6 +109,12 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
         file_name: dashboard_file.2,
     };
 
+    // Create initial version
+    let initial_version = Version {
+        version_number: 1,
+        updated_at: now,
+    };
+
     Ok(BusterDashboardResponse {
         access: AssetPermissionRole::Owner,
         metrics: HashMap::new(),
@@ -119,6 +126,7 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
         publicly_accessible: false,
         public_expiry_date: None,
         public_enabled_by: None,
+        versions: vec![initial_version],
     })
 }
 

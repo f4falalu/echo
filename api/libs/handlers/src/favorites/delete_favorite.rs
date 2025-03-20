@@ -10,9 +10,9 @@ use database::{
     schema::user_favorites,
 };
 
-use super::favorites_utils::{list_user_favorites, FavoriteEnum};
+use super::favorites_utils::{list_user_favorites, FavoriteObject};
 
-pub async fn delete_favorite(user: &AuthenticatedUser, id: &Uuid) -> Result<Vec<FavoriteEnum>> {
+pub async fn delete_favorite(user: &AuthenticatedUser, id: &Uuid) -> Result<Vec<FavoriteObject>> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
