@@ -7,7 +7,6 @@ import {
 } from './eventInterfaces';
 
 export enum ChatsResponses {
-  '/chats/unsubscribe:unsubscribe' = '/chats/unsubscribe:unsubscribe',
   '/chats/get:getChat' = '/chats/get:getChat',
   '/chats/post:initializeChat' = '/chats/post:initializeChat',
   '/chats/post:generatingTitle' = '/chats/post:generatingTitle',
@@ -27,12 +26,6 @@ export type Chat_getChat = {
   callback: (chat: BusterChat) => void;
   /** Optional error handler for when the chat request fails */
   onError?: (error: RustApiError) => void;
-};
-
-export type Chat_unsubscribe = {
-  route: '/chats/unsubscribe:unsubscribe';
-  callback: (d: { id: string }[]) => void;
-  onError?: (d: unknown | RustApiError) => void;
 };
 
 /***** CHAT PROGRESS EVENTS START ******/
@@ -70,7 +63,6 @@ export type ChatPost_complete = {
 /***** CHAT PROGRESS EVENTS END ******/
 
 export type ChatResponseTypes =
-  | Chat_unsubscribe
   | Chat_getChat
   | ChatPost_initializeChat
   | ChatPost_generatingTitle

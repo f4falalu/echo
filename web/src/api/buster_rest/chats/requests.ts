@@ -1,11 +1,6 @@
 import { mainApi } from '../instances';
 import { serverFetch } from '../../createServerInstance';
 import type { BusterChatListItem, BusterChat } from '@/api/asset_interfaces/chat';
-import type {
-  DuplicateChatParams,
-  GetChatParams,
-  UpdateChatParams
-} from '../../request_interfaces/chats';
 
 const CHATS_BASE = '/chats';
 
@@ -44,16 +39,24 @@ export const getListChats_server = async (
 };
 
 // Client-side fetch version
-export const getChat = async ({ id }: GetChatParams): Promise<BusterChat> => {
+export const getChat = async ({ id }: { id: string }): Promise<BusterChat> => {
   return mainApi.get<BusterChat>(`${CHATS_BASE}/${id}`).then((res) => res.data);
 };
 
 // Server-side fetch version
-export const getChat_server = async ({ id }: GetChatParams): Promise<BusterChat> => {
+export const getChat_server = async ({ id }: { id: string }): Promise<BusterChat> => {
   return await serverFetch<BusterChat>(`${CHATS_BASE}/${id}`);
 };
 
-export const updateChat = async ({ id, ...data }: UpdateChatParams): Promise<BusterChat> => {
+export const updateChat = async ({
+  id,
+  ...data
+}: {
+  id: string;
+  title?: string;
+  is_favorited?: boolean;
+  feedback?: 'negative' | null;
+}): Promise<BusterChat> => {
   return mainApi.put<BusterChat>(`${CHATS_BASE}/${id}`, data).then((res) => res.data);
 };
 
@@ -65,7 +68,12 @@ export const duplicateChat = async ({
   id,
   message_id,
   share_with_same_people
-}: DuplicateChatParams): Promise<BusterChat> => {
+}: {
+  id: string;
+  /** The message ID to start the duplication from */
+  message_id: string;
+  share_with_same_people: boolean;
+}): Promise<BusterChat> => {
   return mainApi
     .post(`${CHATS_BASE}/duplicate`, { id, message_id, share_with_same_people })
     .then((res) => res.data);

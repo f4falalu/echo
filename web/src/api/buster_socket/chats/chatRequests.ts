@@ -1,9 +1,4 @@
-import type {
-  CreateNewChatParams,
-  StopChatParams,
-  UnsubscribeFromChatParams,
-  DuplicateChatParams
-} from '../../request_interfaces/chats';
+import type { CreateNewChatParams, StopChatParams } from '../../request_interfaces/chats';
 import type { BusterSocketRequestBase } from '../base_interfaces';
 
 /**
@@ -21,27 +16,6 @@ export type ChatCreateNewChat = BusterSocketRequestBase<'/chats/post', CreateNew
 export type ChatStopChat = BusterSocketRequestBase<'/chats/stop', StopChatParams>;
 
 /**
- * Request type for unsubscribing from real-time updates of a specific chat.
- * @interface ChatUnsubscribeFromChat
- * @extends BusterSocketRequestBase
- */
-export type ChatUnsubscribeFromChat = BusterSocketRequestBase<
-  '/chats/unsubscribe',
-  UnsubscribeFromChatParams
->;
-
-/**
- * Request type for duplicating an existing chat.
- * @interface ChatsDuplicateChat
- * @extends BusterSocketRequestBase
- */
-export type ChatsDuplicateChat = BusterSocketRequestBase<'/chats/duplicate', DuplicateChatParams>;
-
-/**
  * Union type of all possible chat-related request types.
  */
-export type ChatEmits =
-  | ChatCreateNewChat
-  | ChatUnsubscribeFromChat
-  | ChatsDuplicateChat
-  | ChatStopChat;
+export type ChatEmits = ChatCreateNewChat | ChatStopChat;
