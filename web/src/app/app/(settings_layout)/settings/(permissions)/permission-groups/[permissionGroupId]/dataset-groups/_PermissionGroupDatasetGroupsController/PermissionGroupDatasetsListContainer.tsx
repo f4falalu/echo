@@ -103,7 +103,7 @@ export const PermissionGroupDatasetGroupsListContainer: React.FC<{
         data: {},
         hidden: cannotQueryPermissionDatasetGroups.length === 0,
         rowSection: {
-          title: 'Not Assigned',
+          title: 'Not assigned',
           secondaryTitle: cannotQueryPermissionDatasetGroups.length.toString()
         }
       },

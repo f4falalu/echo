@@ -57,7 +57,8 @@ export const Select = <T extends string>({
       disabled={disabled}
       onOpenChange={onOpenChange}
       open={open}
-      value={value || defaultValue}
+      defaultValue={defaultValue}
+      value={value}
       onValueChange={onValueChange}>
       <SelectTrigger className={className}>
         <SelectValue placeholder={placeholder} defaultValue={value || defaultValue} />

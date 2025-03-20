@@ -18,7 +18,7 @@ export const PERMISSION_OPTIONS_ASSIGNED: SelectItem<'true' | 'false'>[] = [
     value: 'true'
   },
   {
-    label: 'Not Assigned',
+    label: 'Not assigned',
     value: 'false'
   }
 ];

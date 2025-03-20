@@ -87,7 +87,7 @@ export const PermissionListUserContainer: React.FC<{
         data: {},
         hidden: cannotQueryUsers.length === 0,
         rowSection: {
-          title: 'Not Assigned',
+          title: 'Not assigned',
           secondaryTitle: cannotQueryUsers.length.toString()
         }
       },

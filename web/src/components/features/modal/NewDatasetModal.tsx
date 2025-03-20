@@ -27,7 +27,7 @@ export const NewDatasetModal: React.FC<{
   const [selectedDatasource, setSelectedDatasource] = React.useState<string | null>(
     datasourceId || null
   );
-  const { refetch: refetchDatasourcesList } = useListDatasources();
+  const { refetch: refetchDatasourcesList } = useListDatasources(open);
   const [datasetName, setDatasetName] = React.useState<string>('');
 
   const disableSubmit = !selectedDatasource || !datasetName;
@@ -109,7 +109,7 @@ const SelectDataSourceDropdown: React.FC<{
   selectedDatasource: string | null;
 }> = React.memo(({ setSelectedDatasource, selectedDatasource }) => {
   const router = useRouter();
-  const { data: dataSourcesList } = useListDatasources();
+  const { data: dataSourcesList } = useListDatasources(false);
 
   const selectOptions: SelectItem[] = useMemo(() => {
     return (dataSourcesList || []).map((dataSource) => ({

@@ -17,8 +17,7 @@ export const selectVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'border-border shadow bg-background  data-[placeholder]:text-gray-light  hover:border-gray-light',
+        default: 'border-border shadow bg-background  data-[placeholder]:text-gray-light  ',
         ghost: 'border-none bg-transparent shadow-none disabled:bg-transparent outline-none'
       },
       size: {
@@ -45,7 +44,7 @@ const SelectTrigger = React.forwardRef<
     {...props}>
     {children}
     <SelectPrimitive.Icon asChild>
-      <div className="flex h-4 w-4 items-center justify-center opacity-50">
+      <div className="flex items-center justify-center opacity-50">
         <ChevronDown />
       </div>
     </SelectPrimitive.Icon>
@@ -61,7 +60,7 @@ const SelectScrollUpButton = React.forwardRef<
     ref={ref}
     className={cn('flex cursor-default items-center justify-center py-1', className)}
     {...props}>
-    <div className="flex h-4 w-4 items-center justify-center">
+    <div className="flex items-center justify-center">
       <ChevronUp />
     </div>
   </SelectPrimitive.ScrollUpButton>
@@ -76,7 +75,7 @@ const SelectScrollDownButton = React.forwardRef<
     ref={ref}
     className={cn('flex cursor-default items-center justify-center py-1', className)}
     {...props}>
-    <div className="flex h-4 w-4 items-center justify-center">
+    <div className="flex items-center justify-center">
       <ChevronDown />
     </div>
   </SelectPrimitive.ScrollDownButton>
@@ -134,39 +133,39 @@ const SelectItem = React.forwardRef<
     index?: number;
     icon?: React.ReactNode;
   }
->(({ className, children, icon, secondaryChildren, index, ...props }, ref) => (
-  <SelectPrimitive.Item
-    ref={ref}
-    className={cn(
-      'focus:bg-item-hover focus:text-foreground cursor-pointer disabled:cursor-not-allowed disabled:opacity-60',
-      'relative flex w-full cursor-default items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-60',
-      className
-    )}
-    {...props}>
-    <div className="flex flex-col gap-y-0.5">
-      <div className="flex items-center gap-x-1.5">
-        {icon && <span className="text-icon-color">{icon}</span>}
-        <SelectPrimitive.ItemText className="flex h-full items-center">
-          {children}
-        </SelectPrimitive.ItemText>
-      </div>
-      {secondaryChildren && <span className="text-gray-light text-xs">{secondaryChildren}</span>}
-    </div>
-
-    <div className="flex items-center gap-x-1">
-      <SelectPrimitive.ItemIndicator>
-        <div className="flex h-4 w-4 items-center justify-center">
-          <Check />
-        </div>
-      </SelectPrimitive.ItemIndicator>
-      {index !== undefined && (
-        <span className="text-gray-light flex min-w-2 items-center justify-center text-xs">
-          {index}
-        </span>
+>(({ className, children, icon, secondaryChildren, index, ...props }, ref) => {
+  return (
+    <SelectPrimitive.Item
+      ref={ref}
+      className={cn(
+        'data-[highlighted]:bg-item-hover focus:text-foreground cursor-pointer disabled:cursor-not-allowed disabled:opacity-60',
+        'data-[state=checked]:bg-item-select! relative flex w-full cursor-pointer items-center justify-between rounded-sm px-2 py-1.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-60',
+        className
       )}
-    </div>
-  </SelectPrimitive.Item>
-));
+      {...props}>
+      <div className="flex flex-col gap-y-0.5">
+        <div className="flex items-center gap-x-1.5">
+          {icon && <span className="text-icon-color">{icon}</span>}
+          <SelectPrimitive.ItemText className="flex h-full items-center">
+            {children}
+          </SelectPrimitive.ItemText>
+        </div>
+        {secondaryChildren && <span className="text-gray-light text-xs">{secondaryChildren}</span>}
+      </div>
+
+      <div className="flex items-center gap-x-1">
+        <SelectPrimitive.ItemIndicator>
+          <Check />
+        </SelectPrimitive.ItemIndicator>
+        {index !== undefined && (
+          <span className="text-gray-light flex min-w-2 items-center justify-center text-xs">
+            {index}
+          </span>
+        )}
+      </div>
+    </SelectPrimitive.Item>
+  );
+});
 SelectItem.displayName = SelectPrimitive.Item.displayName;
 
 const SelectSeparator = React.forwardRef<
