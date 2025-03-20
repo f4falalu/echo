@@ -116,7 +116,12 @@ export const MetricItemsContainer: React.FC<{
         columns={columns}
         onSelectChange={onSelectChange}
         selectedRowKeys={selectedRowKeys}
-        emptyState={<EmptyState loading={loading} />}
+        emptyState={useMemo(
+          () => (
+            <EmptyState loading={loading} />
+          ),
+          [loading]
+        )}
       />
 
       <MetricSelectedOptionPopup

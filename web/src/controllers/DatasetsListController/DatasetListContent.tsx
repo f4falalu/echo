@@ -84,19 +84,21 @@ export const DatasetListContent: React.FC<{
           rows={rows}
           selectedRowKeys={selectedRowKeys}
           onSelectChange={setSelectedRowKeys}
-          emptyState={
-            !isFetchedDatasets ? (
-              <></>
-            ) : (
-              <ListEmptyStateWithButton
-                isAdmin={isAdmin}
-                title="You don't have any datasets yet."
-                buttonText="New dataset"
-                description="Datasets help you organize your data. Datasets will appear here when you create them."
-                onClick={onClickEmptyState}
-              />
-            )
-          }
+          emptyState={useMemo(
+            () =>
+              !isFetchedDatasets ? (
+                <></>
+              ) : (
+                <ListEmptyStateWithButton
+                  isAdmin={isAdmin}
+                  title="You don't have any datasets yet."
+                  buttonText="New dataset"
+                  description="Datasets help you organize your data. Datasets will appear here when you create them."
+                  onClick={onClickEmptyState}
+                />
+              ),
+            [isFetchedDatasets, isAdmin, onClickEmptyState]
+          )}
         />
 
         <DatasetSelectedOptionPopup
