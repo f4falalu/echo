@@ -72,7 +72,7 @@ The implementation will be broken down into four separate PRDs, each focusing on
 4. [Remove Metric from Collections REST Endpoint](api_remove_metric_from_collections.md)
 5. [Add Assets to Collection REST Endpoint](api_add_assets_to_collection.md)
 6. [Remove Assets from Collection REST Endpoint](api_remove_assets_from_collection.md)
-7. [Add Dashboard to Collections REST Endpoint](api_add_dashboard_to_collections.md)
+7. ✅ [Add Dashboard to Collections REST Endpoint](api_add_dashboard_to_collections.md)
 8. [Remove Dashboard from Collections REST Endpoint](api_remove_dashboards_from_collection.md)
 9. [Add Metric to Collections REST Endpoint](api_add_metric_to_collections.md)
 10. [Remove Metric from Collections REST Endpoint](api_remove_metrics_from_collection.md)
