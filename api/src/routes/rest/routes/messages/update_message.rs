@@ -5,7 +5,7 @@ use axum::{
 };
 use handlers::messages::update_message_handler;
 use middleware::AuthenticatedUser;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::routes::rest::ApiResponse;

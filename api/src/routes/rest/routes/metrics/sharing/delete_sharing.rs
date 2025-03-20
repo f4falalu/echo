@@ -5,7 +5,6 @@ use axum::{
 };
 use handlers::metrics::sharing::delete_metric_sharing_handler;
 use middleware::AuthenticatedUser;
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::routes::rest::ApiResponse;

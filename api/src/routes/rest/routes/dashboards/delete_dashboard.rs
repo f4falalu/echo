@@ -10,7 +10,6 @@ use handlers::dashboards::{
 use middleware::AuthenticatedUser;
 use axum::http::StatusCode;
 
-use crate::routes::rest::ApiResponse;
 
 pub async fn delete_dashboards_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,

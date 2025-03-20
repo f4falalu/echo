@@ -1,7 +1,6 @@
-use axum::{extract::State, http::StatusCode, Extension, Json};
+use axum::{http::StatusCode, Extension, Json};
 use handlers::collections::{create_collection_handler, CollectionState, CreateCollectionRequest};
 use middleware::AuthenticatedUser;
-use uuid::Uuid;
 
 /// Create a new collection
 ///

@@ -5,7 +5,7 @@ use axum::{
 };
 use handlers::collections::sharing::list_collection_sharing_handler;
 use middleware::AuthenticatedUser;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use uuid::Uuid;
 
 use crate::routes::rest::ApiResponse;
