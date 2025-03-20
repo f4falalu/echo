@@ -7,6 +7,13 @@ use diesel::AsChangeset;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BusterShareIndividual {
+    pub email: String,
+    pub role: AssetPermissionRole,
+    pub name: Option<String>,
+}
+
 // List collections types
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ListCollectionsFilter {
@@ -68,10 +75,14 @@ pub struct CollectionState {
     #[serde(flatten)]
     pub collection: Collection,
     pub permission: AssetPermissionRole,
-    // pub individual_permissions: Option<Vec<database::utils::sharing::asset_sharing::IndividualPermission>>,
-    // pub team_permissions: Option<Vec<database::utils::sharing::asset_sharing::TeamPermissions>>,
     pub organization_permissions: bool,
     pub assets: Option<Vec<CollectionAsset>>,
+    // Sharing fields
+    pub individual_permissions: Option<Vec<BusterShareIndividual>>,
+    pub publicly_accessible: bool,
+    pub public_expiry_date: Option<DateTime<Utc>>,
+    pub public_enabled_by: Option<String>,
+    pub public_password: Option<String>,
 }
 
 // Create collection types

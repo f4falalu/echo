@@ -144,5 +144,10 @@ pub async fn create_collection_handler(
         assets: None,
         permission: AssetPermissionRole::Owner,
         organization_permissions: false,
+        individual_permissions: None,
+        publicly_accessible: false,
+        public_expiry_date: None,
+        public_enabled_by: None,
+        public_password: None,
     })
 }

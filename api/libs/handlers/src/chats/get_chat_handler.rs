@@ -7,10 +7,11 @@ use serde_json::Value;
 use tokio;
 use uuid::Uuid;
 
-use crate::chats::types::ChatWithMessages;
+use crate::chats::types::{BusterShareIndividual, ChatWithMessages};
 use crate::messages::types::{ChatMessage, ChatUserMessage};
+use database::enums::{AssetPermissionRole, AssetType, IdentityType};
 use database::pool::get_pg_pool;
-use database::schema::{chats, messages, users};
+use database::schema::{asset_permissions, chats, messages, users};
 
 #[derive(Queryable)]
 pub struct ChatWithUser {
@@ -35,6 +36,14 @@ pub struct MessageWithUser {
     pub user_id: Uuid,
     pub user_name: Option<String>,
     pub user_attributes: Value,
+}
+
+#[derive(Queryable)]
+struct AssetPermissionInfo {
+    identity_id: Uuid,
+    role: AssetPermissionRole,
+    email: String,
+    name: Option<String>,
 }
 
 pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWithMessages> {
@@ -99,8 +108,50 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
         })
     };
 
-    // Wait for both queries and handle errors
-    let (thread, messages) = tokio::try_join!(
+    // Run permission query concurrently as well
+    let permissions_future = {
+        let mut conn = match get_pg_pool().get().await {
+            Ok(conn) => conn,
+            Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
+        };
+
+        let chat_id = chat_id.clone();
+        
+        tokio::spawn(async move {
+            // Query individual permissions for this chat
+            let permissions = asset_permissions::table
+                .inner_join(users::table.on(users::id.eq(asset_permissions::identity_id)))
+                .filter(asset_permissions::asset_id.eq(chat_id))
+                .filter(asset_permissions::asset_type.eq(AssetType::Chat))
+                .filter(asset_permissions::identity_type.eq(IdentityType::User))
+                .filter(asset_permissions::deleted_at.is_null())
+                .select((
+                    asset_permissions::identity_id,
+                    asset_permissions::role,
+                    users::email,
+                    users::name,
+                ))
+                .load::<AssetPermissionInfo>(&mut conn)
+                .await;
+                
+            // Query publicly_accessible and related fields
+            let public_info = chats::table
+                .filter(chats::id.eq(chat_id))
+                .select((
+                    chats::publicly_accessible,
+                    chats::publicly_enabled_by,
+                    chats::public_expiry_date,
+                ))
+                .first::<(bool, Option<Uuid>, Option<DateTime<Utc>>)>(&mut conn)
+                .await;
+                
+            // Return both results
+            (permissions, public_info)
+        })
+    };
+
+    // Wait for all queries and handle errors
+    let (thread, messages, permissions_and_public_info) = tokio::try_join!(
         async move {
             thread_future
                 .await
@@ -115,8 +166,16 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                 .await
                 .map_err(|e| anyhow!("Messages task failed: {}", e))?
                 .map_err(|e| anyhow!("Failed to load messages: {}", e))
+        },
+        async move {
+            permissions_future
+                .await
+                .map_err(|e| anyhow!("Permissions task failed: {}", e))
         }
     )?;
+
+    // Unpack the permissions and public info results
+    let (permissions_result, public_info_result) = permissions_and_public_info;
 
     // Transform messages into ThreadMessage format
     let thread_messages: Vec<ChatMessage> = messages
@@ -166,8 +225,54 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
         .and_then(|v| v.as_str())
         .map(String::from);
 
-    // Construct and return the ThreadWithMessages using new_with_messages
-    Ok(ChatWithMessages::new_with_messages(
+    // Process permissions data
+    let individual_permissions = match permissions_result {
+        Ok(permissions) => {
+            if permissions.is_empty() {
+                None
+            } else {
+                Some(
+                    permissions
+                        .into_iter()
+                        .map(|p| BusterShareIndividual {
+                            email: p.email,
+                            role: p.role,
+                            name: p.name,
+                        })
+                        .collect::<Vec<BusterShareIndividual>>(),
+                )
+            }
+        }
+        Err(_) => None,
+    };
+
+    // Get public access info
+    let (publicly_accessible, publicly_enabled_by, public_expiry_date) = match public_info_result {
+        Ok((accessible, enabled_by_id, expiry)) => {
+            // Get the user info for publicly_enabled_by if it exists
+            let enabled_by_email = if let Some(enabled_by_id) = enabled_by_id {
+                let mut conn = match get_pg_pool().get().await {
+                    Ok(conn) => conn,
+                    Err(_) => return Err(anyhow!("Failed to get database connection")),
+                };
+                
+                users::table
+                    .filter(users::id.eq(enabled_by_id))
+                    .select(users::email)
+                    .first::<String>(&mut conn)
+                    .await
+                    .ok()
+            } else {
+                None
+            };
+            
+            (accessible, enabled_by_email, expiry)
+        }
+        Err(_) => (false, None, None),
+    };
+
+    // Construct and return the ChatWithMessages with permissions
+    let chat = ChatWithMessages::new_with_messages(
         thread.id,
         thread.title,
         thread_messages,
@@ -175,5 +280,13 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
         thread.user_id.to_string(),
         thread.user_name.unwrap_or_else(|| "Unknown".to_string()),
         created_by_avatar,
+    );
+    
+    // Add permissions
+    Ok(chat.with_permissions(
+        individual_permissions,
+        publicly_accessible,
+        public_expiry_date,
+        publicly_enabled_by
     ))
 }

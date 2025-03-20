@@ -20,8 +20,8 @@ use crate::collections::types::DeleteCollectionResponse;
 /// # Returns
 /// * `Result<DeleteCollectionResponse>` - The IDs of the collections that were successfully deleted
 pub async fn delete_collection_handler(
-    user_id: &Uuid,
-    organization_id: &Uuid,
+    _user_id: &Uuid,
+    _organization_id: &Uuid,
     ids: Vec<Uuid>,
 ) -> Result<DeleteCollectionResponse> {
 

@@ -2,8 +2,17 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use database::enums::AssetPermissionRole;
+use chrono::{DateTime, Utc};
 
 use crate::messages::types::ChatMessage;
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BusterShareIndividual {
+    pub email: String,
+    pub role: AssetPermissionRole,
+    pub name: Option<String>,
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChatWithMessages {
@@ -18,6 +27,12 @@ pub struct ChatWithMessages {
     pub created_by_id: String,
     pub created_by_name: String,
     pub created_by_avatar: Option<String>,
+    // Sharing fields
+    pub individual_permissions: Option<Vec<BusterShareIndividual>>,
+    pub publicly_accessible: bool,
+    pub public_expiry_date: Option<DateTime<Utc>>,
+    pub public_enabled_by: Option<String>,
+    pub public_password: Option<String>,
 }
 
 impl ChatWithMessages {
@@ -40,6 +55,11 @@ impl ChatWithMessages {
             created_by_id,
             created_by_name,
             created_by_avatar,
+            individual_permissions: None,
+            publicly_accessible: false,
+            public_expiry_date: None,
+            public_enabled_by: None,
+            public_password: None,
         }
     }
 
@@ -75,7 +95,27 @@ impl ChatWithMessages {
             created_by_id,
             created_by_name,
             created_by_avatar,
+            // Default values for sharing fields
+            individual_permissions: None,
+            publicly_accessible: false,
+            public_expiry_date: None,
+            public_enabled_by: None,
+            public_password: None,
         }
+    }
+    
+    pub fn with_permissions(
+        mut self,
+        individual_permissions: Option<Vec<BusterShareIndividual>>,
+        publicly_accessible: bool,
+        public_expiry_date: Option<DateTime<Utc>>,
+        public_enabled_by: Option<String>,
+    ) -> Self {
+        self.individual_permissions = individual_permissions;
+        self.publicly_accessible = publicly_accessible;
+        self.public_expiry_date = public_expiry_date;
+        self.public_enabled_by = public_enabled_by;
+        self
     }
 
     pub fn add_message(&mut self, message: ChatMessage) {
@@ -96,6 +136,3 @@ impl ChatWithMessages {
         self.updated_at = chrono::Utc::now().to_rfc3339();
     }
 }
-
-
-
