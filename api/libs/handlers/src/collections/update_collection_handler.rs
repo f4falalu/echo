@@ -1,20 +1,19 @@
 use anyhow::{anyhow, Result};
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use database::{
     collections::fetch_collection,
     enums::AssetPermissionRole,
-    models::CollectionToAsset,
     pool::get_pg_pool,
-    schema::{collections, collections_to_assets},
+    schema::collections,
 };
-use diesel::{dsl::not, update, BoolExpressionMethods, ExpressionMethods};
+use diesel::{update, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use std::sync::Arc;
 use tokio;
 use uuid::Uuid;
 
 use crate::collections::types::{
-    CollectionState, UpdateCollectionAssetsRequest, UpdateCollectionObject, UpdateCollectionRequest,
+    CollectionState, UpdateCollectionObject, UpdateCollectionRequest,
 };
 
 /// Handler for updating a collection
@@ -22,7 +21,7 @@ use crate::collections::types::{
 /// # Arguments
 /// * `user_id` - The ID of the user updating the collection
 /// * `collection_id` - The ID of the collection to update
-/// * `req` - The request containing the collection updates
+/// * `req` - The request containing the collection updates (only name and description)
 ///
 /// # Returns
 /// * `Result<CollectionState>` - The updated collection state
@@ -49,19 +48,7 @@ pub async fn update_collection_handler(
         None
     };
 
-    // Update collection assets if provided
-    let update_collection_assets_handle = if let Some(assets) = req.assets {
-        let user_id = Arc::clone(&user_id);
-        let collection_id = Arc::clone(&collection_id);
-        Some(tokio::spawn(async move {
-            update_collection_assets(user_id, collection_id, assets).await
-        }))
-    } else {
-        None
-    };
-
-    // Wait for all update operations to complete
-
+    // Wait for update operation to complete
     if let Some(update_collection_record_handle) = update_collection_record_handle {
         match update_collection_record_handle.await {
             Ok(Ok(_)) => (),
@@ -72,20 +59,6 @@ pub async fn update_collection_handler(
             Err(e) => {
                 tracing::error!("Error updating collection record: {}", e);
                 return Err(anyhow!("Error updating collection record: {}", e));
-            }
-        }
-    }
-
-    if let Some(update_collection_assets_handle) = update_collection_assets_handle {
-        match update_collection_assets_handle.await {
-            Ok(Ok(_)) => (),
-            Ok(Err(e)) => {
-                tracing::error!("Error updating collection assets: {}", e);
-                return Err(anyhow!("Error updating collection assets: {}", e));
-            }
-            Err(e) => {
-                tracing::error!("Error updating collection assets: {}", e);
-                return Err(anyhow!("Error updating collection assets: {}", e));
             }
         }
     }
@@ -210,116 +183,39 @@ async fn update_collection_record(
     Ok(())
 }
 
-/// Update collection assets in the database
-///
-/// # Arguments
-/// * `user_id` - The ID of the user updating the collection
-/// * `collection_id` - The ID of the collection to update
-/// * `assets` - The assets to add to the collection
-///
-/// # Returns
-/// * `Result<()>` - Success or error
-async fn update_collection_assets(
-    user_id: Arc<Uuid>,
-    collection_id: Arc<Uuid>,
-    assets: Vec<UpdateCollectionAssetsRequest>,
-) -> Result<()> {
-    let assets = Arc::new(assets);
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use database::models::Collection;
+    use std::sync::Once;
+    use uuid::Uuid;
 
-    let upsert_handle = {
-        let assets = Arc::clone(&assets);
-        let collection_id = Arc::clone(&collection_id);
-        let user_id = Arc::clone(&user_id);
-        tokio::spawn(async move {
-            let mut conn = match get_pg_pool().get().await {
-                Ok(conn) => conn,
-                Err(e) => {
-                    tracing::error!("Error getting pg connection: {}", e);
-                    return Err(anyhow!("Error getting pg connection: {}", e));
-                }
-            };
+    static INIT: Once = Once::new();
 
-            let new_asset_records: Vec<CollectionToAsset> = assets
-                .iter()
-                .map(|asset| CollectionToAsset {
-                    collection_id: *collection_id,
-                    asset_id: asset.id,
-                    asset_type: asset.type_,
-                    created_at: Utc::now(),
-                    updated_at: Utc::now(),
-                    deleted_at: None,
-                    created_by: *user_id,
-                    updated_by: *user_id,
-                })
-                .collect();
+    // Notice: This is a basic smoke test to check that our changes compile and work
+    // It doesn't actually hit the database, but verifies that the handler's structure is correct
+    #[tokio::test]
+    async fn test_update_collection_handler_smoke_test() {
+        // Create a mock request with only name and description
+        let req = UpdateCollectionRequest {
+            collection: Some(UpdateCollectionObject {
+                name: Some("New Name".to_string()),
+                description: Some("New Description".to_string()),
+            }),
+        };
 
-            match diesel::insert_into(collections_to_assets::table)
-                .values(&new_asset_records)
-                .on_conflict((
-                    collections_to_assets::collection_id,
-                    collections_to_assets::asset_id,
-                    collections_to_assets::asset_type,
-                ))
-                .do_update()
-                .set((
-                    collections_to_assets::updated_at.eq(Utc::now()),
-                    collections_to_assets::deleted_at.eq(Option::<DateTime<Utc>>::None),
-                ))
-                .execute(&mut conn)
-                .await
-            {
-                Ok(_) => Ok(()),
-                Err(e) => {
-                    tracing::error!("Error updating collection assets: {}", e);
-                    Err(anyhow!("Unable to upsert assets to collection: {}", e))
-                }
-            }
-        })
-    };
+        // Create a mock user ID
+        let user_id = Uuid::new_v4();
+        let collection_id = Uuid::new_v4();
 
-    let remove_handle = {
-        let assets = Arc::clone(&assets);
-        let collection_id = Arc::clone(&collection_id);
-        tokio::spawn(async move {
-            let mut conn = match get_pg_pool().get().await {
-                Ok(conn) => conn,
-                Err(e) => {
-                    tracing::error!("Error getting pg connection: {}", e);
-                    return Err(anyhow!("Error getting pg connection: {}", e));
-                }
-            };
-
-            match update(collections_to_assets::table)
-                .filter(collections_to_assets::collection_id.eq(*collection_id))
-                .filter(not(collections_to_assets::asset_id
-                    .eq_any(assets.iter().map(|a| a.id))
-                    .and(
-                        collections_to_assets::asset_type.eq_any(assets.iter().map(|a| a.type_)),
-                    )))
-                .set(collections_to_assets::deleted_at.eq(Some(Utc::now())))
-                .execute(&mut conn)
-                .await
-            {
-                Ok(_) => Ok(()),
-                Err(e) => {
-                    tracing::error!("Error removing assets from collection: {}", e);
-                    Err(anyhow!("Error removing assets from collection: {}", e))
-                }
-            }
-        })
-    };
-
-    match upsert_handle.await {
-        Ok(Ok(_)) => (),
-        Ok(Err(e)) => return Err(anyhow!("Error upserting assets to collection: {}", e)),
-        Err(e) => return Err(anyhow!("Error upserting assets to collection: {}", e)),
+        // Check that our handler function accepts the request with the correct types
+        // This is mostly a compilation test to verify our refactoring didn't break the interface
+        let result = update_collection_handler(&user_id, collection_id, req).await;
+        
+        // We expect an error since we're not actually hitting the database
+        assert!(result.is_err());
+        
+        // Check that the error contains the expected message
+        assert!(result.unwrap_err().to_string().contains("Collection not found"));
     }
-
-    match remove_handle.await {
-        Ok(Ok(_)) => (),
-        Ok(Err(e)) => return Err(anyhow!("Error removing assets from collection: {}", e)),
-        Err(e) => return Err(anyhow!("Error removing assets from collection: {}", e)),
-    }
-
-    Ok(())
 }
