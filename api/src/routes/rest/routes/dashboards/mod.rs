@@ -5,12 +5,14 @@ use axum::{
 };
 
 // Modules for dashboard endpoints
+mod create_dashboard;
 mod get_dashboard;
 mod list_dashboards;
 mod sharing;
 
 pub fn router() -> Router {
     Router::new()
+        .route("/", post(create_dashboard::create_dashboard_rest_handler))
         .route("/:id", get(get_dashboard::get_dashboard_rest_handler))
         .route("/", get(list_dashboards::list_dashboard_rest_handler))
         .route(
