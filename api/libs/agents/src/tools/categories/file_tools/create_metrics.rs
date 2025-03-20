@@ -12,11 +12,8 @@ use database::{
 };
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
-use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use tracing::debug;
-use uuid::Uuid;
 
 use crate::{
     agent::Agent,
@@ -29,10 +26,7 @@ use crate::{
     },
 };
 
-use super::{
-    common::{generate_deterministic_uuid, validate_sql},
-    FileModificationTool,
-};
+use super::FileModificationTool;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MetricFileParams {
