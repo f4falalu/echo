@@ -101,7 +101,12 @@ export const UserDatasetListContainer = React.memo(
           rows={rows}
           showHeader={false}
           showSelectAll={false}
-          emptyState={<EmptyStateList text="No datasets found" />}
+          emptyState={useMemo(
+            () => (
+              <EmptyStateList text="No datasets found" />
+            ),
+            []
+          )}
         />
       </InfiniteListContainer>
     );

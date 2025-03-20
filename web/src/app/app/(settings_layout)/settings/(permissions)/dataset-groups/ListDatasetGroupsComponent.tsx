@@ -6,8 +6,8 @@ import {
 } from '@/components/ui/list';
 import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import React, { useMemo } from 'react';
-import { BusterRoutes, createBusterRoute } from '@/routes';
 import type { DatasetGroup } from '@/api/asset_interfaces';
+import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 
 export const ListDatasetGroupsComponent: React.FC<{
   datasetGroups: DatasetGroup[];
@@ -24,19 +24,17 @@ export const ListDatasetGroupsComponent: React.FC<{
   );
 
   const datasetGroupsRows: BusterListRowItem[] = useMemo(() => {
-    return datasetGroups.reduce<BusterListRowItem[]>((acc, datasetGroup) => {
-      const rowItem: BusterListRowItem = {
-        id: datasetGroup.id,
-        data: datasetGroup,
-        link: createBusterRoute({
-          route: BusterRoutes.SETTINGS_DATASET_GROUPS_ID_DATASETS,
-          datasetGroupId: datasetGroup.id
-        })
-      };
-      acc.push(rowItem);
-      return acc;
-    }, []);
+    return datasetGroups.map((datasetGroup) => ({
+      id: datasetGroup.id,
+      data: datasetGroup,
+      link: createBusterRoute({
+        route: BusterRoutes.SETTINGS_DATASET_GROUPS_ID_DATASETS,
+        datasetGroupId: datasetGroup.id
+      })
+    }));
   }, [datasetGroups]);
+
+  const emptyStateComponent = useMemo(() => <EmptyStateList text="No dataset groups found" />, []);
 
   return (
     <InfiniteListContainer
@@ -54,7 +52,7 @@ export const ListDatasetGroupsComponent: React.FC<{
         showHeader={true}
         showSelectAll={false}
         rowClassName="pl-[30px]!"
-        emptyState={<EmptyStateList text="No dataset groups found" />}
+        emptyState={emptyStateComponent}
       />
     </InfiniteListContainer>
   );

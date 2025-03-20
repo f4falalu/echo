@@ -106,6 +106,11 @@ export const PermissionListPermissionGroupContainer: React.FC<{
     [canQueryPermissionGroups, cannotQueryPermissionGroups, numberOfPermissionGroups]
   );
 
+  const emptyStateComponent = useMemo(
+    () => <EmptyStateList text="No permission groups found" />,
+    []
+  );
+
   return (
     <InfiniteListContainer
       popupNode={
@@ -122,7 +127,7 @@ export const PermissionListPermissionGroupContainer: React.FC<{
         showSelectAll={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={<EmptyStateList text="No permission groups found" />}
+        emptyState={emptyStateComponent}
         useRowClickSelectChange={true}
       />
     </InfiniteListContainer>

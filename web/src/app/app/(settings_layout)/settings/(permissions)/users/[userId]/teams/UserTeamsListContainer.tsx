@@ -128,6 +128,8 @@ export const UserTeamsListContainer: React.FC<{
     [managerTeams, memberTeams, notAMemberTeams]
   );
 
+  const emptyStateComponent = useMemo(() => <EmptyStateList text="No teams found" />, []);
+
   return (
     <InfiniteListContainer
       popupNode={
@@ -145,7 +147,7 @@ export const UserTeamsListContainer: React.FC<{
         useRowClickSelectChange={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={<EmptyStateList text="No datasets found" />}
+        emptyState={emptyStateComponent}
       />
     </InfiniteListContainer>
   );

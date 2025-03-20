@@ -109,9 +109,7 @@ export const PermissionListDatasetGroupContainer: React.FC<{
     [canQueryPermissionGroups, cannotQueryPermissionGroups, numberOfDatasetGroups]
   );
 
-  const memoizedEmptyState = useMemo(() => {
-    return <EmptyStateList text="No dataset groups found" />;
-  }, []);
+  const emptyStateComponent = useMemo(() => <EmptyStateList text="No dataset groups found" />, []);
 
   return (
     <InfiniteListContainer
@@ -130,7 +128,7 @@ export const PermissionListDatasetGroupContainer: React.FC<{
         useRowClickSelectChange={true}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={memoizedEmptyState}
+        emptyState={emptyStateComponent}
       />
     </InfiniteListContainer>
   );

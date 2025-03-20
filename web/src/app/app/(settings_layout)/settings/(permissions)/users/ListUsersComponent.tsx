@@ -94,6 +94,11 @@ export const ListUsersComponent: React.FC<{
     [activeUsers, inactiveUsers]
   );
 
+  const emptyStateComponent = useMemo(
+    () => <EmptyStateList text="No users found" variant="card" show={isFetched} />,
+    [isFetched]
+  );
+
   return (
     <InfiniteListContainer showContainerBorder={false}>
       <BusterInfiniteList
@@ -104,7 +109,7 @@ export const ListUsersComponent: React.FC<{
         rowClassName="pl-[30px]!"
         // onSelectChange={setSelectedRowKeys}
         // selectedRowKeys={selectedRowKeys}
-        emptyState={<EmptyStateList text="No users found" variant="card" show={isFetched} />}
+        emptyState={emptyStateComponent}
       />
     </InfiniteListContainer>
   );

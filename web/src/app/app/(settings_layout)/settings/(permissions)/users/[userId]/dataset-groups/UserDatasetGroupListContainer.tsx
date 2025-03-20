@@ -118,6 +118,8 @@ export const UserDatasetGroupListContainer: React.FC<{
     [canQueryPermissionUsers, cannotQueryPermissionUsers, numberOfDatasetGroups]
   );
 
+  const emptyStateComponent = useMemo(() => <EmptyStateList text="No dataset groups found" />, []);
+
   return (
     <InfiniteListContainer
       popupNode={
@@ -135,7 +137,7 @@ export const UserDatasetGroupListContainer: React.FC<{
         useRowClickSelectChange={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={<EmptyStateList text="No dataset groups found" />}
+        emptyState={emptyStateComponent}
       />
     </InfiniteListContainer>
   );
