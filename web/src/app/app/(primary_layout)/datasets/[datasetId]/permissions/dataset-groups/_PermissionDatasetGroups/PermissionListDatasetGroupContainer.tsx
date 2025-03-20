@@ -13,17 +13,21 @@ import { useMemoizedFn } from '@/hooks';
 import React, { useMemo, useState } from 'react';
 import { PermissionDatasetGroupSelectedPopup } from './PermissionDatasetGroupSelectedPopup';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
+import { Text } from '@/components/ui/typography';
 
 export const PermissionListDatasetGroupContainer: React.FC<{
   filteredDatasetGroups: ListDatasetGroupsResponse[];
   datasetId: string;
 }> = ({ filteredDatasetGroups, datasetId }) => {
-  const { mutateAsync: updateDatasetGroups } = useDatasetUpdateDatasetGroups(datasetId);
+  const { mutateAsync: updateDatasetGroups } = useDatasetUpdateDatasetGroups();
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const numberOfDatasetGroups = filteredDatasetGroups.length;
 
   const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
-    await updateDatasetGroups([params]);
+    await updateDatasetGroups({
+      dataset_id: datasetId,
+      groups: [params]
+    });
   });
 
   const columns: BusterListColumn[] = useMemo(
@@ -31,17 +35,13 @@ export const PermissionListDatasetGroupContainer: React.FC<{
       {
         title: 'Name',
         dataIndex: 'name',
-        width: 270
-      },
-      {
-        title: 'Assigned',
-        dataIndex: 'assigned',
-        render: (assigned: boolean, datasetGroup: ListDatasetGroupsResponse) => {
+        render: (name: string, datasetGroup: ListDatasetGroupsResponse) => {
           return (
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between gap-x-2">
+              <Text>{name}</Text>
               <PermissionAssignedCell
                 id={datasetGroup.id}
-                assigned={assigned}
+                assigned={datasetGroup.assigned}
                 text="assigned"
                 onSelect={onSelectAssigned}
               />
@@ -109,6 +109,10 @@ export const PermissionListDatasetGroupContainer: React.FC<{
     [canQueryPermissionGroups, cannotQueryPermissionGroups, numberOfDatasetGroups]
   );
 
+  const memoizedEmptyState = useMemo(() => {
+    return <EmptyStateList text="No dataset groups found" />;
+  }, []);
+
   return (
     <InfiniteListContainer
       popupNode={
@@ -126,7 +130,7 @@ export const PermissionListDatasetGroupContainer: React.FC<{
         useRowClickSelectChange={true}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={<EmptyStateList text="No dataset groups found" />}
+        emptyState={memoizedEmptyState}
       />
     </InfiniteListContainer>
   );

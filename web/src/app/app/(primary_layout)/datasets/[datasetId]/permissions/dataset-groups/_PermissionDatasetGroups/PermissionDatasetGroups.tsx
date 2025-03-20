@@ -4,10 +4,7 @@ import { useDatasetListDatasetGroups } from '@/api/buster_rest';
 import React, { useState } from 'react';
 import { useDebounceSearch } from '@/hooks';
 import { useMemoizedFn } from '@/hooks';
-import {
-  PermissionSearchAndListWrapper,
-  HeaderExplanation
-} from '@/components/features/PermissionComponents';
+import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';
 import { PermissionListDatasetGroupContainer } from './PermissionListDatasetGroupContainer';
@@ -35,16 +32,10 @@ export const PermissionDatasetGroups: React.FC<{
 
   return (
     <>
-      <HeaderExplanation
-        className="mb-5"
-        title="Dataset groups"
-        description="Manage who can build dashboards & metrics using this dataset"
-      />
-
       <PermissionSearchAndListWrapper
         searchText={searchText}
         handleSearchChange={handleSearchChange}
-        searchPlaceholder="Search by permission group"
+        searchPlaceholder="Search by dataset group"
         searchChildren={React.useMemo(
           () => (
             <Button prefix={<Plus />} onClick={onOpenNewDatasetGroupModal}>

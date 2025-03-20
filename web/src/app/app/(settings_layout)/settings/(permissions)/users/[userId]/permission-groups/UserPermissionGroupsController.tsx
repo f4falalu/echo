@@ -41,7 +41,7 @@ export const UserPermissionGroupsController: React.FC<{ userId: string }> = ({ u
       <PermissionSearchAndListWrapper
         searchText={searchText}
         handleSearchChange={handleSearchChange}
-        searchPlaceholder="Search by permission group"
+        searchPlaceholder="Search by user permission group"
         searchChildren={NewPermissionGroupButton}>
         <UserPermissionGroupsListContainer
           filteredPermissionGroups={filteredItems}

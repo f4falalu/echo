@@ -11,8 +11,6 @@ import type {
   ListDatasetDatasetGroupsParams,
   ListDatasetPermissionUsersParams,
   UpdateDatasetPermissionUsersParams,
-  UpdateDatasetPermissionGroupsParams,
-  UpdateDatasetDatasetGroupsParams,
   GetDatasetPermissionsOverviewParams
 } from '../../../request_interfaces/dataset_permissions';
 
@@ -42,9 +40,13 @@ export const updateDatasetPermissionUsers = async (
   return await mainApi.put(`/datasets/${params.dataset_id}/users`, params.users);
 };
 
-export const updateDatasetPermissionGroups = async (
-  params: UpdateDatasetPermissionGroupsParams
-): Promise<
+export const updateDatasetPermissionGroups = async (params: {
+  dataset_id: string;
+  groups: {
+    id: string;
+    assigned: boolean;
+  }[];
+}): Promise<
   {
     id: string;
     assigned: boolean;
@@ -53,9 +55,13 @@ export const updateDatasetPermissionGroups = async (
   return await mainApi.put(`/datasets/${params.dataset_id}/permission_groups`, params.groups);
 };
 
-export const updateDatasetDatasetGroups = async (
-  params: UpdateDatasetDatasetGroupsParams
-): Promise<void> => {
+export const updateDatasetDatasetGroups = async (params: {
+  dataset_id: string;
+  groups: {
+    id: string;
+    assigned: boolean;
+  }[];
+}): Promise<void> => {
   return await mainApi.put(`/datasets/${params.dataset_id}/dataset_groups`, params.groups);
 };
 

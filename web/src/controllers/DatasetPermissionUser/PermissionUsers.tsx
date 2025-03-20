@@ -37,16 +37,10 @@ export const PermissionUsers: React.FC<{
 
   return (
     <>
-      <HeaderExplanation
-        className="mb-5"
-        title="Dataset users"
-        description="Manage who can build dashboards & metrics using this dataset"
-      />
-
       <PermissionSearchAndListWrapper
         searchText={searchText}
         handleSearchChange={handleSearchChange}
-        searchPlaceholder="Search by permission group"
+        searchPlaceholder="Search by user"
         searchChildren={React.useMemo(
           () => (
             <Button prefix={<Plus />} onClick={openInviteUserModal}>

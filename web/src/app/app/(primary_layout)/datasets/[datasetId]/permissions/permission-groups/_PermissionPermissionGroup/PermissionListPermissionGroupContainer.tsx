@@ -9,18 +9,22 @@ import { PermissionGroupSelectedPopup } from './PermissionGroupSelectedPopup';
 import { InfiniteListContainer } from '@/components/ui/list/InfiniteListContainer';
 import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
+import { Text } from '@/components/ui/typography';
 
 export const PermissionListPermissionGroupContainer: React.FC<{
   filteredPermissionGroups: ListPermissionGroupsResponse[];
   datasetId: string;
 }> = React.memo(({ filteredPermissionGroups, datasetId }) => {
-  const { mutateAsync: updatePermissionGroups } = useDatasetUpdatePermissionGroups(datasetId);
+  const { mutateAsync: updatePermissionGroups } = useDatasetUpdatePermissionGroups();
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const numberOfPermissionGroups = filteredPermissionGroups.length;
 
   const onSelectAssigned = useMemoizedFn(async (params: { id: string; assigned: boolean }) => {
-    updatePermissionGroups([params]);
+    updatePermissionGroups({
+      dataset_id: datasetId,
+      groups: [params]
+    });
   });
 
   const columns: BusterListColumn[] = useMemo(
@@ -28,18 +32,13 @@ export const PermissionListPermissionGroupContainer: React.FC<{
       {
         title: 'Name',
         dataIndex: 'name',
-        width: 270
-      },
-
-      {
-        title: 'Assigned',
-        dataIndex: 'assigned',
-        render: (assigned: boolean, permissionGroup: ListPermissionGroupsResponse) => {
+        render: (name: string, permissionGroup: ListPermissionGroupsResponse) => {
           return (
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between gap-x-2">
+              <Text>{name}</Text>
               <PermissionAssignedCell
                 id={permissionGroup.id}
-                assigned={assigned}
+                assigned={permissionGroup.assigned}
                 text="assigned"
                 onSelect={onSelectAssigned}
               />

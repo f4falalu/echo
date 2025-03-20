@@ -95,7 +95,7 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
               />
             ))}
             {selectedItems.length === 0 && (
-              <span className="text-gray-light text-sm">{placeholder}</span>
+              <span className="text-gray-light text-base">{placeholder}</span>
             )}
           </div>
           {selectedItems.length > 0 && (

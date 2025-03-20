@@ -10,6 +10,8 @@ interface EmptyStateListProps {
 
 export const EmptyStateList = React.memo(
   ({ show = true, text, variant = 'default' }: EmptyStateListProps) => {
+    console.log('hit!', show, text, variant);
+
     if (!show) return null;
 
     if (variant === 'card') {
@@ -27,7 +29,8 @@ export const EmptyStateList = React.memo(
         <Text variant="tertiary">{text}</Text>
       </div>
     );
-  }
+  },
+  () => true
 );
 
 EmptyStateList.displayName = 'EmptyStateList';

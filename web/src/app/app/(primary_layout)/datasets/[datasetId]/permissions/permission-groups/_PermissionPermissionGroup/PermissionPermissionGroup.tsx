@@ -35,11 +35,6 @@ export const PermissionPermissionGroup: React.FC<{
 
   return (
     <>
-      <HeaderExplanation
-        className="mb-5"
-        title="Dataset permissions"
-        description="Manage who can build dashboards & metrics using this dataset"
-      />
       <PermissionSearchAndListWrapper
         searchText={searchText}
         handleSearchChange={handleSearchChange}

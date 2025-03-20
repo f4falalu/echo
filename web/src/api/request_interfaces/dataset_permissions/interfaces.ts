@@ -18,22 +18,6 @@ export interface UpdateDatasetPermissionUsersParams {
   }[];
 }
 
-export interface UpdateDatasetPermissionGroupsParams {
-  dataset_id: string;
-  groups: {
-    id: string;
-    assigned: boolean;
-  }[];
-}
-
-export interface UpdateDatasetDatasetGroupsParams {
-  dataset_id: string;
-  groups: {
-    id: string;
-    assigned: boolean;
-  }[];
-}
-
 export interface GetDatasetPermissionsOverviewParams {
   dataset_id: string;
 }

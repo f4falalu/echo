@@ -70,7 +70,7 @@ export const BusterListRowComponent = React.memo(
             className={cn(
               'border-border flex items-center border-b pr-6',
               checked ? 'bg-primary-background hover:bg-primary-background-hover' : '',
-              isLastChild && hideLastRowBorder ? '!border-b-0' : '',
+              isLastChild && hideLastRowBorder ? 'border-b-0!' : '',
               !onSelectChange ? 'pl-3.5' : '',
               link || row.onClick || (onSelectChange && useRowClickSelectChange)
                 ? 'hover:bg-item-hover cursor-pointer'

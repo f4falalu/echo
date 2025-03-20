@@ -35,17 +35,17 @@ const PermissionGroupAssignButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
   datasetId: string;
 }> = ({ selectedRowKeys, onSelectChange, datasetId }) => {
-  const { mutateAsync: updatePermissionGroups, isPending } =
-    useDatasetUpdatePermissionGroups(datasetId);
+  const { mutateAsync: updatePermissionGroups, isPending } = useDatasetUpdatePermissionGroups();
 
   const onClickItem = useMemoizedFn(async (assigned: boolean) => {
     try {
-      await updatePermissionGroups(
-        selectedRowKeys.map((id) => ({
+      await updatePermissionGroups({
+        dataset_id: datasetId,
+        groups: selectedRowKeys.map((id) => ({
           id,
           assigned
         }))
-      );
+      });
       onSelectChange([]);
     } catch (error) {
       //
