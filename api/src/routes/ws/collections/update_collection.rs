@@ -1,6 +1,5 @@
 use anyhow::{anyhow, Result};
-use chrono::{DateTime, Utc};
-use diesel::{dsl::not, update, AsChangeset, BoolExpressionMethods, ExpressionMethods};
+use diesel::{update, AsChangeset, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use std::sync::Arc;
 use middleware::AuthenticatedUser;
@@ -11,8 +10,7 @@ use uuid::Uuid;
 
 use database::{enums::{AssetPermissionRole, AssetType},
         pool::get_pg_pool,
-        models::CollectionToAsset,
-        schema::{collections, collections_to_assets},};
+        schema::collections};
 use crate::{
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
@@ -32,12 +30,7 @@ use super::{
     collections_router::{CollectionEvent, CollectionRoute},
 };
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct UpdateCollectionAssetsRequest {
-    pub id: Uuid,
-    #[serde(rename = "type")]
-    pub type_: AssetType,
-}
+// UpdateCollectionAssetsRequest removed as per refactoring requirement
 
 #[derive(Debug, Clone, Deserialize, AsChangeset)]
 #[diesel(table_name = collections)]
@@ -51,7 +44,6 @@ pub struct UpdateCollectionRequest {
     pub id: Uuid,
     #[serde(flatten)]
     pub collection: Option<UpdateCollectionObject>,
-    pub assets: Option<Vec<UpdateCollectionAssetsRequest>>,
     pub team_permissions: Option<Vec<ShareWithTeamsReqObject>>,
     pub user_permissions: Option<Vec<ShareWithUsersReqObject>>,
     pub remove_teams: Option<Vec<Uuid>>,
@@ -131,20 +123,7 @@ pub async fn update_collection(
         None
     };
 
-    let update_collection_assets_handle = if let Some(assets) = req.assets {
-        let user_id = Arc::clone(&user_id);
-        let collection_id = Arc::clone(&collection_id);
-        Some(tokio::spawn(async move {
-            match update_collection_assets(user_id, collection_id, assets).await {
-                Ok(_) => Ok(()),
-                Err(e) => {
-                    return Err(e);
-                }
-            }
-        }))
-    } else {
-        None
-    };
+    // Assets handling has been removed as per refactoring requirement
 
     let update_collection_permissions_handle = if req.team_permissions.is_some()
         || req.user_permissions.is_some()
@@ -197,16 +176,7 @@ pub async fn update_collection(
         }
     }
 
-    if let Some(update_collection_assets_handle) = update_collection_assets_handle {
-        match update_collection_assets_handle.await {
-            Ok(_) => (),
-            Err(e) => {
-                tracing::error!("Error updating collection assets: {}", e);
-                send_sentry_error(&e.to_string(), None);
-                return Err(anyhow!("Error updating collection assets: {}", e));
-            }
-        }
-    }
+    // Assets update handling removed as per refactoring requirement
 
     let collection = match get_collection_by_id(&user.id, &req.id).await {
         Ok(collection) => collection,
@@ -331,104 +301,4 @@ async fn update_collection_record(
     Ok(())
 }
 
-async fn update_collection_assets(
-    user_id: Arc<Uuid>,
-    collection_id: Arc<Uuid>,
-    assets: Vec<UpdateCollectionAssetsRequest>,
-) -> Result<()> {
-    let assets = Arc::new(assets);
-
-    let upsert_handle = {
-        let assets = Arc::clone(&assets);
-        let collection_id = Arc::clone(&collection_id);
-        let user_id = Arc::clone(&user_id);
-        let mut conn = get_pg_pool().get().await?;
-        tokio::spawn(async move {
-            let new_asset_records: Vec<CollectionToAsset> = assets
-                .iter()
-                .map(|asset| CollectionToAsset {
-                    collection_id: *collection_id,
-                    asset_id: asset.id,
-                    asset_type: asset.type_,
-                    created_at: chrono::Utc::now(),
-                    updated_at: chrono::Utc::now(),
-                    deleted_at: None,
-                    created_by: *user_id,
-                    updated_by: *user_id,
-                })
-                .collect();
-            match diesel::insert_into(collections_to_assets::table)
-                .values(&new_asset_records)
-                .on_conflict((
-                    collections_to_assets::collection_id,
-                    collections_to_assets::asset_id,
-                    collections_to_assets::asset_type,
-                ))
-                .do_update()
-                .set((
-                    collections_to_assets::updated_at.eq(chrono::Utc::now()),
-                    collections_to_assets::deleted_at.eq(Option::<DateTime<Utc>>::None),
-                ))
-                .execute(&mut conn)
-                .await
-            {
-                Ok(_) => Ok(()),
-                Err(e) => {
-                    tracing::error!("Error updating collection assets: {}", e);
-                    Err(anyhow!("Unable to upsert assets to collection: {}", e))
-                }
-            }
-        })
-    };
-
-    let remove_handle = {
-        let assets = Arc::clone(&assets);
-        let collection_id = Arc::clone(&collection_id);
-        let mut conn = get_pg_pool().get().await?;
-        tokio::spawn(async move {
-            match update(collections_to_assets::table)
-                .filter(collections_to_assets::collection_id.eq(*collection_id))
-                .filter(not(collections_to_assets::asset_id
-                    .eq_any(assets.iter().map(|a| a.id))
-                    .and(
-                        collections_to_assets::asset_type.eq_any(assets.iter().map(|a| a.type_)),
-                    )))
-                .set(collections_to_assets::deleted_at.eq(Some(chrono::Utc::now())))
-                .execute(&mut conn)
-                .await
-            {
-                Ok(_) => Ok(()),
-                Err(e) => {
-                    tracing::error!("Error removing assets from collection: {}", e);
-                    Err(anyhow!("Error removing assets from collection: {}", e))
-                }
-            }
-        })
-    };
-
-    match upsert_handle.await {
-        Ok(Ok(_)) => (),
-        Ok(Err(e)) => {
-            tracing::error!("Error upserting assets to collection: {}", e);
-            return Err(anyhow!("Error upserting assets to collection: {}", e));
-        }
-        Err(e) => {
-            tracing::error!("Error upserting assets to collection: {}", e);
-            return Err(anyhow!("Error upserting assets to collection: {}", e));
-        }
-    }
-
-    match remove_handle.await {
-        Ok(Ok(_)) => (),
-        Ok(Err(e)) => {
-            tracing::error!("Error removing assets from collection: {}", e);
-            return Err(anyhow!("Error removing assets from collection: {}", e));
-        }
-        Err(e) => {
-            tracing::error!("Error removing assets from collection: {}", e);
-            return Err(anyhow!("Error removing assets from collection: {}", e));
-        }
-    }
-
-    Ok(())
-}
+// update_collection_assets function removed as per refactoring requirement
