@@ -1,4 +1,5 @@
 // Collections handlers module
+mod add_dashboards_to_collection_handler;
 mod create_collection_handler;
 mod delete_collection_handler;
 mod get_collection_handler;
@@ -12,6 +13,7 @@ pub mod sharing;
 pub use types::*;
 
 // Re-export handlers
+pub use add_dashboards_to_collection_handler::add_dashboards_to_collection_handler;
 pub use create_collection_handler::create_collection_handler;
 pub use delete_collection_handler::delete_collection_handler;
 pub use get_collection_handler::get_collection_handler;

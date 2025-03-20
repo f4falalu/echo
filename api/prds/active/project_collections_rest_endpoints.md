@@ -65,10 +65,17 @@ The implementation will be divided into the following components:
 
 The implementation will be broken down into four separate PRDs, each focusing on a specific endpoint. These PRDs can be worked on concurrently by different developers:
 
-1. [Add Dashboards to Collection REST Endpoint](api_add_dashboards_to_collection.md)
-2. [Remove Dashboards from Collection REST Endpoint](api_remove_dashboards_from_collection.md)
-3. [Add Metrics to Collection REST Endpoint](api_add_metrics_to_collection.md)
-4. [Remove Metrics from Collection REST Endpoint](api_remove_metrics_from_collection.md) ✅
+1. [Add Dashboard to Collections REST Endpoint](api_add_dashboard_to_collections.md)
+2. [Remove Dashboard from Collections REST Endpoint](api_remove_dashboard_from_collections.md)
+3. [Add Metric to Collections REST Endpoint](api_add_metric_to_collections.md)
+4. [Remove Metric from Collections REST Endpoint](api_remove_metric_from_collections.md)
+5. [Add Assets to Collection REST Endpoint](api_add_assets_to_collection.md)
+6. [Remove Assets from Collection REST Endpoint](api_remove_assets_from_collection.md)
+7. ✅ [Add Dashboards to Collection REST Endpoint](api_add_dashboards_to_collection.md)
+
+Additionally, we have a separate PRD for the concurrent asset existence checking approach:
+
+7. [Concurrent Asset Existence Checking](concurrent_asset_existence_checking.md)
 
 ### Phase 1: Implementation of Individual Endpoints
 
@@ -124,7 +131,11 @@ Each PRD will include its own detailed testing strategy, but at a high level:
 ## Appendix
 
 ### Related PRDs
-- [Add Dashboards to Collection REST Endpoint](api_add_dashboards_to_collection.md)
-- [Remove Dashboards from Collection REST Endpoint](api_remove_dashboards_from_collection.md)
-- [Add Metrics to Collection REST Endpoint](api_add_metrics_to_collection.md)
-- [Remove Metrics from Collection REST Endpoint](api_remove_metrics_from_collection.md) ✅
+- [Add Dashboard to Collections REST Endpoint](api_add_dashboard_to_collections.md)
+- [Remove Dashboard from Collections REST Endpoint](api_remove_dashboard_from_collections.md)
+- [Add Metric to Collections REST Endpoint](api_add_metric_to_collections.md)
+- [Remove Metric from Collections REST Endpoint](api_remove_metric_from_collections.md)
+- [Add Assets to Collection REST Endpoint](api_add_assets_to_collection.md)
+- [Remove Assets from Collection REST Endpoint](api_remove_assets_from_collection.md)
+- ✅ [Add Dashboards to Collection REST Endpoint](api_add_dashboards_to_collection.md)
+- [Concurrent Asset Existence Checking](concurrent_asset_existence_checking.md)
