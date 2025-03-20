@@ -6,10 +6,32 @@ use database::{
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// Handler to delete (mark as deleted) a metric by ID
-pub async fn delete_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<()> {
+/// Request structure for bulk metric deletion
+#[derive(Debug, Deserialize)]
+pub struct DeleteMetricsRequest {
+    pub ids: Vec<Uuid>,
+}
+
+/// Response structure for bulk metric deletion
+#[derive(Debug, Serialize)]
+pub struct DeleteMetricsResponse {
+    pub successful_ids: Vec<Uuid>,
+    pub failed_ids: Vec<DeleteMetricFailure>,
+}
+
+/// Structure representing a failed metric deletion
+#[derive(Debug, Serialize)]
+pub struct DeleteMetricFailure {
+    pub id: Uuid,
+    pub reason: String,
+}
+
+/// Handler to delete (mark as deleted) a single metric by ID
+/// Kept for backward compatibility
+pub async fn delete_metric_handler(metric_id: &Uuid, _user_id: &Uuid) -> Result<()> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
@@ -41,6 +63,66 @@ pub async fn delete_metric_handler(metric_id: &Uuid, user_id: &Uuid) -> Result<(
         }
         Err(e) => Err(anyhow!("Database error: {}", e)),
     }
+}
+
+/// Handler to delete (mark as deleted) multiple metrics by IDs
+pub async fn delete_metrics_handler(request: DeleteMetricsRequest, _user_id: &Uuid) -> Result<DeleteMetricsResponse> {
+    if request.ids.is_empty() {
+        return Ok(DeleteMetricsResponse {
+            successful_ids: vec![],
+            failed_ids: vec![],
+        });
+    }
+
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
+    };
+
+    let mut successful_ids = Vec::new();
+    let mut failed_ids = Vec::new();
+
+    // Find metrics that exist and are not deleted
+    let existing_metrics = metric_files::table
+        .filter(metric_files::id.eq_any(&request.ids))
+        .filter(metric_files::deleted_at.is_null())
+        .select(metric_files::id)
+        .load::<Uuid>(&mut conn)
+        .await
+        .map_err(|e| anyhow!("Failed to query metrics: {}", e))?;
+
+    // Create a set of existing metric IDs for quick lookup
+    let existing_ids: std::collections::HashSet<Uuid> = existing_metrics.into_iter().collect();
+
+    // Process each metric ID
+    for id in &request.ids {
+        if existing_ids.contains(id) {
+            // Set the deleted_at timestamp for this metric
+            match diesel::update(metric_files::table)
+                .filter(metric_files::id.eq(id))
+                .filter(metric_files::deleted_at.is_null())
+                .set(metric_files::deleted_at.eq(Utc::now()))
+                .execute(&mut conn)
+                .await
+            {
+                Ok(_) => successful_ids.push(*id),
+                Err(e) => failed_ids.push(DeleteMetricFailure {
+                    id: *id,
+                    reason: format!("Failed to delete metric: {}", e),
+                }),
+            }
+        } else {
+            failed_ids.push(DeleteMetricFailure {
+                id: *id,
+                reason: "Metric not found or already deleted".to_string(),
+            });
+        }
+    }
+
+    Ok(DeleteMetricsResponse {
+        successful_ids,
+        failed_ids,
+    })
 }
 
 #[cfg(test)]
