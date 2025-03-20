@@ -17,9 +17,10 @@ We need to implement REST endpoints that allow users to add and remove dashboard
 
 1. Create REST endpoints to add dashboards and metrics to collections
 2. Create REST endpoints to remove dashboards and metrics from collections
-3. Ensure proper permission validation for all operations
-4. Maintain data integrity with proper error handling
-5. Follow established patterns for REST endpoints and handlers
+3. Create REST endpoints to manage multiple asset types in a single request
+4. Ensure proper permission validation for all operations
+5. Maintain data integrity with proper error handling
+6. Follow established patterns for REST endpoints and handlers
 
 ## Non-Goals
 
@@ -29,14 +30,16 @@ We need to implement REST endpoints that allow users to add and remove dashboard
 
 ## Technical Design
 
-
 ### Overview
 
-We will implement four new REST endpoints:
+We will implement six REST endpoints:
+
 1. POST /collections/:id/dashboards - Add dashboards to a collection
 2. DELETE /collections/:id/dashboards - Remove dashboards from a collection
 3. POST /collections/:id/metrics - Add metrics to a collection
 4. DELETE /collections/:id/metrics - Remove metrics from a collection
+5. POST /collections/:id/assets - Add multiple assets of different types to a collection
+6. DELETE /collections/:id/assets - Remove multiple assets of different types from a collection
 
 Each endpoint will validate permissions, check that the assets exist, and perform the appropriate database operations on the `collections_to_assets` table.
 
@@ -45,16 +48,22 @@ Each endpoint will validate permissions, check that the assets exist, and perfor
 The implementation will be divided into the following components:
 
 #### Handlers
+
 1. `add_dashboards_to_collection_handler.rs` - Business logic for adding dashboards to a collection
 2. `remove_dashboards_from_collection_handler.rs` - Business logic for removing dashboards from a collection
 3. `add_metrics_to_collection_handler.rs` - Business logic for adding metrics to a collection
 4. `remove_metrics_from_collection_handler.rs` - Business logic for removing metrics from a collection
+5. `add_assets_to_collection_handler.rs` - Business logic for adding multiple assets of different types to a collection
+6. `remove_assets_from_collection_handler.rs` - Business logic for removing multiple assets of different types from a collection
 
 #### REST Routes
+
 1. `add_dashboards_to_collection.rs` - REST endpoint for adding dashboards to a collection
 2. `remove_dashboards_from_collection.rs` - REST endpoint for removing dashboards from a collection
 3. `add_metrics_to_collection.rs` - REST endpoint for adding metrics to a collection
 4. `remove_metrics_from_collection.rs` - REST endpoint for removing metrics from a collection
+5. `add_assets_to_collection.rs` - REST endpoint for adding multiple assets of different types to a collection
+6. `remove_assets_from_collection.rs` - REST endpoint for removing multiple assets of different types from a collection
 
 ### Dependencies
 
@@ -64,11 +73,11 @@ The implementation will be divided into the following components:
 
 ## Implementation Plan
 
-The implementation will be broken down into four separate PRDs, each focusing on a specific endpoint. These PRDs can be worked on concurrently by different developers:
+The implementation will be broken down into six separate PRDs, each focusing on a specific endpoint. These PRDs can be worked on concurrently by different developers:
 
 1. [Add Dashboard to Collections REST Endpoint](api_add_dashboard_to_collections.md)
 2. [Remove Dashboard from Collections REST Endpoint](api_remove_dashboard_from_collections.md)
-3. ✅ [Add Metric to Collections REST Endpoint](api_add_metric_to_collections.md)
+3. [Add Metric to Collections REST Endpoint](api_add_metric_to_collections.md)
 4. [Remove Metric from Collections REST Endpoint](api_remove_metric_from_collections.md)
 5. [Add Assets to Collection REST Endpoint](api_add_assets_to_collection.md)
 6. [Remove Assets from Collection REST Endpoint](api_remove_assets_from_collection.md)
@@ -82,29 +91,33 @@ Additionally, we have a separate PRD for the concurrent asset existence checking
 Each endpoint will be implemented according to its respective PRD. These can be developed in parallel since they don't have dependencies on each other.
 
 **Success Criteria:**
-- ✅ All endpoints are implemented according to their PRDs
-- ✅ Basic tests have been created
+
+- All endpoints are implemented according to their PRDs
+- All tests pass
 - Code review is complete
 
-### Phase 2: Integration and Testing ✅
+### Phase 2: Integration and Testing
 
 After all endpoints are implemented, we'll perform integration testing to ensure they work together correctly.
 
 **Success Criteria:**
-- ✅ All endpoints can be called in sequence without errors
-- ✅ Collections can be populated and modified using the new endpoints
-- ✅ Permission checks work correctly
+
+- All endpoints can be called in sequence without errors
+- Collections can be populated and modified using the new endpoints
+- Permission checks work correctly
 
 ## Testing Strategy
 
 Each PRD will include its own detailed testing strategy, but at a high level:
 
 ### Unit Tests
+
 - Test handlers with mocked database connections
 - Test permission validation logic
 - Test error handling for various scenarios
 
 ### Integration Tests
+
 - Test endpoints with a test database
 - Verify correct database state after operations
 - Test permission checks with different user roles
@@ -131,9 +144,10 @@ Each PRD will include its own detailed testing strategy, but at a high level:
 ## Appendix
 
 ### Related PRDs
+
 - [Add Dashboard to Collections REST Endpoint](api_add_dashboard_to_collections.md)
 - [Remove Dashboard from Collections REST Endpoint](api_remove_dashboard_from_collections.md)
-- ✅ [Add Metric to Collections REST Endpoint](api_add_metric_to_collections.md)
+- [Add Metric to Collections REST Endpoint](api_add_metric_to_collections.md)
 - [Remove Metric from Collections REST Endpoint](api_remove_metric_from_collections.md)
 - [Add Assets to Collection REST Endpoint](api_add_assets_to_collection.md)
 - [Remove Assets from Collection REST Endpoint](api_remove_assets_from_collection.md)
