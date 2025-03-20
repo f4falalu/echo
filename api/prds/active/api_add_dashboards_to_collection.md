@@ -1,19 +1,19 @@
 ---
-title: Add Dashboards to Collection REST Endpoint
+title: Add Dashboard to Collections REST Endpoint
 author: Cascade
 date: 2025-03-19
 status: Implemented
 ---
 
-# Add Dashboards to Collection REST Endpoint
+# Add Dashboard to Collections REST Endpoint
 
 ## Problem Statement
 
-Users need the ability to programmatically add dashboards to collections via a REST API. Currently, this functionality is not available, limiting the ability to manage collections through the API.
+Users need the ability to programmatically add a dashboard to multiple collections via a REST API. Currently, this functionality is not available, limiting the ability to manage collections through the API.
 
 ## Goals
 
-1. ✅ Create a REST endpoint to add dashboards to a collection
+1. ✅ Create a REST endpoint to add a dashboard to multiple collections
 2. ✅ Implement proper permission validation
 3. ✅ Ensure data integrity with proper error handling
 4. ✅ Follow established patterns for REST endpoints and handlers
@@ -27,12 +27,12 @@ Users need the ability to programmatically add dashboards to collections via a R
 
 ### REST Endpoint
 
-**Endpoint:** `POST /collections/:id/dashboards`
+**Endpoint:** `POST /dashboards/:id/collections`
 
 **Request Body:**
 ```json
 {
-  "dashboard_ids": ["uuid1", "uuid2", "uuid3"]
+  "collection_ids": ["uuid1", "uuid2", "uuid3"]
 }
 ```
 
@@ -40,31 +40,31 @@ Users need the ability to programmatically add dashboards to collections via a R
 - `200 OK` - Success
   ```json
   {
-    "message": "Dashboards added to collection successfully"
+    "message": "Dashboard added to collections successfully"
   }
   ```
 - `400 Bad Request` - Invalid input
 - `403 Forbidden` - Insufficient permissions
-- `404 Not Found` - Collection not found
+- `404 Not Found` - Dashboard not found
 - `500 Internal Server Error` - Server error
 
 ### Handler Implementation
 
 The handler will:
-1. ✅ Validate that the collection exists
+1. ✅ Validate that the dashboard exists
 2. ✅ Check if the user has appropriate permissions (Owner, FullAccess, or CanEdit)
-3. ✅ Validate that the dashboards exist and the user has access to them
-4. ✅ Add the dashboards to the collection by creating records in the `collections_to_assets` table
-5. ✅ Handle the case where a dashboard was previously in the collection but was deleted (upsert)
+3. ✅ Validate that the collections exist and the user has access to them
+4. ✅ Add the dashboard to the collections by creating records in the `collections_to_assets` table
+5. ✅ Handle the case where a dashboard was previously in a collection but was deleted (upsert)
 
 ### File Changes
 
 #### New Files
 
-1. ✅ `libs/handlers/src/collections/add_dashboards_to_collection_handler.rs`
-2. ✅ `src/routes/rest/routes/collections/add_dashboards_to_collection.rs`
-3. ✅ Update `libs/handlers/src/collections/mod.rs` to include the new handler
-4. ✅ Update `src/routes/rest/routes/collections/mod.rs` to include the new endpoint
+1. ✅ `libs/handlers/src/dashboards/add_dashboard_to_collections_handler.rs`
+2. ✅ `src/routes/rest/routes/dashboards/add_dashboard_to_collections.rs`
+3. ✅ Update `libs/handlers/src/dashboards/mod.rs` to include the new handler
+4. ✅ Update `src/routes/rest/routes/dashboards/mod.rs` to include the new endpoint
 
 ### Database Operations
 
@@ -78,9 +78,9 @@ The implementation uses the `collections_to_assets` table with the following ope
 ### Unit Tests
 
 1. ✅ Test the handler with mocked database connections
-   - ✅ Test adding dashboards to a collection
-   - ✅ Test error cases (collection not found, dashboard not found, insufficient permissions)
-   - ✅ Test adding dashboards that were previously in the collection but deleted
+   - ✅ Test adding a dashboard to collections
+   - ✅ Test error cases (dashboard not found, collection not found, insufficient permissions)
+   - ✅ Test adding a dashboard that was previously in a collection but deleted
 
 2. ✅ Test the REST endpoint
    - ✅ Test successful request
