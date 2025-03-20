@@ -73,12 +73,16 @@ pub async fn update_user_handler(
         }
     };
 
-    match is_user_workspace_admin_or_data_admin(auth_user, &user_organization_id).await {
-        Ok(true) => (),
-        Ok(false) => return Err(anyhow::anyhow!("Insufficient permissions")),
-        Err(e) => {
-            tracing::error!("Error checking user permissions: {:?}", e);
-            return Err(anyhow::anyhow!("Error checking user permissions"));
+    // Check if the authenticated user is the same as the user being updated
+    // If not, check if they have admin permissions
+    if auth_user.id != *user_id {
+        match is_user_workspace_admin_or_data_admin(auth_user, &user_organization_id).await {
+            Ok(true) => (),
+            Ok(false) => return Err(anyhow::anyhow!("Insufficient permissions")),
+            Err(e) => {
+                tracing::error!("Error checking user permissions: {:?}", e);
+                return Err(anyhow::anyhow!("Error checking user permissions"));
+            }
         }
     }
 
@@ -94,21 +98,32 @@ pub async fn update_user_handler(
         };
     }
 
+    // Only allow admins to update user roles
     if let Some(role) = change.role {
-        match update(users_to_organizations::table)
-            .filter(users_to_organizations::user_id.eq(user_id))
-            .set(users_to_organizations::role.eq(role))
-            .execute(&mut conn)
-            .await
-        {
-            Ok(user_organization_role_update) => user_organization_role_update,
+        // For role changes, always require admin permissions
+        match is_user_workspace_admin_or_data_admin(auth_user, &user_organization_id).await {
+            Ok(true) => {
+                match update(users_to_organizations::table)
+                    .filter(users_to_organizations::user_id.eq(user_id))
+                    .set(users_to_organizations::role.eq(role))
+                    .execute(&mut conn)
+                    .await
+                {
+                    Ok(user_organization_role_update) => user_organization_role_update,
+                    Err(e) => {
+                        return Err(anyhow::anyhow!(
+                            "Error updating user organization role: {:?}",
+                            e
+                        ))
+                    }
+                };
+            },
+            Ok(false) => return Err(anyhow::anyhow!("Insufficient permissions to update role")),
             Err(e) => {
-                return Err(anyhow::anyhow!(
-                    "Error updating user organization role: {:?}",
-                    e
-                ))
+                tracing::error!("Error checking user permissions for role update: {:?}", e);
+                return Err(anyhow::anyhow!("Error checking user permissions"));
             }
-        };
+        }
     }
 
     Ok(())
