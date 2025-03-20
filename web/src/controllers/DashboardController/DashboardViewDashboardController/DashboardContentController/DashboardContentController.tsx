@@ -77,7 +77,7 @@ export const DashboardContentController: React.FC<{
     );
 
     const onRowLayoutChange = useMemoizedFn((rows: BusterResizeableGridRow[]) => {
-      onUpdateDashboardConfig({ rows, id: dashboard!.id });
+      if (dashboard) onUpdateDashboardConfig({ rows, id: dashboard.id });
     });
 
     const onDragEnd = useMemoizedFn(() => {

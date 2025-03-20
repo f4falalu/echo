@@ -38,7 +38,7 @@ export const SaveMetricToCollectionButton: React.FC<{
     const allSelectedButLast = selectedCollections.slice(0, -1);
     await Promise.all(
       allSelectedButLast.map((metricId) => {
-        return removeMetricFromCollection({ metricId, collectionId });
+        return removeMetricFromCollection({ metricId, collectionIds: [collectionId] });
       })
     );
     openInfoMessage('Metrics removed from collections');

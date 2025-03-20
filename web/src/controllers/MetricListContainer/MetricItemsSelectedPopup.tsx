@@ -90,14 +90,8 @@ const CollectionsButton: React.FC<{
 
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
     setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
-    const allSelectedButLast = selectedRowKeys.slice(0, -1);
-    const lastMetricId = selectedRowKeys[selectedRowKeys.length - 1];
-    const allRemoves: Promise<void>[] = allSelectedButLast.map((metricId) => {
-      return removeMetricFromCollection({ metricId, collectionId });
-    });
-    await removeMetricFromCollection({
-      metricId: lastMetricId,
-      collectionId
+    const allRemoves: Promise<void>[] = selectedRowKeys.map((metricId) => {
+      return removeMetricFromCollection({ metricId, collectionIds: [collectionId] });
     });
     await Promise.all(allRemoves);
     openInfoMessage('Metrics removed from collections');

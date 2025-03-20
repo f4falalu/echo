@@ -27,7 +27,7 @@ export const SaveDashboardToCollectionButton: React.FC<{
       dashboardIds.map((dashboardId) => {
         return addDashboardToCollection({
           dashboardId,
-          collectionId: collectionIds
+          collectionIds: collectionIds
         });
       })
     );
@@ -40,7 +40,7 @@ export const SaveDashboardToCollectionButton: React.FC<{
       dashboardIds.map((dashboardId) => {
         return removeDashboardFromCollection({
           dashboardId,
-          collectionId
+          collectionIds: [collectionId]
         });
       })
     );

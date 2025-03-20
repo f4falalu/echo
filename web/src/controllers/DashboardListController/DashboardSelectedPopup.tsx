@@ -67,7 +67,7 @@ const CollectionsButton: React.FC<{
       selectedRowKeys.map((dashboardId) => {
         return onAddDashboardToCollection({
           dashboardId,
-          collectionId: collectionIds
+          collectionIds
         });
       })
     );
@@ -81,7 +81,7 @@ const CollectionsButton: React.FC<{
       selectedRowKeys.map((dashboardId) => {
         return onRemoveDashboardFromCollection({
           dashboardId,
-          collectionId
+          collectionIds: [collectionId]
         });
       })
     );

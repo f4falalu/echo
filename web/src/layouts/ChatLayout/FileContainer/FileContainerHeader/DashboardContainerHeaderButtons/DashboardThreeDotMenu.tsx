@@ -122,12 +122,12 @@ const useCollectionSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
   }, [collections]);
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
-    await saveDashboardToCollection({ dashboardId, collectionId: collectionIds[0] });
+    await saveDashboardToCollection({ dashboardId, collectionIds });
     openInfoMessage('Dashboard saved to collections');
   });
 
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
-    await removeDashboardFromCollection({ dashboardId, collectionId });
+    await removeDashboardFromCollection({ dashboardId, collectionIds: [collectionId] });
     openInfoMessage('Dashboard removed from collections');
   });
 

@@ -1,15 +1,9 @@
 import { DataSource } from '@/api/asset_interfaces';
 import React, { useRef } from 'react';
-import { Input } from '@/components/ui/inputs';
-import { Select } from '@/components/ui/select';
-import { FormWrapper, FormWrapperHandle } from './FormWrapper';
+import { FormWrapperHandle } from './FormWrapper';
 import { formatDate } from '@/lib';
-import {
-  DatasourceCreateCredentials,
-  PostgresCreateCredentials
-} from '@/api/request_interfaces/datasources';
+import { DatasourceCreateCredentials } from '@/api/request_interfaces/datasources';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { TagInput } from '@/components/ui/inputs/InputTagInput';
 
 const sshModeOptions = ['Do not use SSH credentials', 'Use SSH credentials'].map((item, index) => ({
   label: item,

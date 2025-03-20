@@ -183,8 +183,7 @@ export const useAddDashboardToCollection = () => {
   const mutationFn = useMemoizedFn(
     async (variables: { dashboardId: string; collectionIds: string[] }) => {
       const { dashboardId, collectionIds } = variables;
-
-      await Promise.all(
+      return await Promise.all(
         collectionIds.map((collectionId) =>
           addAssetToCollection({
             id: dashboardId,
@@ -194,7 +193,6 @@ export const useAddDashboardToCollection = () => {
       );
     }
   );
-
   return useMutation({
     mutationFn,
     onSuccess: (_, { collectionIds }) => {
@@ -214,7 +212,7 @@ export const useRemoveDashboardFromCollection = () => {
   const mutationFn = useMemoizedFn(
     async (variables: { dashboardId: string; collectionIds: string[] }) => {
       const { dashboardId, collectionIds } = variables;
-      await Promise.all(
+      return await Promise.all(
         collectionIds.map((collectionId) =>
           removeAssetFromCollection({
             id: dashboardId,
@@ -242,30 +240,6 @@ export const useRemoveDashboardFromCollection = () => {
         )
       });
     }
-  });
-};
-
-export const useRemoveItemFromDashboard = () => {
-  const { mutateAsync: updateDashboardMutation } = useUpdateDashboard();
-  const queryClient = useQueryClient();
-  const mutationFn = useMemoizedFn(
-    async (variables: { dashboardId: string; metricId: string | string[] }) => {
-      const { dashboardId, metricId } = variables;
-      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
-      const prevDashboard = queryClient.getQueryData(options.queryKey);
-
-      if (prevDashboard) {
-        const prevMetricsIds = Object.keys(prevDashboard?.metrics);
-        const newMetricsIds = prevMetricsIds?.filter((t) => !metricId.includes(t));
-        console.log('TODO: remove metrics from dashboard', dashboardId, metricId);
-        return updateDashboardMutation({
-          id: dashboardId
-        });
-      }
-    }
-  );
-  return useMutation({
-    mutationFn
   });
 };
 
@@ -338,6 +312,84 @@ export const useUpdateDashboardShare = () => {
           }
         });
       });
+    }
+  });
+};
+
+export const useSaveMetricsToDashboard = () => {
+  const queryClient = useQueryClient();
+
+  const saveMetricToDashboard = useMemoizedFn(
+    async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
+      // await saveMetric({
+      //   id: metricId,
+      //   save_to_dashboard: dashboardIds
+      // });
+    }
+  );
+
+  return useMutation({
+    mutationFn: saveMetricToDashboard,
+    onSuccess: (data, variables) => {
+      // queryClient.invalidateQueries({
+      //   queryKey: variables.dashboardIds.map(
+      //     (id) => dashboardQueryKeys.dashboardGetDashboard(id).queryKey
+      //   )
+      // });
+    }
+  });
+};
+
+export const useRemoveMetricFromDashboard = () => {
+  const { openConfirmModal } = useBusterNotifications();
+  const queryClient = useQueryClient();
+  const removeMetricFromDashboard = useMemoizedFn(
+    async ({
+      metricId,
+      dashboardId,
+      useConfirmModal = true
+    }: {
+      metricId: string;
+      dashboardId: string;
+      useConfirmModal?: boolean;
+    }) => {
+      const method = async () => {
+        // await saveMetric({
+        //   id: metricId,
+        //   remove_from_dashboard: [dashboardId]
+        // });
+      };
+
+      if (!useConfirmModal) return await method();
+
+      return await openConfirmModal({
+        title: 'Remove from dashboard',
+        content: 'Are you sure you want to remove this metric from this dashboard?',
+        onOk: method
+      });
+    }
+  );
+
+  return useMutation({
+    mutationFn: removeMetricFromDashboard,
+    onMutate: async (variables) => {
+      const currentDashboard = queryClient.getQueryData(
+        dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey
+      );
+      if (currentDashboard) {
+        queryClient.setQueryData(
+          dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey,
+          (currentDashboard) => {
+            if (currentDashboard?.dashboard.config.rows) {
+              currentDashboard.dashboard.config.rows.forEach((row) => {
+                row.items = row.items.filter((item) => item.id !== variables.metricId);
+              });
+            }
+            delete currentDashboard!.metrics[variables.metricId];
+            return currentDashboard;
+          }
+        );
+      }
     }
   });
 };

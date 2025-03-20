@@ -9,7 +9,7 @@ import {
 import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
-export const useListDatasources = (enabled: boolean) => {
+export const useListDatasources = (enabled: boolean = true) => {
   return useQuery({
     ...queryKeys.datasourceGetList,
     queryFn: listDatasources,
