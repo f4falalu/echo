@@ -1,7 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { BusterMetricData } from '@/api/asset_interfaces/metric';
 import { IBusterChat, BusterChatListItem, IBusterChatMessage } from '@/api/asset_interfaces/chat';
-import type { GetChatListParams } from '@/api/request_interfaces/chats';
+import { type getListLogs, type getListChats } from '@/api/buster_rest/chats';
 
 const chatsGetChat = (chatId: string) =>
   queryOptions<IBusterChat>({
@@ -24,7 +24,7 @@ const chatsMessagesFetchingData = (messageId: string) =>
     enabled: !!messageId
   });
 
-const chatsGetList = (filters?: GetChatListParams) =>
+const chatsGetList = (filters?: Parameters<typeof getListChats>[0]) =>
   queryOptions<BusterChatListItem[]>({
     queryKey: ['chats', 'list', filters] as const,
     staleTime: 60 * 1000, // 1 minute
@@ -40,7 +40,7 @@ const chatsBlackBoxMessages = (messageId: string) =>
     queryFn: () => Promise.resolve(null)
   });
 
-const logsGetList = (filters?: GetChatListParams) =>
+const logsGetList = (filters?: Parameters<typeof getListLogs>[0]) =>
   queryOptions<BusterChatListItem[]>({
     queryKey: ['logs', 'list', filters] as const,
     staleTime: 60 * 1000, // 1 minute

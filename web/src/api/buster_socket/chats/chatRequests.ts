@@ -1,12 +1,7 @@
 import type {
-  GetChatParams,
-  GetChatListParams,
   CreateNewChatParams,
   StopChatParams,
   UnsubscribeFromChatParams,
-  DeleteChatParams,
-  UpdateChatParams,
-  ChatsSearchParams,
   DuplicateChatParams
 } from '../../request_interfaces/chats';
 import type { BusterSocketRequestBase } from '../base_interfaces';

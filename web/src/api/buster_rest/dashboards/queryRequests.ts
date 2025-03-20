@@ -220,9 +220,9 @@ export const useRemoveItemFromDashboard = () => {
       if (prevDashboard) {
         const prevMetricsIds = Object.keys(prevDashboard?.metrics);
         const newMetricsIds = prevMetricsIds?.filter((t) => !metricId.includes(t));
+        console.log('TODO: remove metrics from dashboard', dashboardId, metricId);
         return updateDashboardMutation({
-          id: dashboardId,
-          metrics: newMetricsIds
+          id: dashboardId
         });
       }
     }

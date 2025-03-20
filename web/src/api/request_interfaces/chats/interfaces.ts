@@ -1,10 +1,3 @@
-export interface GetChatListParams {
-  /** Pagination token indicating the page number */
-  page_token: number;
-  /** Number of chat items to return per page */
-  page_size: number;
-}
-
 export interface GetChatParams {
   /** The unique identifier of the chat to retrieve */
   id: string;

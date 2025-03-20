@@ -3,7 +3,6 @@ import { serverFetch } from '../../createServerInstance';
 import type { BusterChatListItem, BusterChat } from '@/api/asset_interfaces/chat';
 import type {
   DuplicateChatParams,
-  GetChatListParams,
   GetChatParams,
   UpdateChatParams
 } from '../../request_interfaces/chats';
@@ -11,7 +10,10 @@ import type {
 const CHATS_BASE = '/chats';
 
 // Client-side fetch version
-export const getListChats = async (params?: GetChatListParams): Promise<BusterChatListItem[]> => {
+export const getListChats = async (params?: {
+  page_token: number;
+  page_size: number;
+}): Promise<BusterChatListItem[]> => {
   const { page_token = 0, page_size = 3000 } = params || {};
   return mainApi
     .get<BusterChatListItem[]>(`${CHATS_BASE}`, {
@@ -20,7 +22,9 @@ export const getListChats = async (params?: GetChatListParams): Promise<BusterCh
     .then((res) => res.data);
 };
 
-export const getListLogs = async (params?: GetChatListParams): Promise<BusterChatListItem[]> => {
+export const getListLogs = async (
+  params?: Parameters<typeof getListChats>[0]
+): Promise<BusterChatListItem[]> => {
   const { page_token = 0, page_size = 3000 } = params || {};
   return mainApi
     .get<BusterChatListItem[]>(`/logs`, {
@@ -31,7 +35,7 @@ export const getListLogs = async (params?: GetChatListParams): Promise<BusterCha
 
 // Server-side fetch version
 export const getListChats_server = async (
-  params?: GetChatListParams
+  params?: Parameters<typeof getListChats>[0]
 ): Promise<BusterChatListItem[]> => {
   const { page_token = 0, page_size = 1000 } = params || {};
   return await serverFetch<BusterChatListItem[]>(`${CHATS_BASE}`, {

@@ -2,8 +2,12 @@
 
 import React, { useState } from 'react';
 import { ChatItemsContainer } from './ChatItemsContainer';
-import { useGetListChats, useGetListLogs } from '@/api/buster_rest/chats';
-import type { GetChatListParams } from '@/api/request_interfaces/chats';
+import {
+  type getListChats,
+  type getListLogs,
+  useGetListChats,
+  useGetListLogs
+} from '@/api/buster_rest/chats';
 import { useUserConfigContextSelector } from '@/context/Users';
 
 export const ChatListContainer: React.FC<{
@@ -19,7 +23,7 @@ export const ChatListContainer: React.FC<{
 };
 
 const ChatsContainer: React.FC<{}> = ({}) => {
-  const [filters, setFilters] = useState<Partial<GetChatListParams>>({});
+  const [filters, setFilters] = useState<Partial<Parameters<typeof getListChats>[0]>>({});
 
   const { data: list, isFetched } = useGetListChats(filters);
 
@@ -27,7 +31,7 @@ const ChatsContainer: React.FC<{}> = ({}) => {
 };
 
 const LogsContainer: React.FC<{}> = ({}) => {
-  const [filters, setFilters] = useState<Partial<GetChatListParams>>({});
+  const [filters, setFilters] = useState<Partial<Parameters<typeof getListLogs>[0]>>({});
 
   const { data: list, isFetched } = useGetListLogs(filters);
 

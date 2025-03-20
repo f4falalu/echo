@@ -212,9 +212,10 @@ export const AddTypeModal: React.FC<{
         assets
       });
     } else if (type === 'dashboard') {
+      console.log('TODO: add metrics to dashboard', dashboard!.id, selectedIds);
       await updateDashboard({
-        id: dashboard!.id,
-        metrics: selectedIds
+        id: dashboard!.id
+        //  metrics: selectedIds
       });
     }
     setSubmitting(false);
