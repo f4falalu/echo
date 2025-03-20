@@ -69,7 +69,7 @@ impl TraceBuilder {
 
     /// Get the root span ID
     pub fn root_span_id(&self) -> &str {
-        &self.root_span.span_id
+        &self.root_span.root_span_id
     }
 
     /// Get a reference to the root span

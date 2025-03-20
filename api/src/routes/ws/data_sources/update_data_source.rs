@@ -50,7 +50,7 @@ pub async fn update_data_source(user: &AuthenticatedUser, req: UpdateDataSourceR
         .first::<String>(&mut conn)
         .await
     {
-        Ok(db_type) => DataSourceType::from_str(&db_type).unwrap(),
+        Ok(db_type) => DataSourceType::try_from_str(&db_type).unwrap(),
         Err(diesel::NotFound) => {
             return Err(anyhow!("Data source not found"));
         }
