@@ -25,6 +25,7 @@ import {
   useRemoveAssetFromCollection
 } from '../collections/queryRequests';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
+import { addMetricToDashboardConfig, removeMetricFromDashboardConfig } from './helpers';
 
 export const useGetDashboardsList = (
   params: Omit<DashboardsListRequest, 'page_token' | 'page_size'>
@@ -43,33 +44,38 @@ export const useGetDashboardsList = (
   });
 };
 
-export const useGetDashboard = <TData = BusterDashboardResponse>(
-  id: string | undefined,
-  select?: (data: BusterDashboardResponse) => TData
-) => {
+const useGetDashboardAndInitializeMetrics = () => {
   const queryClient = useQueryClient();
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
-  const { password } = getAssetPassword(id!);
 
-  const initializeMetrics = useMemoizedFn((metrics: BusterDashboardResponse['metrics']) => {
-    for (const metric of Object.values(metrics)) {
-      const prevMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(metric.id).queryKey);
-      const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
-      queryClient.setQueryData(queryKeys.metricsGetMetric(metric.id).queryKey, upgradedMetric);
-      prefetchGetMetricDataClient({ id: metric.id }, queryClient);
-    }
-  });
+  return useMemoizedFn(async (id: string) => {
+    const { password } = getAssetPassword(id);
 
-  const queryFn = useMemoizedFn(async () => {
+    const initializeMetrics = useMemoizedFn((metrics: BusterDashboardResponse['metrics']) => {
+      for (const metric of Object.values(metrics)) {
+        const prevMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(metric.id).queryKey);
+        const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
+        queryClient.setQueryData(queryKeys.metricsGetMetric(metric.id).queryKey, upgradedMetric);
+        prefetchGetMetricDataClient({ id: metric.id }, queryClient);
+      }
+    });
+
     return dashboardsGetDashboard({ id: id!, password }).then((data) => {
       initializeMetrics(data.metrics);
       return data;
     });
   });
+};
+
+export const useGetDashboard = <TData = BusterDashboardResponse>(
+  id: string | undefined,
+  select?: (data: BusterDashboardResponse) => TData
+) => {
+  const queryFn = useGetDashboardAndInitializeMetrics();
 
   return useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id!),
-    queryFn: queryFn,
+    queryFn: () => queryFn(id!),
     enabled: !!id,
     select
   });
@@ -318,46 +324,87 @@ export const useUpdateDashboardShare = () => {
 
 export const useSaveMetricsToDashboard = () => {
   const queryClient = useQueryClient();
+  const prefetchDashboard = useGetDashboardAndInitializeMetrics();
+  const { openErrorMessage } = useBusterNotifications();
 
   const saveMetricToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
-      // await saveMetric({
-      //   id: metricId,
-      //   save_to_dashboard: dashboardIds
-      // });
+      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
+      let dashboardResponse = queryClient.getQueryData(options.queryKey);
+      if (!dashboardResponse) {
+        const res = await prefetchDashboard(dashboardId).catch((e) => {
+          openErrorMessage('Failed to save metrics to dashboard. Dashboard not found');
+          return null;
+        });
+        if (res) {
+          queryClient.setQueryData(options.queryKey, res);
+          dashboardResponse = res;
+        }
+      }
+
+      if (dashboardResponse) {
+        const newConfig = addMetricToDashboardConfig(metricIds, dashboardResponse.dashboard.config);
+        return dashboardsUpdateDashboard({
+          id: dashboardId,
+          config: newConfig
+        });
+      }
+
+      openErrorMessage('Failed to save metrics to dashboard');
     }
   );
 
   return useMutation({
     mutationFn: saveMetricToDashboard,
     onSuccess: (data, variables) => {
-      // queryClient.invalidateQueries({
-      //   queryKey: variables.dashboardIds.map(
-      //     (id) => dashboardQueryKeys.dashboardGetDashboard(id).queryKey
-      //   )
-      // });
+      queryClient.invalidateQueries({
+        queryKey: dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey
+      });
     }
   });
 };
 
-export const useRemoveMetricFromDashboard = () => {
-  const { openConfirmModal } = useBusterNotifications();
+export const useRemoveMetricsFromDashboard = () => {
+  const { openConfirmModal, openErrorMessage } = useBusterNotifications();
   const queryClient = useQueryClient();
+  const prefetchDashboard = useGetDashboardAndInitializeMetrics();
   const removeMetricFromDashboard = useMemoizedFn(
     async ({
-      metricId,
+      metricIds,
       dashboardId,
       useConfirmModal = true
     }: {
-      metricId: string;
+      metricIds: string[];
       dashboardId: string;
       useConfirmModal?: boolean;
     }) => {
       const method = async () => {
-        // await saveMetric({
-        //   id: metricId,
-        //   remove_from_dashboard: [dashboardId]
-        // });
+        const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
+        let dashboardResponse = queryClient.getQueryData(options.queryKey);
+        if (!dashboardResponse) {
+          const res = await prefetchDashboard(dashboardId).catch((e) => {
+            openErrorMessage('Failed to remove metrics from dashboard. Dashboard not found');
+            return null;
+          });
+          if (res) {
+            queryClient.setQueryData(options.queryKey, res);
+            dashboardResponse = res;
+          }
+        }
+
+        if (dashboardResponse) {
+          const newConfig = removeMetricFromDashboardConfig(
+            metricIds,
+            dashboardResponse.dashboard.config
+          );
+          await dashboardsUpdateDashboard({
+            id: dashboardId,
+            config: newConfig
+          });
+          return;
+        }
+
+        openErrorMessage('Failed to remove metrics from dashboard');
       };
 
       if (!useConfirmModal) return await method();
@@ -372,24 +419,25 @@ export const useRemoveMetricFromDashboard = () => {
 
   return useMutation({
     mutationFn: removeMetricFromDashboard,
-    onMutate: async (variables) => {
-      const currentDashboard = queryClient.getQueryData(
-        dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey
-      );
+    onMutate: async ({ metricIds, dashboardId }) => {
+      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
+      const currentDashboard = queryClient.getQueryData(options.queryKey);
       if (currentDashboard) {
-        queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey,
-          (currentDashboard) => {
-            if (currentDashboard?.dashboard.config.rows) {
-              currentDashboard.dashboard.config.rows.forEach((row) => {
-                row.items = row.items.filter((item) => item.id !== variables.metricId);
-              });
-            }
-            delete currentDashboard!.metrics[variables.metricId];
-            return currentDashboard;
-          }
+        const newConfig = removeMetricFromDashboardConfig(
+          metricIds,
+          currentDashboard.dashboard.config
         );
+        queryClient.setQueryData(options.queryKey, (currentDashboard) => {
+          return create(currentDashboard!, (draft) => {
+            draft.dashboard.config = newConfig;
+          });
+        });
       }
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey
+      });
     }
   });
 };

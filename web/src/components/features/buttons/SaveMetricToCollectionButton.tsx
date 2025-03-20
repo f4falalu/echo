@@ -5,7 +5,7 @@ import { SaveToCollectionsDropdown } from '../dropdowns/SaveToCollectionsDropdow
 import { CollectionButton } from './CollectionsButton';
 import {
   useRemoveMetricFromCollection,
-  useSaveMetricToCollection
+  useSaveMetricToCollections
 } from '@/api/buster_rest/metrics';
 
 export const SaveMetricToCollectionButton: React.FC<{
@@ -14,7 +14,7 @@ export const SaveMetricToCollectionButton: React.FC<{
   useText?: boolean;
 }> = ({ metricIds, buttonType = 'ghost', useText = false }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollection();
+  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
 
   const [selectedCollections, setSelectedCollections] = useState<

@@ -12,7 +12,7 @@ import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import {
   useDeleteMetric,
   useRemoveMetricFromCollection,
-  useSaveMetricToCollection
+  useSaveMetricToCollections
 } from '@/api/buster_rest/metrics';
 import {
   useAddUserFavorite,
@@ -63,7 +63,7 @@ const CollectionsButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollection();
+  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
 
   const [selectedCollections, setSelectedCollections] = useState<

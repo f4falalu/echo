@@ -7,7 +7,7 @@ import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import Link from 'next/link';
 import React, { useContext, useMemo } from 'react';
-import { useRemoveMetricFromDashboard } from '@/api/buster_rest/metrics';
+import { useRemoveMetricsFromDashboard } from '@/api/buster_rest/dashboards';
 
 export const MetricTitle: React.FC<{
   title: BusterMetric['title'];
@@ -105,7 +105,7 @@ const ThreeDotMenu: React.FC<{
   dashboardId: string;
   metricId: string;
 }> = React.memo(({ dashboardId, metricId, className }) => {
-  const { mutateAsync: removeMetricFromDashboard } = useRemoveMetricFromDashboard();
+  const { mutateAsync: removeMetricFromDashboard } = useRemoveMetricsFromDashboard();
 
   const dropdownItems: DropdownItems = useMemo(
     () => [
@@ -117,7 +117,7 @@ const ThreeDotMenu: React.FC<{
           try {
             await removeMetricFromDashboard({
               dashboardId,
-              metricId
+              metricIds: [metricId]
             });
           } catch (error) {
             //

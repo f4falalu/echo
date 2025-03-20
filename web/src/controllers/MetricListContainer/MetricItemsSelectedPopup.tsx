@@ -13,7 +13,7 @@ import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
 import {
   useDeleteMetric,
   useRemoveMetricFromCollection,
-  useSaveMetricToCollection,
+  useSaveMetricToCollections,
   useUpdateMetric
 } from '@/api/buster_rest/metrics';
 import {
@@ -68,7 +68,7 @@ const CollectionsButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollection();
+  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
 
   const [selectedCollections, setSelectedCollections] = useState<

@@ -3,11 +3,13 @@ import {
   useGetMetric,
   useGetMetricData,
   useRemoveMetricFromCollection,
-  useRemoveMetricFromDashboard,
-  useSaveMetricToCollection,
-  useSaveMetricToDashboard,
+  useSaveMetricToCollections,
   useUpdateMetric
 } from '@/api/buster_rest/metrics';
+import {
+  useSaveMetricsToDashboard,
+  useRemoveMetricsFromDashboard
+} from '@/api/buster_rest/dashboards';
 import { DropdownContent, DropdownItem, DropdownItems } from '@/components/ui/dropdown';
 import {
   Trash,
@@ -123,16 +125,24 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
 ThreeDotMenuButton.displayName = 'ThreeDotMenuButton';
 
 const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { mutateAsync: saveMetricToDashboard } = useSaveMetricToDashboard();
-  const { mutateAsync: removeMetricFromDashboard } = useRemoveMetricFromDashboard();
+  const { mutateAsync: saveMetricsToDashboard } = useSaveMetricsToDashboard();
+  const { mutateAsync: removeMetricsFromDashboard } = useRemoveMetricsFromDashboard();
   const { data: dashboards } = useGetMetric({ id: metricId }, (x) => x.dashboards);
 
   const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
-    await saveMetricToDashboard({ metricId, dashboardIds });
+    await Promise.all(
+      dashboardIds.map((dashboardId) =>
+        saveMetricsToDashboard({ metricIds: [metricId], dashboardId })
+      )
+    );
   });
 
-  const onRemoveFromDashboard = useMemoizedFn(async (dashboardId: string) => {
-    await removeMetricFromDashboard({ metricId, dashboardId });
+  const onRemoveFromDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
+    await Promise.all(
+      dashboardIds.map((dashboardId) =>
+        removeMetricsFromDashboard({ metricIds: [metricId], dashboardId })
+      )
+    );
   });
 
   const { items, footerContent, selectType, menuHeader } = useSaveToDashboardDropdownContent({
@@ -193,7 +203,7 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollection();
+  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
   const { data: collections } = useGetMetric({ id: metricId }, (x) => x.collections);
   const { openInfoMessage } = useBusterNotifications();

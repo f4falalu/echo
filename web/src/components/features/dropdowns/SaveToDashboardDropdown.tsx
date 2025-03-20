@@ -13,7 +13,7 @@ export const SaveToDashboardDropdown: React.FC<{
   children: React.ReactNode;
   selectedDashboards: BusterMetric['dashboards'];
   onSaveToDashboard: (dashboardId: string[]) => Promise<void>;
-  onRemoveFromDashboard: (dashboardId: string) => void;
+  onRemoveFromDashboard: (dashboardId: string[]) => Promise<void>;
 }> = ({ children, onRemoveFromDashboard, onSaveToDashboard, selectedDashboards }) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -46,7 +46,7 @@ export const useSaveToDashboardDropdownContent = ({
 }: {
   selectedDashboards: BusterMetric['dashboards'];
   onSaveToDashboard: (dashboardId: string[]) => Promise<void>;
-  onRemoveFromDashboard: (dashboardId: string) => void;
+  onRemoveFromDashboard: (dashboardId: string[]) => Promise<void>;
 }): Pick<
   DropdownProps,
   'items' | 'footerContent' | 'menuHeader' | 'selectType' | 'emptyStateText'
@@ -58,10 +58,9 @@ export const useSaveToDashboardDropdownContent = ({
   const onClickItem = useMemoizedFn(async (dashboard: BusterDashboardListItem) => {
     const isSelected = selectedDashboards.some((d) => d.id === dashboard.id);
     if (isSelected) {
-      onRemoveFromDashboard(dashboard.id);
+      await onRemoveFromDashboard([dashboard.id]);
     } else {
-      const allDashboardsAndSelected = selectedDashboards.map((d) => d.id).concat(dashboard.id);
-      await onSaveToDashboard(allDashboardsAndSelected);
+      await onSaveToDashboard([dashboard.id]);
     }
   });
 

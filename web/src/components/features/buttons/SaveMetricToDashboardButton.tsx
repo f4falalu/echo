@@ -4,7 +4,10 @@ import { SaveToDashboardDropdown } from '../dropdowns/SaveToDashboardDropdown';
 import type { BusterMetric } from '@/api/asset_interfaces';
 import { Button } from '@/components/ui/buttons';
 import { ASSET_ICONS } from '../config/assetIcons';
-import { useRemoveMetricFromDashboard, useSaveMetricToDashboard } from '@/api/buster_rest/metrics';
+import {
+  useRemoveMetricsFromDashboard,
+  useSaveMetricsToDashboard
+} from '@/api/buster_rest/dashboards';
 
 const EMPTY_SELECTED_DASHBOARDS: BusterMetric['dashboards'] = [];
 
@@ -14,22 +17,18 @@ export const SaveMetricToDashboardButton: React.FC<{
   selectedDashboards?: BusterMetric['dashboards'];
 }> = React.memo(
   ({ metricIds, disabled = false, selectedDashboards = EMPTY_SELECTED_DASHBOARDS }) => {
-    const { mutateAsync: saveMetricToDashboard } = useSaveMetricToDashboard();
-    const { mutateAsync: removeMetricFromDashboard } = useRemoveMetricFromDashboard();
+    const { mutateAsync: saveMetricsToDashboard } = useSaveMetricsToDashboard();
+    const { mutateAsync: removeMetricsFromDashboard } = useRemoveMetricsFromDashboard();
 
     const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
       await Promise.all(
-        metricIds.map((metricId) => {
-          return saveMetricToDashboard({ metricId, dashboardIds });
-        })
+        dashboardIds.map((dashboardId) => saveMetricsToDashboard({ metricIds, dashboardId }))
       );
     });
 
-    const onRemoveFromDashboard = useMemoizedFn(async (dashboardId: string) => {
+    const onRemoveFromDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
       await Promise.all(
-        metricIds.map((metricId) => {
-          return removeMetricFromDashboard({ metricId, dashboardId });
-        })
+        dashboardIds.map((dashboardId) => removeMetricsFromDashboard({ metricIds, dashboardId }))
       );
     });
 

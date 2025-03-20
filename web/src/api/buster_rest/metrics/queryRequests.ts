@@ -170,7 +170,7 @@ export const useDeleteMetric = () => {
   });
 };
 
-export const useSaveMetricToCollection = () => {
+export const useSaveMetricToCollections = () => {
   const queryClient = useQueryClient();
   const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
   const { mutateAsync: addAssetToCollection } = useAddAssetToCollection();
