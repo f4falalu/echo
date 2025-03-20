@@ -1,1 +1,1 @@
-export * from './UserConfigProvider';
+export * from './BusterUserConfigProvider';

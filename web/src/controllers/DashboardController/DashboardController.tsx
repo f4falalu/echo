@@ -1,21 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
 import { DashboardFileView, useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { DashboardViewComponents } from './config';
 import { AddTypeModal } from '@/components/features/modal/AddTypeModal';
-import { useMemoizedFn } from '@/hooks';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
+import { useDashboardContentStore } from '@/context/Dashboards';
 
 export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboardId }) => {
   const { data: dashboardResponse, isFetched: isFetchedDashboard } = useGetDashboard(dashboardId);
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView) || 'dashboard';
-  const [openAddTypeModal, setOpenAddTypeModal] = useState(false);
-
-  const onCloseModal = useMemoizedFn(() => {
-    setOpenAddTypeModal(false);
-  });
+  const { openAddContentModal, onCloseAddContentModal } = useDashboardContentStore();
 
   const Component =
     selectedFileView && isFetchedDashboard
@@ -28,8 +24,8 @@ export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboa
       <Component dashboardId={dashboardId} />
 
       <AddTypeModal
-        open={openAddTypeModal}
-        onClose={onCloseModal}
+        open={openAddContentModal}
+        onClose={onCloseAddContentModal}
         type="dashboard"
         dashboardResponse={dashboardResponse}
       />

@@ -10,6 +10,7 @@ import {
   useUpdateDashboard,
   useUpdateDashboardConfig
 } from '@/api/buster_rest/dashboards';
+import { useDashboardContentStore } from '@/context/Dashboards';
 
 export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   dashboardId,
@@ -18,10 +19,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   const { data: dashboardResponse } = useGetDashboard(dashboardId);
   const { mutateAsync: onUpdateDashboard } = useUpdateDashboard();
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
-
-  const onOpenAddContentModal = useMemoizedFn(() => {
-    console.log('open add content modal');
-  });
+  const onOpenAddContentModal = useDashboardContentStore((x) => x.onOpenAddContentModal);
 
   const metrics = dashboardResponse?.metrics;
   const dashboard = dashboardResponse?.dashboard;

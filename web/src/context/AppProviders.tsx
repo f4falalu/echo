@@ -4,10 +4,10 @@ import { SupabaseContextProvider } from './Supabase/SupabaseContextProvider';
 import { UseSupabaseContextType } from './Supabase/getSupabaseServerContext';
 import { BusterReactQueryProvider } from './BusterReactQuery/BusterReactQueryAndApi';
 import { AppLayoutProvider } from './BusterAppLayout';
-import { BusterUserConfigProvider } from './Users/UserConfigProvider';
+import { BusterUserConfigProvider } from './Users/BusterUserConfigProvider';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
 import { BusterPosthogProvider } from './Posthog';
-import { BusterChatProvider } from './Chats';
+import { BusterNewChatProvider } from './Chats';
 import { RoutePrefetcher } from './RoutePrefetcher';
 import type { BusterUserResponse } from '@/api/asset_interfaces';
 
@@ -30,12 +30,12 @@ export const AppProviders: React.FC<
           <AppLayoutProvider>
             <BusterUserConfigProvider userInfo={userInfo}>
               <BusterAssetsProvider>
-                <BusterChatProvider>
+                <BusterNewChatProvider>
                   <BusterPosthogProvider>
                     {children}
                     <RoutePrefetcher />
                   </BusterPosthogProvider>
-                </BusterChatProvider>
+                </BusterNewChatProvider>
               </BusterAssetsProvider>
             </BusterUserConfigProvider>
           </AppLayoutProvider>

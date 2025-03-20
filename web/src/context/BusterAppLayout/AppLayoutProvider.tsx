@@ -57,8 +57,7 @@ export const useAppLayout = () => {
     currentRoute,
     onToggleInviteModal,
     openInviteModal,
-    onChangePage,
-    pathname
+    onChangePage
   };
 };
 
