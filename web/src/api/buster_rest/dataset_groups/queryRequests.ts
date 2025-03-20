@@ -242,7 +242,6 @@ export const useUpdateDatasetGroupPermissionGroups = () => {
       queryClient.setQueryData(
         queryKeys.datasetGroupsGetDatasets(datasetGroupId).queryKey,
         (oldData: GetDatasetGroupPermissionGroupsResponse[] | undefined) => {
-          console.log(oldData, data);
           if (!oldData) return [];
           return oldData.map((permissionGroup) => {
             const permissionGroupToUpdate = data.find((d) => d.id === permissionGroup.id);

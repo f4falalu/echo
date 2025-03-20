@@ -39,7 +39,7 @@ export const useGetDashboardsList = (
   }, [params]);
 
   return useQuery({
-    ...dashboardQueryKeys.dashboardGetList(filters),
+    ...dashboardQueryKeys.dashboardGetList(params),
     queryFn: () => dashboardsGetList(filters)
   });
 };
@@ -48,17 +48,17 @@ const useGetDashboardAndInitializeMetrics = () => {
   const queryClient = useQueryClient();
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
 
+  const initializeMetrics = useMemoizedFn((metrics: BusterDashboardResponse['metrics']) => {
+    for (const metric of Object.values(metrics)) {
+      const prevMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(metric.id).queryKey);
+      const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
+      queryClient.setQueryData(queryKeys.metricsGetMetric(metric.id).queryKey, upgradedMetric);
+      prefetchGetMetricDataClient({ id: metric.id }, queryClient);
+    }
+  });
+
   return useMemoizedFn(async (id: string) => {
     const { password } = getAssetPassword(id);
-
-    const initializeMetrics = useMemoizedFn((metrics: BusterDashboardResponse['metrics']) => {
-      for (const metric of Object.values(metrics)) {
-        const prevMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(metric.id).queryKey);
-        const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
-        queryClient.setQueryData(queryKeys.metricsGetMetric(metric.id).queryKey, upgradedMetric);
-        prefetchGetMetricDataClient({ id: metric.id }, queryClient);
-      }
-    });
 
     return dashboardsGetDashboard({ id: id!, password }).then((data) => {
       initializeMetrics(data.metrics);
@@ -153,9 +153,18 @@ export const useDeleteDashboards = () => {
       dashboardId: string | string[];
       ignoreConfirm?: boolean;
     }) => {
-      const method = () => {
+      const onMutate = () => {
+        const queryKey = dashboardQueryKeys.dashboardGetList({}).queryKey;
+        queryClient.setQueryData(queryKey, (v) => {
+          const ids = typeof dashboardId === 'string' ? [dashboardId] : dashboardId;
+          return v?.filter((t) => !ids.includes(t.id)) || [];
+        });
+      };
+
+      const method = async () => {
         const ids = typeof dashboardId === 'string' ? [dashboardId] : dashboardId;
-        dashboardsDeleteDashboard({ ids });
+        onMutate();
+        await dashboardsDeleteDashboard({ ids });
       };
       if (ignoreConfirm) {
         return method();
@@ -163,6 +172,9 @@ export const useDeleteDashboards = () => {
       return await openConfirmModal({
         title: 'Delete Dashboard',
         content: 'Are you sure you want to delete this dashboard?',
+        primaryButtonProps: {
+          text: 'Delete'
+        },
         onOk: method
       });
     }
@@ -170,14 +182,9 @@ export const useDeleteDashboards = () => {
 
   return useMutation({
     mutationFn: onDeleteDashboard,
-    onMutate: (variables) => {
-      const queryKey = dashboardQueryKeys.dashboardGetList({}).queryKey;
-      queryClient.setQueryData(queryKey, (v) => {
-        const ids =
-          typeof variables.dashboardId === 'string'
-            ? [variables.dashboardId]
-            : variables.dashboardId;
-        return v?.filter((t) => !ids.includes(t.id)) || [];
+    onSuccess: (_, { dashboardId }) => {
+      queryClient.invalidateQueries({
+        queryKey: dashboardQueryKeys.dashboardGetList({}).queryKey
       });
     }
   });

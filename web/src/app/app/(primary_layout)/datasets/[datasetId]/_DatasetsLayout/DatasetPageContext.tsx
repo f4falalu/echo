@@ -25,8 +25,6 @@ export const useDatasetPageContext = ({ datasetId }: { datasetId: string }) => {
     return !datasetId || !sql || !ymlFile || (originalYmlFile === ymlFile && originalSQL === sql);
   }, [datasetSQL, sql, datasetId, datasetYmlFile, ymlFile]);
 
-  console.log(disablePublish);
-
   const isChangedSQL = useMemo(() => {
     return originalDatasetSQL !== sql;
   }, [originalDatasetSQL, sql]);

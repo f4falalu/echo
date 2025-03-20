@@ -5,15 +5,13 @@ export interface ConfirmProps {
   title: string | React.ReactNode;
   description?: string | React.ReactNode;
   content: string | React.ReactNode;
-  onOk: () => Promise<void> | void;
+  onOk: () => Promise<void> | (() => void);
   onCancel?: () => Promise<void> | void;
   width?: number;
   cancelButtonProps?: {
-    className?: string;
     text?: string;
   };
   primaryButtonProps?: {
-    className?: string;
     text?: string;
   };
 }
@@ -24,7 +22,18 @@ export interface ConfirmModalProps extends ConfirmProps {
 }
 
 export const ConfirmModal: React.FC<ConfirmModalProps> = React.memo(
-  ({ title, content, onOk, onCancel, width, cancelButtonProps, description, open, onClose }) => {
+  ({
+    title,
+    content,
+    onOk,
+    onCancel,
+    width,
+    cancelButtonProps,
+    description,
+    open,
+    onClose,
+    primaryButtonProps
+  }) => {
     return (
       <AppModal
         open={open}
@@ -42,7 +51,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = React.memo(
               }
             : undefined,
           primaryButton: {
-            text: 'OK',
+            text: primaryButtonProps?.text ?? 'Submit',
             onClick: onOk
           }
         }}>

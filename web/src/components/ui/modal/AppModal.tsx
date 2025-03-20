@@ -1,4 +1,6 @@
-import React, { useMemo } from 'react';
+'use client';
+
+import React, { useMemo, useState } from 'react';
 import { type ButtonProps, Button } from '../buttons/Button';
 import {
   Dialog,
@@ -20,7 +22,7 @@ export interface ModalProps {
     left?: React.ReactNode;
     primaryButton: {
       text: string;
-      onClick: () => void;
+      onClick: () => Promise<void> | (() => void);
       variant?: ButtonProps['variant'];
       loading?: boolean;
       disabled?: boolean;
@@ -43,6 +45,8 @@ export interface ModalProps {
 
 export const AppModal: React.FC<ModalProps> = React.memo(
   ({ open, onClose, footer, header, width = 600, className, style, children }) => {
+    const [isLoadingPrimaryButton, setIsLoadingPrimaryButton] = useState(false);
+    const [isLoadingSecondaryButton, setIsLoadingSecondaryButton] = useState(false);
     const onOpenChange = useMemoizedFn((open: boolean) => {
       if (!open) {
         onClose();
@@ -57,6 +61,13 @@ export const AppModal: React.FC<ModalProps> = React.memo(
       }),
       [width, style]
     );
+
+    const onPrimaryButtonClickPreflight = useMemoizedFn(async () => {
+      setIsLoadingPrimaryButton(true);
+      await footer.primaryButton.onClick();
+
+      setIsLoadingPrimaryButton(false);
+    });
 
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -87,9 +98,9 @@ export const AppModal: React.FC<ModalProps> = React.memo(
                   </Button>
                 )}
                 <Button
-                  onClick={footer.primaryButton.onClick}
+                  onClick={onPrimaryButtonClickPreflight}
                   variant={footer.primaryButton.variant ?? 'black'}
-                  loading={footer.primaryButton.loading}
+                  loading={footer.primaryButton.loading ?? isLoadingPrimaryButton}
                   disabled={footer.primaryButton.disabled}>
                   {footer.primaryButton.text}
                 </Button>

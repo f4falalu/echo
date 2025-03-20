@@ -19,6 +19,10 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   const { mutateAsync: onUpdateDashboard } = useUpdateDashboard();
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
 
+  const onOpenAddContentModal = useMemoizedFn(() => {
+    console.log('open add content modal');
+  });
+
   const metrics = dashboardResponse?.metrics;
   const dashboard = dashboardResponse?.dashboard;
 
@@ -36,7 +40,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
         metrics={metrics}
         dashboard={dashboard}
         onUpdateDashboardConfig={onUpdateDashboardConfig}
-        onOpenAddContentModal={() => {}}
+        onOpenAddContentModal={onOpenAddContentModal}
         readOnly={readOnly}
       />
     </div>

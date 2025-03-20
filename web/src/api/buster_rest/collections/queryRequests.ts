@@ -23,11 +23,11 @@ export const useGetCollectionsList = (
   filters: Omit<Parameters<typeof collectionsGetList>[0], 'page' | 'page_size'>
 ) => {
   const payload = useMemo(() => {
-    return { page: 0, page_size: 1000, ...filters };
+    return { page: 0, page_size: 3000, ...filters };
   }, [filters]);
 
   return useQuery({
-    ...collectionQueryKeys.collectionsGetList(payload),
+    ...collectionQueryKeys.collectionsGetList(filters),
     queryFn: () => collectionsGetList(payload)
   });
 };

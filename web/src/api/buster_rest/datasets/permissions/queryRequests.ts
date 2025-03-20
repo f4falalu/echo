@@ -57,7 +57,6 @@ export const useDatasetUpdatePermissionGroups = () => {
       queryClient.setQueryData(
         queryKeys.datasetPermissionGroupsList(dataset_id).queryKey,
         (oldData) => {
-          console.log(oldData, groups);
           const keyedChanges: Record<string, { id: string; assigned: boolean }> = {};
           groups.forEach(({ id, assigned }) => {
             keyedChanges[id] = { id, assigned };

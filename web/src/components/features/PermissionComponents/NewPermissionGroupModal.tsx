@@ -19,8 +19,6 @@ export const NewPermissionGroupModal: React.FC<NewPermissionGroupModalProps> = R
     const [datasetsIdsToAssign, setDatasetsIdsToAssign] = useState<string[]>([]);
     const { openInfoMessage } = useBusterNotifications();
 
-    console.log(datasetsIdsToAssign, datasetId);
-
     const onCreateNewPermissionGroup = useMemoizedFn(async () => {
       const inputValue = inputRef.current?.value;
       if (!inputValue || datasetsIdsToAssign.length === 0) {

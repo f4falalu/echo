@@ -106,18 +106,10 @@ const DeleteButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const { mutateAsync: deleteDashboard, isPending: isDeletingDashboard } = useDeleteDashboards();
-  const { openConfirmModal } = useBusterNotifications();
-
+  const { mutateAsync: deleteDashboard } = useDeleteDashboards();
   const onDeleteClick = useMemoizedFn(async () => {
-    openConfirmModal({
-      title: 'Delete dashboard',
-      content: 'Are you sure you want to delete these dashboards?',
-      onOk: async () => {
-        await deleteDashboard({ dashboardId: selectedRowKeys });
-        onSelectChange([]);
-      }
-    });
+    await deleteDashboard({ dashboardId: selectedRowKeys });
+    onSelectChange([]);
   });
 
   return (
