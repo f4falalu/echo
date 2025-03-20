@@ -71,6 +71,7 @@ impl FileModificationTool for CreateDashboardFilesTool {}
 async fn process_dashboard_file(
     tool_call_id: String,
     file: DashboardFileParams,
+    user_id: &Uuid,
 ) -> Result<(DashboardFile, DashboardYml), String> {
     debug!("Processing dashboard file creation: {}", file.name);
 
@@ -106,7 +107,7 @@ async fn process_dashboard_file(
         content: dashboard_yml.clone(),
         filter: None,
         organization_id: Uuid::new_v4(),
-        created_by: Uuid::new_v4(),
+        created_by: user_id.clone(),
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
@@ -152,7 +153,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
 
         // First pass - validate and prepare all records
         for file in files {
-            match process_dashboard_file(tool_call_id.clone(), file.clone()).await {
+            match process_dashboard_file(tool_call_id.clone(), file.clone(), &self.agent.get_user_id()).await {
                 Ok((dashboard_file, dashboard_yml)) => {
                     dashboard_records.push(dashboard_file);
                     dashboard_ymls.push(dashboard_yml);

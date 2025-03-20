@@ -558,6 +558,7 @@ pub async fn process_metric_file(
     tool_call_id: String,
     file_name: String,
     yml_content: String,
+    user_id: &Uuid,
 ) -> Result<
     (
         MetricFile,
@@ -599,7 +600,7 @@ pub async fn process_metric_file(
         name: file_name.clone(),
         file_name: file_name.clone(),
         content: metric_yml.clone(),
-        created_by: Uuid::new_v4(),
+        created_by: user_id.clone(),
         verification: Verification::NotRequested,
         evaluation_obj: None,
         evaluation_summary: None,
