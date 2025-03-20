@@ -87,7 +87,9 @@ pub async fn add_dashboards_to_collection_handler(
             user_id = %user_id,
             "User does not have permission to modify this collection"
         );
-        return Err(anyhow!("User does not have permission to modify this collection"));
+        return Err(anyhow!(
+            "User does not have permission to modify this collection"
+        ));
     }
 
     // 3. Validate dashboards exist and user has access to them
@@ -136,24 +138,33 @@ pub async fn add_dashboards_to_collection_handler(
                 user_id = %user_id,
                 "User does not have permission to access this dashboard"
             );
-            return Err(anyhow!("User does not have permission to access dashboard: {}", dashboard_id));
+            return Err(anyhow!(
+                "User does not have permission to access dashboard: {}",
+                dashboard_id
+            ));
         }
     }
 
     // 4. Add dashboards to collection (upsert if previously deleted)
     for dashboard_id in &dashboard_ids {
         // Check if the dashboard is already in the collection
-        let existing = collections_to_assets::table
+        let existing = match collections_to_assets::table
             .filter(collections_to_assets::collection_id.eq(collection_id))
             .filter(collections_to_assets::asset_id.eq(dashboard_id))
             .filter(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
             .first::<CollectionToAsset>(&mut conn)
             .await
-            .optional()
-            .map_err(|e| {
-                error!("Error checking if dashboard is already in collection: {}", e);
-                anyhow!("Database error: {}", e)
-            })?;
+        {
+            Ok(record) => Some(record),
+            Err(diesel::NotFound) => None,
+            Err(e) => {
+                error!(
+                    "Error checking if dashboard is already in collection: {}",
+                    e
+                );
+                return Err(anyhow!("Database error: {}", e));
+            }
+        };
 
         if let Some(existing_record) = existing {
             if existing_record.deleted_at.is_some() {
@@ -163,7 +174,8 @@ pub async fn add_dashboards_to_collection_handler(
                     .filter(collections_to_assets::asset_id.eq(dashboard_id))
                     .filter(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
                     .set((
-                        collections_to_assets::deleted_at.eq::<Option<chrono::DateTime<chrono::Utc>>>(None),
+                        collections_to_assets::deleted_at
+                            .eq::<Option<chrono::DateTime<chrono::Utc>>>(None),
                         collections_to_assets::updated_at.eq(chrono::Utc::now()),
                         collections_to_assets::updated_by.eq(user_id),
                     ))
@@ -216,6 +228,6 @@ mod tests {
     async fn test_add_dashboards_to_collection_handler() {
         // This is a placeholder for the actual test
         // In a real implementation, we would use test fixtures and a test database
-        assert!(true); 
+        assert!(true);
     }
 }
