@@ -90,9 +90,9 @@ export const buttonIconVariants = cva('', {
       success: 'text-success-foreground'
     },
     size: {
-      default: 'text-icon-size',
-      tall: 'text-icon-size-lg',
-      small: 'text-icon-size-sm'
+      default: 'text-icon-size!',
+      tall: 'text-icon-size-lg!',
+      small: 'text-icon-size-sm!'
     },
     disabled: {
       true: 'text-gray-light',

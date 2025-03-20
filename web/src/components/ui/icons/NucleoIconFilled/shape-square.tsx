@@ -3,12 +3,8 @@ import React from 'react';
 import { iconProps } from './iconProps';
 
 function shapeSquare(props: iconProps) {
-  const strokewidth = props.strokewidth || 1.3;
-  const title = props.title || '12px shape square';
-
   return (
     <svg height="1em" width="1em" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-      <title>{title}</title>
       <g fill="currentColor">
         <rect
           height="11"

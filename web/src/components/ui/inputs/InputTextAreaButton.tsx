@@ -76,7 +76,7 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
 
         <div className="absolute right-2 bottom-2">
           <SubmitButton
-            disabled={disabled || disabledSubmit}
+            disabled={disabledSubmit}
             loading={loading}
             sendIcon={sendIcon}
             loadingIcon={loadingIcon}

@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { InputTextAreaButton } from './InputTextAreaButton';
+import { fn } from '@storybook/test';
+import { ArrowUp, ShapeSquare } from '../icons/NucleoIconFilled';
 
 const meta: Meta<typeof InputTextAreaButton> = {
   title: 'UI/Inputs/InputTextAreaButton',
@@ -69,5 +71,21 @@ export const WithInitialValue: Story = {
   args: {
     value: 'This is some initial text in the textarea...',
     rows: 4
+  }
+};
+
+export const ChatInput: Story = {
+  args: {
+    placeholder: 'Ask Buster a question...',
+    rows: 4,
+    autoResize: {
+      minRows: 4,
+      maxRows: 12
+    },
+
+    loadingIcon: <ShapeSquare />,
+    sendIcon: <ArrowUp />,
+    onStop: fn(),
+    onSubmit: fn()
   }
 };

@@ -51,8 +51,6 @@ export const AccessDropdown: React.FC<{
 
     const { value } = selectedItem;
 
-    console.log(selectedItem, shareLevel);
-
     // Using a type-safe switch to handle all ShareRole values
     switch (value) {
       case ShareRole.FULL_ACCESS:
