@@ -21,16 +21,18 @@ use crate::collections::types::{
 ///
 /// # Arguments
 /// * `user_id` - The ID of the user updating the collection
+/// * `collection_id` - The ID of the collection to update
 /// * `req` - The request containing the collection updates
 ///
 /// # Returns
 /// * `Result<CollectionState>` - The updated collection state
 pub async fn update_collection_handler(
     user_id: &Uuid,
+    collection_id: Uuid,
     req: UpdateCollectionRequest,
 ) -> Result<CollectionState> {
     let user_id = Arc::new(*user_id);
-    let collection_id = Arc::new(req.id);
+    let collection_id = Arc::new(collection_id);
 
     // Update collection record if provided
     let update_collection_record_handle = if let Some(collection) = req.collection {
@@ -89,7 +91,7 @@ pub async fn update_collection_handler(
     }
 
     // Get the updated collection
-    let collection = match fetch_collection(&req.id).await? {
+    let collection = match fetch_collection(&collection_id).await? {
         Some(collection) => collection,
         None => return Err(anyhow!("Collection not found")),
     };

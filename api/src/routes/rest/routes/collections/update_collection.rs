@@ -1,4 +1,5 @@
 use axum::{
+    extract::Path,
     http::StatusCode,
     Extension, Json,
 };
@@ -10,11 +11,12 @@ use uuid::Uuid;
 ///
 /// This endpoint updates a collection with the provided details.
 pub async fn update_collection(
+    Path(collection_id): Path<Uuid>,
     Extension(user): Extension<AuthenticatedUser>,
     Json(req): Json<UpdateCollectionRequest>,
 ) -> Result<Json<CollectionState>, (StatusCode, String)> {
     // Call the handler
-    match update_collection_handler(&user.id, req).await {
+    match update_collection_handler(&user.id, collection_id, req).await {
         Ok(collection) => Ok(Json(collection)),
         Err(e) => {
             tracing::error!("Error updating collection: {}", e);
