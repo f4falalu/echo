@@ -27,8 +27,7 @@ const openNotification = (props: NotificationProps) => {
 
   const toastOptions: ExternalToast = {
     ...props,
-    description: !hasTitle && message ? message : message,
-    position: 'top-center'
+    description: !hasTitle && message ? message : message
   };
 
   switch (type) {
