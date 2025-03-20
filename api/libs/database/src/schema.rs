@@ -405,6 +405,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    metric_files_to_dashboard_files (metric_file_id, dashboard_file_id) {
+        metric_file_id -> Uuid,
+        dashboard_file_id -> Uuid,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
+        created_by -> Uuid,
+    }
+}
+
+diesel::table! {
     organizations (id) {
         id -> Uuid,
         name -> Text,
@@ -629,6 +640,8 @@ diesel::joinable!(messages_deprecated -> datasets (dataset_id));
 diesel::joinable!(messages_deprecated -> users (sent_by));
 diesel::joinable!(messages_to_files -> messages (message_id));
 diesel::joinable!(metric_files -> users (publicly_enabled_by));
+diesel::joinable!(metric_files_to_dashboard_files -> dashboard_files (dashboard_file_id));
+diesel::joinable!(metric_files_to_dashboard_files -> metric_files (metric_file_id));
 diesel::joinable!(permission_groups -> organizations (organization_id));
 diesel::joinable!(permission_groups_to_users -> permission_groups (permission_group_id));
 diesel::joinable!(permission_groups_to_users -> users (user_id));
@@ -668,6 +681,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     messages_deprecated,
     messages_to_files,
     metric_files,
+    metric_files_to_dashboard_files,
     organizations,
     permission_groups,
     permission_groups_to_identities,
