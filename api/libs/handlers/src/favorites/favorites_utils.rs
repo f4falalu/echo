@@ -77,7 +77,7 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
                 .map(|f| f.0)
                 .collect::<Vec<Uuid>>(),
         );
-        tokio::spawn(async move { get_favorite_dashboards(dashboard_ids) })
+        tokio::spawn(async move { get_favorite_dashboards(dashboard_ids).await })
     };
 
     let collection_favorites = {
@@ -88,7 +88,7 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
                 .map(|f| f.0)
                 .collect::<Vec<Uuid>>(),
         );
-        tokio::spawn(async move { get_assets_from_collections(collection_ids) })
+        tokio::spawn(async move { get_assets_from_collections(collection_ids).await })
     };
 
     let threads_favorites = {
@@ -99,7 +99,7 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
                 .map(|f| f.0)
                 .collect::<Vec<Uuid>>(),
         );
-        tokio::spawn(async move { get_favorite_threads(thread_ids) })
+        tokio::spawn(async move { get_favorite_threads(thread_ids).await })
     };
 
     let metrics_favorites = {
@@ -110,7 +110,7 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
                 .map(|f| f.0)
                 .collect::<Vec<Uuid>>(),
         );
-        tokio::spawn(async move { get_favorite_metrics(metric_ids) })
+        tokio::spawn(async move { get_favorite_metrics(metric_ids).await })
     };
 
     let (dashboard_fav_res, collection_fav_res, threads_fav_res, metrics_fav_res) =
@@ -124,7 +124,7 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
             }
         };
 
-    let favorite_dashboards = match dashboard_fav_res.await {
+    let favorite_dashboards = match dashboard_fav_res {
         Ok(dashboards) => dashboards,
         Err(e) => {
             tracing::error!("Error getting favorite dashboards: {}", e);
@@ -132,7 +132,7 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
         }
     };
 
-    let favorite_collections = match collection_fav_res.await {
+    let favorite_collections = match collection_fav_res {
         Ok(collections) => collections,
         Err(e) => {
             tracing::error!("Error getting favorite collections: {}", e);
@@ -140,7 +140,7 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
         }
     };
 
-    let favorite_threads = match threads_fav_res.await {
+    let favorite_threads = match threads_fav_res {
         Ok(threads) => threads,
         Err(e) => {
             tracing::error!("Error getting favorite threads: {}", e);
@@ -148,7 +148,7 @@ pub async fn list_user_favorites(user: &AuthenticatedUser) -> Result<Vec<Favorit
         }
     };
 
-    let favorite_metrics = match metrics_fav_res.await {
+    let favorite_metrics = match metrics_fav_res {
         Ok(metrics) => metrics,
         Err(e) => {
             tracing::error!("Error getting favorite metrics: {}", e);
@@ -216,7 +216,7 @@ async fn get_favorite_threads(thread_ids: Arc<Vec<Uuid>>) -> Result<Vec<Favorite
     let favorite_threads = thread_records
         .iter()
         .map(|(id, name)| FavoriteObject {
-            id: id.clone(),
+            id: *id,
             name: name.clone().unwrap_or_else(|| String::from("Untitled")),
             type_: AssetType::Thread,
         })
@@ -246,7 +246,7 @@ async fn get_favorite_dashboards(dashboard_ids: Arc<Vec<Uuid>>) -> Result<Vec<Fa
     let favorite_dashboards = dashboard_records
         .iter()
         .map(|(id, name)| FavoriteObject {
-            id: id.clone(),
+            id: *id,
             name: name.clone(),
             type_: AssetType::Dashboard,
         })
@@ -339,7 +339,7 @@ async fn get_assets_from_collections(
     Ok(collection_favorites)
 }
 
-async fn get_collection_names(collection_ids: &Vec<Uuid>) -> Result<Vec<(Uuid, String)>> {
+async fn get_collection_names(collection_ids: &[Uuid]) -> Result<Vec<(Uuid, String)>> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
@@ -359,7 +359,7 @@ async fn get_collection_names(collection_ids: &Vec<Uuid>) -> Result<Vec<(Uuid, S
 }
 
 async fn get_dashboards_from_collections(
-    collection_ids: &Vec<Uuid>,
+    collection_ids: &[Uuid],
 ) -> Result<Vec<(Uuid, FavoriteObject)>> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
@@ -403,7 +403,7 @@ async fn get_dashboards_from_collections(
 }
 
 async fn get_threads_from_collections(
-    collection_ids: &Vec<Uuid>,
+    collection_ids: &[Uuid],
 ) -> Result<Vec<(Uuid, FavoriteObject)>> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
@@ -439,9 +439,9 @@ async fn get_threads_from_collections(
         .iter()
         .map(|(collection_id, id, name)| {
             (
-                collection_id.clone(),
+                *collection_id,
                 FavoriteObject {
-                    id: id.clone(),
+                    id: *id,
                     name: name.clone().unwrap_or_else(|| String::from("Untitled")),
                     type_: AssetType::Thread,
                 },
@@ -472,7 +472,7 @@ async fn get_favorite_metrics(metric_ids: Arc<Vec<Uuid>>) -> Result<Vec<Favorite
     let favorite_metrics = metric_records
         .iter()
         .map(|(id, name)| FavoriteObject {
-            id: id.clone(),
+            id: *id,
             name: name.clone(),
             type_: AssetType::MetricFile,
         })
@@ -480,7 +480,7 @@ async fn get_favorite_metrics(metric_ids: Arc<Vec<Uuid>>) -> Result<Vec<Favorite
     Ok(favorite_metrics)
 }
 
-pub async fn update_favorites(user: &AuthenticatedUser, favorites: &Vec<Uuid>) -> Result<()> {
+pub async fn update_favorites(user: &AuthenticatedUser, favorites: &[Uuid]) -> Result<()> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
@@ -509,7 +509,7 @@ pub async fn update_favorites(user: &AuthenticatedUser, favorites: &Vec<Uuid>) -
             let new_fav = UserFavorite {
                 user_id: user.id,
                 asset_id: *favorite_id,
-                asset_type: asset_type.clone(),
+                asset_type: *asset_type,
                 order_index: index as i32,
                 created_at: chrono::Utc::now(),
                 deleted_at: None,
