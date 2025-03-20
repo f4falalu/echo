@@ -8,6 +8,7 @@ mod get_collection;
 mod create_collection;
 mod update_collection;
 mod delete_collection;
+mod remove_metrics_from_collection;
 mod sharing;
 
 pub fn router() -> Router {
@@ -17,5 +18,6 @@ pub fn router() -> Router {
         .route("/:id", get(get_collection::get_collection))
         .route("/:id", put(update_collection::update_collection))
         .route("/:id", delete(delete_collection::delete_collection))
+        .route("/:id/metrics", delete(remove_metrics_from_collection::remove_metrics_from_collection))
         .nest("/:id/sharing", sharing::router())
 }
