@@ -2,7 +2,7 @@
 title: Add Dashboard to Collections REST Endpoint
 author: Cascade
 date: 2025-03-19
-status: Implemented
+status: Complete
 ---
 
 # Add Dashboard to Collections REST Endpoint
