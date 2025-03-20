@@ -22,6 +22,7 @@ pub struct ListDataSourcesRequest {
 pub struct DataSourceListItem {
     pub id: String,
     pub name: String,
+    #[serde(rename = "type")]
     pub type_: DataSourceType,
     pub updated_at: DateTime<Utc>,
 }
