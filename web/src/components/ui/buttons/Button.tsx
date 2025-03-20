@@ -9,7 +9,7 @@ export const buttonTypeClasses = {
     'bg-background border hover:bg-item-hover disabled:bg-disabled disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
   black: 'bg-black text-white hover:bg-foreground-hover disabled:bg-black/60',
   primary:
-    'bg-primary text-white hover:bg-primary-light active:bg-primary-dark data-[selected=true]:bg-primary-dark',
+    'bg-primary disabled:bg-disabled text-white hover:bg-primary-light disabled:text-gray-light active:bg-primary-dark data-[selected=true]:bg-primary-dark',
   ghost:
     'bg-transparent text-gray-dark shadow-none hover:bg-item-hover hover:text-foreground disabled:bg-transparent disabled:text-gray-light active:bg-item-active data-[selected=true]:bg-item-select',
   link: 'bg-transparent text-gray-dark shadow-none hover:text-foreground disabled:bg-transparent disabled:text-gray-light',

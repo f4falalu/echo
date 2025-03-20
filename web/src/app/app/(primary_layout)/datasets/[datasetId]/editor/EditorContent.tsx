@@ -64,7 +64,7 @@ export const EditorContent: React.FC<{
   return (
     <div className="flex h-full w-full flex-col overflow-hidden" ref={ref}>
       <EditorContainerSubHeader selectedApp={selectedApp} setSelectedApp={setSelectedApp} />
-      <div className={cn('h-full w-full overflow-hidden p-5', 'bg-item-hover')}>
+      <div className={cn('bg-page-background h-full w-full overflow-hidden p-5')}>
         {selectedApp === EditorApps.PREVIEW && (
           <AppVerticalCodeSplitter
             autoSaveId="dataset-editor"

@@ -25,10 +25,15 @@ export const EditorContainerSubHeader: React.FC<{
   return (
     <div
       className={cn(
-        'bg-disabled h-[36px] w-full border-b',
+        'bg-page-background h-[36px] w-full border-b',
         'flex items-center justify-between px-4'
       )}>
-      <AppSegmented options={options} value={selectedApp} onChange={onSegmentedChange} />
+      <AppSegmented
+        options={options}
+        type="button"
+        value={selectedApp}
+        onChange={onSegmentedChange}
+      />
     </div>
   );
 });
