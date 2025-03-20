@@ -462,10 +462,11 @@ impl Agent {
             (trace_builder, parent_span)
         };
 
-        if recursion_depth >= 30 {
+        // Limit recursion to a maximum of 15 times
+        if recursion_depth >= 15 {
             let message = AgentMessage::assistant(
                 Some("max_recursion_depth_message".to_string()),
-                Some("I apologize, but I've reached the maximum number of actions (30). Please try breaking your request into smaller parts.".to_string()),
+                Some("I apologize, but I've reached the maximum number of actions (15). Please try breaking your request into smaller parts.".to_string()),
                 None,
                 MessageProgress::Complete,
                 None,
