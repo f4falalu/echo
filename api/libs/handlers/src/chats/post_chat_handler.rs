@@ -369,6 +369,7 @@ pub async fn post_chat_handler(
         final_reasoning_message: format!("Reasoned for {} seconds", reasoning_duration),
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
+        feedback: None
     };
 
     let mut conn = get_pg_pool().get().await?;
