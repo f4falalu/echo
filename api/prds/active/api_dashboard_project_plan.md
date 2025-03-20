@@ -60,10 +60,11 @@ The implementation is divided into phases based on dependencies and complexity. 
 
 **PRD to implement:**
 
-- [Update Dashboard Endpoint](mdc:prds/active/api_dashboard_update_endpoint.md)
-  - Implement business logic handler
-  - Implement REST handler
-  - Update module files
+- [Update Dashboard Endpoint](mdc:prds/active/api_dashboard_update_endpoint.md) ✅
+  - Implement business logic handler ✅
+  - Implement REST handler ✅
+  - Update module files ✅
+  - Add tests ✅
 
 **Rationale:**
 - Update is more complex due to handling partial updates
@@ -78,12 +79,12 @@ The implementation is divided into phases based on dependencies and complexity. 
 
 - Unit Tests for all endpoints
   - [Create Dashboard](mdc:prds/active/api_dashboard_create_endpoint.md) tests
-  - [Update Dashboard](mdc:prds/active/api_dashboard_update_endpoint.md) tests
+  - [Update Dashboard](mdc:prds/active/api_dashboard_update_endpoint.md) tests ✅
   - [Delete Dashboard](mdc:prds/active/api_dashboard_delete_endpoint.md) tests
 
 - Integration Tests for all endpoints
   - [Create Dashboard](mdc:prds/active/api_dashboard_create_endpoint.md) tests
-  - [Update Dashboard](mdc:prds/active/api_dashboard_update_endpoint.md) tests
+  - [Update Dashboard](mdc:prds/active/api_dashboard_update_endpoint.md) tests ✅
   - [Delete Dashboard](mdc:prds/active/api_dashboard_delete_endpoint.md) tests
 
 **Rationale:**
