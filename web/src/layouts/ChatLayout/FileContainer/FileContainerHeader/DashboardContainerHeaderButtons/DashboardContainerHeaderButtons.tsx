@@ -41,7 +41,7 @@ SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 
 const AddContentToDashboardButton = React.memo(() => {
   return (
-    <AppTooltip title="Add to dashboard">
+    <AppTooltip title="Add content">
       <Button variant="ghost" prefix={<Plus />} />
     </AppTooltip>
   );

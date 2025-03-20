@@ -1,7 +1,7 @@
 'use client';
 
 import { VList } from 'virtua';
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { BusterListProps } from './interfaces';
 import { useMemoizedFn } from '@/hooks';
 import { getAllIdsInSection } from './helpers';
@@ -26,6 +26,7 @@ export const BusterListVirtua = React.memo(
   }: BusterListProps) => {
     const showEmptyState = (!rows || rows.length === 0) && !!emptyState;
     const lastChildIndex = rows.length - 1;
+    const lastSelectedIdRef = useRef<string | null>(null);
 
     const globalCheckStatus = useMemo(() => {
       if (!selectedRowKeys) return 'unchecked';
@@ -49,14 +50,44 @@ export const BusterListVirtua = React.memo(
       }
     });
 
-    const onSelectChangePreflight = useMemoizedFn((v: boolean, id: string) => {
-      if (!onSelectChange || !selectedRowKeys) return;
-      if (v === false) {
-        onSelectChange(selectedRowKeys?.filter((d) => d !== id));
-      } else {
-        onSelectChange(selectedRowKeys?.concat(id) || []);
-      }
+    const getItemsBetween = useMemoizedFn((startId: string, endId: string) => {
+      const startIndex = rows.findIndex((row) => row.id === startId);
+      const endIndex = rows.findIndex((row) => row.id === endId);
+
+      if (startIndex === -1 || endIndex === -1) return [];
+
+      const start = Math.min(startIndex, endIndex);
+      const end = Math.max(startIndex, endIndex);
+
+      return rows
+        .slice(start, end + 1)
+        .filter((row) => !row.rowSection && !row.hidden)
+        .map((row) => row.id);
     });
+
+    const onSelectChangePreflight = useMemoizedFn(
+      (v: boolean, id: string, event?: React.MouseEvent) => {
+        if (!onSelectChange || !selectedRowKeys) return;
+
+        if (event?.shiftKey && lastSelectedIdRef.current) {
+          const itemsBetween = getItemsBetween(lastSelectedIdRef.current, id);
+          if (v) {
+            const newSelectedKeys = Array.from(new Set([...selectedRowKeys, ...itemsBetween]));
+            onSelectChange(newSelectedKeys);
+          } else {
+            onSelectChange(selectedRowKeys.filter((key) => !itemsBetween.includes(key)));
+          }
+        } else {
+          if (v === false) {
+            onSelectChange(selectedRowKeys.filter((d) => d !== id));
+          } else {
+            onSelectChange(selectedRowKeys.concat(id));
+          }
+        }
+
+        lastSelectedIdRef.current = id;
+      }
+    );
 
     const itemSize = useMemoizedFn((index: number) => {
       const row = rows[index];
@@ -83,10 +114,11 @@ export const BusterListVirtua = React.memo(
       hideLastRowBorder
     ]);
 
-    const WrapperNode = !!contextMenu ? ContextMenu : React.Fragment;
-    const wrapperNodeProps: ContextMenuProps = !!contextMenu
-      ? contextMenu
-      : ({} as ContextMenuProps);
+    const [WrapperNode, wrapperNodeProps] = useMemo(() => {
+      const node = !!contextMenu ? ContextMenu : React.Fragment;
+      const props: ContextMenuProps = !!contextMenu ? contextMenu : ({} as ContextMenuProps);
+      return [node, props];
+    }, [contextMenu]);
 
     return (
       <WrapperNode {...wrapperNodeProps}>

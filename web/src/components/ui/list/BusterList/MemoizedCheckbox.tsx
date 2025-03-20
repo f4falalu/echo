@@ -11,14 +11,20 @@ export const MemoizedCheckbox = React.memo(
   }: {
     checked: boolean;
     indeterminate: boolean;
-    onChange: (v: boolean) => void;
+    onChange: (v: boolean, e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   }) => {
-    const handleChange = useMemoizedFn((checkedState: CheckedState) => {
-      onChange?.(checkedState === true);
-    });
+    const handleChange = useMemoizedFn(
+      (checkedState: CheckedState, e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        onChange?.(checkedState === true, e);
+      }
+    );
 
     return (
-      <Checkbox checked={checked} indeterminate={indeterminate} onCheckedChange={handleChange} />
+      <Checkbox
+        checked={checked}
+        indeterminate={indeterminate}
+        onClick={(e) => handleChange(!checked, e)}
+      />
     );
   }
 );

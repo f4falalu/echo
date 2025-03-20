@@ -6,7 +6,7 @@ import { cn } from '@/lib/classMerge';
 
 export const CheckboxColumn: React.FC<{
   checkStatus: 'checked' | 'unchecked' | 'indeterminate' | undefined;
-  onChange: (v: boolean) => void;
+  onChange: (v: boolean, e: React.MouseEvent) => void;
   className?: string;
 }> = React.memo(({ checkStatus, onChange, className = '' }) => {
   const showBox = checkStatus === 'checked'; //|| checkStatus === 'indeterminate';
@@ -14,10 +14,6 @@ export const CheckboxColumn: React.FC<{
   const onClickStopPropagation = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     e.preventDefault();
-  });
-
-  const onChangePreflight = useMemoizedFn((e: boolean) => {
-    onChange(e);
   });
 
   return (
@@ -35,7 +31,7 @@ export const CheckboxColumn: React.FC<{
       <MemoizedCheckbox
         checked={checkStatus === 'checked'}
         indeterminate={checkStatus === 'indeterminate'}
-        onChange={onChangePreflight}
+        onChange={onChange}
       />
     </div>
   );

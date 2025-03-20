@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { BusterList } from './index';
 import { BusterListRow } from './interfaces';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { faker } from '@faker-js/faker';
 import { ContextMenuProps } from '../../context/ContextMenu';
 
@@ -40,21 +40,11 @@ const sampleColumns = [
   {
     dataIndex: 'name',
     title: 'Name',
-    width: 200
+    width: 100
   },
   {
     dataIndex: 'age',
     title: 'Age',
-    width: 100
-  },
-  {
-    dataIndex: 'address',
-    title: 'Address',
-    width: 200
-  },
-  {
-    dataIndex: 'email',
-    title: 'Email',
     width: 100
   },
   {
@@ -83,7 +73,7 @@ const generateSampleRows = (count: number): BusterListRow[] => {
 
     if (i === 3) {
       rows.push({
-        id: 'section1',
+        id: 'section' + i,
         data: null,
         rowSection: {
           title: faker.company.name(),
@@ -96,7 +86,7 @@ const generateSampleRows = (count: number): BusterListRow[] => {
   // Add a section row in the middle
   const sectionIndex = Math.floor(count / 2);
   rows.splice(sectionIndex, 0, {
-    id: 'section1',
+    id: 'section' + sectionIndex,
     data: null,
     rowSection: {
       title: faker.company.name(),
@@ -142,19 +132,31 @@ export const Default: Story = {
 };
 
 export const WithSelection: Story = {
-  args: {
-    columns: sampleColumns,
-    rows: sampleRows,
-    selectedRowKeys: [sampleRows[0].id, sampleRows[2].id],
-    showHeader: true,
-    showSelectAll: true,
-    onSelectChange: (selectedRowKeys) => alert(`Selected ${selectedRowKeys.join(', ')}`)
-  },
-  render: (args) => (
-    <div style={{ height: '400px', width: '800px' }}>
-      <BusterList {...args} />
-    </div>
-  )
+  render: () => {
+    const sampleRows = useMemo(() => {
+      return generateSampleRows(50);
+    }, []);
+
+    const [selectedKeys, setSelectedKeys] = React.useState<string[]>([]);
+
+    return (
+      <div style={{ height: '400px', width: '800px' }}>
+        <div className="mb-4">
+          <p className="rounded border border-blue-200 bg-blue-300 p-1 text-sm text-blue-900">
+            Selected rows: {selectedKeys.join(', ') || 'None'}
+          </p>
+        </div>
+        <BusterList
+          columns={sampleColumns}
+          rows={sampleRows}
+          selectedRowKeys={selectedKeys}
+          onSelectChange={setSelectedKeys}
+          showHeader={true}
+          showSelectAll={true}
+        />
+      </div>
+    );
+  }
 };
 
 export const WithContextMenu: Story = {
@@ -173,19 +175,28 @@ export const WithContextMenu: Story = {
 };
 
 export const WithRowClickSelection: Story = {
-  args: {
-    columns: sampleColumns,
-    rows: sampleRows,
-    useRowClickSelectChange: true,
-    showHeader: true,
-    showSelectAll: true,
-    onSelectChange: (selectedRowKeys) => alert(`Selected ${selectedRowKeys.join(', ')}`)
-  },
-  render: (args) => (
-    <div style={{ height: '400px', width: '800px' }}>
-      <BusterList {...args} />
-    </div>
-  )
+  render: () => {
+    const [selectedKeys, setSelectedKeys] = React.useState<string[]>([]);
+
+    return (
+      <div style={{ height: '400px', width: '800px' }}>
+        <div className="mb-4">
+          <p className="text-sm text-gray-500">
+            Selected rows: {selectedKeys.join(', ') || 'None'}
+          </p>
+        </div>
+        <BusterList
+          columns={sampleColumns}
+          rows={sampleRows}
+          selectedRowKeys={selectedKeys}
+          onSelectChange={setSelectedKeys}
+          useRowClickSelectChange={true}
+          showHeader={true}
+          showSelectAll={true}
+        />
+      </div>
+    );
+  }
 };
 
 export const WithoutHeader: Story = {
@@ -216,38 +227,59 @@ export const EmptyState: Story = {
 };
 
 export const BorderVariant: Story = {
-  args: {
-    columns: sampleColumns,
-    rows: generateSampleRows(30),
-    hideLastRowBorder: true,
-    showHeader: true,
-    showSelectAll: true,
-    onSelectChange: (selectedRowKeys) => alert(`Selected ${selectedRowKeys.join(', ')}`),
-    selectedRowKeys: generateSampleRows(30)
-      .filter((_, index) => index % 3 === 0)
-      .map((row) => row.id)
-  },
-  render: (args) => (
-    <div className="flex flex-col gap-4" style={{ height: '900px', width: '800px' }}>
-      <div className="flex flex-col gap-2">
-        <h3 className="text-lg font-medium">Border Variant with Many Rows</h3>
-        <p className="text-sm text-gray-500">
-          This variant remove the border of the last row. This is useful when you want to put this
-          list inside of a container that already contains a border
-        </p>
-        <div className="min-h-[300px]">
-          <BusterList {...args} />
+  render: () => {
+    const [selectedKeys, setSelectedKeys] = React.useState<string[]>(
+      generateSampleRows(30)
+        .filter((_, index) => index % 3 === 0)
+        .map((row) => row.id)
+    );
+    const rows = generateSampleRows(30);
+
+    return (
+      <div className="flex flex-col gap-4" style={{ height: '900px', width: '800px' }}>
+        <div className="flex flex-col gap-2">
+          <h3 className="text-lg font-medium">Border Variant with Many Rows</h3>
+          <p className="text-sm text-gray-500">
+            This variant remove the border of the last row. This is useful when you want to put this
+            list inside of a container that already contains a border
+          </p>
+          <div className="mb-4">
+            <p className="text-sm text-gray-500">
+              Selected rows: {selectedKeys.join(', ') || 'None'}
+            </p>
+          </div>
+          <div className="min-h-[300px]">
+            <BusterList
+              columns={sampleColumns}
+              rows={rows}
+              selectedRowKeys={selectedKeys}
+              onSelectChange={setSelectedKeys}
+              hideLastRowBorder={true}
+              showHeader={true}
+              showSelectAll={true}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <h3 className="text-lg font-medium">Default Variant with Many Rows</h3>
+          <p className="text-sm text-gray-500">
+            This variant shows rows without container styling.
+          </p>
+          <div className="min-h-[300px]">
+            <BusterList
+              columns={sampleColumns}
+              rows={rows}
+              selectedRowKeys={selectedKeys}
+              onSelectChange={setSelectedKeys}
+              hideLastRowBorder={false}
+              showHeader={true}
+              showSelectAll={true}
+            />
+          </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        <h3 className="text-lg font-medium">Default Variant with Many Rows</h3>
-        <p className="text-sm text-gray-500">This variant shows rows without container styling.</p>
-        <div className="min-h-[300px]">
-          <BusterList {...args} hideLastRowBorder={false} />
-        </div>
-      </div>
-    </div>
-  )
+    );
+  }
 };
 
 // Story with many rows to demonstrate virtualization
@@ -278,4 +310,29 @@ export const ManyRowsWithContextMenu: Story = {
       <BusterList {...args} />
     </div>
   )
+};
+
+export const InteractiveSelection: Story = {
+  render: () => {
+    const [selectedKeys, setSelectedKeys] = React.useState<string[]>([]);
+
+    return (
+      <div style={{ height: '400px', width: '800px' }}>
+        <div className="mb-4">
+          <p className="text-sm text-gray-500">
+            Selected rows: {selectedKeys.join(', ') || 'None'}
+          </p>
+        </div>
+        <BusterList
+          columns={sampleColumns}
+          rows={sampleRows}
+          selectedRowKeys={selectedKeys}
+          onSelectChange={setSelectedKeys}
+          showHeader={true}
+          showSelectAll={true}
+          useRowClickSelectChange={true}
+        />
+      </div>
+    );
+  }
 };

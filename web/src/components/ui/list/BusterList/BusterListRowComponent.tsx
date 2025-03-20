@@ -14,7 +14,7 @@ export const BusterListRowComponent = React.memo(
       row: BusterListRow;
       columns: BusterListColumn[];
       checked: boolean;
-      onSelectChange?: (v: boolean, id: string) => void;
+      onSelectChange?: (v: boolean, id: string, e: React.MouseEvent) => void;
       onContextMenuClick?: (e: React.MouseEvent<HTMLDivElement>, id: string) => void;
       style?: React.CSSProperties;
       hideLastRowBorder: NonNullable<BusterListProps['hideLastRowBorder']>;
@@ -44,13 +44,13 @@ export const BusterListRowComponent = React.memo(
         onContextMenuClick?.(e, row.id);
       });
 
-      const onChange = useMemoizedFn((newChecked: boolean) => {
-        onSelectChange?.(newChecked, row.id);
+      const onChange = useMemoizedFn((newChecked: boolean, e: React.MouseEvent) => {
+        onSelectChange?.(newChecked, row.id, e);
       });
 
-      const onContainerClick = useMemoizedFn(() => {
+      const onContainerClick = useMemoizedFn((e: React.MouseEvent) => {
         if (useRowClickSelectChange) {
-          onChange(!checked);
+          onChange(!checked, e);
         }
         row.onClick?.();
       });
@@ -110,7 +110,7 @@ const BusterListCellComponent: React.FC<{
   isFirstCell?: boolean;
   isLastCell?: boolean;
   width?: number | undefined;
-  onSelectChange?: (v: boolean, id: string) => void;
+  onSelectChange?: (v: boolean, id: string, e: React.MouseEvent) => void;
   render?: (data: string | number | React.ReactNode, row: BusterListRowItem) => React.ReactNode;
 }> = React.memo(({ data, width, row, render, isFirstCell, isLastCell, onSelectChange }) => {
   const memoizedStyle = useMemo(() => {

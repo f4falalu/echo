@@ -9,7 +9,7 @@ export const BusterListRowComponentSelector = React.forwardRef<
     row: BusterListRow;
     columns: BusterListColumn[];
     id: string;
-    onSelectChange?: (v: boolean, id: string) => void;
+    onSelectChange?: (v: boolean, id: string, e: React.MouseEvent) => void;
     onSelectSectionChange?: (v: boolean, id: string) => void;
     onContextMenuClick?: (e: React.MouseEvent<HTMLDivElement>, id: string) => void;
     selectedRowKeys?: string[];

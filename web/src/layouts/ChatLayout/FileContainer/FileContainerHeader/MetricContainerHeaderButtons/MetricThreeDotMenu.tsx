@@ -164,7 +164,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
 
   const dashboardDropdownItem: DropdownItem = useMemo(
     () => ({
-      label: 'Add to dashboard',
+      label: 'Add content',
       value: 'add-to-dashboard',
       icon: <ASSET_ICONS.dashboardAdd />,
       items: [<React.Fragment key="dashboard-sub-menu">{dashboardSubMenu}</React.Fragment>]
