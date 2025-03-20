@@ -3,6 +3,7 @@ use axum::{
     Router,
 };
 
+mod add_assets_to_collection;
 mod add_dashboards_to_collection;
 mod list_collections;
 mod get_collection;
@@ -19,6 +20,7 @@ pub fn router() -> Router {
         .route("/:id", get(get_collection::get_collection))
         .route("/:id", put(update_collection::update_collection))
         .route("/:id", delete(delete_collection::delete_collection))
+        .route("/:id/assets", post(add_assets_to_collection::add_assets_to_collection))
         .route("/:id/dashboards", post(add_dashboards_to_collection::add_dashboards_to_collection))
         .route("/:id/metrics", delete(remove_metrics_from_collection::remove_metrics_from_collection))
         .nest("/:id/sharing", sharing::router())
