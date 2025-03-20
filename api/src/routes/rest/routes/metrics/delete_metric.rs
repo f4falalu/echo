@@ -1,10 +1,7 @@
-use axum::{
-    extract::Path,
-    http::StatusCode,
-    Json,
-    Extension,
+use axum::{extract::Path, http::StatusCode, Extension, Json};
+use handlers::metrics::{
+    delete_metric_handler, delete_metrics_handler, DeleteMetricsRequest, DeleteMetricsResponse,
 };
-use handlers::metrics::{delete_metric_handler, delete_metrics_handler, DeleteMetricsRequest, DeleteMetricsResponse};
 use middleware::AuthenticatedUser;
 use uuid::Uuid;
 
@@ -50,18 +47,21 @@ pub async fn delete_metrics_rest_handler(
             if response.failed_ids.is_empty() && !response.successful_ids.is_empty() {
                 return Ok(ApiResponse::NoContent);
             }
-            
+
             // Return 207 Multi-Status if there were mixed results
             if !response.failed_ids.is_empty() {
-                return Ok(ApiResponse::custom(StatusCode::MULTI_STATUS, response));
+                return Ok(ApiResponse::JsonData(response));
             }
-            
+
             // Return 200 OK for other cases (like empty list)
-            Ok(ApiResponse::Ok(response))
-        },
+            Ok(ApiResponse::JsonData(response))
+        }
         Err(e) => {
             tracing::error!("Error in bulk metric deletion: {}", e);
-            Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to delete metrics: {}", e)))
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to delete metrics: {}", e),
+            ))
         }
     }
 }
