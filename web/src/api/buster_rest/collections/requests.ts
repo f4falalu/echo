@@ -68,7 +68,9 @@ export const collectionsDeleteCollection = async (params: {
   /** Array of collection IDs to be deleted */
   ids: string[];
 }) => {
-  return await mainApi.delete<BusterCollection>('/collections', { params }).then((res) => res.data);
+  return await mainApi.delete<BusterCollection>('/collections', { 
+    data: { ids: params.ids }
+  }).then((res) => res.data);
 };
 
 // share collections

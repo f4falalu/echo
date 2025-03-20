@@ -109,7 +109,6 @@ pub struct UpdateCollectionAssetsRequest {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct UpdateCollectionRequest {
-    pub id: Uuid,
     pub collection: Option<UpdateCollectionObject>,
     pub assets: Option<Vec<UpdateCollectionAssetsRequest>>,
 }

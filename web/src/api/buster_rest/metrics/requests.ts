@@ -52,7 +52,9 @@ export const updateMetric = async (params: UpdateMetricParams) => {
 };
 
 export const deleteMetrics = async (params: { ids: string[] }) => {
-  return mainApi.delete<null>(`/metrics/delete`, { params }).then((res) => res.data);
+  return mainApi.delete<null>(`/metrics/delete`, { 
+    data: { ids: params.ids }
+  }).then((res) => res.data);
 };
 
 export const duplicateMetric = async (params: {
