@@ -1,68 +1,3 @@
----
-title: Add Metric to Collections REST Endpoint
-author: Cascade
-date: 2025-03-19
-status: Draft
----
-
-# Add Metric to Collections REST Endpoint
-
-## Problem Statement
-
-Users need the ability to programmatically add a metric to multiple collections via a REST API. Currently, this functionality is not available, limiting the ability to manage collections through the API.
-
-## Goals
-
-1. Create a REST endpoint to add a metric to multiple collections
-2. Implement proper permission validation
-3. Ensure data integrity with proper error handling
-4. Follow established patterns for REST endpoints and handlers
-
-## Non-Goals
-
-1. Modifying the existing collections functionality
-2. Creating UI components for this endpoint
-
-## Technical Design
-
-### REST Endpoint
-
-**Endpoint:** `POST /metrics/:id/collections`
-
-**Request Body:**
-```json
-{
-  "collection_ids": ["uuid1", "uuid2", "uuid3"]
-}
-```
-
-**Response:**
-- `200 OK` - Success
-  ```json
-  {
-    "message": "Metric added to collections successfully"
-  }
-  ```
-- `400 Bad Request` - Invalid input
-- `403 Forbidden` - Insufficient permissions
-- `404 Not Found` - Metric not found
-- `500 Internal Server Error` - Server error
-
-### Handler Implementation
-
-The handler will:
-1. Validate that the metric exists
-2. Check if the user has appropriate permissions (Owner, FullAccess, or CanEdit) for the metric
-3. Validate that the collections exist and the user has access to them
-4. Add the metric to the collections by creating records in the `collections_to_assets` table
-5. Handle the case where a metric was previously in a collection but was deleted (upsert)
-
-### File Changes
-
-#### New Files
-
-1. ✅ `libs/handlers/src/metrics/add_metric_to_collections_handler.rs`
-```rust
 use anyhow::{anyhow, Result};
 use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
@@ -152,7 +87,9 @@ pub async fn add_metric_to_collections_handler(
             user_id = %user_id,
             "User does not have permission to modify this metric"
         );
-        return Err(anyhow!("User does not have permission to modify this metric"));
+        return Err(anyhow!(
+            "User does not have permission to modify this metric"
+        ));
     }
 
     // 3. Validate collections exist and user has access to them
@@ -201,24 +138,33 @@ pub async fn add_metric_to_collections_handler(
                 user_id = %user_id,
                 "User does not have permission to access this collection"
             );
-            return Err(anyhow!("User does not have permission to access collection: {}", collection_id));
+            return Err(anyhow!(
+                "User does not have permission to access collection: {}",
+                collection_id
+            ));
         }
     }
 
     // 4. Add metric to collections (upsert if previously deleted)
     for collection_id in &collection_ids {
         // Check if the metric is already in the collection
-        let existing = collections_to_assets::table
+        let existing = match collections_to_assets::table
             .filter(collections_to_assets::collection_id.eq(collection_id))
             .filter(collections_to_assets::asset_id.eq(metric_id))
             .filter(collections_to_assets::asset_type.eq(AssetType::MetricFile))
             .first::<CollectionToAsset>(&mut conn)
             .await
-            .optional()
-            .map_err(|e| {
-                error!("Error checking if metric is already in collection: {}", e);
-                anyhow!("Database error: {}", e)
-            })?;
+        {
+            Ok(record) => Some(record),
+            Err(diesel::NotFound) => None,
+            Err(e) => {
+                error!(
+                    "Error checking if metric is already in collection: {}",
+                    e
+                );
+                return Err(anyhow!("Database error: {}", e));
+            }
+        };
 
         if let Some(existing_record) = existing {
             if existing_record.deleted_at.is_some() {
@@ -228,7 +174,8 @@ pub async fn add_metric_to_collections_handler(
                     .filter(collections_to_assets::asset_id.eq(metric_id))
                     .filter(collections_to_assets::asset_type.eq(AssetType::MetricFile))
                     .set((
-                        collections_to_assets::deleted_at.eq::<Option<chrono::DateTime<chrono::Utc>>>(None),
+                        collections_to_assets::deleted_at
+                            .eq::<Option<chrono::DateTime<chrono::Utc>>>(None),
                         collections_to_assets::updated_at.eq(chrono::Utc::now()),
                         collections_to_assets::updated_by.eq(user_id),
                     ))
@@ -284,127 +231,3 @@ mod tests {
         assert!(true); 
     }
 }
-```
-
-2. ✅ `src/routes/rest/routes/metrics/add_metric_to_collections.rs`
-```rust
-use axum::{
-    extract::{Extension, Json, Path},
-    http::StatusCode,
-};
-use handlers::metrics::add_metric_to_collections_handler;
-use middleware::AuthenticatedUser;
-use serde::Deserialize;
-use tracing::info;
-use uuid::Uuid;
-
-use crate::routes::rest::ApiResponse;
-
-#[derive(Debug, Deserialize)]
-pub struct AddMetricRequest {
-    pub collection_ids: Vec<Uuid>,
-}
-
-/// REST handler for adding a metric to multiple collections
-///
-/// # Arguments
-///
-/// * `user` - The authenticated user making the request
-/// * `id` - The unique identifier of the metric
-/// * `request` - The collection IDs to add the metric to
-///
-/// # Returns
-///
-/// A success message on success, or an appropriate error response
-pub async fn add_metric_to_collections_rest_handler(
-    Extension(user): Extension<AuthenticatedUser>,
-    Path(id): Path<Uuid>,
-    Json(request): Json<AddMetricRequest>,
-) -> Result<ApiResponse<String>, (StatusCode, String)> {
-    info!(
-        metric_id = %id,
-        user_id = %user.id,
-        collection_count = request.collection_ids.len(),
-        "Processing POST request to add metric to collections"
-    );
-
-    match add_metric_to_collections_handler(&id, request.collection_ids, &user.id).await {
-        Ok(_) => Ok(ApiResponse::JsonData("Metric added to collections successfully".to_string())),
-        Err(e) => {
-            tracing::error!("Error adding metric to collections: {}", e);
-            
-            // Map specific errors to appropriate status codes
-            let error_message = e.to_string();
-            
-            if error_message.contains("not found") {
-                if error_message.contains("Metric not found") {
-                    return Err((StatusCode::NOT_FOUND, format!("Metric not found: {}", e)));
-                } else if error_message.contains("Collection not found") {
-                    return Err((StatusCode::NOT_FOUND, format!("Collection not found: {}", e)));
-                }
-            } else if error_message.contains("permission") {
-                return Err((StatusCode::FORBIDDEN, format!("Insufficient permissions: {}", e)));
-            }
-            
-            Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to add metric to collections: {}", e)))
-        }
-    }
-}
-```
-
-3. ✅ Update `libs/handlers/src/metrics/mod.rs` to include the new handler
-4. ✅ Update `src/routes/rest/routes/metrics/mod.rs` to include the new endpoint
-
-### Database Operations
-
-The implementation will use the `collections_to_assets` table with the following operations:
-1. SELECT to check if records exist
-2. INSERT for new records
-3. UPDATE for records that were previously deleted
-
-## Testing Strategy
-
-### Unit Tests
-
-1. Test the handler with mocked database connections
-   - Test adding a metric to multiple collections
-   - Test error cases (metric not found, collection not found, insufficient permissions)
-   - Test adding a metric that was previously in a collection but deleted
-
-2. Test the REST endpoint
-   - Test successful request
-   - Test error responses for various scenarios
-
-### Integration Tests
-
-1. Test the endpoint with a test database
-   - Create a metric and collections
-   - Add the metric to the collections
-   - Verify the database state
-   - Test with different user roles
-
-## Security Considerations
-
-- The endpoint requires authentication
-- Permission checks ensure users can only modify metrics they have access to
-- Input validation prevents malicious data
-
-## Monitoring and Logging
-
-- All operations are logged with appropriate context
-- Errors are logged with detailed information
-
-## Dependencies
-
-- `libs/sharing` - For permission checking
-- `libs/database` - For database operations
-
-## Rollout Plan
-
-1. Implement the handler and endpoint
-2. Write tests
-3. Code review
-4. Deploy to staging
-5. Test in staging
-6. Deploy to production
-7. Monitor for issues

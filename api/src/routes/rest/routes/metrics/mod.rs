@@ -1,6 +1,7 @@
 use axum::{routing::{get, put, delete, post}, Router};
 
 // Import modules
+mod add_metric_to_collections;
 mod delete_metric;
 mod get_metric;
 mod get_metric_data;
@@ -22,6 +23,10 @@ pub fn router() -> Router {
         .route(
             "/:id/dashboards",
             post(post_metric_dashboard::post_metric_dashboard_rest_handler),
+        )
+        .route(
+            "/:id/collections",
+            post(add_metric_to_collections::add_metric_to_collections_rest_handler),
         )
         .nest("/:id/sharing", sharing::router())
 }
