@@ -55,3 +55,38 @@ export const Default: Story = {
     );
   }
 };
+
+export const Sequential: Story = {
+  render: () => {
+    const { openConfirmModal } = useBusterNotifications();
+
+    const handleSequentialModals = async () => {
+      await openConfirmModal({
+        title: 'First Modal',
+        content: 'This is the first modal in the sequence.',
+        onOk: fn(),
+        onCancel: fn()
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      await openConfirmModal({
+        title: 'Second Modal',
+        content: 'Here comes the second modal!',
+        onOk: fn(),
+        onCancel: fn()
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      await openConfirmModal({
+        title: 'Final Modal',
+        content: 'This is the last modal in our sequence.',
+        onOk: fn(),
+        onCancel: fn()
+      });
+    };
+
+    return <Button onClick={handleSequentialModals}>Open Sequential Modals</Button>;
+  }
+};

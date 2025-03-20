@@ -1,7 +1,7 @@
 'use client';
 
 import { DashboardViewProps } from '../config';
-import React, { useState } from 'react';
+import React from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { DashboardEditTitles } from './DashboardEditTitle';
 import { DashboardContentController } from './DashboardContentController';

@@ -1,5 +1,5 @@
 import { ConfirmModalProps, ConfirmProps } from '@/components/ui/modal/ConfirmModal';
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 
 const defaultConfirmModalProps: ConfirmProps = {
   title: '',
@@ -8,19 +8,22 @@ const defaultConfirmModalProps: ConfirmProps = {
   onCancel: async () => {}
 };
 
+interface QueuedModal extends ConfirmProps {
+  resolve: (value: void) => void;
+  reject: (reason?: any) => void;
+  onClose: () => void;
+}
+
 export const useOpenConfirmModal = () => {
-  const [open, setOpen] = useState(false);
-  const confirmModalPropsRef = useRef<ConfirmProps>(defaultConfirmModalProps);
-  const resolveRef = useRef<((value: void) => void) | null>(null);
-  const rejectRef = useRef<((reason?: any) => void) | null>(null);
+  const [modalQueue, setModalQueue] = useState<QueuedModal[]>([]);
+  const currentModal = modalQueue[0]; // Get the first modal in the queue
 
   const openConfirmModal = (props: ConfirmProps): Promise<void> => {
     return new Promise((resolve, reject) => {
-      resolveRef.current = resolve;
-      rejectRef.current = reject;
-
-      confirmModalPropsRef.current = {
+      const newModal: QueuedModal = {
         ...props,
+        resolve,
+        reject,
         onOk: async () => {
           try {
             await props.onOk();
@@ -28,7 +31,8 @@ export const useOpenConfirmModal = () => {
           } catch (error) {
             reject(error);
           } finally {
-            setOpen(false);
+            // Remove the current modal from the queue
+            setModalQueue((prev) => prev.slice(1));
           }
         },
         onCancel: async () => {
@@ -38,24 +42,34 @@ export const useOpenConfirmModal = () => {
           } catch (error) {
             reject(error);
           } finally {
-            setOpen(false);
+            // Remove the current modal from the queue
+            setModalQueue((prev) => prev.slice(1));
           }
+        },
+        onClose: () => {
+          resolve();
+          setModalQueue((prev) => prev.slice(1));
         }
       };
 
-      setOpen(true);
+      setModalQueue((prev) => [...prev, newModal]);
     });
   };
 
-  const onCloseConfirmModal = () => {
-    setOpen(false);
-  };
+  const confirmModalProps: ConfirmModalProps = useMemo(() => {
+    return currentModal
+      ? {
+          ...currentModal,
+          open: true
+        }
+      : {
+          ...defaultConfirmModalProps,
+          open: false,
+          onClose: () => {}
+        };
+  }, [currentModal]);
 
-  const confirmModalProps: ConfirmModalProps = {
-    ...confirmModalPropsRef.current,
-    open,
-    onClose: onCloseConfirmModal
-  };
-
-  return { openConfirmModal, confirmModalProps };
+  return useMemo(() => {
+    return { openConfirmModal, confirmModalProps };
+  }, [openConfirmModal, confirmModalProps]);
 };
