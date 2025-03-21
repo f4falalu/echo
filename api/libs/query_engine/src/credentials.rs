@@ -24,6 +24,8 @@ pub struct BigqueryCredentials {
     pub project_id: String,
     pub dataset_ids: Option<Vec<String>>,
 }
+// Can get rid of project_id
+// And dataset_ids
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DatabricksCredentials {
@@ -33,6 +35,9 @@ pub struct DatabricksCredentials {
     pub catalog_name: String,
     pub schemas: Option<Vec<String>>,
 }
+
+// can get rid of catalog_name
+// can get rid of schemas
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MariadbCredentials {
@@ -47,6 +52,8 @@ pub struct MariadbCredentials {
     pub databases: Option<Vec<String>>,
 }
 
+// can get rid of databases
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MySqlCredentials {
     pub host: String,
@@ -59,6 +66,8 @@ pub struct MySqlCredentials {
     #[serde(rename = "schemas")]
     pub databases: Option<Vec<String>>,
 }
+
+// can get rid of databases
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PostgresCredentials {
@@ -74,6 +83,8 @@ pub struct PostgresCredentials {
     pub ssh_private_key: Option<String>,
 }
 
+// can get rid of database and schema
+
 // Deprecated: REDSHIFT just uses postgres credentials
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RedshiftCredentials {
@@ -85,6 +96,8 @@ pub struct RedshiftCredentials {
     pub schemas: Option<Vec<String>>,
 }
 
+// can get rid of database and schemas
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SnowflakeCredentials {
     pub account_id: String,
@@ -95,6 +108,8 @@ pub struct SnowflakeCredentials {
     pub role: Option<String>,
     pub schemas: Option<Vec<String>>,
 }
+
+// can get rid of schemas and database id
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SqlServerCredentials {
@@ -108,6 +123,8 @@ pub struct SqlServerCredentials {
     pub ssh_private_key: Option<String>,
     pub schemas: Option<Vec<String>>,
 }
+
+// can get rid of schemas and 
 
 impl Credential {
     pub fn get_type_string(&self) -> String {
