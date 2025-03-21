@@ -121,9 +121,9 @@ pub async fn remove_metrics_from_collection_handler(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
-    use uuid::Uuid;
+    
+    
+    
 
     #[tokio::test]
     async fn test_remove_metrics_from_collection_handler() {

@@ -1100,7 +1100,7 @@ mod tests {
         setup();
 
         // Create agent first
-        let mut agent = Agent::new(
+        let agent = Agent::new(
             "o1".to_string(),
             HashMap::new(),
             Uuid::new_v4(),
@@ -1133,7 +1133,7 @@ mod tests {
         setup();
 
         // Create LLM client and agent
-        let mut agent = Agent::new(
+        let agent = Agent::new(
             "o1".to_string(),
             HashMap::new(),
             Uuid::new_v4(),

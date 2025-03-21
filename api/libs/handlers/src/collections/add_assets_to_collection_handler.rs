@@ -435,8 +435,8 @@ pub async fn add_assets_to_collection_handler(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use uuid::Uuid;
+    
+    
 
     #[tokio::test]
     async fn test_add_assets_to_collection_handler() {

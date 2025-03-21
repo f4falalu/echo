@@ -3,24 +3,21 @@ use std::{env, sync::Arc, time::Instant};
 use anyhow::Result;
 use async_trait::async_trait;
 use braintrust::{get_prompt_system_message, BraintrustClient};
-use chrono::Utc;
 use database::{
-    enums::Verification, models::MetricFile, pool::get_pg_pool, schema::metric_files,
+    models::MetricFile, pool::get_pg_pool, schema::metric_files,
     types::MetricYml,
 };
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
 use query_engine::data_types::DataType;
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tracing::{debug, error, info};
 use uuid::Uuid;
 
 use super::{
     common::{
-        apply_modifications_to_content, process_metric_file_modification, FileModification,
-        FileModificationBatch, Modification, ModificationResult, ModifyFilesOutput,
+        process_metric_file_modification, ModificationResult, ModifyFilesOutput,
         ModifyFilesParams,
     },
     file_types::file::FileWithId,
@@ -160,7 +157,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
         // Process results and generate output message
         let duration = start_time.elapsed().as_millis() as i64;
-        let mut output = ModifyFilesOutput {
+        let output = ModifyFilesOutput {
             message: String::new(),
             files: Vec::new(),
             duration,

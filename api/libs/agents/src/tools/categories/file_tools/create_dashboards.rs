@@ -15,7 +15,7 @@ use database::{
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
-use serde_json::{self, json, Value};
+use serde_json::{self, Value};
 use tracing::debug;
 use uuid::Uuid;
 
