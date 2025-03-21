@@ -8,7 +8,6 @@ import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { useDashboardContentStore } from '@/context/Dashboards';
 import { AddToDashboardModal } from '@/components/features/modal/AddToDashboardModal';
 import { canEdit } from '@/lib/share';
-import { useWhyDidYouUpdate } from '@/hooks';
 
 export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboardId }) => {
   const { isFetched: isFetchedDashboard, data: permission } = useGetDashboard(
@@ -16,7 +15,6 @@ export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboa
     (x) => x.permission
   );
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView) || 'dashboard';
-  const { openAddContentModal, onCloseAddContentModal } = useDashboardContentStore();
   const isEditor = canEdit(permission);
 
   const Component =
@@ -29,13 +27,20 @@ export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboa
       {!isFetchedDashboard && <FileIndeterminateLoader />}
       <Component dashboardId={dashboardId} readOnly={!isEditor} />
 
-      {isEditor && (
-        <AddToDashboardModal
-          open={openAddContentModal}
-          onClose={onCloseAddContentModal}
-          dashboardId={dashboardId}
-        />
-      )}
+      {isEditor && <MemoizedAddToDashboardModal dashboardId={dashboardId} />}
     </>
   );
 };
+
+const MemoizedAddToDashboardModal = React.memo(({ dashboardId }: { dashboardId: string }) => {
+  const { openAddContentModal, onCloseAddContentModal } = useDashboardContentStore();
+  return (
+    <AddToDashboardModal
+      open={openAddContentModal}
+      onClose={onCloseAddContentModal}
+      dashboardId={dashboardId}
+    />
+  );
+});
+
+MemoizedAddToDashboardModal.displayName = 'MemoizedAddToDashboardModal';

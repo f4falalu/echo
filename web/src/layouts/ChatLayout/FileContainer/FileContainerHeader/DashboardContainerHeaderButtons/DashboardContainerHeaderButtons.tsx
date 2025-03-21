@@ -13,6 +13,7 @@ import { DashboardThreeDotMenu } from './DashboardThreeDotMenu';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { canEdit } from '@/lib/share';
+import { useDashboardContentStore } from '@/context/Dashboards';
 
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   () => {
@@ -44,6 +45,7 @@ SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 const AddContentToDashboardButton = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const { data: permission } = useGetDashboard(dashboardId, (x) => x.permission);
   const isEditor = canEdit(permission);
+  const onOpenAddContentModal = useDashboardContentStore((x) => x.onOpenAddContentModal);
 
   if (!isEditor) {
     return null;
@@ -51,7 +53,7 @@ const AddContentToDashboardButton = React.memo(({ dashboardId }: { dashboardId: 
 
   return (
     <AppTooltip title="Add content">
-      <Button variant="ghost" prefix={<Plus />} />
+      <Button variant="ghost" prefix={<Plus />} onClick={onOpenAddContentModal} />
     </AppTooltip>
   );
 });
