@@ -40,7 +40,6 @@ pub struct MessageWithUser {
 
 #[derive(Queryable)]
 struct AssetPermissionInfo {
-    identity_id: Uuid,
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
@@ -54,8 +53,8 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
             Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
         };
 
-        let chat_id = chat_id.clone();
-        let user_id = user_id.clone();
+        let chat_id = *chat_id;
+        let user_id = *user_id;
 
         tokio::spawn(async move {
             chats::table
@@ -84,7 +83,7 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
             Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
         };
 
-        let chat_id = chat_id.clone();
+        let chat_id = *chat_id;
 
         tokio::spawn(async move {
             messages::table
@@ -115,7 +114,7 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
             Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
         };
 
-        let chat_id = chat_id.clone();
+        let chat_id = *chat_id;
         
         tokio::spawn(async move {
             // Query individual permissions for this chat
@@ -126,7 +125,6 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                 .filter(asset_permissions::identity_type.eq(IdentityType::User))
                 .filter(asset_permissions::deleted_at.is_null())
                 .select((
-                    asset_permissions::identity_id,
                     asset_permissions::role,
                     users::email,
                     users::name,

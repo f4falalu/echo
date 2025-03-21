@@ -83,7 +83,9 @@ struct Measure {
 // Add type mapping enum
 #[derive(Debug)]
 enum ColumnMappingType {
+    #[allow(dead_code)]
     Dimension(String),  // String holds the semantic type
+    #[allow(dead_code)]
     Measure(String),    // String holds the measure type (e.g., "number")
     Unsupported,
 }
@@ -235,7 +237,7 @@ async fn generate_model_yaml(
     // Process each column and categorize as dimension or measure
     for col in model_columns {
         match map_snowflake_type(&col.type_) {
-            ColumnMappingType::Dimension(semantic_type) => {
+            ColumnMappingType::Dimension(_) => {
                 dimensions.push(Dimension {
                     name: col.name.clone(),
                     expr: col.name.clone(),
@@ -244,7 +246,7 @@ async fn generate_model_yaml(
                     searchable: Some(false),
                 });
             }
-            ColumnMappingType::Measure(measure_type) => {
+            ColumnMappingType::Measure(_) => {
                 measures.push(Measure {
                     name: col.name.clone(),
                     expr: col.name.clone(),

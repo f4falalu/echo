@@ -1,19 +1,11 @@
-
 use anyhow::{anyhow, Result};
-use diesel::{
-    ExpressionMethods, QueryDsl,
-    Queryable, Selectable,
-};
+use chrono::{DateTime, Utc};
+use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
-use database::{
-    enums::Verification,
-    pool::get_pg_pool,
-    schema::dashboard_files,
-};
+use database::{enums::Verification, pool::get_pg_pool, schema::dashboard_files};
 
 use super::{BusterDashboardListItem, DashboardMember};
 
@@ -27,16 +19,6 @@ pub struct DashboardsListRequest {
     pub shared_with_me: Option<bool>,
     /// Filter for dashboards owned by the current user
     pub only_my_dashboards: Option<bool>,
-}
-
-#[derive(Queryable, Selectable)]
-#[diesel(table_name = dashboard_files)]
-struct QueryableDashboardFile {
-    id: Uuid,
-    name: String,
-    created_by: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
 }
 
 pub async fn list_dashboard_handler(
@@ -62,20 +44,17 @@ pub async fn list_dashboard_handler(
         ))
         .filter(dashboard_files::deleted_at.is_null())
         .distinct()
-        .order((dashboard_files::updated_at.desc(), dashboard_files::id.asc()))
+        .order((
+            dashboard_files::updated_at.desc(),
+            dashboard_files::id.asc(),
+        ))
         .offset(offset)
         .limit(request.page_size)
         .into_boxed();
 
     // Execute the query
     let dashboard_results = match dashboard_statement
-        .load::<(
-            Uuid,
-            String,
-            Uuid,
-            DateTime<Utc>,
-            DateTime<Utc>,
-        )>(&mut conn)
+        .load::<(Uuid, String, Uuid, DateTime<Utc>, DateTime<Utc>)>(&mut conn)
         .await
     {
         Ok(results) => results,
@@ -85,26 +64,24 @@ pub async fn list_dashboard_handler(
     // Transform query results into BusterDashboardListItem
     let dashboards = dashboard_results
         .into_iter()
-        .map(
-            |(id, name, created_by, created_at, updated_at)| {
-                let owner = DashboardMember {
-                    id: created_by,
-                    name: "Unknown".to_string(),
-                    avatar_url: None,
-                };
+        .map(|(id, name, created_by, created_at, updated_at)| {
+            let owner = DashboardMember {
+                id: created_by,
+                name: "Unknown".to_string(),
+                avatar_url: None,
+            };
 
-                BusterDashboardListItem {
-                    id,
-                    name,
-                    created_at,
-                    last_edited: updated_at,
-                    owner,
-                    members: vec![],
-                    status: Verification::Verified, // Default status, can be updated if needed
-                    is_shared: false,
-                }
-            },
-        )
+            BusterDashboardListItem {
+                id,
+                name,
+                created_at,
+                last_edited: updated_at,
+                owner,
+                members: vec![],
+                status: Verification::Verified, // Default status, can be updated if needed
+                is_shared: false,
+            }
+        })
         .collect();
 
     Ok(dashboards)

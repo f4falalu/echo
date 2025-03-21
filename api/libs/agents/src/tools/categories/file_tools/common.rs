@@ -1063,12 +1063,6 @@ mod tests {
     
     use uuid::Uuid;
 
-    // Mock functions for testing
-    #[cfg(test)]
-    pub(crate) async fn validate_metric_ids(ids: &[Uuid]) -> Result<Vec<Uuid>> {
-        // For tests, just return an empty vector indicating all IDs are valid
-        Ok(Vec::new())
-    }
 
     #[tokio::test]
     async fn test_validate_sql_empty() {

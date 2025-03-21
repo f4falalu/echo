@@ -97,21 +97,10 @@ pub async fn create_collection_sharing_handler(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use database::enums::AssetPermissionRole;
-    use uuid::Uuid;
-
     #[tokio::test]
     async fn test_create_collection_sharing_collection_not_found() {
         // Test case: Collection not found
         // Expected: Error with "Collection not found" message
-
-        let collection_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
-        let request = vec![ShareRecipient {
-            email: "test@example.com".to_string(),
-            role: AssetPermissionRole::Viewer,
-        }];
 
         // Since we can't easily mock the function in an integration test
         // This is just a placeholder for the real test

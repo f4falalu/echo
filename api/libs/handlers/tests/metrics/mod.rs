@@ -29,7 +29,9 @@ pub async fn setup_test_environment() -> Result<()> {
 
     // Initialize database pools only once
     INIT.call_once(|| {
-        init_pools();
+        // Create a runtime for the sync context and block on the async init_pools function
+        let rt = tokio::runtime::Runtime::new().expect("Failed to create runtime");
+        let _ = rt.block_on(init_pools());
     });
 
     Ok(())

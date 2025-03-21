@@ -1020,6 +1020,9 @@ mod tests {
             )
             .await?;
 
+            let _params = params.as_object().unwrap();
+            let _tool_call_id = tool_call_id.clone();
+
             // Simulate a delay
             tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
 
@@ -1088,7 +1091,7 @@ mod tests {
             vec![AgentMessage::user("Hello, world!".to_string())],
         );
 
-        let response = match agent.process_thread(&thread).await {
+        let _response = match agent.process_thread(&thread).await {
             Ok(response) => response,
             Err(e) => panic!("Error processing thread: {:?}", e),
         };
@@ -1111,7 +1114,7 @@ mod tests {
         let weather_tool = WeatherTool::new(Arc::new(agent.clone()));
 
         // Add tool to agent
-        agent.add_tool(weather_tool.get_name(), weather_tool);
+        let _ = agent.add_tool(weather_tool.get_name(), weather_tool);
 
         let thread = AgentThread::new(
             None,
@@ -1121,7 +1124,7 @@ mod tests {
             )],
         );
 
-        let response = match agent.process_thread(&thread).await {
+        let _response = match agent.process_thread(&thread).await {
             Ok(response) => response,
             Err(e) => panic!("Error processing thread: {:?}", e),
         };
@@ -1142,7 +1145,7 @@ mod tests {
 
         let weather_tool = WeatherTool::new(Arc::new(agent.clone()));
 
-        agent.add_tool(weather_tool.get_name(), weather_tool);
+        let _ = agent.add_tool(weather_tool.get_name(), weather_tool);
 
         let thread = AgentThread::new(
             None,
@@ -1152,7 +1155,7 @@ mod tests {
             )],
         );
 
-        let response = match agent.process_thread(&thread).await {
+        let _response = match agent.process_thread(&thread).await {
             Ok(response) => response,
             Err(e) => panic!("Error processing thread: {:?}", e),
         };

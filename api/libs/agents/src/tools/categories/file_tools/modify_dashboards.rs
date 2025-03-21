@@ -350,7 +350,6 @@ async fn get_modify_dashboards_content_to_replace_description() -> String {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
 
     use super::*;
     use crate::tools::categories::file_tools::common::{
@@ -433,15 +432,6 @@ mod tests {
 
     #[test]
     fn test_tool_parameter_validation() {
-        let tool = ModifyDashboardFilesTool {
-            agent: Arc::new(Agent::new(
-                "o3-mini".to_string(),
-                HashMap::new(),
-                Uuid::new_v4(),
-                Uuid::new_v4(),
-                "test_agent".to_string(),
-            )),
-        };
 
         // Test valid parameters
         let valid_params = json!({

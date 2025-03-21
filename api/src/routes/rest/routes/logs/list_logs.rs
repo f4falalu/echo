@@ -1,7 +1,5 @@
 use axum::{extract::Query, http::StatusCode, Extension};
-use handlers::logs::list_logs_handler::{
-    list_logs_handler, ListLogsRequest, LogListItem,
-};
+use handlers::logs::list_logs_handler::{list_logs_handler, ListLogsRequest, LogListItem};
 use middleware::AuthenticatedUser;
 use serde::Deserialize;
 
@@ -27,7 +25,17 @@ pub async fn list_logs_route(
         page_size: query.page_size,
     };
 
-    match list_logs_handler(request).await {
+    let organization_id = match user.organizations.get(0) {
+        Some(organization) => organization.id,
+        _ => {
+            return Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Error getting organization id",
+            ));
+        }
+    };
+
+    match list_logs_handler(request, organization_id).await {
         Ok(response) => Ok(ApiResponse::JsonData(response)),
         Err(e) => {
             tracing::error!("Error listing logs: {}", e);

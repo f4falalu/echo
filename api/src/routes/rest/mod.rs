@@ -21,6 +21,7 @@ pub fn router() -> Router {
 
 pub enum ApiResponse<T> {
     OK,
+    #[allow(dead_code)]
     Created,
     NoContent,
     JsonData(T),

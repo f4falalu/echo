@@ -568,55 +568,6 @@ async fn get_chats_from_collections(
     Ok(chat_objects)
 }
 
-async fn get_threads_from_collections(
-    collection_ids: &[Uuid],
-) -> Result<Vec<(Uuid, FavoriteObject)>> {
-    let mut conn = match get_pg_pool().get().await {
-        Ok(conn) => conn,
-        Err(e) => return Err(anyhow!("Error getting connection from pool: {:?}", e)),
-    };
-
-    let threads_records: Vec<(Uuid, Uuid, Option<String>)> = match threads_deprecated::table
-        .inner_join(
-            collections_to_assets::table.on(threads_deprecated::id.eq(collections_to_assets::asset_id)),
-        )
-        .inner_join(messages_deprecated::table.on(threads_deprecated::id.eq(messages_deprecated::thread_id)))
-        .select((
-            collections_to_assets::collection_id,
-            threads_deprecated::id,
-            messages_deprecated::title,
-        ))
-        .filter(collections_to_assets::asset_type.eq(AssetType::Thread))
-        .filter(collections_to_assets::collection_id.eq_any(collection_ids))
-        .filter(threads_deprecated::deleted_at.is_null())
-        .filter(collections_to_assets::deleted_at.is_null())
-        .filter(messages_deprecated::deleted_at.is_null())
-        .filter(messages_deprecated::draft_session_id.is_null())
-        .order((threads_deprecated::id, messages_deprecated::created_at.desc()))
-        .distinct_on(threads_deprecated::id)
-        .load::<(Uuid, Uuid, Option<String>)>(&mut conn)
-        .await
-    {
-        Ok(threads_records) => threads_records,
-        Err(e) => return Err(anyhow!("Error loading threads records: {:?}", e)),
-    };
-
-    let thread_objects: Vec<(Uuid, FavoriteObject)> = threads_records
-        .iter()
-        .map(|(collection_id, id, name)| {
-            (
-                *collection_id,
-                FavoriteObject {
-                    id: *id,
-                    name: name.clone().unwrap_or_else(|| String::from("Untitled")),
-                    type_: AssetType::Thread,
-                },
-            )
-        })
-        .collect();
-    Ok(thread_objects)
-}
-
 async fn get_favorite_metrics(metric_ids: Arc<Vec<Uuid>>) -> Result<Vec<FavoriteObject>> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,

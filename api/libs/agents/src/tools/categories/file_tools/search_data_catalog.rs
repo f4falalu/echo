@@ -466,7 +466,7 @@ mod tests {
             "yml_content": "description: Test dataset\nschema:\n  - name: id\n    type: uuid"
         });
 
-        let parsed = parse_search_result(&result).unwrap();
+        let _ = parse_search_result(&result).unwrap();
     }
 
     #[test]

@@ -24,6 +24,7 @@ struct QueryableMetricFile {
     file_name: String,
     content: MetricYml,
     verification: Verification,
+    #[allow(dead_code)]
     evaluation_obj: Option<Value>,
     evaluation_summary: Option<String>,
     evaluation_score: Option<f64>,
@@ -42,20 +43,8 @@ struct DatasetInfo {
     name: String,
 }
 
-#[derive(Queryable, Selectable)]
-#[diesel(table_name = users)]
-struct UserInfo {
-    id: Uuid,
-    email: String,
-    #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Text>)]
-    name: Option<String>,
-    #[diesel(sql_type = diesel::sql_types::Nullable<diesel::sql_types::Text>)]
-    avatar_url: Option<String>,
-}
-
 #[derive(Queryable)]
 struct AssetPermissionInfo {
-    identity_id: Uuid,
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
@@ -225,7 +214,6 @@ pub async fn get_metric_handler(
         .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
         .select((
-            asset_permissions::identity_id,
             asset_permissions::role,
             users::email,
             users::name,

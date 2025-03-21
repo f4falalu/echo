@@ -379,7 +379,6 @@ async fn get_metric_id_description() -> String {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
 
     use crate::tools::file_tools::common::{apply_modifications_to_content, Modification};
 
@@ -459,15 +458,6 @@ mod tests {
 
     #[test]
     fn test_tool_parameter_validation() {
-        let tool = ModifyMetricFilesTool {
-            agent: Arc::new(Agent::new(
-                "o3-mini".to_string(),
-                HashMap::new(),
-                Uuid::new_v4(),
-                Uuid::new_v4(),
-                "test_agent".to_string(),
-            )),
-        };
 
         // Test valid parameters
         let valid_params = json!({

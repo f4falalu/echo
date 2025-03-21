@@ -19,7 +19,6 @@ use crate::collections::types::{
 
 #[derive(Queryable)]
 struct AssetPermissionInfo {
-    identity_id: Uuid,
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
@@ -87,7 +86,6 @@ pub async fn get_collection_handler(
         .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
         .select((
-            asset_permissions::identity_id,
             asset_permissions::role,
             users::email,
             users::name,

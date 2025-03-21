@@ -25,7 +25,9 @@ struct QueryableDashboardFile {
     name: String,
     file_name: String,
     content: Value,
+    #[allow(dead_code)]
     filter: Option<String>,
+    #[allow(dead_code)]
     organization_id: Uuid,
     created_by: Uuid,
     created_at: chrono::DateTime<chrono::Utc>,
@@ -38,7 +40,6 @@ struct QueryableDashboardFile {
 
 #[derive(Queryable)]
 struct AssetPermissionInfo {
-    identity_id: Uuid,
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
@@ -148,7 +149,6 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid, version_
         .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
         .select((
-            asset_permissions::identity_id,
             asset_permissions::role,
             users::email,
             users::name,
