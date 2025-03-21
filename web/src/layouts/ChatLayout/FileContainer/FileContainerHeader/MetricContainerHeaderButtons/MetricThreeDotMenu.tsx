@@ -7,7 +7,7 @@ import {
   useUpdateMetric
 } from '@/api/buster_rest/metrics';
 import {
-  useSaveMetricsToDashboard,
+  useAddMetricsToDashboard,
   useRemoveMetricsFromDashboard
 } from '@/api/buster_rest/dashboards';
 import { DropdownContent, DropdownItem, DropdownItems } from '@/components/ui/dropdown';
@@ -125,7 +125,7 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
 ThreeDotMenuButton.displayName = 'ThreeDotMenuButton';
 
 const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { mutateAsync: saveMetricsToDashboard } = useSaveMetricsToDashboard();
+  const { mutateAsync: saveMetricsToDashboard } = useAddMetricsToDashboard();
   const { mutateAsync: removeMetricsFromDashboard } = useRemoveMetricsFromDashboard();
   const { data: dashboards } = useGetMetric({ id: metricId }, (x) => x.dashboards);
 

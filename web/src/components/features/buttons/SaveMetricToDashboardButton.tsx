@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/buttons';
 import { ASSET_ICONS } from '../config/assetIcons';
 import {
   useRemoveMetricsFromDashboard,
-  useSaveMetricsToDashboard
+  useAddMetricsToDashboard
 } from '@/api/buster_rest/dashboards';
 
 const EMPTY_SELECTED_DASHBOARDS: BusterMetric['dashboards'] = [];
@@ -17,7 +17,7 @@ export const SaveMetricToDashboardButton: React.FC<{
   selectedDashboards?: BusterMetric['dashboards'];
 }> = React.memo(
   ({ metricIds, disabled = false, selectedDashboards = EMPTY_SELECTED_DASHBOARDS }) => {
-    const { mutateAsync: saveMetricsToDashboard } = useSaveMetricsToDashboard();
+    const { mutateAsync: saveMetricsToDashboard } = useAddMetricsToDashboard();
     const { mutateAsync: removeMetricsFromDashboard } = useRemoveMetricsFromDashboard();
 
     const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {

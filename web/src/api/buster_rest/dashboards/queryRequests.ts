@@ -330,12 +330,15 @@ export const useUpdateDashboardShare = () => {
   });
 };
 
-export const useSaveMetricsToDashboard = () => {
+/**
+ * Hook for adding metrics to a dashboard. This function also supports removing metrics via the addMetricToDashboardConfig
+ */
+export const useAddMetricsToDashboard = () => {
   const queryClient = useQueryClient();
   const prefetchDashboard = useGetDashboardAndInitializeMetrics();
   const { openErrorMessage } = useBusterNotifications();
 
-  const saveMetricToDashboard = useMemoizedFn(
+  const addMetricToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
       const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
       let dashboardResponse = queryClient.getQueryData(options.queryKey);
@@ -363,7 +366,7 @@ export const useSaveMetricsToDashboard = () => {
   );
 
   return useMutation({
-    mutationFn: saveMetricToDashboard,
+    mutationFn: addMetricToDashboard,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
         queryKey: dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey

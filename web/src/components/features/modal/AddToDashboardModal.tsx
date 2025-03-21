@@ -4,8 +4,7 @@ import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { InputSelectModal, InputSelectModalProps } from '@/components/ui/modal/InputSelectModal';
 import { formatDate } from '@/lib';
 import { Button } from '@/components/ui/buttons';
-import { useGetDashboard } from '@/api/buster_rest/dashboards';
-import { useQueryClient } from '@tanstack/react-query';
+import { useAddMetricsToDashboard, useGetDashboard } from '@/api/buster_rest/dashboards';
 
 export const AddToDashboardModal: React.FC<{
   open: boolean;
@@ -14,6 +13,8 @@ export const AddToDashboardModal: React.FC<{
 }> = React.memo(({ open, onClose, dashboardId }) => {
   const { data: dashboard, isFetched: isFetchedDashboard } = useGetDashboard(dashboardId);
   const { data: metrics, isFetched: isFetchedMetrics } = useGetMetricsList({});
+  const { mutateAsync: addMetricsToDashboard } = useAddMetricsToDashboard();
+
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
 
   const columns: InputSelectModalProps['columns'] = [
@@ -41,8 +42,11 @@ export const AddToDashboardModal: React.FC<{
     }));
   }, [metrics.length]);
 
-  const handleAddMetrics = useMemoizedFn(async () => {
-    // TODO: Implement the API call to add metrics to dashboard
+  const handleAddAndRemoveMetrics = useMemoizedFn(async () => {
+    await addMetricsToDashboard({
+      dashboardId: dashboardId,
+      metricIds: selectedMetrics
+    });
     onClose();
   });
 
@@ -80,14 +84,14 @@ export const AddToDashboardModal: React.FC<{
       },
       primaryButton: {
         text: `Update metrics`,
-        onClick: handleAddMetrics,
+        onClick: handleAddAndRemoveMetrics,
         disabled: !isSelectedChanged,
         tooltip: isSelectedChanged
           ? `Adding ${selectedMetrics.length} metrics`
           : 'No changes to update'
       }
     };
-  }, [selectedMetrics.length, isSelectedChanged, handleAddMetrics]);
+  }, [selectedMetrics.length, isSelectedChanged, handleAddAndRemoveMetrics]);
 
   useLayoutEffect(() => {
     if (isFetchedDashboard) {
@@ -98,6 +102,7 @@ export const AddToDashboardModal: React.FC<{
 
   return (
     <InputSelectModal
+      width={650}
       open={open}
       onClose={onClose}
       columns={columns}
