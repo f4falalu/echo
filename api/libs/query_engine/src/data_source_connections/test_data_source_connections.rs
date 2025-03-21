@@ -6,7 +6,6 @@ use crate::data_source_connections::{
     get_sql_server_connection::get_sql_server_connection,
 };
 use anyhow::{anyhow, Result};
-use database::enums::DataSourceType;
 
 pub async fn test_data_source_connection(credential: &Credential) -> Result<()> {
     match credential {
