@@ -8,6 +8,7 @@ use database::{
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use query_engine::credentials::Credential;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -25,7 +26,7 @@ pub struct DataSourceResponse {
     pub created_at: String,
     pub updated_at: String,
     pub created_by: CreatedByResponse,
-    pub credentials: Value,
+    pub credentials: Credential,
     pub data_sets: Vec<DatasetResponse>,
 }
 
@@ -74,8 +75,8 @@ pub async fn get_data_source_handler(
 
     // Get credentials from the vault
     let secret = read_secret(&data_source.id).await?;
-    let credentials: Value = serde_json::from_str(&secret)
-        .map_err(|e| anyhow!("Failed to parse credentials: {}", e))?;
+    let credentials: Credential =
+        serde_json::from_str(&secret).map_err(|e| anyhow!("Failed to parse credentials: {}", e))?;
 
     // Convert datasets to response format
     let datasets_response: Vec<DatasetResponse> = datasets_list
