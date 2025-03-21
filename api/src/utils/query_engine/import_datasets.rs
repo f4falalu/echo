@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use anyhow::{anyhow, Result};
 use arrow::array::Array;
 use chrono::Utc;
@@ -66,7 +68,7 @@ async fn create_datasets(
             database_name: record.name.clone(),
             when_to_use: None,
             when_not_to_use: None,
-            type_: DatasetType::try_from_str(&record.type_).unwrap_or(DatasetType::Table),
+            type_: DatasetType::from_str(&record.type_).unwrap_or(DatasetType::Table),
             definition: record
                 .definition
                 .clone()
