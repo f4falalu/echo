@@ -559,21 +559,22 @@ async fn process_completed_files(
 
     // Process files for database updates only
     for (container, _) in transformed_messages {
-        if let BusterContainer::ReasoningMessage(msg) = container { match &msg.reasoning {
-            BusterReasoningMessage::File(file) if file.message_type == "files" => {
-                for file_id in &file.file_ids {
-                    // Skip if we've already processed this file ID
-                    if !processed_file_ids.insert(file_id.clone()) {
-                        continue;
-                    }
+        if let BusterContainer::ReasoningMessage(msg) = container {
+            match &msg.reasoning {
+                BusterReasoningMessage::File(file) if file.message_type == "files" => {
+                    for file_id in &file.file_ids {
+                        // Skip if we've already processed this file ID
+                        if !processed_file_ids.insert(file_id.clone()) {
+                            continue;
+                        }
 
-                        if let Some(_) = file.files.get(file_id) {
+                        if let Some(_file_content) = file.files.get(file_id) {
                             // Only process files that have completed reasoning
                             // Create message-to-file association
                             let message_to_file = MessageToFile {
                                 id: Uuid::new_v4(),
                                 message_id: message.id,
-                                file_id: Uuid::parse_str(&file_id)?,
+                                file_id: Uuid::parse_str(file_id)?,
                                 created_at: Utc::now(),
                                 updated_at: Utc::now(),
                                 deleted_at: None,
@@ -586,9 +587,9 @@ async fn process_completed_files(
                         }
                     }
                 }
+                _ => (),
             }
-            _ => (),
-        } }
+        }
     }
 
     Ok(())
@@ -1425,8 +1426,6 @@ fn transform_assistant_tool_message(
         let containers: Vec<BusterReasoningMessage> = messages
             .into_iter()
             .filter_map(|reasoning| {
-                
-
                 match reasoning {
                     BusterReasoningMessage::Text(mut text) => {
                         match progress {
