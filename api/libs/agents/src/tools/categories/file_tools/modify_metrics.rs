@@ -384,6 +384,8 @@ async fn get_metric_id_description() -> String {
 mod tests {
     use std::collections::HashMap;
 
+    use crate::tools::file_tools::common::{apply_modifications_to_content, Modification};
+
     use super::*;
     use chrono::Utc;
     use serde_json::json;
