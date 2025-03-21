@@ -54,7 +54,7 @@ export const InputSelectModal = React.memo(
         }
         {...props}>
         <div
-          className="max-h-90"
+          className="max-h-[65vh]"
           style={{
             height: (filteredItems.length || 1) * 48 + (showHeader ? 32 : 0) //32 is the height of the header
           }}>

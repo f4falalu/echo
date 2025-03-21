@@ -2,7 +2,6 @@
 
 import { DashboardViewProps } from '../config';
 import React from 'react';
-import { useMemoizedFn } from '@/hooks';
 import { DashboardEditTitles } from './DashboardEditTitle';
 import { DashboardContentController } from './DashboardContentController';
 import {

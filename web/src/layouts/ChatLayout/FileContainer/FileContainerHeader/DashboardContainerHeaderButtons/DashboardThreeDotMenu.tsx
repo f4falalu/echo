@@ -203,7 +203,7 @@ const useRenameDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }) 
       value: 'rename-dashboard',
       icon: <Pencil />,
       onClick: async () => {
-        onSetFileView({ fileView: 'chart' });
+        onSetFileView({ fileView: 'dashboard', fileId: dashboardId });
         await timeout(125);
         const input = document.getElementById(DASHBOARD_TITLE_INPUT_ID) as HTMLInputElement;
         if (input) {

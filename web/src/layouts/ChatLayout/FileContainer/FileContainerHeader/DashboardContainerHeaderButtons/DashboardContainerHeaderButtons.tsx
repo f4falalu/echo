@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';
 import { DashboardThreeDotMenu } from './DashboardThreeDotMenu';
 import { AppTooltip } from '@/components/ui/tooltip';
+import { useGetDashboard } from '@/api/buster_rest/dashboards';
+import { canEdit } from '@/lib/share';
 
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   () => {
@@ -21,7 +23,7 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
       <FileButtonContainer>
         <SaveToCollectionButton />
         <ShareDashboardButton dashboardId={selectedFileId} />
-        <AddContentToDashboardButton />
+        <AddContentToDashboardButton dashboardId={selectedFileId} />
         <DashboardThreeDotMenu dashboardId={selectedFileId} />
         <HideButtonContainer show={renderViewLayoutKey === 'file'}>
           <CreateChatButton />
@@ -39,7 +41,14 @@ const SaveToCollectionButton = React.memo(() => {
 });
 SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 
-const AddContentToDashboardButton = React.memo(() => {
+const AddContentToDashboardButton = React.memo(({ dashboardId }: { dashboardId: string }) => {
+  const { data: permission } = useGetDashboard(dashboardId, (x) => x.permission);
+  const isEditor = canEdit(permission);
+
+  if (!isEditor) {
+    return null;
+  }
+
   return (
     <AppTooltip title="Add content">
       <Button variant="ghost" prefix={<Plus />} />

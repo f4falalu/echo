@@ -1,4 +1,4 @@
-import { useMemoizedFn } from '@/hooks';
+import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { Input } from '@/components/ui/inputs';
 import React from 'react';
@@ -17,10 +17,11 @@ export const DashboardEditTitles: React.FC<{
     if (!readOnly) onUpdateDashboard({ name, id: dashboardId });
   });
 
-  const onChangeDashboardDescription = useMemoizedFn(
-    (value: React.ChangeEvent<HTMLInputElement>) => {
+  const { run: onChangeDashboardDescription } = useDebounceFn(
+    useMemoizedFn((value: React.ChangeEvent<HTMLInputElement>) => {
       if (!readOnly) onUpdateDashboard({ description: value.target.value, id: dashboardId });
-    }
+    }),
+    { wait: 550 }
   );
 
   return (

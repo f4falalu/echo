@@ -1,5 +1,5 @@
 import { useGetMetricsList } from '@/api/buster_rest/metrics';
-import { useDebounceSearch, useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { InputSelectModal, InputSelectModalProps } from '@/components/ui/modal/InputSelectModal';
 import { formatDate } from '@/lib';

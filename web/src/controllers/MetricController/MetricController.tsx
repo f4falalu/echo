@@ -19,7 +19,7 @@ export const MetricController: React.FC<{
   const showLoader = !isMetricFetched || !isMetricDataFetched;
 
   const Component =
-    selectedFileView in MetricViewComponents
+    isMetricFetched && selectedFileView in MetricViewComponents
       ? MetricViewComponents[selectedFileView as MetricFileView]
       : () => <></>;
 

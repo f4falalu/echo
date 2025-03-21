@@ -117,9 +117,9 @@ export const DashboardContentController: React.FC<{
               }
             />
           </DashboardContentControllerProvider>
-        ) : (
+        ) : !readOnly ? (
           <DashboardEmptyState onOpenAddContentModal={onOpenAddContentModal} />
-        )}
+        ) : null}
       </div>
     );
   }
