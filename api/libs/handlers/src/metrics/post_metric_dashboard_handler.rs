@@ -116,9 +116,9 @@ pub async fn post_metric_dashboard_handler(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use diesel::result::Error as DieselError;
-    use mockall::predicate::*;
-    use mockall::mock;
+    
+    
+    
 
     // We removed the problematic mock implementation that was causing compilation errors
     // The real database operations will be tested in integration tests

@@ -4,10 +4,7 @@ use anyhow::{anyhow, Result};
 use uuid::Uuid;
 
 use crate::{
-    credentials::{
-        BigqueryCredentials, Credential, DatabricksCredentials, MySqlCredentials,
-        PostgresCredentials, SnowflakeCredentials, SqlServerCredentials,
-    },
+    credentials::Credential,
     data_source_connections::{
         get_bigquery_client::get_bigquery_client, get_databricks_client::get_databricks_client,
         get_mysql_connection::get_mysql_connection,
@@ -19,7 +16,7 @@ use crate::{
     data_types::DataType,
 };
 
-use database::{enums::DataSourceType, vault::read_secret};
+use database::vault::read_secret;
 
 use super::{
     bigquery_query::bigquery_query, databricks_query::databricks_query, mysql_query::mysql_query,

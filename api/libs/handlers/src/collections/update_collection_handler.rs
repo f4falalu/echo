@@ -186,7 +186,7 @@ async fn update_collection_record(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use database::models::Collection;
+    
     use std::sync::Once;
     use uuid::Uuid;
 

@@ -13,10 +13,10 @@ use agents::{
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType, Verification},
-    models::{AssetPermission, Chat, DashboardFile, Message, MessageToFile, MetricFile, User},
+    enums::{AssetPermissionRole, AssetType, IdentityType},
+    models::{AssetPermission, Chat, Message, MessageToFile},
     pool::get_pg_pool,
-    schema::{asset_permissions, chats, dashboard_files, messages, messages_to_files, metric_files},
+    schema::{asset_permissions, chats, messages, messages_to_files},
 };
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
@@ -25,7 +25,7 @@ use litellm::{
     Metadata, ToolCall,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::Value;
 use uuid::Uuid;
 
 use crate::chats::{
@@ -198,7 +198,7 @@ pub async fn post_chat_handler(
 
     // Initialize raw_llm_messages with initial_messages
     let mut raw_llm_messages = initial_messages.clone();
-    let mut raw_response_message = String::new();
+    let raw_response_message = String::new();
 
     // Initialize the agent thread
     let mut chat = AgentThread::new(Some(chat_id), user.id, initial_messages);
@@ -369,6 +369,7 @@ pub async fn post_chat_handler(
         final_reasoning_message: format!("Reasoned for {} seconds", reasoning_duration),
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
+        feedback: None
     };
 
     let mut conn = get_pg_pool().get().await?;

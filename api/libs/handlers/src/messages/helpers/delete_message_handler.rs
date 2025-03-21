@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
-use database::{models::{Message, User}, pool::get_pg_pool, schema::messages};
+use database::{models::Message, pool::get_pg_pool, schema::messages};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use tracing::info;

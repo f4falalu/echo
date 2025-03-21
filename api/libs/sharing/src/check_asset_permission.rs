@@ -273,9 +273,9 @@ pub async fn check_permissions(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
-    use uuid::Uuid;
+    
+    use database::enums::AssetPermissionRole;
+    
 
     #[tokio::test]
     async fn test_has_permission_logic() {

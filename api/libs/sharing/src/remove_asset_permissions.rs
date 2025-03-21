@@ -98,7 +98,7 @@ pub async fn remove_share_by_email(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
+    use database::enums::AssetType;
     use uuid::Uuid;
 
     #[test]

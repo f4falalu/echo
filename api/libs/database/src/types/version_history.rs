@@ -9,7 +9,6 @@ use diesel::{
     AsExpression, FromSqlRow,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 use super::{DashboardYml, MetricYml};
 

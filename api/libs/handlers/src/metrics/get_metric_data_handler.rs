@@ -3,7 +3,6 @@ use database::types::MetricYml;
 use indexmap::IndexMap;
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::collections::HashSet;
 use uuid::Uuid;
 

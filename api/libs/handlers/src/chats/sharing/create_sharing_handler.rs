@@ -84,7 +84,7 @@ pub async fn get_chat_exists(chat_id: &Uuid) -> Result<bool> {
 mod tests {
     use super::*;
     use database::enums::{AssetPermissionRole, AssetType, IdentityType};
-    use sharing::create_share;
+    
     use uuid::Uuid;
 
     // Mock function to test permission checking

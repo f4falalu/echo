@@ -5,7 +5,7 @@ use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
     pool::get_pg_pool,
     schema::{
-        asset_permissions, collections, collections_to_assets, dashboard_files, metric_files, users,
+        asset_permissions, collections_to_assets, dashboard_files, metric_files, users,
     },
 };
 use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl, Queryable};

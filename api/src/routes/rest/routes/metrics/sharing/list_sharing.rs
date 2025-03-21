@@ -1,7 +1,7 @@
 use axum::{extract::Path, http::StatusCode, Extension};
 use handlers::metrics::sharing::list_metric_sharing_handler;
 use middleware::AuthenticatedUser;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use uuid::Uuid;
 
 use crate::routes::rest::ApiResponse;

@@ -57,43 +57,6 @@ pub async fn list_metric_sharing_handler(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
-    use sharing::types::{AssetPermissionWithUser, SerializableAssetPermission, UserInfo};
-    use mockall::predicate::*;
-    use mockall::mock;
-    use uuid::Uuid;
-
-    // Mock the dependencies
-    mock! {
-        pub FetchMetricFile {}
-        impl FetchMetricFile {
-            pub async fn fetch_metric_file(id: &Uuid) -> Result<Option<database::models::MetricFile>>;
-        }
-    }
-
-    mock! {
-        pub CheckAccess {}
-        impl CheckAccess {
-            pub async fn check_access(
-                asset_id: Uuid,
-                asset_type: AssetType,
-                identity_id: Uuid,
-                identity_type: IdentityType,
-            ) -> Result<Option<AssetPermissionRole>>;
-        }
-    }
-
-    mock! {
-        pub ListShares {}
-        impl ListShares {
-            pub async fn list_shares(
-                asset_id: Uuid,
-                asset_type: AssetType,
-            ) -> Result<Vec<AssetPermissionWithUser>>;
-        }
-    }
-
     // These tests would be more comprehensive in a real implementation
     // Currently just placeholders for structure
     #[tokio::test]

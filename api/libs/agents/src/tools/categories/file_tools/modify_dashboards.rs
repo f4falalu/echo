@@ -16,7 +16,7 @@ use tracing::{debug, error, info};
 
 use super::{
     common::{
-        apply_modifications_to_content, FileModificationBatch, ModificationResult,
+        ModificationResult,
         ModifyFilesOutput, ModifyFilesParams, process_dashboard_file_modification,
     },
     file_types::file::FileWithId,

@@ -6,7 +6,7 @@ use database::types::dashboard_yml::{DashboardYml, RowItem, Row};
 use database::types::VersionHistory;
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
 use database::models::MetricFileToDashboardFile;
-use diesel::{ExpressionMethods, QueryDsl, BoolExpressionMethods};
+use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;

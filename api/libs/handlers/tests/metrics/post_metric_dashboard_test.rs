@@ -1,6 +1,6 @@
 use anyhow::Result;
 use database::{
-    enums::{AssetType, Verification},
+    enums::AssetType,
     pool::get_pg_pool,
     schema::collections_to_assets,
 };
@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 // Import the common setup and test utilities
 use super::{
-    associate_metric_with_dashboard, cleanup_metric_dashboard_associations, 
+    cleanup_metric_dashboard_associations, 
     cleanup_test_data, create_test_dashboard, create_test_metric, 
     insert_test_dashboard, insert_test_metric, setup_test_environment
 };

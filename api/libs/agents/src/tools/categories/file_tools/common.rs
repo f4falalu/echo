@@ -1058,9 +1058,9 @@ mod tests {
     use chrono::Utc;
     use database::{
         models::DashboardFile,
-        types::{DashboardYml, Version},
+        types::DashboardYml,
     };
-    use serde_json::json;
+    
     use uuid::Uuid;
 
     // Mock functions for testing

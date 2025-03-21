@@ -3,13 +3,12 @@ use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
     helpers::collections::fetch_collection,
 };
+use serde::{Deserialize, Serialize};
 use sharing::{
-    check_asset_permission::has_permission,
-    create_asset_permission::create_share_by_email,
+    check_asset_permission::has_permission, create_asset_permission::create_share_by_email,
 };
 use tracing::info;
 use uuid::Uuid;
-use serde::{Deserialize, Serialize};
 
 /// Recipient for sharing a collection
 #[derive(Debug, Deserialize, Serialize)]
@@ -50,10 +49,13 @@ pub async fn create_collection_sharing_handler(
         *user_id,
         IdentityType::User,
         AssetPermissionRole::FullAccess, // Owner role implicitly has FullAccess permissions
-    ).await?;
+    )
+    .await?;
 
     if !has_permission_result {
-        return Err(anyhow!("User does not have permission to share this collection"));
+        return Err(anyhow!(
+            "User does not have permission to share this collection"
+        ));
     }
 
     // 3. Process each recipient and create sharing permissions
@@ -70,13 +72,22 @@ pub async fn create_collection_sharing_handler(
             AssetType::Collection,
             role,
             *user_id,
-        ).await {
+        )
+        .await
+        {
             Ok(_) => {
-                info!("Created sharing permission for email: {} on collection: {}", email, collection_id);
-            },
+                info!(
+                    "Created sharing permission for email: {} on collection: {}",
+                    email, collection_id
+                );
+            }
             Err(e) => {
                 tracing::error!("Failed to create sharing for email {}: {}", email, e);
-                return Err(anyhow!("Failed to create sharing for email {}: {}", email, e));
+                return Err(anyhow!(
+                    "Failed to create sharing for email {}: {}",
+                    email,
+                    e
+                ));
             }
         }
     }
@@ -87,62 +98,20 @@ pub async fn create_collection_sharing_handler(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use database::{
-        enums::{AssetPermissionRole, AssetType, IdentityType},
-        models::{AssetPermission, Collection, User},
-    };
-    use chrono::{DateTime, Utc};
-    use mockall::predicate::*;
-    use mockall::mock;
+    use database::enums::AssetPermissionRole;
     use uuid::Uuid;
-    
-    // Mock the database functions
-    mock! {
-        pub FetchCollection {}
-        impl FetchCollection {
-            pub async fn fetch_collection(id: &Uuid) -> Result<Option<Collection>>;
-        }
-    }
-
-    mock! {
-        pub HasPermission {}
-        impl HasPermission {
-            pub async fn has_permission(
-                asset_id: Uuid,
-                asset_type: AssetType,
-                identity_id: Uuid,
-                identity_type: IdentityType,
-                required_role: AssetPermissionRole,
-            ) -> Result<bool>;
-        }
-    }
-
-    mock! {
-        pub CreateShareByEmail {}
-        impl CreateShareByEmail {
-            pub async fn create_share_by_email(
-                email: &str,
-                asset_id: Uuid,
-                asset_type: AssetType,
-                role: AssetPermissionRole,
-                created_by: Uuid,
-            ) -> Result<AssetPermission>;
-        }
-    }
 
     #[tokio::test]
     async fn test_create_collection_sharing_collection_not_found() {
         // Test case: Collection not found
         // Expected: Error with "Collection not found" message
-        
+
         let collection_id = Uuid::new_v4();
         let user_id = Uuid::new_v4();
-        let request = vec![
-            ShareRecipient {
-                email: "test@example.com".to_string(),
-                role: AssetPermissionRole::Viewer,
-            },
-        ];
+        let request = vec![ShareRecipient {
+            email: "test@example.com".to_string(),
+            role: AssetPermissionRole::Viewer,
+        }];
 
         // Since we can't easily mock the function in an integration test
         // This is just a placeholder for the real test

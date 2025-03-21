@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
+    enums::{AssetType, IdentityType},
     pool::get_pg_pool,
     schema::chats,
 };
@@ -110,7 +110,7 @@ pub async fn list_chat_sharing_handler(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
     
     #[tokio::test]
     async fn test_list_chat_sharing_handler() {

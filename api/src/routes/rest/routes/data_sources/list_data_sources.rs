@@ -3,7 +3,7 @@ use axum::{extract::Query, Extension};
 use middleware::AuthenticatedUser;
 use serde::Deserialize;
 
-use handlers::data_sources::{list_data_sources_handler, DataSourceListItem, ListDataSourcesRequest};
+use handlers::data_sources::{list_data_sources_handler, DataSourceListItem};
 
 use crate::routes::rest::ApiResponse;
 

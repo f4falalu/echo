@@ -7,8 +7,7 @@ use database::{
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use sharing::{
-    check_asset_permission::has_permission,
-    remove_asset_permissions::remove_share_by_email,
+    check_asset_permission::has_permission, remove_asset_permissions::remove_share_by_email,
 };
 use tracing::{error, info};
 use uuid::Uuid;
@@ -26,7 +25,7 @@ pub async fn delete_chat_sharing_handler(
         "Deleting chat sharing permissions"
     );
 
-    // 1. Validate the chat exists 
+    // 1. Validate the chat exists
     let mut conn = get_pg_pool().get().await.map_err(|e| {
         error!("Database connection error: {}", e);
         anyhow!("Failed to get database connection: {}", e)
@@ -72,7 +71,9 @@ pub async fn delete_chat_sharing_handler(
             user_id = %user_id,
             "User does not have permission to delete sharing for this chat"
         );
-        return Err(anyhow!("User does not have permission to delete sharing for this chat"));
+        return Err(anyhow!(
+            "User does not have permission to delete sharing for this chat"
+        ));
     }
 
     // 3. Process each email and delete sharing permissions
@@ -83,21 +84,14 @@ pub async fn delete_chat_sharing_handler(
             return Err(anyhow!("Invalid email format: {}", email));
         }
 
-        match remove_share_by_email(
-            email,
-            *chat_id,
-            AssetType::Chat,
-            *user_id,
-        )
-        .await
-        {
+        match remove_share_by_email(email, *chat_id, AssetType::Chat, *user_id).await {
             Ok(_) => {
                 info!(
                     chat_id = %chat_id,
                     email = %email,
                     "Deleted sharing permission"
                 );
-            },
+            }
             Err(e) => {
                 // If the error is because the permission doesn't exist, we can ignore it
                 if e.to_string().contains("No active permission found") {
@@ -108,13 +102,17 @@ pub async fn delete_chat_sharing_handler(
                     );
                     continue;
                 }
-                
+
                 error!(
                     chat_id = %chat_id,
                     email = %email,
                     "Failed to delete sharing: {}", e
                 );
-                return Err(anyhow!("Failed to delete sharing for email {}: {}", email, e));
+                return Err(anyhow!(
+                    "Failed to delete sharing for email {}: {}",
+                    email,
+                    e
+                ));
             }
         }
     }
@@ -131,36 +129,7 @@ pub async fn delete_chat_sharing_handler(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
-    use mockall::predicate::*;
-    use mockall::mock;
-    
-    // Mock the has_permission function
-    mock! {
-        HasPermission {}
-        impl HasPermission {
-            pub async fn has_permission(
-                asset_id: Uuid,
-                asset_type: AssetType,
-                identity_id: Uuid,
-                identity_type: IdentityType,
-                required_role: AssetPermissionRole,
-            ) -> Result<bool>;
-        }
-    }
-    
-    // Mock the remove_share_by_email function
-    mock! {
-        RemoveShareByEmail {}
-        impl RemoveShareByEmail {
-            pub async fn remove_share_by_email(
-                email: &str,
-                asset_id: Uuid,
-                asset_type: AssetType,
-                updated_by: Uuid,
-            ) -> Result<()>;
-        }
-    }
+    use uuid::Uuid;
     
     // Basic placeholder test
     #[tokio::test]
@@ -170,9 +139,12 @@ mod tests {
         let chat_id = Uuid::new_v4();
         let user_id = Uuid::new_v4();
         let emails = vec!["invalid-email".to_string()];
-        
+
         let result = delete_chat_sharing_handler(&chat_id, &user_id, emails).await;
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Invalid email format"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Invalid email format"));
     }
 }

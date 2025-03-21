@@ -334,6 +334,7 @@ diesel::table! {
         updated_at -> Timestamptz,
         deleted_at -> Nullable<Timestamptz>,
         created_by -> Uuid,
+        feedback -> Nullable<Text>,
     }
 }
 

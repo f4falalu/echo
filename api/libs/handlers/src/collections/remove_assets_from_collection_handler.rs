@@ -119,7 +119,7 @@ pub async fn remove_assets_from_collection_handler(
     // 3. Group assets by type for efficient processing
     let mut dashboard_ids = Vec::new();
     let mut metric_ids = Vec::new();
-    
+
     for asset in &assets {
         match asset.asset_type {
             AssetType::DashboardFile => dashboard_ids.push(asset.id),
@@ -163,7 +163,11 @@ pub async fn remove_assets_from_collection_handler(
                     "Dashboard not found"
                 );
                 result.failed_count += 1;
-                result.failed_assets.push((*dashboard_id, AssetType::DashboardFile, "Dashboard not found".to_string()));
+                result.failed_assets.push((
+                    *dashboard_id,
+                    AssetType::DashboardFile,
+                    "Dashboard not found".to_string(),
+                ));
                 continue;
             }
 
@@ -192,7 +196,11 @@ pub async fn remove_assets_from_collection_handler(
                     "User does not have permission to access this dashboard"
                 );
                 result.failed_count += 1;
-                result.failed_assets.push((*dashboard_id, AssetType::DashboardFile, "Insufficient permissions".to_string()));
+                result.failed_assets.push((
+                    *dashboard_id,
+                    AssetType::DashboardFile,
+                    "Insufficient permissions".to_string(),
+                ));
                 continue;
             }
 
@@ -208,12 +216,13 @@ pub async fn remove_assets_from_collection_handler(
                 Ok(record) => Some(record),
                 Err(diesel::NotFound) => None,
                 Err(e) => {
-                    error!(
-                        "Error checking if dashboard is in collection: {}",
-                        e
-                    );
+                    error!("Error checking if dashboard is in collection: {}", e);
                     result.failed_count += 1;
-                    result.failed_assets.push((*dashboard_id, AssetType::DashboardFile, format!("Database error: {}", e)));
+                    result.failed_assets.push((
+                        *dashboard_id,
+                        AssetType::DashboardFile,
+                        format!("Database error: {}", e),
+                    ));
                     continue;
                 }
             };
@@ -234,7 +243,7 @@ pub async fn remove_assets_from_collection_handler(
                 {
                     Ok(_) => {
                         result.removed_count += 1;
-                    },
+                    }
                     Err(e) => {
                         error!(
                             collection_id = %collection_id,
@@ -242,7 +251,11 @@ pub async fn remove_assets_from_collection_handler(
                             "Error removing dashboard from collection: {}", e
                         );
                         result.failed_count += 1;
-                        result.failed_assets.push((*dashboard_id, AssetType::DashboardFile, format!("Database error: {}", e)));
+                        result.failed_assets.push((
+                            *dashboard_id,
+                            AssetType::DashboardFile,
+                            format!("Database error: {}", e),
+                        ));
                     }
                 }
             } else {
@@ -274,7 +287,11 @@ pub async fn remove_assets_from_collection_handler(
                     "Metric not found"
                 );
                 result.failed_count += 1;
-                result.failed_assets.push((*metric_id, AssetType::MetricFile, "Metric not found".to_string()));
+                result.failed_assets.push((
+                    *metric_id,
+                    AssetType::MetricFile,
+                    "Metric not found".to_string(),
+                ));
                 continue;
             }
 
@@ -303,7 +320,11 @@ pub async fn remove_assets_from_collection_handler(
                     "User does not have permission to access this metric"
                 );
                 result.failed_count += 1;
-                result.failed_assets.push((*metric_id, AssetType::MetricFile, "Insufficient permissions".to_string()));
+                result.failed_assets.push((
+                    *metric_id,
+                    AssetType::MetricFile,
+                    "Insufficient permissions".to_string(),
+                ));
                 continue;
             }
 
@@ -319,12 +340,13 @@ pub async fn remove_assets_from_collection_handler(
                 Ok(record) => Some(record),
                 Err(diesel::NotFound) => None,
                 Err(e) => {
-                    error!(
-                        "Error checking if metric is in collection: {}",
-                        e
-                    );
+                    error!("Error checking if metric is in collection: {}", e);
                     result.failed_count += 1;
-                    result.failed_assets.push((*metric_id, AssetType::MetricFile, format!("Database error: {}", e)));
+                    result.failed_assets.push((
+                        *metric_id,
+                        AssetType::MetricFile,
+                        format!("Database error: {}", e),
+                    ));
                     continue;
                 }
             };
@@ -345,7 +367,7 @@ pub async fn remove_assets_from_collection_handler(
                 {
                     Ok(_) => {
                         result.removed_count += 1;
-                    },
+                    }
                     Err(e) => {
                         error!(
                             collection_id = %collection_id,
@@ -353,7 +375,11 @@ pub async fn remove_assets_from_collection_handler(
                             "Error removing metric from collection: {}", e
                         );
                         result.failed_count += 1;
-                        result.failed_assets.push((*metric_id, AssetType::MetricFile, format!("Database error: {}", e)));
+                        result.failed_assets.push((
+                            *metric_id,
+                            AssetType::MetricFile,
+                            format!("Database error: {}", e),
+                        ));
                     }
                 }
             } else {
@@ -378,24 +404,6 @@ pub async fn remove_assets_from_collection_handler(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
-    use mockall::predicate::*;
-    use mockall::mock;
-    use std::sync::Arc;
-
-    // Mock the has_permission function from the sharing crate
-    mock! {
-        pub Permissions {}
-        impl Permissions {
-            pub async fn has_permission(
-                asset_id: Uuid,
-                asset_type: AssetType,
-                identity_id: Uuid,
-                identity_type: IdentityType,
-                minimum_role: AssetPermissionRole,
-            ) -> Result<bool>;
-        }
-    }
 
     #[tokio::test]
     async fn test_empty_assets_list() {
@@ -406,7 +414,7 @@ mod tests {
         let assets = vec![];
 
         let result = remove_assets_from_collection_handler(&collection_id, assets, &user_id).await;
-        
+
         // Since the assets list is empty, we should get a successful result with zero counts
         // and no further database operations should be performed
         assert!(result.is_ok());

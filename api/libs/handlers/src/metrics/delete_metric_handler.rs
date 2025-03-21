@@ -128,9 +128,9 @@ pub async fn delete_metrics_handler(request: DeleteMetricsRequest, _user_id: &Uu
 #[cfg(test)]
 mod tests {
     use super::*;
-    use diesel::result::Error as DieselError;
-    use mockall::predicate::*;
-    use mockall::mock;
+    
+    
+    
 
     // We removed the problematic mock implementation that was causing compilation errors
     // The real database connection will be mocked in integration tests

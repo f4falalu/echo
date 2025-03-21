@@ -57,44 +57,6 @@ pub async fn list_collection_sharing_handler(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
-    use sharing::types::{AssetPermissionWithUser, SerializableAssetPermission, UserInfo};
-    use chrono::{DateTime, Utc};
-    use mockall::predicate::*;
-    use mockall::mock;
-    use uuid::Uuid;
-
-    // Define mocks for testing
-    mock! {
-        pub FetchCollection {}
-        impl FetchCollection {
-            pub async fn fetch_collection(id: &Uuid) -> Result<Option<database::models::Collection>>;
-        }
-    }
-
-    mock! {
-        pub CheckAccess {}
-        impl CheckAccess {
-            pub async fn check_access(
-                asset_id: Uuid,
-                asset_type: AssetType,
-                identity_id: Uuid,
-                identity_type: IdentityType,
-            ) -> Result<Option<AssetPermissionRole>>;
-        }
-    }
-
-    mock! {
-        pub ListShares {}
-        impl ListShares {
-            pub async fn list_shares(
-                asset_id: Uuid,
-                asset_type: AssetType,
-            ) -> Result<Vec<AssetPermissionWithUser>>;
-        }
-    }
-
     // Test cases would be implemented here
     // Currently adding placeholders similar to the metrics implementation
 

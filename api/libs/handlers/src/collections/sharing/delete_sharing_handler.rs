@@ -4,8 +4,7 @@ use database::{
     helpers::collections::fetch_collection,
 };
 use sharing::{
-    check_asset_permission::has_permission,
-    remove_asset_permissions::remove_share_by_email,
+    check_asset_permission::has_permission, remove_asset_permissions::remove_share_by_email,
 };
 use tracing::info;
 use uuid::Uuid;
@@ -42,33 +41,38 @@ pub async fn delete_collection_sharing_handler(
         *user_id,
         IdentityType::User,
         AssetPermissionRole::FullAccess, // Owner role implicitly has FullAccess permissions
-    ).await?;
+    )
+    .await?;
 
     if !has_permission_result {
-        return Err(anyhow!("User does not have permission to delete sharing for this collection"));
+        return Err(anyhow!(
+            "User does not have permission to delete sharing for this collection"
+        ));
     }
 
     // 3. Process each email and delete sharing permissions
     for email in emails {
         // The remove_share_by_email function handles soft deletion of permissions
-        match remove_share_by_email(
-            &email,
-            *collection_id,
-            AssetType::Collection,
-            *user_id,
-        ).await {
+        match remove_share_by_email(&email, *collection_id, AssetType::Collection, *user_id).await {
             Ok(_) => {
-                info!("Deleted sharing permission for email: {} on collection: {}", email, collection_id);
-            },
+                info!(
+                    "Deleted sharing permission for email: {} on collection: {}",
+                    email, collection_id
+                );
+            }
             Err(e) => {
                 // If the error is because the permission doesn't exist, we can ignore it
                 if e.to_string().contains("No active permission found") {
                     tracing::warn!("No active permission found for email {}: {}", email, e);
                     continue;
                 }
-                
+
                 tracing::error!("Failed to delete sharing for email {}: {}", email, e);
-                return Err(anyhow!("Failed to delete sharing for email {}: {}", email, e));
+                return Err(anyhow!(
+                    "Failed to delete sharing for email {}: {}",
+                    email,
+                    e
+                ));
             }
         }
     }
@@ -78,54 +82,13 @@ pub async fn delete_collection_sharing_handler(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use database::{
-        enums::{AssetPermissionRole, AssetType, IdentityType},
-        models::{AssetPermission, Collection, User},
-    };
-    use chrono::Utc;
-    use mockall::predicate::*;
-    use mockall::mock;
     use uuid::Uuid;
-    
-    // Mock the database functions
-    mock! {
-        pub FetchCollection {}
-        impl FetchCollection {
-            pub async fn fetch_collection(id: &Uuid) -> Result<Option<Collection>>;
-        }
-    }
-
-    mock! {
-        pub HasPermission {}
-        impl HasPermission {
-            pub async fn has_permission(
-                asset_id: Uuid,
-                asset_type: AssetType,
-                identity_id: Uuid,
-                identity_type: IdentityType,
-                required_role: AssetPermissionRole,
-            ) -> Result<bool>;
-        }
-    }
-
-    mock! {
-        pub RemoveShareByEmail {}
-        impl RemoveShareByEmail {
-            pub async fn remove_share_by_email(
-                email: &str,
-                asset_id: Uuid,
-                asset_type: AssetType,
-                updated_by: Uuid,
-            ) -> Result<()>;
-        }
-    }
 
     #[tokio::test]
     async fn test_delete_collection_sharing_collection_not_found() {
         // Test case: Collection not found
         // Expected: Error with "Collection not found" message
-        
+
         let collection_id = Uuid::new_v4();
         let user_id = Uuid::new_v4();
         let emails = vec!["test@example.com".to_string()];

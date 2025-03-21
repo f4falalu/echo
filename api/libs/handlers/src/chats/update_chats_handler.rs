@@ -1,11 +1,9 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use chrono::Utc;
-use database::models::{Chat, User};
+use database::models::Chat;
 use database::pool::get_pg_pool;
 use diesel::prelude::*;
-use diesel::pg::expression::dsl::any;
 use diesel_async::RunQueryDsl;
-use futures::future::try_join_all;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use uuid::Uuid;

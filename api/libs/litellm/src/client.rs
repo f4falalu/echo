@@ -17,7 +17,6 @@ static DEBUG_ENABLED: Lazy<bool> = Lazy::new(|| {
 #[derive(Clone)]
 pub struct LiteLLMClient {
     client: Client,
-    pub(crate) api_key: String,
     pub(crate) base_url: String,
 }
 
@@ -59,7 +58,6 @@ impl LiteLLMClient {
 
         Self {
             client,
-            api_key,
             base_url,
         }
     }
@@ -168,8 +166,7 @@ impl LiteLLMClient {
                             let line = buffer[..pos].trim().to_string();
                             buffer = buffer[pos + 2..].to_string();
 
-                            if line.starts_with("data: ") {
-                                let data = &line["data: ".len()..];
+                            if let Some(data) = line.strip_prefix("data: ") {
                                 if debug_enabled {
                                     Self::debug_log(&format!("Processing stream data: {}", data));
                                 }
@@ -494,7 +491,6 @@ mod tests {
 
         // Test with no parameters (should use env vars)
         let client = LiteLLMClient::new(None, None);
-        assert_eq!(client.api_key, test_api_key);
         assert_eq!(client.base_url, test_base_url);
 
         // Test with parameters (should override env vars)
@@ -504,7 +500,6 @@ mod tests {
             Some(override_key.to_string()),
             Some(override_url.to_string()),
         );
-        assert_eq!(client.api_key, override_key);
         assert_eq!(client.base_url, override_url);
 
         env::remove_var("LLM_API_KEY");

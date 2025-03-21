@@ -45,28 +45,5 @@ pub async fn delete_chat_sharing_rest_handler(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use axum::{body::Body, http::Request, response::Response};
-    use axum_test::{TestServer, TestResponse};
-    use serde_json::{json, Value};
 
-    async fn mock_server_response(
-        status_code: StatusCode,
-        message: &str,
-    ) -> Result<ApiResponse<String>, (StatusCode, String)> {
-        if status_code == StatusCode::OK {
-            Ok(ApiResponse::JsonData(message.to_string()))
-        } else {
-            Err((status_code, message.to_string()))
-        }
-    }
-    
-    // Note: This is a placeholder for a real test that would be implemented
-    // using a test framework like axum_test
-    #[tokio::test]
-    async fn test_delete_chat_sharing_rest_handler_success() {
-        // In a real test, we would set up test data and use a test server
-        // with mocked dependencies to ensure the REST handler works correctly
-        assert!(true);
-    }
 }

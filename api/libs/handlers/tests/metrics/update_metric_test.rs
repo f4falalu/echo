@@ -8,7 +8,6 @@ use database::{
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use handlers::metrics::{update_metric_handler, UpdateMetricRequest};
-use serde_json::Value;
 use uuid::Uuid;
 
 // Import the common setup and test data functions

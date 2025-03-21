@@ -56,6 +56,7 @@ pub struct Message {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub created_by: Uuid,
+    pub feedback: Option<String>,
 }
 
 #[derive(Queryable, Insertable, Debug)]

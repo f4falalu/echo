@@ -5,6 +5,7 @@ use diesel::serialize::{self, IsNull, Output, ToSql};
 use diesel::sql_types::Text;
 use serde::{Deserialize, Serialize};
 use std::io::Write;
+use std::str::FromStr;
 
 #[derive(
     Debug,
@@ -245,7 +246,6 @@ pub enum AssetType {
     MetricFile,
     #[serde(rename = "dashboard")]
     DashboardFile,
-    
 }
 
 #[derive(
@@ -375,7 +375,7 @@ pub enum DatasetType {
 }
 
 impl DatasetType {
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn try_from_str(s: &str) -> Option<Self> {
         match s {
             "table" => Some(DatasetType::Table),
             "view" => Some(DatasetType::View),
@@ -390,6 +390,14 @@ impl DatasetType {
             DatasetType::View => "view",
             DatasetType::MaterializedView => "materialized view",
         }
+    }
+}
+
+impl FromStr for DatasetType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_from_str(s).ok_or_else(|| format!("Invalid DatasetType: {}", s))
     }
 }
 
@@ -491,7 +499,7 @@ pub enum DataSourceType {
 }
 
 impl DataSourceType {
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn try_from_str(s: &str) -> Option<Self> {
         match s {
             "bigquery" => Some(DataSourceType::BigQuery),
             "databricks" => Some(DataSourceType::Databricks),
@@ -518,6 +526,14 @@ impl DataSourceType {
             DataSourceType::SqlServer => "sqlserver",
             DataSourceType::Supabase => "supabase",
         }
+    }
+}
+
+impl FromStr for DataSourceType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::try_from_str(s).ok_or_else(|| format!("Invalid DataSourceType: {}", s))
     }
 }
 

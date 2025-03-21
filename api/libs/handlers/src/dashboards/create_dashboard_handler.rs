@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use chrono::Utc;
 use database::pool::get_pg_pool;
 use database::schema::dashboard_files;
@@ -132,8 +132,8 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use uuid::Uuid;
+    
+    
 
     #[tokio::test]
     async fn test_create_dashboard_handler() {

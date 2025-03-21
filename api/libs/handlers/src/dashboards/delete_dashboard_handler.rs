@@ -6,7 +6,6 @@ use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use futures::future::try_join_all;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DeleteDashboardsRequest {

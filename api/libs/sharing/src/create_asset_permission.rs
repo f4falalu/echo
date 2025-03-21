@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, anyhow};
+use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
@@ -173,8 +173,8 @@ pub async fn create_shares_bulk(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::errors::SharingError;
-    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
+    
+    use database::enums::{AssetPermissionRole, AssetType};
     use uuid::Uuid;
 
     #[test]
