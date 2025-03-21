@@ -191,7 +191,7 @@ pub async fn llm_chat_stream(
 async fn anthropic_chat_compiler(
     model: &AnthropicChatModel,
     messages: &Vec<LlmMessage>,
-    max_tokens: u32,
+    _max_tokens: u32,
     temperature: f32,
     timeout: u64,
     stop: Option<Vec<String>>,

@@ -235,7 +235,7 @@ pub async fn retrieve_dataset_columns_batch(
 async fn get_snowflake_columns_batch(
     datasets: &[(String, String)],
     credentials: &SnowflakeCredentials,
-    database: Option<String>,
+    _database: Option<String>,
 ) -> Result<Vec<DatasetColumnRecord>> {
     let snowflake_client = get_snowflake_client(credentials).await?;
 
@@ -716,131 +716,6 @@ async fn get_bigquery_columns_batch(
                 });
             }
         }
-    }
-
-    Ok(columns)
-}
-
-async fn get_snowflake_columns(
-    dataset_name: &String,
-    schema_name: &String,
-    credentials: &SnowflakeCredentials,
-) -> Result<Vec<DatasetColumnRecord>> {
-    let snowflake_client = get_snowflake_client(credentials).await?;
-
-    let uppercase_dataset_name = dataset_name.to_uppercase();
-    let uppercase_schema_name = schema_name.to_uppercase();
-
-    let sql = format!(
-        "SELECT
-            c.COLUMN_NAME AS name,
-            c.DATA_TYPE AS type_,
-            CASE WHEN c.IS_NULLABLE = 'YES' THEN true ELSE false END AS nullable,
-            c.COMMENT AS comment,
-            t.TABLE_TYPE as source_type
-        FROM
-            INFORMATION_SCHEMA.COLUMNS c
-        JOIN 
-            INFORMATION_SCHEMA.TABLES t 
-            ON c.TABLE_NAME = t.TABLE_NAME 
-            AND c.TABLE_SCHEMA = t.TABLE_SCHEMA
-        WHERE
-            c.TABLE_NAME = '{uppercase_dataset_name}'
-            AND c.TABLE_SCHEMA = '{uppercase_schema_name}'
-        ORDER BY c.ORDINAL_POSITION;",
-    );
-
-    // Execute the query using the Snowflake client
-    let results = snowflake_client
-        .exec(&sql)
-        .await
-        .map_err(|e| anyhow!("Error executing query: {:?}", e))?;
-
-    let mut columns = Vec::new();
-
-    if let snowflake_api::QueryResult::Arrow(record_batches) = results {
-        for batch in &record_batches {
-            let schema = batch.schema();
-
-            let name_index = schema
-                .index_of("NAME")
-                .map_err(|e| anyhow!("Error getting index for NAME: {:?}", e))?;
-            let type_index = schema
-                .index_of("TYPE_")
-                .map_err(|e| anyhow!("Error getting index for TYPE_: {:?}", e))?;
-            let nullable_index = schema
-                .index_of("NULLABLE")
-                .map_err(|e| anyhow!("Error getting index for NULLABLE: {:?}", e))?;
-            let comment_index = schema
-                .index_of("COMMENT")
-                .map_err(|e| anyhow!("Error getting index for COMMENT: {:?}", e))?;
-            let source_type_index = schema
-                .index_of("SOURCE_TYPE")
-                .map_err(|e| anyhow!("Error getting index for SOURCE_TYPE: {:?}", e))?;
-
-            let name_column = batch.column(name_index);
-            let type_column = batch.column(type_index);
-            let nullable_column = batch.column(nullable_index);
-            let comment_column = batch.column(comment_index);
-            let source_type_column = batch.column(source_type_index);
-
-            let name_array = name_column
-                .as_any()
-                .downcast_ref::<arrow::array::StringArray>()
-                .ok_or_else(|| anyhow!("Expected StringArray for NAME"))?;
-
-            let type_array = type_column
-                .as_any()
-                .downcast_ref::<arrow::array::StringArray>()
-                .ok_or_else(|| anyhow!("Expected StringArray for TYPE_"))?;
-
-            let nullable_array = nullable_column
-                .as_any()
-                .downcast_ref::<arrow::array::BooleanArray>()
-                .ok_or_else(|| anyhow!("Expected BooleanArray for NULLABLE"))?;
-
-            let comment_array = comment_column
-                .as_any()
-                .downcast_ref::<arrow::array::StringArray>()
-                .ok_or_else(|| anyhow!("Expected StringArray for COMMENT"))?;
-
-            let source_type_array = source_type_column
-                .as_any()
-                .downcast_ref::<arrow::array::StringArray>()
-                .ok_or_else(|| anyhow!("Expected StringArray for SOURCE_TYPE"))?;
-
-            for i in 0..batch.num_rows() {
-                let name = name_array.value(i).to_string();
-                let type_ = type_array.value(i).to_string();
-                let nullable = nullable_array.value(i);
-                let comment = if comment_array.is_null(i) {
-                    None
-                } else {
-                    Some(comment_array.value(i).to_string())
-                };
-                let source_type = if source_type_array.is_null(i) {
-                    "TABLE".to_string()
-                } else {
-                    source_type_array.value(i).to_string()
-                };
-
-                columns.push(DatasetColumnRecord {
-                    dataset_name: dataset_name.clone(),
-                    schema_name: schema_name.clone(),
-                    name,
-                    type_,
-                    nullable,
-                    comment,
-                    source_type,
-                });
-            }
-        }
-    } else if let snowflake_api::QueryResult::Empty = results {
-        return Ok(Vec::new());
-    } else {
-        return Err(anyhow!(
-            "Unexpected query result format from Snowflake. Expected Arrow format."
-        ));
     }
 
     Ok(columns)
