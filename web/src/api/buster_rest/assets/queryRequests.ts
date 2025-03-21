@@ -26,16 +26,20 @@ export const prefetchAssetCheck = async (
   }
 };
 
-export const useAssetCheck = ({
-  assetId,
-  fileType
-}: {
-  assetId: string | undefined;
-  fileType: FileType | undefined;
-}) => {
+export const useAssetCheck = <TData = PublicAssetResponse>(
+  {
+    assetId,
+    fileType
+  }: {
+    assetId: string | undefined;
+    fileType: FileType | undefined;
+  },
+  select?: (d: PublicAssetResponse) => TData
+) => {
   return useQuery({
     ...queryKeys.assetCheck(assetId || '', fileType || 'metric'),
     queryFn: () => getAssetCheck({ type: fileType!, id: assetId! }),
-    enabled: !!assetId && !!fileType
+    enabled: false, //false because it will be from the page level server layout
+    select
   });
 };

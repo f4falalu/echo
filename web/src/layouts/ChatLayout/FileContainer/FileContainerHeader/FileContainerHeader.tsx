@@ -37,11 +37,10 @@ export const FileContainerHeader: React.FC = React.memo(() => {
     [selectedFileType]
   );
 
-  const { data: assetCheck } = useAssetCheck({
-    assetId: selectedFileId,
-    fileType: selectedFileType
-  });
-  const hasAccess = assetCheck?.has_access;
+  const { data: hasAccess } = useAssetCheck(
+    { assetId: selectedFileId, fileType: selectedFileType },
+    (x) => x.has_access
+  );
 
   return (
     <>
