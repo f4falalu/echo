@@ -6,6 +6,68 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+/// Represents the permission level required for an operation
+/// This is used to check if a user has sufficient permission level
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AssetPermissionLevel {
+    /// Full ownership, can delete
+    Owner,
+    /// Full access, can edit and share
+    FullAccess,
+    /// Can edit but not share
+    CanEdit,
+    /// Can filter and view
+    CanFilter,
+    /// Can view only
+    CanView,
+}
+
+impl From<AssetPermissionRole> for AssetPermissionLevel {
+    fn from(role: AssetPermissionRole) -> Self {
+        match role {
+            AssetPermissionRole::Owner => AssetPermissionLevel::Owner,
+            AssetPermissionRole::FullAccess => AssetPermissionLevel::FullAccess,
+            AssetPermissionRole::CanEdit => AssetPermissionLevel::CanEdit,
+            AssetPermissionRole::CanFilter => AssetPermissionLevel::CanFilter,
+            AssetPermissionRole::CanView | AssetPermissionRole::Editor | AssetPermissionRole::Viewer => {
+                AssetPermissionLevel::CanView
+            }
+        }
+    }
+}
+
+impl AssetPermissionLevel {
+    /// Check if this permission level is sufficient for the required level
+    pub fn is_sufficient_for(&self, required: &AssetPermissionLevel) -> bool {
+        match (self, required) {
+            // Owner can do anything
+            (AssetPermissionLevel::Owner, _) => true,
+            // FullAccess can do anything except Owner actions
+            (AssetPermissionLevel::FullAccess, AssetPermissionLevel::Owner) => false,
+            (AssetPermissionLevel::FullAccess, _) => true,
+            // CanEdit can edit, filter, and view
+            (AssetPermissionLevel::CanEdit, AssetPermissionLevel::Owner) => false,
+            (AssetPermissionLevel::CanEdit, AssetPermissionLevel::FullAccess) => false,
+            (AssetPermissionLevel::CanEdit, _) => true,
+            // CanFilter can filter and view
+            (AssetPermissionLevel::CanFilter, AssetPermissionLevel::Owner) => false,
+            (AssetPermissionLevel::CanFilter, AssetPermissionLevel::FullAccess) => false,
+            (AssetPermissionLevel::CanFilter, AssetPermissionLevel::CanEdit) => false,
+            (AssetPermissionLevel::CanFilter, _) => true,
+            // CanView can only view
+            (AssetPermissionLevel::CanView, AssetPermissionLevel::CanView) => true,
+            (AssetPermissionLevel::CanView, _) => false,
+        }
+    }
+}
+
+/// Represents identity information for permission checks
+#[derive(Debug)]
+pub struct IdentityInfo {
+    pub id: Uuid,
+    pub identity_type: IdentityType,
+}
+
 /// A simplified version of the User model containing only the necessary information for sharing
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserInfo {
