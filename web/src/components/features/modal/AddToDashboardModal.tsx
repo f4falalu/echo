@@ -4,7 +4,11 @@ import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { InputSelectModal, InputSelectModalProps } from '@/components/ui/modal/InputSelectModal';
 import { formatDate } from '@/lib';
 import { Button } from '@/components/ui/buttons';
-import { useAddMetricsToDashboard, useGetDashboard } from '@/api/buster_rest/dashboards';
+import {
+  useAddAndRemoveMetricsFromDashboard,
+  useAddMetricsToDashboard,
+  useGetDashboard
+} from '@/api/buster_rest/dashboards';
 
 export const AddToDashboardModal: React.FC<{
   open: boolean;
@@ -13,7 +17,7 @@ export const AddToDashboardModal: React.FC<{
 }> = React.memo(({ open, onClose, dashboardId }) => {
   const { data: dashboard, isFetched: isFetchedDashboard } = useGetDashboard(dashboardId);
   const { data: metrics, isFetched: isFetchedMetrics } = useGetMetricsList({});
-  const { mutateAsync: addMetricsToDashboard } = useAddMetricsToDashboard();
+  const { mutateAsync: addAndRemoveMetricsFromDashboard } = useAddAndRemoveMetricsFromDashboard();
 
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
 
@@ -43,7 +47,7 @@ export const AddToDashboardModal: React.FC<{
   }, [metrics.length]);
 
   const handleAddAndRemoveMetrics = useMemoizedFn(async () => {
-    await addMetricsToDashboard({
+    await addAndRemoveMetricsFromDashboard({
       dashboardId: dashboardId,
       metricIds: selectedMetrics
     });
@@ -102,7 +106,7 @@ export const AddToDashboardModal: React.FC<{
 
   return (
     <InputSelectModal
-      width={650}
+      width={665}
       open={open}
       onClose={onClose}
       columns={columns}

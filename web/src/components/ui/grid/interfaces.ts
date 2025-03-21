@@ -2,7 +2,7 @@ import React from 'react';
 
 export type ResizeableGridDragItem = {
   id: string;
-  children?: React.ReactNode;
+  children: React.ReactNode;
 };
 
 export type BusterResizeableGridRow = {

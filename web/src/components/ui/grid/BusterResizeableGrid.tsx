@@ -23,7 +23,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { useMemoizedFn } from '@/hooks';
 import isEqual from 'lodash/isEqual';
 import { BusterResizeRows } from './BusterResizeRows';
+import omit from 'lodash/omit';
 import { NUMBER_OF_COLUMNS, NEW_ROW_ID, MIN_ROW_HEIGHT, TOP_SASH_ID } from './helpers';
+import { create } from 'mutative';
 
 const measuringConfig = {
   droppable: {
@@ -59,6 +61,8 @@ export const BusterResizeableGrid: React.FC<{
 
   const onRowLayoutChangePreflight = useMemoizedFn((newLayout: BusterResizeableGridRow[]) => {
     const filteredRows = newRowPreflight(newLayout);
+
+    console.log(filteredRows);
 
     if (checkRowEquality(filteredRows, rows)) {
       return;
@@ -399,9 +403,7 @@ const newRowPreflight = (newRows: BusterResizeableGridRow[]) => {
         columnSizes: newColumnSizes
       };
     }
-    return {
-      ...row
-    };
+    return row;
   });
 
   return newRowsCopy;

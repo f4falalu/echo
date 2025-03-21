@@ -1,6 +1,7 @@
-import { DashboardConfig } from '@/api/asset_interfaces/dashboard';
-import { BusterMetric } from '@/api/asset_interfaces/metric';
-import { BusterResizeableGridRow } from '@/components/ui/grid/interfaces';
+import type { DashboardConfig } from '@/api/asset_interfaces/dashboard';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
+import { BusterResizeableGridRow } from '@/components/ui/grid';
+import omit from 'lodash/omit';
 
 export const hasUnmappedMetrics = (
   metrics: Record<string, BusterMetric>,
@@ -13,7 +14,7 @@ export const hasUnmappedMetrics = (
 
 export const hasRemovedMetrics = (
   metrics: Record<string, BusterMetric>,
-  configRows: BusterResizeableGridRow[]
+  configRows: DashboardConfig['rows'] = []
 ) => {
   const allGridItemsLength = configRows.flatMap((r) => r.items).length;
 
@@ -24,4 +25,11 @@ export const hasRemovedMetrics = (
   return !configRows.every((r) =>
     r.items.some((t) => Object.values(metrics).some((m) => t.id === m.id))
   );
+};
+
+export const removeChildrenFromItems = (row: BusterResizeableGridRow[]) => {
+  return row.map((r) => ({
+    ...r,
+    items: r.items.map((i) => omit(i, 'children'))
+  }));
 };

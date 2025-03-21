@@ -26,6 +26,7 @@ import {
 } from '../collections/queryRequests';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { addMetricToDashboardConfig, removeMetricFromDashboardConfig } from './helpers';
+import { addAndRemoveMetricsToDashboard } from './helpers/addAndRemoveMetricsToDashboard';
 
 export const useGetDashboardsList = (
   params: Omit<DashboardsListRequest, 'page_token' | 'page_size'>
@@ -129,6 +130,7 @@ export const useUpdateDashboardConfig = () => {
         const newConfig = create(previousConfig!, (draft) => {
           Object.assign(draft, newDashboard);
         });
+        console.log('update', newConfig);
         return mutateAsync({
           id: newDashboard.id,
           config: newConfig
@@ -330,28 +332,74 @@ export const useUpdateDashboardShare = () => {
   });
 };
 
-/**
- * Hook for adding metrics to a dashboard. This function also supports removing metrics via the addMetricToDashboardConfig
- */
-export const useAddMetricsToDashboard = () => {
+const useEnsureDashboardConfig = () => {
   const queryClient = useQueryClient();
   const prefetchDashboard = useGetDashboardAndInitializeMetrics();
   const { openErrorMessage } = useBusterNotifications();
 
+  const method = useMemoizedFn(async (dashboardId: string) => {
+    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
+    let dashboardResponse = queryClient.getQueryData(options.queryKey);
+    if (!dashboardResponse) {
+      const res = await prefetchDashboard(dashboardId).catch((e) => {
+        openErrorMessage('Failed to save metrics to dashboard. Dashboard not found');
+        return null;
+      });
+      if (res) {
+        queryClient.setQueryData(options.queryKey, res);
+        dashboardResponse = res;
+      }
+    }
+
+    return dashboardResponse;
+  });
+
+  return method;
+};
+
+export const useAddAndRemoveMetricsFromDashboard = () => {
+  const queryClient = useQueryClient();
+  const { openErrorMessage } = useBusterNotifications();
+  const ensureDashboardConfig = useEnsureDashboardConfig();
+
   const addMetricToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
-      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
-      let dashboardResponse = queryClient.getQueryData(options.queryKey);
-      if (!dashboardResponse) {
-        const res = await prefetchDashboard(dashboardId).catch((e) => {
-          openErrorMessage('Failed to save metrics to dashboard. Dashboard not found');
-          return null;
+      const dashboardResponse = await ensureDashboardConfig(dashboardId);
+
+      if (dashboardResponse) {
+        const newConfig = addAndRemoveMetricsToDashboard(
+          metricIds,
+          dashboardResponse.dashboard.config
+        );
+        console.log('add/remove', newConfig);
+        return dashboardsUpdateDashboard({
+          id: dashboardId,
+          config: newConfig
         });
-        if (res) {
-          queryClient.setQueryData(options.queryKey, res);
-          dashboardResponse = res;
-        }
       }
+
+      openErrorMessage('Failed to save metrics to dashboard');
+    }
+  );
+
+  return useMutation({
+    mutationFn: addMetricToDashboard,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey
+      });
+    }
+  });
+};
+
+export const useAddMetricsToDashboard = () => {
+  const queryClient = useQueryClient();
+  const { openErrorMessage } = useBusterNotifications();
+  const ensureDashboardConfig = useEnsureDashboardConfig();
+
+  const addMetricToDashboard = useMemoizedFn(
+    async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
+      const dashboardResponse = await ensureDashboardConfig(dashboardId);
 
       if (dashboardResponse) {
         const newConfig = addMetricToDashboardConfig(metricIds, dashboardResponse.dashboard.config);
@@ -378,7 +426,8 @@ export const useAddMetricsToDashboard = () => {
 export const useRemoveMetricsFromDashboard = () => {
   const { openConfirmModal, openErrorMessage } = useBusterNotifications();
   const queryClient = useQueryClient();
-  const prefetchDashboard = useGetDashboardAndInitializeMetrics();
+  const ensureDashboardConfig = useEnsureDashboardConfig();
+
   const removeMetricFromDashboard = useMemoizedFn(
     async ({
       metricIds,
@@ -390,18 +439,7 @@ export const useRemoveMetricsFromDashboard = () => {
       useConfirmModal?: boolean;
     }) => {
       const method = async () => {
-        const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
-        let dashboardResponse = queryClient.getQueryData(options.queryKey);
-        if (!dashboardResponse) {
-          const res = await prefetchDashboard(dashboardId).catch((e) => {
-            openErrorMessage('Failed to remove metrics from dashboard. Dashboard not found');
-            return null;
-          });
-          if (res) {
-            queryClient.setQueryData(options.queryKey, res);
-            dashboardResponse = res;
-          }
-        }
+        const dashboardResponse = await ensureDashboardConfig(dashboardId);
 
         if (dashboardResponse) {
           const newConfig = removeMetricFromDashboardConfig(

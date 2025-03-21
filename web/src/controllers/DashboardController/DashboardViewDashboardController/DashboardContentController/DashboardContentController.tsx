@@ -4,7 +4,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { BusterResizeableGrid, BusterResizeableGridRow } from '@/components/ui/grid';
 import { useDebounceFn, useMemoizedFn } from '@/hooks';
-import { hasRemovedMetrics, hasUnmappedMetrics, normalizeNewMetricsIntoGrid } from './helpers';
+import {
+  hasRemovedMetrics,
+  hasUnmappedMetrics,
+  normalizeNewMetricsIntoGrid,
+  removeChildrenFromItems
+} from './helpers';
 import { DashboardMetricItem } from './DashboardMetricItem';
 import { DashboardContentControllerProvider } from './DashboardContentControllerContext';
 import type {
@@ -14,6 +19,7 @@ import type {
 } from '@/api/asset_interfaces';
 import { DashboardEmptyState } from './DashboardEmptyState';
 import { type useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
+import omit from 'lodash/omit';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
 const DEFAULT_EMPTY_METRICS: Record<string, BusterMetric> = {};
@@ -77,7 +83,9 @@ export const DashboardContentController: React.FC<{
     );
 
     const onRowLayoutChange = useMemoizedFn((rows: BusterResizeableGridRow[]) => {
-      if (dashboard) onUpdateDashboardConfig({ rows, id: dashboard.id });
+      if (dashboard) {
+        onUpdateDashboardConfig({ rows: removeChildrenFromItems(rows), id: dashboard.id });
+      }
     });
 
     const onDragEnd = useMemoizedFn(() => {
