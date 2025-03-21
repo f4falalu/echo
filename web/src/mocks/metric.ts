@@ -3,7 +3,8 @@ import {
   type DataMetadata,
   DEFAULT_CHART_CONFIG,
   type IBusterMetricChartConfig,
-  type IBusterMetric
+  type IBusterMetric,
+  BusterMetricListItem
 } from '@/api/asset_interfaces/metric';
 import { ShareRole, VerificationStatus } from '@/api/asset_interfaces/share';
 import { faker } from '@faker-js/faker';
@@ -196,3 +197,17 @@ export const mockMetric27 = createMockMetric('number27');
 export const mockMetric28 = createMockMetric('number28');
 export const mockMetric29 = createMockMetric('number29');
 export const mockMetric30 = createMockMetric('number30');
+
+export const createMockListMetric = (id: string): BusterMetricListItem => ({
+  id,
+  title: faker.lorem.words({ min: 2, max: 6 }),
+  last_edited: faker.date.recent().toISOString(),
+  dataset_name: faker.lorem.words({ min: 2, max: 6 }),
+  dataset_uuid: faker.string.uuid(),
+  created_by_id: faker.string.uuid(),
+  created_by_name: faker.person.fullName(),
+  created_by_email: faker.internet.email(),
+  created_by_avatar: faker.image.avatar(),
+  status: VerificationStatus.VERIFIED,
+  is_shared: true
+});

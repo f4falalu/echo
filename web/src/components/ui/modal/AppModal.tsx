@@ -72,15 +72,15 @@ export const AppModal: React.FC<ModalProps> = React.memo(
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className={className} style={memoizedStyle}>
-          <div className="flex flex-col gap-4 overflow-hidden p-6">
+          <div className="flex flex-col gap-4 overflow-hidden">
             {header && (
-              <DialogHeader>
+              <DialogHeader className="px-6 pt-6">
                 {header.title && <DialogTitle>{header.title}</DialogTitle>}
                 {header.description && <DialogDescription>{header.description}</DialogDescription>}
               </DialogHeader>
             )}
 
-            {children}
+            <div className="px-6"> {children}</div>
           </div>
 
           {footer && (
