@@ -63,7 +63,7 @@ pub async fn get_mysql_connection(
             url_encode(&credentials.username),
             url_encode(&credentials.password),
             url_encode(&credentials.host),
-            credentials.port.to_string(),
+            credentials.port,
         )
     }
 

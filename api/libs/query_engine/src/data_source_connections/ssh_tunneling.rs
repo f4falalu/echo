@@ -112,7 +112,7 @@ pub fn establish_ssh_tunnel(
         }
     };
 
-    return Ok((ssh_tunnel, local_port, vec![temp_ssh_key, temp_file]));
+    Ok((ssh_tunnel, local_port, vec![temp_ssh_key, temp_file]))
 }
 
 pub async fn kill_ssh_tunnel(

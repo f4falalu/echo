@@ -140,7 +140,7 @@ pub async fn get_data_source_credentials(
     data_source_type: &DataSourceType,
     redact_secret: bool,
 ) -> Result<Credential> {
-    let secret_string = match read_secret(&secret_id).await {
+    let secret_string = match read_secret(secret_id).await {
         Ok(secret) => secret,
         Err(e) => return Err(anyhow!("Error reading secret: {:?}", e)),
     };

@@ -4,6 +4,7 @@ use serde_json::Value;
 use tiberius::numeric::Decimal;
 use uuid::Uuid;
 use std::hash::{Hash, Hasher};
+use std::fmt;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
@@ -51,30 +52,34 @@ impl PartialEq for DataType {
     }
 }
 
-impl DataType {
-    pub fn to_string(&self) -> String {
-        match self {
-            DataType::Bool(_) => "bool".to_string(),
-            DataType::Bytea(_) => "bytea".to_string(),
-            DataType::Char(_) => "char".to_string(),
-            DataType::Int8(_) => "int8".to_string(),
-            DataType::Int4(_) => "int4".to_string(),
-            DataType::Int2(_) => "int2".to_string(),
-            DataType::Text(_) => "text".to_string(),
-            DataType::Oid(_) => "int4".to_string(),
-            DataType::Float4(_) => "float4".to_string(),
-            DataType::Float8(_) => "float8".to_string(),
-            DataType::Decimal(_) => "decimal".to_string(),
-            DataType::Uuid(_) => "uuid".to_string(),
-            DataType::Timestamp(_) => "timestamp".to_string(),
-            DataType::Timestamptz(_) => "timestamptz".to_string(),
-            DataType::Date(_) => "date".to_string(),
-            DataType::Time(_) => "time".to_string(),
-            DataType::Json(_) => "json".to_string(),
-            DataType::Unknown(_) => "unknown".to_string(),
-            DataType::Null => "null".to_string(),
-        }
+impl fmt::Display for DataType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let type_str = match self {
+            DataType::Bool(_) => "bool",
+            DataType::Bytea(_) => "bytea",
+            DataType::Char(_) => "char",
+            DataType::Int8(_) => "int8",
+            DataType::Int4(_) => "int4",
+            DataType::Int2(_) => "int2",
+            DataType::Text(_) => "text",
+            DataType::Oid(_) => "int4",
+            DataType::Float4(_) => "float4",
+            DataType::Float8(_) => "float8",
+            DataType::Decimal(_) => "decimal",
+            DataType::Uuid(_) => "uuid",
+            DataType::Timestamp(_) => "timestamp",
+            DataType::Timestamptz(_) => "timestamptz",
+            DataType::Date(_) => "date",
+            DataType::Time(_) => "time",
+            DataType::Json(_) => "json",
+            DataType::Unknown(_) => "unknown",
+            DataType::Null => "null",
+        };
+        write!(f, "{}", type_str)
     }
+}
+
+impl DataType {
 
     pub fn simple_type(&self) -> Option<String> {
         match self {

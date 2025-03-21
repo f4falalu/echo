@@ -37,7 +37,7 @@ pub async fn sql_server_query(
             let mut row_map = IndexMap::new();
             for (i, column) in row.columns().iter().enumerate() {
                 let column_name = column.name();
-                let type_info = column.column_type().clone();
+                let type_info = column.column_type();
                 let column_value = match type_info {
                     ColumnType::Text
                     | ColumnType::NVarchar
@@ -47,31 +47,31 @@ pub async fn sql_server_query(
                     | ColumnType::BigVarChar => {
                         DataType::Text(row.get::<&str, _>(i).map(|v| v.to_string()))
                     }
-                    ColumnType::Int8 => DataType::Bool(row.get::<bool, _>(i).map(|v| v)),
-                    ColumnType::Int4 => DataType::Int4(row.get::<i32, _>(i).map(|v| v)),
-                    ColumnType::Int2 | ColumnType::Int1 => DataType::Int2(row.get::<i16, _>(i).map(|v| v)),
-                    ColumnType::Float4 => DataType::Float4(row.get::<f32, _>(i).map(|v| v)),
-                    ColumnType::Float8 => DataType::Float8(row.get::<f64, _>(i).map(|v| v)),
-                    ColumnType::Bit => DataType::Bool(row.get::<bool, _>(i).map(|v| v)),
+                    ColumnType::Int8 => DataType::Bool(row.get::<bool, _>(i)),
+                    ColumnType::Int4 => DataType::Int4(row.get::<i32, _>(i)),
+                    ColumnType::Int2 | ColumnType::Int1 => DataType::Int2(row.get::<i16, _>(i)),
+                    ColumnType::Float4 => DataType::Float4(row.get::<f32, _>(i)),
+                    ColumnType::Float8 => DataType::Float8(row.get::<f64, _>(i)),
+                    ColumnType::Bit => DataType::Bool(row.get::<bool, _>(i)),
                     ColumnType::Null => DataType::Null,
                     ColumnType::Datetime4 => {
-                        DataType::Timestamp(row.get::<NaiveDateTime, _>(i).map(|v| v))
+                        DataType::Timestamp(row.get::<NaiveDateTime, _>(i))
                     }
-                    ColumnType::Money => DataType::Int8(row.get::<i64, _>(i).map(|v| v)),
-                    ColumnType::Datetime => DataType::Timestamp(row.get::<NaiveDateTime, _>(i).map(|v| v)),
-                    ColumnType::Money4 => DataType::Int8(row.get::<i64, _>(i).map(|v| v)),
-                    ColumnType::Guid => DataType::Uuid(row.get::<uuid::Uuid, _>(i).map(|v| v)),
-                    ColumnType::Intn => DataType::Int4(row.get::<i32, _>(i).map(|v| v)),
-                    ColumnType::Decimaln => DataType::Decimal(row.get::<Decimal, _>(i).map(|v| v)),
-                    ColumnType::Numericn => DataType::Decimal(row.get::<Decimal, _>(i).map(|v| v)),
-                    ColumnType::Floatn => DataType::Float8(row.get::<f64, _>(i).map(|v| v)),
+                    ColumnType::Money => DataType::Int8(row.get::<i64, _>(i)),
+                    ColumnType::Datetime => DataType::Timestamp(row.get::<NaiveDateTime, _>(i)),
+                    ColumnType::Money4 => DataType::Int8(row.get::<i64, _>(i)),
+                    ColumnType::Guid => DataType::Uuid(row.get::<uuid::Uuid, _>(i)),
+                    ColumnType::Intn => DataType::Int4(row.get::<i32, _>(i)),
+                    ColumnType::Decimaln => DataType::Decimal(row.get::<Decimal, _>(i)),
+                    ColumnType::Numericn => DataType::Decimal(row.get::<Decimal, _>(i)),
+                    ColumnType::Floatn => DataType::Float8(row.get::<f64, _>(i)),
                     ColumnType::Datetimen => {
-                        DataType::Timestamp(row.get::<NaiveDateTime, _>(i).map(|v| v))
+                        DataType::Timestamp(row.get::<NaiveDateTime, _>(i))
                     }
                     ColumnType::Daten => DataType::Date(row.get::<NaiveDateTime, _>(i).map(|v| v.date())),
                     ColumnType::Timen => DataType::Time(row.get::<NaiveDateTime, _>(i).map(|v| v.time())),
-                    ColumnType::Datetime2 => DataType::Timestamp(row.get::<NaiveDateTime, _>(i).map(|v| v)),
-                    ColumnType::DatetimeOffsetn => DataType::Timestamp(row.get::<NaiveDateTime, _>(i).map(|v| v)),
+                    ColumnType::Datetime2 => DataType::Timestamp(row.get::<NaiveDateTime, _>(i)),
+                    ColumnType::DatetimeOffsetn => DataType::Timestamp(row.get::<NaiveDateTime, _>(i)),
                     _ => {
                         tracing::debug!("No match found");
                         DataType::Null
