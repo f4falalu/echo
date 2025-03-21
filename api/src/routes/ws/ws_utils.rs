@@ -241,7 +241,7 @@ pub async fn unsubscribe_from_stream(
                 .del::<String, redis::Value>(draft_subscription.clone())
                 .await
             {
-                Ok(response) => {}
+                Ok(_) => {}
                 Err(e) => {
                     tracing::warn!("Error deleting draft subscription key: {}", e);
                 }
@@ -274,6 +274,7 @@ pub async fn set_key_value(key: &String, value: &String) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub async fn delete_key_value(key: String) -> Result<()> {
     let mut redis_conn = match get_redis_pool().get().await {
         Ok(conn) => conn,

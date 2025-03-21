@@ -1,12 +1,15 @@
+use dashmap::DashMap;
 use middleware::AuthenticatedUser;
 use std::{collections::HashMap, time::Instant};
-use dashmap::DashMap;
 
 use agents::{
-    tools::{file_tools::{
-        common::ModifyFilesOutput, create_dashboards::CreateDashboardFilesOutput,
-        create_metrics::CreateMetricFilesOutput, search_data_catalog::SearchDataCatalogOutput,
-    }, planning_tools::CreatePlanOutput},
+    tools::{
+        file_tools::{
+            common::ModifyFilesOutput, create_dashboards::CreateDashboardFilesOutput,
+            create_metrics::CreateMetricFilesOutput, search_data_catalog::SearchDataCatalogOutput,
+        },
+        planning_tools::CreatePlanOutput,
+    },
     AgentExt, AgentMessage, AgentThread, BusterSuperAgent,
 };
 
@@ -71,6 +74,12 @@ struct ChunkState {
     last_seen_content: String,
 }
 
+impl Default for ChunkTracker {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ChunkTracker {
     pub fn new() -> Self {
         Self {
@@ -81,13 +90,15 @@ impl ChunkTracker {
     pub fn add_chunk(&self, chunk_id: String, new_chunk: String) -> String {
         // Compute delta and update in one operation using DashMap
         let mut delta_to_return = String::new();
-        
+
         {
-            self.chunks.entry(chunk_id.clone()).or_insert_with(|| ChunkState {
-                complete_text: String::new(),
-                last_seen_content: String::new(),
-            });
-            
+            self.chunks
+                .entry(chunk_id.clone())
+                .or_insert_with(|| ChunkState {
+                    complete_text: String::new(),
+                    last_seen_content: String::new(),
+                });
+
             // Now that we've initialized the entry if needed, get mutable access to update it
             if let Some(mut entry) = self.chunks.get_mut(&chunk_id) {
                 // Calculate the delta
@@ -107,9 +118,9 @@ impl ChunkTracker {
                         }
                     }
                 };
-                
+
                 delta_to_return = delta.clone();
-                
+
                 // Update tracking state only if we found new content
                 if !delta.is_empty() {
                     entry.complete_text.push_str(&delta);
@@ -117,12 +128,14 @@ impl ChunkTracker {
                 }
             }
         }
-        
+
         delta_to_return
     }
 
     pub fn get_complete_text(&self, chunk_id: String) -> Option<String> {
-        self.chunks.get(&chunk_id).map(|state| state.complete_text.clone())
+        self.chunks
+            .get(&chunk_id)
+            .map(|state| state.complete_text.clone())
     }
 
     pub fn clear_chunk(&self, chunk_id: String) {
@@ -141,7 +154,7 @@ pub async fn post_chat_handler(
     validate_context_request(request.chat_id, request.metric_id, request.dashboard_id)?;
 
     let user_org_id = match user.attributes.get("organization_id") {
-        Some(Value::String(org_id)) => Uuid::parse_str(&org_id).unwrap_or_default(),
+        Some(Value::String(org_id)) => Uuid::parse_str(org_id).unwrap_or_default(),
         _ => {
             tracing::error!("User has no organization ID");
             return Err(anyhow!("User has no organization ID"));
@@ -198,16 +211,14 @@ pub async fn post_chat_handler(
 
     // Initialize raw_llm_messages with initial_messages
     let mut raw_llm_messages = initial_messages.clone();
-    let raw_response_message = String::new();
+    let _raw_response_message = String::new();
 
     // Initialize the agent thread
     let mut chat = AgentThread::new(Some(chat_id), user.id, initial_messages);
 
     let title_handle = {
         let tx = tx.clone();
-        let chat_id = chat_id.clone();
-        let message_id = message_id.clone();
-        let user_id = user.id.clone();
+        let user_id = user.id;
         let chat_messages = chat.messages.clone();
         tokio::spawn(async move {
             generate_conversation_title(&chat_messages, &message_id, &user_id, &chat_id, tx).await
@@ -235,12 +246,17 @@ pub async fn post_chat_handler(
                 // Only store completed messages in raw_llm_messages
                 match &msg {
                     AgentMessage::Assistant {
-                        progress, content, id, ..
+                        progress,
+                        content,
+                        id,
+                        ..
                     } => {
                         // Store chunks in the tracker to ensure deduplication
                         if let Some(content_str) = content {
                             // Use message ID as chunk ID, or generate a consistent one if missing
-                            let chunk_id = id.clone().unwrap_or_else(|| "assistant_message".to_string());
+                            let chunk_id = id
+                                .clone()
+                                .unwrap_or_else(|| "assistant_message".to_string());
                             // Add to chunk tracker to handle deduplication
                             chunk_tracker.add_chunk(chunk_id.clone(), content_str.clone());
                         }
@@ -248,12 +264,15 @@ pub async fn post_chat_handler(
                         if matches!(progress, MessageProgress::Complete) {
                             if let Some(content_str) = content {
                                 // Use message ID as chunk ID, or generate a consistent one if missing
-                                let chunk_id = id.clone().unwrap_or_else(|| "assistant_message".to_string());
-                                
+                                let chunk_id = id
+                                    .clone()
+                                    .unwrap_or_else(|| "assistant_message".to_string());
+
                                 // Get the complete deduplicated text from the chunk tracker
-                                let complete_text = chunk_tracker.get_complete_text(chunk_id.clone())
+                                let complete_text = chunk_tracker
+                                    .get_complete_text(chunk_id.clone())
                                     .unwrap_or_else(|| content_str.clone());
-                                
+
                                 // Create a new message with the deduplicated content
                                 raw_llm_messages.push(AgentMessage::Assistant {
                                     id: id.clone(),
@@ -263,7 +282,7 @@ pub async fn post_chat_handler(
                                     progress: MessageProgress::Complete,
                                     initial: false,
                                 });
-                                
+
                                 // Clear the chunk from the tracker
                                 chunk_tracker.clear_chunk(chunk_id);
                             } else {
@@ -285,7 +304,9 @@ pub async fn post_chat_handler(
                 }
 
                 // Always transform the message
-                match transform_message(&chat_id, &message_id, msg, tx.as_ref(), &chunk_tracker).await {
+                match transform_message(&chat_id, &message_id, msg, tx.as_ref(), &chunk_tracker)
+                    .await
+                {
                     Ok(containers) => {
                         // Store all transformed containers
                         for (container, _) in containers.clone() {
@@ -343,7 +364,7 @@ pub async fn post_chat_handler(
         message_id,
         ChatUserMessage {
             request: request.prompt.clone(),
-            sender_id: user.id.clone(),
+            sender_id: user.id,
             sender_name: user.name.clone().unwrap_or_default(),
             sender_avatar: None,
         },
@@ -360,7 +381,7 @@ pub async fn post_chat_handler(
         id: message_id,
         request_message: request.prompt,
         chat_id,
-        created_by: user.id.clone(),
+        created_by: user.id,
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
@@ -369,7 +390,7 @@ pub async fn post_chat_handler(
         final_reasoning_message: format!("Reasoned for {} seconds", reasoning_duration),
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
-        feedback: None
+        feedback: None,
     };
 
     let mut conn = get_pg_pool().get().await?;
@@ -383,7 +404,7 @@ pub async fn post_chat_handler(
     // First process completed files (database updates only)
     // Use a separate connection scope to ensure prompt release
     {
-        let _ = process_completed_files(
+        process_completed_files(
             &mut conn,
             &db_message,
             &all_messages,
@@ -435,7 +456,8 @@ pub async fn post_chat_handler(
 fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Value>, Vec<Value>)> {
     let mut response_messages = Vec::new();
     // Use a Vec to maintain order, with a HashMap to track latest version of each message
-    let mut reasoning_map: std::collections::HashMap<String, (usize, Value)> = std::collections::HashMap::new();
+    let mut reasoning_map: std::collections::HashMap<String, (usize, Value)> =
+        std::collections::HashMap::new();
     let mut reasoning_order = Vec::new();
 
     for container in containers {
@@ -485,7 +507,7 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
                         if !reasoning_map.contains_key(&id) {
                             reasoning_order.push(id.clone());
                         }
-                        
+
                         // Store or update the message in the map with its position
                         reasoning_map.insert(id, (reasoning_order.len() - 1, value));
                     }
@@ -514,16 +536,22 @@ async fn process_completed_files(
     conn: &mut diesel_async::AsyncPgConnection,
     message: &Message,
     messages: &[AgentMessage],
-    organization_id: &Uuid,
-    user_id: &Uuid,
+    _organization_id: &Uuid,
+    _user_id: &Uuid,
     chunk_tracker: &ChunkTracker,
 ) -> Result<()> {
     let mut transformed_messages = Vec::new();
     let mut processed_file_ids = std::collections::HashSet::new();
 
     for msg in messages {
-        if let Ok(containers) =
-            transform_message(&message.chat_id, &message.id, msg.clone(), None, chunk_tracker).await
+        if let Ok(containers) = transform_message(
+            &message.chat_id,
+            &message.id,
+            msg.clone(),
+            None,
+            chunk_tracker,
+        )
+        .await
         {
             transformed_messages.extend(containers);
         }
@@ -531,8 +559,8 @@ async fn process_completed_files(
 
     // Process files for database updates only
     for (container, _) in transformed_messages {
-        match container {
-            BusterContainer::ReasoningMessage(msg) => match &msg.reasoning {
+        if let BusterContainer::ReasoningMessage(msg) = container {
+            match &msg.reasoning {
                 BusterReasoningMessage::File(file) if file.message_type == "files" => {
                     for file_id in &file.file_ids {
                         // Skip if we've already processed this file ID
@@ -540,30 +568,27 @@ async fn process_completed_files(
                             continue;
                         }
 
-                        if let Some(file_content) = file.files.get(file_id) {
+                        if let Some(_file_content) = file.files.get(file_id) {
                             // Only process files that have completed reasoning
-                            if file.status == "completed" {
-                                // Create message-to-file association
-                                let message_to_file = MessageToFile {
-                                    id: Uuid::new_v4(),
-                                    message_id: message.id,
-                                    file_id: Uuid::parse_str(&file_id)?,
-                                    created_at: Utc::now(),
-                                    updated_at: Utc::now(),
-                                    deleted_at: None,
-                                };
+                            // Create message-to-file association
+                            let message_to_file = MessageToFile {
+                                id: Uuid::new_v4(),
+                                message_id: message.id,
+                                file_id: Uuid::parse_str(file_id)?,
+                                created_at: Utc::now(),
+                                updated_at: Utc::now(),
+                                deleted_at: None,
+                            };
 
-                                diesel::insert_into(messages_to_files::table)
-                                    .values(&message_to_file)
-                                    .execute(conn)
-                                    .await?;
-                            }
+                            diesel::insert_into(messages_to_files::table)
+                                .values(&message_to_file)
+                                .execute(conn)
+                                .await?;
                         }
                     }
                 }
                 _ => (),
-            },
-            _ => (),
+            }
         }
     }
 
@@ -722,15 +747,14 @@ pub async fn transform_message(
     chat_id: &Uuid,
     message_id: &Uuid,
     message: AgentMessage,
-    tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
+    _tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
     tracker: &ChunkTracker,
 ) -> Result<Vec<(BusterContainer, ThreadEvent)>> {
-
     match message {
         AgentMessage::Assistant {
             id,
             content,
-            name,
+            name: _name,
             tool_calls,
             progress,
             initial,
@@ -813,7 +837,7 @@ pub async fn transform_message(
                                         && file.message_type == "files" =>
                                 {
                                     // For each completed file, create and send a file response message
-                                    for (file_id, file_content) in &file.files {
+                                    for (_file_id, file_content) in &file.files {
                                         let response_message = BusterChatMessage::File {
                                             id: file_content.id.clone(),
                                             file_type: file_content.file_type.clone(),
@@ -873,7 +897,7 @@ pub async fn transform_message(
             }
         }
         AgentMessage::Tool {
-            id,
+            id: _id,
             content,
             tool_call_id,
             name,
@@ -900,7 +924,7 @@ pub async fn transform_message(
                                         && file.message_type == "files" =>
                                 {
                                     // For each completed file, create and send a file response message
-                                    for (file_id, file_content) in &file.files {
+                                    for (_file_id, file_content) in &file.files {
                                         let response_message = BusterChatMessage::File {
                                             id: file_content.id.clone(),
                                             file_type: file_content.file_type.clone(),
@@ -966,8 +990,8 @@ fn transform_text_message(
     id: String,
     content: String,
     progress: MessageProgress,
-    chat_id: Uuid,
-    message_id: Uuid,
+    _chat_id: Uuid,
+    _message_id: Uuid,
     tracker: &ChunkTracker,
 ) -> Result<Vec<BusterChatMessage>> {
     match progress {
@@ -985,10 +1009,10 @@ fn transform_text_message(
             let complete_text = tracker
                 .get_complete_text(id.clone())
                 .unwrap_or_else(|| content.clone());
-            
+
             // Clear the tracker for this chunk
             tracker.clear_chunk(id.clone());
-            
+
             Ok(vec![BusterChatMessage::Text {
                 id: id.clone(),
                 message: Some(complete_text),
@@ -1004,8 +1028,8 @@ fn transform_tool_message(
     id: String,
     name: String,
     content: String,
-    chat_id: Uuid,
-    message_id: Uuid,
+    _chat_id: Uuid,
+    _message_id: Uuid,
 ) -> Result<Vec<BusterReasoningMessage>> {
     // Use required ID (tool call ID) for all function calls
     let messages = match name.as_str() {
@@ -1022,7 +1046,6 @@ fn transform_tool_message(
 }
 
 fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
-
     let plan_markdown = match serde_json::from_str::<CreatePlanOutput>(&content) {
         Ok(result) => result.plan_markdown,
         Err(e) => {
@@ -1046,7 +1069,6 @@ fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMe
 
 // Update tool_create_metrics to require ID
 fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
-
     // Parse the CreateMetricFilesOutput from content
     let create_metrics_result = match serde_json::from_str::<CreateMetricFilesOutput>(&content) {
         Ok(result) => result,
@@ -1102,7 +1124,6 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
 
 // Update tool_modify_metrics to require ID
 fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
-
     // Parse the ModifyFilesOutput from content
     let modify_metrics_result = match serde_json::from_str::<ModifyFilesOutput>(&content) {
         Ok(result) => result,
@@ -1158,7 +1179,6 @@ fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
 
 // Update tool_create_dashboards to require ID
 fn tool_create_dashboards(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
-
     // Parse the CreateDashboardFilesOutput from content
     let create_dashboards_result =
         match serde_json::from_str::<CreateDashboardFilesOutput>(&content) {
@@ -1354,8 +1374,8 @@ fn transform_assistant_tool_message(
     tool_calls: Vec<ToolCall>,
     progress: MessageProgress,
     initial: bool,
-    chat_id: Uuid,
-    message_id: Uuid,
+    _chat_id: Uuid,
+    _message_id: Uuid,
     tracker: &ChunkTracker,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut all_messages = Vec::new();
@@ -1405,8 +1425,8 @@ fn transform_assistant_tool_message(
 
         let containers: Vec<BusterReasoningMessage> = messages
             .into_iter()
-            .map(|reasoning| {
-                let updated_reasoning = match reasoning {
+            .filter_map(|reasoning| {
+                match reasoning {
                     BusterReasoningMessage::Text(mut text) => {
                         match progress {
                             MessageProgress::Complete => {
@@ -1444,7 +1464,8 @@ fn transform_assistant_tool_message(
                                 let mut updated_files = std::collections::HashMap::new();
 
                                 for (file_id, file_content) in file.files.iter() {
-                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
+                                    let chunk_id =
+                                        format!("{}_{}", file.id, file_content.file_name);
                                     let complete_text = tracker
                                         .get_complete_text(chunk_id.clone())
                                         .unwrap_or_else(|| {
@@ -1471,10 +1492,12 @@ fn transform_assistant_tool_message(
                                 let mut updated_files = std::collections::HashMap::new();
 
                                 for (file_id, file_content) in file.files.iter() {
-                                    let chunk_id = format!("{}_{}", file.id, file_content.file_name);
+                                    let chunk_id =
+                                        format!("{}_{}", file.id, file_content.file_name);
 
                                     if let Some(chunk) = &file_content.file.text_chunk {
-                                        let delta = tracker.add_chunk(chunk_id.clone(), chunk.clone());
+                                        let delta =
+                                            tracker.add_chunk(chunk_id.clone(), chunk.clone());
 
                                         if !delta.is_empty() {
                                             let mut updated_content = file_content.clone();
@@ -1503,11 +1526,8 @@ fn transform_assistant_tool_message(
                         pill.status = "loading".to_string();
                         Some(BusterReasoningMessage::Pill(pill))
                     }
-                };
-
-                updated_reasoning
+                }
             })
-            .filter_map(|container| container)
             .collect();
 
         all_messages.extend(containers);
@@ -1520,8 +1540,8 @@ fn transform_assistant_tool_message(
 fn assistant_data_catalog_search(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1589,8 +1609,8 @@ fn assistant_data_catalog_search(
 fn assistant_create_metrics(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1613,8 +1633,8 @@ fn assistant_create_metrics(
 fn assistant_modify_metrics(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1637,8 +1657,8 @@ fn assistant_modify_metrics(
 fn assistant_create_dashboards(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1662,8 +1682,8 @@ fn assistant_create_dashboards(
 fn assistant_modify_dashboards(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1686,8 +1706,8 @@ fn assistant_modify_dashboards(
 fn assistant_create_plan(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1815,8 +1835,8 @@ pub async fn generate_conversation_title(
     };
 
     let title = BusterGeneratingTitle {
-        chat_id: session_id.clone(),
-        message_id: message_id.clone(),
+        chat_id: *session_id,
+        message_id: *message_id,
         title: Some(content.clone().replace("\n", "")),
         title_chunk: None,
         progress: BusterGeneratingTitleProgress::Completed,
@@ -1849,7 +1869,7 @@ async fn initialize_chat(
             message_id,
             ChatUserMessage {
                 request: request.prompt.clone(),
-                sender_id: user.id.clone(),
+                sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
                 sender_avatar: None,
             },
@@ -1870,11 +1890,11 @@ async fn initialize_chat(
             id: chat_id,
             title: request.prompt.clone(),
             organization_id: user_org_id,
-            created_by: user.id.clone(),
+            created_by: user.id,
             created_at: Utc::now(),
             updated_at: Utc::now(),
             deleted_at: None,
-            updated_by: user.id.clone(),
+            updated_by: user.id,
             publicly_accessible: false,
             publicly_enabled_by: None,
             public_expiry_date: None,
@@ -1885,7 +1905,7 @@ async fn initialize_chat(
             message_id,
             ChatUserMessage {
                 request: request.prompt.clone(),
-                sender_id: user.id.clone(),
+                sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
                 sender_avatar: None,
             },

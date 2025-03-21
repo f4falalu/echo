@@ -104,13 +104,13 @@ async fn list_datasets_handler(
     admin_view: Option<bool>,
     enabled: Option<bool>,
     imported: Option<bool>,
-    permission_group_id: Option<Uuid>,
+    _permission_group_id: Option<Uuid>,
     _belongs_to: Option<bool>,
     data_source_id: Option<Uuid>,
 ) -> Result<Vec<ListDatasetObject>> {
     let page = page.unwrap_or(0);
     let page_size = page_size.unwrap_or(25);
-    let admin_view = admin_view.unwrap_or(false);
+    let _admin_view = admin_view.unwrap_or(false);
 
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
@@ -281,8 +281,8 @@ async fn get_org_datasets(
 
 async fn get_restricted_user_datasets(
     user_id: &Uuid,
-    page: i64,
-    page_size: i64,
+    _page: i64,
+    _page_size: i64,
 ) -> Result<Vec<ListDatasetObject>> {
     // Direct dataset access
     let direct_user_permissioned_datasets_handle = {

@@ -227,7 +227,7 @@ pub async fn remove_assets_from_collection_handler(
                 }
             };
 
-            if let Some(_) = existing {
+            if existing.is_some() {
                 // Dashboard is in the collection, soft delete it
                 match diesel::update(collections_to_assets::table)
                     .filter(collections_to_assets::collection_id.eq(collection_id))
@@ -351,7 +351,7 @@ pub async fn remove_assets_from_collection_handler(
                 }
             };
 
-            if let Some(_) = existing {
+            if existing.is_some() {
                 // Metric is in the collection, soft delete it
                 match diesel::update(collections_to_assets::table)
                     .filter(collections_to_assets::collection_id.eq(collection_id))

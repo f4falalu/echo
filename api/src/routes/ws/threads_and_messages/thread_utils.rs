@@ -1,4 +1,3 @@
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -9,7 +8,6 @@ use diesel::{
     QueryDsl,
 };
 use diesel_async::RunQueryDsl;
-use indexmap::IndexMap;
 use serde::Serialize;
 use uuid::Uuid;
 
@@ -17,7 +15,6 @@ use crate::{
     routes::ws::threads_and_messages::messages_utils::MessageDraftState,
     utils::{
         clients::sentry_utils::send_sentry_error,
-        query_engine::{data_types::DataType, query_engine::query_engine},
         sharing::asset_sharing::{
             get_asset_collections, get_asset_sharing_info, CollectionNameAndId,
             IndividualPermission, TeamPermissions,
@@ -26,7 +23,6 @@ use crate::{
 };
 use database::{
     enums::{AssetPermissionRole, AssetType, UserOrganizationRole},
-    models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue},
     models::{MessageDeprecated, ThreadDeprecated},
     pool::get_pg_pool,
     schema::{
@@ -76,8 +72,6 @@ pub struct ThreadState {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub draft_session_id: Option<Uuid>,
 }
-
-const MAX_UNIQUE_VALUES: usize = 1000;
 
 pub async fn get_thread_state_by_id(
     user_id: &Uuid,
@@ -156,7 +150,7 @@ pub async fn get_thread_state_by_id(
         }
     };
 
-    let public_password = if let Some(password_secret_id) = thread.password_secret_id {
+    let public_password = if let Some(_password_secret_id) = thread.password_secret_id {
         let public_password = match read_secret(&thread.id).await {
             Ok(public_password) => public_password,
             Err(e) => {
@@ -539,56 +533,6 @@ async fn is_organization_admin_or_owner(user_id: Arc<Uuid>, thread_id: Arc<Uuid>
     Ok(is_organization_adminig)
 }
 
-pub async fn get_bulk_user_thread_permission(
-    user_id: &Uuid,
-    thread_ids: &Vec<Uuid>,
-) -> Result<HashMap<Uuid, AssetPermissionRole>> {
-    let mut conn = match get_pg_pool().get().await {
-        Ok(conn) => conn,
-        Err(e) => {
-            tracing::error!("Error getting pg connection: {}", e);
-            return Err(anyhow!("Error getting pg connection: {}", e));
-        }
-    };
-
-    let permissions = match asset_permissions::table
-        .left_join(
-            teams_to_users::table.on(asset_permissions::identity_id.eq(teams_to_users::team_id)),
-        )
-        .select((asset_permissions::asset_id, asset_permissions::role))
-        .filter(
-            asset_permissions::identity_id
-                .eq(&user_id)
-                .or(teams_to_users::user_id.eq(&user_id)),
-        )
-        .filter(asset_permissions::asset_id.eq_any(thread_ids))
-        .filter(asset_permissions::deleted_at.is_null())
-        .load::<(Uuid, AssetPermissionRole)>(&mut conn)
-        .await
-    {
-        Ok(permissions) => permissions,
-        Err(diesel::result::Error::NotFound) => {
-            tracing::error!("thread not found");
-            return Err(anyhow!("thread not found"));
-        }
-        Err(e) => {
-            tracing::error!("Error querying thread by ID: {}", e);
-            return Err(anyhow!("Error querying thread by ID: {}", e));
-        }
-    };
-
-    let mut permission_map: HashMap<Uuid, AssetPermissionRole> = HashMap::new();
-
-    for (asset_id, role) in permissions {
-        permission_map
-            .entry(asset_id)
-            .and_modify(|e| *e = AssetPermissionRole::max(e.clone(), role.clone()))
-            .or_insert(role);
-    }
-
-    Ok(permission_map)
-}
-
 async fn get_thread_and_check_permissions(
     user_id: Arc<Uuid>,
     thread_id: Arc<Uuid>,
@@ -759,7 +703,7 @@ async fn get_thread_messages(
             None
         };
 
-        let sql_evaluation = if let Some(context) = &message.context {
+        let _sql_evaluation = if let Some(context) = &message.context {
             match context.get("sql_evaluation") {
                 Some(sql_evaluation) => Some(sql_evaluation.clone()),
                 None => None,
@@ -855,198 +799,6 @@ async fn get_thread_dashboards(thread_id: Arc<Uuid>) -> Result<Vec<DashboardName
     }
 
     Ok(dashboards)
-}
-
-#[derive(Debug)]
-pub struct DataObject {
-    pub data: Vec<IndexMap<String, DataType>>,
-    pub data_metadata: DataMetadataJsonBody,
-}
-
-pub async fn fetch_data(sql: &String, dataset_id: &Uuid) -> Result<DataObject> {
-    let data = match query_engine(&dataset_id, &sql).await {
-        Ok(data) => data,
-        Err(e) => {
-            return Err(anyhow!("Unable to query engine: {}", e));
-        }
-    };
-
-    let data_metadata = match process_data_metadata(&data).await {
-        Ok(data_metadata) => data_metadata,
-        Err(e) => return Err(anyhow!("Unable to process data metadata: {}", e)),
-    };
-
-    Ok(DataObject {
-        data,
-        data_metadata,
-    })
-}
-
-async fn process_data_metadata(
-    data: &Vec<IndexMap<String, DataType>>,
-) -> Result<DataMetadataJsonBody> {
-    if data.is_empty() {
-        return Ok(DataMetadataJsonBody {
-            column_count: 0,
-            row_count: 0,
-            column_metadata: vec![],
-        });
-    }
-
-    let first_row = &data[0];
-    let columns: Vec<_> = first_row.keys().cloned().collect();
-
-    let column_metadata: Vec<_> = columns
-        .par_iter() // Parallel iterator
-        .map(|column_name| {
-            let mut unique_values = Vec::with_capacity(MAX_UNIQUE_VALUES);
-            let mut min_value = None;
-            let mut max_value = None;
-            let mut unique_values_exceeded = false;
-            let mut is_date_type = false;
-            let mut min_value_str: Option<String> = None;
-            let mut max_value_str: Option<String> = None;
-
-            for row in data {
-                if let Some(value) = row.get(column_name) {
-                    if !unique_values_exceeded && unique_values.len() < MAX_UNIQUE_VALUES {
-                        if !unique_values.iter().any(|x| x == value) {
-                            unique_values.push(value.clone());
-                        }
-                    } else {
-                        unique_values_exceeded = true;
-                    }
-
-                    // Update min/max for numeric types
-                    match value {
-                        DataType::Int8(Some(n)) => {
-                            let n = *n as f64;
-                            min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                            max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
-                        }
-                        DataType::Int4(Some(n)) => {
-                            let n = *n as f64;
-                            min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                            max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
-                        }
-                        DataType::Int2(Some(n)) => {
-                            let n = *n as f64;
-                            min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                            max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
-                        }
-                        DataType::Float4(Some(n)) => {
-                            let n = *n as f64;
-                            min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                            max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
-                        }
-                        DataType::Float8(Some(n)) => {
-                            let n = *n as f64;
-                            min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                            max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
-                        }
-                        DataType::Date(Some(date)) => {
-                            is_date_type = true;
-                            let date_str = date.to_string();
-                            min_value = match min_value {
-                                None => Some(date_str.parse::<f64>().unwrap_or(0.0)),
-                                Some(_) => None, // Clear numeric min/max since we'll use strings
-                            };
-                            max_value = None;
-                            if let Some(current_min) = &min_value_str {
-                                if date_str < *current_min {
-                                    min_value_str = Some(date_str.clone());
-                                }
-                            } else {
-                                min_value_str = Some(date_str.clone());
-                            }
-                            if let Some(current_max) = &max_value_str {
-                                if date_str > *current_max {
-                                    max_value_str = Some(date_str);
-                                }
-                            } else {
-                                max_value_str = Some(date_str);
-                            }
-                        }
-                        DataType::Timestamp(Some(ts)) => {
-                            is_date_type = true;
-                            let ts_str = ts.to_string();
-                            min_value = match min_value {
-                                None => Some(ts_str.parse::<f64>().unwrap_or(0.0)),
-                                Some(_) => None,
-                            };
-                            max_value = None;
-                            if let Some(current_min) = &min_value_str {
-                                if ts_str < *current_min {
-                                    min_value_str = Some(ts_str.clone());
-                                }
-                            } else {
-                                min_value_str = Some(ts_str.clone());
-                            }
-                            if let Some(current_max) = &max_value_str {
-                                if ts_str > *current_max {
-                                    max_value_str = Some(ts_str);
-                                }
-                            } else {
-                                max_value_str = Some(ts_str);
-                            }
-                        }
-                        DataType::Timestamptz(Some(ts)) => {
-                            is_date_type = true;
-                            let ts_str = ts.naive_utc().to_string();
-                            min_value = match min_value {
-                                None => Some(ts_str.parse::<f64>().unwrap_or(0.0)),
-                                Some(_) => None,
-                            };
-                            max_value = None;
-                            if let Some(current_min) = &min_value_str {
-                                if ts_str < *current_min {
-                                    min_value_str = Some(ts_str.clone());
-                                }
-                            } else {
-                                min_value_str = Some(ts_str.clone());
-                            }
-                            if let Some(current_max) = &max_value_str {
-                                if ts_str > *current_max {
-                                    max_value_str = Some(ts_str);
-                                }
-                            } else {
-                                max_value_str = Some(ts_str);
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-            }
-
-            let column_type = first_row.get(column_name).unwrap();
-            ColumnMetadata {
-                name: column_name.clone(),
-                type_: column_type.to_string(),
-                simple_type: column_type.simple_type(),
-                unique_values: if !unique_values_exceeded {
-                    unique_values.len() as i32
-                } else {
-                    MAX_UNIQUE_VALUES as i32
-                },
-                min_value: if is_date_type {
-                    min_value_str.map(MinMaxValue::String)
-                } else {
-                    min_value.map(MinMaxValue::Number)
-                },
-                max_value: if is_date_type {
-                    max_value_str.map(MinMaxValue::String)
-                } else {
-                    max_value.map(MinMaxValue::Number)
-                },
-            }
-        })
-        .collect();
-
-    Ok(DataMetadataJsonBody {
-        column_count: first_row.len() as i32,
-        row_count: data.len() as i32,
-        column_metadata,
-    })
 }
 
 pub async fn check_if_thread_saved(thread_id: &Uuid) -> Result<bool> {

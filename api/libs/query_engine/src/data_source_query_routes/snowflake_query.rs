@@ -341,7 +341,7 @@ pub async fn snowflake_query(
                                             };
 
                                             match parse_snowflake_timestamp(
-                                                secs as i64,
+                                                secs,
                                                 subsec_nanos as u32,
                                             ) {
                                                 Ok(dt) => match tz {
@@ -360,7 +360,7 @@ pub async fn snowflake_query(
                                             }
                                         }
                                     }
-                                    arrow::datatypes::DataType::Decimal128(precision, scale) => {
+                                    arrow::datatypes::DataType::Decimal128(_precision, scale) => {
                                         let array = column
                                             .as_any()
                                             .downcast_ref::<Decimal128Array>()
@@ -374,7 +374,7 @@ pub async fn snowflake_query(
                                             DataType::Float8(Some(float_val))
                                         }
                                     }
-                                    arrow::datatypes::DataType::Decimal256(precision, scale) => {
+                                    arrow::datatypes::DataType::Decimal256(_precision, scale) => {
                                         let array = column
                                             .as_any()
                                             .downcast_ref::<Decimal256Array>()
@@ -528,18 +528,14 @@ pub async fn snowflake_query(
                                                             .downcast_ref::<Int64Array>(
                                                         ) {
                                                             Some(Value::Number(num.value(i).into()))
-                                                        } else if let Some(str) = values
+                                                        } else { values
                                                             .as_any()
                                                             .downcast_ref::<StringArray>(
-                                                        ) {
-                                                            Some(Value::String(
+                                                        ).map(|str| Value::String(
                                                                 process_string_value(
                                                                     str.value(i).to_string(),
                                                                 ),
-                                                            ))
-                                                        } else {
-                                                            None
-                                                        }
+                                                            )) }
                                                     })
                                                     .collect(),
                                             );
@@ -556,10 +552,10 @@ pub async fn snowflake_query(
                                         if fields.len() == 2 
                                             && fields.iter().any(|f| f.name() == "epoch")
                                             && fields.iter().any(|f| f.name() == "fraction")
-                                            && field.metadata().get("logicalType").map_or(false, |v| v.contains("TIMESTAMP")) 
+                                            && field.metadata().get("logicalType").is_some_and(|v| v.contains("TIMESTAMP")) 
                                         {
                                             if let Some(dt) = handle_snowflake_timestamp_struct(struct_array, row_idx) {
-                                                if field.metadata().get("logicalType").map_or(false, |v| v.contains("_TZ")) {
+                                                if field.metadata().get("logicalType").is_some_and(|v| v.contains("_TZ")) {
                                                     DataType::Timestamptz(Some(dt))
                                                 } else {
                                                     DataType::Timestamp(Some(dt.naive_utc()))

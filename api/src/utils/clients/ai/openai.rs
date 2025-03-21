@@ -62,22 +62,6 @@ fn is_o3_model(model: &OpenAiChatModel) -> bool {
     matches!(model, OpenAiChatModel::O3Mini)
 }
 
-fn should_skip_temperature(val: &(&f32, &OpenAiChatModel)) -> bool {
-    is_o3_model(val.1)
-}
-
-fn should_skip_max_tokens(val: &(&u32, &OpenAiChatModel)) -> bool {
-    is_o3_model(val.1)
-}
-
-fn should_skip_top_p(val: &(&f32, &OpenAiChatModel)) -> bool {
-    is_o3_model(val.1)
-}
-
-fn should_skip_reasoning_effort(val: &(&Option<ReasoningEffort>, &OpenAiChatModel)) -> bool {
-    !is_o3_model(val.1)
-}
-
 #[derive(Serialize, Clone)]
 pub struct OpenAiChatRequest {
     model: OpenAiChatModel,

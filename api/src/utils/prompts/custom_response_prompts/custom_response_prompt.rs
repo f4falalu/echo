@@ -1,7 +1,7 @@
 pub fn custom_response_system_prompt(
     datasets: &String,
-    input: &String,
-    orchestrator_output_string: &String,
+    _input: &String,
+    _orchestrator_output_string: &String,
 ) -> String {
     format!(
         r#"##OVERVIEW

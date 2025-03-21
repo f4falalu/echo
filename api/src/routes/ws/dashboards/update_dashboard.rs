@@ -291,7 +291,7 @@ async fn update_dashboard_record(
     public_password: Option<Option<String>>,
     public_expiry_date: Option<Option<chrono::NaiveDateTime>>,
 ) -> Result<()> {
-    let password_secret_id = match public_password {
+    let _password_secret_id = match public_password {
         Some(Some(password)) => match create_secret(&dashboard_id, &password).await {
             Ok(secret_id) => Some(Some(secret_id)),
             Err(e) => {

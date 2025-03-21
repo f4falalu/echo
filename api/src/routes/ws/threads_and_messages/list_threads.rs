@@ -39,7 +39,6 @@ use crate::{
 pub struct ListThreadsFilters {
     #[serde(rename = "status")]
     pub verification: Option<Vec<Verification>>,
-    pub user_id: Option<Uuid>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

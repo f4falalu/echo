@@ -36,7 +36,7 @@ pub async fn query_engine(
         .await
     {
         Ok(data_source) => data_source,
-        Err(e) => return Err(anyhow::anyhow!("Data source not found")),
+        Err(_) => return Err(anyhow::anyhow!("Data source not found")),
     };
 
     let results = match query_router(&data_source, sql, None, false).await {
@@ -91,7 +91,7 @@ pub async fn modeling_query_engine(
         .await
     {
         Ok(data_source) => data_source,
-        Err(e) => return Err(anyhow::anyhow!("Data source not found")),
+        Err(_) => return Err(anyhow::anyhow!("Data source not found")),
     };
 
     let results = match query_router(&data_source, sql, Some(25), false).await {

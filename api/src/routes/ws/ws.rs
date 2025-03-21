@@ -257,7 +257,6 @@ async fn ws_handler(stream: WebSocket, user: AuthenticatedUser, shutdown_tx: Arc
 
     let mut tasks = JoinSet::new();
 
-    let start_time = Instant::now();
     let last_pong = Arc::new(Mutex::new(Instant::now()));
 
     let (ping_timeout_tx, mut ping_timeout_rx) = oneshot::channel();

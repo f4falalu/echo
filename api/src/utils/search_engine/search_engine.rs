@@ -3,7 +3,6 @@ use tokio_stream::StreamExt;
 
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
-use diesel::QueryDsl;
 use serde::Serialize;
 use uuid::Uuid;
 

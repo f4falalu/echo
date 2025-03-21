@@ -1005,9 +1005,7 @@ mod tests {
                 id,
                 content,
                 tool_calls,
-                name,
-                progress,
-                initial,
+                ..
             } => {
                 assert_eq!(id, &None);
                 assert_eq!(content, &None);

@@ -27,17 +27,14 @@ use super::{
 
 pub async fn query_engine(
     data_source_id: &Uuid,
-    sql: &String,
+    sql: &str,
     limit: Option<i64>,
 ) -> Result<Vec<IndexMap<String, DataType>>> {
-    let corrected_sql = sql.clone();
+    let corrected_sql = sql.to_owned();
 
     let secure_sql = corrected_sql.clone();
 
-    match query_safety_filter(secure_sql.clone()).await {
-        Some(warning) => return Err(anyhow!(warning)),
-        None => (),
-    };
+    if let Some(warning) = query_safety_filter(secure_sql.clone()).await { return Err(anyhow!(warning)) };
 
     let results = match route_to_query(data_source_id, &secure_sql, limit).await {
         Ok(results) => results,
@@ -55,10 +52,10 @@ pub async fn query_engine(
 
 async fn route_to_query(
     data_source_id: &Uuid,
-    sql: &String,
+    sql: &str,
     limit: Option<i64>,
 ) -> Result<Vec<IndexMap<String, DataType>>> {
-    let credentials_string = match read_secret(&data_source_id).await {
+    let credentials_string = match read_secret(data_source_id).await {
         Ok(credentials) => credentials,
         Err(e) => return Err(anyhow!(e)),
     };
@@ -80,7 +77,7 @@ async fn route_to_query(
                 }
             };
 
-            let results = match postgres_query(pg_pool, sql.clone(), limit).await {
+            let results = match postgres_query(pg_pool, sql.to_owned(), limit).await {
                 Ok(results) => results,
                 Err(e) => {
                     return Err(anyhow!(e));
@@ -96,15 +93,15 @@ async fn route_to_query(
         Credential::Redshift(credentials) => {
             let redshift_client = get_redshift_connection(&credentials).await?;
 
-            let results = match redshift_query(redshift_client, sql.clone()).await {
+            
+
+            match redshift_query(redshift_client, sql.to_owned()).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);
                     return Err(anyhow!(e));
                 }
-            };
-
-            results
+            }
         }
         Credential::MySql(credentials) => {
             let (mysql_pool, ssh_tunnel, temp_files) = match get_mysql_connection(&credentials)
@@ -117,7 +114,7 @@ async fn route_to_query(
                 }
             };
 
-            let results = match mysql_query(mysql_pool, sql.clone()).await {
+            let results = match mysql_query(mysql_pool, sql.to_owned()).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);
@@ -140,15 +137,15 @@ async fn route_to_query(
                 }
             };
 
-            let results = match bigquery_query(bq_client, project_id, sql.clone()).await {
+            
+
+            match bigquery_query(bq_client, project_id, sql.to_owned()).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);
                     return Err(anyhow!(e));
                 }
-            };
-
-            results
+            }
         }
         Credential::SqlServer(credentials) => {
             let (sql_server_pool, ssh_tunnel, temp_files) = match get_sql_server_connection(
@@ -163,7 +160,7 @@ async fn route_to_query(
                 }
             };
 
-            let results = match sql_server_query(sql_server_pool, sql.clone()).await {
+            let results = match sql_server_query(sql_server_pool, sql.to_owned()).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);
@@ -186,15 +183,15 @@ async fn route_to_query(
                 }
             };
 
-            let results = match databricks_query(databricks_client, sql.clone()).await {
+            
+
+            match databricks_query(databricks_client, sql.to_owned()).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);
                     return Err(anyhow!(e));
                 }
-            };
-
-            results
+            }
         }
         Credential::Snowflake(credentials) => {
             let snowflake_client = match get_snowflake_client(&credentials).await {
@@ -205,15 +202,15 @@ async fn route_to_query(
                 }
             };
 
-            let results = match snowflake_query(snowflake_client, sql.clone()).await {
+            
+
+            match snowflake_query(snowflake_client, sql.to_owned()).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);
                     return Err(anyhow!(e));
                 }
-            };
-
-            results
+            }
         }
     };
 

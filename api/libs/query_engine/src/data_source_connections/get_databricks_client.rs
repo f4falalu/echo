@@ -93,7 +93,7 @@ impl Databricks {
         let databricks_query = DatabricksQuery {
             warehouse_id: self.warehouse_id,
             catalog: self.catalog_name,
-            statement: statement,
+            statement,
         };
 
         let query_result = match client

@@ -30,7 +30,7 @@ pub struct FileWithId {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FileEnum {
-    Metric(MetricYml),
+    Metric(Box<MetricYml>),
     Dashboard(DashboardYml),
 }
 

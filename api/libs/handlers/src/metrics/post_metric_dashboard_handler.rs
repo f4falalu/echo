@@ -83,7 +83,7 @@ pub async fn post_metric_dashboard_handler(
 
     match existing {
         Ok(_) => {
-            return Ok(PostMetricDashboardResponse {
+            Ok(PostMetricDashboardResponse {
                 metric_id: *metric_id,
                 dashboard_id: request.dashboard_id,
             })

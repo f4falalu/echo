@@ -100,7 +100,10 @@ async fn get_dataset_data_sample_handler(
         let sql = format!("SELECT * FROM {}.{} LIMIT 25", schema, database_name);
         match query_engine(dataset_id, &sql).await {
             Ok(data) => data,
-            Err(e) => Vec::new(),
+            Err(e) => {
+                tracing::error!("Error getting dataset data: {:?}", e);
+                Vec::new()
+            }
         }
     };
 
