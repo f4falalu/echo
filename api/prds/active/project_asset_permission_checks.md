@@ -123,29 +123,29 @@ graph TD
 
 The implementation will be broken down into the following sub-PRDs, with their dependencies and development order clearly defined:
 
-1. [Asset Permission Admin Check](api_asset_permission_admin_check.md) - **Must be completed first**
+1. [Asset Permission Admin Check](api_asset_permission_admin_check.md) - **Must be completed first** ✅
    - This PRD establishes the admin check capability needed by all other components
    - Dependencies: None
    - Required for: All other PRDs
 
 The following can be developed concurrently after the admin check is implemented:
 
-2. [Chat Permission Checks](api_chat_permission_checks.md) - **Can be developed concurrently**
+2. [Chat Permission Checks](api_chat_permission_checks.md) - **Can be developed concurrently** ⏳
    - Dependencies: Asset Permission Admin Check
    - Required for: None
    - No conflicts with other asset types
 
-3. [Collection Permission Checks](api_collection_permission_checks.md) - **Can be developed concurrently**
+3. [Collection Permission Checks](api_collection_permission_checks.md) - **Can be developed concurrently** ⏳
    - Dependencies: Asset Permission Admin Check
    - Required for: None
    - No conflicts with other asset types
 
-4. [Dashboard Permission Checks](api_dashboard_permission_checks.md) - **Can be developed concurrently**
+4. [Dashboard Permission Checks](api_dashboard_permission_checks.md) - **Can be developed concurrently** ⏳
    - Dependencies: Asset Permission Admin Check
    - Required for: None
    - No conflicts with other asset types
 
-5. [Metric Permission Checks](api_metric_permission_checks.md) - **Can be developed concurrently**
+5. [Metric Permission Checks](api_metric_permission_checks.md) - **Can be developed concurrently** ⏳
    - Dependencies: Asset Permission Admin Check
    - Required for: None
    - No conflicts with other asset types
