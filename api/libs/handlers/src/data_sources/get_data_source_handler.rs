@@ -9,6 +9,7 @@ use database::{
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use uuid::Uuid;
 
 #[derive(Deserialize)]
@@ -24,7 +25,7 @@ pub struct DataSourceResponse {
     pub created_at: String,
     pub updated_at: String,
     pub created_by: CreatedByResponse,
-    pub credentials: CredentialsResponse,
+    pub credentials: Value,
     pub data_sets: Vec<DatasetResponse>,
 }
 
@@ -33,22 +34,6 @@ pub struct CreatedByResponse {
     pub email: String,
     pub id: String,
     pub name: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct CredentialsResponse {
-    pub database: String,
-    pub host: String,
-    pub jump_host: Option<String>,
-    pub password: String,
-    pub port: String,
-    pub schemas: Option<Vec<String>>,
-    pub ssh_private_key: Option<String>,
-    pub ssh_username: Option<String>,
-    pub username: String,
-    pub project_id: Option<String>,
-    pub dataset_ids: Option<Vec<String>>,
-    pub credentials_json: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -88,8 +73,8 @@ pub async fn get_data_source_handler(
         .map_err(|e| anyhow!("Failed to load datasets: {}", e))?;
 
     // Get credentials from the vault
-    let secret = read_secret(&data_source.secret_id).await?;
-    let credentials: CredentialsResponse = serde_json::from_str(&secret)
+    let secret = read_secret(&data_source.id).await?;
+    let credentials: Value = serde_json::from_str(&secret)
         .map_err(|e| anyhow!("Failed to parse credentials: {}", e))?;
 
     // Convert datasets to response format
