@@ -133,7 +133,7 @@ impl ChunkTracker {
 pub async fn post_chat_handler(
     request: ChatCreateNewChat,
     user: AuthenticatedUser,
-    tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
+    _tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<ChatWithMessages> {
     // Create a request-local chunk tracker instance instead of using global static
     let chunk_tracker = ChunkTracker::new();
@@ -158,7 +158,7 @@ pub async fn post_chat_handler(
     );
 
     // Send initial chat state to client
-    if let Some(tx) = tx.clone() {
+    if let Some(tx) = _tx.clone() {
         tx.send(Ok((
             BusterContainer::Chat(chat_with_messages.clone()),
             ThreadEvent::InitializeChat,
@@ -198,13 +198,13 @@ pub async fn post_chat_handler(
 
     // Initialize raw_llm_messages with initial_messages
     let mut raw_llm_messages = initial_messages.clone();
-    let raw_response_message = String::new();
+    let _raw_response_message = String::new();
 
     // Initialize the agent thread
     let mut chat = AgentThread::new(Some(chat_id), user.id, initial_messages);
 
     let title_handle = {
-        let tx = tx.clone();
+        let tx = _tx.clone();
         let chat_id = chat_id.clone();
         let message_id = message_id.clone();
         let user_id = user.id.clone();
@@ -514,8 +514,8 @@ async fn process_completed_files(
     conn: &mut diesel_async::AsyncPgConnection,
     message: &Message,
     messages: &[AgentMessage],
-    organization_id: &Uuid,
-    user_id: &Uuid,
+    _organization_id: &Uuid,
+    _user_id: &Uuid,
     chunk_tracker: &ChunkTracker,
 ) -> Result<()> {
     let mut transformed_messages = Vec::new();
@@ -540,7 +540,7 @@ async fn process_completed_files(
                             continue;
                         }
 
-                        if let Some(file_content) = file.files.get(file_id) {
+                        if let Some(_file_content) = file.files.get(file_id) {
                             // Only process files that have completed reasoning
                             if file.status == "completed" {
                                 // Create message-to-file association
