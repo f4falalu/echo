@@ -90,7 +90,9 @@ pub async fn remove_dashboard_from_collections_handler(
             user_id = %user_id,
             "User does not have permission to modify this dashboard"
         );
-        return Err(anyhow!("User does not have permission to modify this dashboard"));
+        return Err(anyhow!(
+            "User does not have permission to modify this dashboard"
+        ));
     }
 
     // 3. Get database connection
@@ -204,7 +206,7 @@ pub async fn remove_dashboard_from_collections_handler(
     }
 
     let failed_count = failed_ids.len();
-    
+
     info!(
         dashboard_id = %dashboard_id,
         user_id = %user_id,
@@ -224,57 +226,22 @@ pub async fn remove_dashboard_from_collections_handler(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
     use uuid::Uuid;
-    use std::sync::Arc;
-    use mockall::predicate::*;
-    use mockall::mock;
-
-    // Mock the database and sharing functions for testing
-    mock! {
-        DashboardHelper {}
-        impl DashboardHelper {
-            async fn fetch_dashboard_file(id: &Uuid) -> Result<Option<database::models::DashboardFile>>;
-        }
-    }
-
-    mock! {
-        SharingHelper {}
-        impl SharingHelper {
-            async fn has_permission(
-                asset_id: Uuid,
-                asset_type: AssetType,
-                identity_id: Uuid,
-                identity_type: IdentityType,
-                role: AssetPermissionRole,
-            ) -> Result<bool>;
-        }
-    }
-
-    mock! {
-        DatabaseConnection {}
-        impl DatabaseConnection {
-            async fn execute_query(&self, query: &str) -> Result<u64>;
-            async fn get_results<T>(&self, query: &str) -> Result<Vec<T>>;
-        }
-    }
 
     #[tokio::test]
     async fn test_remove_dashboard_from_collections_handler() {
         // This is a placeholder for the actual test
         // In a real implementation, we would use test fixtures and a test database
-        
+
         // For now, let's just check that the basic input validation works
         let dashboard_id = Uuid::new_v4();
         let user_id = Uuid::new_v4();
         let empty_collections: Vec<Uuid> = vec![];
 
         // Test with empty collections - should return success with 0 removed
-        let result = remove_dashboard_from_collections_handler(
-            &dashboard_id,
-            empty_collections,
-            &user_id
-        ).await;
+        let result =
+            remove_dashboard_from_collections_handler(&dashboard_id, empty_collections, &user_id)
+                .await;
 
         assert!(result.is_ok());
         if let Ok(response) = result {

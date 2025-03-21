@@ -60,30 +60,5 @@ pub struct ChatUpdateRequest {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use axum::{
-        body::Body,
-        http::{Request, StatusCode},
-        routing::put,
-        Router,
-    };
-    use std::str::FromStr;
-    use tower::ServiceExt;
 
-    #[tokio::test]
-    async fn test_update_chat_route_success() {
-        // This test is a simplified unit test example
-        // More comprehensive integration tests are in the tests directory
-        let chat_id = Uuid::from_str("00000000-0000-0000-0000-000000000001").unwrap();
-        let user_id = Uuid::from_str("00000000-0000-0000-0000-000000000002").unwrap();
-        
-        // Since we can't mock the handler function easily in this context,
-        // this test would normally use a test database in integration tests
-        // Here we're just checking the basic structure
-        let update_request = ChatUpdateRequest {
-            title: "Updated Title".to_string(),
-        };
-        
-        // In a real test implementation, we would set up a proper testing environment
-    }
 }

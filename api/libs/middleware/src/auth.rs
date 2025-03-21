@@ -7,18 +7,19 @@ use database::{
 };
 use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
-use futures::{future::TryFutureExt, try_join};
+use futures::try_join;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, env};
 use uuid::Uuid;
-use lazy_static::lazy_static;
 
 use crate::types::{AuthenticatedUser, OrganizationMembership, TeamMembership};
 
 lazy_static! {
     static ref JWT_SECRET: String = env::var("JWT_SECRET").expect("JWT_SECRET is not set");
-    static ref WEBHOOK_TOKEN: String = env::var("BUSTER_WH_TOKEN").expect("BUSTER_WH_TOKEN is not set");
+    static ref WEBHOOK_TOKEN: String =
+        env::var("BUSTER_WH_TOKEN").expect("BUSTER_WH_TOKEN is not set");
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -102,13 +103,16 @@ async fn authorize_current_user(token: &str) -> Result<Option<AuthenticatedUser>
     let mut validation = Validation::new(Algorithm::HS256);
     validation.set_audience(&["authenticated", "api"]);
 
-    let token_data =
-        match decode::<JwtClaims>(token, &DecodingKey::from_secret(JWT_SECRET.as_ref()), &validation) {
-            Ok(jwt_claims) => jwt_claims.claims,
-            Err(e) => {
-                return Err(anyhow!("Error while decoding the token: {}", e));
-            }
-        };
+    let token_data = match decode::<JwtClaims>(
+        token,
+        &DecodingKey::from_secret(JWT_SECRET.as_ref()),
+        &validation,
+    ) {
+        Ok(jwt_claims) => jwt_claims.claims,
+        Err(e) => {
+            return Err(anyhow!("Error while decoding the token: {}", e));
+        }
+    };
 
     let user = match token_data.aud.contains("api") {
         true => find_user_by_api_key(token).await,
