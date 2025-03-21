@@ -38,7 +38,7 @@ impl ToolExecutor for CreatePlan {
         "create_plan".to_string()
     }
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         self.agent
             .set_state_value(String::from("plan_available"), Value::Bool(true))
             .await;
@@ -50,10 +50,7 @@ impl ToolExecutor for CreatePlan {
     }
 
     async fn is_enabled(&self) -> bool {
-        match self.agent.get_state_value("data_context").await {
-            Some(_) => true,
-            None => false,
-        }
+        self.agent.get_state_value("data_context").await.is_some()
     }
 
     async fn get_schema(&self) -> Value {

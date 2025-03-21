@@ -60,16 +60,13 @@ impl ToolExecutor for ModifyMetricFilesTool {
     }
 
     async fn is_enabled(&self) -> bool {
-        match (
+        matches!((
             self.agent.get_state_value("metrics_available").await,
             self.agent.get_state_value("plan_available").await,
-        ) {
-            (Some(_), Some(_)) => true,
-            _ => false,
-        }
+        ), (Some(_), Some(_)))
     }
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         debug!("Starting file modification execution");
@@ -157,7 +154,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
         // Process results and generate output message
         let duration = start_time.elapsed().as_millis() as i64;
-        let output = ModifyFilesOutput {
+        let _output = ModifyFilesOutput {
             message: String::new(),
             files: Vec::new(),
             duration,

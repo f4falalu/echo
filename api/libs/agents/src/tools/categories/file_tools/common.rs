@@ -48,7 +48,7 @@ pub async fn validate_sql(
     };
 
     // Try to execute the query using query_engine
-    let results = match query_engine(&data_source_id, &sql.to_string(), None).await {
+    let results = match query_engine(&data_source_id, sql, None).await {
         Ok(results) => results,
         Err(e) => return Err(anyhow!("SQL validation failed: {}", e)),
     };
@@ -590,7 +590,7 @@ pub async fn process_metric_file(
         Err(e) => return Err(format!("Invalid SQL query: {}", e)),
     };
 
-    let metric_yml_json = match serde_json::to_value(metric_yml.clone()) {
+    let _metric_yml_json = match serde_json::to_value(metric_yml.clone()) {
         Ok(json) => json,
         Err(e) => return Err(format!("Failed to process metric: {}", e)),
     };
@@ -600,7 +600,7 @@ pub async fn process_metric_file(
         name: file_name.clone(),
         file_name: file_name.clone(),
         content: metric_yml.clone(),
-        created_by: user_id.clone(),
+        created_by: *user_id,
         verification: Verification::NotRequested,
         evaluation_obj: None,
         evaluation_summary: None,

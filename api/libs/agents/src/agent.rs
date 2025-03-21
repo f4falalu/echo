@@ -554,15 +554,14 @@ impl Agent {
                             let id = tool_call.id.clone().unwrap_or_else(|| {
                                 buffer.tool_calls
                                     .keys()
-                                    .next()
-                                    .map(|s| s.clone())
+                                    .next().cloned()
                                     .unwrap_or_else(|| uuid::Uuid::new_v4().to_string())
                             });
 
                             // Get or create the pending tool call
                             let pending_call = buffer.tool_calls
                                 .entry(id.clone())
-                                .or_insert_with(PendingToolCall::new);
+                                .or_default();
 
                             // Update the pending call with the delta
                             pending_call.update_from_delta(tool_call);
@@ -922,10 +921,10 @@ impl PendingToolCall {
                 self.arguments.push_str(args);
             }
         }
-        if let Some(_) = &tool_call.code_interpreter {
+        if tool_call.code_interpreter.is_some() {
             self.code_interpreter = None;
         }
-        if let Some(_) = &tool_call.retrieval {
+        if tool_call.retrieval.is_some() {
             self.retrieval = None;
         }
     }
