@@ -138,7 +138,7 @@ pub async fn get_metric_handler(
             }
         } else {
             // Fall back to current content if no version history
-            (metric_file.content.clone(), 1)
+            (Box::new(metric_file.content.clone()), 1)
         }
     };
 
