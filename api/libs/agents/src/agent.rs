@@ -12,6 +12,9 @@ use tokio::sync::{broadcast, RwLock};
 use tracing::error;
 use uuid::Uuid;
 use std::time::{Duration, Instant};
+
+// Type definition for tool registry to simplify complex type
+type ToolRegistry = Arc<RwLock<HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>>>;
 use crate::models::AgentThread;
 
 // Global BraintrustClient instance
@@ -131,11 +134,7 @@ pub struct Agent {
     /// Client for communicating with the LLM provider
     llm_client: LiteLLMClient,
     /// Registry of available tools, mapped by their names
-    tools: Arc<
-        RwLock<
-            HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>,
-        >,
-    >,
+    tools: ToolRegistry,
     /// The model identifier to use (e.g., "gpt-4")
     model: String,
     /// Flexible state storage for maintaining memory across interactions
@@ -902,6 +901,7 @@ struct PendingToolCall {
 }
 
 impl PendingToolCall {
+    #[allow(dead_code)]
     fn new() -> Self {
         Self::default()
     }

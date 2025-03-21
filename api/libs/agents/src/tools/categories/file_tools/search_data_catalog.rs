@@ -85,6 +85,7 @@ impl SearchDataCatalogTool {
         Self { agent }
     }
 
+    #[allow(dead_code)]
     async fn is_enabled(&self) -> bool {
         true
     }
@@ -408,8 +409,11 @@ struct Dataset {
     id: Uuid,
     name: String,
     yml_file: Option<String>,
+    #[allow(dead_code)]
     created_at: DateTime<Utc>,
+    #[allow(dead_code)]
     updated_at: DateTime<Utc>,
+    #[allow(dead_code)]
     deleted_at: Option<DateTime<Utc>>,
 }
 
