@@ -1,7 +1,6 @@
 use agents::tools::categories::file_tools::common::generate_deterministic_uuid;
 use anyhow::Result;
 use serde_json::Value;
-use sha2::Digest;
 
 use super::post_chat_handler::{
     BusterFile, BusterFileContent, BusterReasoningFile, BusterReasoningMessage, BusterReasoningText,
@@ -10,6 +9,12 @@ use super::post_chat_handler::{
 pub struct StreamingParser {
     buffer: String,
     yml_content_regex: regex::Regex,
+}
+
+impl Default for StreamingParser {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl StreamingParser {

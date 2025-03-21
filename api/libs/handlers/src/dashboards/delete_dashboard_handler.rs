@@ -38,7 +38,7 @@ pub async fn delete_dashboards_handler(
     
     // Execute each operation and track failures
     for (id, operation) in operations {
-        if let Err(_) = operation.await {
+        if (operation.await).is_err() {
             failed_ids.push(id);
         }
     }
@@ -62,7 +62,7 @@ pub async fn delete_dashboards_handler(
 
 /// Helper function to delete a single dashboard
 /// Used internally by delete_dashboards_handler
-async fn delete_single_dashboard(dashboard_id: Uuid, user_id: &Uuid) -> Result<()> {
+async fn delete_single_dashboard(dashboard_id: Uuid, _user_id: &Uuid) -> Result<()> {
     let mut conn = get_pg_pool().get().await?;
     
     // Check if the dashboard exists and is not already deleted

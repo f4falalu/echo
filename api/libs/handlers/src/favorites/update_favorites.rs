@@ -6,7 +6,7 @@ use super::favorites_utils::{list_user_favorites, update_favorites as update_fav
 
 pub async fn update_favorites(
     user: &AuthenticatedUser,
-    favorites: &Vec<Uuid>,
+    favorites: &[Uuid],
 ) -> Result<Vec<FavoriteObject>> {
     match update_favorites_util(user, favorites).await {
         Ok(_) => (),
