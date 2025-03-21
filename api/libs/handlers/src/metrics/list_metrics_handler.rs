@@ -84,7 +84,7 @@ pub async fn list_metrics_handler(
     let metrics = metric_results
         .into_iter()
         .map(
-            |(id, name, created_by, _created_at, updated_at, status, content)| {
+            |(id, name, created_by, _created_at, updated_at, status, _content)| {
                 BusterMetricListItem {
                     id,
                     title: name,

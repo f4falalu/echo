@@ -59,7 +59,7 @@ pub async fn update_dashboard_sharing_handler(
     );
 
     // 1. Validate the dashboard exists
-    let dashboard = match fetch_dashboard_file(dashboard_id).await? {
+    let _dashboard = match fetch_dashboard_file(dashboard_id).await? {
         Some(dashboard) => dashboard,
         None => {
             error!(

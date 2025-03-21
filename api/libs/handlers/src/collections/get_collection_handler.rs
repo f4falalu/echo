@@ -65,7 +65,7 @@ fn format_assets(assets: Vec<AssetQueryResult>) -> Vec<CollectionAsset> {
 }
 
 pub async fn get_collection_handler(
-    user_id: &Uuid,
+    _user_id: &Uuid,
     req: GetCollectionRequest,
 ) -> Result<CollectionState> {
     // Reuse the existing collection_utils function

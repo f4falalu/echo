@@ -40,7 +40,7 @@ struct QueryableDashboardFile {
 }
 
 pub async fn list_dashboard_handler(
-    user_id: &Uuid,
+    _user_id: &Uuid,
     request: DashboardsListRequest,
 ) -> Result<Vec<BusterDashboardListItem>> {
     let mut conn = match get_pg_pool().get().await {

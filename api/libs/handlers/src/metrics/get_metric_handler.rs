@@ -67,7 +67,7 @@ struct AssetPermissionInfo {
 /// If version_number is None, returns the latest version of the metric.
 pub async fn get_metric_handler(
     metric_id: &Uuid,
-    user_id: &Uuid,
+    _user_id: &Uuid,
     version_number: Option<i32>,
 ) -> Result<BusterMetric> {
     let mut conn = match get_pg_pool().get().await {

@@ -122,7 +122,7 @@ pub async fn list_logs_handler(
         .collect();
 
     // Create pagination info
-    let pagination = PaginationInfo {
+    let _pagination = PaginationInfo {
         has_more,
         next_page: if has_more { Some(page + 1) } else { None },
         total_items: items.len() as i32,

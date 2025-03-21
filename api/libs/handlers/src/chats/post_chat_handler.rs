@@ -722,7 +722,7 @@ pub async fn transform_message(
     chat_id: &Uuid,
     message_id: &Uuid,
     message: AgentMessage,
-    tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
+    _tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
     tracker: &ChunkTracker,
 ) -> Result<Vec<(BusterContainer, ThreadEvent)>> {
 
