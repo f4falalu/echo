@@ -140,7 +140,7 @@ const ChartButton: React.FC<{
 }> = React.memo(
   ({ id, icon: Icon, tooltipText, onSelectChartType, isSelected, disabled, colors }) => {
     return (
-      <AppTooltip title={tooltipText} delayDuration={0.65}>
+      <AppTooltip title={tooltipText} delayDuration={650}>
         <div
           key={id}
           onClick={() => !disabled && onSelectChartType(id)}

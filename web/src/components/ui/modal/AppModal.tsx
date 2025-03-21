@@ -22,7 +22,7 @@ export interface ModalProps {
     left?: React.ReactNode;
     primaryButton: {
       text: string;
-      onClick: () => Promise<void> | (() => void);
+      onClick: (() => Promise<void>) | (() => void);
       variant?: ButtonProps['variant'];
       loading?: boolean;
       disabled?: boolean;
@@ -46,7 +46,6 @@ export interface ModalProps {
 export const AppModal: React.FC<ModalProps> = React.memo(
   ({ open, onClose, footer, header, width = 600, className, style, children }) => {
     const [isLoadingPrimaryButton, setIsLoadingPrimaryButton] = useState(false);
-    const [isLoadingSecondaryButton, setIsLoadingSecondaryButton] = useState(false);
     const onOpenChange = useMemoizedFn((open: boolean) => {
       if (!open) {
         onClose();
@@ -65,22 +64,21 @@ export const AppModal: React.FC<ModalProps> = React.memo(
     const onPrimaryButtonClickPreflight = useMemoizedFn(async () => {
       setIsLoadingPrimaryButton(true);
       await footer.primaryButton.onClick();
-
       setIsLoadingPrimaryButton(false);
     });
 
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className={className} style={memoizedStyle}>
-          <div className="flex flex-col gap-4 overflow-hidden">
+          <div className="flex flex-col gap-4 overflow-hidden p-6">
             {header && (
-              <DialogHeader className="px-6 pt-6">
+              <DialogHeader className="">
                 {header.title && <DialogTitle>{header.title}</DialogTitle>}
                 {header.description && <DialogDescription>{header.description}</DialogDescription>}
               </DialogHeader>
             )}
 
-            <div className="px-6"> {children}</div>
+            {children}
           </div>
 
           {footer && (

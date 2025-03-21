@@ -200,9 +200,9 @@ export const mockMetric30 = createMockMetric('number30');
 
 export const createMockListMetric = (id: string): BusterMetricListItem => ({
   id,
-  title: faker.lorem.words({ min: 2, max: 6 }),
+  title: faker.commerce.productName(),
   last_edited: faker.date.recent().toISOString(),
-  dataset_name: faker.lorem.words({ min: 2, max: 6 }),
+  dataset_name: faker.commerce.productName(),
   dataset_uuid: faker.string.uuid(),
   created_by_id: faker.string.uuid(),
   created_by_name: faker.person.fullName(),

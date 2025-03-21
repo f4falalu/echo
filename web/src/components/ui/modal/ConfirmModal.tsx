@@ -5,7 +5,7 @@ export interface ConfirmProps {
   title: string | React.ReactNode;
   description?: string | React.ReactNode;
   content: string | React.ReactNode;
-  onOk: () => Promise<void> | (() => void);
+  onOk: (() => Promise<void>) | (() => void);
   onCancel?: () => Promise<void> | void;
   width?: number;
   cancelButtonProps?: {

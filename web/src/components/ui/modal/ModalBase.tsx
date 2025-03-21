@@ -33,8 +33,10 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 const DialogContent = React.memo(
   React.forwardRef<
     React.ElementRef<typeof DialogPrimitive.Content>,
-    React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
-  >(({ className, children, ...props }, ref) => (
+    React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+      showClose?: boolean;
+    }
+  >(({ className, children, showClose = true, ...props }, ref) => (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Content
@@ -47,13 +49,7 @@ const DialogContent = React.memo(
         )}
         {...props}>
         {children}
-        <DialogPrimitive.Close
-          asChild
-          className={cn(
-            'absolute top-6 right-6 opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none'
-          )}>
-          <Button prefix={<Xmark />} variant="ghost" />
-        </DialogPrimitive.Close>
+        {showClose && <DialogCloseButton />}
       </DialogPrimitive.Content>
     </DialogPortal>
   ))
@@ -66,7 +62,7 @@ const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 DialogHeader.displayName = 'DialogHeader';
 
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('space-x-2 border-t px-6 py-2.5', className)} {...props} />
+  <div className={cn('space-x-2 border-t py-2.5 pr-6 pl-5', className)} {...props} />
 );
 DialogFooter.displayName = 'DialogFooter';
 
@@ -94,6 +90,23 @@ const DialogDescription = React.forwardRef<
 ));
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
+const DialogCloseButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Close>
+>(({ className, ...props }, ref) => (
+  <DialogPrimitive.Close
+    ref={ref}
+    asChild
+    className={cn(
+      'absolute top-6 right-6 opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none',
+      className
+    )}
+    {...props}>
+    <Button prefix={<Xmark />} variant="ghost" />
+  </DialogPrimitive.Close>
+));
+DialogCloseButton.displayName = 'DialogCloseButton';
+
 export {
   Dialog,
   DialogPortal,
@@ -104,5 +117,6 @@ export {
   DialogHeader,
   DialogFooter,
   DialogTitle,
-  DialogDescription
+  DialogDescription,
+  DialogCloseButton
 };

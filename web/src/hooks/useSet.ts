@@ -1,66 +1,51 @@
-'use client';
+import { useState } from 'react';
+import { useMemoizedFn } from './useMemoizedFn';
 
-import { useState, useCallback } from 'react';
+function useSet<K>(initialValue?: Iterable<K>) {
+  const getInitValue = () => new Set(initialValue);
+  const [set, setSet] = useState<Set<K>>(getInitValue);
 
-/**
- * A hook that provides a stateful Set with methods to modify it.
- * @template T The type of elements in the Set
- * @returns A tuple containing the Set and methods to modify it
- */
-export function useSet<T>(initialValues: T[] = []): [
-  Set<T>,
-  {
-    add: (value: T) => void;
-    remove: (value: T) => void;
-    toggle: (value: T) => void;
-    clear: () => void;
-    has: (value: T) => boolean;
-  }
-] {
-  const [set, setSet] = useState<Set<T>>(() => new Set(initialValues));
-
-  const add = useCallback((value: T) => {
+  const add = (key: K) => {
+    if (set.has(key)) {
+      return;
+    }
     setSet((prevSet) => {
-      const newSet = new Set(prevSet);
-      newSet.add(value);
-      return newSet;
+      const temp = new Set(prevSet);
+      temp.add(key);
+      return temp;
     });
-  }, []);
+  };
 
-  const remove = useCallback((value: T) => {
+  const remove = (key: K) => {
+    if (!set.has(key)) {
+      return;
+    }
     setSet((prevSet) => {
-      const newSet = new Set(prevSet);
-      newSet.delete(value);
-      return newSet;
+      const temp = new Set(prevSet);
+      temp.delete(key);
+      return temp;
     });
-  }, []);
+  };
 
-  const toggle = useCallback((value: T) => {
-    setSet((prevSet) => {
-      const newSet = new Set(prevSet);
-      if (newSet.has(value)) {
-        newSet.delete(value);
-      } else {
-        newSet.add(value);
-      }
-      return newSet;
-    });
-  }, []);
+  const reset = () => setSet(getInitValue());
 
-  const clear = useCallback(() => {
-    setSet(new Set());
-  }, []);
+  const has = (key: K) => set.has(key);
 
-  const has = useCallback((value: T) => set.has(value), [set]);
+  const size = () => set.size;
+
+  const replace = (newSet: K[]) => setSet(new Set(newSet));
 
   return [
     set,
     {
-      add,
-      remove,
-      toggle,
-      clear,
-      has
+      add: useMemoizedFn(add),
+      replace: useMemoizedFn(replace),
+      remove: useMemoizedFn(remove),
+      reset: useMemoizedFn(reset),
+      has: useMemoizedFn(has),
+      size: useMemoizedFn(size)
     }
-  ];
+  ] as const;
 }
+
+export { useSet };

@@ -17,9 +17,12 @@ const createMockDashboardRow = (startIndex: number, metrics: string[], columnSiz
   items: metrics.map((metricId) => ({ id: metricId }))
 });
 
-export const generateMockDashboard = (numMetrics: number): DashboardMockResponse => {
+export const generateMockDashboard = (
+  numMetrics: number,
+  dashboardId: string = '123'
+): DashboardMockResponse => {
   // Generate the specified number of metrics
-  const metrics = Array.from({ length: numMetrics }, (_, i) => createMockMetric(`number${i + 1}`));
+  const metrics = Array.from({ length: numMetrics }, (_, i) => createMockMetric(`${i + 1}`));
   const metricIds = metrics.map((metric) => metric.id);
 
   // Create rows based on number of metrics
@@ -71,7 +74,7 @@ export const generateMockDashboard = (numMetrics: number): DashboardMockResponse
   }
 
   const dashboard: BusterDashboard = {
-    id: '123',
+    id: dashboardId,
     name: 'Mock Dashboard',
     file: `title: Mock Dashboard
 description: A sample dashboard configuration

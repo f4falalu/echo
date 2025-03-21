@@ -16,16 +16,6 @@ export interface DashboardsListRequest {
 }
 
 /**
- * Interface for subscribing to a dashboard
- */
-export interface DashboardSubscribeRequest {
-  /** The unique identifier of the dashboard */
-  id: string;
-  /** Optional password for accessing protected dashboards */
-  password?: string;
-}
-
-/**
  * Interface for unsubscribing from a specific dashboard
  */
 export interface DashboardUnsubscribeRequest {

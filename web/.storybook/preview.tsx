@@ -4,6 +4,7 @@ import type { Preview } from '@storybook/react';
 import { initialize, mswLoader } from 'msw-storybook-addon';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BusterStyleProvider } from '../src/context/BusterStyles/BusterStyles';
+import { BusterAssetsProvider } from '../src/context/Assets/BusterAssetsProvider';
 import '../src/styles/styles.scss';
 
 initialize();
@@ -41,7 +42,9 @@ const preview: Preview = {
       return (
         <BusterStyleProvider>
           <QueryClientProvider client={queryClient}>
-            <Story />
+            <BusterAssetsProvider>
+              <Story />
+            </BusterAssetsProvider>
           </QueryClientProvider>
         </BusterStyleProvider>
       );

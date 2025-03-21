@@ -221,7 +221,7 @@ function SegmentedTriggerComponent<T extends string = string>(props: SegmentedTr
   const LinkDiv = link ? Link : 'div';
 
   return (
-    <Tooltip title={tooltip || ''} sideOffset={10} delayDuration={0.15}>
+    <Tooltip title={tooltip || ''} sideOffset={10} delayDuration={150}>
       <Tabs.Trigger
         key={value}
         value={value}

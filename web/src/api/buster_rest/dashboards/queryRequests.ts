@@ -58,7 +58,7 @@ const useGetDashboardAndInitializeMetrics = () => {
   });
 
   return useMemoizedFn(async (id: string) => {
-    const { password } = getAssetPassword(id);
+    const { password } = getAssetPassword?.(id) || {};
 
     return dashboardsGetDashboard({ id: id!, password }).then((data) => {
       initializeMetrics(data.metrics);
@@ -72,6 +72,7 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
   select?: (data: BusterDashboardResponse) => TData
 ) => {
   const queryFn = useGetDashboardAndInitializeMetrics();
+  const queryClient = useQueryClient();
 
   return useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id!),

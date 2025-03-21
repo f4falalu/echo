@@ -2,14 +2,12 @@ import mainApi from '@/api/buster_rest/instances';
 import type {
   DashboardsListRequest,
   DashboardCreateRequest,
-  DashboardUpdateRequest,
-  DashboardSubscribeRequest
+  DashboardUpdateRequest
 } from '@/api/request_interfaces/dashboards/interfaces';
 import type {
   BusterDashboardListItem,
   BusterDashboardResponse
 } from '@/api/asset_interfaces/dashboard';
-import { ShareRole } from '@/api/asset_interfaces';
 import {
   ShareDeleteRequest,
   SharePostRequest,
@@ -22,7 +20,15 @@ export const dashboardsGetList = async (params: DashboardsListRequest) => {
     .then((res) => res.data);
 };
 
-export const dashboardsGetDashboard = async ({ id, password }: DashboardSubscribeRequest) => {
+export const dashboardsGetDashboard = async ({
+  id,
+  password
+}: {
+  /** The unique identifier of the dashboard */
+  id: string;
+  /** Optional password for accessing protected dashboards */
+  password?: string;
+}) => {
   return await mainApi
     .get<BusterDashboardResponse>(`/dashboards/${id}`, { params: { password } })
     .then((res) => res.data);

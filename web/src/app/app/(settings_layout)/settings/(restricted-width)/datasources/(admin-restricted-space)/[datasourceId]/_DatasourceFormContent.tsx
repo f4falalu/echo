@@ -80,8 +80,7 @@ export const DataSourceFormContent: React.FC<{
               route: BusterRoutes.SETTINGS_DATASOURCES_ID,
               datasourceId: res.id
             });
-          },
-          cancelButtonProps: { className: 'hidden!' }
+          }
         });
       }
     } catch (error) {

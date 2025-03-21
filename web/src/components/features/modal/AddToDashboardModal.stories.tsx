@@ -3,12 +3,15 @@ import { AddToDashboardModal } from './AddToDashboardModal';
 import { http, HttpResponse } from 'msw';
 import { fn } from '@storybook/test';
 import { BASE_URL } from '@/api/buster_rest/config';
-import { BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
+import { BusterMetricListItem } from '@/api/asset_interfaces';
 import { createMockListMetric } from '@/mocks/metric';
+import { generateMockDashboard } from '@/mocks/MOCK_DASHBOARD';
 
 const mockMetrics: BusterMetricListItem[] = Array.from({ length: 100 }, (_, index) =>
   createMockListMetric(`${index + 1}`)
 );
+
+const { response } = generateMockDashboard(3, 'dashboard-1');
 
 const meta = {
   title: 'Features/Modal/AddToDashboardModal',
@@ -17,7 +20,10 @@ const meta = {
     layout: 'centered',
     msw: {
       handlers: [
-        http.get(`${BASE_URL}/metrics`, () => {
+        http.get(`${BASE_URL}/dashboards/dashboard-1`, () => {
+          return HttpResponse.json(response);
+        }),
+        http.get(`${BASE_URL}/metrics?page_token=0&page_size=3000`, () => {
           return HttpResponse.json(mockMetrics);
         })
       ]
@@ -41,14 +47,5 @@ export const EmptyState: Story = {
     open: true,
     onClose: fn(),
     dashboardId: 'dashboard-1'
-  },
-  parameters: {
-    msw: {
-      handlers: [
-        http.get(`${BASE_URL}/metrics`, () => {
-          return HttpResponse.json([]);
-        })
-      ]
-    }
   }
 };
