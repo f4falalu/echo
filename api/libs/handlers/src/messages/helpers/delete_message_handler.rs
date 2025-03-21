@@ -14,7 +14,7 @@ use uuid::Uuid;
 ///
 /// # Returns
 /// * `Result<()>` - Success or error
-pub async fn delete_message_handler(user: AuthenticatedUser, message_id: Uuid) -> Result<()> {
+pub async fn delete_message_handler(_user: AuthenticatedUser, message_id: Uuid) -> Result<()> {
     let pool = get_pg_pool();
     let mut conn = pool.get().await?;
 

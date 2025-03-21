@@ -9,24 +9,31 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use database::{enums::{AssetPermissionRole, AssetType}, models::{Dashboard, MessageDeprecated}, pool::get_pg_pool, schema::{asset_permissions, dashboards, messages_deprecated, threads_to_dashboards, users_to_organizations}, vault::read_secret};
-use crate::{
-    utils::{
-        clients::{sentry_utils::send_sentry_error},
-        query_engine::data_types::DataType,
-        sharing::asset_sharing::{
-            get_asset_collections, get_asset_sharing_info, CollectionNameAndId,
-            IndividualPermission, TeamPermissions,
-        },
-        user::user_info::get_user_organization_id,
+use crate::utils::{
+    clients::sentry_utils::send_sentry_error,
+    query_engine::data_types::DataType,
+    sharing::asset_sharing::{
+        get_asset_collections, get_asset_sharing_info, CollectionNameAndId, IndividualPermission,
+        TeamPermissions,
     },
+    user::user_info::get_user_organization_id,
+};
+use database::{
+    enums::{AssetPermissionRole, AssetType},
+    models::{Dashboard, MessageDeprecated},
+    pool::get_pg_pool,
+    schema::{
+        asset_permissions, dashboards, messages_deprecated, threads_to_dashboards,
+        users_to_organizations,
+    },
+    vault::read_secret,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Metric {
     pub id: Uuid, // This is the thread id
     #[serde(skip_serializing)]
-    pub message_id: Uuid,
+    pub _message_id: Uuid,
     pub name: String,
     pub time_frame: String,
     #[serde(skip_serializing)]
@@ -186,7 +193,7 @@ pub async fn get_dashboard_state_by_id(
             match read_secret(&secret_id).await {
                 Ok(password) => Some(password),
                 Err(e) => {
-                tracing::error!("Error getting dashboard password: {}", e);
+                    tracing::error!("Error getting dashboard password: {}", e);
                     None
                 }
             }
@@ -438,7 +445,10 @@ async fn get_dashboard_metrics(dashboard_id: Arc<Uuid>) -> Result<Vec<Metric>> {
             threads_to_dashboards::table
                 .on(messages_deprecated::thread_id.eq(threads_to_dashboards::thread_id)),
         )
-        .select((threads_to_dashboards::thread_id, messages_deprecated::all_columns))
+        .select((
+            threads_to_dashboards::thread_id,
+            messages_deprecated::all_columns,
+        ))
         .filter(threads_to_dashboards::dashboard_id.eq(dashboard_id.as_ref()))
         .filter(messages_deprecated::deleted_at.is_null())
         .filter(messages_deprecated::draft_session_id.is_null())
@@ -471,7 +481,7 @@ async fn get_dashboard_metrics(dashboard_id: Arc<Uuid>) -> Result<Vec<Metric>> {
     for (thread_id, message) in thread_messages {
         let metric = Metric {
             id: thread_id,
-            message_id: message.id,
+            _message_id: message.id,
             name: message.title.unwrap_or_default(),
             time_frame: message.time_frame.unwrap_or_default(),
             sql: message.code.unwrap_or_default(),

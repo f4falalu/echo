@@ -46,7 +46,7 @@ pub async fn create_favorite(
     };
 
     let user_favorite = UserFavorite {
-        asset_type: req.asset_type.clone(),
+        asset_type: req.asset_type,
         user_id: user.id,
         asset_id: req.id,
         order_index: index as i32,

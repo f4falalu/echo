@@ -23,7 +23,7 @@ pub async fn bigquery_query(
         maximum_bytes_billed: None,
         parameter_mode: None,
         preserve_nulls: None,
-        query: query,
+        query,
         query_parameters: None,
         request_id: None,
         timeout_ms: Some(120000),

@@ -32,7 +32,6 @@ pub struct StoredValueWithDistance {
 
 const BATCH_SIZE: usize = 10_000;
 const MAX_VALUE_LENGTH: usize = 50;
-const TIMEOUT_SECONDS: u64 = 60;
 
 pub async fn ensure_stored_values_schema(organization_id: &Uuid) -> Result<()> {
     let pool = get_pg_pool();
@@ -77,7 +76,7 @@ pub async fn store_column_values(
     dataset_id: &Uuid,
     column_name: &str,
     column_id: &Uuid,
-    data_source_id: &Uuid,
+    _data_source_id: &Uuid,
     schema: &str,
     table_name: &str,
 ) -> Result<()> {

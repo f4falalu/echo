@@ -107,7 +107,7 @@ async fn process_dashboard_file(
         content: dashboard_yml.clone(),
         filter: None,
         organization_id: Uuid::new_v4(),
-        created_by: user_id.clone(),
+        created_by: *user_id,
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
@@ -130,13 +130,10 @@ impl ToolExecutor for CreateDashboardFilesTool {
     }
 
     async fn is_enabled(&self) -> bool {
-        match (
+        matches!((
             self.agent.get_state_value("metrics_available").await,
             self.agent.get_state_value("plan_available").await,
-        ) {
-            (Some(_), Some(_)) => true,
-            _ => false,
-        }
+        ), (Some(_), Some(_)))
     }
 
     async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {

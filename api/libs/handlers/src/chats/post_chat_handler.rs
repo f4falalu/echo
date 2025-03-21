@@ -74,6 +74,12 @@ struct ChunkState {
     last_seen_content: String,
 }
 
+impl Default for ChunkTracker {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ChunkTracker {
     pub fn new() -> Self {
         Self {
@@ -148,7 +154,7 @@ pub async fn post_chat_handler(
     validate_context_request(request.chat_id, request.metric_id, request.dashboard_id)?;
 
     let user_org_id = match user.attributes.get("organization_id") {
-        Some(Value::String(org_id)) => Uuid::parse_str(&org_id).unwrap_or_default(),
+        Some(Value::String(org_id)) => Uuid::parse_str(org_id).unwrap_or_default(),
         _ => {
             tracing::error!("User has no organization ID");
             return Err(anyhow!("User has no organization ID"));
@@ -205,16 +211,14 @@ pub async fn post_chat_handler(
 
     // Initialize raw_llm_messages with initial_messages
     let mut raw_llm_messages = initial_messages.clone();
-    let raw_response_message = String::new();
+    let _raw_response_message = String::new();
 
     // Initialize the agent thread
     let mut chat = AgentThread::new(Some(chat_id), user.id, initial_messages);
 
     let title_handle = {
         let tx = tx.clone();
-        let chat_id = chat_id.clone();
-        let message_id = message_id.clone();
-        let user_id = user.id.clone();
+        let user_id = user.id;
         let chat_messages = chat.messages.clone();
         tokio::spawn(async move {
             generate_conversation_title(&chat_messages, &message_id, &user_id, &chat_id, tx).await
@@ -360,7 +364,7 @@ pub async fn post_chat_handler(
         message_id,
         ChatUserMessage {
             request: request.prompt.clone(),
-            sender_id: user.id.clone(),
+            sender_id: user.id,
             sender_name: user.name.clone().unwrap_or_default(),
             sender_avatar: None,
         },
@@ -377,7 +381,7 @@ pub async fn post_chat_handler(
         id: message_id,
         request_message: request.prompt,
         chat_id,
-        created_by: user.id.clone(),
+        created_by: user.id,
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
@@ -400,7 +404,7 @@ pub async fn post_chat_handler(
     // First process completed files (database updates only)
     // Use a separate connection scope to ensure prompt release
     {
-        let _ = process_completed_files(
+        process_completed_files(
             &mut conn,
             &db_message,
             &all_messages,
@@ -532,8 +536,8 @@ async fn process_completed_files(
     conn: &mut diesel_async::AsyncPgConnection,
     message: &Message,
     messages: &[AgentMessage],
-    organization_id: &Uuid,
-    user_id: &Uuid,
+    _organization_id: &Uuid,
+    _user_id: &Uuid,
     chunk_tracker: &ChunkTracker,
 ) -> Result<()> {
     let mut transformed_messages = Vec::new();
@@ -555,14 +559,13 @@ async fn process_completed_files(
 
     // Process files for database updates only
     for (container, _) in transformed_messages {
-        match container {
-            BusterContainer::ReasoningMessage(msg) => match &msg.reasoning {
-                BusterReasoningMessage::File(file) if file.message_type == "files" => {
-                    for file_id in &file.file_ids {
-                        // Skip if we've already processed this file ID
-                        if !processed_file_ids.insert(file_id.clone()) {
-                            continue;
-                        }
+        if let BusterContainer::ReasoningMessage(msg) = container { match &msg.reasoning {
+            BusterReasoningMessage::File(file) if file.message_type == "files" => {
+                for file_id in &file.file_ids {
+                    // Skip if we've already processed this file ID
+                    if !processed_file_ids.insert(file_id.clone()) {
+                        continue;
+                    }
 
                         if let Some(_) = file.files.get(file_id) {
                             // Only process files that have completed reasoning
@@ -583,10 +586,9 @@ async fn process_completed_files(
                         }
                     }
                 }
-                _ => (),
-            },
+            }
             _ => (),
-        }
+        } }
     }
 
     Ok(())
@@ -744,14 +746,14 @@ pub async fn transform_message(
     chat_id: &Uuid,
     message_id: &Uuid,
     message: AgentMessage,
-    tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
+    _tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
     tracker: &ChunkTracker,
 ) -> Result<Vec<(BusterContainer, ThreadEvent)>> {
     match message {
         AgentMessage::Assistant {
             id,
             content,
-            name,
+            name: _name,
             tool_calls,
             progress,
             initial,
@@ -834,7 +836,7 @@ pub async fn transform_message(
                                         && file.message_type == "files" =>
                                 {
                                     // For each completed file, create and send a file response message
-                                    for (file_id, file_content) in &file.files {
+                                    for (_file_id, file_content) in &file.files {
                                         let response_message = BusterChatMessage::File {
                                             id: file_content.id.clone(),
                                             file_type: file_content.file_type.clone(),
@@ -894,7 +896,7 @@ pub async fn transform_message(
             }
         }
         AgentMessage::Tool {
-            id,
+            id: _id,
             content,
             tool_call_id,
             name,
@@ -921,7 +923,7 @@ pub async fn transform_message(
                                         && file.message_type == "files" =>
                                 {
                                     // For each completed file, create and send a file response message
-                                    for (file_id, file_content) in &file.files {
+                                    for (_file_id, file_content) in &file.files {
                                         let response_message = BusterChatMessage::File {
                                             id: file_content.id.clone(),
                                             file_type: file_content.file_type.clone(),
@@ -987,8 +989,8 @@ fn transform_text_message(
     id: String,
     content: String,
     progress: MessageProgress,
-    chat_id: Uuid,
-    message_id: Uuid,
+    _chat_id: Uuid,
+    _message_id: Uuid,
     tracker: &ChunkTracker,
 ) -> Result<Vec<BusterChatMessage>> {
     match progress {
@@ -1025,8 +1027,8 @@ fn transform_tool_message(
     id: String,
     name: String,
     content: String,
-    chat_id: Uuid,
-    message_id: Uuid,
+    _chat_id: Uuid,
+    _message_id: Uuid,
 ) -> Result<Vec<BusterReasoningMessage>> {
     // Use required ID (tool call ID) for all function calls
     let messages = match name.as_str() {
@@ -1371,8 +1373,8 @@ fn transform_assistant_tool_message(
     tool_calls: Vec<ToolCall>,
     progress: MessageProgress,
     initial: bool,
-    chat_id: Uuid,
-    message_id: Uuid,
+    _chat_id: Uuid,
+    _message_id: Uuid,
     tracker: &ChunkTracker,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut all_messages = Vec::new();
@@ -1422,8 +1424,10 @@ fn transform_assistant_tool_message(
 
         let containers: Vec<BusterReasoningMessage> = messages
             .into_iter()
-            .map(|reasoning| {
-                let updated_reasoning = match reasoning {
+            .filter_map(|reasoning| {
+                
+
+                match reasoning {
                     BusterReasoningMessage::Text(mut text) => {
                         match progress {
                             MessageProgress::Complete => {
@@ -1523,11 +1527,8 @@ fn transform_assistant_tool_message(
                         pill.status = "loading".to_string();
                         Some(BusterReasoningMessage::Pill(pill))
                     }
-                };
-
-                updated_reasoning
+                }
             })
-            .filter_map(|container| container)
             .collect();
 
         all_messages.extend(containers);
@@ -1540,8 +1541,8 @@ fn transform_assistant_tool_message(
 fn assistant_data_catalog_search(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1609,8 +1610,8 @@ fn assistant_data_catalog_search(
 fn assistant_create_metrics(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1633,8 +1634,8 @@ fn assistant_create_metrics(
 fn assistant_modify_metrics(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1657,8 +1658,8 @@ fn assistant_modify_metrics(
 fn assistant_create_dashboards(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1682,8 +1683,8 @@ fn assistant_create_dashboards(
 fn assistant_modify_dashboards(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1706,8 +1707,8 @@ fn assistant_modify_dashboards(
 fn assistant_create_plan(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1835,8 +1836,8 @@ pub async fn generate_conversation_title(
     };
 
     let title = BusterGeneratingTitle {
-        chat_id: session_id.clone(),
-        message_id: message_id.clone(),
+        chat_id: *session_id,
+        message_id: *message_id,
         title: Some(content.clone().replace("\n", "")),
         title_chunk: None,
         progress: BusterGeneratingTitleProgress::Completed,
@@ -1869,7 +1870,7 @@ async fn initialize_chat(
             message_id,
             ChatUserMessage {
                 request: request.prompt.clone(),
-                sender_id: user.id.clone(),
+                sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
                 sender_avatar: None,
             },
@@ -1890,11 +1891,11 @@ async fn initialize_chat(
             id: chat_id,
             title: request.prompt.clone(),
             organization_id: user_org_id,
-            created_by: user.id.clone(),
+            created_by: user.id,
             created_at: Utc::now(),
             updated_at: Utc::now(),
             deleted_at: None,
-            updated_by: user.id.clone(),
+            updated_by: user.id,
             publicly_accessible: false,
             publicly_enabled_by: None,
             public_expiry_date: None,
@@ -1905,7 +1906,7 @@ async fn initialize_chat(
             message_id,
             ChatUserMessage {
                 request: request.prompt.clone(),
-                sender_id: user.id.clone(),
+                sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
                 sender_avatar: None,
             },

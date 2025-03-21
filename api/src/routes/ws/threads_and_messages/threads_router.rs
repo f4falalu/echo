@@ -100,7 +100,7 @@ pub async fn threads_router(
         ThreadRoute::Post => {
             let req = serde_json::from_value(data)?;
 
-            post_thread(subscriptions, user_group, user, req).await?;
+            post_thread(user, req).await?;
         }
         ThreadRoute::Update => {
             let req = serde_json::from_value(data)?;

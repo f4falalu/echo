@@ -5,8 +5,6 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use database::{pool::get_pg_pool,
-        schema::organizations,};
 use crate::{
     routes::ws::{
         organizations::organization_router::{OrganizationEvent, OrganizationRoute},
@@ -16,6 +14,7 @@ use crate::{
     },
     utils::clients::sentry_utils::send_sentry_error,
 };
+use database::{pool::get_pg_pool, schema::organizations};
 use middleware::AuthenticatedUser;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -24,7 +23,10 @@ pub struct UpdateOrganizationRequest {
     pub name: String,
 }
 
-pub async fn update_organization(user: &AuthenticatedUser, req: UpdateOrganizationRequest) -> Result<()> {
+pub async fn update_organization(
+    user: &AuthenticatedUser,
+    req: UpdateOrganizationRequest,
+) -> Result<()> {
     let org_state = match update_organization_handler(user, req.id, req.name).await {
         Ok(state) => state,
         Err(e) => {
@@ -65,7 +67,20 @@ pub async fn update_organization(user: &AuthenticatedUser, req: UpdateOrganizati
     Ok(())
 }
 
-async fn update_organization_handler(user: &AuthenticatedUser, id: Uuid, name: String) -> Result<()> {
+async fn update_organization_handler(
+    user: &AuthenticatedUser,
+    id: Uuid,
+    name: String,
+) -> Result<()> {
+    let organization_id = match user.organizations.get(0) {
+        Some(organization) => organization.id,
+        None => return Err(anyhow!("User is not a member of any organization")),
+    };
+
+    if id != organization_id {
+        return Err(anyhow!("User is not a member of this organization"));
+    }
+
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Error getting pg connection: {}", e)),

@@ -360,7 +360,7 @@ pub async fn snowflake_query(
                                             }
                                         }
                                     }
-                                    arrow::datatypes::DataType::Decimal128(precision, scale) => {
+                                    arrow::datatypes::DataType::Decimal128(_precision, scale) => {
                                         let array = column
                                             .as_any()
                                             .downcast_ref::<Decimal128Array>()
@@ -374,7 +374,7 @@ pub async fn snowflake_query(
                                             DataType::Float8(Some(float_val))
                                         }
                                     }
-                                    arrow::datatypes::DataType::Decimal256(precision, scale) => {
+                                    arrow::datatypes::DataType::Decimal256(_precision, scale) => {
                                         let array = column
                                             .as_any()
                                             .downcast_ref::<Decimal256Array>()

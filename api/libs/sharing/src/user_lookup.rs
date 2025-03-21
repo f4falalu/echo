@@ -43,21 +43,6 @@ pub async fn find_user_by_email(email: &str) -> Result<Option<User>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use database::models::User;
-    use uuid::Uuid;
-
-    fn mock_user() -> User {
-        User {
-            id: Uuid::new_v4(),
-            email: "test@example.com".to_string(),
-            name: Some("Test User".to_string()),
-            config: serde_json::Value::Null,
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
-            attributes: serde_json::Value::Null,
-            avatar_url: Some("https://example.com/avatar.png".to_string()),
-        }
-    }
 
     // Test for invalid email format
     #[tokio::test]

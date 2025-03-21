@@ -19,7 +19,6 @@ use crate::collections::types::{
 
 #[derive(Queryable)]
 struct AssetPermissionInfo {
-    identity_id: Uuid,
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
@@ -65,7 +64,7 @@ fn format_assets(assets: Vec<AssetQueryResult>) -> Vec<CollectionAsset> {
 }
 
 pub async fn get_collection_handler(
-    user_id: &Uuid,
+    _user_id: &Uuid,
     req: GetCollectionRequest,
 ) -> Result<CollectionState> {
     // Reuse the existing collection_utils function
@@ -87,7 +86,6 @@ pub async fn get_collection_handler(
         .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
         .select((
-            asset_permissions::identity_id,
             asset_permissions::role,
             users::email,
             users::name,

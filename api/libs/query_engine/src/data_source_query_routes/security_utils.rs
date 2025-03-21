@@ -80,8 +80,8 @@ fn is_safe_query(query: &Query) -> bool {
 }
 
 /// Helper function to check if a SetExpr is safe
-fn is_safe_query_expr(expr: &Box<SetExpr>) -> bool {
-    match expr.as_ref() {
+fn is_safe_query_expr(expr: &SetExpr) -> bool {
+    match expr {
         SetExpr::Select(_) => true,
         SetExpr::Query(subquery) => is_safe_query(subquery),
         SetExpr::SetOperation { left, right, .. } => {
@@ -94,6 +94,7 @@ fn is_safe_query_expr(expr: &Box<SetExpr>) -> bool {
 /// Checks if a SQL query is safe for write operations, allowing only view-related operations.
 ///
 /// Returns None if the query is safe, or Some(error_message) if it's not allowed.
+#[allow(dead_code)]
 pub async fn write_query_safety_filter(sql: String) -> Option<String> {
     // Parse the SQL query
     let dialect = GenericDialect {}; // Generic SQL dialect

@@ -30,7 +30,7 @@ pub struct LogListItem {
 pub struct PaginationInfo {
     pub has_more: bool,
     pub next_page: Option<i32>,
-    pub total_items: i32,  // Number of items in current page
+    pub total_items: i32, // Number of items in current page
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -53,35 +53,37 @@ struct ChatWithUser {
 }
 
 /// List logs with pagination support
-/// 
+///
 /// This function efficiently retrieves a list of chats (logs) with their associated user information.
 /// It supports pagination using page number and limits results using page_size.
 /// Unlike the regular chats endpoint, logs are not restricted to the user and are visible to everyone.
-/// 
+///
 /// Returns a list of log items with user information and pagination details.
 pub async fn list_logs_handler(
     request: ListLogsRequest,
+    organization_id: Uuid,
 ) -> Result<Vec<LogListItem>, anyhow::Error> {
     use database::schema::{chats, users};
-    
+
     let mut conn = get_pg_pool().get().await?;
-    
+
     // Start building the query
     let mut query = chats::table
         .inner_join(users::table.on(chats::created_by.eq(users::id)))
         .filter(chats::deleted_at.is_null())
+        .filter(chats::organization_id.eq(organization_id))
         .into_boxed();
-    
+
     // Calculate offset based on page number
     let page = request.page.unwrap_or(1);
     let offset = (page - 1) * request.page_size;
-    
+
     // Order by creation date descending and apply pagination
     query = query
         .order_by(chats::created_at.desc())
         .offset(offset as i64)
         .limit((request.page_size + 1) as i64);
-    
+
     // Execute query and select required fields
     let results: Vec<ChatWithUser> = query
         .select((
@@ -95,18 +97,19 @@ pub async fn list_logs_handler(
         ))
         .load::<ChatWithUser>(&mut conn)
         .await?;
-    
+
     // Check if there are more results and prepare pagination info
     let has_more = results.len() > request.page_size as usize;
     let items: Vec<LogListItem> = results
         .into_iter()
         .take(request.page_size as usize)
         .map(|chat| {
-            let created_by_avatar = chat.user_attributes
+            let created_by_avatar = chat
+                .user_attributes
                 .get("avatar")
                 .and_then(|v| v.as_str())
                 .map(String::from);
-                
+
             LogListItem {
                 id: chat.id.to_string(),
                 title: chat.title,
@@ -122,11 +125,11 @@ pub async fn list_logs_handler(
         .collect();
 
     // Create pagination info
-    let pagination = PaginationInfo {
+    let _pagination = PaginationInfo {
         has_more,
         next_page: if has_more { Some(page + 1) } else { None },
         total_items: items.len() as i32,
     };
-    
+
     Ok(items)
 }

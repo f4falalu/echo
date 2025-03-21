@@ -130,7 +130,7 @@ async fn get_permissioned_collections(
 
     let mut collections: Vec<ListCollectionsCollection> = Vec::new();
 
-    for (id, name, updated_at, created_at, role, user_id, user_name, email) in collection_results {
+    for (id, name, updated_at, created_at, _role, user_id, user_name, email) in collection_results {
         let owner = ListCollectionsUser {
             id: user_id,
             name: user_name.unwrap_or(email),

@@ -12,6 +12,9 @@ use tokio::sync::{broadcast, RwLock};
 use tracing::error;
 use uuid::Uuid;
 use std::time::{Duration, Instant};
+
+// Type definition for tool registry to simplify complex type
+type ToolRegistry = Arc<RwLock<HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>>>;
 use crate::models::AgentThread;
 
 // Global BraintrustClient instance
@@ -131,11 +134,7 @@ pub struct Agent {
     /// Client for communicating with the LLM provider
     llm_client: LiteLLMClient,
     /// Registry of available tools, mapped by their names
-    tools: Arc<
-        RwLock<
-            HashMap<String, Box<dyn ToolExecutor<Output = Value, Params = Value> + Send + Sync>>,
-        >,
-    >,
+    tools: ToolRegistry,
     /// The model identifier to use (e.g., "gpt-4")
     model: String,
     /// Flexible state storage for maintaining memory across interactions
@@ -554,15 +553,14 @@ impl Agent {
                             let id = tool_call.id.clone().unwrap_or_else(|| {
                                 buffer.tool_calls
                                     .keys()
-                                    .next()
-                                    .map(|s| s.clone())
+                                    .next().cloned()
                                     .unwrap_or_else(|| uuid::Uuid::new_v4().to_string())
                             });
 
                             // Get or create the pending tool call
                             let pending_call = buffer.tool_calls
                                 .entry(id.clone())
-                                .or_insert_with(PendingToolCall::new);
+                                .or_default();
 
                             // Update the pending call with the delta
                             pending_call.update_from_delta(tool_call);
@@ -903,6 +901,7 @@ struct PendingToolCall {
 }
 
 impl PendingToolCall {
+    #[allow(dead_code)]
     fn new() -> Self {
         Self::default()
     }
@@ -922,10 +921,10 @@ impl PendingToolCall {
                 self.arguments.push_str(args);
             }
         }
-        if let Some(_) = &tool_call.code_interpreter {
+        if tool_call.code_interpreter.is_some() {
             self.code_interpreter = None;
         }
-        if let Some(_) = &tool_call.retrieval {
+        if tool_call.retrieval.is_some() {
             self.retrieval = None;
         }
     }
@@ -1021,6 +1020,9 @@ mod tests {
             )
             .await?;
 
+            let _params = params.as_object().unwrap();
+            let _tool_call_id = tool_call_id.clone();
+
             // Simulate a delay
             tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
 
@@ -1089,7 +1091,7 @@ mod tests {
             vec![AgentMessage::user("Hello, world!".to_string())],
         );
 
-        let response = match agent.process_thread(&thread).await {
+        let _response = match agent.process_thread(&thread).await {
             Ok(response) => response,
             Err(e) => panic!("Error processing thread: {:?}", e),
         };
@@ -1112,7 +1114,7 @@ mod tests {
         let weather_tool = WeatherTool::new(Arc::new(agent.clone()));
 
         // Add tool to agent
-        agent.add_tool(weather_tool.get_name(), weather_tool);
+        let _ = agent.add_tool(weather_tool.get_name(), weather_tool);
 
         let thread = AgentThread::new(
             None,
@@ -1122,7 +1124,7 @@ mod tests {
             )],
         );
 
-        let response = match agent.process_thread(&thread).await {
+        let _response = match agent.process_thread(&thread).await {
             Ok(response) => response,
             Err(e) => panic!("Error processing thread: {:?}", e),
         };
@@ -1143,7 +1145,7 @@ mod tests {
 
         let weather_tool = WeatherTool::new(Arc::new(agent.clone()));
 
-        agent.add_tool(weather_tool.get_name(), weather_tool);
+        let _ = agent.add_tool(weather_tool.get_name(), weather_tool);
 
         let thread = AgentThread::new(
             None,
@@ -1153,7 +1155,7 @@ mod tests {
             )],
         );
 
-        let response = match agent.process_thread(&thread).await {
+        let _response = match agent.process_thread(&thread).await {
             Ok(response) => response,
             Err(e) => panic!("Error processing thread: {:?}", e),
         };

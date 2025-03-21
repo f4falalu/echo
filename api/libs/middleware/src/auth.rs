@@ -67,7 +67,9 @@ pub async fn auth(mut req: Request, next: Next) -> Result<Response, StatusCode> 
         }
     }
 
-    let token = if bearer_token.is_none() {
+    let token = if let Some(token) = bearer_token {
+        token.to_string()
+    } else {
         match req
             .uri()
             .query()
@@ -80,8 +82,6 @@ pub async fn auth(mut req: Request, next: Next) -> Result<Response, StatusCode> 
                 return handle_auth_error("No token found");
             }
         }
-    } else {
-        bearer_token.unwrap().to_string()
     };
 
     let user = match authorize_current_user(&token).await {
@@ -177,19 +177,16 @@ async fn find_user_by_id(id: &Uuid) -> Result<Option<AuthenticatedUser>> {
             user_task
                 .await
                 .map_err(|e| anyhow!("User task failed: {}", e))?
-                .map_err(|e| e)
         },
         async {
             orgs_task
                 .await
                 .map_err(|e| anyhow!("Organizations task failed: {}", e))?
-                .map_err(|e| e)
         },
         async {
             teams_task
                 .await
                 .map_err(|e| anyhow!("Teams task failed: {}", e))?
-                .map_err(|e| e)
         }
     )?;
 
@@ -274,13 +271,11 @@ async fn find_user_by_api_key(token: &str) -> Result<Option<AuthenticatedUser>> 
             orgs_task
                 .await
                 .map_err(|e| anyhow!("Organizations task failed: {}", e))?
-                .map_err(|e| e)
         },
         async {
             teams_task
                 .await
                 .map_err(|e| anyhow!("Teams task failed: {}", e))?
-                .map_err(|e| e)
         }
     )?;
 

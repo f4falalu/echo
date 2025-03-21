@@ -27,13 +27,13 @@ pub struct Version {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum VersionContent {
-    MetricYml(MetricYml),
+    MetricYml(Box<MetricYml>),
     DashboardYml(DashboardYml),
 }
 
 impl From<MetricYml> for VersionContent {
     fn from(value: MetricYml) -> Self {
-        VersionContent::MetricYml(value)
+        VersionContent::MetricYml(Box::new(value))
     }
 }
 

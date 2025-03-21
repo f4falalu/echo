@@ -85,6 +85,7 @@ impl SearchDataCatalogTool {
         Self { agent }
     }
 
+    #[allow(dead_code)]
     async fn is_enabled(&self) -> bool {
         true
     }
@@ -270,7 +271,7 @@ impl ToolExecutor for SearchDataCatalogTool {
     type Output = SearchDataCatalogOutput;
     type Params = SearchDataCatalogParams;
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 
         // Fetch all non-deleted datasets
@@ -408,8 +409,11 @@ struct Dataset {
     id: Uuid,
     name: String,
     yml_file: Option<String>,
+    #[allow(dead_code)]
     created_at: DateTime<Utc>,
+    #[allow(dead_code)]
     updated_at: DateTime<Utc>,
+    #[allow(dead_code)]
     deleted_at: Option<DateTime<Utc>>,
 }
 
@@ -462,7 +466,7 @@ mod tests {
             "yml_content": "description: Test dataset\nschema:\n  - name: id\n    type: uuid"
         });
 
-        let parsed = parse_search_result(&result).unwrap();
+        let _ = parse_search_result(&result).unwrap();
     }
 
     #[test]

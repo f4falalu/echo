@@ -1,9 +1,7 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
-    collections::fetch_collection,
-    enums::AssetPermissionRole,
-    pool::get_pg_pool,
+    collections::fetch_collection, enums::AssetPermissionRole, pool::get_pg_pool,
     schema::collections,
 };
 use diesel::{update, ExpressionMethods};
@@ -12,9 +10,7 @@ use std::sync::Arc;
 use tokio;
 use uuid::Uuid;
 
-use crate::collections::types::{
-    CollectionState, UpdateCollectionObject, UpdateCollectionRequest,
-};
+use crate::collections::types::{CollectionState, UpdateCollectionObject, UpdateCollectionRequest};
 
 /// Handler for updating a collection
 ///
@@ -186,11 +182,6 @@ async fn update_collection_record(
 #[cfg(test)]
 mod tests {
     use super::*;
-    
-    use std::sync::Once;
-    use uuid::Uuid;
-
-    static INIT: Once = Once::new();
 
     // Notice: This is a basic smoke test to check that our changes compile and work
     // It doesn't actually hit the database, but verifies that the handler's structure is correct
@@ -211,11 +202,14 @@ mod tests {
         // Check that our handler function accepts the request with the correct types
         // This is mostly a compilation test to verify our refactoring didn't break the interface
         let result = update_collection_handler(&user_id, collection_id, req).await;
-        
+
         // We expect an error since we're not actually hitting the database
         assert!(result.is_err());
-        
+
         // Check that the error contains the expected message
-        assert!(result.unwrap_err().to_string().contains("Collection not found"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Collection not found"));
     }
 }
