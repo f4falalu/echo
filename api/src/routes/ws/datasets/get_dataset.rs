@@ -3,7 +3,6 @@ use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-
 use crate::{
     routes::ws::{
         datasets::datasets_router::{DatasetEvent, DatasetRoute},
@@ -58,7 +57,9 @@ pub async fn get_dataset(user: &AuthenticatedUser, req: GetDatasetReq) -> Result
         let sql = format!("SELECT * FROM {}.{} LIMIT 25", schema, database_name);
         match query_engine(&req.id, &sql).await {
             Ok(data) => data,
-            Err(e) => Vec::new(),
+            Err(_) => {
+                Vec::new()
+            }
         }
     } else {
         Vec::new()

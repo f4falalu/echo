@@ -268,7 +268,7 @@ async fn update_thread_record(
     save_to_dashboard: Option<Uuid>,
     remove_from_dashboard: Option<Uuid>,
 ) -> Result<()> {
-    let password_secret_id = match public_password {
+    let _password_secret_id = match public_password {
         Some(Some(password)) => {
             // Password provided - create new secret
             match create_secret(&thread_id, &password).await {

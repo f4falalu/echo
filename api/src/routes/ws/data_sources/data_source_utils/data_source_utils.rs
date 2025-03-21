@@ -7,12 +7,12 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use database::{enums::{DataSourceType, UserOrganizationRole},
-        pool::get_pg_pool,
-        models::Dataset,
-        schema::{data_sources, datasets, organizations, users, users_to_organizations},};
-use crate::{
-    utils::query_engine::credentials::{get_data_source_credentials, Credential},
+use crate::utils::query_engine::credentials::{get_data_source_credentials, Credential};
+use database::{
+    enums::{DataSourceType, UserOrganizationRole},
+    models::Dataset,
+    pool::get_pg_pool,
+    schema::{data_sources, datasets, organizations, users, users_to_organizations},
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -42,7 +42,9 @@ pub struct DataSourceRecord {
     pub type_: DataSourceType,
     pub updated_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
+    #[allow(dead_code)]
     pub created_by: Uuid,
+    #[allow(dead_code)]
     pub secret_id: Uuid,
     pub user_id: Uuid,
     pub user_name: Option<String>,

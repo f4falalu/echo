@@ -1,22 +1,12 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
-use diesel::{
-    BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
-};
+use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
-use uuid::Uuid;
 use tokio;
+use uuid::Uuid;
 
 use serde::{Deserialize, Serialize};
 
-use database::{enums::{IdentityType, UserOrganizationRole},
-        pool::get_pg_pool,
-        models::UserToOrganization,
-        schema::{
-            data_sources, dataset_permissions, datasets, datasets_to_permission_groups, messages_deprecated,
-            permission_groups_to_identities, permission_groups_to_users, teams_to_users, users,
-            users_to_organizations,
-        },};
 use crate::{
     routes::ws::{
         datasets::datasets_router::{DatasetEvent, DatasetRoute},
@@ -25,6 +15,15 @@ use crate::{
         ws_utils::{send_error_message, send_ws_message},
     },
     utils::clients::sentry_utils::send_sentry_error,
+};
+use database::{
+    enums::UserOrganizationRole,
+    models::UserToOrganization,
+    pool::get_pg_pool,
+    schema::{
+        data_sources, dataset_permissions, datasets, messages_deprecated,
+        permission_groups_to_users, users, users_to_organizations,
+    },
 };
 use middleware::AuthenticatedUser;
 
@@ -141,13 +140,13 @@ async fn list_datasets_handler(
     admin_view: Option<bool>,
     enabled: Option<bool>,
     imported: Option<bool>,
-    permission_group_id: Option<Uuid>,
+    _permission_group_id: Option<Uuid>,
     _belongs_to: Option<bool>,
     data_source_id: Option<Uuid>,
 ) -> Result<Vec<ListDatasetObject>> {
     let page = page.unwrap_or(0);
     let page_size = page_size.unwrap_or(25);
-    let admin_view = admin_view.unwrap_or(false);
+    let _admin_view = admin_view.unwrap_or(false);
 
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
@@ -189,133 +188,6 @@ async fn list_datasets_handler(
     Ok(list_of_datasets)
 }
 
-async fn get_user_permissioned_datasets(
-    user_id: &Uuid,
-    page: i64,
-    page_size: i64,
-) -> Result<Vec<ListDatasetObject>> {
-    let mut conn = match get_pg_pool().get().await {
-        Ok(conn) => conn,
-        Err(e) => return Err(anyhow!("Unable to get connection from pool: {}", e)),
-    };
-
-    let list_dataset_records = match datasets::table
-        .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
-        .inner_join(
-            datasets_to_permission_groups::table.on(datasets::id
-                .eq(datasets_to_permission_groups::dataset_id)
-                .and(datasets_to_permission_groups::deleted_at.is_null())),
-        )
-        .inner_join(
-            permission_groups_to_identities::table.on(
-                datasets_to_permission_groups::permission_group_id
-                    .eq(permission_groups_to_identities::permission_group_id)
-                    .and(permission_groups_to_identities::deleted_at.is_null()),
-            ),
-        )
-        .left_join(
-            teams_to_users::table.on(permission_groups_to_identities::identity_id
-                .eq(teams_to_users::team_id)
-                .and(permission_groups_to_identities::identity_type.eq(IdentityType::Team))
-                .and(teams_to_users::deleted_at.is_null())),
-        )
-        .inner_join(users::table.on(datasets::created_by.eq(users::id)))
-        .left_join(messages_deprecated::table.on(messages_deprecated::dataset_id.eq(datasets::id.nullable())))
-        .select((
-            datasets::id,
-            datasets::name,
-            datasets::created_at,
-            datasets::updated_at,
-            datasets::enabled,
-            datasets::imported,
-            users::id,
-            users::name.nullable(),
-            users::email,
-            data_sources::id,
-            data_sources::name,
-        ))
-        .group_by((
-            datasets::id,
-            datasets::name,
-            datasets::created_at,
-            datasets::updated_at,
-            datasets::enabled,
-            datasets::imported,
-            users::id,
-            users::name,
-            users::email,
-            data_sources::id,
-            data_sources::name,
-        ))
-        .filter(datasets::deleted_at.is_null())
-        .filter(
-            permission_groups_to_identities::identity_id
-                .eq(user_id)
-                .or(teams_to_users::user_id.eq(user_id)),
-        )
-        .limit(page_size)
-        .offset(page * page_size)
-        .load::<(
-            Uuid,
-            String,
-            DateTime<Utc>,
-            DateTime<Utc>,
-            bool,
-            bool,
-            Uuid,
-            Option<String>,
-            String,
-            Uuid,
-            String,
-        )>(&mut conn)
-        .await
-    {
-        Ok(datasets) => datasets,
-        Err(e) => return Err(anyhow!("Unable to get datasets from database: {}", e)),
-    };
-
-    let list_dataset_objects: Vec<ListDatasetObject> = list_dataset_records
-        .into_iter()
-        .map(
-            |(
-                id,
-                name,
-                created_at,
-                updated_at,
-                enabled,
-                imported,
-                user_id,
-                user_name,
-                user_email,
-                data_source_id,
-                data_source_name,
-            )| {
-                ListDatasetObject {
-                    id,
-                    name,
-                    created_at: Some(created_at),
-                    updated_at: Some(updated_at),
-                    enabled: Some(enabled),
-                    imported: Some(imported),
-                    data_source: ListDatasetDataSource {
-                        id: data_source_id,
-                        name: data_source_name,
-                    },
-                    last_queried: None,
-                    owner: Some(ListDatasetOwner {
-                        id: user_id,
-                        name: user_name.unwrap_or(user_email),
-                        avatar_url: None,
-                    }),
-                    belongs_to: None,
-                }
-            },
-        )
-        .collect();
-
-    Ok(list_dataset_objects)
-}
-
 async fn get_org_datasets(
     organization_id: &Uuid,
     page: i64,
@@ -332,7 +204,10 @@ async fn get_org_datasets(
     let mut query = datasets::table
         .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
         .inner_join(users::table.on(datasets::created_by.eq(users::id)))
-        .left_join(messages_deprecated::table.on(messages_deprecated::dataset_id.eq(datasets::id.nullable())))
+        .left_join(
+            messages_deprecated::table
+                .on(messages_deprecated::dataset_id.eq(datasets::id.nullable())),
+        )
         .select((
             datasets::id,
             datasets::name,
@@ -439,68 +314,6 @@ async fn get_org_datasets(
     Ok(list_dataset_objects)
 }
 
-async fn list_permission_group_datasets(
-    organization_id: Uuid,
-    page: i64,
-    page_size: i64,
-    permission_group_id: Uuid,
-) -> Result<Vec<ListDatasetObject>> {
-    let mut conn = match get_pg_pool().get().await {
-        Ok(conn) => conn,
-        Err(e) => return Err(anyhow!("Unable to get connection from pool: {}", e)),
-    };
-
-    let list_dataset_records = match datasets::table
-        .inner_join(data_sources::table.on(datasets::data_source_id.eq(data_sources::id)))
-        .left_join(
-            datasets_to_permission_groups::table.on(datasets::id
-                .eq(datasets_to_permission_groups::dataset_id)
-                .and(datasets_to_permission_groups::permission_group_id.eq(permission_group_id))
-                .and(datasets_to_permission_groups::deleted_at.is_null())),
-        )
-        .select((
-            datasets::id,
-            datasets::name,
-            data_sources::id,
-            data_sources::name,
-            datasets_to_permission_groups::permission_group_id.nullable(),
-        ))
-        .filter(datasets::organization_id.eq(organization_id))
-        .filter(datasets::deleted_at.is_null())
-        .filter(datasets::enabled.eq(true))
-        .limit(page_size)
-        .offset(page * page_size)
-        .load::<(Uuid, String, Uuid, String, Option<Uuid>)>(&mut conn)
-        .await
-    {
-        Ok(datasets) => datasets,
-        Err(e) => return Err(anyhow!("Unable to get datasets from database: {}", e)),
-    };
-
-    let list_dataset_objects: Vec<ListDatasetObject> = list_dataset_records
-        .into_iter()
-        .map(
-            |(id, name, data_source_id, data_source_name, permission_group_id)| ListDatasetObject {
-                id,
-                name,
-                created_at: None,
-                updated_at: None,
-                enabled: None,
-                imported: None,
-                data_source: ListDatasetDataSource {
-                    id: data_source_id,
-                    name: data_source_name,
-                },
-                last_queried: None,
-                owner: None,
-                belongs_to: Some(permission_group_id.is_some()),
-            },
-        )
-        .collect();
-
-    Ok(list_dataset_objects)
-}
-
 async fn get_restricted_user_datasets(
     user_id: &Uuid,
     page: i64,
@@ -520,7 +333,10 @@ async fn get_restricted_user_datasets(
                 .inner_join(
                     dataset_permissions::table.on(dataset_permissions::dataset_id.eq(datasets::id)),
                 )
-                .left_join(messages_deprecated::table.on(messages_deprecated::dataset_id.eq(datasets::id.nullable())))
+                .left_join(
+                    messages_deprecated::table
+                        .on(messages_deprecated::dataset_id.eq(datasets::id.nullable())),
+                )
                 .select((
                     datasets::id,
                     datasets::name,
@@ -607,7 +423,10 @@ async fn get_restricted_user_datasets(
                     permission_groups_to_users::table
                         .on(permission_groups_to_users::user_id.eq(user_id)),
                 )
-                .left_join(messages_deprecated::table.on(messages_deprecated::dataset_id.eq(datasets::id.nullable())))
+                .left_join(
+                    messages_deprecated::table
+                        .on(messages_deprecated::dataset_id.eq(datasets::id.nullable())),
+                )
                 .select((
                     datasets::id,
                     datasets::name,

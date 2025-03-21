@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use diesel::{update, ExpressionMethods, QueryDsl};
+use diesel::{update, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -135,7 +135,6 @@ async fn delete_thread_handler(
         err
     })?;
 
-    let user_id = user.id.clone();
     let id = id.clone();
 
     let delete_thread_task = tokio::task::spawn(async move {
