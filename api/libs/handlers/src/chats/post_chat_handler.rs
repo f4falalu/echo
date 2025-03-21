@@ -133,7 +133,7 @@ impl ChunkTracker {
 pub async fn post_chat_handler(
     request: ChatCreateNewChat,
     user: AuthenticatedUser,
-    _tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
+    tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<ChatWithMessages> {
     // Create a request-local chunk tracker instance instead of using global static
     let chunk_tracker = ChunkTracker::new();
@@ -158,7 +158,7 @@ pub async fn post_chat_handler(
     );
 
     // Send initial chat state to client
-    if let Some(tx) = _tx.clone() {
+    if let Some(tx) = tx.clone() {
         tx.send(Ok((
             BusterContainer::Chat(chat_with_messages.clone()),
             ThreadEvent::InitializeChat,
@@ -204,7 +204,7 @@ pub async fn post_chat_handler(
     let mut chat = AgentThread::new(Some(chat_id), user.id, initial_messages);
 
     let title_handle = {
-        let tx = _tx.clone();
+        let tx = tx.clone();
         let chat_id = chat_id.clone();
         let message_id = message_id.clone();
         let user_id = user.id.clone();
@@ -1520,8 +1520,8 @@ fn transform_assistant_tool_message(
 fn assistant_data_catalog_search(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1589,8 +1589,8 @@ fn assistant_data_catalog_search(
 fn assistant_create_metrics(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1613,8 +1613,8 @@ fn assistant_create_metrics(
 fn assistant_modify_metrics(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1637,8 +1637,8 @@ fn assistant_modify_metrics(
 fn assistant_create_dashboards(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1662,8 +1662,8 @@ fn assistant_create_dashboards(
 fn assistant_modify_dashboards(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
@@ -1686,8 +1686,8 @@ fn assistant_modify_dashboards(
 fn assistant_create_plan(
     id: String,
     content: String,
-    progress: MessageProgress,
-    initial: bool,
+    _progress: MessageProgress,
+    _initial: bool,
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
