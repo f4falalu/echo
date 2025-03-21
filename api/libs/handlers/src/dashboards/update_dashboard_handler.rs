@@ -173,11 +173,18 @@ pub async fn update_dashboard_handler(
     
     // Update name if provided
     if let Some(name) = request.name {
+        // First update the dashboard_yml.name to keep them in sync
+        dashboard_yml.name = name.clone();
+        // Update version history with the updated dashboard_yml
+        current_version_history.add_version(next_version, dashboard_yml.clone());
+        content_updated = true;
+        
         diesel::update(dashboard_files::table)
             .filter(dashboard_files::id.eq(dashboard_id))
             .filter(dashboard_files::deleted_at.is_null())
             .set((
                 dashboard_files::name.eq(name),
+                dashboard_files::content.eq(dashboard_yml.to_value()?),
                 dashboard_files::version_history.eq(current_version_history.clone()),
             ))
             .execute(&mut conn)
