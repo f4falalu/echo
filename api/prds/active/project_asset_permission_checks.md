@@ -27,6 +27,8 @@ This project aims to standardize asset permission checks across all asset endpoi
 3. Ensure proper permission levels are enforced based on asset type (CanView, CanFilter, CanEdit, FullAccess, Owner)
 4. Standardize error handling for permission-denied scenarios
 5. Ensure comprehensive test coverage for permission checks
+6. Enforce consistent permission requirements for adding assets to collections/dashboards
+7. Enforce consistent permission requirements for accessing and modifying sharing settings
 
 ## Non-Goals
 
@@ -100,6 +102,13 @@ graph TD
   - Input: Metric handlers
   - Output: Modified handlers with permission checks
 
+#### Component 6: Sharing Permission Requirements
+- Purpose: Define consistent permission requirements for sharing endpoints and adding assets to collections/dashboards
+- Sub-PRD: [Sharing Permission Requirements](api_sharing_permission_requirements.md)
+- Interfaces:
+  - Input: Asset handlers related to sharing and asset additions
+  - Output: Modified handlers with consistent permission checks
+
 ### Dependencies
 
 1. `@libs/sharing/src/check_asset_permission.rs` - Used for asset permission checks
@@ -141,6 +150,11 @@ The following can be developed concurrently after the admin check is implemented
    - Required for: None
    - No conflicts with other asset types
 
+6. [Sharing Permission Requirements](api_sharing_permission_requirements.md) - **Can be developed concurrently**
+   - Dependencies: Asset Permission Admin Check
+   - Required for: None
+   - No conflicts with other asset types
+
 ### Concurrent Development Strategy
 
 To enable efficient concurrent development without conflicts:
@@ -168,6 +182,7 @@ To enable efficient concurrent development without conflicts:
 - Collection Permission Checks
 - Dashboard Permission Checks
 - Metric Permission Checks
+- Sharing Permission Requirements
 
 **Success Criteria:**
 - All handlers implement permission checks
@@ -223,3 +238,4 @@ To enable efficient concurrent development without conflicts:
 - [Collection Permission Checks](api_collection_permission_checks.md)
 - [Dashboard Permission Checks](api_dashboard_permission_checks.md)
 - [Metric Permission Checks](api_metric_permission_checks.md)
+- [Sharing Permission Requirements](api_sharing_permission_requirements.md)

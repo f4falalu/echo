@@ -1,7 +1,6 @@
 # Dashboard Permission Checks
 
-## Problem Statement ✅
-
+## Problem Statement 
 The dashboard-related handlers in `@libs/handlers/src/dashboards` currently lack standardized permission checks using the `@libs/sharing` library. While some permission logic may exist, it doesn't consistently use the `check_asset_permission.rs` functions and doesn't properly handle organization admin access to dashboard resources.
 
 Specific issues include:
@@ -28,7 +27,7 @@ These issues affect the security and consistency of the application and need to 
 
 ## Requirements
 
-### Functional Requirements ✅
+### Functional Requirements 
 
 #### Core Functionality
 - Implement permission checks in all dashboard handlers
@@ -73,8 +72,17 @@ These issues affect the security and consistency of the application and need to 
   - Acceptance Criteria: Only dashboards the user has at least CanView permission for are returned
   - Dependencies: None
 
-### Non-Functional Requirements ✅
+- add_asset_to_dashboard_handler
+  - Details: Require at least CanEdit permission on the dashboard
+  - Acceptance Criteria: Only users with at least CanEdit permission can add assets to dashboards
+  - Dependencies: None
 
+- sharing_endpoint_handlers
+  - Details: Require FullAccess or Owner permission
+  - Acceptance Criteria: Only users with FullAccess or Owner permission can modify sharing settings
+  - Dependencies: None
+
+### Non-Functional Requirements 
 - Performance Requirements
   - Permission checks should add minimal overhead to handlers (<10ms)
 - Security Requirements
@@ -84,7 +92,7 @@ These issues affect the security and consistency of the application and need to 
   - All handlers should use consistent permission checking patterns
   - Code should be well-documented for future maintenance
 
-## Technical Design ✅
+## Technical Design 
 
 ### System Architecture
 
@@ -98,7 +106,7 @@ graph TD
     D --> G[Return Error Response]
 ```
 
-### Core Components ✅
+### Core Components 
 
 #### Component 1: Permission Check Utility for Dashboard Handlers
 
@@ -373,7 +381,7 @@ pub async fn list_dashboard_handler(user_id: &Uuid) -> Result<Vec<DashboardSumma
 }
 ```
 
-### File Changes ✅
+### File Changes 
 
 #### Modified Files
 - `api/libs/handlers/src/dashboards/get_dashboard_handler.rs`
@@ -403,7 +411,7 @@ pub async fn list_dashboard_handler(user_id: &Uuid) -> Result<Vec<DashboardSumma
 
 ## Implementation Plan
 
-### Phase 1: Add Permission Utilities ⏳ (In Progress)
+### Phase 1: Add Permission Utilities  (In Progress)
 
 1. Create dashboard-specific permission utility functions
    - [ ] Implement `verify_dashboard_permission` helper function
@@ -417,7 +425,7 @@ pub async fn list_dashboard_handler(user_id: &Uuid) -> Result<Vec<DashboardSumma
    - [ ] Test CanFilter permission level
    - [ ] Test error handling and edge cases
 
-### Phase 2: Modify Dashboard Handlers 🔜 (Not Started)
+### Phase 2: Modify Dashboard Handlers  (Not Started)
 
 1. Update get_dashboard_handler
    - [ ] Add permission check for CanView
@@ -443,7 +451,7 @@ pub async fn list_dashboard_handler(user_id: &Uuid) -> Result<Vec<DashboardSumma
    - [ ] Include accurate permission levels in responses
    - [ ] Update unit tests
 
-### Phase 3: Testing & Documentation 🔜 (Not Started)
+### Phase 3: Testing & Documentation  (Not Started)
 
 1. Add integration tests
    - [ ] Test end-to-end flows with different permission levels
@@ -457,7 +465,7 @@ pub async fn list_dashboard_handler(user_id: &Uuid) -> Result<Vec<DashboardSumma
    - [ ] Document error handling behavior
    - [ ] Explain CanFilter permission level
 
-## Testing Strategy ✅
+## Testing Strategy 
 
 ### Unit Tests
 

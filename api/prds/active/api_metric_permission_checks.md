@@ -1,6 +1,6 @@
 # Metric Permission Checks
 
-## Problem Statement ✅
+## Problem Statement 
 
 The metric-related handlers in `@libs/handlers/src/metrics` currently lack standardized permission checks using the `@libs/sharing` library. While some permission logic may exist, it doesn't consistently use the `check_asset_permission.rs` functions and doesn't properly handle organization admin access to metric resources.
 
@@ -27,7 +27,7 @@ These issues affect the security and consistency of the application and need to 
 
 ## Requirements
 
-### Functional Requirements ✅
+### Functional Requirements 
 
 #### Core Functionality
 - Implement permission checks in all metric handlers
@@ -72,7 +72,12 @@ These issues affect the security and consistency of the application and need to 
   - Acceptance Criteria: Users with at least CanView permission can access metric data
   - Dependencies: None
 
-### Non-Functional Requirements ✅
+- sharing_endpoint_handlers
+  - Details: Require FullAccess or Owner permission
+  - Acceptance Criteria: Only users with FullAccess or Owner permission can modify sharing settings
+  - Dependencies: None
+
+### Non-Functional Requirements 
 
 - Performance Requirements
   - Permission checks should add minimal overhead to handlers (<10ms)
@@ -83,7 +88,7 @@ These issues affect the security and consistency of the application and need to 
   - All handlers should use consistent permission checking patterns
   - Code should be well-documented for future maintenance
 
-## Technical Design ✅
+## Technical Design 
 
 ### System Architecture
 
@@ -97,7 +102,7 @@ graph TD
     D --> G[Return Error Response]
 ```
 
-### Core Components ✅
+### Core Components 
 
 #### Component 1: Permission Check Utility for Metric Handlers
 
@@ -379,7 +384,7 @@ pub async fn get_metric_data_handler(
 }
 ```
 
-### File Changes ✅
+### File Changes 
 
 #### Modified Files
 - `api/libs/handlers/src/metrics/get_metric_handler.rs`
@@ -409,7 +414,7 @@ pub async fn get_metric_data_handler(
 
 ## Implementation Plan
 
-### Phase 1: Add Permission Utilities ⏳ (In Progress)
+### Phase 1: Add Permission Utilities  (In Progress)
 
 1. Create metric-specific permission utility functions
    - [ ] Implement `verify_metric_permission` helper function
@@ -422,7 +427,7 @@ pub async fn get_metric_data_handler(
    - [ ] Test admin override functionality
    - [ ] Test error handling and edge cases
 
-### Phase 2: Modify Metric Handlers 🔜 (Not Started)
+### Phase 2: Modify Metric Handlers  (Not Started)
 
 1. Update get_metric_handler
    - [ ] Add permission check for CanView
@@ -452,7 +457,7 @@ pub async fn get_metric_data_handler(
    - [ ] Ensure proper error handling
    - [ ] Update unit tests
 
-### Phase 3: Testing & Documentation 🔜 (Not Started)
+### Phase 3: Testing & Documentation  (Not Started)
 
 1. Add integration tests
    - [ ] Test end-to-end flows with different permission levels
@@ -464,7 +469,7 @@ pub async fn get_metric_data_handler(
    - [ ] Add examples of correct usage
    - [ ] Document error handling behavior
 
-## Testing Strategy ✅
+## Testing Strategy 
 
 ### Unit Tests
 

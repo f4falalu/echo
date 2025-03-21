@@ -1,7 +1,6 @@
 # Chat Permission Checks
 
-## Problem Statement ✅
-
+## Problem Statement 
 The chat-related handlers in `@libs/handlers/src/chats` currently lack standardized permission checks using the `@libs/sharing` library. While some permission logic may exist, it doesn't consistently use the `check_asset_permission.rs` functions and doesn't properly handle organization admin access to chat resources.
 
 Specific issues include:
@@ -26,7 +25,7 @@ These issues affect the security and consistency of the application and need to 
 
 ## Requirements
 
-### Functional Requirements ✅
+### Functional Requirements 
 
 #### Core Functionality
 - Implement permission checks in all chat handlers
@@ -66,7 +65,12 @@ These issues affect the security and consistency of the application and need to 
   - Acceptance Criteria: Only chats the user has at least CanView permission for are returned
   - Dependencies: None
 
-### Non-Functional Requirements ✅
+- sharing_endpoint_handlers
+  - Details: Require FullAccess or Owner permission
+  - Acceptance Criteria: Only users with FullAccess or Owner permission can modify sharing settings
+  - Dependencies: None
+
+### Non-Functional Requirements 
 
 - Performance Requirements
   - Permission checks should add minimal overhead to handlers (<10ms)
@@ -77,7 +81,7 @@ These issues affect the security and consistency of the application and need to 
   - All handlers should use consistent permission checking patterns
   - Code should be well-documented for future maintenance
 
-## Technical Design ✅
+## Technical Design 
 
 ### System Architecture
 
@@ -91,7 +95,7 @@ graph TD
     D --> G[Return Error Response]
 ```
 
-### Core Components ✅
+### Core Components 
 
 #### Component 1: Permission Check Utility for Chat Handlers
 
@@ -221,7 +225,7 @@ pub async fn list_chats_handler(user_id: &Uuid) -> Result<Vec<ChatWithMessages>>
 }
 ```
 
-### File Changes ✅
+### File Changes 
 
 #### Modified Files
 - `api/libs/handlers/src/chats/get_chat_handler.rs`
@@ -251,7 +255,7 @@ pub async fn list_chats_handler(user_id: &Uuid) -> Result<Vec<ChatWithMessages>>
 
 ## Implementation Plan
 
-### Phase 1: Add Permission Utilities ⏳ (In Progress)
+### Phase 1: Add Permission Utilities  (In Progress)
 
 1. Create chat-specific permission utility functions
    - [ ] Implement `verify_chat_permission` helper function
@@ -263,7 +267,7 @@ pub async fn list_chats_handler(user_id: &Uuid) -> Result<Vec<ChatWithMessages>>
    - [ ] Test admin override functionality
    - [ ] Test error handling and edge cases
 
-### Phase 2: Modify Chat Handlers 🔜 (Not Started)
+### Phase 2: Modify Chat Handlers  (Not Started)
 
 1. Update get_chat_handler
    - [ ] Add permission check for CanView
@@ -285,7 +289,7 @@ pub async fn list_chats_handler(user_id: &Uuid) -> Result<Vec<ChatWithMessages>>
    - [ ] Add logic to include admin-accessible chats
    - [ ] Update unit tests
 
-### Phase 3: Testing & Documentation 🔜 (Not Started)
+### Phase 3: Testing & Documentation  (Not Started)
 
 1. Add integration tests
    - [ ] Test end-to-end flows with different permission levels
@@ -297,7 +301,7 @@ pub async fn list_chats_handler(user_id: &Uuid) -> Result<Vec<ChatWithMessages>>
    - [ ] Add examples of correct usage
    - [ ] Document error handling behavior
 
-## Testing Strategy ✅
+## Testing Strategy 
 
 ### Unit Tests
 

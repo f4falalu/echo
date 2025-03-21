@@ -21,7 +21,7 @@ use database::{
     pool::get_pg_pool,
     schema::{asset_permissions, chats, messages, messages_to_files},
 };
-use diesel::insert_into;
+use diesel::{insert_into, ExpressionMethods};
 use diesel_async::RunQueryDsl;
 use litellm::{
     AgentMessage as LiteLLMAgentMessage, ChatCompletionRequest, LiteLLMClient, MessageProgress,
@@ -436,7 +436,18 @@ pub async fn post_chat_handler(
     }
 
     if let Some(title) = title.title {
-        chat_with_messages.title = title;
+        chat_with_messages.title = title.clone();
+
+        // Update the chat title in the database to match
+        let update_result = diesel::update(chats::table)
+            .filter(chats::id.eq(chat_id))
+            .set((chats::title.eq(title), chats::updated_at.eq(Utc::now())))
+            .execute(&mut conn)
+            .await?;
+
+        if update_result == 0 {
+            tracing::warn!("Failed to update chat title in database");
+        }
     }
 
     // Send final completed state
@@ -1039,7 +1050,7 @@ fn transform_tool_message(
         "create_dashboards" => tool_create_dashboards(id.clone(), content)?,
         "update_dashboards" => tool_modify_dashboards(id.clone(), content)?,
         "create_plan" => tool_create_plan(id.clone(), content)?,
-        _ => return Err(anyhow::anyhow!("Unknown tool name: {}", name)),
+        _ => vec![],
     };
 
     Ok(messages)
