@@ -15,7 +15,7 @@ import {
   updateMetricShare
 } from './requests';
 import type { GetMetricParams, ListMetricsParams } from './interfaces';
-import { upgradeMetricToIMetric } from '@/lib/metrics';
+import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '@/lib/metrics';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { useMemo } from 'react';
@@ -326,4 +326,57 @@ export const useUpdateMetricShare = () => {
       });
     }
   });
+};
+
+export const useUpdateMetric = () => {
+  const queryClient = useQueryClient();
+  const { mutateAsync: saveMetric } = useSaveMetric();
+
+  const { run: saveMetricDebounced } = useDebounceFn(
+    (newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
+      const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
+      if (changedValues) {
+        saveMetric(changedValues);
+      }
+    },
+    { wait: 650 }
+  );
+
+  const combineAndSaveMetric = useMemoizedFn(
+    async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
+      const metricId = newMetricPartial.id;
+      const options = metricsQueryKeys.metricsGetMetric(metricId);
+      const prevMetric = queryClient.getQueryData(options.queryKey);
+      const newMetric = create(prevMetric, (draft) => {
+        Object.assign(draft || {}, newMetricPartial);
+      });
+
+      if (prevMetric && newMetric) {
+        queryClient.setQueryData(options.queryKey, newMetric);
+      }
+
+      return { newMetric, prevMetric };
+    }
+  );
+
+  const mutationFn = useMemoizedFn(
+    async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
+      const { newMetric, prevMetric } = await combineAndSaveMetric(newMetricPartial);
+      if (newMetric && prevMetric) {
+        saveMetricDebounced(newMetric, prevMetric);
+      }
+      return Promise.resolve(newMetric!);
+    }
+  );
+
+  const mutationRes = useMutation({
+    mutationFn: mutationFn,
+    onSuccess: (data) => {
+      if (data) {
+        queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(data.id).queryKey, data);
+      }
+    }
+  });
+
+  return mutationRes;
 };
