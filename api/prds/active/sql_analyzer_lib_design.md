@@ -1,7 +1,3 @@
-ok I need to build a new lib in the libs/ folder called sql_analyzer. please follow best          │
-│   practices in the in the documentation/libs.mdc and documentation/testing.mdc to build the lib     │
-│   found in prds/active/sql_analyzer_lib_design.md
-
 ### Requirements Recap
 - **Tables**: Extract all tables with optional database/schema identifiers and aliases.
 - **Columns**: Tie columns to tables, deduplicated per table, with errors for vague references (unqualified columns).
