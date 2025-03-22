@@ -16,14 +16,28 @@ import type { BusterDashboardListItem } from '@/api/asset_interfaces';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator/helpers';
 import { useCreateDashboard } from '@/api/buster_rest/dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { FavoriteStar } from '@/components/features/list';
+import { ShareAssetType } from '@/api/asset_interfaces';
+import { Text } from '@/components/ui/typography';
 
 const columns: BusterListColumn[] = [
   {
     dataIndex: 'name',
     title: 'Title',
-    render: (data) => {
-      if (data) return data;
-      return 'New Dashboard';
+    render: (data, { id }) => {
+      const name = data || 'New Dashboard';
+      return (
+        <div className="mr-2 flex items-center space-x-1.5">
+          <Text truncate>{name}</Text>
+          <FavoriteStar
+            id={id}
+            type={ShareAssetType.DASHBOARD}
+            iconStyle="tertiary"
+            title={name}
+            className="opacity-0 group-hover:opacity-100"
+          />
+        </div>
+      );
     }
   },
   {

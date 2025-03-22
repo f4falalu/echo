@@ -33,6 +33,7 @@ import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuConte
 import { DASHBOARD_TITLE_INPUT_ID } from '@/controllers/DashboardController/DashboardViewDashboardController/DashboardEditTitle';
 import { canEdit, canFilter, getIsEffectiveOwner } from '@/lib/share';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
+import { useDashboardContentStore } from '@/context/Dashboards';
 
 export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });
@@ -245,13 +246,16 @@ export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string })
 };
 
 const useAddContentToDashboardSelectMenu = () => {
+  const onOpenAddContentModal = useDashboardContentStore((x) => x.onOpenAddContentModal);
+
   return useMemo(
     () => ({
       label: 'Add content',
       value: 'add-content',
-      icon: <Plus />
+      icon: <Plus />,
+      onClick: onOpenAddContentModal
     }),
-    []
+    [onOpenAddContentModal]
   );
 };
 

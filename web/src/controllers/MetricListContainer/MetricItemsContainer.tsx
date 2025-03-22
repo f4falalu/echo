@@ -158,20 +158,18 @@ const TitleCell = React.memo<{ title: string; status: VerificationStatus; metric
     });
 
     return (
-      <div className="flex w-full items-center space-x-2">
+      <div className="mr-2 flex w-full items-center space-x-2">
         <div className="flex items-center justify-center">
           <StatusBadgeIndicator status={status} />
         </div>
         <Text truncate>{title}</Text>
-        <div className="mr-2 flex items-center" onClick={onFavoriteDivClick}>
-          <FavoriteStar
-            id={metricId}
-            type={ShareAssetType.METRIC}
-            iconStyle="tertiary"
-            title={title}
-            className="opacity-0 group-hover:opacity-100"
-          />
-        </div>
+        <FavoriteStar
+          id={metricId}
+          type={ShareAssetType.METRIC}
+          iconStyle="tertiary"
+          title={title}
+          className="opacity-0 group-hover:opacity-100"
+        />
       </div>
     );
   }

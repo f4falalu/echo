@@ -13,8 +13,10 @@ import {
 } from '@/components/ui/list';
 import { useMemoizedFn } from '@/hooks';
 import { NewCollectionModal } from '@/components/features/modal/NewCollectionModal';
-import { BusterCollectionListItem } from '@/api/asset_interfaces';
+import { BusterCollectionListItem, ShareAssetType } from '@/api/asset_interfaces';
 import { CollectionListSelectedPopup } from './CollectionListSelectedPopup';
+import { Text } from '@/components/ui/typography';
+import { FavoriteStar } from '@/components/features/list';
 
 export const CollectionsListContent: React.FC<{
   openNewCollectionModal: boolean;
@@ -54,17 +56,28 @@ export const CollectionsListContent: React.FC<{
 CollectionsListContent.displayName = 'CollectionsListContent';
 
 const columns: BusterListColumn[] = [
-  { dataIndex: 'title', title: 'Title' },
   {
-    dataIndex: 'createdAt',
-    title: 'Created at',
-    width: 145,
-    render: (v) => formatDate({ date: v, format: 'lll' })
+    dataIndex: 'name',
+    title: 'Title',
+    render: (v, { id, ...rest }: BusterCollectionListItem) => {
+      return (
+        <div className="mr-2 flex items-center space-x-1.5">
+          <Text truncate>{v}</Text>
+          <FavoriteStar
+            id={id}
+            type={ShareAssetType.COLLECTION}
+            iconStyle="tertiary"
+            title={v}
+            className="opacity-0 group-hover:opacity-100"
+          />
+        </div>
+      );
+    }
   },
   {
-    dataIndex: 'lastEdited',
+    dataIndex: 'last_edited',
     title: 'Last edited',
-    width: 145,
+    width: 150,
     render: (v) => formatDate({ date: v, format: 'lll' })
   },
   {
@@ -98,13 +111,7 @@ const CollectionList: React.FC<{
           route: BusterRoutes.APP_COLLECTIONS_ID,
           collectionId: collection.id
         }),
-        data: {
-          title: collection.name,
-          lastEdited: collection.last_edited,
-          createdAt: collection.created_at,
-          owner: collection.owner,
-          sharing: collection.sharing
-        }
+        data: collection
       };
     });
   }, [collectionsList]);
