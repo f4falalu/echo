@@ -153,10 +153,6 @@ EmptyState.displayName = 'EmptyState';
 
 const TitleCell = React.memo<{ title: string; status: VerificationStatus; metricId: string }>(
   ({ title, status, metricId }) => {
-    const onFavoriteDivClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
-      e.stopPropagation();
-    });
-
     return (
       <div className="mr-2 flex w-full items-center space-x-2">
         <div className="flex items-center justify-center">

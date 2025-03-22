@@ -24,8 +24,8 @@ const TooltipShortcut: React.FC<{ shortcut: string }> = ({ shortcut }) => {
   return (
     <div
       className={cn(
-        'border-border bg-background text2xs pointer-events-none relative flex h-5 items-center justify-center rounded border-[0.5px] px-[1.5px] leading-none shadow',
-        numberOfChars === 1 ? 'w-[1.375rem]' : 'px-1'
+        'bg-background text-gray-light pointer-events-none relative flex h-5 items-center justify-center rounded px-[0.5px] text-xs leading-none',
+        numberOfChars === 1 ? '' : 'px-1'
       )}>
       {shortcut}
     </div>

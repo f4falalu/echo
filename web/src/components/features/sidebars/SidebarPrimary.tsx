@@ -23,6 +23,7 @@ import {
   useGetUserFavorites,
   useUpdateUserFavorites
 } from '@/api/buster_rest';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const topItems: ISidebarList = {
   id: 'top-items',
@@ -165,33 +166,41 @@ export const SidebarPrimary = React.memo(() => {
 
 SidebarPrimary.displayName = 'SidebarPrimary';
 
-const SidebarPrimaryHeader = React.memo(() => {
-  return (
-    <div className="flex items-center justify-between">
-      <BusterLogoWithText />
-      <div className="flex items-center gap-2">
-        <Tooltip title="Settings">
-          <Link href={createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE })}>
-            <Button prefix={<Gear />} variant="ghost" />
-          </Link>
-        </Tooltip>
-        <Tooltip title="Start a chat">
-          <Link href={createBusterRoute({ route: BusterRoutes.APP_HOME })}>
-            <Button
-              size="tall"
-              rounding={'large'}
-              prefix={
-                <div className="flex items-center justify-center">
-                  <PencilSquareIcon />
-                </div>
-              }
-            />
-          </Link>
-        </Tooltip>
+const SidebarPrimaryHeader = React.memo(
+  () => {
+    const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
+    useHotkeys('C', () => {
+      onChangePage(BusterRoutes.APP_HOME);
+    });
+
+    return (
+      <div className="flex items-center justify-between">
+        <BusterLogoWithText />
+        <div className="flex items-center gap-2">
+          <Tooltip title="Settings">
+            <Link href={createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE })}>
+              <Button prefix={<Gear />} variant="ghost" />
+            </Link>
+          </Tooltip>
+          <Tooltip title="Start a chat" shortcuts={['C']}>
+            <Link href={createBusterRoute({ route: BusterRoutes.APP_HOME })}>
+              <Button
+                size="tall"
+                rounding={'large'}
+                prefix={
+                  <div className="flex items-center justify-center">
+                    <PencilSquareIcon />
+                  </div>
+                }
+              />
+            </Link>
+          </Tooltip>
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+  () => true
+);
 
 SidebarPrimaryHeader.displayName = 'SidebarPrimaryHeader';
 

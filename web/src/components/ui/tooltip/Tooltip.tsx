@@ -59,7 +59,7 @@ const TooltipContent: React.FC<{
   shortcut?: string[];
 }> = ({ title, shortcut }) => {
   return (
-    <div className="flex h-3 max-h-3 min-h-3 items-center gap-x-1">
+    <div className="flex h-3 max-h-3 min-h-3 items-center gap-x-1.5">
       <span className="text-sm">{title}</span>
       <KeyboardShortcutPill shortcut={shortcut} />
     </div>
