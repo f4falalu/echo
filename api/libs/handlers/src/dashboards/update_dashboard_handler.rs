@@ -87,20 +87,17 @@ pub async fn update_dashboard_handler(
     
     // Parse the current dashboard content
     let mut dashboard_yml = serde_yaml::from_str::<DashboardYml>(&current_dashboard.dashboard.file)?;
-    let mut content_updated = false;
     let mut has_changes = false;
     
     // Handle file content update (highest priority - overrides other fields)
     if let Some(file_content) = request.file {
         // Parse the YAML file content
         dashboard_yml = serde_yaml::from_str(&file_content)?;
-        content_updated = true;
         has_changes = true;
     } else {
         // Update description if provided
         if let Some(description) = request.description {
             dashboard_yml.description = description;
-            content_updated = true;
             has_changes = true;
         }
         
@@ -132,7 +129,6 @@ pub async fn update_dashboard_handler(
             }
             
             dashboard_yml.rows = new_rows;
-            content_updated = true;
             has_changes = true;
         }
     }
@@ -151,7 +147,7 @@ pub async fn update_dashboard_handler(
         .unwrap_or(1);
     
     // Add the new version to the version history
-    if content_updated || has_changes {
+    if has_changes {
         current_version_history.add_version(next_version, dashboard_yml.clone());
     }
     
@@ -159,7 +155,7 @@ pub async fn update_dashboard_handler(
     let content_value = dashboard_yml.to_value()?;
     
     // Update dashboard file in database if content was updated
-    if content_updated {
+    if has_changes {
         diesel::update(dashboard_files::table)
             .filter(dashboard_files::id.eq(dashboard_id))
             .filter(dashboard_files::deleted_at.is_null())
@@ -177,7 +173,6 @@ pub async fn update_dashboard_handler(
         dashboard_yml.name = name.clone();
         // Update version history with the updated dashboard_yml
         current_version_history.add_version(next_version, dashboard_yml.clone());
-        content_updated = true;
         
         diesel::update(dashboard_files::table)
             .filter(dashboard_files::id.eq(dashboard_id))

@@ -12,32 +12,38 @@ use crate::{agent::Agent, tools::ToolExecutor};
 pub struct HandOffParams {
     /// The ID or name of the agent to hand off to
     pub target_agent: String,
-    /// The context to provide to the target agent
-    pub context: Option<String>,
-    /// Whether to transfer the conversation history
-    pub transfer_history: Option<bool>,
 }
 
 /// Output from the HandOffTool
 #[derive(Debug, Serialize, Deserialize)]
-pub struct HandOffOutput {
-    /// The message indicating success or failure
-    pub message: String,
-    /// The ID of the target agent that took over
-    pub target_agent_id: String,
-    /// The ID of the new conversation (if applicable)
-    pub conversation_id: Option<String>,
-}
+pub struct HandOffOutput {}
 
 /// Tool for handing off a conversation to another agent
 pub struct HandOffTool {
     agent: Arc<Agent>,
+    available_target_agents: Vec<String>,
 }
 
 impl HandOffTool {
     /// Create a new HandOffTool
     pub fn new(agent: Arc<Agent>) -> Self {
-        Self { agent }
+        Self {
+            agent,
+            available_target_agents: Vec::new(),
+        }
+    }
+
+    /// Create a new HandOffTool with a list of available target agents
+    pub fn new_with_target_agents(agent: Arc<Agent>, target_agents: Vec<String>) -> Self {
+        Self {
+            agent,
+            available_target_agents: target_agents,
+        }
+    }
+
+    /// Update the available target agents
+    pub fn set_available_target_agents(&mut self, target_agents: Vec<String>) {
+        self.available_target_agents = target_agents;
     }
 
     fn get_hand_off_description() -> String {
@@ -71,28 +77,8 @@ impl ToolExecutor for HandOffTool {
         true
     }
 
-    async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
+    async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         let target_agent_id = params.target_agent;
-        let context = params.context.unwrap_or_default();
-        let transfer_history = params.transfer_history.unwrap_or(true);
-
-        // Get the current conversation ID
-        let conversation_id = match self.agent.get_state_value("conversation_id").await {
-            Some(id) => id,
-            None => return Err(anyhow!("No active conversation found")),
-        };
-
-        // Check if target agent exists
-        // This would typically query a registry of available agents
-        // For now, we'll assume validation happens here
-        // TODO: Implement agent validation
-
-        // Log the handoff attempt
-        tracing::info!(
-            "Agent attempting to hand off conversation {} to agent {}",
-            conversation_id,
-            target_agent_id
-        );
 
         // Here we would implement the actual handoff logic:
         // 1. Notify the target agent
@@ -103,19 +89,7 @@ impl ToolExecutor for HandOffTool {
         // TODO: Implement actual handoff logic
         // For now, we'll return a stub response
 
-        Ok(HandOffOutput {
-            message: format!(
-                "Successfully handed off conversation to agent {}{}",
-                target_agent_id,
-                if transfer_history {
-                    " with conversation history"
-                } else {
-                    ""
-                }
-            ),
-            target_agent_id,
-            conversation_id: Some(conversation_id.to_string()),
-        })
+        Ok(HandOffOutput {})
     }
 
     async fn get_schema(&self) -> Value {
@@ -126,8 +100,9 @@ impl ToolExecutor for HandOffTool {
                 "type": "object",
                 "properties": {
                     "target_agent": {
-                        "type": "string",
-                        "description": Self::get_target_agent_description(),
+                      "type": "string",
+                      "description": Self::get_target_agent_description(),
+                      "enum": self.available_target_agents
                     },
                     "context": {
                         "type": "string",

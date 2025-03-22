@@ -9,6 +9,7 @@ Specific issues include:
 - No automatic elevated access for workspace and data admins
 - Risk of unauthorized access to chat resources
 - No clear error handling for permission denied cases
+- Many handlers only receive a `user_id` (Uuid) instead of the full `AuthenticatedUser` object
 
 These issues affect the security and consistency of the application and need to be addressed to ensure proper access control across all chat resources.
 
@@ -17,6 +18,7 @@ These issues affect the security and consistency of the application and need to 
 - No organization admin check for automatic access elevation
 - Inconsistent error handling for permission failures
 - No clear distinction between view and edit permissions
+- Unable to use cached organization role information
 
 ### Impact
 - User Impact: Users may have incorrect access to chats (too much or too little)
@@ -28,52 +30,57 @@ These issues affect the security and consistency of the application and need to 
 ### Functional Requirements 
 
 #### Core Functionality
+- Update chat handler signatures to use `AuthenticatedUser`
+  - Details: Modify all chat handlers to accept `AuthenticatedUser` instead of just user ID
+  - Acceptance Criteria: All chat handlers use `AuthenticatedUser` object
+  - Dependencies: Authenticated User Object Enhancement
+
 - Implement permission checks in all chat handlers
-  - Details: Add permission checks at the beginning of each handler function
+  - Details: Add permission checks at the beginning of each handler function using utility functions
   - Acceptance Criteria: All chat handlers properly check permissions before performing operations
-  - Dependencies: Sharing library, admin check utility
+  - Dependencies: Permission Utility Functions
 
 - Enforce correct permission levels
   - Details: Map operations to appropriate permission levels (view, edit, etc.)
   - Acceptance Criteria: Each operation requires the correct minimum permission level
-  - Dependencies: `AssetPermissionRole` enum
+  - Dependencies: Permission level mapping
 
 - Implement proper error handling
   - Details: Return appropriate error messages for permission denied cases
   - Acceptance Criteria: Consistent, secure error handling across all chat handlers
-  - Dependencies: None
+  - Dependencies: Standardized error responses
 
 #### Handler-Specific Requirements
 
 - get_chat_handler
   - Details: Require at least CanView permission
   - Acceptance Criteria: Users with at least CanView permission can access chat details
-  - Dependencies: None
+  - Dependencies: verify_chat_permission utility
 
 - delete_chats_handler
   - Details: Require FullAccess or Owner permission
   - Acceptance Criteria: Only users with FullAccess or Owner permission can delete chats
-  - Dependencies: None
+  - Dependencies: verify_chat_permission utility
 
 - update_chats_handler
   - Details: Require at least CanEdit permission
   - Acceptance Criteria: Users with at least CanEdit permission can update chat details
-  - Dependencies: None
+  - Dependencies: verify_chat_permission utility
 
 - list_chats_handler
   - Details: Filter results based on user's permissions
   - Acceptance Criteria: Only chats the user has at least CanView permission for are returned
-  - Dependencies: None
+  - Dependencies: Permission query utilities
 
 - sharing_endpoint_handlers
   - Details: Require FullAccess or Owner permission
   - Acceptance Criteria: Only users with FullAccess or Owner permission can modify sharing settings
-  - Dependencies: None
+  - Dependencies: verify_chat_permission utility
 
 ### Non-Functional Requirements 
-
 - Performance Requirements
   - Permission checks should add minimal overhead to handlers (<10ms)
+  - Should use cached organization roles to minimize database queries
 - Security Requirements
   - Permission checks must happen before any data access
   - Error messages must not reveal sensitive information
@@ -97,131 +104,156 @@ graph TD
 
 ### Core Components 
 
-#### Component 1: Permission Check Utility for Chat Handlers
+#### Component 1: Updated Chat Handler Signatures
 
 ```rust
-/// Verifies a user has sufficient permissions for a chat operation
-///
-/// # Arguments
-/// * `chat_id` - The ID of the chat to check
-/// * `user_id` - The ID of the user requesting access
-/// * `required_role` - The minimum role required for the operation
-///
-/// # Returns
-/// * `Result<()>` - Ok if user has permission, Error otherwise
-async fn verify_chat_permission(
+// Before:
+pub async fn get_chat_handler(
     chat_id: &Uuid,
-    user_id: &Uuid,
-    required_role: AssetPermissionRole,
-) -> Result<()> {
-    // Get the organization ID for this chat
-    let org_id = chats::table
-        .filter(chats::id.eq(chat_id))
-        .filter(chats::deleted_at.is_null())
-        .select(chats::organization_id)
-        .first::<Uuid>(&mut get_pg_pool().get().await?)
-        .await
-        .map_err(|e| anyhow!("Failed to find chat: {}", e))?;
+    user_id: &Uuid, // Just user ID
+) -> Result<ChatWithMessages> {
+    // ...
+}
+
+// After:
+pub async fn get_chat_handler(
+    chat_id: &Uuid,
+    user: &AuthenticatedUser, // Complete authenticated user with cached org roles
+) -> Result<ChatWithMessages> {
+    // ...
+}
+```
+
+#### Component 2: Permission Check Integration
+
+```rust
+pub async fn get_chat_handler(
+    chat_id: &Uuid,
+    user: &AuthenticatedUser,
+) -> Result<ChatWithMessages> {
+    // Get database connection
+    let mut conn = get_pg_pool().get().await?;
     
-    // Check if user is an org admin
-    if is_user_org_admin(user_id, &org_id).await? {
-        // Admins get everything except Owner permissions
-        if required_role != AssetPermissionRole::Owner {
-            return Ok(());
+    // Use the permission utility to verify access
+    verify_chat_permission(
+        &mut conn,
+        chat_id,
+        user,
+        AssetPermissionLevel::CanView,
+    ).await?;
+    
+    // Existing handler logic continues below...
+    // ...
+}
+```
+
+#### Component 3: Error Handling
+
+```rust
+// In REST route handler
+pub async fn get_chat_route(
+    Path(chat_id): Path<Uuid>,
+    user: AuthenticatedUser,
+) -> Result<Json<ChatWithMessages>, ApiError> {
+    match get_chat_handler(&chat_id, &user).await {
+        Ok(result) => Ok(Json(result)),
+        Err(e) => {
+            if e.to_string().contains("Insufficient permissions") {
+                Err(permission_denied_error())
+            } else {
+                Err(ApiError::InternalServerError(e.to_string()))
+            }
+        }
+    }
+}
+
+// In WebSocket handler
+pub async fn ws_get_chat(
+    message: WsMessage,
+    user: &AuthenticatedUser,
+) -> Result<()> {
+    let payload: GetChatRequest = serde_json::from_str(&message.payload)?;
+    
+    match get_chat_handler(&payload.id, user).await {
+        Ok(result) => {
+            send_ws_message(
+                &user.id.to_string(),
+                &WsResponseMessage::new(/* ... */),
+            ).await?;
+        },
+        Err(e) => {
+            if e.to_string().contains("Insufficient permissions") {
+                send_permission_denied_error(
+                    user,
+                    WsRoutes::Chat(ChatRoute::Get),
+                    WsEvent::Chat(ChatEvent::GetChat),
+                ).await?;
+            } else {
+                // Handle other errors
+            }
         }
     }
     
-    // Check regular permissions
-    let has_access = has_permission(
-        *chat_id,
-        AssetType::Chat,
-        *user_id,
-        IdentityType::User,
-        required_role,
-    )
-    .await?;
-    
-    if has_access {
-        Ok(())
-    } else {
-        Err(anyhow!("Insufficient permissions for chat operation"))
-    }
+    Ok(())
 }
 ```
 
-#### Component 2: Modified get_chat_handler
+#### Component 4: List Chats with Permission Filtering
 
 ```rust
-pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWithMessages> {
-    // Verify user has at least CanView permission
-    verify_chat_permission(chat_id, user_id, AssetPermissionRole::CanView).await?;
-    
-    // Existing handler logic continues below...
-    // ...
-}
-```
-
-#### Component 3: Modified delete_chats_handler
-
-```rust
-pub async fn delete_chats_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<()> {
-    // Verify user has FullAccess permission (required for deletion)
-    verify_chat_permission(chat_id, user_id, AssetPermissionRole::FullAccess).await?;
-    
-    // Existing handler logic continues below...
-    // ...
-}
-```
-
-#### Component 4: Modified update_chats_handler
-
-```rust
-pub async fn update_chats_handler(
-    chat_id: &Uuid,
-    user_id: &Uuid,
-    request: UpdateChatsRequest,
-) -> Result<ChatWithMessages> {
-    // Verify user has at least CanEdit permission
-    verify_chat_permission(chat_id, user_id, AssetPermissionRole::CanEdit).await?;
-    
-    // Existing handler logic continues below...
-    // ...
-}
-```
-
-#### Component 5: Modified list_chats_handler
-
-```rust
-pub async fn list_chats_handler(user_id: &Uuid) -> Result<Vec<ChatWithMessages>> {
-    // For list operations, we'll filter by permissions rather than block entirely
+pub async fn list_chats_handler(
+    user: &AuthenticatedUser,
+) -> Result<Vec<ChatWithMessages>> {
     let mut conn = get_pg_pool().get().await?;
     
-    // Get all chats the user has created (owner by default)
-    let mut user_chats = chats::table
-        .filter(chats::created_by.eq(user_id))
-        .filter(chats::deleted_at.is_null())
-        // ... additional query logic ...
-        .load::<Chat>(&mut conn)
-        .await?;
+    // Check if user is an org admin for any organization
+    let is_admin_in_any_org = user.organizations.iter().any(|org| 
+        matches!(org.role, UserOrganizationRole::WorkspaceAdmin | UserOrganizationRole::DataAdmin)
+    );
     
-    // Get all chats where the user has been granted permissions
-    let shared_chats = asset_permissions::table
-        .inner_join(chats::table.on(chats::id.eq(asset_permissions::asset_id)))
-        .filter(asset_permissions::identity_id.eq(user_id))
-        .filter(asset_permissions::identity_type.eq(IdentityType::User))
-        .filter(asset_permissions::asset_type.eq(AssetType::Chat))
-        .filter(asset_permissions::deleted_at.is_null())
-        .filter(chats::deleted_at.is_null())
-        // ... additional query logic ...
-        .load::<Chat>(&mut conn)
-        .await?;
+    let chats = if is_admin_in_any_org {
+        // For admins, get all chats in their organizations
+        let org_ids: Vec<Uuid> = user.organizations
+            .iter()
+            .filter(|org| matches!(org.role, UserOrganizationRole::WorkspaceAdmin | UserOrganizationRole::DataAdmin))
+            .map(|org| org.id)
+            .collect();
+            
+        chats::table
+            .filter(chats::organization_id.eq_any(org_ids))
+            .filter(chats::deleted_at.is_null())
+            .load::<Chat>(&mut conn)
+            .await?
+    } else {
+        // For regular users, get chats they have access to
+        // Get all chats the user has created (owner by default)
+        let mut user_chats = chats::table
+            .filter(chats::created_by.eq(user.id))
+            .filter(chats::deleted_at.is_null())
+            .load::<Chat>(&mut conn)
+            .await?;
+        
+        // Get all chats where the user has been granted permissions
+        let shared_chats = asset_permissions::table
+            .inner_join(chats::table.on(chats::id.eq(asset_permissions::asset_id)))
+            .filter(asset_permissions::identity_id.eq(user.id))
+            .filter(asset_permissions::identity_type.eq(IdentityType::User))
+            .filter(asset_permissions::asset_type.eq(AssetType::Chat))
+            .filter(asset_permissions::deleted_at.is_null())
+            .filter(chats::deleted_at.is_null())
+            .select(chats::all_columns)
+            .load::<Chat>(&mut conn)
+            .await?;
+        
+        // Combine and deduplicate
+        user_chats.extend(shared_chats);
+        user_chats
+    };
     
-    // Combine and return unique chats
-    user_chats.extend(shared_chats);
-    // ... process and deduplicate chats ...
-    
-    // Existing handler logic continues...
+    // Process chats into ChatWithMessages objects
     // ...
+    
+    Ok(processed_chats)
 }
 ```
 
@@ -229,77 +261,84 @@ pub async fn list_chats_handler(user_id: &Uuid) -> Result<Vec<ChatWithMessages>>
 
 #### Modified Files
 - `api/libs/handlers/src/chats/get_chat_handler.rs`
-  - Changes: Add permission check at start of handler
+  - Changes: Update handler signature, add permission check
   - Impact: Ensures user has appropriate view permissions
-  - Dependencies: Sharing library, admin check utility
+  - Dependencies: Permission utility functions
 
 - `api/libs/handlers/src/chats/delete_chats_handler.rs`
-  - Changes: Add permission check at start of handler
+  - Changes: Update handler signature, add permission check
   - Impact: Ensures user has appropriate delete permissions
-  - Dependencies: Sharing library, admin check utility
+  - Dependencies: Permission utility functions
 
 - `api/libs/handlers/src/chats/update_chats_handler.rs`
-  - Changes: Add permission check at start of handler
+  - Changes: Update handler signature, add permission check
   - Impact: Ensures user has appropriate edit permissions
-  - Dependencies: Sharing library, admin check utility
+  - Dependencies: Permission utility functions
 
 - `api/libs/handlers/src/chats/list_chats_handler.rs`
-  - Changes: Modify query to filter by permissions
+  - Changes: Update handler signature, modify query to filter by permissions
   - Impact: Ensures user only sees chats they have permission to view
-  - Dependencies: Sharing library
+  - Dependencies: Permission utility functions
 
 - `api/libs/handlers/src/chats/post_chat_handler.rs`
-  - Changes: No permission check needed for creation
+  - Changes: Update handler signature, no permission check needed for creation
   - Impact: None (users can create chats without special permissions)
+  - Dependencies: None
+
+- `api/libs/handlers/src/chats/sharing/create_sharing_handler.rs`
+  - Changes: Update permission check to use verify_chat_permission utility
+  - Impact: Consistent permission checking for sharing operations
+  - Dependencies: Permission utility functions
+
+- `api/routes/rest/routes/chats/` (all route files)
+  - Changes: Update to extract and pass AuthenticatedUser to handlers
+  - Impact: Enables cached permission checks
+  - Dependencies: None
+
+- `api/routes/ws/chats/` (all handler files)
+  - Changes: Update to pass AuthenticatedUser to handlers
+  - Impact: Enables cached permission checks
   - Dependencies: None
 
 ## Implementation Plan
 
-### Phase 1: Add Permission Utilities  (In Progress)
+### Phase 1: Update Handler Signatures
 
-1. Create chat-specific permission utility functions
-   - [ ] Implement `verify_chat_permission` helper function
-   - [ ] Add error handling for permission failures
-   - [ ] Create reusable query for getting chat organization ID
+1. Update chat handler signatures
+   - [ ] Modify all chat handlers to accept AuthenticatedUser
+   - [ ] Update handler documentation to reflect new signatures
+   - [ ] Prepare unit tests for updated signatures
 
-2. Add unit tests for permission utilities
-   - [ ] Test permission verification with various roles
-   - [ ] Test admin override functionality
-   - [ ] Test error handling and edge cases
+2. Update route handlers to pass AuthenticatedUser
+   - [ ] Update REST route handlers
+   - [ ] Update WebSocket message handlers
+   - [ ] Update unit tests for route handlers
 
-### Phase 2: Modify Chat Handlers  (Not Started)
+### Phase 2: Implement Permission Checks
 
-1. Update get_chat_handler
-   - [ ] Add permission check for CanView
-   - [ ] Ensure proper error handling
-   - [ ] Update unit tests
+1. Integrate permission utility functions
+   - [ ] Add permission checks to get_chat_handler (CanView)
+   - [ ] Add permission checks to delete_chats_handler (FullAccess)
+   - [ ] Add permission checks to update_chats_handler (CanEdit)
+   - [ ] Update list_chats_handler to filter by permissions
+   - [ ] Add permission checks to sharing handlers (FullAccess)
 
-2. Update delete_chats_handler
-   - [ ] Add permission check for FullAccess
-   - [ ] Ensure proper error handling
-   - [ ] Update unit tests
+2. Implement error handling
+   - [ ] Add consistent error handling for permission failures
+   - [ ] Update error responses in REST routes
+   - [ ] Update error responses in WebSocket handlers
 
-3. Update update_chats_handler
-   - [ ] Add permission check for CanEdit
-   - [ ] Ensure proper error handling
-   - [ ] Update unit tests
+### Phase 3: Testing and Validation
 
-4. Update list_chats_handler
-   - [ ] Modify queries to filter by permission
-   - [ ] Add logic to include admin-accessible chats
-   - [ ] Update unit tests
+1. Add unit tests
+   - [ ] Test each handler with different permission levels
+   - [ ] Test admin bypass functionality
+   - [ ] Test error handling for permission failures
 
-### Phase 3: Testing & Documentation  (Not Started)
-
-1. Add integration tests
+2. Update integration tests
    - [ ] Test end-to-end flows with different permission levels
    - [ ] Verify admin access works correctly
-   - [ ] Test permission denial scenarios
-
-2. Update documentation
-   - [ ] Document permission requirements for each handler
-   - [ ] Add examples of correct usage
-   - [ ] Document error handling behavior
+   - [ ] Test permission denied scenarios
 
 ## Testing Strategy 
 
@@ -309,67 +348,83 @@ pub async fn list_chats_handler(user_id: &Uuid) -> Result<Vec<ChatWithMessages>>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use database::enums::{AssetPermissionRole, AssetType, IdentityType};
-    use mockall::{predicate::*, *};
+    use database::enums::{AssetPermissionRole, AssetType, IdentityType, UserOrganizationRole};
+    use middleware::types::{AuthenticatedUser, OrganizationMembership};
     
-    // Mock permission checking functions
-    mock! {
-        PermissionChecker {}
-        impl PermissionChecker {
-            async fn has_permission(
-                asset_id: Uuid,
-                asset_type: AssetType,
-                identity_id: Uuid,
-                identity_type: IdentityType,
-                required_role: AssetPermissionRole,
-            ) -> Result<bool>;
-            
-            async fn is_user_org_admin(
-                user_id: &Uuid,
-                org_id: &Uuid,
-            ) -> Result<bool>;
+    // Helper to create test authenticated user
+    fn create_test_user(org_id: Option<Uuid>, role: Option<UserOrganizationRole>) -> AuthenticatedUser {
+        let orgs = match (org_id, role) {
+            (Some(id), Some(r)) => vec![OrganizationMembership { id, role: r }],
+            _ => vec![],
+        };
+        
+        AuthenticatedUser {
+            id: Uuid::new_v4(),
+            email: "test@example.com".to_string(),
+            name: Some("Test User".to_string()),
+            organizations: orgs,
+            // Other fields...
         }
     }
     
     #[tokio::test]
-    async fn test_get_chat_handler_with_permission() {
-        // Test that handler succeeds when user has permission
+    async fn test_get_chat_handler_admin_bypass() {
+        // Create test data
+        let org_id = Uuid::new_v4();
         let chat_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
         
-        // Mock permission check to return true
-        // [mocking setup here]
+        // Create admin user
+        let admin_user = create_test_user(
+            Some(org_id),
+            Some(UserOrganizationRole::WorkspaceAdmin),
+        );
         
-        let result = get_chat_handler(&chat_id, &user_id).await;
+        // Mock database connection
+        let mut mock_conn = MockDbConnection::new();
+        mock_conn.expect_get_chat_org_id()
+            .with(eq(chat_id))
+            .returning(move |_| Ok(org_id));
+        
+        // Mock chat query to return a chat
+        mock_conn.expect_get_chat()
+            .with(eq(chat_id))
+            .returning(|_| Ok(Chat { id: chat_id, organization_id: org_id, /* ... */ }));
+        
+        // Call handler
+        let result = get_chat_handler(&chat_id, &admin_user).await;
+        
+        // Admin should have access due to admin bypass
         assert!(result.is_ok());
     }
     
     #[tokio::test]
-    async fn test_get_chat_handler_without_permission() {
-        // Test that handler fails when user lacks permission
+    async fn test_get_chat_handler_no_permission() {
+        // Create test data
+        let org_id = Uuid::new_v4();
         let chat_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
+        
+        // Create regular user
+        let user = create_test_user(
+            Some(org_id),
+            Some(UserOrganizationRole::Member),
+        );
+        
+        // Mock database connection
+        let mut mock_conn = MockDbConnection::new();
+        mock_conn.expect_get_chat_org_id()
+            .with(eq(chat_id))
+            .returning(move |_| Ok(org_id));
         
         // Mock permission check to return false
-        // [mocking setup here]
+        mock_conn.expect_has_permission()
+            .returning(|_, _, _, _, _| Ok(false));
         
-        let result = get_chat_handler(&chat_id, &user_id).await;
+        // Call handler
+        let result = get_chat_handler(&chat_id, &user).await;
+        
+        // User should not have access
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("Insufficient permissions"));
-    }
-    
-    #[tokio::test]
-    async fn test_get_chat_handler_admin_override() {
-        // Test that admin users can access chats in their org without explicit permissions
-        let chat_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
-        let org_id = Uuid::new_v4();
-        
-        // Mock admin check to return true
-        // [mocking setup here]
-        
-        let result = get_chat_handler(&chat_id, &user_id).await;
-        assert!(result.is_ok());
     }
 }
 ```
@@ -389,7 +444,8 @@ mod tests {
 - Setup: Create test chat and admin user in same organization
 - Steps:
   1. Admin attempts to view, edit, and delete chat without explicit permissions
-  2. System checks admin status and permits operations
+  2. System checks admin status using cached information
+  3. Operations are permitted due to admin status
 - Expected Results: Admin can perform all operations except those requiring Owner permission
 - Validation Criteria: Operations succeed due to admin status, not explicit permissions
 
@@ -407,10 +463,17 @@ mod tests {
 ### Performance Considerations
 - Performance Requirement 1: Efficient Permission Checking
   - Description: Permission checks should not significantly impact handler performance
-  - Implementation: Optimize database queries, consider caching for frequent checks
-  - Validation: Performance benchmarks of handlers with and without permission checks
+  - Implementation: Use cached user organization roles to avoid database queries
+  - Validation: Performance benchmarks of handlers with and without cached information
 
-### References
+- Performance Requirement 2: Optimized List Queries
+  - Description: List operations should efficiently filter by permissions
+  - Implementation: Optimize queries for different user types (admin vs. regular)
+  - Validation: Database query analysis for list operations
+
+## References
+- [Permission Utility Functions](api_permission_utilities.md)
+- [Authenticated User Object Enhancement](api_auth_user_enhancement.md)
 - [Sharing Library Documentation](mdc:libs/sharing/src/lib.rs)
 - [Chat Models](mdc:database/src/models.rs)
 - [Asset Permission Roles](mdc:database/src/enums.rs)

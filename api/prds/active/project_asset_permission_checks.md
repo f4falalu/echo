@@ -1,7 +1,7 @@
 ---
 title: Asset Permission Checks Implementation
 author: 
-date: 2025-03-21
+date: 2025-03-22
 status: Updated
 ---
 
@@ -70,47 +70,61 @@ graph TD
 
 ### Component Breakdown
 
-#### Component 1: Organization Admin Check (Updated)
-- Purpose: Add a new utility function that checks if a user has WorkspaceAdmin or DataAdmin role for an organization using cached info
-- Sub-PRD: [Asset Permission Admin Check](api_asset_permission_admin_check.md)
+#### Component 1: Authenticated User Object Enhancement
+- Purpose: Ensure all REST and WebSocket routes pass the AuthenticatedUser object to handlers
+- Sub-PRD: [Authenticated User Object Enhancement](api_auth_user_enhancement.md)
 - Interfaces:
-  - Input: AuthenticatedUser object, Organization ID
-  - Output: Boolean indicating admin status
+  - Input: REST/WebSocket routes that invoke handlers
+  - Output: Modified routes that pass AuthenticatedUser to handlers
 
-#### Component 2: Chat Permission Implementation
+#### Component 2: Permission Utility Functions
+- Purpose: Create reusable permission check functions for each asset type
+- Sub-PRD: [Permission Utility Functions](api_permission_utilities.md)
+- Interfaces:
+  - Input: Asset ID, AuthenticatedUser, required permission level
+  - Output: Permission verification result
+
+#### Component 3: Chat Permission Implementation
 - Purpose: Implement permission checks for all Chat handlers
 - Sub-PRD: [Chat Permission Checks](api_chat_permission_checks.md)
 - Interfaces:
   - Input: Chat handlers, AuthenticatedUser
   - Output: Modified handlers with permission checks
 
-#### Component 3: Collection Permission Implementation
+#### Component 4: Collection Permission Implementation
 - Purpose: Implement permission checks for all Collection handlers
 - Sub-PRD: [Collection Permission Checks](api_collection_permission_checks.md)
 - Interfaces:
   - Input: Collection handlers, AuthenticatedUser
   - Output: Modified handlers with permission checks
 
-#### Component 4: Dashboard Permission Implementation
+#### Component 5: Dashboard Permission Implementation
 - Purpose: Implement permission checks for all Dashboard handlers
 - Sub-PRD: [Dashboard Permission Checks](api_dashboard_permission_checks.md)
 - Interfaces:
   - Input: Dashboard handlers, AuthenticatedUser
   - Output: Modified handlers with permission checks
 
-#### Component 5: Metric Permission Implementation
+#### Component 6: Metric Permission Implementation
 - Purpose: Implement permission checks for all Metric handlers
 - Sub-PRD: [Metric Permission Checks](api_metric_permission_checks.md)
 - Interfaces:
   - Input: Metric handlers, AuthenticatedUser
   - Output: Modified handlers with permission checks
 
-#### Component 6: Sharing Permission Requirements
-- Purpose: Define consistent permission requirements for sharing endpoints and adding assets to collections/dashboards
-- Sub-PRD: [Sharing Permission Requirements](api_sharing_permission_requirements.md)
+#### Component 7: Cross-Asset Operations
+- Purpose: Implement permission checks for operations involving multiple asset types
+- Sub-PRD: [Cross-Asset Operations](api_cross_asset_operations.md)
 - Interfaces:
-  - Input: Asset handlers related to sharing and asset additions, AuthenticatedUser
-  - Output: Modified handlers with consistent permission checks
+  - Input: Operations involving multiple assets, AuthenticatedUser
+  - Output: Modified operations with consistent permission checks
+
+#### Component 8: Integration Testing
+- Purpose: Implement comprehensive testing for permission system
+- Sub-PRD: [Permission Integration Tests](api_permission_integration_tests.md)
+- Interfaces:
+  - Input: Permission implementation
+  - Output: Test suite verifying correctness and performance
 
 ### Dependencies
 
@@ -123,66 +137,74 @@ graph TD
 
 ## Implementation Plan
 
-### Sub-PRD Implementation Order and Dependencies
+The implementation will be broken down into a series of more focused and manageable PRDs organized by both functionality and asset type. This approach allows for more modular development and clearer tracking of progress.
 
-The implementation will be broken down into the following sub-PRDs, with their dependencies and development order clearly defined:
+### Revised PRD Structure
 
-1. [Asset Permission Admin Check](../completed/api_asset_permission_admin_check.md) - **COMPLETED** ✅
-   - This PRD establishes the admin check capability needed by all other components
+1. [Authenticated User Object Enhancement](api_auth_user_enhancement.md) - **Required First** 🔄
+   - Ensures all REST and WebSocket routes pass the AuthenticatedUser object to handlers
    - Dependencies: None
    - Required for: All other PRDs
-   - Implementation complete, with full optimization using cached AuthenticatedUser information
-   - Added unit tests and documentation for all components
+   - This is a foundational update that enables all permission checks
 
-The following can be developed concurrently after the admin check is implemented:
+2. [Permission Utility Functions](api_permission_utilities.md) - **Required Second** 🔄
+   - Creates reusable permission check functions for each asset type
+   - Dependencies: Authenticated User Object Enhancement
+   - Required for: All asset-specific PRDs
+   - Provides consistent patterns for permission checks
 
-2. [Chat Permission Checks](api_chat_permission_checks.md) - **Can be developed concurrently** ⏳
-   - Dependencies: Asset Permission Admin Check
+These asset-specific PRDs can be developed concurrently after the utility functions are implemented:
+
+3. [Chat Permission Checks](api_chat_permission_checks.md) - **Can be developed concurrently** 
+   - Dependencies: Permission Utility Functions
    - Required for: None
-   - No conflicts with other asset types
+   - Update all chat handlers with permission checks
 
-3. [Collection Permission Checks](api_collection_permission_checks.md) - **Can be developed k concurrently** ⏳
-   - Dependencies: Asset Permission Admin Check
+4. [Collection Permission Checks](api_collection_permission_checks.md) - **Can be developed concurrently** ⏳
+   - Dependencies: Permission Utility Functions
    - Required for: None
-   - No conflicts with other asset types
+   - Update all collection handlers with permission checks
 
-4. [Dashboard Permission Checks](api_dashboard_permission_checks.md) - **Can be developed concurrently** ⏳
-   - Dependencies: Asset Permission Admin Check
+5. [Dashboard Permission Checks](api_dashboard_permission_checks.md) - **Can be developed concurrently** 
+   - Dependencies: Permission Utility Functions
    - Required for: None
-   - No conflicts with other asset types
+   - Update all dashboard handlers with permission checks
 
-5. [Metric Permission Checks](api_metric_permission_checks.md) - **Can be developed concurrently** ⏳
-   - Dependencies: Asset Permission Admin Check
+6. [Metric Permission Checks](api_metric_permission_checks.md) - **Can be developed concurrently** 
+   - Dependencies: Permission Utility Functions
    - Required for: None
-   - No conflicts with other asset types
+   - Update all metric handlers with permission checks
 
-6. [Sharing Permission Requirements](api_sharing_permission_requirements.md) - **Can be developed concurrently**
-   - Dependencies: Asset Permission Admin Check
-   - Required for: None
-   - No conflicts with other asset types
+These should be implemented after the asset-specific PRDs:
+
+7. [Cross-Asset Operations](api_cross_asset_operations.md) - **Implement after asset-specific PRDs** 🆕
+   - Dependencies: All asset-specific PRDs
+   - Implements permission checks for operations involving multiple asset types
+   - Handles adding assets to collections, linking dashboards, etc.
+
+8. [Permission Integration Tests](api_permission_integration_tests.md) - **Final Step** 🆕
+   - Dependencies: All other PRDs
+   - Creates comprehensive test suite for permission checking
+   - Validates performance and security
 
 ### Concurrent Development Strategy
 
-To enable efficient concurrent development without conflicts:
+The revised implementation strategy:
 
-1. **Consistent Permission Pattern**: Each sub-PRD will follow the same pattern for checking permissions
-2. **Isolated Asset Types**: Each asset type's handlers are isolated from other types
-3. **Common Helper Function**: The admin check function will be built first to ensure consistency
-4. **Unit Test First**: Develop unit tests for each handler before implementation
-5. **Interface Consistency**: All handlers will receive and use AuthenticatedUser objects
+1. **Sequential Foundation**: Complete Authentication and Utility PRDs first
+2. **Parallel Asset Implementation**: Develop asset-specific PRDs concurrently
+3. **Integration Step**: Complete cross-asset operations and integration testing
 
 ### Phase 1: Foundation
 
 **Components:**
-- Asset Permission Admin Check (Original and Updated)
+- Authenticated User Object Enhancement
+- Permission Utility Functions
 
 **Success Criteria:**
-- Admin check function implemented and tested
-- Function correctly identifies DataAdmin and WorkspaceAdmin users
-- Optimized version uses cached user information from AuthenticatedUser
+- All handlers receive the AuthenticatedUser object
+- Common utility functions implemented for each asset type
 - Unit tests passing at 100% coverage
-- Integration tests defined
-- Performance improvement verified
 
 ### Phase 2: Parallel Asset Permission Implementation
 
@@ -191,13 +213,22 @@ To enable efficient concurrent development without conflicts:
 - Collection Permission Checks
 - Dashboard Permission Checks
 - Metric Permission Checks
-- Sharing Permission Requirements
 
 **Success Criteria:**
 - All handlers implement permission checks
 - Consistent error handling across asset types
-- Admin bypass working correctly for all asset types using cached info
-- Unit and integration tests passing
+- Admin bypass working correctly using cached info
+- Unit tests passing
+
+### Phase 3: Integration and Testing
+
+**Components:**
+- Cross-Asset Operations
+- Integration Testing
+
+**Success Criteria:**
+- Operations involving multiple assets implement correct permission checks
+- Comprehensive test suite validates all permission scenarios
 - Performance metrics show reduced database queries
 
 ## Testing Strategy
@@ -255,9 +286,11 @@ To enable efficient concurrent development without conflicts:
 
 ### Related PRDs
 
-- [Asset Permission Admin Check](../completed/api_asset_permission_admin_check.md) ✅
+- [Authenticated User Object Enhancement](api_auth_user_enhancement.md) 🆕
+- [Permission Utility Functions](api_permission_utilities.md) 🆕
 - [Chat Permission Checks](api_chat_permission_checks.md)
 - [Collection Permission Checks](api_collection_permission_checks.md)
 - [Dashboard Permission Checks](api_dashboard_permission_checks.md)
 - [Metric Permission Checks](api_metric_permission_checks.md)
-- [Sharing Permission Requirements](api_sharing_permission_requirements.md)
+- [Cross-Asset Operations](api_cross_asset_operations.md) 🆕
+- [Permission Integration Tests](api_permission_integration_tests.md) 🆕
