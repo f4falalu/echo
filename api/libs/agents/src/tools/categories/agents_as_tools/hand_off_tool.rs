@@ -5,10 +5,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{
-    agent::Agent,
-    tools::ToolExecutor,
-};
+use crate::{agent::Agent, tools::ToolExecutor};
 
 /// Parameters for the HandOffTool
 #[derive(Debug, Serialize, Deserialize)]
@@ -92,8 +89,7 @@ impl ToolExecutor for HandOffTool {
 
         // Log the handoff attempt
         tracing::info!(
-            "Agent {} attempting to hand off conversation {} to agent {}",
-            self.agent.get_agent_id(),
+            "Agent attempting to hand off conversation {} to agent {}",
             conversation_id,
             target_agent_id
         );
@@ -103,7 +99,7 @@ impl ToolExecutor for HandOffTool {
         // 2. Transfer conversation history if requested
         // 3. Update conversation state
         // 4. Redirect user to the new agent
-        
+
         // TODO: Implement actual handoff logic
         // For now, we'll return a stub response
 
@@ -118,11 +114,11 @@ impl ToolExecutor for HandOffTool {
                 }
             ),
             target_agent_id,
-            conversation_id: Some(conversation_id),
+            conversation_id: Some(conversation_id.to_string()),
         })
     }
 
-    fn get_schema(&self) -> Value {
+    async fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
             "description": Self::get_hand_off_description(),
