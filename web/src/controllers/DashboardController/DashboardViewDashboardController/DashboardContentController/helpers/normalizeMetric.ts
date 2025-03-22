@@ -1,6 +1,5 @@
-import { DashboardConfig } from '@/api/asset_interfaces/dashboard';
-import { BusterMetric } from '@/api/asset_interfaces/metric';
-import { BusterResizeableGridRow } from '@/components/ui/grid/interfaces';
+import type { DashboardConfig } from '@/api/asset_interfaces/dashboard';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { v4 as uuidv4 } from 'uuid';
 import {
   NUMBER_OF_COLUMNS,
@@ -11,7 +10,7 @@ import {
 export const normalizeNewMetricsIntoGrid = (
   metricsRecord: Record<string, BusterMetric>,
   grid: DashboardConfig['rows'] = []
-): BusterResizeableGridRow[] => {
+): NonNullable<DashboardConfig['rows']> => {
   const metrics = Object.values(metricsRecord);
   const newMetrics = getAddedMetrics(metrics, grid);
   const removedMetrics = getRemovedMetrics(metrics, grid);
@@ -21,7 +20,7 @@ export const normalizeNewMetricsIntoGrid = (
   let newGrid = grid;
 
   const createNewOverflowRows = (metrics: BusterMetric[]) => {
-    return metrics.reduce<BusterResizeableGridRow[]>((acc, metric, index) => {
+    return metrics.reduce<NonNullable<DashboardConfig['rows']>>((acc, metric, index) => {
       const rowIndex = Math.floor(index / 4);
       const selectedRow = acc[rowIndex];
       if (!selectedRow) {
@@ -45,7 +44,7 @@ export const normalizeNewMetricsIntoGrid = (
   // First, remove any metrics that are no longer in the metricsRecord
   if (numberOfRemovedMetrics > 0) {
     newGrid = grid
-      .map((row): BusterResizeableGridRow | null => {
+      .map((row) => {
         const newItems = row.items.filter((item) => metrics.some((m) => m.id === item.id));
         if (newItems.length === 0) return null;
 
@@ -58,7 +57,7 @@ export const normalizeNewMetricsIntoGrid = (
           columnSizes
         };
       })
-      .filter((row): row is BusterResizeableGridRow => row !== null);
+      .filter((row) => row !== null);
   }
 
   // Then, add new metrics

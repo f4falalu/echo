@@ -1,7 +1,6 @@
 import { normalizeNewMetricsIntoGrid } from './normalizeMetric';
 import { DashboardConfig } from '@/api/asset_interfaces/dashboard';
 import { BusterMetric } from '@/api/asset_interfaces/metric';
-import { BusterResizeableGridRow } from '@/components/ui/grid/interfaces';
 import {
   NUMBER_OF_COLUMNS,
   MAX_NUMBER_OF_ITEMS,
@@ -12,7 +11,7 @@ import { createMockMetric } from '@/mocks/metric';
 describe('normalizeNewMetricsIntoGrid', () => {
   const mockMetric = (id: string): BusterMetric => createMockMetric(id);
 
-  const createMockRow = (itemIds: string[]): BusterResizeableGridRow => ({
+  const createMockRow = (itemIds: string[]): NonNullable<DashboardConfig['rows']>[0] => ({
     id: `row-${itemIds[0]}`,
     columnSizes: Array(itemIds.length).fill(NUMBER_OF_COLUMNS / itemIds.length),
     rowHeight: MIN_ROW_HEIGHT,

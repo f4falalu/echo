@@ -1,12 +1,9 @@
 import { hasUnmappedMetrics, hasRemovedMetrics } from './hasMappedMetrics';
 import { DashboardConfig } from '@/api/asset_interfaces/dashboard';
-import { BusterMetric } from '@/api/asset_interfaces/metric';
-import { BusterResizeableGridRow } from '@/components/ui/grid/interfaces';
-import { VerificationStatus } from '@/api/asset_interfaces/share';
 import { createMockMetric } from '@/mocks/metric';
 import { NUMBER_OF_COLUMNS } from '@/components/ui/grid/helpers';
 
-const createMockRow = (itemIds: string[]): BusterResizeableGridRow => ({
+const createMockRow = (itemIds: string[]): NonNullable<DashboardConfig['rows']>[0] => ({
   id: `row-${itemIds[0]}`,
   columnSizes: Array(itemIds.length).fill(NUMBER_OF_COLUMNS / itemIds.length),
   items: itemIds.map((id) => ({ id }))
@@ -70,7 +67,7 @@ describe('hasRemovedMetrics', () => {
       '3': mockMetric3
     };
 
-    const configRows: BusterResizeableGridRow[] = [createMockRow(['1', '2']), createMockRow(['3'])];
+    const configRows = [createMockRow(['1', '2']), createMockRow(['3'])];
 
     expect(hasRemovedMetrics(metrics, configRows)).toBe(false);
   });
@@ -81,7 +78,7 @@ describe('hasRemovedMetrics', () => {
       '2': mockMetric2
     };
 
-    const configRows: BusterResizeableGridRow[] = [createMockRow(['1', '2', '3'])];
+    const configRows = [createMockRow(['1', '2', '3'])];
 
     expect(hasRemovedMetrics(metrics, configRows)).toBe(true);
   });
@@ -93,7 +90,7 @@ describe('hasRemovedMetrics', () => {
       '3': mockMetric3
     };
 
-    const configRows: BusterResizeableGridRow[] = [createMockRow(['1', '2'])];
+    const configRows = [createMockRow(['1', '2'])];
 
     expect(hasRemovedMetrics(metrics, configRows)).toBe(true);
   });
@@ -104,14 +101,14 @@ describe('hasRemovedMetrics', () => {
       '2': mockMetric2
     };
 
-    const configRows: BusterResizeableGridRow[] = [createMockRow(['3', '4'])];
+    const configRows = [createMockRow(['3', '4'])];
 
     expect(hasRemovedMetrics(metrics, configRows)).toBe(true);
   });
 
   it('should return false when both metrics and grid rows are empty', () => {
     const metrics = {};
-    const configRows: BusterResizeableGridRow[] = [];
+    const configRows: NonNullable<DashboardConfig['rows']> = [];
 
     expect(hasRemovedMetrics(metrics, configRows)).toBe(false);
   });

@@ -20,14 +20,6 @@ const createColumnMetaData = (
   type: simple_type === 'text' ? 'text' : simple_type === 'number' ? 'float' : 'date'
 });
 
-// Mock the createDefaultChartConfig function
-jest.mock('@/lib/messageAutoChartHandler', () => ({
-  createDefaultChartConfig: jest.fn((props) => ({
-    ...DEFAULT_CHART_CONFIG,
-    ...props.chart_config
-  }))
-}));
-
 describe('didColumnDataChange', () => {
   it('should return true when either input is undefined', () => {
     const columnData: ColumnMetaData[] = [createColumnMetaData('col1', 'text')];
@@ -71,10 +63,6 @@ describe('didColumnDataChange', () => {
 });
 
 describe('simplifyChatConfigForSQLChange', () => {
-  beforeEach(() => {
-    (createDefaultChartConfig as jest.Mock).mockClear();
-  });
-
   it('should handle empty metadata', () => {
     const chartConfig: Partial<IBusterMetricChartConfig> = {
       ...DEFAULT_CHART_CONFIG,
