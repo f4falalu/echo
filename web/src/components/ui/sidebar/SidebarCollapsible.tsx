@@ -21,6 +21,7 @@ import {
   DragStartEvent,
   DragEndEvent
 } from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   arrayMove,
   SortableContext,
@@ -30,6 +31,8 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useMemoizedFn } from '@/hooks';
+
+const modifiers = [restrictToVerticalAxis];
 
 interface SidebarTriggerProps {
   label: string;
@@ -181,7 +184,8 @@ export const SidebarCollapsible: React.FC<
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}>
+                onDragEnd={handleDragEnd}
+                modifiers={modifiers}>
                 <SortableContext
                   items={sortedItems.map((item) => item.id)}
                   strategy={verticalListSortingStrategy}>

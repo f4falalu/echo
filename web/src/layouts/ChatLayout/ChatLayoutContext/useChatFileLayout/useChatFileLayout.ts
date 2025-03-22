@@ -1,3 +1,5 @@
+'use client';
+
 import { FileType } from '@/api/asset_interfaces';
 import { useMemo, useState } from 'react';
 import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './interfaces';

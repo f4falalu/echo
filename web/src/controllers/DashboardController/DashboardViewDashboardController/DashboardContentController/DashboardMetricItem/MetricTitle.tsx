@@ -45,7 +45,7 @@ export const MetricTitle: React.FC<{
     }, [title, useEllipsis]);
 
     return (
-      <Link className="flex px-4" href={metricLink}>
+      <Link className="flex px-4" href={metricLink} prefetch>
         <div
           {...attributes}
           {...listeners}

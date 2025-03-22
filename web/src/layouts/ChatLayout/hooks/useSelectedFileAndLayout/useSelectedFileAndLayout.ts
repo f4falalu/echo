@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import type { ChatLayoutView, SelectedFile } from '../../interfaces';
 import { usePathname } from 'next/navigation';
 import { parsePathnameSegments } from './parsePathnameSegments';
@@ -72,6 +72,10 @@ export const useSelectedFileAndLayout = ({
       animateOpenSplitter(isSameAsCurrentFile ? 'left' : 'both');
     });
   });
+
+  useEffect(() => {
+    setSelectedFile(initializeSelectedFile(params));
+  }, [Object.keys(params).join('')]);
 
   return useMemo(
     () => ({
