@@ -134,8 +134,8 @@ export const useUpdateUserFavorites = () => {
     onMutate: (params) => {
       queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, (prev) => {
         return prev?.filter((fav, index) => {
-          const id = fav.id || fav.collection_id;
-          const favorite = (prev || []).find((f) => f.id === id || f.collection_id === id)!;
+          const id = fav.id;
+          const favorite = (prev || []).find((f) => f.id === id)!;
           return { ...favorite, index };
         });
       });

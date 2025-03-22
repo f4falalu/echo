@@ -72,23 +72,19 @@ const CollectionsButton: React.FC<{
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     setSelectedCollections(collectionIds);
-    console.warn('TODO: save to collection', collectionIds);
-    const allSaves: Promise<void>[] = selectedRowKeys.map((metricId) => {
-      return saveMetricToCollection({
-        metricId,
-        collectionIds
-      });
+    await saveMetricToCollection({
+      metricIds: selectedRowKeys,
+      collectionIds
     });
-    await Promise.all(allSaves);
     openInfoMessage('Metrics saved to collections');
   });
 
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
     setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
-    const allRemoves: Promise<void>[] = selectedRowKeys.map((metricId) => {
-      return removeMetricFromCollection({ metricId, collectionIds: [collectionId] });
+    await removeMetricFromCollection({
+      metricIds: selectedRowKeys,
+      collectionIds: [collectionId]
     });
-    await Promise.all(allRemoves);
     openInfoMessage('Metrics removed from collections');
   });
 

@@ -78,7 +78,7 @@ export const useFavoriteStar = ({
   const { mutateAsync: addItemToFavorite } = useAddUserFavorite();
 
   const isFavorited = useMemo(() => {
-    return userFavorites?.some((favorite) => favorite.id === id || favorite.collection_id === id);
+    return userFavorites?.some((favorite) => favorite.id === id);
   }, [userFavorites, id]);
 
   const onFavoriteClick = useMemoizedFn(async (e?: React.MouseEvent<HTMLButtonElement>) => {

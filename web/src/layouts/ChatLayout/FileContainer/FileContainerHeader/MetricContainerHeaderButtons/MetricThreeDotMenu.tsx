@@ -38,7 +38,7 @@ import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { useSaveToDashboardDropdownContent } from '@/components/features/dropdowns/SaveToDashboardDropdown';
 import { useMemoizedFn } from '@/hooks';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
-import { ShareAssetType, ShareRole, VerificationStatus } from '@/api/asset_interfaces/share';
+import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces/share';
 import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/StatusDropdownContent';
 import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
 import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
@@ -214,14 +214,17 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     await saveMetricToCollection({
-      metricId,
+      metricIds: [metricId],
       collectionIds
     });
     openInfoMessage('Metrics saved to collections');
   });
 
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
-    await removeMetricFromCollection({ metricId, collectionIds: [collectionId] });
+    await removeMetricFromCollection({
+      metricIds: [metricId],
+      collectionIds: [collectionId]
+    });
     openInfoMessage('Metrics removed from collections');
   });
 

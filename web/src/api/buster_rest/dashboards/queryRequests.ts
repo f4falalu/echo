@@ -204,13 +204,13 @@ export const useAddDashboardToCollection = () => {
   const queryClient = useQueryClient();
   const { mutateAsync: addAssetToCollection } = useAddAssetToCollection();
   const mutationFn = useMemoizedFn(
-    async (variables: { dashboardId: string; collectionIds: string[] }) => {
-      const { dashboardId, collectionIds } = variables;
+    async (variables: { dashboardIds: string[]; collectionIds: string[] }) => {
+      const { dashboardIds, collectionIds } = variables;
       return await Promise.all(
         collectionIds.map((collectionId) =>
           addAssetToCollection({
-            id: dashboardId,
-            assets: [{ id: collectionId, type: 'dashboard' }]
+            id: collectionId,
+            assets: dashboardIds.map((dashboardId) => ({ id: dashboardId, type: 'dashboard' }))
           })
         )
       );
@@ -233,13 +233,14 @@ export const useRemoveDashboardFromCollection = () => {
   const { mutateAsync: removeAssetFromCollection } = useRemoveAssetFromCollection();
 
   const mutationFn = useMemoizedFn(
-    async (variables: { dashboardId: string; collectionIds: string[] }) => {
-      const { dashboardId, collectionIds } = variables;
+    async (variables: { dashboardIds: string[]; collectionIds: string[] }) => {
+      const { dashboardIds, collectionIds } = variables;
+
       return await Promise.all(
         collectionIds.map((collectionId) =>
           removeAssetFromCollection({
-            id: dashboardId,
-            assets: [{ id: collectionId, type: 'dashboard' }]
+            id: collectionId,
+            assets: dashboardIds.map((dashboardId) => ({ id: dashboardId, type: 'dashboard' }))
           })
         )
       );
@@ -247,15 +248,6 @@ export const useRemoveDashboardFromCollection = () => {
   );
   return useMutation({
     mutationFn,
-    onMutate: (variables) => {
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey;
-      queryClient.setQueryData(queryKey, (previousData) => {
-        return create(previousData!, (draft) => {
-          draft.collections =
-            draft.collections?.filter((t) => !variables.collectionIds.includes(t.id)) || [];
-        });
-      });
-    },
     onSuccess: (_, { collectionIds }) => {
       queryClient.invalidateQueries({
         queryKey: collectionIds.map(

@@ -51,7 +51,7 @@ export const NewCollectionModal: React.FC<{
   const memoizedFooter = useMemo(() => {
     return {
       primaryButton: {
-        text: 'Create a collection',
+        text: 'Create collection',
         onClick: onCreateNewCollection,
         loading: isCreatingCollection,
         disabled: disableSubmit

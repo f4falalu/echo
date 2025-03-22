@@ -23,27 +23,20 @@ export const SaveDashboardToCollectionButton: React.FC<{
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     setSelectedCollections(collectionIds);
-    await Promise.all(
-      dashboardIds.map((dashboardId) => {
-        return addDashboardToCollection({
-          dashboardId,
-          collectionIds: collectionIds
-        });
-      })
-    );
+    await addDashboardToCollection({
+      dashboardIds,
+      collectionIds
+    });
     openInfoMessage('Dashboards saved to collections');
   });
 
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
     setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
-    await Promise.all(
-      dashboardIds.map((dashboardId) => {
-        return removeDashboardFromCollection({
-          dashboardId,
-          collectionIds: [collectionId]
-        });
-      })
-    );
+
+    await removeDashboardFromCollection({
+      dashboardIds,
+      collectionIds: [collectionId]
+    });
     openInfoMessage('Dashboards removed from collections');
   });
 

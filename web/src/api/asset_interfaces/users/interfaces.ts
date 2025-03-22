@@ -33,14 +33,6 @@ export interface BusterUserFavorite {
   asset_type: ShareAssetType;
   index?: number;
   name: string;
-  //collections - TODO: type this better
-  collection_name?: string;
-  collection_id?: string;
-  assets?: {
-    id: string;
-    asset_type: ShareAssetType;
-    name: string;
-  }[];
 }
 
 export type BusterUserFavoriteAsset = {

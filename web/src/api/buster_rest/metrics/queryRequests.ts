@@ -176,12 +176,12 @@ export const useSaveMetricToCollections = () => {
   const { mutateAsync: addAssetToCollection } = useAddAssetToCollection();
 
   const saveMetricToCollection = useMemoizedFn(
-    async ({ metricId, collectionIds }: { metricId: string; collectionIds: string[] }) => {
+    async ({ metricIds, collectionIds }: { metricIds: string[]; collectionIds: string[] }) => {
       await Promise.all(
         collectionIds.map((collectionId) =>
           addAssetToCollection({
-            id: metricId,
-            assets: [{ id: collectionId, type: 'metric' }]
+            id: collectionId,
+            assets: metricIds.map((metricId) => ({ id: metricId, type: 'metric' }))
           })
         )
       );
@@ -192,8 +192,7 @@ export const useSaveMetricToCollections = () => {
     mutationFn: saveMetricToCollection,
     onSuccess: (_, { collectionIds }) => {
       const collectionIsInFavorites = userFavorites.some((f) => {
-        const searchId = f.collection_id || f.id;
-        return collectionIds.includes(searchId);
+        return collectionIds.includes(f.id);
       });
       if (collectionIsInFavorites) refreshFavoritesList();
       queryClient.invalidateQueries({
@@ -211,12 +210,12 @@ export const useRemoveMetricFromCollection = () => {
   const queryClient = useQueryClient();
 
   const removeMetricFromCollection = useMemoizedFn(
-    async ({ metricId, collectionIds }: { metricId: string; collectionIds: string[] }) => {
+    async ({ metricIds, collectionIds }: { metricIds: string[]; collectionIds: string[] }) => {
       await Promise.all(
         collectionIds.map((collectionId) =>
           removeAssetFromCollection({
-            id: metricId,
-            assets: [{ id: collectionId, type: 'metric' }]
+            id: collectionId,
+            assets: metricIds.map((metricId) => ({ id: metricId, type: 'metric' }))
           })
         )
       );
@@ -225,17 +224,10 @@ export const useRemoveMetricFromCollection = () => {
 
   return useMutation({
     mutationFn: removeMetricFromCollection,
-    onSuccess: (_, { collectionIds, metricId }) => {
-      const currentMetric = queryClient.getQueryData(
-        metricsQueryKeys.metricsGetMetric(metricId).queryKey
-      );
-      const collectionIsInFavorites =
-        currentMetric &&
-        userFavorites.some((f) => {
-          const searchId = f.collection_id || f.id;
-          return currentMetric.collections.some((c) => c.id === searchId);
-        });
-
+    onSuccess: (_, { collectionIds, metricIds }) => {
+      const collectionIsInFavorites = userFavorites.some((f) => {
+        return collectionIds.includes(f.id);
+      });
       if (collectionIsInFavorites) refreshFavoritesList();
 
       queryClient.invalidateQueries({
