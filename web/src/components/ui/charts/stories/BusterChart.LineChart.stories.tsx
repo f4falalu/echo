@@ -99,7 +99,7 @@ export const CategoricalXNumericY: Story = {
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
       category: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string'
       } satisfies IColumnLabelFormat,
       value: {
@@ -272,7 +272,7 @@ export const WithCategory: Story = {
         currency: 'USD'
       } satisfies IColumnLabelFormat,
       region: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string'
       } satisfies IColumnLabelFormat
     }
@@ -318,7 +318,7 @@ export const MultipleYAxesWithCategory: Story = {
         maximumFractionDigits: 1
       } satisfies IColumnLabelFormat,
       product: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string'
       } satisfies IColumnLabelFormat
     }

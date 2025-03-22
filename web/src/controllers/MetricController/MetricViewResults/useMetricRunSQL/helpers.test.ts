@@ -4,9 +4,11 @@ import type {
   ColumnMetaData,
   IBusterMetricChartConfig
 } from '../../../../api/asset_interfaces';
-import { DEFAULT_CHART_CONFIG } from '../../../../api/asset_interfaces';
+import {
+  DEFAULT_CHART_CONFIG,
+  DEFAULT_COLUMN_LABEL_FORMAT
+} from '../../../../api/asset_interfaces';
 import type { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts';
-import { createDefaultChartConfig } from '@/lib/metrics/messageAutoChartHandler';
 
 const createColumnMetaData = (
   name: string,
@@ -84,7 +86,7 @@ describe('simplifyChatConfigForSQLChange', () => {
   it('should preserve column formats when types have not changed', () => {
     const columnLabelFormats: Record<string, Required<IColumnLabelFormat>> = {
       col1: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string',
         displayName: '',
         numberSeparatorStyle: null,
@@ -104,7 +106,7 @@ describe('simplifyChatConfigForSQLChange', () => {
       }
     };
 
-    const chartConfig: Partial<IBusterMetricChartConfig> = {
+    const chartConfig = {
       ...DEFAULT_CHART_CONFIG,
       columnLabelFormats
     };
@@ -115,17 +117,15 @@ describe('simplifyChatConfigForSQLChange', () => {
       row_count: 1
     };
 
-    const result = simplifyChatConfigForSQLChange(
-      chartConfig as IBusterMetricChartConfig,
-      data_metadata
-    );
+    const result = simplifyChatConfigForSQLChange(chartConfig, data_metadata);
+    expect(result.columnLabelFormats.col1.columnType).toEqual('text');
     expect(result.columnLabelFormats?.col1).toEqual(columnLabelFormats.col1);
   });
 
   it('should reset column format when type has changed', () => {
     const columnLabelFormats: Record<string, Required<IColumnLabelFormat>> = {
       col1: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string',
         displayName: '',
         numberSeparatorStyle: null,
@@ -160,28 +160,10 @@ describe('simplifyChatConfigForSQLChange', () => {
       chartConfig as IBusterMetricChartConfig,
       data_metadata
     );
-    expect(result.columnLabelFormats?.col1).toEqual({});
-  });
-
-  it('should call createDefaultChartConfig with correct parameters', () => {
-    const chartConfig: Partial<IBusterMetricChartConfig> = {
-      ...DEFAULT_CHART_CONFIG,
-      columnLabelFormats: {}
-    };
-
-    const data_metadata: IBusterMetric['data_metadata'] = {
-      column_count: 1,
-      column_metadata: [createColumnMetaData('col1', 'text')],
-      row_count: 1
-    };
-
-    simplifyChatConfigForSQLChange(chartConfig as IBusterMetricChartConfig, data_metadata);
-
-    expect(createDefaultChartConfig).toHaveBeenCalledWith({
-      chart_config: {
-        columnLabelFormats: { col1: {} }
-      },
-      data_metadata
+    expect(result.columnLabelFormats?.col1).toEqual({
+      ...DEFAULT_COLUMN_LABEL_FORMAT,
+      columnType: 'number',
+      style: 'number'
     });
   });
 });

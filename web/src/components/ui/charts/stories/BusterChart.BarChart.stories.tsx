@@ -28,7 +28,7 @@ export const Default: Story = {
     },
     columnLabelFormats: {
       category: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string'
       } satisfies IColumnLabelFormat,
       sales: {
@@ -62,7 +62,7 @@ export const MultipleYAxis: Story = {
     } satisfies BarAndLineAxis,
     columnLabelFormats: {
       category: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string'
       } satisfies IColumnLabelFormat,
       sales: {
@@ -104,11 +104,11 @@ export const WithCategory: Story = {
     },
     columnLabelFormats: {
       region: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string'
       } satisfies IColumnLabelFormat,
       product: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string'
       } satisfies IColumnLabelFormat,
       sales: {
@@ -176,7 +176,7 @@ export const HorizontalBar: Story = {
     },
     columnLabelFormats: {
       category: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string'
       } satisfies IColumnLabelFormat,
       sales: {
@@ -221,7 +221,7 @@ export const WithDataLabels: Story = {
     },
     columnLabelFormats: {
       category: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string'
       } satisfies IColumnLabelFormat,
       sales: {

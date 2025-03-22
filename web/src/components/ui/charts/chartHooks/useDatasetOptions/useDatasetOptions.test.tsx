@@ -34,7 +34,7 @@ describe('useDatasetOptions - bar chart - all values are present', () => {
         replaceMissingDataWith: 0
       } as IColumnLabelFormat,
       category: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string',
         replaceMissingDataWith: ''
       } as IColumnLabelFormat
@@ -119,7 +119,7 @@ describe('useDatasetOptions - bar chart ', () => {
         replaceMissingDataWith: 0
       } as IColumnLabelFormat,
       category: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string',
         replaceMissingDataWith: ''
       } as IColumnLabelFormat
@@ -193,7 +193,7 @@ describe('useDatasetOptions - bar chart - some numerical values are null', () =>
         replaceMissingDataWith: 0
       } as IColumnLabelFormat,
       category: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string',
         replaceMissingDataWith: ''
       } as IColumnLabelFormat
@@ -371,7 +371,7 @@ describe('useDatasetOptions - bar chart - some string values are null', () => {
         replaceMissingDataWith: 0
       } as IColumnLabelFormat,
       category: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string',
         replaceMissingDataWith: ''
       } as IColumnLabelFormat

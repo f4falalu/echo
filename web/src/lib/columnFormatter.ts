@@ -15,7 +15,7 @@ const DEFAULT_DATE_FORMAT = 'll';
 export const formatLabel = (
   textProp: string | number | Date | null | undefined,
   props: ColumnLabelFormat = {
-    columnType: 'string',
+    columnType: 'text',
     style: 'string'
   },
   useKeyFormatter: boolean = false

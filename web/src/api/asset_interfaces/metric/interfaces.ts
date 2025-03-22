@@ -88,4 +88,4 @@ export type ColumnMetaData = {
 
 export type IDataResult = Record<string, null | string | number>[] | null;
 
-export type SimplifiedColumnType = 'number' | 'string' | 'date';
+export type SimplifiedColumnType = 'number' | 'text' | 'date';

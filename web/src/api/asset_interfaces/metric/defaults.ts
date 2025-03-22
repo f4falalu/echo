@@ -103,7 +103,7 @@ export const DEFAULT_COLUMN_SETTINGS: Required<ColumnSettings> = {
 export const DEFAULT_COLUMN_LABEL_FORMAT: Required<ColumnLabelFormat> = {
   style: 'string',
   compactNumbers: false,
-  columnType: 'string',
+  columnType: 'text',
   displayName: '',
   numberSeparatorStyle: ',',
   minimumFractionDigits: 0,

@@ -1,4 +1,5 @@
 import {
+  ChartType,
   type DataMetadata,
   DEFAULT_CHART_CONFIG,
   type IBusterMetricChartConfig
@@ -7,7 +8,10 @@ import { createDefaultChartConfig } from '.';
 
 describe('createDefaultChartConfig', () => {
   it('should create a default chart config', () => {
-    const message = createTestMessage(DEFAULT_CHART_CONFIG);
+    const message = {
+      chart_config: DEFAULT_CHART_CONFIG,
+      data_metadata: TEST_DATA_METADATA
+    };
 
     const config = createDefaultChartConfig(message);
 
@@ -24,7 +28,7 @@ describe('createDefaultChartConfig', () => {
         '#31FCB4',
         '#E83562'
       ],
-      selectedChartType: 'table',
+      selectedChartType: ChartType.Table,
       yAxisShowAxisLabel: true,
       yAxisShowAxisTitle: true,
       yAxisAxisTitle: null,
@@ -91,7 +95,7 @@ describe('createDefaultChartConfig', () => {
         test: {
           style: 'string',
           compactNumbers: false,
-          columnType: 'string',
+          columnType: 'text',
           displayName: '',
           numberSeparatorStyle: ',',
           minimumFractionDigits: 0,
@@ -108,7 +112,7 @@ describe('createDefaultChartConfig', () => {
           makeLabelHumanReadable: true
         }
       }
-    };
+    } satisfies IBusterMetricChartConfig;
 
     expect(config).toEqual(expected);
   });
@@ -127,13 +131,4 @@ const TEST_DATA_METADATA: DataMetadata = {
     }
   ],
   row_count: 10
-};
-
-const TEST_MESSAGE = {
-  chart_config: DEFAULT_CHART_CONFIG,
-  data_metadata: TEST_DATA_METADATA
-};
-
-const createTestMessage = (chartConfig: IBusterMetricChartConfig) => {
-  return { ...TEST_MESSAGE };
 };

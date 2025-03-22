@@ -124,33 +124,33 @@ describe('formatLabel', () => {
       ).toBe('null');
     });
 
-    // it('should handle replaceMissingDataWith with empty string', () => {
-    //   expect(
-    //     formatLabel(undefined, {
-    //       columnType: 'number',
-    //       style: 'number',
-    //       replaceMissingDataWith: ''
-    //     })
-    //   ).toBe('');
-    // });
+    it('should handle replaceMissingDataWith with empty string', () => {
+      expect(
+        formatLabel(undefined, {
+          columnType: 'number',
+          style: 'number',
+          replaceMissingDataWith: ''
+        })
+      ).toBe('');
+    });
   });
 
   describe('string formatting', () => {
     it('should format strings', () => {
-      expect(formatLabel('test_string', { columnType: 'string', style: 'string' })).toBe(
+      expect(formatLabel('test_string', { columnType: 'text', style: 'string' })).toBe(
         'test_string'
       );
     });
     it('should handle null/undefined strings', () => {
-      expect(formatLabel(null, { columnType: 'string', style: 'string' })).toBe('null');
-      expect(formatLabel(undefined, { columnType: 'string', style: 'string' })).toBe('null');
+      expect(formatLabel(null, { columnType: 'text', style: 'string' })).toBe('null');
+      expect(formatLabel(undefined, { columnType: 'text', style: 'string' })).toBe('null');
     });
     it('should make labels human readable when specified', () => {
       expect(
         formatLabel(
           'test_string',
           {
-            columnType: 'string',
+            columnType: 'text',
             style: 'string',
             makeLabelHumanReadable: true
           },
@@ -160,29 +160,29 @@ describe('formatLabel', () => {
     });
 
     it('should handle undefined strings', () => {
-      expect(formatLabel(undefined, { columnType: 'string', style: 'string' })).toBe('null');
+      expect(formatLabel(undefined, { columnType: 'text', style: 'string' })).toBe('null');
     });
 
     it('should handle null strings', () => {
-      expect(formatLabel(null, { columnType: 'string', style: 'string' })).toBe('null');
+      expect(formatLabel(null, { columnType: 'text', style: 'string' })).toBe('null');
     });
 
     it('should handle empty strings', () => {
-      expect(formatLabel('', { columnType: 'string', style: 'string' })).toBe('');
+      expect(formatLabel('', { columnType: 'text', style: 'string' })).toBe('');
     });
 
     it('should handle null strings', () => {
-      expect(formatLabel(null, { columnType: 'string', style: 'number' })).toBe('null');
+      expect(formatLabel(null, { columnType: 'text', style: 'number' })).toBe('null');
     });
 
     it('should handle empty strings', () => {
-      expect(formatLabel('', { columnType: 'string', style: 'number' })).toBe('');
+      expect(formatLabel('', { columnType: 'text', style: 'number' })).toBe('');
     });
 
     it('should handle replaceMissingDataWith for null values with number', () => {
       expect(
         formatLabel(null, {
-          columnType: 'string',
+          columnType: 'text',
           style: 'string',
           replaceMissingDataWith: 0
         })
@@ -192,7 +192,7 @@ describe('formatLabel', () => {
     it('should handle replaceMissingDataWith for undefined values with string', () => {
       expect(
         formatLabel(undefined, {
-          columnType: 'string',
+          columnType: 'text',
           style: 'string',
           replaceMissingDataWith: 'N/A'
         })
@@ -202,7 +202,7 @@ describe('formatLabel', () => {
     it('should handle replaceMissingDataWith for null values with empty string', () => {
       expect(
         formatLabel(null, {
-          columnType: 'string',
+          columnType: 'text',
           style: 'string',
           replaceMissingDataWith: ''
         })
@@ -212,7 +212,7 @@ describe('formatLabel', () => {
     it('should handle replaceMissingDataWith for null values with null', () => {
       expect(
         formatLabel(null, {
-          columnType: 'string',
+          columnType: 'text',
           style: 'string',
           replaceMissingDataWith: null
         })

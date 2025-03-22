@@ -31,12 +31,12 @@ export const simplifyColumnType = (type: string): SimplifiedColumnType => {
   if (type === 'number' || NUMBER_TYPES.includes(type as ColumnDataType)) {
     return 'number';
   } else if (type === 'text' || TEXT_TYPES.includes(type as ColumnDataType)) {
-    return 'string';
+    return 'text';
   } else if (type === 'date' || DATE_TYPES.includes(type as ColumnDataType)) {
     return 'date';
   }
 
-  return 'string';
+  return 'text';
 };
 
 export const isNumericColumnType = (type: SimplifiedColumnType) => {

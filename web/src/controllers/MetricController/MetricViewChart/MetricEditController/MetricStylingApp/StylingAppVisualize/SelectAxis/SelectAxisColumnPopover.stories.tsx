@@ -43,7 +43,7 @@ type Story = StoryObj<typeof SelectAxisColumnPopover>;
 
 const mockProps: SelectAxisColumnPopoverProps = {
   columnLabelFormat: {
-    columnType: 'string' as SimplifiedColumnType,
+    columnType: 'text',
     style: 'currency' as const,
     displayName: 'Test Column',
     numberSeparatorStyle: ',' as const,
@@ -60,7 +60,7 @@ const mockProps: SelectAxisColumnPopoverProps = {
     replaceMissingDataWith: null,
     makeLabelHumanReadable: true,
     compactNumbers: false
-  } as IColumnLabelFormat,
+  } satisfies IColumnLabelFormat,
   columnSetting: {
     showDataLabels: false,
     showDataLabelsAsPercentage: false,
@@ -70,7 +70,7 @@ const mockProps: SelectAxisColumnPopoverProps = {
     lineType: 'normal' as const,
     lineSymbolSize: 0,
     barRoundness: 8
-  } as IBusterMetricChartConfig['columnSettings'][string],
+  } satisfies IBusterMetricChartConfig['columnSettings'][string],
   id: 'test-id',
   selectedChartType: ChartType.Bar,
   barGroupType: 'group',

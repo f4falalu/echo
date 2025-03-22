@@ -44,7 +44,7 @@ export const Default: Story = {
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat,
       category: {
-        columnType: 'string',
+        columnType: 'text',
         style: 'string'
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof ScatterChartData, IColumnLabelFormat>,

@@ -4,6 +4,7 @@ import {
   type IBusterMetricChartConfig
 } from '@/api/asset_interfaces/metric';
 import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
+import { create } from 'mutative';
 
 export const createDefaultColumnSettings = (
   existingColumnSettings: Record<string, ColumnSettings> | undefined,
@@ -11,11 +12,13 @@ export const createDefaultColumnSettings = (
 ): IBusterMetricChartConfig['columnSettings'] => {
   if (!columnsMetaData) return {};
 
-  return columnsMetaData.reduce<IBusterMetricChartConfig['columnSettings']>((acc, column) => {
-    acc[column.name] = {
-      ...DEFAULT_COLUMN_SETTINGS,
-      ...(existingColumnSettings?.[column.name] || {})
-    };
-    return acc;
-  }, {});
+  return create({} as IBusterMetricChartConfig['columnSettings'], (draft) => {
+    columnsMetaData.forEach((column) => {
+      draft[column.name] = create(DEFAULT_COLUMN_SETTINGS, (settingsDraft) => {
+        if (existingColumnSettings?.[column.name]) {
+          Object.assign(settingsDraft, existingColumnSettings[column.name]);
+        }
+      });
+    });
+  });
 };
