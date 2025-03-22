@@ -6,8 +6,9 @@ import { useMemoizedFn } from '@/hooks';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import Link from 'next/link';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { useRemoveMetricsFromDashboard } from '@/api/buster_rest/dashboards';
+import { cn } from '@/lib/utils';
 
 export const MetricTitle: React.FC<{
   title: BusterMetric['title'];
@@ -44,34 +45,25 @@ export const MetricTitle: React.FC<{
     }, [title, useEllipsis]);
 
     return (
-      <Link href={metricLink}>
+      <Link className="flex px-4" href={metricLink}>
         <div
           {...attributes}
           {...listeners}
-          className={'group flex cursor-pointer flex-col space-y-0.5 px-4'}>
-          <div className="flex w-full justify-between space-x-0.5">
+          className={'flex cursor-pointer flex-col space-y-0.5 overflow-hidden'}>
+          <div className="flex w-full justify-between space-x-0.5 overflow-hidden">
             <Title
               {...titleConfig}
               as="h4"
-              className="text-md! max-w-[calc(100%_-_22px)] whitespace-nowrap"
+              truncate
+              className="text-md! whitespace-nowrap"
               style={{ fontSize: '14px' }}>
               {`${title}`}
             </Title>
-
-            {isDragOverlay || readOnly ? (
-              <></>
-            ) : (
-              <ThreeDotMenu
-                className="absolute top-[10px] right-[12px] opacity-0 transition group-hover:opacity-100"
-                dashboardId={dashboardId}
-                metricId={metricId}
-              />
-            )}
           </div>
 
           <div className="flex w-full items-center overflow-hidden">
             <Text
-              className={`w-full pr-2 ${timeFrame || description ? 'visible' : 'hidden'}`}
+              className={`w-full ${timeFrame || description ? 'visible' : 'hidden'}`}
               size="sm"
               variant="secondary"
               truncate={true}>
@@ -83,6 +75,12 @@ export const MetricTitle: React.FC<{
             </Text>
           </div>
         </div>
+
+        {isDragOverlay || readOnly ? (
+          <></>
+        ) : (
+          <ThreeDotMenu className="" dashboardId={dashboardId} metricId={metricId} />
+        )}
       </Link>
     );
   }
@@ -106,6 +104,7 @@ const ThreeDotMenu: React.FC<{
   metricId: string;
 }> = React.memo(({ dashboardId, metricId, className }) => {
   const { mutateAsync: removeMetricFromDashboard } = useRemoveMetricsFromDashboard();
+  const [isOpen, setIsOpen] = useState(false);
 
   const dropdownItems: DropdownItems = useMemo(
     () => [
@@ -134,10 +133,14 @@ const ThreeDotMenu: React.FC<{
   });
 
   return (
-    <div onClick={onClick} className={`w-[24px] ${className}`}>
-      <Dropdown items={dropdownItems} side="bottom">
-        <Button variant="ghost" prefix={<DotsVertical />} />
-      </Dropdown>
+    <div
+      onClick={onClick}
+      className={cn(`hidden w-8.5 rounded group-hover:block`, className, isOpen && 'block')}>
+      <div className="absolute right-1.5">
+        <Dropdown items={dropdownItems} side="bottom" onOpenChange={setIsOpen}>
+          <Button variant="ghost" className="bg-item-hover!" prefix={<DotsVertical />} />
+        </Dropdown>
+      </div>
     </div>
   );
 });

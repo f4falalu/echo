@@ -68,7 +68,9 @@ const DashboardMetricItemBase: React.FC<{
     <Card
       ref={conatinerRef}
       className={`metric-item flex h-full w-full flex-col overflow-auto ${className}`}>
-      <CardHeader size="small" className="hover:bg-item-hover border-b">
+      <CardHeader
+        size="small"
+        className="hover:bg-item-hover group h-12 justify-center overflow-hidden border-b p-0!">
         <MetricTitle
           title={metric?.title || ''}
           timeFrame={metric?.time_frame}
@@ -83,7 +85,6 @@ const DashboardMetricItemBase: React.FC<{
 
       <div
         className={cn(
-          //  'absolute bottom-0 left-0 right-0 top-[1px]',
           `h-full w-full overflow-hidden bg-transparent`,
           isDragOverlay ? 'pointer-events-none' : 'pointer-events-auto'
         )}>

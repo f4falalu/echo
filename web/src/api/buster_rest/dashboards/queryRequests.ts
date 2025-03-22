@@ -109,6 +109,14 @@ export const useUpdateDashboard = () => {
         });
         return newDashboardState!;
       });
+    },
+    onSuccess: (data, variables) => {
+      if (data) {
+        queryClient.setQueryData(
+          dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey,
+          data
+        );
+      }
     }
   });
 };
@@ -130,7 +138,6 @@ export const useUpdateDashboardConfig = () => {
         const newConfig = create(previousConfig!, (draft) => {
           Object.assign(draft, newDashboard);
         });
-        console.log('update', newConfig);
         return mutateAsync({
           id: newDashboard.id,
           config: newConfig
@@ -371,7 +378,6 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
           metricIds,
           dashboardResponse.dashboard.config
         );
-        console.log('add/remove', newConfig);
         return dashboardsUpdateDashboard({
           id: dashboardId,
           config: newConfig
@@ -385,9 +391,12 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
   return useMutation({
     mutationFn: addMetricToDashboard,
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey
-      });
+      if (data) {
+        queryClient.setQueryData(
+          dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey,
+          data
+        );
+      }
     }
   });
 };
@@ -416,9 +425,12 @@ export const useAddMetricsToDashboard = () => {
   return useMutation({
     mutationFn: addMetricToDashboard,
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey
-      });
+      if (data) {
+        queryClient.setQueryData(
+          dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey,
+          data
+        );
+      }
     }
   });
 };
@@ -442,15 +454,27 @@ export const useRemoveMetricsFromDashboard = () => {
         const dashboardResponse = await ensureDashboardConfig(dashboardId);
 
         if (dashboardResponse) {
+          const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
           const newConfig = removeMetricFromDashboardConfig(
             metricIds,
             dashboardResponse.dashboard.config
           );
-          await dashboardsUpdateDashboard({
+          queryClient.setQueryData(options.queryKey, (currentDashboard) => {
+            return create(currentDashboard!, (draft) => {
+              draft.dashboard.config = newConfig;
+            });
+          });
+        }
+
+        if (dashboardResponse) {
+          const newConfig = removeMetricFromDashboardConfig(
+            metricIds,
+            dashboardResponse.dashboard.config
+          );
+          return await dashboardsUpdateDashboard({
             id: dashboardId,
             config: newConfig
           });
-          return;
         }
 
         openErrorMessage('Failed to remove metrics from dashboard');
@@ -468,25 +492,14 @@ export const useRemoveMetricsFromDashboard = () => {
 
   return useMutation({
     mutationFn: removeMetricFromDashboard,
-    onMutate: async ({ metricIds, dashboardId }) => {
-      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
-      const currentDashboard = queryClient.getQueryData(options.queryKey);
-      if (currentDashboard) {
-        const newConfig = removeMetricFromDashboardConfig(
-          metricIds,
-          currentDashboard.dashboard.config
-        );
-        queryClient.setQueryData(options.queryKey, (currentDashboard) => {
-          return create(currentDashboard!, (draft) => {
-            draft.dashboard.config = newConfig;
-          });
-        });
-      }
-    },
+
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey
-      });
+      if (data) {
+        queryClient.setQueryData(
+          dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey,
+          data
+        );
+      }
     }
   });
 };

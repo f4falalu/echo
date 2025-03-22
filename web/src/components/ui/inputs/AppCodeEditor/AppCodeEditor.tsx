@@ -3,12 +3,13 @@
 //https://github.com/popsql/monaco-sql-languages/blob/main/example/src/App.js#L2
 //https://dtstack.github.io/monaco-sql-languages/
 
+import './MonacoWebWorker';
+
 import React, { forwardRef, useMemo } from 'react';
 import { CircleSpinnerLoaderContainer } from '../../loaders/CircleSpinnerLoaderContainer';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import type { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import './MonacoWebWorker';
 import { configureMonacoToUseYaml } from './yamlHelper';
 
 //import GithubLightTheme from 'monaco-themes/themes/Github Light.json';
@@ -103,10 +104,6 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
           (await import('./themes/tomorrow_night_theme')).default
         ]);
 
-        if (language === 'yaml') {
-          await configureMonacoToUseYaml(monaco);
-        }
-
         monaco.editor.defineTheme('github-light', GithubLightTheme);
         monaco.editor.defineTheme('night-owl', NightOwlTheme);
         editor.updateOptions({
@@ -118,6 +115,11 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
             onChangeEditorHeight(contentHeight);
           });
         }
+
+        if (language === 'yaml') {
+          await configureMonacoToUseYaml(monaco);
+        }
+
         onMount?.(editor, monaco);
 
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {

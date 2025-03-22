@@ -175,7 +175,7 @@ const ResizeRowHandle: React.FC<{
         />
         <div
           className={cn(
-            'pointer-events-all absolute right-0 left-0 z-50 h-[54px] opacity-0',
+            'pointer-events-none absolute right-0 left-0 z-50 h-[54px] opacity-0',
             top ? '-top-[36px]' : '-bottom-[15px]'
           )}
           ref={setNodeRef}

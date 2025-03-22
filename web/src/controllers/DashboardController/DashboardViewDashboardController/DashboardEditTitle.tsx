@@ -21,7 +21,7 @@ export const DashboardEditTitles: React.FC<{
     useMemoizedFn((value: React.ChangeEvent<HTMLInputElement>) => {
       if (!readOnly) onUpdateDashboard({ description: value.target.value, id: dashboardId });
     }),
-    { wait: 550 }
+    { wait: 650 }
   );
 
   return (

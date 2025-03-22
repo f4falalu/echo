@@ -84,9 +84,9 @@ export const DEFAULT_CHART_LAYOUT = {
   autoPadding: true,
   padding: {
     top: 14,
-    bottom: 0,
-    left: 4,
-    right: 4
+    bottom: 4,
+    left: 10,
+    right: 10
   }
 };
 
