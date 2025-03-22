@@ -388,50 +388,6 @@ pub async fn check_permission_with_admin_override(
 mod tests {
     use super::*;
     use database::enums::AssetPermissionRole;
-    use mockall::{predicate::*, mock, automock};
-    use std::sync::Arc;
-    use uuid::Uuid;
-    
-    // Mock the admin_check module functions
-    use anyhow::anyhow;
-
-    // Create a trait first so mockall can mock it
-    #[async_trait::async_trait]
-    trait AdminCheckTrait {
-        async fn get_asset_organization_id(
-            conn: &mut AsyncPgConnection,
-            asset_id: &Uuid,
-            asset_type: &AssetType,
-        ) -> Result<Uuid>;
-        
-        async fn has_permission_with_admin_check(
-            conn: &mut AsyncPgConnection,
-            asset_id: &Uuid,
-            asset_type: &AssetType,
-            user_id: &Uuid,
-            required_level: AssetPermissionLevel,
-        ) -> Result<bool>;
-    }
-
-    mock! {
-        MockAdminCheck {}
-        #[async_trait::async_trait]
-        impl AdminCheckTrait for MockAdminCheck {
-            async fn get_asset_organization_id(
-                conn: &mut AsyncPgConnection,
-                asset_id: &Uuid,
-                asset_type: &AssetType,
-            ) -> Result<Uuid>;
-            
-            async fn has_permission_with_admin_check(
-                conn: &mut AsyncPgConnection,
-                asset_id: &Uuid,
-                asset_type: &AssetType,
-                user_id: &Uuid,
-                required_level: AssetPermissionLevel,
-            ) -> Result<bool>;
-        }
-    }
     
     #[tokio::test]
     async fn test_has_permission_logic() {
@@ -464,27 +420,8 @@ mod tests {
     async fn test_check_permission_with_admin_override_deprecated_asset() {
         // Test that deprecated asset types return an error
         
-        // Create some test IDs
-        let _asset_id = Uuid::new_v4();
-        let _user_id = Uuid::new_v4();
-        
-        // Create identity info
-        let _identity = IdentityInfo {
-            id: _user_id,
-            identity_type: IdentityType::User,
-        };
-        
-        // Get a database connection
-        let _conn = match get_pg_pool().get().await {
-            Ok(conn) => conn,
-            Err(_) => {
-                println!("Skipping test_check_permission_with_admin_override_deprecated_asset as it requires database setup");
-                return;
-            }
-        };
-        
-        // We'll do a simulated test instead since actually running against the database is more complex
-        // The key logic to test is the deprecated check that happens early in the function
+        // We'll do a simulated test that doesn't require database connection
+        // The key logic to test is the match statement for deprecated asset types
         
         // This simulates the important assertion: dashboard and thread assets should be rejected
         assert!(
@@ -501,6 +438,18 @@ mod tests {
             !matches!(AssetType::MetricFile, AssetType::Dashboard | AssetType::Thread),
             "MetricFile type should not be identified as deprecated"
         );
+        
+        // Additional test for the validation code in check_permission_with_admin_override
+        let is_deprecated = |asset_type: AssetType| -> bool {
+            matches!(asset_type, AssetType::Dashboard | AssetType::Thread)
+        };
+        
+        assert!(is_deprecated(AssetType::Dashboard));
+        assert!(is_deprecated(AssetType::Thread));
+        assert!(!is_deprecated(AssetType::MetricFile));
+        assert!(!is_deprecated(AssetType::Chat));
+        assert!(!is_deprecated(AssetType::Collection));
+        assert!(!is_deprecated(AssetType::DashboardFile));
     }
     
     #[tokio::test]

@@ -2,11 +2,15 @@ use anyhow::{anyhow, Result};
 use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
     helpers::collections::fetch_collection,
+    pool::get_pg_pool,
 };
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use sharing::{
-    check_asset_permission::has_permission, create_asset_permission::create_share_by_email,
+    admin_check::has_permission_with_admin_check_cached,
+    create_asset_permission::create_share_by_email,
 };
+use sharing::types::AssetPermissionLevel;
 use tracing::info;
 use uuid::Uuid;
 
@@ -21,19 +25,19 @@ pub struct ShareRecipient {
 ///
 /// # Arguments
 /// * `collection_id` - The UUID of the collection to share
-/// * `user_id` - The UUID of the user making the request
+/// * `user` - The authenticated user making the request
 /// * `request` - List of recipients to share with, containing email and role
 ///
 /// # Returns
 /// * `Result<()>` - Success or error
 pub async fn create_collection_sharing_handler(
     collection_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     request: Vec<ShareRecipient>,
 ) -> Result<()> {
     info!(
         collection_id = %collection_id,
-        user_id = %user_id,
+        user_id = %user.id,
         "Creating sharing permissions for collection"
     );
 
@@ -43,12 +47,15 @@ pub async fn create_collection_sharing_handler(
     };
 
     // 2. Check if user has permission to share the collection (Owner or FullAccess)
-    let has_permission_result = has_permission(
-        *collection_id,
-        AssetType::Collection,
-        *user_id,
-        IdentityType::User,
-        AssetPermissionRole::FullAccess, // Owner role implicitly has FullAccess permissions
+    // Get a database connection
+    let mut conn = get_pg_pool().get().await?;
+    
+    let has_permission_result = has_permission_with_admin_check_cached(
+        &mut conn,
+        collection_id,
+        &AssetType::Collection,
+        user,
+        AssetPermissionLevel::FullAccess, // Need FullAccess to share
     )
     .await?;
 
@@ -71,7 +78,7 @@ pub async fn create_collection_sharing_handler(
             *collection_id,
             AssetType::Collection,
             role,
-            *user_id,
+            user.id,
         )
         .await
         {

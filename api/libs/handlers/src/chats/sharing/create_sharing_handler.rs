@@ -6,7 +6,9 @@ use database::{
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
-use sharing::{create_share_by_email, has_permission};
+use middleware::AuthenticatedUser;
+use sharing::{create_share_by_email, admin_check::has_permission_with_admin_check_cached};
+use sharing::types::AssetPermissionLevel;
 use tracing;
 use uuid::Uuid;
 
@@ -14,14 +16,14 @@ use uuid::Uuid;
 ///
 /// # Arguments
 /// * `chat_id` - The ID of the chat to share
-/// * `user_id` - The ID of the user creating the sharing permissions
+/// * `user` - The authenticated user creating the sharing permissions
 /// * `emails_and_roles` - List of (email, role) pairs representing the recipients and their access levels
 ///
 /// # Returns
 /// * `Result<()>` - Success or error
 pub async fn create_chat_sharing_handler(
     chat_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     emails_and_roles: Vec<(String, AssetPermissionRole)>,
 ) -> Result<()> {
     // 1. Validate the chat exists
@@ -32,12 +34,15 @@ pub async fn create_chat_sharing_handler(
     }
 
     // 2. Check if user has permission to share the chat (Owner or FullAccess)
-    let has_permission = has_permission(
-        *chat_id,
-        AssetType::Chat,
-        *user_id,
-        IdentityType::User,
-        AssetPermissionRole::FullAccess, // Owner role implicitly has FullAccess permissions
+    // Get a database connection
+    let mut conn = get_pg_pool().get().await?;
+    
+    let has_permission = has_permission_with_admin_check_cached(
+        &mut conn,
+        chat_id,
+        &AssetType::Chat,
+        user,
+        AssetPermissionLevel::FullAccess, // Need FullAccess to share
     )
     .await?;
 
@@ -47,7 +52,7 @@ pub async fn create_chat_sharing_handler(
 
     // 3. Process each email and create sharing permissions
     for (email, role) in emails_and_roles {
-        match create_share_by_email(&email, *chat_id, AssetType::Chat, role, *user_id).await {
+        match create_share_by_email(&email, *chat_id, AssetType::Chat, role, user.id).await {
             Ok(_) => {
                 tracing::info!(
                     "Created sharing permission for email: {} on chat: {} with role: {:?}",

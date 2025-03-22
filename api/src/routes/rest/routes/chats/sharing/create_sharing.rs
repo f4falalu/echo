@@ -42,7 +42,7 @@ pub async fn create_chat_sharing_rest_handler(
         .map(|recipient| (recipient.email, recipient.role))
         .collect();
 
-    match create_chat_sharing_handler(&id, &user.id, emails_and_roles).await {
+    match create_chat_sharing_handler(&id, &user, emails_and_roles).await {
         Ok(_) => Ok(ApiResponse::JsonData("Sharing permissions created successfully".to_string())),
         Err(e) => {
             tracing::error!("Error creating sharing permissions: {}", e);

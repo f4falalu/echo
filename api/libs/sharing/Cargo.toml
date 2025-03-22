@@ -16,6 +16,7 @@ diesel-async = { workspace = true }
 thiserror = { workspace = true }
 
 database = { path = "../database" }
+middleware = { path = "../middleware" }
 
 [dev-dependencies]
 tokio-test = { workspace = true }

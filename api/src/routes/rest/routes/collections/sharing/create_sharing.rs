@@ -19,7 +19,7 @@ pub async fn create_collection_sharing_rest_handler(
 ) -> Result<ApiResponse<String>, (StatusCode, String)> {
     info!("Processing POST request for collection sharing with ID: {}, user_id: {}", id, user.id);
 
-    match create_collection_sharing_handler(&id, &user.id, request).await {
+    match create_collection_sharing_handler(&id, &user, request).await {
         Ok(_) => Ok(ApiResponse::JsonData("Sharing permissions created successfully".to_string())),
         Err(e) => {
             tracing::error!("Error creating sharing permissions: {}", e);
