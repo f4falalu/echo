@@ -141,7 +141,7 @@ The following can be developed concurrently after the admin check is implemented
    - Required for: None
    - No conflicts with other asset types
 
-3. [Collection Permission Checks](api_collection_permission_checks.md) - **Can be developed concurrently** ⏳
+3. [Collection Permission Checks](api_collection_permission_checks.md) - **Can be developed k concurrently** ⏳
    - Dependencies: Asset Permission Admin Check
    - Required for: None
    - No conflicts with other asset types
@@ -151,7 +151,7 @@ The following can be developed concurrently after the admin check is implemented
    - Required for: None
    - No conflicts with other asset types
 
-5. [Metric Permission Checks](api_metric_permission_checks.md) - **Can be developed concurrently** ⏳
+5. [Metric Permission Checks](api_metric_permission_checks.md) - **Can be developed concurrently** 
    - Dependencies: Asset Permission Admin Check
    - Required for: None
    - No conflicts with other asset types

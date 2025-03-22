@@ -236,6 +236,13 @@ This is a Rust web server project built with Axum, focusing on high performance,
     - `ws/` - WebSocket handlers and related functionality
   - `database/` - Database models, schema, and connection management
   - `main.rs` - Application entry point and server setup
+- `libs/`
+  - `sql_analyzer/` - SQL parsing and analysis with lineage tracking
+    - `src/` - Library source code
+      - `lib.rs` - Main entry point and API
+      - `types.rs` - Data structures for query analysis
+      - `errors.rs` - Custom error types
+      - `utils.rs` - SQL parsing and analysis utilities
 
 ## Implementation
 When working with prds, you should always mark your progress off in them as you build.
