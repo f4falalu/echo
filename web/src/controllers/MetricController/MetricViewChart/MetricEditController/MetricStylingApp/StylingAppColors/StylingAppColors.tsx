@@ -6,13 +6,13 @@ import { CustomApp } from './CustomApp';
 import { PaletteApp } from './PaletteApp';
 import { ColorsApp } from './ColorsApp';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useUnmount } from '@/hooks';
 import { useUpdateMetricChart } from '@/context/Metrics';
 
 export const StylingAppColors: React.FC<{
   className: string;
   colors: IBusterMetricChartConfig['colors'];
-}> = ({ className, colors }) => {
+}> = React.memo(({ className, colors }) => {
   const [selectedTab, setSelectedTab] = useState<StylingAppColorsTab>(StylingAppColorsTab.Colors);
 
   const { onUpdateMetricChartConfig } = useUpdateMetricChart();
@@ -45,4 +45,6 @@ export const StylingAppColors: React.FC<{
       </div>
     </div>
   );
-};
+});
+
+StylingAppColors.displayName = 'StylingAppColors';

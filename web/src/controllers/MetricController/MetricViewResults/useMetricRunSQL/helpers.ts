@@ -73,8 +73,6 @@ export const simplifyChatConfigForSQLChange = (
     // Check if the column type has changed
     const didTypeChange = oldFormat?.columnType !== x.simple_type;
 
-    console.log('didTypeChange', didTypeChange);
-
     // If type changed, reset format (undefined), otherwise keep existing format
     const value = didTypeChange ? undefined : oldFormat;
 

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ColumnSettings,
   DEFAULT_CHART_CONFIG,

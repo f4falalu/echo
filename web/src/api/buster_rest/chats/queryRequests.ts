@@ -105,7 +105,6 @@ export const prefetchGetChat = async (
     ...queryKeys.chatsGetChat(params.id),
     queryFn: async () => {
       return await getChat_server(params).then((chat) => {
-        console.log('TODO move this to put message in a better spot');
         return updateChatToIChat(chat, true).iChat;
       });
     }

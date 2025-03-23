@@ -8,7 +8,7 @@ import {
   DetermineSelectedChartType,
   disableTypeMethod
 } from './SelectedChartTypeMethod';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useUnmount } from '@/hooks';
 import { addOpacityToColor, NUMBER_TYPES } from '@/lib';
 import { cn } from '@/lib/classMerge';
 import { useUpdateMetricChart } from '@/context/Metrics';

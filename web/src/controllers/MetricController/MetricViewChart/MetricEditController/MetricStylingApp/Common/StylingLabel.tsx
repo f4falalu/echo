@@ -16,7 +16,7 @@ export const StylingLabel: React.FC<StylingLabelProps> = ({
 }) => {
   return (
     <div className={`flex flex-col space-y-2.5 ${className}`}>
-      <div className="flex items-center justify-between">
+      <div className="flex h-6 items-center justify-between">
         <Text size="sm" variant="secondary">
           {label}
         </Text>

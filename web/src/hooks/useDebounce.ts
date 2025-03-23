@@ -3,17 +3,26 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import useLatest from './useLatest';
 import debounce from 'lodash/debounce';
+import isFunction from 'lodash/isFunction';
+import { isDev } from '@/config';
 import { useUnmount } from './useUnmount';
 
 interface DebounceOptions {
   wait?: number;
   maxWait?: number;
   leading?: boolean;
+  trailing?: boolean;
 }
 
 type noop = (...args: any[]) => any;
 
 export function useDebounceFn<T extends noop>(fn: T, options?: DebounceOptions) {
+  if (isDev) {
+    if (!isFunction(fn)) {
+      console.error(`useDebounceFn expected parameter is a function, got ${typeof fn}`);
+    }
+  }
+
   const fnRef = useLatest(fn);
 
   const wait = options?.wait ?? 1000;
@@ -40,9 +49,6 @@ export function useDebounceFn<T extends noop>(fn: T, options?: DebounceOptions) 
     flush: debounced.flush
   };
 }
-
-export default useDebounceFn;
-
 export function useDebounce<T>(value: T, options: DebounceOptions = {}) {
   const { wait = 1000, maxWait } = options;
   const [debouncedValue, setDebouncedValue] = useState<T>(value);

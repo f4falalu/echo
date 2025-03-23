@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
-import { useDebounceFn, useMemoizedFn } from '@/hooks';
+import { useDebounceFn, useMemoizedFn, useMount, useUnmount } from '@/hooks';
 import {
   deleteMetrics,
   duplicateMetric,
@@ -21,14 +21,13 @@ import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { useMemo } from 'react';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useGetUserFavorites } from '../users';
-import { useBusterNotifications } from '@/context/BusterNotifications';
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
-import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { create } from 'mutative';
 import {
   useAddAssetToCollection,
   useRemoveAssetFromCollection
 } from '../collections/queryRequests';
+import debounce from 'lodash/debounce';
 
 export const useGetMetric = <TData = IBusterMetric>(
   { id, version_number }: { id: string | undefined; version_number?: number },
@@ -325,13 +324,13 @@ export const useUpdateMetric = () => {
   const { mutateAsync: saveMetric } = useSaveMetric();
 
   const { run: saveMetricDebounced } = useDebounceFn(
-    (newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
+    useMemoizedFn((newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
       const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
       if (changedValues) {
         saveMetric(changedValues);
       }
-    },
-    { wait: 650 }
+    }),
+    { wait: 650, leading: false }
   );
 
   const combineAndSaveMetric = useMemoizedFn(
@@ -354,15 +353,16 @@ export const useUpdateMetric = () => {
   const mutationFn = useMemoizedFn(
     async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
       const { newMetric, prevMetric } = await combineAndSaveMetric(newMetricPartial);
+
       if (newMetric && prevMetric) {
         saveMetricDebounced(newMetric, prevMetric);
       }
-      return Promise.resolve(newMetric!);
+      return newMetric;
     }
   );
 
   const mutationRes = useMutation({
-    mutationFn: mutationFn,
+    mutationFn,
     onSuccess: (data) => {
       if (data) {
         queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(data.id).queryKey, data);

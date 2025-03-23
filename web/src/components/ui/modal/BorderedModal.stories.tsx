@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { BorderedModal } from './BorderedModal';
 import { useState } from 'react';
+import { fn } from '@storybook/test';
 
 const meta: Meta<typeof BorderedModal> = {
   title: 'UI/Modal/ScrollableModal',
@@ -37,11 +38,11 @@ export const Basic: Story = {
     footer: {
       primaryButton: {
         text: 'Save Changes',
-        onClick: () => console.log('Primary button clicked')
+        onClick: fn()
       },
       secondaryButton: {
         text: 'Cancel',
-        onClick: () => console.log('Secondary button clicked'),
+        onClick: fn(),
         variant: 'ghost'
       }
     },
@@ -70,12 +71,12 @@ export const WithCustomHeader: Story = {
       left: <span className="text-muted-foreground text-sm">Footer left content</span>,
       primaryButton: {
         text: 'Confirm',
-        onClick: () => console.log('Confirmed'),
+        onClick: fn(),
         variant: 'black'
       },
       secondaryButton: {
         text: 'Back',
-        onClick: () => console.log('Going back'),
+        onClick: fn(),
         variant: 'ghost'
       }
     },
@@ -103,7 +104,7 @@ export const LoadingState: Story = {
       },
       secondaryButton: {
         text: 'Cancel',
-        onClick: () => console.log('Cancelled'),
+        onClick: fn(),
         variant: 'ghost',
         disabled: true
       }
