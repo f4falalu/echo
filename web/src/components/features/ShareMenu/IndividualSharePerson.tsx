@@ -23,13 +23,13 @@ export const IndividualSharePerson: React.FC<{
         <div className="flex h-full flex-col items-center justify-center">
           <Avatar className="h-[24px] w-[24px]" name={name || email} />
         </div>
-        <div className="flex flex-col space-y-0.5 overflow-hidden">
-          <Text truncate className="">
+        <div className="flex flex-col space-y-0 overflow-hidden">
+          <Text truncate className="leading-1.3">
             {name || email}
           </Text>
 
           {isSameEmailName ? null : (
-            <Text truncate size="xs" variant="tertiary">
+            <Text truncate size="xs" variant="tertiary" className="leading-1.3">
               {email}
             </Text>
           )}

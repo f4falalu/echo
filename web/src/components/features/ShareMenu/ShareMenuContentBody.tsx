@@ -116,6 +116,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     });
 
     const onUpdateShareRole = useMemoizedFn(async (email: string, role: ShareRole | null) => {
+      console.log({ email, assetId, assetType });
       if (role) {
         const payload: Parameters<typeof onUpdateMetricShare>[0] = {
           id: assetId,
