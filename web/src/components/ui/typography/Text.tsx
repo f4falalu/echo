@@ -3,7 +3,7 @@ import { cva, VariantProps } from 'class-variance-authority';
 import React from 'react';
 import { textColorVariants } from './variants';
 
-const textVariants = cva('', {
+const textVariants = cva('leading-1.3', {
   variants: {
     size: {
       '3xs': 'text-3xs',

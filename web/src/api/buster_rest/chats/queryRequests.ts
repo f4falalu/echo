@@ -81,12 +81,6 @@ export const useGetChat = <TData = IBusterChat>(
     });
   });
 
-  useQuery({
-    ...queryKeys.chatsGetChat(params.id),
-    queryFn,
-    enabled: !!params.id
-  });
-
   return useQuery({
     ...queryKeys.chatsGetChat(params.id),
     enabled: !!params.id,
