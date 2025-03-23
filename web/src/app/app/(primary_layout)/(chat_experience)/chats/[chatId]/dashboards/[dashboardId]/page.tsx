@@ -1,3 +1,4 @@
+import { DashboardController } from '@/controllers/DashboardController';
 import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
 
 export default async function DashboardPage(props: { params: Promise<{ dashboardId: string }> }) {
@@ -7,7 +8,7 @@ export default async function DashboardPage(props: { params: Promise<{ dashboard
 
   return (
     <AppAssetCheckLayout assetId={dashboardId} type="dashboard">
-      <>TODO: Dashboard Page</>
+      <DashboardController dashboardId={dashboardId} />
     </AppAssetCheckLayout>
   );
 }
