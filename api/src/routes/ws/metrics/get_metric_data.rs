@@ -25,6 +25,7 @@ pub async fn get_metric_data(user: &AuthenticatedUser, request: GetMetricDataWsR
 
     let handler_request = GetMetricDataRequest {
         metric_id: request.id,
+        version_number: None,
         limit: request.limit,
     };
 

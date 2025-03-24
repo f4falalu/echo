@@ -18,8 +18,9 @@ By refactoring these handlers to accept the complete `AuthenticatedUser` object,
 
 ## Goals
 - Update all chat handlers to use `AuthenticatedUser` instead of user ID
+- Update tests to use the test utilities created in the metrics handlers PRD
 - Optimize handler code to use available user context information
-- Ensure tests continue to pass with the new parameter format
+- Ensure tests pass with the new parameter format
 - Maintain or improve existing functionality
 
 ## Non-Goals
@@ -70,6 +71,7 @@ For each handler, we'll:
 2. Replace all instances of `user_id` with `user.id` in function body
 3. Leverage user attributes where applicable (like `user.avatar_url` or organization info)
 4. Update database queries to filter by `user.id` instead of `user_id`
+5. Enhance permission checks using organization and team roles
 
 #### Example Implementation (for get_chat_handler.rs)
 
@@ -106,6 +108,19 @@ pub async fn get_chat_handler(chat_id: &Uuid, user: &AuthenticatedUser) -> Resul
     
     // We can now use user.avatar_url directly instead of extracting it from the database
     // This optimization is possible because we have the full user object
+    
+    // Add enhanced permission checks using organization roles
+    if thread.created_by != user.id {
+        // Check if user has admin privileges in the organization
+        let has_org_permission = user.organizations.iter()
+            .any(|org| org.id == thread.organization_id &&
+                 (org.role == UserOrganizationRole::Admin || 
+                  org.role == UserOrganizationRole::Owner));
+                  
+        if !has_org_permission {
+            return Err(anyhow!("You don't have permission to access this chat"));
+        }
+    }
 }
 ```
 
@@ -168,69 +183,186 @@ pub async fn get_chat_route(
 10. `/src/routes/rest/routes/chats/sharing/update_sharing.rs`
 11. `/src/routes/rest/routes/chats/sharing/delete_sharing.rs`
 
-#### Tests (if they exist)
-1. Any test files that directly call these chat handlers
+#### Tests
+Any test files that directly call these chat handlers will need to be updated to use the test utilities.
 
 ## Implementation Plan
 
-### Phase 1: Function Signatures
-- ⏳ Update all chat handler function signatures
-- ⏳ Adjust internal references to use `user.id` instead of `user_id`
-- 🔜 Run initial tests to identify any immediate issues
+### Phase A: Core Chat Handlers (Days 1-3)
+- ⏳ Update signatures and implementations of core chat handlers
+- ⏳ Create or update tests for these handlers
+- ⏳ Run tests to verify functionality
+- ✅ Success criteria: All core chat handlers pass tests with the new parameter format
 
-### Phase 2: Functionality Updates
-- 🔜 Optimize handlers to use `AuthenticatedUser` properties where applicable
-- 🔜 Update any permission or filtering logic to leverage user roles
-- 🔜 Implement comprehensive testing for all refactored handlers
+### Phase B: Chat Sharing Handlers (Days 4-5)
+- 🔜 Update signatures and implementations of sharing handlers
+- 🔜 Create or update tests for these handlers
+- 🔜 Run tests to verify functionality
+- ✅ Success criteria: All sharing handlers pass tests with the new parameter format
 
-### Phase 3: REST Endpoint Integration
-- 🔜 Update all chat-related REST endpoints to pass the full user object
-- 🔜 Run integration tests to ensure everything works together
-- 🔜 Fix any issues that emerge during testing
-
-### Phase 4: Documentation and Cleanup
-- 🔜 Update function documentation to reflect new parameter
-- 🔜 Clean up any legacy code related to user lookups
-- 🔜 Finalize test suite for the refactored handlers
+### Phase C: REST Endpoint Integration (Days 6-7)
+- 🔜 Update REST endpoints to pass the full user object
+- 🔜 Run integration tests
+- 🔜 Fix any issues
+- ✅ Success criteria: All REST endpoints work correctly with the refactored handlers
 
 ## Testing Strategy
 
 ### Unit Tests
-- Each refactored handler will need unit tests with the new parameter
-- Tests will need to use the new test utilities to create mock users
-- Tests should verify handling of different user roles and permissions
+- Create tests if they don't exist
+- Update existing tests to use the test utilities
+- Add tests for different user roles and permissions
+- Every handler must have tests that pass before considering the refactoring complete
 
-### Integration Tests
-- REST endpoints need to be tested to verify they properly pass the user object
-- End-to-end flow tests to ensure everything works together
-- Performance testing to confirm optimizations provide expected benefits
+#### Example Test Creation/Update
+```rust
+#[tokio::test]
+async fn test_get_chat_with_owner() -> Result<()> {
+    // Setup test environment
+    setup_test_environment().await?;
+    
+    // Create test organization
+    let org_id = Uuid::new_v4();
+    
+    // Create test chat
+    let chat_id = Uuid::new_v4();
+    let test_chat = create_test_chat(chat_id, org_id).await?;
+    insert_test_chat(&test_chat).await?;
+    
+    // Create test user with the new utilities - as the owner
+    let user = create_test_user(
+        Some(test_chat.created_by),
+        None, 
+        None,
+        None,
+        None, 
+        None,
+        Some(vec![
+            OrganizationMembership {
+                id: org_id,
+                role: UserOrganizationRole::Member,
+            }
+        ]),
+        None,
+        None,
+        None
+    );
+    
+    // Test using the full user object
+    let result = get_chat_handler(&chat_id, &user).await;
+    
+    // Assert success
+    assert!(result.is_ok());
+    // Additional assertions...
+    
+    // Cleanup
+    cleanup_test_chat(chat_id).await?;
+    
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_get_chat_with_org_admin() -> Result<()> {
+    // Setup test environment
+    setup_test_environment().await?;
+    
+    // Create test organization
+    let org_id = Uuid::new_v4();
+    
+    // Create test chat
+    let chat_id = Uuid::new_v4();
+    let creator_id = Uuid::new_v4(); // Different from the admin user
+    let test_chat = create_test_chat_with_creator(chat_id, org_id, creator_id).await?;
+    insert_test_chat(&test_chat).await?;
+    
+    // Create test admin user with the new utilities
+    let admin_user = create_test_admin_user(Some(org_id));
+    
+    // Test using the full user object
+    let result = get_chat_handler(&chat_id, &admin_user).await;
+    
+    // Assert success - admin should be able to access
+    assert!(result.is_ok());
+    // Additional assertions...
+    
+    // Cleanup
+    cleanup_test_chat(chat_id).await?;
+    
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_get_chat_unauthorized() -> Result<()> {
+    // Setup test environment
+    setup_test_environment().await?;
+    
+    // Create test organizations
+    let org_id = Uuid::new_v4();
+    let different_org_id = Uuid::new_v4();
+    
+    // Create test chat
+    let chat_id = Uuid::new_v4();
+    let creator_id = Uuid::new_v4();
+    let test_chat = create_test_chat_with_creator(chat_id, org_id, creator_id).await?;
+    insert_test_chat(&test_chat).await?;
+    
+    // Create user from different organization
+    let different_org_user = create_test_regular_user(Some(different_org_id));
+    
+    // Test using the full user object
+    let result = get_chat_handler(&chat_id, &different_org_user).await;
+    
+    // Assert error - unauthorized
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("permission"));
+    
+    // Cleanup
+    cleanup_test_chat(chat_id).await?;
+    
+    Ok(())
+}
+```
 
 ### Test Cases
-1. User retrieving their own chat
-2. User attempting to access a chat they don't own or have permission for
-3. Admin user accessing another user's chat
-4. Bulk operations with different user types
-5. Handling of sharing operations with different permission levels
+
+1. Owner User Tests
+   - User accessing their own chat
+   - User attempting to update their own chat
+
+2. Admin User Tests
+   - Admin accessing a chat they don't own
+   - Admin updating a chat in their organization
+
+3. Regular User Tests
+   - User attempting to access a chat they don't own
+   - User in wrong organization attempting access
+
+4. Permission Tests
+   - User with explicit permissions through sharing
+   - User without permissions attempting access
 
 ## Rollback Plan
 If issues arise during implementation:
-1. Revert affected handlers to accept both formats temporarily
-2. Implement wrapper functions until issues are resolved
-3. Roll back specific problematic handlers if necessary
+1. Revert affected handlers to original implementation
+2. Document specific issues for resolution
+3. Implement a phased approach if needed, starting with less complex handlers
 
 ## Success Criteria
-- All chat handlers accept `AuthenticatedUser` instead of just user ID
-- All tests pass with the new implementation
-- REST endpoints work correctly with refactored handlers
-- No regression in functionality or performance
-- Improved code maintainability and reduced redundant database queries
+For this PRD to be considered fully implemented:
+1. All chat handlers successfully accept `AuthenticatedUser` instead of just user ID
+2. All tests are created or updated and pass with the new implementation
+3. REST endpoints correctly pass the full user object
+4. No regression in functionality or performance
+5. Enhanced permission checks work correctly using organization roles
 
 ## Dependencies
-- Completion of the test utilities for creating mock `AuthenticatedUser` objects
+- Completion of the test utilities created in the metrics handlers PRD
 - `middleware::AuthenticatedUser` struct from `libs/middleware/src/types.rs`
 - Existing chat handlers implementation
 
 ## Timeline
-Expected completion time: 1 week
+Expected completion time: 1 week (7 business days)
 
-This PRD depends on the completion of the test utilities PRD and should be implemented after that work is done.
+- Days 1-3: Core chat handlers refactoring and testing
+- Days 4-5: Chat sharing handlers refactoring and testing
+- Days 6-7: REST integration and final validation

@@ -15,6 +15,7 @@ use crate::metrics::get_metric_handler;
 #[derive(Debug, Deserialize)]
 pub struct GetMetricDataRequest {
     pub metric_id: Uuid,
+    pub version_number: Option<i32>,
     pub limit: Option<i64>,
 }
 
@@ -102,8 +103,8 @@ pub async fn get_metric_data_handler(
 
     let user_id = user.id;
 
-    // Retrieve the metric definition (latest version)
-    let metric = get_metric_handler(&request.metric_id, &user_id, None).await?;
+    // Retrieve the metric definition based on version, if none, use latest.
+    let metric = get_metric_handler(&request.metric_id, &user_id, request.version_number).await?;
 
     // Parse the metric definition from YAML to get SQL and dataset IDs
     let metric_yml = serde_yaml::from_str::<MetricYml>(&metric.file)?;

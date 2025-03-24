@@ -18,7 +18,8 @@ By refactoring these handlers to accept the complete `AuthenticatedUser` object,
 
 ## Goals
 - Update all metric handlers to use `AuthenticatedUser` instead of user ID
-- Ensure tests continue to pass with the new parameter format
+- Create necessary test utilities for creating mock `AuthenticatedUser` objects
+- Ensure tests pass with the new parameter format
 - Optimize handler code to use available user context information
 - Maintain backward compatibility with existing functionality
 
@@ -33,23 +34,165 @@ By refactoring these handlers to accept the complete `AuthenticatedUser` object,
 ### Overview
 The refactoring will involve updating function signatures across all metric handlers to accept `&AuthenticatedUser` instead of `&Uuid`, and then modifying the internal logic to use `user.id` instead of `user_id` where appropriate. We'll also leverage additional user information to optimize certain operations.
 
-### Components to Modify
+### Components to Create/Modify
 
-#### Metric Handlers
-1. `get_metric_handler.rs`
-2. `get_metric_data_handler.rs`
-3. `list_metrics_handler.rs`
-4. `update_metric_handler.rs`
-5. `delete_metric_handler.rs`
-6. `add_metric_to_collections_handler.rs`
-7. `remove_metrics_from_collection_handler.rs`
-8. `post_metric_dashboard_handler.rs`
+#### 1. Test Utilities (Required First)
+Create a new module in `libs/handlers/tests/common/test_utils.rs` with functions to generate mock `AuthenticatedUser` objects:
 
-#### Metric Sharing Handlers
-1. `sharing/create_sharing_handler.rs`
-2. `sharing/list_sharing_handler.rs`
-3. `sharing/update_sharing_handler.rs`
-4. `sharing/delete_sharing_handler.rs`
+```rust
+// libs/handlers/tests/common/test_utils.rs
+use middleware::AuthenticatedUser;
+use middleware::{OrganizationMembership, TeamMembership};
+use database::enums::{TeamToUserRole, UserOrganizationRole};
+use chrono::{DateTime, Utc};
+use serde_json::Value;
+use uuid::Uuid;
+
+/// Creates a mock authenticated user for testing with customizable properties
+pub fn create_test_user(
+    id: Option<Uuid>,
+    email: Option<String>,
+    name: Option<String>,
+    avatar_url: Option<String>,
+    config: Option<Value>,
+    attributes: Option<Value>,
+    organizations: Option<Vec<OrganizationMembership>>,
+    teams: Option<Vec<TeamMembership>>,
+    created_at: Option<DateTime<Utc>>,
+    updated_at: Option<DateTime<Utc>>
+) -> AuthenticatedUser {
+    let user_id = id.unwrap_or_else(Uuid::new_v4);
+    let now = Utc::now();
+    
+    AuthenticatedUser {
+        id: user_id,
+        email: email.unwrap_or_else(|| format!("test-{}@example.com", user_id)),
+        name: name.or_else(|| Some(format!("Test User {}", user_id))),
+        avatar_url,
+        config: config.unwrap_or_else(|| serde_json::json!({})),
+        attributes: attributes.unwrap_or_else(|| serde_json::json!({"avatar": "test-avatar.jpg"})),
+        organizations: organizations.unwrap_or_else(Vec::new),
+        teams: teams.unwrap_or_else(Vec::new),
+        created_at: created_at.unwrap_or(now),
+        updated_at: updated_at.unwrap_or(now),
+    }
+}
+
+/// Creates a basic test user with default values
+pub fn create_basic_test_user() -> AuthenticatedUser {
+    create_test_user(
+        None, None, None, None, None, None, None, None, None, None
+    )
+}
+
+/// Creates a mock admin user for testing
+pub fn create_test_admin_user(org_id: Option<Uuid>) -> AuthenticatedUser {
+    let organization_id = org_id.unwrap_or_else(Uuid::new_v4);
+    
+    create_test_user(
+        None, 
+        None,
+        Some("Admin User".to_string()),
+        None,
+        None,
+        None,
+        Some(vec![
+            OrganizationMembership {
+                id: organization_id,
+                role: UserOrganizationRole::Admin,
+            }
+        ]),
+        None,
+        None,
+        None
+    )
+}
+
+/// Creates a mock regular user for testing
+pub fn create_test_regular_user(org_id: Option<Uuid>) -> AuthenticatedUser {
+    let organization_id = org_id.unwrap_or_else(Uuid::new_v4);
+    
+    create_test_user(
+        None, 
+        None,
+        Some("Regular User".to_string()),
+        None,
+        None,
+        None,
+        Some(vec![
+            OrganizationMembership {
+                id: organization_id,
+                role: UserOrganizationRole::Member,
+            }
+        ]),
+        None,
+        None,
+        None
+    )
+}
+
+/// Creates a mock user with specific organization role
+pub fn create_test_org_user(
+    org_id: Uuid,
+    role: UserOrganizationRole
+) -> AuthenticatedUser {
+    create_test_user(
+        None, 
+        None,
+        None,
+        None,
+        None,
+        None,
+        Some(vec![
+            OrganizationMembership {
+                id: org_id,
+                role,
+            }
+        ]),
+        None,
+        None,
+        None
+    )
+}
+```
+
+#### 2. Update Test Helper Module
+Update the test helpers to use these new utilities:
+
+```rust
+// In libs/handlers/tests/common/mod.rs or metrics/mod.rs
+
+use super::test_utils::{create_test_user, create_test_admin_user, create_test_regular_user};
+use middleware::AuthenticatedUser;
+
+/// Updates existing test functions to use the AuthenticatedUser
+pub async fn setup_test_with_user() -> (TestContext, AuthenticatedUser) {
+    let context = setup_test_environment().await?;
+    let user = create_test_admin_user(None);
+    
+    (context, user)
+}
+```
+
+#### 3. Metric Handlers to Refactor
+
+1. Core Metric Handlers:
+   - `get_metric_handler.rs`
+   - `get_metric_data_handler.rs`
+   - `list_metrics_handler.rs`
+   - `update_metric_handler.rs`
+   - `delete_metric_handler.rs`
+
+2. Collection-Related Metric Handlers:
+   - `add_metric_to_collections_handler.rs`
+   - `remove_metrics_from_collection_handler.rs`
+   - `post_metric_dashboard_handler.rs`
+
+3. Sharing Handlers:
+   - `sharing/create_sharing_handler.rs`
+   - `sharing/list_sharing_handler.rs`
+   - `sharing/update_sharing_handler.rs`
+   - `sharing/delete_sharing_handler.rs`
 
 #### Example Function Signature Changes
 
@@ -64,14 +207,6 @@ pub async fn delete_metric_handler(metric_id: &Uuid, user: &AuthenticatedUser) -
     // ...
 }
 ```
-
-#### Key Implementation Details
-
-For each handler, we'll:
-1. Update the function signature to accept `&AuthenticatedUser` instead of `&Uuid`
-2. Replace all instances of `user_id` with `user.id` in function body
-3. Leverage user attributes and organization info where applicable
-4. Update database queries to filter by `user.id` instead of `user_id`
 
 #### Example Implementation (for delete_metric_handler.rs)
 
@@ -195,6 +330,8 @@ pub async fn delete_metric_route(
 1. `/libs/handlers/tests/metrics/delete_metric_test.rs`
 2. `/libs/handlers/tests/metrics/update_metric_test.rs`
 3. `/libs/handlers/tests/metrics/post_metric_dashboard_test.rs`
+4. `/libs/handlers/tests/common/test_utils.rs` (new file to create)
+5. `/libs/handlers/tests/common/mod.rs` (update to include test_utils)
 
 #### REST Endpoints
 1. `/src/routes/rest/routes/metrics/get_metric.rs`
@@ -206,65 +343,114 @@ pub async fn delete_metric_route(
 
 ## Implementation Plan
 
-### Phase 1: Test Updates
-- ⏳ Update test utilities to support `AuthenticatedUser` creation
-- ⏳ Refactor existing metric handler tests to use the new user format
-- 🔜 Ensure tests properly validate authorization logic
+### Phase 1: Test Utilities (Days 1-2)
+- ⏳ Create `test_utils.rs` module with functions to generate mock `AuthenticatedUser` objects in the handlers direcctor
+- ⏳ Add these to the common test module
+- ⏳ Create unit tests for the utility functions themselves
+- ✅ Success criteria: Utilities can create users with various roles and permissions
 
-### Phase 2: Handler Refactoring
-- 🔜 Update handler function signatures to accept `AuthenticatedUser`
-- 🔜 Modify internal logic to use `user.id` and leverage user context
-- 🔜 Enhance permission checks using organization and team information
-- 🔜 Run comprehensive tests for all changes
+### Phase 2: Core Metric Handlers (Days 3-4)
+- 🔜 Update signatures and implementations of core metric handlers
+- 🔜 Update related tests to use the new user format
+- 🔜 Run tests to verify changes
+- ✅ Success criteria: All core handlers pass tests with the new parameter format
 
-### Phase 3: REST Endpoint Integration
-- 🔜 Update REST endpoints to pass the full user object to handlers
-- 🔜 Run integration tests to ensure everything works together
-- 🔜 Fix any issues that emerge during testing
+### Phase 3: Collection-Related Handlers (Day 5)
+- 🔜 Update collection-related handler signatures and implementations
+- 🔜 Update related tests
+- 🔜 Run tests to verify changes
+- ✅ Success criteria: All collection-related handlers pass tests
 
-### Phase 4: Documentation and Cleanup
-- 🔜 Update function documentation to reflect new parameter
-- 🔜 Clean up any legacy code related to user lookups
-- 🔜 Final validation with all tests
+### Phase 4: Sharing Handlers (Day 6)
+- 🔜 Update sharing handler signatures and implementations
+- 🔜 Update related tests
+- 🔜 Run tests to verify changes
+- ✅ Success criteria: All sharing handlers pass tests
+
+### Phase 5: REST Integration (Day 7)
+- 🔜 Update REST endpoints to pass the full user object
+- 🔜 Run integration tests
+- 🔜 Fix any issues
+- ✅ Success criteria: All REST endpoints work correctly with the refactored handlers
 
 ## Testing Strategy
 
 ### Unit Tests
-- Each refactored handler will need updated unit tests
-- Tests will use the new test utilities to create mock users
-- Tests should verify handling of different user roles and permissions
+- Update each existing test to use the new test utilities
+- Add tests for different user roles and permissions
+- Every handler must have tests that pass before considering the refactoring complete
 
-### Integration Tests
-- End-to-end tests to validate the complete flow
-- Tests for permission checks with various user types
-- Verify metrics handlers work correctly with collections and dashboards
+#### Example Test Update
+```rust
+// Before
+#[tokio::test]
+async fn test_delete_metric_integration() -> Result<()> {
+    // Setup test environment
+    setup_test_environment().await?;
+    
+    // Create test user ID
+    let user_id = Uuid::new_v4();
+    
+    // Test using user_id
+    let result = delete_metric_handler(&metric_id, &user_id).await;
+    
+    // Assert...
+}
+
+// After
+#[tokio::test]
+async fn test_delete_metric_integration() -> Result<()> {
+    // Setup test environment
+    setup_test_environment().await?;
+    
+    // Create test user with the new utilities
+    let user = create_test_admin_user(None);
+    
+    // Test using the full user object
+    let result = delete_metric_handler(&metric_id, &user).await;
+    
+    // Assert...
+}
+```
 
 ### Test Cases
-1. Standard user deleting their own metric
-2. Admin user deleting another user's metric
-3. Regular user attempting to delete a metric they don't own
-4. Bulk operations with different permission levels
-5. Organization-based permission checks
+
+1. Regular User Tests
+   - User accessing their own metric
+   - User attempting to access a metric they don't own
+
+2. Admin User Tests
+   - Admin accessing a metric in their organization
+   - Admin attempting to access a metric in another organization
+
+3. Permission Tests
+   - User with explicit permissions to a metric
+   - User without permissions attempting access
 
 ## Rollback Plan
 If issues arise during implementation:
 1. Revert affected handlers to original implementation
-2. For critical handlers, implement temporary dual-parameter support
-3. Document specific issues for resolution in next attempt
+2. Document specific issues for resolution
+3. Implement a phased approach if needed, starting with less complex handlers
 
 ## Success Criteria
-- All metric handlers successfully accept `AuthenticatedUser` instead of just user ID
-- All tests pass with the new implementation
-- REST endpoints work correctly with refactored handlers
-- No regression in functionality or performance
-- Enhanced permission checks using organization and team information
+For this PRD to be considered fully implemented:
+1. All metric handlers successfully accept `AuthenticatedUser` instead of just user ID
+2. All tests are updated and pass with the new implementation
+3. REST endpoints correctly pass the full user object
+4. No regression in functionality or performance
+5. Enhanced permission checks work correctly
 
 ## Dependencies
-- Completion of the test utilities for creating mock `AuthenticatedUser` objects
 - `middleware::AuthenticatedUser` struct from `libs/middleware/src/types.rs`
 - Existing metrics handlers implementation
+- Existing test infrastructure
 
 ## Timeline
-Expected completion time: 1 week
+Expected completion time: 1 week (7 business days)
 
-This PRD depends on the completion of the test utilities PRD and should be implemented before other resource handlers due to having existing tests.
+- Days 1-2: Test utilities implementation
+- Days 3-4: Core metric handlers refactoring
+- Day 5: Collection-related handlers refactoring
+- Day 6: Sharing handlers refactoring
+- Day 7: REST integration and final testing
