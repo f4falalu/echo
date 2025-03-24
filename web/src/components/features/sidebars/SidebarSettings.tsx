@@ -63,7 +63,7 @@ const permissionAndSecurityItems: ISidebarGroup = {
 
 export const SidebarSettings: React.FC<{}> = React.memo(({}) => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
-  const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
+  const currentParentRoute = useAppLayoutContextSelector((x) => x.currentParentRoute);
 
   const content = useMemo(() => {
     const items = [accountItems];
@@ -78,7 +78,7 @@ export const SidebarSettings: React.FC<{}> = React.memo(({}) => {
     <Sidebar
       content={content}
       header={<SidebarSettingsHeader />}
-      activeItem={currentRoute}
+      activeItem={currentParentRoute}
       footer={<SidebarUserFooter />}
     />
   );

@@ -240,7 +240,7 @@ export const useUpdateDatasetGroupPermissionGroups = () => {
     mutationFn: updateDatasetGroupPermissionGroups,
     onMutate: ({ data, datasetGroupId }) => {
       queryClient.setQueryData(
-        queryKeys.datasetGroupsGetDatasets(datasetGroupId).queryKey,
+        queryKeys.datasetGroupsGetPermissionGroups(datasetGroupId).queryKey,
         (oldData: GetDatasetGroupPermissionGroupsResponse[] | undefined) => {
           if (!oldData) return [];
           return oldData.map((permissionGroup) => {

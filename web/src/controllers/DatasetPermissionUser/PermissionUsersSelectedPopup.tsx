@@ -38,8 +38,6 @@ const options = PERMISSION_USERS_OPTIONS.map((v) => ({
   icon: v.value === 'included' ? <CheckDouble /> : <Xmark />
 }));
 
-console.log(options);
-
 const PermissionUsersAssignButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;

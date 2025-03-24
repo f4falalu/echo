@@ -1,9 +1,9 @@
 'use client';
 
 import { BusterRoutesWithArgsRoute, createBusterRoute } from '@/routes/busterRoutes';
-import { pathNameToRoute } from '@/routes/helpers';
-import { useMemoizedFn, usePrevious } from '@/hooks';
-import { useRouter, usePathname, useSelectedLayoutSegment, useParams } from 'next/navigation';
+import { pathNameToParentRoute, pathNameToRoute } from '@/routes/helpers';
+import { useMemoizedFn } from '@/hooks';
+import { useRouter, usePathname, useParams } from 'next/navigation';
 import React, { PropsWithChildren } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 
@@ -12,6 +12,7 @@ export const useAppLayout = () => {
   const pathname = usePathname();
   const params = useParams();
   const currentRoute = pathNameToRoute(pathname, params);
+  const currentParentRoute = pathNameToParentRoute(pathname, params);
   const [openInviteModal, setOpenInviteModal] = React.useState(false);
 
   const onToggleInviteModal = useMemoizedFn((v?: boolean) => {
@@ -57,7 +58,8 @@ export const useAppLayout = () => {
     currentRoute,
     onToggleInviteModal,
     openInviteModal,
-    onChangePage
+    onChangePage,
+    currentParentRoute
   };
 };
 

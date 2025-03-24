@@ -46,7 +46,6 @@ export default function Page() {
         <div className="">
           <ListDatasetGroupsComponent datasetGroups={filteredItems} isFetched={isFetched} />
         </div>
-        z
       </div>
 
       <NewDatasetGroupModal

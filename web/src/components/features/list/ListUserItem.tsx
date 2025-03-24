@@ -9,7 +9,7 @@ export const ListUserItem = React.memo(({ name, email }: { name: string; email: 
         <Avatar size={24} name={name} />
       </div>
 
-      <div className="flex flex-col justify-center space-y-1">
+      <div className="flex flex-col justify-center space-y-0">
         {name && <Text>{name}</Text>}
         {email && (
           <Text variant="secondary" style={{ fontSize: 12 }}>

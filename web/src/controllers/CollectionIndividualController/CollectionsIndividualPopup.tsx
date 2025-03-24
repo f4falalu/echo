@@ -39,7 +39,6 @@ const CollectionDeleteButton: React.FC<{
 
   const onRemoveFromCollection = useMemoizedFn(async () => {
     if (collection) {
-      console.log(selectedRowKeys, collection);
       await removeAssetFromCollection({
         id: collectionId,
         assets: (collection.assets || [])?.reduce<{ type: 'metric' | 'dashboard'; id: string }[]>(

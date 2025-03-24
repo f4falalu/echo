@@ -59,7 +59,7 @@ export const DatasetGroupAppSegments: React.FC<{
 
   return (
     <div className="flex flex-col space-y-2">
-      <AppSegmented value={value} options={options} />
+      <AppSegmented type="button" value={value} options={options} />
       <Separator />
     </div>
   );
