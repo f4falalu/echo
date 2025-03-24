@@ -16,7 +16,7 @@ export const PermissionAssignedButton: React.FC<{
       text === 'included' ? PERMISSION_OPTIONS_INCLUDED : PERMISSION_OPTIONS_ASSIGNED;
     return selectedOptions.map((v) => ({
       ...v,
-      icon: v.value ? <CheckDouble /> : <Xmark />
+      icon: v.value === 'true' ? <CheckDouble /> : <Xmark />
     }));
   }, [text]);
 
@@ -41,7 +41,7 @@ export const PermissionAssignedButton: React.FC<{
     return {
       selectable: true,
       items: options.map<DropdownItem>((v) => ({
-        value: v.value ? 'included' : 'not_included',
+        value: v.value === 'true' ? 'included' : 'not_included',
         icon: v.icon,
         label: v.label,
         onClick: () => onAssignClick(v.value === 'true')

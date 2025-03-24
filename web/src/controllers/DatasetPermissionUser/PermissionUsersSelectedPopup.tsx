@@ -35,8 +35,10 @@ PermissionUsersSelectedPopup.displayName = 'PermissionUsersSelectedPopup';
 const options = PERMISSION_USERS_OPTIONS.map((v) => ({
   label: v.label,
   value: v.value,
-  icon: v.value ? <CheckDouble /> : <Xmark />
+  icon: v.value === 'included' ? <CheckDouble /> : <Xmark />
 }));
+
+console.log(options);
 
 const PermissionUsersAssignButton: React.FC<{
   selectedRowKeys: string[];

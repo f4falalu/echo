@@ -49,9 +49,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="">
-          <ListPermissionGroupsComponent permissionGroups={filteredItems} isFetched={isFetched} />
-        </div>
+        <ListPermissionGroupsComponent permissionGroups={filteredItems} isFetched={isFetched} />
       </div>
 
       <NewPermissionGroupModal

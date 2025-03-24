@@ -119,15 +119,19 @@ export const UserPermissionGroupsListContainer: React.FC<{
     [canQueryPermissionUsers, cannotQueryPermissionUsers, numberOfPermissionGroups]
   );
 
+  const MemoizedPopup = useMemo(
+    () => (
+      <UserPermissionGroupSelectedPopup
+        selectedRowKeys={selectedRowKeys}
+        onSelectChange={setSelectedRowKeys}
+        userId={userId}
+      />
+    ),
+    [selectedRowKeys, userId]
+  );
+
   return (
-    <InfiniteListContainer
-      popupNode={
-        <UserPermissionGroupSelectedPopup
-          selectedRowKeys={selectedRowKeys}
-          onSelectChange={setSelectedRowKeys}
-          userId={userId}
-        />
-      }>
+    <InfiniteListContainer popupNode={MemoizedPopup}>
       <BusterInfiniteList
         columns={columns}
         rows={rows}

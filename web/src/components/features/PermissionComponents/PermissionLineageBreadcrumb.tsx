@@ -155,19 +155,3 @@ const canQueryTag = cva('rounded-sm px-1 py-1.5 text-base', {
     }
   }
 });
-
-// const useStyles = createStyles(({ token, css }) => ({
-
-//   canQueryTag: css`
-//     border-radius: 4px;
-//     padding: 4px 6px;
-//   `,
-//   canQueryTagSuccess: css`
-//     color: #34a32d;
-//     background-color: #edfff0;
-//   `,
-//   canQueryTagError: css`
-//     color: #ff9e00;
-//     background-color: #fff7ed;
-//   `
-// }));
