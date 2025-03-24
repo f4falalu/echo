@@ -1,6 +1,5 @@
 use std::env;
 
-use dotenv::dotenv;
 use reqwest::{Client, Error};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -50,8 +49,6 @@ pub struct SupabaseClient {
 impl SupabaseClient {
     // Initialize the client with env variables
     pub fn new() -> Result<Self, env::VarError> {
-        dotenv().ok(); // Load .env file
-
         let url = env::var("SUPABASE_URL")?;
         let service_role_key = env::var("SUPABASE_SERVICE_ROLE_KEY")?;
 
@@ -146,6 +143,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_supabase_client() {
+        dotenv::dotenv().ok();
         let client = SupabaseClient::new().expect("Failed to initialize client");
 
         // 1. Create a user

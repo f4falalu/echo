@@ -33,7 +33,7 @@ pub struct DatabricksCredentials {
     pub api_key: String,
     pub warehouse_id: String,
     pub default_catalog: String,
-    pub default_schema: String,
+    pub default_schema: Option<String>,
 }
 
 // can get rid of catalog_name
@@ -76,13 +76,13 @@ pub struct PostgresCredentials {
     pub jump_host: Option<String>,
     pub ssh_username: Option<String>,
     pub ssh_private_key: Option<String>,
+    #[serde(alias = "database")]
     pub default_database: String,
-    pub default_schema: String,
+    pub default_schema: Option<String>,
 }
 
 // can get rid of database and schema
 
-// Deprecated: REDSHIFT just uses postgres credentials
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RedshiftCredentials {
     pub host: String,
@@ -90,7 +90,7 @@ pub struct RedshiftCredentials {
     pub username: String,
     pub password: String,
     pub default_database: String,
-    pub default_schema: String,
+    pub default_schema: Option<String>,
 }
 
 // can get rid of database and schemas
@@ -102,8 +102,9 @@ pub struct SnowflakeCredentials {
     pub username: String,
     pub password: String,
     pub role: Option<String>,
+    #[serde(alias = "database")]
     pub default_database: String,
-    pub default_schema: String,
+    pub default_schema: Option<String>,
 }
 
 // can get rid of schemas and database id
@@ -118,7 +119,7 @@ pub struct SqlServerCredentials {
     pub ssh_username: Option<String>,
     pub ssh_private_key: Option<String>,
     pub default_database: String,
-    pub default_schema: String,
+    pub default_schema: Option<String>,
 }
 
 // can get rid of schemas and

@@ -1,10 +1,7 @@
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
-    models::AssetPermission,
-    pool::get_pg_pool,
-    schema::asset_permissions,
+    client::SupabaseClient, enums::{AssetPermissionRole, AssetType, IdentityType}, models::AssetPermission, pool::get_pg_pool, schema::asset_permissions
 };
 use diesel::{prelude::*, upsert::excluded};
 use diesel_async::RunQueryDsl;
@@ -101,9 +98,33 @@ pub async fn create_share_by_email(
     }
 
     // Find the user by email
-    let user = find_user_by_email(email)
-        .await?
-        .ok_or_else(|| SharingError::UserNotFound(email.to_string()))?;
+    let user = match find_user_by_email(email).await? {
+        Some(user) => user,
+        None => {
+            // User doesn't exist, create a new user in Supabase Auth
+            // This will automatically create the user in the database through triggers
+            let user_id = Uuid::new_v4();
+            let supabase_client = SupabaseClient::new()
+                .context("Failed to initialize Supabase client")?;
+
+            // Create user in Supabase Auth
+            supabase_client
+                .create_user(user_id, email)
+                .await
+                .context("Failed to create user in Supabase Auth")?;
+
+            // Wait for a moment to allow the database trigger to create the user
+            tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+
+            // Try to find the user again after creation
+            find_user_by_email(email).await?.ok_or_else(|| {
+                SharingError::UserNotFound(format!(
+                    "User was created in Auth but not found in database: {}",
+                    email
+                ))
+            })?
+        }
+    };
 
     // Create the share for the user
     create_share(
@@ -129,7 +150,10 @@ pub async fn create_shares_bulk(
         .iter()
         .any(|s| matches!(s.asset_type, AssetType::Dashboard | AssetType::Thread))
     {
-        return Err(SharingError::DeprecatedAssetType("Cannot create permissions for deprecated asset types".to_string()).into());
+        return Err(SharingError::DeprecatedAssetType(
+            "Cannot create permissions for deprecated asset types".to_string(),
+        )
+        .into());
     }
 
     let permissions: Vec<AssetPermission> = shares
@@ -173,7 +197,7 @@ pub async fn create_shares_bulk(
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     use database::enums::{AssetPermissionRole, AssetType};
     use uuid::Uuid;
 
@@ -187,7 +211,7 @@ mod tests {
             AssetPermissionRole::Viewer,
             Uuid::new_v4(),
         ));
-        
+
         assert!(result.is_err());
         let err = result.unwrap_err().to_string();
         assert!(err.contains("Invalid email"));
