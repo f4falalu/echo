@@ -12,11 +12,11 @@ use uuid::Uuid;
 
 /// Recursively merges two JSON objects.
 /// The second object (update) takes precedence over the first (base) where there are conflicts.
-/// 
+///
 /// # Arguments
 /// * `base` - The base JSON value, typically the existing configuration
 /// * `update` - The update JSON value containing fields to update
-/// 
+///
 /// # Returns
 /// * `Result<Value>` - The merged JSON value or an error
 fn merge_json_objects(base: Value, update: Value) -> Result<Value> {
@@ -58,21 +58,22 @@ pub struct UpdateMetricRequest {
     pub verification: Option<database::enums::Verification>,
     pub file: Option<String>,
     pub sql: Option<String>,
+    pub update_version: Option<bool>,
 }
 
 /// Handler to update a metric by ID
-/// 
+///
 /// This handler updates a metric file in the database and increments its version number.
 /// Each time a metric is updated, the previous version is saved in the version history.
-/// 
+///
 /// # Arguments
 /// * `metric_id` - The UUID of the metric to update
 /// * `user_id` - The UUID of the user making the update
 /// * `request` - The update request containing the fields to modify
-/// 
+///
 /// # Returns
 /// * `Result<BusterMetric>` - The updated metric on success, or an error
-/// 
+///
 /// # Versioning
 /// The function automatically handles versioning:
 /// 1. Retrieves the current metric and extracts its content
@@ -86,7 +87,9 @@ pub async fn update_metric_handler(
     user_id: &Uuid,
     request: UpdateMetricRequest,
 ) -> Result<BusterMetric> {
-    let mut conn = get_pg_pool().get().await
+    let mut conn = get_pg_pool()
+        .get()
+        .await
         .map_err(|e| anyhow!("Failed to get database connection: {}", e))?;
 
     // Check if metric exists and user has access - use the latest version
@@ -108,13 +111,13 @@ pub async fn update_metric_handler(
         if let Some(chart_config) = request.chart_config {
             // Instead of trying to deserialize directly, we'll merge the JSON objects first
             // and then deserialize the combined result
-            
+
             // Convert existing chart_config to Value for merging
             let existing_config = serde_json::to_value(&content.chart_config)?;
-            
+
             // Merge the incoming chart_config with the existing one
             let merged_config = merge_json_objects(existing_config, chart_config)?;
-            
+
             // Convert merged JSON back to ChartConfig
             content.chart_config = serde_json::from_value(merged_config)?;
         }
@@ -143,13 +146,24 @@ pub async fn update_metric_handler(
         .first::<VersionHistory>(&mut conn)
         .await
         .map_err(|e| anyhow!("Failed to get version history: {}", e))?;
-    
+
+    // Calculate the next version number
     let next_version = metric.versions.len() as i32 + 1;
-    current_version_history.add_version(next_version, content.clone());
-    
+
+    // Only add a new version if update_version is true (defaults to true)
+    let should_update_version = request.update_version.unwrap_or(true);
+
+    // Add the new version to the version history or update the latest version
+    if should_update_version {
+        current_version_history.add_version(next_version, content.clone());
+    } else {
+        // Overwrite the current version instead of creating a new one
+        current_version_history.update_latest_version(content.clone());
+    }
+
     // Convert content to JSON for storage
     let content_json = serde_json::to_value(content.clone())?;
-    
+
     // Build update query - only verification is handled separately from the YAML content
     let builder = diesel::update(metric_files::table)
         .filter(metric_files::id.eq(metric_id))
@@ -177,7 +191,8 @@ pub async fn update_metric_handler(
             ))
             .execute(&mut conn)
             .await
-    }.map_err(|e| anyhow!("Failed to update metric: {}", e))?;
+    }
+    .map_err(|e| anyhow!("Failed to update metric: {}", e))?;
 
     // Return the updated metric - latest version
     get_metric_handler(metric_id, user_id, None).await
@@ -190,7 +205,7 @@ mod tests {
     #[test]
     fn test_update_metric_request_validation() {
         // Test the request struct validation without making actual DB calls
-        
+
         // Create a request with valid UUID format for dataset_ids
         let valid_request = UpdateMetricRequest {
             name: Some("Valid Title".to_string()),
@@ -204,22 +219,23 @@ mod tests {
             verification: Some(database::enums::Verification::NotRequested),
             file: None,
             sql: None,
+            update_version: None,
         };
-        
+
         // Verify the request fields are properly structured
         assert_eq!(valid_request.name.unwrap(), "Valid Title");
         assert_eq!(valid_request.description.unwrap(), "Valid Description");
         assert_eq!(valid_request.time_frame.unwrap(), "daily");
         assert!(valid_request.chart_config.is_some());
         assert!(valid_request.dataset_ids.unwrap()[0].len() == 36);
-        
+
         // Actual validation logic is tested in integration tests
     }
-    
+
     #[test]
     fn test_chart_config_partial_update() {
         // This test verifies that partial chart_config updates only change specified fields
-        
+
         // Create a mock existing chart_config
         let existing_config = serde_json::json!({
             "selectedChartType": "bar",
@@ -241,7 +257,7 @@ mod tests {
                 }
             }
         });
-        
+
         // Create a partial chart_config update that only changes specific fields
         let partial_config = serde_json::json!({
             "selectedChartType": "bar",  // Same as before
@@ -254,31 +270,44 @@ mod tests {
                 }
             }
         });
-        
+
         // Apply the deep merge
-        let updated_config = merge_json_objects(existing_config.clone(), partial_config.clone()).unwrap();
-        
+        let updated_config =
+            merge_json_objects(existing_config.clone(), partial_config.clone()).unwrap();
+
         // Verify the updated config has the expected changes
-        
+
         // Changed fields should have new values
         assert_eq!(updated_config["colors"][0], "#ff0000");
         assert_eq!(updated_config["colors"][1], "#00ff00");
         assert_eq!(updated_config["show_legend"], false);
-        
+
         // Unchanged fields should retain original values
         assert_eq!(updated_config["grid_lines"], true);
         assert_eq!(updated_config["bar_and_line_axis"]["x"][0], "date");
         assert_eq!(updated_config["bar_and_line_axis"]["y"][0], "value");
-        
+
         // Verify nested column formats are correctly merged
-        assert_eq!(updated_config["columnLabelFormats"]["date"]["columnType"], "date");
-        assert_eq!(updated_config["columnLabelFormats"]["date"]["style"], "date");
-        
+        assert_eq!(
+            updated_config["columnLabelFormats"]["date"]["columnType"],
+            "date"
+        );
+        assert_eq!(
+            updated_config["columnLabelFormats"]["date"]["style"],
+            "date"
+        );
+
         // This entry should be partially updated - style changed but columnType preserved
-        assert_eq!(updated_config["columnLabelFormats"]["value"]["columnType"], "number");
-        assert_eq!(updated_config["columnLabelFormats"]["value"]["style"], "currency");
+        assert_eq!(
+            updated_config["columnLabelFormats"]["value"]["columnType"],
+            "number"
+        );
+        assert_eq!(
+            updated_config["columnLabelFormats"]["value"]["style"],
+            "currency"
+        );
     }
-    
+
     #[test]
     fn test_merge_json_objects() {
         // Test basic object merging
@@ -290,12 +319,12 @@ mod tests {
             "b": 3,
             "c": 4
         });
-        
+
         let result = merge_json_objects(base, update).unwrap();
         assert_eq!(result["a"], 1);
         assert_eq!(result["b"], 3);
         assert_eq!(result["c"], 4);
-        
+
         // Test nested object merging
         let base = serde_json::json!({
             "nested": {
@@ -310,13 +339,13 @@ mod tests {
                 "z": 4
             }
         });
-        
+
         let result = merge_json_objects(base, update).unwrap();
-        assert_eq!(result["nested"]["x"], 1);  // Preserved from base
-        assert_eq!(result["nested"]["y"], 3);  // Updated
-        assert_eq!(result["nested"]["z"], 4);  // Added from update
-        assert_eq!(result["other"], "value");  // Preserved from base
-        
+        assert_eq!(result["nested"]["x"], 1); // Preserved from base
+        assert_eq!(result["nested"]["y"], 3); // Updated
+        assert_eq!(result["nested"]["z"], 4); // Added from update
+        assert_eq!(result["other"], "value"); // Preserved from base
+
         // Test array replacement
         let base = serde_json::json!({
             "arr": [1, 2, 3]
@@ -324,8 +353,8 @@ mod tests {
         let update = serde_json::json!({
             "arr": [4, 5]
         });
-        
+
         let result = merge_json_objects(base, update).unwrap();
-        assert_eq!(result["arr"], serde_json::json!([4, 5]));  // Array is replaced, not merged
+        assert_eq!(result["arr"], serde_json::json!([4, 5])); // Array is replaced, not merged
     }
 }

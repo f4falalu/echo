@@ -73,6 +73,30 @@ impl VersionHistory {
     pub fn get_latest_version(&self) -> Option<&Version> {
         self.0.values().max_by_key(|v| v.version_number)
     }
+
+    /// Updates the content of the latest version without creating a new version
+    /// 
+    /// This is used when we want to overwrite the current version instead of creating a new one.
+    /// If there are no versions yet, this will create a new version with number 1.
+    /// 
+    /// # Arguments
+    /// * `content` - The new content to replace the latest version's content
+    pub fn update_latest_version(&mut self, content: impl Into<VersionContent>) {
+        if let Some(latest_version) = self.get_latest_version() {
+            let version_number = latest_version.version_number;
+            self.0.insert(
+                version_number.to_string(),
+                Version {
+                    content: content.into(),
+                    version_number,
+                    updated_at: Utc::now(),
+                },
+            );
+        } else {
+            // If there are no versions yet, create a new one with version 1
+            self.add_version(1, content);
+        }
+    }
 }
 
 impl FromSql<Jsonb, Pg> for VersionHistory {
