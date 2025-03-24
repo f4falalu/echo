@@ -15,7 +15,7 @@ export const DatasourceForm: React.FC<{ datasourceId: string }> = ({ datasourceI
   const { data: dataSource, isFetched: isFetchedDataSource } = useGetDatasource(datasourceId);
 
   if (!isFetchedDataSource || !dataSource) {
-    return <SkeletonLoader />;
+    return;
   }
 
   return (
@@ -30,8 +30,8 @@ export const DatasourceForm: React.FC<{ datasourceId: string }> = ({ datasourceI
 const DataSourceFormHeader: React.FC<{ dataSource: DataSource }> = ({ dataSource }) => {
   return (
     <div className="flex justify-between space-x-2">
-      <div className="flex space-x-4">
-        <div>
+      <div className="flex items-center space-x-4">
+        <div className="text-icon-color text-4xl">
           <AppDataSourceIcon size={55} type={dataSource.db_type} />
         </div>
 
@@ -46,8 +46,6 @@ const DataSourceFormHeader: React.FC<{ dataSource: DataSource }> = ({ dataSource
           </Text>
         </div>
       </div>
-
-      {/* <ThreeDotsMenu dataSource={dataSource} /> */}
     </div>
   );
 };
@@ -67,7 +65,7 @@ const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource
   ];
 
   return (
-    <div className="flex w-full items-center justify-between space-x-3 rounded border border-gray-300 bg-gray-100 p-4">
+    <div className="flex w-full items-center justify-between space-x-3 rounded border p-4">
       <div className="flex flex-col">
         <Text>Connection status</Text>
         <Text variant="secondary">{`Connected on ${formatDate({
@@ -77,7 +75,7 @@ const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource
       </div>
 
       <div className="">
-        <Dropdown items={dropdownItems}>
+        <Dropdown items={dropdownItems} align="end" side="bottom">
           <div className="flex! cursor-pointer items-center space-x-2 pl-2">
             <PulseLoader className="text-success-foreground" size={10} />
             <Text className="select-none">Connected</Text>
@@ -86,8 +84,4 @@ const DataSourceFormStatus: React.FC<{ dataSource: DataSource }> = ({ dataSource
       </div>
     </div>
   );
-};
-
-const SkeletonLoader: React.FC = () => {
-  return <div>{/* <Skeleton /> */}</div>;
 };

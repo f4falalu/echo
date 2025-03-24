@@ -2,18 +2,14 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { HeaderContainer } from '../../_HeaderContainer';
 import { DatasourceForm } from './_DatasourceForm';
 
-export default async function Page(
-  props: {
-    params: Promise<{
-      datasourceId: string;
-    }>;
-  }
-) {
+export default async function Page(props: {
+  params: Promise<{
+    datasourceId: string;
+  }>;
+}) {
   const params = await props.params;
 
-  const {
-    datasourceId
-  } = params;
+  const { datasourceId } = params;
 
   return (
     <div className="flex flex-col space-y-5">

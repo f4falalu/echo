@@ -33,6 +33,11 @@ const workspaceItems: ISidebarGroup = {
       label: 'API Keys',
       route: createBusterRoute({ route: BusterRoutes.SETTINGS_API_KEYS }),
       id: createBusterRoute({ route: BusterRoutes.SETTINGS_API_KEYS })
+    },
+    {
+      label: 'Datasources',
+      route: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES }),
+      id: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES })
     }
   ]
 };
@@ -73,8 +78,6 @@ export const SidebarSettings: React.FC<{}> = React.memo(({}) => {
     }
     return items;
   }, [isAdmin]);
-
-  console.log(currentParentRoute);
 
   return (
     <Sidebar

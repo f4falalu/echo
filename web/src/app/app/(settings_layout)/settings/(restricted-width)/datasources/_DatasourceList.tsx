@@ -14,34 +14,32 @@ import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Plus, Dots, Trash } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
 import { useDeleteDatasource, useListDatasources } from '@/api/buster_rest/datasource';
+import { EmptyStateList, ListEmptyStateWithButton } from '@/components/ui/list';
 
 export const DatasourceList: React.FC = () => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
   const { data: dataSourcesList, isFetched: isFetchedDatasourcesList } = useListDatasources();
   const { mutateAsync: onDeleteDataSource } = useDeleteDatasource();
-  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-  const hasDataSources = dataSourcesList.length > 0 && !isFetchedDatasourcesList;
+  const hasDataSources = dataSourcesList.length > 0;
+
+  if (!isFetchedDatasourcesList) {
+    return;
+  }
 
   return (
     <div className="flex flex-col space-y-4">
       <AddSourceHeader isAdmin={isAdmin} />
 
-      {!isFetchedDatasourcesList ? (
-        <SkeletonLoader />
-      ) : hasDataSources ? (
+      {hasDataSources ? (
         <DataSourceItems sources={dataSourcesList} onDeleteDataSource={onDeleteDataSource} />
       ) : (
-        <SettingsEmptyState
-          showButton={isAdmin}
-          title={`You don't have any data sources yet.`}
-          description={`You don’t have any datasources. As soon as you do, they will start to  appear here.`}
+        <ListEmptyStateWithButton
+          title="You don't have any data sources yet."
+          description="You don’t have any datasources. As soon as you do, they will start to  appear here."
           buttonText="New datasource"
-          buttonIcon={<Plus />}
-          buttonAction={() =>
-            onChangePage({
-              route: BusterRoutes.SETTINGS_DATASOURCES_ADD
-            })
-          }
+          linkButton={createBusterRoute({
+            route: BusterRoutes.SETTINGS_DATASOURCES_ADD
+          })}
         />
       )}
     </div>
@@ -112,7 +110,7 @@ const ListItem: React.FC<{
           <Text variant="secondary">{source.name}</Text>
         </div>
 
-        <Dropdown items={dropdownItems}>
+        <Dropdown items={dropdownItems} align="end" side="bottom">
           <Button
             variant="ghost"
             onClick={(e) => {
@@ -124,17 +122,5 @@ const ListItem: React.FC<{
         </Dropdown>
       </div>
     </Link>
-  );
-};
-
-const SkeletonLoader: React.FC<{}> = () => {
-  return (
-    <div className="flex flex-col space-y-4">
-      <div className="flex flex-col space-y-4">
-        <div className="h-[50px] w-full animate-pulse rounded bg-gray-200" />
-        <div className="h-[50px] w-full animate-pulse rounded bg-gray-200" />
-        <div className="h-[50px] w-full animate-pulse rounded bg-gray-200" />
-      </div>
-    </div>
   );
 };

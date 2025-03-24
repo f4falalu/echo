@@ -38,7 +38,7 @@ export const SettingsEmptyState: React.FC<{
       </CardHeader>
 
       {showButton && (
-        <CardContent>
+        <CardContent className="pt-0!">
           <Button
             variant="default"
             prefix={buttonIcon}
