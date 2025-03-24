@@ -26,11 +26,13 @@ const ApiKeyCreatedModal = React.memo(({ apiKey, onCopy, onClose }: ApiKeyCreate
       }}
       onClose={onClose}>
       <div className="space-y-4">
-        <div className="mb-4 rounded-lg bg-yellow-100 p-4 text-sm text-yellow-700" role="alert">
+        <div
+          className="mb-4 rounded-lg border border-yellow-200 bg-yellow-100 p-4 text-sm text-yellow-700 shadow"
+          role="alert">
           <span className="font-medium">Important:</span> This API key will only be shown once.
           Please copy it now and store it safely.
         </div>
-        <Paragraph className="mt-4 rounded-sm border bg-gray-50 p-4 font-mono break-all">
+        <Paragraph className="mt-4 rounded-sm border bg-gray-50 p-4 font-mono break-all shadow">
           {apiKey}
         </Paragraph>
       </div>

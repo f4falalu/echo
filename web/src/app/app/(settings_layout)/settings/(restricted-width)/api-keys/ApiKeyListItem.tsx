@@ -23,14 +23,12 @@ export const ApiKeyListItem: React.FC<ApiKeyListItemProps> = ({ apiKey, onDelete
   });
 
   return (
-    <div className="flex items-center justify-between rounded-md border border-gray-200 bg-white p-3 transition-shadow hover:shadow-xs">
-      <div className="flex flex-col">
-        <Text>{apiKey.owner_email}</Text>
-        <div className="flex items-center gap-1">
-          <Text variant="secondary" size="sm">
-            {`Created at: ${date}`}
-          </Text>
-        </div>
+    <div className="flex items-center justify-between space-y-1 rounded-md border bg-white p-3 shadow transition-shadow hover:shadow-xs">
+      <div className="flex flex-col space-y-1">
+        <Text size={'md'}>{apiKey.owner_email}</Text>
+        <Text variant="secondary" size="sm">
+          {`Created on: ${date}`}
+        </Text>
       </div>
       <Button variant="danger" prefix={<Trash />} onClick={handleDelete}>
         Delete
