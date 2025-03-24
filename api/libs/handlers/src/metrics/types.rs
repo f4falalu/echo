@@ -28,7 +28,7 @@ pub struct BusterMetric {
     pub id: Uuid,
     #[serde(rename = "type")]
     pub metric_type: String, // Always "metric"
-    pub title: String,
+    pub name: String,
     pub version_number: i32,
     pub description: Option<String>,
     pub file_name: String,
