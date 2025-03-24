@@ -113,15 +113,19 @@ export const UserDatasetsListContainer: React.FC<{
     [canQueryPermissionUsers, cannotQueryPermissionUsers]
   );
 
+  const MemoizedPopup = useMemo(
+    () => (
+      <UserDatasetsSelectedPopup
+        selectedRowKeys={selectedRowKeys}
+        onSelectChange={setSelectedRowKeys}
+        userId={userId}
+      />
+    ),
+    [selectedRowKeys, userId]
+  );
+
   return (
-    <InfiniteListContainer
-      popupNode={
-        <UserDatasetsSelectedPopup
-          selectedRowKeys={selectedRowKeys}
-          onSelectChange={setSelectedRowKeys}
-          userId={userId}
-        />
-      }>
+    <InfiniteListContainer popupNode={MemoizedPopup}>
       <BusterInfiniteList
         columns={columns}
         rows={rows}

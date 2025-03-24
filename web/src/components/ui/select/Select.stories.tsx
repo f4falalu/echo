@@ -113,3 +113,15 @@ export const PartiallyDisabled: Story = {
     placeholder: 'Select an available option'
   }
 };
+
+export const WithLowCharacters: Story = {
+  args: {
+    items: [
+      {
+        value: 'gyj',
+        label: 'gyj - GYJ'
+      }
+    ],
+    placeholder: 'Select an option'
+  }
+};

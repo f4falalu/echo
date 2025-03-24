@@ -127,7 +127,7 @@ const BusterListCellComponent: React.FC<{
         isFirstCell ? 'text-text-default text-base' : 'text-text-tertiary text-sm'
       )}
       style={memoizedStyle}>
-      <div className="w-full truncate">{render ? render(data, row?.data) : data}</div>
+      <div className="leading-1.3 w-full truncate">{render ? render(data, row?.data) : data}</div>
     </div>
   );
 });
