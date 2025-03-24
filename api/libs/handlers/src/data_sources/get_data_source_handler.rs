@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use database::{
-    enums::DataSourceType,
+    enums::{DataSourceType, UserOrganizationRole},
     models::{DataSource, Dataset, User},
     pool::get_pg_pool,
     schema::{data_sources, datasets, users},
@@ -8,6 +8,7 @@ use database::{
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use middleware::types::AuthenticatedUser;
 use query_engine::credentials::Credential;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -44,14 +45,32 @@ pub struct DatasetResponse {
 
 pub async fn get_data_source_handler(
     request: GetDataSourceRequest,
-    _user_id: &Uuid,
+    user: &AuthenticatedUser,
 ) -> Result<DataSourceResponse> {
+    // Verify user has an organization
+    if user.organizations.is_empty() {
+        return Err(anyhow!("User is not a member of any organization"));
+    }
+
+    // Get the first organization (users can only belong to one organization currently)
+    let user_org = &user.organizations[0];
+
+    // Verify user has appropriate permissions (at least viewer role)
+    if user_org.role != UserOrganizationRole::WorkspaceAdmin
+        && user_org.role != UserOrganizationRole::DataAdmin
+    {
+        return Err(anyhow!(
+            "User does not have appropriate permissions to view data sources"
+        ));
+    }
+
     let pool = get_pg_pool();
     let mut conn = pool.get().await?;
 
-    // Get the data source
+    // Get the data source (filter by organization)
     let data_source: DataSource = data_sources::table
         .filter(data_sources::id.eq(request.id))
+        .filter(data_sources::organization_id.eq(user_org.id))
         .filter(data_sources::deleted_at.is_null())
         .first(&mut conn)
         .await
