@@ -25,6 +25,8 @@ tokio-postgres = { workspace = true }
 tokio-postgres-rustls = { workspace = true }
 bb8-redis = { workspace = true }
 serde_yaml = { workspace = true }
+dotenv = { workspace = true }
+reqwest = { workspace = true }
 
 
 [dev-dependencies]
