@@ -10,6 +10,7 @@ import {
   useUpdateDashboardConfig
 } from '@/api/buster_rest/dashboards';
 import { useDashboardContentStore } from '@/context/Dashboards';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   dashboardId,
@@ -24,7 +25,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   const dashboard = dashboardResponse?.dashboard;
 
   return (
-    <div className="flex h-full flex-col space-y-3 overflow-y-auto p-10">
+    <ScrollArea className="flex h-full flex-col space-y-3 p-10">
       <DashboardEditTitles
         onUpdateDashboard={onUpdateDashboard}
         dashboardId={dashboardId}
@@ -40,6 +41,6 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
         onOpenAddContentModal={onOpenAddContentModal}
         readOnly={readOnly}
       />
-    </div>
+    </ScrollArea>
   );
 };

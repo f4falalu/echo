@@ -40,20 +40,6 @@ export const Default: Story = {
   }
 };
 
-export const WithSidebar: Story = {
-  args: {
-    children: <TestContent />,
-    sidebar: <div className="">Sidebar Content</div>
-  },
-  decorators: [
-    (Story) => (
-      <div className="bg-background-secondary" style={{ height: '600px', width: '100%' }}>
-        <Story />
-      </div>
-    )
-  ]
-};
-
 export const NonFloating: Story = {
   args: {
     children: <TestContent />,
@@ -66,14 +52,14 @@ export const WithAppPageLayout: Story = {
     sidebar: <div className="">Sidebar Content</div>,
     children: (
       <TestContent>
-        <AppPageLayout header="Page Header">
-          <div>
+        <AppPageLayout header="Page Header" scrollable>
+          <>
             {Array.from({ length: 30 }, (_, i) => (
               <div key={i} className="p-4">
                 List Item {i + 1} - Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               </div>
             ))}
-          </div>
+          </>
         </AppPageLayout>
       </TestContent>
     ),

@@ -1,5 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '../scroll-area/ScrollArea';
 
 export const AppPageLayoutContent: React.FC<
   PropsWithChildren<{
@@ -7,15 +8,12 @@ export const AppPageLayoutContent: React.FC<
     scrollable?: boolean;
   }>
 > = ({ className = '', children, scrollable = true }) => {
+  const Selector = scrollable ? ScrollArea : 'main';
+  const ChildSelector = scrollable ? 'main' : React.Fragment;
+
   return (
-    <main
-      className={cn(
-        'app-content-page',
-        'bg-page-background app-content h-full max-h-[100%] overflow-hidden p-0',
-        scrollable && 'overflow-y-auto',
-        className
-      )}>
-      {children}
-    </main>
+    <Selector className={cn('bg-page-background app-content h-full max-h-[100%] p-0', className)}>
+      <ChildSelector>{children}</ChildSelector>
+    </Selector>
   );
 };

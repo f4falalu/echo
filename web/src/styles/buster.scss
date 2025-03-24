@@ -6,8 +6,7 @@
   }
 }
 
-.scroll-shadow-container {
-  @apply relative overflow-y-auto;
+#scroll-area-viewport {
   scroll-timeline-name: --scrollShadowContainer;
 
   .scroll-header {

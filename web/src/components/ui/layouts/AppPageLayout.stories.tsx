@@ -38,7 +38,7 @@ export const NonScrollable: Story = {
   args: {
     scrollable: false,
     header: <div className="bg-gray-100">Header Content</div>,
-    children: <div className="">Fixed Content</div>
+    children: <div className="h-full w-full border border-red-500 bg-red-100">Fixed Content</div>
   }
 };
 
