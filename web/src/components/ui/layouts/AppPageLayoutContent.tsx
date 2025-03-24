@@ -11,10 +11,9 @@ export const AppPageLayoutContent: React.FC<
   const Selector = scrollable ? ScrollArea : 'main';
   const ChildSelector = scrollable ? 'main' : React.Fragment;
 
-  console.log('scrollable', scrollable);
-
   return (
-    <Selector className={cn('bg-page-background app-content h-full max-h-[100%] p-0', className)}>
+    <Selector
+      className={cn('bg-page-background app-content h-full max-h-full overflow-hidden', className)}>
       <ChildSelector>{children}</ChildSelector>
     </Selector>
   );

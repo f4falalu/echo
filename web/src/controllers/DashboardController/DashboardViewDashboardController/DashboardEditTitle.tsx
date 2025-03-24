@@ -3,8 +3,14 @@ import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { Input } from '@/components/ui/inputs';
 import React from 'react';
 import { type useUpdateDashboard } from '@/api/buster_rest/dashboards';
+import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 
 export const DASHBOARD_TITLE_INPUT_ID = 'dashboard-title-input';
+
+const descriptionAutoResize = {
+  minRows: 1,
+  maxRows: 25
+};
 
 export const DashboardEditTitles: React.FC<{
   title: string;
@@ -18,14 +24,14 @@ export const DashboardEditTitles: React.FC<{
   });
 
   const { run: onChangeDashboardDescription } = useDebounceFn(
-    useMemoizedFn((value: React.ChangeEvent<HTMLInputElement>) => {
+    useMemoizedFn((value: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (!readOnly) onUpdateDashboard({ description: value.target.value, id: dashboardId });
     }),
     { wait: 650 }
   );
 
   return (
-    <div className="flex flex-col space-y-0">
+    <div className="flex flex-col space-y-1.5">
       <EditableTitle
         className="w-full truncate"
         readOnly={readOnly}
@@ -37,12 +43,13 @@ export const DashboardEditTitles: React.FC<{
       </EditableTitle>
 
       {(description || !readOnly) && (
-        <Input
+        <InputTextArea
           variant="ghost"
-          className={'pl-0!'}
+          className={'py-0! pl-0!'}
           readOnly={readOnly}
           onChange={onChangeDashboardDescription}
           defaultValue={description}
+          autoResize={descriptionAutoResize}
           placeholder="Add description..."
         />
       )}

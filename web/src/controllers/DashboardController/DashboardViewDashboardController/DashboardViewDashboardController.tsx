@@ -25,22 +25,24 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   const dashboard = dashboardResponse?.dashboard;
 
   return (
-    <ScrollArea className="flex h-full flex-col space-y-3 p-10">
-      <DashboardEditTitles
-        onUpdateDashboard={onUpdateDashboard}
-        dashboardId={dashboardId}
-        readOnly={readOnly}
-        title={dashboardResponse?.dashboard?.name || ''}
-        description={dashboardResponse?.dashboard?.description || ''}
-      />
+    <ScrollArea className="h-full">
+      <div className="flex h-full flex-col space-y-3 p-10">
+        <DashboardEditTitles
+          onUpdateDashboard={onUpdateDashboard}
+          dashboardId={dashboardId}
+          readOnly={readOnly}
+          title={dashboardResponse?.dashboard?.name || ''}
+          description={dashboardResponse?.dashboard?.description || ''}
+        />
 
-      <DashboardContentController
-        metrics={metrics}
-        dashboard={dashboard}
-        onUpdateDashboardConfig={onUpdateDashboardConfig}
-        onOpenAddContentModal={onOpenAddContentModal}
-        readOnly={readOnly}
-      />
+        <DashboardContentController
+          metrics={metrics}
+          dashboard={dashboard}
+          onUpdateDashboardConfig={onUpdateDashboardConfig}
+          onOpenAddContentModal={onOpenAddContentModal}
+          readOnly={readOnly}
+        />
+      </div>
     </ScrollArea>
   );
 };

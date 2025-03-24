@@ -45,25 +45,25 @@ export const NonScrollable: Story = {
 export const WithCustomClassName: Story = {
   args: {
     className: 'bg-gray-50',
-    header: <div className="bg-gray-100">Header Content</div>,
+    header: <div className="">Header Content</div>,
     children: <div className="">Content with custom background</div>
   }
 };
 
 export const LongContent: Story = {
   args: {
-    header: <div className="bg-gray-100">Header Content</div>,
+    header: <div className="">Header Content</div>,
     scrollable: true,
     headerBorderVariant: 'ghost',
     children: (
-      <>
+      <div className="border border-red-500 bg-red-100 p-1">
         {Array.from({ length: 100 }, (_, i) => (
           <p key={i} className="mb-4">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
             incididunt ut labore et dolore magna aliqua.
           </p>
         ))}
-      </>
+      </div>
     )
   }
 };
