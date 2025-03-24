@@ -104,7 +104,6 @@ const CollectionList: React.FC<{
   selectedCollection: BusterCollection;
   loadedAsset: string;
 }> = React.memo(({ setOpenAddTypeModal, selectedCollection, assetList, loadedAsset }) => {
-  const { mutateAsync: updateCollection, isPending: isUpdatingCollection } = useUpdateCollection();
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const items: BusterListRow[] = useMemo(() => {
@@ -120,20 +119,6 @@ const CollectionList: React.FC<{
 
   const onSelectChange = useMemoizedFn((selectedRowKeys: string[]) => {
     setSelectedRowKeys(selectedRowKeys);
-  });
-
-  const onRemoveFromCollection = useMemoizedFn(async () => {
-    const assets = assetList
-      .filter((v) => !selectedRowKeys.includes(v.id))
-      .map((v) => ({
-        type: v.asset_type,
-        id: v.id
-      }));
-    await updateCollection({
-      id: selectedCollection.id,
-      assets
-    });
-    setSelectedRowKeys([]);
   });
 
   const onOpenAddTypeModal = useMemoizedFn(() => {
@@ -164,7 +149,7 @@ const CollectionList: React.FC<{
       <CollectionIndividualSelectedPopup
         selectedRowKeys={selectedRowKeys}
         onSelectChange={onSelectChange}
-        onRemoveFromCollection={onRemoveFromCollection}
+        collectionId={selectedCollection.id}
       />
     </div>
   );
