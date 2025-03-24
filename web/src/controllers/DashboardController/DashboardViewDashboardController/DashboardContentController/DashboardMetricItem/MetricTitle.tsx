@@ -11,7 +11,7 @@ import { useRemoveMetricsFromDashboard } from '@/api/buster_rest/dashboards';
 import { cn } from '@/lib/utils';
 
 export const MetricTitle: React.FC<{
-  title: BusterMetric['title'];
+  name: BusterMetric['name'];
   timeFrame?: BusterMetric['time_frame'];
   description?: BusterMetric['description'];
   metricLink: string;
@@ -24,7 +24,7 @@ export const MetricTitle: React.FC<{
     metricId,
     readOnly = true,
     dashboardId,
-    title,
+    name,
     description,
     isDragOverlay,
     metricLink,
@@ -34,16 +34,6 @@ export const MetricTitle: React.FC<{
 
     const useEllipsis = !isDragOverlay && !isDragging;
 
-    const titleConfig = useMemo(() => {
-      return {
-        ellipsis: {
-          tooltip: {
-            title: useEllipsis ? title : ''
-          }
-        }
-      };
-    }, [title, useEllipsis]);
-
     return (
       <Link className="flex px-4" href={metricLink} prefetch>
         <div
@@ -52,12 +42,11 @@ export const MetricTitle: React.FC<{
           className={'flex cursor-pointer flex-col space-y-0.5 overflow-hidden'}>
           <div className="flex w-full justify-between space-x-0.5 overflow-hidden">
             <Title
-              {...titleConfig}
               as="h4"
               truncate
               className="text-md! whitespace-nowrap"
               style={{ fontSize: '14px' }}>
-              {`${title}`}
+              {`${name}`}
             </Title>
           </div>
 

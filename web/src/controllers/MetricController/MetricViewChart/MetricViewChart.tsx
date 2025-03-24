@@ -26,7 +26,7 @@ export const MetricViewChart: React.FC<{
     } = useGetMetricData({ id: metricId });
 
     const { mutateAsync: updateMetric } = useUpdateMetric();
-    const { title, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
+    const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
     const isTable = metric?.chart_config.selectedChartType === ChartType.Table;
 
     const readOnly = readOnlyProp || !canEdit(metric?.permission);
@@ -39,7 +39,7 @@ export const MetricViewChart: React.FC<{
       if (updateMetric && inputHasText(title)) {
         updateMetric({
           id: metricId,
-          title
+          name: title
         });
       }
     });
@@ -55,7 +55,7 @@ export const MetricViewChart: React.FC<{
           className={cardClassName}>
           <MetricViewChartHeader
             className="px-4"
-            title={title}
+            name={name}
             description={description}
             timeFrame={time_frame}
             onSetTitle={onSetTitle}

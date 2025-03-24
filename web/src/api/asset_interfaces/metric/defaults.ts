@@ -140,7 +140,7 @@ export const DEFAULT_COLUMN_METADATA: ColumnMetaData[] = [];
 export const DEFAULT_IBUSTER_METRIC: Required<IBusterMetric> = {
   id: 'DEFAULT_ID',
   type: 'metric',
-  title: '',
+  name: '',
   version_number: 1,
   description: '',
   time_frame: '',
@@ -171,18 +171,4 @@ export const DEFAULT_IBUSTER_METRIC: Required<IBusterMetric> = {
   publicly_accessible: false,
   public_password: null,
   versions: []
-};
-
-export const DEFAULT_BUSTER_METRIC_LIST_ITEM: Required<BusterMetricListItem> = {
-  id: 'DEFAULT_ID',
-  last_edited: '',
-  title: '',
-  dataset_name: '',
-  dataset_uuid: '',
-  created_by_id: '',
-  created_by_name: '',
-  created_by_email: '',
-  created_by_avatar: '',
-  status: VerificationStatus.NOT_REQUESTED,
-  is_shared: false
 };

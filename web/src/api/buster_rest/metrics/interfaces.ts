@@ -7,15 +7,6 @@ export interface GetMetricParams {
   version_number?: number; //api will default to latest if not provided
 }
 
-export interface ListMetricsParams {
-  /** The token representing the current page number for pagination */
-  page_token: number;
-  /** The number of items to return per page */
-  page_size: number;
-  /** Filtering options for metrics based on verification status */
-  status?: VerificationStatus[] | null;
-}
-
 /**
  * Request payload for updating metric properties
  */
@@ -23,7 +14,7 @@ export type UpdateMetricParams = {
   /** The unique identifier of the metric to update */
   id: string;
   /** New title for the metric */
-  title?: string;
+  name?: string;
   /** SQL query associated with the metric */
   sql?: string;
   chart_config?: BusterChartConfigProps;

@@ -14,7 +14,7 @@ import {
   unshareMetric,
   updateMetricShare
 } from './requests';
-import type { GetMetricParams, ListMetricsParams } from './interfaces';
+import type { GetMetricParams } from './interfaces';
 import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '@/lib/metrics';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
@@ -73,8 +73,10 @@ export const prefetchGetMetric = async (params: GetMetricParams, queryClientProp
   return queryClient;
 };
 
-export const useGetMetricsList = (params: Omit<ListMetricsParams, 'page_token' | 'page_size'>) => {
-  const compiledParams: ListMetricsParams = useMemo(
+export const useGetMetricsList = (
+  params: Omit<Parameters<typeof listMetrics>[0], 'page_token' | 'page_size'>
+) => {
+  const compiledParams: Parameters<typeof listMetrics>[0] = useMemo(
     () => ({ ...params, page_token: 0, page_size: 3000 }),
     [params]
   );
@@ -95,7 +97,7 @@ export const useGetMetricsList = (params: Omit<ListMetricsParams, 'page_token' |
 };
 
 export const prefetchGetMetricsList = async (
-  params: ListMetricsParams,
+  params: Parameters<typeof listMetrics>[0],
   queryClientProp?: QueryClient
 ) => {
   const queryClient = queryClientProp || new QueryClient();

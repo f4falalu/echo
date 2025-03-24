@@ -152,7 +152,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
           {...memoizedAnimation}>
           <AnimatedTitleWrapper title={formattedHeader} type="header" />
           <div className="py-1.5">
-            <Title {...titleProps}>{formattedValue}</Title>
+            <Title truncate>{formattedValue}</Title>
           </div>
           <AnimatedTitleWrapper title={formattedSubHeader} type="subHeader" />
         </motion.div>
@@ -161,12 +161,6 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
   }
 );
 BusterMetricChart.displayName = 'BusterMetricChart';
-
-const titleProps = {
-  ellipsis: {
-    tooltip: true
-  }
-};
 
 const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' | 'subHeader' }) => {
   const memoizedAnimation = useMemo(() => {
@@ -211,7 +205,7 @@ const AnimatedTitleWrapper = ({ title, type }: { title: string; type: 'header' |
       {title && (
         <motion.div className="overflow-visible" {...memoizedAnimation}>
           <motion.div className="origin-center">
-            <Title {...titleProps} as="h4">
+            <Title truncate as="h4">
               {title}
             </Title>
           </motion.div>

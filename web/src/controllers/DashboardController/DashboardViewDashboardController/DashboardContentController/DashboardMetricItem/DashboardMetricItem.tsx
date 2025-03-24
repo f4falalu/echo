@@ -72,7 +72,7 @@ const DashboardMetricItemBase: React.FC<{
         size="small"
         className="hover:bg-item-hover group h-12 justify-center overflow-hidden border-b p-0!">
         <MetricTitle
-          title={metric?.title || ''}
+          name={metric?.name || ''}
           timeFrame={metric?.time_frame}
           metricLink={metricLink}
           isDragOverlay={isDragOverlay}

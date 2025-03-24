@@ -4,7 +4,7 @@ import type { BusterChartConfigProps } from './charts';
 export type BusterMetric = {
   id: string;
   type: 'metric';
-  title: string;
+  name: string;
   version_number: number;
   description: string | null;
   file_name: string;

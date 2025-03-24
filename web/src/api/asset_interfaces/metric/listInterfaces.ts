@@ -2,7 +2,7 @@ import { VerificationStatus } from '../share';
 
 export type BusterMetricListItem = {
   id: string;
-  title: string;
+  name: string;
   last_edited: string;
   dataset_name: string;
   dataset_uuid: string;

@@ -7,13 +7,13 @@ export const METRIC_CHART_TITLE_INPUT_ID = 'metric-chart-title-input';
 
 export const MetricViewChartHeader: React.FC<{
   className?: string;
-  title: string | undefined;
+  name: string | undefined;
   description: string | undefined | null;
   timeFrame: string | undefined;
   onSetTitle: (value: string) => void;
   readOnly: boolean;
-}> = React.memo(({ className, title = '', description, timeFrame, onSetTitle, readOnly }) => {
-  const hasTitleOrDescription = !!title || !!description;
+}> = React.memo(({ className, name = '', description, timeFrame, onSetTitle, readOnly }) => {
+  const hasTitleOrDescription = !!name || !!description;
 
   return (
     <div
@@ -29,7 +29,7 @@ export const MetricViewChartHeader: React.FC<{
             readOnly={readOnly}
             inputClassName="h-auto!"
             onChange={onSetTitle}>
-            {title}
+            {name}
           </EditableTitle>
           <div className="flex items-center space-x-1 whitespace-nowrap">
             {!!timeFrame && (

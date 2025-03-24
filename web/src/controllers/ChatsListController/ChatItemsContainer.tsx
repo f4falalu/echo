@@ -66,10 +66,10 @@ export const ChatItemsContainer: React.FC<{
   const columns: BusterListColumn[] = useMemo(
     () => [
       {
-        dataIndex: 'title',
-        title: 'Title',
-        render: (title, record) => (
-          <TitleCell title={title} status={record?.status} chatId={record?.id} />
+        dataIndex: 'name',
+        title: 'Name',
+        render: (name, record) => (
+          <TitleCell name={name} status={record?.status} chatId={record?.id} />
         )
       },
       {
@@ -159,21 +159,21 @@ const EmptyState: React.FC<{
 });
 EmptyState.displayName = 'EmptyState';
 
-const TitleCell = React.memo<{ title: string; status: VerificationStatus; chatId: string }>(
-  ({ title, status, chatId }) => {
+const TitleCell = React.memo<{ name: string; status: VerificationStatus; chatId: string }>(
+  ({ name, status, chatId }) => {
     const onFavoriteDivClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
     });
 
     return (
       <div className="flex w-full items-center space-x-2">
-        <Text truncate>{title}</Text>
+        <Text truncate>{name}</Text>
         <div className="mr-2 flex items-center" onClick={onFavoriteDivClick}>
           <FavoriteStar
             id={chatId}
             type={ShareAssetType.CHAT}
             iconStyle="tertiary"
-            title={title}
+            title={name}
             className="hidden! group-hover:flex!"
           />
         </div>

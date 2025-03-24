@@ -1,17 +1,17 @@
 import { mainApi } from '../instances';
 import { serverFetch } from '@/api/createServerInstance';
-import type { GetMetricParams, ListMetricsParams, UpdateMetricParams } from './interfaces';
+import type { GetMetricParams, UpdateMetricParams } from './interfaces';
 import type {
   BusterMetric,
   BusterMetricData,
   BusterMetricListItem
 } from '@/api/asset_interfaces/metric';
-import { ShareRole } from '@/api/asset_interfaces/share';
-import {
+import type {
   ShareDeleteRequest,
   SharePostRequest,
   ShareUpdateRequest
 } from '@/api/asset_interfaces/shared_interfaces';
+import { VerificationStatus } from '@/api/asset_interfaces/share';
 
 export const getMetric = async ({ id, password, version_number }: GetMetricParams) => {
   return mainApi
@@ -39,11 +39,18 @@ export const getMetricData = async ({
     .then((res) => res.data);
 };
 
-export const listMetrics = async (params: ListMetricsParams) => {
+export const listMetrics = async (params: {
+  /** The token representing the current page number for pagination */
+  page_token: number;
+  /** The number of items to return per page */
+  page_size: number;
+  /** Filtering options for metrics based on verification status */
+  status?: VerificationStatus[] | null;
+}) => {
   return mainApi.get<BusterMetricListItem[]>('/metrics', { params }).then((res) => res.data);
 };
 
-export const listMetrics_server = async (params: ListMetricsParams) => {
+export const listMetrics_server = async (params: Parameters<typeof listMetrics>[0]) => {
   return await serverFetch<BusterMetricListItem[]>('/metrics', { params });
 };
 
@@ -52,9 +59,11 @@ export const updateMetric = async (params: UpdateMetricParams) => {
 };
 
 export const deleteMetrics = async (params: { ids: string[] }) => {
-  return mainApi.delete<null>(`/metrics`, { 
-    data: { ids: params.ids }
-  }).then((res) => res.data);
+  return mainApi
+    .delete<null>(`/metrics`, {
+      data: { ids: params.ids }
+    })
+    .then((res) => res.data);
 };
 
 export const duplicateMetric = async (params: {

@@ -52,7 +52,7 @@ export const generateChartDownloadImage = async (
   await renderChart;
 
   const dataImage = await exportElementToImage(tempContainer);
-  const title = message?.title || 'Buster Chart';
+  const title = message?.name || 'Buster Chart';
 
   await downloadImageData(dataImage, `${title}.png`);
   await timeout(10);

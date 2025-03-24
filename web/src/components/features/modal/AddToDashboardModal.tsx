@@ -23,8 +23,8 @@ export const AddToDashboardModal: React.FC<{
 
   const columns: InputSelectModalProps['columns'] = [
     {
-      title: 'Title',
-      dataIndex: 'title'
+      title: 'Name',
+      dataIndex: 'name'
     },
     {
       title: 'Last edited',

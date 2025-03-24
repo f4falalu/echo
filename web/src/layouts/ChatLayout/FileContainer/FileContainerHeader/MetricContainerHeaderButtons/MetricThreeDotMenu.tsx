@@ -287,11 +287,11 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: title } = useGetMetric({ id: metricId }, (x) => x.title);
+  const { data: name } = useGetMetric({ id: metricId }, (x) => x.name);
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: metricId,
     type: ShareAssetType.METRIC,
-    name: title || ''
+    name: name || ''
   });
 
   const item: DropdownItem = useMemo(
@@ -364,7 +364,7 @@ const useSQLEditorSelectMenu = () => {
 const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const { data: metricData } = useGetMetricData({ id: metricId });
-  const { data: title } = useGetMetric({ id: metricId }, (x) => x.title);
+  const { data: name } = useGetMetric({ id: metricId }, (x) => x.name);
 
   return useMemo(
     () => ({
@@ -374,20 +374,20 @@ const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
       loading: isDownloading,
       onClick: async () => {
         const data = metricData?.data;
-        if (data && title) {
+        if (data && name) {
           setIsDownloading(true);
-          await exportJSONToCSV(data, title);
+          await exportJSONToCSV(data, name);
           setIsDownloading(false);
         }
       }
     }),
-    [metricData, isDownloading, title]
+    [metricData, isDownloading, name]
   );
 };
 
 const useDownloadPNGSelectMenu = ({ metricId }: { metricId: string }) => {
   const { openErrorMessage } = useBusterNotifications();
-  const { data: title } = useGetMetric({ id: metricId }, (x) => x.title);
+  const { data: name } = useGetMetric({ id: metricId }, (x) => x.name);
   const { data: selectedChartType } = useGetMetric(
     { id: metricId },
     (x) => x.chart_config?.selectedChartType
@@ -405,7 +405,7 @@ const useDownloadPNGSelectMenu = ({ metricId }: { metricId: string }) => {
         const node = document.getElementById(METRIC_CHART_CONTAINER_ID(metricId)) as HTMLElement;
         if (node) {
           try {
-            return await downloadElementToImage(node, `${title}.png`);
+            return await downloadElementToImage(node, `${name}.png`);
           } catch (error) {
             console.error(error);
           }

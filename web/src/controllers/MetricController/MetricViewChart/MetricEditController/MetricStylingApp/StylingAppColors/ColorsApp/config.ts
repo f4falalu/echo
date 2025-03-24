@@ -59,7 +59,7 @@ export const COLORFUL_THEMES: IColorTheme[] = [
     colors: BOLD_RAINBOW_THEME
   },
   {
-    name: 'Vibrant Modern',
+    name: 'Modern',
     colors: VIBRANT_RAINBOW_THEME
   },
   {
@@ -67,11 +67,11 @@ export const COLORFUL_THEMES: IColorTheme[] = [
     colors: CORPORATE_THEME
   },
   {
-    name: 'Vibrant Jewel Tones',
+    name: 'Jewel Tones',
     colors: VIBRANT_JEWEL_TONES_THEME
   },
   {
-    name: 'Vibrant Pastel',
+    name: 'Soft Pastel',
     colors: VIBRANT_PASTEL_THEME
   },
   {
@@ -83,7 +83,7 @@ export const COLORFUL_THEMES: IColorTheme[] = [
     colors: EMERALD_SPECTRUM_THEME
   },
   {
-    name: 'Green Spectrum',
+    name: 'Forest Lake',
     colors: DIVERSE_DARK_PALETTE_GREEN_THEME
   },
   {

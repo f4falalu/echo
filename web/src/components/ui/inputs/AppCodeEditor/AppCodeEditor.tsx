@@ -107,7 +107,8 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
         monaco.editor.defineTheme('github-light', GithubLightTheme);
         monaco.editor.defineTheme('night-owl', NightOwlTheme);
         editor.updateOptions({
-          theme: useDarkMode ? 'night-owl' : 'github-light'
+          theme: useDarkMode ? 'night-owl' : 'github-light',
+          colorDecorators: true
         });
         if (onChangeEditorHeight) {
           editor.onDidContentSizeChange(() => {

@@ -22,7 +22,7 @@ const DEFAULT_COLUMN_SETTINGS_ENTRIES = Object.entries(DEFAULT_COLUMN_SETTINGS);
 const DEFAULT_COLUMN_LABEL_FORMATS_ENTRIES = Object.entries(DEFAULT_COLUMN_LABEL_FORMAT);
 
 const getChangedTopLevelMessageValues = (newMetric: IBusterMetric, oldMetric: IBusterMetric) => {
-  return getChangedValues(oldMetric, newMetric, ['title', 'feedback', 'status', 'sql', 'file']);
+  return getChangedValues(oldMetric, newMetric, ['name', 'feedback', 'status', 'sql', 'file']);
 };
 
 const keySpecificHandlers: Partial<Record<keyof IBusterMetricChartConfig, (value: any) => any>> = {

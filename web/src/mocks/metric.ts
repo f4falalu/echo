@@ -78,7 +78,7 @@ export const createMockMetric = (id: string): IBusterMetric => {
   const chart_config = createMockChartConfig();
 
   return {
-    title: id + ' - ' + faker.lorem.words({ min: 2, max: 6 }),
+    name: id + ' - ' + faker.lorem.words({ min: 2, max: 6 }),
     version_number: 1,
     file_name: `${faker.lorem.words({ min: 1, max: 4 })}.yml`,
     description: faker.commerce.productName(),
@@ -200,7 +200,7 @@ export const mockMetric30 = createMockMetric('number30');
 
 export const createMockListMetric = (id: string): BusterMetricListItem => ({
   id,
-  title: faker.commerce.productName(),
+  name: faker.commerce.productName(),
   last_edited: faker.date.recent().toISOString(),
   dataset_name: faker.commerce.productName(),
   dataset_uuid: faker.string.uuid(),

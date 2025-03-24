@@ -63,10 +63,10 @@ export const MetricItemsContainer: React.FC<{
   const columns: BusterListColumn[] = useMemo(
     () => [
       {
-        dataIndex: 'title',
-        title: 'Title',
-        render: (title, record) => (
-          <TitleCell title={title} status={record?.status} metricId={record?.id} />
+        dataIndex: 'name',
+        title: 'Name',
+        render: (name, record) => (
+          <TitleCell name={name} status={record?.status} metricId={record?.id} />
         )
       },
       {
@@ -151,19 +151,19 @@ const EmptyState: React.FC<{
 });
 EmptyState.displayName = 'EmptyState';
 
-const TitleCell = React.memo<{ title: string; status: VerificationStatus; metricId: string }>(
-  ({ title, status, metricId }) => {
+const TitleCell = React.memo<{ name: string; status: VerificationStatus; metricId: string }>(
+  ({ name, status, metricId }) => {
     return (
       <div className="mr-2 flex w-full items-center space-x-2">
         <div className="flex items-center justify-center">
           <StatusBadgeIndicator status={status} />
         </div>
-        <Text truncate>{title}</Text>
+        <Text truncate>{name}</Text>
         <FavoriteStar
           id={metricId}
           type={ShareAssetType.METRIC}
           iconStyle="tertiary"
-          title={title}
+          title={name}
           className="opacity-0 group-hover:opacity-100"
         />
       </div>
