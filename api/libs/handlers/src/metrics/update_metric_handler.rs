@@ -49,7 +49,8 @@ use crate::metrics::types::BusterMetric;
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 pub struct UpdateMetricRequest {
-    pub title: Option<String>,
+    #[serde(alias = "title")]
+    pub name: Option<String>,
     pub description: Option<String>,
     pub chart_config: Option<Value>,
     pub time_frame: Option<String>,
@@ -126,7 +127,7 @@ pub async fn update_metric_handler(
                 .map(|id| Uuid::parse_str(&id))
                 .collect::<Result<_, _>>()?;
         }
-        if let Some(title) = request.title {
+        if let Some(title) = request.name {
             content.name = title;
         }
         if let Some(sql) = request.sql {
@@ -192,7 +193,7 @@ mod tests {
         
         // Create a request with valid UUID format for dataset_ids
         let valid_request = UpdateMetricRequest {
-            title: Some("Valid Title".to_string()),
+            name: Some("Valid Title".to_string()),
             description: Some("Valid Description".to_string()),
             chart_config: Some(serde_json::json!({
                 "chartType": "bar",
@@ -206,7 +207,7 @@ mod tests {
         };
         
         // Verify the request fields are properly structured
-        assert_eq!(valid_request.title.unwrap(), "Valid Title");
+        assert_eq!(valid_request.name.unwrap(), "Valid Title");
         assert_eq!(valid_request.description.unwrap(), "Valid Description");
         assert_eq!(valid_request.time_frame.unwrap(), "daily");
         assert!(valid_request.chart_config.is_some());

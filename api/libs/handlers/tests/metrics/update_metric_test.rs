@@ -40,7 +40,7 @@ async fn test_update_metric_integration() -> Result<()> {
     
     // Create an update request with various fields to change
     let update_request = UpdateMetricRequest {
-        title: Some("Updated Test Metric".to_string()),
+        name: Some("Updated Test Metric".to_string()),
         description: Some("Updated test description".to_string()),
         chart_config: Some(serde_json::json!({
             "selectedChartType": "bar",
@@ -61,7 +61,7 @@ async fn test_update_metric_integration() -> Result<()> {
     match update_metric_handler(&metric_id, &user_id, update_request).await {
         Ok(updated_metric) => {
             // Verify the updated values in the returned metric
-            assert_eq!(updated_metric.title, "Updated Test Metric");
+            assert_eq!(updated_metric.name, "Updated Test Metric");
             assert_eq!(updated_metric.status, Verification::Verified);
             assert_eq!(updated_metric.time_frame, "weekly");
             
@@ -126,7 +126,7 @@ async fn test_update_nonexistent_metric() -> Result<()> {
     
     // Create a basic update request
     let update_request = UpdateMetricRequest {
-        title: Some("Updated Test Metric".to_string()),
+        name: Some("Updated Test Metric".to_string()),
         description: None,
         chart_config: None,
         time_frame: None,
@@ -173,7 +173,7 @@ async fn test_update_specific_metric_fields() -> Result<()> {
     
     // Test 1: Update only title
     let title_request = UpdateMetricRequest {
-        title: Some("Title Only Update".to_string()),
+        name: Some("Title Only Update".to_string()),
         description: None,
         chart_config: None,
         time_frame: None,
@@ -185,7 +185,7 @@ async fn test_update_specific_metric_fields() -> Result<()> {
     
     match update_metric_handler(&metric_id, &user_id, title_request).await {
         Ok(metric) => {
-            assert_eq!(metric.title, "Title Only Update");
+            assert_eq!(metric.name, "Title Only Update");
             
             // Verify other fields were not changed
             assert_eq!(metric.time_frame, "daily");
@@ -218,7 +218,7 @@ async fn test_update_specific_metric_fields() -> Result<()> {
     
     // Test 2: Update only verification
     let verification_request = UpdateMetricRequest {
-        title: None,
+        name: None,
         description: None,
         chart_config: None,
         time_frame: None,
@@ -233,7 +233,7 @@ async fn test_update_specific_metric_fields() -> Result<()> {
             assert_eq!(metric.status, Verification::Verified);
             
             // Verify title remains from previous update
-            assert_eq!(metric.title, "Title Only Update");
+            assert_eq!(metric.name, "Title Only Update");
             
             // Verify version number increased again
             assert_eq!(metric.version_number, 3);
@@ -263,7 +263,7 @@ async fn test_update_specific_metric_fields() -> Result<()> {
     
     // Test 3: Update only SQL
     let sql_request = UpdateMetricRequest {
-        title: None,
+        name: None,
         description: None,
         chart_config: None,
         time_frame: None,
@@ -280,7 +280,7 @@ async fn test_update_specific_metric_fields() -> Result<()> {
             assert_eq!(content.sql, "SELECT new_value FROM new_table");
             
             // Verify other fields remain unchanged
-            assert_eq!(metric.title, "Title Only Update");
+            assert_eq!(metric.name, "Title Only Update");
             assert_eq!(metric.status, Verification::Verified);
             
             // Verify version number increased to 4

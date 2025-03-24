@@ -258,7 +258,7 @@ pub async fn get_metric_handler(
     Ok(BusterMetric {
         id: metric_file.id,
         metric_type: "metric".to_string(),
-        title: metric_file.name,
+        name: metric_file.name,
         version_number: version_num,
         description: metric_content.description,
         file_name: metric_file.file_name,
