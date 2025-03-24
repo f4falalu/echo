@@ -78,34 +78,32 @@ export const DatasetListContent: React.FC<{
 
   return (
     <>
-      <AppPageLayoutContent>
-        <BusterList
-          columns={columns}
-          rows={rows}
-          selectedRowKeys={selectedRowKeys}
-          onSelectChange={setSelectedRowKeys}
-          emptyState={useMemo(
-            () =>
-              !isFetchedDatasets ? (
-                <></>
-              ) : (
-                <ListEmptyStateWithButton
-                  isAdmin={isAdmin}
-                  title="You don't have any datasets yet."
-                  buttonText="New dataset"
-                  description="Datasets help you organize your data. Datasets will appear here when you create them."
-                  onClick={onClickEmptyState}
-                />
-              ),
-            [isFetchedDatasets, isAdmin, onClickEmptyState]
-          )}
-        />
+      <BusterList
+        columns={columns}
+        rows={rows}
+        selectedRowKeys={selectedRowKeys}
+        onSelectChange={setSelectedRowKeys}
+        emptyState={useMemo(
+          () =>
+            !isFetchedDatasets ? (
+              <></>
+            ) : (
+              <ListEmptyStateWithButton
+                isAdmin={isAdmin}
+                title="You don't have any datasets yet."
+                buttonText="New dataset"
+                description="Datasets help you organize your data. Datasets will appear here when you create them."
+                onClick={onClickEmptyState}
+              />
+            ),
+          [isFetchedDatasets, isAdmin, onClickEmptyState]
+        )}
+      />
 
-        <DatasetSelectedOptionPopup
-          selectedRowKeys={selectedRowKeys}
-          onSelectChange={setSelectedRowKeys}
-        />
-      </AppPageLayoutContent>
+      <DatasetSelectedOptionPopup
+        selectedRowKeys={selectedRowKeys}
+        onSelectChange={setSelectedRowKeys}
+      />
     </>
   );
 });

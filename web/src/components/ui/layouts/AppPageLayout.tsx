@@ -32,7 +32,7 @@ export const AppPageLayout: React.FC<
   return (
     <div
       className={cn(
-        'flex h-full w-full flex-col overflow-hidden',
+        'app-page-layout flex h-full w-full flex-col overflow-hidden',
         scrollable && 'overflow-y-auto',
         className
       )}>

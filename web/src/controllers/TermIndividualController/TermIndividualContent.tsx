@@ -64,92 +64,84 @@ export const TermIndividualContent: React.FC<{
   }, [term?.name, term?.definition]);
 
   return (
-    <AppPageLayoutContent className="overflow-auto p-8">
-      {loadingSelectedTerm ? (
-        <SkeletonLoader />
-      ) : (
-        <div className="flex flex-col">
-          <div className="flex justify-between space-x-3">
-            <div className="mb-5 flex flex-col space-y-0.5">
-              <div className={'overflow-hidden'}>
-                <EditableTitle
-                  onEdit={setEditingTermName}
-                  onChange={(v) => {
-                    onSetTermName(v);
-                  }}
-                  level={4}>
-                  {termName}
-                </EditableTitle>
-              </div>
-              <div>
-                <Text variant="secondary">
-                  Last updated:{' '}
-                  {formatDate({
-                    date: term?.updated_at!,
-                    format: 'lll'
-                  })}
-                </Text>
-              </div>
+    <>
+      <div className="flex flex-col">
+        <div className="flex justify-between space-x-3">
+          <div className="mb-5 flex flex-col space-y-0.5">
+            <div className={'overflow-hidden'}>
+              <EditableTitle
+                onEdit={setEditingTermName}
+                onChange={(v) => {
+                  onSetTermName(v);
+                }}
+                level={4}>
+                {termName}
+              </EditableTitle>
             </div>
-
             <div>
-              <MoreDropdown termId={termId} />
+              <Text variant="secondary">
+                Last updated:{' '}
+                {formatDate({
+                  date: term?.updated_at!,
+                  format: 'lll'
+                })}
+              </Text>
             </div>
           </div>
 
-          <div className="flex flex-col space-y-4">
-            <ItemContainer title="Definition">
-              <div className={'overflow-hidden'}>
-                <InputTextArea
-                  key={term?.id || 'default'}
-                  defaultValue={term?.definition || termDefinition}
-                  autoResize={{ minRows: 3, maxRows: 20 }}
-                  placeholder={'Enter definition...'}
-                  onBlur={(e) => {
-                    onSetTermDefinition(e.target.value);
-                  }}
-                  variant="ghost"
-                />
-              </div>
-            </ItemContainer>
-
-            <ItemContainer
-              title={
-                <div className="flex w-full items-center justify-between space-x-2">
-                  <Text>SQL Snippet</Text>
-
-                  <div className="cursor-pointer">
-                    <CircleQuestion />
-                  </div>
-                </div>
-              }>
-              <div className="relative h-full w-full" style={{ height: sqlHeight }}>
-                <AppCodeEditor
-                  style={{ minHeight: sqlHeight }}
-                  defaultValue={termSQL}
-                  onChangeEditorHeight={(v) => {
-                    setSqlHeight(clamp(v, 300, 800));
-                  }}
-                  onChange={(v) => {
-                    onSetTermSQL.run(v);
-                  }}
-                  monacoEditorOptions={{
-                    scrollbar: {
-                      alwaysConsumeMouseWheel: false
-                    }
-                  }}
-                />
-              </div>
-            </ItemContainer>
+          <div>
+            <MoreDropdown termId={termId} />
           </div>
         </div>
-      )}
-    </AppPageLayoutContent>
-  );
-};
 
-const SkeletonLoader: React.FC = () => {
-  return <div className="p-4">{/* <Skeleton /> */}</div>;
+        <div className="flex flex-col space-y-4">
+          <ItemContainer title="Definition">
+            <div className={'overflow-hidden'}>
+              <InputTextArea
+                key={term?.id || 'default'}
+                defaultValue={term?.definition || termDefinition}
+                autoResize={{ minRows: 3, maxRows: 20 }}
+                placeholder={'Enter definition...'}
+                onBlur={(e) => {
+                  onSetTermDefinition(e.target.value);
+                }}
+                variant="ghost"
+              />
+            </div>
+          </ItemContainer>
+
+          <ItemContainer
+            title={
+              <div className="flex w-full items-center justify-between space-x-2">
+                <Text>SQL Snippet</Text>
+
+                <div className="cursor-pointer">
+                  <CircleQuestion />
+                </div>
+              </div>
+            }>
+            <div className="relative h-full w-full" style={{ height: sqlHeight }}>
+              <AppCodeEditor
+                style={{ minHeight: sqlHeight }}
+                defaultValue={termSQL}
+                onChangeEditorHeight={(v) => {
+                  setSqlHeight(clamp(v, 300, 800));
+                }}
+                onChange={(v) => {
+                  onSetTermSQL.run(v);
+                }}
+                monacoEditorOptions={{
+                  scrollbar: {
+                    alwaysConsumeMouseWheel: false
+                  }
+                }}
+              />
+            </div>
+          </ItemContainer>
+        </div>
+      </div>
+    </>
+  );
 };
 
 const MoreDropdown: React.FC<{ termId: string }> = ({ termId }) => {

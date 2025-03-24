@@ -66,7 +66,7 @@ export const TermsListController: React.FC<{
   });
 
   return (
-    <AppPageLayoutContent>
+    <>
       <BusterList
         rows={rows}
         columns={columns}
@@ -90,7 +90,7 @@ export const TermsListController: React.FC<{
         selectedRowKeys={selectedTermIds}
         onSelectChange={setSelectedTermIds}
       />
-    </AppPageLayoutContent>
+    </>
   );
 });
 

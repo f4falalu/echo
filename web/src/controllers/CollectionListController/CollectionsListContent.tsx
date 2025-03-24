@@ -36,13 +36,11 @@ export const CollectionsListContent: React.FC<{
 
     return (
       <>
-        <AppPageLayoutContent>
-          <CollectionList
-            collectionsList={collectionsList}
-            setOpenNewCollectionModal={setOpenNewCollectionModal}
-            loadedCollections={isCollectionListFetched}
-          />
-        </AppPageLayoutContent>
+        <CollectionList
+          collectionsList={collectionsList}
+          setOpenNewCollectionModal={setOpenNewCollectionModal}
+          loadedCollections={isCollectionListFetched}
+        />
 
         <NewCollectionModal
           open={openNewCollectionModal}

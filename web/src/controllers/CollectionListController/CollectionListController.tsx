@@ -18,6 +18,8 @@ export const CollectionListController: React.FC = () => {
 
   return (
     <AppPageLayout
+      className="swagswagswag"
+      scrollable={false}
       header={
         <CollectionListHeader
           setOpenNewCollectionModal={setOpenNewCollectionModal}
