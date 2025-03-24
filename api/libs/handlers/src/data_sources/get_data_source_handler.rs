@@ -21,7 +21,7 @@ pub struct GetDataSourceRequest {
 pub struct DataSourceResponse {
     pub id: String,
     pub name: String,
-    pub db_type: DataSourceType,
+    pub r#type: DataSourceType,
     pub created_at: String,
     pub updated_at: String,
     pub created_by: CreatedByResponse,
@@ -90,7 +90,7 @@ pub async fn get_data_source_handler(
     let response = DataSourceResponse {
         id: data_source.id.to_string(),
         name: data_source.name,
-        db_type: data_source.type_,
+        r#type: data_source.type_,
         created_at: data_source.created_at.to_rfc3339(),
         updated_at: data_source.updated_at.to_rfc3339(),
         created_by: CreatedByResponse {
