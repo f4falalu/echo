@@ -1,17 +1,17 @@
 use axum::http::StatusCode;
 use diesel::sql_types;
 use diesel_async::RunQueryDsl;
+use middleware::types::AuthenticatedUser;
 use serde_json::json;
 use uuid::Uuid;
 use database::enums::UserOrganizationRole;
 
 use crate::common::{
-    assertions::response::ResponseAssertions,
     fixtures::builder::UserBuilder,
     http::test_app::TestApp,
 };
 
-// DataSourceBuilder for setting up test data
+// Mock DataSourceBuilder since we don't know the exact implementation
 struct DataSourceBuilder {
     name: String,
     env: String,
@@ -30,15 +30,7 @@ impl DataSourceBuilder {
             organization_id: Uuid::new_v4(),
             created_by: Uuid::new_v4(),
             db_type: "postgres".to_string(),
-            credentials: json!({
-                "type": "postgres",
-                "host": "localhost",
-                "port": 5432,
-                "username": "postgres",
-                "password": "password",
-                "default_database": "test_db",
-                "default_schema": "public"
-            }),
+            credentials: json!({}),
             id: Uuid::new_v4(),
         }
     }
@@ -111,124 +103,113 @@ struct DataSourceResponse {
 }
 
 #[tokio::test]
-async fn test_get_data_source() {
+async fn test_delete_data_source() {
     let app = TestApp::new().await.unwrap();
     
     // Create a test user with organization and proper role
-    let admin_user = UserBuilder::new()
+    let user = UserBuilder::new()
         .with_organization("Test Org")
-        .with_org_role(UserOrganizationRole::WorkspaceAdmin)
+        .with_org_role(UserOrganizationRole::WorkspaceAdmin) // Ensure user has admin role
         .build(&app.db.pool)
         .await;
     
     // Create a test data source
-    let postgres_credentials = json!({
-        "type": "postgres",
-        "host": "localhost",
-        "port": 5432,
-        "username": "postgres",
-        "password": "secure_password",
-        "default_database": "test_db",
-        "default_schema": "public"
-    });
-    
     let data_source = DataSourceBuilder::new()
-        .with_name("Test Postgres DB")
+        .with_name("Data Source To Delete")
         .with_env("dev")
-        .with_organization_id(admin_user.organization_id)
-        .with_created_by(admin_user.id)
+        .with_organization_id(user.organization_id)
+        .with_created_by(user.id)
         .with_type("postgres")
-        .with_credentials(postgres_credentials)
+        .with_credentials(json!({
+            "type": "postgres",
+            "host": "localhost",
+            "port": 5432,
+            "username": "postgres",
+            "password": "password",
+            "database": "test",
+            "schemas": ["public"]
+        }))
         .build(&app.db.pool)
         .await;
     
-    // Test successful get by admin
+    // Send delete request
     let response = app
         .client
-        .get(format!("/api/data_sources/{}", data_source.id))
-        .header("Authorization", format!("Bearer {}", admin_user.api_key))
+        .delete(format!("/api/data_sources/{}", data_source.id))
+        .header("Authorization", format!("Bearer {}", user.api_key))
         .send()
         .await
         .unwrap();
     
-    response.assert_status(StatusCode::OK);
+    // Assert response
+    assert_eq!(response.status(), StatusCode::NO_CONTENT);
     
-    let body = response.json::<serde_json::Value>().await.unwrap();
-    assert_eq!(body["id"], data_source.id);
-    assert_eq!(body["name"], "Test Postgres DB");
-    assert_eq!(body["db_type"], "postgres");
-    
-    // Verify credentials in response
-    let credentials = &body["credentials"];
-    assert_eq!(credentials["type"], "postgres");
-    assert_eq!(credentials["host"], "localhost");
-    assert_eq!(credentials["port"], 5432);
-    assert_eq!(credentials["username"], "postgres");
-    assert_eq!(credentials["password"], "secure_password"); // Credentials are returned in API
-    
-    // Create a data viewer user for testing
-    let viewer_user = UserBuilder::new()
-        .with_organization("Test Org")
-        .with_org_role(UserOrganizationRole::DataViewer)
-        .build(&app.db.pool)
-        .await;
-    
-    // Test successful get by viewer
+    // Try to get the deleted data source (should fail)
     let response = app
         .client
         .get(format!("/api/data_sources/{}", data_source.id))
-        .header("Authorization", format!("Bearer {}", viewer_user.api_key))
+        .header("Authorization", format!("Bearer {}", user.api_key))
         .send()
         .await
         .unwrap();
     
-    response.assert_status(StatusCode::OK);
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
     
-    // Create a regular user for testing permissions
+    // Try to delete a non-existent data source
+    let invalid_id = Uuid::new_v4();
+    let response = app
+        .client
+        .delete(format!("/api/data_sources/{}", invalid_id))
+        .header("Authorization", format!("Bearer {}", user.api_key))
+        .send()
+        .await
+        .unwrap();
+    
+    assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    
+    // Test deleting with insufficient permissions
     let regular_user = UserBuilder::new()
         .with_organization("Test Org")
-        .with_org_role(UserOrganizationRole::User) // Regular user with no data access
+        .with_org_role(UserOrganizationRole::User) // Regular user role
         .build(&app.db.pool)
         .await;
-    
-    // Test failed get by regular user (insufficient permissions)
+        
+    // Create another data source
+    let another_data_source = DataSourceBuilder::new()
+        .with_name("Another Data Source")
+        .with_env("dev")
+        .with_organization_id(user.organization_id)
+        .with_created_by(user.id)
+        .with_type("postgres")
+        .with_credentials(json!({
+            "type": "postgres",
+            "host": "localhost",
+            "port": 5432,
+            "username": "postgres",
+            "password": "password"
+        }))
+        .build(&app.db.pool)
+        .await;
+        
     let response = app
         .client
-        .get(format!("/api/data_sources/{}", data_source.id))
+        .delete(format!("/api/data_sources/{}", another_data_source.id))
         .header("Authorization", format!("Bearer {}", regular_user.api_key))
         .send()
         .await
         .unwrap();
+        
+    // Should fail due to insufficient permissions
+    assert_eq!(response.status(), StatusCode::FORBIDDEN);
     
-    response.assert_status(StatusCode::FORBIDDEN);
-    
-    // Test with non-existent data source
-    let non_existent_id = Uuid::new_v4();
-    let response = app
-        .client
-        .get(format!("/api/data_sources/{}", non_existent_id))
-        .header("Authorization", format!("Bearer {}", admin_user.api_key))
-        .send()
+    // Check that the secret is actually deleted from the vault
+    let mut conn = app.db.pool.get().await.unwrap();
+    let secret_exists: Option<(i64,)> = diesel::sql_query("SELECT 1 FROM vault.secrets WHERE id = $1")
+        .bind::<diesel::sql_types::Uuid, _>(&Uuid::parse_str(&data_source.id).unwrap())
+        .load(&mut conn)
         .await
-        .unwrap();
+        .unwrap()
+        .pop();
     
-    response.assert_status(StatusCode::NOT_FOUND);
-    
-    // Create an organization for cross-org test
-    let another_org_user = UserBuilder::new()
-        .with_organization("Another Org")
-        .with_org_role(UserOrganizationRole::WorkspaceAdmin)
-        .build(&app.db.pool)
-        .await;
-    
-    // Test cross-organization access (should fail)
-    let response = app
-        .client
-        .get(format!("/api/data_sources/{}", data_source.id))
-        .header("Authorization", format!("Bearer {}", another_org_user.api_key))
-        .send()
-        .await
-        .unwrap();
-    
-    response.assert_status(StatusCode::NOT_FOUND);
+    assert!(secret_exists.is_none(), "Secret should be deleted from the vault");
 }

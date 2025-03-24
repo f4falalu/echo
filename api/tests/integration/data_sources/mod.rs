@@ -1,3 +1,5 @@
 mod list_data_sources_test;
 mod get_data_source_test;
 mod update_data_source_test;
+mod create_data_source_test;
+mod delete_data_source_test;

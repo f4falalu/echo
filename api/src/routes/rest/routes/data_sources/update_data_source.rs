@@ -11,7 +11,7 @@ pub async fn update_data_source(
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateDataSourceRequest>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
-    match update_data_source_handler(&user.id, &id, payload).await {
+    match update_data_source_handler(&user, &id, payload).await {
         Ok(_) => Ok(ApiResponse::NoContent),
         Err(e) => {
             tracing::error!("Error updating data source: {:?}", e);
