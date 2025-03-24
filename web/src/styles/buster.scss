@@ -7,22 +7,23 @@
 }
 
 .scroll-shadow-container {
-  @apply relative;
+  @apply relative overflow-y-auto;
+  scroll-timeline-name: --scrollShadowContainer;
 
   .scroll-header {
     @apply fixed top-[30px] right-0 left-0 h-2 w-full;
     animation: shadowAnimation linear;
-    animation-range: 0px 125px;
-    animation-timeline: scroll(block start);
+    animation-range: 0px 100px;
+    animation-timeline: --scrollShadowContainer;
     animation-fill-mode: forwards;
   }
 
   @keyframes shadowAnimation {
     from {
-      box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+      box-shadow: 0px 0px 0px 0px var(--color-border) !important;
     }
     to {
-      box-shadow: 0px 1px 8px 0px #00000029;
+      box-shadow: 0px 0px 0px 0.5px var(--color-border) !important;
     }
   }
 }

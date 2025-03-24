@@ -1,7 +1,7 @@
 import { mainApi } from '../instances';
 import { serverFetch } from '@/api/createServerInstance';
-import type { GetMetricParams, UpdateMetricParams } from './interfaces';
 import type {
+  BusterChartConfigProps,
   BusterMetric,
   BusterMetricData,
   BusterMetricListItem
@@ -13,7 +13,15 @@ import type {
 } from '@/api/asset_interfaces/shared_interfaces';
 import { VerificationStatus } from '@/api/asset_interfaces/share';
 
-export const getMetric = async ({ id, password, version_number }: GetMetricParams) => {
+export const getMetric = async ({
+  id,
+  password,
+  version_number
+}: {
+  id: string;
+  password?: string;
+  version_number?: number; //api will default to latest if not provided
+}) => {
   return mainApi
     .get<BusterMetric>(`/metrics/${id}`, {
       params: { password, version_number }
@@ -21,7 +29,7 @@ export const getMetric = async ({ id, password, version_number }: GetMetricParam
     .then((res) => res.data);
 };
 
-export const getMetric_server = async ({ id, password }: GetMetricParams) => {
+export const getMetric_server = async ({ id, password }: Parameters<typeof getMetric>[0]) => {
   return await serverFetch<BusterMetric>(`/metrics/${id}`, {
     params: { ...(password && { password }) }
   });
@@ -54,7 +62,21 @@ export const listMetrics_server = async (params: Parameters<typeof listMetrics>[
   return await serverFetch<BusterMetricListItem[]>('/metrics', { params });
 };
 
-export const updateMetric = async (params: UpdateMetricParams) => {
+export const updateMetric = async (params: {
+  /** The unique identifier of the metric to update */
+  id: string;
+  /** New title for the metric */
+  name?: string;
+  /** SQL query associated with the metric */
+  sql?: string;
+  chart_config?: BusterChartConfigProps;
+  /** Flag to save the current draft state */
+  save_draft?: boolean;
+  /** Admin only: verification status update */
+  status?: VerificationStatus;
+  /** file in yaml format to update */
+  file?: string;
+}) => {
   return mainApi.put<BusterMetric>(`/metrics/${params.id}`, params).then((res) => res.data);
 };
 

@@ -45,7 +45,9 @@ export const AppPageLayout: React.FC<
         </AppPageLayoutHeader>
       )}
 
-      <AppPageLayoutContent className="scroll-shadow-container" scrollable={scrollable}>
+      <AppPageLayoutContent
+        className={cn(headerBorderVariant === 'ghost' && 'scroll-shadow-container')}
+        scrollable={scrollable}>
         {header && scrollable && headerBorderVariant === 'ghost' && (
           <div className="scroll-header"></div>
         )}

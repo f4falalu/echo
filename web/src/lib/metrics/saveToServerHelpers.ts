@@ -16,7 +16,7 @@ import type {
   PieChartAxis,
   ScatterAxis
 } from '@/api/asset_interfaces/metric/charts';
-import { UpdateMetricParams } from '@/api/buster_rest/metrics';
+import { type updateMetric } from '@/api/buster_rest/metrics';
 
 const DEFAULT_COLUMN_SETTINGS_ENTRIES = Object.entries(DEFAULT_COLUMN_SETTINGS);
 const DEFAULT_COLUMN_LABEL_FORMATS_ENTRIES = Object.entries(DEFAULT_COLUMN_LABEL_FORMAT);
@@ -120,11 +120,11 @@ const getChangesFromDefaultChartConfig = (newMetric: IBusterMetric) => {
 export const prepareMetricUpdateMetric = (
   newMetric: IBusterMetric,
   oldMetric: IBusterMetric
-): UpdateMetricParams | null => {
+): Parameters<typeof updateMetric>[0] | null => {
   const changedTopLevelValues = getChangedTopLevelMessageValues(
     newMetric,
     oldMetric
-  ) as unknown as UpdateMetricParams;
+  ) as unknown as Parameters<typeof updateMetric>[0];
 
   const changedChartConfig = getChangesFromDefaultChartConfig(newMetric);
 

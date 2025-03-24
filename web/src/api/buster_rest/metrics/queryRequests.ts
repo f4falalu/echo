@@ -14,7 +14,6 @@ import {
   unshareMetric,
   updateMetricShare
 } from './requests';
-import type { GetMetricParams } from './interfaces';
 import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '@/lib/metrics';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
@@ -60,7 +59,10 @@ export const useGetMetric = <TData = IBusterMetric>(
   });
 };
 
-export const prefetchGetMetric = async (params: GetMetricParams, queryClientProp?: QueryClient) => {
+export const prefetchGetMetric = async (
+  params: Parameters<typeof getMetric_server>[0],
+  queryClientProp?: QueryClient
+) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
     ...metricsQueryKeys.metricsGetMetric(params.id),

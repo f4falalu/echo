@@ -174,7 +174,6 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
               {inputValue && (
                 <AccessDropdown
                   showRemove={false}
-                  groupShare={false}
                   className="absolute top-[50%] right-[10px] -translate-y-1/2"
                   shareLevel={defaultPermissionLevel}
                   onChangeShareLevel={onChangeAccessDropdown}

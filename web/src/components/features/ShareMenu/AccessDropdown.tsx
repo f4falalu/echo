@@ -11,29 +11,17 @@ import { cn } from '@/lib/classMerge';
 type DropdownValue = ShareRole | 'remove' | 'notShared';
 
 export const AccessDropdown: React.FC<{
-  groupShare?: boolean;
   className?: string;
   showRemove?: boolean;
   shareLevel?: ShareRole | null;
   onChangeShareLevel?: (level: ShareRole | null) => void;
-}> = ({
-  shareLevel,
-  showRemove = true,
-  groupShare = false,
-  className = '',
-  onChangeShareLevel
-}) => {
+}> = ({ shareLevel, showRemove = true, className = '', onChangeShareLevel }) => {
   const disabled = useMemo(() => canEdit(shareLevel), [shareLevel]);
 
   const items = useMemo(() => {
-    const baseItems: DropdownItem<DropdownValue>[] = standardItems;
+    const baseItems: DropdownItem<DropdownValue>[] = [...standardItems];
 
-    if (groupShare) {
-      baseItems.push({
-        label: <DropdownLabel title="Not shared" subtitle="Does not have access." />,
-        value: 'notShared'
-      });
-    } else if (showRemove) {
+    if (showRemove) {
       baseItems.push({
         label: 'Remove',
         value: 'remove'
@@ -44,7 +32,7 @@ export const AccessDropdown: React.FC<{
       ...item,
       selected: item.value === shareLevel
     }));
-  }, [groupShare, showRemove, shareLevel]);
+  }, [showRemove, shareLevel]);
 
   const selectedLabel = useMemo(() => {
     const selectedItem = items.find((item) => item.selected) || OWNER_ITEM;
