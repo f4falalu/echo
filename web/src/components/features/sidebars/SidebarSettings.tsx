@@ -74,12 +74,24 @@ export const SidebarSettings: React.FC<{}> = React.memo(({}) => {
     return items;
   }, [isAdmin]);
 
+  console.log(currentParentRoute);
+
   return (
     <Sidebar
       content={content}
-      header={<SidebarSettingsHeader />}
+      header={useMemo(
+        () => (
+          <SidebarSettingsHeader />
+        ),
+        []
+      )}
       activeItem={currentParentRoute}
-      footer={<SidebarUserFooter />}
+      footer={useMemo(
+        () => (
+          <SidebarUserFooter />
+        ),
+        []
+      )}
     />
   );
 });

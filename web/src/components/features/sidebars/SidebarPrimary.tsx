@@ -150,13 +150,16 @@ export const SidebarPrimary = React.memo(() => {
 
   const onCloseSupportModal = useMemoizedFn(() => setOpenSupportModal(false));
 
+  const HeaderMemoized = useMemo(() => <SidebarPrimaryHeader />, []);
+  const FooterMemoized = useMemo(() => <SidebarUserFooter />, []);
+
   return (
     <>
       <Sidebar
         content={sidebarItems}
-        header={<SidebarPrimaryHeader />}
+        header={HeaderMemoized}
         activeItem={currentRoute}
-        footer={<SidebarUserFooter />}
+        footer={FooterMemoized}
       />
 
       <GlobalModals openSupportModal={openSupportModal} onCloseSupportModal={onCloseSupportModal} />
@@ -166,67 +169,60 @@ export const SidebarPrimary = React.memo(() => {
 
 SidebarPrimary.displayName = 'SidebarPrimary';
 
-const SidebarPrimaryHeader = React.memo(
-  () => {
-    const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
-    useHotkeys('C', () => {
-      onChangePage(BusterRoutes.APP_HOME);
-    });
+const SidebarPrimaryHeader: React.FC = () => {
+  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
+  useHotkeys('C', () => {
+    onChangePage(BusterRoutes.APP_HOME);
+  });
 
-    return (
-      <div className="flex items-center justify-between">
-        <BusterLogoWithText />
-        <div className="flex items-center gap-2">
-          <Tooltip title="Settings">
-            <Link href={createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE })}>
-              <Button prefix={<Gear />} variant="ghost" />
-            </Link>
-          </Tooltip>
-          <Tooltip title="Start a chat" shortcuts={['C']}>
-            <Link href={createBusterRoute({ route: BusterRoutes.APP_HOME })}>
-              <Button
-                size="tall"
-                rounding={'large'}
-                prefix={
-                  <div className="flex items-center justify-center">
-                    <PencilSquareIcon />
-                  </div>
-                }
-              />
-            </Link>
-          </Tooltip>
-        </div>
+  return (
+    <div className="flex items-center justify-between">
+      <BusterLogoWithText />
+      <div className="flex items-center gap-2">
+        <Tooltip title="Settings">
+          <Link href={createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE })}>
+            <Button prefix={<Gear />} variant="ghost" />
+          </Link>
+        </Tooltip>
+        <Tooltip title="Start a chat" shortcuts={['C']}>
+          <Link href={createBusterRoute({ route: BusterRoutes.APP_HOME })}>
+            <Button
+              size="tall"
+              rounding={'large'}
+              prefix={
+                <div className="flex items-center justify-center">
+                  <PencilSquareIcon />
+                </div>
+              }
+            />
+          </Link>
+        </Tooltip>
       </div>
-    );
-  },
-  () => true
-);
+    </div>
+  );
+};
 
-SidebarPrimaryHeader.displayName = 'SidebarPrimaryHeader';
+const GlobalModals = ({
+  openSupportModal,
+  onCloseSupportModal
+}: {
+  openSupportModal: boolean;
+  onCloseSupportModal: () => void;
+}) => {
+  const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
+  const openInviteModal = useAppLayoutContextSelector((s) => s.openInviteModal);
+  const onCloseInviteModal = useMemoizedFn(() => onToggleInviteModal(false));
+  const isAnonymousUser = useUserConfigContextSelector((state) => state.isAnonymousUser);
 
-const GlobalModals = React.memo(
-  ({
-    openSupportModal,
-    onCloseSupportModal
-  }: {
-    openSupportModal: boolean;
-    onCloseSupportModal: () => void;
-  }) => {
-    const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
-    const openInviteModal = useAppLayoutContextSelector((s) => s.openInviteModal);
-    const onCloseInviteModal = useMemoizedFn(() => onToggleInviteModal(false));
-    const isAnonymousUser = useUserConfigContextSelector((state) => state.isAnonymousUser);
+  if (isAnonymousUser) return null;
 
-    if (isAnonymousUser) return null;
-
-    return (
-      <>
-        <InvitePeopleModal open={openInviteModal} onClose={onCloseInviteModal} />
-        <SupportModal open={openSupportModal} onClose={onCloseSupportModal} />
-      </>
-    );
-  }
-);
+  return (
+    <>
+      <InvitePeopleModal open={openInviteModal} onClose={onCloseInviteModal} />
+      <SupportModal open={openSupportModal} onClose={onCloseSupportModal} />
+    </>
+  );
+};
 GlobalModals.displayName = 'GlobalModals';
 
 const favoritesDropdown = (
