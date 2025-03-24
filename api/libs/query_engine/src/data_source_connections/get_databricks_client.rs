@@ -82,7 +82,7 @@ impl Databricks {
         Databricks {
             host: databricks_credentials.host.clone(),
             api_key: databricks_credentials.api_key.clone(),
-            catalog_name: databricks_credentials.catalog_name.clone(),
+            catalog_name: databricks_credentials.default_catalog.clone(),
             warehouse_id: databricks_credentials.warehouse_id.clone(),
         }
     }

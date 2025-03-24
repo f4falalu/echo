@@ -21,8 +21,8 @@ pub enum Credential {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BigqueryCredentials {
     pub credentials_json: Value,
-    pub project_id: String,
-    pub dataset_ids: Option<Vec<String>>,
+    pub default_project_id: String,
+    pub default_dataset_id: String,
 }
 // Can get rid of project_id
 // And dataset_ids
@@ -32,8 +32,8 @@ pub struct DatabricksCredentials {
     pub host: String,
     pub api_key: String,
     pub warehouse_id: String,
-    pub catalog_name: String,
-    pub schemas: Option<Vec<String>>,
+    pub default_catalog: String,
+    pub default_schema: String,
 }
 
 // can get rid of catalog_name
@@ -48,8 +48,7 @@ pub struct MariadbCredentials {
     pub jump_host: Option<String>,
     pub ssh_username: Option<String>,
     pub ssh_private_key: Option<String>,
-    #[serde(rename = "schemas")]
-    pub databases: Option<Vec<String>>,
+    pub default_database: String,
 }
 
 // can get rid of databases
@@ -63,8 +62,7 @@ pub struct MySqlCredentials {
     pub jump_host: Option<String>,
     pub ssh_username: Option<String>,
     pub ssh_private_key: Option<String>,
-    #[serde(rename = "schemas")]
-    pub databases: Option<Vec<String>>,
+    pub default_database: String,
 }
 
 // can get rid of databases
@@ -75,12 +73,11 @@ pub struct PostgresCredentials {
     pub port: u16,
     pub username: String,
     pub password: String,
-    #[serde(alias = "dbname")]
-    pub database: String,
-    pub schema: Option<String>,
     pub jump_host: Option<String>,
     pub ssh_username: Option<String>,
     pub ssh_private_key: Option<String>,
+    pub default_database: String,
+    pub default_schema: String,
 }
 
 // can get rid of database and schema
@@ -92,8 +89,8 @@ pub struct RedshiftCredentials {
     pub port: u16,
     pub username: String,
     pub password: String,
-    pub database: String,
-    pub schemas: Option<Vec<String>>,
+    pub default_database: String,
+    pub default_schema: String,
 }
 
 // can get rid of database and schemas
@@ -102,11 +99,11 @@ pub struct RedshiftCredentials {
 pub struct SnowflakeCredentials {
     pub account_id: String,
     pub warehouse_id: String,
-    pub database_id: Option<String>,
     pub username: String,
     pub password: String,
     pub role: Option<String>,
-    pub schemas: Option<Vec<String>>,
+    pub default_database: String,
+    pub default_schema: String,
 }
 
 // can get rid of schemas and database id
@@ -117,14 +114,14 @@ pub struct SqlServerCredentials {
     pub port: u16,
     pub username: String,
     pub password: String,
-    pub database: String,
     pub jump_host: Option<String>,
     pub ssh_username: Option<String>,
     pub ssh_private_key: Option<String>,
-    pub schemas: Option<Vec<String>>,
+    pub default_database: String,
+    pub default_schema: String,
 }
 
-// can get rid of schemas and 
+// can get rid of schemas and
 
 impl Credential {
     pub fn get_type_string(&self) -> String {

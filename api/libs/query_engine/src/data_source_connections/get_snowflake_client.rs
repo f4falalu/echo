@@ -3,13 +3,14 @@ use snowflake_api::SnowflakeApi;
 
 use crate::credentials::SnowflakeCredentials;
 
+// TODO: make sure that can handle database attached to  datasets or other option
 pub async fn get_snowflake_client(
     credentials: &SnowflakeCredentials,
 ) -> Result<SnowflakeApi, Error> {
     let snowflake_client = match SnowflakeApi::with_password_auth(
         &credentials.account_id,
         Some(&credentials.warehouse_id),
-        credentials.database_id.as_deref(),
+        Some(&credentials.default_database),
         None,
         &credentials.username,
         credentials.role.as_deref(),
