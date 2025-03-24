@@ -175,7 +175,7 @@ pub async fn update_data_source_handler(
                     .get("default_schema")
                     .and_then(|v| v.as_str())
                 {
-                    updated.default_schema = default_schema.to_string();
+                    updated.default_schema = Some(default_schema.to_string());
                 }
                 if let Some(jump_host) = new_credentials.get("jump_host").and_then(|v| v.as_str()) {
                     updated.jump_host = Some(jump_host.to_string());
@@ -286,7 +286,7 @@ pub async fn update_data_source_handler(
                     .get("default_schema")
                     .and_then(|v| v.as_str())
                 {
-                    updated.default_schema = default_schema.to_string();
+                    updated.default_schema = Some(default_schema.to_string());
                 }
                 if let Some(jump_host) = new_credentials.get("jump_host").and_then(|v| v.as_str()) {
                     updated.jump_host = Some(jump_host.to_string());
@@ -334,7 +334,7 @@ pub async fn update_data_source_handler(
                     .get("default_schema")
                     .and_then(|v| v.as_str())
                 {
-                    updated.default_schema = default_schema.to_string();
+                    updated.default_schema = Some(default_schema.to_string());
                 }
 
                 Credential::Redshift(updated)
@@ -363,7 +363,7 @@ pub async fn update_data_source_handler(
                     .get("default_schema")
                     .and_then(|v| v.as_str())
                 {
-                    updated.default_schema = default_schema.to_string();
+                    updated.default_schema = Some(default_schema.to_string());
                 }
 
                 Credential::Databricks(updated)
@@ -399,7 +399,7 @@ pub async fn update_data_source_handler(
                     .get("default_schema")
                     .and_then(|v| v.as_str())
                 {
-                    updated.default_schema = default_schema.to_string();
+                    updated.default_schema = Some(default_schema.to_string());
                 }
 
                 Credential::Snowflake(updated)
