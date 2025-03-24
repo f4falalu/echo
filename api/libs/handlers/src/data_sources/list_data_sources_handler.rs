@@ -2,14 +2,13 @@ use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use middleware::types::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use database::{
-    enums::DataSourceType,
-    models::UserToOrganization,
+    enums::{DataSourceType, UserOrganizationRole},
     pool::get_pg_pool,
-    schema::{data_sources, users_to_organizations},
+    schema::data_sources,
 };
 
 #[derive(Deserialize)]
@@ -28,27 +27,35 @@ pub struct DataSourceListItem {
 }
 
 pub async fn list_data_sources_handler(
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     page: Option<i64>,
     page_size: Option<i64>,
 ) -> Result<Vec<DataSourceListItem>> {
+    // Verify user has an organization
+    if user.organizations.is_empty() {
+        return Err(anyhow!("User is not a member of any organization"));
+    }
+
+    // Get the first organization (users can only belong to one organization currently)
+    let user_org = &user.organizations[0];
+    
+    // Verify user has appropriate permissions (at least viewer role)
+    if user_org.role != UserOrganizationRole::WorkspaceAdmin 
+       && user_org.role != UserOrganizationRole::DataAdmin
+       && user_org.role != UserOrganizationRole::Querier
+       && user_org.role != UserOrganizationRole::RestrictedQuerier
+       && user_org.role != UserOrganizationRole::Viewer {
+        return Err(anyhow!("User does not have appropriate permissions to view data sources"));
+    }
+    
     let page = page.unwrap_or(0);
     let page_size = page_size.unwrap_or(25);
 
     let mut conn = get_pg_pool().get().await?;
 
-    // Get the user's organization
-    let user_organization = users_to_organizations::table
-        .filter(users_to_organizations::user_id.eq(user_id))
-        .filter(users_to_organizations::deleted_at.is_null())
-        .select(users_to_organizations::all_columns)
-        .first::<UserToOrganization>(&mut conn)
-        .await
-        .map_err(|e| anyhow!("Unable to get user organization: {}", e))?;
-
-    // Get data sources for the organization
+    // Get data sources for the organization (using organization ID from AuthenticatedUser)
     let data_sources_list = data_sources::table
-        .filter(data_sources::organization_id.eq(user_organization.organization_id))
+        .filter(data_sources::organization_id.eq(user_org.id))
         .filter(data_sources::deleted_at.is_null())
         .order_by(data_sources::updated_at.desc())
         .limit(page_size)

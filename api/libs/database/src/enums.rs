@@ -514,7 +514,7 @@ impl DataSourceType {
         }
     }
 
-    pub fn to_string(&self) -> &'static str {
+    pub fn to_str(&self) -> &'static str {
         match *self {
             DataSourceType::BigQuery => "bigquery",
             DataSourceType::Databricks => "databricks",
@@ -526,6 +526,20 @@ impl DataSourceType {
             DataSourceType::SqlServer => "sqlserver",
             DataSourceType::Supabase => "supabase",
         }
+    }
+
+    pub fn to_string(&self) -> String {
+        String::from(match *self {
+            DataSourceType::BigQuery => "bigquery",
+            DataSourceType::Databricks => "databricks",
+            DataSourceType::MySql => "mysql",
+            DataSourceType::Mariadb => "mariadb",
+            DataSourceType::Postgres => "postgres",
+            DataSourceType::Redshift => "redshift",
+            DataSourceType::Snowflake => "snowflake",
+            DataSourceType::SqlServer => "sqlserver",
+            DataSourceType::Supabase => "supabase",
+        })
     }
 }
 
