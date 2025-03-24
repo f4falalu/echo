@@ -32,13 +32,20 @@ export const useGetCollectionsList = (
   });
 };
 
-export const useGetCollection = (collectionId: string | undefined) => {
+const useFetchCollection = () => {
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
-  const { password } = getAssetPassword(collectionId!);
 
+  return useMemoizedFn(async (collectionId: string) => {
+    const { password } = getAssetPassword(collectionId!);
+    return collectionsGetCollection({ id: collectionId!, password });
+  });
+};
+
+export const useGetCollection = (collectionId: string | undefined) => {
+  const fetchCollection = useFetchCollection();
   return useQuery({
     ...collectionQueryKeys.collectionsGetCollection(collectionId!),
-    queryFn: () => collectionsGetCollection({ id: collectionId!, password }),
+    queryFn: () => fetchCollection(collectionId!),
     enabled: !!collectionId
   });
 };
@@ -185,19 +192,21 @@ export const useUpdateCollectionShare = () => {
   });
 };
 
-export const useAddAssetToCollection = () => {
+export const useAddAssetToCollection = (useInvalidate = true) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addAssetToCollection,
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey
-      });
+      if (useInvalidate) {
+        queryClient.invalidateQueries({
+          queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey
+        });
+      }
     }
   });
 };
 
-export const useRemoveAssetFromCollection = () => {
+export const useRemoveAssetFromCollection = (useInvalidate = true) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: removeAssetFromCollection,
@@ -208,13 +217,79 @@ export const useRemoveAssetFromCollection = () => {
       queryClient.setQueryData(queryKey, (previousData) => {
         const ids = variables.assets.map((a) => a.id);
         return create(previousData!, (draft) => {
-          draft.assets = draft.assets!.filter((a) => !ids.includes(a.id));
+          draft.assets = draft.assets?.filter((a) => !ids.includes(a.id)) || [];
         });
       });
     },
     onSuccess: (_, variables) => {
+      if (useInvalidate) {
+        queryClient.invalidateQueries({
+          queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey
+        });
+      }
+    }
+  });
+};
+
+export const useAddAndRemoveAssetsFromCollection = () => {
+  const queryClient = useQueryClient();
+  const fetchCollection = useFetchCollection();
+  const { mutateAsync: addAssetToCollection } = useAddAssetToCollection(false);
+  const { mutateAsync: removeAssetFromCollection } = useRemoveAssetFromCollection(false);
+
+  const addAndRemoveAssetsToCollection = useMemoizedFn(
+    async (variables: {
+      collectionId: string;
+      assets: {
+        type: 'metric' | 'dashboard';
+        id: string;
+      }[];
+    }) => {
+      let currentCollection = queryClient.getQueryData<BusterCollection>(
+        collectionQueryKeys.collectionsGetCollection(variables.collectionId).queryKey
+      );
+
+      if (!currentCollection) {
+        currentCollection = await fetchCollection(variables.collectionId);
+        queryClient.setQueryData(
+          collectionQueryKeys.collectionsGetCollection(variables.collectionId).queryKey,
+          currentCollection
+        );
+      }
+
+      if (!currentCollection) throw new Error('Collection not found');
+
+      const removedAssets =
+        currentCollection.assets
+          ?.filter((a) => !variables.assets.some((b) => b.id === a.id))
+          .map((a) => ({
+            type: a.asset_type as 'metric' | 'dashboard',
+            id: a.id
+          })) || [];
+      const addedAssets = variables.assets.filter(
+        (a) => !currentCollection.assets?.some((b) => b.id === a.id)
+      );
+
+      await Promise.all([
+        addedAssets.length > 0 &&
+          addAssetToCollection({
+            id: variables.collectionId,
+            assets: addedAssets
+          }),
+        removedAssets.length > 0 &&
+          removeAssetFromCollection({
+            id: variables.collectionId,
+            assets: removedAssets
+          })
+      ]);
+    }
+  );
+
+  return useMutation({
+    mutationFn: addAndRemoveAssetsToCollection,
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey
+        queryKey: collectionQueryKeys.collectionsGetCollection(variables.collectionId).queryKey
       });
     }
   });

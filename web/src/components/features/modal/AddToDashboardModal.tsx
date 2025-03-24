@@ -4,11 +4,7 @@ import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { InputSelectModal, InputSelectModalProps } from '@/components/ui/modal/InputSelectModal';
 import { formatDate } from '@/lib';
 import { Button } from '@/components/ui/buttons';
-import {
-  useAddAndRemoveMetricsFromDashboard,
-  useAddMetricsToDashboard,
-  useGetDashboard
-} from '@/api/buster_rest/dashboards';
+import { useAddAndRemoveMetricsFromDashboard, useGetDashboard } from '@/api/buster_rest/dashboards';
 
 export const AddToDashboardModal: React.FC<{
   open: boolean;

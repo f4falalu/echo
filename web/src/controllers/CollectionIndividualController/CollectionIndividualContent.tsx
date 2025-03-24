@@ -12,13 +12,13 @@ import {
 } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
 import { ListEmptyStateWithButton } from '@/components/ui/list';
-import { AddTypeModal } from '@/components/features/modal/AddTypeModal';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { useMemoizedFn } from '@/hooks';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { CollectionIndividualSelectedPopup } from './CollectionsIndividualPopup';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { useUpdateCollection } from '@/api/buster_rest/collections';
+import { AddToCollectionModal } from '@/components/features/modal/AddToCollectionModal';
 
 export const CollectionIndividualContent: React.FC<{
   collection: BusterCollection | undefined;
@@ -47,11 +47,10 @@ export const CollectionIndividualContent: React.FC<{
         loadedAsset={loadedAsset}
       />
 
-      <AddTypeModal
+      <AddToCollectionModal
         open={openAddTypeModal}
         onClose={onCloseModal}
-        type="collection"
-        collection={collection}
+        collectionId={collection.id}
       />
     </>
   );
