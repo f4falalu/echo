@@ -8,7 +8,7 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useRouter } from 'next/navigation';
 import { AppModal } from '@/components/ui/modal';
 import { Text } from '@/components/ui/typography';
-import { useListDatasources } from '@/api/buster_rest/datasource';
+import { useListDatasources } from '@/api/buster_rest/data_source';
 
 const headerConfig = {
   title: 'Create a dataset',

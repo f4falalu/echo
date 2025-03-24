@@ -15,7 +15,7 @@ import { DataBricksForm } from './_forms/DataBricksForm';
 import { useConfetti } from '@/hooks/useConfetti';
 import { SqlServerForm } from './_forms/SqlServerForm';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useCreateDatasource, useUpdateDatasource } from '@/api/buster_rest/datasource';
+import { useCreateDatasource, useUpdateDatasource } from '@/api/buster_rest/data_source';
 
 const FormRecord: Record<
   DataSourceTypes,

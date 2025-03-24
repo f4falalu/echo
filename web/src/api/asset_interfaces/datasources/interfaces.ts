@@ -9,6 +9,7 @@ export enum DataSourceStatus {
 
 export enum DataSourceTypes {
   postgres = 'postgres',
+  supabase = 'supabase',
   mysql = 'mysql',
   bigquery = 'bigquery',
   snowflake = 'snowflake',
@@ -16,7 +17,6 @@ export enum DataSourceTypes {
   mariadb = 'mariadb',
   sqlserver = 'sqlserver',
   databricks = 'databricks',
-  supabase = 'supabase',
   athena = 'athena',
   other = 'other'
 }

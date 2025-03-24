@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/buttons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Plus, Dots, Trash } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
-import { useDeleteDatasource, useListDatasources } from '@/api/buster_rest/datasource';
+import { useDeleteDatasource, useListDatasources } from '@/api/buster_rest/data_source';
 import { EmptyStateList, ListEmptyStateWithButton } from '@/components/ui/list';
 
 export const DatasourceList: React.FC = () => {

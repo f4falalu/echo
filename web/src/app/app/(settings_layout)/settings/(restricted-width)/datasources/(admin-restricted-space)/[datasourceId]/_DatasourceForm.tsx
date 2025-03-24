@@ -9,7 +9,7 @@ import React from 'react';
 import { DataSourceFormContent } from './_DatasourceFormContent';
 import { Title, Text } from '@/components/ui/typography';
 import { Trash } from '@/components/ui/icons';
-import { useDeleteDatasource, useGetDatasource } from '@/api/buster_rest/datasource';
+import { useDeleteDatasource, useGetDatasource } from '@/api/buster_rest/data_source';
 
 export const DatasourceForm: React.FC<{ datasourceId: string }> = ({ datasourceId }) => {
   const { data: dataSource, isFetched: isFetchedDataSource } = useGetDatasource(datasourceId);
