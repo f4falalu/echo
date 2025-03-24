@@ -12,8 +12,6 @@ pub async fn get_bigquery_client(
             anyhow!(e)
         })?;
 
-    println!("sa_key: {:?}", sa_key);
-
     let client = Client::from_service_account_key(sa_key, false)
         .await
         .map_err(|e| {
@@ -21,5 +19,5 @@ pub async fn get_bigquery_client(
             anyhow!(e)
         })?;
 
-    Ok((client, credentials.project_id.clone()))
+    Ok((client, credentials.default_project_id.clone()))
 }

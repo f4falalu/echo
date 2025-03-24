@@ -57,7 +57,7 @@ pub async fn get_sql_server_connection(
         credentials.password.clone(),
     ));
     config.trust_cert();
-    config.database(credentials.database.clone());
+    config.database(credentials.default_database.clone());
 
     if let Some(local_port) = parent_local_port {
         config.host("localhost");
