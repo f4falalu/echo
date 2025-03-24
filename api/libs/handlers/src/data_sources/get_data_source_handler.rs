@@ -58,6 +58,9 @@ pub async fn get_data_source_handler(
     // Verify user has appropriate permissions (at least viewer role)
     if user_org.role != UserOrganizationRole::WorkspaceAdmin
         && user_org.role != UserOrganizationRole::DataAdmin
+        && user_org.role != UserOrganizationRole::Querier
+        && user_org.role != UserOrganizationRole::RestrictedQuerier
+        && user_org.role != UserOrganizationRole::Viewer
     {
         return Err(anyhow!(
             "User does not have appropriate permissions to view data sources"

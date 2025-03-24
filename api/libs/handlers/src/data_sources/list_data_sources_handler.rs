@@ -4,7 +4,6 @@ use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use middleware::types::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use database::{
     enums::{DataSourceType, UserOrganizationRole},
@@ -39,6 +38,15 @@ pub async fn list_data_sources_handler(
 
     // Get the first organization (users can only belong to one organization currently)
     let user_org = &user.organizations[0];
+    
+    // Verify user has appropriate permissions (at least viewer role)
+    if user_org.role != UserOrganizationRole::WorkspaceAdmin 
+       && user_org.role != UserOrganizationRole::DataAdmin
+       && user_org.role != UserOrganizationRole::Querier
+       && user_org.role != UserOrganizationRole::RestrictedQuerier
+       && user_org.role != UserOrganizationRole::Viewer {
+        return Err(anyhow!("User does not have appropriate permissions to view data sources"));
+    }
     
     let page = page.unwrap_or(0);
     let page_size = page_size.unwrap_or(25);

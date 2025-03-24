@@ -18,7 +18,6 @@ use query_engine::credentials::Credential;
 #[derive(Deserialize)]
 pub struct CreateDataSourceRequest {
     pub name: String,
-    pub env: String,
     #[serde(flatten)]
     pub credential: Credential,
 }
@@ -71,7 +70,6 @@ pub async fn create_data_source_handler(
     let existing_data_source = data_sources::table
         .filter(data_sources::name.eq(&request.name))
         .filter(data_sources::organization_id.eq(user_org.id))
-        .filter(data_sources::env.eq(&request.env))
         .filter(data_sources::deleted_at.is_null())
         .first::<DataSource>(&mut conn)
         .await
@@ -99,7 +97,7 @@ pub async fn create_data_source_handler(
         created_at: now,
         updated_at: now,
         deleted_at: None,
-        env: request.env.clone(),
+        env: "env".to_string(),
     };
 
     // Insert the data source
