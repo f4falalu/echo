@@ -82,7 +82,7 @@ export const UserSegments: React.FC<{
 
   return (
     <div className="flex flex-col space-y-2">
-      <AppSegmented options={options} value={selectedApp} onChange={onChange} />
+      <AppSegmented type="button" options={options} value={selectedApp} onChange={onChange} />
       <Separator />
     </div>
   );

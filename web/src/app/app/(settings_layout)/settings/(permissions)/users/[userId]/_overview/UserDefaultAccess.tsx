@@ -20,7 +20,7 @@ export const UserDefaultAccess: React.FC<{
   myUser: BusterUser;
   refetchUser: () => void;
 }> = ({ user, isAdmin, myUser, refetchUser }) => {
-  const { mutateAsync, isPending } = useUpdateUser();
+  const { mutateAsync } = useUpdateUser();
 
   const userIsMe = user.id === myUser.id;
 
@@ -30,17 +30,13 @@ export const UserDefaultAccess: React.FC<{
   });
 
   return (
-    <div className="flex flex-col space-y-5">
-      <DefaultAccessDescription name={user.name} />
-
-      <DefaultAccessCard
-        role={user.role}
-        onChange={onChange}
-        isLoading={isPending}
-        isAdmin={isAdmin}
-        userIsMe={userIsMe}
-      />
-    </div>
+    <DefaultAccessCard
+      role={user.role}
+      onChange={onChange}
+      isAdmin={isAdmin}
+      userIsMe={userIsMe}
+      name={user.name}
+    />
   );
 };
 
@@ -55,49 +51,49 @@ const DefaultAccessCard = React.memo(
   ({
     role,
     onChange,
-    isLoading,
     isAdmin,
-    userIsMe
+    userIsMe,
+    name
   }: {
     role: OrganizationUser['role'];
     onChange: (role: OrganizationUser['role']) => void;
-    isLoading: boolean;
     isAdmin: boolean;
     userIsMe: boolean;
+    name: string;
   }) => {
     const isDisabled = !isAdmin || userIsMe;
 
     return (
       <Card>
-        <div className="flex items-center justify-between">
-          <Text>Default Access</Text>
-
-          <AppTooltip
-            title={
-              isDisabled
-                ? userIsMe
-                  ? 'You cannot change your own access'
-                  : 'Only admins can change access'
-                : undefined
-            }>
-            <Select items={accessOptions} value={role} onChange={onChange} disabled={isDisabled} />
-          </AppTooltip>
-        </div>
+        <CardHeader>
+          <CardTitle>Default Access</CardTitle>
+          <CardDescription>
+            This becomes the minimum level of access that {name} will have for all datasets.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="!pt-0">
+          <div className="flex items-center justify-between">
+            <Text variant="secondary">Access level</Text>
+            <AppTooltip
+              title={
+                isDisabled
+                  ? userIsMe
+                    ? 'You cannot change your own access'
+                    : 'Only admins can change access'
+                  : undefined
+              }>
+              <Select
+                items={accessOptions}
+                value={role}
+                onChange={onChange}
+                disabled={isDisabled}
+              />
+            </AppTooltip>
+          </div>
+        </CardContent>
       </Card>
     );
   }
 );
 
 DefaultAccessCard.displayName = 'DefaultAccessCard';
-const DefaultAccessDescription = React.memo(({ name }: { name: string }) => {
-  return (
-    <div className="flex flex-col space-y-1.5">
-      <Title as="h4">Default Access</Title>
-      <Text variant="secondary">
-        {`This becomes the minimum level of access that ${name} will have for all datasets.`}
-      </Text>
-    </div>
-  );
-});
-
-DefaultAccessDescription.displayName = 'DefaultAccessDescription';

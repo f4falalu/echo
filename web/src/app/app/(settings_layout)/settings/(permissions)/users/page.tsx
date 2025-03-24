@@ -16,7 +16,7 @@ export default function Page() {
   const { filteredItems, handleSearchChange, searchText } = useDebounceSearch({
     items: users || [],
     searchPredicate: (item, searchText) =>
-      item.email.includes(searchText) || item.name.includes(searchText)
+      item.email?.includes(searchText) || item.name?.includes(searchText)
   });
 
   return (

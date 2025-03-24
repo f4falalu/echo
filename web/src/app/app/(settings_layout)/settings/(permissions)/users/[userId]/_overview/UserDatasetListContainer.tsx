@@ -8,6 +8,7 @@ import {
 import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import type { OrganizationUserDataset } from '@/api/asset_interfaces';
 import { PermissionLineageBreadcrumb } from '@/components/features/PermissionComponents';
+import { Text } from '@/components/ui/typography';
 
 export const UserDatasetListContainer = React.memo(
   ({ filteredDatasets }: { filteredDatasets: OrganizationUserDataset[] }) => {
@@ -16,13 +17,13 @@ export const UserDatasetListContainer = React.memo(
         {
           title: 'Name',
           dataIndex: 'name',
-          width: 290
-        },
-        {
-          title: '',
-          dataIndex: 'datasets',
           render: (_: string, dataset: OrganizationUserDataset) => {
-            return <DatasetLineageCell dataset={dataset} />;
+            return (
+              <div className="flex items-center justify-between space-x-2">
+                <Text>{dataset.name}</Text>
+                <DatasetLineageCell dataset={dataset} />
+              </div>
+            );
           }
         }
       ],

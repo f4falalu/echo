@@ -17,7 +17,7 @@ export const UserOverviewController = React.memo(({ userId }: { userId: string }
   return (
     <>
       <UserDefaultAccess user={user} myUser={myUser} isAdmin={isAdmin} refetchUser={refetchUser} />
-      <UserLineageHeader className="mt-[48px]!" user={user} />
+      <UserLineageHeader className="mt-12!" user={user} />
       <UserDatasetSearch user={user} />
     </>
   );

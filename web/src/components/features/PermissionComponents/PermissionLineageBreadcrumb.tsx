@@ -118,17 +118,19 @@ const LineageBreadcrumb: React.FC<{
   items: React.ReactNode[];
   canQuery: boolean;
 }> = ({ items, canQuery }) => {
-  const BreadcrumbIcon = <ChevronRight />;
-
   const allItems = [...items, <CanQueryTag key="can-query" canQuery={canQuery} />];
 
   return (
-    <div className={cn('text-text-secondary', 'flex justify-end space-x-0')}>
+    <div className={cn('text-text-secondary', 'flex justify-end space-x-0.5')}>
       {allItems.map((item, index) => {
         return (
           <div key={index} className="flex items-center space-x-0">
             {item}
-            {index < allItems.length - 1 && BreadcrumbIcon}
+            {index < allItems.length - 1 && (
+              <div className="flex items-center justify-center">
+                <ChevronRight />
+              </div>
+            )}
           </div>
         );
       })}
