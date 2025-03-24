@@ -140,7 +140,7 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # -------------------------------------
 
 type: object
-title: "Metric Configuration Schema"
+name: "Metric Configuration Schema"
 description: "Metric definition with SQL query and visualization settings"
 
 properties:
@@ -509,7 +509,7 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 # ----------------------------------------
 
 type: object
-title: 'Dashboard Configuration Schema'
+name: 'Dashboard Configuration Schema'
 description: 'Specifies the structure and constraints of a dashboard config file.'
 properties:
   name:

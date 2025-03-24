@@ -18,8 +18,9 @@ By refactoring these handlers to accept the complete `AuthenticatedUser` object,
 
 ## Goals
 - Update all dashboard handlers to use `AuthenticatedUser` instead of user ID
-- Ensure tests continue to pass with the new parameter format
+- Update tests to use the test utilities created in the metrics handlers PRD
 - Optimize handler code to use available user context information
+- Ensure tests pass with the new parameter format
 - Maintain backward compatibility with existing functionality
 
 ## Non-Goals
@@ -104,7 +105,7 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid) -> Resul
 pub async fn get_dashboard_handler(dashboard_id: &Uuid, user: &AuthenticatedUser) -> Result<DashboardResponse> {
     let mut conn = get_pg_pool().get().await?;
     
-    // Get the dashboard with enhanced permission checking
+    // Get the dashboard without filtering by user initially
     let dashboard = dashboard_files::table
         .filter(dashboard_files::id.eq(dashboard_id))
         .filter(dashboard_files::deleted_at.is_null())
@@ -116,7 +117,7 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user: &AuthenticatedUser
             _ => anyhow!("Database error: {}", e),
         })?;
     
-    // Check user permissions with enhanced context
+    // Enhanced permission checking using user context
     if dashboard.created_by != user.id && !dashboard.publicly_accessible {
         // Check if user is an admin of the dashboard's organization
         let is_org_admin = user.organizations.iter()
@@ -194,67 +195,223 @@ pub async fn get_dashboard_route(
 
 ## Implementation Plan
 
-### Phase 1: Core Dashboard Handlers
-- ⏳ Update signature and implementation of core dashboard handlers
-- ⏳ Modify internal logic to use the user object for enhanced permission checks
-- 🔜 Update tests to use the new test utilities
+### Phase A: Core Dashboard Handlers (Days 1-3)
+- ⏳ Update signatures and implementations of core dashboard handlers
+- ⏳ Create/update tests for these handlers
+- ⏳ Run tests to verify functionality
+- ✅ Success criteria: All core dashboard handlers pass tests with the new parameter format
 
-### Phase 2: Collection Management Handlers
-- 🔜 Update collection management handler signatures
-- 🔜 Modify internal logic to use the user object
-- 🔜 Run tests to validate the changes
+### Phase B: Dashboard Collection Management Handlers (Days 4-5)
+- 🔜 Update collection management handler signatures and implementations
+- 🔜 Create/update tests for these handlers
+- 🔜 Run tests to verify functionality
+- ✅ Success criteria: All collection management handlers pass tests with the new parameter format
 
-### Phase 3: Sharing Handlers
-- 🔜 Update sharing handler signatures
-- 🔜 Modify internal logic to use the user object
+### Phase C: Dashboard Sharing Handlers (Day 6)
+- 🔜 Update sharing handler signatures and implementations
 - 🔜 Update existing sharing tests
-- 🔜 Run tests to validate the changes
+- 🔜 Run tests to verify functionality
+- ✅ Success criteria: All sharing handlers pass tests with the new parameter format
 
-### Phase 4: REST Endpoint Integration
+### Phase D: REST Integration (Day 7)
 - 🔜 Update REST endpoints to pass the full user object
-- 🔜 Run integration tests to ensure everything works together
-- 🔜 Fix any issues that emerge during testing
+- 🔜 Run integration tests
+- 🔜 Fix any issues
+- ✅ Success criteria: All REST endpoints work correctly with the refactored handlers
 
 ## Testing Strategy
 
 ### Unit Tests
-- Each refactored handler will need updated tests
-- Tests will use the new test utilities to create mock users
-- Tests should verify handling of different user roles and permissions
+- Create tests if they don't exist
+- Update existing tests to use the test utilities
+- Add tests for different user roles and permissions
+- Every handler must have tests that pass before considering the refactoring complete
 
-### Integration Tests
-- End-to-end tests to validate the complete flow
-- Tests for permission checks with various user types
-- Verify dashboards handlers work correctly with collections
+#### Example Test Creation/Update
+
+```rust
+#[tokio::test]
+async fn test_get_dashboard_with_owner() -> Result<()> {
+    // Setup test environment
+    setup_test_environment().await?;
+    
+    // Create test organization
+    let org_id = Uuid::new_v4();
+    
+    // Create test dashboard
+    let dashboard_id = Uuid::new_v4();
+    let creator_id = Uuid::new_v4();
+    let test_dashboard = create_test_dashboard(dashboard_id, org_id, creator_id).await?;
+    insert_test_dashboard(&test_dashboard).await?;
+    
+    // Create test user with the new utilities - as the owner
+    let user = create_test_user(
+        Some(creator_id),
+        None, 
+        None,
+        None,
+        None, 
+        None,
+        Some(vec![
+            OrganizationMembership {
+                id: org_id,
+                role: UserOrganizationRole::Member,
+            }
+        ]),
+        None,
+        None,
+        None
+    );
+    
+    // Test using the full user object
+    let result = get_dashboard_handler(&dashboard_id, &user).await;
+    
+    // Assert success
+    assert!(result.is_ok());
+    // Additional assertions...
+    
+    // Cleanup
+    cleanup_test_dashboard(dashboard_id).await?;
+    
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_get_dashboard_as_org_admin() -> Result<()> {
+    // Setup test environment
+    setup_test_environment().await?;
+    
+    // Create test organization
+    let org_id = Uuid::new_v4();
+    
+    // Create test dashboard
+    let dashboard_id = Uuid::new_v4();
+    let creator_id = Uuid::new_v4(); // Different from admin
+    let test_dashboard = create_test_dashboard(dashboard_id, org_id, creator_id).await?;
+    insert_test_dashboard(&test_dashboard).await?;
+    
+    // Create test admin user
+    let admin_user = create_test_admin_user(Some(org_id));
+    
+    // Test using the full user object
+    let result = get_dashboard_handler(&dashboard_id, &admin_user).await;
+    
+    // Assert success - admin should be able to access
+    assert!(result.is_ok());
+    // Additional assertions...
+    
+    // Cleanup
+    cleanup_test_dashboard(dashboard_id).await?;
+    
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_get_dashboard_unauthorized() -> Result<()> {
+    // Setup test environment
+    setup_test_environment().await?;
+    
+    // Create test organizations
+    let org_id = Uuid::new_v4();
+    let different_org_id = Uuid::new_v4();
+    
+    // Create test dashboard
+    let dashboard_id = Uuid::new_v4();
+    let creator_id = Uuid::new_v4();
+    let test_dashboard = create_test_dashboard(dashboard_id, org_id, creator_id).await?;
+    test_dashboard.publicly_accessible = false; // Ensure it's not publicly accessible
+    insert_test_dashboard(&test_dashboard).await?;
+    
+    // Create user from different organization
+    let different_org_user = create_test_regular_user(Some(different_org_id));
+    
+    // Test using the full user object
+    let result = get_dashboard_handler(&dashboard_id, &different_org_user).await;
+    
+    // Assert error - unauthorized
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("access"));
+    
+    // Cleanup
+    cleanup_test_dashboard(dashboard_id).await?;
+    
+    Ok(())
+}
+```
 
 ### Test Cases
-1. User creating a new dashboard
-2. User accessing their own dashboard
-3. User attempting to access a dashboard they don't own or have permission for
-4. Admin user accessing dashboards in their organization
-5. Dashboard sharing operations with different permission levels
-6. Dashboard collection management with different permission levels
+
+1. Owner User Tests
+   - User accessing their own dashboard
+   - User attempting to update their own dashboard
+
+2. Admin User Tests
+   - Admin accessing a dashboard they don't own
+   - Admin updating a dashboard in their organization
+
+3. Regular User Tests
+   - User attempting to access a dashboard they don't own
+   - User in wrong organization attempting access
+
+4. Permission Tests
+   - User with explicit permissions through sharing
+   - User without permissions attempting access
+
+5. Collection Management Tests
+   - Adding dashboard to a collection with permission
+   - Attempting to add dashboard without permission
+   - Removing dashboard from a collection with permission
+   - Attempting to remove dashboard without permission
+
+### Special Focus: List_sharing_test.rs
+Since there is already an existing test file for dashboard sharing, special care will be taken to update this test file:
+
+```rust
+// Update existing test for sharing listing
+
+#[tokio::test]
+async fn test_list_dashboard_sharing() -> Result<()> {
+    // Setup test environment
+    setup_test_environment().await?;
+    
+    // Create test data
+    let dashboard_id = Uuid::new_v4();
+    // [...existing test setup...]
+    
+    // Update to use new test user utilities
+    let admin_user = create_test_admin_user(Some(org_id));
+    
+    // Test sharing listing with the AuthenticatedUser object
+    let result = list_dashboard_sharing_handler(&dashboard_id, &admin_user).await;
+    
+    // Rest of the test remains similar
+    // ...
+}
+```
 
 ## Rollback Plan
 If issues arise during implementation:
 1. Revert affected handlers to original implementation
-2. For critical handlers, implement temporary dual-parameter support
-3. Document specific issues for resolution in next attempt
+2. Document specific issues for resolution
+3. Implement a phased approach if needed, starting with less complex handlers
 
 ## Success Criteria
-- All dashboard handlers successfully accept `AuthenticatedUser` instead of just user ID
-- All tests pass with the new implementation
-- REST endpoints work correctly with refactored handlers
-- No regression in functionality or performance
-- Enhanced permission checks using organization and team information
+For this PRD to be considered fully implemented:
+1. All dashboard handlers successfully accept `AuthenticatedUser` instead of just user ID
+2. All tests are created or updated and pass with the new implementation
+3. REST endpoints correctly pass the full user object
+4. No regression in functionality or performance
+5. Enhanced permission checks work correctly
 
 ## Dependencies
-- Completion of the test utilities for creating mock `AuthenticatedUser` objects
+- Completion of the test utilities created in the metrics handlers PRD
 - `middleware::AuthenticatedUser` struct from `libs/middleware/src/types.rs`
 - Existing dashboards handlers implementation
-- Completion of collections handlers refactoring (since dashboards interact closely with collections)
 
 ## Timeline
-Expected completion time: 1 week
+Expected completion time: 1 week (7 business days)
 
-This PRD depends on the completion of the test utilities PRD and collections handlers refactoring, and should be implemented after those are completed.
+- Days 1-3: Core dashboard handlers refactoring and testing
+- Days 4-5: Collection management handlers refactoring and testing
+- Day 6: Sharing handlers refactoring and testing
+- Day 7: REST integration and final validation

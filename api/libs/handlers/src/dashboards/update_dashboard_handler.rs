@@ -31,6 +31,7 @@ pub struct DashboardUpdateRequest {
     pub public: Option<bool>,
     pub public_expiry_date: Option<String>,
     pub public_password: Option<String>,
+    pub update_version: Option<bool>,
 }
 
 /// Updates an existing dashboard by ID
@@ -140,15 +141,23 @@ pub async fn update_dashboard_handler(
         .first::<VersionHistory>(&mut conn)
         .await
         .unwrap_or_else(|_| VersionHistory::new(0, dashboard_yml.clone()));
-    
+
     // Calculate the next version number
     let next_version = current_version_history.get_latest_version()
         .map(|v| v.version_number + 1)
         .unwrap_or(1);
     
-    // Add the new version to the version history
+    // Add the new version to the version history only if update_version is true (defaults to true)
+    let should_update_version = request.update_version.unwrap_or(true);
+    
+    // Only add a new version if has_changes and should_update_version
     if has_changes {
-        current_version_history.add_version(next_version, dashboard_yml.clone());
+        if should_update_version {
+            current_version_history.add_version(next_version, dashboard_yml.clone());
+        } else {
+            // Overwrite the current version instead of creating a new one
+            current_version_history.update_latest_version(dashboard_yml.clone());
+        }
     }
     
     // Convert content to JSON for storage
@@ -171,8 +180,13 @@ pub async fn update_dashboard_handler(
     if let Some(name) = request.name {
         // First update the dashboard_yml.name to keep them in sync
         dashboard_yml.name = name.clone();
-        // Update version history with the updated dashboard_yml
-        current_version_history.add_version(next_version, dashboard_yml.clone());
+        
+        // Update version history with the updated dashboard_yml based on should_update_version
+        if should_update_version {
+            current_version_history.add_version(next_version, dashboard_yml.clone());
+        } else {
+            current_version_history.update_latest_version(dashboard_yml.clone());
+        }
         
         diesel::update(dashboard_files::table)
             .filter(dashboard_files::id.eq(dashboard_id))

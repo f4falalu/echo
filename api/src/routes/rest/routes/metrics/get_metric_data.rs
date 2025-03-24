@@ -3,12 +3,13 @@ use axum::extract::{Path, Query};
 use axum::http::StatusCode;
 use axum::Extension;
 use handlers::metrics::get_metric_data_handler::{GetMetricDataRequest, MetricDataResponse};
-use serde::Deserialize;
 use middleware::AuthenticatedUser;
+use serde::Deserialize;
 use uuid::Uuid;
 
 #[derive(Deserialize)]
 pub struct GetMetricDataParams {
+    pub version_number: Option<i32>,
     pub limit: Option<i64>,
 }
 
@@ -24,6 +25,7 @@ pub async fn get_metric_data_rest_handler(
 
     let request = GetMetricDataRequest {
         metric_id,
+        version_number: params.version_number,
         limit: params.limit,
     };
 
