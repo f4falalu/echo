@@ -88,9 +88,9 @@ No schema changes are required. The feature will use the existing version histor
 ### Phase 1: Metric and Dashboard Update Handlers
 
 #### Task 1.1: Update Metric Handler
-- Modify `update_metric_handler.rs` to accept `restore_to_version` parameter
-- Implement version restoration logic
-- Add unit tests for the new functionality
+- ✅ Modify `update_metric_handler.rs` to accept `restore_to_version` parameter
+- ✅ Implement version restoration logic
+- ⚠️ Add unit and integration tests for the new functionality (tests written but execution verification pending)
 
 #### Task 1.2: Update Dashboard Handler
 - Modify `update_dashboard_handler.rs` to accept `restore_to_version` parameter
