@@ -5,10 +5,9 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { HeaderContainer } from '../../_HeaderContainer';
 import { useState } from 'react';
 import { DatabaseNames, DataSourceTypes, SUPPORTED_DATASOURCES } from '@/api/asset_interfaces';
-import { DataSourceFormContent } from '../[datasourceId]/_DatasourceFormContent';
+import { DataSourceFormContent } from '../[datasourceId]/_forms/DatasourceFormContent';
 import { Title, Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { Plus } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
 import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
 
@@ -31,7 +30,7 @@ export default function Page() {
       />
 
       {selectedDataSource ? (
-        <DataSourceFormContent type={selectedDataSource} useConnection={true} />
+        <DataSourceFormContent type={selectedDataSource} dataSource={undefined} />
       ) : (
         <div className="flex flex-col space-y-6">
           <ConnectHeader />

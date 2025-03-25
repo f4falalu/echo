@@ -1,110 +1,120 @@
+import { DataSource, SnowflakeCredentials } from '@/api/asset_interfaces';
 import React from 'react';
+import { FormWrapper } from './FormWrapper';
 import {
-  DatasourceCreateCredentials,
-  MySqlCreateCredentials
-} from '@/api/request_interfaces/datasources';
-import type { DataSource } from '@/api/asset_interfaces';
-
-import { makeHumanReadble } from '@/lib';
+  createSnowflakeDataSource,
+  useCreateSnowflakeDataSource,
+  useUpdateSnowflakeDataSource
+} from '@/api/buster_rest/data_source';
+import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
+import { MultipleInlineFields } from '@/components/ui/form/FormBase';
 
 export const SnowflakeForm: React.FC<{
   dataSource?: DataSource;
 }> = ({ dataSource }) => {
-  // const uppercaseValidator = (f: RuleObject, value: string) => {
-  //   if (!value) return Promise.reject();
-  //   // @ts-ignore
-  //   const field = makeHumanReadble(f.field);
-  //   if (value !== value.toUpperCase()) return Promise.reject(`${field} must be uppercase`);
-  //   return Promise.resolve();
-  // };
+  const { mutateAsync: createDataSource } = useCreateSnowflakeDataSource();
+  const { mutateAsync: updateDataSource } = useUpdateSnowflakeDataSource();
+  const credentials = dataSource?.credentials as SnowflakeCredentials;
 
-  return <></>;
-  // return (
-  //   <FormWrapper
-  //     name="mysql"
-  //     useConnection={useConnection}
-  //     submitting={submitting}
-  //     dataSource={dataSource}
-  //     onSubmit={(v) => {
-  //       onSubmit(v as MySqlCreateCredentials);
-  //     }}>
-  //     <Form.Item
-  //       name="account_id"
-  //       label="Account ID"
-  //       rules={[{ required: true }, { validator: uppercaseValidator }]}>
-  //       <Input placeholder="Account ID" />
-  //     </Form.Item>
+  const flow = dataSource?.id ? 'update' : 'create';
 
-  //     <Form.Item
-  //       name="warehouse_id"
-  //       label="Warehouse ID"
-  //       rules={[{ required: true }, { validator: uppercaseValidator }]}>
-  //       <Input placeholder="Warehouse ID" />
-  //     </Form.Item>
+  const form = useAppForm({
+    defaultValues: {
+      account_id: credentials?.account_id || '',
+      warehouse_id: credentials?.warehouse_id || '',
+      username: credentials?.username || '',
+      password: credentials?.password || '',
+      role: credentials?.role || null,
+      default_database: credentials?.default_database || '',
+      default_schema: credentials?.default_schema || '',
+      type: 'snowflake' as const,
+      name: dataSource?.name || credentials?.name || ''
+    } satisfies Parameters<typeof createSnowflakeDataSource>[0],
+    onSubmit: async ({ value }) => {
+      if (flow === 'update' && dataSource?.id) {
+        await updateDataSource({ id: dataSource.id, ...value });
+      } else {
+        await createDataSource(value);
+      }
+    }
+  });
 
-  //     <Form.Item
-  //       name="database_id"
-  //       label="Database ID"
-  //       rules={[{ required: true }, { validator: uppercaseValidator }]}>
-  //       <Input placeholder="Database ID" />
-  //     </Form.Item>
+  const labelClassName = 'min-w-[175px]';
 
-  //     <Form.Item label="Username & password">
-  //       <Form.Item
-  //         name="username"
-  //         rules={[{ required: true }, { validator: uppercaseValidator }]}
-  //         style={{ display: 'inline-block', width: 'calc(50% - 0px)' }}>
-  //         <Input placeholder="Username" />
-  //       </Form.Item>
-  //       <Form.Item
-  //         name="password"
-  //         rules={[{ required: true }]}
-  //         style={{ display: 'inline-block', width: 'calc(50% - 8px)', marginLeft: '8px' }}>
-  //         <Input.Password placeholder="Password" />
-  //       </Form.Item>
-  //     </Form.Item>
+  return (
+    <FormWrapper form={form} flow={flow}>
+      <form.AppField
+        name="name"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Name"
+            placeholder="My Snowflake"
+          />
+        )}
+      />
 
-  //     <Form.Item
-  //       name="schemas"
-  //       label="Schemas"
-  //       rules={[
-  //         { required: true },
-  //         {
-  //           validator: (_, v) => {
-  //             const arrayOfValues = v as string[];
-  //             if (!v || arrayOfValues.length === 0) return Promise.reject('Schemas is required');
-  //             const allStringAreUppercase = arrayOfValues.every(
-  //               (value) => value === value.toUpperCase()
-  //             );
-  //             if (!allStringAreUppercase) return Promise.reject('Schemas must be uppercase');
-  //             return Promise.resolve();
-  //           }
-  //         }
-  //       ]}>
-  //       <AppSelectTagInput
-  //         className="w-full"
-  //         tokenSeparators={[',']}
-  //         suffixIcon={null}
-  //         placeholder="Schemas"
-  //       />
-  //     </Form.Item>
+      <form.AppField
+        name="account_id"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Account ID"
+            placeholder="YOUR_ACCOUNT_ID"
+          />
+        )}
+      />
 
-  //     <Form.Item
-  //       name="role"
-  //       label="Role (optional)"
-  //       rules={[
-  //         { required: false },
-  //         {
-  //           validator: (_, v) => {
-  //             const value = v as string;
-  //             if (!value) return Promise.resolve();
-  //             if (value !== value.toUpperCase()) return Promise.reject('Role must be uppercase');
-  //             return Promise.resolve();
-  //           }
-  //         }
-  //       ]}>
-  //       <Input placeholder="Role" />
-  //     </Form.Item>
-  //   </FormWrapper>
-  // );
+      <form.AppField
+        name="warehouse_id"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Warehouse ID"
+            placeholder="COMPUTE_WH"
+          />
+        )}
+      />
+
+      <MultipleInlineFields label="Username & password" labelClassName={labelClassName}>
+        <form.AppField
+          name="username"
+          children={(field) => <field.TextField label={null} placeholder="USERNAME" />}
+        />
+        <form.AppField
+          name="password"
+          children={(field) => <field.PasswordField label={null} placeholder="password" />}
+        />
+      </MultipleInlineFields>
+
+      <form.AppField
+        name="role"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Role (optional)"
+            placeholder="ACCOUNTADMIN"
+          />
+        )}
+      />
+
+      <form.AppField
+        name="default_database"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Database name"
+            placeholder="SNOWFLAKE_SAMPLE_DATA"
+          />
+        )}
+      />
+
+      <form.AppField
+        name="default_schema"
+        children={(field) => (
+          <field.TextField labelClassName={labelClassName} label="Schema" placeholder="PUBLIC" />
+        )}
+      />
+    </FormWrapper>
+  );
 };

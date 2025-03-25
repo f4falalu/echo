@@ -1,67 +1,87 @@
-import {
-  DatasourceCreateCredentials,
-  MySqlCreateCredentials
-} from '@/api/request_interfaces/datasources';
-import type { DataSource } from '@/api/asset_interfaces';
+import { DataSource, MySQLCredentials } from '@/api/asset_interfaces';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';
+import {
+  createMySQLDataSource,
+  useCreateMySQLDataSource,
+  useUpdateMySQLDataSource
+} from '@/api/buster_rest/data_source';
+import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
+import { MultipleInlineFields } from '@/components/ui/form/FormBase';
 
 export const MySqlForm: React.FC<{
   dataSource?: DataSource;
 }> = ({ dataSource }) => {
-  return <></>;
-  // return (
-  //   <FormWrapper
-  //     name="mysql"
-  //     useConnection={useConnection}
-  //     dataSource={dataSource}
-  //     submitting={submitting}
-  //     onSubmit={(v) => {
-  //       onSubmit(v as MySqlCreateCredentials);
-  //     }}>
-  //     <Form.Item label="Hostname & port">
-  //       <Form.Item
-  //         name="host"
-  //         rules={[{ required: true }]}
-  //         style={{ display: 'inline-block', width: 'calc(75% - 8px)' }}>
-  //         <Input placeholder="Hostname" />
-  //       </Form.Item>
-  //       <Form.Item
-  //         name="port"
-  //         rules={[{ required: true }]}
-  //         initialValue={3306}
-  //         style={{ display: 'inline-block', width: 'calc(25% - 0px)', marginLeft: '8px' }}>
-  //         <InputNumber placeholder="3306" />
-  //       </Form.Item>
-  //     </Form.Item>
+  const { mutateAsync: createDataSource } = useCreateMySQLDataSource();
+  const { mutateAsync: updateDataSource } = useUpdateMySQLDataSource();
+  const credentials = dataSource?.credentials as MySQLCredentials;
 
-  //     <Form.Item label="Username & password">
-  //       <Form.Item
-  //         name="username"
-  //         rules={[{ required: true }]}
-  //         style={{ display: 'inline-block', width: 'calc(50% - 0px)' }}>
-  //         <Input placeholder="Username" />
-  //       </Form.Item>
-  //       <Form.Item
-  //         name="password"
-  //         rules={[{ required: true }]}
-  //         style={{ display: 'inline-block', width: 'calc(50% - 8px)', marginLeft: '8px' }}>
-  //         <Input.Password placeholder="Password" />
-  //       </Form.Item>
-  //     </Form.Item>
+  const flow = dataSource?.id ? 'update' : 'create';
 
-  //     {/* <Form.Item name="jump_host" label="Jump host" rules={[{ required: false }]}>
-  //       <Input placeholder="Jump host" />
-  //     </Form.Item> */}
+  const form = useAppForm({
+    defaultValues: {
+      host: credentials?.host || '',
+      port: credentials?.port || 3306,
+      username: credentials?.username || '',
+      password: (dataSource?.credentials as any)?.password || '',
+      default_database: (dataSource?.credentials as any)?.default_database || '',
+      type: 'mysql' as const,
+      name: dataSource?.name || credentials?.name || ''
+    } satisfies Parameters<typeof createMySQLDataSource>[0],
+    onSubmit: async ({ value }) => {
+      if (flow === 'update' && dataSource?.id) {
+        await updateDataSource({ id: dataSource.id, ...value });
+      } else {
+        await createDataSource(value);
+      }
+    }
+  });
 
-  //     <Form.Item name="schemas" label="Schemas" rules={[{ required: true }]}>
-  //       <AppSelectTagInput
-  //         className="w-full"
-  //         tokenSeparators={[',']}
-  //         suffixIcon={null}
-  //         placeholder="Schemas"
-  //       />
-  //     </Form.Item>
-  //   </FormWrapper>
-  // );
+  const labelClassName = 'min-w-[175px]';
+
+  return (
+    <FormWrapper form={form} flow={flow}>
+      <form.AppField
+        name="name"
+        children={(field) => (
+          <field.TextField labelClassName={labelClassName} label="Name" placeholder="My MySQL" />
+        )}
+      />
+
+      <MultipleInlineFields label="Hostname & port" labelClassName={labelClassName}>
+        <form.AppField
+          name="host"
+          children={(field) => <field.TextField label={null} placeholder="mysql.example.com" />}
+        />
+        <form.AppField
+          name="port"
+          children={(field) => (
+            <field.NumberField label={null} placeholder="3306" className="max-w-[75px]!" />
+          )}
+        />
+      </MultipleInlineFields>
+
+      <MultipleInlineFields label="Username & password" labelClassName={labelClassName}>
+        <form.AppField
+          name="username"
+          children={(field) => <field.TextField label={null} placeholder="root" />}
+        />
+        <form.AppField
+          name="password"
+          children={(field) => <field.PasswordField label={null} placeholder="password" />}
+        />
+      </MultipleInlineFields>
+
+      <form.AppField
+        name="default_database"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Database name"
+            placeholder="mydatabase"
+          />
+        )}
+      />
+    </FormWrapper>
+  );
 };

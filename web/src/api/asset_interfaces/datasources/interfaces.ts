@@ -57,6 +57,77 @@ export enum DataSourceEnvironment {
   development = 'development'
 }
 
+export interface PostgresCredentials {
+  name: string;
+  type: 'postgres' | 'supabase';
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  default_database: string; //postgres
+  default_schema: string; //public
+}
+
+export interface MySQLCredentials {
+  name: string;
+  type: 'mysql' | 'mariadb';
+  host: string;
+  port: number;
+  username: string;
+}
+
+export interface BigQueryCredentials {
+  name: string;
+  type: 'bigquery';
+  service_role_key: string;
+  default_project_id: string;
+  default_dataset_id: string;
+}
+
+export interface RedshiftCredentials {
+  name: string;
+  type: 'redshift';
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  default_database: string;
+  default_schema: string;
+}
+
+export interface SnowflakeCredentials {
+  name: string;
+  type: 'snowflake';
+  account_id: string;
+  warehouse_id: string;
+  username: string;
+  password: string;
+  role: string | null;
+  default_database: string;
+  default_schema: string;
+}
+
+export interface DatabricksCredentials {
+  name: string;
+  type: 'databricks';
+  host: string;
+  api_key: string;
+  warehouse_id: string;
+  default_catalog: string;
+  default_schema: string;
+}
+
+export interface SQLServerCredentials {
+  name: string;
+  type: 'sqlserver';
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  default_database: string;
+  default_schema: string;
+}
+
 export interface DataSource {
   created_at: '2024-07-18T21:19:49.721159Z';
   created_by: {
@@ -64,24 +135,18 @@ export interface DataSource {
     id: string;
     name: string;
   };
-  credentials: {
-    database: string;
-    host: string;
-    jump_host: null | string;
-    password: string;
-    port: string | number;
-    schemas: null | string[];
-    ssh_private_key: null;
-    ssh_username: null;
-    username: string;
-    project_id?: string;
-    dataset_ids?: string[];
-    credentials_json?: string;
-  };
-  data_sets: BusterDataset[];
+  credentials:
+    | PostgresCredentials
+    | MySQLCredentials
+    | BigQueryCredentials
+    | RedshiftCredentials
+    | SnowflakeCredentials
+    | DatabricksCredentials
+    | SQLServerCredentials;
+  data_sets: { id: string; name: string }[];
   id: string;
   name: string;
-  db_type: DataSourceTypes;
+  type: DataSourceTypes;
   updated_at: '2024-07-18T21:19:49.721160Z';
 }
 

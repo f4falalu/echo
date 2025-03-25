@@ -14,13 +14,13 @@ export const InputPassword = React.memo(({ ...props }: InputProps) => {
         {...props}
         value={props.value}
         onChange={props.onChange}
-        placeholder="Password"
         type={visibilityToggle ? 'text' : 'password'}
       />
 
       <Button
         variant="ghost"
         size="small"
+        type="button"
         className="absolute top-1/2 right-[7px] -translate-y-1/2"
         prefix={!visibilityToggle ? <Eye /> : <EyeSlash />}
         onClick={() => setShowVisibilityToggle(!visibilityToggle)}></Button>

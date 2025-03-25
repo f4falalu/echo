@@ -6,7 +6,7 @@ import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
 import { formatDate } from '@/lib';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import React from 'react';
-import { DataSourceFormContent } from './_DatasourceFormContent';
+import { DataSourceFormContent } from './DatasourceFormContent';
 import { Title, Text } from '@/components/ui/typography';
 import { Trash } from '@/components/ui/icons';
 import { useDeleteDatasource, useGetDatasource } from '@/api/buster_rest/data_source';
@@ -22,7 +22,7 @@ export const DatasourceForm: React.FC<{ datasourceId: string }> = ({ datasourceI
     <div className="flex flex-col space-y-3">
       <DataSourceFormHeader dataSource={dataSource} />
       <DataSourceFormStatus dataSource={dataSource} />
-      <DataSourceFormContent dataSource={dataSource} type={dataSource.db_type} />
+      <DataSourceFormContent dataSource={dataSource} type={dataSource?.type} />
     </div>
   );
 };
@@ -32,7 +32,7 @@ const DataSourceFormHeader: React.FC<{ dataSource: DataSource }> = ({ dataSource
     <div className="flex justify-between space-x-2">
       <div className="flex items-center space-x-4">
         <div className="text-icon-color text-4xl">
-          <AppDataSourceIcon size={55} type={dataSource.db_type} />
+          <AppDataSourceIcon size={55} type={dataSource.type} />
         </div>
 
         <div className="flex flex-col space-y-1">

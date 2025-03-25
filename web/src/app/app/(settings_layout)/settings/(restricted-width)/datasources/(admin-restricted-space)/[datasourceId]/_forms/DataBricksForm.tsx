@@ -1,48 +1,110 @@
-import {
-  DatabricksCreateCredentials,
-  DatasourceCreateCredentials
-} from '@/api/request_interfaces/datasources';
-import type { DataSource } from '@/api/asset_interfaces';
+import { DataSource, DatabricksCredentials } from '@/api/asset_interfaces';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';
-import { Input } from '@/components/ui/inputs';
+import {
+  createDatabricksDataSource,
+  useCreateDatabricksDataSource,
+  useUpdateDatabricksDataSource
+} from '@/api/buster_rest/data_source';
+import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
 
 export const DataBricksForm: React.FC<{
   dataSource?: DataSource;
-}> = ({ useConnection, dataSource }) => {
-  return <></>;
-  // return (
-  //   <FormWrapper
-  //     name="mysql"
-  //     useConnection={useConnection}
-  //     submitting={submitting}
-  //     dataSource={dataSource}
-  //     onSubmit={(v) => {
-  //       onSubmit(v as DatabricksCreateCredentials);
-  //     }}>
-  //     <Form.Item name="host" label="Hostname" rules={[{ required: true }]}>
-  //       <Input placeholder="Hostname" />
-  //     </Form.Item>
-  //     <Form.Item name="api_key" label="API Key" rules={[{ required: true }]}>
-  //       <Input.Password placeholder="API Key" />
-  //     </Form.Item>
+}> = ({ dataSource }) => {
+  const { mutateAsync: createDataSource } = useCreateDatabricksDataSource();
+  const { mutateAsync: updateDataSource } = useUpdateDatabricksDataSource();
+  const credentials = dataSource?.credentials as DatabricksCredentials;
 
-  //     <Form.Item name="warehouse_id" label="Warehouse ID" rules={[{ required: true }]}>
-  //       <Input placeholder="Warehouse ID" />
-  //     </Form.Item>
+  const flow = dataSource?.id ? 'update' : 'create';
 
-  //     <Form.Item name="catalog_name" label="Catalog Name" rules={[{ required: true }]}>
-  //       <Input placeholder="Catalog Name" />
-  //     </Form.Item>
+  const form = useAppForm({
+    defaultValues: {
+      host: credentials?.host || '',
+      api_key: credentials?.api_key || '',
+      warehouse_id: credentials?.warehouse_id || '',
+      default_catalog: credentials?.default_catalog || '',
+      default_schema: credentials?.default_schema || '',
+      type: 'databricks' as const,
+      name: dataSource?.name || credentials?.name || ''
+    } satisfies Parameters<typeof createDatabricksDataSource>[0],
+    onSubmit: async ({ value }) => {
+      if (flow === 'update' && dataSource?.id) {
+        await updateDataSource({ id: dataSource.id, ...value });
+      } else {
+        await createDataSource(value);
+      }
+    }
+  });
 
-  //     <Form.Item name="schemas" label="Schemas" rules={[{ required: true }]}>
-  //       <AppSelectTagInput
-  //         className="w-full"
-  //         tokenSeparators={[',']}
-  //         suffixIcon={null}
-  //         placeholder="Schemas"
-  //       />
-  //     </Form.Item>
-  //   </FormWrapper>
-  // );
+  const labelClassName = 'min-w-[175px]';
+
+  return (
+    <FormWrapper form={form} flow={flow}>
+      <form.AppField
+        name="name"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Name"
+            placeholder="My Databricks"
+          />
+        )}
+      />
+
+      <form.AppField
+        name="host"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Host URL"
+            placeholder="https://your-instance.cloud.databricks.com"
+          />
+        )}
+      />
+
+      <form.AppField
+        name="api_key"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="API Key/Personal Access Token"
+            placeholder="dapi123456789abcdef"
+          />
+        )}
+      />
+
+      <form.AppField
+        name="warehouse_id"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Warehouse ID"
+            placeholder="your-warehouse-id"
+          />
+        )}
+      />
+
+      <form.AppField
+        name="default_catalog"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Default Catalog"
+            placeholder="hive_metastore"
+          />
+        )}
+      />
+
+      <form.AppField
+        name="default_schema"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Default Schema"
+            placeholder="default"
+          />
+        )}
+      />
+    </FormWrapper>
+  );
 };

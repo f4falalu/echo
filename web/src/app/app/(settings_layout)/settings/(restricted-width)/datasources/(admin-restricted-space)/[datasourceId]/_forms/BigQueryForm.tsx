@@ -1,77 +1,84 @@
 'use client';
 
-import React, { useMemo, useRef, useState } from 'react';
-import { FormWrapperHandle } from './FormWrapper';
-import type { DataSource } from '@/api/asset_interfaces';
-import type {
-  BigQueryCreateCredentials,
-  DatasourceCreateCredentials
-} from '@/api/request_interfaces/datasources';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-// import { useBusterNotifications } from '@/context/BusterNotifications';
-
-type RawBigQueryCreateCredentials = Omit<BigQueryCreateCredentials, 'credentials_json'> & {
-  credentials_json: string;
-};
+import { DataSource, BigQueryCredentials } from '@/api/asset_interfaces';
+import React from 'react';
+import { FormWrapper } from './FormWrapper';
+import {
+  createBigQueryDataSource,
+  useCreateBigQueryDataSource,
+  useUpdateBigQueryDataSource
+} from '@/api/buster_rest/data_source';
+import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
 
 export const BigQueryForm: React.FC<{
   dataSource?: DataSource;
 }> = ({ dataSource }) => {
-  const formRef = useRef<FormWrapperHandle>(null);
-  const [creds, setCreds] = useState('');
-  const { openErrorNotification } = useBusterNotifications();
+  const { mutateAsync: createDataSource } = useCreateBigQueryDataSource();
+  const { mutateAsync: updateDataSource } = useUpdateBigQueryDataSource();
+  const credentials = dataSource?.credentials as BigQueryCredentials;
 
-  const isValidJson = useMemo(() => {
-    if (!creds) return true;
-    try {
-      JSON.parse(creds);
-      return true;
-    } catch (error) {
-      return false;
+  const flow = dataSource?.id ? 'update' : 'create';
+
+  const form = useAppForm({
+    defaultValues: {
+      service_role_key: credentials?.service_role_key || '',
+      default_project_id: credentials?.default_project_id || '',
+      default_dataset_id: credentials?.default_dataset_id || '',
+      type: 'bigquery' as const,
+      name: dataSource?.name || credentials?.name || ''
+    } satisfies Parameters<typeof createBigQueryDataSource>[0],
+    onSubmit: async ({ value }) => {
+      if (flow === 'update' && dataSource?.id) {
+        await updateDataSource({ id: dataSource.id, ...value });
+      } else {
+        await createDataSource(value);
+      }
     }
-  }, [creds]);
+  });
 
-  return <></>;
+  const labelClassName = 'min-w-[175px]';
 
-  // return (
-  //   <FormWrapper
-  //     name="bigquery"
-  //     ref={formRef}
-  //     useConnection={useConnection}
-  //     dataSource={dataSource}
-  //     submitting={submitting}
-  //     onSubmit={(v) => {
-  //       const value = v as unknown as RawBigQueryCreateCredentials;
-  //       if (!creds) {
-  //         openErrorNotification({ title: 'Credentials are required' });
-  //         return;
-  //       }
-  //       try {
-  //         const parsedCredentials = JSON.parse(creds);
-  //         onSubmit({ ...value, credentials_json: parsedCredentials });
-  //       } catch (error) {
-  //         openErrorNotification({ title: 'Invalid credentials JSON' });
-  //       }
-  //     }}>
-  //     <Form.Item name="project_id" label="Project ID" rules={[{ required: true }]}>
-  //       <Input />
-  //     </Form.Item>
-  //     <Form.Item name="dataset_ids" label="Dataset IDs" rules={[{ required: true }]}>
-  //       <AppSelectTagInput className="w-full" tokenSeparators={[',']} suffixIcon={null} />
-  //     </Form.Item>
-  //     <Form.Item name="credentials_json" label="Credentials">
-  //       <AppTooltip title={isValidJson ? '' : 'Invalid JSON'}>
-  //         <div
-  //           className="h-[180px] w-full"
-  //           style={{
-  //             border: isValidJson ? `1px solid ${token.colorBorder}` : '1px solid red',
-  //             borderRadius: '4px',
-  //             overflow: 'hidden'
-  //           }}>
-  //           <AppCodeEditor language="json" value={creds} onChange={setCreds} />
-  //         </div>
-  //       </AppTooltip>
-  //     </Form.Item>
-  //   </FormWrapper>
-  // );
+  return (
+    <FormWrapper form={form} flow={flow}>
+      <form.AppField
+        name="name"
+        children={(field) => (
+          <field.TextField labelClassName={labelClassName} label="Name" placeholder="My BigQuery" />
+        )}
+      />
+
+      <form.AppField
+        name="service_role_key"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Service Account Key"
+            placeholder="Paste your service account key JSON here"
+          />
+        )}
+      />
+
+      <form.AppField
+        name="default_project_id"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Project ID"
+            placeholder="your-project-id"
+          />
+        )}
+      />
+
+      <form.AppField
+        name="default_dataset_id"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Dataset ID"
+            placeholder="your_dataset"
+          />
+        )}
+      />
+    </FormWrapper>
+  );
 };

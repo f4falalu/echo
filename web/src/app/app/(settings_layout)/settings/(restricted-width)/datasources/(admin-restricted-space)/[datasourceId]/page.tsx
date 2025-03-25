@@ -1,6 +1,6 @@
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { HeaderContainer } from '../../_HeaderContainer';
-import { DatasourceForm } from './_DatasourceForm';
+import { DatasourceForm } from './_forms';
 
 export default async function Page(props: {
   params: Promise<{

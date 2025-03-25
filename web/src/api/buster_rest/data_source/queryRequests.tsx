@@ -21,6 +21,22 @@ import {
 import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { DataSourceTypes } from '@/api/asset_interfaces/datasources/interfaces';
+import type {
+  BigQueryCreateParams,
+  BigQueryUpdateParams,
+  DatabricksCreateParams,
+  DatabricksUpdateParams,
+  MySQLCreateParams,
+  MySQLUpdateParams,
+  PostgresCreateParams,
+  PostgresUpdateParams,
+  RedshiftCreateParams,
+  RedshiftUpdateParams,
+  SnowflakeCreateParams,
+  SnowflakeUpdateParams,
+  SQLServerCreateParams,
+  SQLServerUpdateParams
+} from './types';
 
 export const useListDatasources = (enabled: boolean = true) => {
   return useQuery({
@@ -248,24 +264,6 @@ export const useUpdateSQLServerDataSource = () => {
     }
   });
 };
-
-// Type definitions for the create datasource parameters
-type PostgresCreateParams = Parameters<typeof createPostgresDataSource>[0];
-type MySQLCreateParams = Parameters<typeof createMySQLDataSource>[0];
-type BigQueryCreateParams = Parameters<typeof createBigQueryDataSource>[0];
-type RedshiftCreateParams = Parameters<typeof createRedshiftDataSource>[0];
-type SnowflakeCreateParams = Parameters<typeof createSnowflakeDataSource>[0];
-type DatabricksCreateParams = Parameters<typeof createDatabricksDataSource>[0];
-type SQLServerCreateParams = Parameters<typeof createSQLServerDataSource>[0];
-
-// Type definitions for the update datasource parameters
-type PostgresUpdateParams = Parameters<typeof updatePostgresDataSource>[0];
-type MySQLUpdateParams = Parameters<typeof updateMySQLDataSource>[0];
-type BigQueryUpdateParams = Parameters<typeof updateBigQueryDataSource>[0];
-type RedshiftUpdateParams = Parameters<typeof updateRedshiftDataSource>[0];
-type SnowflakeUpdateParams = Parameters<typeof updateSnowflakeDataSource>[0];
-type DatabricksUpdateParams = Parameters<typeof updateDatabricksDataSource>[0];
-type SQLServerUpdateParams = Parameters<typeof updateSQLServerDataSource>[0];
 
 // Union type for create datasource parameters
 type CreateDatasourceParams =

@@ -1,70 +1,100 @@
+import { DataSource, RedshiftCredentials } from '@/api/asset_interfaces';
+import React from 'react';
+import { FormWrapper } from './FormWrapper';
 import {
-  DatasourceCreateCredentials,
-  RedshiftCreateCredentials
-} from '@/api/request_interfaces/datasources';
-import type { DataSource } from '@/api/asset_interfaces';
-// import { AppSelectTagInput } from '@/components/ui/select/AppSelectTagInput';
-
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import { FormWrapper, FormWrapperHandle } from './FormWrapper';
+  createRedshiftDataSource,
+  useCreateRedshiftDataSource,
+  useUpdateRedshiftDataSource
+} from '@/api/buster_rest/data_source';
+import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
+import { MultipleInlineFields } from '@/components/ui/form/FormBase';
 
 export const RedshiftForm: React.FC<{
   dataSource?: DataSource;
 }> = ({ dataSource }) => {
-  return <></>;
-  // return (
-  //   <FormWrapper
-  //     name="mysql"
-  //     useConnection={useConnection}
-  //     submitting={submitting}
-  //     dataSource={dataSource}
-  //     onSubmit={(v) => {
-  //       onSubmit(v as RedshiftCreateCredentials);
-  //     }}>
-  //     <Form.Item label="Hostname & port">
-  //       <Form.Item
-  //         name="host"
-  //         rules={[{ required: true }]}
-  //         style={{ display: 'inline-block', width: 'calc(75% - 8px)' }}>
-  //         <Input placeholder="Hostname" />
-  //       </Form.Item>
+  const { mutateAsync: createDataSource } = useCreateRedshiftDataSource();
+  const { mutateAsync: updateDataSource } = useUpdateRedshiftDataSource();
+  const credentials = dataSource?.credentials as RedshiftCredentials;
 
-  //       <Form.Item
-  //         name="port"
-  //         rules={[{ required: true }]}
-  //         initialValue={5439}
-  //         style={{ display: 'inline-block', width: 'calc(25% - 0px)', marginLeft: '8px' }}>
-  //         <InputNumber placeholder="5439" />
-  //       </Form.Item>
-  //     </Form.Item>
+  const flow = dataSource?.id ? 'update' : 'create';
 
-  //     <Form.Item label="Username & password">
-  //       <Form.Item
-  //         name="username"
-  //         rules={[{ required: true }]}
-  //         style={{ display: 'inline-block', width: 'calc(50% - 0px)' }}>
-  //         <Input placeholder="Username" />
-  //       </Form.Item>
-  //       <Form.Item
-  //         name="password"
-  //         rules={[{ required: true }]}
-  //         style={{ display: 'inline-block', width: 'calc(50% - 8px)', marginLeft: '8px' }}>
-  //         <Input.Password placeholder="Password" />
-  //       </Form.Item>
-  //     </Form.Item>
+  const form = useAppForm({
+    defaultValues: {
+      host: credentials?.host || '',
+      port: credentials?.port || 5439,
+      username: credentials?.username || '',
+      password: credentials?.password || '',
+      default_database: credentials?.default_database || '',
+      default_schema: credentials?.default_schema || '',
+      type: 'redshift' as const,
+      name: dataSource?.name || credentials?.name || ''
+    } satisfies Parameters<typeof createRedshiftDataSource>[0],
+    onSubmit: async ({ value }) => {
+      if (flow === 'update' && dataSource?.id) {
+        await updateDataSource({ id: dataSource.id, ...value });
+      } else {
+        await createDataSource(value);
+      }
+    }
+  });
 
-  //     <Form.Item name="database" label="Database" rules={[{ required: true }]}>
-  //       <Input placeholder="Database" />
-  //     </Form.Item>
+  const labelClassName = 'min-w-[175px]';
 
-  //     <Form.Item name="schemas" label="Schemas" rules={[{ required: true }]}>
-  //       <AppSelectTagInput
-  //         className="w-full"
-  //         tokenSeparators={[',']}
-  //         suffixIcon={null}
-  //         placeholder="Schemas"
-  //       />
-  //     </Form.Item>
-  //   </FormWrapper>
-  // );
+  return (
+    <FormWrapper form={form} flow={flow}>
+      <form.AppField
+        name="name"
+        children={(field) => (
+          <field.TextField labelClassName={labelClassName} label="Name" placeholder="My Redshift" />
+        )}
+      />
+
+      <MultipleInlineFields label="Hostname & port" labelClassName={labelClassName}>
+        <form.AppField
+          name="host"
+          children={(field) => (
+            <field.TextField
+              label={null}
+              placeholder="cluster-name.region.redshift.amazonaws.com"
+            />
+          )}
+        />
+        <form.AppField
+          name="port"
+          children={(field) => (
+            <field.NumberField label={null} placeholder="5439" className="max-w-[75px]!" />
+          )}
+        />
+      </MultipleInlineFields>
+
+      <MultipleInlineFields label="Username & password" labelClassName={labelClassName}>
+        <form.AppField
+          name="username"
+          children={(field) => <field.TextField label={null} placeholder="awsuser" />}
+        />
+        <form.AppField
+          name="password"
+          children={(field) => <field.PasswordField label={null} placeholder="password" />}
+        />
+      </MultipleInlineFields>
+
+      <form.AppField
+        name="default_database"
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Database name"
+            placeholder="dev"
+          />
+        )}
+      />
+
+      <form.AppField
+        name="default_schema"
+        children={(field) => (
+          <field.TextField labelClassName={labelClassName} label="Schema" placeholder="public" />
+        )}
+      />
+    </FormWrapper>
+  );
 };

@@ -1,4 +1,4 @@
-import { DataSource } from '@/api/asset_interfaces';
+import { DataSource, PostgresCredentials } from '@/api/asset_interfaces';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';
 import {
@@ -9,30 +9,28 @@ import {
 import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
 import { MultipleInlineFields } from '@/components/ui/form/FormBase';
 
-const sshModeOptions = ['Do not use SSH credentials', 'Use SSH credentials'].map((item, index) => ({
-  label: item,
-  value: index
-}));
-
 export const PostgresForm: React.FC<{
   dataSource?: DataSource;
 }> = ({ dataSource }) => {
   const { mutateAsync: createDataSource } = useCreatePostgresDataSource();
   const { mutateAsync: updateDataSource } = useUpdatePostgresDataSource();
+  const credentials = dataSource?.credentials as PostgresCredentials;
+
+  const flow = dataSource?.id ? 'update' : 'create';
 
   const form = useAppForm({
     defaultValues: {
-      host: '',
-      port: 5432,
-      username: '',
-      password: '',
-      default_database: '',
-      default_schema: '',
+      host: credentials.host || '',
+      port: credentials.port || 5432,
+      username: credentials.username || '',
+      password: credentials.password || '',
+      default_database: credentials.default_database || '',
+      default_schema: credentials.default_schema || '',
       type: 'postgres' as const,
-      name: ''
+      name: dataSource?.name || credentials.name || ''
     } satisfies Parameters<typeof createPostgresDataSource>[0],
-    onSubmit: async ({ value, meta }) => {
-      if (dataSource) {
+    onSubmit: async ({ value }) => {
+      if (flow === 'update' && dataSource?.id) {
         await updateDataSource({ id: dataSource.id, ...value });
       } else {
         await createDataSource(value);
@@ -40,31 +38,57 @@ export const PostgresForm: React.FC<{
     }
   });
 
-  return (
-    <FormWrapper form={form}>
-      <form.AppField name="name" children={(field) => <field.TextField label="Name" />} />
+  const labelClassName = 'min-w-[175px]';
 
-      <MultipleInlineFields label="Hostname & port">
-        <form.AppField name="host" children={(field) => <field.TextField label="Host" />} />
-        <form.AppField name="port" children={(field) => <field.NumberField label="Port" />} />
+  return (
+    <FormWrapper form={form} flow={dataSource?.id ? 'update' : 'create'}>
+      <form.AppField
+        name="name"
+        children={(field) => (
+          <field.TextField labelClassName={labelClassName} label="Name" placeholder="My Postgres" />
+        )}
+      />
+
+      <MultipleInlineFields label="Hostname & port" labelClassName={labelClassName}>
+        <form.AppField
+          name="host"
+          children={(field) => <field.TextField label={null} placeholder="www.example.com" />}
+        />
+        <form.AppField
+          name="port"
+          children={(field) => (
+            <field.NumberField label={null} placeholder="5432" className="max-w-[75px]!" />
+          )}
+        />
       </MultipleInlineFields>
 
-      <MultipleInlineFields label="Username & password">
-        <form.AppField name="username" children={(field) => <field.TextField label="Username" />} />
+      <MultipleInlineFields label="Username & password" labelClassName={labelClassName}>
+        <form.AppField
+          name="username"
+          children={(field) => <field.TextField label={null} placeholder="postgres" />}
+        />
         <form.AppField
           name="password"
-          children={(field) => <field.PasswordField label="Password" />}
+          children={(field) => <field.PasswordField label={null} placeholder="password" />}
         />
       </MultipleInlineFields>
 
       <form.AppField
         name="default_database"
-        children={(field) => <field.TextField label="Database name" />}
+        children={(field) => (
+          <field.TextField
+            labelClassName={labelClassName}
+            label="Database name"
+            placeholder="postgres"
+          />
+        )}
       />
 
       <form.AppField
         name="default_schema"
-        children={(field) => <field.TextField label="Schema" />}
+        children={(field) => (
+          <field.TextField labelClassName={labelClassName} label="Schema" placeholder="public" />
+        )}
       />
     </FormWrapper>
   );

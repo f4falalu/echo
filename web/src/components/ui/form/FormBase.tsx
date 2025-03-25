@@ -29,7 +29,7 @@ export function LabelWrapper({
   return (
     <div
       className={cn(
-        'flex gap-x-4 gap-y-2',
+        'label-wrapper flex gap-x-4 gap-y-2',
         direction === 'row' ? 'flex-row items-center' : 'flex-col justify-start',
         className
       )}>
@@ -53,14 +53,15 @@ export function TextField({
   direction = 'row',
   className = '',
   labelClassName = '',
-  inputClassName = '',
-  type
+  type,
+  placeholder
 }: {
   label: string | null;
   direction?: 'row' | 'column';
   className?: string;
   labelClassName?: string;
   inputClassName?: string;
+  placeholder?: string;
   type?: Parameters<typeof Input>[0]['type'];
 }) {
   const field = useFieldContext<string>();
@@ -68,10 +69,11 @@ export function TextField({
   const InputComponent = (
     <Input
       id={field.name}
-      className={cn('flex-shrink', inputClassName)}
+      className={cn('flex-shrink', className)}
       value={field.state.value}
       onChange={(e) => field.handleChange(e.target.value)}
       type={type}
+      placeholder={placeholder}
     />
   );
 
@@ -81,7 +83,6 @@ export function TextField({
     <LabelWrapper
       label={label}
       direction={direction}
-      className={className}
       labelClassName={labelClassName}
       htmlFor={field.name}>
       {InputComponent}
@@ -98,7 +99,8 @@ export function PasswordField({
   direction,
   className,
   inputClassName,
-  labelClassName
+  labelClassName,
+  placeholder
 }: Parameters<typeof TextField>[0]) {
   const field = useFieldContext<string>();
 
@@ -108,6 +110,7 @@ export function PasswordField({
       className={cn('flex-shrink', inputClassName)}
       value={field.state.value}
       onChange={(e) => field.handleChange(e.target.value)}
+      placeholder={placeholder}
     />
   );
 
@@ -144,7 +147,7 @@ export function MultipleInlineFields({
       direction={direction}
       labelClassName={labelClassName}
       className={className}>
-      <div className="flex flex-grow gap-2">{children}</div>
+      <div className="flex w-full flex-grow gap-2">{children}</div>
     </LabelWrapper>
   );
 }
