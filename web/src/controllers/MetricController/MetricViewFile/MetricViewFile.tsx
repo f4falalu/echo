@@ -7,7 +7,10 @@ import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useGetMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
 
 export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId }) => {
-  const { data: metric } = useGetMetric({ id: metricId });
+  const { data: metric } = useGetMetric({ id: metricId }, ({ file, file_name }) => ({
+    file,
+    file_name
+  }));
   const { openSuccessMessage } = useBusterNotifications();
   const { mutateAsync: updateMetric } = useUpdateMetric();
 

@@ -21,7 +21,10 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
   const { runSQL, resetRunSQLData, saveSQL, warnBeforeNavigating, setWarnBeforeNavigating } =
     useMetricRunSQL();
 
-  const { data: metric } = useGetMetric({ id: metricId });
+  const { data: metric } = useGetMetric({ id: metricId }, ({ sql, data_source_id }) => ({
+    sql,
+    data_source_id
+  }));
   const { data: metricData } = useGetMetricData({ id: metricId });
 
   const [sql, setSQL] = React.useState(metric?.sql || '');

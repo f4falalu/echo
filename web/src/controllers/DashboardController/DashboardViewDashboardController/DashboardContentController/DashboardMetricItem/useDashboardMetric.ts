@@ -4,7 +4,17 @@ import { useInViewport } from '@/hooks';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 
 export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
-  const { data: metric, isFetched: isMetricFetched } = useGetMetric({ id: metricId });
+  const { data: metric, isFetched: isMetricFetched } = useGetMetric(
+    { id: metricId },
+    ({ name, description, time_frame, permission, evaluation_score, evaluation_summary }) => ({
+      name,
+      description,
+      time_frame,
+      permission,
+      evaluation_score,
+      evaluation_summary
+    })
+  );
   const {
     data: metricData,
     isFetched: isFetchedMetricData,

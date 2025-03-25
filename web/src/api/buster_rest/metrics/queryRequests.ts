@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
-import { useDebounceFn, useMemoizedFn, useMount, useUnmount } from '@/hooks';
+import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import {
   deleteMetrics,
   duplicateMetric,
@@ -26,21 +26,32 @@ import {
   useAddAssetToCollection,
   useRemoveAssetFromCollection
 } from '../collections/queryRequests';
-import debounce from 'lodash/debounce';
+import { useSearchParams } from 'next/navigation';
 
+/**
+ * This is a hook that will use the version number from the URL params if it exists.
+ */
 export const useGetMetric = <TData = IBusterMetric>(
-  { id, version_number }: { id: string | undefined; version_number?: number },
+  { id, version_number: version_number_prop }: { id: string | undefined; version_number?: number },
   select?: (data: IBusterMetric) => TData
 ) => {
+  const searchParams = useSearchParams();
+  const queryVersionNumber = searchParams.get('metric_version_number');
   const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
   const setAssetPasswordError = useBusterAssetsContextSelector((x) => x.setAssetPasswordError);
   const { password } = getAssetPassword(id!);
 
   const queryClient = useQueryClient();
-  const options = metricsQueryKeys.metricsGetMetric(id!);
+  const version_number = useMemo(() => {
+    return version_number_prop || queryVersionNumber ? parseInt(queryVersionNumber!) : undefined;
+  }, [version_number_prop, queryVersionNumber]);
+
+  const options = useMemo(() => {
+    return metricsQueryKeys.metricsGetMetric(id!, version_number);
+  }, [id, version_number]);
 
   const queryFn = useMemoizedFn(async () => {
-    const result = await getMetric({ id: id!, password });
+    const result = await getMetric({ id: id!, password, version_number });
     const oldMetric = queryClient.getQueryData(options.queryKey);
     return upgradeMetricToIMetric(result, oldMetric || null);
   });
@@ -65,7 +76,7 @@ export const prefetchGetMetric = async (
 ) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
-    ...metricsQueryKeys.metricsGetMetric(params.id),
+    ...metricsQueryKeys.metricsGetMetric(params.id, params.version_number),
     queryFn: async () => {
       const result = await getMetric_server(params);
       return upgradeMetricToIMetric(result, null);
@@ -112,33 +123,44 @@ export const prefetchGetMetricsList = async (
   return queryClient;
 };
 
+/**
+ * This is a hook that will use the version number from the URL params if it exists.
+ */
 export const useGetMetricData = ({
   id,
-  version_number
+  version_number: version_number_prop
 }: {
   id: string;
   version_number?: number;
 }) => {
+  const searchParams = useSearchParams();
+  const queryVersionNumber = searchParams.get('metric_version_number');
+
+  const version_number = useMemo(() => {
+    return version_number_prop || queryVersionNumber ? parseInt(queryVersionNumber!) : undefined;
+  }, [version_number_prop, queryVersionNumber]);
+
   const queryFn = useMemoizedFn(() => {
     return getMetricData({ id, version_number });
   });
+
   return useQuery({
-    ...metricsQueryKeys.metricsGetData(id),
+    ...metricsQueryKeys.metricsGetData(id, version_number),
     queryFn,
     enabled: !!id
   });
 };
 
 export const prefetchGetMetricDataClient = async (
-  { id }: { id: string },
+  { id, version_number }: { id: string; version_number?: number },
   queryClient: QueryClient
 ) => {
-  const options = metricsQueryKeys.metricsGetData(id);
+  const options = metricsQueryKeys.metricsGetData(id, version_number);
   const existingData = queryClient.getQueryData(options.queryKey);
   if (!existingData) {
     await queryClient.prefetchQuery({
       ...options,
-      queryFn: () => getMetricData({ id })
+      queryFn: () => getMetricData({ id, version_number })
     });
   }
 };

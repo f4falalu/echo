@@ -8,8 +8,11 @@ const statusVariants = cva('shadow p-3 rounded', {
   variants: {
     variant: {
       danger: 'bg-danger-foreground text-white',
-      default: 'bg-background text-foreground'
+      default: 'bg-background text-foreground border'
     }
+  },
+  defaultVariants: {
+    variant: 'default'
   }
 });
 
@@ -21,7 +24,7 @@ export const StatusCard: React.FC<
     onClose?: () => void;
     extra?: React.ReactNode;
   } & VariantProps<typeof statusVariants>
-> = ({ message, title, variant, className, onClose, extra }) => {
+> = ({ message, title, variant = 'default', className, onClose, extra }) => {
   return (
     <div className={cn('flex flex-col gap-1', statusVariants({ variant }), className)}>
       {title && <Text variant={'inherit'}>{title}</Text>}

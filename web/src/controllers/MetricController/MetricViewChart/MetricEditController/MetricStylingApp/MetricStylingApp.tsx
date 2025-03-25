@@ -13,7 +13,6 @@ import {
   ScatterAxis
 } from '@/api/asset_interfaces/metric/charts';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
-import { useUnmount } from '@/hooks';
 
 export const MetricStylingApp: React.FC<{
   metricId: string;
@@ -21,15 +20,14 @@ export const MetricStylingApp: React.FC<{
   const [segment, setSegment] = useState<MetricStylingAppSegments>(
     MetricStylingAppSegments.VISUALIZE
   );
-  const { data: metric } = useGetMetric({ id: metricId });
+  const { data: chartConfig } = useGetMetric({ id: metricId }, (x) => x.chart_config);
   const { data: metricData } = useGetMetricData({ id: metricId });
 
-  if (!metric) return null;
+  if (!chartConfig) return null;
 
   const columnMetadata = metricData?.data_metadata?.column_metadata || [];
   const rowCount = metricData?.data_metadata?.row_count || 0;
 
-  const chartConfig = metric.chart_config;
   const {
     selectedChartType,
     lineGroupType,

@@ -19,9 +19,9 @@ export const metricsGetList = (filters?: Parameters<typeof listMetrics>[0]) =>
     staleTime: 10 * 1000
   });
 
-export const metricsGetData = (id: string) =>
+export const metricsGetData = (id: string, version_number?: number) =>
   queryOptions<IBusterMetricData>({
-    queryKey: ['metrics', 'data', id] as const,
+    queryKey: ['metrics', 'data', id, version_number] as const,
     staleTime: 3 * 60 * 60 * 1000 // 3 hours,
   });
 

@@ -17,7 +17,26 @@ export const MetricViewChart: React.FC<{
   cardClassName?: string;
 }> = React.memo(
   ({ metricId, readOnly: readOnlyProp = false, className = '', cardClassName = '' }) => {
-    const { data: metric } = useGetMetric({ id: metricId });
+    const { data: metric } = useGetMetric(
+      { id: metricId },
+      ({
+        chart_config,
+        name,
+        description,
+        time_frame,
+        permission,
+        evaluation_score,
+        evaluation_summary
+      }) => ({
+        name,
+        description,
+        time_frame,
+        permission,
+        evaluation_score,
+        evaluation_summary,
+        chart_config
+      })
+    );
     const {
       data: metricData,
       isFetched: isFetchedMetricData,

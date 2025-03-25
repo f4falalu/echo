@@ -261,7 +261,7 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: metric } = useGetMetric({ id: metricId }, (x) => x);
+  const { data: metricStatus } = useGetMetric({ id: metricId }, (x) => x.status);
   const { mutateAsync: updateMetric } = useUpdateMetric();
 
   const onChangeStatus = useMemoizedFn(async (status: VerificationStatus) => {
@@ -270,7 +270,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
 
   const dropdownProps = useStatusDropdownContent({
     isAdmin: true,
-    selectedStatus: metric?.status || VerificationStatus.NOT_REQUESTED,
+    selectedStatus: metricStatus || VerificationStatus.NOT_REQUESTED,
     onChangeStatus
   });
 
@@ -282,7 +282,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
     () => ({
       label: 'Status',
       value: 'status',
-      icon: <StatusBadgeIndicator status={metric?.status || VerificationStatus.NOT_REQUESTED} />,
+      icon: <StatusBadgeIndicator status={metricStatus || VerificationStatus.NOT_REQUESTED} />,
       items: [<React.Fragment key="status-sub-menu">{statusSubMenu}</React.Fragment>]
     }),
     [statusSubMenu]
