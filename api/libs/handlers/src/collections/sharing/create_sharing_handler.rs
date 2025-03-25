@@ -1,16 +1,14 @@
 use anyhow::{anyhow, Result};
 use database::{
     enums::{AssetPermissionRole, AssetType},
-    helpers::collections::fetch_collection,
-    pool::get_pg_pool,
+    helpers::collections::fetch_collection_with_permission,
 };
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use sharing::{
-    admin_check::has_permission_with_admin_check_cached,
+    check_permission_access,
     create_asset_permission::create_share_by_email,
 };
-use sharing::types::AssetPermissionLevel;
 use tracing::info;
 use uuid::Uuid;
 
@@ -41,25 +39,29 @@ pub async fn create_collection_sharing_handler(
         "Creating sharing permissions for collection"
     );
 
-    // 1. Validate the collection exists
-    if fetch_collection(collection_id).await?.is_none() {
-        return Err(anyhow!("Collection not found"));
-    };
-
-    // 2. Check if user has permission to share the collection (Owner or FullAccess)
-    // Get a database connection
-    let mut conn = get_pg_pool().get().await?;
+    // 1. Fetch the collection with permission
+    let collection_with_permission = fetch_collection_with_permission(collection_id, &user.id).await?;
     
-    let has_permission_result = has_permission_with_admin_check_cached(
-        &mut conn,
-        collection_id,
-        &AssetType::Collection,
-        user,
-        AssetPermissionLevel::FullAccess, // Need FullAccess to share
-    )
-    .await?;
-
-    if !has_permission_result {
+    // If collection not found, return error
+    let collection_with_permission = match collection_with_permission {
+        Some(cwp) => cwp,
+        None => {
+            return Err(anyhow!("Collection not found"));
+        }
+    };
+    
+    // 2. Check if user has permission to share the collection (FullAccess or Owner)
+    let has_permission = check_permission_access(
+        collection_with_permission.permission,
+        &[
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+        ],
+        collection_with_permission.collection.organization_id,
+        &user.organizations,
+    );
+    
+    if !has_permission {
         return Err(anyhow!(
             "User does not have permission to share this collection"
         ));

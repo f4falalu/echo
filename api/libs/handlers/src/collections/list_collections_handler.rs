@@ -9,6 +9,8 @@ use diesel::{
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
 };
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
+use sharing::check_permission_access;
 use tracing;
 use uuid::Uuid;
 
@@ -19,19 +21,19 @@ use crate::collections::types::{
 /// Handler for listing collections with pagination and filtering
 ///
 /// # Arguments
-/// * `user_id` - The ID of the user requesting the collections
+/// * `user` - The authenticated user requesting the collections
 /// * `req` - The request containing pagination and filtering options
 ///
 /// # Returns
 /// * `Result<Vec<ListCollectionsCollection>>` - A list of collections the user has access to
 pub async fn list_collections_handler(
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     req: ListCollectionsRequest,
 ) -> Result<Vec<ListCollectionsCollection>> {
     let page = req.page.unwrap_or(0);
     let page_size = req.page_size.unwrap_or(25);
 
-    let list_of_collections = get_permissioned_collections(user_id, page, page_size, req).await?;
+    let list_of_collections = get_permissioned_collections(user, page, page_size, req).await?;
 
     Ok(list_of_collections)
 }
@@ -39,7 +41,7 @@ pub async fn list_collections_handler(
 /// Get collections that the user has permission to access
 ///
 /// # Arguments
-/// * `user_id` - The ID of the user requesting the collections
+/// * `user` - The authenticated user requesting the collections
 /// * `page` - The page number for pagination
 /// * `page_size` - The number of items per page
 /// * `req` - The request containing filtering options
@@ -47,7 +49,7 @@ pub async fn list_collections_handler(
 /// # Returns
 /// * `Result<Vec<ListCollectionsCollection>>` - A list of collections the user has access to
 async fn get_permissioned_collections(
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     page: i64,
     page_size: i64,
     req: ListCollectionsRequest,
@@ -66,7 +68,7 @@ async fn get_permissioned_collections(
         )
         .left_join(
             teams_to_users::table.on(asset_permissions::identity_id
-                .eq(teams_to_users::user_id)
+                .eq(teams_to_users::team_id)
                 .and(asset_permissions::identity_type.eq(IdentityType::Team))
                 .and(teams_to_users::deleted_at.is_null())),
         )
@@ -80,12 +82,13 @@ async fn get_permissioned_collections(
             users::id,
             users::name.nullable(),
             users::email,
+            collections::organization_id,
         ))
         .filter(collections::deleted_at.is_null())
         .filter(
             asset_permissions::identity_id
-                .eq(user_id)
-                .or(teams_to_users::user_id.eq(user_id)),
+                .eq(user.id)
+                .or(teams_to_users::user_id.eq(user.id)),
         )
         .distinct()
         .order((collections::updated_at.desc(), collections::id.asc()))
@@ -109,7 +112,7 @@ async fn get_permissioned_collections(
 
     let sql = diesel::debug_query::<diesel::pg::Pg, _>(&collections_statement).to_string();
     tracing::info!("SQL: {}", sql);
-    tracing::info!("User ID: {}", user_id);
+    tracing::info!("User ID: {}", user.id);
     
     let collection_results = match collections_statement
         .load::<(
@@ -121,6 +124,7 @@ async fn get_permissioned_collections(
             Uuid,
             Option<String>,
             String,
+            Uuid,
         )>(&mut conn)
         .await
     {
@@ -130,10 +134,29 @@ async fn get_permissioned_collections(
 
     let mut collections: Vec<ListCollectionsCollection> = Vec::new();
 
-    for (id, name, updated_at, created_at, _role, user_id, user_name, email) in collection_results {
+    // Filter collections based on user permissions
+    // We'll include collections where the user has at least CanView permission
+    for (id, name, updated_at, created_at, role, creator_id, creator_name, email, org_id) in collection_results {
+        // Check if user has at least CanView permission
+        let has_permission = check_permission_access(
+            Some(role),
+            &[
+                AssetPermissionRole::CanView,
+                AssetPermissionRole::CanEdit,
+                AssetPermissionRole::FullAccess,
+                AssetPermissionRole::Owner,
+            ],
+            org_id,
+            &user.organizations,
+        );
+
+        if !has_permission {
+            continue;
+        }
+
         let owner = ListCollectionsUser {
-            id: user_id,
-            name: user_name.unwrap_or(email),
+            id: creator_id,
+            name: creator_name.unwrap_or(email),
             avatar_url: None,
         };
 

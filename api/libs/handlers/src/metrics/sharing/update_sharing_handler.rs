@@ -10,7 +10,6 @@ use diesel::ExpressionMethods;
 use diesel_async::RunQueryDsl as AsyncRunQueryDsl;
 use serde::{Deserialize, Serialize};
 use sharing::{
-    check_asset_permission::has_permission,
     create_asset_permission::create_share_by_email,
 };
 use tracing::info;

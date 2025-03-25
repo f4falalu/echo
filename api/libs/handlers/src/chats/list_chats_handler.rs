@@ -1,9 +1,13 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
-use database::pool::get_pg_pool;
+use database::{
+    enums::{AssetType, IdentityType},
+    pool::get_pg_pool,
+};
 use diesel::prelude::*;
 use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
@@ -59,16 +63,36 @@ struct ChatWithUser {
 /// 
 /// This function efficiently retrieves a list of chats with their associated user information.
 /// It supports pagination using page number and limits results using page_size.
-/// If admin_view is true and the user has admin privileges, it shows all chats; otherwise, only the user's chats.
+/// If admin_view is true and the user has admin privileges, it shows all chats; otherwise, 
+/// it shows chats created by the user or shared with them.
 /// 
 /// Returns a list of chat items with user information and pagination details.
 pub async fn list_chats_handler(
     request: ListChatsRequest,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
 ) -> Result<Vec<ChatListItem>> {
-    use database::schema::{chats, users};
+    use database::schema::{asset_permissions, chats, users};
     
     let mut conn = get_pg_pool().get().await?;
+    
+    // Calculate offset based on page number
+    let page = request.page.unwrap_or(1);
+    let offset = (page - 1) * request.page_size;
+    
+    // Get chats that are shared with the user
+    let shared_chat_ids = if !request.admin_view {
+        // Find all chats where the user has explicit permissions
+        asset_permissions::table
+            .filter(asset_permissions::identity_id.eq(user.id))
+            .filter(asset_permissions::asset_type.eq(AssetType::Chat))
+            .filter(asset_permissions::identity_type.eq(IdentityType::User))
+            .filter(asset_permissions::deleted_at.is_null())
+            .select(asset_permissions::asset_id)
+            .load::<Uuid>(&mut conn)
+            .await?
+    } else {
+        Vec::new() // If admin view, we'll show all chats anyway
+    };
     
     // Start building the query
     let mut query = chats::table
@@ -78,12 +102,11 @@ pub async fn list_chats_handler(
     
     // Add user filter if not admin view
     if !request.admin_view {
-        query = query.filter(chats::created_by.eq(user_id));
+        // Show chats created by the user OR shared with them
+        query = query.filter(
+            chats::created_by.eq(user.id).or(chats::id.eq_any(shared_chat_ids))
+        );
     }
-    
-    // Calculate offset based on page number
-    let page = request.page.unwrap_or(1);
-    let offset = (page - 1) * request.page_size;
     
     // Order by creation date descending and apply pagination
     query = query

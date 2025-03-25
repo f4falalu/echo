@@ -385,10 +385,3 @@ For this PRD to be considered fully implemented:
 - `middleware::AuthenticatedUser` struct from `libs/middleware/src/types.rs`
 - Existing collections handlers implementation
 
-## Timeline
-Expected completion time: 1 week (7 business days)
-
-- Days 1-3: Core collection handlers refactoring and testing
-- Days 4-5: Asset management handlers refactoring and testing
-- Day 6: Sharing handlers refactoring and testing
-- Day 7: REST integration and final validation

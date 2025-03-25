@@ -1,9 +1,14 @@
 use anyhow::Result;
 use chrono::Utc;
-use database::models::Chat;
-use database::pool::get_pg_pool;
+use database::{
+    helpers::chats::fetch_chats_with_permissions,
+    pool::get_pg_pool,
+    enums::AssetPermissionRole,
+};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
+use sharing::check_permission_access;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use uuid::Uuid;
@@ -24,13 +29,13 @@ pub struct ChatUpdateResult {
 /// Bulk update chat titles
 /// 
 /// This function efficiently updates the titles of multiple chats.
-/// It validates that the user has permission to update each chat (they must be the creator)
+/// It validates that the user has permission to update each chat (they must have CanEdit, FullAccess, or Owner permissions)
 /// in a single database query, then performs individual updates for each chat.
 /// 
 /// Returns a list of results indicating success or failure for each chat.
 pub async fn update_chats_handler(
     updates: Vec<ChatUpdate>,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
 ) -> Result<Vec<ChatUpdateResult>> {
     use database::schema::chats;
     
@@ -45,17 +50,27 @@ pub async fn update_chats_handler(
     // Extract all chat IDs
     let chat_ids: Vec<Uuid> = updates.iter().map(|u| u.id).collect();
     
-    // Find all chats that the user has permission to update in one query
-    let user_chats: Vec<Chat> = chats::table
-        .filter(chats::id.eq_any(chat_ids.clone()))
-        .filter(chats::created_by.eq(user_id))
-        .filter(chats::deleted_at.is_null())
-        .load::<Chat>(&mut conn)
-        .await?;
+    // Fetch all chats with their permissions
+    let chats_with_permissions = fetch_chats_with_permissions(&chat_ids, &user.id).await?;
     
     // Create a set of authorized chat IDs for quick lookup
-    let authorized_chat_ids: HashSet<Uuid> = 
-        user_chats.iter().map(|c| c.id).collect();
+    let authorized_chat_ids: HashSet<Uuid> = chats_with_permissions
+        .iter()
+        .filter(|cwp| {
+            // Check if user has appropriate permissions (CanEdit, FullAccess, or Owner)
+            // or if they are the creator of the chat
+            let is_creator = cwp.chat.created_by == user.id;
+            let has_permission = check_permission_access(
+                cwp.permission,
+                &[AssetPermissionRole::CanEdit, AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
+                cwp.chat.organization_id,
+                &user.organizations,
+            );
+            
+            is_creator || has_permission
+        })
+        .map(|cwp| cwp.chat.id)
+        .collect();
     
     let mut update_results = Vec::with_capacity(updates.len());
     
@@ -94,4 +109,4 @@ pub async fn update_chats_handler(
     }
     
     Ok(update_results)
-} 
+}

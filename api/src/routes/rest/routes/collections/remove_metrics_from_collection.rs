@@ -38,7 +38,7 @@ pub async fn remove_metrics_from_collection(
         "Processing DELETE request to remove metrics from collection"
     );
 
-    match remove_metrics_from_collection_handler(&id, request.metric_ids, &user.id).await {
+    match remove_metrics_from_collection_handler(&id, request.metric_ids, &user).await {
         Ok(_) => Ok(ApiResponse::JsonData("Metrics removed from collection successfully".to_string())),
         Err(e) => {
             tracing::error!("Error removing metrics from collection: {}", e);

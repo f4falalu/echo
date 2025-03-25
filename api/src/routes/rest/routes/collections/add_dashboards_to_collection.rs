@@ -38,7 +38,7 @@ pub async fn add_dashboards_to_collection(
         "Processing POST request to add dashboards to collection"
     );
 
-    match add_dashboards_to_collection_handler(&id, request.dashboard_ids, &user.id).await {
+    match add_dashboards_to_collection_handler(&id, request.dashboard_ids, &user).await {
         Ok(_) => Ok(ApiResponse::JsonData("Dashboards added to collection successfully".to_string())),
         Err(e) => {
             tracing::error!("Error adding dashboards to collection: {}", e);

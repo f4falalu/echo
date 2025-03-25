@@ -7,7 +7,6 @@ use database::{
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use sharing::{
-    check_asset_permission::has_permission,
     create_asset_permission::create_share_by_email,
 };
 use tracing::{error, info};

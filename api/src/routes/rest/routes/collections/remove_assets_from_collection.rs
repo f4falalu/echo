@@ -34,8 +34,8 @@ pub struct FailedAsset {
 #[derive(Debug, Serialize)]
 pub struct RemoveAssetsResponse {
     pub message: String,
-    pub removed_count: usize,
-    pub failed_count: usize,
+    pub removed_count: u32,
+    pub failed_count: u32,
     pub failed_assets: Vec<FailedAsset>,
 }
 
@@ -64,19 +64,14 @@ pub async fn remove_assets_from_collection(
 
     // Convert request assets to handler assets
     let assets: Vec<AssetToRemove> = request.assets.into_iter().filter_map(|asset| {
-        let asset_type = match asset.type_.to_lowercase().as_str() {
-            "dashboard" => Some(AssetType::DashboardFile),
-            "metric" => Some(AssetType::MetricFile),
+        match asset.type_.to_lowercase().as_str() {
+            "dashboard" => Some(AssetToRemove::Dashboard(asset.id)),
+            "metric" => Some(AssetToRemove::Metric(asset.id)),
             _ => None,
-        };
-        
-        asset_type.map(|t| AssetToRemove {
-            id: asset.id,
-            asset_type: t,
-        })
+        }
     }).collect();
 
-    match remove_assets_from_collection_handler(&id, assets, &user.id).await {
+    match remove_assets_from_collection_handler(&id, assets, &user).await {
         Ok(result) => {
             let failed_assets = result.failed_assets.into_iter().map(|(id, asset_type, error)| {
                 let type_str = match asset_type {

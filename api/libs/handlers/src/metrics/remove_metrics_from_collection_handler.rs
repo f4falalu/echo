@@ -7,7 +7,6 @@ use database::{
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
-use sharing::check_asset_permission::has_permission;
 use tracing::{error, info};
 use uuid::Uuid;
 

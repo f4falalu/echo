@@ -4,7 +4,6 @@ use database::{
     helpers::metric_files::fetch_metric_file,
 };
 use sharing::{
-    check_asset_permission::check_access,
     list_asset_permissions::list_shares,
     types::AssetPermissionWithUser,
 };
