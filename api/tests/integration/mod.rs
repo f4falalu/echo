@@ -4,4 +4,5 @@ pub mod dashboards;
 pub mod collections;
 pub mod data_sources;
 pub mod metrics;
+pub mod organizations;
 pub mod threads_and_messages;

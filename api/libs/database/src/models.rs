@@ -45,12 +45,12 @@ pub struct DashboardFile {
 #[diesel(table_name = messages)]
 pub struct Message {
     pub id: Uuid,
-    pub request_message: String,
+    pub request_message: Option<String>,
     pub response_messages: Value,
     pub reasoning: Value,
     pub title: String,
     pub raw_llm_messages: Value,
-    pub final_reasoning_message: String,
+    pub final_reasoning_message: Option<String>,
     pub chat_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

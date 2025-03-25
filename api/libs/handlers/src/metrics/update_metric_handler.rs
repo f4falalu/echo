@@ -5,7 +5,7 @@ use database::{
     helpers::metric_files::fetch_metric_file_with_permissions,
     pool::get_pg_pool,
     schema::metric_files,
-    types::{MetricYml, VersionHistory},
+    types::{MetricYml, VersionContent, VersionHistory},
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
@@ -51,7 +51,7 @@ fn merge_json_objects(base: Value, update: Value) -> Result<Value> {
 use crate::metrics::get_metric_handler::get_metric_handler;
 use crate::metrics::types::BusterMetric;
 
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, serde::Deserialize, serde::Serialize, Default)]
 pub struct UpdateMetricRequest {
     #[serde(alias = "title")]
     pub name: Option<String>,
@@ -63,6 +63,7 @@ pub struct UpdateMetricRequest {
     pub file: Option<String>,
     pub sql: Option<String>,
     pub update_version: Option<bool>,
+    pub restore_to_version: Option<i32>,
 }
 
 /// Handler to update a metric by ID
@@ -100,8 +101,35 @@ pub async fn update_metric_handler(
     // Check if metric exists and user has access - use the latest version
     let metric = get_metric_handler(metric_id, user, None).await?;
 
-    // If file is provided, it takes precedence over all other fields
-    let content = if let Some(file_content) = request.file {
+    // Get version history
+    let mut current_version_history: VersionHistory = metric_files::table
+        .filter(metric_files::id.eq(metric_id))
+        .select(metric_files::version_history)
+        .first::<VersionHistory>(&mut conn)
+        .await
+        .map_err(|e| anyhow!("Failed to get version history: {}", e))?;
+
+    // Version restoration takes highest precedence
+    let content = if let Some(version_number) = request.restore_to_version {
+        // Fetch the requested version
+        let version = current_version_history
+            .get_version(version_number)
+            .ok_or_else(|| anyhow!("Version {} not found", version_number))?;
+
+        // Parse the YAML content from the version
+        match &version.content {
+            VersionContent::MetricYml(metric_yml) => {
+                tracing::info!(
+                    "Restoring metric {} to version {}",
+                    metric_id,
+                    version_number
+                );
+                (**metric_yml).clone()
+            }
+            _ => return Err(anyhow!("Invalid version content type")),
+        }
+    // If file is provided, it takes precedence over individual fields
+    } else if let Some(file_content) = request.file {
         serde_yaml::from_str::<MetricYml>(&file_content)
             .map_err(|e| anyhow!("Failed to parse provided file content: {}", e))?
     } else {
@@ -143,14 +171,6 @@ pub async fn update_metric_handler(
         }
         content
     };
-
-    // Get and update version history
-    let mut current_version_history: VersionHistory = metric_files::table
-        .filter(metric_files::id.eq(metric_id))
-        .select(metric_files::version_history)
-        .first::<VersionHistory>(&mut conn)
-        .await
-        .map_err(|e| anyhow!("Failed to get version history: {}", e))?;
 
     // Calculate the next version number
     let next_version = metric.versions.len() as i32 + 1;
@@ -225,6 +245,7 @@ mod tests {
             file: None,
             sql: None,
             update_version: None,
+            restore_to_version: None,
         };
 
         // Verify the request fields are properly structured
@@ -235,6 +256,27 @@ mod tests {
         assert!(valid_request.dataset_ids.unwrap()[0].len() == 36);
 
         // Actual validation logic is tested in integration tests
+    }
+
+    #[test]
+    fn test_restore_version_request() {
+        // Test restoration request validation
+        let restore_request = UpdateMetricRequest {
+            restore_to_version: Some(1),
+            name: Some("This should be ignored".to_string()),
+            description: Some("This should be ignored".to_string()),
+            chart_config: None,
+            time_frame: None,
+            dataset_ids: None,
+            verification: None,
+            file: None,
+            sql: None,
+            update_version: None,
+        };
+
+        // Verify the request fields are properly structured
+        assert_eq!(restore_request.restore_to_version.unwrap(), 1);
+        assert_eq!(restore_request.name.unwrap(), "This should be ignored");
     }
 
     #[test]

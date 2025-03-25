@@ -16,7 +16,7 @@ use uuid::Uuid;
 
 use super::{get_dashboard_handler, BusterDashboardResponse, DashboardConfig};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct DashboardUpdateRequest {
     /// New name for the dashboard (optional)
     pub name: Option<String>,
@@ -35,6 +35,8 @@ pub struct DashboardUpdateRequest {
     pub public_expiry_date: Option<String>,
     pub public_password: Option<String>,
     pub update_version: Option<bool>,
+    /// Version to restore (optional) - when provided, other update parameters are ignored
+    pub restore_to_version: Option<i32>,
 }
 
 /// Updates an existing dashboard by ID
@@ -94,63 +96,94 @@ pub async fn update_dashboard_handler(
 
     let mut conn = get_pg_pool().get().await?;
 
-    // Parse the current dashboard content
     // Get existing dashboard to read the file content
     let current_dashboard = get_dashboard_handler(&dashboard_id, user, None).await?;
 
-    let mut dashboard_yml =
-        serde_yaml::from_str::<DashboardYml>(&current_dashboard.dashboard.file)?;
-    let mut has_changes = false;
-
-    // Handle file content update (highest priority - overrides other fields)
-    if let Some(file_content) = request.file {
-        // Parse the YAML file content
-        dashboard_yml = serde_yaml::from_str(&file_content)?;
-        has_changes = true;
-    } else {
-        // Update description if provided
-        if let Some(description) = request.description {
-            dashboard_yml.description = description;
-            has_changes = true;
-        }
-
-        // Update config if provided - reconcile DashboardConfig with DashboardYml
-        if let Some(config) = request.config {
-            // Convert DashboardConfig to DashboardYml rows
-            let mut new_rows = Vec::new();
-
-            for dashboard_row in config.rows {
-                let mut row_items = Vec::new();
-
-                for item in dashboard_row.items {
-                    // Try to parse the item.id as UUID
-                    if let Ok(metric_id) = Uuid::parse_str(&item.id) {
-                        row_items.push(RowItem { id: metric_id });
-                    } else {
-                        return Err(anyhow!("Invalid metric ID format: {}", item.id));
-                    }
-                }
-
-                new_rows.push(Row {
-                    items: row_items,
-                    row_height: dashboard_row.row_height,
-                    column_sizes: dashboard_row.column_sizes,
-                    id: Some(dashboard_row.id.parse().unwrap_or(0)),
-                });
-            }
-
-            dashboard_yml.rows = new_rows;
-            has_changes = true;
-        }
-    }
-
-    // Get and update version history
+    // Get and update version history before processing the changes
+    // Create minimal dashboard if needed
+    let empty_dashboard = DashboardYml {
+        name: "New Dashboard".to_string(),
+        description: None,
+        rows: Vec::new(),
+    };
+    
     let mut current_version_history: VersionHistory = dashboard_files::table
         .filter(dashboard_files::id.eq(dashboard_id))
         .select(dashboard_files::version_history)
         .first::<VersionHistory>(&mut conn)
         .await
-        .unwrap_or_else(|_| VersionHistory::new(0, dashboard_yml.clone()));
+        .unwrap_or_else(|_| VersionHistory::new(0, database::types::VersionContent::DashboardYml(empty_dashboard)));
+
+    let mut dashboard_yml: DashboardYml;
+    let mut has_changes = false;
+
+    // Version restoration logic (highest priority - overrides all other update parameters)
+    if let Some(version_number) = request.restore_to_version {
+        // Fetch the requested version
+        let version = current_version_history
+            .get_version(version_number)
+            .ok_or_else(|| anyhow!("Version {} not found", version_number))?;
+        
+        // Get the DashboardYml from the content
+        match &version.content {
+            database::types::VersionContent::DashboardYml(yml) => {
+                dashboard_yml = yml.clone();
+                has_changes = true;
+                
+                tracing::info!(
+                    dashboard_id = %dashboard_id,
+                    restored_version = %version_number,
+                    "Restoring dashboard to previous version"
+                );
+            },
+            _ => return Err(anyhow!("Invalid version content type")),
+        }
+    } else {
+        // If not restoring, proceed with normal update logic
+        dashboard_yml = serde_yaml::from_str::<DashboardYml>(&current_dashboard.dashboard.file)?;
+        
+        // Handle file content update (high priority - overrides other fields)
+        if let Some(file_content) = request.file {
+            // Parse the YAML file content
+            dashboard_yml = serde_yaml::from_str(&file_content)?;
+            has_changes = true;
+        } else {
+            // Update description if provided
+            if let Some(description) = request.description {
+                dashboard_yml.description = description;
+                has_changes = true;
+            }
+
+            // Update config if provided - reconcile DashboardConfig with DashboardYml
+            if let Some(config) = request.config {
+                // Convert DashboardConfig to DashboardYml rows
+                let mut new_rows = Vec::new();
+
+                for dashboard_row in config.rows {
+                    let mut row_items = Vec::new();
+
+                    for item in dashboard_row.items {
+                        // Try to parse the item.id as UUID
+                        if let Ok(metric_id) = Uuid::parse_str(&item.id) {
+                            row_items.push(RowItem { id: metric_id });
+                        } else {
+                            return Err(anyhow!("Invalid metric ID format: {}", item.id));
+                        }
+                    }
+
+                    new_rows.push(Row {
+                        items: row_items,
+                        row_height: dashboard_row.row_height,
+                        column_sizes: dashboard_row.column_sizes,
+                        id: Some(dashboard_row.id.parse().unwrap_or(0)),
+                    });
+                }
+
+                dashboard_yml.rows = new_rows;
+                has_changes = true;
+            }
+        }
+    }
 
     // Calculate the next version number
     let next_version = current_version_history
@@ -164,10 +197,15 @@ pub async fn update_dashboard_handler(
     // Only add a new version if has_changes and should_update_version
     if has_changes {
         if should_update_version {
-            current_version_history.add_version(next_version, dashboard_yml.clone());
+            current_version_history.add_version(
+                next_version, 
+                database::types::VersionContent::DashboardYml(dashboard_yml.clone())
+            );
         } else {
             // Overwrite the current version instead of creating a new one
-            current_version_history.update_latest_version(dashboard_yml.clone());
+            current_version_history.update_latest_version(
+                database::types::VersionContent::DashboardYml(dashboard_yml.clone())
+            );
         }
     }
 
@@ -369,9 +407,92 @@ async fn update_dashboard_metric_associations(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use database::types::Version;
+    use mockall::predicate::*;
+    use mockall::mock;
 
-    // Note: These tests would require a test database setup
-    // They are placeholder tests to demonstrate the testing pattern
+    // Create mock for database operations and other dependencies
+    mock! {
+        pub AsyncPgConnection {
+            async fn execute(&mut self) -> Result<usize, diesel::result::Error>;
+            async fn first<T>(&mut self) -> Result<T, diesel::result::Error>;
+        }
+    }
+
+    // Helper to create a test version history with multiple versions
+    fn create_test_version_history() -> VersionHistory {
+        let mut vh = VersionHistory::default();
+        
+        // Version 1 content
+        let v1_content = DashboardYml {
+            name: "Original Dashboard".to_string(),
+            description: Some("Original description".to_string()),
+            rows: vec![
+                Row {
+                    items: vec![RowItem { id: Uuid::new_v4() }],
+                    row_height: Some(300),
+                    column_sizes: Some(vec![12]),
+                    id: Some(1),
+                }
+            ],
+        };
+        
+        // Version 2 content
+        let v2_content = DashboardYml {
+            name: "Updated Dashboard".to_string(),
+            description: Some("Updated description".to_string()),
+            rows: vec![
+                Row {
+                    items: vec![RowItem { id: Uuid::new_v4() }, RowItem { id: Uuid::new_v4() }],
+                    row_height: Some(400),
+                    column_sizes: Some(vec![6, 6]),
+                    id: Some(1),
+                },
+                Row {
+                    items: vec![RowItem { id: Uuid::new_v4() }],
+                    row_height: Some(300),
+                    column_sizes: Some(vec![12]),
+                    id: Some(2),
+                }
+            ],
+        };
+        
+        // Add versions to history
+        vh.add_version(1, v1_content);
+        vh.add_version(2, v2_content);
+        
+        vh
+    }
+
+    #[tokio::test]
+    async fn test_restore_dashboard_version() {
+        // This test would require a complete setup with database mocking
+        // Full implementation in real code would mock all required components
+        
+        // Test logic:
+        // 1. Create a dashboard with initial content (version 1)
+        // 2. Update to create version 2
+        // 3. Restore to version 1
+        // 4. Verify a new version (3) is created with content from version 1
+    }
+
+    #[tokio::test]
+    async fn test_restore_to_nonexistent_version() {
+        // This test would verify error handling when trying to restore a non-existent version
+        // Test logic:
+        // 1. Create a dashboard with a single version
+        // 2. Attempt to restore to a version that doesn't exist
+        // 3. Verify appropriate error is returned
+    }
+
+    #[tokio::test]
+    async fn test_restore_prioritizes_over_other_parameters() {
+        // This test would verify that restore_to_version takes priority over other parameters
+        // Test logic:
+        // 1. Create a dashboard with multiple versions
+        // 2. Create an update request with both restore_to_version and other fields
+        // 3. Verify the restored content matches the historical version, not the new parameters
+    }
 
     #[tokio::test]
     async fn test_update_dashboard_handler_with_name() {

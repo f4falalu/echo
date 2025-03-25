@@ -80,6 +80,13 @@ pub fn create_update_metric_request() -> Value {
     })
 }
 
+/// Creates a request to restore a metric to a specific version
+pub fn create_restore_metric_request(version_number: i32) -> Value {
+    serde_json::json!({
+        "restore_to_version": version_number
+    })
+}
+
 /// Creates dashboard association request data
 pub fn create_metric_dashboard_association_request(dashboard_id: &Uuid) -> Value {
     serde_json::json!({
