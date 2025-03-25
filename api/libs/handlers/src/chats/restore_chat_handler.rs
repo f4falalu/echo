@@ -53,7 +53,7 @@ pub async fn restore_chat_handler(
     let mut conn = get_pg_pool().get().await?;
 
     // Step 1: Restore the asset using the appropriate handler
-    let (file_type, file_name, version_id, version_number) = match request.asset_type {
+    let (file_type, file_name, file_id, version_number) = match request.asset_type {
         AssetType::MetricFile => {
             // Create a metric update request with only the restore_to_version parameter
             let metric_request = UpdateMetricRequest {
@@ -137,7 +137,6 @@ pub async fn restore_chat_handler(
             "function": {
               "name": format!("restore_{}", file_type),
               "arguments": json!({
-                "id": version_id.to_string(),
                 "version_number": request.version_number
               }).to_string()
             }
@@ -182,7 +181,7 @@ pub async fn restore_chat_handler(
         },
         // File response message
         {
-            "id": version_id.to_string(),
+            "id": file_id.to_string(),
             "type": "file",
             "metadata": [
                 {
@@ -193,7 +192,6 @@ pub async fn restore_chat_handler(
             ],
             "file_name": file_name,
             "file_type": file_type,
-            "version_id": version_id,
             "version_number": version_number,
             "filter_version_id": null
         }
@@ -202,12 +200,12 @@ pub async fn restore_chat_handler(
     // Create a Message object to insert
     let message = Message {
         id: message_id,
-        request_message: "".to_string(), // Empty request message as per requirement
+        request_message: None, // Empty request message as per requirement
         response_messages: response_messages,
         reasoning: json!([]),
         title: "Version Restoration".to_string(),
         raw_llm_messages: Value::Array(raw_llm_messages.clone()),
-        final_reasoning_message: "".to_string(),
+        final_reasoning_message: None,
         chat_id: *chat_id,
         created_at: now,
         updated_at: now,
@@ -226,7 +224,7 @@ pub async fn restore_chat_handler(
     let message_to_file = MessageToFile {
         id: Uuid::new_v4(),
         message_id: message_id,
-        file_id: version_id,
+        file_id: file_id,
         created_at: now,
         updated_at: now,
         deleted_at: None,

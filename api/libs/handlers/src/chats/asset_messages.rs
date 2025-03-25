@@ -38,7 +38,7 @@ pub async fn generate_asset_messages(
     let file_message_id = Uuid::new_v4();
     let file_message = Message {
         id: file_message_id,
-        request_message: String::new(), // Empty request for auto-generated messages
+        request_message: None, // Empty request for auto-generated messages
         chat_id: Uuid::nil(), // Will be set by caller
         created_by: user.id,
         created_at: Utc::now(),
@@ -61,8 +61,8 @@ pub async fn generate_asset_messages(
             ]
         }]),
         reasoning: serde_json::Value::Array(vec![]),
-        final_reasoning_message: "Auto-generated file message".to_string(),
-        title: format!("View {}", asset_details.name),
+        final_reasoning_message: None,
+        title: format!("Chat with {}", asset_details.name),
         raw_llm_messages: serde_json::json!([]),
         feedback: None,
     };
@@ -71,7 +71,7 @@ pub async fn generate_asset_messages(
     let text_message_id = Uuid::new_v4();
     let text_message = Message {
         id: text_message_id,
-        request_message: String::new(), // Empty request for auto-generated messages
+        request_message: None, // Empty request for auto-generated messages
         chat_id: Uuid::nil(), // Will be set by caller
         created_by: user.id,
         created_at: Utc::now(),
@@ -84,8 +84,8 @@ pub async fn generate_asset_messages(
             "isFinalMessage": true
         }]),
         reasoning: serde_json::Value::Array(vec![]),
-        final_reasoning_message: "Auto-generated text message".to_string(),
-        title: format!("View {}", asset_details.name),
+        final_reasoning_message: None,
+        title: format!("Chat with {}", asset_details.name),
         raw_llm_messages: serde_json::json!([]),
         feedback: None,
     };

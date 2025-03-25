@@ -16,21 +16,26 @@ impl CreateMetricsProcessor {
     }
 
     /// Generate a deterministic UUID based on input parameters
-    fn generate_deterministic_uuid(&self, base_id: &str, name: &str, file_type: &str) -> Result<Uuid> {
+    fn generate_deterministic_uuid(
+        &self,
+        base_id: &str,
+        name: &str,
+        file_type: &str,
+    ) -> Result<Uuid> {
         use sha2::{Digest, Sha256};
-        
+
         // Create a deterministic string by combining the inputs
         let combined = format!("{}:{}:{}", base_id, name, file_type);
-        
+
         // Hash the combined string
         let mut hasher = Sha256::new();
         hasher.update(combined.as_bytes());
         let result = hasher.finalize();
-        
+
         // Use the first 16 bytes of the hash as the UUID
         let mut bytes = [0u8; 16];
         bytes.copy_from_slice(&result[0..16]);
-        
+
         Ok(Uuid::from_bytes(bytes))
     }
 }
@@ -61,7 +66,12 @@ impl Processor for CreateMetricsProcessor {
         self.process_with_context(id, json, None)
     }
 
-    fn process_with_context(&self, id: String, json: &str, previous_output: Option<ProcessedOutput>) -> Result<Option<ProcessedOutput>> {
+    fn process_with_context(
+        &self,
+        id: String,
+        json: &str,
+        previous_output: Option<ProcessedOutput>,
+    ) -> Result<Option<ProcessedOutput>> {
         // Try to parse the JSON
         if let Ok(value) = serde_json::from_str::<Value>(json) {
             // Check if it's a metric file structure
@@ -90,11 +100,12 @@ impl Processor for CreateMetricsProcessor {
                             let file_id_str = file_id.to_string();
 
                             // Get the previously processed content for this file
-                            let previous_content = if let Some(prev_file) = previous_files.get(&file_id_str) {
-                                prev_file.file.text_chunk.clone().unwrap_or_default()
-                            } else {
-                                String::new()
-                            };
+                            let previous_content =
+                                if let Some(prev_file) = previous_files.get(&file_id_str) {
+                                    prev_file.file.text_chunk.clone().unwrap_or_default()
+                                } else {
+                                    String::new()
+                                };
 
                             // Calculate the new content (what wasn't in the previous content)
                             let new_content = if yml_content.len() > previous_content.len() {
@@ -112,11 +123,14 @@ impl Processor for CreateMetricsProcessor {
                                     file_type: "metric".to_string(),
                                     file_name: name.to_string(),
                                     version_number: 1,
-                                    version_id: String::from("0203f597-5ec5-4fd8-86e2-8587fe1c23b6"),
                                     status: "loading".to_string(),
                                     file: FileContent {
                                         text: None,
-                                        text_chunk: if new_content.is_empty() { None } else { Some(new_content) },
+                                        text_chunk: if new_content.is_empty() {
+                                            None
+                                        } else {
+                                            Some(new_content)
+                                        },
                                         modified: None,
                                     },
                                     metadata: None,
@@ -196,13 +210,16 @@ mod tests {
             assert_eq!(file_output.id, id);
             assert_eq!(file_output.title, "Creating metric files...");
             assert_eq!(file_output.files.len(), 1);
-            
+
             // Check the first file
             let file_id = &file_output.file_ids[0];
             let file = file_output.files.get(file_id).unwrap();
             assert_eq!(file.file_name, "test_metric.yml");
             assert_eq!(file.file.text, None);
-            assert_eq!(file.file.text_chunk, Some("name: Test Metric\ndescription: A test metric".to_string()));
+            assert_eq!(
+                file.file.text_chunk,
+                Some("name: Test Metric\ndescription: A test metric".to_string())
+            );
         } else {
             panic!("Expected ProcessedOutput::File");
         }
@@ -240,7 +257,10 @@ mod tests {
             let file_id = &file_output.file_ids[0];
             let file = file_output.files.get(file_id).unwrap();
             assert_eq!(file.file.text, None);
-            assert_eq!(file.file.text_chunk, Some("name: Test Metric\n".to_string()));
+            assert_eq!(
+                file.file.text_chunk,
+                Some("name: Test Metric\n".to_string())
+            );
         } else {
             panic!("Expected ProcessedOutput::File");
         }
@@ -256,7 +276,10 @@ mod tests {
             let file_id = &file_output.file_ids[0];
             let file = file_output.files.get(file_id).unwrap();
             assert_eq!(file.file.text, None);
-            assert_eq!(file.file.text_chunk, Some("description: A test metric".to_string()));
+            assert_eq!(
+                file.file.text_chunk,
+                Some("description: A test metric".to_string())
+            );
         } else {
             panic!("Expected ProcessedOutput::File");
         }

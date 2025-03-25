@@ -323,12 +323,12 @@ diesel::table! {
 diesel::table! {
     messages (id) {
         id -> Uuid,
-        request_message -> Text,
+        request_message -> Nullable<Text>,
         response_messages -> Jsonb,
         reasoning -> Jsonb,
         title -> Text,
         raw_llm_messages -> Jsonb,
-        final_reasoning_message -> Text,
+        final_reasoning_message -> Nullable<Text>,
         chat_id -> Uuid,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
