@@ -76,17 +76,23 @@ async fn test_restore_metric_in_chat() -> Result<()> {
     let messages = chat_with_messages["data"]["messages"].as_object().unwrap();
     assert!(messages.len() >= 2, "Expected at least 2 messages in the chat");
     
-    // Verify that at least one text message mentions restoring a version
+    // Verify that there's a message with restoration text in the response_messages
     let has_restoration_message = messages.values().any(|msg| {
-        msg["message_type"].as_str() == Some("text") &&
-        msg["request_message"].as_str().unwrap_or("").contains("was created by restoring")
+        let response_messages = msg["response_messages"].as_array().unwrap_or(&Vec::new());
+        response_messages.iter().any(|rm| {
+            rm["type"].as_str() == Some("text") &&
+            rm["message"].as_str().unwrap_or("").contains("was created by restoring")
+        })
     });
     assert!(has_restoration_message, "Expected a restoration message in the chat");
     
-    // Verify that there's a file message referencing the metric
+    // Verify that there's a file reference in the response_messages
     let has_file_message = messages.values().any(|msg| {
-        msg["message_type"].as_str() == Some("file") &&
-        msg["file_type"].as_str() == Some("metric")
+        let response_messages = msg["response_messages"].as_array().unwrap_or(&Vec::new());
+        response_messages.iter().any(|rm| {
+            rm["type"].as_str() == Some("file") &&
+            rm["file_type"].as_str() == Some("metric")
+        })
     });
     assert!(has_file_message, "Expected a file message referencing the metric");
     
@@ -168,17 +174,23 @@ async fn test_restore_dashboard_in_chat() -> Result<()> {
     let messages = chat_with_messages["data"]["messages"].as_object().unwrap();
     assert!(messages.len() >= 2, "Expected at least 2 messages in the chat");
     
-    // Verify that at least one text message mentions restoring a version
+    // Verify that there's a message with restoration text in the response_messages
     let has_restoration_message = messages.values().any(|msg| {
-        msg["message_type"].as_str() == Some("text") &&
-        msg["request_message"].as_str().unwrap_or("").contains("was created by restoring")
+        let response_messages = msg["response_messages"].as_array().unwrap_or(&Vec::new());
+        response_messages.iter().any(|rm| {
+            rm["type"].as_str() == Some("text") &&
+            rm["message"].as_str().unwrap_or("").contains("was created by restoring")
+        })
     });
     assert!(has_restoration_message, "Expected a restoration message in the chat");
     
-    // Verify that there's a file message referencing the dashboard
+    // Verify that there's a file reference in the response_messages
     let has_file_message = messages.values().any(|msg| {
-        msg["message_type"].as_str() == Some("file") &&
-        msg["file_type"].as_str() == Some("dashboard")
+        let response_messages = msg["response_messages"].as_array().unwrap_or(&Vec::new());
+        response_messages.iter().any(|rm| {
+            rm["type"].as_str() == Some("file") &&
+            rm["file_type"].as_str() == Some("dashboard")
+        })
     });
     assert!(has_file_message, "Expected a file message referencing the dashboard");
     

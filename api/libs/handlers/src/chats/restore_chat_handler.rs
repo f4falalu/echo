@@ -144,7 +144,7 @@ pub async fn restore_chat_handler(
     
     // Add the tool response
     raw_llm_messages.push(json!({
-        "name": format!("create_{}", file_type),
+        "name": format!("restore_{}", file_type),
         "role": "tool",
         "content": json!({
             "message": format!("Successfully restored 1 {} files.", file_type),
@@ -153,23 +153,57 @@ pub async fn restore_chat_handler(
         "tool_call_id": tool_call_id
     }));
     
-    // Step 3: Create a text message in the chat about the restoration
-    let restoration_message = format!(
+    // Step 3: Create a message with text and file responses
+    
+    let message_id = Uuid::new_v4();
+    let now = Utc::now();
+    let timestamp = now.timestamp();
+    
+    // Create restoration message text response
+    let restoration_text = format!(
         "Version {} was created by restoring version {}",
         version_number,
         request.version_number
     );
     
-    let message_id = Uuid::new_v4();
-    let now = Utc::now();
+    // Create file response message for the restored asset
+    
+    // Create response messages array with both text and file response
+    let response_messages = json!([
+        // File response message
+        {
+            "id": version_id.to_string(),
+            "type": "file",
+            "metadata": [
+                {
+                    "status": "completed",
+                    "message": format!("File {} completed", file_name),
+                    "timestamp": timestamp
+                }
+            ],
+            "file_name": file_name,
+            "file_type": file_type,
+            "version_id": version_id,
+            "version_number": version_number,
+            "filter_version_id": null
+        },
+        // Text response message
+        {
+            "id": format!("chatcmpl-{}", Uuid::new_v4().to_string().replace("-", "")),
+            "type": "text",
+            "message": restoration_text,
+            "message_chunk": null,
+            "is_final_message": true
+        }
+    ]);
     
     // Create a Message object to insert
-    let text_message = Message {
+    let message = Message {
         id: message_id,
-        request_message: restoration_message,
-        response_messages: json!([]),
+        request_message: "".to_string(), // Empty request message as per requirement
+        response_messages: response_messages,
         reasoning: json!([]),
-        title: "Restoration Message".to_string(),
+        title: "Version Restoration".to_string(),
         raw_llm_messages: Value::Array(raw_llm_messages.clone()),
         final_reasoning_message: "".to_string(),
         chat_id: *chat_id,
@@ -180,63 +214,29 @@ pub async fn restore_chat_handler(
         feedback: None,
     };
     
-    // Insert the text message
+    // Insert the message
     diesel::insert_into(messages::table)
-        .values(&text_message)
+        .values(&message)
         .execute(&mut conn)
         .await?;
     
-    // Step 4: Create a file message referencing the restored file
-    let file_message_id = Uuid::new_v4();
-    
-    // Create a JSON structure to store file metadata in request_message field
-    let file_metadata = json!({
-        "type": file_type,
-        "name": file_name,
-        "version_id": version_id,
-        "version_number": version_number,
-        "message_type": "file"
-    });
-    
-    // Create the file Message object
-    let file_message = Message {
-        id: file_message_id,
-        request_message: file_metadata.to_string(),
-        response_messages: json!([]),
-        reasoning: json!([]),
-        title: "Restored File".to_string(),
-        raw_llm_messages: Value::Array(raw_llm_messages),
-        final_reasoning_message: "".to_string(),
-        chat_id: *chat_id,
-        created_at: now,
-        updated_at: now,
-        deleted_at: None,
-        created_by: user.id,
-        feedback: None,
-    };
-    
-    // Insert the file message
-    diesel::insert_into(messages::table)
-        .values(&file_message)
-        .execute(&mut conn)
-        .await?;
-    
-    // Step 5: Create the message-to-file association
+    // Create the message-to-file association
     let message_to_file = MessageToFile {
         id: Uuid::new_v4(),
-        message_id: file_message_id,
+        message_id: message_id,
         file_id: version_id,
         created_at: now,
         updated_at: now,
         deleted_at: None,
     };
     
+    // Insert the message-to-file association into the database
     insert_into(messages_to_files::table)
         .values(&message_to_file)
         .execute(&mut conn)
         .await?;
     
-    // Step 5: Return the updated chat with messages
+    // Return the updated chat with messages
     get_chat_handler(chat_id, user, false).await
 }
 
