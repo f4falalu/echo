@@ -8,9 +8,7 @@ import React from 'react';
 export const SqlServerForm: React.FC<{
   dataSource?: DataSource;
   useConnection: boolean;
-  submitting: boolean;
-  onSubmit: (v: DatasourceCreateCredentials) => Promise<void>;
-}> = ({ dataSource, useConnection, submitting, onSubmit }) => {
+}> = ({ dataSource, useConnection }) => {
   return <></>;
   // return (
   //   <FormWrapper

@@ -296,6 +296,20 @@ export const useCreateDatasource = () => {
   const createDatabricks = useCreateDatabricksDataSource();
   const createSQLServer = useCreateSQLServerDataSource();
 
+  // setTimeout(() => {
+  //   fireConfetti(1999);
+  // }, 170);
+  // openConfirmModal({
+  //   title: 'Connection successful!',
+  //   content: 'You can now use this data source to create data sets.',
+  //   onOk: () => {
+  //     onChangePage({
+  //       route: BusterRoutes.SETTINGS_DATASOURCES_ID,
+  //       datasourceId: res.id
+  //     });
+  //   }
+  // });
+
   return {
     mutateAsync: async (credentials: CreateDatasourceParams) => {
       switch (credentials.type) {

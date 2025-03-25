@@ -10,9 +10,7 @@ import { Input } from '@/components/ui/inputs';
 export const DataBricksForm: React.FC<{
   dataSource?: DataSource;
   useConnection: boolean;
-  submitting: boolean;
-  onSubmit: (v: DatasourceCreateCredentials) => Promise<void>;
-}> = ({ useConnection, dataSource, submitting, onSubmit }) => {
+}> = ({ useConnection, dataSource }) => {
   return <></>;
   // return (
   //   <FormWrapper

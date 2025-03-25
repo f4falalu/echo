@@ -17,9 +17,7 @@ type RawBigQueryCreateCredentials = Omit<BigQueryCreateCredentials, 'credentials
 export const BigQueryForm: React.FC<{
   dataSource?: DataSource;
   useConnection: boolean;
-  submitting: boolean;
-  onSubmit: (v: DatasourceCreateCredentials) => Promise<void>;
-}> = ({ dataSource, useConnection, submitting, onSubmit }) => {
+}> = ({ dataSource, useConnection }) => {
   const formRef = useRef<FormWrapperHandle>(null);
   const [creds, setCreds] = useState('');
   const { openErrorNotification } = useBusterNotifications();

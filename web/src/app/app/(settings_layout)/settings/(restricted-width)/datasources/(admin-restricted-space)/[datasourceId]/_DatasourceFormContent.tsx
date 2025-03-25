@@ -22,8 +22,6 @@ const FormRecord: Record<
   React.FC<{
     dataSource?: DataSource;
     useConnection: boolean;
-    submitting: boolean;
-    onSubmit: (v: DatasourceCreateCredentials) => Promise<void>;
   }>
 > = {
   postgres: PostgresForm,
@@ -45,48 +43,10 @@ export const DataSourceFormContent: React.FC<{
   type: DataSourceTypes;
 }> = ({ dataSource, type, useConnection = false }) => {
   const SelectedForm = FormRecord[type];
-  const { mutateAsync: onUpdateDataSource, isPending: isUpdatingDataSource } =
-    useUpdateDatasource();
-  const { mutateAsync: onCreateDataSource, isPending: isCreatingDataSource } =
-    useCreateDatasource();
+
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const { openConfirmModal } = useBusterNotifications();
   const { fireConfetti } = useConfetti();
-
-  const onSubmit = useMemoizedFn(async (credentials: DatasourceCreateCredentials) => {
-    try {
-      const name = credentials.datasource_name;
-
-      if (!useConnection && !isUpdatingDataSource && !isCreatingDataSource) {
-        await onUpdateDataSource({
-          id: dataSource!.id,
-          name,
-          credentials
-        });
-      } else {
-        const res = (await onCreateDataSource({
-          name,
-          type,
-          credentials
-        })) as DataSource;
-        setTimeout(() => {
-          fireConfetti(1999);
-        }, 170);
-        openConfirmModal({
-          title: 'Connection successful!',
-          content: 'You can now use this data source to create data sets.',
-          onOk: () => {
-            onChangePage({
-              route: BusterRoutes.SETTINGS_DATASOURCES_ID,
-              datasourceId: res.id
-            });
-          }
-        });
-      }
-    } catch (error) {
-      // TODO: handle error
-    }
-  });
 
   return (
     <div>
@@ -94,14 +54,7 @@ export const DataSourceFormContent: React.FC<{
         Datasource credentials
       </div>
 
-      {SelectedForm && (
-        <SelectedForm
-          dataSource={dataSource}
-          submitting={isUpdatingDataSource || isCreatingDataSource}
-          onSubmit={onSubmit}
-          useConnection={useConnection}
-        />
-      )}
+      {SelectedForm && <SelectedForm dataSource={dataSource} useConnection={useConnection} />}
     </div>
   );
 };

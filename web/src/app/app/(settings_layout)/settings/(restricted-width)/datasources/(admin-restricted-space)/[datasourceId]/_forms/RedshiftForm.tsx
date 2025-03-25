@@ -11,9 +11,7 @@ import { FormWrapper, FormWrapperHandle } from './FormWrapper';
 export const RedshiftForm: React.FC<{
   dataSource?: DataSource;
   useConnection: boolean;
-  submitting: boolean;
-  onSubmit: (v: DatasourceCreateCredentials) => Promise<void>;
-}> = ({ dataSource, useConnection, submitting, onSubmit }) => {
+}> = ({ dataSource, useConnection }) => {
   return <></>;
   // return (
   //   <FormWrapper

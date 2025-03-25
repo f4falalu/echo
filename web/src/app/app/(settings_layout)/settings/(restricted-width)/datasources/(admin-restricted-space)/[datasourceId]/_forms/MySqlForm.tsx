@@ -9,9 +9,7 @@ import { FormWrapper } from './FormWrapper';
 export const MySqlForm: React.FC<{
   dataSource?: DataSource;
   useConnection: boolean;
-  submitting: boolean;
-  onSubmit: (v: DatasourceCreateCredentials) => Promise<void>;
-}> = ({ dataSource, useConnection, submitting, onSubmit }) => {
+}> = ({ dataSource, useConnection }) => {
   return <></>;
   // return (
   //   <FormWrapper

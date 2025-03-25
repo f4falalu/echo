@@ -4,35 +4,35 @@ import { FormWrapperHandle } from './FormWrapper';
 import { formatDate } from '@/lib';
 import { DatasourceCreateCredentials } from '@/api/request_interfaces/datasources';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useForm } from '@tanstack/react-form';
+import {
+  createPostgresDataSource,
+  useCreatePostgresDataSource,
+  useUpdatePostgresDataSource
+} from '@/api/buster_rest/data_source';
 
 const sshModeOptions = ['Do not use SSH credentials', 'Use SSH credentials'].map((item, index) => ({
   label: item,
   value: index
 }));
 
+type PostgresCreateParams = Parameters<typeof createPostgresDataSource>[0];
+
 export const PostgresForm: React.FC<{
   dataSource?: DataSource;
   useConnection: boolean;
-  submitting: boolean;
-  onSubmit: (v: DatasourceCreateCredentials) => Promise<void>;
-}> = ({ dataSource, useConnection = false, submitting, onSubmit }) => {
-  const formRef = useRef<FormWrapperHandle>(null);
-  useHotkeys(['meta.shift.b', 'shift.ctrl.b'], () => {
-    const form = formRef.current?.form;
-    if (!form) return;
-    form.setFieldsValue({
-      schemas: ['public'],
+}> = ({ dataSource, useConnection = false }) => {
+  const form = useForm({
+    defaultValues: {
+      host: '',
       port: 5432,
-      host: process.env.NEXT_PUBLIC_POSTGRES_DEFAULT_DB_HOST!,
-      username: process.env.NEXT_PUBLIC_POSTGRES_DEFAULT_DB_USERNAME!,
-      password: process.env.NEXT_PUBLIC_POSTGRES_DEFAULT_DB_PASSWORD!,
-      database: 'postgres',
-      datasource_name: formatDate({
-        date: new Date(),
-        format: 'MMM DD, YYYY HH:mm:ss',
-        isUTC: false
-      })
-    });
+      username: '',
+      password: '',
+      default_database: '',
+      default_schema: '',
+      type: 'postgres',
+      name: ''
+    } satisfies PostgresCreateParams
   });
 
   return <></>;

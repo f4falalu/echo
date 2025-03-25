@@ -16,7 +16,7 @@ export const deleteDatasource = async (id: string) => {
 
 export const createPostgresDataSource = async (params: {
   name: string;
-  type: 'postgres';
+  type: 'postgres' | 'supabase';
   host: string;
   port: number;
   username: string;
