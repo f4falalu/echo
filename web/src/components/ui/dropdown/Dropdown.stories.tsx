@@ -616,3 +616,20 @@ export const WithReactNodeSubMenu: Story = {
     ]
   }
 };
+
+export const WithSubMenuAndHundredItems: Story = {
+  args: {
+    children: <Button>Menu with 100 items</Button>,
+    items: [
+      {
+        label: 'Option 1',
+        value: '1',
+        items: Array.from({ length: 100 }).map((_, index) => ({
+          label: `Sub Option ${index}`,
+          value: `1-${index + 1}`,
+          selected: index === 85
+        }))
+      }
+    ]
+  }
+};

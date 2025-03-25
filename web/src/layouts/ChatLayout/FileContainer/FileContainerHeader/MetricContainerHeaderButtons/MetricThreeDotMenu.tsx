@@ -182,14 +182,19 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
   }));
   const { versions = [], version_number } = data || {};
 
+  const onClickVersionHistory = useMemoizedFn((versionNumber: number) => {
+    console.log('versionNumber', versionNumber);
+  });
+
   const versionHistoryItems: DropdownItems = useMemo(() => {
     return versions.map((x) => ({
       label: `Version ${x.version_number}`,
       secondaryLabel: timeFromNow(x.updated_at, false),
       value: x.version_number.toString(),
-      selected: x.version_number === version_number
+      selected: x.version_number === version_number,
+      onClick: () => onClickVersionHistory(x.version_number)
     }));
-  }, [versions, version_number]);
+  }, [versions, version_number, onClickVersionHistory]);
 
   return useMemo(
     () => ({

@@ -1,7 +1,7 @@
 'use client';
 
 import { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +20,7 @@ import {
   DropdownMenuLink
 } from './DropdownBase';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { Input } from '../inputs/Input';
 import { useDebounceSearch } from '@/hooks';
@@ -376,7 +376,7 @@ const DropdownItem = <T,>({
     const content = (
       <>
         {icon && !loading && <span className="text-icon-color text-lg">{icon}</span>}
-        <div className={cn('flex flex-col space-y-2', truncate && 'overflow-hidden')}>
+        <div className={cn('flex flex-col space-y-1', truncate && 'overflow-hidden')}>
           <span className={cn(truncate && 'truncate')}>{label}</span>
           {secondaryLabel && <span className="text-gray-light text-xs">{secondaryLabel}</span>}
         </div>
@@ -474,11 +474,38 @@ const DropdownSubMenuWrapper = <T,>({
   selectType,
   showIndex
 }: DropdownSubMenuWrapperProps<T>) => {
+  const subContentRef = React.useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const scrollToSelectedItem = React.useCallback(() => {
+    if (!subContentRef.current) return;
+
+    const selectedIndex = items?.findIndex((item) => (item as DropdownItem).selected);
+    if (selectedIndex === undefined || selectedIndex === -1) return;
+
+    const menuItems = subContentRef.current.querySelectorAll('[role="menuitem"]');
+    const selectedElement = menuItems[selectedIndex - 1];
+
+    if (selectedElement) {
+      selectedElement.scrollIntoView({ block: 'start', behavior: 'instant', inline: 'start' });
+    }
+  }, [items]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const timeoutId = setTimeout(scrollToSelectedItem, 70);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isOpen, scrollToSelectedItem]);
+
   return (
-    <DropdownMenuSub>
+    <DropdownMenuSub onOpenChange={setIsOpen}>
       <DropdownMenuSubTrigger>{children}</DropdownMenuSubTrigger>
       <DropdownMenuPortal>
-        <DropdownMenuSubContent sideOffset={8}>
+        <DropdownMenuSubContent
+          ref={subContentRef}
+          sideOffset={8}
+          className="max-h-[375px] overflow-y-auto">
           {items?.map((item, index) => (
             <DropdownItemSelector
               key={dropdownItemKey(item, index)}
