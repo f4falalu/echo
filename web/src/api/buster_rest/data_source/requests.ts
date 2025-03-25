@@ -5,15 +5,11 @@ import type {
   DataSourceListItem,
   MySQLCredentials,
   PostgresCredentials,
+  RedshiftCredentials,
   SnowflakeCredentials,
   SQLServerCredentials
 } from '@/api/asset_interfaces/datasources';
 import mainApi from '../instances';
-import {
-  DatasourceUpdateParams,
-  RedshiftCreateCredentials
-} from '@/api/request_interfaces/datasources';
-import { MySQLCreateParams } from './types';
 
 export const listDatasources = async () => {
   return await mainApi.get<DataSourceListItem[]>('/data_sources').then((res) => res.data);
@@ -49,7 +45,7 @@ export const updateMySQLDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createRedshiftDataSource = async (params: RedshiftCreateCredentials) => {
+export const createRedshiftDataSource = async (params: RedshiftCredentials) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 

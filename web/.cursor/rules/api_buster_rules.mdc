@@ -1,6 +1,7 @@
 ---
 description: General structure for the api folder
 globs: src/api/**/*
+alwaysApply: false
 ---
 # Cursor Rules
 
@@ -19,7 +20,6 @@ This directory contains multiple folders and files that organize different aspec
 ├── query_keys/
 ├── request_interfaces/
 ├── createInstance.ts
-├── createReactQuery.ts
 └── createServerInstance.ts
 ```
 
@@ -53,9 +53,6 @@ Defines TypeScript interfaces for various request payloads used across `buster_r
 
 #### `createInstance.ts`
 Provides a utility function for creating instances of API clients. This is commonly used to configure REST and WebSocket connections dynamically.
-
-#### `createReactQuery.ts`
-Defines helper functions for integrating API requests with React Query, ensuring efficient data fetching and caching.
 
 #### `createServerInstance.ts`
 Similar to `createInstance.ts`, but tailored for server-side API calls, ensuring proper handling of requests from server-side environments.

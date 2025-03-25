@@ -3,9 +3,11 @@ import type {
   BusterDashboardListItem,
   BusterDashboardResponse
 } from '@/api/asset_interfaces/dashboard';
-import { DashboardsListRequest } from '../request_interfaces/dashboards/interfaces';
+import { dashboardsGetList } from '../buster_rest/dashboards';
 
-const dashboardGetList = (filters: Omit<DashboardsListRequest, 'page_token' | 'page_size'>) =>
+const dashboardGetList = (
+  filters: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
+) =>
   queryOptions<BusterDashboardListItem[]>({
     queryKey: ['dashboard', 'list', filters] as const,
     staleTime: 10 * 1000,

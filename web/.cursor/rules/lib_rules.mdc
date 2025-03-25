@@ -1,6 +1,7 @@
 ---
 description: Rules for the components directory
 globs: src/lib/**/*
+alwaysApply: false
 ---
 
 # Utils Directory Structure and Guidelines

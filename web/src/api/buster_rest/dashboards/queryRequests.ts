@@ -9,7 +9,6 @@ import {
   updateDashboardShare,
   unshareDashboard
 } from './requests';
-import type { DashboardsListRequest } from '@/api/request_interfaces/dashboards/interfaces';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { BusterDashboard, BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import { useMemo } from 'react';
@@ -29,7 +28,7 @@ import { addMetricToDashboardConfig, removeMetricFromDashboardConfig } from './h
 import { addAndRemoveMetricsToDashboard } from './helpers/addAndRemoveMetricsToDashboard';
 
 export const useGetDashboardsList = (
-  params: Omit<DashboardsListRequest, 'page_token' | 'page_size'>
+  params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
 ) => {
   const filters = useMemo(() => {
     return {

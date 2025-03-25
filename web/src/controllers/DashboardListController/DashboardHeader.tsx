@@ -4,12 +4,10 @@ import React from 'react';
 import { Text } from '@/components/ui/typography';
 import { Button } from '@/components/ui/buttons';
 import { BusterRoutes } from '@/routes';
-
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';
 import { Plus } from '@/components/ui/icons';
-import type { DashboardsListRequest } from '@/api/request_interfaces/dashboards';
-import { useCreateDashboard } from '@/api/buster_rest/dashboards';
+import { type dashboardsGetList, useCreateDashboard } from '@/api/buster_rest/dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useThrottleFn } from '@/hooks';
 
@@ -88,7 +86,9 @@ const filters: SegmentedItem<string>[] = [
 
 const DashboardFilters: React.FC<{
   onChangeFilter: (v: { shared_with_me?: boolean; only_my_dashboards?: boolean }) => void;
-  activeFilters?: NonNullable<Omit<DashboardsListRequest, 'page_token' | 'page_size'>>;
+  activeFilters?: NonNullable<
+    Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
+  >;
 }> = ({ onChangeFilter, activeFilters }) => {
   const selectedFilter =
     filters.find((filter) => {

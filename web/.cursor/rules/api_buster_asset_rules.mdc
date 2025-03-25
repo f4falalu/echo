@@ -1,6 +1,7 @@
 ---
 description: Rules and guidelines for the asset_interfaces directory containing TypeScript interface definitions for all API responses
-globs: src/api/asset_interfaces/**/*
+globs: src/api/asset_interfaces/**/*,src/api/schemas/**/*
+alwaysApply: false
 ---
 # API Asset Interfaces Directory Rules
 

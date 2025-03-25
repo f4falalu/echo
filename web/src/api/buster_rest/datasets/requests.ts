@@ -1,13 +1,25 @@
 import type { BusterDataset, IDataResult, BusterDatasetListItem } from '../../asset_interfaces';
 import { mainApi } from '../instances';
 import { serverFetch } from '@/api/createServerInstance';
-import {
-  GetDatasetsParams,
-  CreateDatasetParams,
-  DeployDatasetParams
-} from '@/api/request_interfaces/dataset';
 
-export const getDatasets = async (params?: GetDatasetsParams): Promise<BusterDatasetListItem[]> => {
+export const getDatasets = async (params?: {
+  /** Current page number */
+  page?: number;
+  /** Number of items to display per page */
+  page_size?: number;
+  /** Search term to filter datasets */
+  search?: string;
+  /** When true, returns admin view of datasets */
+  admin_view?: boolean;
+  /** When true, returns only imported datasets */
+  imported?: boolean;
+  /** When true, returns only enabled datasets */
+  enabled?: boolean;
+  /** Filter by permission group ID */
+  permission_group_id?: string;
+  /** Filter by owner */
+  belongs_to?: string;
+}): Promise<BusterDatasetListItem[]> => {
   const { page = 0, page_size = 1000, ...allParams } = params || {};
   return mainApi
     .get<BusterDatasetListItem[]>(`/datasets`, { params: { page, page_size, ...allParams } })
@@ -15,7 +27,7 @@ export const getDatasets = async (params?: GetDatasetsParams): Promise<BusterDat
 };
 
 export const getDatasets_server = async (
-  params?: GetDatasetsParams
+  params?: Parameters<typeof getDatasets>[0]
 ): Promise<BusterDatasetListItem[]> => {
   const { page = 0, page_size = 1000, ...allParams } = params || {};
   return await serverFetch<BusterDatasetListItem[]>(`/datasets`, {
@@ -39,7 +51,12 @@ export const getDatasetDataSample = async (datasetId: string) => {
     .then((res) => res.data);
 };
 
-export const createDataset = async (params: CreateDatasetParams): Promise<BusterDataset> => {
+export const createDataset = async (params: {
+  /** The name of the dataset */
+  name: string;
+  /** The ID of the data source */
+  data_source_id: string;
+}): Promise<BusterDataset> => {
   return await mainApi.post<BusterDataset>(`/datasets`, params).then((res) => res.data);
 };
 
@@ -50,7 +67,14 @@ export const deleteDataset = async (datasetIds: string[]): Promise<void> => {
 export const deployDataset = async ({
   dataset_id,
   ...params
-}: DeployDatasetParams): Promise<void> => {
+}: {
+  /** The ID of the dataset to deploy */
+  dataset_id: string;
+  /** SQL query for the dataset */
+  sql: string;
+  /** YML configuration for the dataset */
+  yml: string;
+}): Promise<void> => {
   return await mainApi
     .post(`/datasets/deploy`, { id: dataset_id, ...params })
     .then((res) => res.data);

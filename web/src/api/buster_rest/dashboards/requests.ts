@@ -1,12 +1,8 @@
 import mainApi from '@/api/buster_rest/instances';
 import type {
-  DashboardsListRequest,
-  DashboardCreateRequest,
-  DashboardUpdateRequest
-} from '@/api/request_interfaces/dashboards/interfaces';
-import type {
   BusterDashboardListItem,
-  BusterDashboardResponse
+  BusterDashboardResponse,
+  DashboardConfig
 } from '@/api/asset_interfaces/dashboard';
 import {
   ShareDeleteRequest,
@@ -14,10 +10,17 @@ import {
   ShareUpdateRequest
 } from '@/api/asset_interfaces/shared_interfaces';
 
-export const dashboardsGetList = async (params: DashboardsListRequest) => {
-  return await mainApi
-    .get<BusterDashboardListItem[]>('/dashboards', { params })
-    .then((res) => res.data);
+export const dashboardsGetList = async (params: {
+  /** The page number to fetch */
+  page_token: number;
+  /** Number of items per page */
+  page_size: number;
+  /** Filter for dashboards shared with the current user */
+  shared_with_me?: boolean;
+  /** Filter for dashboards owned by the current user */
+  only_my_dashboards?: boolean;
+}) => {
+  return mainApi.get<BusterDashboardListItem[]>('/dashboards', { params }).then((res) => res.data);
 };
 
 export const dashboardsGetDashboard = async ({
@@ -34,11 +37,27 @@ export const dashboardsGetDashboard = async ({
     .then((res) => res.data);
 };
 
-export const dashboardsCreateDashboard = async (params: DashboardCreateRequest) => {
+export const dashboardsCreateDashboard = async (params: {
+  /** The name of the dashboard */
+  name?: string;
+  /** Optional description of the dashboard */
+  description?: string | null;
+}) => {
   return await mainApi.post<BusterDashboardResponse>('/dashboards', params).then((res) => res.data);
 };
 
-export const dashboardsUpdateDashboard = async (params: DashboardUpdateRequest) => {
+export const dashboardsUpdateDashboard = async (params: {
+  /** The unique identifier of the dashboard */
+  id: string;
+  /** New name for the dashboard */
+  name?: string;
+  /** New description for the dashboard */
+  description?: string | null;
+  /** Updated dashboard configuration */
+  config?: DashboardConfig;
+  /** The file content of the dashboard */
+  file?: string;
+}) => {
   return await mainApi
     .put<BusterDashboardResponse>(`/dashboards/${params.id}`, params)
     .then((res) => res.data);

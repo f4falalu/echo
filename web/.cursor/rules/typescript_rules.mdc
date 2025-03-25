@@ -1,7 +1,7 @@
 ---
-description: Rules for the context directory
-globs: src/**/*.{ts,tsx}
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
 
 # Project: React TypeScript Application
