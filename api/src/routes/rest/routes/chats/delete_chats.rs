@@ -13,7 +13,7 @@ pub async fn delete_chats_route(
     Extension(user): Extension<AuthenticatedUser>,
     Json(chat_ids): Json<Vec<Uuid>>,
 ) -> Result<ApiResponse<Vec<ChatDeleteResult>>, (StatusCode, &'static str)> {
-    match delete_chats_handler(chat_ids, &user.id).await {
+    match delete_chats_handler(chat_ids, &user).await {
         Ok(results) => Ok(ApiResponse::JsonData(results)),
         Err(e) => {
             tracing::error!("Error deleting chats: {}", e);

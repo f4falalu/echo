@@ -11,7 +11,7 @@ pub async fn get_chat_route(
     Extension(user): Extension<AuthenticatedUser>,
     Path(id): Path<Uuid>,
 ) -> Result<ApiResponse<ChatWithMessages>, (StatusCode, &'static str)> {
-    let thread_with_messages = match get_chat_handler(&id, &user.id).await {
+    let thread_with_messages = match get_chat_handler(&id, &user, false).await {
         Ok(response) => response,
         Err(e) => {
             tracing::error!("Error getting chat: {}", e);

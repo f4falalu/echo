@@ -1,11 +1,12 @@
 use anyhow::{anyhow, Result};
 use database::{
-    enums::{AssetType, IdentityType},
-    helpers::metric_files::fetch_metric_file,
+    enums::{AssetPermissionRole, AssetType},
+    helpers::metric_files::fetch_metric_file_with_permissions,
+    pool::get_pg_pool,
 };
+use middleware::AuthenticatedUser;
 use sharing::{
-    list_asset_permissions::list_shares,
-    types::AssetPermissionWithUser,
+    check_permission_access, list_asset_permissions::list_shares, types::AssetPermissionWithUser,
 };
 use tracing::info;
 use uuid::Uuid;
@@ -20,36 +21,16 @@ use uuid::Uuid;
 /// * `Result<Vec<AssetPermissionWithUser>>` - A list of all sharing permissions for the metric
 pub async fn list_metric_sharing_handler(
     metric_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
 ) -> Result<Vec<AssetPermissionWithUser>> {
     info!(
         metric_id = %metric_id,
-        user_id = %user_id,
+        user_id = %user.id,
         "Listing sharing permissions for metric"
     );
 
-    // 1. Validate the metric exists
-    if fetch_metric_file(metric_id).await?.is_none() {
-        return Err(anyhow!("Metric not found"));
-    };
-
-    // 2. Check if user has permission to view the metric
-    let user_role = check_access(
-        *metric_id,
-        AssetType::MetricFile,
-        *user_id,
-        IdentityType::User,
-    ).await?;
-
-    if user_role.is_none() {
-        return Err(anyhow!("User does not have permission to view this metric"));
-    }
-
     // 3. Get all permissions for the metric
-    let permissions = list_shares(
-        *metric_id,
-        AssetType::MetricFile,
-    ).await?;
+    let permissions = list_shares(*metric_id, AssetType::MetricFile).await?;
 
     Ok(permissions)
 }

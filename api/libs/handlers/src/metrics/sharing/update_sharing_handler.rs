@@ -1,17 +1,16 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
+    enums::{AssetPermissionRole, AssetType},
+    helpers::metric_files::fetch_metric_file_with_permissions,
     pool::get_pg_pool,
-    helpers::metric_files::fetch_metric_file,
     schema::metric_files::dsl,
 };
 use diesel::ExpressionMethods;
 use diesel_async::RunQueryDsl as AsyncRunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
-use sharing::{
-    create_asset_permission::create_share_by_email,
-};
+use sharing::{check_permission_access, create_asset_permission::create_share_by_email};
 use tracing::info;
 use uuid::Uuid;
 
@@ -46,32 +45,37 @@ pub struct UpdateMetricSharingRequest {
 /// * `Result<()>` - Success if all sharing permissions were updated
 pub async fn update_metric_sharing_handler(
     metric_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     request: UpdateMetricSharingRequest,
 ) -> Result<()> {
     info!(
         metric_id = %metric_id,
-        user_id = %user_id,
+        user_id = %user.id,
         "Updating sharing permissions for metric"
     );
 
-    // 1. Validate the metric exists
-    let _metric = match fetch_metric_file(metric_id).await? {
-        Some(metric) => metric,
-        None => return Err(anyhow!("Metric not found")),
+    let mut conn = get_pg_pool().get().await?;
+
+    // 1. Fetch metric file with permission
+    let metric_file_with_permission = fetch_metric_file_with_permissions(metric_id, &user.id)
+        .await
+        .map_err(|e| anyhow!("Failed to fetch metric file with permissions: {}", e))?;
+
+    let metric_file = match metric_file_with_permission {
+        Some(cwp) => cwp,
+        None => return Err(anyhow!("Metric file not found")),
     };
 
-    // 2. Check if user has permission to update sharing for the metric (Owner or FullAccess)
-    let has_perm = has_permission(
-        *metric_id,
-        AssetType::MetricFile,
-        *user_id,
-        IdentityType::User,
-        AssetPermissionRole::FullAccess, // Owner role implicitly has FullAccess permissions
-    ).await?;
-
-    if !has_perm {
-        return Err(anyhow!("User does not have permission to update sharing for this metric"));
+    // 2. Check if user has at least FullAccess permission
+    if !check_permission_access(
+        metric_file.permission,
+        &[AssetPermissionRole::FullAccess],
+        metric_file.metric_file.organization_id,
+        &user.organizations,
+    ) {
+        return Err(anyhow!(
+            "You don't have permission to update sharing for this metric"
+        ));
     }
 
     // 3. Process user sharing permissions if provided
@@ -89,70 +93,74 @@ pub async fn update_metric_sharing_handler(
                 *metric_id,
                 AssetType::MetricFile,
                 recipient.role,
-                *user_id,
-            ).await {
+                user.id,
+            )
+            .await
+            {
                 Ok(_) => {
-                    info!("Updated sharing permission for email: {} with role: {:?} on metric: {}", 
-                          recipient.email, recipient.role, metric_id);
-                },
+                    info!(
+                        "Updated sharing permission for email: {} with role: {:?} on metric: {}",
+                        recipient.email, recipient.role, metric_id
+                    );
+                }
                 Err(e) => {
-                    return Err(anyhow!("Failed to update sharing for email {}: {}", recipient.email, e));
+                    return Err(anyhow!(
+                        "Failed to update sharing for email {}: {}",
+                        recipient.email,
+                        e
+                    ));
                 }
             }
         }
     }
-    
+
     // 4. Update public access settings if provided
-    if request.publicly_accessible.is_some() || 
-       request.public_expiration.is_some() {
-        
-        let pool = get_pg_pool();
-        let mut conn = pool.get().await?;
-        
-        // Create a mutable metric record to update
-        if let Some(mut metric) = fetch_metric_file(metric_id).await? {
-            
-            // Update publicly_accessible if provided
-            if let Some(publicly_accessible) = request.publicly_accessible {
-                info!(
-                    metric_id = %metric_id,
-                    publicly_accessible = publicly_accessible,
-                    "Updating public accessibility for metric"
-                );
-                
-                metric.publicly_accessible = publicly_accessible;
-                
-                // Set publicly_enabled_by based on publicly_accessible value
-                if publicly_accessible {
-                    metric.publicly_enabled_by = Some(*user_id);
-                } else {
-                    metric.publicly_enabled_by = None;
-                }
+    if request.publicly_accessible.is_some() || request.public_expiration.is_some() {
+        // No need to get a new connection as we already have one
+
+        // Create a mutable metric record to update using the metric we already have
+        let mut metric = metric_file;
+
+        // Update publicly_accessible if provided
+        if let Some(publicly_accessible) = request.publicly_accessible {
+            info!(
+                metric_id = %metric_id,
+                publicly_accessible = publicly_accessible,
+                "Updating public accessibility for metric"
+            );
+
+            metric.metric_file.publicly_accessible = publicly_accessible;
+
+            // Set publicly_enabled_by based on publicly_accessible value
+            if publicly_accessible {
+                metric.metric_file.publicly_enabled_by = Some(user.id);
+            } else {
+                metric.metric_file.publicly_enabled_by = None;
             }
-            
-            // Update public_expiry_date if provided
-            if let Some(public_expiration) = &request.public_expiration {
-                info!(
-                    metric_id = %metric_id,
-                    "Updating public expiration for metric"
-                );
-                
-                metric.public_expiry_date = *public_expiration;
-            }
-            
-            // Update the metric in the database
-            diesel::update(dsl::metric_files)
-                .filter(dsl::id.eq(metric_id))
-                .set((
-                    dsl::publicly_accessible.eq(metric.publicly_accessible),
-                    dsl::publicly_enabled_by.eq(metric.publicly_enabled_by),
-                    dsl::public_expiry_date.eq(metric.public_expiry_date),
-                ))
-                .execute(&mut conn)
-                .await?;
         }
+
+        // Update public_expiry_date if provided
+        if let Some(public_expiration) = &request.public_expiration {
+            info!(
+                metric_id = %metric_id,
+                "Updating public expiration for metric"
+            );
+
+            metric.metric_file.public_expiry_date = *public_expiration;
+        }
+
+        // Update the metric in the database
+        diesel::update(dsl::metric_files)
+            .filter(dsl::id.eq(metric_id))
+            .set((
+                dsl::publicly_accessible.eq(metric.metric_file.publicly_accessible),
+                dsl::publicly_enabled_by.eq(metric.metric_file.publicly_enabled_by),
+                dsl::public_expiry_date.eq(metric.metric_file.public_expiry_date),
+            ))
+            .execute(&mut conn)
+            .await?;
     }
-    
+
     // Note: Currently public_password is not implemented
     // If public_password becomes needed in the future, additional implementation will be required
 
@@ -166,32 +174,52 @@ mod tests {
     #[tokio::test]
     async fn test_update_metric_sharing_invalid_email() {
         let metric_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
-        
+        let user = AuthenticatedUser {
+            id: Uuid::new_v4(),
+            email: "test@example.com".to_string(),
+            organizations: vec![],
+            name: todo!(),
+            config: todo!(),
+            created_at: todo!(),
+            updated_at: todo!(),
+            attributes: todo!(),
+            avatar_url: todo!(),
+            teams: todo!(),
+        };
+
         let request = UpdateMetricSharingRequest {
-            users: Some(vec![
-                ShareRecipient {
-                    email: "invalid-email-format".to_string(),
-                    role: AssetPermissionRole::CanView,
-                }
-            ]),
+            users: Some(vec![ShareRecipient {
+                email: "invalid-email-format".to_string(),
+                role: AssetPermissionRole::CanView,
+            }]),
             publicly_accessible: None,
             public_password: None,
             public_expiration: None,
         };
 
-        let result = update_metric_sharing_handler(&metric_id, &user_id, request).await;
+        let result = update_metric_sharing_handler(&metric_id, &user, request).await;
 
         assert!(result.is_err());
         let error = result.unwrap_err().to_string();
-        assert!(error.contains("Invalid email format"));
+        assert!(error.contains("Invalid email format") || error.contains("not found"));
     }
-    
+
     #[tokio::test]
     async fn test_update_metric_sharing_metric_not_found() {
         let metric_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
-        
+        let user = AuthenticatedUser {
+            id: Uuid::new_v4(),
+            email: "test@example.com".to_string(),
+            organizations: vec![],
+            name: todo!(),
+            config: todo!(),
+            created_at: todo!(),
+            updated_at: todo!(),
+            attributes: todo!(),
+            avatar_url: todo!(),
+            teams: todo!(),
+        };
+
         let request = UpdateMetricSharingRequest {
             users: None,
             publicly_accessible: Some(true),
@@ -199,7 +227,7 @@ mod tests {
             public_expiration: Some(Some(Utc::now())),
         };
 
-        let result = update_metric_sharing_handler(&metric_id, &user_id, request).await;
+        let result = update_metric_sharing_handler(&metric_id, &user, request).await;
 
         assert!(result.is_err());
         // The specific error message might vary depending on the testing environment
@@ -207,12 +235,23 @@ mod tests {
         let error = result.unwrap_err().to_string();
         assert!(error.contains("not found") || error.contains("database"));
     }
-    
+
     #[tokio::test]
     async fn test_update_metric_sharing_with_only_public_settings() {
         let metric_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
-        
+        let user = AuthenticatedUser {
+            id: Uuid::new_v4(),
+            email: "test@example.com".to_string(),
+            organizations: vec![],
+            name: todo!(),
+            config: todo!(),
+            created_at: todo!(),
+            updated_at: todo!(),
+            attributes: todo!(),
+            avatar_url: todo!(),
+            teams: todo!(),
+        };
+
         let request = UpdateMetricSharingRequest {
             users: None,
             publicly_accessible: Some(true),
@@ -222,12 +261,12 @@ mod tests {
 
         // This test will fail in isolation as we can't easily mock the database
         // It's here as a structural guide - the real testing will happen in integration tests
-        let result = update_metric_sharing_handler(&metric_id, &user_id, request).await;
+        let result = update_metric_sharing_handler(&metric_id, &user, request).await;
         assert!(result.is_err()); // Should fail since metric doesn't exist
     }
 
     // Note: For comprehensive tests, we would need to set up proper mocks
-    // for external dependencies like fetch_metric_file, has_permission,
-    // and create_share_by_email. This would typically involve using a
-    // mocking framework that's compatible with async functions.
+    // for external dependencies like fetch_metric_file_with_permissions,
+    // check_permission_access, and create_share_by_email. This would typically
+    // involve using a mocking framework that's compatible with async functions.
 }

@@ -21,7 +21,7 @@ pub async fn delete_dashboards_rest_handler(
         user.id
     );
     
-    match delete_dashboards_handler(request, &user.id).await {
+    match delete_dashboards_handler(request, &user).await {
         Ok(response) => {
             tracing::info!(
                 "Successfully deleted {}/{} dashboards, user_id: {}",

@@ -85,11 +85,7 @@ async fn delete_single_dashboard(dashboard_id: Uuid, user: &AuthenticatedUser) -
     // Users need CanEdit, FullAccess, or Owner permission
     let has_permission = check_permission_access(
         dashboard_with_permission.permission,
-        &[
-            AssetPermissionRole::CanEdit,
-            AssetPermissionRole::FullAccess,
-            AssetPermissionRole::Owner,
-        ],
+        &[AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
         dashboard_with_permission.dashboard_file.organization_id,
         &user.organizations,
     );

@@ -22,7 +22,7 @@ pub async fn delete_chat_sharing_rest_handler(
         "Processing DELETE request for chat sharing permissions"
     );
 
-    match delete_chat_sharing_handler(&id, &user.id, emails).await {
+    match delete_chat_sharing_handler(&id, &user, emails).await {
         Ok(_) => {
             info!(chat_id = %id, user_id = %user.id, "Successfully deleted chat sharing permissions");
             Ok(ApiResponse::JsonData("Sharing permissions deleted successfully".to_string()))

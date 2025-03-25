@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 use database::types::VersionHistory;
 use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde_json::Value;
 use serde_yaml;
 use uuid::Uuid;
@@ -10,9 +11,11 @@ use crate::metrics::types::{
     BusterMetric, ColumnMetaData, ColumnType, DataMetadata, Dataset, MinMaxValue, SimpleType,
 };
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
+use database::helpers::metric_files::fetch_metric_file_with_permissions;
 use database::pool::get_pg_pool;
 use database::schema::{asset_permissions, datasets, metric_files, users};
 use database::types::MetricYml;
+use sharing::check_permission_access;
 
 use super::Version;
 
@@ -56,41 +59,37 @@ struct AssetPermissionInfo {
 /// If version_number is None, returns the latest version of the metric.
 pub async fn get_metric_handler(
     metric_id: &Uuid,
-    _user_id: &Uuid,
+    user: &AuthenticatedUser,
     version_number: Option<i32>,
 ) -> Result<BusterMetric> {
-    let mut conn = match get_pg_pool().get().await {
-        Ok(conn) => conn,
-        Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
+    // 1. Fetch metric file with permission
+    let metric_file_with_permission = fetch_metric_file_with_permissions(metric_id, &user.id)
+        .await
+        .map_err(|e| anyhow!("Failed to fetch metric file with permissions: {}", e))?;
+
+    let metric_file = if let Some(metric_file) = metric_file_with_permission {
+        metric_file
+    } else {
+        return Err(anyhow!("Metric file not found"));
     };
 
-    // Query the metric file
-    let metric_file = metric_files::table
-        .filter(metric_files::id.eq(metric_id))
-        .filter(metric_files::deleted_at.is_null())
-        .select((
-            metric_files::id,
-            metric_files::name,
-            metric_files::file_name,
-            metric_files::content,
-            metric_files::verification,
-            metric_files::evaluation_obj,
-            metric_files::evaluation_summary,
-            metric_files::evaluation_score,
-            metric_files::created_by,
-            metric_files::created_at,
-            metric_files::updated_at,
-            metric_files::version_history,
-            metric_files::publicly_accessible,
-            metric_files::publicly_enabled_by,
-            metric_files::public_expiry_date,
-        ))
-        .first::<QueryableMetricFile>(&mut conn)
-        .await
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => anyhow!("Metric file not found or unauthorized"),
-            _ => anyhow!("Database error: {}", e),
-        })?;
+    // 2. Check if user has at least FullAccess permission
+    if !check_permission_access(
+        metric_file.permission,
+        &[AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
+        metric_file.metric_file.organization_id,
+        &user.organizations,
+    ) {
+        return Err(anyhow!("You don't have permission to view this metric"));
+    }
+
+    let permission = if let Some(permission) = metric_file.permission {
+        permission
+    } else {
+        return Err(anyhow!("You don't have permission to view this metric"));
+    };
+
+    let metric_file = metric_file.metric_file;
 
     // Map evaluation score to High/Moderate/Low
     let evaluation_score = metric_file.evaluation_score.map(|score| {
@@ -136,6 +135,8 @@ pub async fn get_metric_handler(
         Ok(yaml) => yaml,
         Err(e) => return Err(anyhow!("Failed to convert content to YAML: {}", e)),
     };
+
+    let mut conn = get_pg_pool().get().await?;
 
     // Parse data metadata from the selected version's MetricYml
     let data_metadata = metric_content.data_metadata.map(|metadata| {
@@ -213,11 +214,7 @@ pub async fn get_metric_handler(
         .filter(asset_permissions::asset_type.eq(AssetType::MetricFile))
         .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
-        .select((
-            asset_permissions::role,
-            users::email,
-            users::name,
-        ))
+        .select((asset_permissions::role, users::email, users::name))
         .load::<AssetPermissionInfo>(&mut conn)
         .await;
 
@@ -281,8 +278,8 @@ pub async fn get_metric_handler(
         dashboards: vec![],  // TODO: Get associated dashboards
         collections: vec![], // TODO: Get associated collections
         versions,
-        // TODO: get the actual access check
-        permission: AssetPermissionRole::Owner,
+        // Use the actual permission from the fetch operation
+        permission,
         sql: metric_content.sql,
         // New sharing fields
         individual_permissions,

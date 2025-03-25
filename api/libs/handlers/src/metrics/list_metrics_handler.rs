@@ -7,6 +7,7 @@ use database::{
 };
 use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -32,7 +33,7 @@ pub struct BusterMetricListItem {
 }
 
 pub async fn list_metrics_handler(
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     request: MetricsListRequest,
 ) -> Result<Vec<BusterMetricListItem>> {
     let mut conn = match get_pg_pool().get().await {
@@ -72,7 +73,7 @@ pub async fn list_metrics_handler(
     // Add filters for shared_with_me and only_my_metrics if provided
     if let Some(true) = request.only_my_metrics {
         metric_statement =
-            diesel::QueryDsl::filter(metric_statement, metric_files::created_by.eq(user_id));
+            diesel::QueryDsl::filter(metric_statement, metric_files::created_by.eq(&user.id));
     }
 
     // Execute the query

@@ -38,7 +38,7 @@ pub async fn list_dashboard_sharing_rest_handler(
         "Processing GET request for dashboard sharing permissions"
     );
 
-    match list_dashboard_sharing_handler(&id, &user.id).await {
+    match list_dashboard_sharing_handler(&id, &user).await {
         Ok(permissions) => {
             let response = permissions
                     .into_iter()

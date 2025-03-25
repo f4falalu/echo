@@ -1,15 +1,15 @@
-use axum::{routing::{get, put, delete, post}, Router};
+use axum::{
+    routing::{delete, get, post, put},
+    Router,
+};
 
 // Import modules
-mod add_metric_to_collections;
 mod delete_metric;
 mod get_metric;
 mod get_metric_data;
 mod list_metrics;
-mod post_metric_dashboard;
-mod remove_metrics_from_collection;
-mod update_metric;
 mod sharing;
+mod update_metric;
 
 pub fn router() -> Router {
     Router::new()
@@ -21,18 +21,6 @@ pub fn router() -> Router {
         .route(
             "/:id/data",
             get(get_metric_data::get_metric_data_rest_handler),
-        )
-        .route(
-            "/:id/dashboards",
-            post(post_metric_dashboard::post_metric_dashboard_rest_handler),
-        )
-        .route(
-            "/:id/collections",
-            post(add_metric_to_collections::add_metric_to_collections_rest_handler),
-        )
-        .route(
-            "/:id/collections",
-            delete(remove_metrics_from_collection::remove_metrics_from_collection),
         )
         .nest("/:id/sharing", sharing::router())
 }

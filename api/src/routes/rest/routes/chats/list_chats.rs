@@ -30,7 +30,7 @@ pub async fn list_chats_route(
         admin_view: query.admin_view,
     };
 
-    match list_chats_handler(request, &user.id).await {
+    match list_chats_handler(request, &user).await {
         Ok(response) => Ok(ApiResponse::JsonData(response)),
         Err(e) => {
             tracing::error!("Error listing chats: {}", e);

@@ -44,7 +44,6 @@ pub async fn delete_collection_handler(
         let has_permission = check_permission_access(
             collection_with_permission.permission,
             &[
-                AssetPermissionRole::CanEdit,
                 AssetPermissionRole::FullAccess,
                 AssetPermissionRole::Owner,
             ],

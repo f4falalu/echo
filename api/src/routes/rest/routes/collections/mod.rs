@@ -1,18 +1,16 @@
 use axum::{
-    routing::{get, post, put, delete},
+    routing::{delete, get, post, put},
     Router,
 };
 
 mod add_assets_to_collection;
-mod add_dashboards_to_collection;
-mod list_collections;
-mod get_collection;
 mod create_collection;
-mod update_collection;
 mod delete_collection;
+mod get_collection;
+mod list_collections;
 mod remove_assets_from_collection;
-mod remove_metrics_from_collection;
 mod sharing;
+mod update_collection;
 
 pub fn router() -> Router {
     Router::new()
@@ -22,9 +20,13 @@ pub fn router() -> Router {
         .route("/:id", get(get_collection::get_collection))
         .route("/:id", put(update_collection::update_collection))
         .route("/:id", delete(delete_collection::delete_collection_by_id))
-        .route("/:id/assets", post(add_assets_to_collection::add_assets_to_collection))
-        .route("/:id/dashboards", post(add_dashboards_to_collection::add_dashboards_to_collection))
-        .route("/:id/assets", delete(remove_assets_from_collection::remove_assets_from_collection))
-        .route("/:id/metrics", delete(remove_metrics_from_collection::remove_metrics_from_collection))
+        .route(
+            "/:id/assets",
+            post(add_assets_to_collection::add_assets_to_collection),
+        )
+        .route(
+            "/:id/assets",
+            delete(remove_assets_from_collection::remove_assets_from_collection),
+        )
         .nest("/:id/sharing", sharing::router())
 }

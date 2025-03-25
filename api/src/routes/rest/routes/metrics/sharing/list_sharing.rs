@@ -33,7 +33,7 @@ pub async fn list_metric_sharing_rest_handler(
         user.id
     );
 
-    match list_metric_sharing_handler(&id, &user.id).await {
+    match list_metric_sharing_handler(&id, &user).await {
         Ok(permissions) => {
             let response = permissions
                 .into_iter()

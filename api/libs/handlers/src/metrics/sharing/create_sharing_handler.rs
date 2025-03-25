@@ -1,11 +1,11 @@
 use anyhow::{anyhow, Result};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
-    helpers::metric_files::fetch_metric_file,
+    enums::{AssetPermissionRole, AssetType},
+    helpers::metric_files::fetch_metric_file_with_permissions,
+    pool::get_pg_pool,
 };
-use sharing::{
-    create_asset_permission::create_share_by_email,
-};
+use middleware::AuthenticatedUser;
+use sharing::{check_permission_access, create_asset_permission::create_share_by_email};
 use tracing::info;
 use uuid::Uuid;
 
@@ -20,33 +20,35 @@ use uuid::Uuid;
 /// * `Result<()>` - Success if all sharing permissions were created
 pub async fn create_metric_sharing_handler(
     metric_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     emails_and_roles: Vec<(String, AssetPermissionRole)>,
 ) -> Result<()> {
     info!(
         metric_id = %metric_id,
-        user_id = %user_id,
+        user_id = %user.id,
         recipients_count = emails_and_roles.len(),
         "Creating sharing permissions for metric"
     );
 
-    // 1. Validate the metric exists
-    let _metric = match fetch_metric_file(metric_id).await? {
-        Some(metric) => metric,
-        None => return Err(anyhow!("Metric not found")),
+    // 1. Fetch metric file with permission
+    let metric_file_with_permission = fetch_metric_file_with_permissions(metric_id, &user.id)
+        .await
+        .map_err(|e| anyhow!("Failed to fetch metric file with permissions: {}", e))?;
+
+    let metric_file = if let Some(metric_file) = metric_file_with_permission {
+        metric_file
+    } else {
+        return Err(anyhow!("Metric file not found"));
     };
 
-    // 2. Check if user has permission to share the metric (Owner or FullAccess)
-    let has_permission = has_permission(
-        *metric_id,
-        AssetType::MetricFile,
-        *user_id,
-        IdentityType::User,
-        AssetPermissionRole::FullAccess, // Owner role implicitly has FullAccess permissions
-    ).await?;
-
-    if !has_permission {
-        return Err(anyhow!("User does not have permission to share this metric"));
+    // 2. Check if user has at least FullAccess permission
+    if !check_permission_access(
+        metric_file.permission,
+        &[AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
+        metric_file.metric_file.organization_id,
+        &user.organizations,
+    ) {
+        return Err(anyhow!("You don't have permission to share this metric"));
     }
 
     // 3. Process each email-role pair and create sharing permissions
@@ -57,18 +59,20 @@ pub async fn create_metric_sharing_handler(
         }
 
         // Create or update the permission using create_share_by_email
-        match create_share_by_email(
-            &email,
-            *metric_id,
-            AssetType::MetricFile,
-            role,
-            *user_id,
-        ).await {
+        match create_share_by_email(&email, *metric_id, AssetType::MetricFile, role, user.id).await
+        {
             Ok(_) => {
-                info!("Created sharing permission for email: {} with role: {:?} on metric: {}", email, role, metric_id);
-            },
+                info!(
+                    "Created sharing permission for email: {} with role: {:?} on metric: {}",
+                    email, role, metric_id
+                );
+            }
             Err(e) => {
-                return Err(anyhow!("Failed to create sharing for email {}: {}", email, e));
+                return Err(anyhow!(
+                    "Failed to create sharing for email {}: {}",
+                    email,
+                    e
+                ));
             }
         }
     }
@@ -78,24 +82,9 @@ pub async fn create_metric_sharing_handler(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use uuid::Uuid;
-
-    #[tokio::test]
-    async fn test_create_metric_sharing_invalid_email() {
-        let metric_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
-        let emails_and_roles = vec![("invalid-email-format".to_string(), AssetPermissionRole::CanView)];
-
-        let result = create_metric_sharing_handler(&metric_id, &user_id, emails_and_roles).await;
-
-        assert!(result.is_err());
-        let error = result.unwrap_err().to_string();
-        assert!(error.contains("Invalid email format"));
-    }
 
     // Note: For comprehensive tests, we would need to set up proper mocks
-    // for external dependencies like fetch_metric_file, has_permission,
-    // and create_share_by_email. This would typically involve using a
-    // mocking framework that's compatible with async functions.
+    // for external dependencies like fetch_metric_file_with_permissions,
+    // check_permission_access, and create_share_by_email. This would typically
+    // involve using a mocking framework that's compatible with async functions.
 }

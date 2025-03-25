@@ -21,7 +21,7 @@ pub async fn delete_metric_sharing_rest_handler(
         user.id
     );
 
-    match delete_metric_sharing_handler(&id, &user.id, request).await {
+    match delete_metric_sharing_handler(&id, &user, request).await {
         Ok(_) => Ok(ApiResponse::JsonData(
             "Sharing permissions deleted successfully".to_string(),
         )),

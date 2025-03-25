@@ -35,7 +35,7 @@ pub async fn update_metric_sharing_rest_handler(
         "Processing PUT request for metric sharing permissions"
     );
 
-    match handlers::metrics::sharing::update_metric_sharing_handler(&id, &user.id, request).await {
+    match handlers::metrics::sharing::update_metric_sharing_handler(&id, &user, request).await {
         Ok(_) => Ok(ApiResponse::JsonData(
             "Sharing permissions updated successfully".to_string(),
         )),
