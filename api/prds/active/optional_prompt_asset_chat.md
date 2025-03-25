@@ -281,6 +281,10 @@ pub struct ChatWithMessages {
 3. Update REST and WebSocket endpoints
    - [x] Update REST endpoint to support new request structure
    - [x] Update WebSocket endpoint to support new request structure
+      - [x] Add validation for asset_id/asset_type combination
+      - [x] Ensure proper error handling
+      - [x] Support streaming for both prompt and prompt-less flows
+      - [x] Create comprehensive tests
    - [x] Add validation for new fields
 
 ### Phase 2: Context Loader Refactoring ✅ (Completed)

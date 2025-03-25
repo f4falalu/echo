@@ -7,26 +7,46 @@ use tokio::sync::mpsc;
 
 use crate::routes::ws::{
         threads_and_messages::threads_router::{ThreadEvent as WSThreadEvent, ThreadRoute},
-        ws::{WsEvent, WsResponseMessage, WsSendMethod},
+        ws::{WsEvent, WsResponseMessage, WsSendMethod, WsErrorCode},
         ws_router::WsRoutes,
-        ws_utils::send_ws_message,
+        ws_utils::{send_ws_message, send_error_message},
     };
 
 /// Creates a new thread for a user and processes their request using the shared handler
+///
+/// This handler supports:
+/// - Optional prompts when an asset is provided
+/// - Generic asset references (asset_id and asset_type)
+/// - Legacy specific asset fields (metric_id, dashboard_id) for backward compatibility
+/// - Streaming of results for all flows, including auto-generated messages for prompt-less requests
 pub async fn post_thread(
     user: &AuthenticatedUser,
     request: ChatCreateNewChat,
 ) -> Result<()> {
+    // Validate request parameters
+    // When asset_id is provided, asset_type must also be provided
+    if request.asset_id.is_some() && request.asset_type.is_none() {
+        return send_error_message(
+            &user.id.to_string(),
+            WsRoutes::Threads(ThreadRoute::Post),
+            WsEvent::Threads(WSThreadEvent::PostThread),
+            WsErrorCode::BadRequest,
+            "asset_type must be provided when asset_id is specified".to_string(),
+            user,
+        ).await;
+    }
+
+    // Create channel for streaming results
     let (tx, mut rx) = mpsc::channel(1000);
 
     let user_id = user.id.to_string();
+    let user_clone = user.clone();
 
+    // Spawn task to process streaming results
     tokio::spawn(async move {
         while let Some(result) = rx.recv().await {
             match result {
-                Ok((message, event)) => {
-                    println!("MESSAGE SHOULD BE SENT: {:?}", message);
-
+                Ok((container, event)) => {
                     let event = match event {
                         ThreadEvent::GeneratingResponseMessage => {
                             WsEvent::Threads(WSThreadEvent::GeneratingResponseMessage)
@@ -48,27 +68,64 @@ pub async fn post_thread(
                     let response = WsResponseMessage::new_no_user(
                         WsRoutes::Threads(ThreadRoute::Post),
                         event,
-                        &message,
+                        &container,
                         None,
                         WsSendMethod::All,
                     );
 
                     if let Err(e) = send_ws_message(&user_id, &response).await {
                         tracing::error!("Failed to send websocket message: {}", e);
+                        break;
                     }
                 }
                 Err(err) => {
                     tracing::error!("Error in message stream: {:?}", err);
-                    return Err(err);
+                    
+                    // Send error message to client
+                    if let Err(e) = send_error_message(
+                        &user_id,
+                        WsRoutes::Threads(ThreadRoute::Post),
+                        WsEvent::Threads(WSThreadEvent::PostThread),
+                        WsErrorCode::InternalServerError,
+                        format!("Error processing thread: {}", err),
+                        &user_clone,
+                    ).await {
+                        tracing::error!("Failed to send error message: {}", e);
+                    }
+                    
+                    break;
                 }
             }
         }
 
-        Ok(())
+        Ok::<(), anyhow::Error>(())
     });
 
-    // Call the shared handler
-    post_chat_handler::post_chat_handler(request, user.clone(), Some(tx)).await?;
-
-    Ok(())
+    // Call shared handler with channel for streaming messages
+    match post_chat_handler::post_chat_handler(request, user.clone(), Some(tx)).await {
+        Ok(chat_with_messages) => {
+            // For prompt-less flows, the handler might already be done, so explicitly send the completed event
+            // This ensures the client knows the process is complete
+            let response = WsResponseMessage::new_no_user(
+                WsRoutes::Threads(ThreadRoute::Post),
+                WsEvent::Threads(WSThreadEvent::Complete),
+                &post_chat_handler::BusterContainer::Chat(chat_with_messages),
+                None,
+                WsSendMethod::All,
+            );
+            
+            send_ws_message(&user.id.to_string(), &response).await?;
+            Ok(())
+        }
+        Err(e) => {
+            send_error_message(
+                &user.id.to_string(),
+                WsRoutes::Threads(ThreadRoute::Post),
+                WsEvent::Threads(WSThreadEvent::PostThread),
+                WsErrorCode::InternalServerError,
+                format!("Error creating thread: {}", e),
+                user,
+            ).await
+        }
+    }
 }
