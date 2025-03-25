@@ -201,7 +201,6 @@ impl Processor for CreateDashboardsProcessor {
                                 file_type: "dashboard".to_string(),
                                 file_name: name.to_string(),
                                 version_number: 1,
-                                version_id: String::from("0203f597-5ec5-4fd8-86e2-8587fe1c23b6"),
                                 status: "loading".to_string(),
                                 file: FileContent {
                                     text: None,

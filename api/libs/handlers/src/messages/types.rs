@@ -11,7 +11,7 @@ pub use message_feedback::MessageFeedback;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChatMessage {
     pub id: Uuid,
-    pub request_message: ChatUserMessage,
+    pub request_message: Option<ChatUserMessage>,
     pub response_message_ids: Vec<String>,
     #[serde(default)]
     pub response_messages: HashMap<String, Value>,
@@ -39,12 +39,12 @@ impl ChatMessage {
     ) -> Self {
         Self {
             id: Uuid::new_v4(),
-            request_message: ChatUserMessage {
+            request_message: Some(ChatUserMessage {
                 request,
                 sender_id,
                 sender_name,
                 sender_avatar,
-            },
+            }),
             response_message_ids: Vec::new(),
             response_messages: HashMap::new(),
             reasoning_message_ids: Vec::new(),
@@ -56,7 +56,7 @@ impl ChatMessage {
 
     pub fn new_with_messages(
         id: Uuid,
-        request_message: ChatUserMessage,
+        request_message: Option<ChatUserMessage>,
         response_messages: Vec<Value>,
         reasoning_messages: Vec<Value>,
         final_reasoning_message: Option<String>,

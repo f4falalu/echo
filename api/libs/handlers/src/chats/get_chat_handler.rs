@@ -33,10 +33,10 @@ pub struct ChatWithUser {
 #[derive(Queryable)]
 pub struct MessageWithUser {
     pub id: Uuid,
-    pub request_message: String,
+    pub request_message: Option<String>,
     pub response_messages: Value,
     pub reasoning: Value,
-    pub final_reasoning_message: String,
+    pub final_reasoning_message: Option<String>,
     pub created_at: DateTime<Utc>,
     pub user_id: Uuid,
     pub user_name: Option<String>,
@@ -257,11 +257,15 @@ pub async fn get_chat_handler(
                 .map(|arr| arr.to_vec())
                 .unwrap_or_default();
 
-            let request_message = ChatUserMessage {
-                request: msg.request_message,
-                sender_id: msg.user_id,
-                sender_name: msg.user_name.unwrap_or_else(|| "Unknown".to_string()),
-                sender_avatar,
+            let request_message = if let Some(request_message) = msg.request_message {
+                Some(ChatUserMessage {
+                    request: request_message,
+                    sender_id: msg.user_id,
+                    sender_name: msg.user_name.unwrap_or_else(|| "Unknown".to_string()),
+                    sender_avatar,
+                })
+            } else {
+                None
             };
 
             ChatMessage::new_with_messages(
@@ -269,7 +273,7 @@ pub async fn get_chat_handler(
                 request_message,
                 response_messages,
                 reasoning,
-                Some(msg.final_reasoning_message),
+                msg.final_reasoning_message,
                 msg.created_at,
             )
         })

@@ -16,7 +16,7 @@ use uuid::Uuid;
 
 use super::{get_dashboard_handler, BusterDashboardResponse, DashboardConfig};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct DashboardUpdateRequest {
     /// New name for the dashboard (optional)
     pub name: Option<String>,

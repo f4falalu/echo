@@ -51,7 +51,7 @@ fn merge_json_objects(base: Value, update: Value) -> Result<Value> {
 use crate::metrics::get_metric_handler::get_metric_handler;
 use crate::metrics::types::BusterMetric;
 
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, serde::Deserialize, serde::Serialize, Default)]
 pub struct UpdateMetricRequest {
     #[serde(alias = "title")]
     pub name: Option<String>,

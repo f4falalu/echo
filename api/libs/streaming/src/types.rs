@@ -77,7 +77,6 @@ pub struct File {
     pub file_type: String,
     pub file_name: String,
     pub version_number: i32,
-    pub version_id: String,
     pub status: String,
     pub file: FileContent,
     pub metadata: Option<Vec<FileMetadata>>,

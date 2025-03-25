@@ -419,16 +419,6 @@ impl StreamingParser {
                             .unwrap_or_default()
                             .to_string();
 
-                        // Generate deterministic version ID
-                        let version_id =
-                            match self.generate_deterministic_uuid(&id, &file_name, &file_type) {
-                                Ok(id) => id,
-                                Err(e) => {
-                                    eprintln!("Failed to generate version ID: {}", e);
-                                    continue;
-                                }
-                            };
-
                         // Create file content
                         let file_content = FileContent {
                             text: Some(yml_content),
@@ -442,7 +432,6 @@ impl StreamingParser {
                             file_type: file_type.clone(),
                             file_name: file_name.clone(),
                             version_number: 1,
-                            version_id: version_id.to_string(),
                             status: "completed".to_string(),
                             file: file_content,
                             metadata: Some(vec![]),

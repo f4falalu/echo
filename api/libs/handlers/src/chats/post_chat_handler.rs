@@ -237,12 +237,12 @@ pub async fn post_chat_handler(
         for message in updated_messages {
             let chat_message = ChatMessage::new_with_messages(
                 message.id,
-                ChatUserMessage {
+                Some(ChatUserMessage {
                     request: "".to_string(),
                     sender_id: user.id,
                     sender_name: user.name.clone().unwrap_or_default(),
                     sender_avatar: None,
-                },
+                }),
                 // Use the response_messages from the DB
                 serde_json::from_value(message.response_messages).unwrap_or_default(),
                 vec![],
@@ -451,12 +451,12 @@ pub async fn post_chat_handler(
     // Update chat_with_messages with final state
     let message = ChatMessage::new_with_messages(
         message_id,
-        ChatUserMessage {
+        Some(ChatUserMessage {
             request: request.prompt.clone().unwrap_or_default(),
             sender_id: user.id,
             sender_name: user.name.clone().unwrap_or_default(),
             sender_avatar: None,
-        },
+        }),
         response_messages.clone(),
         reasoning_messages.clone(),
         Some(format!("Reasoned for {} seconds", reasoning_duration).to_string()),
@@ -468,7 +468,7 @@ pub async fn post_chat_handler(
     // Create and store message in the database with final state
     let db_message = Message {
         id: message_id,
-        request_message: request.prompt.unwrap_or_default(),
+        request_message: Some(request.prompt.unwrap_or_default()),
         chat_id,
         created_by: user.id,
         created_at: Utc::now(),
@@ -476,7 +476,7 @@ pub async fn post_chat_handler(
         deleted_at: None,
         response_messages: serde_json::to_value(&response_messages)?,
         reasoning: serde_json::to_value(&reasoning_messages)?,
-        final_reasoning_message: format!("Reasoned for {} seconds", reasoning_duration),
+        final_reasoning_message: Some(format!("Reasoned for {} seconds", reasoning_duration)),
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
         feedback: None,
@@ -753,7 +753,6 @@ pub enum BusterChatMessage {
         file_type: String,
         file_name: String,
         version_number: i32,
-        version_id: String,
         filter_version_id: Option<String>,
         metadata: Option<Vec<BusterChatResponseFileMetadata>>,
     },
@@ -802,7 +801,6 @@ pub struct BusterFile {
     pub file_type: String,
     pub file_name: String,
     pub version_number: i32,
-    pub version_id: String,
     pub status: String,
     pub file: BusterFileContent,
     pub metadata: Option<Vec<BusterFileMetadata>>,
@@ -943,7 +941,6 @@ pub async fn transform_message(
                                             file_type: file_content.file_type.clone(),
                                             file_name: file_content.file_name.clone(),
                                             version_number: file_content.version_number,
-                                            version_id: file_content.version_id.clone(),
                                             filter_version_id: None,
                                             metadata: Some(vec![BusterChatResponseFileMetadata {
                                                 status: "completed".to_string(),
@@ -1030,7 +1027,6 @@ pub async fn transform_message(
                                             file_type: file_content.file_type.clone(),
                                             file_name: file_content.file_name.clone(),
                                             version_number: file_content.version_number,
-                                            version_id: file_content.version_id.clone(),
                                             filter_version_id: None,
                                             metadata: Some(vec![BusterChatResponseFileMetadata {
                                                 status: "completed".to_string(),
@@ -1195,7 +1191,6 @@ fn tool_create_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
             file_type: "metric".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
-            version_id: file.id.to_string(),
             status: "completed".to_string(),
             file: BusterFileContent {
                 text: Some(file.yml_content),
@@ -1250,7 +1245,6 @@ fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
             file_type: "metric".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
-            version_id: file.id.to_string(),
             status: "completed".to_string(),
             file: BusterFileContent {
                 text: Some(file.yml_content),
@@ -1306,7 +1300,6 @@ fn tool_create_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
             file_type: "dashboard".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
-            version_id: file.id.to_string(),
             status: "completed".to_string(),
             file: BusterFileContent {
                 text: Some(file.yml_content),
@@ -1361,7 +1354,6 @@ fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
             file_type: "dashboard".to_string(),
             file_name: file.name.clone(),
             version_number: 1,
-            version_id: file.id.to_string(),
             status: "completed".to_string(),
             file: BusterFileContent {
                 text: Some(file.yml_content),
@@ -2014,12 +2006,12 @@ async fn initialize_chat(
         // Create new message
         let message = ChatMessage::new_with_messages(
             message_id,
-            ChatUserMessage {
+            Some(ChatUserMessage {
                 request: prompt_text,
                 sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
                 sender_avatar: None,
-            },
+            }),
             Vec::new(),
             Vec::new(),
             None,
@@ -2050,12 +2042,12 @@ async fn initialize_chat(
         // Create initial message
         let message = ChatMessage::new_with_messages(
             message_id,
-            ChatUserMessage {
+            Some(ChatUserMessage {
                 request: prompt_text,
                 sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
                 sender_avatar: None,
-            },
+            }),
             Vec::new(),
             Vec::new(),
             None,
