@@ -133,6 +133,60 @@ No schema changes are required. The feature will use the existing version histor
 - Verify version history remains intact after restoration
 - Verify chat messages accurately reflect restoration actions
 
+### Comprehensive Testing Overview
+
+The testing strategy for the version restoration feature will be comprehensive, covering all components with both unit tests and integration tests.
+
+#### Permission Testing
+- Verify that only authorized users can restore versions
+- Test with various permission levels (Owner, FullAccess, CanEdit, ReadOnly, None)
+
+#### Functionality Testing
+- Test successful restoration of specific versions
+- Test handling of non-existent versions
+- Test edge cases (restoring the latest version, etc.)
+- Verify that a new version is created when restoring
+
+#### Data Integrity Testing
+- Verify that all content is properly restored
+- Ensure associated elements (dashboard metrics, chat messages) are properly handled
+
+#### API Flow Testing
+- Test the complete process from creating assets to restoring previous versions
+- Verify that the correct content is restored and persisted
+
+#### Authorization Flow
+- Test access control throughout the restoration process
+- Verify correct behavior for both authorized and unauthorized users
+
+#### Error Handling
+- Test system recovery from errors during restoration
+- Verify appropriate error responses and state handling
+
+#### Concurrent Operations
+- Test behavior with concurrent update/restore operations
+- Ensure data integrity is maintained
+
+#### Frontend Testing
+- Verify that version history is properly displayed
+- Test that restoration controls work correctly
+- Verify proper feedback to users during restoration
+
+#### Test Organization
+Tests will be organized by component to match the implementation phases:
+
+1. **Metric Restoration Tests**
+   - Unit tests for the update_metric_handler with restore_to_version
+   - Integration tests for the metric restoration API
+
+2. **Dashboard Restoration Tests**
+   - Unit tests for the update_dashboard_handler with restore_to_version
+   - Integration tests for the dashboard restoration API
+
+3. **Chat Restoration Tests**
+   - Unit tests for the restore_chat_handler
+   - Integration tests for the chat restoration API and UI
+
 ## Security Considerations
 - Ensure proper permission checks are in place for all restoration actions
 - Maintain existing permission models for metrics and dashboards
