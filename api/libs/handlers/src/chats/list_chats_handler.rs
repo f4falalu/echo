@@ -22,7 +22,7 @@ pub struct ListChatsRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChatListItem {
     pub id: String,
-    pub title: String,
+    pub name: String,
     pub is_favorited: bool,
     pub updated_at: String,
     pub created_at: String,
@@ -50,7 +50,7 @@ pub struct ListChatsResponse {
 struct ChatWithUser {
     // Chat fields
     pub id: Uuid,
-    pub title: String,
+    pub name: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub created_by: Uuid,
@@ -141,7 +141,7 @@ pub async fn list_chats_handler(
                 
             ChatListItem {
                 id: chat.id.to_string(),
-                title: chat.title,
+                name: chat.name,
                 is_favorited: false, // TODO: Implement favorites feature
                 created_at: chat.created_at.to_rfc3339(),
                 updated_at: chat.updated_at.to_rfc3339(),
