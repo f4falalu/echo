@@ -10,16 +10,16 @@ import {
 } from '@/api/buster_rest/data_source';
 import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useRouter } from 'next/router';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useConfetti } from '@/hooks/useConfetti';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 export const BigQueryForm: React.FC<{
   dataSource?: DataSource;
 }> = ({ dataSource }) => {
   const { fireConfetti } = useConfetti();
   const { openSuccessMessage, openConfirmModal } = useBusterNotifications();
-  const router = useRouter();
+  const onChangePage = useAppLayoutContextSelector((state) => state.onChangePage);
   const { mutateAsync: createDataSource } = useCreateBigQueryDataSource();
   const { mutateAsync: updateDataSource } = useUpdateBigQueryDataSource();
   const credentials = dataSource?.credentials as BigQueryCredentials;
@@ -47,7 +47,9 @@ export const BigQueryForm: React.FC<{
           content:
             'Hooray! Your datasource has been created. You can now use it in your projects. You will need to create datasets to use with it.',
           onOk: () => {
-            router.push(createBusterRoute({ route: BusterRoutes.APP_DATASETS }));
+            onChangePage({
+              route: BusterRoutes.APP_DATASETS
+            });
           }
         });
       }
