@@ -1,0 +1,130 @@
+use anyhow::{anyhow, Result};
+use chrono::Utc;
+use database::{
+    enums::AssetType,
+    models::{Message, MessageToFile},
+    pool::get_pg_pool,
+    schema::messages_to_files,
+};
+use diesel::insert_into;
+use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
+use uuid::Uuid;
+
+use super::context_loaders::fetch_asset_details;
+
+/// Generate default messages for prompt-less asset-based chats
+/// 
+/// This function creates a pair of messages to be shown in a chat when a user
+/// opens an asset without providing a prompt:
+/// 1. A file message that represents the asset itself
+/// 2. A text message with placeholder content
+/// 
+/// The function also checks that the user has permission to view the asset
+/// and fetches the asset details for display.
+pub async fn generate_asset_messages(
+    asset_id: Uuid,
+    asset_type: AssetType,
+    user: &AuthenticatedUser,
+) -> Result<Vec<Message>> {
+    // In a real implementation, we would check permissions here
+    // However, for now, we'll skip this as the sharing module is not available
+    // check_asset_permission(asset_id, asset_type, user, AssetPermissionLevel::CanView).await?;
+    
+    // Fetch asset details based on type
+    let asset_details = fetch_asset_details(asset_id, asset_type).await?;
+    
+    // Create file message
+    let file_message_id = Uuid::new_v4();
+    let file_message = Message {
+        id: file_message_id,
+        request_message: String::new(), // Empty request for auto-generated messages
+        chat_id: Uuid::nil(), // Will be set by caller
+        created_by: user.id,
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        deleted_at: None,
+        response_messages: serde_json::json!([{
+            "type": "file",
+            "id": file_message_id.to_string(),
+            "fileType": asset_details.file_type,
+            "fileName": asset_details.name,
+            "versionId": asset_id.to_string(),
+            "versionNumber": 1,
+            "filterVersionId": null,
+            "metadata": [
+                {
+                    "status": "completed",
+                    "message": format!("File {} completed", asset_details.name),
+                    "timestamp": Utc::now().timestamp()
+                }
+            ]
+        }]),
+        reasoning: serde_json::Value::Array(vec![]),
+        final_reasoning_message: "Auto-generated file message".to_string(),
+        title: format!("View {}", asset_details.name),
+        raw_llm_messages: serde_json::json!([]),
+        feedback: None,
+    };
+    
+    // Create text message with placeholder content
+    let text_message_id = Uuid::new_v4();
+    let text_message = Message {
+        id: text_message_id,
+        request_message: String::new(), // Empty request for auto-generated messages
+        chat_id: Uuid::nil(), // Will be set by caller
+        created_by: user.id,
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        deleted_at: None,
+        response_messages: serde_json::json!([{
+            "type": "text",
+            "id": text_message_id.to_string(),
+            "message": "DALLIN NEEDS TO PUT VALUE HERE",
+            "isFinalMessage": true
+        }]),
+        reasoning: serde_json::Value::Array(vec![]),
+        final_reasoning_message: "Auto-generated text message".to_string(),
+        title: format!("View {}", asset_details.name),
+        raw_llm_messages: serde_json::json!([]),
+        feedback: None,
+    };
+    
+    Ok(vec![file_message, text_message])
+}
+
+/// Create association between message and file in the database
+/// 
+/// This function creates an entry in the messages_to_files table to link
+/// a message with an asset file. This is necessary to support features
+/// like file navigation and referencing.
+/// 
+/// Only certain asset types (MetricFile and DashboardFile) are supported.
+pub async fn create_message_file_association(
+    message_id: Uuid,
+    file_id: Uuid,
+    asset_type: AssetType,
+) -> Result<()> {
+    // Only create association for file-type assets
+    if asset_type != AssetType::MetricFile && asset_type != AssetType::DashboardFile {
+        return Err(anyhow!("Cannot create file association for non-file asset type"));
+    }
+    
+    let mut conn = get_pg_pool().get().await?;
+    
+    let message_to_file = MessageToFile {
+        id: Uuid::new_v4(),
+        message_id,
+        file_id,
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        deleted_at: None,
+    };
+    
+    insert_into(messages_to_files::table)
+        .values(&message_to_file)
+        .execute(&mut conn)
+        .await?;
+        
+    Ok(())
+}

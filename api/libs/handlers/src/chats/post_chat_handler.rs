@@ -32,9 +32,10 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use crate::chats::{
+    asset_messages::{create_message_file_association, generate_asset_messages},
     context_loaders::{
-        chat_context::ChatContextLoader, dashboard_context::DashboardContextLoader,
-        metric_context::MetricContextLoader, validate_context_request, ContextLoader,
+        chat_context::ChatContextLoader, create_asset_context_loader, dashboard_context::DashboardContextLoader,
+        fetch_asset_details, metric_context::MetricContextLoader, validate_context_request, ContextLoader,
     },
     get_chat_handler,
     streaming_parser::StreamingParser,
@@ -56,9 +57,13 @@ pub enum ThreadEvent {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct ChatCreateNewChat {
-    pub prompt: String,
+    pub prompt: Option<String>,
     pub chat_id: Option<Uuid>,
     pub message_id: Option<Uuid>,
+    // Generic asset reference
+    pub asset_id: Option<Uuid>,
+    pub asset_type: Option<database::enums::AssetType>,
+    // Legacy specific asset types (for backward compatibility)
     pub metric_id: Option<Uuid>,
     pub dashboard_id: Option<Uuid>,
 }
@@ -151,7 +156,12 @@ pub async fn post_chat_handler(
     // Create a request-local chunk tracker instance instead of using global static
     let chunk_tracker = ChunkTracker::new();
     let reasoning_duration = Instant::now();
-    validate_context_request(request.chat_id, request.metric_id, request.dashboard_id)?;
+    
+    // Normalize request to use asset_id/asset_type if legacy fields are provided
+    let (asset_id, asset_type) = normalize_asset_fields(&request);
+    
+    // Validate that only one context type is provided
+    validate_context_request(request.chat_id, asset_id, asset_type, request.metric_id, request.dashboard_id)?;
 
     let user_org_id = match user.attributes.get("organization_id") {
         Some(Value::String(org_id)) => Uuid::parse_str(org_id).unwrap_or_default(),
@@ -179,26 +189,105 @@ pub async fn post_chat_handler(
         .await?;
     }
 
+    // If prompt is None but asset_id is provided, generate asset messages
+    if request.prompt.is_none() && asset_id.is_some() && asset_type.is_some() {
+        let asset_id_value = asset_id.unwrap();
+        let asset_type_value = asset_type.unwrap();
+        
+        let messages = generate_asset_messages(
+            asset_id_value,
+            asset_type_value,
+            &user,
+        ).await?;
+        
+        // Add messages to chat and associate with chat_id
+        let mut updated_messages = Vec::new();
+        for mut message in messages {
+            message.chat_id = chat_id;
+            
+            // If this is a file message, create file association
+            if message.response_messages.is_array() {
+                let response_arr = message.response_messages.as_array().unwrap();
+                if !response_arr.is_empty() {
+                    if let Some(response) = response_arr.get(0) {
+                        if response.get("type").map_or(false, |t| t == "file") {
+                            // Create association in database
+                            let _ = create_message_file_association(
+                                message.id,
+                                asset_id_value,
+                                asset_type_value,
+                            ).await;
+                        }
+                    }
+                }
+            }
+            
+            // Insert message into database
+            let mut conn = get_pg_pool().get().await?;
+            insert_into(database::schema::messages::table)
+                .values(&message)
+                .execute(&mut conn)
+                .await?;
+                
+            // Add to updated messages for the response
+            updated_messages.push(message);
+        }
+        
+        // Transform DB messages to ChatMessage format for response
+        for message in updated_messages {
+            let chat_message = ChatMessage::new_with_messages(
+                message.id,
+                ChatUserMessage {
+                    request: "".to_string(),
+                    sender_id: user.id,
+                    sender_name: user.name.clone().unwrap_or_default(),
+                    sender_avatar: None,
+                },
+                // Use the response_messages from the DB
+                serde_json::from_value(message.response_messages).unwrap_or_default(),
+                vec![],
+                None,
+                message.created_at,
+            );
+            
+            chat_with_messages.add_message(chat_message);
+        }
+        
+        // Return early with auto-generated messages - no need for agent processing
+        return Ok(chat_with_messages);
+    }
+
     // Initialize agent with context if provided
     let mut initial_messages = vec![];
 
     // Initialize agent to add context
     let agent = BusterSuperAgent::new(user.id, chat_id).await?;
 
-    // Load context if provided
+    // Load context if provided (combines both legacy and new asset references)
     if let Some(existing_chat_id) = request.chat_id {
         let context_loader = ChatContextLoader::new(existing_chat_id);
         let context_messages = context_loader
             .load_context(&user, agent.get_agent())
             .await?;
         initial_messages.extend(context_messages);
+    } else if let Some(id) = asset_id {
+        if let Some(asset_type_val) = asset_type {
+            // Use the generic context loader with factory
+            let context_loader = create_asset_context_loader(id, asset_type_val);
+            let context_messages = context_loader
+                .load_context(&user, agent.get_agent())
+                .await?;
+            initial_messages.extend(context_messages);
+        }
     } else if let Some(metric_id) = request.metric_id {
+        // Legacy metric loading
         let context_loader = MetricContextLoader::new(metric_id);
         let context_messages = context_loader
             .load_context(&user, agent.get_agent())
             .await?;
         initial_messages.extend(context_messages);
     } else if let Some(dashboard_id) = request.dashboard_id {
+        // Legacy dashboard loading
         let context_loader = DashboardContextLoader::new(dashboard_id);
         let context_messages = context_loader
             .load_context(&user, agent.get_agent())
@@ -206,8 +295,8 @@ pub async fn post_chat_handler(
         initial_messages.extend(context_messages);
     }
 
-    // Add the new user message
-    initial_messages.push(AgentMessage::user(request.prompt.clone()));
+    // Add the new user message (now with unwrap_or_default for optional prompt)
+    initial_messages.push(AgentMessage::user(request.prompt.clone().unwrap_or_default()));
 
     // Initialize raw_llm_messages with initial_messages
     let mut raw_llm_messages = initial_messages.clone();
@@ -363,7 +452,7 @@ pub async fn post_chat_handler(
     let message = ChatMessage::new_with_messages(
         message_id,
         ChatUserMessage {
-            request: request.prompt.clone(),
+            request: request.prompt.clone().unwrap_or_default(),
             sender_id: user.id,
             sender_name: user.name.clone().unwrap_or_default(),
             sender_avatar: None,
@@ -379,7 +468,7 @@ pub async fn post_chat_handler(
     // Create and store message in the database with final state
     let db_message = Message {
         id: message_id,
-        request_message: request.prompt,
+        request_message: request.prompt.unwrap_or_default(),
         chat_id,
         created_by: user.id,
         created_at: Utc::now(),
@@ -1754,6 +1843,33 @@ pub struct BusterGeneratingTitle {
     pub progress: BusterGeneratingTitleProgress,
 }
 
+/// Helper function to normalize legacy and new asset fields
+/// 
+/// This function converts legacy asset fields (metric_id, dashboard_id) to the new
+/// generic asset_id/asset_type format. It ensures backward compatibility while
+/// using a single code path for processing assets.
+/// 
+/// Returns a tuple of (Option<Uuid>, Option<AssetType>) representing the normalized
+/// asset reference.
+pub fn normalize_asset_fields(request: &ChatCreateNewChat) -> (Option<Uuid>, Option<AssetType>) {
+    // If asset_id/asset_type are directly provided, use them
+    if request.asset_id.is_some() && request.asset_type.is_some() {
+        return (request.asset_id, request.asset_type);
+    }
+    
+    // If legacy fields are provided, convert them to the new format
+    if let Some(metric_id) = request.metric_id {
+        return (Some(metric_id), Some(AssetType::MetricFile));
+    }
+    
+    if let Some(dashboard_id) = request.dashboard_id {
+        return (Some(dashboard_id), Some(AssetType::DashboardFile));
+    }
+    
+    // No asset references
+    (None, None)
+}
+
 // Conversation title generation functionality
 // -----------------------------------------
 
@@ -1870,6 +1986,26 @@ async fn initialize_chat(
     user_org_id: Uuid,
 ) -> Result<(Uuid, Uuid, ChatWithMessages)> {
     let message_id = request.message_id.unwrap_or_else(Uuid::new_v4);
+    
+    // Get a default title for chats with optional prompt
+    let default_title = match request.prompt {
+        Some(ref prompt) => prompt.clone(),
+        None => {
+            // Try to derive title from asset if available
+            let (asset_id, asset_type) = normalize_asset_fields(request);
+            if let (Some(asset_id), Some(asset_type)) = (asset_id, asset_type) {
+                match fetch_asset_details(asset_id, asset_type).await {
+                    Ok(details) => format!("View {}", details.name),
+                    Err(_) => "New Chat".to_string(),
+                }
+            } else {
+                "New Chat".to_string()
+            }
+        }
+    };
+
+    // Get the actual prompt or empty string if None
+    let prompt_text = request.prompt.clone().unwrap_or_default();
 
     if let Some(existing_chat_id) = request.chat_id {
         // Get existing chat - no need to create new chat in DB
@@ -1879,7 +2015,7 @@ async fn initialize_chat(
         let message = ChatMessage::new_with_messages(
             message_id,
             ChatUserMessage {
-                request: request.prompt.clone(),
+                request: prompt_text,
                 sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
                 sender_avatar: None,
@@ -1899,7 +2035,7 @@ async fn initialize_chat(
         let chat_id = Uuid::new_v4();
         let chat = Chat {
             id: chat_id,
-            title: request.prompt.clone(),
+            title: default_title.clone(),
             organization_id: user_org_id,
             created_by: user.id,
             created_at: Utc::now(),
@@ -1915,7 +2051,7 @@ async fn initialize_chat(
         let message = ChatMessage::new_with_messages(
             message_id,
             ChatUserMessage {
-                request: request.prompt.clone(),
+                request: prompt_text,
                 sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
                 sender_avatar: None,
@@ -1927,7 +2063,7 @@ async fn initialize_chat(
         );
 
         let mut chat_with_messages = ChatWithMessages::new(
-            request.prompt.clone(),
+            default_title,
             user.id.to_string(),
             user.name.clone().unwrap_or_default(),
             None,
