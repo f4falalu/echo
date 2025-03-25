@@ -57,7 +57,7 @@ export enum DataSourceEnvironment {
 }
 
 export const PostgresCredentialsSchema = v.object({
-  name: v.string(),
+  name: v.pipe(v.string(), v.minLength(3, 'Name must be at least 3 characters')),
   type: v.union([v.literal('postgres'), v.literal('supabase')]),
   host: v.string(),
   port: v.pipe(

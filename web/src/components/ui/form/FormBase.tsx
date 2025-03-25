@@ -5,6 +5,7 @@ import { InputPassword } from '../inputs/InputPassword';
 import { cn } from '@/lib/classMerge';
 import { Button } from '../buttons';
 import { ReactNode } from 'react';
+import { Text } from '../typography';
 
 export const { fieldContext, useFieldContext, formContext, useFormContext } =
   createFormHookContexts();
@@ -65,16 +66,33 @@ export function TextField({
   type?: Parameters<typeof Input>[0]['type'];
 }) {
   const field = useFieldContext<string>();
+  const {
+    name,
+    state: {
+      value,
+      meta: { errors, isTouched }
+    }
+  } = field;
+  const error = errors?.[0]?.message;
+  const isFormSubmitted = field.form.state.submissionAttempts > 1;
+  const showError = !!error && (isFormSubmitted || isTouched);
 
   const InputComponent = (
-    <Input
-      id={field.name}
-      className={cn('flex-shrink', className)}
-      value={field.state.value}
-      onChange={(e) => field.handleChange(e.target.value)}
-      type={type}
-      placeholder={placeholder}
-    />
+    <div className={cn('relative flex w-full flex-col', className)}>
+      <Input
+        id={name}
+        className={cn('w-full flex-shrink')}
+        value={value}
+        onChange={(e) => field.handleChange(e.target.value)}
+        type={type}
+        placeholder={placeholder}
+      />
+      {showError && (
+        <Text className="mt-0.5 text-left" size={'sm'} variant={'danger'}>
+          {error}
+        </Text>
+      )}
+    </div>
   );
 
   if (label === null) return InputComponent;
@@ -91,7 +109,51 @@ export function TextField({
 }
 
 export function NumberField(props: Parameters<typeof TextField>[0]) {
-  return <TextField {...props} type="number" />;
+  const field = useFieldContext<number>();
+  const isFormSubmitted = field.form.state.submissionAttempts > 1;
+  const {
+    name,
+    state: {
+      value,
+      meta: { errors, isTouched }
+    }
+  } = field;
+  const error = errors?.[0]?.message;
+
+  const showError = !!error && (isFormSubmitted || isTouched);
+
+  const InputComponent = (
+    <div className={cn('relative flex w-full flex-col', props.className)}>
+      <Input
+        id={name}
+        className={cn('w-full flex-shrink')}
+        value={value ?? ''}
+        onChange={(e) => {
+          const val = e.target.value === '' ? 0 : Number(e.target.value);
+          field.handleChange(val);
+        }}
+        type="number"
+        placeholder={props.placeholder}
+      />
+      {showError && (
+        <Text className="mt-0.5 text-left" size={'sm'} variant={'danger'}>
+          {error}
+        </Text>
+      )}
+    </div>
+  );
+
+  if (props.label === null) return InputComponent;
+
+  return (
+    <LabelWrapper
+      label={props.label}
+      direction={props.direction}
+      labelClassName={props.labelClassName}
+      htmlFor={field.name}>
+      {InputComponent}
+    </LabelWrapper>
+  );
 }
 
 export function PasswordField({
@@ -103,15 +165,32 @@ export function PasswordField({
   placeholder
 }: Parameters<typeof TextField>[0]) {
   const field = useFieldContext<string>();
+  const {
+    name,
+    state: {
+      value,
+      meta: { errors, isTouched }
+    }
+  } = field;
+  const error = errors?.[0]?.message;
+  const isFormSubmitted = field.form.state.submissionAttempts > 1;
+  const showError = !!error && (isFormSubmitted || isTouched);
 
   const InputComponent = (
-    <InputPassword
-      id={field.name}
-      className={cn('flex-shrink', inputClassName)}
-      value={field.state.value}
-      onChange={(e) => field.handleChange(e.target.value)}
-      placeholder={placeholder}
-    />
+    <div className={cn('relative flex w-full flex-col', className)}>
+      <InputPassword
+        id={name}
+        className={cn('flex-shrink', inputClassName)}
+        value={value}
+        onChange={(e) => field.handleChange(e.target.value)}
+        placeholder={placeholder}
+      />
+      {showError && (
+        <Text className="mt-0.5 text-left" size={'sm'} variant={'danger'}>
+          {error}
+        </Text>
+      )}
+    </div>
   );
 
   if (label === null) return InputComponent;
