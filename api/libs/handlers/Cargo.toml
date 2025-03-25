@@ -31,6 +31,7 @@ litellm = { path = "../litellm" }
 query_engine = { path = "../query_engine" }
 middleware = { path = "../middleware" }
 sharing = { path = "../sharing" }
+search = { path = "../search" }
 
 # Add any handler-specific dependencies here 
 dashmap = "5.5.3"

@@ -10,6 +10,7 @@ mod messages;
 mod metrics;
 mod organizations;
 mod permission_groups;
+mod search;
 mod sql;
 mod users;
 mod collections;
@@ -35,6 +36,7 @@ pub fn router() -> Router {
             .nest("/users", users::router())
             .nest("/collections", collections::router())
             .nest("/logs", logs::router())
+            .nest("/search", search::router())
             .route_layer(axum_middleware::from_fn(auth)),
     )
 }

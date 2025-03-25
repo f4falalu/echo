@@ -6,11 +6,6 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use middleware::AuthenticatedUser;
-use database::{enums::{AssetPermissionRole, AssetType, IdentityType},
-        pool::get_pg_pool,
-        models::{AssetPermission, Collection},
-        schema::{asset_permissions, collections},};
 use crate::{
     routes::ws::{
         ws::{SubscriptionRwLock, WsErrorCode, WsEvent, WsResponseMessage, WsSendMethod},
@@ -19,6 +14,13 @@ use crate::{
     },
     utils::{clients::sentry_utils::send_sentry_error, user::user_info::get_user_organization_id},
 };
+use database::{
+    enums::{AssetPermissionRole, AssetType, IdentityType},
+    models::{AssetPermission, Collection},
+    pool::get_pg_pool,
+    schema::{asset_permissions, collections},
+};
+use middleware::AuthenticatedUser;
 
 use super::{
     collection_utils::CollectionState,
@@ -119,94 +121,52 @@ async fn post_collection_handler(
     let insert_task_user_id = user_id.clone();
     let insert_task_collection = collection.clone();
 
-    let collection_insert = tokio::spawn(async move {
-        let mut conn = match get_pg_pool().get().await {
-            Ok(conn) => conn,
-            Err(e) => {
-                tracing::error!("Error getting pg connection: {}", e);
-                return;
-            }
-        };
-
-        let asset_permissions = AssetPermission {
-            identity_id: insert_task_user_id,
-            identity_type: IdentityType::User,
-            asset_id: insert_task_collection.id,
-            asset_type: AssetType::Collection,
-            role: AssetPermissionRole::Owner,
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
-            deleted_at: None,
-            created_by: insert_task_user_id,
-            updated_by: insert_task_user_id,
-        };
-
-        match insert_into(collections::table)
-            .values(&insert_task_collection)
-            .execute(&mut conn)
-            .await
-        {
-            Ok(_) => (),
-            Err(e) => {
-                tracing::error!("Error inserting collection: {}", e);
-                send_sentry_error(&e.to_string(), Some(&insert_task_user_id));
-            }
-        };
-
-        match insert_into(asset_permissions::table)
-            .values(asset_permissions)
-            .execute(&mut conn)
-            .await
-        {
-            Ok(_) => (),
-            Err(e) => {
-                tracing::error!("Error inserting asset permissions: {}", e);
-                send_sentry_error(&e.to_string(), Some(&insert_task_user_id));
-            }
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => {
+            tracing::error!("Error getting pg connection: {}", e);
+            return;
         }
-    });
+    };
 
-    let collection_id = collection.id.clone();
-    let collection_name = collection.name.clone();
-    let organization_id = collection.organization_id.clone();
+    let asset_permissions = AssetPermission {
+        identity_id: insert_task_user_id,
+        identity_type: IdentityType::User,
+        asset_id: insert_task_collection.id,
+        asset_type: AssetType::Collection,
+        role: AssetPermissionRole::Owner,
+        created_at: chrono::Utc::now(),
+        updated_at: chrono::Utc::now(),
+        deleted_at: None,
+        created_by: insert_task_user_id,
+        updated_by: insert_task_user_id,
+    };
 
-    let collection_search_handle = tokio::spawn(async move {
-        let mut conn = match get_pg_pool().get().await {
-            Ok(conn) => conn,
-            Err(e) => {
-                tracing::error!("Unable to get connection from pool: {:?}", e);
-                send_sentry_error(&e.to_string(), None);
-                return;
-            }
-        };
-
-        let query = diesel::sql_query(
-            "INSERT INTO asset_search (asset_id, asset_type, content, organization_id)
-            VALUES ($1, 'collection', $2, $3)
-            ON CONFLICT (asset_id, asset_type) 
-            DO UPDATE SET
-                content = EXCLUDED.content,
-                updated_at = NOW()",
-        )
-        .bind::<diesel::sql_types::Uuid, _>(collection_id)
-        .bind::<diesel::sql_types::Text, _>(collection_name)
-        .bind::<diesel::sql_types::Uuid, _>(organization_id);
-
-        if let Err(e) = query.execute(&mut conn).await {
-            tracing::error!("Failed to update asset search: {:?}", e);
-            send_sentry_error(&e.to_string(), None);
+    match insert_into(collections::table)
+        .values(&insert_task_collection)
+        .execute(&mut conn)
+        .await
+    {
+        Ok(_) => (),
+        Err(e) => {
+            tracing::error!("Error inserting collection: {}", e);
+            send_sentry_error(&e.to_string(), Some(&insert_task_user_id));
         }
-    });
+    };
 
-    if let Err(e) = collection_insert.await {
-        return Err(anyhow!("Error in collection insert: {:?}", e));
+    match insert_into(asset_permissions::table)
+        .values(asset_permissions)
+        .execute(&mut conn)
+        .await
+    {
+        Ok(_) => (),
+        Err(e) => {
+            tracing::error!("Error inserting asset permissions: {}", e);
+            send_sentry_error(&e.to_string(), Some(&insert_task_user_id));
+        }
     }
 
-    if let Err(e) = collection_search_handle.await {
-        return Err(anyhow!("Error in collection search insert: {:?}", e));
-    }
-
-    Ok(CollectionState {
+    k(CollectionState {
         collection,
         assets: None,
         permission: AssetPermissionRole::Owner,
