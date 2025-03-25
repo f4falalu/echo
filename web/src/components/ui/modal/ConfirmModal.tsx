@@ -10,10 +10,13 @@ export interface ConfirmProps {
   width?: number;
   cancelButtonProps?: {
     text?: string;
+    hide?: boolean;
   };
+  showClose?: boolean;
   primaryButtonProps?: {
     text?: string;
   };
+  preventCloseOnClickOutside?: boolean;
 }
 
 export interface ConfirmModalProps extends ConfirmProps {
@@ -32,13 +35,17 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = React.memo(
     description,
     open,
     onClose,
-    primaryButtonProps
+    showClose = true,
+    primaryButtonProps,
+    preventCloseOnClickOutside = true
   }) => {
     return (
       <AppModal
         open={open}
         width={width}
+        preventCloseOnClickOutside={preventCloseOnClickOutside}
         onClose={onClose}
+        showClose={showClose}
         header={{
           title,
           description

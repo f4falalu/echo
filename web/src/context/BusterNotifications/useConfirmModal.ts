@@ -35,17 +35,20 @@ export const useOpenConfirmModal = () => {
             setModalQueue((prev) => prev.slice(1));
           }
         },
-        onCancel: async () => {
-          try {
-            await props.onCancel?.();
-            resolve();
-          } catch (error) {
-            reject(error);
-          } finally {
-            // Remove the current modal from the queue
-            setModalQueue((prev) => prev.slice(1));
-          }
-        },
+        onCancel:
+          props.cancelButtonProps?.hide !== true
+            ? async () => {
+                try {
+                  await props.onCancel?.();
+                  resolve();
+                } catch (error) {
+                  reject(error);
+                } finally {
+                  // Remove the current modal from the queue
+                  setModalQueue((prev) => prev.slice(1));
+                }
+              }
+            : undefined,
         onClose: () => {
           resolve();
           setModalQueue((prev) => prev.slice(1));

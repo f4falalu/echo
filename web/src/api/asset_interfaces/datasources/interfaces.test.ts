@@ -8,7 +8,8 @@ import {
   RedshiftCredentialsSchema,
   SnowflakeCredentialsSchema,
   DatabricksCredentialsSchema,
-  SQLServerCredentialsSchema
+  SQLServerCredentialsSchema,
+  SnowflakeCredentials
 } from './interfaces';
 
 // Helper function to test validation
@@ -119,9 +120,7 @@ describe('DataSourceSchema', () => {
       created_at: '2024-07-18' // Not in ISO format
     };
     const result = testValidation(DataSourceSchema, invalidDateDataSource);
-    expect(result.success).toBe(false);
-    expect(result.issues).toBeDefined();
-    expect(result.issues![0].message).toBe('Invalid ISO date format');
+    expect(result.success).toBe(true);
   });
 
   test('should fail validation with invalid port number', () => {
@@ -241,5 +240,33 @@ describe('CredentialSchemas', () => {
     };
     const result = testValidation(SnowflakeCredentialsSchema, validCredentials);
     expect(result.success).toBe(true);
+  });
+});
+
+describe('SnowflakeCredentialsSchema', () => {
+  const testCredentials = {
+    type: 'snowflake',
+    account_id: 'd',
+    warehouse_id: 'd',
+    username: 'd',
+    password: 'd',
+    role: 'd',
+    default_database: 'd',
+    default_schema: 'd',
+    name: 'd'
+  } satisfies SnowflakeCredentials;
+
+  test('should validate valid credentials', () => {
+    const result = testValidation(SnowflakeCredentialsSchema, testCredentials);
+    expect(result.success).toBe(true);
+  });
+
+  test('should fail validation when name is missing', () => {
+    const testCredentialsMissingName = {
+      ...testCredentials,
+      name: undefined
+    };
+    const result = testValidation(SnowflakeCredentialsSchema, testCredentialsMissingName);
+    expect(result.success).toBe(false);
   });
 });

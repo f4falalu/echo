@@ -1,23 +1,23 @@
 import {
   DataSource,
+  DataSourceTypes,
   PostgresCredentials,
   PostgresCredentialsSchema
 } from '@/api/asset_interfaces/datasources';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';
 import {
-  createPostgresDataSource,
   useCreatePostgresDataSource,
   useUpdatePostgresDataSource
 } from '@/api/buster_rest/data_source';
 import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
 import { MultipleInlineFields } from '@/components/ui/form/FormBase';
 import { useDataSourceFormSuccess } from './helpers';
-import * as v from 'valibot';
 
 export const PostgresForm: React.FC<{
   dataSource?: DataSource;
-}> = ({ dataSource }) => {
+  type?: DataSourceTypes;
+}> = ({ dataSource, type }) => {
   const { mutateAsync: createDataSource } = useCreatePostgresDataSource();
   const { mutateAsync: updateDataSource } = useUpdatePostgresDataSource();
   const credentials = dataSource?.credentials as PostgresCredentials | undefined;
@@ -33,7 +33,7 @@ export const PostgresForm: React.FC<{
       password: credentials?.password,
       default_database: credentials?.default_database,
       default_schema: credentials?.default_schema,
-      type: credentials?.type || 'postgres',
+      type: credentials?.type || type || 'postgres',
       name: dataSource?.name || credentials?.name
     } as PostgresCredentials,
     onSubmit: async ({ value }) => {

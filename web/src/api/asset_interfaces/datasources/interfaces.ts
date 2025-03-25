@@ -74,58 +74,63 @@ export const PostgresCredentialsSchema = v.object({
 export type PostgresCredentials = v.InferOutput<typeof PostgresCredentialsSchema>;
 
 export const MySQLCredentialsSchema = v.object({
-  name: v.string(),
+  name: v.pipe(v.string(), v.minLength(1, 'Name must not be empty')),
   type: v.union([v.literal('mysql'), v.literal('mariadb')]),
-  host: v.string(),
+  host: v.pipe(v.string(), v.minLength(1, 'Host must not be empty')),
   port: v.pipe(
     v.number(),
     v.minValue(1, 'Port must be greater than 0'),
     v.maxValue(65535, 'Port must be less than or equal to 65535')
   ),
-  username: v.string(),
-  password: v.string(),
-  default_database: v.string()
+  username: v.pipe(v.string(), v.minLength(1, 'Username must not be empty')),
+  password: v.pipe(v.string(), v.minLength(1, 'Password must not be empty')),
+  default_database: v.pipe(v.string(), v.minLength(1, 'Database must not be empty'))
 });
 
 export type MySQLCredentials = v.InferOutput<typeof MySQLCredentialsSchema>;
 
 export const BigQueryCredentialsSchema = v.object({
-  name: v.string(),
+  name: v.pipe(v.string(), v.minLength(1, 'Name must not be empty')),
   type: v.literal('bigquery'),
-  service_role_key: v.string('Service role key is required'),
-  default_project_id: v.string('Project ID is required'),
-  default_dataset_id: v.string('Dataset ID is required')
+  service_role_key: v.pipe(v.string(), v.minLength(1, 'Service role key must not be empty')),
+  default_project_id: v.pipe(v.string(), v.minLength(1, 'Project ID must not be empty')),
+  default_dataset_id: v.pipe(v.string(), v.minLength(1, 'Dataset ID must not be empty'))
 });
 
 export type BigQueryCredentials = v.InferOutput<typeof BigQueryCredentialsSchema>;
 
 export const RedshiftCredentialsSchema = v.object({
-  name: v.string(),
+  name: v.pipe(v.string(), v.minLength(1, 'Name must not be empty')),
   type: v.literal('redshift'),
-  host: v.string(),
+  host: v.pipe(v.string(), v.minLength(1, 'Host must not be empty')),
   port: v.pipe(
     v.number(),
     v.minValue(1, 'Port must be greater than 0'),
     v.maxValue(65535, 'Port must be less than or equal to 65535')
   ),
-  username: v.string(),
-  password: v.string(),
-  default_database: v.string(),
-  default_schema: v.string()
+  username: v.pipe(v.string(), v.minLength(1, 'Username must not be empty')),
+  password: v.pipe(v.string(), v.minLength(1, 'Password must not be empty')),
+  default_database: v.pipe(v.string(), v.minLength(1, 'Database must not be empty')),
+  default_schema: v.pipe(v.string(), v.minLength(1, 'Schema must not be empty'))
 });
 
 export type RedshiftCredentials = v.InferOutput<typeof RedshiftCredentialsSchema>;
 
 export const SnowflakeCredentialsSchema = v.object({
-  name: v.string(),
+  name: v.pipe(v.string(), v.minLength(1, 'Name must not be empty')),
   type: v.literal('snowflake'),
-  account_id: v.string('Account ID is required'),
-  warehouse_id: v.string('Warehouse ID is required'),
-  username: v.string(),
-  password: v.string(),
+  account_id: v.pipe(v.string(), v.minLength(1, 'Account ID must not be empty')),
+  warehouse_id: v.pipe(v.string(), v.minLength(1, 'Warehouse ID must not be empty')),
+  username: v.pipe(v.string(), v.minLength(1, 'Username must not be empty')),
+  password: v.pipe(v.string(), v.minLength(1, 'Password must not be empty')),
   role: v.nullable(v.string()),
-  default_database: v.string(),
-  default_schema: v.string()
+  default_database: v.pipe(v.string(), v.minLength(1, 'Database must not be empty')),
+  default_schema: v.pipe(
+    v.string(),
+    v.minLength(1, 'Schema must not be empty'),
+    v.toUpperCase(),
+    v.custom((value) => value === String(value).toUpperCase(), 'Must be all uppercase')
+  )
 });
 
 export type SnowflakeCredentials = v.InferOutput<typeof SnowflakeCredentialsSchema>;
@@ -151,8 +156,8 @@ export const SQLServerCredentialsSchema = v.object({
     v.minValue(1, 'Port must be greater than 0'),
     v.maxValue(65535, 'Port must be less than or equal to 65535')
   ),
-  username: v.string(),
-  password: v.string(),
+  username: v.pipe(v.string(), v.minLength(1, 'Username must not be empty')),
+  password: v.pipe(v.string(), v.minLength(1, 'Password must not be empty')),
   default_database: v.string(),
   default_schema: v.string()
 });
@@ -171,28 +176,22 @@ export const CreatedBySchema = v.object({
 });
 
 export const DataSourceSchema = v.object({
-  created_at: v.pipe(
-    v.string(),
-    v.regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z$/, 'Invalid ISO date format')
-  ),
+  created_at: v.pipe(v.string()),
   created_by: CreatedBySchema,
   credentials: v.union([
-    PostgresCredentialsSchema,
-    MySQLCredentialsSchema,
-    BigQueryCredentialsSchema,
-    RedshiftCredentialsSchema,
-    SnowflakeCredentialsSchema,
-    DatabricksCredentialsSchema,
-    SQLServerCredentialsSchema
+    v.omit(PostgresCredentialsSchema, ['name']),
+    v.omit(MySQLCredentialsSchema, ['name']),
+    v.omit(BigQueryCredentialsSchema, ['name']),
+    v.omit(RedshiftCredentialsSchema, ['name']),
+    v.omit(SnowflakeCredentialsSchema, ['name']),
+    v.omit(DatabricksCredentialsSchema, ['name']),
+    v.omit(SQLServerCredentialsSchema, ['name'])
   ]),
   data_sets: v.array(DataSetSchema),
   id: v.string('Data source ID is required'),
   name: v.string('Data source name is required'),
   type: v.enum(DataSourceTypes),
-  updated_at: v.pipe(
-    v.string(),
-    v.regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z$/, 'Invalid ISO date format')
-  )
+  updated_at: v.pipe(v.string())
 });
 
 export type DataSource = v.InferOutput<typeof DataSourceSchema>;

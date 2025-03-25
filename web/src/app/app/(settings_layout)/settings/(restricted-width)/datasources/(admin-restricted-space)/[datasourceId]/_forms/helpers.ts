@@ -12,15 +12,22 @@ export const useDataSourceFormSuccess = () => {
   const handleCreateSuccess = useMemoizedFn(() => {
     fireConfetti(9999);
     openConfirmModal({
-      title: 'Datasource created',
-      description: 'Datasource created successfully',
-      content:
+      preventCloseOnClickOutside: true,
+      title: 'Data source created',
+      description:
         'Hooray! Your datasource has been created. You can now use it in your projects. You will need to create datasets to use with it.',
-      onOk: () => {
+      content: null,
+      primaryButtonProps: {
+        text: 'Continue to datasets'
+      },
+      cancelButtonProps: {
+        hide: true
+      },
+      showClose: false,
+      onOk: () =>
         onChangePage({
           route: BusterRoutes.APP_DATASETS
-        });
-      }
+        })
     });
   });
 

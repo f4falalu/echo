@@ -6,20 +6,17 @@ import type { DataSourceListItem } from '@/api/asset_interfaces';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { Text } from '@/components/ui/typography';
-import { SettingsEmptyState } from '../../_components/SettingsEmptyState';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Plus, Dots, Trash } from '@/components/ui/icons';
 import { cn } from '@/lib/classMerge';
 import { useDeleteDatasource, useListDatasources } from '@/api/buster_rest/data_source';
-import { EmptyStateList, ListEmptyStateWithButton } from '@/components/ui/list';
+import { ListEmptyStateWithButton } from '@/components/ui/list';
 
 export const DatasourceList: React.FC = () => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
   const { data: dataSourcesList, isFetched: isFetchedDatasourcesList } = useListDatasources();
-  const { mutateAsync: onDeleteDataSource } = useDeleteDatasource();
   const hasDataSources = dataSourcesList.length > 0;
 
   if (!isFetchedDatasourcesList) {
@@ -31,7 +28,7 @@ export const DatasourceList: React.FC = () => {
       <AddSourceHeader isAdmin={isAdmin} />
 
       {hasDataSources ? (
-        <DataSourceItems sources={dataSourcesList} onDeleteDataSource={onDeleteDataSource} />
+        <DataSourceItems sources={dataSourcesList} />
       ) : (
         <ListEmptyStateWithButton
           title="You don't have any data sources yet."
@@ -66,12 +63,11 @@ const AddSourceHeader: React.FC<{ isAdmin: boolean }> = ({ isAdmin }) => {
 
 const DataSourceItems: React.FC<{
   sources: DataSourceListItem[];
-  onDeleteDataSource: (dataSourceId: string) => Promise<void>;
-}> = ({ sources, onDeleteDataSource }) => {
+}> = ({ sources }) => {
   return (
     <div className="flex flex-col space-y-4">
       {sources.map((source) => {
-        return <ListItem key={source.id} source={source} onDeleteDataSource={onDeleteDataSource} />;
+        return <ListItem key={source.id} source={source} />;
       })}
     </div>
   );
@@ -79,15 +75,16 @@ const DataSourceItems: React.FC<{
 
 const ListItem: React.FC<{
   source: DataSourceListItem;
-  onDeleteDataSource: (dataSourceId: string) => Promise<void>;
-}> = ({ source, onDeleteDataSource }) => {
+}> = React.memo(({ source }) => {
+  const { mutateAsync: onDeleteDataSource, isPending: isDeleting } = useDeleteDatasource();
+
   const dropdownItems: DropdownItems = [
     {
       label: 'Delete',
       value: 'delete',
       icon: <Trash />,
       onClick: async () => {
-        await onDeleteDataSource(source.id);
+        onDeleteDataSource(source.id);
       }
     }
   ];
@@ -97,8 +94,7 @@ const ListItem: React.FC<{
       href={createBusterRoute({
         route: BusterRoutes.SETTINGS_DATASOURCES_ID,
         datasourceId: source.id
-      })}
-      key={source.id}>
+      })}>
       <div
         className={cn(
           'flex w-full items-center justify-between space-x-4',
@@ -110,17 +106,25 @@ const ListItem: React.FC<{
           <Text variant="secondary">{source.name}</Text>
         </div>
 
-        <Dropdown items={dropdownItems} align="end" side="bottom">
-          <Button
-            variant="ghost"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-            prefix={<Dots />}
-          />
-        </Dropdown>
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}>
+          <Dropdown items={dropdownItems} align="end" side="bottom">
+            <Button
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              prefix={<Dots />}
+            />
+          </Dropdown>
+        </span>
       </div>
     </Link>
   );
-};
+});
+
+ListItem.displayName = 'ListItem';

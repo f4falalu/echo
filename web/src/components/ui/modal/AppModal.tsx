@@ -16,6 +16,7 @@ import { cn } from '@/lib/classMerge';
 export interface ModalProps {
   className?: string;
   style?: React.CSSProperties;
+  preventCloseOnClickOutside?: boolean;
   open: boolean;
   onClose: () => void;
   footer: {
@@ -41,10 +42,22 @@ export interface ModalProps {
   };
   width?: number;
   children?: React.ReactNode;
+  showClose?: boolean;
 }
 
 export const AppModal: React.FC<ModalProps> = React.memo(
-  ({ open, onClose, footer, header, width = 600, className, style, children }) => {
+  ({
+    open,
+    preventCloseOnClickOutside = false,
+    onClose,
+    footer,
+    header,
+    width = 600,
+    className,
+    style,
+    showClose = true,
+    children
+  }) => {
     const [isLoadingPrimaryButton, setIsLoadingPrimaryButton] = useState(false);
     const onOpenChange = useMemoizedFn((open: boolean) => {
       if (!open) {
@@ -69,7 +82,15 @@ export const AppModal: React.FC<ModalProps> = React.memo(
 
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={className} style={memoizedStyle}>
+        <DialogContent
+          className={className}
+          style={memoizedStyle}
+          showClose={showClose}
+          onPointerDownOutside={(e) => {
+            if (preventCloseOnClickOutside) {
+              e.preventDefault();
+            }
+          }}>
           <div className="flex flex-col gap-4 overflow-hidden p-6">
             {header && (
               <DialogHeader className="">

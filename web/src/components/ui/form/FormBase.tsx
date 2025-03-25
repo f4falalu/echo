@@ -82,7 +82,7 @@ export function TextField({
       <Input
         id={name}
         className={cn('w-full flex-shrink')}
-        value={value}
+        value={value ?? ''}
         onChange={(e) => field.handleChange(e.target.value)}
         type={type}
         placeholder={placeholder}
@@ -181,7 +181,7 @@ export function PasswordField({
       <InputPassword
         id={name}
         className={cn('flex-shrink', inputClassName)}
-        value={value}
+        value={value || ''}
         onChange={(e) => field.handleChange(e.target.value)}
         placeholder={placeholder}
       />

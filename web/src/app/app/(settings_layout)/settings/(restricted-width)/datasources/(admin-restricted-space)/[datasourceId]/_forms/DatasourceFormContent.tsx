@@ -9,13 +9,13 @@ import { SnowflakeForm } from './SnowflakeForm';
 import { RedshiftForm } from './RedshiftForm';
 import { DataBricksForm } from './DataBricksForm';
 import { SqlServerForm } from './SqlServerForm';
-import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
 import { Text } from '@/components/ui/typography';
 
 const FormRecord: Record<
   DataSourceTypes,
   React.FC<{
     dataSource?: DataSource;
+    type?: DataSourceTypes;
   }>
 > = {
   postgres: PostgresForm,
@@ -44,7 +44,9 @@ export const DataSourceFormContent: React.FC<{
         <Text>{`${DatabaseName} credentials`}</Text>
       </div>
 
-      <div className="p-4">{SelectedForm && <SelectedForm dataSource={dataSource} />}</div>
+      <div className="p-4">
+        {SelectedForm && <SelectedForm dataSource={dataSource} type={type} />}
+      </div>
     </div>
   );
 });

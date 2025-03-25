@@ -72,7 +72,7 @@ export const useDeleteDatasource = () => {
 
   const mutationFn = async (dataSourceId: string) => {
     return openConfirmModal({
-      title: 'Delete Data Source',
+      title: 'Delete data source',
       content: 'Are you sure you want to delete this data source?',
       onOk: async () => deleteDatasource(dataSourceId)
     });
@@ -305,20 +305,6 @@ export const useCreateDatasource = () => {
   const createSnowflake = useCreateSnowflakeDataSource();
   const createDatabricks = useCreateDatabricksDataSource();
   const createSQLServer = useCreateSQLServerDataSource();
-
-  // setTimeout(() => {
-  //   fireConfetti(1999);
-  // }, 170);
-  // openConfirmModal({
-  //   title: 'Connection successful!',
-  //   content: 'You can now use this data source to create data sets.',
-  //   onOk: () => {
-  //     onChangePage({
-  //       route: BusterRoutes.SETTINGS_DATASOURCES_ID,
-  //       datasourceId: res.id
-  //     });
-  //   }
-  // });
 
   return {
     mutateAsync: async (credentials: CreateDatasourceParams) => {

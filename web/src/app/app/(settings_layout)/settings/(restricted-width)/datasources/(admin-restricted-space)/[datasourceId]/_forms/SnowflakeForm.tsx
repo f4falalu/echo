@@ -34,7 +34,7 @@ export const SnowflakeForm: React.FC<{
       default_schema: credentials?.default_schema || '',
       role: credentials?.role || '',
       type: 'snowflake' as const,
-      name: dataSource?.name || credentials?.name || ''
+      name: dataSource?.name || ''
     } as Parameters<typeof createSnowflakeDataSource>[0],
     onSubmit: async ({ value }) => {
       await dataSourceFormSubmit({

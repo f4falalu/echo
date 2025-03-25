@@ -7,7 +7,6 @@ import { useState } from 'react';
 import { DatabaseNames, DataSourceTypes, SUPPORTED_DATASOURCES } from '@/api/asset_interfaces';
 import { DataSourceFormContent } from '../[datasourceId]/_forms/DatasourceFormContent';
 import { Title, Text } from '@/components/ui/typography';
-import { useBusterNotifications } from '@/context/BusterNotifications';
 import { cn } from '@/lib/classMerge';
 import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
 import { useRouter } from 'next/navigation';
@@ -21,7 +20,7 @@ export default function Page({
 }) {
   const router = useRouter();
   const [selectedDataSource, setSelectedDataSource] = useState<DataSourceTypes | null>(
-    type || null
+    getValidType(type)
   );
 
   const linkUrl = selectedDataSource
@@ -38,8 +37,8 @@ export default function Page({
   });
 
   useEffect(() => {
-    if (type) {
-      setSelectedDataSource(type);
+    if (getValidType(type)) {
+      setSelectedDataSource(getValidType(type));
     }
   }, [type]);
 
@@ -97,4 +96,8 @@ const DataSourceList: React.FC<{}> = ({}) => {
       })}
     </div>
   );
+};
+
+const getValidType = (type: string | undefined) => {
+  return SUPPORTED_DATASOURCES.includes(type as DataSourceTypes) ? (type as DataSourceTypes) : null;
 };

@@ -20,8 +20,12 @@ export const listDatasources = async () => {
 
 export const getDatasource = async (id: string) => {
   return await mainApi.get<DataSource>(`/data_sources/${id}`).then((res) => {
-    // Validate response with DataSourceSchema
-    return v.parse(DataSourceSchema, res.data);
+    try {
+      return v.parse(DataSourceSchema, res.data);
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   });
 };
 
@@ -35,7 +39,7 @@ export const deleteDatasource = async (id: string) => {
   return await mainApi.delete(`/data_sources/${id}`).then((res) => res.data);
 };
 
-export const createPostgresDataSource = async (params: PostgresCredentials) => {
+export const createPostgresDataSource = async (params: PostgresCredentials & { name: string }) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -46,7 +50,7 @@ export const updatePostgresDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createMySQLDataSource = async (params: MySQLCredentials) => {
+export const createMySQLDataSource = async (params: MySQLCredentials & { name: string }) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -57,7 +61,7 @@ export const updateMySQLDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createRedshiftDataSource = async (params: RedshiftCredentials) => {
+export const createRedshiftDataSource = async (params: RedshiftCredentials & { name: string }) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -68,7 +72,7 @@ export const updateRedshiftDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createBigQueryDataSource = async (params: BigQueryCredentials) => {
+export const createBigQueryDataSource = async (params: BigQueryCredentials & { name: string }) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -79,7 +83,9 @@ export const updateBigQueryDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createSnowflakeDataSource = async (params: SnowflakeCredentials) => {
+export const createSnowflakeDataSource = async (
+  params: SnowflakeCredentials & { name: string }
+) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -90,7 +96,9 @@ export const updateSnowflakeDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createDatabricksDataSource = async (params: DatabricksCredentials) => {
+export const createDatabricksDataSource = async (
+  params: DatabricksCredentials & { name: string }
+) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -101,7 +109,9 @@ export const updateDatabricksDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createSQLServerDataSource = async (params: SQLServerCredentials) => {
+export const createSQLServerDataSource = async (
+  params: SQLServerCredentials & { name: string }
+) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
