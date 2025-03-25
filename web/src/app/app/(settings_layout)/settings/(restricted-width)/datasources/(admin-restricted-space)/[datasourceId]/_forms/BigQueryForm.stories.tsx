@@ -15,7 +15,6 @@ const sampleDataSource: DataSource = {
     email: 'test@example.com'
   },
   credentials: {
-    name: 'Sample BigQuery DB',
     type: 'bigquery',
     service_role_key: '{\"type\":\"service_account\",\"project_id\":\"example-project\"}',
     default_project_id: 'example-project',

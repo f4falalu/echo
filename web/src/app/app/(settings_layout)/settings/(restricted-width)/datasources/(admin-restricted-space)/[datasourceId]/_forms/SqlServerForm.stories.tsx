@@ -15,7 +15,6 @@ const sampleDataSource: DataSource = {
     email: 'test@example.com'
   },
   credentials: {
-    name: 'Sample SQL Server DB',
     type: 'sqlserver',
     host: 'sqlserver.example.com',
     port: 1433,

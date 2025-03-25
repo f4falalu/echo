@@ -19,14 +19,9 @@ export const listDatasources = async () => {
 };
 
 export const getDatasource = async (id: string) => {
-  return await mainApi.get<DataSource>(`/data_sources/${id}`).then((res) => {
-    try {
-      return v.parse(DataSourceSchema, res.data);
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  });
+  return await mainApi
+    .get<DataSource>(`/data_sources/${id}`)
+    .then((res) => v.parse(DataSourceSchema, res.data));
 };
 
 export const getDatasource_server = async (id: string) => {

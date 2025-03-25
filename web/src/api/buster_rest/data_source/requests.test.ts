@@ -29,7 +29,6 @@ describe('data_source requests', () => {
       email: 'test@example.com'
     },
     credentials: {
-      name: 'Test Database',
       type: DataSourceTypes.postgres,
       host: 'localhost',
       port: 5432,

@@ -15,7 +15,6 @@ const sampleDataSource: DataSource = {
     email: 'test@example.com'
   },
   credentials: {
-    name: 'Sample Redshift DB',
     type: 'redshift',
     host: 'my-cluster.abc123xyz456.us-west-2.redshift.amazonaws.com',
     port: 5439,

@@ -15,7 +15,6 @@ const sampleDataSource: DataSource = {
     email: 'test@example.com'
   },
   credentials: {
-    name: 'Sample Databricks Connection',
     type: 'databricks',
     host: 'https://demo.cloud.databricks.com',
     api_key: 'dapi1234567890abcdef',

@@ -15,7 +15,6 @@ const sampleDataSource: DataSource = {
     email: 'test@example.com'
   },
   credentials: {
-    name: 'Sample Snowflake DB',
     type: 'snowflake',
     account_id: 'XYZ12345',
     warehouse_id: 'COMPUTE_WH',

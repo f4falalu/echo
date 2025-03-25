@@ -16,7 +16,6 @@ const sampleDataSource: DataSource = {
     email: 'test@example.com'
   },
   credentials: {
-    name: 'Sample Postgres DB',
     host: 'localhost',
     port: 5432,
     username: 'postgres',
@@ -24,7 +23,7 @@ const sampleDataSource: DataSource = {
     default_database: 'postgres',
     default_schema: 'public',
     type: 'postgres'
-  } satisfies PostgresCredentials,
+  },
   data_sets: []
 };
 
