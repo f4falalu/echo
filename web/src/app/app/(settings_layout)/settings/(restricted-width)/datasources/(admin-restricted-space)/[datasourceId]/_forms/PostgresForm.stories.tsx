@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { PostgresForm } from './PostgresForm';
 import { fn } from '@storybook/test';
-import { DataSource, DataSourceTypes } from '@/api/asset_interfaces';
+import { DataSource, DataSourceTypes, PostgresCredentials } from '@/api/asset_interfaces';
 
 // Sample DataSource for the story
 const sampleDataSource: DataSource = {
   id: 'postgres-123',
   name: 'Sample Postgres DB',
-  db_type: DataSourceTypes.postgres,
+  type: DataSourceTypes.postgres,
   created_at: '2024-07-18T21:19:49.721159Z',
   updated_at: '2024-07-18T21:19:49.721160Z',
   created_by: {
@@ -16,16 +16,15 @@ const sampleDataSource: DataSource = {
     email: 'test@example.com'
   },
   credentials: {
+    name: 'Sample Postgres DB',
     host: 'localhost',
     port: 5432,
     username: 'postgres',
     password: 'password123',
-    database: 'sample_db',
-    schemas: ['public'],
-    jump_host: null,
-    ssh_private_key: null,
-    ssh_username: null
-  },
+    default_database: 'postgres',
+    default_schema: 'public',
+    type: 'postgres'
+  } satisfies PostgresCredentials,
   data_sets: []
 };
 

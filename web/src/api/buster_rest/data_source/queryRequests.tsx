@@ -1,7 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, QueryClient } from '@tanstack/react-query';
 import {
   listDatasources,
   getDatasource,
+  getDatasource_server,
   deleteDatasource,
   createBigQueryDataSource,
   createDatabricksDataSource,
@@ -52,6 +53,17 @@ export const useGetDatasource = (id: string | undefined) => {
     queryFn: () => getDatasource(id!),
     enabled: !!id
   });
+};
+
+export const prefetchGetDatasource = async (id: string, queryClientProp?: QueryClient) => {
+  const queryClient = queryClientProp || new QueryClient();
+
+  await queryClient.prefetchQuery({
+    ...queryKeys.datasourceGet(id),
+    queryFn: () => getDatasource_server(id)
+  });
+
+  return queryClient;
 };
 
 export const useDeleteDatasource = () => {

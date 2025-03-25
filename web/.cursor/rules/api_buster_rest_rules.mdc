@@ -11,7 +11,7 @@ alwaysApply: false
 
 # API Request Standards
 - All API requests MUST use the `mainApi` axios instance for client-side fetching
-- Each GET request must have two versions:
+- Each GET request may have two versions, the server version is optional unless specified otherwise:
   - Client version using `mainApi`
   - Server version using `serverFetch` with '_server' suffix
 - Import statements needed:

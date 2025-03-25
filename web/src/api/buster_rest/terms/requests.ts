@@ -44,6 +44,6 @@ export const updateTerm = async (params: {
   return mainApi.put<BusterTerm>(`/terms/${params.id}`, params).then((res) => res.data);
 };
 
-export const deleteTerms = async (ids: string[]) => {
-  return mainApi.delete<BusterTerm>(`/terms`, { data: { ids } }).then((res) => res.data);
+export const deleteTerms = async (data: { ids: string[] }) => {
+  return mainApi.delete<BusterTerm>(`/terms`, { data }).then((res) => res.data);
 };

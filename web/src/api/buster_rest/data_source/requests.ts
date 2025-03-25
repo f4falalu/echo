@@ -9,14 +9,26 @@ import type {
   SnowflakeCredentials,
   SQLServerCredentials
 } from '@/api/asset_interfaces/datasources';
+import { DataSourceSchema } from '@/api/asset_interfaces/datasources';
+import * as v from 'valibot';
 import mainApi from '../instances';
+import { serverFetch } from '@/api/createServerInstance';
 
 export const listDatasources = async () => {
   return await mainApi.get<DataSourceListItem[]>('/data_sources').then((res) => res.data);
 };
 
 export const getDatasource = async (id: string) => {
-  return await mainApi.get<DataSource>(`/data_sources/${id}`).then((res) => res.data);
+  return await mainApi.get<DataSource>(`/data_sources/${id}`).then((res) => {
+    // Validate response with DataSourceSchema
+    return v.parse(DataSourceSchema, res.data);
+  });
+};
+
+export const getDatasource_server = async (id: string) => {
+  const response = await serverFetch<DataSource>(`/data_sources/${id}`);
+  // Validate response with DataSourceSchema
+  return v.parse(DataSourceSchema, response);
 };
 
 export const deleteDatasource = async (id: string) => {

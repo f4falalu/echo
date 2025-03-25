@@ -6,7 +6,7 @@ import { DataSource, DataSourceTypes } from '@/api/asset_interfaces';
 const sampleDataSource: DataSource = {
   id: 'sqlserver-123',
   name: 'Sample SQL Server DB',
-  db_type: DataSourceTypes.sqlserver,
+  type: DataSourceTypes.sqlserver,
   created_at: '2024-07-18T21:19:49.721159Z',
   updated_at: '2024-07-18T21:19:49.721160Z',
   created_by: {

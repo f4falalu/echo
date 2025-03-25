@@ -23,15 +23,14 @@ export enum DataSourceTypes {
 
 export const SUPPORTED_DATASOURCES = [
   DataSourceTypes.postgres,
+  DataSourceTypes.supabase,
   DataSourceTypes.mysql,
   DataSourceTypes.mariadb,
   DataSourceTypes.sqlserver,
   DataSourceTypes.redshift,
   DataSourceTypes.bigquery,
   DataSourceTypes.databricks,
-  DataSourceTypes.supabase,
   DataSourceTypes.snowflake
-  //DataSourceTypes.athena
 ];
 export const DatabaseNames: Record<DataSourceTypes, string> = {
   [DataSourceTypes.postgres]: 'Postgres',
@@ -83,7 +82,9 @@ export const MySQLCredentialsSchema = v.object({
     v.minValue(1, 'Port must be greater than 0'),
     v.maxValue(65535, 'Port must be less than or equal to 65535')
   ),
-  username: v.string()
+  username: v.string(),
+  password: v.string(),
+  default_database: v.string()
 });
 
 export type MySQLCredentials = v.InferOutput<typeof MySQLCredentialsSchema>;
@@ -158,27 +159,43 @@ export const SQLServerCredentialsSchema = v.object({
 
 export type SQLServerCredentials = v.InferOutput<typeof SQLServerCredentialsSchema>;
 
-export interface DataSource {
-  created_at: '2024-07-18T21:19:49.721159Z';
-  created_by: {
-    email: string;
-    id: string;
-    name: string;
-  };
-  credentials:
-    | PostgresCredentials
-    | MySQLCredentials
-    | BigQueryCredentials
-    | RedshiftCredentials
-    | SnowflakeCredentials
-    | DatabricksCredentials
-    | SQLServerCredentials;
-  data_sets: { id: string; name: string }[];
-  id: string;
-  name: string;
-  type: DataSourceTypes;
-  updated_at: '2024-07-18T21:19:49.721160Z';
-}
+export const DataSetSchema = v.object({
+  id: v.string('Dataset ID is required'),
+  name: v.string('Dataset name is required')
+});
+
+export const CreatedBySchema = v.object({
+  email: v.string('Email is required'),
+  id: v.string('User ID is required'),
+  name: v.string('User name is required')
+});
+
+export const DataSourceSchema = v.object({
+  created_at: v.pipe(
+    v.string(),
+    v.regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z$/, 'Invalid ISO date format')
+  ),
+  created_by: CreatedBySchema,
+  credentials: v.union([
+    PostgresCredentialsSchema,
+    MySQLCredentialsSchema,
+    BigQueryCredentialsSchema,
+    RedshiftCredentialsSchema,
+    SnowflakeCredentialsSchema,
+    DatabricksCredentialsSchema,
+    SQLServerCredentialsSchema
+  ]),
+  data_sets: v.array(DataSetSchema),
+  id: v.string('Data source ID is required'),
+  name: v.string('Data source name is required'),
+  type: v.enum(DataSourceTypes),
+  updated_at: v.pipe(
+    v.string(),
+    v.regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d+Z$/, 'Invalid ISO date format')
+  )
+});
+
+export type DataSource = v.InferOutput<typeof DataSourceSchema>;
 
 export interface DataSourceListItem {
   name: string;

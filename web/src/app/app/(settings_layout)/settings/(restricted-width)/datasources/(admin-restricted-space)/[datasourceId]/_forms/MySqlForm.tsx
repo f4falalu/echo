@@ -30,8 +30,8 @@ export const MySqlForm: React.FC<{
       host: credentials?.host || '',
       port: credentials?.port || 3306,
       username: credentials?.username || '',
-      password: (dataSource?.credentials as any)?.password || '',
-      default_database: (dataSource?.credentials as any)?.default_database || '',
+      password: credentials?.password || '',
+      default_database: credentials?.default_database || '',
       type: 'mysql' as const,
       name: dataSource?.name || credentials?.name || ''
     } satisfies Parameters<typeof createMySQLDataSource>[0],

@@ -10,7 +10,7 @@ import {
 } from '@/api/buster_rest/data_source';
 import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
+import { BusterRoutes } from '@/routes/busterRoutes';
 import { useConfetti } from '@/hooks/useConfetti';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
