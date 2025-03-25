@@ -37,6 +37,7 @@ pub enum SearchObject {
     PermissionGroup(GenericSearchResult),
     Team(GenericSearchResult),
     Term(GenericSearchResult),
+    Metric(GenericSearchResult),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -50,6 +51,7 @@ pub enum SearchObjectType {
     PermissionGroup,
     Team,
     Term,
+    Metric,
 }
 
 impl ToString for SearchObjectType {
@@ -63,6 +65,7 @@ impl ToString for SearchObjectType {
             SearchObjectType::PermissionGroup => "permission_group".to_string(),
             SearchObjectType::Team => "team".to_string(),
             SearchObjectType::Term => "term".to_string(),
+            SearchObjectType::Metric => "metric".to_string(),
         }
     }
 }
@@ -97,7 +100,7 @@ impl SearchOptions {
     pub fn asset_types_to_string(&self) -> String {
         if self.asset_types.is_empty() {
             // If no asset types specified, include all types
-            return "'thread', 'collection', 'dashboard', 'data_source', 'dataset', 'permission_group', 'team', 'term'".to_string();
+            return "'collection', 'dashboard', 'metric'".to_string();
         }
         
         self.asset_types

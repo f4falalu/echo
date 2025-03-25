@@ -121,13 +121,7 @@ async fn post_collection_handler(
     let insert_task_user_id = user_id.clone();
     let insert_task_collection = collection.clone();
 
-    let mut conn = match get_pg_pool().get().await {
-        Ok(conn) => conn,
-        Err(e) => {
-            tracing::error!("Error getting pg connection: {}", e);
-            return;
-        }
-    };
+    let mut conn = get_pg_pool().get().await?;
 
     let asset_permissions = AssetPermission {
         identity_id: insert_task_user_id,
@@ -166,7 +160,7 @@ async fn post_collection_handler(
         }
     }
 
-    k(CollectionState {
+    Ok(CollectionState {
         collection,
         assets: None,
         permission: AssetPermissionRole::Owner,

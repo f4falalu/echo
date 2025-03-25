@@ -5,9 +5,7 @@ use uuid::Uuid;
 
 use database::pool::get_sqlx_pool;
 
-use crate::types::{
-    GenericSearchResult, MessageSearchResult, SearchObject, SearchObjectType, SearchOptions,
-};
+use crate::types::{GenericSearchResult, SearchObject, SearchObjectType, SearchOptions};
 
 pub async fn search(
     user_id: Uuid,
@@ -62,7 +60,7 @@ pub async fn search(
 
     let mut results = sqlx::query(&query).fetch(&mut *conn);
     let mut results_vec = Vec::new();
-    
+
     while let Some(row) = results.try_next().await? {
         let content: String = match row.try_get("content") {
             Ok(content) => content,
@@ -97,33 +95,9 @@ pub async fn search(
         let highlights = find_highlights(&content, &search_terms);
 
         let search_object = match asset_type.as_str() {
-            "thread" => {
-                let content_json: serde_json::Value =
-                    serde_json::from_str(&content).unwrap_or_default();
-                
-                let title = content_json["title"]
-                    .as_str()
-                    .unwrap_or("Untitled Thread")
-                    .to_string();
-                
-                let summary_question = content_json["summary_question"]
-                    .as_str()
-                    .unwrap_or("")
-                    .to_string();
-
-                SearchObject::Message(MessageSearchResult {
-                    id,
-                    title,
-                    summary_question,
-                    updated_at,
-                    highlights,
-                    score: rank,
-                    type_: SearchObjectType::Thread,
-                })
-            }
             "collection" => SearchObject::Collection(GenericSearchResult {
                 id,
-                name: extract_name_from_content(&content),
+                name: content,
                 updated_at,
                 highlights,
                 score: rank,
@@ -131,51 +105,19 @@ pub async fn search(
             }),
             "dashboard" => SearchObject::Dashboard(GenericSearchResult {
                 id,
-                name: extract_name_from_content(&content),
+                name: content,
                 updated_at,
                 highlights,
                 score: rank,
                 type_: SearchObjectType::Dashboard,
             }),
-            "data_source" => SearchObject::DataSource(GenericSearchResult {
+            "metric" => SearchObject::Metric(GenericSearchResult {
                 id,
-                name: extract_name_from_content(&content),
+                name: content,
                 updated_at,
                 highlights,
                 score: rank,
-                type_: SearchObjectType::DataSource,
-            }),
-            "dataset" => SearchObject::Dataset(GenericSearchResult {
-                id,
-                name: extract_name_from_content(&content),
-                updated_at,
-                highlights,
-                score: rank,
-                type_: SearchObjectType::Dataset,
-            }),
-            "permission_group" => SearchObject::PermissionGroup(GenericSearchResult {
-                id,
-                name: extract_name_from_content(&content),
-                updated_at,
-                highlights,
-                score: rank,
-                type_: SearchObjectType::PermissionGroup,
-            }),
-            "team" => SearchObject::Team(GenericSearchResult {
-                id,
-                name: extract_name_from_content(&content),
-                updated_at,
-                highlights,
-                score: rank,
-                type_: SearchObjectType::Team,
-            }),
-            "term" => SearchObject::Term(GenericSearchResult {
-                id,
-                name: extract_name_from_content(&content),
-                updated_at,
-                highlights,
-                score: rank,
-                type_: SearchObjectType::Term,
+                type_: SearchObjectType::Metric,
             }),
             _ => continue,
         };
@@ -198,6 +140,7 @@ pub async fn search(
                 }
                 SearchObject::Team(team) => !team.highlights.is_empty(),
                 SearchObject::Term(term) => !term.highlights.is_empty(),
+                SearchObject::Metric(metric) => !metric.highlights.is_empty(),
             })
             .collect();
     }
@@ -212,7 +155,11 @@ pub async fn list_recent_assets(
     let mut conn = get_sqlx_pool().acquire().await?;
 
     // Default to 50 results if not specified for empty query listing
-    let num_results = if options.num_results <= 0 { 50 } else { options.num_results };
+    let num_results = if options.num_results <= 0 {
+        50
+    } else {
+        options.num_results
+    };
 
     let query = format!(
         r#"
@@ -246,7 +193,7 @@ pub async fn list_recent_assets(
 
     let mut results = sqlx::query(&query).fetch(&mut *conn);
     let mut results_vec = Vec::new();
-    
+
     while let Some(row) = results.try_next().await? {
         let id: Uuid = match row.try_get("asset_id") {
             Ok(id) => id,
@@ -274,33 +221,9 @@ pub async fn list_recent_assets(
         };
 
         let search_object = match asset_type.as_str() {
-            "thread" => {
-                let content_json: serde_json::Value =
-                    serde_json::from_str(&content).unwrap_or_default();
-                
-                let title = content_json["title"]
-                    .as_str()
-                    .unwrap_or("Untitled Thread")
-                    .to_string();
-                
-                let summary_question = content_json["summary_question"]
-                    .as_str()
-                    .unwrap_or("")
-                    .to_string();
-
-                SearchObject::Message(MessageSearchResult {
-                    id,
-                    title,
-                    summary_question,
-                    updated_at,
-                    highlights: vec![],
-                    score: 0.0,
-                    type_: SearchObjectType::Thread,
-                })
-            }
             "collection" => SearchObject::Collection(GenericSearchResult {
                 id,
-                name: extract_name_from_content(&content),
+                name: content.to_string(),
                 updated_at,
                 highlights: vec![],
                 score: 0.0,
@@ -308,51 +231,19 @@ pub async fn list_recent_assets(
             }),
             "dashboard" => SearchObject::Dashboard(GenericSearchResult {
                 id,
-                name: extract_name_from_content(&content),
+                name: content.to_string(),
                 updated_at,
                 highlights: vec![],
                 score: 0.0,
                 type_: SearchObjectType::Dashboard,
             }),
-            "data_source" => SearchObject::DataSource(GenericSearchResult {
+            "metric" => SearchObject::Metric(GenericSearchResult {
                 id,
-                name: extract_name_from_content(&content),
+                name: content.to_string(),
                 updated_at,
                 highlights: vec![],
                 score: 0.0,
-                type_: SearchObjectType::DataSource,
-            }),
-            "dataset" => SearchObject::Dataset(GenericSearchResult {
-                id,
-                name: extract_name_from_content(&content),
-                updated_at,
-                highlights: vec![],
-                score: 0.0,
-                type_: SearchObjectType::Dataset,
-            }),
-            "permission_group" => SearchObject::PermissionGroup(GenericSearchResult {
-                id,
-                name: extract_name_from_content(&content),
-                updated_at,
-                highlights: vec![],
-                score: 0.0,
-                type_: SearchObjectType::PermissionGroup,
-            }),
-            "team" => SearchObject::Team(GenericSearchResult {
-                id,
-                name: extract_name_from_content(&content),
-                updated_at,
-                highlights: vec![],
-                score: 0.0,
-                type_: SearchObjectType::Team,
-            }),
-            "term" => SearchObject::Term(GenericSearchResult {
-                id,
-                name: extract_name_from_content(&content),
-                updated_at,
-                highlights: vec![],
-                score: 0.0,
-                type_: SearchObjectType::Term,
+                type_: SearchObjectType::Metric,
             }),
             _ => continue,
         };
@@ -363,65 +254,47 @@ pub async fn list_recent_assets(
     Ok(results_vec)
 }
 
-fn extract_name_from_content(content: &str) -> String {
-    match serde_json::from_str::<serde_json::Value>(content) {
-        Ok(json) => {
-            if let Some(name) = json["name"].as_str() {
-                return name.to_string();
-            }
-            if let Some(title) = json["title"].as_str() {
-                return title.to_string();
-            }
-            "Untitled".to_string()
-        }
-        Err(_) => "Untitled".to_string(),
-    }
-}
-
 fn find_highlights(content: &str, search_terms: &[String]) -> Vec<String> {
     let mut highlights = Vec::new();
-    
+
     // Try to parse the content as JSON first
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(content) {
         // Convert the JSON back to a string for highlighting
         let content_str = json.to_string().to_lowercase();
-        
+
         for term in search_terms {
             if content_str.contains(term) {
-                // Here you would extract context around the match
-                let term_start = content_str.find(term).unwrap_or(0);
-                let context_start = term_start.saturating_sub(20);
-                let context_end = (term_start + term.len() + 20).min(content_str.len());
-                let highlight = content_str[context_start..context_end].to_string();
-                highlights.push(highlight);
+                highlights.push(term.clone());
             }
         }
     } else {
         // If not JSON, treat as plain text
         let content_lower = content.to_lowercase();
-        
+
         for term in search_terms {
             if content_lower.contains(term) {
-                let term_start = content_lower.find(term).unwrap_or(0);
-                let context_start = term_start.saturating_sub(20);
-                let context_end = (term_start + term.len() + 20).min(content_lower.len());
-                let highlight = content_lower[context_start..context_end].to_string();
-                highlights.push(highlight);
+                highlights.push(term.clone());
             }
         }
     }
-    
+
+    highlights.dedup(); // Remove any duplicate matches
     highlights
 }
 
 fn sanitize_search_term(term: String) -> String {
     // Remove special characters that might interfere with the search
-    let term = term.replace(['(', ')', '[', ']', '{', '}', '\\', '*', '+', '.', '?', '^', '$', '|'], "");
-    
+    let term = term.replace(
+        [
+            '(', ')', '[', ']', '{', '}', '\\', '*', '+', '.', '?', '^', '$', '|',
+        ],
+        "",
+    );
+
     // If the term is now empty, use a default that will match nothing
     if term.is_empty() {
         return "NOMATCHPOSSIBLE".to_string();
     }
-    
+
     term
 }

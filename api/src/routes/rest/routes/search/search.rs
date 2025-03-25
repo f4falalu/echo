@@ -1,8 +1,4 @@
-use axum::{
-    extract::Query,
-    http::StatusCode,
-    Extension,
-};
+use axum::{http::StatusCode, Extension, Json};
 use serde::Deserialize;
 
 use handlers::search::search_handler;
@@ -20,10 +16,10 @@ pub struct SearchQuery {
 
 pub async fn search(
     Extension(user): Extension<AuthenticatedUser>,
-    Query(params): Query<SearchQuery>,
+    Json(params): Json<SearchQuery>,
 ) -> Result<ApiResponse<Vec<SearchObject>>, (StatusCode, &'static str)> {
     let results = match search_handler(
-        user.id,
+        &user,
         params.query,
         params.num_results,
         params.asset_types,

@@ -1,11 +1,7 @@
-use axum::{
-    routing::get,
-    Router,
-};
+use axum::{routing::post, Router};
 
 mod search;
 
 pub fn router() -> Router {
-    Router::new()
-        .route("/", get(search::search))
+    Router::new().route("/", post(search::search))
 }
