@@ -7,10 +7,17 @@ import {
   useUpdateDatabricksDataSource
 } from '@/api/buster_rest/data_source';
 import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useRouter } from 'next/router';
+import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
+import { useConfetti } from '@/hooks/useConfetti';
 
 export const DataBricksForm: React.FC<{
   dataSource?: DataSource;
 }> = ({ dataSource }) => {
+  const { fireConfetti } = useConfetti();
+  const { openSuccessMessage, openConfirmModal } = useBusterNotifications();
+  const router = useRouter();
   const { mutateAsync: createDataSource } = useCreateDatabricksDataSource();
   const { mutateAsync: updateDataSource } = useUpdateDatabricksDataSource();
   const credentials = dataSource?.credentials as DatabricksCredentials;
@@ -30,8 +37,19 @@ export const DataBricksForm: React.FC<{
     onSubmit: async ({ value }) => {
       if (flow === 'update' && dataSource?.id) {
         await updateDataSource({ id: dataSource.id, ...value });
+        openSuccessMessage('Datasource updated');
       } else {
         await createDataSource(value);
+        fireConfetti(9999);
+        openConfirmModal({
+          title: 'Datasource created',
+          description: 'Datasource created successfully',
+          content:
+            'Hooray! Your datasource has been created. You can now use it in your projects. You will need to create datasets to use with it.',
+          onOk: () => {
+            router.push(createBusterRoute({ route: BusterRoutes.APP_DATASETS }));
+          }
+        });
       }
     }
   });
