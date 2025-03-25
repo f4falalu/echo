@@ -8,6 +8,10 @@ pub mod streaming_parser;
 pub mod context_loaders;
 pub mod list_chats_handler;
 pub mod sharing;
+pub mod asset_messages;
+
+#[cfg(test)]
+pub mod tests;
 
 pub use get_chat_handler::get_chat_handler;
 pub use get_raw_llm_messages_handler::get_raw_llm_messages_handler;
