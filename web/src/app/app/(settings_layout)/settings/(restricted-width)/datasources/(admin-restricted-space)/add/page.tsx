@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { HeaderContainer } from '../../_HeaderContainer';
 import { useState } from 'react';
@@ -10,22 +10,44 @@ import { Title, Text } from '@/components/ui/typography';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { cn } from '@/lib/classMerge';
 import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
+import { useRouter } from 'next/navigation';
+import { useMemoizedFn } from '@/hooks';
+import Link from 'next/link';
 
-export default function Page() {
-  const [selectedDataSource, setSelectedDataSource] = useState<DataSourceTypes | null>(null);
-  const { openInfoMessage } = useBusterNotifications();
+export default function Page({
+  searchParams: { type }
+}: {
+  searchParams: { type?: DataSourceTypes };
+}) {
+  const router = useRouter();
+  const [selectedDataSource, setSelectedDataSource] = useState<DataSourceTypes | null>(
+    type || null
+  );
 
   const linkUrl = selectedDataSource
-    ? ''
+    ? createBusterRoute({
+        route: BusterRoutes.SETTINGS_DATASOURCES_ADD
+      })
     : createBusterRoute({
         route: BusterRoutes.SETTINGS_DATASOURCES
       });
+
+  const onClearSelectedDataSource = useMemoizedFn(() => {
+    setSelectedDataSource(null);
+    router.push(createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES_ADD }));
+  });
+
+  useEffect(() => {
+    if (type) {
+      setSelectedDataSource(type);
+    }
+  }, [type]);
 
   return (
     <div className="flex flex-col space-y-5">
       <HeaderContainer
         buttonText={selectedDataSource ? 'Connect a datasource' : 'Datasources'}
-        onClick={() => setSelectedDataSource(null)}
+        onClick={onClearSelectedDataSource}
         linkUrl={linkUrl}
       />
 
@@ -34,15 +56,7 @@ export default function Page() {
       ) : (
         <div className="flex flex-col space-y-6">
           <ConnectHeader />
-          <DataSourceList
-            onSelect={(v) => {
-              if (SUPPORTED_DATASOURCES.includes(v)) {
-                setSelectedDataSource(v);
-              } else {
-                openInfoMessage('This data source is not currently supported');
-              }
-            }}
-          />
+          <DataSourceList />
         </div>
       )}
     </div>
@@ -58,25 +72,27 @@ const ConnectHeader: React.FC<{}> = ({}) => {
   );
 };
 
-const DataSourceList: React.FC<{
-  onSelect: (dataSource: DataSourceTypes) => void;
-}> = ({ onSelect }) => {
+const DataSourceList: React.FC<{}> = ({}) => {
   return (
     <div className="grid grid-cols-3 gap-4">
-      {Object.values(DataSourceTypes).map((dataSource) => {
+      {SUPPORTED_DATASOURCES.map((dataSource) => {
         const name = DatabaseNames[dataSource];
         return (
-          <div
-            onClick={() => onSelect(dataSource)}
+          <Link
+            href={
+              createBusterRoute({
+                route: BusterRoutes.SETTINGS_DATASOURCES_ADD
+              }) + `?type=${dataSource}`
+            }
             key={dataSource}
             className={cn(
-              'flex cursor-pointer items-center space-x-4 px-4 py-3 transition',
+              'flex cursor-pointer items-center space-x-4 px-4 py-3 shadow transition',
               'bg-background hover:bg-item-hover',
               'border-border max-h-[48px] rounded border'
             )}>
             <AppDataSourceIcon size={28} type={dataSource} />
             <Text>{name}</Text>
-          </div>
+          </Link>
         );
       })}
     </div>

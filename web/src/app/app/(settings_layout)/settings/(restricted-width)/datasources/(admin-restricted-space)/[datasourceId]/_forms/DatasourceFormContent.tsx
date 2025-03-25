@@ -1,6 +1,6 @@
 'use client';
 
-import type { DataSource, DataSourceTypes } from '@/api/asset_interfaces';
+import { DatabaseNames, type DataSource, type DataSourceTypes } from '@/api/asset_interfaces';
 import React from 'react';
 import { PostgresForm } from './PostgresForm';
 import { MySqlForm } from './MySqlForm';
@@ -9,6 +9,8 @@ import { SnowflakeForm } from './SnowflakeForm';
 import { RedshiftForm } from './RedshiftForm';
 import { DataBricksForm } from './DataBricksForm';
 import { SqlServerForm } from './SqlServerForm';
+import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
+import { Text } from '@/components/ui/typography';
 
 const FormRecord: Record<
   DataSourceTypes,
@@ -32,14 +34,19 @@ const FormRecord: Record<
 export const DataSourceFormContent: React.FC<{
   dataSource?: DataSource;
   type: DataSourceTypes;
-}> = ({ dataSource, type }) => {
+}> = React.memo(({ dataSource, type }) => {
   const SelectedForm = FormRecord[type];
+  const DatabaseName = DatabaseNames[type];
 
   return (
-    <div className="rounded-lg border">
-      <div className="bg-item-hover flex items-center px-4 py-2.5">Datasource credentials</div>
+    <div className="overflow-hidden rounded-lg border shadow">
+      <div className="bg-item-hover flex items-center space-x-2 px-4 py-2.5">
+        <Text>{`${DatabaseName} credentials`}</Text>
+      </div>
 
       <div className="p-4">{SelectedForm && <SelectedForm dataSource={dataSource} />}</div>
     </div>
   );
-};
+});
+
+DataSourceFormContent.displayName = 'DataSourceFormContent';

@@ -1,6 +1,19 @@
-import type { DataSource, DataSourceListItem } from '@/api/asset_interfaces/datasources';
+import type {
+  BigQueryCredentials,
+  DatabricksCredentials,
+  DataSource,
+  DataSourceListItem,
+  MySQLCredentials,
+  PostgresCredentials,
+  SnowflakeCredentials,
+  SQLServerCredentials
+} from '@/api/asset_interfaces/datasources';
 import mainApi from '../instances';
-import { DatasourceUpdateParams } from '@/api/request_interfaces/datasources';
+import {
+  DatasourceUpdateParams,
+  RedshiftCreateCredentials
+} from '@/api/request_interfaces/datasources';
+import { MySQLCreateParams } from './types';
 
 export const listDatasources = async () => {
   return await mainApi.get<DataSourceListItem[]>('/data_sources').then((res) => res.data);
@@ -14,16 +27,7 @@ export const deleteDatasource = async (id: string) => {
   return await mainApi.delete(`/data_sources/${id}`).then((res) => res.data);
 };
 
-export const createPostgresDataSource = async (params: {
-  name: string;
-  type: 'postgres' | 'supabase';
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  default_database: string; //postgres
-  default_schema: string; //public
-}) => {
+export const createPostgresDataSource = async (params: PostgresCredentials) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -34,15 +38,7 @@ export const updatePostgresDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createMySQLDataSource = async (params: {
-  name: string;
-  type: 'mysql' | 'mariadb';
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  default_database: string;
-}) => {
+export const createMySQLDataSource = async (params: MySQLCredentials) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -53,16 +49,7 @@ export const updateMySQLDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createRedshiftDataSource = async (params: {
-  name: string;
-  type: 'redshift';
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  default_database: string;
-  default_schema: string;
-}) => {
+export const createRedshiftDataSource = async (params: RedshiftCreateCredentials) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -73,13 +60,7 @@ export const updateRedshiftDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createBigQueryDataSource = async (params: {
-  name: string;
-  type: 'bigquery';
-  service_role_key: string;
-  default_project_id: string;
-  default_dataset_id: string;
-}) => {
+export const createBigQueryDataSource = async (params: BigQueryCredentials) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -90,17 +71,7 @@ export const updateBigQueryDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createSnowflakeDataSource = async (params: {
-  name: string;
-  type: 'snowflake';
-  account_id: string;
-  warehouse_id: string;
-  username: string;
-  password: string;
-  role: string | null;
-  default_database: string;
-  default_schema: string;
-}) => {
+export const createSnowflakeDataSource = async (params: SnowflakeCredentials) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -111,15 +82,7 @@ export const updateSnowflakeDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createDatabricksDataSource = async (params: {
-  name: string;
-  type: 'databricks';
-  host: string;
-  api_key: string;
-  warehouse_id: string;
-  default_catalog: string;
-  default_schema: string;
-}) => {
+export const createDatabricksDataSource = async (params: DatabricksCredentials) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 
@@ -130,16 +93,7 @@ export const updateDatabricksDataSource = async ({
   return mainApi.put<DataSource>(`/data_sources/${id}`, params).then((res) => res.data);
 };
 
-export const createSQLServerDataSource = async (params: {
-  name: string;
-  type: 'sqlserver';
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  default_database: string;
-  default_schema: string;
-}) => {
+export const createSQLServerDataSource = async (params: SQLServerCredentials) => {
   return mainApi.post<DataSource>('/data_sources', params).then((res) => res.data);
 };
 

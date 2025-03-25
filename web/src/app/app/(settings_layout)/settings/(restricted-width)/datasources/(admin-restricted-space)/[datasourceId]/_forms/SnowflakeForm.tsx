@@ -30,7 +30,7 @@ export const SnowflakeForm: React.FC<{
       warehouse_id: credentials?.warehouse_id || '',
       username: credentials?.username || '',
       password: credentials?.password || '',
-      role: credentials?.role || null,
+      role: credentials?.role || '',
       default_database: credentials?.default_database || '',
       default_schema: credentials?.default_schema || '',
       type: 'snowflake' as const,
