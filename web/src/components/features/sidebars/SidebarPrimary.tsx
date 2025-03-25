@@ -24,6 +24,7 @@ import {
   useUpdateUserFavorites
 } from '@/api/buster_rest';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useInviteModalStore } from '@/context/BusterAppLayout';
 
 const topItems: ISidebarList = {
   id: 'top-items',
@@ -121,7 +122,7 @@ export const SidebarPrimary = React.memo(() => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
   const { data: favorites } = useGetUserFavorites();
   const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
-  const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
+  const onToggleInviteModal = useInviteModalStore((s) => s.onToggleInviteModal);
   const [openSupportModal, setOpenSupportModal] = useState(false);
   const { mutateAsync: updateUserFavorites } = useUpdateUserFavorites();
   const { mutateAsync: deleteUserFavorite } = useDeleteUserFavorite();
@@ -209,8 +210,8 @@ const GlobalModals = ({
   openSupportModal: boolean;
   onCloseSupportModal: () => void;
 }) => {
-  const onToggleInviteModal = useAppLayoutContextSelector((s) => s.onToggleInviteModal);
-  const openInviteModal = useAppLayoutContextSelector((s) => s.openInviteModal);
+  const onToggleInviteModal = useInviteModalStore((s) => s.onToggleInviteModal);
+  const openInviteModal = useInviteModalStore((s) => s.openInviteModal);
   const onCloseInviteModal = useMemoizedFn(() => onToggleInviteModal(false));
   const isAnonymousUser = useUserConfigContextSelector((state) => state.isAnonymousUser);
 

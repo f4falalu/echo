@@ -1,8 +1,7 @@
 'use client';
 
 import { useGetPermissionGroupUsers } from '@/api/buster_rest';
-
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useInviteModalStore } from '@/context/BusterAppLayout';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import { Button } from '@/components/ui/buttons';
@@ -14,7 +13,7 @@ export const PermissionGroupUsersController: React.FC<{
   permissionGroupId: string;
 }> = ({ permissionGroupId }) => {
   const { data } = useGetPermissionGroupUsers(permissionGroupId);
-  const onToggleInviteModal = useAppLayoutContextSelector((x) => x.onToggleInviteModal);
+  const onToggleInviteModal = useInviteModalStore((x) => x.onToggleInviteModal);
 
   const { filteredItems, handleSearchChange, searchText } = useDebounceSearch({
     items: data || [],

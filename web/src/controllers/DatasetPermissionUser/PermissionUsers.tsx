@@ -1,22 +1,19 @@
 'use client';
 
 import React from 'react';
-import {
-  PermissionSearchAndListWrapper,
-  HeaderExplanation
-} from '@/components/features/PermissionComponents';
+import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import { useDatasetListPermissionUsers } from '@/api/buster_rest';
 import { useDebounceSearch } from '@/hooks';
 import { Button } from '@/components/ui/buttons';
 import { Plus } from '@/components/ui/icons';
 import { useMemoizedFn } from '@/hooks';
 import { PermissionListUsersContainer } from './PermissionListUsersContainer';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useInviteModalStore } from '@/context/BusterAppLayout';
 
 export const PermissionUsers: React.FC<{
   datasetId: string;
 }> = React.memo(({ datasetId }) => {
-  const onToggleInviteModal = useAppLayoutContextSelector((x) => x.onToggleInviteModal);
+  const onToggleInviteModal = useInviteModalStore((x) => x.onToggleInviteModal);
   const { data: permissionUsers, isFetched: isPermissionUsersFetched } =
     useDatasetListPermissionUsers(datasetId);
 

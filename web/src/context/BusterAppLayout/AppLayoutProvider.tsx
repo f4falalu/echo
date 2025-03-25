@@ -13,11 +13,6 @@ export const useAppLayout = () => {
   const params = useParams();
   const currentRoute = pathNameToRoute(pathname, params);
   const currentParentRoute = pathNameToParentRoute(pathname, params);
-  const [openInviteModal, setOpenInviteModal] = React.useState(false);
-
-  const onToggleInviteModal = useMemoizedFn((v?: boolean) => {
-    setOpenInviteModal(v ?? !openInviteModal);
-  });
 
   const onChangePage = useMemoizedFn(
     (params: BusterRoutesWithArgsRoute | string): Promise<void> => {
@@ -56,8 +51,6 @@ export const useAppLayout = () => {
 
   return {
     currentRoute,
-    onToggleInviteModal,
-    openInviteModal,
     onChangePage,
     currentParentRoute
   };

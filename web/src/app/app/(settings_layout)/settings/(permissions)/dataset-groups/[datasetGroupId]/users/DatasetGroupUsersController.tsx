@@ -1,7 +1,7 @@
 'use client';
 
 import { useGetDatasetGroupUsers } from '@/api/buster_rest';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useInviteModalStore } from '@/context/BusterAppLayout';
 import { useDebounceSearch } from '@/hooks/useDebounceSearch';
 import { PermissionSearchAndListWrapper } from '@/components/features/PermissionComponents';
 import { Button } from '@/components/ui/buttons';
@@ -13,7 +13,7 @@ export const DatasetGroupUsersController: React.FC<{
   datasetGroupId: string;
 }> = ({ datasetGroupId }) => {
   const { data } = useGetDatasetGroupUsers(datasetGroupId);
-  const onToggleInviteModal = useAppLayoutContextSelector((x) => x.onToggleInviteModal);
+  const onToggleInviteModal = useInviteModalStore((x) => x.onToggleInviteModal);
 
   const { filteredItems, handleSearchChange, searchText } = useDebounceSearch({
     items: data || [],
