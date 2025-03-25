@@ -27,23 +27,22 @@ export const PostgresForm: React.FC<{
 
   const form = useAppForm({
     defaultValues: {
-      host: credentials?.host || '',
+      host: credentials?.host,
       port: credentials?.port || 5432,
-      username: credentials?.username || '',
-      password: credentials?.password || '',
-      default_database: credentials?.default_database || '',
-      default_schema: credentials?.default_schema || '',
+      username: credentials?.username,
+      password: credentials?.password,
+      default_database: credentials?.default_database,
+      default_schema: credentials?.default_schema,
       type: credentials?.type || 'postgres',
-      name: dataSource?.name || credentials?.name || ''
-    } satisfies PostgresCredentials,
+      name: dataSource?.name || credentials?.name
+    } as PostgresCredentials,
     onSubmit: async ({ value, ...rest }) => {
-      console.log(rest);
-      // await dataSourceFormSubmit({
-      //   flow,
-      //   dataSourceId: dataSource?.id,
-      //   onUpdate: () => updateDataSource({ id: dataSource!.id, ...value }),
-      //   onCreate: () => createDataSource(value)
-      // });
+      await dataSourceFormSubmit({
+        flow,
+        dataSourceId: dataSource?.id,
+        onUpdate: () => updateDataSource({ id: dataSource!.id, ...value }),
+        onCreate: () => createDataSource(value)
+      });
     },
     validators: {
       onChangeAsyncDebounceMs: 1000,

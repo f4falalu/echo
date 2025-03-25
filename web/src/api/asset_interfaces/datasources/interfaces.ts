@@ -59,16 +59,16 @@ export enum DataSourceEnvironment {
 export const PostgresCredentialsSchema = v.object({
   name: v.pipe(v.string(), v.minLength(3, 'Name must be at least 3 characters')),
   type: v.union([v.literal('postgres'), v.literal('supabase')]),
-  host: v.string(),
+  host: v.pipe(v.string(), v.minLength(1, 'Host must not be empty')),
   port: v.pipe(
     v.number(),
     v.minValue(1, 'Port must be greater than 0'),
     v.maxValue(65535, 'Port must be less than or equal to 65535')
   ),
-  username: v.string(),
-  password: v.string(),
-  default_database: v.string(), // postgres
-  default_schema: v.string() // public
+  username: v.pipe(v.string(), v.minLength(1, 'Username must not be empty')),
+  password: v.pipe(v.string(), v.minLength(1, 'Password must not be empty')),
+  default_database: v.pipe(v.string(), v.minLength(1, 'Database must not be empty')), // postgres
+  default_schema: v.pipe(v.string(), v.minLength(1, 'Schema must not be empty')) // public
 });
 
 export type PostgresCredentials = v.InferOutput<typeof PostgresCredentialsSchema>;
