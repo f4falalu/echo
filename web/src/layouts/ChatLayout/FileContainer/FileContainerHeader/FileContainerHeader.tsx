@@ -50,7 +50,10 @@ export const FileContainerHeader: React.FC = React.memo(() => {
           onCollapseFileClick={onCollapseFileClick}
         />
         {hasAccess && selectedFileView && (
-          <SelectedFileSegment selectedFileView={selectedFileView} />
+          <SelectedFileSegment
+            selectedFileView={selectedFileView}
+            selectedFileId={selectedFileId}
+          />
         )}
       </div>
       {hasAccess && <SelectedFileButtons selectedFileView={selectedFileView} />}

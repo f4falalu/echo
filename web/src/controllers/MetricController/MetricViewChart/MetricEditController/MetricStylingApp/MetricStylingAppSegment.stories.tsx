@@ -51,8 +51,6 @@ const handleSetSegment = fn();
 
 export const Default: Story = {
   args: {
-    // segment: MetricStylingAppSegments.VISUALIZE,
-    // setSegment: handleSetSegment,
     selectedChartType: ChartType.Line,
     className: ''
   }

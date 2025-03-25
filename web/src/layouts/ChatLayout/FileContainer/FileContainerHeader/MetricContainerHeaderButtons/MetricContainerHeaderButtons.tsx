@@ -18,9 +18,9 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
   const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);
   const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
   const metricId = selectedFileId;
-  const { isFetched: isMetricFetched } = useGetMetric({ id: metricId });
+  const { isFetched: isMetricFetched, error: metricError } = useGetMetric({ id: metricId });
 
-  if (!isMetricFetched) return null;
+  if (!isMetricFetched || metricError) return null;
 
   return (
     <FileButtonContainer>

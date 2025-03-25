@@ -5,6 +5,7 @@ import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import type { FileView, MetricFileView } from '../../ChatLayoutContext/useChatFileLayout';
 import { type SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';
+import { useGetMetric } from '@/api/buster_rest/metrics';
 
 const segmentOptions: { label: string; value: MetricFileView }[] = [
   { label: 'Chart', value: 'chart' },
