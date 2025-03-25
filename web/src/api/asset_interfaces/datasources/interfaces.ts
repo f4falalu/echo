@@ -1,4 +1,4 @@
-import type { BusterDataset } from '../datasets';
+import * as v from 'valibot';
 
 export enum DataSourceStatus {
   ACTIVE = 'active',
@@ -57,76 +57,106 @@ export enum DataSourceEnvironment {
   development = 'development'
 }
 
-export interface PostgresCredentials {
-  name: string;
-  type: 'postgres' | 'supabase';
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  default_database: string; //postgres
-  default_schema: string; //public
-}
+export const PostgresCredentialsSchema = v.object({
+  name: v.string(),
+  type: v.union([v.literal('postgres'), v.literal('supabase')]),
+  host: v.string(),
+  port: v.pipe(
+    v.number(),
+    v.minValue(1, 'Port must be greater than 0'),
+    v.maxValue(65535, 'Port must be less than or equal to 65535')
+  ),
+  username: v.string(),
+  password: v.string(),
+  default_database: v.string(), // postgres
+  default_schema: v.string() // public
+});
 
-export interface MySQLCredentials {
-  name: string;
-  type: 'mysql' | 'mariadb';
-  host: string;
-  port: number;
-  username: string;
-}
+export type PostgresCredentials = v.InferOutput<typeof PostgresCredentialsSchema>;
 
-export interface BigQueryCredentials {
-  name: string;
-  type: 'bigquery';
-  service_role_key: string;
-  default_project_id: string;
-  default_dataset_id: string;
-}
+export const MySQLCredentialsSchema = v.object({
+  name: v.string(),
+  type: v.union([v.literal('mysql'), v.literal('mariadb')]),
+  host: v.string(),
+  port: v.pipe(
+    v.number(),
+    v.minValue(1, 'Port must be greater than 0'),
+    v.maxValue(65535, 'Port must be less than or equal to 65535')
+  ),
+  username: v.string()
+});
 
-export interface RedshiftCredentials {
-  name: string;
-  type: 'redshift';
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  default_database: string;
-  default_schema: string;
-}
+export type MySQLCredentials = v.InferOutput<typeof MySQLCredentialsSchema>;
 
-export interface SnowflakeCredentials {
-  name: string;
-  type: 'snowflake';
-  account_id: string;
-  warehouse_id: string;
-  username: string;
-  password: string;
-  role: string | null;
-  default_database: string;
-  default_schema: string;
-}
+export const BigQueryCredentialsSchema = v.object({
+  name: v.string(),
+  type: v.literal('bigquery'),
+  service_role_key: v.string('Service role key is required'),
+  default_project_id: v.string('Project ID is required'),
+  default_dataset_id: v.string('Dataset ID is required')
+});
 
-export interface DatabricksCredentials {
-  name: string;
-  type: 'databricks';
-  host: string;
-  api_key: string;
-  warehouse_id: string;
-  default_catalog: string;
-  default_schema: string;
-}
+export type BigQueryCredentials = v.InferOutput<typeof BigQueryCredentialsSchema>;
 
-export interface SQLServerCredentials {
-  name: string;
-  type: 'sqlserver';
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  default_database: string;
-  default_schema: string;
-}
+export const RedshiftCredentialsSchema = v.object({
+  name: v.string(),
+  type: v.literal('redshift'),
+  host: v.string(),
+  port: v.pipe(
+    v.number(),
+    v.minValue(1, 'Port must be greater than 0'),
+    v.maxValue(65535, 'Port must be less than or equal to 65535')
+  ),
+  username: v.string(),
+  password: v.string(),
+  default_database: v.string(),
+  default_schema: v.string()
+});
+
+export type RedshiftCredentials = v.InferOutput<typeof RedshiftCredentialsSchema>;
+
+export const SnowflakeCredentialsSchema = v.object({
+  name: v.string(),
+  type: v.literal('snowflake'),
+  account_id: v.string('Account ID is required'),
+  warehouse_id: v.string('Warehouse ID is required'),
+  username: v.string(),
+  password: v.string(),
+  role: v.nullable(v.string()),
+  default_database: v.string(),
+  default_schema: v.string()
+});
+
+export type SnowflakeCredentials = v.InferOutput<typeof SnowflakeCredentialsSchema>;
+
+export const DatabricksCredentialsSchema = v.object({
+  name: v.string(),
+  type: v.literal('databricks'),
+  host: v.string(),
+  api_key: v.string('API key is required'),
+  warehouse_id: v.string('Warehouse ID is required'),
+  default_catalog: v.string(),
+  default_schema: v.string()
+});
+
+export type DatabricksCredentials = v.InferOutput<typeof DatabricksCredentialsSchema>;
+
+export const SQLServerCredentialsSchema = v.object({
+  name: v.string(),
+  type: v.literal('sqlserver'),
+  host: v.string(),
+  port: v.pipe(
+    v.number(),
+    v.minValue(1, 'Port must be greater than 0'),
+    v.maxValue(65535, 'Port must be less than or equal to 65535')
+  ),
+  username: v.string(),
+  password: v.string(),
+  default_database: v.string(),
+  default_schema: v.string()
+});
+
+export type SQLServerCredentials = v.InferOutput<typeof SQLServerCredentialsSchema>;
 
 export interface DataSource {
   created_at: '2024-07-18T21:19:49.721159Z';
