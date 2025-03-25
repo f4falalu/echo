@@ -279,9 +279,9 @@ pub struct ChatWithMessages {
    - [x] Modify context loading selection
 
 3. Update REST and WebSocket endpoints
-   - [x] Update REST endpoint to support new request structure
-   - [x] Update WebSocket endpoint to support new request structure
-   - [x] Add validation for new fields
+   - [ ] Update REST endpoint to support new request structure
+   - [ ] Update WebSocket endpoint to support new request structure
+   - [ ] Add validation for new fields
 
 ### Phase 2: Context Loader Refactoring ✅ (Completed)
 
