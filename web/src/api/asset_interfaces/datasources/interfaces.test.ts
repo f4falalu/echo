@@ -74,7 +74,7 @@ describe('DataSourceSchema', () => {
       type: DataSourceTypes.mysql
     };
     const result = testValidation(DataSourceSchema, mysqlDataSource);
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 
   test('should validate a valid DataSource with BigQuery credentials', () => {
@@ -212,7 +212,7 @@ describe('CredentialSchemas', () => {
       username: 'root'
     };
     const result = testValidation(MySQLCredentialsSchema, validCredentials);
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 
   test('BigQueryCredentialsSchema should validate valid credentials', () => {

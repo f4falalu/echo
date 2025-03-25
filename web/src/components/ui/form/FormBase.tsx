@@ -176,8 +176,6 @@ export function PasswordField({
   const isFormSubmitted = field.form.state.submissionAttempts > 1;
   const showError = !!error && (isFormSubmitted || isTouched);
 
-  console.log(field);
-
   const InputComponent = (
     <div className={cn('relative flex w-full flex-col', className)}>
       <InputPassword

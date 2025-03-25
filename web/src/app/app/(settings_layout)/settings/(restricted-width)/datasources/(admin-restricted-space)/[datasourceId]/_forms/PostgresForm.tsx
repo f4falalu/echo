@@ -36,7 +36,7 @@ export const PostgresForm: React.FC<{
       type: credentials?.type || 'postgres',
       name: dataSource?.name || credentials?.name
     } as PostgresCredentials,
-    onSubmit: async ({ value, ...rest }) => {
+    onSubmit: async ({ value }) => {
       await dataSourceFormSubmit({
         flow,
         dataSourceId: dataSource?.id,

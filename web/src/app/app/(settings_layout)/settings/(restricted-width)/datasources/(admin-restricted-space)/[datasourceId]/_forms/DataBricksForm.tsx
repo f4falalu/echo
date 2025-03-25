@@ -1,4 +1,8 @@
-import { DataSource, DatabricksCredentials } from '@/api/asset_interfaces';
+import {
+  DataSource,
+  DatabricksCredentials,
+  DatabricksCredentialsSchema
+} from '@/api/asset_interfaces';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';
 import {
@@ -36,6 +40,11 @@ export const DataBricksForm: React.FC<{
         onUpdate: () => updateDataSource({ id: dataSource!.id, ...value }),
         onCreate: () => createDataSource(value)
       });
+    },
+    validators: {
+      onChangeAsyncDebounceMs: 1000,
+      onChangeAsync: DatabricksCredentialsSchema,
+      onSubmit: DatabricksCredentialsSchema
     }
   });
 

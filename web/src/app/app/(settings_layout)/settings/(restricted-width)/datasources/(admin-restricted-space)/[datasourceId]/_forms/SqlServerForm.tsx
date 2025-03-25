@@ -1,4 +1,8 @@
-import { DataSource, SQLServerCredentials } from '@/api/asset_interfaces';
+import {
+  DataSource,
+  SQLServerCredentials,
+  SQLServerCredentialsSchema
+} from '@/api/asset_interfaces';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';
 import {
@@ -30,7 +34,7 @@ export const SqlServerForm: React.FC<{
       default_schema: credentials?.default_schema || '',
       type: 'sqlserver' as const,
       name: dataSource?.name || credentials?.name || ''
-    } satisfies Parameters<typeof createSQLServerDataSource>[0],
+    } as Parameters<typeof createSQLServerDataSource>[0],
     onSubmit: async ({ value }) => {
       await dataSourceFormSubmit({
         flow,
@@ -38,6 +42,11 @@ export const SqlServerForm: React.FC<{
         onUpdate: () => updateDataSource({ id: dataSource!.id, ...value }),
         onCreate: () => createDataSource(value)
       });
+    },
+    validators: {
+      onChangeAsyncDebounceMs: 1000,
+      onChangeAsync: SQLServerCredentialsSchema,
+      onSubmit: SQLServerCredentialsSchema
     }
   });
 

@@ -1,4 +1,4 @@
-import { DataSource, RedshiftCredentials } from '@/api/asset_interfaces';
+import { DataSource, RedshiftCredentials, RedshiftCredentialsSchema } from '@/api/asset_interfaces';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';
 import {
@@ -38,6 +38,11 @@ export const RedshiftForm: React.FC<{
         onUpdate: () => updateDataSource({ id: dataSource!.id, ...value }),
         onCreate: () => createDataSource(value)
       });
+    },
+    validators: {
+      onChangeAsyncDebounceMs: 1000,
+      onChangeAsync: RedshiftCredentialsSchema,
+      onSubmit: RedshiftCredentialsSchema
     }
   });
 

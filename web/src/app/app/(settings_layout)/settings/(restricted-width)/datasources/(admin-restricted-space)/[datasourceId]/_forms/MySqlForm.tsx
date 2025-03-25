@@ -1,4 +1,4 @@
-import { DataSource, MySQLCredentials } from '@/api/asset_interfaces';
+import { DataSource, MySQLCredentials, MySQLCredentialsSchema } from '@/api/asset_interfaces';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';
 import {
@@ -29,7 +29,7 @@ export const MySqlForm: React.FC<{
       default_database: credentials?.default_database || '',
       type: 'mysql' as const,
       name: dataSource?.name || credentials?.name || ''
-    } satisfies Parameters<typeof createMySQLDataSource>[0],
+    } as Parameters<typeof createMySQLDataSource>[0],
     onSubmit: async ({ value }) => {
       await dataSourceFormSubmit({
         flow,
@@ -37,6 +37,11 @@ export const MySqlForm: React.FC<{
         onUpdate: () => updateDataSource({ id: dataSource!.id, ...value }),
         onCreate: () => createDataSource(value)
       });
+    },
+    validators: {
+      onChangeAsyncDebounceMs: 1000,
+      onChangeAsync: MySQLCredentialsSchema,
+      onSubmit: MySQLCredentialsSchema
     }
   });
 

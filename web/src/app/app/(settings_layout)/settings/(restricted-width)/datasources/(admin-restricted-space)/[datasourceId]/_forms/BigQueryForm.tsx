@@ -1,6 +1,6 @@
 'use client';
 
-import { DataSource, BigQueryCredentials } from '@/api/asset_interfaces';
+import { DataSource, BigQueryCredentials, BigQueryCredentialsSchema } from '@/api/asset_interfaces';
 import React from 'react';
 import { FormWrapper } from './FormWrapper';
 import {
@@ -43,6 +43,11 @@ export const BigQueryForm: React.FC<{
         onUpdate: () => updateDataSource({ id: dataSource!.id, ...value }),
         onCreate: () => createDataSource(value)
       });
+    },
+    validators: {
+      onChangeAsyncDebounceMs: 1000,
+      onChangeAsync: BigQueryCredentialsSchema,
+      onSubmit: BigQueryCredentialsSchema
     }
   });
 
