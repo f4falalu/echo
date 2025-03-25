@@ -25,7 +25,7 @@ pub async fn list_dashboard_rest_handler(
         only_my_dashboards: query.only_my_dashboards,
     };
 
-    let dashboards = match list_dashboard_handler(&user.id, request).await {
+    let dashboards = match list_dashboard_handler(&user, request).await {
         Ok(dashboards) => dashboards,
         Err(e) => {
             tracing::error!("Error listing dashboards: {}", e);

@@ -467,6 +467,8 @@ TEST_ENV=test
 # TEST_LOG=debug
 ```
 
+**IMPORTANT**: All integration tests must have all required services configured and accessible via environment variables loaded through dotenv. Tests should never be written with hardcoded service configurations.
+
 #### Service Mocks
 Create reusable mock services for common external dependencies:
 ```rust

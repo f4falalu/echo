@@ -1,13 +1,11 @@
 use anyhow::{anyhow, Result};
 use database::{
-    enums::{AssetType, IdentityType},
-    pool::get_pg_pool,
-    schema::dashboard_files,
+    enums::{AssetPermissionRole, AssetType},
+    helpers::dashboard_files::fetch_dashboard_file_with_permission,
 };
-use diesel::{ExpressionMethods, QueryDsl};
-use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use sharing::{
-    check_asset_permission::check_access,
+    check_permission_access,
     list_asset_permissions::list_shares,
     types::AssetPermissionWithUser,
 };
@@ -19,73 +17,49 @@ use uuid::Uuid;
 /// # Arguments
 ///
 /// * `dashboard_id` - The unique identifier of the dashboard
-/// * `user_id` - The unique identifier of the user requesting the permissions
+/// * `user` - The authenticated user requesting the permissions
 ///
 /// # Returns
 ///
 /// A vector of asset permissions with user information
 pub async fn list_dashboard_sharing_handler(
     dashboard_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
 ) -> Result<Vec<AssetPermissionWithUser>> {
     info!(
         dashboard_id = %dashboard_id,
-        user_id = %user_id,
+        user_id = %user.id,
         "Listing dashboard sharing permissions"
     );
 
-    // 1. Validate the dashboard exists
-    let mut conn = get_pg_pool().get().await.map_err(|e| {
-        error!("Database connection error: {}", e);
-        anyhow!("Failed to get database connection: {}", e)
-    })?;
-
-    let dashboard_exists = dashboard_files::table
-        .filter(dashboard_files::id.eq(dashboard_id))
-        .filter(dashboard_files::deleted_at.is_null())
-        .count()
-        .get_result::<i64>(&mut conn)
-        .await
-        .map_err(|e| {
-            error!("Error checking if dashboard exists: {}", e);
-            anyhow!("Database error: {}", e)
-        })?;
-
-    if dashboard_exists == 0 {
-        error!(
-            dashboard_id = %dashboard_id,
-            "Dashboard not found"
-        );
-        return Err(anyhow!("Dashboard not found"));
+    // First check if the user has permission to view this dashboard
+    let dashboard_with_permission = fetch_dashboard_file_with_permission(dashboard_id, &user.id).await?;
+    
+    // If dashboard not found, return error
+    let dashboard_with_permission = match dashboard_with_permission {
+        Some(dwp) => dwp,
+        None => return Err(anyhow!("Dashboard not found")),
+    };
+    
+    // Check if user has permission to view the dashboard
+    // Users need at least CanView permission or any higher permission
+    let has_permission = check_permission_access(
+        dashboard_with_permission.permission,
+        &[
+            AssetPermissionRole::CanView,
+            AssetPermissionRole::CanEdit,
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+        ],
+        dashboard_with_permission.dashboard_file.organization_id,
+        &user.organizations,
+    );
+    
+    if !has_permission {
+        return Err(anyhow!("You don't have permission to view this dashboard"));
     }
 
-    // 2. Check if user has permission to view the dashboard
-    let user_role = check_access(
-        *dashboard_id,
-        AssetType::DashboardFile,
-        *user_id,
-        IdentityType::User,
-    )
-    .await
-    .map_err(|e| {
-        error!(
-            dashboard_id = %dashboard_id,
-            user_id = %user_id,
-            "Error checking dashboard access: {}", e
-        );
-        anyhow!("Error checking dashboard access: {}", e)
-    })?;
-
-    if user_role.is_none() {
-        error!(
-            dashboard_id = %dashboard_id,
-            user_id = %user_id,
-            "User does not have permission to view this dashboard"
-        );
-        return Err(anyhow!("User does not have permission to view this dashboard"));
-    }
-
-    // 3. Get all permissions for the dashboard
+    // Get all permissions for the dashboard
     let permissions = list_shares(
         *dashboard_id,
         AssetType::DashboardFile,

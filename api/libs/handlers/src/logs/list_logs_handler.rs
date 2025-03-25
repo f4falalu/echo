@@ -16,7 +16,7 @@ pub struct ListLogsRequest {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LogListItem {
     pub id: String,
-    pub title: String,
+    pub name: String,
     pub updated_at: String,
     pub created_at: String,
     pub created_by: String,
@@ -112,7 +112,7 @@ pub async fn list_logs_handler(
 
             LogListItem {
                 id: chat.id.to_string(),
-                title: chat.title,
+                name: chat.title,
                 created_at: chat.created_at.to_rfc3339(),
                 updated_at: chat.updated_at.to_rfc3339(),
                 created_by: chat.created_by.to_string(),

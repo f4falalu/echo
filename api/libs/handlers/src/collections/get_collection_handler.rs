@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    collections::fetch_collection,
+    helpers::collections::fetch_collection_with_permission,
     enums::{AssetPermissionRole, AssetType, IdentityType},
     pool::get_pg_pool,
     schema::{
@@ -10,6 +10,8 @@ use database::{
 };
 use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl, Queryable};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
+use sharing::check_permission_access;
 use tracing;
 use uuid::Uuid;
 
@@ -25,7 +27,7 @@ struct AssetPermissionInfo {
 }
 
 /// Type for querying asset data from database
-#[derive(Queryable)]
+#[derive(Queryable, Clone)]
 struct AssetQueryResult {
     id: Uuid,
     name: String,
@@ -39,7 +41,7 @@ struct AssetQueryResult {
 /// Handler for getting a single collection by ID
 ///
 /// # Arguments
-/// * `user_id` - The ID of the user requesting the collection
+/// * `user` - The authenticated user requesting the collection
 /// * `req` - The request containing the collection ID
 ///
 /// # Returns
@@ -64,14 +66,35 @@ fn format_assets(assets: Vec<AssetQueryResult>) -> Vec<CollectionAsset> {
 }
 
 pub async fn get_collection_handler(
-    _user_id: &Uuid,
+    user: &AuthenticatedUser,
     req: GetCollectionRequest,
 ) -> Result<CollectionState> {
-    // Reuse the existing collection_utils function
-    let collection = match fetch_collection(&req.id).await? {
-        Some(collection) => collection,
+    // First check if the user has permission to view this collection
+    let collection_with_permission = fetch_collection_with_permission(&req.id, &user.id).await?;
+    
+    // If collection not found, return error
+    let collection_with_permission = match collection_with_permission {
+        Some(cwp) => cwp,
         None => return Err(anyhow!("Collection not found")),
     };
+    
+    // Check if user has permission to view the collection
+    // Users need at least CanView permission or any higher permission
+    let has_permission = check_permission_access(
+        collection_with_permission.permission,
+        &[
+            AssetPermissionRole::CanView,
+            AssetPermissionRole::CanEdit,
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+        ],
+        collection_with_permission.collection.organization_id,
+        &user.organizations,
+    );
+    
+    if !has_permission {
+        return Err(anyhow!("You don't have permission to view this collection"));
+    }
 
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
@@ -199,26 +222,22 @@ pub async fn get_collection_handler(
         }
     };
 
-    // Combine and format the assets
-    let mut combined_assets = metric_assets;
-    combined_assets.extend(dashboard_assets);
+    // Combine all assets
+    let all_assets = [metric_assets, dashboard_assets].concat();
+    let formatted_assets = format_assets(all_assets);
 
-    // Only include assets in the response if we found some
-    let formatted_assets = if combined_assets.is_empty() {
-        None
-    } else {
-        Some(format_assets(combined_assets))
-    };
-
-    Ok(CollectionState {
-        collection,
-        assets: formatted_assets,
-        permission: AssetPermissionRole::Owner,
-        organization_permissions: false,
+    // Create collection state
+    let collection_state = CollectionState {
+        collection: collection_with_permission.collection,
+        assets: Some(formatted_assets),
+        permission: collection_with_permission.permission.unwrap_or(AssetPermissionRole::Owner),
+        organization_permissions: false, // TODO: Implement organization permissions
         individual_permissions,
         publicly_accessible,
         public_expiry_date,
         public_enabled_by,
-        public_password: None,
-    })
+        public_password: None, // TODO: Implement password protection
+    };
+
+    Ok(collection_state)
 }

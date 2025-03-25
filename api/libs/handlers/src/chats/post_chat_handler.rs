@@ -1873,7 +1873,7 @@ async fn initialize_chat(
 
     if let Some(existing_chat_id) = request.chat_id {
         // Get existing chat - no need to create new chat in DB
-        let mut existing_chat = get_chat_handler(&existing_chat_id, &user.id).await?;
+        let mut existing_chat = get_chat_handler(&existing_chat_id, &user, true).await?;
 
         // Create new message
         let message = ChatMessage::new_with_messages(

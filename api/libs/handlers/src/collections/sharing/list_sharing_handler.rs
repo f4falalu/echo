@@ -1,10 +1,11 @@
 use anyhow::{anyhow, Result};
 use database::{
-    enums::{AssetType, IdentityType},
-    helpers::collections::fetch_collection,
+    enums::{AssetPermissionRole, AssetType},
+    helpers::collections::fetch_collection_with_permission,
 };
+use middleware::AuthenticatedUser;
 use sharing::{
-    check_asset_permission::check_access,
+    check_permission_access,
     list_asset_permissions::list_shares,
     types::AssetPermissionWithUser,
 };
@@ -15,34 +16,45 @@ use uuid::Uuid;
 ///
 /// # Arguments
 /// * `collection_id` - The UUID of the collection to list sharing permissions for
-/// * `user_id` - The UUID of the user making the request
+/// * `user` - The authenticated user making the request
 ///
 /// # Returns
 /// * `Result<Vec<AssetPermissionWithUser>>` - A list of all sharing permissions for the collection
 pub async fn list_collection_sharing_handler(
     collection_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
 ) -> Result<Vec<AssetPermissionWithUser>> {
     info!(
         collection_id = %collection_id,
-        user_id = %user_id,
+        user_id = %user.id,
         "Listing sharing permissions for collection"
     );
 
-    // 1. Validate the collection exists
-    if fetch_collection(collection_id).await?.is_none() {
-        return Err(anyhow!("Collection not found"));
+    // 1. Fetch the collection with permission
+    let collection_with_permission = fetch_collection_with_permission(collection_id, &user.id).await?;
+    
+    // If collection not found, return error
+    let collection_with_permission = match collection_with_permission {
+        Some(cwp) => cwp,
+        None => {
+            return Err(anyhow!("Collection not found"));
+        }
     };
-
-    // 2. Check if user has permission to view the collection
-    let user_role = check_access(
-        *collection_id,
-        AssetType::Collection,
-        *user_id,
-        IdentityType::User,
-    ).await?;
-
-    if user_role.is_none() {
+    
+    // 2. Check if user has permission to view the collection (at least CanView)
+    let has_permission = check_permission_access(
+        collection_with_permission.permission,
+        &[
+            AssetPermissionRole::CanView,
+            AssetPermissionRole::CanEdit,
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+        ],
+        collection_with_permission.collection.organization_id,
+        &user.organizations,
+    );
+    
+    if !has_permission {
         return Err(anyhow!("User does not have permission to view this collection"));
     }
 

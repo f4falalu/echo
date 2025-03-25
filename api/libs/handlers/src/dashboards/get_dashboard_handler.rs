@@ -1,22 +1,27 @@
 use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
+use chrono::{DateTime, Utc};
 use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable};
 use diesel_async::RunQueryDsl;
-use serde_json::Value;
-use uuid::Uuid;
 use futures::future::join_all;
-use chrono::{DateTime, Utc};
+use middleware::AuthenticatedUser;
+use serde_json::Value;
 use serde_yaml;
+use uuid::Uuid;
 
 use crate::dashboards::types::BusterShareIndividual;
 use crate::metrics::{get_metric_handler, BusterMetric, Version};
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
+use database::helpers::dashboard_files::fetch_dashboard_file_with_permission;
 use database::pool::get_pg_pool;
 use database::schema::{asset_permissions, dashboard_files, users};
 use database::types::VersionHistory;
+use sharing::check_permission_access;
 
-use super::{BusterDashboard, BusterDashboardResponse, DashboardConfig, DashboardRow, DashboardRowItem};
+use super::{
+    BusterDashboard, BusterDashboardResponse, DashboardConfig, DashboardRow, DashboardRowItem,
+};
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = dashboard_files)]
@@ -45,37 +50,45 @@ struct AssetPermissionInfo {
     name: Option<String>,
 }
 
-pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid, version_number: Option<i32>) -> Result<BusterDashboardResponse> {
+pub async fn get_dashboard_handler(
+    dashboard_id: &Uuid,
+    user: &AuthenticatedUser,
+    version_number: Option<i32>,
+) -> Result<BusterDashboardResponse> {
+    // First check if the user has permission to view this dashboard
+    let dashboard_with_permission =
+        fetch_dashboard_file_with_permission(dashboard_id, &user.id).await?;
+
+    // If dashboard not found, return error
+    let dashboard_with_permission = match dashboard_with_permission {
+        Some(dwp) => dwp,
+        None => return Err(anyhow!("Dashboard not found")),
+    };
+
+    // Check if user has permission to view the dashboard
+    // Users need at least CanView permission or any higher permission
+    let has_permission = check_permission_access(
+        dashboard_with_permission.permission,
+        &[
+            AssetPermissionRole::CanView,
+            AssetPermissionRole::CanEdit,
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+        ],
+        dashboard_with_permission.dashboard_file.organization_id,
+        &user.organizations,
+    );
+
+    if !has_permission {
+        return Err(anyhow!("You don't have permission to view this dashboard"));
+    }
+
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
     };
 
-    // Query the dashboard file
-    let dashboard_file = dashboard_files::table
-        .filter(dashboard_files::id.eq(dashboard_id))
-        .filter(dashboard_files::deleted_at.is_null())
-        .select((
-            dashboard_files::id,
-            dashboard_files::name,
-            dashboard_files::file_name,
-            dashboard_files::content,
-            dashboard_files::filter,
-            dashboard_files::organization_id,
-            dashboard_files::created_by,
-            dashboard_files::created_at,
-            dashboard_files::updated_at,
-            dashboard_files::publicly_accessible,
-            dashboard_files::publicly_enabled_by,
-            dashboard_files::public_expiry_date,
-            dashboard_files::version_history,
-        ))
-        .first::<QueryableDashboardFile>(&mut conn)
-        .await
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => anyhow!("Dashboard file not found or unauthorized"),
-            _ => anyhow!("Database error: {}", e),
-        })?;
+    let dashboard_file = dashboard_with_permission.dashboard_file;
 
     // Determine which version to use based on version_number parameter
     let (content, version_num) = if let Some(version) = version_number {
@@ -92,13 +105,18 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid, version_
             return Err(anyhow!("Version {} not found", version));
         }
     } else {
-        // Use current content as is
-        (dashboard_file.content.clone(), 
-         dashboard_file.version_history.get_latest_version()
-            .map(|v| v.version_number)
-            .unwrap_or(1))
+        // Use current content but convert it to serde_json::Value
+        let content_value = dashboard_file.content.to_value()?;
+        (
+            content_value,
+            dashboard_file
+                .version_history
+                .get_latest_version()
+                .map(|v| v.version_number)
+                .unwrap_or(1),
+        )
     };
-    
+
     // Parse the content to get metric IDs and other dashboard info
     let config = parse_dashboard_config(&content)?;
 
@@ -122,16 +140,16 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid, version_
         .rows
         .iter()
         .flat_map(|row| {
-            row.items.iter().filter_map(|item| {
-                Uuid::parse_str(&item.id).ok()
-            })
+            row.items
+                .iter()
+                .filter_map(|item| Uuid::parse_str(&item.id).ok())
         })
         .collect();
 
     // Fetch all metrics concurrently (latest versions)
     let metric_futures: Vec<_> = metric_ids
         .iter()
-        .map(|metric_id| get_metric_handler(metric_id, user_id, None))
+        .map(|metric_id| get_metric_handler(metric_id, &user, None))
         .collect();
 
     let metric_results = join_all(metric_futures).await;
@@ -148,11 +166,7 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid, version_
         .filter(asset_permissions::asset_type.eq(AssetType::DashboardFile))
         .filter(asset_permissions::identity_type.eq(IdentityType::User))
         .filter(asset_permissions::deleted_at.is_null())
-        .select((
-            asset_permissions::role,
-            users::email,
-            users::name,
-        ))
+        .select((asset_permissions::role, users::email, users::name))
         .load::<AssetPermissionInfo>(&mut conn)
         .await;
 
@@ -167,7 +181,7 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid, version_
     } else {
         None
     };
-    
+
     // Extract versions from version history
     let mut versions: Vec<Version> = dashboard_file
         .version_history
@@ -208,7 +222,9 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid, version_
         config,
         created_at: dashboard_file.created_at,
         created_by: dashboard_file.created_by,
-        description: content.get("description").and_then(|v| v.as_str().map(String::from)),
+        description: content
+            .get("description")
+            .and_then(|v| v.as_str().map(String::from)),
         id: dashboard_file.id,
         name,
         updated_at: Some(updated_at),
@@ -220,12 +236,16 @@ pub async fn get_dashboard_handler(dashboard_id: &Uuid, user_id: &Uuid, version_
     };
 
     Ok(BusterDashboardResponse {
-        access: AssetPermissionRole::Owner,
+        access: dashboard_with_permission
+            .permission
+            .unwrap_or(AssetPermissionRole::Owner),
         metrics,
         dashboard,
-        permission: AssetPermissionRole::Owner,
+        permission: dashboard_with_permission
+            .permission
+            .unwrap_or(AssetPermissionRole::Owner),
         public_password: None,
-        collections: vec![],  // Empty collections for now
+        collections: vec![], // Empty collections for now
         // New sharing fields
         individual_permissions,
         publicly_accessible: dashboard_file.publicly_accessible,
@@ -264,15 +284,13 @@ fn parse_dashboard_config(content: &Value) -> Result<DashboardConfig> {
                 .collect::<Result<Vec<_>>>()?;
 
             // Extract column_sizes from the row if available
-            let column_sizes = row
-                .get("columnSizes")
-                .and_then(|sizes| {
-                    sizes.as_array().map(|arr| {
-                        arr.iter()
-                            .filter_map(|size| size.as_u64().map(|s| s as u32))
-                            .collect::<Vec<u32>>()
-                    })
-                });
+            let column_sizes = row.get("columnSizes").and_then(|sizes| {
+                sizes.as_array().map(|arr| {
+                    arr.iter()
+                        .filter_map(|size| size.as_u64().map(|s| s as u32))
+                        .collect::<Vec<u32>>()
+                })
+            });
 
             // Extract row_height from the row if available
             let row_height = row

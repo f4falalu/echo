@@ -16,7 +16,7 @@ pub async fn list_collections(
     Query(query): Query<ListCollectionsRequest>,
 ) -> Result<Json<Vec<ListCollectionsCollection>>, (StatusCode, String)> {
     // Call the handler
-    match list_collections_handler(&user.id, query).await {
+    match list_collections_handler(&user, query).await {
         Ok(collections) => Ok(Json(collections)),
         Err(e) => {
             tracing::error!("Error listing collections: {}", e);

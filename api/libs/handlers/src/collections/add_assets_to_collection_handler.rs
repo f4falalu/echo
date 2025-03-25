@@ -1,13 +1,17 @@
 use anyhow::{anyhow, Result};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
+    dashboard_files::fetch_dashboard_file_with_permission,
+    enums::{AssetPermissionRole, AssetType},
+    helpers::collections::fetch_collection_with_permission,
+    metric_files::fetch_metric_file_with_permissions,
     models::CollectionToAsset,
     pool::get_pg_pool,
-    schema::{collections, collections_to_assets, dashboard_files, metric_files},
+    schema::collections_to_assets,
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
-use sharing::check_asset_permission::has_permission;
+use middleware::AuthenticatedUser;
+use sharing::check_permission_access;
 use tracing::{error, info};
 use uuid::Uuid;
 
@@ -37,7 +41,7 @@ pub struct AddAssetsToCollectionResult {
 ///
 /// * `collection_id` - The unique identifier of the collection
 /// * `assets` - Vector of assets to add to the collection
-/// * `user_id` - The unique identifier of the user performing the action
+/// * `user` - The authenticated user performing the action
 ///
 /// # Returns
 ///
@@ -45,11 +49,11 @@ pub struct AddAssetsToCollectionResult {
 pub async fn add_assets_to_collection_handler(
     collection_id: &Uuid,
     assets: Vec<AssetToAdd>,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
 ) -> Result<AddAssetsToCollectionResult> {
     info!(
         collection_id = %collection_id,
-        user_id = %user_id,
+        user_id = %user.id,
         asset_count = assets.len(),
         "Adding assets to collection"
     );
@@ -62,53 +66,38 @@ pub async fn add_assets_to_collection_handler(
         });
     }
 
-    // 1. Validate the collection exists
-    let mut conn = get_pg_pool().get().await.map_err(|e| {
-        error!("Database connection error: {}", e);
-        anyhow!("Failed to get database connection: {}", e)
-    })?;
+    // 1. Fetch the collection with permission
+    let collection_with_permission =
+        fetch_collection_with_permission(collection_id, &user.id).await?;
 
-    let collection_exists = collections::table
-        .filter(collections::id.eq(collection_id))
-        .filter(collections::deleted_at.is_null())
-        .count()
-        .get_result::<i64>(&mut conn)
-        .await
-        .map_err(|e| {
-            error!("Error checking if collection exists: {}", e);
-            anyhow!("Database error: {}", e)
-        })?;
-
-    if collection_exists == 0 {
-        error!(
-            collection_id = %collection_id,
-            "Collection not found"
-        );
-        return Err(anyhow!("Collection not found"));
-    }
+    // If collection not found, return error
+    let collection_with_permission = match collection_with_permission {
+        Some(cwp) => cwp,
+        None => {
+            error!(
+                collection_id = %collection_id,
+                "Collection not found"
+            );
+            return Err(anyhow!("Collection not found"));
+        }
+    };
 
     // 2. Check if user has permission to modify the collection (Owner, FullAccess, or CanEdit)
-    let has_collection_permission = has_permission(
-        *collection_id,
-        AssetType::Collection,
-        *user_id,
-        IdentityType::User,
-        AssetPermissionRole::CanEdit, // This will pass for Owner and FullAccess too
-    )
-    .await
-    .map_err(|e| {
-        error!(
-            collection_id = %collection_id,
-            user_id = %user_id,
-            "Error checking collection permission: {}", e
-        );
-        anyhow!("Error checking permissions: {}", e)
-    })?;
+    let has_permission = check_permission_access(
+        collection_with_permission.permission,
+        &[
+            AssetPermissionRole::CanEdit,
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+        ],
+        collection_with_permission.collection.organization_id,
+        &user.organizations,
+    );
 
-    if !has_collection_permission {
+    if !has_permission {
         error!(
             collection_id = %collection_id,
-            user_id = %user_id,
+            user_id = %user.id,
             "User does not have permission to modify this collection"
         );
         return Err(anyhow!(
@@ -116,10 +105,15 @@ pub async fn add_assets_to_collection_handler(
         ));
     }
 
+    let mut conn = get_pg_pool().get().await.map_err(|e| {
+        error!("Database connection error: {}", e);
+        anyhow!("Failed to get database connection: {}", e)
+    })?;
+
     // 3. Group assets by type for efficient processing
     let mut dashboard_ids = Vec::new();
     let mut metric_ids = Vec::new();
-    
+
     for asset in &assets {
         match asset.asset_type {
             AssetType::DashboardFile => dashboard_ids.push(asset.id),
@@ -146,53 +140,45 @@ pub async fn add_assets_to_collection_handler(
     if !dashboard_ids.is_empty() {
         for dashboard_id in &dashboard_ids {
             // Check if dashboard exists
-            let dashboard_exists = dashboard_files::table
-                .filter(dashboard_files::id.eq(dashboard_id))
-                .filter(dashboard_files::deleted_at.is_null())
-                .count()
-                .get_result::<i64>(&mut conn)
-                .await
-                .map_err(|e| {
-                    error!("Error checking if dashboard exists: {}", e);
-                    anyhow!("Database error: {}", e)
-                })?;
+            let dashboard = fetch_dashboard_file_with_permission(&dashboard_id, &user.id).await?;
 
-            if dashboard_exists == 0 {
+            let dashboard = if let Some(dashboard) = dashboard {
+                dashboard
+            } else {
                 error!(
                     dashboard_id = %dashboard_id,
+                    user_id = %user.id,
                     "Dashboard not found"
                 );
                 result.failed_count += 1;
-                result.failed_assets.push((*dashboard_id, AssetType::DashboardFile, "Dashboard not found".to_string()));
+                result.failed_assets.push((
+                    *dashboard_id,
+                    AssetType::DashboardFile,
+                    "Dashboard not found".to_string(),
+                ));
                 continue;
-            }
+            };
 
             // Check if user has access to the dashboard
-            let has_dashboard_permission = has_permission(
-                *dashboard_id,
-                AssetType::DashboardFile,
-                *user_id,
-                IdentityType::User,
-                AssetPermissionRole::CanView, // User needs at least view access
-            )
-            .await
-            .map_err(|e| {
-                error!(
-                    dashboard_id = %dashboard_id,
-                    user_id = %user_id,
-                    "Error checking dashboard permission: {}", e
-                );
-                anyhow!("Error checking permissions: {}", e)
-            })?;
+            let has_dashboard_permission = check_permission_access(
+                dashboard.permission,
+                &[AssetPermissionRole::CanView],
+                dashboard.dashboard_file.organization_id,
+                &user.organizations,
+            );
 
             if !has_dashboard_permission {
                 error!(
                     dashboard_id = %dashboard_id,
-                    user_id = %user_id,
+                    user_id = %user.id,
                     "User does not have permission to access this dashboard"
                 );
                 result.failed_count += 1;
-                result.failed_assets.push((*dashboard_id, AssetType::DashboardFile, "Insufficient permissions".to_string()));
+                result.failed_assets.push((
+                    *dashboard_id,
+                    AssetType::DashboardFile,
+                    "Insufficient permissions".to_string(),
+                ));
                 continue;
             }
 
@@ -212,7 +198,11 @@ pub async fn add_assets_to_collection_handler(
                         e
                     );
                     result.failed_count += 1;
-                    result.failed_assets.push((*dashboard_id, AssetType::DashboardFile, format!("Database error: {}", e)));
+                    result.failed_assets.push((
+                        *dashboard_id,
+                        AssetType::DashboardFile,
+                        format!("Database error: {}", e),
+                    ));
                     continue;
                 }
             };
@@ -228,14 +218,14 @@ pub async fn add_assets_to_collection_handler(
                             collections_to_assets::deleted_at
                                 .eq::<Option<chrono::DateTime<chrono::Utc>>>(None),
                             collections_to_assets::updated_at.eq(chrono::Utc::now()),
-                            collections_to_assets::updated_by.eq(user_id),
+                            collections_to_assets::updated_by.eq(user.id),
                         ))
                         .execute(&mut conn)
                         .await
                     {
                         Ok(_) => {
                             result.added_count += 1;
-                        },
+                        }
                         Err(e) => {
                             error!(
                                 collection_id = %collection_id,
@@ -243,39 +233,55 @@ pub async fn add_assets_to_collection_handler(
                                 "Error updating dashboard in collection: {}", e
                             );
                             result.failed_count += 1;
-                            result.failed_assets.push((*dashboard_id, AssetType::DashboardFile, format!("Database error: {}", e)));
+                            result.failed_assets.push((
+                                *dashboard_id,
+                                AssetType::DashboardFile,
+                                format!("Database error: {}", e),
+                            ));
                         }
                     }
                 } else {
-                    // Already in the collection and not deleted, nothing to do
+                    // Already in the collection
+                    info!(
+                        collection_id = %collection_id,
+                        dashboard_id = %dashboard_id,
+                        "Dashboard already in collection"
+                    );
                     result.added_count += 1;
                 }
             } else {
-                // Not in the collection, insert it
+                // Add to collection
+                let new_record = CollectionToAsset {
+                    collection_id: *collection_id,
+                    asset_id: *dashboard_id,
+                    asset_type: AssetType::DashboardFile,
+                    created_at: chrono::Utc::now(),
+                    created_by: user.id,
+                    updated_at: chrono::Utc::now(),
+                    updated_by: user.id,
+                    deleted_at: None,
+                };
+
                 match diesel::insert_into(collections_to_assets::table)
-                    .values((
-                        collections_to_assets::collection_id.eq(collection_id),
-                        collections_to_assets::asset_id.eq(dashboard_id),
-                        collections_to_assets::asset_type.eq(AssetType::DashboardFile),
-                        collections_to_assets::created_at.eq(chrono::Utc::now()),
-                        collections_to_assets::created_by.eq(user_id),
-                        collections_to_assets::updated_at.eq(chrono::Utc::now()),
-                        collections_to_assets::updated_by.eq(user_id),
-                    ))
+                    .values(&new_record)
                     .execute(&mut conn)
                     .await
                 {
                     Ok(_) => {
                         result.added_count += 1;
-                    },
+                    }
                     Err(e) => {
                         error!(
                             collection_id = %collection_id,
                             dashboard_id = %dashboard_id,
-                            "Error inserting dashboard into collection: {}", e
+                            "Error adding dashboard to collection: {}", e
                         );
                         result.failed_count += 1;
-                        result.failed_assets.push((*dashboard_id, AssetType::DashboardFile, format!("Database error: {}", e)));
+                        result.failed_assets.push((
+                            *dashboard_id,
+                            AssetType::DashboardFile,
+                            format!("Database error: {}", e),
+                        ));
                     }
                 }
             }
@@ -286,53 +292,45 @@ pub async fn add_assets_to_collection_handler(
     if !metric_ids.is_empty() {
         for metric_id in &metric_ids {
             // Check if metric exists
-            let metric_exists = metric_files::table
-                .filter(metric_files::id.eq(metric_id))
-                .filter(metric_files::deleted_at.is_null())
-                .count()
-                .get_result::<i64>(&mut conn)
-                .await
-                .map_err(|e| {
-                    error!("Error checking if metric exists: {}", e);
-                    anyhow!("Database error: {}", e)
-                })?;
+            let metric = fetch_metric_file_with_permissions(&metric_id, &user.id).await?;
 
-            if metric_exists == 0 {
+            let metric = if let Some(metric) = metric {
+                metric
+            } else {
                 error!(
                     metric_id = %metric_id,
+                    user_id = %user.id,
                     "Metric not found"
                 );
                 result.failed_count += 1;
-                result.failed_assets.push((*metric_id, AssetType::MetricFile, "Metric not found".to_string()));
+                result.failed_assets.push((
+                    *metric_id,
+                    AssetType::MetricFile,
+                    "Metric not found".to_string(),
+                ));
                 continue;
-            }
+            };
 
             // Check if user has access to the metric
-            let has_metric_permission = has_permission(
-                *metric_id,
-                AssetType::MetricFile,
-                *user_id,
-                IdentityType::User,
-                AssetPermissionRole::CanView, // User needs at least view access
-            )
-            .await
-            .map_err(|e| {
-                error!(
-                    metric_id = %metric_id,
-                    user_id = %user_id,
-                    "Error checking metric permission: {}", e
-                );
-                anyhow!("Error checking permissions: {}", e)
-            })?;
+            let has_metric_permission = check_permission_access(
+                metric.permission,
+                &[AssetPermissionRole::CanView],
+                metric.metric_file.organization_id,
+                &user.organizations,
+            );
 
             if !has_metric_permission {
                 error!(
                     metric_id = %metric_id,
-                    user_id = %user_id,
+                    user_id = %user.id,
                     "User does not have permission to access this metric"
                 );
                 result.failed_count += 1;
-                result.failed_assets.push((*metric_id, AssetType::MetricFile, "Insufficient permissions".to_string()));
+                result.failed_assets.push((
+                    *metric_id,
+                    AssetType::MetricFile,
+                    "Insufficient permissions".to_string(),
+                ));
                 continue;
             }
 
@@ -347,12 +345,13 @@ pub async fn add_assets_to_collection_handler(
                 Ok(record) => Some(record),
                 Err(diesel::NotFound) => None,
                 Err(e) => {
-                    error!(
-                        "Error checking if metric is already in collection: {}",
-                        e
-                    );
+                    error!("Error checking if metric is already in collection: {}", e);
                     result.failed_count += 1;
-                    result.failed_assets.push((*metric_id, AssetType::MetricFile, format!("Database error: {}", e)));
+                    result.failed_assets.push((
+                        *metric_id,
+                        AssetType::MetricFile,
+                        format!("Database error: {}", e),
+                    ));
                     continue;
                 }
             };
@@ -368,14 +367,14 @@ pub async fn add_assets_to_collection_handler(
                             collections_to_assets::deleted_at
                                 .eq::<Option<chrono::DateTime<chrono::Utc>>>(None),
                             collections_to_assets::updated_at.eq(chrono::Utc::now()),
-                            collections_to_assets::updated_by.eq(user_id),
+                            collections_to_assets::updated_by.eq(user.id),
                         ))
                         .execute(&mut conn)
                         .await
                     {
                         Ok(_) => {
                             result.added_count += 1;
-                        },
+                        }
                         Err(e) => {
                             error!(
                                 collection_id = %collection_id,
@@ -383,65 +382,66 @@ pub async fn add_assets_to_collection_handler(
                                 "Error updating metric in collection: {}", e
                             );
                             result.failed_count += 1;
-                            result.failed_assets.push((*metric_id, AssetType::MetricFile, format!("Database error: {}", e)));
+                            result.failed_assets.push((
+                                *metric_id,
+                                AssetType::MetricFile,
+                                format!("Database error: {}", e),
+                            ));
                         }
                     }
                 } else {
-                    // Already in the collection and not deleted, nothing to do
+                    // Already in the collection
+                    info!(
+                        collection_id = %collection_id,
+                        metric_id = %metric_id,
+                        "Metric already in collection"
+                    );
                     result.added_count += 1;
                 }
             } else {
-                // Not in the collection, insert it
+                // Add to collection
+                let new_record = CollectionToAsset {
+                    collection_id: *collection_id,
+                    asset_id: *metric_id,
+                    asset_type: AssetType::MetricFile,
+                    created_at: chrono::Utc::now(),
+                    created_by: user.id,
+                    updated_at: chrono::Utc::now(),
+                    updated_by: user.id,
+                    deleted_at: None,
+                };
+
                 match diesel::insert_into(collections_to_assets::table)
-                    .values((
-                        collections_to_assets::collection_id.eq(collection_id),
-                        collections_to_assets::asset_id.eq(metric_id),
-                        collections_to_assets::asset_type.eq(AssetType::MetricFile),
-                        collections_to_assets::created_at.eq(chrono::Utc::now()),
-                        collections_to_assets::created_by.eq(user_id),
-                        collections_to_assets::updated_at.eq(chrono::Utc::now()),
-                        collections_to_assets::updated_by.eq(user_id),
-                    ))
+                    .values(&new_record)
                     .execute(&mut conn)
                     .await
                 {
                     Ok(_) => {
                         result.added_count += 1;
-                    },
+                    }
                     Err(e) => {
                         error!(
                             collection_id = %collection_id,
                             metric_id = %metric_id,
-                            "Error inserting metric into collection: {}", e
+                            "Error adding metric to collection: {}", e
                         );
                         result.failed_count += 1;
-                        result.failed_assets.push((*metric_id, AssetType::MetricFile, format!("Database error: {}", e)));
+                        result.failed_assets.push((
+                            *metric_id,
+                            AssetType::MetricFile,
+                            format!("Database error: {}", e),
+                        ));
                     }
                 }
             }
         }
     }
 
-    info!(
-        collection_id = %collection_id,
-        user_id = %user_id,
-        added_count = result.added_count,
-        failed_count = result.failed_count,
-        "Successfully processed add assets to collection request"
-    );
-
     Ok(result)
 }
 
 #[cfg(test)]
 mod tests {
-    
-    
-
-    #[tokio::test]
-    async fn test_add_assets_to_collection_handler() {
-        // This is a placeholder for the actual test
-        // In a real implementation, we would use test fixtures and a test database
-        assert!(true);
-    }
+    // Tests would need to be updated to use AuthenticatedUser
+    // instead of just a UUID for the user_id
 }

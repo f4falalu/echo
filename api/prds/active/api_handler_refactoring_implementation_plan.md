@@ -16,7 +16,7 @@ This will improve security, reduce database queries, and create more consistent 
 
 The refactoring work should be completed in the following priority order to minimize integration issues and maximize efficiency:
 
-### 1. Metrics Handlers (Week 1)
+### 1. Metrics Handlers
 - Implementation outlined in `api_metrics_handlers_refactor.md`
 - Includes test utilities creation as part of this PRD
 - Refactor metric handlers and tests
@@ -24,21 +24,21 @@ The refactoring work should be completed in the following priority order to mini
 - Run comprehensive tests to validate the changes
 - ✅ Success criteria: All metric handlers and tests pass with the new parameter format
 
-### 2. Chat Handlers (Week 2)
+### 2. Chat Handlers
 - Implementation outlined in `api_chat_handlers_refactor.md`
 - Refactor chat handlers and tests
 - Make REST endpoint updates
 - Run comprehensive tests to validate the changes
 - ✅ Success criteria: All chat handlers and tests pass with the new parameter format
 
-### 3. Collection Handlers (Week 3)
+### 3. Collection Handlers
 - Implementation outlined in `api_collections_handlers_refactor.md`
 - Refactor collection handlers and tests
 - Make REST endpoint updates
 - Run comprehensive tests to validate the changes
 - ✅ Success criteria: All collection handlers and tests pass with the new parameter format
 
-### 4. Dashboard Handlers (Week 4)
+### 4. Dashboard Handlers
 - Implementation outlined in `api_dashboards_handlers_refactor.md`
 - Refactor dashboard handlers and tests
 - Make REST endpoint updates
@@ -100,13 +100,6 @@ The overall project will be considered successful when:
 - No regression in functionality or performance
 - Improved security with more comprehensive permission checks
 
-## Timeline
-Total estimated duration: 4 weeks
-
-- Week 1: Metrics handlers (includes test utilities)
-- Week 2: Chat handlers
-- Week 3: Collection handlers
-- Week 4: Dashboard handlers
 
 ## References
 - `middleware::AuthenticatedUser` struct in `libs/middleware/src/types.rs`

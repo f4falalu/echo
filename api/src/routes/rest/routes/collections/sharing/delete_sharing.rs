@@ -26,7 +26,7 @@ pub async fn delete_collection_sharing_rest_handler(
 ) -> Result<ApiResponse<String>, (StatusCode, String)> {
     tracing::info!("Processing DELETE request for collection sharing with ID: {}, user_id: {}", id, user.id);
 
-    match delete_collection_sharing_handler(&id, &user.id, request).await {
+    match delete_collection_sharing_handler(&id, &user, request).await {
         Ok(_) => Ok(ApiResponse::JsonData("Sharing permissions deleted successfully".to_string())),
         Err(e) => {
             tracing::error!("Error deleting sharing permissions: {}", e);

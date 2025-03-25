@@ -36,7 +36,7 @@ pub async fn update_dashboard_sharing_rest_handler(
         "Processing PUT request for dashboard sharing permissions"
     );
 
-    match handlers::dashboards::sharing::update_dashboard_sharing_handler(&id, &user.id, request).await {
+    match handlers::dashboards::sharing::update_dashboard_sharing_handler(&id, &user, request).await {
         Ok(_) => Ok(ApiResponse::JsonData(
             "Sharing permissions updated successfully".to_string(),
         )),

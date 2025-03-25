@@ -28,7 +28,7 @@ pub async fn get_metric_rest_handler(
         params.version_number
     );
 
-    let metric = match get_metric_handler(&id, &user.id, params.version_number).await {
+    let metric = match get_metric_handler(&id, &user, params.version_number).await {
         Ok(response) => response,
         Err(e) => {
             tracing::error!("Error getting metric: {}", e);

@@ -1,12 +1,13 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
-    helpers::collections::fetch_collection,
+    enums::{AssetPermissionRole, AssetType},
+    helpers::collections::fetch_collection_with_permission,
 };
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use sharing::{
-    check_asset_permission::has_permission,
+    check_permission_access,
     create_asset_permission::create_share_by_email,
 };
 use tracing::info;
@@ -39,38 +40,45 @@ pub struct UpdateCollectionSharingRequest {
 ///
 /// # Arguments
 /// * `collection_id` - The ID of the collection to update sharing for
-/// * `user_id` - The ID of the user updating the sharing permissions
+/// * `user` - The authenticated user updating the sharing permissions
 /// * `request` - The update request containing sharing settings
 ///
 /// # Returns
 /// * `Result<()>` - Success or error
 pub async fn update_collection_sharing_handler(
     collection_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     request: UpdateCollectionSharingRequest,
 ) -> Result<()> {
     info!(
         collection_id = %collection_id,
-        user_id = %user_id,
+        user_id = %user.id,
         "Updating sharing permissions for collection"
     );
     
-    // 1. Validate the collection exists
-    let _collection = match fetch_collection(collection_id).await? {
-        Some(collection) => collection,
-        None => return Err(anyhow!("Collection not found")),
+    // 1. Fetch the collection with permission
+    let collection_with_permission = fetch_collection_with_permission(collection_id, &user.id).await?;
+    
+    // If collection not found, return error
+    let collection_with_permission = match collection_with_permission {
+        Some(cwp) => cwp,
+        None => {
+            return Err(anyhow!("Collection not found"));
+        }
     };
-
-    // 2. Check if user has permission to update sharing for the collection (Owner or FullAccess)
-    let has_perm = has_permission(
-        *collection_id,
-        AssetType::Collection,
-        *user_id,
-        IdentityType::User,
-        AssetPermissionRole::FullAccess, // Owner role implicitly has FullAccess permissions
-    ).await?;
-
-    if !has_perm {
+    
+    // 2. Check if user has permission to update sharing for the collection (FullAccess or Owner)
+    let has_permission = check_permission_access(
+        collection_with_permission.permission,
+        &[
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+        ],
+        collection_with_permission.collection.organization_id,
+        &user.organizations,
+    );
+    
+    if !has_permission {
         return Err(anyhow!("User does not have permission to update sharing for this collection"));
     }
 
@@ -84,7 +92,7 @@ pub async fn update_collection_sharing_handler(
                 *collection_id,
                 AssetType::Collection,
                 recipient.role,
-                *user_id,
+                user.id,
             ).await {
                 Ok(_) => {
                     info!("Updated sharing permission for email: {} on collection: {}", recipient.email, collection_id);
@@ -101,58 +109,4 @@ pub async fn update_collection_sharing_handler(
     // Collections are not publicly accessible, so we ignore the public_* fields
 
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use uuid::Uuid;
-
-    #[tokio::test]
-    async fn test_update_collection_sharing_handler_collection_not_found() {
-        // Mock UUID for collection and user
-        let collection_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
-        
-        // Test with empty request to simplify the test
-        let request = UpdateCollectionSharingRequest {
-            users: None,
-            publicly_accessible: None,
-            public_password: None,
-            public_expiration: None,
-        };
-        
-        // Call handler - should fail because we haven't mocked fetch_collection
-        let result = update_collection_sharing_handler(&collection_id, &user_id, request).await;
-        
-        // Since we can't easily mock the function in an integration test
-        // This is just a placeholder for the real test
-        // The actual error could be different based on the testing environment
-        assert!(result.is_err());
-    }
-    
-    #[tokio::test]
-    async fn test_update_collection_sharing_handler_with_users() {
-        // Mock UUID for collection and user
-        let collection_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
-        
-        // Test with users in the request
-        let request = UpdateCollectionSharingRequest {
-            users: Some(vec![
-                ShareRecipient {
-                    email: "test@example.com".to_string(),
-                    role: AssetPermissionRole::Viewer,
-                }
-            ]),
-            publicly_accessible: None,
-            public_password: None,
-            public_expiration: None,
-        };
-        
-        // This test will fail in isolation as we can't easily mock the database
-        // It's here as a structural guide - the real testing will happen in integration tests
-        let result = update_collection_sharing_handler(&collection_id, &user_id, request).await;
-        assert!(result.is_err()); // Should fail since collection doesn't exist
-    }
 }

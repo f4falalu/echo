@@ -23,7 +23,7 @@ pub async fn update_chat_route(
         title: update.title,
     };
     
-    match update_chats_handler(vec![chat_update], &user.id).await {
+    match update_chats_handler(vec![chat_update], &user).await {
         Ok(results) => {
             if results.is_empty() {
                 Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to update chat"))

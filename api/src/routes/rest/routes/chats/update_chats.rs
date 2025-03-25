@@ -12,7 +12,7 @@ pub async fn update_chats_route(
     Extension(user): Extension<AuthenticatedUser>,
     Json(updates): Json<Vec<ChatUpdate>>,
 ) -> Result<ApiResponse<Vec<ChatUpdateResult>>, (StatusCode, &'static str)> {
-    match update_chats_handler(updates, &user.id).await {
+    match update_chats_handler(updates, &user).await {
         Ok(results) => Ok(ApiResponse::JsonData(results)),
         Err(e) => {
             tracing::error!("Error updating chats: {}", e);

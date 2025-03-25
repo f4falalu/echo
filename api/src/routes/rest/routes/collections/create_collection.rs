@@ -9,14 +9,8 @@ pub async fn create_collection(
     Extension(user): Extension<AuthenticatedUser>,
     Json(req): Json<CreateCollectionRequest>,
 ) -> Result<Json<CollectionState>, (StatusCode, String)> {
-    // Get the user's organization ID
-    let user_organization = match user.organizations.first() {
-        Some(org) => org,
-        None => return Err((StatusCode::NOT_FOUND, "User not found".to_string())),
-    };
-
-    // Call the handler
-    match create_collection_handler(&user.id, &user_organization.id, req).await {
+    // Call the handler with the authenticated user
+    match create_collection_handler(&user, req).await {
         Ok(collection) => Ok(Json(collection)),
         Err(e) => {
             tracing::error!("Error creating collection: {}", e);
@@ -24,6 +18,8 @@ pub async fn create_collection(
             // Return appropriate error response based on the error
             if e.to_string().contains("permission") {
                 Err((StatusCode::FORBIDDEN, format!("Permission denied: {}", e)))
+            } else if e.to_string().contains("active organization") {
+                Err((StatusCode::BAD_REQUEST, format!("Organization error: {}", e)))
             } else {
                 Err((
                     StatusCode::INTERNAL_SERVER_ERROR,

@@ -18,7 +18,7 @@ pub async fn delete_metric_rest_handler(
         user.id
     );
 
-    match delete_metric_handler(&id, &user.id).await {
+    match delete_metric_handler(&id, &user).await {
         Ok(_) => Ok(ApiResponse::NoContent),
         Err(e) => {
             tracing::error!("Error deleting metric: {}", e);
@@ -41,7 +41,7 @@ pub async fn delete_metrics_rest_handler(
         user.id
     );
 
-    match delete_metrics_handler(request, &user.id).await {
+    match delete_metrics_handler(request, &user).await {
         Ok(response) => {
             // Return 204 No Content if all deletions were successful and there were IDs to delete
             if response.failed_ids.is_empty() && !response.successful_ids.is_empty() {

@@ -75,7 +75,7 @@ pub async fn add_assets_to_collection(
         })
     }).collect();
 
-    match add_assets_to_collection_handler(&id, assets, &user.id).await {
+    match add_assets_to_collection_handler(&id, assets, &user).await {
         Ok(result) => {
             let failed_assets = result.failed_assets.into_iter().map(|(id, asset_type, error)| {
                 let type_str = match asset_type {

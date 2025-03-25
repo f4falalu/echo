@@ -12,13 +12,8 @@ pub async fn delete_collection_by_id(
     Path(id): Path<Uuid>,
     Extension(user): Extension<AuthenticatedUser>,
 ) -> Result<Json<DeleteCollectionResponse>, (StatusCode, String)> {
-    let user_organization = match user.organizations.first() {
-        Some(org) => org,
-        None => return Err((StatusCode::NOT_FOUND, "User not found".to_string())),
-    };
-
     // Call the handler with a single ID in a vector
-    match delete_collection_handler(&user.id, &user_organization.id, vec![id]).await {
+    match delete_collection_handler(&user, vec![id]).await {
         Ok(response) => Ok(Json(response)),
         Err(e) => handle_error(e)
     }
@@ -31,13 +26,8 @@ pub async fn delete_collections(
     Extension(user): Extension<AuthenticatedUser>,
     Json(req): Json<DeleteCollectionRequest>,
 ) -> Result<Json<DeleteCollectionResponse>, (StatusCode, String)> {
-    let user_organization = match user.organizations.first() {
-        Some(org) => org,
-        None => return Err((StatusCode::NOT_FOUND, "User not found".to_string())),
-    };
-
     // Call the handler
-    match delete_collection_handler(&user.id, &user_organization.id, req.ids).await {
+    match delete_collection_handler(&user, req.ids).await {
         Ok(response) => Ok(Json(response)),
         Err(e) => handle_error(e)
     }

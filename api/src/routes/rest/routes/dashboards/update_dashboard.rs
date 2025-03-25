@@ -24,7 +24,7 @@ pub async fn update_dashboard_rest_handler(
         user.id
     );
     
-    match update_dashboard_handler(id, request, &user.id).await {
+    match update_dashboard_handler(id, request, &user).await {
         Ok(response) => Ok(ApiResponse::JsonData(response)),
         Err(e) => {
             tracing::error!("Failed to update dashboard: {}", e);

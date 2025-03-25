@@ -747,6 +747,7 @@ See @src/routes/rest/routes/api_keys/get_api_key.rs for a reference implementati
 - Test the interaction between multiple components
 - Use real dependencies when possible, mock only what's necessary
 - Include end-to-end workflow tests
+- All integration tests must have services set and accessible via dotenv
 
 ### Integration Test Setup Requirements
 - All integration tests must import and utilize the application's schema from [schema.rs](mdc:src/database/schema.rs)

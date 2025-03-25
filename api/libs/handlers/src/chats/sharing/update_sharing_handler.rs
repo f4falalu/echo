@@ -1,12 +1,14 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
-use database::enums::{AssetPermissionRole, AssetType, IdentityType};
+use database::{
+    chats::fetch_chat_with_permission,
+    enums::{AssetPermissionRole, AssetType},
+};
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
-use sharing::{create_share_by_email, has_permission};
+use sharing::{check_permission_access, create_share_by_email};
 use tracing::info;
 use uuid::Uuid;
-
-use super::create_sharing_handler::get_chat_exists;
 
 /// Request for updating sharing permissions for a chat
 #[derive(Debug, Serialize, Deserialize)]
@@ -32,42 +34,40 @@ pub struct UpdateChatSharingRequest {
 ///
 /// # Arguments
 /// * `chat_id` - The ID of the chat to update sharing for
-/// * `user_id` - The ID of the user updating the sharing permissions
+/// * `user` - The authenticated user updating the sharing permissions
 /// * `request` - The update request containing sharing settings
 ///
 /// # Returns
 /// * `Result<()>` - Success or error
 pub async fn update_chat_sharing_handler(
     chat_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     request: UpdateChatSharingRequest,
 ) -> Result<()> {
     info!(
         chat_id = %chat_id,
-        user_id = %user_id,
+        user_id = %user.id,
         "Updating sharing permissions for chat"
     );
 
     // 1. Validate the chat exists
-    let chat_exists = get_chat_exists(chat_id).await?;
+    let chat_exists = fetch_chat_with_permission(chat_id, &user.id).await?;
 
-    if !chat_exists {
+    let chat = if let Some(chat) = chat_exists {
+        chat
+    } else {
         return Err(anyhow!("Chat not found"));
-    }
+    };
 
     // 2. Check if user has permission to update sharing for the chat (Owner or FullAccess)
-    let has_perm = has_permission(
-        *chat_id,
-        AssetType::Chat,
-        *user_id,
-        IdentityType::User,
-        AssetPermissionRole::FullAccess, // Owner role implicitly has FullAccess permissions
-    )
-    .await?;
-
-    if !has_perm {
+    if !check_permission_access(
+        chat.permission,
+        &[AssetPermissionRole::Owner, AssetPermissionRole::FullAccess],
+        chat.chat.organization_id,
+        &user.organizations,
+    ) {
         return Err(anyhow!(
-            "User does not have permission to update sharing for this chat"
+            "Insufficient permissions to update sharing for this chat. You need Full Access or higher."
         ));
     }
 
@@ -81,7 +81,7 @@ pub async fn update_chat_sharing_handler(
                 *chat_id,
                 AssetType::Chat,
                 recipient.role,
-                *user_id,
+                user.id,
             )
             .await
             {
@@ -116,13 +116,33 @@ pub async fn update_chat_sharing_handler(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::Utc;
+    use database::enums::UserOrganizationRole;
+    use middleware::OrganizationMembership;
+    use serde_json::json;
     use uuid::Uuid;
 
     #[tokio::test]
     async fn test_update_chat_sharing_handler_chat_not_found() {
-        // Mock UUID for chat and user
-        let chat_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
+        // Create a test user with admin permissions
+        let org_id = Uuid::new_v4();
+        let user = AuthenticatedUser {
+            id: Uuid::new_v4(),
+            email: "admin@example.com".to_string(),
+            organizations: vec![
+                OrganizationMembership {
+                    id: org_id,
+                    role: UserOrganizationRole::WorkspaceAdmin,
+                }
+            ],
+            name: Some("Test Admin".to_string()),
+            config: json!({}),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            attributes: json!({}),
+            avatar_url: None,
+            teams: vec![],
+        };
 
         // Test with empty request to simplify the test
         let request = UpdateChatSharingRequest {
@@ -133,7 +153,8 @@ mod tests {
         };
 
         // Call handler - should fail because the chat doesn't exist
-        let result = update_chat_sharing_handler(&chat_id, &user_id, request).await;
+        let chat_id = Uuid::new_v4();
+        let result = update_chat_sharing_handler(&chat_id, &user, request).await;
 
         // Since we can't easily mock the function in an integration test
         // This is just a placeholder for the real test
@@ -143,15 +164,31 @@ mod tests {
 
     #[tokio::test]
     async fn test_update_chat_sharing_handler_with_users() {
-        // Mock UUID for chat and user
-        let chat_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
+        // Create a test user with admin permissions
+        let org_id = Uuid::new_v4();
+        let user = AuthenticatedUser {
+            id: Uuid::new_v4(),
+            email: "admin@example.com".to_string(),
+            organizations: vec![
+                OrganizationMembership {
+                    id: org_id,
+                    role: UserOrganizationRole::WorkspaceAdmin,
+                }
+            ],
+            name: Some("Test Admin".to_string()),
+            config: json!({}),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            attributes: json!({}),
+            avatar_url: None,
+            teams: vec![],
+        };
 
         // Test with users in the request
         let request = UpdateChatSharingRequest {
             users: Some(vec![ShareRecipient {
                 email: "test@example.com".to_string(),
-                role: AssetPermissionRole::Viewer,
+                role: AssetPermissionRole::CanView,
             }]),
             publicly_accessible: None,
             public_password: None,
@@ -160,15 +197,32 @@ mod tests {
 
         // This test will fail in isolation as we can't easily mock the database
         // It's here as a structural guide - the real testing will happen in integration tests
-        let result = update_chat_sharing_handler(&chat_id, &user_id, request).await;
+        let chat_id = Uuid::new_v4();
+        let result = update_chat_sharing_handler(&chat_id, &user, request).await;
         assert!(result.is_err()); // Should fail since chat doesn't exist
     }
 
     #[tokio::test]
     async fn test_update_chat_sharing_handler_with_public_access() {
-        // Mock UUID for chat and user
-        let chat_id = Uuid::new_v4();
-        let user_id = Uuid::new_v4();
+        // Create a test user with admin permissions
+        let org_id = Uuid::new_v4();
+        let user = AuthenticatedUser {
+            id: Uuid::new_v4(),
+            email: "admin@example.com".to_string(),
+            organizations: vec![
+                OrganizationMembership {
+                    id: org_id,
+                    role: UserOrganizationRole::WorkspaceAdmin,
+                }
+            ],
+            name: Some("Test Admin".to_string()),
+            config: json!({}),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            attributes: json!({}),
+            avatar_url: None,
+            teams: vec![],
+        };
 
         // Test with public access settings
         let request = UpdateChatSharingRequest {
@@ -180,7 +234,8 @@ mod tests {
 
         // This test will fail in isolation as we can't easily mock the database
         // It's here as a structural guide - the real testing will happen in integration tests
-        let result = update_chat_sharing_handler(&chat_id, &user_id, request).await;
+        let chat_id = Uuid::new_v4();
+        let result = update_chat_sharing_handler(&chat_id, &user, request).await;
         assert!(result.is_err()); // Should fail since chat doesn't exist
     }
 }

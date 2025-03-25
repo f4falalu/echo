@@ -1,14 +1,17 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
-use database::pool::get_pg_pool;
-use database::schema::{dashboard_files, asset_permissions, metric_files_to_dashboard_files};
-use database::types::dashboard_yml::{DashboardYml, RowItem, Row};
-use database::types::VersionHistory;
-use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
+use database::enums::{AssetPermissionRole, Verification};
+use database::helpers::dashboard_files::fetch_dashboard_file_with_permission;
 use database::models::MetricFileToDashboardFile;
+use database::pool::get_pg_pool;
+use database::schema::{dashboard_files, metric_files_to_dashboard_files};
+use database::types::dashboard_yml::{DashboardYml, Row, RowItem};
+use database::types::VersionHistory;
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
+use sharing::check_permission_access;
 use uuid::Uuid;
 
 use super::{get_dashboard_handler, BusterDashboardResponse, DashboardConfig};
@@ -35,18 +38,18 @@ pub struct DashboardUpdateRequest {
 }
 
 /// Updates an existing dashboard by ID
-/// 
+///
 /// This handler updates a dashboard file in the database and increments its version number.
 /// Each time a dashboard is updated, the previous version is saved in the version history.
-/// 
+///
 /// # Arguments
 /// * `dashboard_id` - The UUID of the dashboard to update
 /// * `request` - The update request containing the fields to modify
-/// * `user_id` - The UUID of the user making the update
-/// 
+/// * `user` - The authenticated user making the update
+///
 /// # Returns
 /// * `Result<BusterDashboardResponse>` - The updated dashboard on success, or an error
-/// 
+///
 /// # Versioning
 /// The function automatically handles versioning:
 /// 1. Retrieves the current dashboard and extracts its content
@@ -58,38 +61,47 @@ pub struct DashboardUpdateRequest {
 pub async fn update_dashboard_handler(
     dashboard_id: Uuid,
     request: DashboardUpdateRequest,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
 ) -> Result<BusterDashboardResponse> {
-    let mut conn = get_pg_pool().get().await?;
-    
-    // First, get the current dashboard to ensure it exists and user has permission
-    let current_dashboard = get_dashboard_handler(&dashboard_id, user_id, None).await?;
-    
-    // Check if user has permission to update the dashboard
-    let permission_query = asset_permissions::table
-        .filter(asset_permissions::asset_id.eq(dashboard_id))
-        .filter(asset_permissions::asset_type.eq(AssetType::DashboardFile))
-        .filter(asset_permissions::identity_id.eq(user_id))
-        .filter(asset_permissions::identity_type.eq(IdentityType::User))
-        .filter(asset_permissions::deleted_at.is_null())
-        .select(asset_permissions::role)
-        .first::<AssetPermissionRole>(&mut conn)
-        .await;
-    
-    // If no explicit permission, check if user is the owner
-    let can_update = match permission_query {
-        Ok(role) => role == AssetPermissionRole::Editor || role == AssetPermissionRole::Owner,
-        Err(_) => current_dashboard.dashboard.created_by == *user_id,
+    // First check if the user has permission to update this dashboard
+    let dashboard_with_permission =
+        fetch_dashboard_file_with_permission(&dashboard_id, &user.id).await?;
+
+    // If dashboard not found, return error
+    let dashboard_with_permission = match dashboard_with_permission {
+        Some(dwp) => dwp,
+        None => return Err(anyhow!("Dashboard not found")),
     };
-    
-    if !can_update {
-        return Err(anyhow!("User does not have permission to update this dashboard"));
+
+    // Check if user has permission to update the dashboard
+    // Users need CanEdit, FullAccess, or Owner permission
+    let has_permission = check_permission_access(
+        dashboard_with_permission.permission,
+        &[
+            AssetPermissionRole::CanEdit,
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+        ],
+        dashboard_with_permission.dashboard_file.organization_id,
+        &user.organizations,
+    );
+
+    if !has_permission {
+        return Err(anyhow!(
+            "You don't have permission to update this dashboard"
+        ));
     }
-    
+
+    let mut conn = get_pg_pool().get().await?;
+
     // Parse the current dashboard content
-    let mut dashboard_yml = serde_yaml::from_str::<DashboardYml>(&current_dashboard.dashboard.file)?;
+    // Get existing dashboard to read the file content
+    let current_dashboard = get_dashboard_handler(&dashboard_id, user, None).await?;
+
+    let mut dashboard_yml =
+        serde_yaml::from_str::<DashboardYml>(&current_dashboard.dashboard.file)?;
     let mut has_changes = false;
-    
+
     // Handle file content update (highest priority - overrides other fields)
     if let Some(file_content) = request.file {
         // Parse the YAML file content
@@ -101,26 +113,24 @@ pub async fn update_dashboard_handler(
             dashboard_yml.description = description;
             has_changes = true;
         }
-        
+
         // Update config if provided - reconcile DashboardConfig with DashboardYml
         if let Some(config) = request.config {
             // Convert DashboardConfig to DashboardYml rows
             let mut new_rows = Vec::new();
-            
+
             for dashboard_row in config.rows {
                 let mut row_items = Vec::new();
-                
+
                 for item in dashboard_row.items {
                     // Try to parse the item.id as UUID
                     if let Ok(metric_id) = Uuid::parse_str(&item.id) {
-                        row_items.push(RowItem {
-                            id: metric_id,
-                        });
+                        row_items.push(RowItem { id: metric_id });
                     } else {
                         return Err(anyhow!("Invalid metric ID format: {}", item.id));
                     }
                 }
-                
+
                 new_rows.push(Row {
                     items: row_items,
                     row_height: dashboard_row.row_height,
@@ -128,12 +138,12 @@ pub async fn update_dashboard_handler(
                     id: Some(dashboard_row.id.parse().unwrap_or(0)),
                 });
             }
-            
+
             dashboard_yml.rows = new_rows;
             has_changes = true;
         }
     }
-    
+
     // Get and update version history
     let mut current_version_history: VersionHistory = dashboard_files::table
         .filter(dashboard_files::id.eq(dashboard_id))
@@ -143,13 +153,14 @@ pub async fn update_dashboard_handler(
         .unwrap_or_else(|_| VersionHistory::new(0, dashboard_yml.clone()));
 
     // Calculate the next version number
-    let next_version = current_version_history.get_latest_version()
+    let next_version = current_version_history
+        .get_latest_version()
         .map(|v| v.version_number + 1)
         .unwrap_or(1);
-    
+
     // Add the new version to the version history only if update_version is true (defaults to true)
     let should_update_version = request.update_version.unwrap_or(true);
-    
+
     // Only add a new version if has_changes and should_update_version
     if has_changes {
         if should_update_version {
@@ -159,10 +170,10 @@ pub async fn update_dashboard_handler(
             current_version_history.update_latest_version(dashboard_yml.clone());
         }
     }
-    
+
     // Convert content to JSON for storage
     let content_value = dashboard_yml.to_value()?;
-    
+
     // Update dashboard file in database if content was updated
     if has_changes {
         diesel::update(dashboard_files::table)
@@ -175,19 +186,19 @@ pub async fn update_dashboard_handler(
             .execute(&mut conn)
             .await?;
     }
-    
+
     // Update name if provided
     if let Some(name) = request.name {
         // First update the dashboard_yml.name to keep them in sync
         dashboard_yml.name = name.clone();
-        
+
         // Update version history with the updated dashboard_yml based on should_update_version
         if should_update_version {
             current_version_history.add_version(next_version, dashboard_yml.clone());
         } else {
             current_version_history.update_latest_version(dashboard_yml.clone());
         }
-        
+
         diesel::update(dashboard_files::table)
             .filter(dashboard_files::id.eq(dashboard_id))
             .filter(dashboard_files::deleted_at.is_null())
@@ -198,10 +209,10 @@ pub async fn update_dashboard_handler(
             ))
             .execute(&mut conn)
             .await?;
-            
+
         has_changes = true;
     }
-    
+
     // Update sharing properties
     if request.public.is_some() {
         diesel::update(dashboard_files::table)
@@ -209,15 +220,15 @@ pub async fn update_dashboard_handler(
             .filter(dashboard_files::deleted_at.is_null())
             .set((
                 dashboard_files::publicly_accessible.eq(request.public.unwrap()),
-                dashboard_files::publicly_enabled_by.eq(Some(*user_id)),
+                dashboard_files::publicly_enabled_by.eq(Some(user.id)),
                 dashboard_files::version_history.eq(current_version_history.clone()),
             ))
             .execute(&mut conn)
             .await?;
-            
+
         has_changes = true;
     }
-    
+
     // Update expiry date if provided
     if let Some(expiry_date_str) = &request.public_expiry_date {
         if let Ok(expiry_date) = chrono::DateTime::parse_from_rfc3339(expiry_date_str) {
@@ -230,13 +241,13 @@ pub async fn update_dashboard_handler(
                 ))
                 .execute(&mut conn)
                 .await?;
-                
+
             has_changes = true;
         } else {
             return Err(anyhow!("Invalid date format for public_expiry_date"));
         }
     }
-    
+
     // Update timestamp if any changes were made
     if has_changes {
         diesel::update(dashboard_files::table)
@@ -246,33 +257,28 @@ pub async fn update_dashboard_handler(
             .execute(&mut conn)
             .await?;
     }
-    
+
     // Extract metric IDs from the updated dashboard content
     let metric_ids = extract_metric_ids_from_dashboard(&dashboard_yml);
-    
+
     // Update metric associations
-    update_dashboard_metric_associations(
-        dashboard_id,
-        metric_ids,
-        user_id,
-        &mut conn
-    ).await?;
+    update_dashboard_metric_associations(dashboard_id, metric_ids, &user.id, &mut conn).await?;
 
     // Return the updated dashboard
-    get_dashboard_handler(&dashboard_id, user_id, None).await
+    get_dashboard_handler(&dashboard_id, user, None).await
 }
 
 /// Extract metric IDs from dashboard content
 fn extract_metric_ids_from_dashboard(dashboard: &DashboardYml) -> Vec<Uuid> {
     let mut metric_ids = Vec::new();
-    
+
     // Iterate through all rows and collect unique metric IDs
     for row in &dashboard.rows {
         for item in &row.items {
             metric_ids.push(item.id);
         }
     }
-    
+
     // Return unique metric IDs
     metric_ids
 }
@@ -288,25 +294,23 @@ async fn update_dashboard_metric_associations(
     diesel::update(
         metric_files_to_dashboard_files::table
             .filter(metric_files_to_dashboard_files::dashboard_file_id.eq(dashboard_id))
-            .filter(metric_files_to_dashboard_files::deleted_at.is_null())
+            .filter(metric_files_to_dashboard_files::deleted_at.is_null()),
     )
     .set(metric_files_to_dashboard_files::deleted_at.eq(Utc::now()))
     .execute(conn)
     .await?;
-    
+
     // For each metric ID, either create a new association or restore a previously deleted one
     for metric_id in metric_ids {
         // Check if the metric exists
-        let metric_exists = diesel::dsl::select(
-            diesel::dsl::exists(
-                database::schema::metric_files::table
-                    .filter(database::schema::metric_files::id.eq(metric_id))
-                    .filter(database::schema::metric_files::deleted_at.is_null())
-            )
-        )
+        let metric_exists = diesel::dsl::select(diesel::dsl::exists(
+            database::schema::metric_files::table
+                .filter(database::schema::metric_files::id.eq(metric_id))
+                .filter(database::schema::metric_files::deleted_at.is_null()),
+        ))
         .get_result::<bool>(conn)
         .await;
-        
+
         // Skip if metric doesn't exist
         if let Ok(exists) = metric_exists {
             if !exists {
@@ -315,32 +319,33 @@ async fn update_dashboard_metric_associations(
         } else {
             continue;
         }
-        
+
         // Check if there's a deleted association that can be restored
         let existing = metric_files_to_dashboard_files::table
             .filter(metric_files_to_dashboard_files::dashboard_file_id.eq(dashboard_id))
             .filter(metric_files_to_dashboard_files::metric_file_id.eq(metric_id))
             .first::<MetricFileToDashboardFile>(conn)
             .await;
-            
+
         match existing {
             Ok(assoc) if assoc.deleted_at.is_some() => {
                 // Restore the deleted association
                 diesel::update(
                     metric_files_to_dashboard_files::table
                         .filter(metric_files_to_dashboard_files::dashboard_file_id.eq(dashboard_id))
-                        .filter(metric_files_to_dashboard_files::metric_file_id.eq(metric_id))
+                        .filter(metric_files_to_dashboard_files::metric_file_id.eq(metric_id)),
                 )
                 .set((
-                    metric_files_to_dashboard_files::deleted_at.eq::<Option<chrono::DateTime<Utc>>>(None),
+                    metric_files_to_dashboard_files::deleted_at
+                        .eq::<Option<chrono::DateTime<Utc>>>(None),
                     metric_files_to_dashboard_files::updated_at.eq(Utc::now()),
                 ))
                 .execute(conn)
                 .await?;
-            },
+            }
             Ok(_) => {
                 // Association already exists and is not deleted, do nothing
-            },
+            }
             Err(diesel::result::Error::NotFound) => {
                 // Create a new association
                 diesel::insert_into(metric_files_to_dashboard_files::table)
@@ -353,73 +358,68 @@ async fn update_dashboard_metric_associations(
                     ))
                     .execute(conn)
                     .await?;
-            },
+            }
             Err(e) => return Err(anyhow!("Database error: {}", e)),
         }
     }
-    
+
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     // Note: These tests would require a test database setup
     // They are placeholder tests to demonstrate the testing pattern
-    
+
     #[tokio::test]
     async fn test_update_dashboard_handler_with_name() {
         // This test would require a test database with a dashboard
         // Mock the database connection and queries for unit testing
     }
-    
+
     #[tokio::test]
     async fn test_update_dashboard_handler_with_file() {
         // This test would require a test database with a dashboard
         // Mock the database connection and queries for unit testing
     }
-    
+
     #[tokio::test]
     async fn test_update_dashboard_handler_permission_denied() {
         // This test would check that a user without permission cannot update a dashboard
         // Mock the database connection and queries for unit testing
     }
-    
+
     #[test]
     fn test_extract_metric_ids_from_dashboard() {
         // Create a test dashboard with known metric IDs
         let uuid1 = Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap();
         let uuid2 = Uuid::parse_str("00000000-0000-0000-0000-000000000002").unwrap();
         let uuid3 = Uuid::parse_str("00000000-0000-0000-0000-000000000003").unwrap();
-        
+
         let dashboard = DashboardYml {
             name: "Test Dashboard".to_string(),
             description: Some("Test Description".to_string()),
             rows: vec![
                 Row {
-                    items: vec![
-                        RowItem { id: uuid1 },
-                        RowItem { id: uuid2 },
-                    ],
+                    items: vec![RowItem { id: uuid1 }, RowItem { id: uuid2 }],
                     row_height: Some(400),
                     column_sizes: Some(vec![6, 6]),
                     id: Some(1),
                 },
                 Row {
-                    items: vec![
-                        RowItem { id: uuid3 },
-                    ],
+                    items: vec![RowItem { id: uuid3 }],
                     row_height: Some(300),
                     column_sizes: Some(vec![12]),
                     id: Some(2),
                 },
             ],
         };
-        
+
         // Extract metric IDs
         let metric_ids = extract_metric_ids_from_dashboard(&dashboard);
-        
+
         // Verify the expected IDs are extracted
         assert_eq!(metric_ids.len(), 3);
         assert!(metric_ids.contains(&uuid1));

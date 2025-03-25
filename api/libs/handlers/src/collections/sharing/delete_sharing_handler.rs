@@ -1,11 +1,10 @@
 use anyhow::{anyhow, Result};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
-    helpers::collections::fetch_collection,
+    collections::fetch_collection_with_permission,
+    enums::{AssetPermissionRole, AssetType},
 };
-use sharing::{
-    check_asset_permission::has_permission, remove_asset_permissions::remove_share_by_email,
-};
+use middleware::AuthenticatedUser;
+use sharing::{check_permission_access, remove_asset_permissions::remove_share_by_email};
 use tracing::info;
 use uuid::Uuid;
 
@@ -20,40 +19,45 @@ use uuid::Uuid;
 /// * `Result<()>` - Success or error
 pub async fn delete_collection_sharing_handler(
     collection_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     emails: Vec<String>,
 ) -> Result<()> {
     info!(
         collection_id = %collection_id,
-        user_id = %user_id,
+        user_id = %user.id,
         "Deleting sharing permissions for collection"
     );
 
-    // 1. Validate the collection exists
-    if fetch_collection(collection_id).await?.is_none() {
-        return Err(anyhow!("Collection not found"));
+    // 1. Fetch the collection with permission
+    let collection_with_permission =
+        fetch_collection_with_permission(collection_id, &user.id).await?;
+
+    // If collection not found, return error
+    let collection_with_permission = match collection_with_permission {
+        Some(cwp) => cwp,
+        None => {
+            return Err(anyhow!("Collection not found"));
+        }
     };
 
-    // 2. Check if user has permission to delete sharing for the collection (Owner or FullAccess)
-    let has_permission_result = has_permission(
-        *collection_id,
-        AssetType::Collection,
-        *user_id,
-        IdentityType::User,
-        AssetPermissionRole::FullAccess, // Owner role implicitly has FullAccess permissions
-    )
-    .await?;
+    // 2. Check if user has permission to share the collection (FullAccess or Owner)
+    let has_permission = check_permission_access(
+        collection_with_permission.permission,
+        &[AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
+        collection_with_permission.collection.organization_id,
+        &user.organizations,
+    );
 
-    if !has_permission_result {
+    if !has_permission {
         return Err(anyhow!(
-            "User does not have permission to delete sharing for this collection"
+            "User does not have permission to share this collection"
         ));
     }
 
     // 3. Process each email and delete sharing permissions
     for email in emails {
         // The remove_share_by_email function handles soft deletion of permissions
-        match remove_share_by_email(&email, *collection_id, AssetType::Collection, *user_id).await {
+        match remove_share_by_email(&email, *collection_id, AssetType::Collection, user.id).await {
             Ok(_) => {
                 info!(
                     "Deleted sharing permission for email: {} on collection: {}",

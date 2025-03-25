@@ -25,7 +25,7 @@ pub async fn get_dashboard_rest_handler(
         params.version_number
     );
     
-    let dashboard = match get_dashboard_handler(&id, &user.id, params.version_number).await {
+    let dashboard = match get_dashboard_handler(&id, &user, params.version_number).await {
         Ok(response) => response,
         Err(e) => {
             tracing::error!("Error getting dashboard: {}", e);

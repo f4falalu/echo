@@ -32,7 +32,7 @@ pub async fn delete_dashboard_sharing_rest_handler(
         "Processing DELETE request for dashboard sharing permissions"
     );
 
-    match delete_dashboard_sharing_handler(&id, &user.id, request).await {
+    match delete_dashboard_sharing_handler(&id, &user, request).await {
         Ok(_) => {
             info!(
                 dashboard_id = %id,

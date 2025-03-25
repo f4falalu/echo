@@ -39,7 +39,7 @@ pub async fn update_chat_sharing_rest_handler(
     tracing::info!("Processing PUT request for chat sharing with ID: {}, user_id: {}", id, user.id);
 
     // Call the handler from the handlers crate with the updated request format
-    match handlers::chats::sharing::update_chat_sharing_handler(&id, &user.id, request).await {
+    match handlers::chats::sharing::update_chat_sharing_handler(&id, &user, request).await {
         Ok(_) => Ok(Json("Sharing permissions updated successfully".to_string())),
         Err(e) => {
             tracing::error!("Error updating sharing permissions: {}", e);

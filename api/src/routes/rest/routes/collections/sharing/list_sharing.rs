@@ -33,7 +33,7 @@ pub async fn list_collection_sharing_rest_handler(
 ) -> Result<ApiResponse<SharingResponse>, (StatusCode, String)> {
     tracing::info!("Processing GET request for collection sharing with ID: {}, user_id: {}", id, user.id);
 
-    match list_collection_sharing_handler(&id, &user.id).await {
+    match list_collection_sharing_handler(&id, &user).await {
         Ok(permissions) => {
             let response = SharingResponse {
                 permissions: permissions.into_iter().map(|p| SharingPermission {

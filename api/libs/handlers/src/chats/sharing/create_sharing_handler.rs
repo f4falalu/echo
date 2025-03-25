@@ -1,14 +1,10 @@
 use anyhow::{anyhow, Result};
 use database::{
+    chats::fetch_chat_with_permission,
     enums::{AssetPermissionRole, AssetType},
-    pool::get_pg_pool,
-    schema::chats,
 };
-use diesel::{ExpressionMethods, QueryDsl};
-use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
-use sharing::{create_share_by_email, admin_check::has_permission_with_admin_check_cached};
-use sharing::types::AssetPermissionLevel;
+use sharing::{check_permission_access, create_share_by_email};
 use tracing;
 use uuid::Uuid;
 
@@ -27,30 +23,25 @@ pub async fn create_chat_sharing_handler(
     emails_and_roles: Vec<(String, AssetPermissionRole)>,
 ) -> Result<()> {
     // 1. Validate the chat exists
-    let chat_exists = get_chat_exists(chat_id).await?;
+    let chat_exists = fetch_chat_with_permission(chat_id, &user.id).await?;
 
-    if !chat_exists {
+    let chat = if let Some(chat) = chat_exists {
+        chat
+    } else {
         return Err(anyhow!("Chat not found"));
+    };
+
+    if !check_permission_access(
+        chat.permission,
+        &[AssetPermissionRole::Owner, AssetPermissionRole::FullAccess],
+        chat.chat.organization_id,
+        &user.organizations,
+    ) {
+        return Err(anyhow!(
+            "Insufficient permissions to share this chat.  You need Full Access or higher."
+        ));
     }
 
-    // 2. Check if user has permission to share the chat (Owner or FullAccess)
-    // Get a database connection
-    let mut conn = get_pg_pool().get().await?;
-    
-    let has_permission = has_permission_with_admin_check_cached(
-        &mut conn,
-        chat_id,
-        &AssetType::Chat,
-        user,
-        AssetPermissionLevel::FullAccess, // Need FullAccess to share
-    )
-    .await?;
-
-    if !has_permission {
-        return Err(anyhow!("User does not have permission to share this chat"));
-    }
-
-    // 3. Process each email and create sharing permissions
     for (email, role) in emails_and_roles {
         match create_share_by_email(&email, *chat_id, AssetType::Chat, role, user.id).await {
             Ok(_) => {
@@ -73,20 +64,6 @@ pub async fn create_chat_sharing_handler(
     }
 
     Ok(())
-}
-
-/// Helper function to check if a chat exists
-pub async fn get_chat_exists(chat_id: &Uuid) -> Result<bool> {
-    let mut conn = get_pg_pool().get().await?;
-
-    let chat_exists = chats::table
-        .filter(chats::id.eq(chat_id))
-        .filter(chats::deleted_at.is_null())
-        .count()
-        .get_result::<i64>(&mut conn)
-        .await?;
-
-    Ok(chat_exists > 0)
 }
 
 #[cfg(test)]

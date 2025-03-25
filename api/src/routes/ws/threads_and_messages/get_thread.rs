@@ -58,7 +58,7 @@ pub async fn get_thread_ws(
         Err(e) => return Err(anyhow!("Error subscribing to thread: {}", e)),
     };
 
-    let thread = get_chat_handler::get_chat_handler(&req.id, &user.id).await?;
+    let thread = get_chat_handler::get_chat_handler(&req.id, &user, false).await?;
 
     let get_thread_ws_message = WsResponseMessage::new(
         WsRoutes::Threads(ThreadRoute::Get),

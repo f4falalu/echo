@@ -20,7 +20,7 @@ pub async fn update_metric_rest_handler(
         user.id
     );
 
-    let metric = match update_metric_handler(&id, &user.id, request).await {
+    let metric = match update_metric_handler(&id, &user, request).await {
         Ok(response) => response,
         Err(e) => {
             tracing::error!("Error updating metric: {}", e);

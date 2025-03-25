@@ -8,6 +8,7 @@ use database::{
 };
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use tokio;
 use uuid::Uuid;
 
@@ -16,18 +17,23 @@ use crate::collections::types::{CollectionState, CreateCollectionRequest};
 /// Handler for creating a new collection
 ///
 /// # Arguments
-/// * `user_id` - The ID of the user creating the collection
+/// * `user` - The authenticated user creating the collection
 /// * `req` - The request containing the collection details
 ///
 /// # Returns
 /// * `Result<CollectionState>` - The created collection state
 pub async fn create_collection_handler(
-    user_id: &Uuid,
-    organization_id: &Uuid,
+    user: &AuthenticatedUser,
     req: CreateCollectionRequest,
 ) -> Result<CollectionState> {
     let collection_id = Uuid::new_v4();
-    
+
+    // Ensure user has an active organization
+    let organization_id = match user.organizations.get(0) {
+        Some(org_id) => org_id.id,
+        None => return Err(anyhow!("User does not have an active organization")),
+    };
+
     // Create collection object
     let collection = Collection {
         id: collection_id,
@@ -35,13 +41,13 @@ pub async fn create_collection_handler(
         description: None,
         created_at: Utc::now(),
         updated_at: Utc::now(),
-        created_by: *user_id,
-        updated_by: *user_id,
+        created_by: user.id,
+        updated_by: user.id,
         deleted_at: None,
-        organization_id: *organization_id,
+        organization_id,
     };
 
-    let insert_task_user_id = *user_id;
+    let insert_task_user_id = user.id;
     let insert_task_collection = collection.clone();
 
     // Insert collection and permissions
@@ -97,7 +103,7 @@ pub async fn create_collection_handler(
     // Update search index
     let collection_id_for_search = collection_id;
     let collection_name = collection.name.clone();
-    let organization_id_for_search = *organization_id;
+    let organization_id_for_search = organization_id;
 
     let collection_search_handle = tokio::spawn(async move {
         let mut conn = match get_pg_pool().get().await {

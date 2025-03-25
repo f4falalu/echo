@@ -1,13 +1,17 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
+    enums::AssetPermissionRole,
+    helpers::metric_files::fetch_metric_file_with_permissions,
     pool::get_pg_pool,
     schema::metric_files,
     types::{MetricYml, VersionHistory},
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde_json::Value;
+use sharing::check_permission_access;
 use uuid::Uuid;
 
 /// Recursively merges two JSON objects.
@@ -84,7 +88,7 @@ pub struct UpdateMetricRequest {
 ///
 pub async fn update_metric_handler(
     metric_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     request: UpdateMetricRequest,
 ) -> Result<BusterMetric> {
     let mut conn = get_pg_pool()
@@ -92,8 +96,9 @@ pub async fn update_metric_handler(
         .await
         .map_err(|e| anyhow!("Failed to get database connection: {}", e))?;
 
+
     // Check if metric exists and user has access - use the latest version
-    let metric = get_metric_handler(metric_id, user_id, None).await?;
+    let metric = get_metric_handler(metric_id, user, None).await?;
 
     // If file is provided, it takes precedence over all other fields
     let content = if let Some(file_content) = request.file {
@@ -195,7 +200,7 @@ pub async fn update_metric_handler(
     .map_err(|e| anyhow!("Failed to update metric: {}", e))?;
 
     // Return the updated metric - latest version
-    get_metric_handler(metric_id, user_id, None).await
+    get_metric_handler(metric_id, user, None).await
 }
 
 #[cfg(test)]

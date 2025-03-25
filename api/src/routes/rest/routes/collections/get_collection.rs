@@ -17,7 +17,7 @@ pub async fn get_collection(
     let request = GetCollectionRequest { id };
     
     // Call the handler
-    match get_collection_handler(&user.id, request).await {
+    match get_collection_handler(&user, request).await {
         Ok(collection) => Ok(Json(collection)),
         Err(e) => {
             tracing::error!("Error getting collection: {}", e);

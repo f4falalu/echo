@@ -16,7 +16,7 @@ pub async fn update_collection(
     Json(req): Json<UpdateCollectionRequest>,
 ) -> Result<Json<CollectionState>, (StatusCode, String)> {
     // Call the handler
-    match update_collection_handler(&user.id, collection_id, req).await {
+    match update_collection_handler(&user, collection_id, req).await {
         Ok(collection) => Ok(Json(collection)),
         Err(e) => {
             tracing::error!("Error updating collection: {}", e);

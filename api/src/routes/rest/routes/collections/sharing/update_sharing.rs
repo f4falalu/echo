@@ -35,7 +35,7 @@ pub async fn update_collection_sharing_rest_handler(
 ) -> Result<Json<String>, (StatusCode, String)> {
     tracing::info!("Processing PUT request for collection sharing with ID: {}, user_id: {}", id, user.id);
 
-    match handlers::collections::sharing::update_collection_sharing_handler(&id, &user.id, request).await {
+    match handlers::collections::sharing::update_collection_sharing_handler(&id, &user, request).await {
         Ok(_) => Ok(Json("Sharing permissions updated successfully".to_string())),
         Err(e) => {
             tracing::error!("Error updating sharing permissions: {}", e);

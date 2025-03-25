@@ -25,7 +25,7 @@ pub async fn list_metrics_rest_handler(
         only_my_metrics: query.only_my_metrics,
     };
 
-    let metrics = match list_metrics_handler(&user.id, request).await {
+    let metrics = match list_metrics_handler(&user, request).await {
         Ok(metrics) => metrics,
         Err(e) => {
             tracing::error!("Error listing metrics: {}", e);

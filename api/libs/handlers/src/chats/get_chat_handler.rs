@@ -3,15 +3,20 @@ use chrono::{DateTime, Utc};
 use diesel::prelude::Queryable;
 use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde_json::Value;
 use tokio;
 use uuid::Uuid;
 
 use crate::chats::types::{BusterShareIndividual, ChatWithMessages};
 use crate::messages::types::{ChatMessage, ChatUserMessage};
-use database::enums::{AssetPermissionRole, AssetType, IdentityType};
-use database::pool::get_pg_pool;
 use database::schema::{asset_permissions, chats, messages, users};
+use database::{
+    enums::{AssetPermissionRole, AssetType, IdentityType},
+    helpers::chats::fetch_chat_with_permission,
+    pool::get_pg_pool,
+};
+use sharing::check_permission_access;
 
 #[derive(Queryable)]
 pub struct ChatWithUser {
@@ -45,38 +50,54 @@ struct AssetPermissionInfo {
     name: Option<String>,
 }
 
-pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWithMessages> {
-    // Run thread and messages queries concurrently
-    let thread_future = {
-        let mut conn = match get_pg_pool().get().await {
-            Ok(conn) => conn,
-            Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
-        };
+pub async fn get_chat_handler(
+    chat_id: &Uuid,
+    user: &AuthenticatedUser,
+    follow_up: bool,
+) -> Result<ChatWithMessages> {
+    // First check if the user has permission to view this chat
+    let chat_with_permission = fetch_chat_with_permission(chat_id, &user.id).await?;
 
-        let chat_id = *chat_id;
-        let user_id = *user_id;
-
-        tokio::spawn(async move {
-            chats::table
-                .inner_join(users::table.on(chats::created_by.eq(users::id)))
-                .filter(chats::id.eq(chat_id))
-                .filter(chats::created_by.eq(user_id))
-                .filter(chats::deleted_at.is_null())
-                .select((
-                    chats::id,
-                    chats::title,
-                    chats::created_at,
-                    chats::updated_at,
-                    users::id,
-                    users::name.nullable(),
-                    users::email,
-                    users::attributes,
-                ))
-                .first::<ChatWithUser>(&mut conn)
-                .await
-        })
+    // If chat not found, return error
+    let chat_with_permission = match chat_with_permission {
+        Some(cwp) => cwp,
+        None => return Err(anyhow!("Chat not found")),
     };
 
+    // A small exception for where we use get chat handler in the post_chat_handler.rs
+    // if a follow up, user needs to have write access.
+    let access_requirement = if follow_up {
+        vec![
+            AssetPermissionRole::CanEdit,
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+        ]
+    } else {
+        vec![
+            AssetPermissionRole::CanView,
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+            AssetPermissionRole::CanEdit,
+        ]
+    };
+
+    // Check if user has permission to view the chat
+    // Users need at least CanView permission, or any higher permission
+    let has_permission = check_permission_access(
+        chat_with_permission.permission,
+        &access_requirement,
+        chat_with_permission.chat.organization_id,
+        &user.organizations,
+    );
+
+    // If user is the creator, they automatically have access
+    let is_creator = chat_with_permission.chat.created_by == user.id;
+
+    if !has_permission && !is_creator {
+        return Err(anyhow!("You don't have permission to view this chat"));
+    }
+
+    // Run messages query
     let messages_future = {
         let mut conn = match get_pg_pool().get().await {
             Ok(conn) => conn,
@@ -115,7 +136,7 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
         };
 
         let chat_id = *chat_id;
-        
+
         tokio::spawn(async move {
             // Query individual permissions for this chat
             let permissions = asset_permissions::table
@@ -124,14 +145,10 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                 .filter(asset_permissions::asset_type.eq(AssetType::Chat))
                 .filter(asset_permissions::identity_type.eq(IdentityType::User))
                 .filter(asset_permissions::deleted_at.is_null())
-                .select((
-                    asset_permissions::role,
-                    users::email,
-                    users::name,
-                ))
+                .select((asset_permissions::role, users::email, users::name))
                 .load::<AssetPermissionInfo>(&mut conn)
                 .await;
-                
+
             // Query publicly_accessible and related fields
             let public_info = chats::table
                 .filter(chats::id.eq(chat_id))
@@ -142,23 +159,44 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                 ))
                 .first::<(bool, Option<Uuid>, Option<DateTime<Utc>>)>(&mut conn)
                 .await;
-                
+
             // Return both results
             (permissions, public_info)
         })
     };
 
-    // Wait for all queries and handle errors
-    let (thread, messages, permissions_and_public_info) = tokio::try_join!(
-        async move {
-            thread_future
+    // Get thread information from the chat we already fetched
+    let thread = ChatWithUser {
+        id: chat_with_permission.chat.id,
+        title: chat_with_permission.chat.title,
+        created_at: chat_with_permission.chat.created_at,
+        updated_at: chat_with_permission.chat.updated_at,
+        user_id: chat_with_permission.chat.created_by,
+        user_name: None,              // We'll need to fetch this
+        user_email: String::new(),    // We'll need to fetch this
+        user_attributes: Value::Null, // We'll need to fetch this
+    };
+
+    // Fetch the creator's information
+    let creator_future = {
+        let mut conn = match get_pg_pool().get().await {
+            Ok(conn) => conn,
+            Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
+        };
+
+        let creator_id = chat_with_permission.chat.created_by;
+
+        tokio::spawn(async move {
+            users::table
+                .filter(users::id.eq(creator_id))
+                .select((users::name.nullable(), users::email, users::attributes))
+                .first::<(Option<String>, String, Value)>(&mut conn)
                 .await
-                .map_err(|e| anyhow!("Thread task failed: {}", e))?
-                .map_err(|e| match e {
-                    diesel::result::Error::NotFound => anyhow!("Thread not found or unauthorized"),
-                    _ => anyhow!("Database error: {}", e),
-                })
-        },
+        })
+    };
+
+    // Wait for all queries and handle errors
+    let (messages, permissions_and_public_info, creator_info) = tokio::try_join!(
         async move {
             messages_future
                 .await
@@ -169,11 +207,32 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
             permissions_future
                 .await
                 .map_err(|e| anyhow!("Permissions task failed: {}", e))
+        },
+        async move {
+            creator_future
+                .await
+                .map_err(|e| anyhow!("Creator info task failed: {}", e))?
+                .map_err(|e| anyhow!("Failed to load creator info: {}", e))
         }
     )?;
 
     // Unpack the permissions and public info results
     let (permissions_result, public_info_result) = permissions_and_public_info;
+
+    // Unpack creator info
+    let (creator_name, creator_email, creator_attributes) = creator_info;
+
+    // Complete the thread with creator info
+    let thread = ChatWithUser {
+        id: thread.id,
+        title: thread.title,
+        created_at: thread.created_at,
+        updated_at: thread.updated_at,
+        user_id: thread.user_id,
+        user_name: creator_name,
+        user_email: creator_email,
+        user_attributes: creator_attributes,
+    };
 
     // Transform messages into ThreadMessage format
     let thread_messages: Vec<ChatMessage> = messages
@@ -253,7 +312,7 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
                     Ok(conn) => conn,
                     Err(_) => return Err(anyhow!("Failed to get database connection")),
                 };
-                
+
                 users::table
                     .filter(users::id.eq(enabled_by_id))
                     .select(users::email)
@@ -263,7 +322,7 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
             } else {
                 None
             };
-            
+
             (accessible, enabled_by_email, expiry)
         }
         Err(_) => (false, None, None),
@@ -279,12 +338,12 @@ pub async fn get_chat_handler(chat_id: &Uuid, user_id: &Uuid) -> Result<ChatWith
         thread.user_name.unwrap_or_else(|| "Unknown".to_string()),
         created_by_avatar,
     );
-    
+
     // Add permissions
     Ok(chat.with_permissions(
         individual_permissions,
         publicly_accessible,
         public_expiry_date,
-        publicly_enabled_by
+        publicly_enabled_by,
     ))
 }
