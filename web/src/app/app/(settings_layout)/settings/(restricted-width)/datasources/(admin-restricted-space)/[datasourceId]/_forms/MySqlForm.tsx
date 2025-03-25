@@ -8,8 +8,7 @@ import { FormWrapper } from './FormWrapper';
 
 export const MySqlForm: React.FC<{
   dataSource?: DataSource;
-  useConnection: boolean;
-}> = ({ dataSource, useConnection }) => {
+}> = ({ dataSource }) => {
   return <></>;
   // return (
   //   <FormWrapper

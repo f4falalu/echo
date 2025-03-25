@@ -10,8 +10,7 @@ import { FormWrapper, FormWrapperHandle } from './FormWrapper';
 
 export const RedshiftForm: React.FC<{
   dataSource?: DataSource;
-  useConnection: boolean;
-}> = ({ dataSource, useConnection }) => {
+}> = ({ dataSource }) => {
   return <></>;
   // return (
   //   <FormWrapper

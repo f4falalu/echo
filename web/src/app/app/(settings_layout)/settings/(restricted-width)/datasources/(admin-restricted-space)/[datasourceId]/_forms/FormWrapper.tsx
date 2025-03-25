@@ -1,58 +1,39 @@
 'use client';
 
-import { useMemoizedFn } from '@/hooks';
 import React from 'react';
 import { WhiteListBlock } from '../WhiteListBlock';
-import { NewDatasetModal } from '@/components/features/modal/NewDatasetModal';
-import { useForm } from '@tanstack/react-form';
+import { FormApi } from '@tanstack/react-form';
 import { Button } from '@/components/ui/buttons';
 
-// export const FormWrapper = React.forwardRef<
-//   FormWrapperHandle,
-//   {
-//     children: React.ReactNode;
-//     name: string;
-//     onSubmit: () => void;
-//     flow: 'create' | 'update';
-//     form: ReturnType<typeof useAppForm>;
-//   }
-// >(({ children, name, onSubmit, flow, form }, ref) => {
-//   const onSubmitPreflight = useMemoizedFn((e: React.FormEvent<HTMLFormElement>) => {
-//     e.preventDefault();
-//     e.stopPropagation();
-//     form.handleSubmit();
-//   });
+export interface FormWrapperProps {
+  children: React.ReactNode;
+  form: FormApi<any, any, any, any, any, any, any, any, any, any>;
+}
 
-//   return (
-//     <form className="flex flex-col space-y-4" onSubmit={onSubmitPreflight}>
-//       {children}
-
-//       <WhiteListBlock />
-
-//       <form.Subscribe
-//         selector={(state) => [state.canSubmit, state.isSubmitting]}
-//         children={([canSubmit, isSubmitting]) => (
-//           <div className="flex w-full justify-end space-x-2">
-//             <Button variant="ghost" type="reset" onClick={() => form.reset()}>
-//               Reset
-//             </Button>
-//             <Button variant="black" type="submit" disabled={!canSubmit} loading={isSubmitting}>
-//               Submit
-//             </Button>
-//           </div>
-//         )}
-//       />
-//     </form>
-//   );
-// });
-// FormWrapper.displayName = 'FormWrapper';
-
-export const FormWrapper = () => {
+export function FormWrapper({ form, children }: FormWrapperProps) {
   return (
-    <form className="flex flex-col space-y-4">
+    <form
+      className="flex flex-col space-y-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}>
       {children}
 
       <WhiteListBlock />
+
+      <div className="flex w-full justify-end space-x-2">
+        <Button variant="ghost" type="reset" onClick={() => form.reset()}>
+          Reset
+        </Button>
+        <Button
+          variant="black"
+          type="submit"
+          disabled={!form.state.canSubmit}
+          loading={form.state.isSubmitting}>
+          Submit
+        </Button>
+      </div>
     </form>
   );
-};
+}

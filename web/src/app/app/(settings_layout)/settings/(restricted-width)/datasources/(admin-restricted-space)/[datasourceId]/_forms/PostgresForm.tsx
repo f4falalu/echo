@@ -1,28 +1,26 @@
 import { DataSource } from '@/api/asset_interfaces';
-import React, { useRef } from 'react';
-import { FormWrapperHandle } from './FormWrapper';
-import { formatDate } from '@/lib';
-import { DatasourceCreateCredentials } from '@/api/request_interfaces/datasources';
-import { useHotkeys } from 'react-hotkeys-hook';
-import { useForm } from '@tanstack/react-form';
+import React from 'react';
+import { FormWrapper } from './FormWrapper';
 import {
   createPostgresDataSource,
   useCreatePostgresDataSource,
   useUpdatePostgresDataSource
 } from '@/api/buster_rest/data_source';
+import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
+import { MultipleInlineFields } from '@/components/ui/form/FormBase';
 
 const sshModeOptions = ['Do not use SSH credentials', 'Use SSH credentials'].map((item, index) => ({
   label: item,
   value: index
 }));
 
-type PostgresCreateParams = Parameters<typeof createPostgresDataSource>[0];
-
 export const PostgresForm: React.FC<{
   dataSource?: DataSource;
-  useConnection: boolean;
-}> = ({ dataSource, useConnection = false }) => {
-  const form = useForm({
+}> = ({ dataSource }) => {
+  const { mutateAsync: createDataSource } = useCreatePostgresDataSource();
+  const { mutateAsync: updateDataSource } = useUpdatePostgresDataSource();
+
+  const form = useAppForm({
     defaultValues: {
       host: '',
       port: 5432,
@@ -30,65 +28,44 @@ export const PostgresForm: React.FC<{
       password: '',
       default_database: '',
       default_schema: '',
-      type: 'postgres',
+      type: 'postgres' as const,
       name: ''
-    } satisfies PostgresCreateParams
+    } satisfies Parameters<typeof createPostgresDataSource>[0],
+    onSubmit: async ({ value, meta }) => {
+      if (dataSource) {
+        await updateDataSource({ id: dataSource.id, ...value });
+      } else {
+        await createDataSource(value);
+      }
+    }
   });
 
-  return <></>;
+  return (
+    <FormWrapper form={form}>
+      <form.AppField name="name" children={(field) => <field.TextField label="Name" />} />
 
-  // return (
-  //   <FormWrapper
-  //     name="postgres"
-  //     ref={formRef}
-  //     useConnection={useConnection}
-  //     dataSource={dataSource}
-  //     submitting={submitting}
-  //     onSubmit={(v) => {
-  //       onSubmit(v as PostgresCreateCredentials);
-  //     }}>
-  //     <Form.Item label="Hostname & port">
-  //       <Form.Item
-  //         name="host"
-  //         rules={[{ required: true }]}
-  //         style={{ display: 'inline-block', width: 'calc(75% - 8px)' }}>
-  //         <Input placeholder="Hostname" />
-  //       </Form.Item>
-  //       <Form.Item
-  //         name="port"
-  //         rules={[{ required: true }]}
-  //         initialValue={5432}
-  //         style={{ display: 'inline-block', width: 'calc(25% - 0px)', marginLeft: '8px' }}>
-  //         <InputNumber placeholder="5432" />
-  //       </Form.Item>
-  //     </Form.Item>
+      <MultipleInlineFields label="Hostname & port">
+        <form.AppField name="host" children={(field) => <field.TextField label="Host" />} />
+        <form.AppField name="port" children={(field) => <field.NumberField label="Port" />} />
+      </MultipleInlineFields>
 
-  //     <Form.Item label="Username & password">
-  //       <Form.Item
-  //         name="username"
-  //         rules={[{ required: true }]}
-  //         style={{ display: 'inline-block', width: 'calc(50% - 0px)' }}>
-  //         <Input placeholder="Username" />
-  //       </Form.Item>
-  //       <Form.Item
-  //         name="password"
-  //         rules={[{ required: true }]}
-  //         style={{ display: 'inline-block', width: 'calc(50% - 8px)', marginLeft: '8px' }}>
-  //         <Input.Password placeholder="Password" />
-  //       </Form.Item>
-  //     </Form.Item>
+      <MultipleInlineFields label="Username & password">
+        <form.AppField name="username" children={(field) => <field.TextField label="Username" />} />
+        <form.AppField
+          name="password"
+          children={(field) => <field.PasswordField label="Password" />}
+        />
+      </MultipleInlineFields>
 
-  //     <Form.Item name="database" label="Database name" rules={[{ required: true }]}>
-  //       <Input placeholder="Database name" />
-  //     </Form.Item>
+      <form.AppField
+        name="default_database"
+        children={(field) => <field.TextField label="Database name" />}
+      />
 
-  //     <Form.Item name="schemas" label="Schemas" rules={[{ required: true }]}>
-  //       <TagInput className="w-full" placeholder="Schemas" />
-  //     </Form.Item>
-
-  //     <Form.Item name="ssh" label="SSH" initialValue={sshModeOptions[0].value}>
-  //       <Select className="w-full" defaultActiveFirstOption options={sshModeOptions} />
-  //     </Form.Item>
-  //   </FormWrapper>
-  // );
+      <form.AppField
+        name="default_schema"
+        children={(field) => <field.TextField label="Schema" />}
+      />
+    </FormWrapper>
+  );
 };

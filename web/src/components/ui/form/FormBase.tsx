@@ -125,20 +125,18 @@ export function PasswordField({
   );
 }
 
-export function DoubleField({
-  input1,
-  input2,
+export function MultipleInlineFields({
+  children,
   direction = 'row',
   label,
   labelClassName = '',
   className = ''
 }: {
-  input1: Parameters<typeof TextField>[0];
-  input2: Parameters<typeof TextField>[0];
   direction?: 'row' | 'column';
   label: string;
   labelClassName?: string;
   className?: string;
+  children: ReactNode;
 }) {
   return (
     <LabelWrapper
@@ -146,10 +144,7 @@ export function DoubleField({
       direction={direction}
       labelClassName={labelClassName}
       className={className}>
-      <div className="flex flex-grow gap-2">
-        <TextField {...input1} label={null} />
-        <TextField {...input2} label={null} />
-      </div>
+      <div className="flex flex-grow gap-2">{children}</div>
     </LabelWrapper>
   );
 }

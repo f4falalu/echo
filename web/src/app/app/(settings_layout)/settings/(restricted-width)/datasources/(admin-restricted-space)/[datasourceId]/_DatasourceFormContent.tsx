@@ -21,7 +21,6 @@ const FormRecord: Record<
   DataSourceTypes,
   React.FC<{
     dataSource?: DataSource;
-    useConnection: boolean;
   }>
 > = {
   postgres: PostgresForm,
@@ -39,9 +38,8 @@ const FormRecord: Record<
 
 export const DataSourceFormContent: React.FC<{
   dataSource?: DataSource;
-  useConnection?: boolean;
   type: DataSourceTypes;
-}> = ({ dataSource, type, useConnection = false }) => {
+}> = ({ dataSource, type }) => {
   const SelectedForm = FormRecord[type];
 
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
@@ -54,7 +52,7 @@ export const DataSourceFormContent: React.FC<{
         Datasource credentials
       </div>
 
-      {SelectedForm && <SelectedForm dataSource={dataSource} useConnection={useConnection} />}
+      {SelectedForm && <SelectedForm dataSource={dataSource} />}
     </div>
   );
 };

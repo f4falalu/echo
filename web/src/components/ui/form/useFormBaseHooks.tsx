@@ -14,6 +14,7 @@ const { useAppForm, withForm } = createFormHook({
     NumberField,
     PasswordField
   },
+
   formComponents: {
     SubscribeButton
   },

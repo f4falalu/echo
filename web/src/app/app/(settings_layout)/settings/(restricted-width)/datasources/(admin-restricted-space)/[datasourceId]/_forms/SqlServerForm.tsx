@@ -7,8 +7,7 @@ import React from 'react';
 
 export const SqlServerForm: React.FC<{
   dataSource?: DataSource;
-  useConnection: boolean;
-}> = ({ dataSource, useConnection }) => {
+}> = ({ dataSource }) => {
   return <></>;
   // return (
   //   <FormWrapper

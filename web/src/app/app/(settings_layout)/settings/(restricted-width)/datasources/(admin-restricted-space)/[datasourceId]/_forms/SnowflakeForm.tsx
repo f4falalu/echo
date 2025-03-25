@@ -9,8 +9,7 @@ import { makeHumanReadble } from '@/lib';
 
 export const SnowflakeForm: React.FC<{
   dataSource?: DataSource;
-  useConnection: boolean;
-}> = ({ dataSource, useConnection }) => {
+}> = ({ dataSource }) => {
   // const uppercaseValidator = (f: RuleObject, value: string) => {
   //   if (!value) return Promise.reject();
   //   // @ts-ignore

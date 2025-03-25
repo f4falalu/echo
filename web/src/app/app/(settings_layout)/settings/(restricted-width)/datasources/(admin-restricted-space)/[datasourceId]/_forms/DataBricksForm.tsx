@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/inputs';
 
 export const DataBricksForm: React.FC<{
   dataSource?: DataSource;
-  useConnection: boolean;
 }> = ({ useConnection, dataSource }) => {
   return <></>;
   // return (
