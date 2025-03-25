@@ -32,7 +32,7 @@ const DataSourceFormHeader: React.FC<{ dataSource: DataSource }> = ({ dataSource
     <div className="flex justify-between space-x-2">
       <div className="flex items-center space-x-4">
         <div className="text-icon-color text-4xl">
-          <AppDataSourceIcon size={55} type={dataSource.type} />
+          <AppDataSourceIcon size={32} type={dataSource.type} />
         </div>
 
         <div className="flex flex-col space-y-1">

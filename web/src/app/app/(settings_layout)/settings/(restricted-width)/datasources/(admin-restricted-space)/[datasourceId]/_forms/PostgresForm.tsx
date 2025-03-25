@@ -8,32 +8,50 @@ import {
 } from '@/api/buster_rest/data_source';
 import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
 import { MultipleInlineFields } from '@/components/ui/form/FormBase';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useRouter } from 'next/router';
+import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
+import { useConfetti } from '@/hooks/useConfetti';
 
 export const PostgresForm: React.FC<{
   dataSource?: DataSource;
 }> = ({ dataSource }) => {
+  const { fireConfetti } = useConfetti();
+  const { openSuccessMessage, openConfirmModal } = useBusterNotifications();
+  const router = useRouter();
   const { mutateAsync: createDataSource } = useCreatePostgresDataSource();
   const { mutateAsync: updateDataSource } = useUpdatePostgresDataSource();
-  const credentials = dataSource?.credentials as PostgresCredentials;
+  const credentials = dataSource?.credentials as PostgresCredentials | undefined;
 
   const flow = dataSource?.id ? 'update' : 'create';
 
   const form = useAppForm({
     defaultValues: {
-      host: credentials.host || '',
-      port: credentials.port || 5432,
-      username: credentials.username || '',
-      password: credentials.password || '',
-      default_database: credentials.default_database || '',
-      default_schema: credentials.default_schema || '',
+      host: credentials?.host || '',
+      port: credentials?.port || 5432,
+      username: credentials?.username || '',
+      password: credentials?.password || '',
+      default_database: credentials?.default_database || '',
+      default_schema: credentials?.default_schema || '',
       type: 'postgres' as const,
-      name: dataSource?.name || credentials.name || ''
+      name: dataSource?.name || credentials?.name || ''
     } satisfies Parameters<typeof createPostgresDataSource>[0],
     onSubmit: async ({ value }) => {
       if (flow === 'update' && dataSource?.id) {
         await updateDataSource({ id: dataSource.id, ...value });
+        openSuccessMessage('Datasource updated');
       } else {
         await createDataSource(value);
+        fireConfetti(9999);
+        openConfirmModal({
+          title: 'Datasource created',
+          description: 'Datasource created successfully',
+          content:
+            'Hooray! Your datasource has been created. You can now use it in your projects. You will need to create datasets to use with it.',
+          onOk: () => {
+            router.push(createBusterRoute({ route: BusterRoutes.APP_DATASETS }));
+          }
+        });
       }
     }
   });
@@ -41,7 +59,7 @@ export const PostgresForm: React.FC<{
   const labelClassName = 'min-w-[175px]';
 
   return (
-    <FormWrapper form={form} flow={dataSource?.id ? 'update' : 'create'}>
+    <FormWrapper form={form} flow={flow}>
       <form.AppField
         name="name"
         children={(field) => (

@@ -154,15 +154,17 @@ export function MultipleInlineFields({
 
 export function SubscribeButton({
   submitLabel,
-  useResetButton = true
+  useResetButton = true,
+  disableIfNotChanged = false
 }: {
   submitLabel: string;
   useResetButton?: boolean;
+  disableIfNotChanged?: boolean;
 }) {
   const form = useFormContext();
 
   return (
-    <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+    <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting, state.isDirty]}>
       {([canSubmit, isSubmitting]) => (
         <div className="flex w-full justify-end space-x-2">
           {useResetButton && (
@@ -170,7 +172,11 @@ export function SubscribeButton({
               Reset
             </Button>
           )}
-          <Button variant="black" type="submit" disabled={!canSubmit} loading={isSubmitting}>
+          <Button
+            variant="black"
+            type="submit"
+            disabled={!canSubmit || (disableIfNotChanged && !form.state.isDirty)}
+            loading={isSubmitting}>
             {submitLabel}
           </Button>
         </div>

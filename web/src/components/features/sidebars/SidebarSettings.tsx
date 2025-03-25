@@ -35,7 +35,7 @@ const workspaceItems: ISidebarGroup = {
       id: createBusterRoute({ route: BusterRoutes.SETTINGS_API_KEYS })
     },
     {
-      label: 'Datasources',
+      label: 'Data Sources',
       route: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES }),
       id: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES })
     }
