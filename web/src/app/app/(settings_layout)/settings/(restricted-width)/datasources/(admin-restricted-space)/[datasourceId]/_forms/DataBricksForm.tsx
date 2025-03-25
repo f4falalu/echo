@@ -7,22 +7,17 @@ import {
   useUpdateDatabricksDataSource
 } from '@/api/buster_rest/data_source';
 import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { useConfetti } from '@/hooks/useConfetti';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useDataSourceFormSuccess } from './helpers';
 
 export const DataBricksForm: React.FC<{
   dataSource?: DataSource;
 }> = ({ dataSource }) => {
-  const { fireConfetti } = useConfetti();
-  const { openSuccessMessage, openConfirmModal } = useBusterNotifications();
-  const onChangePage = useAppLayoutContextSelector((state) => state.onChangePage);
   const { mutateAsync: createDataSource } = useCreateDatabricksDataSource();
   const { mutateAsync: updateDataSource } = useUpdateDatabricksDataSource();
   const credentials = dataSource?.credentials as DatabricksCredentials;
 
   const flow = dataSource?.id ? 'update' : 'create';
+  const dataSourceFormSubmit = useDataSourceFormSuccess();
 
   const form = useAppForm({
     defaultValues: {
@@ -35,24 +30,12 @@ export const DataBricksForm: React.FC<{
       name: dataSource?.name || credentials?.name || ''
     } satisfies Parameters<typeof createDatabricksDataSource>[0],
     onSubmit: async ({ value }) => {
-      if (flow === 'update' && dataSource?.id) {
-        await updateDataSource({ id: dataSource.id, ...value });
-        openSuccessMessage('Datasource updated');
-      } else {
-        await createDataSource(value);
-        fireConfetti(9999);
-        openConfirmModal({
-          title: 'Datasource created',
-          description: 'Datasource created successfully',
-          content:
-            'Hooray! Your datasource has been created. You can now use it in your projects. You will need to create datasets to use with it.',
-          onOk: () => {
-            onChangePage({
-              route: BusterRoutes.APP_DATASETS
-            });
-          }
-        });
-      }
+      await dataSourceFormSubmit({
+        flow,
+        dataSourceId: dataSource?.id,
+        onUpdate: () => updateDataSource({ id: dataSource!.id, ...value }),
+        onCreate: () => createDataSource(value)
+      });
     }
   });
 
@@ -76,8 +59,8 @@ export const DataBricksForm: React.FC<{
         children={(field) => (
           <field.TextField
             labelClassName={labelClassName}
-            label="Host URL"
-            placeholder="https://your-instance.cloud.databricks.com"
+            label="Host"
+            placeholder="your-workspace.cloud.databricks.com"
           />
         )}
       />
@@ -85,10 +68,10 @@ export const DataBricksForm: React.FC<{
       <form.AppField
         name="api_key"
         children={(field) => (
-          <field.TextField
+          <field.PasswordField
             labelClassName={labelClassName}
-            label="API Key/Personal Access Token"
-            placeholder="dapi123456789abcdef"
+            label="API Key"
+            placeholder="dapi..."
           />
         )}
       />
@@ -109,7 +92,7 @@ export const DataBricksForm: React.FC<{
         children={(field) => (
           <field.TextField
             labelClassName={labelClassName}
-            label="Default Catalog"
+            label="Catalog"
             placeholder="hive_metastore"
           />
         )}
@@ -118,11 +101,7 @@ export const DataBricksForm: React.FC<{
       <form.AppField
         name="default_schema"
         children={(field) => (
-          <field.TextField
-            labelClassName={labelClassName}
-            label="Default Schema"
-            placeholder="default"
-          />
+          <field.TextField labelClassName={labelClassName} label="Schema" placeholder="default" />
         )}
       />
     </FormWrapper>

@@ -8,21 +8,17 @@ import {
 } from '@/api/buster_rest/data_source';
 import { useAppForm } from '@/components/ui/form/useFormBaseHooks';
 import { MultipleInlineFields } from '@/components/ui/form/FormBase';
-import { useBusterNotifications } from '@/context/BusterNotifications';
-import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { useConfetti } from '@/hooks/useConfetti';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useDataSourceFormSuccess } from './helpers';
+
 export const RedshiftForm: React.FC<{
   dataSource?: DataSource;
 }> = ({ dataSource }) => {
-  const { fireConfetti } = useConfetti();
-  const { openSuccessMessage, openConfirmModal } = useBusterNotifications();
-  const onChangePage = useAppLayoutContextSelector((state) => state.onChangePage);
   const { mutateAsync: createDataSource } = useCreateRedshiftDataSource();
   const { mutateAsync: updateDataSource } = useUpdateRedshiftDataSource();
   const credentials = dataSource?.credentials as RedshiftCredentials;
 
   const flow = dataSource?.id ? 'update' : 'create';
+  const dataSourceFormSubmit = useDataSourceFormSuccess();
 
   const form = useAppForm({
     defaultValues: {
@@ -36,24 +32,12 @@ export const RedshiftForm: React.FC<{
       name: dataSource?.name || credentials?.name || ''
     } satisfies Parameters<typeof createRedshiftDataSource>[0],
     onSubmit: async ({ value }) => {
-      if (flow === 'update' && dataSource?.id) {
-        await updateDataSource({ id: dataSource.id, ...value });
-        openSuccessMessage('Datasource updated');
-      } else {
-        await createDataSource(value);
-        fireConfetti(9999);
-        openConfirmModal({
-          title: 'Datasource created',
-          description: 'Datasource created successfully',
-          content:
-            'Hooray! Your datasource has been created. You can now use it in your projects. You will need to create datasets to use with it.',
-          onOk: () => {
-            onChangePage({
-              route: BusterRoutes.APP_DATASETS
-            });
-          }
-        });
-      }
+      await dataSourceFormSubmit({
+        flow,
+        dataSourceId: dataSource?.id,
+        onUpdate: () => updateDataSource({ id: dataSource!.id, ...value }),
+        onCreate: () => createDataSource(value)
+      });
     }
   });
 
