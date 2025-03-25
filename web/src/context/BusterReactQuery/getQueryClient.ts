@@ -5,6 +5,7 @@ import { openErrorNotification as openErrorNotificationMethod } from '../BusterN
 type OpenErrorNotification = ReturnType<typeof useBusterNotifications>['openErrorNotification'];
 
 const PREFETCH_STALE_TIME = 1000 * 10;
+const ERROR_RETRY_DELAY = 1 * 1000; // 1 second delay after error
 
 function makeQueryClient(params?: {
   openErrorNotification?: OpenErrorNotification;
@@ -25,7 +26,8 @@ function makeQueryClient(params?: {
             params.openErrorNotification(error);
           }
           return false;
-        }
+        },
+        retryDelay: ERROR_RETRY_DELAY
       },
       mutations: {
         retry: (failureCount, error) => {
