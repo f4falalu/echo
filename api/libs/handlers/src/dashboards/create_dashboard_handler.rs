@@ -6,6 +6,7 @@ use database::types::dashboard_yml::DashboardYml;
 use database::types::VersionHistory;
 use diesel::{insert_into, ExpressionMethods};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde_json::Value;
 use uuid::Uuid;
 
@@ -16,7 +17,7 @@ use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification
 use database::schema::asset_permissions;
 use std::collections::HashMap;
 
-pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardResponse> {
+pub async fn create_dashboard_handler(user: &AuthenticatedUser) -> Result<BusterDashboardResponse> {
     let mut conn = get_pg_pool().get().await?;
 
     // Create a default dashboard YAML
@@ -36,7 +37,7 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
     let dashboard_id = Uuid::new_v4();
 
     // Get user's organization ID
-    let organization_id = get_user_organization_id(user_id).await?;
+    let organization_id = get_user_organization_id(&user.id).await?;
 
     // Current timestamp
     let now = Utc::now();
@@ -53,7 +54,7 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
             dashboard_files::file_name.eq("Untitled Dashboard"),
             dashboard_files::content.eq(&content_value),
             dashboard_files::organization_id.eq(organization_id),
-            dashboard_files::created_by.eq(user_id),
+            dashboard_files::created_by.eq(user.id),
             dashboard_files::created_at.eq(now),
             dashboard_files::updated_at.eq(now),
             dashboard_files::publicly_accessible.eq(false),
@@ -80,15 +81,15 @@ pub async fn create_dashboard_handler(user_id: &Uuid) -> Result<BusterDashboardR
     // Insert user permission for the dashboard
     insert_into(asset_permissions::table)
         .values((
-            asset_permissions::identity_id.eq(user_id),
+            asset_permissions::identity_id.eq(user.id),
             asset_permissions::identity_type.eq(IdentityType::User),
             asset_permissions::asset_id.eq(dashboard_id),
             asset_permissions::asset_type.eq(AssetType::DashboardFile),
             asset_permissions::role.eq(AssetPermissionRole::Owner),
             asset_permissions::created_at.eq(now),
             asset_permissions::updated_at.eq(now),
-            asset_permissions::created_by.eq(user_id),
-            asset_permissions::updated_by.eq(user_id),
+            asset_permissions::created_by.eq(user.id),
+            asset_permissions::updated_by.eq(user.id),
         ))
         .execute(&mut conn)
         .await?;

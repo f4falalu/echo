@@ -1,13 +1,11 @@
 use anyhow::{anyhow, Result};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType},
-    pool::get_pg_pool,
-    schema::dashboard_files,
+    enums::{AssetPermissionRole, AssetType},
+    helpers::dashboard_files::fetch_dashboard_file_with_permission,
 };
-use diesel::{ExpressionMethods, QueryDsl};
-use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use sharing::{
-    check_asset_permission::has_permission,
+    check_permission_access,
     remove_asset_permissions::remove_share_by_email,
 };
 use tracing::{error, info};
@@ -18,7 +16,7 @@ use uuid::Uuid;
 /// # Arguments
 ///
 /// * `dashboard_id` - The unique identifier of the dashboard
-/// * `user_id` - The unique identifier of the user requesting the deletion
+/// * `user` - The authenticated user requesting the deletion
 /// * `emails` - Vector of email addresses to remove sharing for
 ///
 /// # Returns
@@ -26,76 +24,49 @@ use uuid::Uuid;
 /// Result indicating success or failure
 pub async fn delete_dashboard_sharing_handler(
     dashboard_id: &Uuid,
-    user_id: &Uuid,
+    user: &AuthenticatedUser,
     emails: Vec<String>,
 ) -> Result<()> {
     info!(
         dashboard_id = %dashboard_id,
-        user_id = %user_id,
+        user_id = %user.id,
         email_count = emails.len(),
         "Deleting dashboard sharing permissions"
     );
 
-    // 1. Validate the dashboard exists
-    let mut conn = get_pg_pool().get().await.map_err(|e| {
-        error!("Database connection error: {}", e);
-        anyhow!("Failed to get database connection: {}", e)
-    })?;
-
-    let dashboard_exists = dashboard_files::table
-        .filter(dashboard_files::id.eq(dashboard_id))
-        .filter(dashboard_files::deleted_at.is_null())
-        .count()
-        .get_result::<i64>(&mut conn)
-        .await
-        .map_err(|e| {
-            error!("Error checking if dashboard exists: {}", e);
-            anyhow!("Database error: {}", e)
-        })?;
-
-    if dashboard_exists == 0 {
-        error!(
-            dashboard_id = %dashboard_id,
-            "Dashboard not found"
-        );
-        return Err(anyhow!("Dashboard not found"));
-    }
-
-    // 2. Check if user has permission to delete sharing for the dashboard (Owner or FullAccess)
-    let has_permission = has_permission(
-        *dashboard_id,
-        AssetType::DashboardFile,
-        *user_id,
-        IdentityType::User,
-        AssetPermissionRole::FullAccess, // Owner role implicitly has FullAccess permissions
-    )
-    .await
-    .map_err(|e| {
-        error!(
-            dashboard_id = %dashboard_id,
-            user_id = %user_id,
-            "Error checking dashboard permissions: {}", e
-        );
-        anyhow!("Error checking dashboard permissions: {}", e)
-    })?;
-
+    // First check if the user has permission to delete sharing for this dashboard
+    let dashboard_with_permission = fetch_dashboard_file_with_permission(dashboard_id, &user.id).await?;
+    
+    // If dashboard not found, return error
+    let dashboard_with_permission = match dashboard_with_permission {
+        Some(dwp) => dwp,
+        None => return Err(anyhow!("Dashboard not found")),
+    };
+    
+    // Check if user has permission to delete sharing for the dashboard
+    // Users need FullAccess or Owner permission
+    let has_permission = check_permission_access(
+        dashboard_with_permission.permission,
+        &[
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+        ],
+        dashboard_with_permission.dashboard_file.organization_id,
+        &user.organizations,
+    );
+    
     if !has_permission {
-        error!(
-            dashboard_id = %dashboard_id,
-            user_id = %user_id,
-            "User does not have permission to delete sharing for this dashboard"
-        );
-        return Err(anyhow!("User does not have permission to delete sharing for this dashboard"));
+        return Err(anyhow!("You don't have permission to delete sharing for this dashboard"));
     }
 
-    // 3. Process each email and delete sharing permissions
+    // Process each email and delete sharing permissions
     for email in &emails {
         // The remove_share_by_email function handles soft deletion of permissions
         match remove_share_by_email(
             email,
             *dashboard_id,
             AssetType::DashboardFile,
-            *user_id,
+            user.id,
         )
         .await
         {
