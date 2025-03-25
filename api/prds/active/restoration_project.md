@@ -97,17 +97,17 @@ No schema changes are required. The feature will use the existing version histor
 - Implement version restoration logic ✅
 - Add unit tests for the new functionality ✅
 
-### Phase 2: Chat Restoration Endpoint
+### Phase 2: Chat Restoration Endpoint ✅
 
-#### Task 2.1: Create Chat Restore Handler
-- Create a new file `restore_chat_handler.rs` in the `api/libs/handlers/src/chats` directory
-- Implement the handler to process asset restoration and create appropriate chat messages
-- Add unit tests for the new handler
+#### Task 2.1: Create Chat Restore Handler ✅
+- Create a new file `restore_chat_handler.rs` in the `api/libs/handlers/src/chats` directory ✅
+- Implement the handler to process asset restoration and create appropriate chat messages ✅
+- Add unit tests for the new handler ✅
 
-#### Task 2.2: Add REST Endpoint
-- Create a new REST route in `api/src/routes/rest/routes/chats` directory
-- Implement the route to use the new handler
-- Add integration tests for the new endpoint
+#### Task 2.2: Add REST Endpoint ✅
+- Create a new REST route in `api/src/routes/rest/routes/chats` directory ✅
+- Implement the route to use the new handler ✅
+- Add integration tests for the new endpoint ✅
 
 ### Development Order and Parallelization
 - Tasks 1.1 and 1.2 can be implemented in parallel as they modify similar structures but different files

@@ -9,6 +9,7 @@ pub mod context_loaders;
 pub mod list_chats_handler;
 pub mod sharing;
 pub mod asset_messages;
+pub mod restore_chat_handler;
 
 #[cfg(test)]
 pub mod tests;
@@ -19,6 +20,7 @@ pub use post_chat_handler::post_chat_handler;
 pub use update_chats_handler::update_chats_handler;
 pub use delete_chats_handler::delete_chats_handler;
 pub use list_chats_handler::list_chats_handler;
+pub use restore_chat_handler::restore_chat_handler;
 pub use sharing::delete_chat_sharing_handler;
 pub use sharing::create_chat_sharing_handler;
 pub use sharing::update_chat_sharing_handler;
