@@ -2,7 +2,8 @@ import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/buttons';
-import { Check3, Xmark } from '@/components/ui/icons';
+import { Xmark } from '@/components/ui/icons';
+import { Check3 } from '@/components/ui/icons/NucleoIconFilled';
 import { Text } from '@/components/ui/typography';
 import { useCloseVersionHistory } from '@/layouts/ChatLayout/FileContainer/FileContainerHeader/MetricContainerHeaderButtons/FileContainerVersionHistory';
 import { cn } from '@/lib/classMerge';
@@ -50,7 +51,7 @@ export const VersionHistoryPanel = React.memo(
         scrollable
         headerBorderVariant="ghost"
         headerClassName="border-l">
-        <div className="my-2 flex flex-col px-1">
+        <div className="mx-1.5 my-1.5 flex flex-col">
           {listItems?.map((item) => (
             <ListItem
               key={item.version_number}

@@ -83,22 +83,19 @@ export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId:
 DashboardThreeDotMenu.displayName = 'ThreeDotMenuButton';
 
 const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) => {
-  const DEFAULT_VERSION_HISTORY_ITEMS: DropdownItems = [];
   const { data } = useGetDashboard({ id: dashboardId }, (x) => ({
-    versions: x?.dashboard?.versions,
+    versions: x?.dashboard?.versions || [],
     version_number: x?.dashboard?.version_number
   }));
   const { versions, version_number } = data || {};
 
   const versionHistoryItems: DropdownItems = useMemo(() => {
-    return (
-      versions?.map((x) => ({
-        label: `Version ${x.version_number}`,
-        secondaryLabel: timeFromNow(x.updated_at, false),
-        value: x.version_number.toString(),
-        selected: x.version_number === version_number
-      })) || DEFAULT_VERSION_HISTORY_ITEMS
-    );
+    return [...(versions || [])].reverse().map((x) => ({
+      label: `Version ${x.version_number}`,
+      secondaryLabel: timeFromNow(x.updated_at, false),
+      value: x.version_number.toString(),
+      selected: x.version_number === version_number
+    }));
   }, [versions, version_number]);
 
   return useMemo(

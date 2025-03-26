@@ -190,7 +190,7 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
   });
 
   const versionHistoryItems: DropdownItems = useMemo(() => {
-    return versions.map((x) => ({
+    return [...versions].reverse().map((x) => ({
       label: `Version ${x.version_number}`,
       secondaryLabel: timeFromNow(x.updated_at, false),
       value: x.version_number.toString(),
