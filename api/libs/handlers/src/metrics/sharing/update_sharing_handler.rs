@@ -69,7 +69,7 @@ pub async fn update_metric_sharing_handler(
     // 2. Check if user has at least FullAccess permission
     if !check_permission_access(
         metric_file.permission,
-        &[AssetPermissionRole::FullAccess],
+        &[AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
         metric_file.metric_file.organization_id,
         &user.organizations,
     ) {
