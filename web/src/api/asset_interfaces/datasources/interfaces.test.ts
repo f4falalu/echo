@@ -180,7 +180,6 @@ describe('DataSourceSchema', () => {
 
     // This validation currently passes because there's no cross-field validation
     // If you want to enforce this, you'd need to add a custom validator
-    console.log('Note: Current schema does not validate credential type matching DataSource type');
     expect(result.success).toBe(true);
   });
 });

@@ -49,6 +49,8 @@ import { METRIC_CHART_TITLE_INPUT_ID } from '@/controllers/MetricController/Metr
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { openSuccessMessage } = useBusterNotifications();
@@ -176,6 +178,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
+  const onChangeQueryParams = useAppLayoutContextSelector((x) => x.onChangeQueryParams);
   const { data } = useGetMetric({ id: metricId }, (x) => ({
     versions: x.versions,
     version_number: x.version_number
@@ -183,7 +186,7 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
   const { versions = [], version_number } = data || {};
 
   const onClickVersionHistory = useMemoizedFn((versionNumber: number) => {
-    console.log('versionNumber', versionNumber);
+    onChangeQueryParams({ metric_version_number: versionNumber.toString() });
   });
 
   const versionHistoryItems: DropdownItems = useMemo(() => {
