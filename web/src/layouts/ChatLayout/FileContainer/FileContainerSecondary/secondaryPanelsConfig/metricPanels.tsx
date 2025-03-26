@@ -26,9 +26,9 @@ export const MetricSecondaryRecord: Record<
   MetricFileViewSecondary,
   React.FC<FileContainerSecondaryProps>
 > = {
-  'chart-edit': ({ selectedFileId }) => <MetricEditController metricId={selectedFileId || ''} />,
-  'sql-edit': ({ selectedFileId }) => <MetricViewResults metricId={selectedFileId || ''} />,
-  'version-history': ({ selectedFileId }) => (
-    <VersionHistoryPanel assetId={selectedFileId || ''} type="metric" />
+  'chart-edit': ({ selectedFile }) => <MetricEditController metricId={selectedFile?.id || ''} />,
+  'sql-edit': ({ selectedFile }) => <MetricViewResults metricId={selectedFile?.id || ''} />,
+  'version-history': ({ selectedFile }) => (
+    <VersionHistoryPanel assetId={selectedFile?.id || ''} type="metric" />
   )
 };

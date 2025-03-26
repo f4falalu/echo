@@ -44,13 +44,6 @@ export const useSelectedFile = ({
     return false;
   }, [selectedFile?.type, metricVersionNumber, dashboardVersionNumber]);
 
-  console.log(
-    'isVersionHistoryMode',
-    isVersionHistoryMode,
-    metricVersionNumber,
-    dashboardVersionNumber
-  );
-
   const [renderViewLayoutKey, setRenderViewLayoutKey] = useState<ChatLayoutView>(
     selectedLayout || 'chat'
   );

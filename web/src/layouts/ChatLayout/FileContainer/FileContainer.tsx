@@ -6,7 +6,8 @@ import { AppPageLayout, AppSplitter, AppSplitterRef } from '@/components/ui/layo
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
 import { createAutoSaveId } from '@/components/ui/layouts/AppSplitter/helper';
 import Cookies from 'js-cookie';
-import { useMemoizedFn, useUpdateLayoutEffect } from '@/hooks';
+import { useDebounce, useMemoizedFn, useUpdateLayoutEffect } from '@/hooks';
+import { FileContainerSecondary } from './FileContainerSecondary';
 
 interface FileContainerProps {
   children: React.ReactNode;
@@ -18,14 +19,21 @@ const autoSaveId = 'file-container-splitter';
 
 export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
-
+  const selectedFile = useChatLayoutContextSelector((x) => x.selectedFile);
   const selectedFileViewSecondary = useChatLayoutContextSelector(
     (x) => x.selectedFileViewSecondary
   );
   const selectedFileViewRenderSecondary = useChatLayoutContextSelector(
     (x) => x.selectedFileViewRenderSecondary
   );
+
   const isOpenSecondary = selectedFileViewRenderSecondary;
+
+  //we need to debounce the selectedFileViewSecondary to avoid flickering
+  const debouncedSelectedFileViewSecondary = useDebounce(selectedFileViewSecondary, {
+    wait: 350,
+    leading: selectedFileViewRenderSecondary
+  });
 
   const secondaryLayoutDimensions: [string, string] = useMemo(() => {
     const cookieKey = createAutoSaveId(autoSaveId);
@@ -58,6 +66,15 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
     }
   });
 
+  const rightChildren = useMemo(() => {
+    return (
+      <FileContainerSecondary
+        selectedFile={selectedFile}
+        selectedFileViewSecondary={debouncedSelectedFileViewSecondary}
+      />
+    );
+  }, [debouncedSelectedFileViewSecondary, selectedFile?.id, selectedFile?.type]);
+
   useUpdateLayoutEffect(() => {
     animateOpenSplitter(isOpenSecondary ? 'open' : 'closed');
   }, [isOpenSecondary]);
@@ -70,7 +87,7 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
         defaultLayout={defaultLayout}
         initialReady={false}
         leftChildren={children}
-        rightChildren={<div>Right {selectedFileViewSecondary}</div>}
+        rightChildren={rightChildren}
         allowResize={selectedFileViewRenderSecondary}
         preserveSide={'right'}
         rightPanelMinSize={250}

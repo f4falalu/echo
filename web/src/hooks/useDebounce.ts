@@ -49,13 +49,15 @@ export function useDebounceFn<T extends noop>(fn: T, options?: DebounceOptions) 
     flush: debounced.flush
   };
 }
+
 export function useDebounce<T>(value: T, options: DebounceOptions = {}) {
-  const { wait = 1000, maxWait } = options;
+  const { wait = 1000, maxWait, leading = false, trailing = true } = options;
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const maxTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const lastUpdateTime = useRef<number>(Date.now());
   const valueRef = useRef<T>(value);
+  const isFirstCallRef = useRef<boolean>(true);
 
   // Keep latest value in ref
   useEffect(() => {
@@ -70,17 +72,29 @@ export function useDebounce<T>(value: T, options: DebounceOptions = {}) {
     if (maxTimeoutRef.current) {
       clearTimeout(maxTimeoutRef.current);
     }
+
+    isFirstCallRef.current = true;
   }, []);
 
   useEffect(() => {
     clearTimeouts();
     const now = Date.now();
 
-    // Set up the regular debounce timeout
-    timeoutRef.current = setTimeout(() => {
-      setDebouncedValue(valueRef.current);
-      lastUpdateTime.current = Date.now();
-    }, wait);
+    // Handle leading edge
+    if (leading && isFirstCallRef.current) {
+      setDebouncedValue(value);
+      lastUpdateTime.current = now;
+      isFirstCallRef.current = false;
+      return;
+    }
+
+    // Only set up trailing timeout if trailing is true
+    if (trailing) {
+      timeoutRef.current = setTimeout(() => {
+        setDebouncedValue(valueRef.current);
+        lastUpdateTime.current = Date.now();
+      }, wait);
+    }
 
     // Handle maxWait
     if (maxWait) {
@@ -96,8 +110,9 @@ export function useDebounce<T>(value: T, options: DebounceOptions = {}) {
       }, maxWaitTimeRemaining);
     }
 
+    isFirstCallRef.current = false;
     return () => clearTimeouts();
-  }, [value, wait, maxWait, clearTimeouts]);
+  }, [value, wait, maxWait, leading, trailing, clearTimeouts]);
 
   return debouncedValue;
 }

@@ -15,7 +15,7 @@ export const DashboardSecondaryRecord: Record<
   DashboardFileViewSecondary,
   React.FC<FileContainerSecondaryProps>
 > = {
-  'version-history': ({ selectedFileId }) => (
-    <VersionHistoryPanel assetId={selectedFileId || ''} type="dashboard" />
+  'version-history': ({ selectedFile }) => (
+    <VersionHistoryPanel assetId={selectedFile?.id || ''} type="dashboard" />
   )
 };

@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/buttons';
 import { ArrowLeft, History } from '@/components/ui/icons';
 import React, { useMemo, useTransition } from 'react';
@@ -8,6 +10,7 @@ import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from '@/hooks';
 import { timeout } from '@/lib';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export const FileContainerVersionHistory = React.memo(() => {
   return (

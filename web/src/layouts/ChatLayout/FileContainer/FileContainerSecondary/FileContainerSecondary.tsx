@@ -1,31 +1,29 @@
-import type { FileType } from '@/api/asset_interfaces/chat';
 import type { FileContainerSecondaryProps } from './interfaces';
-import type {
-  DashboardFileViewSecondary,
-  MetricFileViewSecondary
-} from '../../ChatLayoutContext/useLayoutConfig/interfaces';
+import { SelectedFileSecondaryRecord } from './secondaryPanelsConfig';
+import { useMemo } from 'react';
 
-const MetricSecondaryRecord: Record<
-  MetricFileViewSecondary,
-  React.FC<FileContainerSecondaryProps>
-> = {
-  'chart-edit': () => null,
-  'sql-edit': () => null,
-  'version-history': () => null
-};
+export const FileContainerSecondary: React.FC<FileContainerSecondaryProps> = ({
+  selectedFile,
+  selectedFileViewSecondary
+}) => {
+  const Component = useMemo(() => {
+    if (!selectedFile || !selectedFileViewSecondary) return null;
 
-const DashboardSecondaryRecord: Record<
-  DashboardFileViewSecondary,
-  React.FC<FileContainerSecondaryProps>
-> = {
-  'version-history': () => null
-};
+    const assosciatedType = SelectedFileSecondaryRecord[selectedFile?.type];
 
-const SelectedFileSecondaryRecord: Record<
-  FileType,
-  Record<string, React.FC<FileContainerSecondaryProps>>
-> = {
-  metric: MetricSecondaryRecord,
-  dashboard: DashboardSecondaryRecord,
-  reasoning: {}
+    if (!assosciatedType) return null;
+
+    return assosciatedType[selectedFileViewSecondary];
+  }, [selectedFileViewSecondary, selectedFile?.id, selectedFile?.type]);
+
+  return (
+    <>
+      {Component && (
+        <Component
+          selectedFile={selectedFile}
+          selectedFileViewSecondary={selectedFileViewSecondary}
+        />
+      )}
+    </>
+  );
 };
