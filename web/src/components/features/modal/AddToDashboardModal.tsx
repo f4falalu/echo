@@ -11,7 +11,7 @@ export const AddToDashboardModal: React.FC<{
   onClose: () => void;
   dashboardId: string;
 }> = React.memo(({ open, onClose, dashboardId }) => {
-  const { data: dashboard, isFetched: isFetchedDashboard } = useGetDashboard(dashboardId);
+  const { data: dashboard, isFetched: isFetchedDashboard } = useGetDashboard({ id: dashboardId });
   const { data: metrics, isFetched: isFetchedMetrics } = useGetMetricsList({});
   const { mutateAsync: addAndRemoveMetricsFromDashboard } = useAddAndRemoveMetricsFromDashboard();
 

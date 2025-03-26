@@ -43,7 +43,7 @@ const SaveToCollectionButton = React.memo(() => {
 SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 
 const AddContentToDashboardButton = React.memo(({ dashboardId }: { dashboardId: string }) => {
-  const { data: permission } = useGetDashboard(dashboardId, (x) => x.permission);
+  const { data: permission } = useGetDashboard({ id: dashboardId }, (x) => x.permission);
   const isEditor = canEdit(permission);
   const onOpenAddContentModal = useDashboardContentStore((x) => x.onOpenAddContentModal);
 

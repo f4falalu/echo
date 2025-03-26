@@ -6,7 +6,7 @@ import { DashboardViewDashboardController } from '@/controllers/DashboardControl
 
 export default function EmbedDashboardsPage(props: { params: { dashboardId: string } }) {
   const { dashboardId } = props.params;
-  const { isFetched: isFetchedDashboard } = useGetDashboard(dashboardId);
+  const { isFetched: isFetchedDashboard } = useGetDashboard({ id: dashboardId });
 
   if (!isFetchedDashboard) {
     return <CircleSpinnerLoaderContainer className="min-h-screen" />;

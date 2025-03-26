@@ -11,7 +11,7 @@ import { canEdit } from '@/lib/share';
 
 export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboardId }) => {
   const { isFetched: isFetchedDashboard, data: permission } = useGetDashboard(
-    dashboardId,
+    { id: dashboardId },
     (x) => x.permission
   );
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView) || 'dashboard';

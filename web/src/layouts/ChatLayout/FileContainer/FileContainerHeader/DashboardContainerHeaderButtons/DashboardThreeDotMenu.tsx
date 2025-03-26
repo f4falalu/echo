@@ -44,7 +44,7 @@ export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId:
   const shareMenu = useShareMenuSelectMenu({ dashboardId });
   const addContentToDashboardMenu = useAddContentToDashboardSelectMenu();
   const filterDashboardMenu = useFilterDashboardSelectMenu();
-  const { data: permission } = useGetDashboard(dashboardId, (x) => x.permission);
+  const { data: permission } = useGetDashboard({ id: dashboardId }, (x) => x.permission);
   const isOwner = getIsEffectiveOwner(permission);
   const isFilter = canFilter(permission);
   const isEditor = canEdit(permission);
@@ -84,7 +84,7 @@ DashboardThreeDotMenu.displayName = 'ThreeDotMenuButton';
 
 const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) => {
   const DEFAULT_VERSION_HISTORY_ITEMS: DropdownItems = [];
-  const { data } = useGetDashboard(dashboardId, (x) => ({
+  const { data } = useGetDashboard({ id: dashboardId }, (x) => ({
     versions: x?.dashboard?.versions,
     version_number: x?.dashboard?.version_number
   }));
@@ -115,7 +115,7 @@ const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) =
 const useCollectionSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
   const { mutateAsync: saveDashboardToCollection } = useAddDashboardToCollection();
   const { mutateAsync: removeDashboardFromCollection } = useRemoveDashboardFromCollection();
-  const { data: collections } = useGetDashboard(dashboardId, (x) => x.collections);
+  const { data: collections } = useGetDashboard({ id: dashboardId }, (x) => x.collections);
   const { openInfoMessage } = useBusterNotifications();
 
   const selectedCollections = useMemo(() => {
@@ -163,7 +163,7 @@ const useCollectionSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
 };
 
 const useFavoriteDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
-  const { data: title } = useGetDashboard(dashboardId, (x) => x?.dashboard?.name);
+  const { data: title } = useGetDashboard({ id: dashboardId }, (x) => x?.dashboard?.name);
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: dashboardId,
     type: ShareAssetType.DASHBOARD,
@@ -221,7 +221,7 @@ const useRenameDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }) 
 };
 
 export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
-  const { data: dashboard } = useGetDashboard(dashboardId, getShareAssetConfig);
+  const { data: dashboard } = useGetDashboard({ id: dashboardId }, getShareAssetConfig);
   const isOwner = getIsEffectiveOwner(dashboard?.permission);
 
   return useMemo(

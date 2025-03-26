@@ -8,7 +8,7 @@ import { useGetDashboard, useUpdateDashboard } from '@/api/buster_rest/dashboard
 
 export const DashboardViewFileController: React.FC<DashboardViewProps> = React.memo(
   ({ dashboardId }) => {
-    const { data: dashboard } = useGetDashboard(dashboardId, (data) => data.dashboard);
+    const { data: dashboard } = useGetDashboard({ id: dashboardId }, (data) => data.dashboard);
     const { openSuccessMessage } = useBusterNotifications();
     const { mutateAsync: onUpdateDashboard } = useUpdateDashboard();
 

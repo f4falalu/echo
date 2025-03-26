@@ -7,7 +7,7 @@ import { getShareAssetConfig } from '../ShareMenu/helpers';
 import { getIsEffectiveOwner } from '@/lib/share';
 
 export const ShareDashboardButton = React.memo(({ dashboardId }: { dashboardId: string }) => {
-  const { data: dashboardResponse } = useGetDashboard(dashboardId, getShareAssetConfig);
+  const { data: dashboardResponse } = useGetDashboard({ id: dashboardId }, getShareAssetConfig);
   const isEffectiveOwner = getIsEffectiveOwner(dashboardResponse?.permission);
 
   if (!isEffectiveOwner) {

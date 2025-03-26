@@ -16,7 +16,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   dashboardId,
   readOnly = false
 }) => {
-  const { data: dashboardResponse } = useGetDashboard(dashboardId);
+  const { data: dashboardResponse } = useGetDashboard({ id: dashboardId });
   const { mutateAsync: onUpdateDashboard } = useUpdateDashboard();
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
   const onOpenAddContentModal = useDashboardContentStore((x) => x.onOpenAddContentModal);
