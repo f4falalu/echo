@@ -62,6 +62,10 @@ export const dashboardsUpdateDashboard = async (params: {
   config?: DashboardConfig;
   /** The file content of the dashboard */
   file?: string;
+  /** update the version number of the dashboard - default is true */
+  update_version?: boolean;
+  /** restore the dashboard to a specific version */
+  restore_to_version?: number;
 }) => {
   return await mainApi
     .put<BusterDashboardResponse>(`/dashboards/${params.id}`, params)

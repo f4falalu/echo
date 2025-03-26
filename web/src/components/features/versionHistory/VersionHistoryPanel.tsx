@@ -1,43 +1,35 @@
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { useGetMetric } from '@/api/buster_rest/metrics';
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Xmark } from '@/components/ui/icons';
 import { Check3 } from '@/components/ui/icons/NucleoIconFilled';
 import { Text } from '@/components/ui/typography';
-import { useCloseVersionHistory } from '@/layouts/ChatLayout/FileContainer/FileContainerHeader/MetricContainerHeaderButtons/FileContainerVersionHistory';
+import { useCloseVersionHistory } from '@/layouts/ChatLayout/FileContainer/FileContainerHeader/FileContainerHeaderVersionHistory';
 import { cn } from '@/lib/classMerge';
-import { useMemoizedFn } from '@/hooks';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { timeFromNow } from '@/lib';
+import { timeFromNow, timeout } from '@/lib';
 import { AppPageLayout } from '@/components/ui/layouts';
 import { useSearchParams } from 'next/navigation';
 import last from 'lodash/last';
+import { useListVersionHistories } from './useListVersionHistories';
+import { useMount } from '@/hooks';
 
 export const VersionHistoryPanel = React.memo(
   ({ assetId, type }: { assetId: string; type: 'metric' | 'dashboard' }) => {
-    const onChangeQueryParams = useAppLayoutContextSelector((x) => x.onChangeQueryParams);
-    const { dashboardVersions, selectedVersion: dashboardSelectedVersion } =
-      useListDashboardVersions({
-        assetId,
-        type
-      });
-    const { metricVersions, selectedVersion: metricSelectedVersion } = useListMetricVersions({
+    const { listItems, selectedVersion, onClickVersionHistory } = useListVersionHistories({
       assetId,
       type
     });
+    const bodyRef = useRef<HTMLDivElement>(null);
 
-    const listItems = useMemo(() => {
-      const items = type === 'metric' ? metricVersions : dashboardVersions;
-      return items ? [...items].reverse() : undefined;
-    }, [type, dashboardVersions, metricVersions]);
-
-    const selectedVersion = useMemo(() => {
-      return type === 'metric' ? metricSelectedVersion : dashboardSelectedVersion;
-    }, [type, dashboardSelectedVersion, metricSelectedVersion]);
-
-    const onClickVersionHistory = useMemoizedFn((versionNumber: number) => {
-      onChangeQueryParams({ metric_version_number: versionNumber.toString() });
+    useMount(async () => {
+      if (bodyRef.current) {
+        await timeout(200);
+        const selectedNode = bodyRef.current.querySelector('.selected-version');
+        if (selectedNode) {
+          selectedNode.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
     });
 
     return (
@@ -51,7 +43,7 @@ export const VersionHistoryPanel = React.memo(
         scrollable
         headerBorderVariant="ghost"
         headerClassName="border-l">
-        <div className="mx-1.5 my-1.5 flex flex-col">
+        <div ref={bodyRef} className="mx-1.5 mb-1.5 flex flex-col">
           {listItems?.map((item) => (
             <ListItem
               key={item.version_number}
@@ -83,7 +75,7 @@ const ListItem = React.memo(
         onClick={() => onClickVersionHistory(version_number)}
         className={cn(
           'hover:bg-item-hover flex cursor-pointer items-center justify-between space-x-2 rounded px-2.5 py-1.5',
-          selected && 'bg-item-select hover:bg-item-select'
+          selected && 'bg-item-select hover:bg-item-select selected-version'
         )}>
         <div className="flex flex-col justify-center space-y-0.5">
           <Text>{`Version ${version_number}`}</Text>
@@ -92,7 +84,7 @@ const ListItem = React.memo(
           </Text>
         </div>
         {selected && (
-          <div className="text-icon-color flex items-center">
+          <div className="text-icon-color animate-in fade-in-0 flex items-center duration-200">
             <Check3 />
           </div>
         )}

@@ -76,6 +76,10 @@ export const updateMetric = async (params: {
   status?: VerificationStatus;
   /** file in yaml format to update */
   file?: string;
+  /** update the version number of the metric - default is true */
+  update_version?: boolean;
+  /** restore the metric to a specific version */
+  restore_to_version?: number;
 }) => {
   return mainApi.put<BusterMetric>(`/metrics/${params.id}`, params).then((res) => res.data);
 };

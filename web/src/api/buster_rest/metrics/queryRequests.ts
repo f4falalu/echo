@@ -177,9 +177,20 @@ export const prefetchGetMetricDataClient = async (
  * This is a mutation that saves a metric to the server.
  * It will simply use the params passed in and not do any special logic.
  */
-export const useSaveMetric = () => {
+export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
+  const updateOnSave = params?.updateOnSave || false;
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updateMetric
+    mutationFn: updateMetric,
+    onSuccess: (data) => {
+      if (updateOnSave && data) {
+        const oldMetric = queryClient.getQueryData(
+          metricsQueryKeys.metricsGetMetric(data.id).queryKey
+        );
+        const newMetric = upgradeMetricToIMetric(data, oldMetric || null);
+        queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(data.id).queryKey, newMetric);
+      }
+    }
   });
 };
 
