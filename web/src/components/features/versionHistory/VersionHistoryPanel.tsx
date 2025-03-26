@@ -40,7 +40,16 @@ export const VersionHistoryPanel = React.memo(
     });
 
     return (
-      <AppPageLayout header={<PanelHeader />} scrollable>
+      <AppPageLayout
+        header={useMemo(
+          () => (
+            <PanelHeader />
+          ),
+          []
+        )}
+        scrollable
+        headerBorderVariant="ghost"
+        headerClassName="border-l">
         <div className="my-2 flex flex-col px-1">
           {listItems?.map((item) => (
             <ListItem
@@ -96,7 +105,7 @@ const PanelHeader = React.memo(() => {
   const removeVersionHistoryQueryParams = useCloseVersionHistory();
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex w-full items-center justify-between">
       <Text>Version History</Text>
       <Button variant="ghost" prefix={<Xmark />} onClick={removeVersionHistoryQueryParams} />
     </div>
