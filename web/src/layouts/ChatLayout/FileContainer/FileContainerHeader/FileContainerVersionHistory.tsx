@@ -1,16 +1,17 @@
 import { Button } from '@/components/ui/buttons';
 import { ArrowLeft, History } from '@/components/ui/icons';
-import React, { useMemo } from 'react';
+import React, { useMemo, useTransition } from 'react';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import last from 'lodash/last';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from '@/hooks';
+import { timeout } from '@/lib';
 
 export const FileContainerVersionHistory = React.memo(() => {
   return (
-    <div className="flex w-full items-center justify-between gap-x-3">
+    <div className="flex w-full items-center justify-between gap-x-1.5">
       <ExitVersionHistoryButton />
       <DisplayVersionHistory />
     </div>
@@ -38,6 +39,7 @@ const DisplayVersionHistory = React.memo(() => {
   );
 
   const versionInfo = useMemo(() => {
+    if (!metric?.version_number && !dashboard?.version_number) return null;
     if (type === 'metric') {
       return {
         isCurrent: metric?.version_number === metric?.latestVersion?.version_number,
@@ -67,10 +69,16 @@ const DisplayVersionHistory = React.memo(() => {
 DisplayVersionHistory.displayName = 'DisplayVersionHistory';
 
 const ExitVersionHistoryButton = React.memo(() => {
+  const [isPending, startTransition] = useTransition();
   const onChangeQueryParams = useAppLayoutContextSelector((x) => x.onChangeQueryParams);
+  const closeSecondaryView = useChatLayoutContextSelector((x) => x.closeSecondaryView);
 
-  const removeVersionHistoryQueryParams = useMemoizedFn(() => {
-    onChangeQueryParams({ metric_version_number: null, dashboard_version_number: null });
+  const removeVersionHistoryQueryParams = useMemoizedFn(async () => {
+    closeSecondaryView();
+    await timeout(250);
+    startTransition(() => {
+      onChangeQueryParams({ metric_version_number: null, dashboard_version_number: null });
+    });
   });
 
   return (

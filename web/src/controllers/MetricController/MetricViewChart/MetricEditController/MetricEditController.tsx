@@ -14,3 +14,5 @@ export const MetricEditController: React.FC<{
 });
 
 MetricEditController.displayName = 'MetricEditController';
+
+export default MetricEditController;

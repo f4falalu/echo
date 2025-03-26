@@ -1,10 +1,10 @@
 import { FileView } from '../../ChatLayoutContext/useLayoutConfig';
 
-export interface FileContainerSegmentProps {
+export type FileContainerSegmentProps = {
   selectedFileView: FileView | undefined;
   selectedFileId: string | undefined;
-}
+};
 
-export interface FileContainerButtonsProps {
+export type FileContainerButtonsProps = {
   selectedFileView: FileView | undefined;
-}
+};

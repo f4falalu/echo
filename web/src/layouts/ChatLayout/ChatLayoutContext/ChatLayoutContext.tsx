@@ -48,13 +48,20 @@ export const useChatLayoutContext = ({ appSplitterRef }: UseLayoutConfigProps) =
 
   const onCollapseFileClick = useLayoutCollapse({ onSetSelectedFile });
 
-  const { selectedFileView, selectedFileViewSecondary, onSetFileView, closeSecondaryView } =
-    useLayoutConfig({
-      selectedFileId: selectedFile?.id,
-      selectedFileType: selectedFile?.type
-    });
+  const {
+    selectedFileView,
+    selectedFileViewRenderSecondary,
+    selectedFileViewSecondary,
+    onSetFileView,
+    closeSecondaryView
+  } = useLayoutConfig({
+    selectedFileId: selectedFile?.id,
+    selectedFileType: selectedFile?.type,
+    isVersionHistoryMode
+  });
 
   return {
+    selectedFileViewRenderSecondary,
     selectedFileView,
     selectedFileViewSecondary,
     onSetFileView,

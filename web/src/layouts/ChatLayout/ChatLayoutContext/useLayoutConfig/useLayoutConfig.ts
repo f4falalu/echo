@@ -1,17 +1,19 @@
 'use client';
 
 import { FileType } from '@/api/asset_interfaces';
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './interfaces';
 import { useMemoizedFn } from '@/hooks';
 import { create } from 'mutative';
 
 export const useLayoutConfig = ({
   selectedFileId,
-  selectedFileType
+  selectedFileType,
+  isVersionHistoryMode
 }: {
   selectedFileId: string | undefined;
   selectedFileType: FileType | undefined;
+  isVersionHistoryMode: boolean;
 }) => {
   const [fileViews, setFileViews] = useState<Record<string, FileConfig>>({});
 
@@ -32,15 +34,25 @@ export const useLayoutConfig = ({
     return selectedFileViewConfig?.[selectedFileView]?.secondaryView ?? null;
   }, [selectedFileViewConfig, selectedFileId, selectedFileView]);
 
+  const selectedFileViewRenderSecondary: boolean = useMemo(() => {
+    if (!selectedFileId || !selectedFileViewConfig || !selectedFileView) return false;
+    if (selectedFileViewConfig?.[selectedFileView]?.secondaryView) {
+      return selectedFileViewConfig?.[selectedFileView]?.renderView !== false;
+    }
+    return false;
+  }, [selectedFileViewConfig]);
+
   const onSetFileView = useMemoizedFn(
     ({
       fileView,
       fileId,
-      secondaryView
+      secondaryView,
+      renderView
     }: {
       fileView?: FileView;
       fileId?: string;
       secondaryView?: FileViewSecondary;
+      renderView?: boolean;
     }) => {
       const id = fileId ?? selectedFileId;
       if (!id) return;
@@ -60,7 +72,8 @@ export const useLayoutConfig = ({
             ...newFileConfig.fileViewConfig,
             [usedFileView]: {
               ...newFileConfig.fileViewConfig?.[usedFileView],
-              secondaryView
+              secondaryView,
+              renderView
             }
           };
         }
@@ -80,9 +93,25 @@ export const useLayoutConfig = ({
     });
   });
 
+  useLayoutEffect(() => {
+    if (
+      isVersionHistoryMode &&
+      selectedFileId &&
+      (selectedFileType === 'metric' || selectedFileType === 'dashboard')
+    ) {
+      const fileView = selectedFileType === 'metric' ? 'chart' : 'dashboard';
+      onSetFileView({
+        fileId: selectedFileId,
+        fileView,
+        secondaryView: 'version-history'
+      });
+    }
+  }, [isVersionHistoryMode, selectedFileId]);
+
   return {
     selectedFileView,
     selectedFileViewSecondary,
+    selectedFileViewRenderSecondary,
     onSetFileView,
     closeSecondaryView
   };

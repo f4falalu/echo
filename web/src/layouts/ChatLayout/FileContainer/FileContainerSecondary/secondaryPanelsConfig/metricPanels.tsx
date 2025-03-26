@@ -1,0 +1,34 @@
+import dynamic from 'next/dynamic';
+import { loading } from './loading';
+import type { MetricFileViewSecondary } from '@/layouts/ChatLayout/ChatLayoutContext/useLayoutConfig/interfaces';
+import type { FileContainerSecondaryProps } from '../interfaces';
+
+const MetricEditController = dynamic(
+  () =>
+    import('@/controllers/MetricController/MetricViewChart/MetricEditController').then(
+      (x) => x.MetricEditController
+    ),
+  { loading }
+);
+const VersionHistoryPanel = dynamic(
+  () =>
+    import('@/components/features/versionHistory/VersionHistoryPanel').then(
+      (x) => x.VersionHistoryPanel
+    ),
+  { loading }
+);
+const MetricViewResults = dynamic(
+  () => import('@/controllers/MetricController/MetricViewResults').then((x) => x.MetricViewResults),
+  { loading }
+);
+
+export const MetricSecondaryRecord: Record<
+  MetricFileViewSecondary,
+  React.FC<FileContainerSecondaryProps>
+> = {
+  'chart-edit': ({ selectedFileId }) => <MetricEditController metricId={selectedFileId || ''} />,
+  'sql-edit': ({ selectedFileId }) => <MetricViewResults metricId={selectedFileId || ''} />,
+  'version-history': ({ selectedFileId }) => (
+    <VersionHistoryPanel assetId={selectedFileId || ''} type="metric" />
+  )
+};
