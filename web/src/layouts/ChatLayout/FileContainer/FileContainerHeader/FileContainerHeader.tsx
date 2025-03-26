@@ -11,7 +11,7 @@ import { MetricContainerHeaderButtons } from './MetricContainerHeaderButtons';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { ReasoningContainerHeaderSegment } from './ReasoningContainerHeaderSegment';
 import { useAssetCheck } from '@/api/buster_rest/assets/queryRequests';
-import { FileContainerVersionHistory } from './FileContainerVersionHistory';
+import { FileContainerVersionHistory } from './MetricContainerHeaderButtons/FileContainerVersionHistory/FileContainerVersionHistory';
 
 export const FileContainerHeader: React.FC = React.memo(() => {
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFile?.type);

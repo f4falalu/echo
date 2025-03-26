@@ -2,14 +2,12 @@
 
 import { Button } from '@/components/ui/buttons';
 import { ArrowLeft, History } from '@/components/ui/icons';
-import React, { useMemo, useTransition } from 'react';
-import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
+import React, { useMemo } from 'react';
+import { useChatLayoutContextSelector } from '../../../../ChatLayoutContext';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import last from 'lodash/last';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useMemoizedFn } from '@/hooks';
-import { timeout } from '@/lib';
+import { useCloseVersionHistory } from './useCloseVersionHistory';
 
 export const FileContainerVersionHistory = React.memo(() => {
   return (
@@ -71,17 +69,7 @@ const DisplayVersionHistory = React.memo(() => {
 DisplayVersionHistory.displayName = 'DisplayVersionHistory';
 
 const ExitVersionHistoryButton = React.memo(() => {
-  const [isPending, startTransition] = useTransition();
-  const onChangeQueryParams = useAppLayoutContextSelector((x) => x.onChangeQueryParams);
-  const closeSecondaryView = useChatLayoutContextSelector((x) => x.closeSecondaryView);
-
-  const removeVersionHistoryQueryParams = useMemoizedFn(async () => {
-    closeSecondaryView();
-    await timeout(250);
-    startTransition(() => {
-      onChangeQueryParams({ metric_version_number: null, dashboard_version_number: null });
-    });
-  });
+  const removeVersionHistoryQueryParams = useCloseVersionHistory();
 
   return (
     <Button variant="link" prefix={<ArrowLeft />} onClick={removeVersionHistoryQueryParams}>
