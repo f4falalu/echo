@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useRef } from 'react';
+import React, { useLayoutEffect, useMemo, useRef } from 'react';
 import { FileContainerHeader } from './FileContainerHeader';
 import { AppPageLayout, AppSplitter, AppSplitterRef } from '@/components/ui/layouts';
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
@@ -58,7 +58,7 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
     return defaulClosedLayout;
   }, []);
 
-  const animateOpenSplitter = useMemoizedFn((side: 'open' | 'closed') => {
+  const animateOpenSplitter = useMemoizedFn(async (side: 'open' | 'closed') => {
     if (side === 'open') {
       appSplitterRef.current?.animateWidth(defaultOpenLayout[1], 'right');
     } else {
@@ -75,8 +75,10 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
     );
   }, [debouncedSelectedFileViewSecondary, selectedFile?.id, selectedFile?.type]);
 
-  useUpdateLayoutEffect(() => {
-    animateOpenSplitter(isOpenSecondary ? 'open' : 'closed');
+  useLayoutEffect(() => {
+    setTimeout(() => {
+      animateOpenSplitter(isOpenSecondary ? 'open' : 'closed');
+    }, 25);
   }, [isOpenSecondary]);
 
   return (

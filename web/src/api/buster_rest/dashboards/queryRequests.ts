@@ -69,7 +69,10 @@ const useGetDashboardAndInitializeMetrics = () => {
 };
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
-  { id, version_number: version_number_prop }: { id: string | undefined; version_number?: number },
+  {
+    id,
+    version_number: version_number_prop
+  }: { id: string | undefined; version_number?: number | null },
   select?: (data: BusterDashboardResponse) => TData
 ) => {
   const searchParams = useSearchParams();
@@ -77,6 +80,7 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
   const queryVersionNumber = searchParams.get('dashboard_version_number');
 
   const version_number = useMemo(() => {
+    if (version_number_prop === null) return undefined;
     return version_number_prop || queryVersionNumber ? parseInt(queryVersionNumber!) : undefined;
   }, [version_number_prop, queryVersionNumber]);
 

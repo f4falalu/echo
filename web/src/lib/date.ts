@@ -207,7 +207,7 @@ export const isDateAfter = ({
   return dayjs(date).isAfter(compareDate, interval);
 };
 
-export const timeFromNow = (date: string | Date, relative = true) => {
+export const timeFromNow = (date: string | Date, relative = false) => {
   return dayjs(new Date(date)).fromNow(relative);
 };
 

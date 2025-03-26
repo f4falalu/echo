@@ -32,7 +32,13 @@ import { useSearchParams } from 'next/navigation';
  * This is a hook that will use the version number from the URL params if it exists.
  */
 export const useGetMetric = <TData = IBusterMetric>(
-  { id, version_number: version_number_prop }: { id: string | undefined; version_number?: number },
+  {
+    id,
+    version_number: version_number_prop
+  }: {
+    id: string | undefined;
+    version_number?: number | null; //if null it will not use a params from the query params
+  },
   select?: (data: IBusterMetric) => TData
 ) => {
   const searchParams = useSearchParams();
@@ -44,6 +50,7 @@ export const useGetMetric = <TData = IBusterMetric>(
   const queryClient = useQueryClient();
 
   const version_number = useMemo(() => {
+    if (version_number_prop === null) return undefined;
     return version_number_prop || queryVersionNumber ? parseInt(queryVersionNumber!) : undefined;
   }, [version_number_prop, queryVersionNumber]);
 
