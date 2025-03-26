@@ -6,13 +6,24 @@ import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
   const { data: metric, isFetched: isMetricFetched } = useGetMetric(
     { id: metricId },
-    ({ name, description, time_frame, permission, evaluation_score, evaluation_summary }) => ({
+    ({
       name,
+      description,
+      time_frame,
+      chart_config,
+      permission,
+      error,
+      evaluation_score,
+      evaluation_summary
+    }) => ({
+      name,
+      error,
       description,
       time_frame,
       permission,
       evaluation_score,
-      evaluation_summary
+      evaluation_summary,
+      chart_config
     })
   );
   const {
@@ -52,15 +63,28 @@ export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
     }
   }, [inViewport]);
 
-  return {
-    renderChart,
-    metric,
-    conatinerRef,
-    metricData,
-    initialAnimationEnded,
-    setInitialAnimationEnded,
-    metricDataUpdatedAt,
-    isFetchedMetricData,
-    isMetricFetched
-  };
+  return useMemo(
+    () => ({
+      renderChart,
+      metric,
+      conatinerRef,
+      metricData,
+      initialAnimationEnded,
+      setInitialAnimationEnded,
+      metricDataUpdatedAt,
+      isFetchedMetricData,
+      isMetricFetched
+    }),
+    [
+      renderChart,
+      metric,
+      conatinerRef,
+      metricData,
+      initialAnimationEnded,
+      setInitialAnimationEnded,
+      metricDataUpdatedAt,
+      isFetchedMetricData,
+      isMetricFetched
+    ]
+  );
 };

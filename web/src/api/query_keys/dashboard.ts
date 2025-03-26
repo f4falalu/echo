@@ -15,9 +15,9 @@ const dashboardGetList = (
     initialDataUpdatedAt: 0
   });
 
-const dashboardGetDashboard = (dashboardId: string) =>
+const dashboardGetDashboard = (dashboardId: string, version_number?: number) =>
   queryOptions<BusterDashboardResponse>({
-    queryKey: ['dashboard', 'get', dashboardId] as const,
+    queryKey: ['dashboard', 'get', dashboardId, version_number] as const,
     staleTime: 10 * 1000
   });
 

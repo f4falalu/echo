@@ -5,14 +5,15 @@ import React, { PropsWithChildren } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import type { AppSplitterRef } from '@/components/ui/layouts';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from './config';
-import { useLayoutCollapse, useSelectedFileAndLayout } from '../hooks';
-import { useChatFileLayout } from './useChatFileLayout';
+import { useLayoutCollapse } from './useLayoutCollapse';
+import { useSelectedFile } from './useSelectedFile';
+import { useLayoutConfig } from './useLayoutConfig';
 
-interface UseChatSplitterProps {
+interface UseLayoutConfigProps {
   appSplitterRef: React.RefObject<AppSplitterRef | null>;
 }
 
-export const useChatLayout = ({ appSplitterRef }: UseChatSplitterProps) => {
+export const useChatLayoutContext = ({ appSplitterRef }: UseLayoutConfigProps) => {
   const animateOpenSplitter = useMemoizedFn((side: 'left' | 'right' | 'both') => {
     if (appSplitterRef.current) {
       const { animateWidth, sizes } = appSplitterRef.current;
@@ -30,7 +31,7 @@ export const useChatLayout = ({ appSplitterRef }: UseChatSplitterProps) => {
 
         animateWidth(DEFAULT_CHAT_OPTION_SIDEBAR_SIZE, 'left');
         setRenderViewLayoutKey('both');
-        fileLayoutContext?.closeSecondaryView();
+        closeSecondaryView();
       }
     }
   });
@@ -41,18 +42,23 @@ export const useChatLayout = ({ appSplitterRef }: UseChatSplitterProps) => {
     chatId,
     onSetSelectedFile,
     setRenderViewLayoutKey,
-    renderViewLayoutKey
-  } = useSelectedFileAndLayout({ animateOpenSplitter });
+    renderViewLayoutKey,
+    isVersionHistoryMode
+  } = useSelectedFile({ animateOpenSplitter });
 
   const onCollapseFileClick = useLayoutCollapse({ onSetSelectedFile });
 
-  const fileLayoutContext = useChatFileLayout({
-    selectedFileId: selectedFile?.id,
-    selectedFileType: selectedFile?.type
-  });
+  const { selectedFileView, selectedFileViewSecondary, onSetFileView, closeSecondaryView } =
+    useLayoutConfig({
+      selectedFileId: selectedFile?.id,
+      selectedFileType: selectedFile?.type
+    });
 
   return {
-    ...fileLayoutContext,
+    selectedFileView,
+    selectedFileViewSecondary,
+    onSetFileView,
+    closeSecondaryView,
     chatId,
     selectedLayout,
     renderViewLayoutKey,
@@ -60,12 +66,13 @@ export const useChatLayout = ({ appSplitterRef }: UseChatSplitterProps) => {
     selectedFile,
     onCollapseFileClick,
     onSetSelectedFile,
-    animateOpenSplitter
+    animateOpenSplitter,
+    isVersionHistoryMode
   };
 };
 
-const ChatLayoutContext = createContext<ReturnType<typeof useChatLayout>>(
-  {} as ReturnType<typeof useChatLayout>
+const ChatLayoutContext = createContext<ReturnType<typeof useChatLayoutContext>>(
+  {} as ReturnType<typeof useChatLayoutContext>
 );
 
 interface ChatLayoutContextProviderProps {}
@@ -73,7 +80,7 @@ interface ChatLayoutContextProviderProps {}
 export const ChatLayoutContextProvider: React.FC<
   PropsWithChildren<
     ChatLayoutContextProviderProps & {
-      useChatLayoutProps: ReturnType<typeof useChatLayout>;
+      useChatLayoutProps: ReturnType<typeof useChatLayoutContext>;
     }
   >
 > = React.memo(({ children, useChatLayoutProps }) => {
@@ -85,5 +92,5 @@ export const ChatLayoutContextProvider: React.FC<
 ChatLayoutContextProvider.displayName = 'ChatLayoutContextProvider';
 
 export const useChatLayoutContextSelector = <T,>(
-  selector: (state: ReturnType<typeof useChatLayout>) => T
+  selector: (state: ReturnType<typeof useChatLayoutContext>) => T
 ) => useContextSelector(ChatLayoutContext, selector);

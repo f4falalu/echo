@@ -1,12 +1,12 @@
 'use client';
 
 import { useMemoizedFn } from '@/hooks';
-import { useSelectedFileAndLayout } from './useSelectedFileAndLayout';
+import { type useSelectedFile } from './useSelectedFile';
 
 export const useLayoutCollapse = ({
   onSetSelectedFile
 }: {
-  onSetSelectedFile: ReturnType<typeof useSelectedFileAndLayout>['onSetSelectedFile'];
+  onSetSelectedFile: ReturnType<typeof useSelectedFile>['onSetSelectedFile'];
 }) => {
   const onCollapseFileClick = useMemoizedFn((close?: boolean) => {
     onSetSelectedFile(null);

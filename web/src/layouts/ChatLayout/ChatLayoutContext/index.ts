@@ -1,3 +1,3 @@
 export * from './ChatLayoutContext';
 export * from './publicHelpers';
-export type * from './useChatFileLayout';
+export * from './useLayoutConfig';

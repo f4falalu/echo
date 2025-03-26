@@ -27,7 +27,7 @@ export const useAutoChangeLayout = ({
 
   //change the page to reasoning file if we get a reasoning message
   useEffect(() => {
-    console.log(isCompletedStream, hasReasoning, lastMessageId, previousLastMessageId.current);
+    // console.log(isCompletedStream, hasReasoning, lastMessageId, previousLastMessageId.current);
     if (!isCompletedStream && hasReasoning && previousLastMessageId.current !== lastMessageId) {
       // hasSeeningReasoningPage.current = true;
       onSetSelectedFile({ id: lastMessageId, type: 'reasoning' });

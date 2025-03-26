@@ -25,15 +25,20 @@ export const dashboardsGetList = async (params: {
 
 export const dashboardsGetDashboard = async ({
   id,
-  password
+  password,
+  version_number
 }: {
   /** The unique identifier of the dashboard */
   id: string;
   /** Optional password for accessing protected dashboards */
   password?: string;
+  /** The version number of the dashboard */
+  version_number?: number;
 }) => {
   return await mainApi
-    .get<BusterDashboardResponse>(`/dashboards/${id}`, { params: { password } })
+    .get<BusterDashboardResponse>(`/dashboards/${id}`, {
+      params: { password, version_number }
+    })
     .then((res) => res.data);
 };
 

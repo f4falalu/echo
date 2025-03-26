@@ -6,7 +6,7 @@ import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './inter
 import { useMemoizedFn } from '@/hooks';
 import { create } from 'mutative';
 
-export const useChatFileLayout = ({
+export const useLayoutConfig = ({
   selectedFileId,
   selectedFileType
 }: {

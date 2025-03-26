@@ -49,11 +49,15 @@ export const useAppLayout = () => {
     }
   );
 
-  const onChangeQueryParams = useMemoizedFn((params: Record<string, string>) => {
+  const onChangeQueryParams = useMemoizedFn((params: Record<string, string | null>) => {
     const searchParams = window.location.search;
     const newSearchParams = new URLSearchParams(searchParams);
     Object.entries(params).forEach(([key, value]) => {
-      newSearchParams.set(key, value);
+      if (value) {
+        newSearchParams.set(key, value);
+      } else {
+        newSearchParams.delete(key);
+      }
     });
     const newPath = `${pathname}?${newSearchParams.toString()}`;
     push(newPath);

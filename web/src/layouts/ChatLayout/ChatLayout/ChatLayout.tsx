@@ -4,8 +4,7 @@ import React, { useMemo, useRef } from 'react';
 import { AppSplitter, AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { ChatContainer } from '../ChatContainer';
 import { FileContainer } from '../FileContainer';
-import { ChatLayoutContextProvider } from '../ChatLayoutContext';
-import { useChatLayout } from '../ChatLayoutContext';
+import { ChatLayoutContextProvider, useChatLayoutContext } from '../ChatLayoutContext';
 import { ChatContextProvider } from '../ChatContext/ChatContext';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from '../ChatLayoutContext/config';
 
@@ -15,7 +14,7 @@ interface ChatSplitterProps {
 
 export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
-  const useChatLayoutProps = useChatLayout({ appSplitterRef });
+  const useChatLayoutProps = useChatLayoutContext({ appSplitterRef });
   const { renderViewLayoutKey, selectedLayout, selectedFile, onSetSelectedFile, chatId } =
     useChatLayoutProps;
 

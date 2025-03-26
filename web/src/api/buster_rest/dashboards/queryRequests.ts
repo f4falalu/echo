@@ -26,6 +26,7 @@ import {
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { addMetricToDashboardConfig, removeMetricFromDashboardConfig } from './helpers';
 import { addAndRemoveMetricsToDashboard } from './helpers/addAndRemoveMetricsToDashboard';
+import { useSearchParams } from 'next/navigation';
 
 export const useGetDashboardsList = (
   params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
@@ -57,10 +58,10 @@ const useGetDashboardAndInitializeMetrics = () => {
     }
   });
 
-  return useMemoizedFn(async (id: string) => {
+  return useMemoizedFn(async (id: string, version_number?: number) => {
     const { password } = getAssetPassword?.(id) || {};
 
-    return dashboardsGetDashboard({ id: id!, password }).then((data) => {
+    return dashboardsGetDashboard({ id: id!, password, version_number }).then((data) => {
       initializeMetrics(data.metrics);
       return data;
     });
@@ -68,15 +69,20 @@ const useGetDashboardAndInitializeMetrics = () => {
 };
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
-  id: string | undefined,
+  { id, version_number: version_number_prop }: { id: string | undefined; version_number?: number },
   select?: (data: BusterDashboardResponse) => TData
 ) => {
+  const searchParams = useSearchParams();
   const queryFn = useGetDashboardAndInitializeMetrics();
-  const queryClient = useQueryClient();
+  const queryVersionNumber = searchParams.get('dashboard_version_number');
+
+  const version_number = useMemo(() => {
+    return version_number_prop || queryVersionNumber ? parseInt(queryVersionNumber!) : undefined;
+  }, [version_number_prop, queryVersionNumber]);
 
   return useQuery({
-    ...dashboardQueryKeys.dashboardGetDashboard(id!),
-    queryFn: () => queryFn(id!),
+    ...dashboardQueryKeys.dashboardGetDashboard(id!, version_number),
+    queryFn: () => queryFn(id!, version_number),
     enabled: !!id,
     select
   });

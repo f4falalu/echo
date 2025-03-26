@@ -42,6 +42,7 @@ export const useGetMetric = <TData = IBusterMetric>(
   const { password } = getAssetPassword(id!);
 
   const queryClient = useQueryClient();
+
   const version_number = useMemo(() => {
     return version_number_prop || queryVersionNumber ? parseInt(queryVersionNumber!) : undefined;
   }, [version_number_prop, queryVersionNumber]);

@@ -11,10 +11,12 @@ import { MetricContainerHeaderButtons } from './MetricContainerHeaderButtons';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { ReasoningContainerHeaderSegment } from './ReasoningContainerHeaderSegment';
 import { useAssetCheck } from '@/api/buster_rest/assets/queryRequests';
+import { FileContainerVersionHistory } from './FileContainerVersionHistory';
 
 export const FileContainerHeader: React.FC = React.memo(() => {
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFile?.type);
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView);
+  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
   const selectedFileId = useChatLayoutContextSelector((x) => x.selectedFile?.id);
   const onCollapseFileClick = useChatLayoutContextSelector((state) => state.onCollapseFileClick);
   const renderViewLayoutKey = useChatLayoutContextSelector((state) => state.renderViewLayoutKey);
@@ -42,6 +44,8 @@ export const FileContainerHeader: React.FC = React.memo(() => {
     (x) => x.has_access
   );
 
+  if (isVersionHistoryMode) return <FileContainerVersionHistory />;
+
   return (
     <>
       <div className="flex items-center gap-1.5">
@@ -56,6 +60,7 @@ export const FileContainerHeader: React.FC = React.memo(() => {
           />
         )}
       </div>
+
       {hasAccess && <SelectedFileButtons selectedFileView={selectedFileView} />}
     </>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FileContainerSegmentProps } from './interfaces';
-import type { FileView } from '../../ChatLayoutContext/useChatFileLayout';
+import type { FileView } from '../../ChatLayoutContext/useLayoutConfig';
 import { AppSegmented } from '@/components/ui/segmented';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { useMemoizedFn } from '@/hooks';
