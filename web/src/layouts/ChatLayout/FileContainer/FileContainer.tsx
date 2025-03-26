@@ -82,7 +82,15 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
   }, [isOpenSecondary]);
 
   return (
-    <AppPageLayout className="flex h-full min-w-[380px] flex-col" header={<FileContainerHeader />}>
+    <AppPageLayout
+      className="flex h-full min-w-[380px] flex-col"
+      header={useMemo(
+        () => (
+          <FileContainerHeader />
+        ),
+        []
+      )}
+      headerClassName="border-l">
       <AppSplitter
         ref={appSplitterRef}
         autoSaveId={autoSaveId}

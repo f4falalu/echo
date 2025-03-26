@@ -81,7 +81,7 @@ export const buttonIconVariants = cva('', {
   variants: {
     variant: {
       default: 'text-icon-color',
-      black: 'text-white',
+      black: 'text-white!',
       primary: 'text-white',
       ghost: 'text-icon-color',
       link: 'text-icon-color',
@@ -98,7 +98,14 @@ export const buttonIconVariants = cva('', {
       true: 'text-gray-light',
       false: ''
     }
-  }
+  },
+  compoundVariants: [
+    {
+      variant: 'black',
+      disabled: true,
+      className: 'text-white'
+    }
+  ]
 });
 
 const loadingSizeVariants = {

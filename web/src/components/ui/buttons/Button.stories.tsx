@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Button } from './Button';
 import * as OutlinedIcons from '../icons/NucleoIconOutlined';
 import { IconSelectOutlined } from '../icons/NucleoIconOutlined/iconStories';
+import { ArrowUp } from '../icons/NucleoIconOutlined';
 
 const meta: Meta<typeof Button> = {
   title: 'UI/Buttons/Button',
@@ -146,10 +147,11 @@ export const Small: Story = {
 
 export const IconButton: Story = {
   args: {
-    variant: 'default',
-    size: 'default',
-    prefix: 'ShapeSquare',
-    children: ''
+    variant: 'black',
+    size: 'tall',
+    prefix: 'ArrowUp',
+    children: '',
+    rounding: 'full'
   }
 };
 
