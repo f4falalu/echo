@@ -46,7 +46,7 @@ const useSupabaseContextInternal = ({
       const decoded = jwtDecode(accessToken);
       const expiresAtDecoded = decoded?.exp || 0;
       const ms = millisecondsFromUnixTimestamp(expiresAtDecoded);
-      const isTokenExpired = ms < 0;
+      const isTokenExpired = ms < 5 * 60 * 1000; // 5 minutes
 
       if (isTokenExpired) {
         const res = await checkTokenValidityFromServerApiCall({
@@ -110,7 +110,6 @@ const useSupabaseContextInternal = ({
     isAnonymousUser,
     setAccessToken,
     accessToken,
-    expiresAt: expiresAt,
     user: supabaseContext.user,
     checkTokenValidity
   };

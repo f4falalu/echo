@@ -11,15 +11,16 @@ import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 
 export const BusterReactQueryProvider = ({ children }: { children: React.ReactElement<any> }) => {
   const accessToken = useSupabaseContext((state) => state.accessToken);
+  const checkTokenValidity = useSupabaseContext((state) => state.checkTokenValidity);
   const queryClient = getQueryClient(accessToken);
 
   useLayoutEffect(() => {
     //reset all request interceptors
     mainApi.interceptors.request.eject(0);
     nextApi.interceptors.request.eject(0);
-    mainApi.interceptors.request.use((v) => defaultRequestHandler(v, { accessToken }));
-    nextApi.interceptors.request.use((v) => defaultRequestHandler(v, { accessToken }));
-  }, [accessToken]);
+    mainApi.interceptors.request.use((v) => defaultRequestHandler(v, { checkTokenValidity }));
+    nextApi.interceptors.request.use((v) => defaultRequestHandler(v, { checkTokenValidity }));
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

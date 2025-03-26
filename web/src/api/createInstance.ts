@@ -3,6 +3,7 @@ import { rustErrorHandler } from './buster_rest/errors';
 import { AxiosRequestHeaders } from 'axios';
 import { isServer } from '@tanstack/react-query';
 import { getSupabaseTokenFromCookies } from './createServerInstance';
+import { SupabaseContextReturnType } from '@/context/Supabase/SupabaseContextProvider';
 
 const AXIOS_TIMEOUT = 120000; // 2 minutes
 
@@ -20,10 +21,6 @@ export const createInstance = (baseURL: string) => {
       return resp;
     },
     (error: AxiosError) => {
-      //Redirect to login if 401 unauthorized error
-      if (error.status === 401 && !isServer) {
-        // window.location.href = BusterRoutes.AUTH_LOGIN;
-      }
       return Promise.reject(rustErrorHandler(error));
     }
   );
@@ -35,19 +32,18 @@ export const createInstance = (baseURL: string) => {
 export const defaultRequestHandler = async (
   config: any,
   options?: {
-    accessToken: string;
+    checkTokenValidity: SupabaseContextReturnType['checkTokenValidity'];
   }
 ) => {
   let token = '';
   if (isServer) {
     token = await getSupabaseTokenFromCookies();
   } else {
-    token = options?.accessToken || '';
+    token = (await options?.checkTokenValidity()?.then((res) => res?.access_token || '')) || '';
+    console.log('token', token?.length);
   }
 
-  if (token) {
-    (config.headers as AxiosRequestHeaders)['Authorization'] = 'Bearer ' + token;
-  }
+  (config.headers as AxiosRequestHeaders)['Authorization'] = 'Bearer ' + token;
 
   return config;
 };
