@@ -8,6 +8,8 @@ import { create } from 'mutative';
 import { ChatLayoutView } from '../../interfaces';
 import type { SelectedFile } from '../../interfaces';
 import { timeout } from '@/lib';
+import { useRouter } from 'next/navigation';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export const useLayoutConfig = ({
   selectedFile,
@@ -22,6 +24,7 @@ export const useLayoutConfig = ({
   animateOpenSplitter: (side: 'left' | 'right' | 'both') => void;
   onSetSelectedFile: (file: SelectedFile | null) => void;
 }) => {
+  const router = useRouter();
   const [fileViews, setFileViews] = useState<Record<string, FileConfig>>({});
 
   const selectedFileId = selectedFile?.id;
@@ -118,9 +121,25 @@ export const useLayoutConfig = ({
     });
   });
 
-  const onCollapseFileClick = useMemoizedFn(() => {
+  const onCollapseFileClick = useMemoizedFn((navigateToChat: boolean = true) => {
     onSetSelectedFile(null);
     closeSecondaryView();
+    if (navigateToChat && chatId) {
+      router.prefetch(
+        createBusterRoute({
+          route: BusterRoutes.APP_CHAT_ID,
+          chatId
+        })
+      );
+      setTimeout(() => {
+        router.push(
+          createBusterRoute({
+            route: BusterRoutes.APP_CHAT_ID,
+            chatId
+          })
+        );
+      }, 250); //wait for the panel to close before navigating
+    }
   });
 
   const selectedLayout: ChatLayoutView = useMemo(() => {
