@@ -1,12 +1,13 @@
+'use client';
+
 import React from 'react';
-import { getSupabaseServerContext } from '@/context/Supabase/getSupabaseServerContext';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { ClientSideAnonCheck } from './ClientSideAnonCheck';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
-import { prefetchAssetCheck } from '@/api/buster_rest/assets/queryRequests';
+import { prefetchAssetCheck, useAssetCheck } from '@/api/buster_rest/assets';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
 export type AppAssetCheckLayoutProps = {
@@ -18,58 +19,63 @@ export const AppAssetCheckLayout: React.FC<
   {
     children: React.ReactNode;
   } & AppAssetCheckLayoutProps
-> = async ({ children, type, assetId }) => {
-  const { accessToken: jwtToken, user } = await getSupabaseServerContext();
+> = ({ children, type, assetId }) => {
+  const { data: hasAccess } = useAssetCheck(
+    { assetId: assetId, fileType: type },
+    (x) => x.has_access
+  );
 
-  if (!jwtToken) {
-    return redirect(
-      createBusterRoute({
-        route: BusterRoutes.AUTH_LOGIN
-      })
-    );
-  }
+  return <div>TODO</div>;
 
-  let { res, queryClient } = await prefetchAssetCheck({
-    fileType: type,
-    assetId: assetId,
-    jwtToken
-  });
+  // if (!jwtToken) {
+  //   return redirect(
+  //     createBusterRoute({
+  //       route: BusterRoutes.AUTH_LOGIN
+  //     })
+  //   );
+  // }
 
-  if (!res) {
-    return redirect(
-      createBusterRoute({
-        route: BusterRoutes.APP_HOME
-      })
-    );
-  }
+  // let { res, queryClient } = await prefetchAssetCheck({
+  //   fileType: type,
+  //   assetId: assetId,
+  //   jwtToken
+  // });
 
-  const { has_access, password_required, public: pagePublic } = res;
+  // if (!res) {
+  //   return redirect(
+  //     createBusterRoute({
+  //       route: BusterRoutes.APP_HOME
+  //     })
+  //   );
+  // }
 
-  const Component = (() => {
-    if (has_access || (pagePublic && !password_required)) {
-      return <ClientSideAnonCheck jwtToken={jwtToken}>{children}</ClientSideAnonCheck>;
-    }
+  // const { has_access, password_required, public: pagePublic } = res;
 
-    if (pagePublic && password_required) {
-      return (
-        <ClientSideAnonCheck jwtToken={jwtToken}>
-          <AppPasswordAccess assetId={assetId} type={type as ShareAssetType}>
-            {children}
-          </AppPasswordAccess>
-        </ClientSideAnonCheck>
-      );
-    }
+  // const Component = (() => {
+  //   if (has_access || (pagePublic && !password_required)) {
+  //     return <ClientSideAnonCheck jwtToken={jwtToken}>{children}</ClientSideAnonCheck>;
+  //   }
 
-    if (!has_access && !pagePublic) {
-      return (
-        <ClientSideAnonCheck jwtToken={jwtToken}>
-          <AppNoPageAccess assetId={assetId} />
-        </ClientSideAnonCheck>
-      );
-    }
+  //   if (pagePublic && password_required) {
+  //     return (
+  //       <ClientSideAnonCheck jwtToken={jwtToken}>
+  //         <AppPasswordAccess assetId={assetId} type={type as ShareAssetType}>
+  //           {children}
+  //         </AppPasswordAccess>
+  //       </ClientSideAnonCheck>
+  //     );
+  //   }
 
-    return <>{children}</>;
-  })();
+  //   if (!has_access && !pagePublic) {
+  //     return (
+  //       <ClientSideAnonCheck jwtToken={jwtToken}>
+  //         <AppNoPageAccess assetId={assetId} />
+  //       </ClientSideAnonCheck>
+  //     );
+  //   }
 
-  return <HydrationBoundary state={dehydrate(queryClient)}>{Component}</HydrationBoundary>;
+  //   return <>{children}</>;
+  // })();
+
+  // return <HydrationBoundary state={dehydrate(queryClient)}>{Component}</HydrationBoundary>;
 };

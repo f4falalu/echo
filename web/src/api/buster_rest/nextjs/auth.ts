@@ -2,17 +2,24 @@ import axios from 'axios';
 
 export const checkTokenValidityFromServer = async (d?: {
   accessToken: string;
-}): Promise<{
-  isTokenValid: boolean;
-  access_token: string;
-  expires_at: number;
-  refresh_token: string | null;
-}> => {
+  preemptiveRefreshMinutes: number;
+}) => {
   return await axios
-    .post('/api/auth', undefined, {
-      headers: {
-        Authorization: `Bearer ${d?.accessToken}`
+    .post<{
+      isTokenValid: boolean;
+      access_token: string;
+      expires_at: number;
+      refresh_token: string | null;
+    }>(
+      '/api/auth/refresh',
+      {
+        preemptiveRefreshMinutes: d?.preemptiveRefreshMinutes
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${d?.accessToken}`
+        }
       }
-    })
+    )
     .then((res) => res.data);
 };

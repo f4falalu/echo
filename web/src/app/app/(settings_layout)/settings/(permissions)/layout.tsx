@@ -1,5 +1,5 @@
+import { checkIfUserIsAdmin_server } from '@/context/Users/checkIfUserIsAdmin';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { checkIfUserIsAdmin_server } from '@/server_context/user';
 import { redirect } from 'next/navigation';
 import React from 'react';
 

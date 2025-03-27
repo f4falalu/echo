@@ -33,33 +33,3 @@ export type BusterRoutesWithArgs = BusterRootRoutesWithArgs &
   BusterSettingsRoutesWithArgs;
 
 export type BusterRoutesWithArgsRoute = BusterRoutesWithArgs[BusterRoutes];
-
-export const createBusterRoute = ({ route, ...args }: BusterRoutesWithArgsRoute) => {
-  if (!args) return route;
-  return Object.entries(args).reduce<string>((acc, [key, value]) => {
-    acc.replace(`[${key}]`, value as string);
-    return acc.replace(`:${key}`, value as string);
-  }, route || '');
-};
-
-const routeToRegex = (route: string): RegExp => {
-  const dynamicParts = /:[^/]+/g;
-  const regexPattern = route.replace(dynamicParts, '[^/]+');
-  return new RegExp(`^${regexPattern}$`);
-};
-
-const routes = Object.values(BusterRoutes) as string[];
-const matchDynamicUrlToRoute = (pathname: string): BusterAppRoutes | null => {
-  for (const route of routes) {
-    const regex = routeToRegex(route);
-    if (regex.test(pathname)) {
-      return route as BusterAppRoutes;
-    }
-  }
-  return null;
-};
-
-export const createPathnameToBusterRoute = (pathname: string): BusterRoutes => {
-  const foundRoute = Object.values(BusterRoutes).find((route) => route === pathname);
-  return foundRoute || (matchDynamicUrlToRoute(pathname) as BusterRoutes);
-};

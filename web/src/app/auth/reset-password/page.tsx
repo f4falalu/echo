@@ -1,17 +1,13 @@
 import React from 'react';
-import { resetPassword } from '@/server_context/supabaseAuthMethods';
 import { redirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { getSupabaseServerContext } from '@/context/Supabase/getSupabaseServerContext';
 import { getMyUserInfo_server } from '@/api/buster_rest';
 import { ResetPasswordForm } from '@/components/features/auth/ResetPasswordForm';
-
-export const dynamic = 'force-dynamic';
+import { resetPassword } from '@/lib/supabase/resetPassword';
+import { getSupabaseUserContext } from '@/lib/supabase';
 
 export default async function ResetPassword() {
-  const supabaseContext = await getSupabaseServerContext();
-
-  const { user } = supabaseContext;
+  const { user, accessToken } = await getSupabaseUserContext();
 
   if (!user?.id) {
     return redirect(
@@ -21,7 +17,7 @@ export default async function ResetPassword() {
     );
   }
 
-  const busterUser = await getMyUserInfo_server({ jwtToken: supabaseContext.accessToken });
+  const busterUser = await getMyUserInfo_server({ jwtToken: accessToken });
 
   if (!busterUser?.user?.email) {
     return redirect(

@@ -1,15 +1,14 @@
 import React, { PropsWithChildren } from 'react';
 import { BusterWebSocketProvider } from './BusterWebSocket';
 import { SupabaseContextProvider } from './Supabase/SupabaseContextProvider';
-import { UseSupabaseContextType } from './Supabase/getSupabaseServerContext';
 import { BusterReactQueryProvider } from './BusterReactQuery/BusterReactQueryAndApi';
 import { AppLayoutProvider } from './BusterAppLayout';
 import { BusterUserConfigProvider } from './Users/BusterUserConfigProvider';
 import { BusterAssetsProvider } from './Assets/BusterAssetsProvider';
 import { BusterPosthogProvider } from './Posthog';
 import { BusterNewChatProvider } from './Chats';
-import { RoutePrefetcher } from './RoutePrefetcher';
-import type { BusterUserResponse } from '@/api/asset_interfaces';
+import type { UseSupabaseUserContextType } from '@/lib/supabase';
+import { dehydrate, HydrationBoundary, type QueryClient } from '@tanstack/react-query';
 
 // scan({
 //   enabled: true,
@@ -19,27 +18,26 @@ import type { BusterUserResponse } from '@/api/asset_interfaces';
 
 export const AppProviders: React.FC<
   PropsWithChildren<{
-    supabaseContext: UseSupabaseContextType;
-    userInfo: BusterUserResponse | undefined;
+    supabaseContext: UseSupabaseUserContextType;
+    queryClient: QueryClient;
   }>
-> = ({ children, supabaseContext, userInfo }) => {
+> = ({ children, queryClient, supabaseContext }) => {
   return (
     <SupabaseContextProvider supabaseContext={supabaseContext}>
       <BusterReactQueryProvider>
-        <BusterWebSocketProvider>
-          <AppLayoutProvider>
-            <BusterUserConfigProvider userInfo={userInfo}>
-              <BusterAssetsProvider>
-                <BusterNewChatProvider>
-                  <BusterPosthogProvider>
-                    {children}
-                    <RoutePrefetcher />
-                  </BusterPosthogProvider>
-                </BusterNewChatProvider>
-              </BusterAssetsProvider>
-            </BusterUserConfigProvider>
-          </AppLayoutProvider>
-        </BusterWebSocketProvider>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <BusterWebSocketProvider>
+            <AppLayoutProvider>
+              <BusterUserConfigProvider>
+                <BusterAssetsProvider>
+                  <BusterNewChatProvider>
+                    <BusterPosthogProvider>{children}</BusterPosthogProvider>
+                  </BusterNewChatProvider>
+                </BusterAssetsProvider>
+              </BusterUserConfigProvider>
+            </AppLayoutProvider>
+          </BusterWebSocketProvider>
+        </HydrationBoundary>
       </BusterReactQueryProvider>
     </SupabaseContextProvider>
   );

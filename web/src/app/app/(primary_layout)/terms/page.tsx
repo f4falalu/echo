@@ -10,6 +10,7 @@ export default function TermsPage() {
 
   return (
     <AppPageLayout
+      headerSizeVariant="list"
       header={
         <TermsHeader
           openNewTermsModal={openNewTermsModal}

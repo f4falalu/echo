@@ -1,22 +1,17 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { updateSession } from './middleware/supabaseMiddleware';
-import { isPublicPage } from './middleware/publicPageMiddleware';
-import { BusterRoutes, createBusterRoute } from './routes';
-import { cspPolicyMiddleware } from './middleware/cspPolicyMiddleware';
-import { nextPathnameMiddleware } from './middleware/nextPathnameMiddleware';
+import { updateSession } from '@/middleware/supabaseMiddleware';
+import { isPublicPage, BusterRoutes, createBusterRoute } from './routes';
 
 export async function middleware(request: NextRequest) {
   try {
     const [supabaseResponse, user] = await updateSession(request);
-    const performUserCheck = !isPublicPage(request);
-    cspPolicyMiddleware(request);
-    nextPathnameMiddleware(request, supabaseResponse);
 
-    if (performUserCheck && !user) {
+    if ((!user || !user.id) && !isPublicPage(request)) {
       return NextResponse.redirect(
-        new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), process.env.NEXT_PUBLIC_URL)
+        new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), request.url)
       );
     }
+
     return supabaseResponse;
   } catch (error) {
     console.error('Error in middleware:', error);
@@ -31,7 +26,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)'
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
   ]
 };

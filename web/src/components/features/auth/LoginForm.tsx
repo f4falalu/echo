@@ -1,46 +1,41 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { User } from '@supabase/auth-js';
 import { Button } from '@/components/ui/buttons';
 import { Input } from '@/components/ui/inputs';
-import { inputHasText, isValidEmail } from '@/lib';
+import { Title, Text } from '@/components/ui/typography';
+import { inputHasText } from '@/lib/text';
+import { isValidEmail } from '@/lib/email';
 import { useMemoizedFn } from '@/hooks';
 import Link from 'next/link';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import Google from '@/components/ui/icons/customIcons/Google';
 import Microsoft from '@/components/ui/icons/customIcons/Microsoft';
 import Github from '@/components/ui/icons/customIcons/Github';
-import { Title, Text } from '@/components/ui/typography';
 import Cookies from 'js-cookie';
 import { PolicyCheck } from './PolicyCheck';
 import { rustErrorHandler } from '@/api/buster_rest/errors';
 import { cn } from '@/lib/classMerge';
+import { SuccessCard } from '@/components/ui/card/SuccessCard';
+import { useHotkeys } from 'react-hotkeys-hook';
 import {
   signInWithAzure,
   signInWithEmailAndPassword,
   signInWithGithub,
   signInWithGoogle,
   signUp
-} from '@/server_context/supabaseAuthMethods';
-import { SuccessCard } from '@/components/ui/card/SuccessCard';
-import { useHotkeys } from 'react-hotkeys-hook';
+} from '@/lib/supabase/signIn';
 
 const DEFAULT_CREDENTIALS = {
   email: process.env.NEXT_PUBLIC_USER!,
   password: process.env.NEXT_PUBLIC_USER_PASSWORD!
 };
 
-export const LoginForm: React.FC<{
-  user: null | User;
-}> = ({ user }) => {
-  const hasSupabaseUser = !!user;
-
+export const LoginForm: React.FC<{}> = ({}) => {
   const [loading, setLoading] = useState<'google' | 'github' | 'azure' | 'email' | null>(null);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
-  const [signUpFlow, setSignUpFlow] = useState(hasSupabaseUser);
+  const [signUpFlow, setSignUpFlow] = useState(true);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
-  const hasUser = signUpFlow;
 
   const errorFallback = (error: any) => {
     const errorMessage = rustErrorHandler(error);
@@ -110,13 +105,13 @@ export const LoginForm: React.FC<{
     setLoading(null);
   });
 
-  const onSubmitClick = (d: { email: string; password: string }) => {
+  const onSubmitClick = useMemoizedFn((d: { email: string; password: string }) => {
     try {
       setErrorMessages([]);
       setLoading('email');
 
-      if (hasUser) onSignInWithUsernameAndPassword(d);
-      else onSignUp(d);
+      if (signUpFlow) onSignUp(d);
+      else onSignInWithUsernameAndPassword(d);
     } catch (error: any) {
       const errorMessage = rustErrorHandler(error);
       if (errorMessage?.message == 'User already registered') {
@@ -130,7 +125,7 @@ export const LoginForm: React.FC<{
       }
       setLoading(null);
     }
-  };
+  });
 
   return (
     <div className="flex h-full flex-col items-center justify-center">
@@ -139,7 +134,6 @@ export const LoginForm: React.FC<{
           <SignUpSuccess setSignUpSuccess={setSignUpSuccess} setSignUpFlow={setSignUpFlow} />
         ) : (
           <LoginOptions
-            hasUser={hasUser}
             onSubmitClick={onSubmitClick}
             setSignUpFlow={setSignUpFlow}
             errorMessages={errorMessages}
@@ -157,7 +151,6 @@ export const LoginForm: React.FC<{
 };
 
 const LoginOptions: React.FC<{
-  hasUser: boolean;
   onSubmitClick: (d: { email: string; password: string }) => void;
   onSignInWithGoogle: () => void;
   onSignInWithGithub: () => void;
@@ -168,7 +161,6 @@ const LoginOptions: React.FC<{
   setErrorMessages: (value: string[]) => void;
   signUpFlow: boolean;
 }> = ({
-  hasUser,
   onSubmitClick,
   onSignInWithGoogle,
   onSignInWithGithub,
@@ -208,7 +200,7 @@ const LoginOptions: React.FC<{
   return (
     <>
       <div className="flex flex-col items-center text-center">
-        <WelcomeText hasUser={hasUser} />
+        <WelcomeText signUpFlow={signUpFlow} />
       </div>
 
       <form
@@ -228,7 +220,7 @@ const LoginOptions: React.FC<{
           }}
           block={true}
           loading={loading === 'google'}>
-          {hasUser ? `Continue with Google` : `Sign up with Google`}
+          {!signUpFlow ? `Continue with Google` : `Sign up with Google`}
         </Button>
         <Button
           prefix={<Github />}
@@ -238,7 +230,7 @@ const LoginOptions: React.FC<{
           }}
           block={true}
           loading={loading === 'github'}>
-          {hasUser ? `Continue with Github` : `Sign up with Github`}
+          {!signUpFlow ? `Continue with Github` : `Sign up with Github`}
         </Button>
         <Button
           prefix={<Microsoft />}
@@ -248,7 +240,7 @@ const LoginOptions: React.FC<{
           }}
           block={true}
           loading={loading === 'azure'}>
-          {hasUser ? `Continue with Azure` : `Sign up with Azure`}
+          {!signUpFlow ? `Continue with Azure` : `Sign up with Azure`}
         </Button>
 
         <div className="bg-border h-[0.5px] w-full" />
@@ -279,11 +271,13 @@ const LoginOptions: React.FC<{
             placeholder="Password"
             autoComplete="new-password"
           />
-          <div className="absolute top-0 right-1.5 flex h-full items-center">
-            <PolicyCheck password={password} show={!hasUser} onCheckChange={setPasswordCheck} />
-          </div>
+          {signUpFlow && (
+            <div className="absolute top-0 right-1.5 flex h-full items-center">
+              <PolicyCheck password={password} show={signUpFlow} onCheckChange={setPasswordCheck} />
+            </div>
+          )}
         </div>
-        {!hasUser && (
+        {signUpFlow && (
           <Input
             value={password2}
             onChange={(v) => {
@@ -306,29 +300,28 @@ const LoginOptions: React.FC<{
 
         <PolicyCheck
           password={password}
-          show={!hasUser && disableSubmitButton && !!password}
+          show={signUpFlow && disableSubmitButton && !!password}
           placement="top">
           <Button
             block={true}
             type="submit"
             loading={loading === 'email'}
             variant="black"
-            disabled={hasUser ? false : disableSubmitButton}>
-            {hasUser ? `Sign in` : `Sign up`}
+            disabled={!signUpFlow ? false : disableSubmitButton}>
+            {!signUpFlow ? `Sign in` : `Sign up`}
           </Button>
         </PolicyCheck>
       </form>
 
       <div className="flex flex-col gap-y-2 pt-0">
         <AlreadyHaveAccount
-          hasUser={hasUser}
           setErrorMessages={setErrorMessages}
           setPassword2={setPassword2}
           setSignUpFlow={setSignUpFlow}
           signUpFlow={signUpFlow}
         />
 
-        {hasUser && <ResetPasswordLink email={email} />}
+        {!signUpFlow && <ResetPasswordLink email={email} />}
       </div>
     </>
   );
@@ -358,9 +351,9 @@ const SignUpSuccess: React.FC<{
 };
 
 const WelcomeText: React.FC<{
-  hasUser: boolean;
-}> = ({ hasUser }) => {
-  const text = hasUser ? `Sign in` : `Sign up for free`;
+  signUpFlow: boolean;
+}> = ({ signUpFlow }) => {
+  const text = !signUpFlow ? `Sign in` : `Sign up for free`;
 
   return (
     <Title className="mb-0" as="h1">
@@ -380,16 +373,15 @@ const LoginAlertMessage: React.FC<{
 };
 
 const AlreadyHaveAccount: React.FC<{
-  hasUser: boolean;
   setErrorMessages: (value: string[]) => void;
   setPassword2: (value: string) => void;
   setSignUpFlow: (value: boolean) => void;
   signUpFlow: boolean;
-}> = React.memo(({ hasUser, setErrorMessages, setPassword2, setSignUpFlow, signUpFlow }) => {
+}> = React.memo(({ setErrorMessages, setPassword2, setSignUpFlow, signUpFlow }) => {
   return (
     <div className="flex items-center justify-center gap-0.5">
       <Text className="" variant="secondary" size="xs">
-        {!hasUser ? `Already have an account? ` : `Don’t already have an account? `}
+        {signUpFlow ? `Already have an account? ` : `Don’t already have an account? `}
       </Text>
 
       <Text
@@ -401,7 +393,7 @@ const AlreadyHaveAccount: React.FC<{
           setPassword2('');
           setSignUpFlow(!signUpFlow);
         }}>
-        {hasUser ? `Sign up` : `Sign in`}
+        {!signUpFlow ? `Sign up` : `Sign in`}
       </Text>
     </div>
   );

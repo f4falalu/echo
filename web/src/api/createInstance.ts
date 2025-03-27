@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { rustErrorHandler } from './buster_rest/errors';
 import { AxiosRequestHeaders } from 'axios';
 import { isServer } from '@tanstack/react-query';
@@ -30,7 +30,7 @@ export const createInstance = (baseURL: string) => {
 };
 
 export const defaultRequestHandler = async (
-  config: any,
+  config: InternalAxiosRequestConfig<any>,
   options?: {
     checkTokenValidity: SupabaseContextReturnType['checkTokenValidity'];
   }
@@ -40,7 +40,6 @@ export const defaultRequestHandler = async (
     token = await getSupabaseTokenFromCookies();
   } else {
     token = (await options?.checkTokenValidity()?.then((res) => res?.access_token || '')) || '';
-    console.log('token', token?.length);
   }
 
   (config.headers as AxiosRequestHeaders)['Authorization'] = 'Bearer ' + token;
