@@ -26,8 +26,6 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
     return ['380px', 'auto'];
   }, [selectedLayout]);
 
-  console.log(selectedLayout);
-
   return (
     <ChatLayoutContextProvider chatLayoutProps={chatLayoutProps}>
       <ChatContextProvider

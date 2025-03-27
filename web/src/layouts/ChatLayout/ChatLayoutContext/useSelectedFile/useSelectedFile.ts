@@ -44,16 +44,11 @@ export const useSelectedFile = ({
     animateOpenSplitter('both');
   });
 
-  const onCollapseFileClick = useMemoizedFn((close?: boolean) => {
-    onSetSelectedFile(null);
-  });
-
   return useMemo(
     () => ({
       isVersionHistoryMode,
       onSetSelectedFile,
-      selectedFile,
-      onCollapseFileClick
+      selectedFile
     }),
     [onSetSelectedFile, isVersionHistoryMode, selectedFile]
   );

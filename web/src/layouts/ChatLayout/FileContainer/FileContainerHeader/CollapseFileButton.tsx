@@ -2,17 +2,13 @@ import { DoubleChevronRight } from '@/components/ui/icons';
 import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMemoizedFn } from '@/hooks';
+import { AppTooltip } from '@/components/ui/tooltip';
 
 export const CollapseFileButton: React.FC<{
   showCollapseButton: boolean;
-  onCollapseFileClick: (value?: boolean) => void;
+  onCollapseFileClick: () => void;
 }> = React.memo(({ showCollapseButton, onCollapseFileClick }) => {
   const icon = <DoubleChevronRight />;
-
-  const onClick = useMemoizedFn(() => {
-    onCollapseFileClick();
-  });
 
   const animation = useMemo(() => {
     return {
@@ -26,7 +22,9 @@ export const CollapseFileButton: React.FC<{
     <AnimatePresence mode="wait" initial={false}>
       {showCollapseButton && (
         <motion.div variants={animation}>
-          <Button onClick={onClick} variant="ghost" prefix={icon}></Button>
+          <AppTooltip title="Collapse file" delayDuration={350}>
+            <Button onClick={onCollapseFileClick} variant="ghost" prefix={icon}></Button>
+          </AppTooltip>
         </motion.div>
       )}
     </AnimatePresence>

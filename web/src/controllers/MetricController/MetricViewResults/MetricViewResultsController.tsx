@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import type { MetricViewProps } from '../config';
 import { useMemoizedFn, useUnmount } from '@/hooks';
 import { IDataResult } from '@/api/asset_interfaces';
-import { useMetricLayout } from '../useMetricLayout';
+import { useMetricResultsLayout } from './useMetricResultsLayout';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
 import { AppSplitterRef } from '@/components/ui/layouts';
 import { AppVerticalCodeSplitter } from '@/components/features/layouts/AppVerticalCodeSplitter';
@@ -67,11 +67,10 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
     });
   });
 
-  const { defaultLayout, renderSecondary } = useMetricLayout({
+  const { defaultLayout, renderSecondary } = useMetricResultsLayout({
     selectedFileViewSecondary,
     appSplitterRef,
-    autoSaveId,
-    type: 'sql'
+    autoSaveId
   });
 
   useEffect(() => {

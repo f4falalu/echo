@@ -78,7 +78,7 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
   useLayoutEffect(() => {
     setTimeout(() => {
       animateOpenSplitter(isOpenSecondary ? 'open' : 'closed');
-    }, 25);
+    }, 20);
   }, [isOpenSecondary]);
 
   return (

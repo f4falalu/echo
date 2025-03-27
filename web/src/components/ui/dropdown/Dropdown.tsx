@@ -85,7 +85,7 @@ export const DropdownBase = <T,>({
   closeOnSelect = true,
   onSelect,
   children,
-  align = 'center',
+  align = 'start',
   side = 'bottom',
   open,
   onOpenChange,

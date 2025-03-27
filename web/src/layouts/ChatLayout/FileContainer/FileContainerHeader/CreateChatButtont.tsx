@@ -7,10 +7,9 @@ import { useMemoizedFn } from '@/hooks';
 import { AppTooltip } from '@/components/ui/tooltip';
 
 export const CreateChatButton = React.memo(() => {
-  const onCollapseFileClick = useChatLayoutContextSelector((x) => x.onCollapseFileClick);
-
   const onCollapseFileClickPreflight = useMemoizedFn(() => {
-    onCollapseFileClick(false);
+    //   onCollapseFileClick(false);
+    alert('TODO');
   });
 
   useHotkeys('e', onCollapseFileClickPreflight, { preventDefault: true });

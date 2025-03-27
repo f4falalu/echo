@@ -4,29 +4,23 @@ import { type AppSplitterRef } from '@/components/ui/layouts';
 import Cookies from 'js-cookie';
 import { createAutoSaveId } from '@/components/ui/layouts/AppSplitter/helper';
 
-const defaultChartOpenLayout = ['auto', '310px'];
 const defaultSqlOpenLayout = ['30%', 'auto'];
-
-const defaultChartLayout = ['auto', '0px'];
 const defaultSqlLayout = ['0px', 'auto'];
 
-export const useMetricLayout = ({
+export const useMetricResultsLayout = ({
   selectedFileViewSecondary,
   appSplitterRef,
-  autoSaveId,
-  type
+  autoSaveId
 }: {
   selectedFileViewSecondary: null | string;
   appSplitterRef: React.RefObject<AppSplitterRef | null>;
   autoSaveId: string;
-  type: 'chart' | 'sql';
 }) => {
   const [renderSecondary, setRenderSecondary] = useState<boolean>(!!selectedFileViewSecondary);
 
   const isOpenSecondary = !!selectedFileViewSecondary;
-  const isChart = type === 'chart';
-  const defaultOpenLayout = isChart ? defaultChartOpenLayout : defaultSqlOpenLayout;
-  const defaultOriginalLayout = isChart ? defaultChartLayout : defaultSqlLayout;
+  const defaultOpenLayout = defaultSqlOpenLayout;
+  const defaultOriginalLayout = defaultSqlLayout;
 
   const secondaryLayoutDimensions: [string, string] = useMemo(() => {
     const cookieKey = createAutoSaveId(autoSaveId);
@@ -54,20 +48,10 @@ export const useMetricLayout = ({
   const animateOpenSplitter = useMemoizedFn((side: 'metric' | 'both') => {
     if (!appSplitterRef.current) return;
 
-    if (type === 'chart') {
-      if (side === 'metric') {
-        appSplitterRef.current.animateWidth('100%', 'left');
-      } else if (side === 'both') {
-        appSplitterRef.current.animateWidth('310px', 'right');
-      }
-    }
-
-    if (type === 'sql') {
-      if (side === 'metric') {
-        appSplitterRef.current.animateWidth('0px', 'left');
-      } else if (side === 'both') {
-        appSplitterRef.current.animateWidth('40%', 'left');
-      }
+    if (side === 'metric') {
+      appSplitterRef.current.animateWidth('0px', 'left');
+    } else if (side === 'both') {
+      appSplitterRef.current.animateWidth('40%', 'left');
     }
   });
 

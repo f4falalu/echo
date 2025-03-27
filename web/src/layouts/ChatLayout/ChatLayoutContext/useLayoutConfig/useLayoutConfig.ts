@@ -7,15 +7,20 @@ import { useMemoizedFn } from '@/hooks';
 import { create } from 'mutative';
 import { ChatLayoutView } from '../../interfaces';
 import type { SelectedFile } from '../../interfaces';
+import { timeout } from '@/lib';
 
 export const useLayoutConfig = ({
   selectedFile,
   isVersionHistoryMode,
-  chatId
+  chatId,
+  onSetSelectedFile,
+  animateOpenSplitter
 }: {
   selectedFile: SelectedFile | null;
   isVersionHistoryMode: boolean;
   chatId: string | undefined;
+  animateOpenSplitter: (side: 'left' | 'right' | 'both') => void;
+  onSetSelectedFile: (file: SelectedFile | null) => void;
 }) => {
   const [fileViews, setFileViews] = useState<Record<string, FileConfig>>({});
 
@@ -48,7 +53,7 @@ export const useLayoutConfig = ({
   }, [selectedFileViewConfig]);
 
   const onSetFileView = useMemoizedFn(
-    ({
+    async ({
       fileView,
       fileId: fileIdProp,
       secondaryView,
@@ -61,6 +66,14 @@ export const useLayoutConfig = ({
     }) => {
       const fileId = fileIdProp ?? selectedFileId;
       if (!fileId) return;
+
+      if (secondaryView) {
+        animateOpenSplitter('right');
+        await timeout(250); //wait for splitter to close before opening secondary view
+      } else {
+        animateOpenSplitter('both');
+      }
+
       setFileViews((prev) => {
         return create(prev, (draft) => {
           if (!draft[fileId]) {
@@ -105,6 +118,11 @@ export const useLayoutConfig = ({
     });
   });
 
+  const onCollapseFileClick = useMemoizedFn(() => {
+    onSetSelectedFile(null);
+    closeSecondaryView();
+  });
+
   const selectedLayout: ChatLayoutView = useMemo(() => {
     if (chatId) {
       if (selectedFileId) return 'both';
@@ -128,14 +146,26 @@ export const useLayoutConfig = ({
     }
   }, [isVersionHistoryMode, selectedFileId]);
 
-  return {
-    selectedLayout,
-    selectedFileView,
-    selectedFileViewSecondary,
-    selectedFileViewRenderSecondary,
-    onSetFileView,
-    closeSecondaryView
-  };
+  return useMemo(
+    () => ({
+      selectedLayout,
+      selectedFileView,
+      selectedFileViewSecondary,
+      selectedFileViewRenderSecondary,
+      onSetFileView,
+      closeSecondaryView,
+      onCollapseFileClick
+    }),
+    [
+      selectedLayout,
+      selectedFileView,
+      selectedFileViewSecondary,
+      selectedFileViewRenderSecondary,
+      onSetFileView,
+      closeSecondaryView,
+      onCollapseFileClick
+    ]
+  );
 };
 
 const DEFAULT_FILE_VIEW: Record<FileType, FileView> = {
