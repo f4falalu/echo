@@ -1,5 +1,6 @@
 import { MetricController } from '@/controllers/MetricController';
 import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
+import { timeout } from '@/lib';
 
 export default async function Page(props: {
   params: Promise<{ chatId: string; metricId: string }>;
