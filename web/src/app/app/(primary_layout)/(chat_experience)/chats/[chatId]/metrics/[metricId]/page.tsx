@@ -12,14 +12,7 @@ export default async function Page(props: {
 
   const queryClient = await prefetchGetMetric({ id: metricId });
 
-  const data = queryClient.getQueryData(queryKeys.metricsGetMetric(metricId).queryKey);
-  const state = queryClient.getQueryState(queryKeys.metricsGetMetric(metricId).queryKey);
-  const errorMessage = state?.error?.message;
-  const errorCode = state?.error;
-
-  console.log('data-------', data);
-  console.log('state error message-------', errorMessage);
-  console.log('state error code-------', errorCode);
+  // const state = queryClient.getQueryState(queryKeys.metricsGetMetric(metricId).queryKey);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

@@ -4,6 +4,7 @@ import { BASE_URL } from './buster_rest/config';
 import type { RequestInit } from 'next/dist/server/web/spec-extension/request';
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
+import { RustApiError } from './buster_rest/errors';
 
 export interface FetchConfig extends RequestInit {
   baseURL?: string;
@@ -40,11 +41,10 @@ export const serverFetch = async <T>(url: string, config: FetchConfig = {}): Pro
     });
 
     if (!response.ok) {
-      const errorCode = response.status;
-      const errorMessage = response.statusText;
-      throw new Error(`HTTP error! ${errorMessage}`, {
-        cause: errorMessage
-      });
+      throw {
+        status: response.status,
+        message: response.statusText
+      } satisfies RustApiError;
     }
 
     return response.json();

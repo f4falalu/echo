@@ -34,4 +34,5 @@ export const rustErrorHandler = (errors: any = {}): RustApiError => {
 
 export interface RustApiError {
   message?: string;
+  status?: number;
 }
