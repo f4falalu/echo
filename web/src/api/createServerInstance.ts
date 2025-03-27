@@ -40,7 +40,11 @@ export const serverFetch = async <T>(url: string, config: FetchConfig = {}): Pro
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorCode = response.status;
+      const errorMessage = response.statusText;
+      throw new Error(`HTTP error! ${errorMessage}`, {
+        cause: errorMessage
+      });
     }
 
     return response.json();

@@ -1,19 +1,31 @@
+import { prefetchGetMetric } from '@/api/buster_rest/metrics/queryReqestsServer';
+import { queryKeys } from '@/api/query_keys';
 import { MetricController } from '@/controllers/MetricController';
 import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
-import { timeout } from '@/lib';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
 export default async function Page(props: {
   params: Promise<{ chatId: string; metricId: string }>;
 }) {
   const params = await props.params;
-
   const { chatId, metricId } = params;
 
-  return <div>HERE!</div>;
+  const queryClient = await prefetchGetMetric({ id: metricId });
+
+  const data = queryClient.getQueryData(queryKeys.metricsGetMetric(metricId).queryKey);
+  const state = queryClient.getQueryState(queryKeys.metricsGetMetric(metricId).queryKey);
+  const errorMessage = state?.error?.message;
+  const errorCode = state?.error;
+
+  console.log('data-------', data);
+  console.log('state error message-------', errorMessage);
+  console.log('state error code-------', errorCode);
 
   return (
-    <AppAssetCheckLayout assetId={metricId} type="metric">
-      <MetricController metricId={metricId} />
-    </AppAssetCheckLayout>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <AppAssetCheckLayout assetId={metricId} type="metric">
+        <MetricController metricId={metricId} />
+      </AppAssetCheckLayout>
+    </HydrationBoundary>
   );
 }

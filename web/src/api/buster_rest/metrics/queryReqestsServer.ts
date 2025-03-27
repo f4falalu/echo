@@ -1,0 +1,34 @@
+import { metricsQueryKeys } from '@/api/query_keys/metric';
+import { upgradeMetricToIMetric } from '@/lib/metrics';
+import { QueryClient } from '@tanstack/react-query';
+import { getMetric_server, listMetrics, listMetrics_server } from './requests';
+
+export const prefetchGetMetric = async (
+  params: Parameters<typeof getMetric_server>[0],
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+  await queryClient.prefetchQuery({
+    ...metricsQueryKeys.metricsGetMetric(params.id, params.version_number),
+    queryFn: async () => {
+      const result = await getMetric_server(params);
+      return upgradeMetricToIMetric(result, null);
+    }
+  });
+
+  return queryClient;
+};
+
+export const prefetchGetMetricsList = async (
+  params: Parameters<typeof listMetrics>[0],
+  queryClientProp?: QueryClient
+) => {
+  const queryClient = queryClientProp || new QueryClient();
+
+  await queryClient.prefetchQuery({
+    ...metricsQueryKeys.metricsGetList(params),
+    queryFn: () => listMetrics_server(params)
+  });
+
+  return queryClient;
+};

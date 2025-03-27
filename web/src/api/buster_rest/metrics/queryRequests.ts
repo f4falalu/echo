@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
 import { useDebounceFn, useMemoizedFn } from '@/hooks';
@@ -5,10 +7,8 @@ import {
   deleteMetrics,
   duplicateMetric,
   getMetric,
-  getMetric_server,
   getMetricData,
   listMetrics,
-  listMetrics_server,
   updateMetric,
   shareMetric,
   unshareMetric,
@@ -78,22 +78,6 @@ export const useGetMetric = <TData = IBusterMetric>(
   });
 };
 
-export const prefetchGetMetric = async (
-  params: Parameters<typeof getMetric_server>[0],
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
-  await queryClient.prefetchQuery({
-    ...metricsQueryKeys.metricsGetMetric(params.id, params.version_number),
-    queryFn: async () => {
-      const result = await getMetric_server(params);
-      return upgradeMetricToIMetric(result, null);
-    }
-  });
-
-  return queryClient;
-};
-
 export const useGetMetricsList = (
   params: Omit<Parameters<typeof listMetrics>[0], 'page_token' | 'page_size'>
 ) => {
@@ -115,20 +99,6 @@ export const useGetMetricsList = (
     ...res,
     data: res.data || []
   };
-};
-
-export const prefetchGetMetricsList = async (
-  params: Parameters<typeof listMetrics>[0],
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
-
-  await queryClient.prefetchQuery({
-    ...metricsQueryKeys.metricsGetList(params),
-    queryFn: () => listMetrics_server(params)
-  });
-
-  return queryClient;
 };
 
 /**

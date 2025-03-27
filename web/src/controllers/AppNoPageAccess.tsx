@@ -24,17 +24,11 @@ export const AppNoPageAccess: React.FC<{
       </div>
 
       <div className="flex space-x-2">
-        <Button
-          onClick={() => {
-            openInfoMessage('Requesting access is not currently supported');
-          }}>
-          Request access
-        </Button>
         <Link
           href={createBusterRoute({
-            route: BusterRoutes.ROOT
+            route: BusterRoutes.APP_HOME
           })}>
-          <Button>Go back</Button>
+          <Button>Go home</Button>
         </Link>
       </div>
     </div>

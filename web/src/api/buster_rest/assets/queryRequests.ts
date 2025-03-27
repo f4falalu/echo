@@ -5,25 +5,20 @@ import { FileType } from '@/api/asset_interfaces';
 import type { PublicAssetResponse } from './interface';
 
 export const prefetchAssetCheck = async (
-  { assetId, fileType, jwtToken }: { assetId: string; fileType: FileType; jwtToken: string },
+  { assetId, fileType }: { assetId: string; fileType: FileType },
   queryClientProp?: QueryClient
-): Promise<{ queryClient: QueryClient; res: PublicAssetResponse | null }> => {
+): Promise<{ queryClient: QueryClient; res: PublicAssetResponse }> => {
   const queryClient = queryClientProp || new QueryClient();
 
-  try {
-    const res = await getAssetCheck_server({ jwtToken, type: fileType, id: assetId });
+  const res = await getAssetCheck_server({ type: fileType, id: assetId });
 
-    await queryClient.prefetchQuery({
-      ...queryKeys.assetCheck(assetId, fileType),
-      //  queryFn: () => getAssetCheck({ type: fileType, id: assetId }),
-      initialData: res
-    });
+  await queryClient.prefetchQuery({
+    ...queryKeys.assetCheck(assetId, fileType),
+    //  queryFn: () => getAssetCheck({ type: fileType, id: assetId }),
+    initialData: res
+  });
 
-    return { queryClient, res };
-  } catch (error) {
-    console.error(error);
-    return { queryClient, res: null };
-  }
+  return { queryClient, res };
 };
 
 export const useAssetCheck = <TData = PublicAssetResponse>(
@@ -39,7 +34,7 @@ export const useAssetCheck = <TData = PublicAssetResponse>(
   return useQuery({
     ...queryKeys.assetCheck(assetId || '', fileType || 'metric'),
     queryFn: () => getAssetCheck({ type: fileType!, id: assetId! }),
-    enabled: true,
+    enabled: false, //this will happen on the server
     select
   });
 };
