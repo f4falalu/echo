@@ -60,27 +60,3 @@ export const createChatAssetRoute = ({
   if (!routeBuilder) return '';
   return routeBuilder(chatId, assetId);
 };
-
-const fileRouteRecord: Record<AllFileTypes, (assetId: string) => string> = {
-  collection: (assetId) =>
-    createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS_ID, collectionId: assetId }),
-  dataset: (assetId) =>
-    createBusterRoute({ route: BusterRoutes.APP_DATASETS_ID, datasetId: assetId }),
-  metric: (assetId) => createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: assetId }),
-  dashboard: (assetId) =>
-    createBusterRoute({ route: BusterRoutes.APP_DASHBOARD_ID, dashboardId: assetId }),
-  term: (assetId) => createBusterRoute({ route: BusterRoutes.APP_TERMS_ID, termId: assetId }),
-  value: (assetId) => createBusterRoute({ route: BusterRoutes.APP_VALUE_ID, valueId: assetId }),
-  reasoning: (assetId) => createBusterRoute({ route: BusterRoutes.APP_METRIC }),
-  empty: () => ''
-};
-
-export const createFileRoute = ({ assetId, type }: { assetId: string; type: FileType }) => {
-  const routeBuilder = fileRouteRecord[type];
-  if (!routeBuilder) return '';
-  return routeBuilder(assetId);
-};
-
-export const createChatRoute = (chatId: string) => {
-  return createBusterRoute({ route: BusterRoutes.APP_CHAT_ID, chatId });
-};

@@ -35,6 +35,7 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
               responseMessageId={responseMessageId}
               messageId={messageId}
               isCompletedStream={isCompletedStream}
+              chatId={chatId}
             />
           </React.Fragment>
         ))}

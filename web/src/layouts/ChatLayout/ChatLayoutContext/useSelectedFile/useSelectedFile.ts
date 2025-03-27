@@ -1,109 +1,61 @@
 'use client';
 
-import { useEffect, useMemo, useState, useTransition } from 'react';
-import type { ChatLayoutView, SelectedFile } from '../../interfaces';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { parsePathnameSegments } from './parsePathnameSegments';
+import { useMemo } from 'react';
+import type { SelectedFile } from '../../interfaces';
 import { useMemoizedFn } from '@/hooks';
-import { createChatAssetRoute, createChatRoute } from '../helpers';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { initializeSelectedFile } from './initializeSelectedFile';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { createSelectedFile } from './createSelectedFile';
+import type { useGetChatParams } from '../useGetChatParams';
+import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 
 export const useSelectedFile = ({
-  animateOpenSplitter
+  animateOpenSplitter,
+  appSplitterRef,
+  chatParams
 }: {
   animateOpenSplitter: (side: 'left' | 'right' | 'both') => void;
+  appSplitterRef: React.RefObject<AppSplitterRef | null>;
+  chatParams: ReturnType<typeof useGetChatParams>;
 }) => {
-  const onChangePage = useAppLayoutContextSelector((state) => state.onChangePage);
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const params = useMemo(() => parsePathnameSegments(pathname), [pathname]);
-  const [isPending, startTransition] = useTransition();
+  const { metricVersionNumber, dashboardVersionNumber } = chatParams;
 
-  const { chatId } = params;
+  const selectedFile: SelectedFile | null = useMemo(() => {
+    return createSelectedFile(chatParams);
+  }, [chatParams]);
 
-  const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(() =>
-    initializeSelectedFile(params)
-  );
-
-  const selectedLayout: ChatLayoutView = useMemo(() => {
-    if (chatId) {
-      if (selectedFile) return 'both';
-      return 'chat';
-    }
-
-    return 'file';
-  }, [selectedFile]);
-
-  const metricVersionNumber = searchParams.get('metric_version_number');
-  const dashboardVersionNumber = searchParams.get('dashboard_version_number');
   const isVersionHistoryMode = useMemo(() => {
     if (selectedFile?.type === 'metric') return !!metricVersionNumber;
     if (selectedFile?.type === 'dashboard') return !!dashboardVersionNumber;
     return false;
   }, [selectedFile?.type, metricVersionNumber, dashboardVersionNumber]);
 
-  const [renderViewLayoutKey, setRenderViewLayoutKey] = useState<ChatLayoutView>(
-    selectedLayout || 'chat'
-  );
-
+  /**
+   * @description Opens the splitter if the file is not already open. If the file is already open, it will collapse the splitter. This does NOT set the selected file. You should do that with a Link
+   * @param file
+   */
   const onSetSelectedFile = useMemoizedFn(async (file: SelectedFile | null) => {
-    const isSameAsCurrentFile = file?.id === selectedFile?.id;
+    const handleFileCollapse =
+      !file || (file?.id === selectedFile?.id && !appSplitterRef.current?.isSideClosed('right'));
 
-    // Handle file deselection or invalid file data
-    if (!file?.type || !file?.id || !chatId || isSameAsCurrentFile) {
-      const route = chatId
-        ? createChatRoute(chatId)
-        : createBusterRoute({ route: BusterRoutes.APP_HOME });
-
-      setSelectedFile(null);
-      await onChangePage(route);
-
-      if (chatId) {
-        animateOpenSplitter('left');
-      }
+    if (handleFileCollapse) {
+      animateOpenSplitter('left');
       return;
     }
 
-    // Handle valid file selection
-    const route = createChatAssetRoute({
-      chatId,
-      assetId: file.id,
-      type: file.type
-    });
-
-    setRenderViewLayoutKey('both');
-    setSelectedFile(file);
-    await onChangePage(route);
-    startTransition(() => {
-      onChangePage(route); //this is hack for now...
-      animateOpenSplitter(isSameAsCurrentFile ? 'left' : 'both');
-    });
+    animateOpenSplitter('both');
   });
 
-  useEffect(() => {
-    setSelectedFile(initializeSelectedFile(params));
-  }, [Object.keys(params).join('')]);
+  const onCollapseFileClick = useMemoizedFn((close?: boolean) => {
+    onSetSelectedFile(null);
+  });
 
   return useMemo(
     () => ({
       isVersionHistoryMode,
       onSetSelectedFile,
       selectedFile,
-      selectedLayout,
-      chatId,
-      renderViewLayoutKey,
-      setRenderViewLayoutKey
+      onCollapseFileClick
     }),
-    [
-      onSetSelectedFile,
-      isVersionHistoryMode,
-      selectedFile,
-      selectedLayout,
-      chatId,
-      renderViewLayoutKey
-    ]
+    [onSetSelectedFile, isVersionHistoryMode, selectedFile]
   );
 };
 

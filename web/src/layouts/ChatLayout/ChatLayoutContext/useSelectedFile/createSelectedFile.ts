@@ -1,7 +1,9 @@
 import type { SelectedFile } from '../../interfaces';
-import type { ChatURLParsed } from './parsePathnameSegments';
+import { useGetChatParams } from '../useGetChatParams';
 
-export const initializeSelectedFile = (params: ChatURLParsed): SelectedFile | null => {
+export const createSelectedFile = (
+  params: ReturnType<typeof useGetChatParams>
+): SelectedFile | null => {
   const { metricId, collectionId, datasetId, dashboardId, chatId, messageId } = params;
 
   if (metricId) {

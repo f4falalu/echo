@@ -15,7 +15,7 @@ import { useGetMetric } from '@/api/buster_rest/metrics';
 import { ThreeDotMenuButton } from './MetricThreeDotMenu';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
-  const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);
+  const selectedLayout = useChatLayoutContextSelector((x) => x.selectedLayout);
   const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
   const metricId = selectedFileId;
   const { isFetched: isMetricFetched, error: metricError } = useGetMetric({ id: metricId });
@@ -30,7 +30,7 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
       <SaveToDashboardButton metricId={metricId} />
       <ShareMetricButton metricId={metricId} />
       <ThreeDotMenuButton metricId={metricId} />
-      <HideButtonContainer show={renderViewLayoutKey === 'file'}>
+      <HideButtonContainer show={selectedLayout === 'file'}>
         <CreateChatButton />
       </HideButtonContainer>
     </FileButtonContainer>

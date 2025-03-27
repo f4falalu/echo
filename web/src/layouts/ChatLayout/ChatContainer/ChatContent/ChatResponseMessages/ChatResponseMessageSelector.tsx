@@ -3,9 +3,6 @@ import { ChatResponseMessage_File } from './ChatResponseMessage_File';
 import type { BusterChatMessageResponse } from '@/api/asset_interfaces';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { ChatResponseMessage_Text } from './ChatResponseMessage_Text';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
-import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
-import { useMemoizedFn } from '@/hooks';
 
 const ChatResponseMessageRecord: Record<
   BusterChatMessageResponse['type'],
@@ -19,27 +16,32 @@ export interface ChatResponseMessageProps {
   isCompletedStream: boolean;
   messageId: string;
   responseMessageId: string;
+  chatId: string;
 }
 
 export interface ChatResponseMessageSelectorProps {
   responseMessageId: string;
   isCompletedStream: boolean;
   messageId: string;
+  chatId: string;
 }
 
 export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorProps> = React.memo(
-  ({ responseMessageId, messageId, isCompletedStream }) => {
+  ({ responseMessageId, messageId, chatId, isCompletedStream }) => {
     const messageType = useGetChatMessage(
       messageId,
       (x) => x?.response_messages?.[responseMessageId]?.type || 'text'
     )!;
     const ChatResponseMessage = ChatResponseMessageRecord[messageType];
 
+    console.log(chatId);
+
     return (
       <ChatResponseMessage
         isCompletedStream={isCompletedStream}
         responseMessageId={responseMessageId}
         messageId={messageId}
+        chatId={chatId}
       />
     );
   }

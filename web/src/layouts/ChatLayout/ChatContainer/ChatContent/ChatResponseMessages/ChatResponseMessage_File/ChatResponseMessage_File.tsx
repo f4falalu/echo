@@ -10,11 +10,15 @@ import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatConte
 import { VersionPill } from '@/components/ui/tags/VersionPill';
 import { StreamingMessage_File } from '@/components/ui/streaming/StreamingMessage_File';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+import Link from 'next/link';
+import { createBusterRoute, BusterRoutes } from '@/routes';
+import { useRouter } from 'next/navigation';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
-  ({ isCompletedStream, responseMessageId, messageId }) => {
+  ({ isCompletedStream, chatId, responseMessageId, messageId }) => {
+    const router = useRouter();
     const responseMessage = useGetChatMessage(
       messageId,
       (x) => x?.response_messages?.[responseMessageId]
@@ -25,20 +29,54 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
     );
     const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
 
+    const { file_type, id } = responseMessage;
+
+    const href = useMemo(() => {
+      if (!chatId) return '';
+
+      if (file_type === 'metric') {
+        return createBusterRoute({
+          route: BusterRoutes.APP_CHAT_ID_METRIC_ID,
+          chatId,
+          metricId: id
+        });
+      }
+
+      if (file_type === 'dashboard') {
+        return createBusterRoute({
+          route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
+          chatId,
+          dashboardId: id
+        });
+      }
+
+      console.warn('Unknown file type', file_type);
+
+      return '';
+    }, [chatId, file_type, id]);
+
     const onClick = useMemoizedFn(() => {
       onSetSelectedFile({
-        id: responseMessage.id,
-        type: responseMessage.file_type
+        id,
+        type: file_type
       });
     });
 
+    useMount(() => {
+      if (href) {
+        router.prefetch(href);
+      }
+    });
+
     return (
-      <StreamingMessage_File
-        isCompletedStream={isCompletedStream}
-        responseMessage={responseMessage}
-        onClick={onClick}
-        isSelectedFile={isSelectedFile}
-      />
+      <Link href={href} prefetch>
+        <StreamingMessage_File
+          isCompletedStream={isCompletedStream}
+          responseMessage={responseMessage}
+          onClick={onClick}
+          isSelectedFile={isSelectedFile}
+        />
+      </Link>
     );
   }
 );

@@ -8,6 +8,7 @@ export const ChatContainer = React.memo(() => {
     <AppPageLayout
       header={<ChatHeader />}
       headerBorderVariant="ghost"
+      scrollable
       className="flex h-full w-full min-w-[295px] flex-col">
       <ChatContent />
     </AppPageLayout>

@@ -17,7 +17,7 @@ import { useDashboardContentStore } from '@/context/Dashboards';
 
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   () => {
-    const renderViewLayoutKey = useChatLayoutContextSelector((x) => x.renderViewLayoutKey);
+    const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView);
     const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
 
     return (
@@ -26,7 +26,7 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
         <ShareDashboardButton dashboardId={selectedFileId} />
         <AddContentToDashboardButton dashboardId={selectedFileId} />
         <DashboardThreeDotMenu dashboardId={selectedFileId} />
-        <HideButtonContainer show={renderViewLayoutKey === 'file'}>
+        <HideButtonContainer show={selectedFileView === 'file'}>
           <CreateChatButton />
         </HideButtonContainer>
       </FileButtonContainer>

@@ -7,16 +7,18 @@ import { FileContainer } from '../FileContainer';
 import { ChatLayoutContextProvider, useChatLayoutContext } from '../ChatLayoutContext';
 import { ChatContextProvider } from '../ChatContext/ChatContext';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from '../ChatLayoutContext/config';
+import { useParams } from 'next/navigation';
 
 interface ChatSplitterProps {
   children?: React.ReactNode;
 }
 
 export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
+  const params = useParams();
+
   const appSplitterRef = useRef<AppSplitterRef>(null);
-  const useChatLayoutProps = useChatLayoutContext({ appSplitterRef });
-  const { renderViewLayoutKey, selectedLayout, selectedFile, onSetSelectedFile, chatId } =
-    useChatLayoutProps;
+  const chatLayoutProps = useChatLayoutContext({ appSplitterRef });
+  const { selectedLayout, selectedFile, onSetSelectedFile, chatId } = chatLayoutProps;
 
   const defaultSplitterLayout = useMemo(() => {
     if (selectedLayout === 'chat') return ['100%', '0%'];
@@ -24,23 +26,30 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
     return ['380px', 'auto'];
   }, [selectedLayout]);
 
-  const rightHidden = renderViewLayoutKey === 'chat';
-  const leftHidden = renderViewLayoutKey === 'file';
+  console.log(params, {
+    chatId: chatLayoutProps.chatId,
+    metricId: chatLayoutProps.metricId,
+    dashboardId: chatLayoutProps.dashboardId
+  });
 
   return (
-    <ChatLayoutContextProvider useChatLayoutProps={useChatLayoutProps}>
+    <ChatLayoutContextProvider chatLayoutProps={chatLayoutProps}>
       <ChatContextProvider
         chatId={chatId}
         selectedFile={selectedFile}
         onSetSelectedFile={onSetSelectedFile}>
         <AppSplitter
           ref={appSplitterRef}
-          leftChildren={<ChatContainer />}
+          leftChildren={useMemo(
+            () => (
+              <ChatContainer />
+            ),
+            []
+          )}
           rightChildren={<FileContainer>{children}</FileContainer>}
           autoSaveId="chat-splitter"
           defaultLayout={defaultSplitterLayout}
-          rightHidden={rightHidden}
-          leftHidden={leftHidden}
+          allowResize={selectedLayout !== 'both'}
           preserveSide="left"
           leftPanelMinSize={selectedFile ? DEFAULT_CHAT_OPTION_SIDEBAR_SIZE : undefined}
         />

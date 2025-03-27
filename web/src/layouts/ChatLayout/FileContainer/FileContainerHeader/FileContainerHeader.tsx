@@ -19,9 +19,8 @@ export const FileContainerHeader: React.FC = React.memo(() => {
   const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
   const selectedFileId = useChatLayoutContextSelector((x) => x.selectedFile?.id);
   const onCollapseFileClick = useChatLayoutContextSelector((state) => state.onCollapseFileClick);
-  const renderViewLayoutKey = useChatLayoutContextSelector((state) => state.renderViewLayoutKey);
-
-  const showCollapseButton = renderViewLayoutKey !== 'file';
+  const selectedLayout = useChatLayoutContextSelector((x) => x.selectedLayout);
+  const showCollapseButton = selectedLayout === 'both';
 
   const SelectedFileSegment = React.useMemo(
     () =>
