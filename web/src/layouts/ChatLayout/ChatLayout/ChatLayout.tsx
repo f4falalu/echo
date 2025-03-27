@@ -26,11 +26,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
     return ['380px', 'auto'];
   }, [selectedLayout]);
 
-  console.log(params, {
-    chatId: chatLayoutProps.chatId,
-    metricId: chatLayoutProps.metricId,
-    dashboardId: chatLayoutProps.dashboardId
-  });
+  console.log(selectedLayout);
 
   return (
     <ChatLayoutContextProvider chatLayoutProps={chatLayoutProps}>
@@ -49,7 +45,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
           rightChildren={<FileContainer>{children}</FileContainer>}
           autoSaveId="chat-splitter"
           defaultLayout={defaultSplitterLayout}
-          allowResize={selectedLayout !== 'both'}
+          allowResize={selectedLayout === 'both'}
           preserveSide="left"
           leftPanelMinSize={selectedFile ? DEFAULT_CHAT_OPTION_SIDEBAR_SIZE : undefined}
         />

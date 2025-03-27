@@ -14,7 +14,6 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
             key={index}
             href={`/private/${index}`}
             onMouseEnter={() => {
-              console.log('prefetching', index);
               router.prefetch(`/private/${index}`);
             }}
             className="h-5 w-full min-w-20 cursor-pointer bg-green-500 hover:bg-green-600">

@@ -7,7 +7,7 @@ import { ChatInput } from './ChatInput';
 
 const autoClass = 'mx-auto max-w-[600px] w-full';
 
-export const ChatContent: React.FC<{}> = React.memo(({}) => {
+export const ChatContent: React.FC<{}> = React.memo(() => {
   const chatId = useChatIndividualContextSelector((state) => state.chatId);
   const chatMessageIds = useChatIndividualContextSelector((state) => state.chatMessageIds);
 
@@ -21,14 +21,20 @@ export const ChatContent: React.FC<{}> = React.memo(({}) => {
         ))}
       </div>
 
-      <div className="bg-page-background absolute bottom-0 w-full">
-        <div className="from-page-background pointer-events-none absolute -top-16 h-16 w-full bg-gradient-to-t to-transparent" />
-        <div className={autoClass}>
-          <ChatInput />
-        </div>
-      </div>
+      <ChatInputWrapper />
     </>
   );
 });
 
 ChatContent.displayName = 'ChatContent';
+
+const ChatInputWrapper: React.FC = React.memo(() => {
+  return (
+    <div className="bg-page-background absolute bottom-0 w-full">
+      <div className="from-page-background pointer-events-none absolute -top-16 h-16 w-full bg-gradient-to-t to-transparent" />
+      <div className={autoClass}>
+        <ChatInput />
+      </div>
+    </div>
+  );
+});

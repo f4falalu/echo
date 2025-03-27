@@ -8,6 +8,8 @@ export default async function Page(props: {
 
   const { chatId, metricId } = params;
 
+  return <div>HERE!</div>;
+
   return (
     <AppAssetCheckLayout assetId={metricId} type="metric">
       <MetricController metricId={metricId} />

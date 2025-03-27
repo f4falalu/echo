@@ -34,8 +34,6 @@ export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorPr
     )!;
     const ChatResponseMessage = ChatResponseMessageRecord[messageType];
 
-    console.log(chatId);
-
     return (
       <ChatResponseMessage
         isCompletedStream={isCompletedStream}

@@ -97,6 +97,7 @@ export const EditableTitle = React.memo(
               onPressEnter?.();
             }}
           />
+          <div className="from-page-background pointer-events-none absolute top-0 right-0 h-full w-6 bg-gradient-to-l to-transparent"></div>
         </div>
       );
     }

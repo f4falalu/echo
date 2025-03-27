@@ -8,8 +8,6 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
   const param = useParams() as { id: string };
   const id = Number(param.id);
 
-  console.log('param', param);
-
   return (
     <div className="flex space-x-2 bg-red-500">
       <div className="flex flex-col">
