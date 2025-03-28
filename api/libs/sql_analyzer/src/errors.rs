@@ -8,6 +8,27 @@ pub enum SqlAnalyzerError {
     #[error("Vague references detected:\n{0}")]
     VagueReferences(String),
 
+    #[error("Semantic layer validation error: {0}")]
+    SemanticValidation(String),
+
+    #[error("Unknown metric: {0}")]
+    UnknownMetric(String),
+
+    #[error("Unknown filter: {0}")]
+    UnknownFilter(String),
+
+    #[error("Invalid table join: {0}")]
+    InvalidJoin(String),
+
+    #[error("Invalid parameter: {0}")]
+    InvalidParameter(String),
+
+    #[error("Invalid expression: {0}")]
+    InvalidExpression(String),
+
+    #[error("Substitution error: {0}")]
+    SubstitutionError(String),
+
     #[error("Internal error: {0}")]
     Internal(#[from] anyhow::Error),
 }
