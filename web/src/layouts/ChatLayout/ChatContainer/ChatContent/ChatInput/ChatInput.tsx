@@ -34,7 +34,7 @@ export const ChatInput: React.FC<{}> = React.memo(({}) => {
     <div
       className={cn(
         'flex flex-col space-y-1.5',
-        'z-10 mx-3 mt-0.5 mb-2 flex min-h-fit flex-col items-center overflow-hidden'
+        'z-10 mx-3 mt-0.5 mb-2 flex min-h-fit flex-col items-center overflow-visible'
       )}>
       <InputTextAreaButton
         placeholder="Ask Buster a question..."

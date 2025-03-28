@@ -49,7 +49,6 @@ import { METRIC_CHART_TITLE_INPUT_ID } from '@/controllers/MetricController/Metr
 import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuContent';
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {

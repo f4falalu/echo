@@ -38,12 +38,15 @@ export const FileContainerHeader: React.FC = React.memo(() => {
     [selectedFileType]
   );
 
-  const { data: hasAccess } = useAssetCheck(
+  const { data: hasAccessQuery } = useAssetCheck(
     { assetId: selectedFileId, fileType: selectedFileType },
     (x) => x.has_access
   );
+  const hasAccess = hasAccessQuery ?? true; // we assume access until it is revoked
 
   if (isVersionHistoryMode) return <FileContainerHeaderVersionHistory />;
+
+  console.log(hasAccess, selectedFileView);
 
   return (
     <>

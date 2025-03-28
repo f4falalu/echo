@@ -65,6 +65,7 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
           variant="ghost"
           className={cn(
             'leading-1.3 w-full px-5! py-4! pr-10 align-middle transition-all duration-500',
+            'hover:shadow-md focus:shadow-lg',
             loading && 'cursor-not-allowed! opacity-70'
           )}
           autoResize={autoResize}

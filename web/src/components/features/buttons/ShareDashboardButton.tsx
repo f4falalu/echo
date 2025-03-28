@@ -4,15 +4,9 @@ import { ShareMenu } from '../ShareMenu';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { getShareAssetConfig } from '../ShareMenu/helpers';
-import { getIsEffectiveOwner } from '@/lib/share';
 
 export const ShareDashboardButton = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const { data: dashboardResponse } = useGetDashboard({ id: dashboardId }, getShareAssetConfig);
-  const isEffectiveOwner = getIsEffectiveOwner(dashboardResponse?.permission);
-
-  if (!isEffectiveOwner) {
-    return null;
-  }
 
   return (
     <ShareMenu

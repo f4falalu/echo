@@ -12,19 +12,30 @@ import { Plus } from '@/components/ui/icons';
 import { DashboardThreeDotMenu } from './DashboardThreeDotMenu';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
-import { canEdit } from '@/lib/share';
+import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { useDashboardContentStore } from '@/context/Dashboards';
 
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   () => {
     const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView);
     const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
+    const dashboardId = selectedFileId;
+
+    const { data: permission, error: dashboardError } = useGetDashboard(
+      { id: dashboardId },
+      (x) => x.permission
+    );
+
+    if (dashboardError) return null;
+
+    const isEditor = canEdit(permission);
+    const isEffectiveOwner = getIsEffectiveOwner(permission);
 
     return (
       <FileButtonContainer>
         <SaveToCollectionButton />
-        <ShareDashboardButton dashboardId={selectedFileId} />
-        <AddContentToDashboardButton dashboardId={selectedFileId} />
+        {isEffectiveOwner && <ShareDashboardButton dashboardId={selectedFileId} />}
+        {isEditor && <AddContentToDashboardButton />}
         <DashboardThreeDotMenu dashboardId={selectedFileId} />
         <HideButtonContainer show={selectedFileView === 'file'}>
           <CreateChatButton />
@@ -42,14 +53,8 @@ const SaveToCollectionButton = React.memo(() => {
 });
 SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 
-const AddContentToDashboardButton = React.memo(({ dashboardId }: { dashboardId: string }) => {
-  const { data: permission } = useGetDashboard({ id: dashboardId }, (x) => x.permission);
-  const isEditor = canEdit(permission);
+const AddContentToDashboardButton = React.memo(() => {
   const onOpenAddContentModal = useDashboardContentStore((x) => x.onOpenAddContentModal);
-
-  if (!isEditor) {
-    return null;
-  }
 
   return (
     <AppTooltip title="Add content">

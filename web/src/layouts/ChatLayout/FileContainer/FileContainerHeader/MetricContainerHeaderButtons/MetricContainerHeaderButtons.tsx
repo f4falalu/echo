@@ -13,22 +13,30 @@ import { ShareMetricButton } from '../../../../../components/features/buttons/Sh
 import { SquareChartPen, SquareCode } from '@/components/ui/icons';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { ThreeDotMenuButton } from './MetricThreeDotMenu';
+import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const selectedLayout = useChatLayoutContextSelector((x) => x.selectedLayout);
   const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
   const metricId = selectedFileId;
-  const { isFetched: isMetricFetched, error: metricError } = useGetMetric({ id: metricId });
+  const { error: metricError, data: permission } = useGetMetric(
+    { id: metricId },
+    (x) => x.permission
+  );
 
-  if (!isMetricFetched || metricError) return null;
+  //we assume it is fetched until it is not
+  if (metricError) return null;
+
+  const isEditor = canEdit(permission);
+  const isEffectiveOwner = getIsEffectiveOwner(permission);
 
   return (
     <FileButtonContainer>
-      <EditChartButton />
-      <EditSQLButton />
+      {isEditor && <EditChartButton />}
+      {isEffectiveOwner && <EditSQLButton />}
       <SaveToCollectionButton metricId={metricId} />
       <SaveToDashboardButton metricId={metricId} />
-      <ShareMetricButton metricId={metricId} />
+      {isEffectiveOwner && <ShareMetricButton metricId={metricId} />}
       <ThreeDotMenuButton metricId={metricId} />
       <HideButtonContainer show={selectedLayout === 'file'}>
         <CreateChatButton />
