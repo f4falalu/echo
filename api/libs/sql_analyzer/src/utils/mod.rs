@@ -10,6 +10,8 @@ use std::collections::{HashMap, HashSet};
 use std::ops::ControlFlow;
 use anyhow::Result;
 
+pub mod semantic;
+
 pub(crate) fn analyze_sql(sql: &str) -> Result<QuerySummary, SqlAnalyzerError> {
     let ast = Parser::parse_sql(&GenericDialect, sql)?;
     let mut analyzer = QueryAnalyzer::new();

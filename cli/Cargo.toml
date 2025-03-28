@@ -38,6 +38,8 @@ url = "2.5.0"
 zip = "2.2.2"
 glob = "0.3.1"
 walkdir = "2.5.0"
+# Add the shared query engine library
+query_engine = { path = "../api/libs/query_engine" }
 
 [dev-dependencies]
 tempfile = "3.16.0"

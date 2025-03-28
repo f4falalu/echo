@@ -468,10 +468,17 @@ async fn deploy_datasets_handler(
                 .into_iter()
                 .collect();
 
-            // Prepare datasets for upsert
-            let datasets_to_upsert: Vec<Dataset> = valid_datasets
-                .iter()
-                .map(|req| Dataset {
+            // Prepare datasets for upsert with deduplication
+            // Use HashMap for deduplication, keyed by (database_name, data_source_id)
+            // The composite key ensures we don't have duplicates in the ON CONFLICT clause
+            let mut dataset_map: HashMap<(String, Uuid), Dataset> = HashMap::new();
+            
+            for req in valid_datasets.iter() {
+                // Create a composite key using database_name and data_source_id
+                let key = (req.name.clone(), data_source.id);
+                
+                // Create dataset
+                let dataset = Dataset {
                     id: req.id.unwrap_or_else(Uuid::new_v4),
                     name: req.name.clone(),
                     data_source_id: data_source.id,
@@ -492,8 +499,37 @@ async fn deploy_datasets_handler(
                     model: req.model.clone(),
                     yml_file: req.yml_file.clone(),
                     database_identifier: req.database.clone(),
-                })
-                .collect();
+                };
+                
+                // Only insert if it doesn't exist or replace if it does
+                dataset_map.insert(key, dataset);
+            }
+            
+            // Convert map values to Vec for insert
+            let datasets_to_upsert: Vec<Dataset> = dataset_map.into_values().collect();
+            
+            // Log deduplication results
+            if datasets_to_upsert.len() < valid_datasets.len() {
+                tracing::info!(
+                    "Deduplicated {} datasets down to {} unique datasets",
+                    valid_datasets.len(),
+                    datasets_to_upsert.len()
+                );
+                
+                // Detailed logging of found duplicates
+                let mut dataset_names = HashSet::new();
+                let mut duplicates = Vec::new();
+                
+                for req in valid_datasets.iter() {
+                    if !dataset_names.insert(req.name.clone()) {
+                        duplicates.push(req.name.clone());
+                    }
+                }
+                
+                if !duplicates.is_empty() {
+                    tracing::info!("Found duplicate dataset names: {:?}", duplicates);
+                }
+            }
 
             // Bulk upsert datasets
             diesel::insert_into(datasets::table)
@@ -539,10 +575,17 @@ async fn deploy_datasets_handler(
                     }
                 };
 
-                let columns: Vec<DatasetColumn> = req
-                    .columns
-                    .iter()
-                    .map(|col| DatasetColumn {
+                // Prepare columns with deduplication
+                // Use HashMap for deduplication, keyed by (dataset_id, column_name)
+                // This matches the ON CONFLICT clause
+                let mut column_map: HashMap<(Uuid, String), DatasetColumn> = HashMap::new();
+                
+                for col in &req.columns {
+                    // Create a composite key using dataset_id and column name
+                    let key = (dataset_id, col.name.clone());
+                    
+                    // Create column
+                    let dataset_column = DatasetColumn {
                         id: Uuid::new_v4(),
                         dataset_id,
                         name: col.name.clone(),
@@ -560,8 +603,38 @@ async fn deploy_datasets_handler(
                         semantic_type: col.semantic_type.clone(),
                         dim_type: col.type_.clone(),
                         expr: col.expr.clone(),
-                    })
-                    .collect();
+                    };
+                    
+                    // Only insert if it doesn't exist or replace if it does
+                    column_map.insert(key, dataset_column);
+                }
+                
+                // Convert map values to Vec for insert
+                let columns: Vec<DatasetColumn> = column_map.into_values().collect();
+                
+                // Log deduplication results
+                if columns.len() < req.columns.len() {
+                    tracing::info!(
+                        "Deduplicated {} columns down to {} unique columns for dataset {}",
+                        req.columns.len(),
+                        columns.len(),
+                        req.name
+                    );
+                    
+                    // Detailed logging of found duplicates
+                    let mut column_names = HashSet::new();
+                    let mut duplicates = Vec::new();
+                    
+                    for col in &req.columns {
+                        if !column_names.insert(col.name.clone()) {
+                            duplicates.push(col.name.clone());
+                        }
+                    }
+                    
+                    if !duplicates.is_empty() {
+                        tracing::info!("Found duplicate column names in dataset {}: {:?}", req.name, duplicates);
+                    }
+                }
 
                 // Get current column names
                 let current_column_names: HashSet<String> = dataset_columns::table
@@ -844,11 +917,17 @@ async fn create_or_update_dataset(
         }
     };
 
-    // Create new columns
-    let new_columns: Vec<DatasetColumn> = request
-        .columns
-        .iter()
-        .map(|col| DatasetColumn {
+    // Create new columns with deduplication
+    // Use HashMap for deduplication, keyed by (dataset_id, column_name)
+    // This matches the ON CONFLICT clause used for columns
+    let mut column_map: HashMap<(Uuid, String), DatasetColumn> = HashMap::new();
+    
+    for col in &request.columns {
+        // Create a composite key using dataset_id and column name
+        let key = (dataset_id, col.name.clone());
+        
+        // Create column
+        let dataset_column = DatasetColumn {
             id: Uuid::new_v4(),
             dataset_id,
             name: col.name.clone(),
@@ -866,8 +945,24 @@ async fn create_or_update_dataset(
             semantic_type: col.semantic_type.clone(),
             dim_type: None,
             expr: col.expr.clone(),
-        })
-        .collect();
+        };
+        
+        // Only insert if it doesn't exist or replace if it does
+        column_map.insert(key, dataset_column);
+    }
+    
+    // Convert map values to Vec for insert
+    let new_columns: Vec<DatasetColumn> = column_map.into_values().collect();
+    
+    // Log deduplication results
+    if new_columns.len() < request.columns.len() {
+        tracing::info!(
+            "Deduplicated {} columns down to {} unique columns for validation dataset {}",
+            request.columns.len(),
+            new_columns.len(),
+            request.name
+        );
+    }
 
     // Get current column names for this dataset
     let current_column_names: Vec<String> = dataset_columns::table

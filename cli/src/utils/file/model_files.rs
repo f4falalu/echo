@@ -294,5 +294,14 @@ fn get_schema_name(profile: &Profile) -> Result<String> {
         .get(&profile.target)
         .ok_or(anyhow::anyhow!("Target not found: {}", profile.target))?;
 
-    Ok(credentials.credential.get_schema())
+    // Extract schema based on credential type
+    match &credentials.credential {
+        query_engine::credentials::Credential::Postgres(cred) => Ok(cred.default_schema.clone().unwrap_or_default()),
+        query_engine::credentials::Credential::Redshift(cred) => Ok(cred.default_schema.clone().unwrap_or_default()),
+        query_engine::credentials::Credential::SqlServer(cred) => Ok(cred.default_schema.clone().unwrap_or_default()),
+        query_engine::credentials::Credential::Snowflake(cred) => Ok(cred.default_schema.clone().unwrap_or_default()),
+        query_engine::credentials::Credential::Bigquery(cred) => Ok(cred.default_dataset_id.clone()),
+        query_engine::credentials::Credential::MySql(_) => Ok("".to_string()),
+        query_engine::credentials::Credential::Databricks(cred) => Ok(cred.default_schema.clone().unwrap_or_default()),
+    }
 }
