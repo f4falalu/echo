@@ -6,8 +6,8 @@ use reqwest::{
 use std::error::Error as StdError;
 
 use super::{
-    PostDataSourcesRequest, DeployDatasetsRequest, ValidateApiKeyRequest, ValidateApiKeyResponse,
-    DeployDatasetsResponse, GenerateApiRequest, GenerateApiResponse,
+    DeployDatasetsRequest, DeployDatasetsResponse, GenerateApiRequest, GenerateApiResponse,
+    PostDataSourcesRequest, ValidateApiKeyRequest, ValidateApiKeyResponse,
 };
 
 pub struct BusterClient {
@@ -49,10 +49,7 @@ impl BusterClient {
             reqwest::header::CONTENT_TYPE,
             HeaderValue::from_static("application/json"),
         );
-        headers.insert(
-            reqwest::header::ACCEPT,
-            HeaderValue::from_static("*/*"),
-        );
+        headers.insert(reqwest::header::ACCEPT, HeaderValue::from_static("*/*"));
         headers.insert(
             reqwest::header::USER_AGENT,
             HeaderValue::from_static("buster-cli"),
@@ -60,11 +57,7 @@ impl BusterClient {
 
         let url = format!("{}/api/v1/api_keys/validate", self.base_url);
 
-        let request = self
-            .client
-            .post(&url)
-            .headers(headers)
-            .json(&request);
+        let request = self.client.post(&url).headers(headers).json(&request);
 
         let response = match request.send().await {
             Ok(resp) => resp,
@@ -84,23 +77,26 @@ impl BusterClient {
         }
 
         match response.json::<ValidateApiKeyResponse>().await {
-            Ok(validate_response) => {
-                Ok(validate_response.valid)
-            }
-            Err(e) => {
-                Err(anyhow::anyhow!(
-                    "Failed to parse validate API key response: {}",
-                    e
-                ))
-            }
+            Ok(validate_response) => Ok(validate_response.valid),
+            Err(e) => Err(anyhow::anyhow!(
+                "Failed to parse validate API key response: {}",
+                e
+            )),
         }
     }
 
-    pub async fn post_data_sources(&self, req_body: Vec<PostDataSourcesRequest>) -> Result<()> {
+    pub async fn post_data_sources(&self, req_body: PostDataSourcesRequest) -> Result<()> {
         let headers = self.build_headers()?;
 
+        // The API expects a single object, not an array, but also our endpoint accepts bulk
+        // Let's stick with the current approach but make sure we're sending the data correctly
+
         // Debug log the request body
-        println!("DEBUG: post_data_sources request body: {}", serde_json::to_string_pretty(&req_body).unwrap_or_else(|_| "Failed to serialize request".to_string()));
+        println!(
+            "DEBUG: post_data_sources request body: {}",
+            serde_json::to_string_pretty(&req_body)
+                .unwrap_or_else(|_| "Failed to serialize request".to_string())
+        );
 
         match self
             .client
@@ -117,13 +113,17 @@ impl BusterClient {
                         res.text().await?
                     ));
                 }
-                Ok(())
             }
-            Err(e) => Err(anyhow::anyhow!("POST /api/v1/data_sources failed: {}", e)),
+            Err(e) => return Err(anyhow::anyhow!("POST /api/v1/data_sources failed: {}", e)),
         }
+
+        Ok(())
     }
 
-    pub async fn deploy_datasets(&self, req_body: Vec<DeployDatasetsRequest>) -> Result<DeployDatasetsResponse> {
+    pub async fn deploy_datasets(
+        &self,
+        req_body: Vec<DeployDatasetsRequest>,
+    ) -> Result<DeployDatasetsResponse> {
         let headers = self.build_headers()?;
 
         match self
@@ -143,11 +143,17 @@ impl BusterClient {
                 }
                 Ok(res.json().await?)
             }
-            Err(e) => Err(anyhow::anyhow!("POST /api/v1/datasets/deploy failed: {}", e)),
+            Err(e) => Err(anyhow::anyhow!(
+                "POST /api/v1/datasets/deploy failed: {}",
+                e
+            )),
         }
     }
 
-    pub async fn generate_datasets(&self, req_body: GenerateApiRequest) -> Result<GenerateApiResponse> {
+    pub async fn generate_datasets(
+        &self,
+        req_body: GenerateApiRequest,
+    ) -> Result<GenerateApiResponse> {
         let headers = self.build_headers()?;
 
         match self
@@ -165,17 +171,18 @@ impl BusterClient {
                         res.text().await?
                     ));
                 }
-                
+
                 let response_text = res.text().await?;
-                
+
                 match serde_json::from_str::<GenerateApiResponse>(&response_text) {
                     Ok(parsed) => Ok(parsed),
-                    Err(e) => {
-                        Err(anyhow::anyhow!("Failed to parse API response: {}", e))
-                    }
+                    Err(e) => Err(anyhow::anyhow!("Failed to parse API response: {}", e)),
                 }
             }
-            Err(e) => Err(anyhow::anyhow!("POST /api/v1/datasets/generate failed: {}", e)),
+            Err(e) => Err(anyhow::anyhow!(
+                "POST /api/v1/datasets/generate failed: {}",
+                e
+            )),
         }
     }
 }

@@ -1,7 +1,7 @@
 use anyhow::Result;
 use dirs::home_dir;
+use query_engine::credentials::{Credential, BigqueryCredentials, PostgresCredentials, RedshiftCredentials};
 use serde::{Deserialize, Serialize};
-use serde_yaml::Value;
 use std::collections::HashMap;
 use tokio::fs;
 
@@ -29,118 +29,8 @@ pub struct Output {
     pub credential: Credential,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type")]
-#[serde(rename_all = "lowercase")]
-pub enum Credential {
-    Postgres(PostgresCredentials),
-    MySQL(MySqlCredentials),
-    Bigquery(BigqueryCredentials),
-    SqlServer(SqlServerCredentials),
-    Redshift(PostgresCredentials),
-    Databricks(DatabricksCredentials),
-    Snowflake(SnowflakeCredentials),
-    Starrocks(MySqlCredentials),
-}
-
-impl Credential {
-    pub fn get_schema(&self) -> String {
-        match self {
-            Credential::Postgres(cred) => cred.schema.clone(),
-            _ => "".to_string(),
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct AthenaCredentials {
-    pub data_source: String,
-    pub db_database: String,
-    pub aws_access_key: String,
-    pub aws_secret_access: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct BigqueryCredentials {
-    pub credentials_json: Value,
-    pub project_id: String,
-    pub dataset_ids: Option<Vec<String>>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct DatabricksCredentials {
-    pub host: String,
-    pub api_key: String,
-    pub warehouse_id: String,
-    pub catalog_name: String,
-    pub schemas: Option<Vec<String>>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MariadbCredentials {
-    pub host: String,
-    pub port: u16,
-    pub username: String,
-    pub password: String,
-    pub jump_host: Option<String>,
-    pub ssh_username: Option<String>,
-    pub ssh_private_key: Option<String>,
-    #[serde(rename = "schemas")]
-    pub databases: Option<Vec<String>>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MySqlCredentials {
-    pub host: String,
-    pub port: u16,
-    pub username: String,
-    pub password: String,
-    pub jump_host: Option<String>,
-    pub ssh_username: Option<String>,
-    pub ssh_private_key: Option<String>,
-    #[serde(rename = "schemas")]
-    pub databases: Option<Vec<String>>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct PostgresCredentials {
-    pub host: String,
-    pub port: u16,
-    #[serde(alias = "user")]
-    pub username: String,
-    #[serde(alias = "pass")]
-    pub password: String,
-    #[serde(rename = "dbname")]
-    pub database: String,
-    pub schema: String,
-    pub jump_host: Option<String>,
-    pub ssh_username: Option<String>,
-    pub ssh_private_key: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SnowflakeCredentials {
-    pub account_id: String,
-    pub warehouse_id: String,
-    pub database_id: String,
-    pub username: String,
-    pub password: String,
-    pub role: Option<String>,
-    pub schemas: Option<Vec<String>>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SqlServerCredentials {
-    pub host: String,
-    pub port: u16,
-    pub username: String,
-    pub password: String,
-    pub database: String,
-    pub jump_host: Option<String>,
-    pub ssh_username: Option<String>,
-    pub ssh_private_key: Option<String>,
-    pub schemas: Option<Vec<String>>,
-}
+// Using shared Credential enum from query_engine now
+// All credential structs are imported from query_engine
 
 pub async fn get_dbt_profiles_yml() -> Result<DbtProfiles> {
     let mut path = home_dir().unwrap_or_default();
@@ -179,21 +69,81 @@ pub async fn upload_dbt_profiles_to_buster(
 ) -> Result<()> {
     let buster = BusterClient::new(buster_creds.url, buster_creds.api_key)?;
 
-    let mut req_body = Vec::new();
     for (name, env, cred) in credentials {
-        req_body.push(PostDataSourcesRequest {
+        let type_str = match &cred {
+            Credential::Postgres(_) => "postgres",
+            Credential::MySql(_) => "mysql",
+            Credential::Bigquery(_) => "bigquery",
+            Credential::SqlServer(_) => "sqlserver",
+            Credential::Redshift(_) => "redshift",
+            Credential::Databricks(_) => "databricks",
+            Credential::Snowflake(_) => "snowflake",
+        };
+
+        // Create a request with the appropriate fields based on credential type
+        let mut request = PostDataSourcesRequest {
             name,
             env,
-            credential: cred,
-        });
-    }
+            type_: type_str.to_string(),
+            host: None,
+            port: None,
+            username: None,
+            password: None,
+            default_database: None,
+            default_schema: None,
+            jump_host: None,
+            ssh_username: None,
+            ssh_private_key: None,
+            credentials_json: None,
+            project_id: None,
+            dataset_id: None,
+            account_id: None,
+            warehouse_id: None,
+            role: None,
+            api_key: None,
+            default_catalog: None,
+        };
 
-    if let Err(e) = buster.post_data_sources(req_body).await {
-        return Err(anyhow::anyhow!(
-            "Failed to upload dbt profiles to Buster: {}",
-            e
-        ));
-    };
+        // Fill in fields based on credential type
+        match cred {
+            Credential::Postgres(postgres) => {
+                request.host = Some(postgres.host);
+                request.port = Some(postgres.port);
+                request.username = Some(postgres.username);
+                request.password = Some(postgres.password);
+                request.default_database = Some(postgres.default_database);
+                request.default_schema = postgres.default_schema;
+                request.jump_host = postgres.jump_host;
+                request.ssh_username = postgres.ssh_username;
+                request.ssh_private_key = postgres.ssh_private_key;
+            },
+            Credential::Redshift(redshift) => {
+                request.host = Some(redshift.host);
+                request.port = Some(redshift.port);
+                request.username = Some(redshift.username);
+                request.password = Some(redshift.password);
+                request.default_database = Some(redshift.default_database);
+                request.default_schema = redshift.default_schema;
+            },
+            Credential::Bigquery(bigquery) => {
+                request.credentials_json = Some(bigquery.credentials_json);
+                request.project_id = Some(bigquery.default_project_id);
+                request.dataset_id = Some(bigquery.default_dataset_id);
+            },
+            // Add other credential types as needed
+            _ => {
+                // For unsupported types, we can't properly fill in the fields
+                // This would need to be extended for other database types
+            }
+        }
+
+        if let Err(e) = buster.post_data_sources(request).await {
+            return Err(anyhow::anyhow!(
+                "Failed to upload dbt profile to Buster: {}",
+                e
+            ));
+        }
+    }
 
     Ok(())
 }

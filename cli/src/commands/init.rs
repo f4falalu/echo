@@ -2,6 +2,9 @@ use anyhow::Result;
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
 use inquire::{validator::Validation, Confirm, Password, Select, Text};
+use query_engine::credentials::{
+    BigqueryCredentials, Credential, PostgresCredentials, RedshiftCredentials, SnowflakeCredentials,
+};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml;
@@ -11,9 +14,8 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use crate::utils::{
-    buster_credentials::get_and_validate_buster_credentials,
-    profiles::{BigqueryCredentials, Credential, PostgresCredentials},
-    BusterClient, BusterConfig, PostDataSourcesRequest,
+    buster_credentials::get_and_validate_buster_credentials, BusterClient, BusterConfig,
+    PostDataSourcesRequest,
 };
 
 #[derive(Debug, Clone)]
@@ -35,15 +37,7 @@ impl std::fmt::Display for DatabaseType {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-struct RedshiftCredentials {
-    pub host: String,
-    pub port: u16,
-    pub username: String,
-    pub password: String,
-    pub database: Option<String>,
-    pub schemas: Option<Vec<String>>,
-}
+// Using shared RedshiftCredentials from query_engine now, no need for local definition
 
 pub async fn init(destination_path: Option<&str>) -> Result<()> {
     println!("{}", "Initializing Buster...".bold().green());
@@ -255,37 +249,28 @@ async fn setup_redshift(
         return Ok(());
     }
 
-    // Create credentials
-    let redshift_creds = RedshiftCredentials {
-        host,
-        port,
-        username,
-        password,
-        database: database.clone(),
-        schemas: schema.as_ref().map(|s| vec![s.clone()]),
-    };
-
     // Create API request
-    // Note: PostgresCredentials requires String for database and schema, not Option<String>
-    // We use empty strings to represent null/all databases or schemas
     let request = PostDataSourcesRequest {
         name: name.clone(),
         env: "dev".to_string(), // Default to dev environment
-        credential: Credential::Redshift(PostgresCredentials {
-            host: redshift_creds.host,
-            port: redshift_creds.port,
-            username: redshift_creds.username,
-            password: redshift_creds.password,
-            database: redshift_creds.database.clone().unwrap_or_default(),
-            schema: redshift_creds
-                .schemas
-                .clone()
-                .and_then(|s| s.first().cloned())
-                .unwrap_or_default(),
-            jump_host: None,
-            ssh_username: None,
-            ssh_private_key: None,
-        }),
+        type_: "redshift".to_string(),
+        host: Some(host),
+        port: Some(port),
+        username: Some(username),
+        password: Some(password),
+        default_database: database.clone(),
+        default_schema: schema.clone(),
+        jump_host: None,
+        ssh_username: None,
+        ssh_private_key: None,
+        credentials_json: None,
+        project_id: None,
+        dataset_id: None,
+        account_id: None,
+        warehouse_id: None,
+        role: None,
+        api_key: None,
+        default_catalog: None,
     };
 
     // Send to API with progress indicator
@@ -301,7 +286,7 @@ async fn setup_redshift(
 
     let client = BusterClient::new(buster_url, buster_api_key)?;
 
-    match client.post_data_sources(vec![request]).await {
+    match client.post_data_sources(request).await {
         Ok(_) => {
             spinner.finish_with_message(
                 "✓ Data source created successfully!"
@@ -464,17 +449,24 @@ async fn setup_postgres(
     let request = PostDataSourcesRequest {
         name: name.clone(),
         env: "dev".to_string(), // Default to dev environment
-        credential: Credential::Postgres(PostgresCredentials {
-            host,
-            port,
-            username,
-            password,
-            database: database.clone().unwrap_or_default(),
-            schema: schema.clone().unwrap_or_default(),
-            jump_host: None,
-            ssh_username: None,
-            ssh_private_key: None,
-        }),
+        type_: "postgres".to_string(),
+        host: Some(host),
+        port: Some(port),
+        username: Some(username),
+        password: Some(password),
+        default_database: database.clone(),
+        default_schema: schema.clone(),
+        jump_host: None,
+        ssh_username: None,
+        ssh_private_key: None,
+        credentials_json: None,
+        project_id: None,
+        dataset_id: None,
+        account_id: None,
+        warehouse_id: None,
+        role: None,
+        api_key: None,
+        default_catalog: None,
     };
 
     // Send to API with progress indicator
@@ -490,7 +482,7 @@ async fn setup_postgres(
 
     let client = BusterClient::new(buster_url, buster_api_key)?;
 
-    match client.post_data_sources(vec![request]).await {
+    match client.post_data_sources(request).await {
         Ok(_) => {
             spinner.finish_with_message(
                 "✓ Data source created successfully!"
@@ -605,8 +597,8 @@ async fn setup_bigquery(
         }
     };
 
-    // Parse JSON to ensure it's valid
-    let credentials_json: serde_yaml::Value = match serde_yaml::from_str(&credentials_content) {
+    // Parse JSON to ensure it's valid and convert to serde_json::Value
+    let credentials_json: serde_json::Value = match serde_json::from_str(&credentials_content) {
         Ok(json) => json,
         Err(e) => {
             return Err(anyhow::anyhow!("Invalid JSON in credentials file: {}", e));
@@ -640,11 +632,24 @@ async fn setup_bigquery(
     let request = PostDataSourcesRequest {
         name: name.clone(),
         env: "dev".to_string(), // Default to dev environment
-        credential: Credential::Bigquery(BigqueryCredentials {
-            credentials_json,
-            project_id: project_id.clone(),
-            dataset_ids: dataset_id.as_ref().map(|id| vec![id.clone()]),
-        }),
+        type_: "bigquery".to_string(),
+        host: None,
+        port: None,
+        username: None,
+        password: None,
+        default_database: None,
+        default_schema: None,
+        jump_host: None,
+        ssh_username: None,
+        ssh_private_key: None,
+        credentials_json: Some(credentials_json),
+        project_id: Some(project_id.clone()),
+        dataset_id: dataset_id.clone(),
+        account_id: None,
+        warehouse_id: None,
+        role: None,
+        api_key: None,
+        default_catalog: None,
     };
 
     // Send to API with progress indicator
@@ -660,7 +665,7 @@ async fn setup_bigquery(
 
     let client = BusterClient::new(buster_url, buster_api_key)?;
 
-    match client.post_data_sources(vec![request]).await {
+    match client.post_data_sources(request).await {
         Ok(_) => {
             spinner.finish_with_message(
                 "✓ Data source created successfully!"
@@ -701,10 +706,14 @@ fn create_buster_config_file(
     schema: Option<&str>,
 ) -> Result<()> {
     // Prompt for model paths (optional)
-    let model_paths_input = Text::new("Enter paths to your SQL models (optional, comma-separated):")
-        .with_help_message("Leave blank to use current directory, or specify paths like './models,./analytics/models'")
-        .prompt()?;
-    
+    let model_paths_input = Text::new(
+        "Enter paths to your SQL models (optional, comma-separated):",
+    )
+    .with_help_message(
+        "Leave blank to use current directory, or specify paths like './models,./analytics/models'",
+    )
+    .prompt()?;
+
     // Process the comma-separated input into a vector if not empty
     let model_paths = if model_paths_input.trim().is_empty() {
         None
@@ -714,7 +723,7 @@ fn create_buster_config_file(
                 .split(',')
                 .map(|s| s.trim().to_string())
                 .filter(|s| !s.is_empty())
-                .collect::<Vec<String>>()
+                .collect::<Vec<String>>(),
         )
     };
 
