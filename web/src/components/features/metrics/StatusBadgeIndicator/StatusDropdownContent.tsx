@@ -68,7 +68,7 @@ export const useStatusDropdownContent = ({
         }
       };
     });
-  }, [isAdmin, status, onChangeStatus]);
+  }, [isAdmin, selectedStatus, onChangeStatus]);
 
   return useMemo(
     () => ({

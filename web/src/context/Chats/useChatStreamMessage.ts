@@ -23,6 +23,7 @@ import {
 } from './chatStreamMessageHelper';
 import { useGetChatMemoized } from '@/api/buster_rest/chats';
 import { useChatUpdate } from './useChatUpdate';
+import { prefetchGetMetricDataClient } from '@/api/buster_rest/metrics';
 
 export const useChatStreamMessage = () => {
   const queryClient = useQueryClient();
@@ -61,6 +62,7 @@ export const useChatStreamMessage = () => {
         const queryKey = options.queryKey;
         queryClient.setQueryData(queryKey, message);
         chatRefMessages.current[message.id] = message;
+        prefetchGetMetricDataClient({ id: message.id }, queryClient);
       }
     }
   );

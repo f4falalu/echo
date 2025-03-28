@@ -14,6 +14,8 @@ import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/cha
 import { queryKeys } from '@/api/query_keys';
 import { updateChatToIChat } from '@/lib/chat';
 import { useMemo } from 'react';
+import last from 'lodash/last';
+import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
 
 export const useGetListChats = (
   filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
@@ -69,6 +71,14 @@ export const useGetChat = <TData = IBusterChat>(
   const queryFn = useMemoizedFn(() => {
     return getChat(params).then((chat) => {
       const { iChat, iChatMessages } = updateChatToIChat(chat, false);
+
+      const lastMessageId = last(iChat.message_ids);
+      const lastMessage = iChatMessages[lastMessageId!];
+      if (lastMessage) {
+        Object.values(lastMessage.response_messages).forEach((responseMessage) => {
+          prefetchGetMetricDataClient({ id: responseMessage.id }, queryClient);
+        });
+      }
 
       iChat.message_ids.forEach((messageId) => {
         queryClient.setQueryData(

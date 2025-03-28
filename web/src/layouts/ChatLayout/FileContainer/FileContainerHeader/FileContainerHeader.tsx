@@ -46,8 +46,6 @@ export const FileContainerHeader: React.FC = React.memo(() => {
 
   if (isVersionHistoryMode) return <FileContainerHeaderVersionHistory />;
 
-  console.log(hasAccess, selectedFileView);
-
   return (
     <>
       <div className="flex items-center gap-1.5">
