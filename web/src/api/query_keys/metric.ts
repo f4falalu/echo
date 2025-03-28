@@ -5,11 +5,10 @@ import type {
   IBusterMetricData
 } from '@/api/asset_interfaces/metric';
 import { type listMetrics } from '../buster_rest/metrics';
-import { INFINITY } from 'chart.js/helpers';
 
 export const metricsGetMetric = (metricId: string, version_number?: number) => {
   return queryOptions<IBusterMetric>({
-    queryKey: ['metrics', 'get', metricId, version_number] as const,
+    queryKey: ['metrics', 'get', metricId, version_number || 'latest'] as const,
     staleTime: 30 * 60 * 1000
   });
 };
@@ -23,9 +22,9 @@ export const metricsGetList = (
     initialDataUpdatedAt: 0
   });
 
-export const metricsGetData = (id: string, version_number?: number) =>
+export const metricsGetData = (id: string, version_number?: number | undefined) =>
   queryOptions<IBusterMetricData>({
-    queryKey: ['metrics', 'data', id, version_number] as const,
+    queryKey: ['metrics', 'data', id, version_number || 'latest'] as const,
     staleTime: 3 * 60 * 60 * 1000 // 3 hours,
   });
 
