@@ -11,6 +11,7 @@ serde = { workspace = true }      # For serialization
 serde_json = { workspace = true } # For JSON output
 tracing = { workspace = true }    # For logging
 thiserror = { workspace = true }  # For custom errors
+regex = { workspace = true }      # For pattern matching
 
 [dev-dependencies]
 tokio-test = { workspace = true } # For async testing
