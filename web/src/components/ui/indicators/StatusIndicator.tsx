@@ -24,11 +24,14 @@ export const StatusIndicator: React.FC<{
         inProgress && 'text-primary',
         failed && 'text-danger-foreground'
       )}>
+      {inProgress && (
+        <div className="bg-primary/30 absolute inset-0 -ml-[1px] animate-ping rounded-full duration-1000" />
+      )}
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           {...animationConfig}
           key={status === 'failed' ? 'failed' : 'completed'}
-          className={cn('ml-[0.5px] flex items-center justify-center')}>
+          className={cn('flex items-center justify-center')}>
           {failed ? <CircleWarning /> : <RadioChecked />}
         </motion.div>
       </AnimatePresence>
