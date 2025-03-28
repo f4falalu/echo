@@ -118,6 +118,8 @@ export const useGetMetricData = ({
     return getMetricData({ id, version_number });
   });
 
+  console.log('data here!');
+
   return useQuery({
     ...metricsQueryKeys.metricsGetData(id, version_number),
     queryFn

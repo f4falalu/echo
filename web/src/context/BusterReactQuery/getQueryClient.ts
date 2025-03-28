@@ -8,12 +8,9 @@ type OpenErrorNotification = ReturnType<typeof useBusterNotifications>['openErro
 const PREFETCH_STALE_TIME = 1000 * 10; // 10 seconds
 const ERROR_RETRY_DELAY = 1 * 1000; // 1 second delay after error
 const GC_TIME = 1000 * 60 * 60 * 24 * 3; // 24 hours - matches persistence duration
-const refetchOnMountRecord: Record<string, number> = PERMANENT_QUERIES.reduce<
-  Record<string, number>
->((acc, query) => {
-  acc[query] = 1;
-  return acc;
-}, {});
+
+// Track queries that have already mounted
+const mountedQueries = new Set<string>();
 
 function makeQueryClient(params?: {
   openErrorNotification?: OpenErrorNotification;
@@ -36,15 +33,21 @@ function makeQueryClient(params?: {
           return false;
         },
         retryDelay: ERROR_RETRY_DELAY,
-        refetchOnMount: (queryClient) => {
-          if (queryClient.isActive()) {
-            if (queryClient.isActive() && !(queryClient.queryHash in refetchOnMountRecord)) {
-              refetchOnMountRecord[queryClient.queryHash] = 0;
-            }
-            refetchOnMountRecord[queryClient.queryHash]++;
-            return refetchOnMountRecord[queryClient.queryHash] <= 1 ? 'always' : true;
+        refetchOnMount: (query) => {
+          console.log(query.queryHash, query.state.dataUpdatedAt);
+          if (!query.state.dataUpdatedAt) {
+            // No data has been fetched yet
+            return true;
           }
-          return true;
+
+          if (!mountedQueries.has(query.queryHash) && query.isActive()) {
+            // First time mounting this query
+            mountedQueries.add(query.queryHash);
+            return 'always';
+          }
+
+          // Query has mounted before, use default stale time behavior
+          return query.state.dataUpdatedAt < Date.now() - PREFETCH_STALE_TIME;
         }
       },
       mutations: {
