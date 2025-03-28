@@ -120,6 +120,7 @@ const tryGroup = (
 
 export const SidebarPrimary = React.memo(() => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
+  const isUserRegistered = useUserConfigContextSelector((x) => x.isUserRegistered);
   const { data: favorites } = useGetUserFavorites();
   const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
   const onToggleInviteModal = useInviteModalStore((s) => s.onToggleInviteModal);
@@ -132,6 +133,8 @@ export const SidebarPrimary = React.memo(() => {
   });
 
   const sidebarItems: SidebarProps['content'] = useMemo(() => {
+    if (!isUserRegistered) return [];
+
     const items = [topItems];
 
     if (isAdmin) {
@@ -147,11 +150,14 @@ export const SidebarPrimary = React.memo(() => {
     items.push(tryGroup(onToggleInviteModal, () => setOpenSupportModal(true)));
 
     return items;
-  }, [isAdmin, favorites, currentRoute, onFavoritesReorder]);
+  }, [isAdmin, isUserRegistered, favorites, currentRoute, onFavoritesReorder]);
 
   const onCloseSupportModal = useMemoizedFn(() => setOpenSupportModal(false));
 
-  const HeaderMemoized = useMemo(() => <SidebarPrimaryHeader />, []);
+  const HeaderMemoized = useMemo(
+    () => <SidebarPrimaryHeader hideActions={!isUserRegistered} />,
+    [isUserRegistered]
+  );
   const FooterMemoized = useMemo(() => <SidebarUserFooter />, []);
 
   return (
@@ -170,7 +176,7 @@ export const SidebarPrimary = React.memo(() => {
 
 SidebarPrimary.displayName = 'SidebarPrimary';
 
-const SidebarPrimaryHeader: React.FC = () => {
+const SidebarPrimaryHeader: React.FC<{ hideActions?: boolean }> = ({ hideActions = false }) => {
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   useHotkeys('C', () => {
     onChangePage(BusterRoutes.APP_HOME);
@@ -179,26 +185,28 @@ const SidebarPrimaryHeader: React.FC = () => {
   return (
     <div className="flex items-center justify-between">
       <BusterLogoWithText />
-      <div className="flex items-center gap-2">
-        <Tooltip title="Settings">
-          <Link href={createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE })}>
-            <Button prefix={<Gear />} variant="ghost" />
-          </Link>
-        </Tooltip>
-        <Tooltip title="Start a chat" shortcuts={['C']}>
-          <Link href={createBusterRoute({ route: BusterRoutes.APP_HOME })}>
-            <Button
-              size="tall"
-              rounding={'large'}
-              prefix={
-                <div className="flex items-center justify-center">
-                  <PencilSquareIcon />
-                </div>
-              }
-            />
-          </Link>
-        </Tooltip>
-      </div>
+      {!hideActions && (
+        <div className="flex items-center gap-2">
+          <Tooltip title="Settings">
+            <Link href={createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE })}>
+              <Button prefix={<Gear />} variant="ghost" />
+            </Link>
+          </Tooltip>
+          <Tooltip title="Start a chat" shortcuts={['C']}>
+            <Link href={createBusterRoute({ route: BusterRoutes.APP_HOME })}>
+              <Button
+                size="tall"
+                rounding={'large'}
+                prefix={
+                  <div className="flex items-center justify-center">
+                    <PencilSquareIcon />
+                  </div>
+                }
+              />
+            </Link>
+          </Tooltip>
+        </div>
+      )}
     </div>
   );
 };

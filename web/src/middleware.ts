@@ -1,10 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/middleware/supabaseMiddleware';
 import { isPublicPage, BusterRoutes, createBusterRoute } from './routes';
+import { pathnameMiddleware } from './middleware/pathnameMiddleware';
 
 export async function middleware(request: NextRequest) {
   try {
-    const [supabaseResponse, user] = await updateSession(request);
+    let [response, user] = await updateSession(request);
+
+    response = await pathnameMiddleware(request, response);
 
     if ((!user || !user.id) && !isPublicPage(request)) {
       return NextResponse.redirect(
@@ -12,7 +15,7 @@ export async function middleware(request: NextRequest) {
       );
     }
 
-    return supabaseResponse;
+    return response;
   } catch (error) {
     console.error('Error in middleware:', error);
     return NextResponse.next();
