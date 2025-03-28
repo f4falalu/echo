@@ -3,6 +3,7 @@ pub mod chats;
 pub mod dashboards;
 pub mod collections;
 pub mod data_sources;
+pub mod favorites;
 pub mod metrics;
 pub mod organizations;
 pub mod routes;
