@@ -1,24 +1,18 @@
 use axum::{extract::Json, http::StatusCode, Extension};
-use handlers::favorites::{create_favorite, CreateFavoriteReq, FavoriteObject, FavoriteIdAndType};
+use handlers::favorites::{create_favorites_bulk, CreateFavoriteReq, FavoriteObject};
 use middleware::AuthenticatedUser;
 
 pub async fn create_favorite_handler(
     Extension(user): Extension<AuthenticatedUser>,
-    Json(payload): Json<FavoriteIdAndType>,
+    Json(favorites): Json<Vec<CreateFavoriteReq>>,
 ) -> Result<Json<Vec<FavoriteObject>>, (StatusCode, String)> {
-    let req = CreateFavoriteReq {
-        id: payload.id,
-        asset_type: payload.type_,
-        index: None,
-    };
-
-    match create_favorite(&user, &req).await {
+    match create_favorites_bulk(&user, &favorites).await {
         Ok(favorites) => Ok(Json(favorites)),
         Err(e) => {
-            tracing::error!("Error creating favorite: {:?}", e);
+            tracing::error!("Error creating favorites: {:?}", e);
             Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Error creating favorite: {:?}", e),
+                format!("Error creating favorites: {:?}", e),
             ))
         }
     }
