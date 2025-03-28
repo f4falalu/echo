@@ -28,7 +28,7 @@ const chatsGetList = (
   filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
 ) =>
   queryOptions<BusterChatListItem[]>({
-    queryKey: ['chats', 'list', filters] as const,
+    queryKey: ['chats', 'list', filters || {}] as const,
     staleTime: 60 * 1000, // 1 minute
     initialData: [],
     initialDataUpdatedAt: 0
@@ -46,7 +46,7 @@ const logsGetList = (
   filters?: Omit<Parameters<typeof getListLogs>[0], 'page_token' | 'page_size'>
 ) =>
   queryOptions<BusterChatListItem[]>({
-    queryKey: ['logs', 'list', filters] as const,
+    queryKey: ['logs', 'list', filters || {}] as const,
     staleTime: 60 * 1000, // 1 minute
     initialData: [],
     initialDataUpdatedAt: 0

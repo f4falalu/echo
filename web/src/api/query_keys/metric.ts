@@ -14,10 +14,10 @@ export const metricsGetMetric = (metricId: string, version_number?: number) => {
 };
 
 export const metricsGetList = (
-  filters: Omit<Parameters<typeof listMetrics>[0], 'page_token' | 'page_size'>
+  filters?: Omit<Parameters<typeof listMetrics>[0], 'page_token' | 'page_size'>
 ) =>
   queryOptions<BusterMetricListItem[]>({
-    queryKey: ['metrics', 'list', filters] as const,
+    queryKey: ['metrics', 'list', filters || {}] as const,
     initialData: [],
     initialDataUpdatedAt: 0
   });

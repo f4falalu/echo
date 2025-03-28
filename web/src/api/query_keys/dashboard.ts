@@ -6,10 +6,10 @@ import type {
 import { dashboardsGetList } from '../buster_rest/dashboards';
 
 const dashboardGetList = (
-  filters: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
+  filters?: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
 ) =>
   queryOptions<BusterDashboardListItem[]>({
-    queryKey: ['dashboard', 'list', filters] as const,
+    queryKey: ['dashboard', 'list', filters || {}] as const,
     initialData: [],
     staleTime: 60 * 1000,
     initialDataUpdatedAt: 0
