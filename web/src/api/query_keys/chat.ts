@@ -34,7 +34,7 @@ const chatsGetList = (filters?: Parameters<typeof getListChats>[0]) =>
 
 const chatsBlackBoxMessages = (messageId: string) =>
   queryOptions<string | null>({
-    queryKey: ['chats', 'messages', messageId, 'black-box'] as const,
+    queryKey: ['chats', 'messages', messageId, 'local-only-black-box'] as const,
     staleTime: Infinity,
     enabled: false, //this is local
     queryFn: () => Promise.resolve(null)

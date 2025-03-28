@@ -7,7 +7,7 @@ const collectionsGetList = (
 ) =>
   queryOptions<BusterCollectionListItem[]>({
     queryKey: ['collections', 'list', filters] as const,
-    staleTime: 4 * 1000,
+    staleTime: 60 * 1000,
     initialData: [],
     initialDataUpdatedAt: 0
   });

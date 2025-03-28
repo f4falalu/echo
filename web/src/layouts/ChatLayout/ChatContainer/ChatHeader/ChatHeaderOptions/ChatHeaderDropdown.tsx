@@ -46,7 +46,11 @@ export const ChatContainerHeaderDropdown: React.FC<{
     ];
   }, [chatId, currentMessageId, deleteChat, duplicateChat]);
 
-  return <Dropdown items={menuItem}>{chatId ? children : null}</Dropdown>;
+  return (
+    <Dropdown align="end" items={menuItem}>
+      {chatId ? children : null}
+    </Dropdown>
+  );
 });
 
 ChatContainerHeaderDropdown.displayName = 'ChatContainerHeaderDropdown';

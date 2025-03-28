@@ -16,7 +16,7 @@ export const metricsGetMetric = (metricId: string, version_number?: number) => {
 export const metricsGetList = (filters?: Parameters<typeof listMetrics>[0]) =>
   queryOptions<BusterMetricListItem[]>({
     queryKey: ['metrics', 'list', filters] as const,
-    staleTime: 10 * 1000
+    staleTime: 60 * 1000
   });
 
 export const metricsGetData = (id: string, version_number?: number) =>

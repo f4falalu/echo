@@ -10,8 +10,8 @@ const dashboardGetList = (
 ) =>
   queryOptions<BusterDashboardListItem[]>({
     queryKey: ['dashboard', 'list', filters] as const,
-    staleTime: 10 * 1000,
     initialData: [],
+    staleTime: 60 * 1000,
     initialDataUpdatedAt: 0
   });
 
