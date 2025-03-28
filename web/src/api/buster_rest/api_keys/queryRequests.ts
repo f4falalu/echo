@@ -6,8 +6,7 @@ export const useGetApiKeys = () => {
   return useQuery({
     queryKey: ['api_keys'],
     queryFn: getApiKeys,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false
+    refetchOnWindowFocus: false
   });
 };
 

@@ -11,7 +11,7 @@ export const EditCurrency: React.FC<{
   onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
 }> = React.memo(
   ({ currency, onUpdateColumnConfig }) => {
-    const { data: currencies, isFetched } = useGetCurrencies({ enabled: true });
+    const { data: currencies, isFetched } = useGetCurrencies();
 
     const options: SelectItem[] = useMemo(() => {
       return (

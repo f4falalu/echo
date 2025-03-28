@@ -18,17 +18,3 @@ export const prefetchGetMetric = async (
 
   return queryClient;
 };
-
-export const prefetchGetMetricsList = async (
-  params: Parameters<typeof listMetrics>[0],
-  queryClientProp?: QueryClient
-) => {
-  const queryClient = queryClientProp || new QueryClient();
-
-  await queryClient.prefetchQuery({
-    ...metricsQueryKeys.metricsGetList(params),
-    queryFn: () => listMetrics_server(params)
-  });
-
-  return queryClient;
-};

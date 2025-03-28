@@ -86,19 +86,12 @@ export const useGetMetricsList = (
     [params]
   );
 
-  const queryFn = useMemoizedFn(() => {
-    return listMetrics(compiledParams);
-  });
+  const queryFn = useMemoizedFn(() => listMetrics(compiledParams));
 
-  const res = useQuery({
-    ...metricsQueryKeys.metricsGetList(compiledParams),
+  return useQuery({
+    ...metricsQueryKeys.metricsGetList(params),
     queryFn
   });
-
-  return {
-    ...res,
-    data: res.data || []
-  };
 };
 
 /**
@@ -170,7 +163,7 @@ export const useDeleteMetric = () => {
     mutationFn: deleteMetrics,
     onMutate: async (variables) => {
       const metricIds = variables.ids;
-      const options = metricsQueryKeys.metricsGetList();
+      const options = metricsQueryKeys.metricsGetList({});
       queryClient.setQueryData(options.queryKey, (oldData) => {
         return oldData?.filter((metric) => !metricIds.includes(metric.id));
       });

@@ -7,7 +7,7 @@ import { MetricItemsContainer } from './MetricItemsContainer';
 import { AppPageLayout } from '@/components/ui/layouts';
 import { useGetMetricsList } from '@/api/buster_rest/metrics';
 
-export const MetricListContainer: React.FC<{}> = ({}) => {
+export const MetricListContainer: React.FC = React.memo(() => {
   const [filters, setFilters] = useState<VerificationStatus[]>([]);
   const { data: metricList, isFetched } = useGetMetricsList({ status: filters });
 
@@ -27,4 +27,6 @@ export const MetricListContainer: React.FC<{}> = ({}) => {
       />
     </AppPageLayout>
   );
-};
+});
+
+MetricListContainer.displayName = 'MetricListContainer';

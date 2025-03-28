@@ -44,7 +44,6 @@ export const prefetchGetMyUserInfo = async (
 
 export const useGetUser = (params: Parameters<typeof getUser>[0]) => {
   const queryFn = useMemoizedFn(() => getUser(params));
-
   return useQuery({
     ...queryKeys.userGetUser(params.userId),
     queryFn

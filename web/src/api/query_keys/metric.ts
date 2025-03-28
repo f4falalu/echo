@@ -5,6 +5,7 @@ import type {
   IBusterMetricData
 } from '@/api/asset_interfaces/metric';
 import { type listMetrics } from '../buster_rest/metrics';
+import { INFINITY } from 'chart.js/helpers';
 
 export const metricsGetMetric = (metricId: string, version_number?: number) => {
   return queryOptions<IBusterMetric>({
@@ -13,10 +14,13 @@ export const metricsGetMetric = (metricId: string, version_number?: number) => {
   });
 };
 
-export const metricsGetList = (filters?: Parameters<typeof listMetrics>[0]) =>
+export const metricsGetList = (
+  filters: Omit<Parameters<typeof listMetrics>[0], 'page_token' | 'page_size'>
+) =>
   queryOptions<BusterMetricListItem[]>({
     queryKey: ['metrics', 'list', filters] as const,
-    staleTime: 60 * 1000
+    initialData: [],
+    initialDataUpdatedAt: 0
   });
 
 export const metricsGetData = (id: string, version_number?: number) =>

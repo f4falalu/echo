@@ -26,7 +26,7 @@ export const useGetListChats = (
   const queryFn = useMemoizedFn(() => getListChats(filtersCompiled));
 
   return useQuery({
-    ...queryKeys.chatsGetList(filtersCompiled),
+    ...queryKeys.chatsGetList(filters),
     queryFn
   });
 };
@@ -56,7 +56,7 @@ export const useGetListLogs = (
   const queryFn = useMemoizedFn(() => getListLogs(filtersCompiled));
 
   return useQuery({
-    ...queryKeys.logsGetList(filtersCompiled),
+    ...queryKeys.logsGetList(filters),
     queryFn
   });
 };

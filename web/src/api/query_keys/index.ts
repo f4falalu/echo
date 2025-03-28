@@ -10,6 +10,7 @@ import { datasetGroupQueryKeys } from './dataset_groups';
 import { datasetQueryKeys } from './datasets';
 import { permissionGroupQueryKeys } from './permission_groups';
 import { assetQueryKeys } from './assets';
+import { nextjsQueryKeys } from './nextjs';
 
 export const queryKeys = {
   ...datasetQueryKeys,
@@ -23,5 +24,6 @@ export const queryKeys = {
   ...datasourceQueryKeys,
   ...datasetGroupQueryKeys,
   ...permissionGroupQueryKeys,
-  ...assetQueryKeys
+  ...assetQueryKeys,
+  ...nextjsQueryKeys
 };

@@ -1,11 +1,19 @@
 import { QueryClient, defaultShouldDehydrateQuery, isServer } from '@tanstack/react-query';
 import { useBusterNotifications } from '../BusterNotifications';
 import { openErrorNotification as openErrorNotificationMethod } from '../BusterNotifications';
+import { PERMANENT_QUERIES } from './createPersister';
 
 type OpenErrorNotification = ReturnType<typeof useBusterNotifications>['openErrorNotification'];
 
 const PREFETCH_STALE_TIME = 1000 * 10; // 10 seconds
 const ERROR_RETRY_DELAY = 1 * 1000; // 1 second delay after error
+const GC_TIME = 1000 * 60 * 60 * 24 * 3; // 24 hours - matches persistence duration
+const refetchOnMountRecord: Record<string, number> = PERMANENT_QUERIES.reduce<
+  Record<string, number>
+>((acc, query) => {
+  acc[query] = 1;
+  return acc;
+}, {});
 
 function makeQueryClient(params?: {
   openErrorNotification?: OpenErrorNotification;
@@ -17,8 +25,8 @@ function makeQueryClient(params?: {
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
-        refetchOnMount: true,
         staleTime: PREFETCH_STALE_TIME,
+        gcTime: GC_TIME,
         enabled: (params?.enabled ?? true) && baseEnabled,
         queryFn: () => Promise.resolve(),
         retry: (failureCount, error) => {
@@ -27,7 +35,17 @@ function makeQueryClient(params?: {
           }
           return false;
         },
-        retryDelay: ERROR_RETRY_DELAY
+        retryDelay: ERROR_RETRY_DELAY,
+        refetchOnMount: (queryClient) => {
+          if (queryClient.isActive()) {
+            if (queryClient.isActive() && !(queryClient.queryHash in refetchOnMountRecord)) {
+              refetchOnMountRecord[queryClient.queryHash] = 0;
+            }
+            refetchOnMountRecord[queryClient.queryHash]++;
+            return refetchOnMountRecord[queryClient.queryHash] <= 1 ? 'always' : true;
+          }
+          return true;
+        }
       },
       mutations: {
         retry: (failureCount, error) => {

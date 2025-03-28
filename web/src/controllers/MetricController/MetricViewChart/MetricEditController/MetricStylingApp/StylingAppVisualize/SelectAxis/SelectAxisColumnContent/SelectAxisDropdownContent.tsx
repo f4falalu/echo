@@ -315,7 +315,7 @@ const LabelSettings: React.FC<{
   }, [displayName]);
 
   //THIS IS HERE JUST TO PREFETCH THE CURRENCIES
-  useGetCurrencies({ enabled: true });
+  useGetCurrencies();
 
   const ComponentsLoop = [
     {
