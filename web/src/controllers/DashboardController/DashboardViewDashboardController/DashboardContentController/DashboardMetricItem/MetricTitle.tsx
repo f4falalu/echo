@@ -35,7 +35,7 @@ export const MetricTitle: React.FC<{
     const useEllipsis = !isDragOverlay && !isDragging;
 
     return (
-      <Link className="flex px-4" href={metricLink} prefetch>
+      <Link className="flex" href={metricLink} prefetch>
         <div
           {...attributes}
           {...listeners}
@@ -68,7 +68,7 @@ export const MetricTitle: React.FC<{
         {isDragOverlay || readOnly ? (
           <></>
         ) : (
-          <ThreeDotMenu className="" dashboardId={dashboardId} metricId={metricId} />
+          <ThreeDotMenu dashboardId={dashboardId} metricId={metricId} />
         )}
       </Link>
     );

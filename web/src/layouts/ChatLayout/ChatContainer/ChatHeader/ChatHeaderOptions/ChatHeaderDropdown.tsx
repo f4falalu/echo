@@ -5,14 +5,14 @@ import { Copy, Trash, Pencil } from '@/components/ui/icons';
 import { useDeleteChat, useDuplicateChat } from '@/api/buster_rest/chats';
 import { CHAT_HEADER_TITLE_ID } from '../ChatHeaderTitle';
 import { timeout } from '@/lib';
-import { useRouter } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 export const ChatContainerHeaderDropdown: React.FC<{
   children: React.ReactNode;
 }> = React.memo(({ children }) => {
   const chatId = useChatIndividualContextSelector((state) => state.chatId);
-  const router = useRouter();
+  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const { mutate: deleteChat, isPending: isDeleting } = useDeleteChat();
   const { mutate: duplicateChat } = useDuplicateChat();
   const currentMessageId = useChatIndividualContextSelector((state) => state.currentMessageId);
@@ -28,7 +28,7 @@ export const ChatContainerHeaderDropdown: React.FC<{
           chatId &&
           deleteChat([chatId], {
             onSuccess: () => {
-              router.push(createBusterRoute({ route: BusterRoutes.APP_CHAT }));
+              onChangePage(createBusterRoute({ route: BusterRoutes.APP_CHAT }));
             }
           })
       },

@@ -109,11 +109,9 @@ export const useDeleteCollection = () => {
 
   return useMutation({
     mutationFn: deleteCollection,
-    onMutate: (variables) => {
-      const queryKey = collectionQueryKeys.collectionsGetList().queryKey;
-      queryClient.setQueryData(queryKey, (v) => {
-        const ids = Array.isArray(variables.id) ? variables.id : [variables.id];
-        return v?.filter((c) => !ids.includes(c.id));
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: collectionQueryKeys.collectionsGetList().queryKey
       });
     }
   });

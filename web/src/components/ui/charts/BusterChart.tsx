@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { doesChartHaveValidAxis } from './helpers';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import {
   NoChartData,
   PreparingYourRequestLoader
@@ -47,6 +47,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
     columnSettings = DEFAULT_CHART_CONFIG.columnSettings,
     ...props
   }) => {
+    const [isMounted, setIsMounted] = useState(false); //there is a responsive bug where we need to wait for the chart to mount before we can animate it
     const isTable = selectedChartType === ChartType.Table;
     const showNoData = !loading && (isEmpty(data) || data === null);
 
@@ -82,7 +83,7 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
     });
 
     const SwitchComponent = useMemoizedFn(() => {
-      if (loading || error) {
+      if (loading || error || !isMounted) {
         return <PreparingYourRequestLoader error={error} />;
       }
 
@@ -129,6 +130,12 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
         );
       }
 
+      if (!isMounted) {
+        return (
+          <div className="to-bg-gradient-to-r to-border/10 h-full w-full bg-gradient-to-b from-transparent" />
+        );
+      }
+
       const chartProps: BusterChartRenderComponentProps = {
         ...DEFAULT_CHART_CONFIG,
         columnMetadata: props.columnMetadata ?? [],
@@ -148,6 +155,12 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
       };
 
       return <BusterChartComponent {...chartProps} />;
+    });
+
+    useMount(() => {
+      setTimeout(() => {
+        setIsMounted(true);
+      }, 25);
     });
 
     return (

@@ -6,7 +6,7 @@ const collectionsGetList = (
   filters?: Omit<Parameters<typeof collectionsGetListRequest>[0], 'page' | 'page_size'>
 ) =>
   queryOptions<BusterCollectionListItem[]>({
-    queryKey: ['collections', 'list', filters] as const,
+    queryKey: ['collections', 'list', filters || {}] as const,
     staleTime: 60 * 1000,
     initialData: [],
     initialDataUpdatedAt: 0

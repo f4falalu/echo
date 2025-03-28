@@ -9,6 +9,7 @@ import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { canEdit } from '@/lib/share';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 
 export const MetricViewChart: React.FC<{
   metricId: string;
@@ -40,16 +41,15 @@ export const MetricViewChart: React.FC<{
     const {
       data: metricData,
       isFetched: isFetchedMetricData,
-
       error: metricDataError
     } = useGetMetricData({ id: metricId });
+    const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
 
     const { mutateAsync: updateMetric } = useUpdateMetric();
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
+
     const isTable = metric?.chart_config.selectedChartType === ChartType.Table;
-
-    const readOnly = readOnlyProp || !canEdit(metric?.permission);
-
+    const readOnly = readOnlyProp || !canEdit(metric?.permission) || isVersionHistoryMode;
     const loadingData = !isFetchedMetricData;
     const errorData = !!metricDataError;
     const showEvaluation = !!evaluation_score && !!evaluation_summary;

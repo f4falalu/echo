@@ -5,6 +5,7 @@ import { LegendItem } from './LegendItem';
 import { cn } from '@/lib/classMerge';
 import { LegendItemDot } from './LegendDot';
 import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import { ScrollArea } from '../../scroll-area';
 
 export const OverflowButton: React.FC<{
   legendItems: BusterChartLegendItem[];
@@ -14,23 +15,25 @@ export const OverflowButton: React.FC<{
 }> = React.memo(({ legendItems, onFocusClick, onClickItem, onHoverItem }) => {
   return (
     <Popover
-      align="end"
-      side="right"
-      className="max-h-[420px] max-w-[265px]! min-w-[200px] overflow-x-hidden overflow-y-auto px-0 py-1"
+      align="center"
+      side="left"
+      className="flex max-h-[420px] max-w-[265px]! min-w-[200px] flex-col overflow-hidden px-0 py-0.5"
       content={
-        <div className="flex flex-col space-y-1 p-0.5">
-          {legendItems.map((item) => {
-            return (
-              <LegendItem
-                key={item.id + item.serieName}
-                item={item}
-                onClickItem={onClickItem}
-                onFocusItem={onFocusClick}
-                onHoverItem={onHoverItem}
-              />
-            );
-          })}
-        </div>
+        <ScrollArea className="flex flex-col">
+          <div className="flex flex-col space-y-1 p-0.5">
+            {legendItems.map((item) => {
+              return (
+                <LegendItem
+                  key={item.id + item.serieName}
+                  item={item}
+                  onClickItem={onClickItem}
+                  onFocusItem={onFocusClick}
+                  onHoverItem={onHoverItem}
+                />
+              );
+            })}
+          </div>
+        </ScrollArea>
       }>
       <div
         className={cn(

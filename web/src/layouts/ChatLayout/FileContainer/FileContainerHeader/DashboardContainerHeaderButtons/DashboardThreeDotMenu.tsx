@@ -34,6 +34,8 @@ import { DASHBOARD_TITLE_INPUT_ID } from '@/controllers/DashboardController/Dash
 import { canEdit, canFilter, getIsEffectiveOwner } from '@/lib/share';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { useDashboardContentStore } from '@/context/Dashboards';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 
 export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });
@@ -182,6 +184,7 @@ const useFavoriteDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }
 
 const useDeleteDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
   const { mutateAsync: deleteDashboard } = useDeleteDashboards();
+  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
 
   return useMemo(
     () => ({
@@ -190,6 +193,7 @@ const useDeleteDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }) 
       icon: <Trash />,
       onClick: async () => {
         await deleteDashboard({ dashboardId });
+        onChangePage(createBusterRoute({ route: BusterRoutes.APP_DASHBOARDS }));
       }
     }),
     [dashboardId]

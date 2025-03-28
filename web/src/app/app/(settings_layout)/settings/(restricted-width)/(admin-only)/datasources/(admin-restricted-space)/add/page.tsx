@@ -12,13 +12,14 @@ import { AppDataSourceIcon } from '@/components/ui/icons/AppDataSourceIcons';
 import { useRouter } from 'next/navigation';
 import { useMemoizedFn } from '@/hooks';
 import Link from 'next/link';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 export default function Page({
   searchParams: { type }
 }: {
   searchParams: { type?: DataSourceTypes };
 }) {
-  const router = useRouter();
+  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const [selectedDataSource, setSelectedDataSource] = useState<DataSourceTypes | null>(
     getValidType(type)
   );
@@ -33,7 +34,7 @@ export default function Page({
 
   const onClearSelectedDataSource = useMemoizedFn(() => {
     setSelectedDataSource(null);
-    router.push(createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES_ADD }));
+    onChangePage(createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES_ADD }));
   });
 
   useEffect(() => {
