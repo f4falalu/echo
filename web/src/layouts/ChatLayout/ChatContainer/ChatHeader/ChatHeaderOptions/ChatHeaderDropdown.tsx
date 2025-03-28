@@ -5,12 +5,15 @@ import { Copy, Trash, Pencil } from '@/components/ui/icons';
 import { useDeleteChat, useDuplicateChat } from '@/api/buster_rest/chats';
 import { CHAT_HEADER_TITLE_ID } from '../ChatHeaderTitle';
 import { timeout } from '@/lib';
+import { useRouter } from 'next/navigation';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export const ChatContainerHeaderDropdown: React.FC<{
   children: React.ReactNode;
 }> = React.memo(({ children }) => {
   const chatId = useChatIndividualContextSelector((state) => state.chatId);
-  const { mutate: deleteChat } = useDeleteChat();
+  const router = useRouter();
+  const { mutate: deleteChat, isPending: isDeleting } = useDeleteChat();
   const { mutate: duplicateChat } = useDuplicateChat();
   const currentMessageId = useChatIndividualContextSelector((state) => state.currentMessageId);
 
@@ -20,7 +23,14 @@ export const ChatContainerHeaderDropdown: React.FC<{
         label: 'Delete chat',
         value: 'delete',
         icon: <Trash />,
-        onClick: () => chatId && deleteChat([chatId])
+        loading: isDeleting,
+        onClick: () =>
+          chatId &&
+          deleteChat([chatId], {
+            onSuccess: () => {
+              router.push(createBusterRoute({ route: BusterRoutes.APP_CHAT }));
+            }
+          })
       },
       {
         label: 'Duplicate chat',
@@ -44,7 +54,7 @@ export const ChatContainerHeaderDropdown: React.FC<{
         }
       }
     ];
-  }, [chatId, currentMessageId, deleteChat, duplicateChat]);
+  }, [chatId, isDeleting, currentMessageId, deleteChat, duplicateChat]);
 
   return (
     <Dropdown align="end" items={menuItem}>

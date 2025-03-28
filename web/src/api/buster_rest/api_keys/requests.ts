@@ -10,7 +10,7 @@ export const createApiKey = async (name: string) => {
 };
 
 export const deleteApiKey = async (id: string) => {
-  return mainApi.delete(`/api_keys/${id}`).then(() => {});
+  return mainApi.delete(`/api_keys/${id}`).then((res) => res.data);
 };
 
 export const getApiKey = async (id: string) => {

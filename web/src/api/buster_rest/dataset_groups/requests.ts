@@ -25,8 +25,8 @@ export const updateDatasetGroup = async (
   return mainApi.put(`/dataset_groups`, data).then((res) => res.data);
 };
 
-export const deleteDatasetGroup = async (ids: string[]) => {
-  return mainApi.delete(`/dataset_groups`, { data: { ids } }).then((res) => res.data);
+export const deleteDatasetGroup = async (data: string[]) => {
+  return mainApi.delete(`/dataset_groups`, { data }).then((res) => res.data);
 };
 
 export const getDatasetGroup = async (id: string) => {

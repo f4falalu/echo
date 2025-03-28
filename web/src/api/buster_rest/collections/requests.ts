@@ -64,13 +64,15 @@ export const collectionsUpdateCollection = async (params: {
     .then((res) => res.data);
 };
 
-export const collectionsDeleteCollection = async (params: {
+export const collectionsDeleteCollection = async (data: {
   /** Array of collection IDs to be deleted */
   ids: string[];
 }) => {
-  return await mainApi.delete<BusterCollection>('/collections', { 
-    data: { ids: params.ids }
-  }).then((res) => res.data);
+  return await mainApi
+    .delete<BusterCollection>('/collections', {
+      data
+    })
+    .then((res) => res.data);
 };
 
 // share collections
