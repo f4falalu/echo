@@ -10,12 +10,16 @@ import { getQueryClient } from './getQueryClient';
 import {} from '@tanstack/react-query-devtools';
 import dynamic from 'next/dynamic';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-const ReactQueryDevtoolsPanel = dynamic(
-  () => import('@tanstack/react-query-devtools').then((mod) => mod.ReactQueryDevtoolsPanel),
+const ReactQueryDevtoolsProduction = dynamic(
+  () =>
+    import('@tanstack/react-query-devtools/build/modern/production.js').then((d) => ({
+      default: d.ReactQueryDevtools
+    })),
   {
-    loading: () => <div>Loading dev tools...</div>,
-    ssr: false
+    ssr: false,
+    loading: () => <div>Loading dev tools...</div>
   }
 );
 
@@ -41,7 +45,13 @@ export const BusterReactQueryProvider = ({ children }: { children: React.ReactEl
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {isDevToolsOpen && <ReactQueryDevtoolsPanel />}
+
+      {isDevToolsOpen && (
+        <>
+          <ReactQueryDevtools initialIsOpen={true} />
+          <ReactQueryDevtoolsProduction initialIsOpen={true} />
+        </>
+      )}
     </QueryClientProvider>
   );
 };
