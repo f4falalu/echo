@@ -22,6 +22,7 @@ import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsPro
 import { useGetUserFavorites } from '../users';
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { create } from 'mutative';
+import { isServer } from '@tanstack/react-query';
 import {
   useAddAssetToCollection,
   useRemoveAssetFromCollection
@@ -105,6 +106,7 @@ export const useGetMetricData = ({
   version_number?: number;
 }) => {
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const queryVersionNumber = searchParams.get('metric_version_number');
 
   const version_number = useMemo(() => {
@@ -112,13 +114,13 @@ export const useGetMetricData = ({
   }, [version_number_prop, queryVersionNumber]);
 
   const queryFn = useMemoizedFn(() => {
+    console.log('hit!', isServer, metricsQueryKeys.metricsGetData(id, version_number).queryKey);
     return getMetricData({ id, version_number });
   });
 
   return useQuery({
     ...metricsQueryKeys.metricsGetData(id, version_number),
-    queryFn,
-    enabled: !!id
+    queryFn
   });
 };
 
@@ -126,6 +128,7 @@ export const prefetchGetMetricDataClient = async (
   { id, version_number }: { id: string; version_number?: number },
   queryClient: QueryClient
 ) => {
+  console.log('prefetch!');
   const options = metricsQueryKeys.metricsGetData(id, version_number);
   const existingData = queryClient.getQueryData(options.queryKey);
   if (!existingData) {
@@ -145,6 +148,23 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateMetric,
+    onMutate: async ({ id, restore_to_version }) => {
+      const isRestoringVersion = restore_to_version !== undefined;
+      if (isRestoringVersion) {
+        const oldMetric = queryClient.getQueryData(metricsQueryKeys.metricsGetMetric(id).queryKey);
+        const newMetric = queryClient.getQueryData(
+          metricsQueryKeys.metricsGetMetric(id, restore_to_version).queryKey
+        );
+        const newMetricData = queryClient.getQueryData(
+          metricsQueryKeys.metricsGetData(id, restore_to_version).queryKey
+        );
+        if (oldMetric && newMetric && newMetricData) {
+          queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(id).queryKey, oldMetric);
+          console.log('setting newMetricData', metricsQueryKeys.metricsGetData(id).queryKey);
+          queryClient.setQueryData(metricsQueryKeys.metricsGetData(id).queryKey, newMetricData);
+        }
+      }
+    },
     onSuccess: (data) => {
       if (updateOnSave && data) {
         const oldMetric = queryClient.getQueryData(
