@@ -41,12 +41,16 @@ const useFetchCollection = () => {
   });
 };
 
-export const useGetCollection = (collectionId: string | undefined) => {
+export const useGetCollection = <T = BusterCollection>(
+  collectionId: string | undefined,
+  select?: (data: BusterCollection) => T
+) => {
   const fetchCollection = useFetchCollection();
   return useQuery({
     ...collectionQueryKeys.collectionsGetCollection(collectionId!),
     queryFn: () => fetchCollection(collectionId!),
-    enabled: !!collectionId
+    enabled: !!collectionId,
+    select
   });
 };
 

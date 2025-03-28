@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/buttons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { FavoriteStar } from '@/components/features/list/FavoriteStar';
+import { FavoriteStar, useFavoriteStar } from '@/components/features/list/FavoriteStar';
 import { ShareMenu } from '@/components/features/ShareMenu';
 import { BusterCollection, ShareAssetType } from '@/api/asset_interfaces';
 import { useMemoizedFn } from '@/hooks';
@@ -13,6 +13,9 @@ import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
 import { Dots, Pencil, Plus, ShareAllRight, ShareRight, Trash } from '@/components/ui/icons';
 import { useDeleteCollection, useUpdateCollection } from '@/api/buster_rest/collections';
 import { canEdit } from '@/lib/share';
+import { ShareCollectionButton } from '@/components/features/buttons/ShareMenuCollectionButton';
+import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
+import { Star } from '@/components/ui/icons';
 
 export const CollectionsIndividualHeader: React.FC<{
   openAddTypeModal: boolean;
@@ -70,12 +73,7 @@ const ContentRight: React.FC<{
 
   return (
     <div className="flex items-center space-x-2">
-      <ShareMenu
-        assetType={ShareAssetType.COLLECTION}
-        assetId={collection.id}
-        shareAssetConfig={collection}>
-        <Button variant="ghost" prefix={<ShareRight />} />
-      </ShareMenu>
+      <ShareCollectionButton collectionId={collection.id} />
       <Button prefix={<Plus />} onClick={onButtonClick}>
         Add to collection
       </Button>
@@ -89,6 +87,11 @@ const ThreeDotDropdown: React.FC<{
 }> = React.memo(({ collection }) => {
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const { mutateAsync: deleteCollection, isPending: isDeletingCollection } = useDeleteCollection();
+  const { isFavorited, onFavoriteClick } = useFavoriteStar({
+    id: collection.id,
+    type: ShareAssetType.COLLECTION,
+    name: collection.name || ''
+  });
 
   const items: DropdownItems = useMemo(
     () => [
@@ -113,17 +116,21 @@ const ThreeDotDropdown: React.FC<{
         onClick: () => {
           //
         }
+      },
+      {
+        value: 'favorite',
+        label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
+        icon: isFavorited ? <StarFilled /> : <Star />,
+        onClick: onFavoriteClick
       }
     ],
-    [collection.id, deleteCollection, onChangePage]
+    [collection.id, deleteCollection, onChangePage, isFavorited, onFavoriteClick]
   );
 
   return (
-    <div className="flex items-center">
-      <Dropdown items={items}>
-        <Button variant="ghost" prefix={<Dots />}></Button>
-      </Dropdown>
-    </div>
+    <Dropdown items={items}>
+      <Button variant="ghost" prefix={<Dots />}></Button>
+    </Dropdown>
   );
 });
 ThreeDotDropdown.displayName = 'ThreeDotDropdown';
