@@ -22,7 +22,6 @@ import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsPro
 import { useGetUserFavorites } from '../users';
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { create } from 'mutative';
-import { isServer } from '@tanstack/react-query';
 import {
   useAddAssetToCollection,
   useRemoveAssetFromCollection
@@ -106,7 +105,6 @@ export const useGetMetricData = ({
   version_number?: number;
 }) => {
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
   const queryVersionNumber = searchParams.get('metric_version_number');
 
   const version_number = useMemo(() => {
@@ -114,11 +112,8 @@ export const useGetMetricData = ({
   }, [version_number_prop, queryVersionNumber]);
 
   const queryFn = useMemoizedFn(() => {
-    console.log('hit!', isServer, metricsQueryKeys.metricsGetData(id, version_number).queryKey);
     return getMetricData({ id, version_number });
   });
-
-  console.log('data here!');
 
   return useQuery({
     ...metricsQueryKeys.metricsGetData(id, version_number),

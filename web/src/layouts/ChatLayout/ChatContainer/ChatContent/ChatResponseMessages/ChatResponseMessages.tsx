@@ -27,6 +27,7 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
           finalReasoningMessage={finalReasoningMessage}
           isCompletedStream={isCompletedStream}
           messageId={messageId}
+          chatId={chatId}
         />
 
         {responseMessageIds.map((responseMessageId, index) => (

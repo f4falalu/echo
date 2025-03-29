@@ -1,14 +1,11 @@
-import type { BusterChatMessageReasoning_pill } from '@/api/asset_interfaces/chat';
-import React, { useMemo } from 'react';
+import type { BusterChatMessageReasoning_pill, FileType } from '@/api/asset_interfaces/chat';
+import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from '@/hooks';
 import { Popover } from '@/components/ui/tooltip/Popover';
-import {
-  isOpenableFile,
-  useChatLayoutContextSelector
-} from '@/layouts/ChatLayout/ChatLayoutContext';
-import { type SelectedFile } from '@/layouts/ChatLayout/interfaces';
 import { cn } from '@/lib/classMerge';
+import Link from 'next/link';
+import { createChatAssetRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 
 const duration = 0.25;
 
@@ -44,24 +41,19 @@ const pillVariants = {
 export const ReasoningMessagePills: React.FC<{
   pills: BusterChatMessageReasoning_pill[];
   isCompletedStream: boolean;
-}> = React.memo(({ pills = [], isCompletedStream }) => {
-  const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
-
+  chatId: string;
+}> = React.memo(({ pills = [], isCompletedStream, chatId }) => {
   const useAnimation = !isCompletedStream;
 
-  const handlePillClick = useMemoizedFn(
-    (pill: Pick<BusterChatMessageReasoning_pill, 'id' | 'type'>) => {
-      if (isOpenableFile(pill.type)) {
-        onSetSelectedFile(pill as SelectedFile);
-      }
-    }
-  );
-
-  const isClickablePill = useMemo(() => {
-    return pills.some((pill) => isOpenableFile(pill.type));
-  }, [pills]);
-
-  const onClick = isClickablePill ? handlePillClick : undefined;
+  const makeHref = useMemoizedFn((pill: Pick<BusterChatMessageReasoning_pill, 'id' | 'type'>) => {
+    const link = createChatAssetRoute({
+      chatId: chatId,
+      assetId: pill.id,
+      type: pill.type as FileType
+    });
+    if (link) return link;
+    return '';
+  });
 
   return (
     <AnimatePresence initial={!isCompletedStream}>
@@ -71,7 +63,9 @@ export const ReasoningMessagePills: React.FC<{
         animate={pills.length > 0 ? 'visible' : 'hidden'}
         className={'flex w-full flex-wrap gap-1.5 overflow-hidden'}>
         {pills.map((pill) => (
-          <Pill key={pill.id} useAnimation={useAnimation} {...pill} onClick={onClick} />
+          <Link href={makeHref(pill)}>
+            <Pill key={pill.id} useAnimation={useAnimation} {...pill} />
+          </Link>
         ))}
       </motion.div>
     </AnimatePresence>

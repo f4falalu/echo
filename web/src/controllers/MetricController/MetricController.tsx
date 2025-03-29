@@ -10,6 +10,11 @@ import { FileIndeterminateLoader } from '@/components/features/FileIndeterminate
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import { MetricViewError } from './MetricViewError';
 
+/*
+TODO: consider makiing this a server component that fetches the metric and metric data?
+As long as we have a loading.tsx component that can handle the loading state, this should work?
+*/
+
 export const MetricController: React.FC<{
   metricId: string;
 }> = React.memo(({ metricId }) => {

@@ -40,10 +40,7 @@ export const AppPageLayout: React.FC<
       )}>
       {header && (
         <AppPageLayoutHeader
-          className={cn(
-            headerBorderVariant === 'ghost' && 'relative z-10 -mt-[1px]',
-            headerClassName
-          )}
+          className={cn(headerBorderVariant === 'ghost' && '-mt-[0.5px]', headerClassName)}
           sizeVariant={headerSizeVariant}
           borderVariant={headerBorderVariant}>
           {header}

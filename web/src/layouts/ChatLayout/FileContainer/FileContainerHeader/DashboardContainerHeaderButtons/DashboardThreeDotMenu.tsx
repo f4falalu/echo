@@ -193,7 +193,7 @@ const useDeleteDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }) 
       icon: <Trash />,
       onClick: async () => {
         await deleteDashboard({ dashboardId });
-        onChangePage(createBusterRoute({ route: BusterRoutes.APP_DASHBOARDS }));
+        onChangePage({ route: BusterRoutes.APP_DASHBOARDS });
       }
     }),
     [dashboardId]

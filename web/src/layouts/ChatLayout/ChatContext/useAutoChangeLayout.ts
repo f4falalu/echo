@@ -5,15 +5,19 @@ import type { SelectedFile } from '../interfaces';
 import { useEffect, useRef } from 'react';
 import findLast from 'lodash/findLast';
 import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { BusterRoutes } from '@/routes';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
   onSetSelectedFile,
-  selectedFileId
+  selectedFileId,
+  chatId
 }: {
   lastMessageId: string;
   onSetSelectedFile: (file: SelectedFile) => void;
   selectedFileId: string | undefined;
+  chatId: string | undefined;
 }) => {
   const previousLastMessageId = useRef<string | null>(null);
   const reasoningMessagesLength = useGetChatMessage(
@@ -27,9 +31,12 @@ export const useAutoChangeLayout = ({
 
   //change the page to reasoning file if we get a reasoning message
   useEffect(() => {
-    // console.log(isCompletedStream, hasReasoning, lastMessageId, previousLastMessageId.current);
-    if (!isCompletedStream && hasReasoning && previousLastMessageId.current !== lastMessageId) {
-      // hasSeeningReasoningPage.current = true;
+    if (
+      !isCompletedStream &&
+      hasReasoning &&
+      previousLastMessageId.current !== lastMessageId &&
+      chatId
+    ) {
       onSetSelectedFile({ id: lastMessageId, type: 'reasoning' });
       previousLastMessageId.current = lastMessageId;
     }
@@ -48,5 +55,5 @@ export const useAutoChangeLayout = ({
         onSetSelectedFile({ id: lastFileId, type: lastFile.file_type });
       }
     }
-  }, [isCompletedStream, hasReasoning, lastMessageId]);
+  }, [isCompletedStream, chatId, hasReasoning, lastMessageId]);
 };

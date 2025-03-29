@@ -12,10 +12,9 @@ import { cn } from '@/lib/classMerge';
 
 export const StreamingMessage_File: React.FC<{
   isSelectedFile: boolean;
-  onClick: () => void;
   responseMessage: BusterChatResponseMessage_file;
   isCompletedStream: boolean;
-}> = React.memo(({ isCompletedStream, responseMessage, onClick, isSelectedFile }) => {
+}> = React.memo(({ isCompletedStream, responseMessage, isSelectedFile }) => {
   const {
     file_name,
     version_number,
@@ -28,7 +27,6 @@ export const StreamingMessage_File: React.FC<{
       <motion.div
         id={id}
         {...itemAnimationConfig}
-        onClick={onClick}
         className={cn(
           'border-border hover:border-text-tertiary flex cursor-pointer flex-col items-center overflow-hidden rounded border transition-all duration-200 hover:shadow',
           isSelectedFile && 'border-black shadow'

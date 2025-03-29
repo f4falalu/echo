@@ -1,5 +1,4 @@
 import React from 'react';
-import { Text, Title } from '@/components/ui/typography';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 
 export const MetricViewError: React.FC<{ error: string | undefined }> = ({

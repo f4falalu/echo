@@ -10,6 +10,8 @@ import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
+import Link from 'next/link';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
 const animations = {
   initial: { opacity: 0 },
@@ -23,7 +25,8 @@ export const ChatResponseReasoning: React.FC<{
   finalReasoningMessage: string | undefined | null;
   isCompletedStream: boolean;
   messageId: string;
-}> = React.memo(({ reasoningMessageId, isCompletedStream, messageId }) => {
+  chatId: string;
+}> = React.memo(({ reasoningMessageId, isCompletedStream, messageId, chatId }) => {
   const lastMessageTitle = useGetChatMessage(
     messageId,
     (x) => x?.reasoning_messages?.[reasoningMessageId ?? '']?.title
@@ -46,29 +49,31 @@ export const ChatResponseReasoning: React.FC<{
     return lastMessageTitle || 'Thinking...';
   }, [lastMessageTitle, finalReasoningMessage, blackBoxMessage]);
 
-  const onClickReasoning = useMemoizedFn(() => {
-    onSetSelectedFile({
-      type: 'reasoning',
-      id: messageId
+  const href = useMemo(() => {
+    return createBusterRoute({
+      route: BusterRoutes.APP_CHAT_ID_REASONING_ID,
+      messageId,
+      chatId
     });
-  });
+  }, [isReasonginFileSelected, messageId]);
 
   return (
-    <AnimatePresence initial={!isCompletedStream} mode="wait">
-      <motion.div
-        {...animations}
-        key={text}
-        className="mb-3.5 flex h-[14px] max-h-[14px] w-fit cursor-pointer items-center"
-        onClick={onClickReasoning}>
-        {!showShimmerText ? (
-          <Text variant={'secondary'} className="hover:text-text-default hover:underline">
-            {text}
-          </Text>
-        ) : (
-          <ShimmerText text={text ?? ''} />
-        )}
-      </motion.div>
-    </AnimatePresence>
+    <Link href={href}>
+      <AnimatePresence initial={!isCompletedStream} mode="wait">
+        <motion.div
+          {...animations}
+          key={text}
+          className="mb-3.5 flex h-[14px] max-h-[14px] w-fit cursor-pointer items-center">
+          {!showShimmerText ? (
+            <Text variant={'secondary'} className="hover:text-text-default hover:underline">
+              {text}
+            </Text>
+          ) : (
+            <ShimmerText text={text ?? ''} />
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </Link>
   );
 });
 

@@ -5,7 +5,7 @@ import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { ReasoningMessagePillsContainer } from './ReasoningMessagePillsContainer';
 
 export const ReasoningMessage_PillsContainer: React.FC<ReasoningMessageProps> = React.memo(
-  ({ reasoningMessageId, messageId, isCompletedStream }) => {
+  ({ reasoningMessageId, messageId, isCompletedStream, chatId }) => {
     const reasoningMessage = useGetChatMessage(
       messageId,
       (x) => x?.reasoning_messages[reasoningMessageId]
@@ -19,6 +19,7 @@ export const ReasoningMessage_PillsContainer: React.FC<ReasoningMessageProps> = 
         {...reasoningMessagePills}
         status={status}
         isCompletedStream={isCompletedStream}
+        chatId={chatId}
       />
     );
   }

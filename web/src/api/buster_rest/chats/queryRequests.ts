@@ -77,6 +77,7 @@ export const useGetChat = <TData = IBusterChat>(
       if (lastMessage) {
         Object.values(lastMessage.response_messages).forEach((responseMessage) => {
           if (responseMessage.type === 'file' && responseMessage.file_type === 'metric') {
+            console.log('prefetching metric', responseMessage.id);
             prefetchGetMetricDataClient({ id: responseMessage.id }, queryClient);
           }
         });

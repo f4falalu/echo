@@ -90,7 +90,7 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
         ),
         []
       )}
-      headerClassName="border-l">
+      headerClassName="">
       <AppSplitter
         ref={appSplitterRef}
         autoSaveId={autoSaveId}

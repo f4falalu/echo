@@ -32,8 +32,9 @@ export const ReasoningMessagePillsContainer: React.FC<
   BusterChatMessageReasoning_pills & {
     status: NonNullable<BusterChatMessageReasoning_pills['status']>;
     isCompletedStream: boolean;
+    chatId: string;
   }
-> = ({ pill_containers, status, isCompletedStream }) => {
+> = ({ pill_containers, status, isCompletedStream, chatId }) => {
   const hasPills = !!pill_containers && pill_containers.length > 0;
 
   if (!hasPills) return null;
@@ -50,6 +51,7 @@ export const ReasoningMessagePillsContainer: React.FC<
             key={index}
             pillContainer={pill_container}
             isCompletedStream={isCompletedStream}
+            chatId={chatId}
           />
         </motion.div>
       ))}

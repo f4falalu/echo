@@ -55,13 +55,6 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
       return '';
     }, [chatId, file_type, id]);
 
-    const onClick = useMemoizedFn(() => {
-      onSetSelectedFile({
-        id,
-        type: file_type
-      });
-    });
-
     useMount(() => {
       if (href) {
         router.prefetch(href);
@@ -69,11 +62,10 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
     });
 
     return (
-      <Link href={href} prefetch>
+      <Link href={href} prefetch onClick={() => onSetSelectedFile({ id, type: file_type })}>
         <StreamingMessage_File
           isCompletedStream={isCompletedStream}
           responseMessage={responseMessage}
-          onClick={onClick}
           isSelectedFile={isSelectedFile}
         />
       </Link>

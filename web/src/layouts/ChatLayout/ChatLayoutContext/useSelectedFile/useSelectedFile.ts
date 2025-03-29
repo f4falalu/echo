@@ -6,6 +6,9 @@ import { useMemoizedFn } from '@/hooks';
 import { createSelectedFile } from './createSelectedFile';
 import type { useGetChatParams } from '../useGetChatParams';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { BusterRoutes, createBusterRoute } from '@/routes';
+import { createChatAssetRoute } from '../helpers';
 
 export const useSelectedFile = ({
   animateOpenSplitter,
@@ -17,6 +20,7 @@ export const useSelectedFile = ({
   chatParams: ReturnType<typeof useGetChatParams>;
 }) => {
   const { metricVersionNumber, dashboardVersionNumber } = chatParams;
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
 
   const selectedFile: SelectedFile | null = useMemo(() => {
     return createSelectedFile(chatParams);
@@ -29,12 +33,23 @@ export const useSelectedFile = ({
   }, [selectedFile?.type, metricVersionNumber, dashboardVersionNumber]);
 
   /**
-   * @description Opens the splitter if the file is not already open. If the file is already open, it will collapse the splitter. This does NOT set the selected file. You should do that with a Link
+   * @description Opens the splitter if the file is not already open.
+   * If the file is already open, it will collapse the splitter.
+   * You should do try to set the selected file with a Link!
    * @param file
    */
   const onSetSelectedFile = useMemoizedFn(async (file: SelectedFile | null) => {
     const handleFileCollapse =
       !file || (file?.id === selectedFile?.id && !appSplitterRef.current?.isSideClosed('right'));
+
+    if (file && chatParams.chatId) {
+      const link = createChatAssetRoute({
+        chatId: chatParams.chatId,
+        assetId: file?.id,
+        type: file?.type
+      });
+      if (link) onChangePage(link);
+    }
 
     if (handleFileCollapse) {
       animateOpenSplitter('left');

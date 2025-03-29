@@ -57,6 +57,6 @@ export const createChatAssetRoute = ({
   type: FileType;
 }) => {
   const routeBuilder = chatRouteRecord[type];
-  if (!routeBuilder) return '';
+  if (!routeBuilder) return null;
   return routeBuilder(chatId, assetId);
 };

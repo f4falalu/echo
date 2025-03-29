@@ -28,7 +28,7 @@ export const ChatContainerHeaderDropdown: React.FC<{
           chatId &&
           deleteChat([chatId], {
             onSuccess: () => {
-              onChangePage(createBusterRoute({ route: BusterRoutes.APP_CHAT }));
+              onChangePage({ route: BusterRoutes.APP_CHAT });
             }
           })
       },

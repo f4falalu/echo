@@ -23,7 +23,7 @@ import {
 } from './chatStreamMessageHelper';
 import { useGetChatMemoized } from '@/api/buster_rest/chats';
 import { useChatUpdate } from './useChatUpdate';
-import { prefetchGetMetricDataClient } from '@/api/buster_rest/metrics';
+import { prefetchGetMetricDataClient, prefetchGetMetric } from '@/api/buster_rest/metrics';
 
 export const useChatStreamMessage = () => {
   const queryClient = useQueryClient();
@@ -62,7 +62,20 @@ export const useChatStreamMessage = () => {
         const queryKey = options.queryKey;
         queryClient.setQueryData(queryKey, message);
         chatRefMessages.current[message.id] = message;
-        prefetchGetMetricDataClient({ id: message.id }, queryClient);
+      }
+    }
+  );
+
+  const prefetchLastMessageMetricData = useMemoizedFn(
+    (iChat: IBusterChat, iChatMessages: Record<string, IBusterChatMessage>) => {
+      const lastMessageId = iChat.message_ids[iChat.message_ids.length - 1];
+      const lastMessage = iChatMessages[lastMessageId];
+      if (lastMessage?.response_message_ids) {
+        Object.values(lastMessage.response_messages).forEach((responseMessage) => {
+          if (responseMessage.type === 'file' && responseMessage.file_type === 'metric') {
+            prefetchGetMetricDataClient({ id: responseMessage.id }, queryClient);
+          }
+        });
       }
     }
   );
@@ -73,6 +86,7 @@ export const useChatStreamMessage = () => {
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
     removeBlackBoxMessage({ messageId: iChat.message_ids[iChat.message_ids.length - 1] });
+    prefetchLastMessageMetricData(iChat, iChatMessages);
   });
 
   const stopChatCallback = useMemoizedFn((chatId: string) => {

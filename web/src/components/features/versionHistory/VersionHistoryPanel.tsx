@@ -38,7 +38,6 @@ export const VersionHistoryPanel = React.memo(
 
     return (
       <AppPageLayout
-        headerClassName="border-l"
         header={useMemo(
           () => (
             <PanelHeader removeVersionHistoryQueryParams={removeVersionHistoryQueryParams} />

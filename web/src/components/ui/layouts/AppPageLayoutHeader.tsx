@@ -3,7 +3,7 @@ import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 const headerVariants = cva(
-  'bg-page-background flex max-h-[38px] min-h-[38px] items-center z-10 justify-between gap-x-2.5 relative',
+  'bg-page-background flex max-h-[38px] min-h-[38px] items-center justify-between gap-x-2.5 relative',
   {
     variants: {
       sizeVariant: {

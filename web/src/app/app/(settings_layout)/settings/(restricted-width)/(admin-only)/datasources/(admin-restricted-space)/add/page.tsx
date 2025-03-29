@@ -34,7 +34,7 @@ export default function Page({
 
   const onClearSelectedDataSource = useMemoizedFn(() => {
     setSelectedDataSource(null);
-    onChangePage(createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES_ADD }));
+    onChangePage({ route: BusterRoutes.SETTINGS_DATASOURCES_ADD });
   });
 
   useEffect(() => {

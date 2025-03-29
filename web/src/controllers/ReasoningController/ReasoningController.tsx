@@ -13,7 +13,6 @@ interface ReasoningControllerProps {
 
 export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId, messageId }) => {
   const { data: hasChat } = useGetChat({ id: chatId || '' }, (x) => !!x.id);
-
   const reasoningMessageIds = useGetChatMessage(messageId, (x) => x?.reasoning_message_ids);
   const isCompletedStream = useGetChatMessage(messageId, (x) => x?.isCompletedStream);
 

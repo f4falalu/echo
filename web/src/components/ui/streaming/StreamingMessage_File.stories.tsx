@@ -48,8 +48,7 @@ export const Default: Story = {
   args: {
     isSelectedFile: false,
     isCompletedStream: true,
-    responseMessage: mockResponseMessage,
-    onClick: fn()
+    responseMessage: mockResponseMessage
   }
 };
 
@@ -57,8 +56,7 @@ export const Selected: Story = {
   args: {
     isSelectedFile: true,
     isCompletedStream: true,
-    responseMessage: mockResponseMessage,
-    onClick: fn()
+    responseMessage: mockResponseMessage
   }
 };
 
@@ -66,8 +64,7 @@ export const Streaming: Story = {
   args: {
     isSelectedFile: false,
     isCompletedStream: false,
-    responseMessage: mockResponseMessage,
-    onClick: fn()
+    responseMessage: mockResponseMessage
   }
 };
 
@@ -78,7 +75,6 @@ export const LongFileName: Story = {
     responseMessage: {
       ...mockResponseMessage,
       file_name: 'very_long_file_name_that_should_truncate_in_the_ui.txt'
-    },
-    onClick: fn()
+    }
   }
 };

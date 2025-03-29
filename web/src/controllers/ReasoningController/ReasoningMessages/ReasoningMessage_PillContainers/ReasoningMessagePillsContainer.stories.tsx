@@ -78,6 +78,8 @@ const InteractiveLoadingWrapper = () => {
     setPillContainers([...pillContainers, newContainer]);
   };
 
+  const chatId = '123';
+
   const message: BusterChatMessageReasoning_pills = {
     ...mockReasoningMessage,
     status: 'loading',
@@ -89,7 +91,7 @@ const InteractiveLoadingWrapper = () => {
       <Button onClick={addNewContainer} variant="default">
         Add New Container
       </Button>
-      <ReasoningMessagePillsContainer {...message} isCompletedStream={false} />
+      <ReasoningMessagePillsContainer {...message} chatId={chatId} isCompletedStream={false} />
     </div>
   );
 };

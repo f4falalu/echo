@@ -1,10 +1,11 @@
+'use server';
+
 import React from 'react';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
 import { prefetchAssetCheck } from '@/api/buster_rest/assets';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { queryKeys } from '@/api/query_keys';
 
 export type AppAssetCheckLayoutProps = {
   assetId: string;
