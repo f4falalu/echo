@@ -22,7 +22,7 @@ export const SelectAxisItemLabel = React.memo(
       return formatLabel(id, columnLabelFormat, true);
     }, [columnLabelFormat, id]);
 
-    const Icon = useMemo(() => ColumnTypeIcon[style], [style]);
+    const Icon = useMemo(() => ColumnTypeIcon[style] || ColumnTypeIcon.string, [style]);
 
     return (
       <div

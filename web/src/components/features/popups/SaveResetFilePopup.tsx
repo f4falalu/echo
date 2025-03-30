@@ -8,10 +8,11 @@ export const SaveResetFilePopup: React.FC<{
   open: boolean;
   onReset: () => void;
   onSave: () => void;
-}> = React.memo(({ open, onReset, onSave }) => {
+  isSaving: boolean;
+}> = React.memo(({ open, onReset, onSave, isSaving = false }) => {
   return (
     <PopupContainer show={open}>
-      <SplitterContent onReset={onReset} onSave={onSave} />
+      <SplitterContent onReset={onReset} onSave={onSave} isSaving={isSaving} />
     </PopupContainer>
   );
 });
@@ -19,7 +20,8 @@ export const SaveResetFilePopup: React.FC<{
 const SplitterContent: React.FC<{
   onReset: () => void;
   onSave: () => void;
-}> = React.memo(({ onReset, onSave }) => {
+  isSaving: boolean;
+}> = React.memo(({ onReset, onSave, isSaving }) => {
   return (
     <div className="flex w-full items-center space-x-2.5">
       <div className="flex items-center space-x-1">
@@ -35,6 +37,7 @@ const SplitterContent: React.FC<{
           className="flex items-center"
           variant="black"
           onClick={onSave}
+          loading={isSaving}
           suffix={
             <div className="flex space-x-1">
               <Command />

@@ -12,7 +12,13 @@ export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId 
     file_name
   }));
   const { openSuccessMessage } = useBusterNotifications();
-  const { mutateAsync: updateMetric, error: updateMetricError } = useSaveMetric();
+  const {
+    mutateAsync: updateMetric,
+    isPending: isUpdatingMetric,
+    error: updateMetricError
+  } = useSaveMetric({
+    updateOnSave: true
+  });
 
   const updateMetricErrorMessage = updateMetricError?.message;
 
@@ -49,7 +55,12 @@ export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId 
         error={updateMetricErrorMessage}
       />
 
-      <SaveResetFilePopup open={showPopup} onReset={onResetFile} onSave={onSaveFile} />
+      <SaveResetFilePopup
+        open={showPopup}
+        onReset={onResetFile}
+        onSave={onSaveFile}
+        isSaving={isUpdatingMetric}
+      />
     </div>
   );
 });
