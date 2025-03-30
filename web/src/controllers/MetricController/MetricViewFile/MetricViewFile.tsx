@@ -12,7 +12,7 @@ export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId 
     file_name
   }));
   const { openSuccessMessage } = useBusterNotifications();
-  const { mutateAsync: updateMetric } = useUpdateMetric();
+  const { mutateAsync: updateMetric, error: updateMetricError } = useUpdateMetric();
 
   const { file: fileProp, file_name } = metric || {};
 
@@ -35,6 +35,8 @@ export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId 
   useEffect(() => {
     setFile(fileProp);
   }, [fileProp]);
+
+  console.log(updateMetricError);
 
   return (
     <div className="relative h-full overflow-hidden p-5">
