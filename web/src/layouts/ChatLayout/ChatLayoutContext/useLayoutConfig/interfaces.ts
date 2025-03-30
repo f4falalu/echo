@@ -8,7 +8,6 @@ export type FileViewConfig = Partial<
     FileView,
     {
       secondaryView: FileViewSecondary;
-      renderView?: boolean; //this is really just used for metric because it has a vertical view and we don't want to render a right panel. undefined defaults to true
     }
   >
 >;

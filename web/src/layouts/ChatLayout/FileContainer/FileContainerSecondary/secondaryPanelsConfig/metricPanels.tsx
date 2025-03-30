@@ -32,3 +32,7 @@ export const MetricSecondaryRecord: Record<
     <VersionHistoryPanel assetId={selectedFile?.id || ''} type="metric" />
   )
 };
+
+export const MetrucSecondaryRenderRecord: Partial<Record<MetricFileViewSecondary, boolean>> = {
+  'sql-edit': false //we don't want to render the sql edit view in the secondary view because it is vertical
+};

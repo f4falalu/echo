@@ -10,6 +10,7 @@ import type { SelectedFile } from '../../interfaces';
 import { timeout } from '@/lib';
 import { useRouter } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { SelectedFileSecondaryRenderRecord } from '../../FileContainer/FileContainerSecondary/secondaryPanelsConfig';
 
 export const useLayoutConfig = ({
   selectedFile,
@@ -48,24 +49,31 @@ export const useLayoutConfig = ({
   }, [selectedFileViewConfig, selectedFileId, selectedFileView]);
 
   const selectedFileViewRenderSecondary: boolean = useMemo(() => {
-    if (!selectedFileId || !selectedFileViewConfig || !selectedFileView) return false;
-    if (selectedFileViewConfig?.[selectedFileView]?.secondaryView) {
-      return selectedFileViewConfig?.[selectedFileView]?.renderView !== false;
+    if (!selectedFileViewSecondary || !selectedFileType) return false;
+    if (
+      selectedFileType in SelectedFileSecondaryRenderRecord &&
+      SelectedFileSecondaryRenderRecord[selectedFileType as FileType]?.[
+        selectedFileViewSecondary
+      ] !== undefined
+    ) {
+      return (
+        SelectedFileSecondaryRenderRecord[selectedFileType as FileType]?.[
+          selectedFileViewSecondary
+        ] ?? false
+      );
     }
-    return false;
-  }, [selectedFileViewConfig]);
+    return true;
+  }, [selectedFileViewConfig, selectedFileId, selectedFileView, selectedFileType]);
 
   const onSetFileView = useMemoizedFn(
     async ({
       fileView,
       fileId: fileIdProp,
-      secondaryView,
-      renderView
+      secondaryView
     }: {
       fileView?: FileView;
       fileId?: string | undefined;
       secondaryView?: FileViewSecondary;
-      renderView?: boolean;
     }) => {
       const fileId = fileIdProp ?? selectedFileId;
       if (!fileId) return;
@@ -102,8 +110,7 @@ export const useLayoutConfig = ({
 
             draft[fileId].fileViewConfig[usedFileView] = {
               ...(draft[fileId].fileViewConfig[usedFileView] || {}),
-              secondaryView,
-              renderView
+              secondaryView
             };
           }
         });

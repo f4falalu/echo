@@ -18,7 +18,7 @@ export const ChatHeaderTitle: React.FC<{
   chatTitle: string;
   chatId: string;
   isCompletedStream: boolean;
-}> = React.memo(({ chatTitle, chatId }) => {
+}> = React.memo(({ chatTitle, chatId, isCompletedStream }) => {
   const { mutateAsync: updateChat } = useUpdateChat();
 
   if (!chatTitle) return <div></div>;
@@ -26,7 +26,7 @@ export const ChatHeaderTitle: React.FC<{
   return (
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
-        {...animation}
+        {...(isCompletedStream ? animation : {})}
         key={chatTitle}
         className="flex w-full items-center overflow-hidden">
         <EditableTitle
