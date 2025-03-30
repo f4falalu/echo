@@ -153,7 +153,7 @@ export const useDeleteChat = () => {
   });
 };
 
-export const useGetChatMemoized = () => {
+export const useGetChatMessageMemoized = () => {
   const queryClient = useQueryClient();
 
   const getChatMessageMemoized = useMemoizedFn((messageId: string) => {
@@ -163,6 +163,18 @@ export const useGetChatMemoized = () => {
   });
 
   return getChatMessageMemoized;
+};
+
+export const useGetChatMemoized = () => {
+  const queryClient = useQueryClient();
+
+  const getChatMemoized = useMemoizedFn((chatId: string) => {
+    const options = queryKeys.chatsGetChat(chatId);
+    const queryKey = options.queryKey;
+    return queryClient.getQueryData<IBusterChat>(queryKey);
+  });
+
+  return getChatMemoized;
 };
 
 export const useGetChatMessage = <TData = IBusterChatMessage>(

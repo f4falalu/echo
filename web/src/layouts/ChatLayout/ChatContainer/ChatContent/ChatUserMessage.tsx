@@ -1,20 +1,145 @@
+'use client';
+
 import type { BusterChatMessageRequest } from '@/api/asset_interfaces';
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Paragraph } from '@/components/ui/typography';
 import { MessageContainer } from './MessageContainer';
+import { Tooltip } from '@/components/ui/tooltip';
+import { cn } from '@/lib/classMerge';
+import { PenWriting, Copy, Check } from '@/components/ui/icons';
+import { Button } from '@/components/ui/buttons';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useMemoizedFn } from '@/hooks';
+import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
+import { useBusterNewChatContextSelector } from '@/context/Chats';
 
-export const ChatUserMessage: React.FC<{ requestMessage: BusterChatMessageRequest }> = React.memo(
-  ({ requestMessage }) => {
-    if (!requestMessage) return null;
+export const ChatUserMessage: React.FC<{
+  messageId: string;
+  chatId: string;
+  isCompletedStream: boolean;
+  requestMessage: NonNullable<BusterChatMessageRequest>;
+}> = React.memo(({ messageId, chatId, isCompletedStream, requestMessage }) => {
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
-    const { sender_avatar, sender_id, sender_name, request } = requestMessage;
+  const { sender_avatar, sender_id, sender_name, request } = requestMessage;
 
-    return (
-      <MessageContainer senderName={sender_name} senderId={sender_id} senderAvatar={sender_avatar}>
-        <Paragraph>{request}</Paragraph>
-      </MessageContainer>
-    );
-  }
-);
+  const onSetIsEditing = useMemoizedFn((isEditing: boolean) => {
+    setIsEditing(isEditing);
+    setIsTooltipOpen(false);
+  });
+
+  return (
+    <MessageContainer
+      senderName={sender_name}
+      senderId={sender_id}
+      senderAvatar={sender_avatar}
+      onMouseEnter={() => setIsTooltipOpen(true)}
+      onMouseLeave={() => setIsTooltipOpen(false)}>
+      {isEditing ? (
+        <EditMessage
+          messageId={messageId}
+          chatId={chatId}
+          requestMessage={requestMessage}
+          onSetIsEditing={onSetIsEditing}
+        />
+      ) : (
+        <>
+          <Paragraph>{request}</Paragraph>
+          {isCompletedStream && (
+            <RequestMessageTooltip
+              isTooltipOpen={isTooltipOpen}
+              requestMessage={requestMessage}
+              setIsEditing={setIsEditing}
+            />
+          )}
+        </>
+      )}
+    </MessageContainer>
+  );
+});
 
 ChatUserMessage.displayName = 'ChatUserMessage';
+
+const RequestMessageTooltip: React.FC<{
+  isTooltipOpen: boolean;
+  requestMessage: NonNullable<BusterChatMessageRequest>;
+  setIsEditing: (isEditing: boolean) => void;
+}> = React.memo(({ isTooltipOpen, requestMessage, setIsEditing }) => {
+  const { openSuccessMessage } = useBusterNotifications();
+
+  const onCopy = useMemoizedFn(() => {
+    navigator.clipboard.writeText(requestMessage.request);
+    openSuccessMessage('Copied to clipboard');
+  });
+
+  const onEdit = useMemoizedFn(() => {
+    setIsEditing(true);
+  });
+
+  return (
+    <div
+      className={cn(
+        'absolute right-1 -bottom-0 translate-y-full transform',
+        'bg-background z-50 rounded border shadow',
+        'transition-all duration-200',
+        isTooltipOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+      )}>
+      <Tooltip title={'Edit'} side={'bottom'}>
+        <Button
+          prefix={<PenWriting />}
+          className="hover:bg-item-select!"
+          variant={'ghost'}
+          onClick={onEdit}
+        />
+      </Tooltip>
+      <Tooltip title={'Copy'} side={'bottom'}>
+        <Button
+          prefix={<Copy />}
+          className="hover:bg-item-select!"
+          variant={'ghost'}
+          onClick={onCopy}
+        />
+      </Tooltip>
+    </div>
+  );
+});
+
+RequestMessageTooltip.displayName = 'RequestMessageTooltip';
+
+const EditMessage: React.FC<{
+  requestMessage: NonNullable<BusterChatMessageRequest>;
+  onSetIsEditing: (isEditing: boolean) => void;
+  messageId: string;
+  chatId: string;
+}> = React.memo(({ requestMessage, onSetIsEditing, messageId, chatId }) => {
+  const [prompt, setPrompt] = useState(requestMessage.request);
+  const onReplaceMessageInChat = useBusterNewChatContextSelector((x) => x.onReplaceMessageInChat);
+
+  const onSave = useMemoizedFn((text: string) => {
+    onReplaceMessageInChat({
+      chatId,
+      messageId,
+      prompt
+    });
+    onSetIsEditing(false);
+  });
+
+  return (
+    <div className="-mt-1 flex flex-col space-y-2">
+      <InputTextArea
+        autoResize={{ minRows: 3, maxRows: 10 }}
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+      />
+      <div className="flex justify-end space-x-2">
+        <Button variant={'ghost'} onClick={() => onSetIsEditing(false)}>
+          Cancel
+        </Button>
+        <Button variant={'black'} onClick={() => onSave(prompt)}>
+          Submit
+        </Button>
+      </div>
+    </div>
+  );
+});

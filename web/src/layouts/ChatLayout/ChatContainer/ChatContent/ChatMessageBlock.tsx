@@ -7,14 +7,22 @@ export const ChatMessageBlock: React.FC<{
   messageId: string;
   chatId: string;
 }> = React.memo(({ messageId, chatId }) => {
+  const messageExists = useGetChatMessage(messageId, (message) => message?.id);
   const requestMessage = useGetChatMessage(messageId, (message) => message?.request_message);
   const isCompletedStream = useGetChatMessage(messageId, (x) => x?.isCompletedStream);
 
-  if (!requestMessage) return null;
+  if (!messageExists) return null;
 
   return (
     <div className={'flex flex-col space-y-3.5 py-2 pr-3 pl-4'} id={messageId}>
-      <ChatUserMessage requestMessage={requestMessage} />
+      {requestMessage && (
+        <ChatUserMessage
+          isCompletedStream={isCompletedStream!}
+          chatId={chatId}
+          messageId={messageId}
+          requestMessage={requestMessage}
+        />
+      )}
       <ChatResponseMessages
         isCompletedStream={isCompletedStream!}
         messageId={messageId}

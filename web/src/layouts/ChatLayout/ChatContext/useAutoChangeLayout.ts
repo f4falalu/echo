@@ -1,12 +1,10 @@
 'use client';
 
-import { useGetChatMemoized, useGetChatMessage } from '@/api/buster_rest/chats';
+import { useGetChatMessageMemoized, useGetChatMessage } from '@/api/buster_rest/chats';
 import type { SelectedFile } from '../interfaces';
 import { useEffect, useRef } from 'react';
 import findLast from 'lodash/findLast';
 import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { BusterRoutes } from '@/routes';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
@@ -24,7 +22,7 @@ export const useAutoChangeLayout = ({
     lastMessageId,
     (x) => x?.reasoning_message_ids?.length || 0
   );
-  const getChatMessageMemoized = useGetChatMemoized();
+  const getChatMessageMemoized = useGetChatMessageMemoized();
 
   const isCompletedStream = useGetChatMessage(lastMessageId, (x) => x?.isCompletedStream);
   const hasReasoning = !!reasoningMessagesLength;

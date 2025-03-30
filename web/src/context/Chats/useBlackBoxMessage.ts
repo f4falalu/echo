@@ -9,11 +9,11 @@ import { IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import { ChatEvent_GeneratingReasoningMessage } from '@/api/buster_socket/chats';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
-import { useGetChatMemoized } from '@/api/buster_rest/chats';
+import { useGetChatMessageMemoized } from '@/api/buster_rest/chats';
 
 export const useBlackBoxMessage = () => {
   const timeoutRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
-  const getChatMessageMemoized = useGetChatMemoized();
+  const getChatMessageMemoized = useGetChatMessageMemoized();
   const queryClient = useQueryClient();
 
   const clearTimeoutRef = useMemoizedFn((messageId: string) => {

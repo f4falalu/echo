@@ -3,7 +3,7 @@ import type { FileType, ThoughtFileType } from './config';
 
 export type BusterChatMessage = {
   id: string;
-  request_message: BusterChatMessageRequest;
+  request_message: BusterChatMessageRequest | null;
   response_message_ids: string[];
   response_messages: Record<string, BusterChatMessageResponse>;
   reasoning_message_ids: string[];

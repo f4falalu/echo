@@ -6,16 +6,18 @@ import { useMemoizedFn } from '@/hooks';
 import type { BusterSearchResult, FileType } from '@/api/asset_interfaces';
 import { useBusterWebSocket } from '@/context/BusterWebSocket';
 import { useChatStreamMessage } from './useChatStreamMessage';
+import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
+import { useChatUpdate } from './useChatUpdate';
+import { create } from 'mutative';
 
 export const useBusterNewChat = () => {
   const busterSocket = useBusterWebSocket();
+  const getChatMessageMemoized = useGetChatMessageMemoized();
+  const getChatMemoized = useGetChatMemoized();
+  const { onUpdateChat, onUpdateChatMessage } = useChatUpdate();
 
-  const {
-    completeChatCallback,
-    stopChatCallback,
-    initializeNewChatCallback,
-    replaceMessageCallback
-  } = useChatStreamMessage();
+  const { completeChatCallback, stopChatCallback, initializeNewChatCallback } =
+    useChatStreamMessage();
 
   const onSelectSearchAsset = useMemoizedFn(async (asset: BusterSearchResult) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -84,10 +86,31 @@ export const useBusterNewChat = () => {
       messageId: string;
       chatId: string;
     }) => {
-      replaceMessageCallback({
-        prompt,
-        messageId
+      const currentChat = getChatMemoized(chatId);
+      const currentMessage = getChatMessageMemoized(messageId);
+      const currentRequestMessage = currentMessage?.request_message!;
+      onUpdateChatMessage({
+        id: messageId,
+        request_message: create(currentRequestMessage, (draft) => {
+          draft.request = prompt;
+        }),
+        reasoning_message_ids: [],
+        response_message_ids: [],
+        isCompletedStream: false
       });
+
+      const messageIndex = currentChat?.message_ids.findIndex(
+        (messageId) => messageId === messageId
+      );
+
+      if (messageIndex && messageIndex !== -1) {
+        const updatedMessageIds = currentChat?.message_ids.slice(0, messageIndex + 1);
+        onUpdateChat({
+          id: chatId,
+          message_ids: updatedMessageIds
+        });
+      }
+
       await busterSocket.emitAndOnce({
         emitEvent: {
           route: '/chats/post',

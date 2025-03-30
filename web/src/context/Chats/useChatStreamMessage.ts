@@ -21,14 +21,12 @@ import {
   updateResponseMessage,
   updateReasoningMessage
 } from './chatStreamMessageHelper';
-import { useGetChatMemoized } from '@/api/buster_rest/chats';
 import { useChatUpdate } from './useChatUpdate';
-import { prefetchGetMetricDataClient, prefetchGetMetric } from '@/api/buster_rest/metrics';
+import { prefetchGetMetricDataClient } from '@/api/buster_rest/metrics';
 
 export const useChatStreamMessage = () => {
   const queryClient = useQueryClient();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const getChatMessageMemoized = useGetChatMemoized();
   const { onUpdateChat, onUpdateChatMessage } = useChatUpdate();
   const chatRef = useRef<Record<string, IBusterChat>>({});
   const chatRefMessages = useRef<Record<string, IBusterChatMessage>>({});
@@ -110,21 +108,6 @@ export const useChatStreamMessage = () => {
     }
   });
 
-  const replaceMessageCallback = useMemoizedFn(
-    ({ prompt, messageId }: { prompt: string; messageId: string }) => {
-      const currentMessage = getChatMessageMemoized(messageId);
-      const currentRequestMessage = currentMessage?.request_message!;
-      onUpdateChatMessage({
-        id: messageId,
-        request_message: create(currentRequestMessage, (draft) => {
-          draft.request = prompt;
-        }),
-        reasoning_message_ids: [],
-        response_message_ids: []
-      });
-    }
-  );
-
   const _generatingTitleCallback = useMemoizedFn((_: null, newData: ChatEvent_GeneratingTitle) => {
     const { chat_id } = newData;
     const currentChat = chatRef.current[chat_id];
@@ -189,7 +172,6 @@ export const useChatStreamMessage = () => {
   return {
     initializeNewChatCallback,
     completeChatCallback,
-    stopChatCallback,
-    replaceMessageCallback
+    stopChatCallback
   };
 };

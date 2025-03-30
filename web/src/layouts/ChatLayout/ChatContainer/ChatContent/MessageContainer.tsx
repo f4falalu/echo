@@ -1,24 +1,37 @@
 import { Avatar } from '@/components/ui/avatar';
 import { cn } from '@/lib/classMerge';
-import React from 'react';
+import React, { forwardRef } from 'react';
 
-export const MessageContainer: React.FC<{
+interface MessageContainerProps {
   children: React.ReactNode;
   senderName?: string;
   senderId?: string;
   senderAvatar?: string | null;
   className?: string;
-}> = React.memo(({ children, senderName, senderId, senderAvatar, className = '' }) => {
-  return (
-    <div className={'flex w-full space-x-2 overflow-hidden'}>
-      {senderName ? (
-        <Avatar size={24} name={senderName} image={senderAvatar || ''} useToolTip={true} />
-      ) : (
-        <Avatar size={24} />
-      )}
-      <div className={cn('mt-1 px-1', className)}>{children}</div>
-    </div>
-  );
-});
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+}
+
+export const MessageContainer = forwardRef<HTMLDivElement, MessageContainerProps>(
+  (
+    { children, senderName, senderId, senderAvatar, className = '', onMouseEnter, onMouseLeave },
+    ref
+  ) => {
+    return (
+      <div
+        ref={ref}
+        className={'flex w-full space-x-2'}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}>
+        {senderName ? (
+          <Avatar size={24} name={senderName} image={senderAvatar || ''} useToolTip={true} />
+        ) : (
+          <Avatar size={24} />
+        )}
+        <div className={cn('relative mt-1 w-full px-1', className)}>{children}</div>
+      </div>
+    );
+  }
+);
 
 MessageContainer.displayName = 'MessageContainer';
