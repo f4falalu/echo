@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { MetricViewProps } from '../config';
 import { useMemoizedFn, useUnmount } from '@/hooks';
 import { IDataResult } from '@/api/asset_interfaces';
@@ -18,8 +18,17 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
   );
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  const { runSQL, resetRunSQLData, saveSQL, warnBeforeNavigating, setWarnBeforeNavigating } =
-    useMetricRunSQL();
+  const {
+    runSQL,
+    resetRunSQLData,
+    saveSQL,
+    saveMetricError,
+    runSQLError,
+    warnBeforeNavigating,
+    setWarnBeforeNavigating,
+    isSavingMetric,
+    isRunningSQL
+  } = useMetricRunSQL();
 
   const { data: metric } = useGetMetric({ id: metricId }, ({ sql, data_source_id }) => ({
     sql,
@@ -27,36 +36,37 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
   }));
   const { data: metricData } = useGetMetricData({ id: metricId });
 
-  const [sql, setSQL] = React.useState(metric?.sql || '');
-  const [fetchingData, setFetchingData] = React.useState(false);
+  const [sql, setSQL] = useState(metric?.sql || '');
 
   const dataSourceId = metric?.data_source_id || '';
   const data: IDataResult = metricData?.dataFromRerun || metricData?.data || null;
 
   const disableSave = useMemo(() => {
-    return !sql || fetchingData || sql === metric?.sql;
-  }, [sql, fetchingData, metric?.sql]);
+    return !sql || isRunningSQL || sql === metric?.sql;
+  }, [sql, isRunningSQL, metric?.sql]);
 
   const onRunQuery = useMemoizedFn(async () => {
-    setFetchingData(true);
-    const res = await runSQL({
-      dataSourceId,
-      sql,
-      metricId
-    });
+    try {
+      const res = await runSQL({
+        dataSourceId,
+        sql,
+        metricId
+      });
 
-    if (res) {
-      if (data && data.length > 0) {
-        const headerHeight = 50;
-        const heightOfRow = 36;
-        const heightOfDataContainer = headerHeight + heightOfRow * (data.length || 0);
-        const containerHeight = containerRef.current?.clientHeight || 0;
-        const maxHeight = Math.floor(containerHeight * 0.6);
-        const finalHeight = Math.min(heightOfDataContainer, maxHeight);
-        appSplitterRef.current?.setSplitSizes(['auto', `${finalHeight}px`]);
+      if (res) {
+        if (data && data.length > 0) {
+          const headerHeight = 50;
+          const heightOfRow = 36;
+          const heightOfDataContainer = headerHeight + heightOfRow * (data.length || 0);
+          const containerHeight = containerRef.current?.clientHeight || 0;
+          const maxHeight = Math.floor(containerHeight * 0.6);
+          const finalHeight = Math.min(heightOfDataContainer, maxHeight);
+          appSplitterRef.current?.setSplitSizes(['auto', `${finalHeight}px`]);
+        }
       }
+    } catch (error) {
+      //
     }
-    setFetchingData(false);
   });
 
   const onSaveSQL = useMemoizedFn(async () => {
@@ -90,13 +100,13 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
         autoSaveId={autoSaveId}
         sql={sql}
         setSQL={setSQL}
-        runSQLError={null}
+        runSQLError={runSQLError || saveMetricError}
         topHidden={!renderSecondary}
         onRunQuery={onRunQuery}
         onSaveSQL={onSaveSQL}
         data={data}
         disabledSave={disableSave}
-        fetchingData={fetchingData}
+        fetchingData={isRunningSQL || isSavingMetric}
         defaultLayout={defaultLayout}
       />
     </div>

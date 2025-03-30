@@ -7,7 +7,7 @@ import type { IDataResult } from '@/api/asset_interfaces';
 export interface AppVerticalCodeSplitterProps {
   sql: string;
   setSQL: (sql: string) => void;
-  runSQLError: string | null;
+  runSQLError: string | undefined;
   onRunQuery: () => Promise<void>;
   data: IDataResult;
   fetchingData: boolean;

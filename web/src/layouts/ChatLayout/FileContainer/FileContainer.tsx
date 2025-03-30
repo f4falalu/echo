@@ -6,7 +6,7 @@ import { AppPageLayout, AppSplitter, AppSplitterRef } from '@/components/ui/layo
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
 import { createAutoSaveId } from '@/components/ui/layouts/AppSplitter/helper';
 import Cookies from 'js-cookie';
-import { useDebounce, useMemoizedFn, useUpdateLayoutEffect } from '@/hooks';
+import { useDebounce, useMemoizedFn } from '@/hooks';
 import { FileContainerSecondary } from './FileContainerSecondary';
 
 interface FileContainerProps {

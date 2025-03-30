@@ -14,8 +14,16 @@ export const useMetricRunSQL = () => {
   const queryClient = useQueryClient();
   const getMetricMemoized = useGetMetricMemoized();
   const { mutateAsync: updateMetricMutation } = useUpdateMetric();
-  const { mutateAsync: saveMetric } = useSaveMetric();
-  const { mutateAsync: runSQLMutation } = useRunSQLQuery();
+  const {
+    mutateAsync: saveMetric,
+    error: saveMetricError,
+    isPending: isSavingMetric
+  } = useSaveMetric();
+  const {
+    mutateAsync: runSQLMutation,
+    error: runSQLError,
+    isPending: isRunningSQL
+  } = useRunSQLQuery();
   const { openSuccessNotification } = useBusterNotifications();
 
   const [warnBeforeNavigating, setWarnBeforeNavigating] = useState(false);
@@ -145,7 +153,7 @@ export const useMetricRunSQL = () => {
       const currentMetric = getMetricMemoized(metricId);
       const dataSourceId = dataSourceIdProp || currentMetric?.data_source_id;
 
-      if ((!ogConfigs || ogConfigs.sql !== sql) && dataSourceId) {
+      if (!ogConfigs || ogConfigs.sql !== sql) {
         try {
           await runSQL({
             metricId,
@@ -190,6 +198,10 @@ export const useMetricRunSQL = () => {
     resetRunSQLData,
     warnBeforeNavigating,
     setWarnBeforeNavigating,
-    saveSQL
+    saveSQL,
+    saveMetricError: saveMetricError?.message,
+    runSQLError: runSQLError?.message,
+    isSavingMetric,
+    isRunningSQL
   };
 };
