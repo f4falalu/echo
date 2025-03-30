@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { ChartProps } from '../../core';
-import type { ChartType as ChartJSChartType } from 'chart.js';
+import { ChartType as ChartJSChartType } from 'chart.js';
 import type {
   BusterChartConfigProps,
   BusterChartProps,
@@ -178,11 +178,11 @@ export const useOptions = ({
   const options: ChartProps<ChartJSChartType>['options'] = useMemo(() => {
     const chartAnnotations = chartPlugins?.annotation?.annotations;
 
+    const isLargeDataset = datasetOptions[0].source.length > 125;
+
     return {
       indexAxis: isHorizontalBar ? 'y' : 'x',
-      animation: animate ? { duration: 1000 } : { duration: 0 },
-      responsive: true,
-      maintainAspectRatio: false,
+      animation: animate && !isLargeDataset ? { duration: 1000 } : { duration: 0 },
       backgroundColor: colors,
       borderColor: colors,
       scales,
@@ -195,7 +195,7 @@ export const useOptions = ({
           annotations: { ...goalLinesAnnotations, ...chartAnnotations, ...trendlineAnnotations }
         },
         decimation: {
-          enabled: datasetOptions[0].source.length > 500,
+          enabled: isLargeDataset,
           algorithm: 'min-max'
         }
       },

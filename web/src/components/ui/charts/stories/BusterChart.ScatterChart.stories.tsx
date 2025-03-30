@@ -48,6 +48,14 @@ export const Default: Story = {
         style: 'string'
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof ScatterChartData, IColumnLabelFormat>,
-    className: 'w-[800px] h-[600px]'
+    className: 'w-[400px] h-[400px]'
+  }
+};
+
+export const LargeDataset: Story = {
+  args: {
+    ...Default.args,
+    data: generateScatterChartData(3000),
+    className: 'w-[400px] h-[400px]'
   }
 };
