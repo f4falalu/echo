@@ -4,8 +4,9 @@ import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { cn } from '@/lib/classMerge';
 import { Button } from '../buttons/Button';
-import { Card, CardHeader, CardContent, CardDescription, CardFooter, CardTitle } from './CardBase';
+import { Card, CardHeader, CardContent } from './CardBase';
 import { Download, Copy } from '../icons';
+import { ErrorClosableContainer } from '../error/ErrorClosableContainer';
 
 export const CodeCard: React.FC<{
   code: string;
@@ -13,47 +14,54 @@ export const CodeCard: React.FC<{
   fileName: string;
   className?: string;
   bodyClassName?: string;
+  error?: string;
   buttons?: React.ReactNode | true;
   onChange?: (code: string) => void;
   readOnly?: boolean;
   onMetaEnter?: () => void;
-}> = ({
-  code,
-  onMetaEnter,
-  language = 'yml',
-  fileName,
-  className = 'h-full overflow-hidden',
-  bodyClassName = 'h-full',
-  buttons = true,
-  onChange,
-  readOnly = false
-}) => {
-  const ShownButtons = buttons === true ? <CardButtons fileName={fileName} code={code} /> : buttons;
+}> = React.memo(
+  ({
+    code,
+    onMetaEnter,
+    language = 'yml',
+    fileName,
+    className = 'h-full overflow-hidden',
+    bodyClassName = 'h-full',
+    buttons = true,
+    onChange,
+    readOnly = false,
+    error = ''
+  }) => {
+    const ShownButtons =
+      buttons === true ? <CardButtons fileName={fileName} code={code} /> : buttons;
 
-  return (
-    <Card className={cn('h-full', className)}>
-      <CardHeader variant={'gray'} size={'xsmall'} className="justify-center">
-        <div className="flex items-center justify-between gap-x-1">
-          <span className="truncate text-base">{fileName}</span>
-          {ShownButtons}
-        </div>
-      </CardHeader>
-      <CardContent className={cn('bg-background overflow-hidden p-0', bodyClassName)}>
-        <div className={cn('bg-background', bodyClassName)}>
-          <AppCodeEditor
-            language={language}
-            value={code}
-            onChange={onChange}
-            readOnly={readOnly}
-            height="100%"
-            onMetaEnter={onMetaEnter}
-            className="border-none"
-          />
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+    return (
+      <Card className={cn('h-full', className)}>
+        <CardHeader variant={'gray'} size={'xsmall'} className="justify-center">
+          <div className="flex items-center justify-between gap-x-1">
+            <span className="truncate text-base">{fileName}</span>
+            {ShownButtons}
+          </div>
+        </CardHeader>
+        <CardContent className={cn('bg-background overflow-hidden p-0', bodyClassName)}>
+          <div className={cn('bg-background relative', bodyClassName)}>
+            <AppCodeEditor
+              language={language}
+              value={code}
+              onChange={onChange}
+              readOnly={readOnly}
+              height="100%"
+              onMetaEnter={onMetaEnter}
+              className="border-none"
+            />
+            {error && <ErrorClosableContainer error={error} className="bottom-10!" />}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+);
+CodeCard.displayName = 'CodeCard';
 
 const CardButtons: React.FC<{
   fileName: string;

@@ -125,7 +125,6 @@ export const prefetchGetMetricDataClient = async (
   { id, version_number }: { id: string; version_number?: number },
   queryClient: QueryClient
 ) => {
-  console.log('prefetch!');
   const options = metricsQueryKeys.metricsGetData(id, version_number);
   const existingData = queryClient.getQueryData(options.queryKey);
   if (!existingData) {
@@ -157,7 +156,6 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
         );
         if (oldMetric && newMetric && newMetricData) {
           queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(id).queryKey, oldMetric);
-          console.log('setting newMetricData', metricsQueryKeys.metricsGetData(id).queryKey);
           queryClient.setQueryData(metricsQueryKeys.metricsGetData(id).queryKey, newMetricData);
         }
       }

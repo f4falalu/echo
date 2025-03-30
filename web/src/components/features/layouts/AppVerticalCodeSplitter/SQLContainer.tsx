@@ -1,12 +1,14 @@
-import { Command, Xmark, CircleWarning, ReturnKey } from '@/components/ui/icons';
+'use client';
+
+import { Command, ReturnKey } from '@/components/ui/icons';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
 import { Button } from '@/components/ui/buttons/Button';
-import React, { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { useState } from 'react';
 import type { AppVerticalCodeSplitterProps } from './AppVerticalCodeSplitter';
 import { cn } from '@/lib/classMerge';
+import { ErrorClosableContainer } from '@/components/ui/error/ErrorClosableContainer';
 
 export const SQLContainer: React.FC<{
   className?: string;
@@ -19,7 +21,6 @@ export const SQLContainer: React.FC<{
 }> = React.memo(
   ({ disabledSave, className = '', sql, setDatasetSQL, onRunQuery, onSaveSQL, error }) => {
     const [isRunning, setIsRunning] = useState(false);
-    const [isError, setIsError] = useState(false);
     const { openInfoMessage } = useBusterNotifications();
 
     const onCopySQL = useMemoizedFn(() => {
@@ -32,10 +33,6 @@ export const SQLContainer: React.FC<{
       await onRunQuery();
       setIsRunning(false);
     });
-
-    useEffect(() => {
-      setIsError(!!error);
-    }, [error]);
 
     return (
       <div
@@ -81,9 +78,7 @@ export const SQLContainer: React.FC<{
             </Button>
           </div>
 
-          {error && (
-            <ErrorContainer error={error} onClose={() => setIsError(false)} isError={isError} />
-          )}
+          {error && <ErrorClosableContainer error={error} />}
         </div>
       </div>
     );
@@ -91,41 +86,3 @@ export const SQLContainer: React.FC<{
 );
 
 SQLContainer.displayName = 'SQLContainer';
-
-const ErrorContainer: React.FC<{
-  error: string;
-  onClose: () => void;
-  isError: boolean;
-}> = React.memo(({ error, onClose, isError }) => {
-  return (
-    <AnimatePresence mode="wait">
-      {isError && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 0 }}
-          className={cn(
-            'bg-danger-background text-danger-foreground border-danger-foreground rounded-sm px-2 py-3 shadow',
-            'absolute right-0 bottom-full left-0 mx-4 mb-2'
-          )}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <CircleWarning />
-              <span>{error}</span>
-            </div>
-            <button
-              onClick={() => onClose()}
-              className={cn(
-                'text-danger-foreground flex items-center justify-center border-none bg-none hover:opacity-80',
-                'cursor-pointer rounded-sm p-0.5 transition-colors hover:bg-black/5'
-              )}>
-              <Xmark />
-            </button>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-});
-
-ErrorContainer.displayName = 'ErrorContainer';

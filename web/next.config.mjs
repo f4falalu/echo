@@ -49,9 +49,9 @@ const defaultCspHeader = [
   // Default directives
   "default-src 'self'",
   // Scripts
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercel.app",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercel.app https://cdn.jsdelivr.net",
   // Styles
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
   // Images
   "img-src 'self' blob: data: https://*.vercel.app https://*.supabase.co",
   // Fonts
@@ -76,9 +76,9 @@ const embedCspHeader = [
   // Default directives
   "default-src 'self'",
   // Scripts
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercel.app",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercel.app https://cdn.jsdelivr.net",
   // Styles
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
   // Images
   "img-src 'self' blob: data: https://*.vercel.app https://*.supabase.co",
   // Fonts
