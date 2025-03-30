@@ -10,7 +10,7 @@ const checkboxVariants = cva(
     variants: {
       variant: {
         default:
-          '  data-[state=unchecked]:border-border data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:disabled:bg-primary data-[state=checked]:text-background hover:bg-gray-light/10'
+          '  data-[state=unchecked]:border-border data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:disabled:bg-primary data-[state=checked]:text-background bg-background hover:bg-gray-light/10 disabled:bg-gray-light/10'
       },
       size: {
         default: 'h-3.5 w-3.5 text-[10px]',
