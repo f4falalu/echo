@@ -32,7 +32,7 @@ export const Default: Story = {
   args: {
     sql: 'SELECT * FROM sample_table',
     setSQL: (sql: string) => alert('SQL changed: ' + sql),
-    runSQLError: null,
+    runSQLError: '',
     onRunQuery: async () => alert('Running query...'),
     data: mockData,
     fetchingData: false,

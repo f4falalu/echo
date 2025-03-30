@@ -8,7 +8,7 @@ export const SaveResetFilePopup: React.FC<{
   open: boolean;
   onReset: () => void;
   onSave: () => void;
-  isSaving: boolean;
+  isSaving?: boolean;
 }> = React.memo(({ open, onReset, onSave, isSaving = false }) => {
   return (
     <PopupContainer show={open}>

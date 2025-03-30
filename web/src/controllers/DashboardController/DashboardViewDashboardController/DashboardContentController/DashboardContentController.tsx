@@ -19,7 +19,6 @@ import type {
 } from '@/api/asset_interfaces';
 import { DashboardEmptyState } from './DashboardEmptyState';
 import { type useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
-import omit from 'lodash/omit';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
 const DEFAULT_EMPTY_METRICS: Record<string, BusterMetric> = {};
@@ -28,6 +27,7 @@ const DEFAULT_EMPTY_CONFIG: DashboardConfig = {};
 export const DashboardContentController: React.FC<{
   readOnly?: boolean;
   metrics: BusterDashboardResponse['metrics'] | undefined;
+  chatId: string | undefined;
   dashboard: BusterDashboardResponse['dashboard'] | undefined;
   onUpdateDashboardConfig: ReturnType<typeof useUpdateDashboardConfig>['mutateAsync'];
   onOpenAddContentModal: () => void;
@@ -35,6 +35,7 @@ export const DashboardContentController: React.FC<{
   ({
     onOpenAddContentModal,
     dashboard,
+    chatId,
     readOnly = false,
     metrics = DEFAULT_EMPTY_METRICS,
     onUpdateDashboardConfig
@@ -68,6 +69,7 @@ export const DashboardContentController: React.FC<{
                     metricId={item.id}
                     dashboardId={dashboard!.id}
                     readOnly={readOnly}
+                    chatId={chatId}
                     numberOfMetrics={numberOfMetrics}
                   />
                 )
@@ -120,6 +122,7 @@ export const DashboardContentController: React.FC<{
                     dashboardId={dashboard.id}
                     isDragOverlay
                     numberOfMetrics={numberOfMetrics}
+                    chatId={undefined}
                   />
                 )
               }

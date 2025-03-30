@@ -14,6 +14,7 @@ export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboa
     { id: dashboardId },
     (x) => x.permission
   );
+  const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView) || 'dashboard';
   const isEditor = canEdit(permission);
 
@@ -25,7 +26,7 @@ export const DashboardController: React.FC<{ dashboardId: string }> = ({ dashboa
   return (
     <>
       {!isFetchedDashboard && <FileIndeterminateLoader />}
-      <Component dashboardId={dashboardId} readOnly={!isEditor} />
+      <Component dashboardId={dashboardId} readOnly={!isEditor} chatId={chatId} />
 
       {isEditor && <MemoizedAddToDashboardModal dashboardId={dashboardId} />}
     </>

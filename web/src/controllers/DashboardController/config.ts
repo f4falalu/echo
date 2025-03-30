@@ -2,9 +2,11 @@ import type { DashboardFileView } from '@/layouts/ChatLayout';
 import { DashboardViewDashboardController } from './DashboardViewDashboardController';
 import { DashboardViewFileController } from './DashboardViewFileController';
 import React from 'react';
+import dynamic from 'next/dynamic';
 
 export interface DashboardViewProps {
   dashboardId: string;
+  chatId: string | undefined;
   readOnly?: boolean;
 }
 

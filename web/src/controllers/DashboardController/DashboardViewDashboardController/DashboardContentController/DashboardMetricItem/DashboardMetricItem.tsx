@@ -9,6 +9,7 @@ import { BusterChart } from '@/components/ui/charts/BusterChart';
 
 const DashboardMetricItemBase: React.FC<{
   metricId: string;
+  chatId: string | undefined;
   dashboardId: string;
   numberOfMetrics: number;
   className?: string;
@@ -20,7 +21,8 @@ const DashboardMetricItemBase: React.FC<{
   className = '',
   metricId,
   isDragOverlay = false,
-  numberOfMetrics
+  numberOfMetrics,
+  chatId
 }) => {
   const {
     conatinerRef,
@@ -50,11 +52,18 @@ const DashboardMetricItemBase: React.FC<{
   }, [metric?.error]);
 
   const metricLink = useMemo(() => {
+    if (chatId) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID,
+        chatId,
+        metricId
+      });
+    }
     return createBusterRoute({
       route: BusterRoutes.APP_METRIC_ID,
       metricId: metricId
     });
-  }, [metricId]);
+  }, [metricId, chatId]);
 
   const onInitialAnimationEndPreflight = useMemoizedFn(() => {
     setInitialAnimationEnded(metricId);

@@ -71,7 +71,7 @@ export const EditorContent: React.FC<{
             ref={splitterRef}
             sql={sql}
             setSQL={setSQL}
-            runSQLError={runSQLError?.message || null}
+            runSQLError={runSQLError?.message}
             onRunQuery={onRunQuery}
             data={shownData}
             fetchingData={fetchingInitialData || fetchingTempData}

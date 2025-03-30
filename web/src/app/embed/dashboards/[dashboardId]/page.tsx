@@ -12,5 +12,11 @@ export default function EmbedDashboardsPage(props: { params: { dashboardId: stri
     return <CircleSpinnerLoaderContainer className="min-h-screen" />;
   }
 
-  return <DashboardViewDashboardController dashboardId={dashboardId} readOnly={true} />;
+  return (
+    <DashboardViewDashboardController
+      dashboardId={dashboardId}
+      readOnly={true}
+      chatId={undefined}
+    />
+  );
 }

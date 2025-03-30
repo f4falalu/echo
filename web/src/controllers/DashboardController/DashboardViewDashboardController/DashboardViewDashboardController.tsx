@@ -14,6 +14,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
   dashboardId,
+  chatId,
   readOnly = false
 }) => {
   const { data: dashboardResponse } = useGetDashboard({ id: dashboardId });
@@ -38,6 +39,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
         <DashboardContentController
           metrics={metrics}
           dashboard={dashboard}
+          chatId={chatId}
           onUpdateDashboardConfig={onUpdateDashboardConfig}
           onOpenAddContentModal={onOpenAddContentModal}
           readOnly={readOnly}

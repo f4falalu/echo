@@ -2,13 +2,14 @@ import type { BusterMetric } from '@/api/asset_interfaces';
 import { Title, Text } from '@/components/ui/typography';
 import { DotsVertical, Trash } from '@/components/ui/icons';
 import { SortableItemContext } from '@/components/ui/grid/_BusterSortableItemDragContainer';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import Link from 'next/link';
 import React, { useContext, useMemo, useState } from 'react';
 import { useRemoveMetricsFromDashboard } from '@/api/buster_rest/dashboards';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 export const MetricTitle: React.FC<{
   name: BusterMetric['name'];
@@ -30,9 +31,13 @@ export const MetricTitle: React.FC<{
     metricLink,
     timeFrame
   }) => {
-    const { attributes, listeners, isDragging } = useContext(SortableItemContext);
+    const router = useRouter();
+    const { attributes, listeners } = useContext(SortableItemContext);
 
-    const useEllipsis = !isDragOverlay && !isDragging;
+    useMount(() => {
+      console.log('I want to test if we really need this here?');
+      if (metricLink) router.prefetch(metricLink);
+    });
 
     return (
       <Link className="flex" href={metricLink} prefetch>

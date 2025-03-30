@@ -35,7 +35,7 @@ import { canEdit, canFilter, getIsEffectiveOwner } from '@/lib/share';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { useDashboardContentStore } from '@/context/Dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
+import { BusterRoutes } from '@/routes/busterRoutes';
 
 export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });

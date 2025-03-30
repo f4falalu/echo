@@ -7,7 +7,6 @@ export enum BusterAppRoutes {
   APP_METRIC_ID = '/app/metrics/:metricId',
   APP_DASHBOARDS = '/app/dashboards',
   APP_DASHBOARD_ID = '/app/dashboards/:dashboardId',
-  APP_DASHBOARD_METRICS = '/app/dashboards/:dashboardId/metrics',
   APP_LOGS = '/app/logs',
   APP_DATASETS = '/app/datasets',
   APP_DATASETS_ID = '/app/datasets/:datasetId',
@@ -48,10 +47,6 @@ export type BusterAppRoutesWithArgs = {
   [BusterAppRoutes.APP_DASHBOARDS]: { route: BusterAppRoutes.APP_DASHBOARDS };
   [BusterAppRoutes.APP_DASHBOARD_ID]: {
     route: BusterAppRoutes.APP_DASHBOARD_ID;
-    dashboardId: string;
-  };
-  [BusterAppRoutes.APP_DASHBOARD_METRICS]: {
-    route: BusterAppRoutes.APP_DASHBOARD_METRICS;
     dashboardId: string;
   };
   [BusterAppRoutes.APP_DATASETS]: { route: BusterAppRoutes.APP_DATASETS };
