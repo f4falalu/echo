@@ -6,6 +6,7 @@ import {
   useChartWrapperContextSelector
 } from '../chartHooks/useChartWrapperProvider';
 import { cn } from '@/lib/classMerge';
+import { CircleSpinnerLoader } from '../../loaders';
 
 export type BusterChartLegendWrapper = {
   children: React.ReactNode;
@@ -16,6 +17,7 @@ export type BusterChartLegendWrapper = {
   inactiveDatasets: Record<string, boolean>;
   className: string | undefined;
   animateLegend: boolean;
+  isUpdatingChart?: boolean;
   onHoverItem: (item: BusterChartLegendItem, isHover: boolean) => void;
   onLegendItemClick: (item: BusterChartLegendItem) => void;
   onLegendItemFocus: ((item: BusterChartLegendItem) => void) | undefined;
@@ -31,6 +33,7 @@ export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> = Reac
     inactiveDatasets,
     animateLegend,
     className,
+    isUpdatingChart,
     onHoverItem,
     onLegendItemClick,
     onLegendItemFocus
@@ -53,10 +56,21 @@ export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> = Reac
             />
           )}
 
-          <div className="h-full w-full overflow-hidden">{children}</div>
+          <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
+            {isUpdatingChart && <LoadingOverlay />}
+            {children}
+          </div>
         </div>
       </ChartLegendWrapperProvider>
     );
   }
 );
 BusterChartLegendWrapper.displayName = 'BusterChartLegendWrapper';
+
+const LoadingOverlay = () => {
+  return (
+    <div className="absolute inset-0 z-10 flex items-center justify-center rounded bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-[1px] dark:from-gray-900/40 dark:to-gray-800/30">
+      <CircleSpinnerLoader />
+    </div>
+  );
+};

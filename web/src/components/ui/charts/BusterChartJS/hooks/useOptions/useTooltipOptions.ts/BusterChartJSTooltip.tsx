@@ -56,7 +56,6 @@ export const BusterChartJSTooltip: React.FC<{
     }
 
     if (isScatter) {
-      console.log({ datasets, dataPoints });
       return scatterTooltipHelper(
         datasets,
         dataPoints,

@@ -96,6 +96,8 @@ export const LargeDataset: Story = {
       onSetData(value);
     };
 
+    console.log(data);
+
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-4">

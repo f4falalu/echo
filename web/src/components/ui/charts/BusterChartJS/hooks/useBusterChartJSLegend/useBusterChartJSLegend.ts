@@ -155,9 +155,6 @@ export const useBusterChartJSLegend = ({
     const isLargeChart = numberOfPoints > ANIMATION_THRESHOLD;
     const timeoutDuration = isLargeChart && hasAnimation ? 125 : 0;
 
-    console.log(data);
-    console.log(numberOfPoints);
-
     // Set updating state
     setIsUpdatingChart(true);
 
@@ -231,7 +228,6 @@ export const useBusterChartJSLegend = ({
 
   //immediate items
   useEffect(() => {
-    console.log('should run', performance.now());
     calculateLegendItems();
   }, [
     chartMounted,

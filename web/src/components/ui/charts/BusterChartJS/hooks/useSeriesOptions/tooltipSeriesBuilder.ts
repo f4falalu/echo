@@ -44,10 +44,13 @@ export const scatterTooltipSeriesBuilder = ({
 
   tooltipKeys.forEach((tooltipKey) => {
     const indexOfKey = getIndexOfKey(tooltipKey);
+
     tooltipSeries.push({
       hidden: true,
       label: tooltipKey,
-      data: selectedDataset.source.map((item) => item[indexOfKey] as number)
+      data: selectedDataset.source
+        .map((item) => item[indexOfKey] as number)
+        .filter((data) => data !== null)
     });
   });
 

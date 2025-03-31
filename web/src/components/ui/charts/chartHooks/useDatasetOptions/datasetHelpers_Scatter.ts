@@ -123,7 +123,7 @@ export const getScatterTooltipKeys = (
 ) => {
   const categories = Array.from(categoriesSet);
   const hasTooltipFields = tooltipFields.length > 0;
-  const fieldsToUse = hasTooltipFields ? tooltipFields : measureFields;
+  const fieldsToUse = [...(hasTooltipFields ? tooltipFields : measureFields)];
   if (!hasTooltipFields) {
     fieldsToUse.push(xAxisField);
   }

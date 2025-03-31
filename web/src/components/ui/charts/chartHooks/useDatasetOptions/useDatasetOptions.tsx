@@ -108,8 +108,11 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   const xFieldSortsString = useMemo(() => xFieldSorts.join(','), [xFieldSorts]);
 
   const measureFields: string[] = useMemo(() => {
+    console.log('HERE?', yAxisFields, y2AxisFields, tooltipFields);
     return uniq([...yAxisFields, ...y2AxisFields, ...tooltipFields]);
   }, [yAxisFieldsString, y2AxisFieldsString, tooltipFieldsString]);
+
+  console.log('2HERE?', measureFields);
 
   const sortedAndLimitedData = useMemo(() => {
     if (isScatter) return downsampleScatterData(data);
@@ -185,6 +188,11 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
 
   const tooltipKeys = useMemo(() => {
     if (isScatter) {
+      console.log('TOOLTIP FIELDS', tooltipFields);
+      console.log('X AXIS FIELD', xAxisField);
+      console.log('CATEGORIES SET', categoriesSet);
+      console.log('MEASURE FIELDS', measureFields);
+      console.log('SIZE FIELD', sizeField);
       return getScatterTooltipKeys(
         tooltipFields,
         xAxisField,

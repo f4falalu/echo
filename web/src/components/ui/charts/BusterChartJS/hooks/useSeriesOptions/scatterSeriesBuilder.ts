@@ -38,13 +38,14 @@ export const scatterSeriesBuilder_data = ({
       hoverBackgroundColor,
       borderColor: color,
       label: name,
-      data: selectedDataset.source.map((item) => ({
-        label: name,
-        x: getScatterXValue({ isXAxisDate, xValue: item[0] }) as number,
-        y: item[yIndex] as number,
-        originalR: sizeKeyIndex ? (item[sizeKeyIndex.index] as number) : undefined
-      }))
-      //  .filter((item) => item.y !== null)
+      data: selectedDataset.source
+        .map((item) => ({
+          label: name,
+          x: getScatterXValue({ isXAxisDate, xValue: item[0] }) as number,
+          y: item[yIndex] as number,
+          originalR: sizeKeyIndex ? (item[sizeKeyIndex.index] as number) : undefined
+        }))
+        .filter((item) => item.y !== null)
     };
   });
 };

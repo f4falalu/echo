@@ -85,15 +85,9 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
         inactiveDatasets={inactiveDatasets}
         onHoverItem={onHoverItem}
         onLegendItemClick={onLegendItemClick}
-        onLegendItemFocus={onLegendItemFocus}>
-        <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
-          {isUpdatingChart && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 dark:bg-gray-900/50">
-              <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent"></div>
-            </div>
-          )}
-          {children}
-        </div>
+        onLegendItemFocus={onLegendItemFocus}
+        isUpdatingChart={isUpdatingChart}>
+        {children}
       </BusterChartLegendWrapper>
     );
   }

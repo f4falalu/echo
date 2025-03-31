@@ -187,7 +187,7 @@ export const getLineBarPieTooltipKeys = (
   measureFields: string[]
 ) => {
   const categories = Array.from(categoriesSet);
-  const fieldsToUse = tooltipFields.length > 0 ? tooltipFields : measureFields;
+  const fieldsToUse = [...(tooltipFields.length > 0 ? tooltipFields : measureFields)];
   return createDimension(fieldsToUse, categories);
 };
 

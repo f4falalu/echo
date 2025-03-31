@@ -50,6 +50,6 @@ export const generateScatterChartData = (pointCount = 30): IDataResult => {
     x: faker.number.float({ min: 0, max: 100, fractionDigits: 1 }),
     y: faker.number.float({ min: 0, max: 100, fractionDigits: 1 }),
     size: faker.number.int({ min: 10, max: 50 }),
-    category: faker.commerce.department()
+    category: faker.helpers.arrayElement(['Electronics', 'Clothing', 'Home Goods'])
   }));
 };

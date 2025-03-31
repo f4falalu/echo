@@ -20,7 +20,8 @@ import {
   ANIMATION_DURATION,
   ANIMATION_THRESHOLD,
   LINE_DECIMATION_SAMPLES,
-  LINE_DECIMATION_THRESHOLD
+  LINE_DECIMATION_THRESHOLD,
+  TOOLTIP_THRESHOLD
 } from '../../../config';
 
 interface UseOptionsProps {
@@ -99,7 +100,7 @@ export const useOptions = ({
   animate,
   goalLinesAnnotations,
   trendlineAnnotations,
-  disableTooltip,
+  disableTooltip: disableTooltipProp,
   xAxisTimeInterval
 }: UseOptionsProps) => {
   const xAxis = useXAxis({
@@ -166,12 +167,19 @@ export const useOptions = ({
 
   const interaction = useInteractions({ selectedChartType, barLayout });
 
-  const isAnimationEnabled = useMemo(() => {
-    const numberOfSources = datasetOptions.reduce((acc, curr) => {
+  const numberOfSources = useMemo(() => {
+    return datasetOptions.reduce((acc, curr) => {
       return acc + curr.source.length;
     }, 0);
-    return animate && numberOfSources <= ANIMATION_THRESHOLD;
-  }, [animate, datasetOptions]);
+  }, [datasetOptions]);
+
+  const isAnimationEnabled = useMemo(() => {
+    return animate && numberOfSources >= ANIMATION_THRESHOLD;
+  }, [animate, numberOfSources]);
+
+  const disableTooltip = useMemo(() => {
+    return disableTooltipProp || numberOfSources >= TOOLTIP_THRESHOLD;
+  }, [disableTooltipProp, numberOfSources]);
 
   const tooltipOptions = useTooltipOptions({
     columnLabelFormats,
@@ -184,7 +192,7 @@ export const useOptions = ({
     columnSettings,
     datasetOptions,
     hasMismatchedTooltipsAndMeasures,
-    disableTooltip: disableTooltip || !isAnimationEnabled,
+    disableTooltip,
     colors
   });
 
@@ -227,7 +235,8 @@ export const useOptions = ({
     onInitialAnimationEnd,
     isHorizontalBar,
     goalLinesAnnotations,
-    trendlineAnnotations
+    trendlineAnnotations,
+    tooltipOptions
   ]);
 
   return options;
