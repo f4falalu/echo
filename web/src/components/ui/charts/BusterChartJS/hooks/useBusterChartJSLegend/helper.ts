@@ -42,7 +42,8 @@ export const getLegendItems = ({
     }));
   }
 
-  const datasets = data.datasets!.filter((dataset) => !dataset.hidden && !dataset.isTrendline);
+  const datasets =
+    data.datasets?.filter((dataset) => !dataset.hidden && !dataset.isTrendline) || [];
   const hasMultipleMeasures = allYAxisColumnNames.length > 1;
   const hasCategoryAxis: boolean = !!categoryAxisColumnNames && categoryAxisColumnNames?.length > 0;
 

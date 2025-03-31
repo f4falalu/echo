@@ -82,8 +82,8 @@ export const formatLabel = (
       });
     } else {
       formattedText = formatNumber(roundedNumber, {
-        minimumFractionDigits: minimumFractionDigits,
-        maximumFractionDigits: maximumFractionDigits,
+        minimumFractionDigits: Math.min(minimumFractionDigits, maximumFractionDigits),
+        maximumFractionDigits: Math.max(minimumFractionDigits, maximumFractionDigits),
         useGrouping: numberSeparatorStyle !== null,
         compact: compactNumbers
       });
