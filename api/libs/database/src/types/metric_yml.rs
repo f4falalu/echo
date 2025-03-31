@@ -57,7 +57,7 @@ impl<'de> Deserialize<'de> for ChartConfig {
         // Deserialize into a generic JSON value
         let value: Value = Deserialize::deserialize(deserializer)?;
 
-        // Ensure it’s an object
+        // Ensure it's an object
         let obj = value
             .as_object()
             .ok_or_else(|| serde::de::Error::custom("expected a JSON object"))?;
@@ -80,46 +80,113 @@ impl<'de> Deserialize<'de> for ChartConfig {
         // Match the tag to the appropriate variant
         match tag {
             "bar" => {
-                let config: BarLineChartConfig =
-                    serde_json::from_value(config_value).map_err(serde::de::Error::custom)?;
+                let config = match serde_json::from_value::<BarLineChartConfig>(config_value) {
+                    Ok(config) => config,
+                    Err(e) => {
+                        return Err(detailed_deserialization_error::<D::Error>("Bar chart", &e));
+                    }
+                };
                 Ok(ChartConfig::Bar(config))
             }
             "line" => {
-                let config: BarLineChartConfig =
-                    serde_json::from_value(config_value).map_err(serde::de::Error::custom)?;
+                let config = match serde_json::from_value::<BarLineChartConfig>(config_value) {
+                    Ok(config) => config,
+                    Err(e) => {
+                        return Err(detailed_deserialization_error::<D::Error>("Line chart", &e));
+                    }
+                };
                 Ok(ChartConfig::Line(config))
             }
             "scatter" => {
-                let config: ScatterChartConfig =
-                    serde_json::from_value(config_value).map_err(serde::de::Error::custom)?;
+                let config = match serde_json::from_value::<ScatterChartConfig>(config_value) {
+                    Ok(config) => config,
+                    Err(e) => {
+                        return Err(detailed_deserialization_error::<D::Error>("Scatter chart", &e));
+                    }
+                };
                 Ok(ChartConfig::Scatter(config))
             }
             "pie" => {
-                let config: PieChartConfig =
-                    serde_json::from_value(config_value).map_err(serde::de::Error::custom)?;
+                let config = match serde_json::from_value::<PieChartConfig>(config_value) {
+                    Ok(config) => config,
+                    Err(e) => {
+                        return Err(detailed_deserialization_error::<D::Error>("Pie chart", &e));
+                    }
+                };
                 Ok(ChartConfig::Pie(config))
             }
             "combo" => {
-                let config: ComboChartConfig =
-                    serde_json::from_value(config_value).map_err(serde::de::Error::custom)?;
+                let config = match serde_json::from_value::<ComboChartConfig>(config_value) {
+                    Ok(config) => config,
+                    Err(e) => {
+                        return Err(detailed_deserialization_error::<D::Error>("Combo chart", &e));
+                    }
+                };
                 Ok(ChartConfig::Combo(config))
             }
             "metric" => {
-                let config: MetricChartConfig =
-                    serde_json::from_value(config_value).map_err(serde::de::Error::custom)?;
+                let config = match serde_json::from_value::<MetricChartConfig>(config_value) {
+                    Ok(config) => config,
+                    Err(e) => {
+                        return Err(detailed_deserialization_error::<D::Error>("Metric chart", &e));
+                    }
+                };
                 Ok(ChartConfig::Metric(config))
             }
             "table" => {
-                let config: TableChartConfig =
-                    serde_json::from_value(config_value).map_err(serde::de::Error::custom)?;
+                let config = match serde_json::from_value::<TableChartConfig>(config_value) {
+                    Ok(config) => config,
+                    Err(e) => {
+                        return Err(detailed_deserialization_error::<D::Error>("Table chart", &e));
+                    }
+                };
                 Ok(ChartConfig::Table(config))
             }
             unknown => Err(serde::de::Error::custom(format!(
-                "unknown variant: {}",
+                "unknown chart type: {}",
                 unknown
             ))),
         }
     }
+}
+
+// Helper function to create detailed error messages for deserialization failures
+fn detailed_deserialization_error<E: serde::de::Error>(chart_type: &str, err: &serde_json::Error) -> E {
+    match err.classify() {
+        serde_json::error::Category::Data => {
+            // Type mismatch or invalid value
+            let error_message = format!("{} config error: {}", chart_type, err);
+            
+            // Extract the field path from the error message if possible
+            if let Some(field_name) = extract_field_from_error(err) {
+                E::custom(format!("{} config error at field '{}': {}", chart_type, field_name, err))
+            } else {
+                E::custom(error_message)
+            }
+        }
+        serde_json::error::Category::Syntax | serde_json::error::Category::Io | serde_json::error::Category::Eof => {
+            // Other errors (shouldn't happen in this context)
+            E::custom(format!("{} config parse error: {}", chart_type, err))
+        }
+    }
+}
+
+// Helper function to extract field name from error message
+fn extract_field_from_error(err: &serde_json::Error) -> Option<String> {
+    // Get the error message as a string
+    let err_msg = err.to_string();
+    
+    // Try to extract field path using common patterns in serde_json error messages
+    if let Some(start_idx) = err_msg.find("at key ") {
+        if let Some(key_start) = err_msg[start_idx + 8..].find('"') {
+            if let Some(key_end) = err_msg[start_idx + 8 + key_start + 1..].find('"') {
+                let field = &err_msg[start_idx + 8 + key_start + 1..start_idx + 8 + key_start + 1 + key_end];
+                return Some(field.to_string());
+            }
+        }
+    }
+    
+    None
 }
 
 // Base chart config shared by all chart types
@@ -460,12 +527,25 @@ impl MetricYml {
     pub fn new(yml_content: String) -> Result<Self> {
         let file: MetricYml = match serde_yaml::from_str(&yml_content) {
             Ok(file) => file,
-            Err(e) => return Err(anyhow::anyhow!("Error parsing YAML: {}", e)),
+            Err(e) => {
+                // Extract field information from error message if possible
+                let error_message = format!("Error parsing YAML: {}", e);
+                
+                // Try to extract field path from YAML error
+                let yaml_error_str = e.to_string();
+                let detailed_error = if yaml_error_str.contains("at line") && yaml_error_str.contains("column") {
+                    format!("Error parsing YAML at {}", yaml_error_str)
+                } else {
+                    error_message
+                };
+                
+                return Err(anyhow::anyhow!(detailed_error));
+            }
         };
 
         match file.validate() {
             Ok(_) => Ok(file),
-            Err(e) => Err(anyhow::anyhow!("Error compiling file: {}", e)),
+            Err(e) => Err(anyhow::anyhow!("Error validating metric: {}", e)),
         }
     }
 
