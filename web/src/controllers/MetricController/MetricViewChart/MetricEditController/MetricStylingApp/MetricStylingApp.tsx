@@ -13,6 +13,7 @@ import {
   ScatterAxis
 } from '@/api/asset_interfaces/metric/charts';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export const MetricStylingApp: React.FC<{
   metricId: string;
@@ -96,10 +97,10 @@ export const MetricStylingApp: React.FC<{
         selectedChartType={selectedChartType}
       />
 
-      <div className="h-full overflow-y-auto pb-12">
+      <ScrollArea className="">
         {segment === MetricStylingAppSegments.VISUALIZE && (
           <StylingAppVisualize
-            className="px-4 pt-3"
+            className="mb-12 px-4 pt-3"
             columnMetadata={columnMetadata}
             rowCount={rowCount}
             selectedChartType={selectedChartType}
@@ -143,7 +144,7 @@ export const MetricStylingApp: React.FC<{
 
         {segment === MetricStylingAppSegments.STYLING && (
           <StylingAppStyling
-            className="px-4"
+            className="mb-12 px-4"
             columnSettings={columnSettings}
             showLegend={showLegend}
             gridLines={gridLines}
@@ -176,9 +177,9 @@ export const MetricStylingApp: React.FC<{
         )}
 
         {segment === MetricStylingAppSegments.COLORS && (
-          <StylingAppColors className="px-4" colors={colors} />
+          <StylingAppColors className="mb-12 px-4" colors={colors} />
         )}
-      </div>
+      </ScrollArea>
     </div>
   );
 };
