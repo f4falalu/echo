@@ -45,9 +45,6 @@ export const EditShowAxisTitle: React.FC<{
         )}
       </>
     );
-  },
-  (prevProps, nextProps) => {
-    return prevProps.axisTitle === nextProps.axisTitle;
   }
 );
 EditShowAxisTitle.displayName = 'EditShowAxisTitle';

@@ -5,18 +5,13 @@ import { Switch } from '@/components/ui/switch';
 export const EditShowAxisLabel: React.FC<{
   showAxisLabel: boolean;
   onChangeShowAxisLabel: (value: boolean) => void;
-}> = React.memo(
-  ({ showAxisLabel, onChangeShowAxisLabel }) => {
-    return (
-      <LabelAndInput label="Show axis label">
-        <div className="flex justify-end">
-          <Switch defaultChecked={showAxisLabel} onCheckedChange={onChangeShowAxisLabel} />
-        </div>
-      </LabelAndInput>
-    );
-  },
-  (prevProps, nextProps) => {
-    return true;
-  }
-);
+}> = React.memo(({ showAxisLabel, onChangeShowAxisLabel }) => {
+  return (
+    <LabelAndInput label="Show axis label">
+      <div className="flex justify-end">
+        <Switch defaultChecked={showAxisLabel} onCheckedChange={onChangeShowAxisLabel} />
+      </div>
+    </LabelAndInput>
+  );
+});
 EditShowAxisLabel.displayName = 'EditShowAxisLabel';

@@ -17,62 +17,57 @@ export const EditDateFormat: React.FC<{
   convertNumberTo: IColumnLabelFormat['convertNumberTo'];
   columnType: IColumnLabelFormat['columnType'];
   onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
-}> = React.memo(
-  ({ dateFormat, columnType, convertNumberTo, onUpdateColumnConfig }) => {
-    const now = useMemo(() => getNow().toDate(), []);
+}> = React.memo(({ dateFormat, columnType, convertNumberTo, onUpdateColumnConfig }) => {
+  const now = useMemo(() => getNow().toDate(), []);
 
-    const useAlternateFormats = useMemo(() => {
-      return columnType === 'number' && convertNumberTo;
-    }, [columnType, convertNumberTo]);
+  const useAlternateFormats = useMemo(() => {
+    return columnType === 'number' && convertNumberTo;
+  }, [columnType, convertNumberTo]);
 
-    const defaultOptions = useMemo(() => {
-      if (useAlternateFormats === 'day_of_week') return getDefaultDayOfWeekOptions(now);
-      if (useAlternateFormats === 'month_of_year') return getDefaultMonthOptions(now);
-      if (useAlternateFormats === 'quarter') return getDefaultQuarterOptions(now);
-      return getDefaultDateOptions(now);
-    }, [useAlternateFormats]);
+  const defaultOptions = useMemo(() => {
+    if (useAlternateFormats === 'day_of_week') return getDefaultDayOfWeekOptions(now);
+    if (useAlternateFormats === 'month_of_year') return getDefaultMonthOptions(now);
+    if (useAlternateFormats === 'quarter') return getDefaultQuarterOptions(now);
+    return getDefaultDateOptions(now);
+  }, [useAlternateFormats]);
 
-    const selectOptions: SelectItem[] = useMemo(() => {
-      const dateFormatIsInDefaultOptions = defaultOptions.some(({ value }) => value === dateFormat);
-      if (!dateFormat || dateFormatIsInDefaultOptions || useAlternateFormats) return defaultOptions;
-      return [
-        ...defaultOptions,
-        {
-          label: formatDate({
-            date: now,
-            format: dateFormat
-          }),
-          value: dateFormat
-        }
-      ].filter(({ value }) => value && value !== 'auto');
-    }, [dateFormat, defaultOptions, useAlternateFormats]);
+  const selectOptions: SelectItem[] = useMemo(() => {
+    const dateFormatIsInDefaultOptions = defaultOptions.some(({ value }) => value === dateFormat);
+    if (!dateFormat || dateFormatIsInDefaultOptions || useAlternateFormats) return defaultOptions;
+    return [
+      ...defaultOptions,
+      {
+        label: formatDate({
+          date: now,
+          format: dateFormat
+        }),
+        value: dateFormat
+      }
+    ].filter(({ value }) => value && value !== 'auto');
+  }, [dateFormat, defaultOptions, useAlternateFormats]);
 
-    const selectedOption = useMemo(() => {
-      return selectOptions.find((option) => option.value === dateFormat) || first(selectOptions)!;
-    }, [dateFormat, selectOptions]);
+  const selectedOption = useMemo(() => {
+    return selectOptions.find((option) => option.value === dateFormat) || first(selectOptions)!;
+  }, [dateFormat, selectOptions]);
 
-    const onChange = useMemoizedFn((value: string) => {
-      onUpdateColumnConfig({
-        dateFormat: value as IColumnLabelFormat['dateFormat']
-      });
+  const onChange = useMemoizedFn((value: string) => {
+    onUpdateColumnConfig({
+      dateFormat: value as IColumnLabelFormat['dateFormat']
     });
+  });
 
-    return (
-      <LabelAndInput label="Date format">
-        <div className="w-full overflow-hidden">
-          <Select
-            key={convertNumberTo}
-            className="w-full!"
-            items={selectOptions}
-            value={selectedOption.value}
-            onChange={onChange}
-          />
-        </div>
-      </LabelAndInput>
-    );
-  },
-  (prevProps, nextProps) => {
-    return prevProps.convertNumberTo === nextProps.convertNumberTo;
-  }
-);
+  return (
+    <LabelAndInput label="Date format">
+      <div className="w-full overflow-hidden">
+        <Select
+          key={convertNumberTo}
+          className="w-full!"
+          items={selectOptions}
+          value={selectedOption.value}
+          onChange={onChange}
+        />
+      </div>
+    </LabelAndInput>
+  );
+});
 EditDateFormat.displayName = 'EditDateFormat';

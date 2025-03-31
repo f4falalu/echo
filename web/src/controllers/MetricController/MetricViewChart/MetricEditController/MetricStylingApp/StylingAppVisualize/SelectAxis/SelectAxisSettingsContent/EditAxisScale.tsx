@@ -13,16 +13,12 @@ export const EditAxisScale: React.FC<{
     | IBusterMetricChartConfig['yAxisScaleType']
     | IBusterMetricChartConfig['y2AxisScaleType'];
   onChangeAxisScale: (value: IBusterMetricChartConfig['yAxisScaleType']) => void;
-}> = React.memo(
-  ({ scaleType, onChangeAxisScale }) => {
-    return (
-      <LabelAndInput label="Scale">
-        <Select items={options} value={scaleType} onChange={onChangeAxisScale} />
-      </LabelAndInput>
-    );
-  },
-  (prevProps, nextProps) => {
-    return true;
-  }
-);
+}> = React.memo(({ scaleType, onChangeAxisScale }) => {
+  console.log(scaleType);
+  return (
+    <LabelAndInput label="Scale">
+      <Select items={options} value={scaleType} onChange={onChangeAxisScale} />
+    </LabelAndInput>
+  );
+});
 EditAxisScale.displayName = 'EditAxisScale';
