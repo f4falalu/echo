@@ -238,7 +238,7 @@ async fn rerank_datasets(
         query,
         documents,
         model: ReRankModel::EnglishV3,
-        top_n: Some(20), // Get top 20 results per query
+        top_n: Some(25), // Get top 20 results per query
         ..Default::default()
     };
 
@@ -331,6 +331,7 @@ async fn filter_datasets_with_llm(
         }),
         // reasoning_effort: Some(String::from("low")),
         max_completion_tokens: Some(8096),
+        temperature: Some(0.0),
         ..Default::default()
     };
 
