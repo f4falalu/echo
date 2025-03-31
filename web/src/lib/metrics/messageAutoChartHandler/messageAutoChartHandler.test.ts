@@ -116,6 +116,62 @@ describe('createDefaultChartConfig', () => {
 
     expect(config).toEqual(expected);
   });
+
+  it('should handle undefined y2 value in comboChartAxis', () => {
+    const message = {
+      chart_config: {
+        ...DEFAULT_CHART_CONFIG,
+        comboChartAxis: { x: [], y: [], y2: undefined, tooltip: null, category: undefined }
+      },
+      data_metadata: TEST_DATA_METADATA
+    };
+
+    const config = createDefaultChartConfig(message);
+
+    expect(config.comboChartAxis.y2).toEqual([]);
+  });
+
+  it('should handle empty y2 array in comboChartAxis', () => {
+    const message = {
+      chart_config: {
+        ...DEFAULT_CHART_CONFIG,
+        comboChartAxis: { x: [], y: [], y2: [], tooltip: null, category: undefined }
+      },
+      data_metadata: TEST_DATA_METADATA
+    };
+
+    const config = createDefaultChartConfig(message);
+
+    expect(config.comboChartAxis.y2).toEqual([]);
+  });
+
+  it('should handle null y2 in comboChartAxis', () => {
+    const message = {
+      chart_config: {
+        ...DEFAULT_CHART_CONFIG,
+        comboChartAxis: { x: [], y: [], y2: null, tooltip: null, category: undefined }
+      },
+      data_metadata: TEST_DATA_METADATA
+    } as any;
+
+    const config = createDefaultChartConfig(message);
+
+    expect(config.comboChartAxis.y2).toEqual([]);
+  });
+
+  it('should maintain non-empty y2 array in comboChartAxis', () => {
+    const message = {
+      chart_config: {
+        ...DEFAULT_CHART_CONFIG,
+        comboChartAxis: { x: [], y: [], y2: ['test-y2'], tooltip: null, category: undefined }
+      },
+      data_metadata: TEST_DATA_METADATA
+    };
+
+    const config = createDefaultChartConfig(message);
+
+    expect(config.comboChartAxis.y2).toEqual(['test-y2']);
+  });
 });
 
 const TEST_DATA_METADATA: DataMetadata = {

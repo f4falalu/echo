@@ -20,7 +20,7 @@ import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { useMemo } from 'react';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useGetUserFavorites } from '../users';
-import type { IBusterMetric } from '@/api/asset_interfaces/metric';
+import type { DataMetadata, IBusterMetric } from '@/api/asset_interfaces/metric';
 import { create } from 'mutative';
 import {
   useAddAssetToCollection,
@@ -342,18 +342,23 @@ export const useUpdateMetricShare = () => {
   });
 };
 
-export const useUpdateMetric = () => {
+export const useUpdateMetric = (params?: {
+  wait?: number;
+  updateOnSave?: boolean;
+  updateVersion?: boolean;
+}) => {
+  const { wait = 650, updateOnSave = false, updateVersion = true } = params || {};
   const queryClient = useQueryClient();
-  const { mutateAsync: saveMetric } = useSaveMetric();
+  const { mutateAsync: saveMetric } = useSaveMetric({ updateOnSave });
 
   const { run: saveMetricDebounced } = useDebounceFn(
     useMemoizedFn((newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
       const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
       if (changedValues) {
-        saveMetric(changedValues);
+        saveMetric({ ...changedValues, update_version: updateVersion });
       }
     }),
-    { wait: 650, leading: false }
+    { wait, leading: false }
   );
 
   const combineAndSaveMetric = useMemoizedFn(

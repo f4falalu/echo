@@ -4,7 +4,7 @@ import { CodeCard } from '@/components/ui/card';
 import { useMemoizedFn } from '@/hooks';
 import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useGetMetric, useSaveMetric } from '@/api/buster_rest/metrics';
+import { useGetMetric, useSaveMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
 
 export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId }) => {
   const { data: metric } = useGetMetric({ id: metricId }, ({ file, file_name }) => ({
@@ -16,8 +16,9 @@ export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId 
     mutateAsync: updateMetric,
     isPending: isUpdatingMetric,
     error: updateMetricError
-  } = useSaveMetric({
-    updateOnSave: true
+  } = useUpdateMetric({
+    updateOnSave: true,
+    wait: 0
   });
 
   const updateMetricErrorMessage = updateMetricError?.message;

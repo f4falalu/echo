@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest';
-import { useSaveMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useGetMetricMemoized } from '@/context/Metrics';
 
 export const useMetricRunSQL = () => {
@@ -18,7 +18,10 @@ export const useMetricRunSQL = () => {
     mutateAsync: saveMetric,
     error: saveMetricError,
     isPending: isSavingMetric
-  } = useSaveMetric();
+  } = useUpdateMetric({
+    updateOnSave: true,
+    wait: 0
+  });
   const {
     mutateAsync: runSQLMutation,
     error: runSQLError,
@@ -167,8 +170,7 @@ export const useMetricRunSQL = () => {
 
       await saveMetric({
         id: metricId,
-        sql,
-        save_draft: true
+        sql
       });
 
       setWarnBeforeNavigating(false);

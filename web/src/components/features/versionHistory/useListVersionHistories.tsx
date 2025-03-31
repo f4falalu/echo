@@ -89,18 +89,13 @@ export const useListVersionHistories = ({
     }
   );
 
-  const isRestoringVersion = useMemo(() => {
-    return isSavingDashboard || isSavingMetric;
-  }, [isSavingDashboard, isSavingMetric]);
-
   return useMemo(() => {
     return {
       listItems,
       selectedVersion,
       selectedQueryVersion,
       onClickVersionHistory,
-      onClickRestoreVersion,
-      isRestoringVersion
+      onClickRestoreVersion
     };
   }, [
     listItems,

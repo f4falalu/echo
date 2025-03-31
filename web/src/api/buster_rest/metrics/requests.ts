@@ -69,9 +69,8 @@ export const updateMetric = async (params: {
   name?: string;
   /** SQL query associated with the metric */
   sql?: string;
+  /** chart_config to update */
   chart_config?: BusterChartConfigProps;
-  /** Flag to save the current draft state */
-  save_draft?: boolean;
   /** Admin only: verification status update */
   status?: VerificationStatus;
   /** file in yaml format to update */
