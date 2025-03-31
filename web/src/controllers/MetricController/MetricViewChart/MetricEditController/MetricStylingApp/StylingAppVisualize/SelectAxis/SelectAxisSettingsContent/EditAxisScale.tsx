@@ -14,7 +14,6 @@ export const EditAxisScale: React.FC<{
     | IBusterMetricChartConfig['y2AxisScaleType'];
   onChangeAxisScale: (value: IBusterMetricChartConfig['yAxisScaleType']) => void;
 }> = React.memo(({ scaleType, onChangeAxisScale }) => {
-  console.log(scaleType);
   return (
     <LabelAndInput label="Scale">
       <Select items={options} value={scaleType} onChange={onChangeAxisScale} />

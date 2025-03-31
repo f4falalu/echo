@@ -371,7 +371,6 @@ export const useUpdateMetric = (params?: {
       });
 
       if (prevMetric && newMetric) {
-        console.log(newMetric.chart_config.yAxisScaleType);
         queryClient.setQueryData(options.queryKey, newMetric);
       }
 

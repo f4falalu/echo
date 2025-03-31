@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 import { InputNumber } from '@/components/ui/inputs';
-import { Slider } from '@/components/ui/slider';
+import { Slider, SliderWithInputNumber } from '@/components/ui/slider';
 import { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
 
@@ -22,28 +22,14 @@ export const EditBarRoundness: React.FC<{
       setValue(v || 0);
     });
 
-    const onUpdateBarRoundnessSlider = useMemoizedFn((v: [number]) => {
-      if (v) onUpdateBarRoundness(v?.[0]);
-    });
-
     return (
       <LabelAndInput label="Bar roundness">
-        <div className="flex items-center space-x-3">
-          <InputNumber
-            className="max-w-[40px]"
-            min={BAR_ROUNDNESS_MIN}
-            max={BAR_ROUNDNESS_MAX}
-            value={value}
-            onChange={onUpdateBarRoundness}
-          />
-          <Slider
-            className="w-full"
-            min={BAR_ROUNDNESS_MIN}
-            max={BAR_ROUNDNESS_MAX}
-            defaultValue={[value]}
-            onValueChange={onUpdateBarRoundnessSlider}
-          />
-        </div>
+        <SliderWithInputNumber
+          min={BAR_ROUNDNESS_MIN}
+          max={BAR_ROUNDNESS_MAX}
+          value={value}
+          onChange={onUpdateBarRoundness}
+        />
       </LabelAndInput>
     );
   },

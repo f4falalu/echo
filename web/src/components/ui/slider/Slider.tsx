@@ -2,7 +2,12 @@
 
 import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
-import { Tooltip } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent
+} from '@/components/ui/tooltip/TooltipBase';
 
 import { cn } from '@/lib/utils';
 
@@ -28,41 +33,23 @@ const Slider = React.forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, S
     },
     ref
   ) => {
-    const [isDragging, setIsDragging] = React.useState(false);
-    const [isHovered, setIsHovered] = React.useState(false);
+    const [useTooltip, setUseTooltip] = React.useState(false);
+    const [internalValues, setInternalValues] = React.useState(value || defaultValue || [min]);
     const currentValue = value || defaultValue || [min];
 
     const handleValueChange = React.useCallback(
       (newValue: number[]) => {
-        setIsDragging(true);
         onValueChange?.(newValue);
+        setInternalValues(newValue);
+        setUseTooltip(true);
       },
       [onValueChange]
     );
 
     const handleValueCommit = React.useCallback(() => {
-      setIsDragging(false);
+      setUseTooltip(false);
+      setInternalValues(currentValue);
     }, []);
-
-    const renderThumb = (index: number) => {
-      const thumbValue = currentValue[index];
-      const shouldShowTooltip = showTooltip && (isDragging || isHovered);
-
-      return (
-        <Tooltip
-          key={index}
-          title={shouldShowTooltip ? String(thumbValue) : undefined}
-          open={shouldShowTooltip}
-          side="top"
-          sideOffset={5}>
-          <SliderPrimitive.Thumb
-            className="border-primary/50 bg-background focus-visible:ring-ring block h-4 w-4 rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          />
-        </Tooltip>
-      );
-    };
 
     return (
       <SliderPrimitive.Root
@@ -79,7 +66,21 @@ const Slider = React.forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, S
         <SliderPrimitive.Track className="bg-primary/20 relative h-1.5 w-full grow overflow-hidden rounded-full">
           <SliderPrimitive.Range className="bg-primary absolute h-full" />
         </SliderPrimitive.Track>
-        {Array.from({ length: currentValue.length }).map((_, index) => renderThumb(index))}
+
+        <TooltipProvider>
+          <Tooltip open={useTooltip}>
+            <TooltipTrigger asChild>
+              <SliderPrimitive.Thumb
+                onMouseEnter={() => setUseTooltip(true)}
+                onMouseLeave={() => setUseTooltip(false)}
+                className="border-primary bg-background block h-4 w-4 rounded-full border-2 shadow transition-all hover:scale-110 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
+              />
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={5}>
+              {internalValues[0]}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </SliderPrimitive.Root>
     );
   }

@@ -6,7 +6,7 @@ import {
   MIN_DONUT_WIDTH
 } from '@/api/asset_interfaces';
 import { InputNumber } from '@/components/ui/inputs';
-import { Slider } from '@/components/ui/slider';
+import { Slider, SliderWithInputNumber } from '@/components/ui/slider';
 import { useMemoizedFn } from '@/hooks';
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
 
@@ -71,22 +71,12 @@ export const EditPieAppearance = React.memo(
 
         {showDonutWidthSelector && !hasMultipleYAxis && (
           <LabelAndInput label="Donut width">
-            <div className="flex items-center space-x-3">
-              <InputNumber
-                className="max-w-[50px]"
-                min={DONUT_WIDTH_MIN}
-                max={DONUT_WIDTH_MAX}
-                value={value}
-                onChange={setPieDonutWidth}
-              />
-              <Slider
-                className="w-full"
-                min={DONUT_WIDTH_MIN}
-                max={DONUT_WIDTH_MAX}
-                defaultValue={[value]}
-                onValueChange={onChangeSlider}
-              />
-            </div>
+            <SliderWithInputNumber
+              min={DONUT_WIDTH_MIN}
+              max={DONUT_WIDTH_MAX}
+              value={value}
+              onChange={setPieDonutWidth}
+            />
           </LabelAndInput>
         )}
       </>

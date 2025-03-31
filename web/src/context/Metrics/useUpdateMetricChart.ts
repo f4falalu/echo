@@ -41,7 +41,6 @@ export const useUpdateMetricChart = (props?: { metricId?: string }) => {
         ...chartConfig
       };
 
-      console.log(newChartConfig.yAxisScaleType);
       onUpdateMetricDebounced({
         id: metricId,
         chart_config: newChartConfig

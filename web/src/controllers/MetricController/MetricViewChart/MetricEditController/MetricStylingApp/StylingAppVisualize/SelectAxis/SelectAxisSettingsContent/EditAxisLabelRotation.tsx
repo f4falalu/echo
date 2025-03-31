@@ -25,8 +25,6 @@ export const EditAxisLabelRotation: React.FC<{
     onChangeLabelRotation(value.value as IBusterMetricChartConfig['xAxisLabelRotation']);
   });
 
-  console.log(selectedOption, xAxisLabelRotation);
-
   return (
     <LabelAndInput label="Axis orientation">
       <AppSegmented

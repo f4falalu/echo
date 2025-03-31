@@ -24,7 +24,6 @@ export const EditShowAxisTitle: React.FC<{
     const [show, setShow] = useState(showAxisTitle);
 
     const onToggleAxisTitle = useMemoizedFn((show: boolean) => {
-      console.log(show);
       setShow(show);
       onChangeShowAxisTitle(show);
 
