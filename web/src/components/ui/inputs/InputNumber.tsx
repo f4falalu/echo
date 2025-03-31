@@ -1,6 +1,7 @@
 import React from 'react';
 import { Input, InputProps } from './Input';
 import { useMemoizedFn } from '@/hooks';
+import { cn } from '@/lib/classMerge';
 
 export interface InputNumberProps extends Omit<InputProps, 'type' | 'value' | 'onChange'> {
   value?: number;
@@ -11,7 +12,7 @@ export interface InputNumberProps extends Omit<InputProps, 'type' | 'value' | 'o
 }
 
 export const InputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
-  ({ value, onChange, min, max, step = 1, ...props }, ref) => {
+  ({ value, onChange, min, max, step = 1, className, ...props }, ref) => {
     const handleChange = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = parseFloat(e.target.value);
 
@@ -42,6 +43,7 @@ export const InputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
         max={max}
         step={step}
         ref={ref}
+        className={cn('pr-0.5', className)}
         {...props}
       />
     );
