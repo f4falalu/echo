@@ -180,7 +180,12 @@ export const BusterChartJSComponent = React.memo(
         return [];
       }, [selectedChartType]);
 
-      console.log(options, data);
+      console.log(data.datasets);
+
+      console.log(
+        'CHECK',
+        data.datasets.reduce((acc, dataset) => acc + dataset.data.length, 0)
+      );
 
       return (
         <Chart

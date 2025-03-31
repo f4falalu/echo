@@ -7,7 +7,7 @@ const MAX_ITEMS_IN_TOOLTIP = 12;
 
 export const BusterChartTooltip: React.FC<{
   tooltipItems: ITooltipItem[];
-  title: string | undefined;
+  title: string | { title: string; color: string | undefined; seriesType: string } | undefined;
 }> = ({ tooltipItems, title }) => {
   const shownItems = tooltipItems.slice(0, MAX_ITEMS_IN_TOOLTIP);
   const hiddenItems = tooltipItems.slice(MAX_ITEMS_IN_TOOLTIP);

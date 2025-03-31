@@ -15,20 +15,11 @@ export const TooltipItem: React.FC<ITooltipItem> = ({
 
   return (
     <>
-      {formattedLabel && (
-        <>
-          <div className="flex items-center space-x-1.5 overflow-hidden pr-3 pl-3">
-            <LegendItemDot color={color} type={seriesType as ChartType} inactive={false} />
-            <span
-              className={cn('truncate text-base', {
-                'text-foreground font-medium': isScatter
-              })}>
-              {formattedLabel}
-            </span>
-          </div>
-
-          {isScatter && <div className="bg-border h-[0.5px] w-full" />}
-        </>
+      {!isScatter && (
+        <div className="flex items-center space-x-1.5 overflow-hidden pr-3 pl-3">
+          <LegendItemDot color={color} type={seriesType as ChartType} inactive={false} />
+          <span className={cn('truncate text-base')}>{formattedLabel}</span>
+        </div>
       )}
 
       <TooltipItemValue values={values} usePercentage={usePercentage} isScatter={isScatter} />

@@ -34,23 +34,6 @@ export const BusterChartJSTooltip: React.FC<{
   const datasets = chart.data.datasets;
   const dataPoints = dataPointsProp.filter((item) => !item.dataset.isTrendline);
 
-  const title = useMemo(() => {
-    if (isScatter) return undefined;
-
-    const dataIndex = dataPoints[0].dataIndex;
-    const value = chart.data.labels?.[dataIndex!];
-    if (typeof value === 'string') return String(value);
-
-    //THIS IS ONLY FOR LINE CHART WITH A TIME AXIS
-    const datasetIndex = dataPoints[0].datasetIndex;
-    const dataset = datasets[datasetIndex!];
-    const xAxisKeys = (dataset as any).xAxisKeys as string[]; //hacky... TODO look into this
-    const key = xAxisKeys.at(0)!;
-    const columnLabelFormat = columnLabelFormats[key!];
-
-    return formatLabel(value as number | Date, columnLabelFormat);
-  }, [dataPoints, isPie, isScatter, chart]);
-
   const tooltipItems: ITooltipItem[] = useMemo(() => {
     if (isBar || isLine || isComboChart) {
       const hasMultipleShownDatasets =
@@ -73,6 +56,7 @@ export const BusterChartJSTooltip: React.FC<{
     }
 
     if (isScatter) {
+      console.log({ datasets, dataPoints });
       return scatterTooltipHelper(
         datasets,
         dataPoints,
@@ -84,6 +68,30 @@ export const BusterChartJSTooltip: React.FC<{
 
     return [];
   }, []);
+
+  const title = useMemo(() => {
+    if (isScatter) {
+      if (!hasCategoryAxis) return undefined;
+      return {
+        title: tooltipItems[0].formattedLabel,
+        color: tooltipItems[0].color,
+        seriesType: 'scatter'
+      };
+    }
+
+    const dataIndex = dataPoints[0].dataIndex;
+    const value = chart.data.labels?.[dataIndex!];
+    if (typeof value === 'string') return String(value);
+
+    //THIS IS ONLY FOR LINE CHART WITH A TIME AXIS
+    const datasetIndex = dataPoints[0].datasetIndex;
+    const dataset = datasets[datasetIndex!];
+    const xAxisKeys = (dataset as any).xAxisKeys as string[]; //hacky... TODO look into this
+    const key = xAxisKeys.at(0)!;
+    const columnLabelFormat = columnLabelFormats[key!];
+
+    return formatLabel(value as number | Date, columnLabelFormat);
+  }, [dataPoints, isPie, isScatter, chart, tooltipItems[0], hasCategoryAxis]);
 
   //use mount will not work here because the tooltip is passed to a renderString function
   const busterTooltipNode = document?.querySelector('#buster-chartjs-tooltip')!;

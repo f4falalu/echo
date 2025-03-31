@@ -16,6 +16,8 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
   const { barGroupType, lineGroupType, columnLabelFormats, selectedChartType, selectedAxis } =
     props;
 
+  console.log('original data', dataProp);
+
   const {
     datasetOptions,
     dataTrendlineOptions,

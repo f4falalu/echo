@@ -18,6 +18,7 @@ import {
 } from '../../../BusterChartLegend';
 import { getLegendItems } from './helper';
 import { DatasetOption } from '../../../chartHooks';
+import { ANIMATION_THRESHOLD } from '../../../config';
 
 interface UseBusterChartJSLegendProps {
   chartRef: React.RefObject<ChartJSOrUndefined | null>;
@@ -78,33 +79,34 @@ export const useBusterChartJSLegend = ({
   const calculateLegendItems = useMemoizedFn(() => {
     if (showLegend === false) return;
 
-    const items = getLegendItems({
-      chartRef,
-      colors,
-      inactiveDatasets,
-      selectedChartType,
-      allYAxisColumnNames,
-      columnLabelFormats,
-      categoryAxisColumnNames,
-      columnSettings
-    });
-
-    if (!isStackPercentage && showLegendHeadline) {
-      addLegendHeadlines(
-        items,
-        datasetOptions,
-        showLegendHeadline,
-        columnMetadata,
+    // Defer the actual calculation to the next animation frame
+    requestAnimationFrame(() => {
+      const items = getLegendItems({
+        chartRef,
+        colors,
+        inactiveDatasets,
+        selectedChartType,
+        allYAxisColumnNames,
         columnLabelFormats,
-        selectedChartType
-      );
-    }
+        categoryAxisColumnNames,
+        columnSettings
+      });
 
-    setLegendItems(items);
-  });
+      if (!isStackPercentage && showLegendHeadline) {
+        addLegendHeadlines(
+          items,
+          datasetOptions,
+          showLegendHeadline,
+          columnMetadata,
+          columnLabelFormats,
+          selectedChartType
+        );
+      }
 
-  const { run: calculateLegendItemsDebounced } = useDebounceFn(calculateLegendItems, {
-    wait: 125
+      startTransition(() => {
+        setLegendItems(items);
+      });
+    });
   });
 
   const onHoverItem = useMemoizedFn((item: BusterChartLegendItem, isHover: boolean) => {
@@ -140,39 +142,57 @@ export const useBusterChartJSLegend = ({
     chartjs.update();
   });
 
+  const [isUpdatingChart, setIsUpdatingChart] = React.useState(false);
+
   const onLegendItemClick = useMemoizedFn((item: BusterChartLegendItem) => {
     const chartjs = chartRef.current;
+
     if (!chartjs) return;
 
     const data = chartjs.data;
+    const hasAnimation = chartjs.options.animation !== false;
+    const numberOfPoints = data.datasets.reduce((acc, dataset) => acc + dataset.data.length, 0);
+    const isLargeChart = numberOfPoints > ANIMATION_THRESHOLD;
+    const timeoutDuration = isLargeChart && hasAnimation ? 125 : 0;
 
+    console.log(data);
+    console.log(numberOfPoints);
+
+    // Set updating state
+    setIsUpdatingChart(true);
+
+    // Update dataset visibility state
     setInactiveDatasets((prev) => ({
       ...prev,
       [item.id]: prev[item.id] ? !prev[item.id] : true
     }));
 
-    console.log('hit1', performance.now());
-
-    if (selectedChartType === 'pie') {
-      const index = data.labels?.indexOf(item.id) || 0;
-      // Pie and doughnut charts only have a single dataset and visibility is per item
-      chartjs.toggleDataVisibility(index);
-    } else if (selectedChartType) {
-      const index = data.datasets?.findIndex((dataset) => dataset.label === item.id);
-      if (index !== -1) {
-        chartjs.setDatasetVisibility(index, !chartjs.isDatasetVisible(index));
+    // Defer visual updates to prevent UI blocking
+    requestAnimationFrame(() => {
+      // This is a synchronous, lightweight operation that toggles visibility flags
+      if (selectedChartType === 'pie') {
+        const index = data.labels?.indexOf(item.id) || 0;
+        chartjs.toggleDataVisibility(index);
+      } else if (selectedChartType) {
+        const index = data.datasets?.findIndex((dataset) => dataset.label === item.id);
+        if (index !== -1) {
+          chartjs.setDatasetVisibility(index, !chartjs.isDatasetVisible(index));
+        }
       }
-    }
 
-    console.log('hit2', performance.now());
+      // Schedule the heavy update operation with minimal delay to allow UI to remain responsive
+      setTimeout(() => {
+        // Use React's startTransition to mark this as a non-urgent update
+        startTransition(() => {
+          chartjs.update('none'); // Use 'none' for animation mode to improve performance
 
-    //put this in a timeout and transition to avoid blocking the main thread
-    setTimeout(() => {
-      startTransition(() => {
-        chartjs.update();
-        console.log('hit3', performance.now());
-      });
-    }, 125);
+          // Set a timeout to turn off loading state after the update is complete
+          requestAnimationFrame(() => {
+            setIsUpdatingChart(false);
+          });
+        });
+      }, timeoutDuration);
+    });
   });
 
   const onLegendItemFocus = useMemoizedFn((item: BusterChartLegendItem) => {
@@ -234,6 +254,7 @@ export const useBusterChartJSLegend = ({
     onLegendItemClick,
     onLegendItemFocus: selectedChartType === 'pie' ? undefined : onLegendItemFocus,
     showLegend,
-    inactiveDatasets
+    inactiveDatasets,
+    isUpdatingChart
   };
 };

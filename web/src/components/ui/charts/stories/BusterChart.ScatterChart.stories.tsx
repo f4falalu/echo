@@ -21,7 +21,7 @@ type Story = StoryObj<typeof BusterChart>;
 export const Default: Story = {
   args: {
     selectedChartType: ChartType.Scatter,
-    data: generateScatterChartData(),
+    data: generateScatterChartData(50),
     scatterAxis: {
       x: ['x'],
       y: ['y'],
@@ -57,6 +57,18 @@ export const Default: Story = {
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof ScatterChartData, IColumnLabelFormat>,
     className: 'w-[400px] h-[400px]'
+  }
+};
+
+export const WithoutCategory: Story = {
+  args: {
+    ...Default.args,
+    scatterAxis: {
+      x: ['x'],
+      y: ['y'],
+      size: [],
+      category: []
+    }
   }
 };
 

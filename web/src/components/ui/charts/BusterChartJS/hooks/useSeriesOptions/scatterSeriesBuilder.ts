@@ -44,6 +44,7 @@ export const scatterSeriesBuilder_data = ({
         y: item[yIndex] as number,
         originalR: sizeKeyIndex ? (item[sizeKeyIndex.index] as number) : undefined
       }))
+      //  .filter((item) => item.y !== null)
     };
   });
 };
