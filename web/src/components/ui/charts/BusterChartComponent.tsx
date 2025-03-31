@@ -35,9 +35,6 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     trendlines
   });
 
-  console.log('DATASET OPTIONS', datasetOptions);
-  console.log('TOOLTIP KEYS', tooltipKeys);
-
   const chartProps: BusterChartComponentProps = useMemo(
     () => ({
       ...props,

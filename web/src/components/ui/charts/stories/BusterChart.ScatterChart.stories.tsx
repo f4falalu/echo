@@ -96,8 +96,6 @@ export const LargeDataset: Story = {
       onSetData(value);
     };
 
-    console.log(data);
-
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-4">
@@ -105,7 +103,7 @@ export const LargeDataset: Story = {
           <div className="w-64">
             <Slider
               min={0}
-              max={5000}
+              max={50000}
               step={50}
               defaultValue={[points]}
               onValueChange={(value) => onChangeValue(value[0])}
@@ -113,7 +111,7 @@ export const LargeDataset: Story = {
           </div>
           <span className="w-16 text-sm">{points}</span>
         </div>
-        <div className="h-[400px] w-[400px]">
+        <div className="h-[400px] w-[400px]" key={points}>
           <BusterChart {...args} data={data} />
         </div>
       </div>

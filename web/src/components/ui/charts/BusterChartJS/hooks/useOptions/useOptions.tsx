@@ -174,7 +174,7 @@ export const useOptions = ({
   }, [datasetOptions]);
 
   const isAnimationEnabled = useMemo(() => {
-    return animate && numberOfSources >= ANIMATION_THRESHOLD;
+    return animate && numberOfSources <= ANIMATION_THRESHOLD;
   }, [animate, numberOfSources]);
 
   const disableTooltip = useMemo(() => {
@@ -198,7 +198,6 @@ export const useOptions = ({
 
   const options: ChartProps<ChartJSChartType>['options'] = useMemo(() => {
     const chartAnnotations = chartPlugins?.annotation?.annotations;
-
     const isLargeDataset = datasetOptions[0].source.length > LINE_DECIMATION_THRESHOLD;
 
     return {
@@ -236,7 +235,8 @@ export const useOptions = ({
     isHorizontalBar,
     goalLinesAnnotations,
     trendlineAnnotations,
-    tooltipOptions
+    tooltipOptions,
+    isAnimationEnabled
   ]);
 
   return options;

@@ -23,9 +23,7 @@ export const scatterTooltipHelper = (
     hasMultipleMeasures,
     hasCategoryAxis
   );
-  console.log('DATASETS', datasets);
   const tooltipDatasets = datasets.filter((dataset) => dataset.hidden && !dataset.isTrendline);
-  console.log('TOOLTIP DATASETS', tooltipDatasets);
   const dataPointDataIndex = dataPoint.dataIndex;
 
   let relevantDatasets: ChartDataset[] = [];
@@ -58,8 +56,6 @@ export const scatterTooltipHelper = (
       formattedPercentage: undefined
     };
   });
-
-  console.log(relevantDatasets);
 
   return [
     {
