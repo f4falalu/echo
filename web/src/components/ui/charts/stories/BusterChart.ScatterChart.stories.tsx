@@ -4,6 +4,10 @@ import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
 import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { generateScatterChartData } from '../../../../mocks/chart/chartMocks';
 import { sharedMeta } from './BusterChartShared';
+import { BusterChartProps } from '@/api/asset_interfaces/metric';
+import React from 'react';
+import { Slider } from '@/components/ui/slider';
+import { useDebounceFn } from '@/hooks';
 
 type ScatterChartData = ReturnType<typeof generateScatterChartData>;
 
@@ -55,7 +59,46 @@ export const Default: Story = {
 export const LargeDataset: Story = {
   args: {
     ...Default.args,
-    data: generateScatterChartData(3000),
-    className: 'w-[400px] h-[400px]'
+    data: generateScatterChartData(3000)
+  },
+  render: (args) => {
+    const [isPending, startTransition] = React.useTransition();
+    const [points, setPoints] = React.useState(200);
+    const [data, setData] = React.useState(generateScatterChartData(points));
+
+    const { run: onSetData } = useDebounceFn(
+      (value: number) => {
+        startTransition(() => {
+          setData(generateScatterChartData(value));
+        });
+      },
+      { wait: 700 }
+    );
+
+    const onChangeValue = (value: number) => {
+      setPoints(value);
+      onSetData(value);
+    };
+
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-4">
+          <span className="text-sm">Number of points:</span>
+          <div className="w-64">
+            <Slider
+              min={0}
+              max={5000}
+              step={50}
+              defaultValue={[points]}
+              onValueChange={(value) => onChangeValue(value[0])}
+            />
+          </div>
+          <span className="w-16 text-sm">{points}</span>
+        </div>
+        <div className="h-[400px] w-[400px]">
+          <BusterChart {...args} data={data} />
+        </div>
+      </div>
+    );
   }
 };
