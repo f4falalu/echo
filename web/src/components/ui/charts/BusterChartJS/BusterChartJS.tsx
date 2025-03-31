@@ -8,7 +8,7 @@ import { BusterChartJSLegendWrapper } from './BusterChartJSLegendWrapper';
 import { ChartJSOrUndefined } from './core/types';
 import { useMemoizedFn } from '@/hooks';
 import { BusterChartJSComponent } from './BusterChartJSComponent';
-import { BusterChartComponentProps } from '../interfaces/chartComponentInterfaces';
+import type { BusterChartComponentProps } from '../interfaces';
 
 export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
   selectedChartType,

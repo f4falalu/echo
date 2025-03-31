@@ -16,6 +16,12 @@ import { DatasetOption } from '../../../chartHooks';
 import { useY2Axis } from './useY2Axis';
 import { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import type { BusterChartTypeComponentProps } from '../../../interfaces';
+import {
+  ANIMATION_DURATION,
+  ANIMATION_THRESHOLD,
+  LINE_DECIMATION_SAMPLES,
+  LINE_DECIMATION_THRESHOLD
+} from '../../../config';
 
 interface UseOptionsProps {
   colors: string[];
@@ -160,6 +166,13 @@ export const useOptions = ({
 
   const interaction = useInteractions({ selectedChartType, barLayout });
 
+  const isAnimationEnabled = useMemo(() => {
+    const numberOfSources = datasetOptions.reduce((acc, curr) => {
+      return acc + curr.source.length;
+    }, 0);
+    return animate && numberOfSources <= ANIMATION_THRESHOLD;
+  }, [animate, datasetOptions]);
+
   const tooltipOptions = useTooltipOptions({
     columnLabelFormats,
     selectedChartType,
@@ -171,18 +184,18 @@ export const useOptions = ({
     columnSettings,
     datasetOptions,
     hasMismatchedTooltipsAndMeasures,
-    disableTooltip,
+    disableTooltip: disableTooltip || !isAnimationEnabled,
     colors
   });
 
   const options: ChartProps<ChartJSChartType>['options'] = useMemo(() => {
     const chartAnnotations = chartPlugins?.annotation?.annotations;
 
-    const isLargeDataset = datasetOptions[0].source.length > 125;
+    const isLargeDataset = datasetOptions[0].source.length > LINE_DECIMATION_THRESHOLD;
 
     return {
       indexAxis: isHorizontalBar ? 'y' : 'x',
-      animation: animate && !isLargeDataset ? { duration: 1000 } : { duration: 0 },
+      animation: isAnimationEnabled ? { duration: ANIMATION_DURATION } : false,
       backgroundColor: colors,
       borderColor: colors,
       scales,
@@ -196,11 +209,12 @@ export const useOptions = ({
         },
         decimation: {
           enabled: isLargeDataset,
-          algorithm: 'min-max'
+          algorithm: 'lttb',
+          samples: LINE_DECIMATION_SAMPLES
         }
       },
       ...chartOptions
-    };
+    } satisfies ChartProps<ChartJSChartType>['options'];
   }, [
     animate,
     colors,

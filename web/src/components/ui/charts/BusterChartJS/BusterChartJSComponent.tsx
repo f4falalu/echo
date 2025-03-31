@@ -180,17 +180,17 @@ export const BusterChartJSComponent = React.memo(
         return [];
       }, [selectedChartType]);
 
+      console.log(options, data);
+
       return (
-        <React.Fragment>
-          <Chart
-            className={className}
-            ref={ref}
-            options={options}
-            data={data}
-            type={type}
-            plugins={chartSpecificPlugins}
-          />
-        </React.Fragment>
+        <Chart
+          className={className}
+          ref={ref}
+          options={options}
+          data={data}
+          type={type}
+          plugins={chartSpecificPlugins}
+        />
       );
     }
   )

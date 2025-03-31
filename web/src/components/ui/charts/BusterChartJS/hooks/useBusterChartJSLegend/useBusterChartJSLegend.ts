@@ -75,44 +75,42 @@ export const useBusterChartJSLegend = ({
 
   const categoryAxisColumnNames = (selectedAxis as ComboChartAxis).category as string[];
 
-  const { run: calculateLegendItems } = useDebounceFn(
-    () => {
-      if (showLegend === false) return;
+  const calculateLegendItems = useMemoizedFn(() => {
+    if (showLegend === false) return;
 
-      const items = getLegendItems({
-        chartRef,
-        colors,
-        inactiveDatasets,
-        selectedChartType,
-        allYAxisColumnNames,
+    const items = getLegendItems({
+      chartRef,
+      colors,
+      inactiveDatasets,
+      selectedChartType,
+      allYAxisColumnNames,
+      columnLabelFormats,
+      categoryAxisColumnNames,
+      columnSettings
+    });
+
+    if (!isStackPercentage && showLegendHeadline) {
+      addLegendHeadlines(
+        items,
+        datasetOptions,
+        showLegendHeadline,
+        columnMetadata,
         columnLabelFormats,
-        categoryAxisColumnNames,
-        columnSettings
-      });
-
-      if (!isStackPercentage && showLegendHeadline) {
-        addLegendHeadlines(
-          items,
-          datasetOptions,
-          showLegendHeadline,
-          columnMetadata,
-          columnLabelFormats,
-          selectedChartType
-        );
-      }
-
-      startTransition(() => {
-        setLegendItems(items);
-      });
-    },
-    {
-      wait: 125
+        selectedChartType
+      );
     }
-  );
+
+    setLegendItems(items);
+  });
+
+  const { run: calculateLegendItemsDebounced } = useDebounceFn(calculateLegendItems, {
+    wait: 125
+  });
 
   const onHoverItem = useMemoizedFn((item: BusterChartLegendItem, isHover: boolean) => {
     const chartjs = chartRef.current;
     if (!chartjs) return;
+    if (chartjs.options.animation === false) return;
 
     const data = chartjs.data;
     const hasMultipleDatasets = data.datasets?.length > 1;
@@ -148,6 +146,13 @@ export const useBusterChartJSLegend = ({
 
     const data = chartjs.data;
 
+    setInactiveDatasets((prev) => ({
+      ...prev,
+      [item.id]: prev[item.id] ? !prev[item.id] : true
+    }));
+
+    console.log('hit1', performance.now());
+
     if (selectedChartType === 'pie') {
       const index = data.labels?.indexOf(item.id) || 0;
       // Pie and doughnut charts only have a single dataset and visibility is per item
@@ -158,12 +163,16 @@ export const useBusterChartJSLegend = ({
         chartjs.setDatasetVisibility(index, !chartjs.isDatasetVisible(index));
       }
     }
-    chartjs.update();
 
-    setInactiveDatasets((prev) => ({
-      ...prev,
-      [item.id]: prev[item.id] ? !prev[item.id] : true
-    }));
+    console.log('hit2', performance.now());
+
+    //put this in a timeout and transition to avoid blocking the main thread
+    setTimeout(() => {
+      startTransition(() => {
+        chartjs.update();
+        console.log('hit3', performance.now());
+      });
+    }, 125);
   });
 
   const onLegendItemFocus = useMemoizedFn((item: BusterChartLegendItem) => {
@@ -200,15 +209,17 @@ export const useBusterChartJSLegend = ({
     chartjs.update();
   });
 
+  //immediate items
   useEffect(() => {
+    console.log('should run', performance.now());
     calculateLegendItems();
   }, [
-    colors,
-    isStackPercentage,
-    showLegend,
-    selectedChartType,
     chartMounted,
+    selectedChartType,
+    isStackPercentage,
     inactiveDatasets,
+    showLegend,
+    colors,
     showLegendHeadline,
     columnLabelFormats,
     allYAxisColumnNames,

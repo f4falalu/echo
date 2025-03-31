@@ -6,8 +6,14 @@ import {
 import { createDimension } from './datasetHelpers_BarLinePie';
 import { appendToKeyValueChain } from './groupingHelpers';
 import { DatasetOption } from './interfaces';
+import { randomSampling } from '@/lib/downsample';
+import { DOWNSIZE_SAMPLE_THRESHOLD } from '../../config';
 
 type DataItem = NonNullable<BusterChartProps['data']>[number];
+
+export const downsampleScatterData = (data: NonNullable<BusterChartProps['data']>) => {
+  return randomSampling(data, DOWNSIZE_SAMPLE_THRESHOLD);
+};
 
 export const mapScatterData = (
   sortedData: NonNullable<BusterChartProps['data']>,

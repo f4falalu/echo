@@ -23,6 +23,7 @@ import {
   sortLineBarData
 } from './datasetHelpers_BarLinePie';
 import {
+  downsampleScatterData,
   getScatterDatasetOptions,
   getScatterDimensions,
   getScatterTooltipKeys,
@@ -110,15 +111,15 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     return uniq([...yAxisFields, ...y2AxisFields, ...tooltipFields]);
   }, [yAxisFieldsString, y2AxisFieldsString, tooltipFieldsString]);
 
-  const sortedData = useMemo(() => {
-    if (isScatter) return data;
+  const sortedAndLimitedData = useMemo(() => {
+    if (isScatter) return downsampleScatterData(data);
     return sortLineBarData(data, xFieldSorts, xFields);
   }, [data, xFieldSortsString, xFieldsString, isScatter]);
 
   const { dataMap, xValuesSet, categoriesSet } = useMemo(() => {
-    if (isScatter) return mapScatterData(sortedData, categoryFields);
-    return mapLineBarPieData(sortedData, xFields, categoryFields, measureFields);
-  }, [sortedData, xFieldsString, categoryFieldsString, measureFields, isScatter]);
+    if (isScatter) return mapScatterData(sortedAndLimitedData, categoryFields);
+    return mapLineBarPieData(sortedAndLimitedData, xFields, categoryFields, measureFields);
+  }, [sortedAndLimitedData, xFieldsString, categoryFieldsString, measureFields, isScatter]);
 
   const measureFieldsReplaceDataWithKey = useMemo(() => {
     return measureFields

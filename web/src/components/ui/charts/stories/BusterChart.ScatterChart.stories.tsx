@@ -4,7 +4,6 @@ import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
 import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { generateScatterChartData } from '../../../../mocks/chart/chartMocks';
 import { sharedMeta } from './BusterChartShared';
-import { BusterChartProps } from '@/api/asset_interfaces/metric';
 import React from 'react';
 import { Slider } from '@/components/ui/slider';
 import { useDebounceFn } from '@/hooks';
@@ -26,8 +25,13 @@ export const Default: Story = {
     scatterAxis: {
       x: ['x'],
       y: ['y'],
-      size: ['size'],
+      size: [],
       category: ['category']
+    },
+    barAndLineAxis: {
+      x: ['x'],
+      y: ['y'],
+      category: []
     },
     columnLabelFormats: {
       x: {
