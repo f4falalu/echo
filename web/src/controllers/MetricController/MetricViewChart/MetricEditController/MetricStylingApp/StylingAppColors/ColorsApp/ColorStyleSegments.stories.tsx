@@ -10,7 +10,7 @@ const meta: Meta<typeof ColorStyleSegments> = {
   },
   //tags: ['autodocs'],
   argTypes: {
-    initialSelectedSegment: {
+    selectedSegment: {
       control: 'select',
       options: Object.values(ColorAppSegments),
       description: 'The initially selected segment'
@@ -34,12 +34,12 @@ type Story = StoryObj<typeof ColorStyleSegments>;
 
 export const Default: Story = {
   args: {
-    initialSelectedSegment: ColorAppSegments.Colorful
+    selectedSegment: ColorAppSegments.Colorful
   }
 };
 
 export const MonochromeSelected: Story = {
   args: {
-    initialSelectedSegment: ColorAppSegments.Monochrome
+    selectedSegment: ColorAppSegments.Monochrome
   }
 };
