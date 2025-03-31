@@ -8,6 +8,7 @@ import { ColorsApp } from './ColorsApp';
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import { useMemoizedFn, useUnmount } from '@/hooks';
 import { useUpdateMetricChart } from '@/context/Metrics';
+import { cn } from '@/lib/classMerge';
 
 export const StylingAppColors: React.FC<{
   className: string;
@@ -27,7 +28,7 @@ export const StylingAppColors: React.FC<{
         <SelectColorApp selectedTab={selectedTab} onChange={setSelectedTab} />
       </div>
 
-      <div className={className}>
+      <div className={cn(className, 'mb-12')}>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={selectedTab}

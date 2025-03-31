@@ -177,7 +177,7 @@ export const MetricStylingApp: React.FC<{
         )}
 
         {segment === MetricStylingAppSegments.COLORS && (
-          <StylingAppColors className="mb-12 px-4" colors={colors} />
+          <StylingAppColors className="px-4" colors={colors} />
         )}
       </ScrollArea>
     </div>

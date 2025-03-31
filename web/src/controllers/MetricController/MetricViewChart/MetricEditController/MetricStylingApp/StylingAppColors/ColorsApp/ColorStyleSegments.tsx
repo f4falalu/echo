@@ -28,14 +28,12 @@ const options: SegmentedItem<ColorAppSegments>[] = [
 
 export const ColorStyleSegments: React.FC<{
   setSelectedSegment: (value: ColorAppSegments) => void;
-  initialSelectedSegment: ColorAppSegments;
-}> = React.memo(({ initialSelectedSegment, setSelectedSegment }) => {
+  selectedSegment: ColorAppSegments;
+}> = React.memo(({ selectedSegment, setSelectedSegment }) => {
   const onChange = useMemoizedFn((value: SegmentedItem<ColorAppSegments>) => {
     setSelectedSegment(value.value);
   });
 
-  return (
-    <AppSegmented block options={options} value={initialSelectedSegment} onChange={onChange} />
-  );
+  return <AppSegmented block options={options} value={selectedSegment} onChange={onChange} />;
 });
 ColorStyleSegments.displayName = 'PaletteSegments';

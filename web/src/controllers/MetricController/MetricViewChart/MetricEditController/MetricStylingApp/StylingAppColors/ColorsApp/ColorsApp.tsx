@@ -29,7 +29,7 @@ export const ColorsApp: React.FC<{
   return (
     <div className="flex flex-col space-y-2">
       <ColorStyleSegments
-        initialSelectedSegment={initialSelectedSegment}
+        selectedSegment={selectedSegment}
         setSelectedSegment={setSelectedSegment}
       />
 
