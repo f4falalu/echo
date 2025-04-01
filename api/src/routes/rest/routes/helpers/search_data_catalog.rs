@@ -68,14 +68,14 @@ struct FilteredDataset {
 }
 
 const LLM_FILTER_PROMPT: &str = r#"
-You are a dataset relevance evaluator. Your task is to determine which datasets might contain information relevant to the user's query based on their structure and metadata.
+You are a dataset relevance evaluator. Your task is to determine which datasets might contain information relevant to the user's query based on their structure and metadata. Be inclusive in your evaluation - if there's a reasonable chance the dataset could be useful, include it.
 
 USER REQUEST: {user_request}
 SEARCH QUERY: {query}
 
 Below is a list of datasets that were identified as potentially relevant by an initial semantic ranking system.
-For each dataset, review its description in the YAML format and determine if its structure is suitable for the user's query.
-ONLY include datasets that you determine are relevant in your response.
+For each dataset, review its description in the YAML format and determine if its structure could potentially be suitable for the user's query.
+Include datasets that have even a reasonable possibility of containing relevant information.
 
 DATASETS:
 {datasets_json}
@@ -86,30 +86,33 @@ Return a JSON response with the following structure:
   "results": [
     {
       "id": "dataset-uuid-here",
-      "reason": "Brief explanation of why this dataset's structure is relevant"
+      "reason": "Brief explanation of why this dataset's structure might be relevant"
     },
-    // ... more relevant datasets only
+    // ... more potentially relevant datasets
   ]
 }
 ```
 
 IMPORTANT GUIDELINES:
-1. DO NOT make assumptions about what specific values exist in the datasets
-2. Focus EXCLUSIVELY on identifying datasets with STRUCTURES that could reasonably contain the type of information requested
-3. For example, if a user asks about "red bull sales", consider datasets about products, sales, inventory, etc. as potentially relevant - even if "red bull" is not explicitly mentioned
-4. Evaluate based on whether the dataset's schema, fields, or description indicates it COULD contain the relevant information
-5. Look for structural compatibility rather than exact matches in the content
-6. ONLY include datasets you find relevant in your response - omit any that aren't relevant
+1. Be inclusive - if there's a reasonable possibility the dataset could be useful, include it
+2. Consider both direct and indirect relationships to the query
+3. For example, if a user asks about "red bull sales", consider datasets about:
+   - Direct relevance: products, sales, inventory
+   - Indirect relevance: marketing campaigns, customer demographics, store locations
+4. Evaluate based on whether the dataset's schema, fields, or description MIGHT contain or relate to the relevant information
+5. Include datasets that could provide contextual or supporting information
+6. When in doubt about relevance, lean towards including the dataset
 7. Ensure the "id" field exactly matches the dataset's UUID
-8. Use both the USER REQUEST and SEARCH QUERY to understand the user's information needs - the USER REQUEST provides broader context while the SEARCH QUERY represents specific search intent
-9. Restrict your evaluation strictly to the defined elements in the dataset metadata:
+8. Use both the USER REQUEST and SEARCH QUERY to understand the user's information needs broadly
+9. Consider these elements in the dataset metadata:
    - Column names and their data types
    - Entity relationships
    - Predefined metrics
    - Table schemas
    - Dimension hierarchies
-10. Do NOT make assumptions about what data might exist beyond what is explicitly defined in the metadata
-11. A dataset is relevant ONLY if its documented structure supports answering the query, not because you assume it might contain certain data
+   - Related or connected data structures
+10. While you shouldn't assume specific data exists, you can be optimistic about the potential usefulness of related data structures
+11. A dataset is relevant if its structure could reasonably support or contribute to answering the query, either directly or indirectly
 "#;
 
 pub fn router() -> Router {
@@ -238,7 +241,7 @@ async fn rerank_datasets(
         query,
         documents,
         model: ReRankModel::EnglishV3,
-        top_n: Some(25), // Get top 20 results per query
+        top_n: Some(30),
         ..Default::default()
     };
 
