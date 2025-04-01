@@ -12,19 +12,12 @@ pub async fn databricks_query(
     query: String,
     limit: Option<i64>,
 ) -> Result<Vec<IndexMap<std::string::String, DataType>>, Error> {
-    // Apply the limit directly at the database level
+    // Get the limit value, defaulting to 5000 if not specified
     let default_limit = 5000;
-    let limit_value = limit.unwrap_or(default_limit);
+    let limit_value = limit.unwrap_or(default_limit) as usize;
     
-    // Append LIMIT to the query if it doesn't already contain a LIMIT clause
-    let sql_with_limit = if !query.to_lowercase().contains("limit") {
-        format!("{} LIMIT {}", query, limit_value)
-    } else {
-        query
-    };
-    
-    // Execute the query with the limit
-    let results = match databricks_client.query(sql_with_limit).await {
+    // Execute the query without appending a LIMIT
+    let results = match databricks_client.query(query).await {
         Ok(results) => results,
         Err(e) => {
             tracing::error!("Error executing Databricks query: {}", e);
@@ -33,7 +26,7 @@ pub async fn databricks_query(
     };
 
     // Create vector with estimated capacity
-    let mut result: Vec<IndexMap<String, DataType>> = Vec::with_capacity(limit_value as usize);
+    let mut result: Vec<IndexMap<String, DataType>> = Vec::with_capacity(limit_value);
 
     // Get rows from results
     let rows = match results.result.data_array {
@@ -45,6 +38,11 @@ pub async fn databricks_query(
 
     // Process rows with optimized type conversions
     for row in rows {
+        // Stop processing if we've reached the limit
+        if result.len() >= limit_value {
+            break;
+        }
+        
         let mut row_map: IndexMap<String, DataType> = IndexMap::with_capacity(columns.len());
         
         for (i, column) in columns.iter().enumerate() {

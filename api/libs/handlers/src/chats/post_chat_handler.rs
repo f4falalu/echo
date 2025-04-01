@@ -2033,20 +2033,17 @@ async fn initialize_chat(
 ) -> Result<(Uuid, Uuid, ChatWithMessages)> {
     let message_id = request.message_id.unwrap_or_else(Uuid::new_v4);
 
-    // Get a default title for chats with optional prompt
-    let default_title = match request.prompt {
-        Some(ref prompt) => prompt.clone(),
-        None => {
-            // Try to derive title from asset if available
-            let (asset_id, asset_type) = normalize_asset_fields(request);
-            if let (Some(asset_id), Some(asset_type)) = (asset_id, asset_type) {
-                match fetch_asset_details(asset_id, asset_type).await {
-                    Ok(details) => format!("View {}", details.name),
-                    Err(_) => "New Chat".to_string(),
-                }
-            } else {
-                "New Chat".to_string()
+    // Get a default title for chats
+    let default_title = {
+        // Try to derive title from asset if available
+        let (asset_id, asset_type) = normalize_asset_fields(request);
+        if let (Some(asset_id), Some(asset_type)) = (asset_id, asset_type) {
+            match fetch_asset_details(asset_id, asset_type).await {
+                Ok(details) => format!("View {}", details.name),
+                Err(_) => "New Chat".to_string(),
             }
+        } else {
+            "".to_string()
         }
     };
 
