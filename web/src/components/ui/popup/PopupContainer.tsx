@@ -9,17 +9,12 @@ export const PopupContainer: React.FC<{
     <AnimatePresence mode="wait">
       {show && (
         <motion.div
-          className="absolute flex w-full justify-center"
+          className="absolute bottom-10 z-50 flex w-full justify-center"
           initial={{ opacity: 0, y: -3 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -3 }}
-          transition={{ duration: 0.12 }}
-          style={{
-            bottom: 28
-          }}>
-          <div className="bg-background rounded-[6px] p-[4px] shadow">
-            {show && <>{children}</>}
-          </div>
+          transition={{ duration: 0.12 }}>
+          <div className="bg-background rounded px-2 py-1.5 shadow">{show && <>{children}</>}</div>
         </motion.div>
       )}
     </AnimatePresence>

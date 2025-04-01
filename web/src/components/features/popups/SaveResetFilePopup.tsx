@@ -32,7 +32,9 @@ const SplitterContent: React.FC<{
       <PopupSplitter />
 
       <div className="flex items-center space-x-2">
-        <Button onClick={onReset}>Reset</Button>
+        <Button variant={'default'} onClick={onReset}>
+          Reset
+        </Button>
         <Button
           className="flex items-center"
           variant="black"
