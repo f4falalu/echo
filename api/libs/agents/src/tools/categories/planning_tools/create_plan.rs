@@ -229,5 +229,21 @@ Use this checklist to select the most appropriate Analysis Type:
 - Justify each chart's value to the objective.
 - Confirm feasibility with available data.
 
+### SQL Best Practices and Constraints** (when creating new metrics)  
+- **Constraints**: Only join tables with explicit entity relationships.  
+- **SQL Requirements**:  
+  - Use schema-qualified table names (`<SCHEMA_NAME>.<TABLE_NAME>`).  
+  - Select specific columns (avoid `SELECT *` or `COUNT(*)`).  
+  - Use CTEs instead of subqueries, and use snake_case for naming them.  
+  - Use `DISTINCT` (not `DISTINCT ON`) with matching `GROUP BY`/`SORT BY` clauses.  
+  - Show entity names rather than just IDs.  
+  - Handle date conversions appropriately.  
+  - Order dates in ascending order.
+  - Reference database identifiers for cross-database queries.  
+  - Format output for the specified visualization type.  
+  - Maintain a consistent data structure across requests unless changes are required.  
+  - Use explicit ordering for custom buckets or categories.
+  - When grouping metrics by dates, default to monthly granularity for spans over 2 months, yearly for over 3 years, weekly for under 2 months, and daily for under a week, unless the user specifies a different granularity.
+
 ---
 "##;
