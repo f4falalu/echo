@@ -44,8 +44,10 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
      * @param e The triggered event.
      */
     const handleClick = useMemoizedFn((event: MouseEvent) => {
+      let originalTarget = event.target as HTMLElement;
       let target = event.target as HTMLElement;
       let href: string | null = null;
+      let originalEvent = event;
 
       // Traverse up the DOM tree looking for an anchor tag with href
       while (target && !href) {
@@ -60,11 +62,53 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
         event.preventDefault();
         event.stopPropagation();
 
-        console.log(target);
-
+        // Store both the target and the original event details
         confirmationFn.current = () => {
-          target.click();
-          // if (href) router.push(href);
+          // Remove all click listeners temporarily
+          document.querySelectorAll('a').forEach((link) => {
+            link.removeEventListener('click', handleClick);
+          });
+
+          // Get all click event handlers on the original target
+          const clickHandlers = originalTarget.onclick;
+
+          // Temporarily remove our prevention
+          if (clickHandlers) {
+            originalTarget.onclick = null;
+          }
+
+          // Create a new click event
+          const newEvent = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+            detail: originalEvent.detail,
+            screenX: originalEvent.screenX,
+            screenY: originalEvent.screenY,
+            clientX: originalEvent.clientX,
+            clientY: originalEvent.clientY,
+            ctrlKey: originalEvent.ctrlKey,
+            altKey: originalEvent.altKey,
+            shiftKey: originalEvent.shiftKey,
+            metaKey: originalEvent.metaKey,
+            button: originalEvent.button,
+            buttons: originalEvent.buttons
+          });
+
+          // Dispatch the event directly on the original target
+          originalTarget.dispatchEvent(newEvent);
+
+          // Restore click handlers
+          if (clickHandlers) {
+            originalTarget.onclick = clickHandlers;
+          }
+
+          // Re-attach our listeners after a short delay
+          setTimeout(() => {
+            document.querySelectorAll('a').forEach((link) => {
+              link.addEventListener('click', handleClick);
+            });
+          }, 0);
         };
 
         setLeavingPage(true);
@@ -79,7 +123,6 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
         window.history.pushState(null, document.title, window.location.href);
 
         confirmationFn.current = () => {
-          console.warn('TODO - make sure we can navigate back to the correct page');
           router.back();
         };
 

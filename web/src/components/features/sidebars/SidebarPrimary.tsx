@@ -122,7 +122,7 @@ export const SidebarPrimary = React.memo(() => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
   const isUserRegistered = useUserConfigContextSelector((x) => x.isUserRegistered);
   const { data: favorites } = useGetUserFavorites();
-  const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
+  const currentParentRoute = useAppLayoutContextSelector((x) => x.currentParentRoute);
   const onToggleInviteModal = useInviteModalStore((s) => s.onToggleInviteModal);
   const [openSupportModal, setOpenSupportModal] = useState(false);
   const { mutateAsync: updateUserFavorites } = useUpdateUserFavorites();
@@ -150,7 +150,7 @@ export const SidebarPrimary = React.memo(() => {
     items.push(tryGroup(onToggleInviteModal, () => setOpenSupportModal(true)));
 
     return items;
-  }, [isAdmin, isUserRegistered, favorites, currentRoute, onFavoritesReorder]);
+  }, [isAdmin, isUserRegistered, favorites, currentParentRoute, onFavoritesReorder]);
 
   const onCloseSupportModal = useMemoizedFn(() => setOpenSupportModal(false));
 
@@ -165,7 +165,7 @@ export const SidebarPrimary = React.memo(() => {
       <Sidebar
         content={sidebarItems}
         header={HeaderMemoized}
-        activeItem={currentRoute}
+        activeItem={currentParentRoute}
         footer={FooterMemoized}
       />
 

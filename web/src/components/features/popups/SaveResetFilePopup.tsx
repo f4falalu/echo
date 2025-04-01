@@ -24,7 +24,6 @@ const SplitterContent: React.FC<{
   isSaving: boolean;
   open: boolean;
 }> = React.memo(({ onReset, onSave, isSaving, open }) => {
-  console.log(open);
   return (
     <React.Fragment>
       <div className="flex w-full items-center space-x-2.5">

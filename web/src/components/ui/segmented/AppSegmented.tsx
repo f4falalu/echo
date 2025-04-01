@@ -131,7 +131,6 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
     const [isPending, startTransition] = useTransition();
 
     const handleTabClick = useMemoizedFn((value: string) => {
-      console.log('handleTabClick called with:', value);
       const item = options.find((item) => item.value === value);
       if (item && !item.disabled && value !== selectedValue) {
         setSelectedValue(item.value);
@@ -174,6 +173,7 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
       <Tabs.Root
         ref={rootRef}
         value={selectedValue as string}
+        // onValueChange={handleTabClick}
         className={cn(segmentedVariants({ block, type }), heightVariants({ size }), className)}>
         {isMeasured && (
           <motion.div
@@ -231,6 +231,18 @@ function SegmentedTriggerComponent<T extends string = string>(props: SegmentedTr
 
   const LinkDiv = link ? Link : 'div';
 
+  const handleClick = async (e: React.MouseEvent) => {
+    if (link) {
+      e.preventDefault();
+      handleTabClick(value);
+      // Wait for a short duration to allow the animation to complete
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      router.push(link);
+    } else {
+      handleTabClick(value);
+    }
+  };
+
   useMount(() => {
     if (link) {
       router.prefetch(link);
@@ -239,13 +251,12 @@ function SegmentedTriggerComponent<T extends string = string>(props: SegmentedTr
 
   return (
     <Tooltip title={tooltip || ''} sideOffset={10} delayDuration={150}>
-      <LinkDiv href={link || ''}>
+      <LinkDiv href={link || ''} onClick={handleClick}>
         <Tabs.Trigger
           key={value}
           value={value}
           disabled={disabled}
           asChild
-          onClick={() => handleTabClick(value)}
           ref={(el) => {
             if (el) tabRefs.current.set(value, el);
           }}
