@@ -1,3 +1,4 @@
+import { ColumnLabelFormat } from '@/api/asset_interfaces/metric';
 import { formatLabel } from './columnFormatter';
 
 describe('formatLabel', () => {
@@ -132,6 +133,32 @@ describe('formatLabel', () => {
           replaceMissingDataWith: ''
         })
       ).toBe('');
+    });
+
+    it('should handle complex dollar formatting', () => {
+      const rawValue = 3363690.3966666665;
+      const config = {
+        style: 'currency',
+        compactNumbers: false,
+        columnType: 'number',
+        displayName: '',
+        numberSeparatorStyle: ',',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        currency: 'USD',
+        convertNumberTo: null,
+        dateFormat: 'auto',
+        useRelativeTime: false,
+        isUTC: false,
+        multiplier: 1,
+        prefix: '',
+        suffix: '',
+        replaceMissingDataWith: 0,
+        makeLabelHumanReadable: true
+      } satisfies ColumnLabelFormat;
+
+      const result = formatLabel(rawValue, config);
+      expect(result).toBe('$3,363,690.40');
     });
   });
 

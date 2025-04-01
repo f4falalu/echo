@@ -22,7 +22,7 @@ const chatRouteRecord: Record<AllFileTypes, (chatId: string, assetId: string) =>
     }),
   metric: (chatId, assetId) =>
     createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_METRIC_ID,
+      route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
       chatId,
       metricId: assetId
     }),

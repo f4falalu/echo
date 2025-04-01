@@ -60,12 +60,13 @@ export const formatNumber = (
   );
 
   const formatter = new Intl.NumberFormat(locale, {
-    ...options,
-    minimumFractionDigits: options?.minDecimals || options?.minimumFractionDigits || 0,
+    minimumFractionDigits: options?.minDecimals,
     maximumFractionDigits: maxFractionDigits,
-    notation: options?.compact ? 'compact' : undefined,
+    notation: options?.compact ? 'compact' : 'standard',
     compactDisplay: 'short',
-    style: options?.currency ? 'currency' : undefined
+    style: options?.currency ? 'currency' : 'decimal',
+    currency: options?.currency,
+    useGrouping: options?.useGrouping !== false
   });
 
   return formatter.format(Number(value));
