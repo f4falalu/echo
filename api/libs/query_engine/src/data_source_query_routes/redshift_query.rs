@@ -13,14 +13,28 @@ pub async fn redshift_query(
     query: String,
     limit: Option<i64>,
 ) -> Result<Vec<IndexMap<std::string::String, DataType>>, Error> {
-    let mut stream = sqlx::query(&query).fetch(&pg_pool);
+    // Apply the limit directly at the database level
+    let default_limit = 5000;
+    let limit_value = limit.unwrap_or(default_limit);
+    
+    // Append LIMIT to the query if it doesn't already contain a LIMIT clause
+    let sql_with_limit = if !query.to_lowercase().contains("limit") {
+        format!("{} LIMIT $1", query)
+    } else {
+        query
+    };
+    
+    // Create query with the limit parameter
+    let mut stream = sqlx::query(&sql_with_limit)
+        .bind(limit_value)
+        .fetch(&pg_pool);
 
-    let mut result: Vec<IndexMap<String, DataType>> = Vec::new();
+    // Pre-allocate result vector with estimated capacity
+    let mut result: Vec<IndexMap<String, DataType>> = Vec::with_capacity(limit_value as usize);
 
-    let mut count = 0;
-
+    // Process rows sequentially
     while let Some(row) = stream.try_next().await? {
-        let mut row_map: IndexMap<String, DataType> = IndexMap::new();
+        let mut row_map: IndexMap<String, DataType> = IndexMap::with_capacity(row.len());
 
         for (i, column) in row.columns().iter().enumerate() {
             let column_name = column.name();
@@ -55,15 +69,7 @@ pub async fn redshift_query(
         }
 
         result.push(row_map);
-
-        count += 1;
-        if let Some(row_limit) = limit {
-            if count >= row_limit {
-                break;
-            }
-        } else if count >= 5000 {
-            break;
-        }
     }
+    
     Ok(result)
 }
