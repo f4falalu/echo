@@ -1,10 +1,11 @@
+'use client';
+
 import React from 'react';
 import { FileContainerButtonsProps } from '../interfaces';
 import { FileButtonContainer } from '../FileButtonContainer';
 import { useChatIndividualContextSelector } from '../../../ChatContext';
 import { SaveDashboardToCollectionButton } from '@/components/features/buttons/SaveDashboardToCollectionButton';
 import { HideButtonContainer } from '../HideButtonContainer';
-import { useChatLayoutContextSelector } from '../../../ChatLayoutContext';
 import { CreateChatButton } from '../CreateChatButtont';
 import { ShareDashboardButton } from '@/components/features/buttons/ShareDashboardButton';
 import { Button } from '@/components/ui/buttons';
@@ -16,9 +17,8 @@ import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { useDashboardContentStore } from '@/context/Dashboards';
 
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
-  ({ selectedFileView }) => {
-    const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
-    const dashboardId = selectedFileId;
+  ({ selectedFileId }) => {
+    const dashboardId = selectedFileId || '';
 
     const { data: permission, error: dashboardError } = useGetDashboard(
       { id: dashboardId },
@@ -33,10 +33,10 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
     return (
       <FileButtonContainer>
         <SaveToCollectionButton />
-        {isEffectiveOwner && <ShareDashboardButton dashboardId={selectedFileId} />}
+        {isEffectiveOwner && <ShareDashboardButton dashboardId={dashboardId} />}
         {isEditor && <AddContentToDashboardButton />}
-        <DashboardThreeDotMenu dashboardId={selectedFileId} />
-        <HideButtonContainer show={selectedFileView === 'file'}>
+        <DashboardThreeDotMenu dashboardId={dashboardId} />
+        <HideButtonContainer show>
           <CreateChatButton />
         </HideButtonContainer>
       </FileButtonContainer>

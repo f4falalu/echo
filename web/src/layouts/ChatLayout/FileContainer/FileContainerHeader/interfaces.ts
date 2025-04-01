@@ -8,4 +8,5 @@ export type FileContainerSegmentProps = {
 
 export type FileContainerButtonsProps = {
   selectedFileView: FileView | undefined;
+  selectedFileId: string | undefined;
 };

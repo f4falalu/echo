@@ -62,7 +62,9 @@ export const FileContainerHeader: React.FC = React.memo(() => {
         )}
       </div>
 
-      {hasAccess && <SelectedFileButtons selectedFileView={selectedFileView} />}
+      {hasAccess && (
+        <SelectedFileButtons selectedFileView={selectedFileView} selectedFileId={selectedFileId} />
+      )}
     </>
   );
 });
