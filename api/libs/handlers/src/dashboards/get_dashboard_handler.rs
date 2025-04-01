@@ -8,14 +8,15 @@ use futures::future::join_all;
 use middleware::AuthenticatedUser;
 use serde_json::Value;
 use serde_yaml;
+use tokio::task::JoinHandle;
 use uuid::Uuid;
 
-use crate::dashboards::types::BusterShareIndividual;
+use crate::dashboards::types::{BusterShareIndividual, DashboardCollection};
 use crate::metrics::{get_metric_handler, BusterMetric, Version};
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
 use database::helpers::dashboard_files::fetch_dashboard_file_with_permission;
 use database::pool::get_pg_pool;
-use database::schema::{asset_permissions, dashboard_files, users};
+use database::schema::{asset_permissions, collections, collections_to_assets, dashboard_files, users};
 use database::types::VersionHistory;
 use sharing::check_permission_access;
 
@@ -48,6 +49,28 @@ struct AssetPermissionInfo {
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
+}
+
+/// Fetches collections that the dashboard belongs to
+async fn fetch_associated_collections_for_dashboard(dashboard_id: Uuid) -> Result<Vec<DashboardCollection>> {
+    let mut conn = get_pg_pool().get().await?;
+    
+    let associated_collections = collections_to_assets::table
+        .inner_join(collections::table.on(collections::id.eq(collections_to_assets::collection_id)))
+        .filter(collections_to_assets::asset_id.eq(dashboard_id))
+        .filter(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
+        .filter(collections::deleted_at.is_null()) // Ensure collection isn't deleted
+        .select((collections::id, collections::name))
+        .load::<(Uuid, String)>(&mut conn)
+        .await?
+        .into_iter()
+        .map(|(id, name)| DashboardCollection { 
+            id: id.to_string(), 
+            name 
+        })
+        .collect();
+    
+    Ok(associated_collections)
 }
 
 pub async fn get_dashboard_handler(
@@ -217,6 +240,13 @@ pub async fn get_dashboard_handler(
         Err(_) => None,
     };
 
+    // Clone dashboard_id for use in spawned task
+    let d_id = *dashboard_id;
+
+    // Spawn task to fetch collections concurrently
+    let collections_handle: JoinHandle<Result<Vec<DashboardCollection>>> =
+        tokio::spawn(async move { fetch_associated_collections_for_dashboard(d_id).await });
+
     // Construct the dashboard using content values where available
     let dashboard = BusterDashboard {
         config,
@@ -235,6 +265,22 @@ pub async fn get_dashboard_handler(
         file_name: dashboard_file.file_name,
     };
 
+    // Await collections result
+    let collections_result = collections_handle.await;
+    
+    // Handle collections result
+    let collections = match collections_result {
+        Ok(Ok(c)) => c,
+        Ok(Err(e)) => {
+            tracing::error!("Failed to fetch associated collections for dashboard {}: {}", dashboard_id, e);
+            vec![]
+        }
+        Err(e) => { // JoinError
+            tracing::error!("Task join error fetching collections for dashboard {}: {}", dashboard_id, e);
+            vec![]
+        }
+    };
+
     Ok(BusterDashboardResponse {
         access: dashboard_with_permission
             .permission
@@ -245,7 +291,7 @@ pub async fn get_dashboard_handler(
             .permission
             .unwrap_or(AssetPermissionRole::Owner),
         public_password: None,
-        collections: vec![], // Empty collections for now
+        collections, // Now populated with associated collections
         // New sharing fields
         individual_permissions,
         publicly_accessible: dashboard_file.publicly_accessible,

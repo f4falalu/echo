@@ -5,7 +5,7 @@ use crate::common::{
     assertions::response::assert_api_ok,
 };
 use chrono::Utc;
-use database::enums::{AssetPermissionRole, AssetTypeEnum, IdentityTypeEnum};
+use database::enums::{AssetPermissionRole, AssetType, AssetTypeEnum, IdentityTypeEnum};
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 
@@ -24,6 +24,9 @@ async fn test_get_dashboard_with_sharing_info() {
     
     // Add public sharing
     enable_public_sharing(&env, dashboard_id, user_id).await;
+    
+    // Create a collection and add the dashboard to it
+    let collection_id = create_collection_and_add_dashboard(&env, dashboard_id, user_id).await;
     
     // Test GET request
     let response = client
@@ -48,6 +51,12 @@ async fn test_get_dashboard_with_sharing_info() {
     assert_eq!(permission["email"], "test2@example.com");
     assert_eq!(permission["role"], "viewer");
     assert_eq!(permission["name"], "Test User 2");
+    
+    // Check collections
+    assert_eq!(data["collections"].as_array().unwrap().len(), 1);
+    let collection = &data["collections"][0];
+    assert_eq!(collection["id"], collection_id.to_string());
+    assert_eq!(collection["name"], "Test Collection");
 }
 
 // Helper functions to set up the test data
@@ -141,4 +150,44 @@ async fn enable_public_sharing(env: &TestEnv, dashboard_id: Uuid, user_id: Uuid)
         .execute(&mut conn)
         .await
         .unwrap();
+}
+
+async fn create_collection_and_add_dashboard(env: &TestEnv, dashboard_id: Uuid, user_id: Uuid) -> Uuid {
+    let mut conn = env.db_pool.get().await.unwrap();
+    
+    // Get organization ID
+    let org_id = Uuid::parse_str("00000000-0000-0000-0000-000000000100").unwrap();
+    
+    // Create a collection
+    let collection_id = Uuid::parse_str("00000000-0000-0000-0000-000000000030").unwrap();
+    
+    diesel::sql_query(r#"
+        INSERT INTO collections (id, name, description, created_by, updated_by, organization_id) 
+        VALUES ($1, $2, $3, $4, $4, $5)
+        ON CONFLICT DO NOTHING
+    "#)
+        .bind::<diesel::sql_types::Uuid, _>(collection_id)
+        .bind::<diesel::sql_types::Text, _>("Test Collection")
+        .bind::<diesel::sql_types::Text, _>("Test Collection Description")
+        .bind::<diesel::sql_types::Uuid, _>(user_id)
+        .bind::<diesel::sql_types::Uuid, _>(org_id)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    
+    // Add the dashboard to the collection
+    diesel::sql_query(r#"
+        INSERT INTO collections_to_assets (collection_id, asset_id, asset_type, created_by, updated_by) 
+        VALUES ($1, $2, $3, $4, $4)
+        ON CONFLICT DO NOTHING
+    "#)
+        .bind::<diesel::sql_types::Uuid, _>(collection_id)
+        .bind::<diesel::sql_types::Uuid, _>(dashboard_id)
+        .bind::<diesel::sql_types::Text, _>(AssetType::DashboardFile.to_string())
+        .bind::<diesel::sql_types::Uuid, _>(user_id)
+        .execute(&mut conn)
+        .await
+        .unwrap();
+    
+    collection_id
 }
