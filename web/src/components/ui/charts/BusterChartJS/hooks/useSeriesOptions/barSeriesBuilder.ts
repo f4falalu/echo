@@ -37,6 +37,7 @@ export const barSeriesBuilder = ({
           (dataset) => !dataset.hidden && !dataset.isTrendline
         );
         const canDisplay = context.datasetIndex === shownDatasets.length - 1;
+        console.log('hit!');
         if (canDisplay && !hasBeenDrawn) {
           const chartLayout = context.chart.options.layout;
           const padding = { ...DEFAULT_CHART_LAYOUT.padding, top: 24 };
@@ -62,6 +63,8 @@ export const barSeriesBuilder = ({
       },
       anchor: 'end',
       align: 'end',
+      clamp: true,
+      clip: false,
       ...defaultLabelOptionConfig
     } as NonNullable<Options['labels']>['stackTotal'];
   }

@@ -4,7 +4,7 @@ import { isServer } from '@tanstack/react-query';
 
 const backgroundColor = isServer
   ? '#e6e6e6'
-  : getComputedStyle(document.documentElement).getPropertyValue('--color-background');
+  : getComputedStyle(document.documentElement).getPropertyValue('--color-page-background');
 
 const borderColor = isServer
   ? '#e0e0e0'
