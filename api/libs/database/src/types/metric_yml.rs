@@ -6,6 +6,7 @@ use diesel::{
     serialize::{IsNull, Output, ToSql},
     sql_types::Jsonb,
 };
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::io::Write;
@@ -271,10 +272,10 @@ fn extract_field_from_error(err_msg: &str) -> Option<String> {
 #[serde(rename_all = "camelCase")]
 pub struct BaseChartConfig {
     #[serde(alias = "column_label_formats")]
-    pub column_label_formats: std::collections::HashMap<String, ColumnLabelFormat>,
+    pub column_label_formats: IndexMap<String, ColumnLabelFormat>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "column_settings")]
-    pub column_settings: Option<std::collections::HashMap<String, ColumnSettings>>,
+    pub column_settings: Option<IndexMap<String, ColumnSettings>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub colors: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]

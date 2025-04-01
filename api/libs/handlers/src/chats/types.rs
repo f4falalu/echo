@@ -33,6 +33,7 @@ pub struct ChatWithMessages {
     pub public_expiry_date: Option<DateTime<Utc>>,
     pub public_enabled_by: Option<String>,
     pub public_password: Option<String>,
+    pub permission: Option<AssetPermissionRole>,
 }
 
 impl ChatWithMessages {
@@ -60,6 +61,7 @@ impl ChatWithMessages {
             public_expiry_date: None,
             public_enabled_by: None,
             public_password: None,
+            permission: None,
         }
     }
 
@@ -101,6 +103,7 @@ impl ChatWithMessages {
             public_expiry_date: None,
             public_enabled_by: None,
             public_password: None,
+            permission: None,
         }
     }
     
@@ -115,6 +118,11 @@ impl ChatWithMessages {
         self.publicly_accessible = publicly_accessible;
         self.public_expiry_date = public_expiry_date;
         self.public_enabled_by = public_enabled_by;
+        self
+    }
+    
+    pub fn with_permission(mut self, permission: Option<AssetPermissionRole>) -> Self {
+        self.permission = permission;
         self
     }
 

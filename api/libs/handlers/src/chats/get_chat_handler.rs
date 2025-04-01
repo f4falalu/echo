@@ -343,11 +343,14 @@ pub async fn get_chat_handler(
         created_by_avatar,
     );
 
+    // Get the user's permission
+    let user_permission = chat_with_permission.permission;
+
     // Add permissions
     Ok(chat.with_permissions(
         individual_permissions,
         publicly_accessible,
         public_expiry_date,
         publicly_enabled_by,
-    ))
+    ).with_permission(user_permission))
 }
