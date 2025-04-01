@@ -29,8 +29,6 @@ export const useMetricRunSQL = () => {
   } = useRunSQLQuery();
   const { openSuccessNotification } = useBusterNotifications();
 
-  const [warnBeforeNavigating, setWarnBeforeNavigating] = useState(false);
-
   const getDataByMetricIdMemoized = useMemoizedFn(
     (metricId: string): BusterMetricData | undefined => {
       const options = queryKeys.metricsGetData(metricId);
@@ -126,7 +124,6 @@ export const useMetricRunSQL = () => {
   );
 
   const resetRunSQLData = useMemoizedFn(({ metricId }: { metricId: string }) => {
-    setWarnBeforeNavigating(false);
     if (!originalConfigs.current) return;
     const oldConfig = originalConfigs.current?.chartConfig;
     updateMetricMutation({
@@ -173,8 +170,6 @@ export const useMetricRunSQL = () => {
         sql
       });
 
-      setWarnBeforeNavigating(false);
-
       if (originalConfigs.current) {
         onSetDataForMetric({
           metricId,
@@ -198,8 +193,6 @@ export const useMetricRunSQL = () => {
   return {
     runSQL,
     resetRunSQLData,
-    warnBeforeNavigating,
-    setWarnBeforeNavigating,
     saveSQL,
     saveMetricError: saveMetricError?.message,
     runSQLError: runSQLError?.message,

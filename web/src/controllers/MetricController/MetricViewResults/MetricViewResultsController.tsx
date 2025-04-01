@@ -25,8 +25,6 @@ export const MetricViewResults: React.FC<{ metricId: string }> = React.memo(({ m
     saveSQL,
     saveMetricError,
     runSQLError,
-    warnBeforeNavigating,
-    setWarnBeforeNavigating,
     isSavingMetric,
     isRunningSQL
   } = useMetricRunSQL();

@@ -48,6 +48,7 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
 
       if (isDirty) {
         event.preventDefault();
+        event.stopPropagation();
 
         confirmationFn.current = () => {
           router.push(target.href);
