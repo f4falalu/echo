@@ -22,17 +22,29 @@ export const MetricContainerHeaderSegment: React.FC<FileContainerSegmentProps> =
           {
             label: 'Chart',
             value: 'chart',
-            link: createBusterRoute({ route: BusterRoutes.APP_CHAT_ID_QUERY, chatId, metricId })
+            link: createBusterRoute({
+              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+              chatId,
+              metricId
+            })
           },
           {
             label: 'Results',
             value: 'results',
-            link: createBusterRoute({ route: BusterRoutes.APP_CHAT_ID_QUERY, chatId, metricId })
+            link: createBusterRoute({
+              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
+              chatId,
+              metricId
+            })
           },
           {
             label: 'File',
             value: 'file',
-            link: createBusterRoute({ route: BusterRoutes.APP_CHAT_ID_QUERY, chatId, metricId })
+            link: createBusterRoute({
+              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_FILE,
+              chatId,
+              metricId
+            })
           }
         ];
       }

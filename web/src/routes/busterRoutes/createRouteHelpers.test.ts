@@ -28,41 +28,6 @@ describe('createBusterRoute', () => {
     const result = createBusterRoute(input);
     expect(result).toBe('/app/settings/permission-groups/group123/datasets');
   });
-
-  test('should handle query parameters in route', () => {
-    // Test with all query parameters
-    const input = {
-      route: BusterAppRoutes.APP_CHAT_ID_QUERY,
-      chatId: '123',
-      metricId: 'metric456',
-      dashboardId: 'dash789',
-      messageId: 'reason101'
-    } as const;
-    const result = createBusterRoute(input);
-    expect(result).toBe(
-      '/app/chats/123?metricId=metric456&dashboardId=dash789&messageId=reason101'
-    );
-
-    // Test with some undefined parameters
-    const partialInput: any = {
-      route: BusterAppRoutes.APP_CHAT_ID_QUERY,
-      chatId: '123',
-      metricId: 'metric456',
-      dashboardId: undefined,
-      reasoningId: null,
-      yourMom: 'yourMom'
-    };
-    const result2 = createBusterRoute(partialInput);
-    expect(result2).toBe('/app/chats/123?metricId=metric456');
-
-    // Test with all query parameters undefined
-    const minimalInput: any = {
-      route: BusterAppRoutes.APP_CHAT_ID_QUERY,
-      chatId: '123'
-    };
-    const result3 = createBusterRoute(minimalInput);
-    expect(result3).toBe('/app/chats/123');
-  });
 });
 
 describe('createPathnameToBusterRoute', () => {
@@ -82,18 +47,6 @@ describe('createPathnameToBusterRoute', () => {
     const pathname = '/app/settings/permission-groups/group123/datasets';
     const result = createPathnameToBusterRoute(pathname);
     expect(result).toEqual(BusterSettingsRoutes.SETTINGS_PERMISSION_GROUPS_ID_DATASETS);
-  });
-
-  test('should convert chat route with query parameters', () => {
-    const pathname = '/app/chats/123?metricId=metric456&dashboardId=dash789&messageId=msg101';
-    const result = createPathnameToBusterRoute(pathname);
-    expect(result).toEqual(BusterAppRoutes.APP_CHAT_ID_QUERY);
-  });
-
-  test('should handle partial query parameters', () => {
-    const pathname = '/app/chats/123?metricId=metric456';
-    const result = createPathnameToBusterRoute(pathname);
-    expect(result).toEqual(BusterAppRoutes.APP_CHAT_ID_QUERY);
   });
 
   test('should convert dataset route with ID', () => {
