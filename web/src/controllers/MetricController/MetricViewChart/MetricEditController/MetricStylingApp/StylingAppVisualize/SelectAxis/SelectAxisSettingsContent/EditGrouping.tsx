@@ -46,14 +46,14 @@ export const EditGrouping: React.FC<{
       return lineGroupingOptions;
     }, [selectedChartType]);
 
-    const defaultSelectedValue = useMemo(() => {
+    const selectedValue = useMemo(() => {
       if (selectedChartType === 'bar') {
         return barGroupType === 'percentage-stack' || barGroupType === 'stack' ? 'stack' : 'group';
       }
       return lineGroupType === 'stack' || lineGroupType === 'percentage-stack'
         ? 'stack'
         : 'default';
-    }, [selectedChartType, lineGroupType]);
+    }, [selectedChartType, lineGroupType, barGroupType]);
 
     const onChangeStackTotals = useMemoizedFn((value: boolean) => {
       setUsePercentageStack(value);
@@ -82,7 +82,7 @@ export const EditGrouping: React.FC<{
     return (
       <>
         <LabelAndInput label="Stacking">
-          <Select items={options} value={defaultSelectedValue} onChange={onChangeGrouping} />
+          <Select items={options} value={selectedValue} onChange={onChangeGrouping} />
         </LabelAndInput>
         {showTotal && <StackTotals value={barShowTotalAtTop} onChange={onChangeStackTotals} />}
       </>
