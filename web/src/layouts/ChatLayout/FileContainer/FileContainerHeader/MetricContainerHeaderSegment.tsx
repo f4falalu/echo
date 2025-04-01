@@ -13,6 +13,7 @@ export const MetricContainerHeaderSegment: React.FC<FileContainerSegmentProps> =
     const metricId = useChatLayoutContextSelector((x) => x.metricId) || '';
 
     const onChange = useMemoizedFn((fileView: SegmentedItem<FileView>) => {
+      console.log(fileView);
       onSetFileView({ fileView: fileView.value });
     });
 

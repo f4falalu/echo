@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { useEffect, useState, useLayoutEffect, useTransition } from 'react';
 import { cva } from 'class-variance-authority';
-import { useMemoizedFn, useMergedRefs, useSize, useThrottleFn } from '@/hooks';
+import { useMemoizedFn, useMergedRefs, useSize, useThrottleFn, useWhyDidYouUpdate } from '@/hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from 'next/link';
 
@@ -123,8 +123,9 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
     const [isPending, startTransition] = useTransition();
 
     const handleTabClick = useMemoizedFn((value: string) => {
+      console.log('handleTabClick called with:', value);
       const item = options.find((item) => item.value === value);
-      if (item && !item.disabled) {
+      if (item && !item.disabled && value !== selectedValue) {
         startTransition(() => {
           setSelectedValue(item.value);
           onChange?.(item);

@@ -100,7 +100,7 @@ export const MetricStylingApp: React.FC<{
       <ScrollArea className="">
         {segment === MetricStylingAppSegments.VISUALIZE && (
           <StylingAppVisualize
-            className="mb-12 px-4 pt-3"
+            className="px-4 pt-3"
             columnMetadata={columnMetadata}
             rowCount={rowCount}
             selectedChartType={selectedChartType}
@@ -144,7 +144,7 @@ export const MetricStylingApp: React.FC<{
 
         {segment === MetricStylingAppSegments.STYLING && (
           <StylingAppStyling
-            className="mb-12 px-4"
+            className="px-4"
             columnSettings={columnSettings}
             showLegend={showLegend}
             gridLines={gridLines}

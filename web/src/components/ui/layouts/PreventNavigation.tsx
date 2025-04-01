@@ -44,6 +44,7 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
      * @param e The triggered event.
      */
     const handleClick = useMemoizedFn((event: MouseEvent) => {
+      console.log('handleClick');
       let target = event.target as HTMLElement;
       let href: string | null = null;
 

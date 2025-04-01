@@ -160,8 +160,6 @@ export const SidebarPrimary = React.memo(() => {
   );
   const FooterMemoized = useMemo(() => <SidebarUserFooter />, []);
 
-  console.log(currentRoute);
-
   return (
     <>
       <Sidebar
