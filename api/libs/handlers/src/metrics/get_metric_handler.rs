@@ -1,49 +1,26 @@
 use anyhow::{anyhow, Result};
-use database::types::VersionHistory;
-use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable};
+use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable};
 use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
-use serde_json::Value;
 use serde_yaml;
 use uuid::Uuid;
 
 use crate::metrics::types::{
     BusterMetric, ColumnMetaData, ColumnType, DataMetadata, Dataset, MinMaxValue, SimpleType,
 };
-use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
+use database::enums::{AssetPermissionRole, AssetType, IdentityType};
 use database::helpers::metric_files::fetch_metric_file_with_permissions;
 use database::pool::get_pg_pool;
-use database::schema::{asset_permissions, datasets, metric_files, users};
-use database::types::MetricYml;
+use database::schema::{asset_permissions, datasets, users};
 use sharing::check_permission_access;
 
 use super::Version;
-
-#[derive(Queryable, Selectable)]
-#[diesel(table_name = metric_files)]
-struct QueryableMetricFile {
-    id: Uuid,
-    name: String,
-    file_name: String,
-    content: MetricYml,
-    verification: Verification,
-    #[allow(dead_code)]
-    evaluation_obj: Option<Value>,
-    evaluation_summary: Option<String>,
-    evaluation_score: Option<f64>,
-    created_by: Uuid,
-    created_at: chrono::DateTime<chrono::Utc>,
-    updated_at: chrono::DateTime<chrono::Utc>,
-    version_history: VersionHistory,
-    publicly_accessible: bool,
-    publicly_enabled_by: Option<Uuid>,
-    public_expiry_date: Option<chrono::DateTime<chrono::Utc>>,
-}
 
 #[derive(Queryable)]
 struct DatasetInfo {
     id: Uuid,
     name: String,
+    data_source_id: Uuid,
 }
 
 #[derive(Queryable)]
@@ -171,11 +148,12 @@ pub async fn get_metric_handler(
 
     // Get dataset information for all dataset IDs
     let mut datasets = Vec::new();
+    let mut first_data_source_id = None;
     for dataset_id in &metric_content.dataset_ids {
         if let Ok(dataset_info) = datasets::table
             .filter(datasets::id.eq(dataset_id))
             .filter(datasets::deleted_at.is_null())
-            .select((datasets::id, datasets::name))
+            .select((datasets::id, datasets::name, datasets::data_source_id))
             .first::<DatasetInfo>(&mut conn)
             .await
         {
@@ -183,6 +161,7 @@ pub async fn get_metric_handler(
                 id: dataset_info.id.to_string(),
                 name: dataset_info.name,
             });
+            first_data_source_id = Some(dataset_info.data_source_id);
         }
     }
 
@@ -261,7 +240,7 @@ pub async fn get_metric_handler(
         file_name: metric_file.file_name,
         time_frame: metric_content.time_frame,
         datasets,
-        data_source_id: "".to_string(), // This would need to be fetched from another source
+        data_source_id: first_data_source_id.map_or("".to_string(), |id| id.to_string()),
         error: None,
         chart_config: Some(metric_content.chart_config),
         data_metadata,
