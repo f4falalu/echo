@@ -10,6 +10,7 @@ use tokio_util::compat::Compat;
 pub async fn sql_server_query(
     mut client: Client<Compat<TcpStream>>,
     query: String,
+    limit: Option<i64>,
 ) -> Result<Vec<IndexMap<std::string::String, DataType>>, Error> {
     let rows = match client.query(query, &[]).await {
         Ok(rows) => rows,
@@ -22,7 +23,7 @@ pub async fn sql_server_query(
 
     let mut result: Vec<IndexMap<String, DataType>> = Vec::new();
     let query_result = match rows.into_first_result().await {
-        Ok(query_result) => query_result.into_iter().take(1000),
+        Ok(query_result) => query_result.into_iter().take(limit.unwrap_or(5000) as usize),
         Err(e) => {
             tracing::error!("Unable to fetch query result: {:?}", e);
             let err = anyhow!("Unable to fetch query result: {}", e);
