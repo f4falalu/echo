@@ -36,6 +36,7 @@ import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { useDashboardContentStore } from '@/context/Dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes/busterRoutes';
+import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 
 export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });
@@ -90,15 +91,31 @@ const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) =
     version_number: x?.dashboard?.version_number
   }));
   const { versions, version_number } = data || {};
+  const chatId = useChatLayoutContextSelector((x) => x.chatId);
+  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
+
+  const createRouteWithQueryParams = useMemoizedFn((versionNumber: number) => {
+    const baseRoute = assetParamsToRoute({
+      chatId,
+      assetId: dashboardId,
+      type: 'dashboard',
+      secondaryView: 'version-history'
+    });
+
+    return `${baseRoute}?${new URLSearchParams({
+      dashboard_version_number: versionNumber.toString()
+    }).toString()}`;
+  });
 
   const versionHistoryItems: DropdownItems = useMemo(() => {
     return [...(versions || [])].reverse().map((x) => ({
       label: `Version ${x.version_number}`,
       secondaryLabel: timeFromNow(x.updated_at, false),
       value: x.version_number.toString(),
-      selected: x.version_number === version_number
+      selected: x.version_number === version_number,
+      onClick: () => onChangePage(createRouteWithQueryParams(x.version_number))
     }));
-  }, [versions, version_number]);
+  }, [versions, version_number, createRouteWithQueryParams, onChangePage]);
 
   return useMemo(
     () => ({

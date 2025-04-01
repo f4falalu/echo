@@ -50,6 +50,8 @@ import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuConte
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { BusterRoutes, createBusterRoute } from '@/routes';
+import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { openSuccessMessage } = useBusterNotifications();
@@ -118,7 +120,13 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
   );
 
   return (
-    <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
+    <Dropdown
+      items={items}
+      selectType="single"
+      side="bottom"
+      align="end"
+      contentClassName="max-h-fit"
+      modal>
       <Button prefix={<Dots />} variant="ghost" />
     </Dropdown>
   );
@@ -177,15 +185,25 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
-  const onChangeQueryParams = useAppLayoutContextSelector((x) => x.onChangeQueryParams);
+  const chatId = useChatLayoutContextSelector((x) => x.chatId);
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const { data } = useGetMetric({ id: metricId }, (x) => ({
     versions: x.versions,
     version_number: x.version_number
   }));
   const { versions = [], version_number } = data || {};
 
-  const onClickVersionHistory = useMemoizedFn((versionNumber: number) => {
-    onChangeQueryParams({ metric_version_number: versionNumber.toString() });
+  const createRouteWithQueryParams = useMemoizedFn((versionNumber: number) => {
+    const baseRoute = assetParamsToRoute({
+      chatId,
+      assetId: metricId,
+      type: 'metric',
+      secondaryView: 'version-history'
+    });
+
+    return `${baseRoute}?${new URLSearchParams({
+      metric_version_number: versionNumber.toString()
+    }).toString()}`;
   });
 
   const versionHistoryItems: DropdownItems = useMemo(() => {
@@ -194,9 +212,15 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
       secondaryLabel: timeFromNow(x.updated_at, false),
       value: x.version_number.toString(),
       selected: x.version_number === version_number,
-      onClick: () => onClickVersionHistory(x.version_number)
+      onClick: () => onChangePage(createRouteWithQueryParams(x.version_number))
     }));
-  }, [versions, version_number, onClickVersionHistory]);
+  }, [
+    versions,
+    version_number,
+    createRouteWithQueryParams,
+    onChangePage,
+    createRouteWithQueryParams
+  ]);
 
   return useMemo(
     () => ({

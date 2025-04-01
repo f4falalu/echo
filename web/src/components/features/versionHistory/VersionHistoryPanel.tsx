@@ -46,7 +46,7 @@ export const VersionHistoryPanel = React.memo(
         )}
         scrollable
         headerBorderVariant="ghost">
-        <div ref={bodyRef} className="mx-1.5 mb-1.5 flex flex-col">
+        <div ref={bodyRef} className="mx-2 mb-1.5 flex flex-col">
           {listItems?.map((item) => (
             <ListItem
               key={item.version_number}

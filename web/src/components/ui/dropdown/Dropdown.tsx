@@ -159,8 +159,6 @@ export const DropdownContent = <T,>({
     debounceTime: 50
   });
 
-  console.log(filteredItems, searchText);
-
   const hasShownItem = useMemo(() => {
     return filteredItems.length > 0 && filteredItems.some((item) => (item as DropdownItem).value);
   }, [filteredItems]);
