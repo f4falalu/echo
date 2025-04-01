@@ -2,9 +2,10 @@
 
 import type { Meta, StoryObj } from '@storybook/react';
 import { SelectMultiple } from './SelectMultiple';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { type SelectItem } from './Select';
 import { fn } from '@storybook/test';
+import { faker } from '@faker-js/faker';
 
 const meta = {
   title: 'UI/Select/SelectMultiple',
@@ -113,19 +114,40 @@ export const CustomWidth: Story = {
   )
 };
 
+const WithHundredItemsWithHooks = () => {
+  const [value, setValue] = useState<string[]>([]);
+
+  const items = useMemo(
+    () =>
+      Array.from({ length: 100 }, (_, index) => ({
+        value: index.toString(),
+        label: faker.company.name()
+      })),
+    []
+  );
+
+  const handleSelect = (selectedValues: string[]) => {
+    setValue(selectedValues);
+  };
+
+  return (
+    <div className="w-[300px]">
+      <SelectMultiple
+        items={items}
+        onChange={handleSelect}
+        placeholder="Select multiple options..."
+        value={value}
+      />
+    </div>
+  );
+};
+
 export const WithHundredItems: Story = {
   args: {
-    items: Array.from({ length: 100 }, (_, index) => ({
-      value: index.toString(),
-      label: `Option ${index + 1}`
-    })),
+    items: [],
     value: [],
     onChange: fn(),
     placeholder: 'Select multiple options...'
   },
-  render: (args) => (
-    <div className="w-[300px]">
-      <SelectMultiple {...args} />
-    </div>
-  )
+  render: () => <WithHundredItemsWithHooks />
 };

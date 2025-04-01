@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FileContainerButtonsProps } from '../interfaces';
 import { MetricFileViewSecondary, useChatLayoutContextSelector } from '../../../ChatLayoutContext';
 import { useMemoizedFn } from '@/hooks';
@@ -14,6 +14,12 @@ import { SquareChartPen, SquareCode } from '@/components/ui/icons';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { ThreeDotMenuButton } from './MetricThreeDotMenu';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
+import Link from 'next/link';
+import { BusterRoutes, createBusterRoute } from '@/routes';
+import {
+  assetParamsToRoute,
+  createChatAssetRoute
+} from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const selectedLayout = useChatLayoutContextSelector((x) => x.selectedLayout);
@@ -32,8 +38,8 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
 
   return (
     <FileButtonContainer>
-      {isEditor && <EditChartButton />}
-      {isEffectiveOwner && <EditSQLButton />}
+      {isEditor && <EditChartButton metricId={metricId} />}
+      {isEffectiveOwner && <EditSQLButton metricId={metricId} />}
       <SaveToCollectionButton metricId={metricId} />
       <SaveToDashboardButton metricId={metricId} />
       {isEffectiveOwner && <ShareMetricButton metricId={metricId} />}
@@ -47,13 +53,23 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
 
 MetricContainerHeaderButtons.displayName = 'MetricContainerHeaderButtons';
 
-const EditChartButton = React.memo(() => {
+const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
   const selectedFileViewSecondary = useChatLayoutContextSelector(
     (x) => x.selectedFileViewSecondary
   );
+  const chatId = useChatIndividualContextSelector((x) => x.chatId);
   const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
   const editableSecondaryView: MetricFileViewSecondary = 'chart-edit';
   const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
+
+  const href = useMemo(() => {
+    return assetParamsToRoute({
+      chatId,
+      assetId: metricId,
+      type: 'metric',
+      secondaryView: 'chart-edit'
+    });
+  }, [chatId, metricId]);
 
   const onClickButton = useMemoizedFn(() => {
     const secondaryView = isSelectedView ? null : editableSecondaryView;
@@ -61,23 +77,35 @@ const EditChartButton = React.memo(() => {
   });
 
   return (
-    <SelectableButton
-      tooltipText="Edit chart"
-      icon={<SquareChartPen />}
-      onClick={onClickButton}
-      selected={isSelectedView}
-    />
+    <Link href={href}>
+      <SelectableButton
+        tooltipText="Edit chart"
+        icon={<SquareChartPen />}
+        onClick={onClickButton}
+        selected={isSelectedView}
+      />
+    </Link>
   );
 });
 EditChartButton.displayName = 'EditChartButton';
 
-const EditSQLButton = React.memo(() => {
+const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
   const selectedFileViewSecondary = useChatLayoutContextSelector(
     (x) => x.selectedFileViewSecondary
   );
   const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
+  const chatId = useChatIndividualContextSelector((x) => x.chatId);
   const editableSecondaryView: MetricFileViewSecondary = 'sql-edit';
   const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
+
+  const href = useMemo(() => {
+    return assetParamsToRoute({
+      chatId,
+      assetId: metricId,
+      type: 'metric',
+      secondaryView: 'sql-edit'
+    });
+  }, [chatId, metricId]);
 
   const onClickButton = useMemoizedFn(() => {
     const secondaryView = isSelectedView ? null : editableSecondaryView;
@@ -85,12 +113,14 @@ const EditSQLButton = React.memo(() => {
   });
 
   return (
-    <SelectableButton
-      tooltipText="SQL editor"
-      icon={<SquareCode />}
-      onClick={onClickButton}
-      selected={isSelectedView}
-    />
+    <Link href={href}>
+      <SelectableButton
+        tooltipText="SQL editor"
+        icon={<SquareCode />}
+        onClick={onClickButton}
+        selected={isSelectedView}
+      />
+    </Link>
   );
 });
 EditSQLButton.displayName = 'EditSQLButton';

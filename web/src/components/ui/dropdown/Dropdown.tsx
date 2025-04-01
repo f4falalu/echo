@@ -20,7 +20,7 @@ import {
   DropdownMenuLink
 } from './DropdownBase';
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
-import { useMemoizedFn, useMount } from '@/hooks';
+import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { Input } from '../inputs/Input';
 import { useDebounceSearch } from '@/hooks';
@@ -159,6 +159,8 @@ export const DropdownContent = <T,>({
     debounceTime: 50
   });
 
+  console.log(filteredItems, searchText);
+
   const hasShownItem = useMemo(() => {
     return filteredItems.length > 0 && filteredItems.some((item) => (item as DropdownItem).value);
   }, [filteredItems]);
@@ -264,13 +266,13 @@ export const DropdownContent = <T,>({
 
               return (
                 <DropdownItemSelector
-                  item={item as DropdownItems<T>[number]}
+                  key={dropdownItemKey(item, hotkeyIndex)}
+                  item={item}
                   index={hotkeyIndex}
                   selectType={selectType}
                   onSelect={onSelect}
                   onSelectItem={onSelectItem}
                   closeOnSelect={closeOnSelect}
-                  key={dropdownItemKey(item, hotkeyIndex)}
                   showIndex={showIndex}
                 />
               );
@@ -419,7 +421,7 @@ const DropdownItem = <T,>({
   }
 
   //I do not think this selected check is stable... look into refactoring
-  if (selectType === 'single' || selected) {
+  if (selectType === 'single') {
     return (
       <DropdownMenuCheckboxItemSingle
         checked={selected}

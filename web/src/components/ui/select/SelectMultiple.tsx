@@ -16,6 +16,7 @@ interface SelectMultipleProps extends VariantProps<typeof selectVariants> {
   placeholder?: string;
   value: string[];
   disabled?: boolean;
+  useSearch?: boolean;
 }
 
 export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
@@ -27,7 +28,8 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
     size = 'default',
     variant = 'default',
     value,
-    disabled
+    disabled,
+    useSearch = true
   }) => {
     const selectedRecord = useMemo(() => {
       return itemsProp.reduce<Record<string, boolean>>((acc, item) => {
@@ -72,6 +74,7 @@ export const SelectMultiple: React.FC<SelectMultipleProps> = React.memo(
       <Dropdown
         items={items}
         onSelect={handleSelect}
+        menuHeader={useSearch ? 'Search...' : undefined}
         selectType="multiple"
         align="start"
         modal={false}
