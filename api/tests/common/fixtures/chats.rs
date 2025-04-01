@@ -1,9 +1,10 @@
 use anyhow::Result;
 use chrono::Utc;
 use database::{
-    models::{Chat},
+    enums::AssetType,
+    models::{Chat, MessageToFile, Message, MetricFile, DashboardFile},
     pool::get_pg_pool,
-    schema::chats,
+    schema::{chats, messages, messages_to_files, metric_files, dashboard_files},
 };
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;

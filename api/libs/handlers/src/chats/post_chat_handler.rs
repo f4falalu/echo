@@ -19,9 +19,9 @@ use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
     models::{AssetPermission, Chat, Message, MessageToFile},
     pool::get_pg_pool,
-    schema::{asset_permissions, chats, messages, messages_to_files},
+    schema::{asset_permissions, chats, dashboard_files, messages, messages_to_files, metric_files},
 };
-use diesel::{insert_into, ExpressionMethods};
+use diesel::{insert_into, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use litellm::{
     AgentMessage as LiteLLMAgentMessage, ChatCompletionRequest, LiteLLMClient, MessageProgress,
@@ -698,10 +698,46 @@ async fn process_completed_files(
                                 deleted_at: None,
                             };
 
+                            // Insert the message to file association
                             diesel::insert_into(messages_to_files::table)
                                 .values(&message_to_file)
                                 .execute(conn)
                                 .await?;
+
+                            // Determine file type
+                            let file_type = if let Ok(uuid) = Uuid::parse_str(file_id) {
+                                let dashboard_exists = diesel::dsl::select(diesel::dsl::exists(
+                                    dashboard_files::table.filter(dashboard_files::id.eq(&uuid))
+                                ))
+                                .get_result::<bool>(conn)
+                                .await;
+
+                                let metric_exists = diesel::dsl::select(diesel::dsl::exists(
+                                    metric_files::table.filter(metric_files::id.eq(&uuid))
+                                ))
+                                .get_result::<bool>(conn)
+                                .await;
+
+                                match (dashboard_exists, metric_exists) {
+                                    (Ok(true), _) => Some("dashboard".to_string()),
+                                    (_, Ok(true)) => Some("metric".to_string()),
+                                    _ => None,
+                                }
+                            } else {
+                                None
+                            };
+
+                            // Update the chat with the most recent file info
+                            if let Ok(file_uuid) = Uuid::parse_str(file_id) {
+                                diesel::update(chats::table.find(message.chat_id))
+                                    .set((
+                                        chats::most_recent_file_id.eq(Some(file_uuid)),
+                                        chats::most_recent_file_type.eq(file_type),
+                                        chats::updated_at.eq(Utc::now()),
+                                    ))
+                                    .execute(conn)
+                                    .await?;
+                            }
                         }
                     }
                 }
@@ -2055,6 +2091,8 @@ async fn initialize_chat(
             publicly_accessible: false,
             publicly_enabled_by: None,
             public_expiry_date: None,
+            most_recent_file_id: None,
+            most_recent_file_type: None,
         };
 
         // Create initial message

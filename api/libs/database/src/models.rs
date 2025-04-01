@@ -108,6 +108,8 @@ pub struct Chat {
     pub publicly_accessible: bool,
     pub publicly_enabled_by: Option<Uuid>,
     pub public_expiry_date: Option<DateTime<Utc>>,
+    pub most_recent_file_id: Option<Uuid>,
+    pub most_recent_file_type: Option<String>,
 }
 
 #[derive(Queryable, Insertable, Associations, Debug)]

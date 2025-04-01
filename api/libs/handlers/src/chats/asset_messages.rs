@@ -4,9 +4,9 @@ use database::{
     enums::AssetType,
     models::{Message, MessageToFile},
     pool::get_pg_pool,
-    schema::messages_to_files,
+    schema::{chats, messages, messages_to_files},
 };
-use diesel::insert_into;
+use diesel::{insert_into, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
 use uuid::Uuid;
@@ -121,10 +121,37 @@ pub async fn create_message_file_association(
         deleted_at: None,
     };
     
+    // Insert the message-to-file association
     insert_into(messages_to_files::table)
         .values(&message_to_file)
         .execute(&mut conn)
         .await?;
+    
+    // Get the chat_id for this message
+    let message_result = messages::table
+        .filter(messages::id.eq(message_id))
+        .select(messages::chat_id)
+        .first::<Uuid>(&mut conn)
+        .await;
+    
+    if let Ok(chat_id) = message_result {
+        // Determine file type string
+        let file_type = match asset_type {
+            AssetType::MetricFile => "metric".to_string(),
+            AssetType::DashboardFile => "dashboard".to_string(),
+            _ => return Ok(()),
+        };
         
+        // Update the chat with the most recent file information
+        diesel::update(chats::table.find(chat_id))
+            .set((
+                chats::most_recent_file_id.eq(Some(file_id)),
+                chats::most_recent_file_type.eq(Some(file_type)),
+                chats::updated_at.eq(Utc::now()),
+            ))
+            .execute(&mut conn)
+            .await?;
+    }
+    
     Ok(())
 }
