@@ -95,7 +95,7 @@ async fn route_to_query(
 
             
 
-            match redshift_query(redshift_client, sql.to_owned()).await {
+            match redshift_query(redshift_client, sql.to_owned(), limit).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);
@@ -114,7 +114,7 @@ async fn route_to_query(
                 }
             };
 
-            let results = match mysql_query(mysql_pool, sql.to_owned()).await {
+            let results = match mysql_query(mysql_pool, sql.to_owned(), limit).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);
@@ -139,7 +139,7 @@ async fn route_to_query(
 
             
 
-            match bigquery_query(bq_client, project_id, sql.to_owned()).await {
+            match bigquery_query(bq_client, project_id, sql.to_owned(), limit).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);
@@ -160,7 +160,7 @@ async fn route_to_query(
                 }
             };
 
-            let results = match sql_server_query(sql_server_pool, sql.to_owned()).await {
+            let results = match sql_server_query(sql_server_pool, sql.to_owned(), limit).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);
@@ -185,7 +185,7 @@ async fn route_to_query(
 
             
 
-            match databricks_query(databricks_client, sql.to_owned()).await {
+            match databricks_query(databricks_client, sql.to_owned(), limit).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);
@@ -204,7 +204,7 @@ async fn route_to_query(
 
             
 
-            match snowflake_query(snowflake_client, sql.to_owned()).await {
+            match snowflake_query(snowflake_client, sql.to_owned(), limit).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);

@@ -1,6 +1,6 @@
 ---
 description: This is helpful for building libs for our web server to interact with.
-globs: libs/**/*.{rs,toml}
+globs: libs/**/*.{rs
 alwaysApply: false
 ---
 
@@ -13,7 +13,7 @@ libs/
 │   ├── Cargo.toml       # Library-specific manifest
 │   ├── src/
 │   │   ├── lib.rs       # Library root
-│   │   ├── types.rs/      # Data structures and types
+│   │   ├── types.rs      # Data structures and types
 │   │   ├── utils/       # Utility functions
 │   │   └── errors.rs    # Custom error types
 │   └── tests/           # Integration tests

@@ -1,143 +1,70 @@
 ---
-description: These are global rules and recommendations for the rust server.
+description: 
 globs: 
 alwaysApply: true
 ---
+# Buster API Repository Navigation Guide
 
-# Global Rules and Project Structure
+## Row Limit Implementation Notes
+All database query functions in the query_engine library have been updated to respect a 5000 row limit by default. The limit can be overridden by passing an explicit limit value. This is implemented in the libs/query_engine directory.
 
-## Project Overview
-This is a Rust web server project built with Axum, focusing on high performance, safety, and maintainability.
+## Documentation
+The project's detailed documentation is in the `/documentation` directory:
+- `handlers.mdc` - Handler patterns
+- `libs.mdc` - Library construction guidelines 
+- `rest.mdc` - REST API formatting
+- `testing.mdc` - Testing standards
+- `tools.mdc` - Tools documentation
+- `websockets.mdc` - WebSocket patterns
 
-## Project Structure
-- `src/`
-  - `routes/`
-    - `rest/` - REST API endpoints using Axum
-      - `routes/` - Individual route modules
-    - `ws/` - WebSocket handlers and related functionality
-  - `database/` - Database models, schema, and connection management
-  - `main.rs` - Application entry point and server setup
+While these files contain best practices for writing tests, REST patterns, etc., **each subdirectory should have its own README.md or CLAUDE.md** that should be referenced first when working in that specific area. These subdirectory-specific guides often contain implementation details and patterns specific to that component.
 
-## Implementation
-When working with prds, you should always mark your progress off in them as you build.
+## Repository Structure
+- `src/` - Main server code
+  - `routes/` - API endpoints (REST, WebSocket)
+  - `utils/` - Shared utilities
+  - `types/` - Common type definitions
+- `libs/` - Shared libraries
+  - Each lib has its own Cargo.toml and docs
+- `migrations/` - Database migrations
+- `tests/` - Integration tests
+- `documentation/` - Detailed docs
+- `prds/` - Product requirements
 
-## Database Connectivity
-- The primary database connection is managed through `get_pg_pool()`, which returns a lazy static `PgPool`
-- Always use this pool for database connections to ensure proper connection management
-- Example usage:
+## Build Commands
+- `make dev` - Start development
+- `make stop` - Stop development
+- `cargo test -- --test-threads=1 --nocapture` - Run tests
+- `cargo clippy` - Run linter
+- `cargo build` - Build project
+
+## Core Guidelines
+- Use `anyhow::Result` for error handling
+- Group imports (std lib, external, internal)
+- Put shared types in `types/`, route-specific types in route files
+- Use snake_case for variables/functions, CamelCase for types
+- Never log secrets or sensitive data
+- All dependencies inherit from workspace using `{ workspace = true }`
+- Use database connection pool from `get_pg_pool().get().await?`
+- Write tests with `tokio::test` for async tests
+
+## Common Database Pattern
 ```rust
-let mut conn = get_pg_pool().get().await?;
+let pool = get_pg_pool();
+let mut conn = pool.get().await?;
+
+diesel::update(table)
+    .filter(conditions)
+    .set(values)
+    .execute(&mut conn)
+    .await?
 ```
 
-## Code Style and Best Practices
-
-### References and Memory Management
-- Prefer references over owned values when possible
-- Avoid unnecessary `.clone()` calls
-- Use `&str` instead of `String` for function parameters when the string doesn't need to be owned
-
-### Importing packages/crates
-- Please make the dependency as short as possible in the actual logic by importing the crate/package.
-
-### Database Operations
-- Use Diesel for database migrations and query building
-- Migrations are stored in the `migrations/` directory
-
-### Concurrency Guidelines
-- Prioritize concurrent operations, especially for:
-  - API requests
-  - File operations
-- Optimize database connection usage:
-  - Batch operations where possible
-  - Build queries/parameters before executing database operations
-  - Use bulk inserts/updates instead of individual operations
+## Common Concurrency Pattern
 ```rust
-// Preferred: Bulk operation
-let items: Vec<_> = prepare_items();
-diesel::insert_into(table)
-    .values(&items)
-    .execute(conn)?;
-
-// Avoid: Individual operations in a loop
-for item in items {
-    diesel::insert_into(table)
-        .values(&item)
-        .execute(conn)?;
-}
-```
-
-### Error Handling
-- Never use `.unwrap()` or `.expect()` in production code
-- Always handle errors appropriately using:
-  - The `?` operator for error propagation
-  - `match` statements when specific error cases need different handling
-- Use `anyhow` for error handling:
-  - Prefer `anyhow::Result<T>` as the return type for functions that can fail
-  - Use `anyhow::Error` for error types
-  - Use `anyhow!` macro for creating custom errors
-```rust
-use anyhow::{Result, anyhow};
-
-// Example of proper error handling
-pub async fn process_data(input: &str) -> Result<Data> {
-    // Use ? for error propagation
-    let parsed = parse_input(input)?;
-    
-    // Use match when specific error cases need different handling
-    match validate_data(&parsed) {
-        Ok(valid_data) => Ok(valid_data),
-        Err(e) => Err(anyhow!("Data validation failed: {}", e))
-    }
-}
-
-// Avoid this:
-// let data = parse_input(input).unwrap(); // ❌ Never use unwrap
-```
-
-### API Design
-- REST endpoints should be in `routes/rest/routes/`
-- WebSocket handlers should be in `routes/ws/`
-- Use proper HTTP status codes
-- Implement proper validation for incoming requests
-
-### Testing
-- Write unit tests for critical functionality
-- Use integration tests for API endpoints
-- Mock external dependencies when appropriate
-
-## Common Patterns
-
-### Database Queries
-```rust
-use diesel::prelude::*;
-
-// Example of a typical database query
-pub async fn get_item(id: i32) -> Result<Item> {
-    let pool = get_pg_pool();
-    let conn = pool.get().await?;
-    
-    items::table
-        .filter(items::id.eq(id))
-        .first(&conn)
-        .map_err(Into::into)
-}
-```
-
-### Concurrent Operations
-```rust
-use futures::future::try_join_all;
-
-// Example of concurrent processing
 let futures: Vec<_> = items
     .into_iter()
     .map(|item| process_item(item))
     .collect();
 let results = try_join_all(futures).await?;
 ```
-
-Remember to always consider:
-1. Connection pool limits when designing concurrent operations
-2. Transaction boundaries for data consistency
-3. Error propagation and cleanup
-4. Memory usage and ownership
-5. Please use comments to help document your code and make it more readable.

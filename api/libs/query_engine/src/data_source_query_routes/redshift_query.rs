@@ -11,6 +11,7 @@ use crate::data_types::DataType;
 pub async fn redshift_query(
     pg_pool: Pool<Postgres>,
     query: String,
+    limit: Option<i64>,
 ) -> Result<Vec<IndexMap<std::string::String, DataType>>, Error> {
     let mut stream = sqlx::query(&query).fetch(&pg_pool);
 
@@ -56,7 +57,11 @@ pub async fn redshift_query(
         result.push(row_map);
 
         count += 1;
-        if count >= 1000 {
+        if let Some(row_limit) = limit {
+            if count >= row_limit {
+                break;
+            }
+        } else if count >= 5000 {
             break;
         }
     }

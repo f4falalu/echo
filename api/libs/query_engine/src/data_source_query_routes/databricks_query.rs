@@ -10,6 +10,7 @@ use crate::{
 pub async fn databricks_query(
     databricks_client: Databricks,
     query: String,
+    limit: Option<i64>,
 ) -> Result<Vec<IndexMap<std::string::String, DataType>>, Error> {
     let results = match databricks_client.query(query).await {
         Ok(results) => results,
@@ -20,9 +21,10 @@ pub async fn databricks_query(
     };
 
     let mut result: Vec<IndexMap<String, DataType>> = Vec::new();
+    let max_rows = limit.unwrap_or(5000) as usize;
 
     let rows = match results.result.data_array {
-        Some(rows) => rows,
+        Some(rows) => rows.into_iter().take(max_rows).collect::<Vec<_>>(),
         None => return Ok(Vec::new()),
     };
 
