@@ -1,4 +1,4 @@
-import { ChartType, Chart, Plugin } from 'chart.js';
+import { ChartType, Plugin } from 'chart.js';
 
 export interface ChartHoverScatterPluginOptions {
   color?: string;

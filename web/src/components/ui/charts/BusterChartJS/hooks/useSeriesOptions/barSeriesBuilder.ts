@@ -29,6 +29,8 @@ export const barSeriesBuilder = ({
 
     let hasBeenDrawn = false;
 
+    console.log(hasBeenDrawn, defaultLabelOptionConfig);
+
     dataLabelOptions.stackTotal = {
       display: function (context) {
         const shownDatasets = context.chart.data.datasets.filter(
