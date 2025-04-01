@@ -11,6 +11,7 @@ pub async fn bigquery_query(
     client: Client,
     project_id: String,
     query: String,
+    limit: Option<i64>,
 ) -> Result<Vec<IndexMap<String, DataType>>> {
     let query_request = QueryRequest {
         connection_properties: None,
@@ -19,7 +20,7 @@ pub async fn bigquery_query(
         kind: None,
         labels: None,
         location: None,
-        max_results: Some(500),
+        max_results: Some(limit.unwrap_or(5000).min(i32::MAX as i64) as i32),
         maximum_bytes_billed: None,
         parameter_mode: None,
         preserve_nulls: None,

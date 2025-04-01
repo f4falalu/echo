@@ -4,6 +4,10 @@
 
 The Query Engine library provides connectivity and query execution functionality for various data sources in Buster. It abstracts away the details of connecting to different database systems, allows secure credential management, and provides a unified interface for executing queries across multiple database technologies.
 
+## Result Limitations
+
+All database queries are capped at a maximum of 5000 rows by default to ensure performance and prevent excessive resource usage. This limit can be overridden by passing a specific limit parameter when calling the query functions.
+
 ## Key Functionality
 
 - Data source connection management for multiple database types
@@ -58,13 +62,18 @@ src/
 ## Usage Patterns
 
 ```rust
-use query_engine::data_source_query_routes::query_engine::{execute_query, QueryResult};
-use query_engine::data_types::{DataSource, DataSourceType};
+use query_engine::data_source_query_routes::query_engine::query_engine;
+use query_engine::data_types::DataType;
+use uuid::Uuid;
+use indexmap::IndexMap;
 
-async fn example_query(data_source: DataSource) -> Result<QueryResult, anyhow::Error> {
-    // Execute a query against a data source
-    let query = "SELECT * FROM users LIMIT 10";
-    let result = execute_query(&data_source, query).await?;
+async fn example_query(data_source_id: &Uuid, sql: &str) -> Result<Vec<IndexMap<String, DataType>>, anyhow::Error> {
+    // Execute a query against a data source using the default 5000-row limit
+    let result = query_engine(data_source_id, sql, None).await?;
+    
+    // Or specify a custom limit
+    let custom_limit = Some(1000);
+    let limited_result = query_engine(data_source_id, sql, custom_limit).await?;
     
     Ok(result)
 }

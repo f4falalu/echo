@@ -115,12 +115,14 @@ fn handle_snowflake_timestamp_struct(
 pub async fn snowflake_query(
     mut snowflake_client: SnowflakeApi,
     query: String,
+    limit: Option<i64>,
 ) -> Result<Vec<IndexMap<std::string::String, DataType>>, Error> {
-    const MAX_ROWS: usize = 1_000;
+    const DEFAULT_MAX_ROWS: usize = 5000;
 
     let query_no_semicolon = query.trim_end_matches(';');
+    let max_rows = limit.map(|l| l as usize).unwrap_or(DEFAULT_MAX_ROWS);
     let limited_query = if !query_no_semicolon.to_lowercase().contains("limit") {
-        format!("{} FETCH FIRST {} ROWS ONLY", query_no_semicolon, MAX_ROWS)
+        format!("{} FETCH FIRST {} ROWS ONLY", query_no_semicolon, max_rows)
     } else {
         query_no_semicolon.to_string()
     };
