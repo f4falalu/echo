@@ -20,7 +20,11 @@ export const pathNameToRoute = (pathName: string, params: any): BusterRoutes => 
     [BusterRoutes.APP_DATASETS_ID_PERMISSIONS_OVERVIEW]: BusterRoutes.APP_DATASETS,
     [BusterRoutes.APP_DATASETS_ID_OVERVIEW]: BusterRoutes.APP_DATASETS,
     [BusterRoutes.APP_DATASETS_ID_EDITOR]: BusterRoutes.APP_DATASETS,
-    [BusterRoutes.APP_TERMS_ID]: BusterRoutes.APP_TERMS
+    [BusterRoutes.APP_TERMS_ID]: BusterRoutes.APP_TERMS,
+    [BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART]: BusterRoutes.APP_CHAT,
+    [BusterRoutes.APP_CHAT_ID_METRIC_ID_FILE]: BusterRoutes.APP_CHAT,
+    [BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS]: BusterRoutes.APP_CHAT,
+    [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE]: BusterRoutes.APP_CHAT
   };
 
   if (route && paramRoutesToParent[route as string]) {

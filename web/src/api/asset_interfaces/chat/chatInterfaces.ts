@@ -27,4 +27,6 @@ export interface BusterChatListItem {
   created_by_name: string;
   created_by_avatar: string | null;
   last_edited: string;
+  latest_file_id: string | null;
+  latest_file_type: 'metric' | 'dashboard';
 }

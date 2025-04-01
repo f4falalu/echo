@@ -35,7 +35,6 @@ export const MetricTitle: React.FC<{
     const { attributes, listeners } = useContext(SortableItemContext);
 
     useMount(() => {
-      console.log('I want to test if we really need this here?');
       if (metricLink) router.prefetch(metricLink);
     });
 

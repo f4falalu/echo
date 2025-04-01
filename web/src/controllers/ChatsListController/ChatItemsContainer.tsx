@@ -35,15 +35,38 @@ export const ChatItemsContainer: React.FC<{
 
   const logsRecord = useCreateListByDate({ data: chats });
 
+  const getLink = useMemoizedFn((chat: BusterChatListItem) => {
+    if (chat.latest_file_id) {
+      switch (chat.latest_file_type) {
+        case 'metric':
+          return createBusterRoute({
+            route: BusterRoutes.APP_CHAT_ID_METRIC_ID,
+            chatId: chat.id,
+            metricId: chat.latest_file_id
+          });
+        case 'dashboard':
+          return createBusterRoute({
+            route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
+            chatId: chat.id,
+            dashboardId: chat.latest_file_id
+          });
+        default:
+          const _exhaustiveCheck: never = chat.latest_file_type;
+      }
+    }
+
+    return createBusterRoute({
+      route: BusterRoutes.APP_CHAT_ID,
+      chatId: chat.id
+    });
+  });
+
   const chatsByDate: BusterListRow[] = useMemo(() => {
     return Object.entries(logsRecord).flatMap(([key, chats]) => {
       const records = chats.map((chat) => ({
         id: chat.id,
         data: chat,
-        link: createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID,
-          chatId: chat.id
-        })
+        link: getLink(chat)
       }));
       const hasRecords = records.length > 0;
 
