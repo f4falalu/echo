@@ -1,5 +1,5 @@
 ---
-description: Helpful when making migrations with diesel.rs
+description: 
 globs: 
 alwaysApply: false
 ---

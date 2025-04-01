@@ -12,6 +12,8 @@ The project's detailed documentation is in the `/documentation` directory:
 - `tools.mdc` - Tools documentation
 - `websockets.mdc` - WebSocket patterns
 
+While these files contain best practices for writing tests, REST patterns, etc., **each subdirectory should have its own README.md or CLAUDE.md** that should be referenced first when working in that specific area. These subdirectory-specific guides often contain implementation details and patterns specific to that component.
+
 ## Repository Structure
 - `src/` - Main server code
   - `routes/` - API endpoints (REST, WebSocket)
