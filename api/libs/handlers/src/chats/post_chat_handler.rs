@@ -450,6 +450,18 @@ pub async fn post_chat_handler(
     let title = title_handle.await??;
     let reasoning_duration = reasoning_duration.elapsed().as_secs();
 
+    // Format reasoning duration
+    let formatted_reasoning_duration = if reasoning_duration < 60 {
+        format!("Reasoned for {} seconds", reasoning_duration)
+    } else {
+        let minutes = reasoning_duration / 60;
+        if minutes == 1 {
+            "Reasoned for 1 minute".to_string() // Singular minute
+        } else {
+            format!("Reasoned for {} min", minutes) // Plural minutes (abbreviated)
+        }
+    };
+
     // Transform all messages for final storage
     let (response_messages, reasoning_messages) =
         prepare_final_message_state(&all_transformed_containers)?;
@@ -465,7 +477,7 @@ pub async fn post_chat_handler(
         }),
         response_messages.clone(),
         reasoning_messages.clone(),
-        Some(format!("Reasoned for {} seconds", reasoning_duration).to_string()),
+        Some(formatted_reasoning_duration.clone()), // Use the formatted duration string
         Utc::now(),
     );
 
@@ -482,7 +494,7 @@ pub async fn post_chat_handler(
         deleted_at: None,
         response_messages: serde_json::to_value(&response_messages)?,
         reasoning: serde_json::to_value(&reasoning_messages)?,
-        final_reasoning_message: Some(format!("Reasoned for {} seconds", reasoning_duration)),
+        final_reasoning_message: Some(formatted_reasoning_duration), // Use the formatted duration string
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
         feedback: None,

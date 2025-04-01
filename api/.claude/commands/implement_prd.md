@@ -1,4 +1,4 @@
-ok I need you to implement the $ARGUMENTS prd following it in 
+ok I need you to implement the prds/active/$ARGUMENTS.md prd following it in 
 order and accomplishing the tasks while referencing the prd, its notes, and recommendations.
 
 you should follow best practices as related in documentation/ for database migrations, testing, handlers, 
