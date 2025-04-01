@@ -5,6 +5,45 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Function to create CSP header with dynamic API URLs
+const createCspHeader = (isEmbed = false) => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL
+    ? new URL(process.env.NEXT_PUBLIC_API_URL).origin
+    : '';
+  const wsUrl = process.env.NEXT_PUBLIC_WEB_SOCKET_URL
+    ? new URL(process.env.NEXT_PUBLIC_WEB_SOCKET_URL).origin
+        .replace('https', 'wss')
+        .replace('http', 'ws')
+    : '';
+
+  return [
+    // Default directives
+    "default-src 'self'",
+    // Scripts
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercel.app https://cdn.jsdelivr.net https://*.cloudflareinsights.com",
+    // Styles
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+    // Images
+    "img-src 'self' blob: data: https://*.vercel.app https://*.supabase.co",
+    // Fonts
+    "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
+    // Frame ancestors
+    isEmbed ? `frame-ancestors 'self' *` : "frame-ancestors 'none'",
+    // Connect sources for API calls
+    `connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:* https://*.vercel.app https://*.supabase.co wss://*.supabase.co https://*.onporter.run wss://*.onporter.run ${apiUrl} ${wsUrl}`.trim(),
+    // Media
+    "media-src 'self'",
+    // Object
+    "object-src 'none'",
+    // Form actions
+    "form-action 'self'",
+    // Base URI
+    "base-uri 'self'",
+    // Manifest
+    "manifest-src 'self'"
+  ].join('; ');
+};
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
@@ -26,7 +65,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: defaultCspHeader
+            value: createCspHeader(false)
           }
         ]
       },
@@ -35,7 +74,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: embedCspHeader
+            value: createCspHeader(true)
           }
         ]
       }
@@ -44,57 +83,3 @@ const nextConfig = {
 };
 
 export default nextConfig;
-
-const defaultCspHeader = [
-  // Default directives
-  "default-src 'self'",
-  // Scripts
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercel.app https://cdn.jsdelivr.net",
-  // Styles
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
-  // Images
-  "img-src 'self' blob: data: https://*.vercel.app https://*.supabase.co",
-  // Fonts
-  "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
-  // Frame ancestors - no embedding for non-embed routes
-  "frame-ancestors 'none'",
-  // Connect sources for API calls
-  "connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:* https://*.vercel.app https://*.supabase.co wss://*.supabase.co",
-  // Media
-  "media-src 'self'",
-  // Object
-  "object-src 'none'",
-  // Form actions
-  "form-action 'self'",
-  // Base URI
-  "base-uri 'self'",
-  // Manifest
-  "manifest-src 'self'"
-].join('; ');
-
-const embedCspHeader = [
-  // Default directives
-  "default-src 'self'",
-  // Scripts
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercel.app https://cdn.jsdelivr.net",
-  // Styles
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
-  // Images
-  "img-src 'self' blob: data: https://*.vercel.app https://*.supabase.co",
-  // Fonts
-  "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
-  // Frame ancestors - allow embedding from any domain for /embed routes
-  `frame-ancestors 'self' *`,
-  // Connect sources for API calls
-  "connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:* https://*.vercel.app https://*.supabase.co wss://*.supabase.co",
-  // Media
-  "media-src 'self'",
-  // Object
-  "object-src 'none'",
-  // Form actions
-  "form-action 'self'",
-  // Base URI
-  "base-uri 'self'",
-  // Manifest
-  "manifest-src 'self'"
-].join('; ');
