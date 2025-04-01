@@ -69,6 +69,10 @@ export type BusterAppRoutesWithArgs = {
     route: BusterAppRoutes.APP_DASHBOARD_ID;
     dashboardId: string;
   };
+  [BusterAppRoutes.APP_DASHBOARD_ID_FILE]: {
+    route: BusterAppRoutes.APP_DASHBOARD_ID_FILE;
+    dashboardId: string;
+  };
   [BusterAppRoutes.APP_DATASETS]: { route: BusterAppRoutes.APP_DATASETS };
   [BusterAppRoutes.APP_TERMS]: { route: BusterAppRoutes.APP_TERMS };
   [BusterAppRoutes.APP_DATASETS_ID]: { route: BusterAppRoutes.APP_DATASETS_ID; datasetId: string };
@@ -145,6 +149,11 @@ export type BusterAppRoutesWithArgs = {
   };
   [BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID]: {
     route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID;
+    chatId: string;
+    dashboardId: string;
+  };
+  [BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE]: {
+    route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE;
     chatId: string;
     dashboardId: string;
   };

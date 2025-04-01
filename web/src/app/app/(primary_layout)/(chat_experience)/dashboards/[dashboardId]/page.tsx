@@ -1,14 +1,9 @@
-import { DashboardController } from '@/controllers/DashboardController';
-import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
+import { DashboardViewDashboardController } from '@/controllers/DashboardController/DashboardViewDashboardController';
 
 export default async function Page(props: { params: Promise<{ dashboardId: string }> }) {
   const params = await props.params;
 
   const { dashboardId } = params;
 
-  return (
-    <AppAssetCheckLayout assetId={dashboardId} type="dashboard">
-      <DashboardController dashboardId={dashboardId} />
-    </AppAssetCheckLayout>
-  );
+  return <DashboardViewDashboardController dashboardId={dashboardId} chatId={undefined} />;
 }

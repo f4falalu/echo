@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect } from 'react';
 import { CodeCard } from '@/components/ui/card';
 import { useMemoizedFn } from '@/hooks';
