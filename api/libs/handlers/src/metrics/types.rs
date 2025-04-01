@@ -48,8 +48,8 @@ pub struct BusterMetric {
     pub sent_by_name: String,
     pub sent_by_avatar_url: Option<String>,
     pub code: Option<String>,
-    pub dashboards: Vec<Dashboard>,
-    pub collections: Vec<Collection>,
+    pub dashboards: Vec<AssociatedDashboard>,
+    pub collections: Vec<AssociatedCollection>,
     pub versions: Vec<Version>,
     pub permission: AssetPermissionRole,
     pub sql: String,
@@ -59,6 +59,18 @@ pub struct BusterMetric {
     pub public_enabled_by: Option<String>,
     pub publicly_accessible: bool,
     pub public_password: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AssociatedDashboard {
+    pub id: Uuid,
+    pub name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AssociatedCollection {
+    pub id: Uuid,
+    pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
