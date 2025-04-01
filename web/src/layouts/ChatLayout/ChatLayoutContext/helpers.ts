@@ -1,5 +1,6 @@
 import type { FileType, AllFileTypes } from '@/api/asset_interfaces';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import type { FileView } from './useLayoutConfig';
 
 const chatRouteRecord: Record<AllFileTypes, (chatId: string, assetId: string) => string> = {
   collection: (chatId, assetId) =>
@@ -59,4 +60,29 @@ export const createChatAssetRoute = ({
   const routeBuilder = chatRouteRecord[type];
   if (!routeBuilder) return null;
   return routeBuilder(chatId, assetId);
+};
+
+const routeToFileView: Partial<Record<BusterRoutes, FileView>> = {
+  [BusterRoutes.APP_METRIC_ID_CHART]: 'chart',
+  [BusterRoutes.APP_METRIC_ID_RESULTS]: 'results',
+  [BusterRoutes.APP_METRIC_ID_FILE]: 'file',
+  [BusterRoutes.APP_CHAT_ID_METRIC_ID]: 'file',
+  [BusterRoutes.APP_CHAT_ID_METRIC_ID_FILE]: 'file',
+  [BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS]: 'results',
+  [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID]: 'dashboard',
+  [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE]: 'file'
+};
+
+export const getFileViewFromRoute = (route: BusterRoutes) => {
+  return routeToFileView[route];
+};
+
+export const DEFAULT_FILE_VIEW: Record<FileType, FileView> = {
+  metric: 'chart',
+  dashboard: 'dashboard',
+  reasoning: 'reasoning'
+  // collection: 'results',
+  // value: 'results',
+  // term: 'results',
+  // dataset: 'results',
 };

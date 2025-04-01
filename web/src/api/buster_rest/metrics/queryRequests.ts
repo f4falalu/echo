@@ -101,7 +101,7 @@ export const useGetMetricData = ({
   id,
   version_number: version_number_prop
 }: {
-  id: string;
+  id: string | undefined;
   version_number?: number;
 }) => {
   const searchParams = useSearchParams();
@@ -112,12 +112,13 @@ export const useGetMetricData = ({
   }, [version_number_prop, queryVersionNumber]);
 
   const queryFn = useMemoizedFn(() => {
-    return getMetricData({ id, version_number });
+    return getMetricData({ id: id!, version_number });
   });
 
   return useQuery({
-    ...metricsQueryKeys.metricsGetData(id, version_number),
-    queryFn
+    ...metricsQueryKeys.metricsGetData(id!, version_number),
+    queryFn,
+    enabled: !!id
   });
 };
 

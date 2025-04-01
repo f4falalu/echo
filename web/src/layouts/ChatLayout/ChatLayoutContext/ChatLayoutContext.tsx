@@ -52,9 +52,9 @@ export const useChatLayoutContext = ({ appSplitterRef }: UseLayoutConfigProps) =
     selectedLayout,
     onCollapseFileClick
   } = useLayoutConfig({
+    ...chatParams,
     selectedFile,
     isVersionHistoryMode,
-    chatId: chatParams.chatId,
     animateOpenSplitter,
     onSetSelectedFile
   });

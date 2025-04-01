@@ -1,7 +1,7 @@
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { upgradeMetricToIMetric } from '@/lib/metrics';
 import { QueryClient } from '@tanstack/react-query';
-import { getMetric_server, listMetrics, listMetrics_server } from './requests';
+import { getMetric_server } from './requests';
 
 /*
 

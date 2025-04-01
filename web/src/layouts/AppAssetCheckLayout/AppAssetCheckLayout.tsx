@@ -6,6 +6,7 @@ import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
 import { prefetchAssetCheck } from '@/api/buster_rest/assets';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { AppAssetLoadingContainer } from './AppAssetLoadingContainer';
 
 export type AppAssetCheckLayoutProps = {
   assetId: string;
@@ -39,5 +40,11 @@ export const AppAssetCheckLayout: React.FC<
 
   const dehydratedState = dehydrate(queryClient);
 
-  return <HydrationBoundary state={dehydratedState}>{Component}</HydrationBoundary>;
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <AppAssetLoadingContainer assetId={assetId} type={type}>
+        {Component}
+      </AppAssetLoadingContainer>
+    </HydrationBoundary>
+  );
 };

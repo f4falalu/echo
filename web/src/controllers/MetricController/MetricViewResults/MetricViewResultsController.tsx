@@ -1,5 +1,6 @@
+'use client';
+
 import React, { useEffect, useMemo, useState } from 'react';
-import type { MetricViewProps } from '../config';
 import { useMemoizedFn, useUnmount } from '@/hooks';
 import { IDataResult } from '@/api/asset_interfaces';
 import { useMetricResultsLayout } from './useMetricResultsLayout';
@@ -11,7 +12,7 @@ import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 
 const autoSaveId = 'metric-view-results';
 
-export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metricId }) => {
+export const MetricViewResults: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
   const appSplitterRef = React.useRef<AppSplitterRef>(null);
   const selectedFileViewSecondary = useChatLayoutContextSelector(
     (x) => x.selectedFileViewSecondary
@@ -34,7 +35,7 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
     sql,
     data_source_id
   }));
-  const { data: metricData } = useGetMetricData({ id: metricId });
+  const { data: metricData, isFetched: isFetchedInitialData } = useGetMetricData({ id: metricId });
 
   const [sql, setSQL] = useState(metric?.sql || '');
 
@@ -106,7 +107,7 @@ export const MetricViewResults: React.FC<MetricViewProps> = React.memo(({ metric
         onSaveSQL={onSaveSQL}
         data={data}
         disabledSave={disableSave}
-        fetchingData={isRunningSQL || isSavingMetric}
+        fetchingData={isRunningSQL || isSavingMetric || !isFetchedInitialData}
         defaultLayout={defaultLayout}
       />
     </div>

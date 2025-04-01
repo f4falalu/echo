@@ -16,8 +16,7 @@ import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { useDashboardContentStore } from '@/context/Dashboards';
 
 export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
-  () => {
-    const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView);
+  ({ selectedFileView }) => {
     const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
     const dashboardId = selectedFileId;
 

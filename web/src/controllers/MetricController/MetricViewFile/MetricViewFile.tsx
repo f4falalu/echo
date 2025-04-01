@@ -1,12 +1,13 @@
+'use client';
+
 import React, { useEffect } from 'react';
-import type { MetricViewProps } from '../config';
 import { CodeCard } from '@/components/ui/card';
 import { useMemoizedFn } from '@/hooks';
 import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useGetMetric, useSaveMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useGetMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
 
-export const MetricViewFile: React.FC<MetricViewProps> = React.memo(({ metricId }) => {
+export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
   const { data: metric } = useGetMetric({ id: metricId }, ({ file, file_name }) => ({
     file,
     file_name

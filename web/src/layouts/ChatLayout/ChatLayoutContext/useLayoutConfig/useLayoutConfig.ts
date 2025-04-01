@@ -1,6 +1,6 @@
 'use client';
 
-import { FileType } from '@/api/asset_interfaces';
+import { FileType } from '@/api/asset_interfaces/chat';
 import { useLayoutEffect, useMemo, useState } from 'react';
 import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './interfaces';
 import { useMemoizedFn } from '@/hooks';
@@ -10,23 +10,31 @@ import type { SelectedFile } from '../../interfaces';
 import { timeout } from '@/lib';
 import { useRouter } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
-import { SelectedFileSecondaryRenderRecord } from '../../FileContainer/FileContainerSecondary/secondaryPanelsConfig';
+import { SelectedFileSecondaryRenderRecord } from '../../FileContainer/FileContainerSecondary';
+import { ChatParams } from '../useGetChatParams';
+import { initializeFileViews } from './helpers';
+import { DEFAULT_FILE_VIEW } from '../helpers';
 
 export const useLayoutConfig = ({
   selectedFile,
   isVersionHistoryMode,
   chatId,
   onSetSelectedFile,
-  animateOpenSplitter
+  animateOpenSplitter,
+  metricId,
+  dashboardId,
+  currentRoute
 }: {
   selectedFile: SelectedFile | null;
   isVersionHistoryMode: boolean;
   chatId: string | undefined;
   animateOpenSplitter: (side: 'left' | 'right' | 'both') => void;
   onSetSelectedFile: (file: SelectedFile | null) => void;
-}) => {
+} & ChatParams) => {
   const router = useRouter();
-  const [fileViews, setFileViews] = useState<Record<string, FileConfig>>({});
+  const [fileViews, setFileViews] = useState<Record<string, FileConfig>>(
+    initializeFileViews({ metricId, dashboardId, currentRoute })
+  );
 
   const selectedFileId = selectedFile?.id;
   const selectedFileType = selectedFile?.type;
@@ -192,14 +200,4 @@ export const useLayoutConfig = ({
       onCollapseFileClick
     ]
   );
-};
-
-const DEFAULT_FILE_VIEW: Record<FileType, FileView> = {
-  metric: 'chart',
-  dashboard: 'dashboard',
-  reasoning: 'reasoning'
-  // collection: 'results',
-  // value: 'results',
-  // term: 'results',
-  // dataset: 'results',
 };

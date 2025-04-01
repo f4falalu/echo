@@ -1,18 +1,21 @@
 'use client';
 
-import { useParams, useSearchParams } from 'next/navigation';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 
 export const useGetChatParams = () => {
   const { chatId, metricId, dashboardId, collectionId, datasetId, messageId } = useParams() as {
-    chatId: string;
-    metricId: string;
-    dashboardId: string;
-    collectionId: string;
-    datasetId: string;
-    messageId: string;
+    chatId: string | undefined;
+    metricId: string | undefined;
+    dashboardId: string | undefined;
+    collectionId: string | undefined;
+    datasetId: string | undefined;
+    messageId: string | undefined;
   };
   const searchParams = useSearchParams();
+  const currentRoute = useAppLayoutContextSelector((state) => state.currentRoute);
+
   const metricVersionNumber = searchParams.get('metric_version_number');
   const dashboardVersionNumber = searchParams.get('dashboard_version_number');
 
@@ -25,7 +28,8 @@ export const useGetChatParams = () => {
       datasetId,
       messageId,
       metricVersionNumber,
-      dashboardVersionNumber
+      dashboardVersionNumber,
+      currentRoute
     }),
     [
       chatId,
@@ -35,7 +39,10 @@ export const useGetChatParams = () => {
       datasetId,
       messageId,
       metricVersionNumber,
-      dashboardVersionNumber
+      dashboardVersionNumber,
+      currentRoute
     ]
   );
 };
+
+export type ChatParams = ReturnType<typeof useGetChatParams>;
