@@ -251,29 +251,27 @@ function SegmentedTriggerComponent<T extends string = string>(props: SegmentedTr
 
   return (
     <Tooltip title={tooltip || ''} sideOffset={10} delayDuration={150}>
-      <LinkDiv href={link || ''} onClick={handleClick}>
-        <Tabs.Trigger
-          key={value}
-          value={value}
-          disabled={disabled}
-          asChild
-          ref={(el) => {
-            if (el) tabRefs.current.set(value, el);
-          }}
-          className={cn(
-            triggerVariants({
-              size,
-              block,
-              disabled,
-              selected: selectedValue === value
-            })
-          )}>
-          <div className="">
-            {icon && <span className={cn('flex items-center text-sm')}>{icon}</span>}
-            {label && <span className={cn('text-sm')}>{label}</span>}
-          </div>
-        </Tabs.Trigger>
-      </LinkDiv>
+      <Tabs.Trigger
+        key={value}
+        value={value}
+        disabled={disabled}
+        asChild
+        ref={(el) => {
+          if (el) tabRefs.current.set(value, el);
+        }}
+        className={cn(
+          triggerVariants({
+            size,
+            block,
+            disabled,
+            selected: selectedValue === value
+          })
+        )}>
+        <LinkDiv href={link || ''} onClick={handleClick}>
+          {icon && <span className={cn('flex items-center text-sm')}>{icon}</span>}
+          {label && <span className={cn('text-sm')}>{label}</span>}
+        </LinkDiv>
+      </Tabs.Trigger>
     </Tooltip>
   );
 }

@@ -12,9 +12,9 @@ type PreventNavigationProps = {
   description: string;
   cancelText?: string;
   okText?: string;
-  onOk: () => Promise<void>;
-  onCancel: () => Promise<void>;
-  onClose?: () => void;
+  onOk: (() => Promise<void>) | (() => void);
+  onCancel: (() => Promise<void>) | (() => void);
+  onClose?: (() => Promise<void>) | (() => void);
   doNotLeavePageOnOkay?: boolean;
 };
 
@@ -108,7 +108,7 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
             document.querySelectorAll('a').forEach((link) => {
               link.addEventListener('click', handleClick);
             });
-          }, 0);
+          }, 5);
         };
 
         setLeavingPage(true);
