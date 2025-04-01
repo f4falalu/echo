@@ -43,7 +43,7 @@ export const SelectAxisDropZone: React.FC<{
           <SortableContext
             items={zone.items.map((item) => item.id)}
             strategy={verticalListSortingStrategy}>
-            <div className={cn('space-y-0.5 transition', extraClass)}>
+            <div className={cn('space-y-0.5 rounded transition', extraClass)}>
               {zone.items.map((item) => (
                 <SelectAxisSortableItem
                   key={item.originalId}

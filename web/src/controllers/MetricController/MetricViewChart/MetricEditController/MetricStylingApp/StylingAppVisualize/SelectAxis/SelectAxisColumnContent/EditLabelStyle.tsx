@@ -41,7 +41,7 @@ export const EditLabelStyle: React.FC<{
   return (
     <LabelAndInput label="Style">
       <div className="flex items-center justify-end">
-        <AppSegmented options={options} value={style} onChange={onChange} />
+        <AppSegmented options={options} value={style} type="button" onChange={onChange} />
       </div>
     </LabelAndInput>
   );

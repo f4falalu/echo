@@ -116,9 +116,9 @@ export const EditLineStyle: React.FC<{
         <div className="flex justify-end">
           <AppSegmented
             options={shownOptions}
-            block={false}
             value={selectedOption}
             onChange={onChange}
+            type="button"
           />
         </div>
       </LabelAndInput>

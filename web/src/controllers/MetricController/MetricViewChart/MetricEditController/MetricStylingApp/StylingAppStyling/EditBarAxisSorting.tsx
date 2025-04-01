@@ -47,7 +47,7 @@ export const EditBarSorting: React.FC<{
   return (
     <LabelAndInput label="Sorting">
       <div className="flex justify-end">
-        <AppSegmented options={options} value={selectedOption} onChange={onChange} block={false} />
+        <AppSegmented options={options} value={selectedOption} onChange={onChange} type="button" />
       </div>
     </LabelAndInput>
   );

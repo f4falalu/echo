@@ -57,7 +57,7 @@ export const EditDisplayAs: React.FC<{
   return (
     <LabelAndInput label="Display as">
       <div className="flex justify-end">
-        <AppSegmented options={options} block={false} value={selectedOption} onChange={onChange} />
+        <AppSegmented options={options} type="button" value={selectedOption} onChange={onChange} />
       </div>
     </LabelAndInput>
   );
