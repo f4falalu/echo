@@ -69,20 +69,15 @@ pub async fn postgres_query(
 
     let formatted_sql = ast[0].to_string();
 
-    // Apply the limit directly at the database level
+    // Get the limit value, defaulting to 5000 if not specified
     let default_limit = 5000;
-    let limit_value = limit.unwrap_or(default_limit);
+    let limit_value = limit.unwrap_or(default_limit) as usize;
     
-    // Append LIMIT to the query with parameter
-    let sql_with_limit = format!("{} LIMIT $1", formatted_sql);
-    
-    // Create query with the limit parameter
-    let mut stream = sqlx::query(&sql_with_limit)
-        .bind(limit_value)
-        .fetch(&pg_pool);
+    // Create query stream without appending LIMIT
+    let mut stream = sqlx::query(&formatted_sql).fetch(&pg_pool);
 
     // Pre-allocate result vector with estimated capacity to reduce allocations
-    let mut result: Vec<IndexMap<String, DataType>> = Vec::with_capacity(limit_value as usize);
+    let mut result: Vec<IndexMap<String, DataType>> = Vec::with_capacity(limit_value);
 
     // Process all rows without spawning tasks per row
     while let Some(row) = stream.try_next().await? {
@@ -123,6 +118,11 @@ pub async fn postgres_query(
         }
 
         result.push(row_map);
+        
+        // Stop processing if we've reached the limit
+        if result.len() >= limit_value {
+            break;
+        }
     }
 
     Ok(result)
