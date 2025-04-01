@@ -44,14 +44,26 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
      * @param e The triggered event.
      */
     const handleClick = useMemoizedFn((event: MouseEvent) => {
-      const target = event.target as HTMLAnchorElement;
+      let target = event.target as HTMLElement;
+      let href: string | null = null;
+
+      // Traverse up the DOM tree looking for an anchor tag with href
+      while (target && !href) {
+        if (target instanceof HTMLAnchorElement && target.href) {
+          href = target.href;
+          break;
+        }
+        target = target.parentElement as HTMLElement;
+      }
 
       if (isDirty) {
         event.preventDefault();
         event.stopPropagation();
 
+        console.log(href);
+
         confirmationFn.current = () => {
-          router.push(target.href);
+          if (href) router.push(href);
         };
 
         setLeavingPage(true);

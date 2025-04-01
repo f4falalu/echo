@@ -256,10 +256,22 @@ const DropdownMenuLink: React.FC<{
     />
   );
 
-  if (!link) return <div className={className}>{content}</div>;
+  if (!link)
+    return (
+      <div className={className} onClick={(e) => e.stopPropagation()}>
+        {content}
+      </div>
+    );
 
   return (
-    <Link className={className} href={link} target={isExternal ? '_blank' : '_self'}>
+    <Link
+      className={className}
+      href={link}
+      target={isExternal ? '_blank' : '_self'}
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      }}>
       {content}
     </Link>
   );
