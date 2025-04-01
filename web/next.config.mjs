@@ -55,7 +55,7 @@ const defaultCspHeader = [
   // Images
   "img-src 'self' blob: data: https://*.vercel.app https://*.supabase.co",
   // Fonts
-  "font-src 'self' https://fonts.gstatic.com",
+  "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
   // Frame ancestors - no embedding for non-embed routes
   "frame-ancestors 'none'",
   // Connect sources for API calls
@@ -82,7 +82,7 @@ const embedCspHeader = [
   // Images
   "img-src 'self' blob: data: https://*.vercel.app https://*.supabase.co",
   // Fonts
-  "font-src 'self' https://fonts.gstatic.com",
+  "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
   // Frame ancestors - allow embedding from any domain for /embed routes
   `frame-ancestors 'self' *`,
   // Connect sources for API calls

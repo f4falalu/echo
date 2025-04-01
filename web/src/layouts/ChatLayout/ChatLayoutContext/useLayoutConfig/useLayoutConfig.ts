@@ -81,7 +81,7 @@ export const useLayoutConfig = ({
       if (secondaryView) {
         animateOpenSplitter('right');
         await timeout(250); //wait for splitter to close before opening secondary view
-      } else {
+      } else if (chatId) {
         animateOpenSplitter('both');
       }
 

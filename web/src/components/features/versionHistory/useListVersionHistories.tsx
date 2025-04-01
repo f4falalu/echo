@@ -95,14 +95,17 @@ export const useListVersionHistories = ({
       selectedVersion,
       selectedQueryVersion,
       onClickVersionHistory,
-      onClickRestoreVersion
+      onClickRestoreVersion,
+      isRestoringVersion: isSavingDashboard || isSavingMetric
     };
   }, [
     listItems,
     selectedVersion,
     selectedQueryVersion,
     onClickVersionHistory,
-    onClickRestoreVersion
+    onClickRestoreVersion,
+    isSavingDashboard,
+    isSavingMetric
   ]);
 };
 
