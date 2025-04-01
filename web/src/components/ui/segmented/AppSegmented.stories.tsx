@@ -1,6 +1,32 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { AppSegmented } from './AppSegmented';
 import { BottleChampagne, Grid, HouseModern, PaintRoller } from '../icons';
+import { PreventNavigation } from '../layouts/PreventNavigation';
+import { useRouter } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { Checkbox } from '../checkbox';
+
+// Mock the Next.js router
+const MockNextRouter = ({ children }: { children: React.ReactNode }) => {
+  const mockRouter = {
+    back: () => {},
+    forward: () => {},
+    push: () => {},
+    replace: () => {},
+    refresh: () => {},
+    prefetch: () => Promise.resolve()
+  };
+
+  // @ts-ignore - we're mocking the router
+  useRouter.mockImplementation(() => mockRouter);
+  // @ts-ignore - we're mocking the pathname
+  usePathname.mockImplementation(() => '/');
+  // @ts-ignore - we're mocking the search params
+  useSearchParams.mockImplementation(() => new URLSearchParams());
+
+  return <>{children}</>;
+};
 
 const meta: Meta<typeof AppSegmented> = {
   title: 'UI/Segmented/AppSegmented',
@@ -9,6 +35,13 @@ const meta: Meta<typeof AppSegmented> = {
     layout: 'centered'
   },
   tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <MockNextRouter>
+        <Story />
+      </MockNextRouter>
+    )
+  ],
   argTypes: {
     size: {
       control: 'radio',
@@ -118,5 +151,64 @@ export const WithOnlyIcons: Story = {
       { value: 'tab2', icon: <Grid />, tooltip: 'Tooltip 2' },
       { value: 'tab3', icon: <BottleChampagne />, tooltip: 'Tooltip 3' }
     ]
+  }
+};
+
+export const WithPreventDefault: Story = {
+  args: {
+    options: [
+      {
+        value: 'tab1',
+        icon: <HouseModern />,
+        link: 'https://www.google.com',
+        label: 'Tab 1',
+        tooltip: 'Tooltip 1'
+      },
+      {
+        value: 'tab2',
+        icon: <Grid />,
+        link: 'https://www.google.com',
+        label: 'Tab 2',
+        tooltip: 'Tooltip 2'
+      },
+      {
+        value: 'tab3',
+        icon: <BottleChampagne />,
+        link: 'https://www.google.com',
+        label: 'Tab 3',
+        tooltip: 'Tooltip 3'
+      }
+    ]
+  },
+  render: (args) => {
+    const [isDirty, setIsDirty] = useState(true);
+
+    return (
+      <div className="flex w-full min-w-[500px] flex-col items-center justify-center gap-4">
+        <AppSegmented {...args} />
+
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={isDirty}
+            onCheckedChange={(checked) => setIsDirty(checked === 'indeterminate' ? true : checked)}
+          />
+          <p>{isDirty ? 'Dirty' : 'Clean'}</p>
+        </div>
+
+        <PreventNavigation
+          isDirty={isDirty}
+          title="Title"
+          description="Description"
+          onOk={() => {
+            alert('ok');
+            return Promise.resolve();
+          }}
+          onCancel={() => {
+            alert('cancel');
+            return Promise.resolve();
+          }}
+        />
+      </div>
+    );
   }
 };

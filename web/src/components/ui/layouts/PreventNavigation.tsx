@@ -44,7 +44,6 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
      * @param e The triggered event.
      */
     const handleClick = useMemoizedFn((event: MouseEvent) => {
-      console.log('handleClick');
       let target = event.target as HTMLElement;
       let href: string | null = null;
 
@@ -61,10 +60,11 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
         event.preventDefault();
         event.stopPropagation();
 
-        console.log(href);
+        console.log(target);
 
         confirmationFn.current = () => {
-          if (href) router.push(href);
+          target.click();
+          // if (href) router.push(href);
         };
 
         setLeavingPage(true);

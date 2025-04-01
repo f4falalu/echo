@@ -6,9 +6,17 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { useEffect, useState, useLayoutEffect, useTransition } from 'react';
 import { cva } from 'class-variance-authority';
-import { useMemoizedFn, useMergedRefs, useSize, useThrottleFn, useWhyDidYouUpdate } from '@/hooks';
+import {
+  useMemoizedFn,
+  useMergedRefs,
+  useMount,
+  useSize,
+  useThrottleFn,
+  useWhyDidYouUpdate
+} from '@/hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export interface SegmentedItem<T extends string | number = string> {
   value: T;
@@ -126,8 +134,8 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
       console.log('handleTabClick called with:', value);
       const item = options.find((item) => item.value === value);
       if (item && !item.disabled && value !== selectedValue) {
+        setSelectedValue(item.value);
         startTransition(() => {
-          setSelectedValue(item.value);
           onChange?.(item);
         });
       }
@@ -160,13 +168,12 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
           setSelectedValue(value);
         });
       }
-    }, [value, selectedValue]);
+    }, [value]);
 
     return (
       <Tabs.Root
         ref={rootRef}
         value={selectedValue as string}
-        onValueChange={handleTabClick}
         className={cn(segmentedVariants({ block, type }), heightVariants({ size }), className)}>
         {isMeasured && (
           <motion.div
@@ -197,6 +204,7 @@ export const AppSegmented: AppSegmentedComponent = React.memo(
               size={size}
               block={block}
               tabRefs={tabRefs}
+              handleTabClick={handleTabClick}
             />
           ))}
         </Tabs.List>
@@ -213,37 +221,48 @@ interface SegmentedTriggerProps<T extends string = string> {
   size: AppSegmentedProps<T>['size'];
   block: AppSegmentedProps<T>['block'];
   tabRefs: React.MutableRefObject<Map<string, HTMLButtonElement>>;
+  handleTabClick: (value: string) => void;
 }
 
 function SegmentedTriggerComponent<T extends string = string>(props: SegmentedTriggerProps<T>) {
-  const { item, selectedValue, size, block, tabRefs } = props;
+  const { item, selectedValue, size, block, tabRefs, handleTabClick } = props;
   const { tooltip, label, icon, disabled, value, link } = item;
+  const router = useRouter();
 
   const LinkDiv = link ? Link : 'div';
 
+  useMount(() => {
+    if (link) {
+      router.prefetch(link);
+    }
+  });
+
   return (
     <Tooltip title={tooltip || ''} sideOffset={10} delayDuration={150}>
-      <Tabs.Trigger
-        key={value}
-        value={value}
-        disabled={disabled}
-        asChild
-        ref={(el) => {
-          if (el) tabRefs.current.set(value, el);
-        }}
-        className={cn(
-          triggerVariants({
-            size,
-            block,
-            disabled,
-            selected: selectedValue === value
-          })
-        )}>
-        <LinkDiv href={link || ''}>
-          {icon && <span className={cn('flex items-center text-sm')}>{icon}</span>}
-          {label && <span className={cn('text-sm')}>{label}</span>}
-        </LinkDiv>
-      </Tabs.Trigger>
+      <LinkDiv href={link || ''}>
+        <Tabs.Trigger
+          key={value}
+          value={value}
+          disabled={disabled}
+          asChild
+          onClick={() => handleTabClick(value)}
+          ref={(el) => {
+            if (el) tabRefs.current.set(value, el);
+          }}
+          className={cn(
+            triggerVariants({
+              size,
+              block,
+              disabled,
+              selected: selectedValue === value
+            })
+          )}>
+          <div className="">
+            {icon && <span className={cn('flex items-center text-sm')}>{icon}</span>}
+            {label && <span className={cn('text-sm')}>{label}</span>}
+          </div>
+        </Tabs.Trigger>
+      </LinkDiv>
     </Tooltip>
   );
 }
