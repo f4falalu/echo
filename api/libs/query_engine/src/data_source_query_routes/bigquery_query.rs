@@ -5,6 +5,7 @@ use chrono::{NaiveDate, NaiveTime};
 use gcp_bigquery_client::{model::query_request::QueryRequest, Client};
 use serde_json::{Number, Value};
 
+
 use crate::data_types::DataType;
 
 pub async fn bigquery_query(
@@ -78,42 +79,94 @@ pub async fn bigquery_query(
     Ok(typed_rows)
 }
 
-fn parse_string_to_datatype(s: &str) -> DataType {
-    if let Ok(value) = s.parse::<i32>() {
-        DataType::Int4(Some(value))
-    } else if let Ok(value) = s.parse::<i64>() {
-        DataType::Int8(Some(value))
-    } else if let Ok(value) = s.parse::<f32>() {
-        DataType::Float4(Some(value))
-    } else if let Ok(value) = s.parse::<f64>() {
-        DataType::Float8(Some(value))
-    } else if let Ok(value) = s.parse::<bool>() {
-        DataType::Bool(Some(value))
-    } else if let Ok(value) = NaiveDate::parse_from_str(s, "%Y-%m-%d") {
-        DataType::Date(Some(value))
-    } else if let Ok(value) = NaiveTime::parse_from_str(s, "%H:%M:%S%.f") {
-        DataType::Time(Some(value))
-    } else if let Ok(value) = serde_json::from_str::<Value>(s) {
-        DataType::Json(Some(value))
-    } else {
-        DataType::Text(Some(s.to_string()))
+#[cfg_attr(test, allow(dead_code))]
+pub fn parse_string_to_datatype(s: &str) -> DataType {
+    // Fast path for empty strings or simple text
+    if s.is_empty() || !s.starts_with(&['-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 't', 'f', '{', '['][..]) {
+        return DataType::Text(Some(s.to_string()));
     }
+    
+    // Check for boolean values first (very fast)
+    if s == "true" {
+        return DataType::Bool(Some(true));
+    } else if s == "false" {
+        return DataType::Bool(Some(false));
+    }
+    
+    // Try to parse as integer first
+    if let Ok(value) = s.parse::<i32>() {
+        return DataType::Int4(Some(value));
+    }
+    
+    // Check first character for efficiency
+    match s.chars().next().unwrap() {
+        // Likely number 
+        '-' | '0'..='9' => {
+            // Try larger integer types
+            if let Ok(value) = s.parse::<i64>() {
+                return DataType::Int8(Some(value));
+            }
+            
+            // Try floating point
+            if let Ok(value) = s.parse::<f64>() {
+                if value >= f32::MIN as f64 && value <= f32::MAX as f64 {
+                    return DataType::Float4(Some(value as f32));
+                } else {
+                    return DataType::Float8(Some(value));
+                }
+            }
+            
+            // Check for date format (YYYY-MM-DD)
+            if s.len() == 10 && s.chars().nth(4) == Some('-') && s.chars().nth(7) == Some('-') {
+                if let Ok(value) = NaiveDate::parse_from_str(s, "%Y-%m-%d") {
+                    return DataType::Date(Some(value));
+                }
+            }
+            
+            // Check for time format
+            if s.contains(':') && s.len() >= 8 {
+                if let Ok(value) = NaiveTime::parse_from_str(s, "%H:%M:%S%.f") {
+                    return DataType::Time(Some(value));
+                }
+            }
+        },
+        // Likely JSON object or array
+        '{' | '[' => {
+            if let Ok(value) = serde_json::from_str::<Value>(s) {
+                return DataType::Json(Some(value));
+            }
+        },
+        _ => {}
+    }
+    
+    // Default to text
+    DataType::Text(Some(s.to_string()))
 }
 
-fn parse_number_to_datatype(n: &Number) -> DataType {
-    if let Some(i) = n.as_i64() {
+#[cfg_attr(test, allow(dead_code))]
+pub fn parse_number_to_datatype(n: &Number) -> DataType {
+    // Check if it's an integer first (more common case)
+    if n.is_i64() {
+        let i = n.as_i64().unwrap();
+        // Use 32-bit int where possible to save memory
         if i >= i32::MIN as i64 && i <= i32::MAX as i64 {
-            DataType::Int4(Some(i as i32))
+            return DataType::Int4(Some(i as i32));
         } else {
-            DataType::Int8(Some(i))
+            return DataType::Int8(Some(i));
         }
-    } else if let Some(f) = n.as_f64() {
+    } 
+    
+    // Then check for float
+    if n.is_f64() {
+        let f = n.as_f64().unwrap();
+        // Use 32-bit float where possible to save memory
         if f >= f32::MIN as f64 && f <= f32::MAX as f64 {
-            DataType::Float4(Some(f as f32))
+            return DataType::Float4(Some(f as f32));
         } else {
-            DataType::Float8(Some(f))
+            return DataType::Float8(Some(f));
         }
-    } else {
-        DataType::Unknown(Some("Invalid number".to_string()))
     }
+    
+    // Should rarely happen
+    DataType::Unknown(Some("Invalid number".to_string()))
 }

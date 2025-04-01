@@ -31,6 +31,8 @@ pub struct ChatListItem {
     pub created_by_name: String,
     pub created_by_avatar: Option<String>,
     pub last_edited: String,
+    pub latest_file_id: Option<String>,
+    pub latest_file_type: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -54,6 +56,8 @@ struct ChatWithUser {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub created_by: Uuid,
+    pub most_recent_file_id: Option<Uuid>, 
+    pub most_recent_file_type: Option<String>,
     // User fields
     pub user_name: Option<String>,
     pub user_attributes: Value,
@@ -122,6 +126,8 @@ pub async fn list_chats_handler(
             chats::created_at,
             chats::updated_at,
             chats::created_by,
+            chats::most_recent_file_id,
+            chats::most_recent_file_type,
             users::name.nullable(),
             users::attributes,
         ))
@@ -150,6 +156,8 @@ pub async fn list_chats_handler(
                 created_by_name: chat.user_name.unwrap_or_else(|| "Unknown".to_string()),
                 created_by_avatar,
                 last_edited: chat.updated_at.to_rfc3339(),
+                latest_file_id: chat.most_recent_file_id.map(|id| id.to_string()),
+                latest_file_type: chat.most_recent_file_type,
             }
         })
         .collect();

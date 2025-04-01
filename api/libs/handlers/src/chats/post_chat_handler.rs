@@ -19,9 +19,9 @@ use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
     models::{AssetPermission, Chat, Message, MessageToFile},
     pool::get_pg_pool,
-    schema::{asset_permissions, chats, messages, messages_to_files},
+    schema::{asset_permissions, chats, dashboard_files, messages, messages_to_files, metric_files},
 };
-use diesel::{insert_into, ExpressionMethods};
+use diesel::{insert_into, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use litellm::{
     AgentMessage as LiteLLMAgentMessage, ChatCompletionRequest, LiteLLMClient, MessageProgress,
@@ -450,6 +450,18 @@ pub async fn post_chat_handler(
     let title = title_handle.await??;
     let reasoning_duration = reasoning_duration.elapsed().as_secs();
 
+    // Format reasoning duration
+    let formatted_reasoning_duration = if reasoning_duration < 60 {
+        format!("Reasoned for {} seconds", reasoning_duration)
+    } else {
+        let minutes = reasoning_duration / 60;
+        if minutes == 1 {
+            "Reasoned for 1 minute".to_string() // Singular minute
+        } else {
+            format!("Reasoned for {} min", minutes) // Plural minutes (abbreviated)
+        }
+    };
+
     // Transform all messages for final storage
     let (response_messages, reasoning_messages) =
         prepare_final_message_state(&all_transformed_containers)?;
@@ -465,7 +477,7 @@ pub async fn post_chat_handler(
         }),
         response_messages.clone(),
         reasoning_messages.clone(),
-        Some(format!("Reasoned for {} seconds", reasoning_duration).to_string()),
+        Some(formatted_reasoning_duration.clone()), // Use the formatted duration string
         Utc::now(),
     );
 
@@ -482,7 +494,7 @@ pub async fn post_chat_handler(
         deleted_at: None,
         response_messages: serde_json::to_value(&response_messages)?,
         reasoning: serde_json::to_value(&reasoning_messages)?,
-        final_reasoning_message: Some(format!("Reasoned for {} seconds", reasoning_duration)),
+        final_reasoning_message: Some(formatted_reasoning_duration), // Use the formatted duration string
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
         feedback: None,
@@ -686,10 +698,46 @@ async fn process_completed_files(
                                 deleted_at: None,
                             };
 
+                            // Insert the message to file association
                             diesel::insert_into(messages_to_files::table)
                                 .values(&message_to_file)
                                 .execute(conn)
                                 .await?;
+
+                            // Determine file type
+                            let file_type = if let Ok(uuid) = Uuid::parse_str(file_id) {
+                                let dashboard_exists = diesel::dsl::select(diesel::dsl::exists(
+                                    dashboard_files::table.filter(dashboard_files::id.eq(&uuid))
+                                ))
+                                .get_result::<bool>(conn)
+                                .await;
+
+                                let metric_exists = diesel::dsl::select(diesel::dsl::exists(
+                                    metric_files::table.filter(metric_files::id.eq(&uuid))
+                                ))
+                                .get_result::<bool>(conn)
+                                .await;
+
+                                match (dashboard_exists, metric_exists) {
+                                    (Ok(true), _) => Some("dashboard".to_string()),
+                                    (_, Ok(true)) => Some("metric".to_string()),
+                                    _ => None,
+                                }
+                            } else {
+                                None
+                            };
+
+                            // Update the chat with the most recent file info
+                            if let Ok(file_uuid) = Uuid::parse_str(file_id) {
+                                diesel::update(chats::table.find(message.chat_id))
+                                    .set((
+                                        chats::most_recent_file_id.eq(Some(file_uuid)),
+                                        chats::most_recent_file_type.eq(file_type),
+                                        chats::updated_at.eq(Utc::now()),
+                                    ))
+                                    .execute(conn)
+                                    .await?;
+                            }
                         }
                     }
                 }
@@ -1985,20 +2033,17 @@ async fn initialize_chat(
 ) -> Result<(Uuid, Uuid, ChatWithMessages)> {
     let message_id = request.message_id.unwrap_or_else(Uuid::new_v4);
 
-    // Get a default title for chats with optional prompt
-    let default_title = match request.prompt {
-        Some(ref prompt) => prompt.clone(),
-        None => {
-            // Try to derive title from asset if available
-            let (asset_id, asset_type) = normalize_asset_fields(request);
-            if let (Some(asset_id), Some(asset_type)) = (asset_id, asset_type) {
-                match fetch_asset_details(asset_id, asset_type).await {
-                    Ok(details) => format!("View {}", details.name),
-                    Err(_) => "New Chat".to_string(),
-                }
-            } else {
-                "New Chat".to_string()
+    // Get a default title for chats
+    let default_title = {
+        // Try to derive title from asset if available
+        let (asset_id, asset_type) = normalize_asset_fields(request);
+        if let (Some(asset_id), Some(asset_type)) = (asset_id, asset_type) {
+            match fetch_asset_details(asset_id, asset_type).await {
+                Ok(details) => format!("View {}", details.name),
+                Err(_) => "New Chat".to_string(),
             }
+        } else {
+            "".to_string()
         }
     };
 
@@ -2043,6 +2088,8 @@ async fn initialize_chat(
             publicly_accessible: false,
             publicly_enabled_by: None,
             public_expiry_date: None,
+            most_recent_file_id: None,
+            most_recent_file_type: None,
         };
 
         // Create initial message

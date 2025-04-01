@@ -95,6 +95,9 @@ diesel::table! {
         publicly_accessible -> Bool,
         publicly_enabled_by -> Nullable<Uuid>,
         public_expiry_date -> Nullable<Timestamptz>,
+        most_recent_file_id -> Nullable<Uuid>,
+        #[max_length = 255]
+        most_recent_file_type -> Nullable<Varchar>,
     }
 }
 

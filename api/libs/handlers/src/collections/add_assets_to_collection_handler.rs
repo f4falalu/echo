@@ -162,7 +162,12 @@ pub async fn add_assets_to_collection_handler(
             // Check if user has access to the dashboard
             let has_dashboard_permission = check_permission_access(
                 dashboard.permission,
-                &[AssetPermissionRole::CanView],
+                &[
+                    AssetPermissionRole::CanView,
+                    AssetPermissionRole::CanEdit,
+                    AssetPermissionRole::FullAccess,
+                    AssetPermissionRole::Owner,
+                ],
                 dashboard.dashboard_file.organization_id,
                 &user.organizations,
             );
@@ -314,7 +319,12 @@ pub async fn add_assets_to_collection_handler(
             // Check if user has access to the metric
             let has_metric_permission = check_permission_access(
                 metric.permission,
-                &[AssetPermissionRole::CanView],
+                &[
+                    AssetPermissionRole::CanView,
+                    AssetPermissionRole::CanEdit,
+                    AssetPermissionRole::FullAccess,
+                    AssetPermissionRole::Owner,
+                ],
                 metric.metric_file.organization_id,
                 &user.organizations,
             );

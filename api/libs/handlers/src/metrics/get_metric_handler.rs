@@ -4,14 +4,20 @@ use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
 use serde_yaml;
 use uuid::Uuid;
+use futures::future::{join, try_join};
 
 use crate::metrics::types::{
     BusterMetric, ColumnMetaData, ColumnType, DataMetadata, Dataset, MinMaxValue, SimpleType,
+    AssociatedDashboard, AssociatedCollection,
 };
 use database::enums::{AssetPermissionRole, AssetType, IdentityType};
 use database::helpers::metric_files::fetch_metric_file_with_permissions;
 use database::pool::get_pg_pool;
-use database::schema::{asset_permissions, datasets, users};
+use database::schema::{
+    asset_permissions, datasets, users, 
+    collections, collections_to_assets, 
+    dashboard_files, metric_files_to_dashboard_files
+};
 use sharing::check_permission_access;
 
 use super::Version;
@@ -28,6 +34,47 @@ struct AssetPermissionInfo {
     role: AssetPermissionRole,
     email: String,
     name: Option<String>,
+}
+
+/// Fetch the dashboards associated with the given metric id
+async fn fetch_associated_dashboards_for_metric(metric_id: Uuid) -> Result<Vec<AssociatedDashboard>> {
+    let mut conn = get_pg_pool().get().await?;
+    let associated_dashboards = metric_files_to_dashboard_files::table
+        .inner_join(dashboard_files::table.on(dashboard_files::id.eq(metric_files_to_dashboard_files::dashboard_file_id)))
+        .filter(metric_files_to_dashboard_files::metric_file_id.eq(metric_id))
+        .filter(dashboard_files::deleted_at.is_null())
+        .filter(metric_files_to_dashboard_files::deleted_at.is_null())
+        .select((dashboard_files::id, dashboard_files::name))
+        .load::<(Uuid, String)>(&mut conn)
+        .await?
+        .into_iter()
+        .map(|(id, name)| AssociatedDashboard {
+            id,
+            name,
+        })
+        .collect();
+    Ok(associated_dashboards)
+}
+
+/// Fetch the collections associated with the given metric id
+async fn fetch_associated_collections_for_metric(metric_id: Uuid) -> Result<Vec<AssociatedCollection>> {
+    let mut conn = get_pg_pool().get().await?;
+    let associated_collections = collections_to_assets::table
+        .inner_join(collections::table.on(collections::id.eq(collections_to_assets::collection_id)))
+        .filter(collections_to_assets::asset_id.eq(metric_id))
+        .filter(collections_to_assets::asset_type.eq(AssetType::MetricFile))
+        .filter(collections::deleted_at.is_null())
+        .filter(collections_to_assets::deleted_at.is_null())
+        .select((collections::id, collections::name))
+        .load::<(Uuid, String)>(&mut conn)
+        .await?
+        .into_iter()
+        .map(|(id, name)| AssociatedCollection {
+            id,
+            name,
+        })
+        .collect();
+    Ok(associated_collections)
 }
 
 /// Handler to retrieve a metric by ID with optional version number
@@ -209,6 +256,31 @@ pub async fn get_metric_handler(
         None
     };
 
+    // Concurrently fetch associated dashboards and collections
+    let metrics_id_clone = *metric_id;
+    let dashboards_future = fetch_associated_dashboards_for_metric(metrics_id_clone);
+    let collections_future = fetch_associated_collections_for_metric(metrics_id_clone);
+    
+    // Await both futures concurrently
+    let (dashboards_result, collections_result) = join(dashboards_future, collections_future).await;
+    
+    // Handle results, logging errors but returning empty Vecs for failed tasks
+    let dashboards = match dashboards_result {
+        Ok(dashboards) => dashboards,
+        Err(e) => {
+            tracing::error!("Failed to fetch associated dashboards for metric {}: {}", metric_id, e);
+            vec![]
+        }
+    };
+    
+    let collections = match collections_result {
+        Ok(collections) => collections,
+        Err(e) => {
+            tracing::error!("Failed to fetch associated collections for metric {}: {}", metric_id, e);
+            vec![]
+        }
+    };
+
     // Convert AssetPermissionInfo to BusterShareIndividual
     let individual_permissions = match individual_permissions_query {
         Ok(permissions) => {
@@ -254,8 +326,8 @@ pub async fn get_metric_handler(
         sent_by_name: "".to_string(),
         sent_by_avatar_url: None,
         code: None,
-        dashboards: vec![],  // TODO: Get associated dashboards
-        collections: vec![], // TODO: Get associated collections
+        dashboards,
+        collections,
         versions,
         // Use the actual permission from the fetch operation
         permission,

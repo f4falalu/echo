@@ -27,7 +27,7 @@ struct AssetPermissionInfo {
 }
 
 /// Type for querying asset data from database
-#[derive(Queryable, Clone)]
+#[derive(Queryable, Clone, Debug)]
 struct AssetQueryResult {
     id: Uuid,
     name: String,
@@ -221,6 +221,8 @@ pub async fn get_collection_handler(
             vec![]
         }
     };
+
+    println!("dashboard_assets: {:?}", dashboard_assets);
 
     // Combine all assets
     let all_assets = [metric_assets, dashboard_assets].concat();
