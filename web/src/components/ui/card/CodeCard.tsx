@@ -33,7 +33,11 @@ export const CodeCard: React.FC<{
     error = ''
   }) => {
     const ShownButtons =
-      buttons === true ? <CardButtons fileName={fileName} code={code} /> : buttons;
+      buttons === true ? (
+        <CardButtons fileName={fileName} code={code} language={language} />
+      ) : (
+        buttons
+      );
 
     return (
       <Card className={cn('h-full', className)}>
@@ -66,7 +70,8 @@ CodeCard.displayName = 'CodeCard';
 const CardButtons: React.FC<{
   fileName: string;
   code: string;
-}> = React.memo(({ fileName, code }) => {
+  language: string;
+}> = React.memo(({ fileName, code, language }) => {
   const { openInfoMessage, openErrorMessage } = useBusterNotifications();
 
   const handleCopyCode = useMemoizedFn(async () => {
@@ -84,7 +89,7 @@ const CardButtons: React.FC<{
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = fileName;
+      link.download = `${fileName}.${language}`; //this is actually not a good idea...
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
