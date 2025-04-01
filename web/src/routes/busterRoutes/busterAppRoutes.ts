@@ -2,7 +2,6 @@ export enum BusterAppRoutes {
   APP_HOME = '/app/home',
   APP_COLLECTIONS = '/app/collections',
   APP_COLLECTIONS_ID = '/app/collections/:collectionId',
-  APP_COLLECTIONS_ID_METRICS_ID = '/app/collections/:collectionId/metrics/:metricId',
   APP_METRIC = '/app/metrics',
   APP_METRIC_ID = '/app/metrics/:metricId',
   APP_METRIC_ID_CHART = '/app/metrics/:metricId/chart',
@@ -100,11 +99,6 @@ export type BusterAppRoutesWithArgs = {
   [BusterAppRoutes.APP_DATASETS_ID_EDITOR]: {
     route: BusterAppRoutes.APP_DATASETS_ID_EDITOR;
     datasetId: string;
-  };
-  [BusterAppRoutes.APP_COLLECTIONS_ID_METRICS_ID]: {
-    route: BusterAppRoutes.APP_COLLECTIONS_ID_METRICS_ID;
-    collectionId: string;
-    metricId: string;
   };
   [BusterAppRoutes.NEW_USER]: { route: BusterAppRoutes.NEW_USER };
   [BusterAppRoutes.APP_CHAT]: { route: BusterAppRoutes.APP_CHAT };
