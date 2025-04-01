@@ -29,8 +29,10 @@ const createCspHeader = (isEmbed = false) => {
     "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
     // Frame ancestors
     isEmbed ? `frame-ancestors 'self' *` : "frame-ancestors 'none'",
+    // Frame sources
+    "frame-src 'self' https://vercel.live",
     // Connect sources for API calls
-    `connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:* https://*.vercel.app https://*.supabase.co wss://*.supabase.co https://*.onporter.run wss://*.onporter.run ${apiUrl} ${wsUrl}`.trim(),
+    `connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:* https://*.vercel.app https://*.supabase.co wss://*.supabase.co ${apiUrl} ${wsUrl}`.trim(),
     // Media
     "media-src 'self'",
     // Object
