@@ -156,7 +156,7 @@ export const useBusterChartJSLegend = ({
     const timeoutDuration = isLargeChart && hasAnimation ? 125 : 0;
 
     // Set updating state
-    setIsUpdatingChart(true);
+    if (timeoutDuration) setIsUpdatingChart(true);
 
     // Update dataset visibility state
     setInactiveDatasets((prev) => ({
@@ -179,9 +179,8 @@ export const useBusterChartJSLegend = ({
 
       // Schedule the heavy update operation with minimal delay to allow UI to remain responsive
       setTimeout(() => {
-        // Use React's startTransition to mark this as a non-urgent update
         startTransition(() => {
-          chartjs.update('none'); // Use 'none' for animation mode to improve performance
+          chartjs.update();
 
           // Set a timeout to turn off loading state after the update is complete
           requestAnimationFrame(() => {

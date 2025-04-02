@@ -280,6 +280,58 @@ export const WithDataLabels: Story = {
   }
 };
 
+export const WithDataLabelsAndStackTotal: Story = {
+  args: {
+    selectedChartType: ChartType.Bar,
+    data: generateBarChartData(4),
+    barAndLineAxis: {
+      x: ['category'],
+      y: ['units', 'sales'],
+      category: []
+    },
+    barGroupType: 'stack',
+    barShowTotalAtTop: true,
+    columnSettings: {
+      sales: {
+        showDataLabels: true,
+        showDataLabelsAsPercentage: false
+      },
+      units: {
+        showDataLabels: false,
+        showDataLabelsAsPercentage: false
+      }
+    },
+    columnLabelFormats: {
+      category: {
+        columnType: 'text',
+        style: 'string'
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      units: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat,
+      returns: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    } satisfies Record<keyof BarChartData, IColumnLabelFormat>
+  },
+  render: (args) => {
+    return (
+      <div className="h-[90vh] w-[80vw]">
+        <BusterChart {...args} />
+      </div>
+    );
+  }
+};
+
 export const LargeDataset: Story = {
   args: {
     selectedChartType: ChartType.Bar,

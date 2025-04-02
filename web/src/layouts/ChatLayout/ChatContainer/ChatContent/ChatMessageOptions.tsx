@@ -23,8 +23,7 @@ export const ChatMessageOptions: React.FC<{
           onClick={() =>
             duplicateChat({
               id: chatId,
-              message_id: messageId,
-              share_with_same_people: false
+              message_id: messageId
             })
           }
         />

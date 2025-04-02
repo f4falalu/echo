@@ -33,8 +33,13 @@ export const barSeriesBuilder = ({
 
     dataLabelOptions.stackTotal = {
       display: function (context) {
+        const chart = context.chart;
         const shownDatasets = context.chart.data.datasets.filter(
-          (dataset) => !dataset.hidden && !dataset.isTrendline
+          (dataset, index) =>
+            !dataset.hidden &&
+            !dataset.isTrendline &&
+            //this means that it is hidden via the legend
+            !chart.getDatasetMeta(index).hidden
         );
         const canDisplay = context.datasetIndex === shownDatasets.length - 1;
         if (canDisplay && !hasBeenDrawn) {
@@ -64,6 +69,7 @@ export const barSeriesBuilder = ({
       align: 'end',
       clamp: true,
       clip: false,
+      z: 1000,
       ...defaultLabelOptionConfig
     } as NonNullable<Options['labels']>['stackTotal'];
   }
