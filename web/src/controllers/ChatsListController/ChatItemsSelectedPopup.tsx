@@ -10,10 +10,10 @@ import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveT
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import {
-  useDeleteMetric,
-  useRemoveMetricFromCollection,
-  useSaveMetricToCollections
-} from '@/api/buster_rest/metrics';
+  useDeleteChat,
+  useSaveChatToCollections,
+  useRemoveChatFromCollections
+} from '@/api/buster_rest/chats';
 import {
   useAddUserFavorite,
   useDeleteUserFavorite,
@@ -33,11 +33,6 @@ export const ChatSelectedOptionPopup: React.FC<{
       buttons={[
         <CollectionsButton
           key="collections"
-          selectedRowKeys={selectedRowKeys}
-          onSelectChange={onSelectChange}
-        />,
-        <DashboardButton
-          key="dashboard"
           selectedRowKeys={selectedRowKeys}
           onSelectChange={onSelectChange}
         />,
@@ -63,8 +58,8 @@ const CollectionsButton: React.FC<{
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const { openInfoMessage } = useBusterNotifications();
-  const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
-  const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
+  const { mutateAsync: saveChatToCollection } = useSaveChatToCollections();
+  const { mutateAsync: removeChatFromCollection } = useRemoveChatFromCollections();
 
   const [selectedCollections, setSelectedCollections] = useState<
     Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
@@ -72,20 +67,20 @@ const CollectionsButton: React.FC<{
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     setSelectedCollections(collectionIds);
-    await saveMetricToCollection({
-      metricIds: selectedRowKeys,
+    await saveChatToCollection({
+      chatIds: selectedRowKeys,
       collectionIds
     });
-    openInfoMessage('Metrics saved to collections');
+    openInfoMessage('Chats saved to collections');
   });
 
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
     setSelectedCollections((prev) => prev.filter((id) => id !== collectionId));
-    await removeMetricFromCollection({
-      metricIds: selectedRowKeys,
+    await removeChatFromCollection({
+      chatIds: selectedRowKeys,
       collectionIds: [collectionId]
     });
-    openInfoMessage('Metrics removed from collections');
+    openInfoMessage('Chats removed from collections');
   });
 
   return (
@@ -98,25 +93,14 @@ const CollectionsButton: React.FC<{
   );
 };
 
-const DashboardButton: React.FC<{
-  selectedRowKeys: string[];
-  onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange }) => {
-  return (
-    <Dropdown items={[{ label: 'Dashboard', value: 'dashboard' }]}>
-      <Button prefix={<ASSET_ICONS.dashboards />}>Dashboard</Button>
-    </Dropdown>
-  );
-};
-
 const DeleteButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange }) => {
-  const { mutateAsync: deleteMetric } = useDeleteMetric();
+}> = React.memo(({ selectedRowKeys, onSelectChange }) => {
+  const { mutateAsync: deleteChat } = useDeleteChat();
 
   const onDeleteClick = async () => {
-    await deleteMetric({ ids: selectedRowKeys });
+    await deleteChat({ data: selectedRowKeys });
     onSelectChange([]);
   };
 
@@ -125,12 +109,14 @@ const DeleteButton: React.FC<{
       Delete
     </Button>
   );
-};
+});
+
+DeleteButton.displayName = 'DeleteButton';
 
 const ThreeDotButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange }) => {
+}> = React.memo(({ selectedRowKeys, onSelectChange }) => {
   const { mutateAsync: removeUserFavorite, isPending: removingFromFavorites } =
     useDeleteUserFavorite();
   const { mutateAsync: addUserFavorite, isPending: addingToFavorites } = useAddUserFavorite();
@@ -148,7 +134,7 @@ const ThreeDotButton: React.FC<{
             const name = userFavorites?.find((f) => f.id === id)?.name || '';
             return addUserFavorite({
               id,
-              asset_type: ShareAssetType.METRIC,
+              asset_type: ShareAssetType.CHAT,
               name
             });
           })
@@ -171,4 +157,6 @@ const ThreeDotButton: React.FC<{
       <Button prefix={<Dots />} />
     </Dropdown>
   );
-};
+});
+
+ThreeDotButton.displayName = 'ThreeDotButton';

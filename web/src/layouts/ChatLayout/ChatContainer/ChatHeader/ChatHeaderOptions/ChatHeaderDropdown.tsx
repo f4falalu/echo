@@ -5,16 +5,18 @@ import { Copy, Trash, Pencil } from '@/components/ui/icons';
 import { useDeleteChat, useDuplicateChat } from '@/api/buster_rest/chats';
 import { CHAT_HEADER_TITLE_ID } from '../ChatHeaderTitle';
 import { timeout } from '@/lib';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { BusterRoutes } from '@/routes';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const ChatContainerHeaderDropdown: React.FC<{
   children: React.ReactNode;
 }> = React.memo(({ children }) => {
+  const { openSuccessMessage } = useBusterNotifications();
   const chatId = useChatIndividualContextSelector((state) => state.chatId);
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const { mutate: deleteChat, isPending: isDeleting } = useDeleteChat();
-  const { mutate: duplicateChat } = useDuplicateChat();
+  const { mutateAsync: duplicateChat, isPending: isDuplicating } = useDuplicateChat();
   const currentMessageId = useChatIndividualContextSelector((state) => state.currentMessageId);
 
   const menuItem: DropdownItems = useMemo(() => {
@@ -26,19 +28,34 @@ export const ChatContainerHeaderDropdown: React.FC<{
         loading: isDeleting,
         onClick: () =>
           chatId &&
-          deleteChat([chatId], {
-            onSuccess: () => {
-              onChangePage({ route: BusterRoutes.APP_CHAT });
+          deleteChat(
+            { data: [chatId] },
+            {
+              onSuccess: () => {
+                onChangePage({ route: BusterRoutes.APP_CHAT });
+                openSuccessMessage('Chat deleted');
+              }
             }
-          })
+          )
       },
       {
         label: 'Duplicate chat',
         value: 'duplicate',
         icon: <Copy />,
-        onClick: () =>
-          chatId &&
-          duplicateChat({ id: chatId, message_id: currentMessageId, share_with_same_people: false })
+        loading: isDuplicating,
+        onClick: async () => {
+          if (chatId) {
+            duplicateChat(
+              { id: chatId, message_id: currentMessageId },
+              {
+                onSuccess: (chat) => {
+                  onChangePage({ route: BusterRoutes.APP_CHAT_ID, chatId: chat.id });
+                  openSuccessMessage('Chat duplicated');
+                }
+              }
+            );
+          }
+        }
       },
       {
         label: 'Edit chat title',

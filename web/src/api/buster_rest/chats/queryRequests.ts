@@ -16,6 +16,13 @@ import { updateChatToIChat } from '@/lib/chat';
 import { useMemo } from 'react';
 import last from 'lodash/last';
 import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { useGetUserFavorites } from '../users/queryRequests';
+import {
+  useAddAssetToCollection,
+  useRemoveAssetFromCollection
+} from '../collections/queryRequests';
+import { collectionQueryKeys } from '@/api/query_keys/collection';
 
 export const useGetListChats = (
   filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
@@ -142,8 +149,30 @@ export const useUpdateChat = () => {
 
 export const useDeleteChat = () => {
   const queryClient = useQueryClient();
+  const { openConfirmModal } = useBusterNotifications();
+
+  const mutationFn = useMemoizedFn(
+    async ({
+      useConfirmModal = true,
+      data
+    }: {
+      data: Parameters<typeof deleteChat>[0];
+      useConfirmModal?: boolean;
+    }) => {
+      const method = () => deleteChat(data);
+      if (useConfirmModal) {
+        return await openConfirmModal({
+          title: 'Delete Chat',
+          content: 'Are you sure you want to delete this chat?',
+          onOk: method
+        });
+      }
+      return method();
+    }
+  );
+
   return useMutation({
-    mutationFn: deleteChat,
+    mutationFn,
     onSuccess(data, variables, context) {
       queryClient.invalidateQueries({
         queryKey: queryKeys.chatsGetList().queryKey
@@ -191,5 +220,74 @@ export const useGetChatMessage = <TData = IBusterChatMessage>(
 export const useDuplicateChat = () => {
   return useMutation({
     mutationFn: duplicateChat
+  });
+};
+
+export const useSaveChatToCollections = () => {
+  const queryClient = useQueryClient();
+  const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
+  const { mutateAsync: addAssetToCollection } = useAddAssetToCollection();
+
+  const saveChatToCollection = useMemoizedFn(
+    async ({ chatIds, collectionIds }: { chatIds: string[]; collectionIds: string[] }) => {
+      await Promise.all(
+        collectionIds.map((collectionId) =>
+          addAssetToCollection({
+            id: collectionId,
+            assets: chatIds.map((chatId) => ({ id: chatId, type: 'chat' }))
+          })
+        )
+      );
+    }
+  );
+
+  return useMutation({
+    mutationFn: saveChatToCollection,
+    onSuccess: (_, { collectionIds }) => {
+      const collectionIsInFavorites = userFavorites.some((f) => {
+        return collectionIds.includes(f.id);
+      });
+      if (collectionIsInFavorites) refreshFavoritesList();
+      queryClient.invalidateQueries({
+        queryKey: collectionIds.map(
+          (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
+        )
+      });
+    }
+  });
+};
+
+export const useRemoveChatFromCollections = () => {
+  const { data: userFavorites, refetch: refreshFavoritesList } = useGetUserFavorites();
+  const { mutateAsync: removeAssetFromCollection } = useRemoveAssetFromCollection();
+  const queryClient = useQueryClient();
+
+  const removeChatFromCollection = useMemoizedFn(
+    async ({ chatIds, collectionIds }: { chatIds: string[]; collectionIds: string[] }) => {
+      await Promise.all(
+        collectionIds.map((collectionId) =>
+          removeAssetFromCollection({
+            id: collectionId,
+            assets: chatIds.map((chatId) => ({ id: chatId, type: 'chat' }))
+          })
+        )
+      );
+    }
+  );
+
+  return useMutation({
+    mutationFn: removeChatFromCollection,
+    onSuccess: (_, { collectionIds, chatIds }) => {
+      const collectionIsInFavorites = userFavorites.some((f) => {
+        return collectionIds.includes(f.id);
+      });
+      if (collectionIsInFavorites) refreshFavoritesList();
+
+      queryClient.invalidateQueries({
+        queryKey: collectionIds.map(
+          (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
+        )
+      });
+    }
   });
 };

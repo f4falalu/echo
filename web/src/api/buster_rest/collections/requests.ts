@@ -104,7 +104,7 @@ export const updateCollectionShare = async ({
 export const addAssetToCollection = async (params: {
   id: string;
   assets: {
-    type: 'metric' | 'dashboard';
+    type: 'metric' | 'dashboard' | 'chat';
     id: string;
   }[];
 }) => {

@@ -61,20 +61,17 @@ export const updateChat = async ({
 };
 
 export const deleteChat = async (data: string[]): Promise<void> => {
-  return mainApi.delete(`${CHATS_BASE}`, { data }).then((res) => res.data);
+  const stringifiedData = JSON.stringify(data);
+  return mainApi.delete(`${CHATS_BASE}`, { data: stringifiedData }).then((res) => res.data);
 };
 
 export const duplicateChat = async ({
   id,
-  message_id,
-  share_with_same_people
+  message_id
 }: {
   id: string;
   /** The message ID to start the duplication from */
   message_id: string;
-  share_with_same_people: boolean;
 }): Promise<BusterChat> => {
-  return mainApi
-    .post(`${CHATS_BASE}/duplicate`, { id, message_id, share_with_same_people })
-    .then((res) => res.data);
+  return mainApi.post(`${CHATS_BASE}/duplicate`, { id, message_id }).then((res) => res.data);
 };
