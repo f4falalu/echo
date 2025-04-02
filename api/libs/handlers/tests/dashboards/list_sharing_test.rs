@@ -1,8 +1,22 @@
 use anyhow::Result;
+use database::pool::get_pg_pool;
 
+// Just a regular tokio test - environment is initialized automatically
 #[tokio::test]
 async fn test_placeholder() -> Result<()> {
-    // This is a placeholder test
+    // Verify we can access the database pool without explicit initialization
+    let _pool = get_pg_pool();
+    
+    assert!(true);
+    Ok(())
+}
+
+// Another test - will share the same initialized environment
+#[tokio::test]
+async fn test_another_test() -> Result<()> {
+    // Uses the same pool that was initialized once for all tests
+    let _pool = get_pg_pool();
+    
     assert!(true);
     Ok(())
 }

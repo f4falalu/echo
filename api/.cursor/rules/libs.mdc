@@ -1,6 +1,6 @@
 ---
 description: This is helpful for building libs for our web server to interact with.
-globs: libs/**/*.{rs
+globs: libs/**/*.rs
 alwaysApply: false
 ---
 
@@ -108,6 +108,56 @@ pub enum Error {
 - Use shared test utilities from workspace when available
 - Keep library-specific test helpers in the library
 - Use workspace-defined test macros if available
+
+#### Database Integration Tests
+For tests that require database access, the preferred approach is to use automatic pool initialization:
+
+```rust
+// IMPORTANT: These dependencies are for TESTS ONLY
+// Add to your Cargo.toml under [dev-dependencies]:
+// lazy_static = { workspace = true }
+// ctor = "0.4.1"
+
+// In tests/mod.rs - this is compiled ONLY during tests, not in release builds
+use database::pool::init_pools;
+use lazy_static::lazy_static;
+
+lazy_static! {
+    // Initialize test environment once across all tests
+    static ref TEST_ENV: () = {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        if let Err(e) = rt.block_on(init_pools()) {
+            panic!("Failed to initialize test pools: {}", e);
+        }
+        println!("✅ Test environment initialized");
+    };
+}
+
+// This constructor only exists in test builds
+#[ctor::ctor]
+fn init_test_env() {
+    lazy_static::initialize(&TEST_ENV);
+}
+```
+
+Then write normal tests without explicit initialization:
+
+```rust
+// In your test file
+#[tokio::test]
+async fn test_database_functionality() -> Result<()> {
+    // Pool is already initialized - just get it
+    let pool = database::pool::get_pg_pool();
+    
+    // Your test code here
+    Ok(())
+}
+```
+
+This pattern ensures:
+- Database pools are initialized exactly once at test startup
+- All tests can access the same pool without manual initialization
+- Test code remains clean without initialization boilerplate
 
 ### 5. Documentation
 - Follow workspace documentation style

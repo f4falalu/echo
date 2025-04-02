@@ -381,60 +381,36 @@ async fn test_user_creation() -> Result<()> {
 #### Database Setup
 - All integration tests must import and utilize the application's schema from [schema.rs](mdc:src/database/schema.rs)
 - Database models from [models.rs](mdc:src/database/models.rs) should be used for test data setup and verification
-- Create a robust database test helper:
+- Use the `testkit` library for test IDs and directly access pools from the database library:
   ```rust
   // tests/common/db.rs
   use anyhow::Result;
-  use diesel_async::{AsyncPgConnection, AsyncConnection};
-  use diesel_async::pooled_connection::AsyncDieselConnectionManager;
-  use deadpool_diesel::postgres::Pool;
+  use diesel_async::AsyncPgConnection;
+  use database::pool::get_pg_pool;
+  use testkit::test_id;
   use uuid::Uuid;
   
   pub struct TestDb {
-      pub pool: Pool,
       pub test_id: String, // Unique identifier for this test run
   }
   
   impl TestDb {
       /// Creates a new isolated test database environment
-      pub async fn new() -> Result<Self> {
-          // Initialize environment
-          crate::common::env::init_test_env();
-          
+      pub fn new() -> Self {
           // Generate unique test identifier
-          let test_id = Uuid::new_v4().to_string();
+          let test_id = test_id();
           
-          // Get database config from env
-          let database_url = std::env::var("TEST_DATABASE_URL")
-              .expect("TEST_DATABASE_URL must be set for tests");
-          
-          // Create connection manager and pool
-          let config = AsyncDieselConnectionManager::<AsyncPgConnection>::new(database_url);
-          let pool = Pool::builder(config)
-              .max_size(5)
-              .build()?;
-              
-          let db = Self { pool, test_id };
-          
-          // Setup initial test data
-          db.setup_schema().await?;
-          
-          Ok(db)
+          Self { test_id }
       }
       
-      /// Setup schema and initial test data
-      async fn setup_schema(&self) -> Result<()> {
-          let conn = &mut self.pool.get().await?;
-          
-          // Run migrations or setup tables
-          // Add any shared setup like creating test users
-          
-          Ok(())
+      /// Get a database connection from the pre-initialized pool
+      pub async fn get_conn(&self) -> Result<diesel_async::pooled_connection::bb8::PooledConnection<AsyncPgConnection>> {
+          Ok(get_pg_pool().get().await?)
       }
       
       /// Clean up test data created by this test instance
       pub async fn cleanup(&self) -> Result<()> {
-          let conn = &mut self.pool.get().await?;
+          let mut conn = self.get_conn().await?;
           
           // Delete data with test_id marker
           // Reset sequences if needed
@@ -444,6 +420,8 @@ async fn test_user_creation() -> Result<()> {
       
       /// Create test data with proper isolation using the test_id
       pub async fn create_test_data(&self) -> Result<()> {
+          let mut conn = self.get_conn().await?;
+          
           // Create test data tagged with test_id for isolation
           Ok(())
       }
@@ -458,16 +436,21 @@ async fn test_user_creation() -> Result<()> {
   ```
 
 #### Required Environment Variables
-Create a `.env.test` file with necessary test configurations:
+The testkit automatically creates a `.env.test` file if one doesn't exist, with necessary default test configurations. You can customize it with:
+
 ```env
 TEST_DATABASE_URL=postgres://user:pass@localhost/test_db
+TEST_POOLER_URL=postgres://user:pass@localhost/test_db
+TEST_REDIS_URL=redis://localhost:6379
+TEST_DATABASE_POOL_SIZE=10
+TEST_SQLX_POOL_SIZE=10
 TEST_API_KEY=test-key
 TEST_ENV=test
 # Optional: enable test logging
 # TEST_LOG=debug
 ```
 
-**IMPORTANT**: All integration tests must have all required services configured and accessible via environment variables loaded through dotenv. Tests should never be written with hardcoded service configurations.
+**IMPORTANT**: All integration tests should use the pools from the database library (already initialized by the testkit at build time). Tests should never be written with hardcoded service configurations or manual pool creation.
 
 #### Service Mocks
 Create reusable mock services for common external dependencies:
@@ -992,29 +975,29 @@ mod tests {
 ## Example Application Integration Test
 
 ```rust
-use crate::tests::common::{db::TestDb, env::init_test_env};
-use crate::database::{models, schema};
+use crate::tests::common::db::TestDb;
+use crate::database::{models, schema, pool};
 use crate::handlers::users::get_user_handler;
 use anyhow::Result;
 
 #[tokio::test]
 async fn test_user_creation_flow() -> Result<()> {
-    // Initialize test environment with proper setup
-    init_test_env();
-    
     // Setup test database with isolation
-    let test_db = TestDb::new().await?;
+    // TestDb handles test ID generation and connection access
+    let test_db = TestDb::new();
     
     // Create test user using fixture or builder pattern
     let test_user = models::User::builder()
         .email("test@example.com")
         .name("Test User")
+        .test_id(&test_db.test_id) // Set test ID for isolation
         .build();
     
     // Insert test data with proper error handling
+    let mut conn = test_db.get_conn().await?;
     diesel::insert_into(schema::users::table)
         .values(&test_user)
-        .execute(&mut test_db.pool.get().await?)
+        .execute(&mut conn)
         .await?;
     
     // Create HTTP client for API testing
