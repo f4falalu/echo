@@ -16,9 +16,14 @@ uuid = { workspace = true }
 dotenv = { workspace = true }
 once_cell = { workspace = true }
 futures = { workspace = true }
+tracing = { workspace = true }
 database = { path = "../libs/database" }
 
 [build-dependencies]
 dotenv = { workspace = true }
 tokio = { workspace = true, features = ["rt", "macros"] }
-database = { path = "../libs/database" } 
+database = { path = "../libs/database" }
+
+[features]
+default = []
+db_reset = [] # Use with caution - allows resetting the test database 

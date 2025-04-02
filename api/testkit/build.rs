@@ -31,7 +31,10 @@ fn ensure_test_env_exists() {
 # Test Environment Configuration
 TEST_ENV=test
 TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
+TEST_POOLER_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
 TEST_REDIS_URL=redis://localhost:6379
+TEST_DATABASE_POOL_SIZE=10
+TEST_SQLX_POOL_SIZE=10
 TEST_LOG=true
 TEST_LOG_LEVEL=debug
         "#.trim();
@@ -57,6 +60,27 @@ fn load_env_file() {
     if let Ok(test_db_url) = env::var("TEST_DATABASE_URL") {
         env::set_var("DATABASE_URL", test_db_url);
         println!("cargo:warning=Using TEST_DATABASE_URL for DATABASE_URL");
+    }
+
+    // Override POOLER_URL to use TEST_POOLER_URL for tests
+    if let Ok(test_pooler_url) = env::var("TEST_POOLER_URL") {
+        env::set_var("POOLER_URL", test_pooler_url);
+        println!("cargo:warning=Using TEST_POOLER_URL for POOLER_URL");
+    }
+
+    // Override REDIS_URL to use TEST_REDIS_URL for tests
+    if let Ok(test_redis_url) = env::var("TEST_REDIS_URL") {
+        env::set_var("REDIS_URL", test_redis_url);
+        println!("cargo:warning=Using TEST_REDIS_URL for REDIS_URL");
+    }
+
+    // Override pool sizes to prevent excessive connections in test environment
+    if let Ok(test_pool_size) = env::var("TEST_DATABASE_POOL_SIZE") {
+        env::set_var("DATABASE_POOL_SIZE", test_pool_size);
+    }
+
+    if let Ok(test_sqlx_pool_size) = env::var("TEST_SQLX_POOL_SIZE") {
+        env::set_var("SQLX_POOL_SIZE", test_sqlx_pool_size);
     }
 }
 
