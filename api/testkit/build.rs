@@ -93,7 +93,8 @@ fn try_init_pools() -> Result<(), String> {
             Err(e) => return Err(e.to_string()),
         };
     
-    // Try to initialize pools but don't fail the build if it fails
+    // Try to initialize pools through the testkit's internal function
+    // This won't fail the build if it can't connect to the database
     runtime.block_on(async {
         match database::pool::init_pools().await {
             Ok(_) => Ok(()),

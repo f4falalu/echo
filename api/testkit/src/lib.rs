@@ -3,13 +3,13 @@ use dotenv::dotenv;
 use std::path::Path;
 use std::sync::Once;
 use once_cell::sync::OnceCell;
-use database::pool::{PgPool, PgPoolSqlx, RedisPool};
 
 static ENV_INIT: Once = Once::new();
 static POOL_INIT: OnceCell<()> = OnceCell::new();
 
 /// Initialize the test environment by setting up .env.test
-pub fn init_test_env() {
+/// This should only be used internally or by build.rs
+fn init_test_env() {
     ENV_INIT.call_once(|| {
         // Try loading .env.test first, then fall back to .env
         if Path::new(".env.test").exists() {
@@ -44,8 +44,10 @@ pub fn init_test_env() {
     });
 }
 
-/// Initialize database and Redis pools for testing
-pub async fn init_pools() -> Result<()> {
+// This function is only for internal use by build.rs - the pools should be
+// initialized at build time, not during test runtime
+#[doc(hidden)]
+pub async fn _internal_init_pools() -> Result<()> {
     // Setup the environment first
     init_test_env();
     
@@ -54,7 +56,7 @@ pub async fn init_pools() -> Result<()> {
         return Ok(());
     }
     
-    // Use the init_test_pools function which is specifically designed for tests
+    // Use the database crate's init_pools function
     let result = match database::pool::init_pools().await {
         Ok(_) => {
             // Success case - cache the result
@@ -72,42 +74,8 @@ pub async fn init_pools() -> Result<()> {
     result
 }
 
-/// Get the initialized PG pool, initializing it first if needed
-pub fn get_pg_pool() -> &'static PgPool {
-    ensure_pools_initialized();
-    database::pool::get_pg_pool()
-}
-
-/// Get the initialized SQLX pool, initializing it first if needed
-pub fn get_sqlx_pool() -> &'static PgPoolSqlx {
-    ensure_pools_initialized();
-    database::pool::get_sqlx_pool()
-}
-
-/// Get the initialized Redis pool, initializing it first if needed
-pub fn get_redis_pool() -> &'static RedisPool {
-    ensure_pools_initialized();
-    database::pool::get_redis_pool()
-}
-
-/// Helper function to ensure pools are initialized
-fn ensure_pools_initialized() {
-    tokio::runtime::Builder::new_current_thread()
-        .enable_all()
-        .build()
-        .unwrap()
-        .block_on(async {
-            // Always initialize test environment
-            init_test_env();
-            
-            // If pools aren't initialized yet, try to initialize them
-            if POOL_INIT.get().is_none() {
-                if let Err(e) = init_pools().await {
-                    panic!("Failed to initialize database pools for tests: {}", e);
-                }
-            }
-        });
-}
+// No need for pool accessor functions - users should access pools directly
+// through the database library (database::pool::get_pg_pool(), etc.)
 
 /// Generate a unique test ID - useful for creating test resources
 pub fn test_id() -> String {
@@ -120,37 +88,3 @@ pub async fn cleanup_connection() -> Result<()> {
     // Currently the pools handle their own cleanup
     Ok(())
 }
-
-/// Reset the test database to a clean state
-/// Only use this in integration tests where you need a completely fresh DB
-/// Most tests should isolate their data instead
-#[cfg(feature = "db_reset")]
-pub async fn reset_test_database() -> Result<()> {
-    let pool = get_pg_pool();
-    let mut conn = pool.get().await?;
-    
-    // Execute a transaction that truncates all tables
-    // This code is only included when the db_reset feature is enabled
-    // as it's potentially destructive
-    
-    diesel::sql_query("BEGIN").execute(&mut conn).await?;
-    
-    // List of tables to truncate - add more as needed
-    let tables = vec![
-        "users", "organizations", "users_to_organizations",
-        "api_keys", "teams", "teams_to_users",
-        "data_sources", "datasets", "dataset_columns",
-        "permission_groups", "datasets_to_permission_groups",
-        "terms", "collections", "dashboards", "threads", "messages"
-    ];
-    
-    for table in tables {
-        diesel::sql_query(format!("TRUNCATE TABLE {} CASCADE", table))
-            .execute(&mut conn)
-            .await?;
-    }
-    
-    diesel::sql_query("COMMIT").execute(&mut conn).await?;
-    
-    Ok(())
-} 
