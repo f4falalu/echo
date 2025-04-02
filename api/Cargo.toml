@@ -9,7 +9,6 @@ members = [
     "libs/sharing",
     "libs/sql_analyzer",
     "libs/search",
-    "testkit",
 ]
 resolver = "2"
 
