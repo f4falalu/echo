@@ -1,7 +1,7 @@
 import { Avatar } from '@/components/ui/avatar';
 import { AccessDropdown } from './AccessDropdown';
 import React from 'react';
-import { ShareRole } from '@/api/asset_interfaces';
+import { ShareAssetType, ShareRole } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 
@@ -10,7 +10,8 @@ export const IndividualSharePerson: React.FC<{
   email: string;
   role: ShareRole;
   onUpdateShareRole: (email: string, role: ShareRole | null) => void;
-}> = React.memo(({ name, onUpdateShareRole, email, role }) => {
+  assetType: ShareAssetType;
+}> = React.memo(({ name, onUpdateShareRole, email, role, assetType }) => {
   const isSameEmailName = name === email;
 
   const onChangeShareLevel = useMemoizedFn((v: ShareRole | null) => {
@@ -36,7 +37,12 @@ export const IndividualSharePerson: React.FC<{
         </div>
       </div>
 
-      <AccessDropdown shareLevel={role} showRemove={true} onChangeShareLevel={onChangeShareLevel} />
+      <AccessDropdown
+        shareLevel={role}
+        showRemove={true}
+        onChangeShareLevel={onChangeShareLevel}
+        assetType={assetType}
+      />
     </div>
   );
 });

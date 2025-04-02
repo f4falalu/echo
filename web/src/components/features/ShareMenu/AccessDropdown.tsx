@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ShareRole } from '@/api/asset_interfaces';
+import { ShareAssetType, ShareRole } from '@/api/asset_interfaces';
 import { DropdownItem, DropdownLabel } from '@/components/ui/dropdown';
 import { Paragraph, Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
@@ -15,11 +15,12 @@ export const AccessDropdown: React.FC<{
   showRemove?: boolean;
   shareLevel?: ShareRole | null;
   onChangeShareLevel?: (level: ShareRole | null) => void;
-}> = ({ shareLevel, showRemove = true, className = '', onChangeShareLevel }) => {
+  assetType: ShareAssetType;
+}> = ({ shareLevel, showRemove = true, className = '', onChangeShareLevel, assetType }) => {
   const disabled = useMemo(() => canEdit(shareLevel), [shareLevel]);
 
   const items = useMemo(() => {
-    const baseItems: DropdownItem<DropdownValue>[] = [...standardItems];
+    const baseItems: DropdownItem<DropdownValue>[] = [...(itemsRecord[assetType] || [])];
 
     if (showRemove) {
       baseItems.push({
@@ -32,7 +33,7 @@ export const AccessDropdown: React.FC<{
       ...item,
       selected: item.value === shareLevel
     }));
-  }, [showRemove, shareLevel]);
+  }, [showRemove, shareLevel, assetType]);
 
   const selectedLabel = useMemo(() => {
     const selectedItem = items.find((item) => item.selected) || OWNER_ITEM;
@@ -92,7 +93,25 @@ export const AccessDropdown: React.FC<{
   );
 };
 
-const standardItems: DropdownItem<ShareRole>[] = [
+const metricItems: DropdownItem<ShareRole>[] = [
+  {
+    value: ShareRole.FULL_ACCESS,
+    label: 'Full access',
+    secondaryLabel: 'Can edit and share with others.'
+  },
+  {
+    value: ShareRole.CAN_EDIT,
+    label: 'Can edit',
+    secondaryLabel: 'Can edit but not share with others.'
+  },
+  {
+    value: ShareRole.CAN_VIEW,
+    label: 'Can view',
+    secondaryLabel: 'Can view asset but not edit.'
+  }
+];
+
+const dashboardItems: DropdownItem<ShareRole>[] = [
   {
     value: ShareRole.FULL_ACCESS,
     label: 'Full access',
@@ -111,9 +130,34 @@ const standardItems: DropdownItem<ShareRole>[] = [
   {
     value: ShareRole.CAN_VIEW,
     label: 'Can view',
-    secondaryLabel: 'Can view asset but not edit.'
+    secondaryLabel: 'Can view dashboard and metrics but not edit.'
   }
 ];
+
+const collectionItems: DropdownItem<ShareRole>[] = [
+  {
+    value: ShareRole.FULL_ACCESS,
+    label: 'Full access',
+    secondaryLabel: 'Can edit and share with others.'
+  },
+  {
+    value: ShareRole.CAN_EDIT,
+    label: 'Can edit',
+    secondaryLabel: 'Can edit but not share with others.'
+  },
+  {
+    value: ShareRole.CAN_VIEW,
+    label: 'Can view',
+    secondaryLabel: 'Can view assets but not edit.'
+  }
+];
+
+const itemsRecord: Record<ShareAssetType, DropdownItem<ShareRole>[]> = {
+  [ShareAssetType.DASHBOARD]: dashboardItems,
+  [ShareAssetType.METRIC]: metricItems,
+  [ShareAssetType.COLLECTION]: collectionItems,
+  [ShareAssetType.CHAT]: collectionItems
+};
 
 const OWNER_ITEM: DropdownItem<DropdownValue> = {
   value: ShareRole.OWNER,

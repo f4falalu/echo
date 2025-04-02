@@ -177,6 +177,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
                   className="absolute top-[50%] right-[10px] -translate-y-1/2"
                   shareLevel={defaultPermissionLevel}
                   onChangeShareLevel={onChangeAccessDropdown}
+                  assetType={assetType}
                 />
               )}
             </div>
@@ -197,6 +198,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
                 key={permission.email}
                 {...permission}
                 onUpdateShareRole={onUpdateShareRole}
+                assetType={assetType}
               />
             ))}
           </div>
