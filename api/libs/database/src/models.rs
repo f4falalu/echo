@@ -68,6 +68,7 @@ pub struct MessageToFile {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub is_duplicate: bool,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Debug, Clone, Serialize)]

@@ -4,6 +4,7 @@ use axum::{
 };
 
 mod delete_chats;
+mod duplicate_chat;
 mod get_chat;
 mod get_chat_raw_llm_messages;
 mod list_chats;
@@ -14,6 +15,7 @@ mod update_chat;
 mod update_chats;
 
 pub use delete_chats::delete_chats_route;
+pub use duplicate_chat::duplicate_chat_route;
 pub use get_chat::get_chat_route;
 pub use get_chat_raw_llm_messages::get_chat_raw_llm_messages;
 pub use list_chats::list_chats_route;
@@ -28,6 +30,7 @@ pub fn router() -> Router {
         .route("/", post(post_chat_route))
         .route("/", put(update_chats_route))
         .route("/", delete(delete_chats_route))
+        .route("/duplicate", post(duplicate_chat_route))
         .route("/:id", get(get_chat_route))
         .route("/:id", put(update_chat_route))
         .route("/:id/restore", put(restore_chat_route))

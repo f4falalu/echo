@@ -1,9 +1,10 @@
 use crate::common::http::test_app::TestApp;
+use crate::common::fixtures::builder::{FixtureBuilder, TestFixture};
 use crate::database::{
-    enums::AssetType,
-    models::{User, Chat, Message, MessageToFile, MetricFile, DashboardFile},
+    enums::{AssetType, UserOrganizationRole, SharingSetting, UserOrganizationStatus},
+    models::{User, Chat, Message, MessageToFile, MetricFile, DashboardFile, UserToOrganization},
     pool::get_pg_pool,
-    schema::{users, chats, messages, messages_to_files, metric_files, dashboard_files},
+    schema::{users, chats, messages, messages_to_files, metric_files, dashboard_files, users_to_organizations},
 };
 use chrono::Utc;
 use diesel::insert_into;
@@ -102,6 +103,111 @@ pub async fn create_chat(app: &TestApp, user: &User, title: &str) -> Chat {
         .unwrap();
     
     chat
+}
+
+/// A user fixture for testing
+#[derive(Clone)]
+pub struct UserFixture {
+    pub id: Uuid,
+    pub email: String,
+    pub name: Option<String>,
+    pub organization_id: Uuid,
+}
+
+/// Builder for user fixtures
+pub struct UserFixtureBuilder {
+    email: Option<String>,
+    name: Option<String>,
+    organization_id: Option<Uuid>,
+}
+
+impl FixtureBuilder<UserFixture> for UserFixtureBuilder {
+    fn default() -> Self {
+        Self {
+            email: None,
+            name: None,
+            organization_id: None,
+        }
+    }
+    
+    async fn build(self) -> UserFixture {
+        let email = self.email.unwrap_or_else(|| format!("user-{}@example.com", Uuid::new_v4()));
+        let name = self.name.unwrap_or_else(|| format!("Test User {}", Uuid::new_v4()));
+        let organization_id = self.organization_id.unwrap_or_else(Uuid::new_v4);
+        
+        // Create the user
+        let user = User {
+            id: Uuid::new_v4(),
+            email: email.clone(),
+            name: Some(name.clone()),
+            config: json!({}),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            attributes: json!({}),
+            avatar_url: None,
+        };
+        
+        let mut conn = get_pg_pool().get().await.unwrap();
+        
+        let user = insert_into(users::table)
+            .values(&user)
+            .get_result::<User>(&mut conn)
+            .await
+            .unwrap();
+            
+        // Create organization association
+        let user_to_org = UserToOrganization {
+            user_id: user.id,
+            organization_id,
+            role: UserOrganizationRole::Owner,
+            sharing_setting: SharingSetting::Private,
+            edit_sql: true,
+            upload_csv: true,
+            export_assets: true,
+            email_slack_enabled: true,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            created_by: user.id,
+            updated_by: user.id,
+            deleted_by: None,
+            status: UserOrganizationStatus::Active,
+        };
+        
+        insert_into(users_to_organizations::table)
+            .values(&user_to_org)
+            .execute(&mut conn)
+            .await
+            .unwrap();
+            
+        UserFixture {
+            id: user.id,
+            email,
+            name: Some(name),
+            organization_id,
+        }
+    }
+}
+
+impl UserFixtureBuilder {
+    pub fn with_email(mut self, email: impl Into<String>) -> Self {
+        self.email = Some(email.into());
+        self
+    }
+    
+    pub fn with_name(mut self, name: impl Into<String>) -> Self {
+        self.name = Some(name.into());
+        self
+    }
+    
+    pub fn with_organization_id(mut self, org_id: Uuid) -> Self {
+        self.organization_id = Some(org_id);
+        self
+    }
+}
+
+impl TestFixture for UserFixture {
+    type Builder = UserFixtureBuilder;
 }
 
 /// Creates a chat with associated files for testing
@@ -228,6 +334,7 @@ pub async fn create_chat_with_files(
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
+        is_duplicate: false,
     };
     
     insert_into(messages_to_files::table)

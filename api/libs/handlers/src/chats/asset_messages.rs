@@ -119,6 +119,7 @@ pub async fn create_message_file_association(
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
+        is_duplicate: false,
     };
     
     // Insert the message-to-file association

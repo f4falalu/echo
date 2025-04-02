@@ -7,9 +7,9 @@ use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::Utc;
 use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
-    models::{AssetPermission, DashboardFile},
+    models::{AssetPermission, DashboardFile, MetricFileToDashboardFile},
     pool::get_pg_pool,
-    schema::{asset_permissions, dashboard_files},
+    schema::{asset_permissions, dashboard_files, metric_files_to_dashboard_files},
     types::{DashboardYml, VersionHistory},
 };
 use diesel::insert_into;
@@ -205,6 +205,48 @@ impl ToolExecutor for CreateDashboardFilesTool {
                                     dashboard_file.id,
                                     e
                                 );
+                            }
+                        }
+                    }
+                    
+                    // Create associations between metrics and dashboards
+                    for (i, dashboard_record) in dashboard_records.iter().enumerate() {
+                        let metric_ids: Vec<Uuid> = dashboard_record.content
+                            .rows
+                            .iter()
+                            .flat_map(|row| row.items.iter())
+                            .map(|item| item.id)
+                            .collect();
+                        
+                        if !metric_ids.is_empty() {
+                            // Create a Vec of MetricFileToDashboardFile objects for bulk insert
+                            let metric_dashboard_values: Vec<MetricFileToDashboardFile> = metric_ids
+                                .iter()
+                                .map(|metric_id| MetricFileToDashboardFile {
+                                    metric_file_id: *metric_id,
+                                    dashboard_file_id: dashboard_record.id,
+                                    created_at: Utc::now(),
+                                    updated_at: Utc::now(),
+                                    deleted_at: None,
+                                    created_by: user_id,
+                                })
+                                .collect();
+                            
+                            // Insert the associations
+                            match diesel::insert_into(metric_files_to_dashboard_files::table)
+                                .values(&metric_dashboard_values)
+                                .on_conflict_do_nothing() // In case the association already exists
+                                .execute(&mut conn)
+                                .await
+                            {
+                                Ok(_) => (),
+                                Err(e) => {
+                                    tracing::warn!(
+                                        "Failed to create metric-to-dashboard associations for dashboard {}: {}",
+                                        dashboard_record.id,
+                                        e
+                                    );
+                                }
                             }
                         }
                     }
