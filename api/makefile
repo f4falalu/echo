@@ -9,7 +9,7 @@ dev:
 	PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -d postgres -U postgres -f libs/database/seed.sql && \
 	export RUST_LOG=debug
 	export CARGO_INCREMENTAL=1
-	nice cargo watch -x run
+	nice cargo watch -C server -x run
 
 stop:
 	docker compose down && \
@@ -19,4 +19,4 @@ stop:
 fast:
 	export RUST_LOG=debug
 	export CARGO_INCREMENTAL=1
-	nice cargo watch -x run
+	nice cargo watch -C server -x run

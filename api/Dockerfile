@@ -9,7 +9,7 @@ FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-RUN cargo build --release --bin bi_api
+RUN cargo build --release --bin buster_server
 
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
@@ -34,6 +34,6 @@ RUN update-ca-certificates
 ENV RUST_LOG=warn
 ENV RUST_BACKTRACE=0
 
-COPY --from=builder /app/target/release/bi_api .
+COPY --from=builder /app/target/release/buster_server .
 EXPOSE 3001
-ENTRYPOINT ["./bi_api"]
+ENTRYPOINT ["./buster_server"]
