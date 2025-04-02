@@ -106,13 +106,18 @@ pub async fn update_dashboard_handler(
         description: None,
         rows: Vec::new(),
     };
-    
+
     let mut current_version_history: VersionHistory = dashboard_files::table
         .filter(dashboard_files::id.eq(dashboard_id))
         .select(dashboard_files::version_history)
         .first::<VersionHistory>(&mut conn)
         .await
-        .unwrap_or_else(|_| VersionHistory::new(0, database::types::VersionContent::DashboardYml(empty_dashboard)));
+        .unwrap_or_else(|_| {
+            VersionHistory::new(
+                0,
+                database::types::VersionContent::DashboardYml(empty_dashboard),
+            )
+        });
 
     let mut dashboard_yml: DashboardYml;
     let mut has_changes = false;
@@ -123,25 +128,25 @@ pub async fn update_dashboard_handler(
         let version = current_version_history
             .get_version(version_number)
             .ok_or_else(|| anyhow!("Version {} not found", version_number))?;
-        
+
         // Get the DashboardYml from the content
         match &version.content {
             database::types::VersionContent::DashboardYml(yml) => {
                 dashboard_yml = yml.clone();
                 has_changes = true;
-                
+
                 tracing::info!(
                     dashboard_id = %dashboard_id,
                     restored_version = %version_number,
                     "Restoring dashboard to previous version"
                 );
-            },
+            }
             _ => return Err(anyhow!("Invalid version content type")),
         }
     } else {
         // If not restoring, proceed with normal update logic
         dashboard_yml = serde_yaml::from_str::<DashboardYml>(&current_dashboard.dashboard.file)?;
-        
+
         // Handle file content update (high priority - overrides other fields)
         if let Some(file_content) = request.file {
             // Parse the YAML file content
@@ -174,8 +179,8 @@ pub async fn update_dashboard_handler(
                     new_rows.push(Row {
                         items: row_items,
                         row_height: dashboard_row.row_height,
-                        column_sizes: dashboard_row.column_sizes,
-                        id: Some(dashboard_row.id.parse().unwrap_or(0)),
+                        column_sizes: dashboard_row.column_sizes.unwrap_or_default(),
+                        id: dashboard_row.id.parse::<u32>().unwrap_or(0),
                     });
                 }
 
@@ -198,13 +203,13 @@ pub async fn update_dashboard_handler(
     if has_changes {
         if should_update_version {
             current_version_history.add_version(
-                next_version, 
-                database::types::VersionContent::DashboardYml(dashboard_yml.clone())
+                next_version,
+                database::types::VersionContent::DashboardYml(dashboard_yml.clone()),
             );
         } else {
             // Overwrite the current version instead of creating a new one
             current_version_history.update_latest_version(
-                database::types::VersionContent::DashboardYml(dashboard_yml.clone())
+                database::types::VersionContent::DashboardYml(dashboard_yml.clone()),
             );
         }
     }
@@ -408,8 +413,8 @@ async fn update_dashboard_metric_associations(
 mod tests {
     use super::*;
     use database::types::Version;
-    use mockall::predicate::*;
     use mockall::mock;
+    use mockall::predicate::*;
 
     // Create mock for database operations and other dependencies
     mock! {
@@ -421,46 +426,54 @@ mod tests {
 
     // Helper to create a test version history with multiple versions
     fn create_test_version_history() -> VersionHistory {
-        let mut vh = VersionHistory::default();
-        
+        let mut vh = VersionHistory::new(
+            0,
+            database::types::VersionContent::DashboardYml(DashboardYml {
+                name: "Empty Dashboard".to_string(),
+                description: None,
+                rows: Vec::new(),
+            }),
+        );
+
         // Version 1 content
         let v1_content = DashboardYml {
             name: "Original Dashboard".to_string(),
             description: Some("Original description".to_string()),
-            rows: vec![
-                Row {
-                    items: vec![RowItem { id: Uuid::new_v4() }],
-                    row_height: Some(300),
-                    column_sizes: Some(vec![12]),
-                    id: Some(1),
-                }
-            ],
+            rows: vec![Row {
+                items: vec![RowItem { id: Uuid::new_v4() }],
+                row_height: Some(300),
+                column_sizes: vec![12],
+                id: 1,
+            }],
         };
-        
+
         // Version 2 content
         let v2_content = DashboardYml {
             name: "Updated Dashboard".to_string(),
             description: Some("Updated description".to_string()),
             rows: vec![
                 Row {
-                    items: vec![RowItem { id: Uuid::new_v4() }, RowItem { id: Uuid::new_v4() }],
+                    items: vec![
+                        RowItem { id: Uuid::new_v4() },
+                        RowItem { id: Uuid::new_v4() },
+                    ],
                     row_height: Some(400),
-                    column_sizes: Some(vec![6, 6]),
-                    id: Some(1),
+                    column_sizes: vec![6, 6],
+                    id: 1,
                 },
                 Row {
                     items: vec![RowItem { id: Uuid::new_v4() }],
                     row_height: Some(300),
-                    column_sizes: Some(vec![12]),
-                    id: Some(2),
-                }
+                    column_sizes: vec![12],
+                    id: 2,
+                },
             ],
         };
-        
+
         // Add versions to history
-        vh.add_version(1, v1_content);
-        vh.add_version(2, v2_content);
-        
+        vh.add_version(1, database::types::VersionContent::DashboardYml(v1_content));
+        vh.add_version(2, database::types::VersionContent::DashboardYml(v2_content));
+
         vh
     }
 
@@ -468,7 +481,7 @@ mod tests {
     async fn test_restore_dashboard_version() {
         // This test would require a complete setup with database mocking
         // Full implementation in real code would mock all required components
-        
+
         // Test logic:
         // 1. Create a dashboard with initial content (version 1)
         // 2. Update to create version 2
@@ -526,14 +539,14 @@ mod tests {
                 Row {
                     items: vec![RowItem { id: uuid1 }, RowItem { id: uuid2 }],
                     row_height: Some(400),
-                    column_sizes: Some(vec![6, 6]),
-                    id: Some(1),
+                    column_sizes: vec![6, 6],
+                    id: 1,
                 },
                 Row {
                     items: vec![RowItem { id: uuid3 }],
                     row_height: Some(300),
-                    column_sizes: Some(vec![12]),
-                    id: Some(2),
+                    column_sizes: vec![12],
+                    id: 2,
                 },
             ],
         };

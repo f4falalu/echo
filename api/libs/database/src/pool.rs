@@ -168,3 +168,22 @@ pub async fn create_redis_pool() -> Result<RedisPool> {
 
     Ok(pool)
 }
+
+/// This function is used for testing purposes only.
+/// It initializes test pools before the main application pools.
+/// This must be called before any other database operations.
+#[cfg(test)]
+pub async fn init_test_pools() -> Result<()> {
+    // Only initialize if pools haven't been set yet
+    if DIESEL_POOL.get().is_none() && SQLX_POOL.get().is_none() && REDIS_POOL.get().is_none() {
+        // Use test-specific database URLs 
+        std::env::set_var("DATABASE_URL", std::env::var("TEST_DATABASE_URL")
+            .unwrap_or_else(|_| "postgresql://postgres:postgres@127.0.0.1:54322/postgres".to_string()));
+            
+        // Initialize the pools normally
+        init_pools().await
+    } else {
+        // Already initialized
+        Ok(())
+    }
+}

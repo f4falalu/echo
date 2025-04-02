@@ -34,12 +34,11 @@ pub struct Row {
     #[serde(alias = "row_height")]
     pub row_height: Option<u32>, // max is 550, min is 320
     
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "column_sizes")]
-    pub column_sizes: Option<Vec<u32>>, // max sum of elements is 12 min is 3
+    pub column_sizes: Vec<u32>, // sum of elements must be exactly 12, min size is 3
     
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub id: Option<u32>, // incremental id for rows
+    #[serde(alias = "id")]
+    pub id: u32, // incremental id for rows
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -65,8 +64,8 @@ impl DashboardYml {
 
         // Add row IDs if they don't exist
         for (index, row) in file.rows.iter_mut().enumerate() {
-            if row.id.is_none() {
-                row.id = Some((index as u32) + 1);
+            if row.id == 0 {
+                row.id = (index + 1) as u32;
             }
         }
 
@@ -105,21 +104,37 @@ impl DashboardYml {
             }
 
             // Check column sizes sum to valid amount
-            if let Some(column_sizes) = &row.column_sizes {
-                let sum: u32 = column_sizes.iter().sum();
-                if !(3..=12).contains(&sum) {
-                    return Err(anyhow::anyhow!(
-                        "Sum of column sizes must be between 3 and 12, got {}",
-                        sum
-                    ));
-                }
+            if row.column_sizes.is_empty() || row.column_sizes.len() > 4 {
+                return Err(anyhow::anyhow!(
+                    "Number of column sizes must be between 1 and 4, got {}",
+                    row.column_sizes.len()
+                ));
+            }
 
-                // Check column sizes match number of items
-                if column_sizes.len() != row.items.len() {
+            // Check column sizes match number of items
+            if row.column_sizes.len() != row.items.len() {
+                return Err(anyhow::anyhow!(
+                    "Number of column sizes ({}) must match number of items ({})",
+                    row.column_sizes.len(),
+                    row.items.len()
+                ));
+            }
+
+            // Validate sum of column_sizes is exactly 12
+            let sum: u32 = row.column_sizes.iter().sum();
+            if sum != 12 {
+                return Err(anyhow::anyhow!(
+                    "Sum of column sizes must be exactly 12, got {}",
+                    sum
+                ));
+            }
+
+            // Check individual column sizes are at least 3
+            for &size in &row.column_sizes {
+                if size < 3 {
                     return Err(anyhow::anyhow!(
-                        "Number of column sizes ({}) must match number of items ({})",
-                        column_sizes.len(),
-                        row.items.len()
+                        "Each column size must be at least 3, got {}",
+                        size
                     ));
                 }
             }
@@ -137,19 +152,19 @@ impl DashboardYml {
     pub fn get_next_row_id(&self) -> u32 {
         self.rows
             .iter()
-            .filter_map(|row| row.id)
+            .map(|row| row.id)
             .max()
             .map_or(1, |max_id| max_id + 1)
     }
     
     /// Adds a new row with provided items and auto-generates the row ID
-    pub fn add_row(&mut self, items: Vec<RowItem>, row_height: Option<u32>, column_sizes: Option<Vec<u32>>) {
+    pub fn add_row(&mut self, items: Vec<RowItem>, row_height: Option<u32>, column_sizes: Vec<u32>) {
         let next_id = self.get_next_row_id();
         self.rows.push(Row {
             items,
             row_height,
             column_sizes,
-            id: Some(next_id),
+            id: next_id,
         });
     }
 }
@@ -191,8 +206,8 @@ mod tests {
                         }
                     ],
                     row_height: Some(400),
-                    column_sizes: Some(vec![12]),
-                    id: Some(1),
+                    column_sizes: vec![12],
+                    id: 1,
                 }
             ],
         };
@@ -228,6 +243,7 @@ mod tests {
             "description": "This is a test dashboard",
             "rows": [
                 {
+                    "id": 1,
                     "items": [
                         {
                             "id": "00000000-0000-0000-0000-000000000001"
@@ -248,12 +264,13 @@ mod tests {
         assert_eq!(dashboard.description, Some("This is a test dashboard".to_string()));
         assert_eq!(dashboard.rows.len(), 1);
         assert_eq!(dashboard.rows[0].row_height, Some(400));
-        assert_eq!(dashboard.rows[0].column_sizes, Some(vec![12]));
+        assert_eq!(dashboard.rows[0].column_sizes, vec![12]);
         
         // Check that a row ID was assigned
-        assert_eq!(dashboard.rows[0].id, Some(1));
+        assert_eq!(dashboard.rows[0].id, 1);
     }
     
+
     #[test]
     fn test_dashboard_yml_camel_case_deserialization() {
         // Test case: Verify that DashboardYml deserializes from camelCase
@@ -265,6 +282,7 @@ mod tests {
             "description": "This is a test dashboard",
             "rows": [
                 {
+                    "id": 1,
                     "items": [
                         {
                             "id": "00000000-0000-0000-0000-000000000001"
@@ -285,10 +303,10 @@ mod tests {
         assert_eq!(dashboard.description, Some("This is a test dashboard".to_string()));
         assert_eq!(dashboard.rows.len(), 1);
         assert_eq!(dashboard.rows[0].row_height, Some(400));
-        assert_eq!(dashboard.rows[0].column_sizes, Some(vec![12]));
+        assert_eq!(dashboard.rows[0].column_sizes, vec![12]);
         
         // Check that a row ID was assigned
-        assert_eq!(dashboard.rows[0].id, Some(1));
+        assert_eq!(dashboard.rows[0].id, 1);
     }
     
     #[test]
@@ -301,15 +319,18 @@ mod tests {
 name: Test Dashboard
 description: This is a test dashboard
 rows:
-  - items:
+  - id: 0  # using 0 as a signal to generate a new ID
+    items:
       - id: 00000000-0000-0000-0000-000000000001
     rowHeight: 400
     columnSizes: [12]
-  - items:
+  - id: 0  # using 0 as a signal to generate a new ID
+    items:
       - id: 00000000-0000-0000-0000-000000000002
     rowHeight: 320
     columnSizes: [12]
-  - items:
+  - id: 0  # using 0 as a signal to generate a new ID
+    items:
       - id: 00000000-0000-0000-0000-000000000003
     rowHeight: 550
     columnSizes: [12]
@@ -319,9 +340,9 @@ rows:
         let dashboard = DashboardYml::new(yaml.to_string()).unwrap();
         
         // Verify that row IDs were assigned in sequence
-        assert_eq!(dashboard.rows[0].id, Some(1));
-        assert_eq!(dashboard.rows[1].id, Some(2));
-        assert_eq!(dashboard.rows[2].id, Some(3));
+        assert_eq!(dashboard.rows[0].id, 1);
+        assert_eq!(dashboard.rows[1].id, 2);
+        assert_eq!(dashboard.rows[2].id, 3);
     }
     
     #[test]
@@ -337,8 +358,8 @@ rows:
                 Row {
                     items: vec![RowItem { id: Uuid::new_v4() }],
                     row_height: None,
-                    column_sizes: None,
-                    id: Some(1),
+                    column_sizes: vec![12], // Must sum to 12
+                    id: 1,
                 }
             ],
         };
@@ -347,20 +368,20 @@ rows:
         dashboard.add_row(
             vec![RowItem { id: Uuid::new_v4() }],
             Some(400),
-            Some(vec![12]),
+            vec![12], // Must sum to 12
         );
         
         // Add a third row
         dashboard.add_row(
             vec![RowItem { id: Uuid::new_v4() }],
             Some(320),
-            None,
+            vec![12], // Must sum to 12
         );
         
         // Verify that row IDs were assigned in sequence
-        assert_eq!(dashboard.rows[0].id, Some(1));
-        assert_eq!(dashboard.rows[1].id, Some(2));
-        assert_eq!(dashboard.rows[2].id, Some(3));
+        assert_eq!(dashboard.rows[0].id, 1);
+        assert_eq!(dashboard.rows[1].id, 2);
+        assert_eq!(dashboard.rows[2].id, 3);
         
         // Verify that get_next_row_id returns the expected value
         assert_eq!(dashboard.get_next_row_id(), 4);
@@ -379,20 +400,20 @@ rows:
                 Row {
                     items: vec![RowItem { id: Uuid::new_v4() }],
                     row_height: None,
-                    column_sizes: None,
-                    id: Some(1),
+                    column_sizes: vec![12], // Must sum to 12
+                    id: 1,
                 },
                 Row {
                     items: vec![RowItem { id: Uuid::new_v4() }],
                     row_height: None,
-                    column_sizes: None,
-                    id: Some(5), // Intentionally out of sequence
+                    column_sizes: vec![12], // Must sum to 12
+                    id: 5, // Intentionally out of sequence
                 },
                 Row {
                     items: vec![RowItem { id: Uuid::new_v4() }],
                     row_height: None,
-                    column_sizes: None,
-                    id: Some(3),
+                    column_sizes: vec![12], // Must sum to 12
+                    id: 3,
                 }
             ],
         };
@@ -429,6 +450,6 @@ rows:
         let dashboard = DashboardYml::new(yaml).unwrap();
         
         // Verify the explicit ID was preserved
-        assert_eq!(dashboard.rows[0].id, Some(42));
+        assert_eq!(dashboard.rows[0].id, 42);
     }
 }
