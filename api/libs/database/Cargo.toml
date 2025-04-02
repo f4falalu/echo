@@ -30,5 +30,4 @@ reqwest = { workspace = true }
 
 
 [dev-dependencies]
-tokio-test = { workspace = true }
-testkit = { path = "../../testkit" } 
+tokio-test = { workspace = true } 

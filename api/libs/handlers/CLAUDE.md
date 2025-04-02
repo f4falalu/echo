@@ -121,3 +121,32 @@ async fn example_handler(req: PostChatRequest, user: AuthenticatedUser) -> Resul
 - Use test fixtures for consistent test data
 - Run tests with: `cargo test -p handlers`
 - Create tests for each handler in the corresponding `tests/` directory
+
+### Automatic Test Environment Setup
+
+Integration tests in this library use an automatic database pool initialization system. The environment is set up once when the test module is loaded, eliminating the need for explicit initialization in each test.
+
+Key components:
+- `tests/mod.rs` contains the initialization code using `lazy_static` and `ctor`
+- Database pools are initialized only once for all tests
+- Tests can directly use `get_pg_pool()` without any setup code
+
+Example test:
+```rust
+use anyhow::Result;
+use database::pool::get_pg_pool;
+
+#[tokio::test]
+async fn test_handler_functionality() -> Result<()> {
+    // Database pool is already initialized
+    let pool = get_pg_pool();
+    
+    // Test code here using the pool
+    Ok(())
+}
+```
+
+To add new test modules, simply:
+1. Create a new module in the `tests/` directory
+2. Add it to the module declarations in `tests/mod.rs`
+3. Write standard async tests using `#[tokio::test]`
