@@ -24,6 +24,7 @@ import {
   scales
 } from 'chart.js';
 import { ChartMountedPlugin } from './core/plugins';
+import CrosshairPlugin from './core/plugins/chartjs-plugin-crosshair';
 import ChartDeferred from 'chartjs-plugin-deferred';
 import ChartJsAnnotationPlugin from 'chartjs-plugin-annotation';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
@@ -69,7 +70,8 @@ ChartJS.register(
   LogarithmicScale,
   TimeScale,
   TimeSeriesScale,
-  ChartDataLabels
+  ChartDataLabels,
+  CrosshairPlugin
 );
 
 ChartJS.defaults.responsive = true;
