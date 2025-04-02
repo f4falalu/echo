@@ -1,7 +1,9 @@
 import { AnimationOptions, AnimationSpec } from 'chart.js';
 
-export const barDelayAnimation = (props?: { dataDelay?: number; datasetDelay?: number }) => {
-  const { dataDelay = 200, datasetDelay = 100 } = props || {};
+const MAX_DELAY = 1200;
+
+export const barDelayAnimation = (props?: { maxDelay?: number }) => {
+  const { maxDelay = MAX_DELAY } = props || {};
   let delayed = false;
   return {
     onComplete: () => {
@@ -9,13 +11,20 @@ export const barDelayAnimation = (props?: { dataDelay?: number; datasetDelay?: n
     },
     delay: (context) => {
       let delay = 0;
+      const dataIndex = context.dataIndex;
+      const datasetIndex = context.datasetIndex;
       const numberOfDatasets = context.chart.data.datasets.length;
-      const numberOfDataPoints = context.chart.data.datasets[context.datasetIndex].data.length;
+      const numberOfDataPoints = context.chart.data.datasets[datasetIndex]?.data.length || 1;
 
       if (context.type === 'data' && context.mode === 'default' && !delayed) {
-        delay = context.dataIndex * dataDelay + context.datasetIndex * datasetDelay;
-        // Ensure the maximum delay is 1000ms
-        delay = Math.min(delay, 1000);
+        // Calculate a scaling factor to distribute delays evenly, with max total delay of 1500ms
+
+        const totalSegments = numberOfDatasets * numberOfDataPoints - 1; // -1 because first element has 0 delay
+        const scalingFactor = totalSegments > 0 ? maxDelay / totalSegments : 0;
+
+        // Calculate position in overall sequence (dataset index * points per dataset + datapoint index)
+        const sequencePosition = datasetIndex * numberOfDataPoints + dataIndex;
+        delay = sequencePosition * scalingFactor;
       }
       return delay;
     }

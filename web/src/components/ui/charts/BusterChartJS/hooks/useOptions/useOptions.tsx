@@ -23,7 +23,6 @@ import {
   LINE_DECIMATION_THRESHOLD,
   TOOLTIP_THRESHOLD
 } from '../../../config';
-import { barDelayAnimation } from '../../core/animations/barDelayAnimation';
 import { useAnimations } from './useAnimations';
 
 interface UseOptionsProps {
@@ -202,7 +201,6 @@ export const useOptions = ({
 
     return {
       indexAxis: isHorizontalBar ? 'y' : 'x',
-      animation,
       backgroundColor: colors,
       borderColor: colors,
       scales,
@@ -220,10 +218,11 @@ export const useOptions = ({
           samples: LINE_DECIMATION_SAMPLES
         }
       },
+      animation,
       ...chartOptions
     } satisfies ChartProps<ChartJSChartType>['options'];
   }, [
-    animate,
+    animation,
     colors,
     scales,
     interaction,
@@ -235,8 +234,7 @@ export const useOptions = ({
     isHorizontalBar,
     goalLinesAnnotations,
     trendlineAnnotations,
-    tooltipOptions,
-    animate
+    tooltipOptions
   ]);
 
   return options;
