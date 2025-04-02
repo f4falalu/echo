@@ -1,2 +1,0 @@
-pub mod create_favorites_bulk_test;
-pub mod delete_favorites_bulk_test;
