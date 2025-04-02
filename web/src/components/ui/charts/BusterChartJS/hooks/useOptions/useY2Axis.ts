@@ -86,15 +86,13 @@ export const useY2Axis = ({
           text: title
         },
         ticks: {
-          tickLength: 20,
           autoSkip: true,
-          autoSkipPadding: 2,
           callback: tickCallback
         },
         grid: {
           drawOnChartArea: false // only want the grid lines for one axis to show up
         }
-      } as DeepPartial<ScaleChartOptions<'bar'>['scales']['y2']>;
+      } satisfies DeepPartial<ScaleChartOptions<'bar'>['scales']['y2']>;
     }, [
       tickCallback,
       title,

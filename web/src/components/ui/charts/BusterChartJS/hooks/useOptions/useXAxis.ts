@@ -15,6 +15,9 @@ import { useXAxisTitle } from '../../../commonHelpers/useXAxisTitle';
 import { useIsStacked } from './useIsStacked';
 import { formatLabel, isNumericColumnType } from '@/lib';
 import isDate from 'lodash/isDate';
+import { Chart as ChartJS } from 'chart.js';
+
+const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category.ticks.callback;
 
 export const useXAxis = ({
   columnLabelFormats,
@@ -85,10 +88,11 @@ export const useXAxis = ({
 
       if (isComboChart && columnSettings) {
         const allYAxisKeys = [...selectedAxis.y, ...((selectedAxis as ComboChartAxis).y2 || [])];
+        console.log(allYAxisKeys, columnSettings);
         const atLeastOneLineVisualization = allYAxisKeys.some(
           (y) =>
-            columnSettings[y].columnVisualization === 'line' ||
-            columnSettings[y].columnVisualization === 'dot'
+            columnSettings[y]?.columnVisualization === 'line' ||
+            columnSettings[y]?.columnVisualization === 'dot'
         );
 
         if (atLeastOneLineVisualization) return 'time';
@@ -130,10 +134,10 @@ export const useXAxis = ({
       const xKey = selectedAxis.x[0];
       const xColumnLabelFormat = xAxisColumnFormats[xKey];
       const res = formatLabel(rawValue, xColumnLabelFormat);
-      return res;
+      return DEFAULT_X_AXIS_TICK_CALLBACK.call(this, res, index, this.getLabels() as any);
     }
 
-    return rawValue;
+    return DEFAULT_X_AXIS_TICK_CALLBACK.call(this, value, index, this.getLabels() as any);
   });
 
   const rotation = useMemo(() => {
@@ -177,19 +181,10 @@ export const useXAxis = ({
           ...rotation,
           sampleSize: type === 'time' ? 24 : undefined,
           display: xAxisShowAxisLabel,
-          callback: useTickCallback ? tickCallback : null,
-          autoSkip: true,
-          align: 'center',
+          callback: useTickCallback ? tickCallback : DEFAULT_X_AXIS_TICK_CALLBACK,
           time: {
             unit: timeUnit
-          },
-          includeBounds: true,
-          autoSkipPadding: 4, // 17,
-          source: 'auto'
-        },
-        display: true,
-        border: {
-          display: true
+          }
         },
         grid
       } as DeepPartial<ScaleChartOptions<'bar'>['scales']['x']>;

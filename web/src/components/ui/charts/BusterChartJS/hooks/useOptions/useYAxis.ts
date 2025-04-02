@@ -49,7 +49,7 @@ export const useYAxis = ({
   const grid: DeepPartial<GridLineOptions> | undefined = useMemo(() => {
     return {
       display: gridLines
-    };
+    } satisfies DeepPartial<GridLineOptions>;
   }, [gridLines]);
 
   const usePercentageModeAxis = useMemo(() => {
@@ -122,7 +122,7 @@ export const useYAxis = ({
         border: {
           display: yAxisShowAxisLabel
         }
-      } as DeepPartial<ScaleChartOptions<'bar'>['scales']['y']>;
+      } satisfies DeepPartial<ScaleChartOptions<'bar'>['scales']['y']>;
     }, [
       tickCallback,
       type,

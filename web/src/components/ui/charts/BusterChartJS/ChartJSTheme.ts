@@ -30,6 +30,7 @@ import { DEFAULT_CHART_THEME } from '@/api/asset_interfaces/metric/charts/config
 import { isServer } from '@tanstack/react-query';
 
 import 'chartjs-adapter-dayjs-4';
+import { truncateText } from '@/lib/text';
 
 const fontFamily = isServer
   ? 'Roobert_Pro'
@@ -37,6 +38,9 @@ const fontFamily = isServer
 const color = isServer
   ? '#575859'
   : getComputedStyle(document.documentElement).getPropertyValue('--color-text-secondary');
+const backgroundColor = isServer
+  ? '#ffffff'
+  : getComputedStyle(document.documentElement).getPropertyValue('--color-background');
 
 ChartJS.register(
   LineController,
@@ -69,16 +73,52 @@ ChartJS.register(
 );
 
 ChartJS.defaults.responsive = true;
-ChartJS.defaults.resizeDelay = 5;
+ChartJS.defaults.resizeDelay = 6;
 ChartJS.defaults.maintainAspectRatio = false;
 ChartJS.defaults.color = color;
 ChartJS.defaults.backgroundColor = DEFAULT_CHART_THEME;
 ChartJS.defaults.font = {
   ...ChartJS.defaults.font,
   family: fontFamily,
-  size: 12,
+  size: 11,
   weight: 'normal'
 };
+
+[
+  ChartJS.defaults.scales.category,
+  ChartJS.defaults.scales.linear,
+  ChartJS.defaults.scales.logarithmic,
+  ChartJS.defaults.scales.time,
+  ChartJS.defaults.scales.timeseries
+].forEach((scale) => {
+  scale.title = {
+    ...scale.title,
+    font: {
+      ...ChartJS.defaults.font,
+      size: 10
+    }
+  };
+});
+
+[
+  ChartJS.defaults.scales.category,
+  ChartJS.defaults.scales.time,
+  ChartJS.defaults.scales.timeseries
+].forEach((scale) => {
+  scale.ticks.showLabelBackdrop = true;
+  scale.ticks.z = 100;
+  scale.ticks.backdropColor = backgroundColor;
+  scale.ticks.autoSkipPadding = 4;
+  scale.ticks.align = 'center';
+  scale.ticks.callback = function (value, index, values) {
+    return truncateText(this.getLabelForValue(index), 18);
+  };
+});
+
+[ChartJS.defaults.scales.linear, ChartJS.defaults.scales.logarithmic].forEach((scale) => {
+  scale.ticks.z = 1;
+  scale.ticks.autoSkipPadding = 2;
+});
 
 export const DEFAULT_CHART_LAYOUT = {
   autoPadding: true,

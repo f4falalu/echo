@@ -32,7 +32,7 @@ export const generateBarChartData = (categoryCount = 6): IDataResult => {
     category: faker.commerce.department(),
     sales: faker.number.int({ min: 1000, max: 10000 }),
     units: faker.number.int({ min: 50, max: 500 }),
-    returns: faker.number.int({ min: 0, max: 50 })
+    returns: faker.number.int({ min: 100, max: 500 })
   }));
 };
 

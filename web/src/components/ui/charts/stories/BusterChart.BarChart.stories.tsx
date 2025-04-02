@@ -46,8 +46,14 @@ export const Default: Story = {
         style: 'number',
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat
-    } satisfies Record<keyof BarChartData, IColumnLabelFormat>,
-    className: 'w-[800px] h-[400px]'
+    } satisfies Record<keyof BarChartData, IColumnLabelFormat>
+  },
+  render: (args) => {
+    return (
+      <div className="h-[90vh] w-[80vw]">
+        <BusterChart {...args} />
+      </div>
+    );
   }
 };
 
@@ -81,10 +87,16 @@ export const MultipleYAxis: Story = {
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof BarChartData, IColumnLabelFormat>,
-    className: 'w-[800px] h-[400px]',
     y2AxisShowAxisLabel: true,
     y2AxisShowAxisTitle: true,
     y2AxisAxisTitle: 'Returns'
+  },
+  render: (args) => {
+    return (
+      <div className="h-[90vh] w-[80vw]">
+        <BusterChart {...args} />
+      </div>
+    );
   }
 };
 
@@ -121,8 +133,14 @@ export const WithCategory: Story = {
         style: 'number',
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat
-    },
-    className: 'w-[800px] h-[400px]'
+    }
+  },
+  render: (args) => {
+    return (
+      <div className="h-[90vh] w-[80vw]">
+        <BusterChart {...args} />
+      </div>
+    );
   }
 };
 
@@ -160,8 +178,14 @@ export const DateXAxis: Story = {
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat
     },
-    className: 'w-[800px] h-[400px]',
     xAxisTimeInterval: 'day'
+  },
+  render: (args) => {
+    return (
+      <div className="h-[90vh] w-[80vw]">
+        <BusterChart {...args} />
+      </div>
+    );
   }
 };
 
@@ -195,8 +219,14 @@ export const HorizontalBar: Story = {
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof BarChartData, IColumnLabelFormat>,
-    className: 'w-[800px] h-[400px]',
     barLayout: 'horizontal'
+  },
+  render: (args) => {
+    return (
+      <div className="h-[90vh] w-[80vw]">
+        <BusterChart {...args} />
+      </div>
+    );
   }
 };
 
@@ -239,8 +269,14 @@ export const WithDataLabels: Story = {
         style: 'number',
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat
-    } satisfies Record<keyof BarChartData, IColumnLabelFormat>,
-    className: 'w-[800px] h-[400px]'
+    } satisfies Record<keyof BarChartData, IColumnLabelFormat>
+  },
+  render: (args) => {
+    return (
+      <div className="h-[90vh] w-[80vw]">
+        <BusterChart {...args} />
+      </div>
+    );
   }
 };
 
@@ -251,7 +287,7 @@ export const LargeDataset: Story = {
       category: faker.commerce.productName(),
       sales: faker.number.int({ min: 5000, max: 50000 }),
       units: faker.number.int({ min: 100, max: 1000 }),
-      returns: faker.number.int({ min: 10, max: 100 })
+      returns: faker.number.int({ min: 100, max: 1000 })
     })),
     barAndLineAxis: {
       x: ['category'],
@@ -282,7 +318,53 @@ export const LargeDataset: Story = {
   },
   render: (args) => {
     return (
-      <div className="h-[500px] w-[80vw]">
+      <div className="h-[90vh] w-[80vw]">
+        <BusterChart {...args} />
+      </div>
+    );
+  }
+};
+
+export const LargeDatasetWithDualYAxis: Story = {
+  args: {
+    selectedChartType: ChartType.Combo,
+    data: Array.from({ length: 25 }, (_, index) => ({
+      category: faker.commerce.productName(),
+      sales: faker.number.int({ min: 5000, max: 50000 }),
+      units: faker.number.int({ min: 100, max: 1000 }),
+      returns: faker.number.int({ min: 100, max: 1000 })
+    })),
+    comboChartAxis: {
+      x: ['category'],
+      y: ['sales', 'returns'],
+      y2: ['units'],
+      category: []
+    },
+    columnLabelFormats: {
+      category: {
+        columnType: 'text',
+        style: 'string'
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      units: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat,
+      returns: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    }
+  },
+  render: (args) => {
+    return (
+      <div className="h-[90vh] w-[80vw]">
         <BusterChart {...args} />
       </div>
     );

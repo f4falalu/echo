@@ -78,3 +78,9 @@ export const calculateTextWidth = (text: string, font: string): number => {
   canvas.remove();
   return width;
 };
+
+export const truncateText = (text: string, characters: number) => {
+  if (text.length <= characters) return text;
+  const truncatedText = text.slice(0, characters) + '...';
+  return truncatedText;
+};
