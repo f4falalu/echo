@@ -30,9 +30,7 @@ export const barPluginsHandler = ({
       enabled: (barShowTotalAtTop && barGroupType === 'stack') || hasShowLabelAsPercentage
     },
     annotation: {
-      annotations: barShowTotalAtTop
-        ? getTotalBarAnnotations(data, selectedAxis, columnLabelFormats)
-        : undefined
+      annotations: barShowTotalAtTop ? undefined : undefined
     }
   };
 };

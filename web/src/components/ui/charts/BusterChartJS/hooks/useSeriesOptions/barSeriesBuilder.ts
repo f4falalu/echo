@@ -17,11 +17,13 @@ export const barSeriesBuilder = ({
   columnSettings,
   columnLabelFormats,
   xAxisKeys,
-  barShowTotalAtTop
+  barShowTotalAtTop,
+  allY2AxisKeysIndexes,
+  ...rest
 }: SeriesBuilderProps): ChartProps<'bar'>['data']['datasets'] => {
   const dataLabelOptions: Options['labels'] = {};
 
-  if (barShowTotalAtTop) {
+  if (barShowTotalAtTop && (allYAxisKeysIndexes.length > 1 || allY2AxisKeysIndexes?.length > 0)) {
     const yAxis = allYAxisKeysIndexes.map((yAxis) => {
       const key = extractFieldsFromChain(yAxis.name).at(-1)?.key!;
       return key;
