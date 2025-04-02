@@ -29,15 +29,12 @@ export const barSeriesBuilder = ({
 
     let hasBeenDrawn = false;
 
-    console.log(hasBeenDrawn, defaultLabelOptionConfig);
-
     dataLabelOptions.stackTotal = {
       display: function (context) {
         const shownDatasets = context.chart.data.datasets.filter(
           (dataset) => !dataset.hidden && !dataset.isTrendline
         );
         const canDisplay = context.datasetIndex === shownDatasets.length - 1;
-        console.log('hit!');
         if (canDisplay && !hasBeenDrawn) {
           const chartLayout = context.chart.options.layout;
           const padding = { ...DEFAULT_CHART_LAYOUT.padding, top: 24 };

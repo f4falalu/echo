@@ -26,7 +26,7 @@ export const SelectAxisDropZone: React.FC<{
 
   const extraClass = useMemo(() => {
     if (isError) return 'text-danger-foreground shadow-[0_0_3px_1px] bg-red-200 shadow-red-200';
-    if (isSameZoneDrag) return 'text-foreground shadow-[0_0_3px_1px] shadow-primary';
+    if (isSameZoneDrag) return 'text-foreground shadow-[0_0_3px_1px] shadow-primary bg-primary/20';
     if (showHoverState) return 'text-[#32a852] shadow-[0_0_3px_1px_#32a852] bg-[#e6fce6]';
     return '';
   }, [isError, isSameZoneDrag, showHoverState]);

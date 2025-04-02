@@ -31,7 +31,10 @@ export const AvailableItemsList: React.FC<AvailableItemsListProps> = ({
     <div ref={setNodeRef}>
       <StylingLabel label="Available">
         <div
-          className={cn(showDeleteHoverState ? 'rounded bg-red-100 shadow-xs shadow-red-300' : '')}>
+          className={cn(
+            'mb-1',
+            showDeleteHoverState ? 'rounded bg-red-100 shadow-[0_0_3px_1px] shadow-red-300' : ''
+          )}>
           {items.map((item) => (
             <SelectAxisSortableItem
               key={item.id}
