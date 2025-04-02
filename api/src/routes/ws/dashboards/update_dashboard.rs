@@ -28,7 +28,8 @@ use database::{
     enums::{AssetPermissionRole, AssetType},
     models::ThreadToDashboard,
     pool::get_pg_pool,
-    schema::{dashboards, threads_to_dashboards},
+    schema::{dashboards, threads_to_dashboards, metric_files_to_dashboard_files},
+    types::DashboardYml,
     vault::create_secret,
 };
 
@@ -41,6 +42,10 @@ pub struct UpdateDashboardRequest {
     pub name: Option<String>,
     pub description: Option<String>,
     pub config: Option<Value>,
+    /// YAML content of the dashboard
+    pub file_content: Option<String>,
+    /// Whether to create a new version in the version history (defaults to true)
+    pub update_version: Option<bool>,
     pub threads: Option<Vec<Uuid>>,
     pub publicly_accessible: Option<bool>,
     #[serde(default)]
@@ -112,6 +117,8 @@ pub async fn update_dashboard(
                 req.publicly_accessible,
                 req.public_password,
                 req.public_expiry_date,
+                req.file_content,
+                req.update_version,
             )
             .await
             {
@@ -290,6 +297,8 @@ async fn update_dashboard_record(
     publicly_accessible: Option<bool>,
     public_password: Option<Option<String>>,
     public_expiry_date: Option<Option<chrono::NaiveDateTime>>,
+    file_content: Option<String>,
+    _update_version: Option<bool>,
 ) -> Result<()> {
     let _password_secret_id = match public_password {
         Some(Some(password)) => match create_secret(&dashboard_id, &password).await {
@@ -319,12 +328,205 @@ async fn update_dashboard_record(
         None
     };
 
+    // Fetch the current dashboard to check if we need to update it
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => {
+            tracing::error!("Unable to get connection from pool: {:?}", e);
+            return Err(anyhow!("Unable to get connection from pool: {}", e));
+        }
+    };
+
+    // Handle file_content if provided (YAML validation)
+    let dashboard_yml_result = if let Some(content) = file_content.clone() {
+        // Validate YAML and convert to DashboardYml
+        match DashboardYml::new(content) {
+            Ok(yml) => {
+                // Validate metric references
+                let metric_ids: Vec<Uuid> = yml
+                    .rows
+                    .iter()
+                    .flat_map(|row| row.items.iter())
+                    .map(|item| item.id)
+                    .collect();
+
+                if !metric_ids.is_empty() {
+                    // Validate that referenced metrics exist
+                    match validate_dashboard_metric_ids(&metric_ids).await {
+                        Ok(missing_ids) if !missing_ids.is_empty() => {
+                            let error_msg = format!("Dashboard references non-existent metrics: {:?}", missing_ids);
+                            tracing::error!("{}", error_msg);
+                            return Err(anyhow!(error_msg));
+                        }
+                        Err(e) => {
+                            return Err(e);
+                        }
+                        Ok(_) => {
+                            // Update metric associations - delete previous ones and create new ones
+                            match update(metric_files_to_dashboard_files::table)
+                                .filter(metric_files_to_dashboard_files::dashboard_file_id.eq(*dashboard_id))
+                                .set(metric_files_to_dashboard_files::deleted_at.eq(Some(chrono::Utc::now())))
+                                .execute(&mut conn)
+                                .await
+                            {
+                                Ok(_) => {
+                                    // Insert new metric associations
+                                    let metric_dashboard_values: Vec<_> = metric_ids
+                                        .iter()
+                                        .map(|metric_id| {
+                                            diesel::insert_into(metric_files_to_dashboard_files::table)
+                                                .values((
+                                                    metric_files_to_dashboard_files::metric_file_id.eq(*metric_id),
+                                                    metric_files_to_dashboard_files::dashboard_file_id.eq(*dashboard_id),
+                                                    metric_files_to_dashboard_files::created_at.eq(chrono::Utc::now()),
+                                                    metric_files_to_dashboard_files::updated_at.eq(chrono::Utc::now()),
+                                                    metric_files_to_dashboard_files::created_by.eq(*user_id),
+                                                ))
+                                                .on_conflict_do_nothing()
+                                        })
+                                        .collect();
+
+                                    for insertion in metric_dashboard_values {
+                                        if let Err(e) = insertion.execute(&mut conn).await {
+                                            tracing::warn!(
+                                                "Failed to create metric-to-dashboard association: {}",
+                                                e
+                                            );
+                                        }
+                                    }
+                                }
+                                Err(e) => {
+                                    tracing::warn!(
+                                        "Failed to clear existing metric associations: {}",
+                                        e
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Update config with the serialized YAML
+                Some(Ok(yml))
+            }
+            Err(e) => {
+                let error_msg = format!("Invalid dashboard YAML: {}", e);
+                tracing::error!("{}", error_msg);
+                Some(Err(anyhow!(error_msg)))
+            }
+        }
+    } else {
+        None
+    };
+
+    // Process config if file_content is not provided but config is
+    let config_yml_result = if file_content.is_none() && config.is_some() {
+        let config_value = config.as_ref().unwrap();
+        
+        // Try to convert the config to a DashboardYml
+        match serde_json::from_value::<DashboardYml>(config_value.clone()) {
+            Ok(yml) => {
+                // Validate the yml structure
+                if let Err(e) = yml.validate() {
+                    let error_msg = format!("Invalid dashboard configuration: {}", e);
+                    tracing::error!("{}", error_msg);
+                    return Err(anyhow!(error_msg));
+                }
+                
+                // Validate metric references
+                let metric_ids: Vec<Uuid> = yml
+                    .rows
+                    .iter()
+                    .flat_map(|row| row.items.iter())
+                    .map(|item| item.id)
+                    .collect();
+
+                if !metric_ids.is_empty() {
+                    // Validate that referenced metrics exist
+                    match validate_dashboard_metric_ids(&metric_ids).await {
+                        Ok(missing_ids) if !missing_ids.is_empty() => {
+                            let error_msg = format!("Dashboard references non-existent metrics: {:?}", missing_ids);
+                            tracing::error!("{}", error_msg);
+                            return Err(anyhow!(error_msg));
+                        }
+                        Err(e) => {
+                            return Err(e);
+                        }
+                        Ok(_) => {
+                            // Update metric associations - delete previous ones and create new ones
+                            match update(metric_files_to_dashboard_files::table)
+                                .filter(metric_files_to_dashboard_files::dashboard_file_id.eq(*dashboard_id))
+                                .set(metric_files_to_dashboard_files::deleted_at.eq(Some(chrono::Utc::now())))
+                                .execute(&mut conn)
+                                .await
+                            {
+                                Ok(_) => {
+                                    // Insert new metric associations
+                                    let metric_dashboard_values: Vec<_> = metric_ids
+                                        .iter()
+                                        .map(|metric_id| {
+                                            diesel::insert_into(metric_files_to_dashboard_files::table)
+                                                .values((
+                                                    metric_files_to_dashboard_files::metric_file_id.eq(*metric_id),
+                                                    metric_files_to_dashboard_files::dashboard_file_id.eq(*dashboard_id),
+                                                    metric_files_to_dashboard_files::created_at.eq(chrono::Utc::now()),
+                                                    metric_files_to_dashboard_files::updated_at.eq(chrono::Utc::now()),
+                                                    metric_files_to_dashboard_files::created_by.eq(*user_id),
+                                                ))
+                                                .on_conflict_do_nothing()
+                                        })
+                                        .collect();
+
+                                    for insertion in metric_dashboard_values {
+                                        if let Err(e) = insertion.execute(&mut conn).await {
+                                            tracing::warn!(
+                                                "Failed to create metric-to-dashboard association: {}",
+                                                e
+                                            );
+                                        }
+                                    }
+                                }
+                                Err(e) => {
+                                    tracing::warn!(
+                                        "Failed to clear existing metric associations: {}",
+                                        e
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                Some(yml)
+            }
+            Err(e) => {
+                let error_msg = format!("Invalid dashboard configuration format: {}", e);
+                tracing::error!("{}", error_msg);
+                return Err(anyhow!(error_msg));
+            }
+        }
+    } else {
+        None
+    };
+    
+    // If YAML validation failed, return the error
+    if let Some(Err(e)) = dashboard_yml_result {
+        return Err(e);
+    }
+    
+    // Update dashboard record
     let changeset = DashboardChangeset {
         updated_at: Utc::now(),
         updated_by: *user_id,
         name: name.clone(),
         description,
-        config,
+        config: if let Some(Ok(ref yml)) = dashboard_yml_result {
+            Some(yml.to_value()?)
+        } else if let Some(ref yml) = config_yml_result {
+            Some(yml.to_value()?)
+        } else {
+            config
+        },
         publicly_accessible,
         publicly_enabled_by,
         password_secret_id: None,
@@ -361,7 +563,14 @@ async fn update_dashboard_record(
 
     let dashboard_search_handle = {
         let dashboard_id = dashboard_id.clone();
-        let dashboard_name = name.unwrap_or_default();
+        let dashboard_name = if let Some(Ok(ref yml)) = dashboard_yml_result {
+            yml.name.clone()
+        } else if let Some(ref yml) = config_yml_result {
+            yml.name.clone()
+        } else {
+            name.unwrap_or_default()
+        };
+        
         tokio::spawn(async move {
             let mut conn = match get_pg_pool().get().await {
                 Ok(conn) => conn,
@@ -563,4 +772,49 @@ async fn update_dashboard_threads(
     }
 
     Ok(())
+}
+
+/// Validate that the metric IDs referenced in the dashboard exist
+async fn validate_dashboard_metric_ids(metric_ids: &[Uuid]) -> Result<Vec<Uuid>> {
+    if metric_ids.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => {
+            tracing::error!("Unable to get connection from pool: {:?}", e);
+            return Err(anyhow!("Unable to get connection from pool: {}", e));
+        }
+    };
+
+    #[derive(Debug, diesel::QueryableByName)]
+    #[diesel(table_name = metric_files)]
+    struct MetricIdResult {
+        #[diesel(sql_type = diesel::sql_types::Uuid)]
+        id: Uuid,
+    }
+
+    // Query to find which metric IDs exist
+    let query = diesel::sql_query(
+        "SELECT id FROM metric_files WHERE id = ANY($1) AND deleted_at IS NULL"
+    )
+    .bind::<diesel::sql_types::Array<diesel::sql_types::Uuid>, _>(metric_ids);
+
+    let existing_metrics: Vec<Uuid> = match query.load::<MetricIdResult>(&mut conn).await {
+        Ok(results) => results.into_iter().map(|r| r.id).collect(),
+        Err(e) => {
+            tracing::error!("Error validating metric IDs: {:?}", e);
+            return Err(anyhow!("Error validating metric IDs: {}", e));
+        }
+    };
+
+    // Find missing metrics
+    let missing_ids: Vec<Uuid> = metric_ids
+        .iter()
+        .filter(|id| !existing_metrics.contains(id))
+        .cloned()
+        .collect();
+
+    Ok(missing_ids)
 }
