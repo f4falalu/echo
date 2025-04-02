@@ -228,6 +228,7 @@ pub async fn restore_chat_handler(
         created_at: now,
         updated_at: now,
         deleted_at: None,
+        is_duplicate: false,
     };
 
     // Insert the message-to-file association into the database

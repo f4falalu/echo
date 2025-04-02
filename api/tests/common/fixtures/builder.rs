@@ -3,8 +3,17 @@ pub trait FixtureBuilder<T> {
     /// Create a default instance of the fixture builder
     fn default() -> Self;
     
-    /// Build the final model from the builder
-    fn build(self) -> T;
+    /// Build the final model from the builder (synchronous version)
+    #[allow(unused_variables)]
+    fn build(self) -> T where Self: Sized {
+        panic!("build() not implemented for this fixture - use async build() instead")
+    }
+    
+    /// Build the final model from the builder asynchronously
+    #[allow(unused_variables)]
+    async fn build(self) -> T where Self: Sized {
+        panic!("async build() not implemented for this fixture")
+    }
     
     /// Build and return a vector of `count` fixtures
     fn build_many(self, count: usize) -> Vec<T> where Self: Sized + Clone {

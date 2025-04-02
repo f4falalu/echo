@@ -7,11 +7,12 @@ pub mod collections;
 pub mod chats;
 
 // Re-export commonly used fixtures
-pub use users::create_test_user;
+pub use users::{create_test_user, UserFixture};
 pub use threads::create_test_thread;
 pub use metrics::{create_test_metric_file, create_update_metric_request, create_metric_dashboard_association_request};
 pub use dashboards::create_test_dashboard_file;
 pub use collections::create_test_collection;
+pub use chats::ChatFixture;
 
 // Re-export builder traits
 pub use builder::{FixtureBuilder, TestFixture};

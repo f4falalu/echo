@@ -23,15 +23,23 @@ mod post_chat_handler_tests {
     };
 
     async fn setup_test_user() -> AuthenticatedUser {
+        use database::enums::{UserOrganizationRole, TeamToUserRole};
+        use middleware::types::{OrganizationMembership, TeamMembership};
+        
         let user_id = Uuid::new_v4();
+        let now = Utc::now();
+        
         let user = User {
             id: user_id,
             name: Some("Test User".to_string()),
             email: "test@example.com".to_string(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            config: json!({}),
+            created_at: now,
+            updated_at: now,
+            attributes: json!({
+                "organization_id": Uuid::new_v4().to_string()
+            }),
             avatar_url: None,
-            deleted_at: None,
         };
         
         let mut conn = get_pg_pool().get().await.unwrap();
@@ -40,14 +48,30 @@ mod post_chat_handler_tests {
             .execute(&mut conn)
             .await.unwrap();
         
-        let mut attributes = HashMap::new();
-        attributes.insert("organization_id".to_string(), Value::String(Uuid::new_v4().to_string()));
+        // Create organization memberships
+        let organizations = vec![
+            OrganizationMembership { 
+                id: Uuid::new_v4(), 
+                role: UserOrganizationRole::Owner
+            }
+        ];
+        
+        // Create team memberships
+        let teams = vec![];
         
         AuthenticatedUser {
             id: user_id,
             email: "test@example.com".to_string(),
             name: Some("Test User".to_string()),
-            attributes,
+            config: json!({}),
+            created_at: now,
+            updated_at: now,
+            attributes: json!({
+                "organization_id": Uuid::new_v4().to_string()
+            }),
+            avatar_url: None,
+            organizations,
+            teams,
         }
     }
     
