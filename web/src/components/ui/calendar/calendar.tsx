@@ -29,7 +29,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         head_cell: 'text-gray-light rounded-md w-8 font-normal text-[0.8rem]',
         row: 'flex w-full mt-2',
         cell: cn(
-          'relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected].day-range-end)]:rounded-r-md',
+          'relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-item-select [&:has([aria-selected].day-outside)]:bg-item-select/50 [&:has([aria-selected].day-range-end)]:rounded-r-md',
           props.mode === 'range'
             ? '[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md'
             : '[&:has([aria-selected])]:rounded-md'
@@ -40,12 +40,12 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         day_range_start: 'day-range-start',
         day_range_end: 'day-range-end',
         day_selected:
-          'bg-primary swag text-background hover:bg-primary hover:text-background focus:bg-primary focus:text-background',
-        day_today: 'bg-accent text-accent-foreground',
+          'bg-primary   text-background hover:bg-primary hover:text-background focus:bg-primary focus:text-background',
+        day_today: 'bg-item-select text-accent-foreground',
         day_outside:
-          'day-outside text-gray-light aria-selected:bg-accent/50 aria-selected:text-gray-light cursor-not-allowed!',
+          'day-outside text-gray-light aria-selected:bg-item-select/50 aria-selected:text-gray-light cursor-not-allowed!',
         day_disabled: 'text-gray-light opacity-50 cursor-not-allowed!',
-        day_range_middle: 'aria-selected:bg-accent aria-selected:text-accent-foreground',
+        day_range_middle: 'aria-selected:bg-item-select aria-selected:text-accent-foreground',
         day_hidden: 'invisible',
         ...classNames
       }}

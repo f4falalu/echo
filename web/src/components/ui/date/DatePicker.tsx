@@ -12,29 +12,46 @@ import {
   PopoverTrigger
 } from '@/components/ui/tooltip/PopoverBase';
 import { formatDate } from '@/lib';
+import { Xmark } from '../icons/NucleoIconFilled';
+import { useMemoizedFn } from '@/hooks';
 
 export type DatePickerProps = Omit<CalendarProps, 'selected'> & {
   dateFormat?: string;
   placeholder?: string;
   selected?: Date;
   onSelect: (date: Date | undefined) => void;
+  clearable?: boolean;
 };
 
-export function DatePicker({
+function DatePickerComponent({
   dateFormat = 'lll',
   placeholder = 'Pick a date',
   selected,
   onSelect,
+  clearable = true,
   ...props
 }: DatePickerProps) {
+  const onClickCancel = useMemoizedFn(() => {
+    onSelect(undefined);
+  });
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant={'ghost'}
           prefix={<CalendarIcon />}
+          suffix={
+            clearable && (
+              <div
+                onClick={onClickCancel}
+                className="hover:bg-gray-light/20 hover:text-default! flex items-center justify-center rounded-sm p-0.5 text-xs opacity-30 transition-opacity duration-200 group-hover:opacity-100">
+                <Xmark />
+              </div>
+            )
+          }
           className={cn(
-            'justify-start text-left font-normal',
+            'group justify-start text-left font-normal',
             !selected && 'text-muted-foreground'
           )}>
           {selected ? (
@@ -53,3 +70,7 @@ export function DatePicker({
     </Popover>
   );
 }
+
+export const DatePicker = React.memo(DatePickerComponent);
+
+DatePicker.displayName = 'DatePicker';
