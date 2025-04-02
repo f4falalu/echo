@@ -48,7 +48,7 @@ pub async fn validate_sql(
     };
 
     // Try to execute the query using query_engine
-    let results = match query_engine(&data_source_id, sql, None).await {
+    let results = match query_engine(&data_source_id, sql, Some(15)).await {
         Ok(results) => results,
         Err(e) => return Err(anyhow!("SQL validation failed: {}", e)),
     };
@@ -58,15 +58,17 @@ pub async fn validate_sql(
     // Create appropriate message based on number of records
     let message = if num_records == 0 {
         "No records were found".to_string()
+    } else if num_records > 13 {
+        format!("{} records were returned (showing first 13)", num_records)
     } else {
         format!("{} records were returned", num_records)
     };
 
-    // Return records only if there are 13 or fewer
+    // Return at most 13 records
     let return_records = if num_records <= 13 {
         results
     } else {
-        Vec::new() // Empty vec when more than 13 records
+        results.into_iter().take(13).collect() // Take first 13 records when more than 13
     };
 
     Ok((message, return_records))
@@ -1060,7 +1062,7 @@ pub struct FileModificationBatch<T> {
     pub modification_results: Vec<ModificationResult>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ModificationResult {
     pub file_id: Uuid,
     pub file_name: String,
