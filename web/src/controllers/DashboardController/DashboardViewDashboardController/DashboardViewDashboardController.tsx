@@ -1,6 +1,5 @@
 'use client';
 
-import { DashboardViewProps } from '../config';
 import React from 'react';
 import { DashboardEditTitles } from './DashboardEditTitle';
 import { DashboardContentController } from './DashboardContentController';
@@ -11,12 +10,13 @@ import {
 } from '@/api/buster_rest/dashboards';
 import { useDashboardContentStore } from '@/context/Dashboards';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { canEdit } from '@/lib/share';
 
-export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
-  dashboardId,
-  chatId,
-  readOnly = false
-}) => {
+export const DashboardViewDashboardController: React.FC<{
+  dashboardId: string;
+  chatId: string | undefined;
+  readOnly?: boolean;
+}> = ({ dashboardId, chatId, readOnly: readOnlyProp = false }) => {
   const { data: dashboardResponse } = useGetDashboard({ id: dashboardId });
   const { mutateAsync: onUpdateDashboard } = useUpdateDashboard();
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
@@ -24,6 +24,7 @@ export const DashboardViewDashboardController: React.FC<DashboardViewProps> = ({
 
   const metrics = dashboardResponse?.metrics;
   const dashboard = dashboardResponse?.dashboard;
+  const readOnly = readOnlyProp || !canEdit(dashboardResponse?.permission);
 
   return (
     <ScrollArea className="h-full">

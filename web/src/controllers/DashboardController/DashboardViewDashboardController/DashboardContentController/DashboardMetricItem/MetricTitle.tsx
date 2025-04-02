@@ -39,11 +39,8 @@ export const MetricTitle: React.FC<{
     });
 
     return (
-      <Link className="flex" href={metricLink} prefetch>
-        <div
-          {...attributes}
-          {...listeners}
-          className={'flex cursor-pointer flex-col space-y-0.5 overflow-hidden'}>
+      <Link className="flex" href={metricLink} prefetch {...attributes} {...listeners}>
+        <div className={'flex cursor-pointer flex-col space-y-0.5 overflow-hidden'}>
           <div className="flex w-full justify-between space-x-0.5 overflow-hidden">
             <Title
               as="h4"

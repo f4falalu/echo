@@ -1,6 +1,5 @@
 import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
-import { Input } from '@/components/ui/inputs';
 import React from 'react';
 import { type useUpdateDashboard } from '@/api/buster_rest/dashboards';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
