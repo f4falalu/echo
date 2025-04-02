@@ -4,10 +4,6 @@ export interface ChartTotalizerPluginOptions {
   enabled?: boolean;
 }
 
-export interface TotalizerChart extends Chart {
-  $totalizer: { stackTotals: Record<number, number>; seriesTotals: number[] };
-}
-
 declare module 'chart.js' {
   interface PluginOptionsByType<TType extends ChartType> {
     totalizer?: ChartTotalizerPluginOptions | false;
@@ -26,17 +22,20 @@ export const ChartTotalizerPlugin: Plugin<ChartType, ChartTotalizerPluginOptions
   stop: function (chart) {
     chart.$totalizer = { stackTotals: {}, seriesTotals: [] };
   },
-  beforeUpdate: (_chart, args, options) => {
+
+  beforeDatasetsUpdate: (chart, args, options) => {
     if (options?.enabled === false) return;
 
-    console.log('here');
-
-    const chart = _chart as TotalizerChart;
     const stackTotals: Record<string, number> = {};
     const seriesTotals: number[] = [];
 
     chart.data.datasets
-      //  .filter((dataset) => !dataset.hidden && !dataset.isTrendline)
+      .filter((dataset, index) => {
+        const meta = chart.getDatasetMeta(index);
+        //meta.hidden is true when the dataset is hidden by the legend
+        //dataset.hidden is true when the dataset is hidden by what was passed in the options (like tooltip datasets)
+        return !meta.hidden && !dataset.hidden;
+      })
       .forEach((dataset, datasetIndex) => {
         (chart.data.labels as string[])?.forEach((label, labelIndex) => {
           const value = dataset.data[labelIndex];
