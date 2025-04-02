@@ -20,7 +20,8 @@ import {
   BubbleController,
   PieController,
   ScatterController,
-  DoughnutController
+  DoughnutController,
+  scales
 } from 'chart.js';
 import { ChartMountedPlugin } from './core/plugins';
 import ChartDeferred from 'chartjs-plugin-deferred';
@@ -28,7 +29,6 @@ import ChartJsAnnotationPlugin from 'chartjs-plugin-annotation';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { DEFAULT_CHART_THEME } from '@/api/asset_interfaces/metric/charts/configColors';
 import { isServer } from '@tanstack/react-query';
-
 import 'chartjs-adapter-dayjs-4';
 import { truncateText } from '@/lib/text';
 
@@ -106,7 +106,8 @@ ChartJS.defaults.font = {
   ChartJS.defaults.scales.timeseries
 ].forEach((scale) => {
   scale.ticks.showLabelBackdrop = true;
-  scale.ticks.z = 100;
+  scale.ticks.z = 10;
+  scale.ticks.includeBounds = true;
   scale.ticks.backdropColor = backgroundColor;
   scale.ticks.autoSkipPadding = 4;
   scale.ticks.align = 'center';
@@ -116,7 +117,9 @@ ChartJS.defaults.font = {
 });
 
 [ChartJS.defaults.scales.linear, ChartJS.defaults.scales.logarithmic].forEach((scale) => {
-  scale.ticks.z = 1;
+  scale.ticks.z = 100;
+  scale.ticks.backdropColor = backgroundColor;
+  scale.ticks.showLabelBackdrop = true;
   scale.ticks.autoSkipPadding = 2;
 });
 

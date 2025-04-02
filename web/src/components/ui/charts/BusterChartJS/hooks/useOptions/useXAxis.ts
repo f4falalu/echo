@@ -145,7 +145,7 @@ export const useXAxis = ({
     return {
       maxRotation: xAxisLabelRotation,
       minRotation: xAxisLabelRotation
-    };
+    } satisfies DeepPartial<ScaleChartOptions<'bar'>['scales']['x']['ticks']>;
   }, [xAxisLabelRotation]);
 
   const timeUnit = useMemo(() => {
@@ -182,12 +182,13 @@ export const useXAxis = ({
           sampleSize: type === 'time' ? 24 : undefined,
           display: xAxisShowAxisLabel,
           callback: useTickCallback ? tickCallback : DEFAULT_X_AXIS_TICK_CALLBACK,
+          //@ts-ignore
           time: {
             unit: timeUnit
           }
         },
         grid
-      } as DeepPartial<ScaleChartOptions<'bar'>['scales']['x']>;
+      } satisfies DeepPartial<ScaleChartOptions<'bar'>['scales']['x']>;
     }, [
       timeUnit,
       title,
