@@ -25,7 +25,7 @@ export const CollectionsIndividualHeader: React.FC<{
 }> = ({ openAddTypeModal, setOpenAddTypeModal, collection, isFetched }) => {
   const { mutateAsync: updateCollection, isPending: isUpdatingCollection } = useUpdateCollection();
 
-  const collectionTitle = collection?.name || 'No collection title';
+  const collectionTitle = isFetched ? collection?.name || 'No collection title' : '';
 
   const onSetTitleValue = useMemoizedFn((value: string) => {
     updateCollection({

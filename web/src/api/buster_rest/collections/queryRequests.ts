@@ -48,7 +48,9 @@ export const useGetCollection = <T = BusterCollection>(
   const fetchCollection = useFetchCollection();
   return useQuery({
     ...collectionQueryKeys.collectionsGetCollection(collectionId!),
-    queryFn: () => fetchCollection(collectionId!),
+    queryFn: () => {
+      return fetchCollection(collectionId!);
+    },
     enabled: !!collectionId,
     select
   });
@@ -58,10 +60,14 @@ export const useCreateCollection = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: collectionsCreateCollection,
-    onSuccess: () => {
+    onSuccess: (collection) => {
       queryClient.invalidateQueries({
         queryKey: collectionQueryKeys.collectionsGetList().queryKey
       });
+      queryClient.setQueryData(
+        collectionQueryKeys.collectionsGetCollection(collection.id).queryKey,
+        collection
+      );
     }
   });
 };
@@ -250,7 +256,6 @@ export const useAddAndRemoveAssetsFromCollection = () => {
       let currentCollection = queryClient.getQueryData<BusterCollection>(
         collectionQueryKeys.collectionsGetCollection(variables.collectionId).queryKey
       );
-
       if (!currentCollection) {
         currentCollection = await fetchCollection(variables.collectionId);
         queryClient.setQueryData(

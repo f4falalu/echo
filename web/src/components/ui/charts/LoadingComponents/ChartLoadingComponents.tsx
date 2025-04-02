@@ -2,7 +2,7 @@
 
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { Text } from '@/components/ui/typography/Text';
 
 export const PreparingYourRequestLoader: React.FC<{
   className?: string;
@@ -27,7 +27,9 @@ export const NoChartData: React.FC<{
 }> = ({ className = '', noDataText = 'The query ran successfully but didn’t return any data' }) => {
   return (
     <div className={`flex h-full w-full items-center justify-center ${className}`}>
-      <span className={cn('text-text-tertiary', className)}>{noDataText}</span>
+      <Text className="text-center" variant={'tertiary'}>
+        {noDataText}
+      </Text>
     </div>
   );
 };

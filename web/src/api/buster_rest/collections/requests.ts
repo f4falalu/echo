@@ -23,14 +23,17 @@ export const collectionsGetList = async (params: {
     .then((res) => res.data);
 };
 
-export const collectionsGetCollection = async (params: {
+export const collectionsGetCollection = async ({
+  id,
+  ...params
+}: {
   /** Unique identifier of the collection to retrieve */
   id: string;
   /** Password for the collection */
   password?: string;
 }) => {
   return await mainApi
-    .get<BusterCollection>(`/collections/${params.id}`, { params })
+    .get<BusterCollection>(`/collections/${id}`, { params })
     .then((res) => res.data);
 };
 
@@ -101,14 +104,17 @@ export const updateCollectionShare = async ({
     .then((res) => res.data);
 };
 
-export const addAssetToCollection = async (params: {
+export const addAssetToCollection = async ({
+  id,
+  ...params
+}: {
   id: string;
   assets: {
     type: 'metric' | 'dashboard' | 'chat';
     id: string;
   }[];
 }) => {
-  return mainApi.post<null>(`/collections/${params.id}/assets`, params).then((res) => res.data);
+  return mainApi.post<null>(`/collections/${id}/assets`, params).then((res) => res.data);
 };
 
 export const removeAssetFromCollection = async (

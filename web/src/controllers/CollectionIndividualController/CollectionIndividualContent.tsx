@@ -17,7 +17,6 @@ import { useMemoizedFn } from '@/hooks';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
 import { CollectionIndividualSelectedPopup } from './CollectionsIndividualPopup';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { useUpdateCollection } from '@/api/buster_rest/collections';
 import { AddToCollectionModal } from '@/components/features/modal/AddToCollectionModal';
 
 export const CollectionIndividualContent: React.FC<{

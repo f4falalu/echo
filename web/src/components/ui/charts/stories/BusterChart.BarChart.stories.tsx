@@ -243,3 +243,48 @@ export const WithDataLabels: Story = {
     className: 'w-[800px] h-[400px]'
   }
 };
+
+export const LargeDataset: Story = {
+  args: {
+    selectedChartType: ChartType.Bar,
+    data: Array.from({ length: 25 }, (_, index) => ({
+      category: faker.commerce.productName(),
+      sales: faker.number.int({ min: 5000, max: 50000 }),
+      units: faker.number.int({ min: 100, max: 1000 }),
+      returns: faker.number.int({ min: 10, max: 100 })
+    })),
+    barAndLineAxis: {
+      x: ['category'],
+      y: ['sales', 'units', 'returns'],
+      category: []
+    },
+    columnLabelFormats: {
+      category: {
+        columnType: 'text',
+        style: 'string'
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      units: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat,
+      returns: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    }
+  },
+  render: (args) => {
+    return (
+      <div className="h-[500px] w-[80vw]">
+        <BusterChart {...args} />
+      </div>
+    );
+  }
+};

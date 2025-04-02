@@ -27,6 +27,7 @@ export const SaveDashboardToCollectionButton: React.FC<{
       dashboardIds,
       collectionIds
     });
+
     openInfoMessage('Dashboards saved to collections');
   });
 
