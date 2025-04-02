@@ -11,7 +11,7 @@ export const WarningIcon: React.FC<{
 }> = React.memo(
   ({
     rowCount,
-    rowCountThreshold = 35,
+    rowCountThreshold = 25,
     warningText = 'Data labels will be hidden if there are too many.'
   }) => {
     if (rowCount <= rowCountThreshold) {

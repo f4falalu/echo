@@ -25,7 +25,7 @@ export const StatusIndicator: React.FC<{
         failed && 'text-danger-foreground'
       )}>
       {inProgress && (
-        <div className="bg-primary/30 absolute inset-0 -ml-[1px] animate-ping rounded-full duration-1000" />
+        <div className="bg-primary/30 absolute m-0.5 h-2.5 w-2.5 animate-ping rounded-full duration-1000" />
       )}
       <AnimatePresence mode="wait" initial={false}>
         <motion.div

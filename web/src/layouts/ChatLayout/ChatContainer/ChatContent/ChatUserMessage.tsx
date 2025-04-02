@@ -45,7 +45,7 @@ export const ChatUserMessage: React.FC<{
         />
       ) : (
         <>
-          <Paragraph>{request}</Paragraph>
+          <Paragraph className="whitespace-pre-wrap">{request}</Paragraph>
           {isCompletedStream && (
             <RequestMessageTooltip
               isTooltipOpen={isTooltipOpen}

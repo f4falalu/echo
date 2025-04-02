@@ -15,7 +15,7 @@ export const BarContainer: React.FC<{
   secondaryTitle?: string;
 }> = React.memo(({ showBar, isCompletedStream, status, children, title, secondaryTitle }) => {
   return (
-    <div className={'relative flex space-x-1.5 overflow-hidden'}>
+    <div className={'relative flex space-x-1.5 overflow-visible'}>
       <VerticalBarContainer
         showBar={showBar}
         status={status}
@@ -42,8 +42,8 @@ const VerticalBarContainer: React.FC<{
   isCompletedStream: boolean;
 }> = React.memo(({ showBar, isCompletedStream, status }) => {
   return (
-    <div className="ml-2 flex w-5 min-w-5 flex-col items-center">
-      <StatusIndicator status={status} />
+    <div className="ml-2 flex w-5 min-w-5 flex-col items-center pt-0.5">
+      <StatusIndicator status={'loading'} />
       <VerticalBar show={showBar} isCompletedStream={isCompletedStream} />
     </div>
   );
