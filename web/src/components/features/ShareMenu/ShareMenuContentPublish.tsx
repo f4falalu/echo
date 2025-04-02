@@ -210,7 +210,7 @@ const LinkExpiration: React.FC<{
     return createDayjsDate(new Date()).add(2, 'year');
   }, []);
 
-  const onSelect: SelectSingleEventHandler = useMemoizedFn((date) => {
+  const onSelect = useMemoizedFn((date: Date | undefined) => {
     onChangeLinkExpiry(date || null);
   });
 
@@ -219,7 +219,7 @@ const LinkExpiration: React.FC<{
       <Text truncate>Link expiration</Text>
 
       <DatePicker
-        selected={linkExpiry || new Date()}
+        selected={linkExpiry || undefined}
         onSelect={onSelect}
         mode="single"
         dateFormat={dateFormat}

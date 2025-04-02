@@ -12,18 +12,19 @@ import {
   PopoverTrigger
 } from '@/components/ui/tooltip/PopoverBase';
 import { formatDate } from '@/lib';
-import { DayPickerProps } from 'react-day-picker';
 
-export type DatePickerProps = CalendarProps & {
+export type DatePickerProps = Omit<CalendarProps, 'selected'> & {
   dateFormat?: string;
   placeholder?: string;
+  selected?: Date;
+  onSelect: (date: Date | undefined) => void;
 };
 
 export function DatePicker({
   dateFormat = 'lll',
   placeholder = 'Pick a date',
   selected,
-
+  onSelect,
   ...props
 }: DatePickerProps) {
   return (
@@ -47,7 +48,7 @@ export function DatePicker({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <Calendar {...props} />
+        <Calendar mode="single" selected={selected} onSelect={onSelect} initialFocus />
       </PopoverContent>
     </Popover>
   );
