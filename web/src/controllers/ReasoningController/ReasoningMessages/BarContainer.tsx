@@ -43,7 +43,7 @@ const VerticalBarContainer: React.FC<{
 }> = React.memo(({ showBar, isCompletedStream, status }) => {
   return (
     <div className="ml-2 flex w-5 min-w-5 flex-col items-center pt-0.5">
-      <StatusIndicator status={'loading'} />
+      <StatusIndicator status={status} />
       <VerticalBar show={showBar} isCompletedStream={isCompletedStream} />
     </div>
   );

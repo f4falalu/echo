@@ -29,7 +29,9 @@ export const getLegendItems = ({
   //@ts-ignore
   const globalType: ChartType = (chartRef.current?.config.type as 'pie') || ChartType.Bar;
   const isPieChart = globalType === ChartType.Pie;
-  const data = chartRef.current?.data!;
+  const data = chartRef.current?.data;
+
+  if (!data) return [];
 
   if (isPieChart) {
     const labels: string[] = data.labels as string[];

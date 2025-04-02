@@ -81,6 +81,6 @@ export const calculateTextWidth = (text: string, font: string): number => {
 
 export const truncateText = (text: string, characters: number) => {
   if (text.length <= characters) return text;
-  const truncatedText = text.slice(0, characters) + '...';
+  const truncatedText = (String(text || '') || '').slice(0, characters) + '...';
   return truncatedText;
 };

@@ -26,6 +26,7 @@ import isEmpty from 'lodash/isEmpty';
 import { useGetCurrencies } from '@/api/buster_rest/nextjs/currency';
 import { cn } from '@/lib/classMerge';
 import { useUpdateMetricChart } from '@/context/Metrics';
+import { ErrorBoundary } from '@/components/ui/error';
 
 export const SelectAxisDropdownContent: React.FC<{
   columnSetting: IBusterMetricChartConfig['columnSettings'][string];
@@ -427,11 +428,13 @@ const LabelSettings: React.FC<{
   if (ComponentsLoop.length === 0) return null;
 
   return (
-    <div className={`${className} flex w-full flex-col space-y-3 overflow-hidden p-3`}>
-      {ComponentsLoop.map(({ key, Component }) => {
-        return <React.Fragment key={key}>{Component}</React.Fragment>;
-      })}
-    </div>
+    <ErrorBoundary>
+      <div className={`${className} flex w-full flex-col space-y-3 overflow-hidden p-3`}>
+        {ComponentsLoop.map(({ key, Component }) => {
+          return <React.Fragment key={key}>{Component}</React.Fragment>;
+        })}
+      </div>
+    </ErrorBoundary>
   );
 };
 

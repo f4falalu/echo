@@ -6,18 +6,36 @@ export interface ChartHoverBarPluginOptions {
   isDarkMode?: boolean;
 }
 
+declare module 'chart.js' {
+  interface Chart {
+    $pluginHoverBarManager: {
+      enabled: boolean;
+    };
+  }
+}
+
 export const ChartHoverBarPlugin: Plugin<ChartType, ChartHoverBarPluginOptions> = {
   id: 'tooltipHoverBar',
+  afterInit: (chart) => {
+    //@ts-ignore
+    const chartType = chart.config.type as ChartType;
+    // Store whether this is a bar chart to avoid checking on every draw
+    chart.$pluginHoverBarManager = {
+      enabled:
+        chartType === 'bar' ||
+        (chartType === 'line' && chart.data.datasets.some((dataset) => dataset.type === 'bar')) //this line is for combo chart
+    };
+  },
   beforeDraw: (chart, args, options) => {
+    // Early return if not a bar chart (check only once during initialization)
+    if (!chart.$pluginHoverBarManager.enabled) return;
+
     const {
       ctx,
       tooltip,
       chartArea: { top, bottom },
       scales: { x }
     } = chart;
-    const chartType = (chart.config as any).type as ChartType;
-
-    if (chartType !== 'bar') return;
 
     const tooltipActive = tooltip?.getActiveElements();
 

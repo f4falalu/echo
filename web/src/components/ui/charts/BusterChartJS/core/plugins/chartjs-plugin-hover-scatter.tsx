@@ -10,11 +10,23 @@ declare module 'chart.js' {
   interface PluginOptionsByType<TType extends ChartType> {
     hoverScatter?: ChartHoverScatterPluginOptions | false;
   }
+
+  interface Chart {
+    $pluginHoverScatterManager: {
+      enabled: boolean;
+    };
+  }
 }
 
 export const ChartHoverScatterPlugin: Plugin<ChartType, ChartHoverScatterPluginOptions> = {
   id: 'tooltipHoverScatter',
-
+  afterInit: (chart) => {
+    //@ts-ignore
+    const chartType = chart.config.type as ChartType;
+    chart.$pluginHoverScatterManager = {
+      enabled: chartType === 'scatter' || chartType === 'bubble'
+    };
+  },
   defaults: {
     color: 'rgba(0,0,0,0.6)',
     lineWidth: 0.65,
@@ -22,11 +34,9 @@ export const ChartHoverScatterPlugin: Plugin<ChartType, ChartHoverScatterPluginO
   },
 
   beforeDraw: (chart, args, options) => {
-    const { ctx, chartArea } = chart;
+    if (!chart.$pluginHoverScatterManager.enabled) return;
 
-    // Only show crosshair for scatter and bubble charts
-    const type = (chart.config as any).type as ChartType;
-    if (type !== 'scatter' && type !== 'bubble') return;
+    const { ctx, chartArea } = chart;
 
     // Get mouse position from chart
     const activeElements = chart.getActiveElements();

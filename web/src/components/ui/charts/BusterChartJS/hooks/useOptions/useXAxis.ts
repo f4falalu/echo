@@ -13,9 +13,10 @@ import { DeepPartial } from 'utility-types';
 import type { ScaleChartOptions, Scale, GridLineOptions } from 'chart.js';
 import { useXAxisTitle } from '../../../commonHelpers/useXAxisTitle';
 import { useIsStacked } from './useIsStacked';
-import { formatLabel, isNumericColumnType } from '@/lib';
+import { formatLabel, isNumericColumnType, truncateText } from '@/lib';
 import isDate from 'lodash/isDate';
 import { Chart as ChartJS } from 'chart.js';
+import { truncate } from 'lodash';
 
 const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category.ticks.callback;
 
@@ -88,7 +89,6 @@ export const useXAxis = ({
 
       if (isComboChart && columnSettings) {
         const allYAxisKeys = [...selectedAxis.y, ...((selectedAxis as ComboChartAxis).y2 || [])];
-        console.log(allYAxisKeys, columnSettings);
         const atLeastOneLineVisualization = allYAxisKeys.some(
           (y) =>
             columnSettings[y]?.columnVisualization === 'line' ||
@@ -134,7 +134,7 @@ export const useXAxis = ({
       const xKey = selectedAxis.x[0];
       const xColumnLabelFormat = xAxisColumnFormats[xKey];
       const res = formatLabel(rawValue, xColumnLabelFormat);
-      return DEFAULT_X_AXIS_TICK_CALLBACK.call(this, res, index, this.getLabels() as any);
+      return truncateText(res, 20);
     }
 
     return DEFAULT_X_AXIS_TICK_CALLBACK.call(this, value, index, this.getLabels() as any);

@@ -6,7 +6,8 @@ import {
   getDefaultDateOptions,
   getDefaultDayOfWeekOptions,
   getDefaultMonthOptions,
-  getDefaultQuarterOptions
+  getDefaultQuarterOptions,
+  NO_FORMATTING_ITEM
 } from './dateConfig';
 import first from 'lodash/last';
 import { formatDate, getNow } from '@/lib/date';
@@ -47,26 +48,31 @@ export const EditDateFormat: React.FC<{
   }, [dateFormat, defaultOptions, useAlternateFormats]);
 
   const selectedOption = useMemo(() => {
+    if (dateFormat === '') return NO_FORMATTING_ITEM;
     return selectOptions.find((option) => option.value === dateFormat) || first(selectOptions)!;
   }, [dateFormat, selectOptions]);
 
-  const onChange = useMemoizedFn((value: string) => {
-    onUpdateColumnConfig({
-      dateFormat: value as IColumnLabelFormat['dateFormat']
-    });
+  const onChange = useMemoizedFn((value: IColumnLabelFormat['dateFormat']) => {
+    if (value === NO_FORMATTING_ITEM.value) {
+      onUpdateColumnConfig({
+        dateFormat: ''
+      });
+    } else {
+      onUpdateColumnConfig({
+        dateFormat: value
+      });
+    }
   });
 
   return (
     <LabelAndInput label="Date format">
-      <div className="w-full overflow-hidden">
-        <Select
-          key={convertNumberTo}
-          className="w-full!"
-          items={selectOptions}
-          value={selectedOption.value}
-          onChange={onChange}
-        />
-      </div>
+      <Select
+        key={convertNumberTo}
+        className="w-full!"
+        items={selectOptions}
+        value={selectedOption.value}
+        onChange={onChange}
+      />
     </LabelAndInput>
   );
 });

@@ -1,15 +1,18 @@
 import { formatDate } from '@/lib';
 
+const NO_FORMATTING_ID = 'NO_FORMATTING_👻';
+export const NO_FORMATTING_ITEM = {
+  label: 'No Formatting',
+  value: NO_FORMATTING_ID
+};
+
 export const getDefaultDateOptions = (now: Date) => {
   return [
     {
       label: 'Auto Format',
       value: 'auto'
     },
-    {
-      label: 'No Formatting',
-      value: ''
-    },
+    NO_FORMATTING_ITEM,
     {
       label: formatDate({
         date: now,

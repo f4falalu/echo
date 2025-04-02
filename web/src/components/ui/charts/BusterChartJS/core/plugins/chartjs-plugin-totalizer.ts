@@ -29,6 +29,8 @@ export const ChartTotalizerPlugin: Plugin<ChartType, ChartTotalizerPluginOptions
   beforeUpdate: (_chart, args, options) => {
     if (options?.enabled === false) return;
 
+    console.log('here');
+
     const chart = _chart as TotalizerChart;
     const stackTotals: Record<string, number> = {};
     const seriesTotals: number[] = [];
