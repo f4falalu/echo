@@ -1,6 +1,6 @@
 ---
 description: This is helpful for building libs for our web server to interact with.
-globs: libs/**/*.{rs,toml}
+globs: libs/**/*.rs
 alwaysApply: false
 ---
 
@@ -113,7 +113,12 @@ pub enum Error {
 For tests that require database access, the preferred approach is to use automatic pool initialization:
 
 ```rust
-// In tests/mod.rs
+// IMPORTANT: These dependencies are for TESTS ONLY
+// Add to your Cargo.toml under [dev-dependencies]:
+// lazy_static = { workspace = true }
+// ctor = "0.4.1"
+
+// In tests/mod.rs - this is compiled ONLY during tests, not in release builds
 use database::pool::init_pools;
 use lazy_static::lazy_static;
 
@@ -128,6 +133,7 @@ lazy_static! {
     };
 }
 
+// This constructor only exists in test builds
 #[ctor::ctor]
 fn init_test_env() {
     lazy_static::initialize(&TEST_ENV);

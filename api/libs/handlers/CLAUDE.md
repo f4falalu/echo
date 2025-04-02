@@ -126,6 +126,11 @@ async fn example_handler(req: PostChatRequest, user: AuthenticatedUser) -> Resul
 
 Integration tests in this library use an automatic database pool initialization system. The environment is set up once when the test module is loaded, eliminating the need for explicit initialization in each test.
 
+**Important Notes:**
+- This is a test-only feature that is excluded from release builds
+- The test dependencies (`lazy_static` and `ctor`) are listed under `[dev-dependencies]` in Cargo.toml
+- The entire `/tests` directory is only compiled during test runs (`cargo test`)
+
 Key components:
 - `tests/mod.rs` contains the initialization code using `lazy_static` and `ctor`
 - Database pools are initialized only once for all tests
