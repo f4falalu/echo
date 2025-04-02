@@ -120,11 +120,11 @@ pub async fn duplicate_chat_handler(
                 .first::<Message>(&mut conn)
                 .await?;
 
-            // Get all messages from this point forward in time (inclusive)
+            // Get this message and all older messages (messages created at or before this message)
             messages::table
                 .filter(messages::chat_id.eq(chat_id))
                 .filter(messages::deleted_at.is_null())
-                .filter(messages::created_at.ge(message.created_at))
+                .filter(messages::created_at.le(message.created_at))
                 .order_by(messages::created_at.asc())
                 .load::<Message>(&mut conn)
                 .await?
@@ -435,7 +435,7 @@ mod tests {
             setup_test_file_reference(message_id, &user.id).await;
         }
 
-        // Duplicate from the second message
+        // Duplicate second message and all older messages (not the third message)
         let result = duplicate_chat_handler(&chat_id, Some(&message_ids[1]), &user).await;
         assert!(
             result.is_ok(),
@@ -457,7 +457,7 @@ mod tests {
         assert_eq!(
             duplicated_chat.message_ids.len(),
             2,
-            "Chat should have 2 messages (only messages from the specific point)"
+            "Chat should have 2 messages (first and second message, but not third)"
         );
 
         // Verify file references
