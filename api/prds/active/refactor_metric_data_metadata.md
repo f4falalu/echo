@@ -8,19 +8,25 @@ The `MetricYml` structure currently contains a `data_metadata` field that stores
 2. It can become outdated when underlying data changes, as it's not automatically updated
 3. Including it in the metric definition adds unnecessary complexity to the metric YAML schema
 4. It requires redundant validation logic in multiple places
+5. Multiple implementations of metadata calculation exist in different parts of the codebase (get_metric_data_handler.rs, run_sql.rs)
 
-By moving data metadata from the metric definition to a database column on the `metric_files` table, we'll separate the metric definition from its execution results, maintain cleaner YAML schema for metrics, and provide a more reliable caching mechanism for metadata.
+**We need to establish a single source of truth for data metadata** by making the query_engine directly responsible for metadata calculation, treating DataMetadata as a first-class database object, and ensuring it's always returned with every query result.
+
+By moving data metadata from the metric definition to a database column on the `metric_files` table and standardizing its calculation in the query engine, we'll separate the metric definition from its execution results, maintain cleaner YAML schema for metrics, and provide a more reliable caching mechanism for metadata.
 
 ### Current Limitations
 - Data metadata in MetricYml can become stale when source data changes
 - Validation requires redundant computation of metadata in multiple places
 - `METRIC_YML_SCHEMA` includes unnecessary complexity for data_metadata validation 
 - Users may be confused about whether to update data_metadata manually
+- Different code paths calculate metadata inconsistently (get_metric_data_handler.rs vs run_sql.rs)
+- Duplicate code exists for metadata calculations
 
 ### Impact
 - User Impact: Cleaner metric definition format, more reliable metadata information in UI
-- System Impact: More efficient caching of query metadata, reduced redundancy
+- System Impact: More efficient caching of query metadata, reduced redundancy, consistent metadata calculations
 - Business Impact: Improved reliability of metric visualizations and metadata analysis
+- Developer Impact: Reduced code duplication, single source of truth for metadata
 
 ## Requirements
 
@@ -32,14 +38,24 @@ By moving data metadata from the metric definition to a database column on the `
   - Acceptance Criteria: All metric-related code builds and functions without the field
   - Dependencies: None
 
+- Make `DataMetadata` a first-class database type with FromSql/ToSql implementations
+  - Details: Create a proper Rust type with serialization/deserialization support
+  - Acceptance Criteria: DataMetadata can be stored and retrieved from database
+  - Dependencies: None
+
 - Add `data_metadata` column to `metric_files` table
   - Details: A new JSONB column added to the metric_files table to store cached metadata
   - Acceptance Criteria: Successful migration that adds the column
   - Dependencies: None
 
-- Update query_engine to return data metadata alongside results
+- Enhance query_engine to always return data metadata with results
   - Details: The query_engine should compute and return metadata for every query
-  - Acceptance Criteria: query_engine returns both results and metadata
+  - Acceptance Criteria: query_engine returns both results and metadata in a single structure
+  - Dependencies: None
+
+- Consolidate metadata calculation logic from run_sql.rs and get_metric_data_handler.rs
+  - Details: Move all metadata calculation to the query_engine
+  - Acceptance Criteria: All metadata calculations use a single implementation
   - Dependencies: None
 
 - Update validate_sql to store computed metadata in the metric file
@@ -73,10 +89,10 @@ By moving data metadata from the metric definition to a database column on the `
 
 ```mermaid
 graph TD
-    A[Client Request] --> B[REST API]
+    A[Client Request] --> B[REST/WS API]
     B --> C[Handlers]
     C --> D[query_engine]
-    D -->|Query Results & Metadata| C
+    D -->|QueryResult with data & metadata| C
     C -->|Store Metadata| E[metric_files table]
     E -->|Cached Metadata| C
     C -->|Response| B
@@ -101,7 +117,47 @@ pub struct MetricYml {
 }
 ```
 
-#### Component 2: Updated metric_files Schema
+#### Component 2: DataMetadata as First-Class Type
+```rust
+// First-class DataMetadata type with database serialization
+#[derive(Debug, Serialize, Deserialize, Clone, FromSqlRow, AsExpression)]
+#[diesel(sql_type = Jsonb)]
+pub struct DataMetadata {
+    pub column_count: i64,
+    pub row_count: i64,
+    pub column_metadata: Vec<ColumnMetaData>,
+}
+
+// Column metadata type
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ColumnMetaData {
+    pub name: String,
+    pub min_value: serde_json::Value,
+    pub max_value: serde_json::Value,
+    pub unique_values: i32,
+    pub simple_type: SimpleType,
+    #[serde(rename = "type")]
+    pub column_type: ColumnType,
+}
+
+// Implement FromSql and ToSql for database serialization
+impl FromSql<Jsonb, Pg> for DataMetadata {
+    fn from_sql(bytes: diesel::pg::PgValue) -> diesel::deserialize::Result<Self> {
+        let value = <serde_json::Value as FromSql<Jsonb, Pg>>::from_sql(bytes)?;
+        Ok(serde_json::from_value(value)?)
+    }
+}
+
+impl ToSql<Jsonb, Pg> for DataMetadata {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> diesel::serialize::Result {
+        out.write_all(&[1])?; // JSONB version 1 header
+        out.write_all(&serde_json::to_vec(self)?)?;
+        Ok(IsNull::No)
+    }
+}
+```
+
+#### Component 3: Updated metric_files Schema
 ```rust
 // Updated MetricFile model
 #[derive(Queryable, Insertable, Identifiable, Debug, Clone, Serialize)]
@@ -124,19 +180,11 @@ pub struct MetricFile {
     pub publicly_enabled_by: Option<Uuid>,
     pub public_expiry_date: Option<DateTime<Utc>>,
     pub version_history: VersionHistory,
-    pub data_metadata: Option<Value>, // New field for cached metadata
+    pub data_metadata: Option<DataMetadata>, // Changed to strongly typed DataMetadata
 }
 ```
 
-// DataMetadata structure definition
-#[derive(Debug, Serialize)]
-pub struct DataMetadata {
-    pub column_count: i64,
-    pub row_count: i64,
-    pub column_metadata: Vec<ColumnMetaData>,
-}
-
-#### Component 3: Updated query_engine Interface
+#### Component 4: Updated query_engine Interface
 ```rust
 // Define a QueryResult structure to hold both results and metadata
 #[derive(Debug, Clone)]
@@ -145,7 +193,7 @@ pub struct QueryResult {
     pub metadata: DataMetadata,
 }
 
-// Enhance existing query_engine to include metadata in response
+// Enhanced query_engine that always computes and returns metadata
 pub async fn query_engine(
     data_source_id: &Uuid,
     sql: &str,
@@ -169,70 +217,135 @@ pub async fn query_engine(
         }
     };
     
-    // Compute metadata from results
-    let column_count = results.first().map(|row| row.len()).unwrap_or(0) as i64;
-    let row_count = results.len() as i64;
-    let column_metadata = compute_column_metadata(&results);
+    // Always compute metadata from results - consolidated from run_sql.rs implementation
+    let metadata = compute_data_metadata(&results);
     
     // Return both results and metadata in the QueryResult structure
     Ok(QueryResult {
         data: results,
-        metadata: DataMetadata {
-            column_count,
-            row_count,
-            column_metadata,
-        }
+        metadata,
     })
 }
 
-// Helper function to compute column metadata from query results
-fn compute_column_metadata(results: &[IndexMap<String, DataType>]) -> Vec<ColumnMetaData> {
-    let mut column_metadata = Vec::new();
-    if let Some(first_row) = results.first() {
-        for (col_name, sample_value) in first_row.iter() {
-            let mut value_map = HashSet::new();
-            let mut min_value = None;
-            let mut max_value = None;
+// Consolidated metadata calculation function based on run_sql.rs implementation
+fn compute_data_metadata(data: &[IndexMap<String, DataType>]) -> DataMetadata {
+    if data.is_empty() {
+        return DataMetadata {
+            column_count: 0,
+            row_count: 0,
+            column_metadata: vec![],
+        };
+    }
 
-            // Analyze column data
-            for row in results {
-                if let Some(value) = row.get(col_name) {
+    let first_row = &data[0];
+    let column_count = first_row.len() as i64;
+    let row_count = data.len() as i64;
+    let column_metadata = compute_column_metadata(data);
+
+    DataMetadata {
+        column_count,
+        row_count,
+        column_metadata,
+    }
+}
+
+// Helper function for computing column metadata
+fn compute_column_metadata(data: &[IndexMap<String, DataType>]) -> Vec<ColumnMetaData> {
+    if data.is_empty() {
+        return vec![];
+    }
+
+    let first_row = &data[0];
+    let columns: Vec<_> = first_row.keys().cloned().collect();
+
+    // Use existing column metadata calculation from run_sql.rs
+    // This maintains compatibility with the current implementation while
+    // centralizing the logic in the query_engine
+    columns.iter().map(|column_name| {
+        let mut value_map = HashSet::new();
+        let mut min_value = None;
+        let mut max_value = None;
+        let mut is_date_type = false;
+        let mut min_value_str: Option<String> = None;
+        let mut max_value_str: Option<String> = None;
+
+        for row in data {
+            if let Some(value) = row.get(column_name) {
+                // Track unique values (up to a reasonable limit)
+                if value_map.len() < 100 {
                     value_map.insert(format!("{:?}", value));
-                    update_min_max(value, &mut min_value, &mut max_value);
+                }
+
+                // Calculate min/max for appropriate types
+                match value {
+                    DataType::Int2(Some(v)) | 
+                    DataType::Int4(Some(v)) => {
+                        let n = *v as f64;
+                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
+                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                    }
+                    DataType::Int8(Some(v)) => {
+                        let n = *v as f64;
+                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
+                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                    }
+                    DataType::Float4(Some(v)) | 
+                    DataType::Float8(Some(v)) => {
+                        let n = *v as f64;
+                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
+                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                    }
+                    DataType::Date(Some(date)) => {
+                        is_date_type = true;
+                        let date_str = date.to_string();
+                        update_date_min_max(&date_str, &mut min_value_str, &mut max_value_str);
+                    }
+                    DataType::Timestamp(Some(ts)) | 
+                    DataType::Timestamptz(Some(ts)) => {
+                        is_date_type = true;
+                        let ts_str = ts.to_string();
+                        update_date_min_max(&ts_str, &mut min_value_str, &mut max_value_str);
+                    }
+                    _ => {}
                 }
             }
-
-            let (simple_type, column_type) = determine_types(sample_value);
-
-            // Only include min/max for numeric and date types
-            let (min_value, max_value) = match simple_type {
-                SimpleType::Number | SimpleType::Date => (
-                    min_value.unwrap_or(serde_json::Value::Null),
-                    max_value.unwrap_or(serde_json::Value::Null),
-                ),
-                _ => (serde_json::Value::Null, serde_json::Value::Null),
-            };
-
-            column_metadata.push(ColumnMetaData {
-                name: col_name.clone(),
-                min_value,
-                max_value,
-                unique_values: value_map.len() as i32,
-                simple_type,
-                column_type,
-            });
         }
-    }
-    column_metadata
+
+        // Determine the column type and simple type
+        let column_type = first_row.get(column_name).unwrap();
+        let (simple_type, column_type) = determine_types(column_type);
+
+        // Format min/max values appropriately based on type
+        let (min_value, max_value) = if is_date_type {
+            (
+                min_value_str.map_or(serde_json::Value::Null, |v| serde_json::Value::String(v)),
+                max_value_str.map_or(serde_json::Value::Null, |v| serde_json::Value::String(v)),
+            )
+        } else {
+            (
+                min_value.map_or(serde_json::Value::Null, |v| serde_json::Value::Number(serde_json::Number::from_f64(v).unwrap_or_default())),
+                max_value.map_or(serde_json::Value::Null, |v| serde_json::Value::Number(serde_json::Number::from_f64(v).unwrap_or_default())),
+            )
+        };
+
+        ColumnMetaData {
+            name: column_name.clone(),
+            min_value,
+            max_value,
+            unique_values: value_map.len() as i32,
+            simple_type,
+            column_type,
+        }
+    }).collect()
 }
 ```
 
-#### Component 4: Updated validate_sql Function
+#### Component 5: Updated validate_sql Function
 ```rust
 pub async fn validate_sql(
     sql: &str,
     dataset_id: &Uuid,
-) -> Result<(String, Vec<IndexMap<String, DataType>>, Option<Value>)> {
+) -> Result<(String, Vec<IndexMap<String, DataType>>, Option<DataMetadata>)> {
     // Get data source for the dataset
     let mut conn = get_pg_pool().get().await?;
     let data_source_id = datasets::table
@@ -258,7 +371,7 @@ pub async fn validate_sql(
         Vec::new() 
     };
     
-    Ok((message, return_records, Some(serde_json::to_value(query_result.metadata)?)))
+    Ok((message, return_records, Some(query_result.metadata)))
 }
 ```
 
@@ -289,10 +402,15 @@ CREATE INDEX metric_files_data_metadata_idx ON metric_files USING GIN (data_meta
   - Impact: Simplifies metric definition structure
   - Dependencies: None
 
+- `libs/database/src/types/data_metadata.rs` (NEW)
+  - Changes: Create new file for DataMetadata first-class type with FromSql/ToSql impls
+  - Impact: Consistent metadata type across the codebase
+  - Dependencies: None
+
 - `libs/database/src/models.rs`
-  - Changes: Add data_metadata field to MetricFile struct
+  - Changes: Add data_metadata field to MetricFile struct with strong typing
   - Impact: Enables storage of metadata in the database
-  - Dependencies: Migration to add column
+  - Dependencies: DataMetadata type, Migration to add column
 
 - `libs/database/src/schema.rs`
   - Changes: Update metric_files table definition to include data_metadata
@@ -300,36 +418,46 @@ CREATE INDEX metric_files_data_metadata_idx ON metric_files USING GIN (data_meta
   - Dependencies: Migration to add column
 
 - `libs/agents/src/tools/categories/file_tools/common.rs`
-  - Changes: Update METRIC_YML_SCHEMA to remove data_metadata
-  - Impact: Simplifies schema validation for metrics
-  - Dependencies: None
-
-- `libs/agents/src/tools/categories/file_tools/common.rs`
-  - Changes: Update validate_sql to return metadata and update process_metric_file to save it
-  - Impact: Enables metadata computation and storage
-  - Dependencies: query_engine changes
+  - Changes: Update METRIC_YML_SCHEMA to remove data_metadata, update validate_sql
+  - Impact: Simplifies schema validation for metrics, uses new DataMetadata type
+  - Dependencies: DataMetadata type
 
 - `libs/query_engine/src/data_source_query_routes/query_engine.rs`
-  - Changes: Add metadata computation functionality
-  - Impact: Enables computation of metadata along with query results
-  - Dependencies: None
+  - Changes: Create QueryResult struct, enhance query_engine to always compute metadata
+  - Impact: Centralizes metadata computation, ensures it's always available
+  - Dependencies: DataMetadata type
 
 - `libs/handlers/src/metrics/get_metric_data_handler.rs`
-  - Changes: Use cached metadata if available, compute if not
-  - Impact: Improves performance by using cached values
-  - Dependencies: data_metadata column in metric_files
+  - Changes: Remove metadata computation, use metadata from QueryResult
+  - Impact: Removes duplicate code, uses consistent metadata
+  - Dependencies: Enhanced query_engine
 
 - `libs/handlers/src/metrics/update_metric_handler.rs`
   - Changes: Update data_metadata when SQL changes
   - Impact: Ensures metadata is updated when metric definition changes
-  - Dependencies: validate_sql changes
+  - Dependencies: Enhanced query_engine
 
 - `libs/agents/src/tools/categories/file_tools/create_metrics.rs`
   - Changes: Add data_metadata to created metric files
   - Impact: Ensures metadata is stored during metric creation
-  - Dependencies: validate_sql changes
+  - Dependencies: Enhanced query_engine
+
+- `server/src/routes/rest/routes/sql/run_sql.rs`
+  - Changes: Remove duplicate metadata computation, use metadata from QueryResult
+  - Impact: Removes duplicate code, uses consistent metadata
+  - Dependencies: Enhanced query_engine
+
+- `server/src/routes/ws/sql/run_sql.rs`
+  - Changes: Remove duplicate metadata computation, use metadata from QueryResult
+  - Impact: Removes duplicate code, uses consistent metadata
+  - Dependencies: Enhanced query_engine
 
 #### New Files
+- `libs/database/src/types/data_metadata.rs`
+  - Purpose: Define DataMetadata as a first-class type with serialization
+  - Key components: DataMetadata struct, FromSql/ToSql impls
+  - Dependencies: None
+
 - `migrations/YYYY-MM-DD-HHMMSS_add_data_metadata_to_metric_files/up.sql`
   - Purpose: Add data_metadata column to metric_files table
   - Key components: SQL to add column and index
