@@ -23,6 +23,8 @@ import {
   LINE_DECIMATION_THRESHOLD,
   TOOLTIP_THRESHOLD
 } from '../../../config';
+import { barDelayAnimation } from '../../core/animations/barDelayAnimation';
+import { useAnimations } from './useAnimations';
 
 interface UseOptionsProps {
   colors: string[];
@@ -173,9 +175,7 @@ export const useOptions = ({
     }, 0);
   }, [datasetOptions]);
 
-  const isAnimationEnabled = useMemo(() => {
-    return animate && numberOfSources <= ANIMATION_THRESHOLD;
-  }, [animate, numberOfSources]);
+  const animation = useAnimations({ animate, numberOfSources, chartType: selectedChartType });
 
   const disableTooltip = useMemo(() => {
     return disableTooltipProp || numberOfSources >= TOOLTIP_THRESHOLD;
@@ -202,7 +202,7 @@ export const useOptions = ({
 
     return {
       indexAxis: isHorizontalBar ? 'y' : 'x',
-      animation: isAnimationEnabled ? { duration: ANIMATION_DURATION } : false,
+      animation,
       backgroundColor: colors,
       borderColor: colors,
       scales,
@@ -236,7 +236,7 @@ export const useOptions = ({
     goalLinesAnnotations,
     trendlineAnnotations,
     tooltipOptions,
-    isAnimationEnabled
+    animate
   ]);
 
   return options;

@@ -1,10 +1,21 @@
-import { ArcElement, Chart, ChartDataset, ChartMeta, ChartType, Plugin } from 'chart.js';
+import {
+  AnimationSpec,
+  ArcElement,
+  Chart,
+  ChartDataset,
+  ChartMeta,
+  ChartType,
+  Plugin
+} from 'chart.js';
 import OutLabel from './OutLabel';
 import OutLabelsContext from './OutLabelsContext';
 import OutLabelsManager from './OutLabelsManager';
 import { OutLabelStyle } from './OutLabelsStyle';
 import { OutLabelsOptions } from './OutLabelsOptions';
-import { CustomAnimationSpec } from '../common';
+
+interface CustomAnimationSpec extends AnimationSpec<'doughnut' | 'pie'> {
+  onProgress?: (animation: { currentStep: number; numSteps: number }) => void;
+}
 
 const globalAnimationDuration = (Chart.defaults.animation as CustomAnimationSpec).duration;
 
