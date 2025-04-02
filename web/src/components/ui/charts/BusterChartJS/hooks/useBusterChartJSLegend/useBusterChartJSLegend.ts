@@ -149,6 +149,8 @@ export const useBusterChartJSLegend = ({
 
     if (!chartjs) return;
 
+    console.log(chartjs.data.datasets.length);
+
     const data = chartjs.data;
     const hasAnimation = chartjs.options.animation !== false;
     const numberOfPoints = data.datasets.reduce((acc, dataset) => acc + dataset.data.length, 0);
@@ -195,13 +197,14 @@ export const useBusterChartJSLegend = ({
     const chartjs = chartRef.current;
     if (!chartjs) return;
 
-    const datasets = chartjs.data.datasets;
+    const datasets = chartjs.data.datasets.filter((dataset) => !dataset.hidden);
     const hasMultipleDatasets = datasets?.length > 1;
     const assosciatedDatasetIndex = datasets?.findIndex((dataset) => dataset.label === item.id);
 
     if (hasMultipleDatasets) {
       const hasOtherDatasetsVisible = datasets?.some(
-        (dataset, index) => dataset.label !== item.id && chartjs.isDatasetVisible(index)
+        (dataset, index) =>
+          dataset.label !== item.id && chartjs.isDatasetVisible(index) && !dataset.hidden
       );
       const inactiveDatasetsRecord: Record<string, boolean> = {};
       if (hasOtherDatasetsVisible) {
@@ -220,9 +223,9 @@ export const useBusterChartJSLegend = ({
         ...prev,
         ...inactiveDatasetsRecord
       }));
-    }
 
-    chartjs.update();
+      chartjs.update();
+    }
   });
 
   //immediate items
