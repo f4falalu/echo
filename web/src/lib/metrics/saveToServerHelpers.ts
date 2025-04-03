@@ -149,7 +149,6 @@ export const prepareMetricUpdateMetric = (
     newMetric,
     prevMetric
   ) as unknown as Parameters<typeof updateMetric>[0];
-  console.log('changedTopLevelValues', changedTopLevelValues?.name);
   const dataMetadata = prevMetric.data_metadata;
 
   const changedChartConfig = combineChangeFromDefaultChartConfig(newMetric, dataMetadata);

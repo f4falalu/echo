@@ -96,6 +96,7 @@ declare module 'chart.js' {
     $barDataLabels: Record<number, Record<number, string>>;
     $barDataLabelsGlobalRotation: boolean;
     $barDataLabelsUpdateInProgress: boolean;
+    $barDataLabelsLastRotationCheck?: number;
   }
 }
 
@@ -103,6 +104,7 @@ const TEXT_WIDTH_BUFFER = 4;
 const MAX_BAR_HEIGHT = 16;
 const MAX_BAR_WIDTH = 13;
 const FULL_ROTATION_ANGLE = -90;
+const ROTATION_CHECK_THROTTLE = 225; // ms
 
 export const barBuilder = ({
   selectedDataset,
@@ -151,11 +153,12 @@ export const barBuilder = ({
             if (context.chart.$barDataLabelsGlobalRotation === undefined) {
               context.chart.$barDataLabelsGlobalRotation = false;
               context.chart.$barDataLabelsUpdateInProgress = false;
+              context.chart.$barDataLabelsLastRotationCheck = 0;
             }
 
             // First dataset - analyze all data points to determine if any need rotation
             if (index === 0 && context.datasetIndex === 0) {
-              setGlobalRotation(context);
+              throttledSetGlobalRotation(context);
             }
 
             const rawValue = context.dataset.data[context.dataIndex] as number;
@@ -231,6 +234,29 @@ const getBarDimensions = (context: Context) => {
 
   const { width: barWidth, height: barHeight } = barElement.getProps(['width', 'height'], true);
   return { barWidth, barHeight };
+};
+
+const throttledSetGlobalRotation = (context: Context) => {
+  const now = Date.now();
+  // Skip if we checked recently or if update is in progress
+  if (
+    context.chart.$barDataLabelsUpdateInProgress ||
+    (context.chart.$barDataLabelsLastRotationCheck &&
+      now - context.chart.$barDataLabelsLastRotationCheck < ROTATION_CHECK_THROTTLE)
+  ) {
+    return;
+  }
+
+  // Mark that we're checking now
+  context.chart.$barDataLabelsLastRotationCheck = now;
+  context.chart.$barDataLabelsUpdateInProgress = true;
+
+  // Use requestAnimationFrame to ensure we're not blocking the main thread
+  requestAnimationFrame(() => {
+    setGlobalRotation(context);
+    // Mark that we're done updating
+    context.chart.$barDataLabelsUpdateInProgress = false;
+  });
 };
 
 const setGlobalRotation = (context: Context) => {
