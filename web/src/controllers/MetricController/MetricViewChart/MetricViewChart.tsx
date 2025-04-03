@@ -108,7 +108,7 @@ export const MetricViewChart: React.FC<{
           />
         </AnimatePresenceWrapper>
 
-        <MetricSaveFilePopup metricId={metricId} />
+        {!isVersionHistoryMode && <MetricSaveFilePopup metricId={metricId} />}
       </div>
     );
   }

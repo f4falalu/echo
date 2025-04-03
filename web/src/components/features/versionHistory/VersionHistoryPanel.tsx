@@ -102,7 +102,7 @@ const ListItem = React.memo(
                   e.preventDefault();
                   onClickRestoreVersion(version_number);
                 }}
-                className="hover:bg-item-select -mr-1 rounded p-1 opacity-0 group-hover:block group-hover:opacity-100">
+                className="hover:bg-gray-light/20 hover:text-foreground -mr-1 rounded p-1 opacity-0 group-hover:block group-hover:opacity-100">
                 <History />
               </div>
             </AppTooltip>
