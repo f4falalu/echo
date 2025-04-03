@@ -9,6 +9,7 @@ import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOption
 import type { Options } from 'chartjs-plugin-datalabels/types/options';
 import { DEFAULT_CHART_LAYOUT } from '../../ChartJSTheme';
 import { extractFieldsFromChain } from '../../../chartHooks';
+import { IColumnLabelFormat } from '@/api/asset_interfaces/metric';
 
 export const barSeriesBuilder = ({
   selectedDataset,
@@ -92,18 +93,18 @@ export const barSeriesBuilder = ({
 
 declare module 'chart.js' {
   interface Chart {
-    $barDataLabels: Record<
-      number,
-      Record<
-        number,
-        {
-          formattedValue: string;
-          rotation: number;
-        }
-      >
-    >;
+    $barDataLabels: Record<number, Record<number, string>>;
+    $barDataLabelsGlobalRotation: boolean;
+    $barDataLabelsUpdateInProgress: boolean;
+    $barDataLabelsLastRotationCheck?: number;
   }
 }
+
+const TEXT_WIDTH_BUFFER = 4;
+const MAX_BAR_HEIGHT = 16;
+const MAX_BAR_WIDTH = 13;
+const FULL_ROTATION_ANGLE = -90;
+const ROTATION_CHECK_THROTTLE = 225; // ms
 
 export const barBuilder = ({
   selectedDataset,
@@ -133,8 +134,6 @@ export const barBuilder = ({
   const usePercentage = !!columnSetting?.showDataLabelsAsPercentage;
   const showLabels = !!columnSetting?.showDataLabels;
 
-  const textWidthBuffer = 4;
-
   return {
     type: 'bar',
     label: yAxisItem.name,
@@ -150,38 +149,53 @@ export const barBuilder = ({
       labels: {
         barTotal: {
           display: (context) => {
+            // Initialize the global rotation flag if it doesn't exist
+            if (context.chart.$barDataLabelsGlobalRotation === undefined) {
+              context.chart.$barDataLabelsGlobalRotation = false;
+              context.chart.$barDataLabelsUpdateInProgress = false;
+              context.chart.$barDataLabelsLastRotationCheck = 0;
+            }
+
+            // First dataset - analyze all data points to determine if any need rotation
+            if (index === 0 && context.datasetIndex === 0) {
+              throttledSetGlobalRotation(context);
+            }
+
             const rawValue = context.dataset.data[context.dataIndex] as number;
 
             if (!showLabels || !rawValue) return false;
+
             const { barWidth, barHeight } = getBarDimensions(context);
 
-            if (barWidth < 13) return false;
-            const formattedValue = formatBarAndLineDataLabel(
-              rawValue,
-              context,
+            if (barWidth < MAX_BAR_WIDTH) return false;
+
+            const formattedValue = getFormattedValue(context, {
               usePercentage,
               columnLabelFormat
-            );
-            const { width: widthOfFormattedValue } = context.chart.ctx.measureText(formattedValue);
-            const rotation = widthOfFormattedValue > barWidth - textWidthBuffer ? -90 : 0;
+            });
 
-            if (rotation === -90 && widthOfFormattedValue > barHeight - textWidthBuffer) {
+            // Get text width for this specific label
+            const { width: textWidth } = context.chart.ctx.measureText(formattedValue);
+
+            // Use the global rotation setting
+            const rotation = context.chart.$barDataLabelsGlobalRotation ? FULL_ROTATION_ANGLE : 0;
+
+            // Check if this label can be displayed even with rotation
+            if (rotation === -90 && textWidth > barHeight - TEXT_WIDTH_BUFFER) {
               return false;
             }
 
-            setBarDataLabelsManager(context, formattedValue, rotation);
-
-            if (barHeight < 16) return false;
+            // Check if the bar height is too small to display the label
+            if (barHeight < MAX_BAR_HEIGHT) return false;
 
             return 'auto';
           },
           formatter: (_, context) => {
-            const formattedValue = getBarDataLabelsManager(context).formattedValue;
-            return formattedValue;
+            return context.chart.$barDataLabels?.[context.datasetIndex]?.[context.dataIndex] || '';
           },
           rotation: (context) => {
-            const { rotation } = getBarDataLabelsManager(context);
-            return rotation;
+            // Always use the global rotation setting
+            return context.chart.$barDataLabelsGlobalRotation ? FULL_ROTATION_ANGLE : 0;
           },
           color: dataLabelFontColorContrast,
           borderWidth: 0,
@@ -200,17 +214,15 @@ export const barBuilder = ({
   } as ChartProps<'bar'>['data']['datasets'][number];
 };
 
-const setBarDataLabelsManager = (context: Context, formattedValue: string, rotation: number) => {
+const setBarDataLabelsManager = (context: Context, formattedValue: string) => {
   const dataIndex = context.dataIndex;
   const datasetIndex = context.datasetIndex;
+
   context.chart.$barDataLabels = {
     ...context.chart.$barDataLabels,
     [datasetIndex]: {
       ...context.chart.$barDataLabels?.[datasetIndex],
-      [dataIndex]: {
-        formattedValue,
-        rotation
-      }
+      [dataIndex]: formattedValue
     }
   };
 };
@@ -224,15 +236,71 @@ const getBarDimensions = (context: Context) => {
   return { barWidth, barHeight };
 };
 
-const getBarDataLabelsManager = (context: Context) => {
-  const dataIndex = context.dataIndex;
-  const datasetIndex = context.datasetIndex;
-  const values = context.chart.$barDataLabels?.[datasetIndex]?.[dataIndex];
+const throttledSetGlobalRotation = (context: Context) => {
+  const now = Date.now();
+  // Skip if we checked recently or if update is in progress
+  if (
+    context.chart.$barDataLabelsUpdateInProgress ||
+    (context.chart.$barDataLabelsLastRotationCheck &&
+      now - context.chart.$barDataLabelsLastRotationCheck < ROTATION_CHECK_THROTTLE)
+  ) {
+    return;
+  }
 
-  return {
-    formattedValue: values?.formattedValue,
-    rotation: values?.rotation
-  };
+  // Mark that we're checking now
+  context.chart.$barDataLabelsLastRotationCheck = now;
+  context.chart.$barDataLabelsUpdateInProgress = true;
+
+  // Use requestAnimationFrame to ensure we're not blocking the main thread
+  requestAnimationFrame(() => {
+    setGlobalRotation(context);
+    // Mark that we're done updating
+    context.chart.$barDataLabelsUpdateInProgress = false;
+  });
+};
+
+const setGlobalRotation = (context: Context) => {
+  context.chart.$barDataLabelsGlobalRotation = false;
+
+  const labels = context.chart.data.datasets
+    .filter((d) => !d.hidden)
+    .flatMap((dataset, datasetIndex) => {
+      return dataset.data.map((value, dataIndex) => {
+        const currentValue = context.chart.$barDataLabels?.[datasetIndex]?.[dataIndex] || '';
+        return currentValue || '';
+      });
+    });
+
+  const labelNeedsToBeRotated = labels.some((label) => {
+    const { width: textWidth } = context.chart.ctx.measureText(label);
+    const { barWidth, barHeight } = getBarDimensions(context);
+    return textWidth > barWidth - TEXT_WIDTH_BUFFER;
+  });
+
+  if (labelNeedsToBeRotated) {
+    context.chart.$barDataLabelsGlobalRotation = true;
+  }
+};
+
+const getFormattedValue = (
+  context: Context,
+  {
+    usePercentage,
+    columnLabelFormat
+  }: {
+    usePercentage: boolean;
+    columnLabelFormat: IColumnLabelFormat;
+  }
+) => {
+  const rawValue = context.dataset.data[context.dataIndex] as number;
+  const currentValue =
+    context.chart.$barDataLabels?.[context.datasetIndex]?.[context.dataIndex] || '';
+  const formattedValue =
+    currentValue || formatBarAndLineDataLabel(rawValue, context, usePercentage, columnLabelFormat);
+  // Store only the formatted value, rotation is handled globally
+  setBarDataLabelsManager(context, formattedValue);
+
+  return formattedValue;
 };
 
 export const barSeriesBuilder_labels = (props: LabelBuilderProps) => {

@@ -113,7 +113,6 @@ export const useUpdateMetricChart = (props?: { metricId?: string }) => {
   const onSaveMetricToServer = useMemoizedFn(async () => {
     setIsSaving(true);
     const currentMetric = getMetricMemoized(metricId);
-    console.log('currentMetric', currentMetric.name);
     if (currentMetric) await saveMetricToServer(currentMetric);
     await timeout(350);
     setIsSaving(false);
