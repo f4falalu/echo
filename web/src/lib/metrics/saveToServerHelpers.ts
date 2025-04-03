@@ -18,7 +18,6 @@ import type {
   ScatterAxis
 } from '@/api/asset_interfaces/metric/charts';
 import { type updateMetric } from '@/api/buster_rest/metrics';
-import { create } from 'mutative';
 import { createDefaultChartConfig } from './messageAutoChartHandler';
 
 const DEFAULT_COLUMN_SETTINGS_ENTRIES = Object.entries(DEFAULT_COLUMN_SETTINGS);

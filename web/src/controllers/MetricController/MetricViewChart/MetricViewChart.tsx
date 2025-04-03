@@ -57,7 +57,7 @@ export const MetricViewChart: React.FC<{
     const showEvaluation = !!evaluation_score && !!evaluation_summary;
 
     const onSetTitle = useMemoizedFn((title: string) => {
-      if (updateMetric && inputHasText(title)) {
+      if (inputHasText(title)) {
         updateMetric({
           id: metricId,
           name: title

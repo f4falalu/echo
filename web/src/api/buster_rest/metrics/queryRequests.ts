@@ -147,6 +147,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
     mutationFn: updateMetric,
     onMutate: async ({ id, restore_to_version }) => {
       const isRestoringVersion = restore_to_version !== undefined;
+      //set the current metric to the previous it is being restored to
       if (isRestoringVersion) {
         const oldMetric = queryClient.getQueryData(metricsQueryKeys.metricsGetMetric(id).queryKey);
         const newMetric = queryClient.getQueryData(
@@ -347,12 +348,18 @@ export const useUpdateMetric = (params?: {
   wait?: number;
   updateOnSave?: boolean;
   updateVersion?: boolean;
+  saveToServer?: boolean;
 }) => {
-  const { wait = 650, updateOnSave = false, updateVersion = true } = params || {};
+  const {
+    wait = 650,
+    updateOnSave = false,
+    updateVersion = false,
+    saveToServer = true
+  } = params || {};
   const queryClient = useQueryClient();
   const { mutateAsync: saveMetric } = useSaveMetric({ updateOnSave });
 
-  const { run: saveMetricDebounced } = useDebounceFn(
+  const { run: saveMetricToServerDebounced } = useDebounceFn(
     useMemoizedFn((newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
       const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
       if (changedValues) {
@@ -383,8 +390,8 @@ export const useUpdateMetric = (params?: {
     async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
       const { newMetric, prevMetric } = await combineAndSaveMetric(newMetricPartial);
 
-      if (newMetric && prevMetric) {
-        saveMetricDebounced(newMetric, prevMetric);
+      if (newMetric && prevMetric && saveToServer) {
+        saveMetricToServerDebounced(newMetric, prevMetric);
       }
 
       return newMetric;
