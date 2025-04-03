@@ -63,19 +63,24 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
           lineDecorationsWidth: 15,
           lineNumbersMinChars: 3,
           renderOverviewRuler: false,
-          wordWrap: 'off',
-          wordWrapColumn: 999,
-          wrappingStrategy: 'simple',
-          scrollBeyondLastLine: false,
+          wordWrap: 'on',
+          scrollBeyondLastLine: true,
           minimap: {
             enabled: false
           },
+          renderSideBySideInlineBreakpoint: 600,
+          compactMode: true,
+          renderIndicators: false,
+          onlyShowAccessibleDiffViewer: false,
+          enableSplitViewResizing: false,
+          renderMarginRevertIcon: false,
           contextmenu: false,
+          diffWordWrap: 'on',
           readOnlyMessage: {
             value: readOnlyMessage
           },
           ...monacoEditorOptions
-        };
+        } satisfies editor.IStandaloneDiffEditorConstructionOptions;
       }, [readOnlyMessage, monacoEditorOptions, viewMode]);
 
     const onMountDiffEditor = useMemoizedFn(
@@ -92,7 +97,12 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
         const theme = useDarkMode ? 'night-owl' : 'github-light';
         monaco.editor.setTheme(theme);
 
-        console.log('theme', theme, GithubLightTheme);
+        // Configure original editor to always wrap text
+        const originalEditor = editor.getOriginalEditor();
+        originalEditor.updateOptions({
+          wordWrap: 'on',
+          wrappingStrategy: 'advanced'
+        });
 
         // Get the modified editor and add change listener
         const modifiedEditor = editor.getModifiedEditor();
