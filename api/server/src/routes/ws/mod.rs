@@ -5,7 +5,6 @@ mod datasets;
 mod organizations;
 mod permissions;
 mod search;
-mod sql;
 mod teams;
 mod terms;
 mod metrics;

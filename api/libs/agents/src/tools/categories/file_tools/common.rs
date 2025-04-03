@@ -627,10 +627,11 @@ pub async fn process_metric_file(
         Err(e) => return Err(format!("Database connection error: {}", e)),
     };
 
-    let organization_id = get_user_organization_id(user_id)
-        .await
-        .map_err(|e| format!("Error getting organization: {}", e))?;
-
+    let organization_id = match get_user_organization_id(user_id).await {
+        Ok(Some(org_id)) => org_id,
+        Ok(None) => return Err("User does not belong to any organization".to_string()),
+        Err(e) => return Err(format!("Error getting organization: {}", e)),
+    };
 
     // Generate deterministic UUID
     let id = match generate_deterministic_uuid(&tool_call_id, &file_name, "metric") {

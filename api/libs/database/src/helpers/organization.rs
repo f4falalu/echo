@@ -13,6 +13,7 @@ use crate::schema::users_to_organizations;
 ///
 /// # Returns
 /// * `Result<Option<Uuid>>` - The organization ID if found
+/// Right now we are assuming each user belongs to only one organization, however that can change in teh future.
 pub async fn get_user_organization_id(user_id: &Uuid) -> Result<Option<Uuid>> {
     let mut conn = get_pg_pool().get().await?;
 

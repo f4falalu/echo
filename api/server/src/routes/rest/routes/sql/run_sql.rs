@@ -13,7 +13,7 @@ use database::{
     enums::UserOrganizationRole,
     models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue},
     pool::get_pg_pool,
-    schema::{data_sources, datasets, users_to_organizations},
+    schema::{data_sources, datasets, users_to_organizations}, types::DataMetadata,
 };
 
 use crate::{

@@ -5,15 +5,15 @@ use database::{
     helpers::metric_files::fetch_metric_file_with_permissions,
     pool::get_pg_pool,
     schema::{datasets, metric_files},
-    types::{MetricYml, VersionContent, VersionHistory, data_metadata::DataMetadata},
+    types::{MetricYml, VersionContent, VersionHistory},
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
+use query_engine::data_source_query_routes::query_engine::query_engine;
 use serde_json::Value;
 use sharing::check_permission_access;
 use uuid::Uuid;
-use query_engine::data_source_query_routes::query_engine;
 
 /// Recursively merges two JSON objects.
 /// The second object (update) takes precedence over the first (base) where there are conflicts.
@@ -98,8 +98,31 @@ pub async fn update_metric_handler(
         .await
         .map_err(|e| anyhow!("Failed to get database connection: {}", e))?;
 
-
-    // Check if metric exists and user has access - use the latest version
+    // First, check if the user has access to the metric with the right permission level
+    let metric_file_with_permissions = fetch_metric_file_with_permissions(metric_id, &user.id)
+        .await
+        .map_err(|e| anyhow!("Failed to fetch metric file with permissions: {}", e))?;
+    
+    let (permission, organization_id) = if let Some(file_with_permission) = metric_file_with_permissions {
+        (
+            file_with_permission.permission,
+            file_with_permission.metric_file.organization_id,
+        )
+    } else {
+        return Err(anyhow!("Metric file not found"));
+    };
+    
+    // Verify the user has at least Editor, FullAccess, or Owner permission
+    if !check_permission_access(
+        permission,
+        &[AssetPermissionRole::Editor, AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
+        organization_id,
+        &user.organizations,
+    ) {
+        return Err(anyhow!("You don't have permission to update this metric. Editor or higher role required."));
+    }
+    
+    // Now get the full metric with all its data needed for the update
     let metric = get_metric_handler(metric_id, user, None).await?;
 
     // Get version history
@@ -130,7 +153,7 @@ pub async fn update_metric_handler(
             _ => return Err(anyhow!("Invalid version content type")),
         }
     // If file is provided, it takes precedence over individual fields
-    } else if let Some(file_content) = request.file {
+    } else if let Some(ref file_content) = request.file {
         serde_yaml::from_str::<MetricYml>(&file_content)
             .map_err(|e| anyhow!("Failed to parse provided file content: {}", e))?
     } else {
@@ -167,8 +190,8 @@ pub async fn update_metric_handler(
         if let Some(title) = request.name {
             content.name = title;
         }
-        if let Some(sql) = request.sql {
-            content.sql = sql;
+        if let Some(ref sql) = request.sql {
+            content.sql = sql.clone();
         }
         content
     };
@@ -188,21 +211,28 @@ pub async fn update_metric_handler(
     }
 
     // Calculate data_metadata if SQL changed
-    let data_metadata = if request.sql.is_some() || request.file.is_some() || request.restore_to_version.is_some() {
+    let data_metadata = if request.sql.is_some()
+        || request.file.is_some()
+        || request.restore_to_version.is_some()
+    {
         // Get data source for dataset
-        let dataset_id = content.dataset_ids.get(0).ok_or_else(|| anyhow!("No dataset ID found"))?;
-        
+        let dataset_id = content
+            .dataset_ids
+            .get(0)
+            .ok_or_else(|| anyhow!("No dataset ID found"))?;
+
         let data_source_id = datasets::table
             .filter(datasets::id.eq(dataset_id))
             .select(datasets::data_source_id)
             .first::<Uuid>(&mut conn)
             .await
             .map_err(|e| anyhow!("Failed to get data source ID: {}", e))?;
-        
+
         // Execute query and get results with metadata
-        let query_result = query_engine(&data_source_id, &content.sql, Some(100)).await
+        let query_result = query_engine(&data_source_id, &content.sql, Some(100))
+            .await
             .map_err(|e| anyhow!("Failed to execute SQL for metadata calculation: {}", e))?;
-        
+
         // Return metadata
         Some(query_result.metadata)
     } else {

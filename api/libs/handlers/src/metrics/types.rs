@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use database::{enums::{AssetPermissionRole, Verification}, types::ChartConfig};
+use database::{enums::{AssetPermissionRole, Verification}, types::{ChartConfig, DataMetadata}};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::HashMap;
@@ -83,80 +83,6 @@ pub struct Dashboard {
 pub struct Collection {
     pub id: String,
     pub name: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct DataMetadata {
-    pub column_count: i32,
-    pub column_metadata: Vec<ColumnMetaData>,
-    pub row_count: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ColumnMetaData {
-    pub name: String,
-    #[serde(rename = "min_value")]
-    pub min_value: MinMaxValue,
-    #[serde(rename = "max_value")]
-    pub max_value: MinMaxValue,
-    pub unique_values: i32,
-    pub simple_type: SimpleType,
-    #[serde(rename = "type")]
-    pub column_type: ColumnType,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(untagged)]
-pub enum MinMaxValue {
-    String(String),
-    Number(f64),
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum SimpleType {
-    #[serde(rename = "text")]
-    Text,
-    #[serde(rename = "number")]
-    Number,
-    #[serde(rename = "date")]
-    Date,
-    #[serde(rename = "boolean")]
-    Boolean,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "lowercase")]
-pub enum ColumnType {
-    Text,
-    Float,
-    Integer,
-    Date,
-    Float8,
-    Timestamp,
-    Timestamptz,
-    Bool,
-    Time,
-    Boolean,
-    Json,
-    Jsonb,
-    Int8,
-    Int4,
-    Int2,
-    Decimal,
-    Char,
-    #[serde(rename = "character varying")]
-    CharacterVarying,
-    Character,
-    Varchar,
-    Number,
-    Numeric,
-    Tinytext,
-    Mediumtext,
-    Longtext,
-    Nchar,
-    Nvarchat,
-    Ntext,
-    Float4,
 }
 
 // IDataResult equivalent

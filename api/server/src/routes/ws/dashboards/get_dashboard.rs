@@ -226,10 +226,10 @@ async fn fetch_data_handler(subscription: &String, metric: &Metric, user: &Authe
 
         let fetching_data_body = FetchingData {
             progress: StepProgress::Completed,
-            data: if data.is_empty() {
+            data: if data.data.is_empty() {
                 Some(vec![])
             } else {
-                Some(data)
+                Some(data.data)
             },
             metric_id: metric.id,
         };

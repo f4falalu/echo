@@ -5,7 +5,6 @@ use std::{
     time::{Duration, Instant},
 };
 
-use database::pool::get_redis_pool;
 use async_compression::tokio::bufread::GzipDecoder;
 use axum::{
     extract::{
@@ -15,6 +14,7 @@ use axum::{
     response::IntoResponse,
     Extension,
 };
+use database::pool::get_redis_pool;
 use futures::{
     sink::SinkExt,
     stream::{SplitSink, StreamExt},
@@ -33,7 +33,20 @@ use uuid::Uuid;
 use middleware::AuthenticatedUser;
 
 use super::{
-    collections::collections_router::CollectionEvent, dashboards::dashboards_router::DashboardEvent, data_sources::data_sources_router::DataSourceEvent, datasets::datasets_router::DatasetEvent, metrics::MetricEvent, organizations::organization_router::OrganizationEvent, permissions::permissions_router::PermissionEvent, search::search_router::SearchEvent, sql::sql_router::SqlEvent, teams::teams_routes::TeamEvent, terms::terms_router::TermEvent, threads_and_messages::threads_router::ThreadEvent, users::users_router::UserEvent, ws_router::{ws_router, WsRoutes}, ws_utils::{subscribe_to_stream, unsubscribe_from_stream}
+    collections::collections_router::CollectionEvent,
+    dashboards::dashboards_router::DashboardEvent,
+    data_sources::data_sources_router::DataSourceEvent,
+    datasets::datasets_router::DatasetEvent,
+    metrics::MetricEvent,
+    organizations::organization_router::OrganizationEvent,
+    permissions::permissions_router::PermissionEvent,
+    search::search_router::SearchEvent,
+    teams::teams_routes::TeamEvent,
+    terms::terms_router::TermEvent,
+    threads_and_messages::threads_router::ThreadEvent,
+    users::users_router::UserEvent,
+    ws_router::{ws_router, WsRoutes},
+    ws_utils::{subscribe_to_stream, unsubscribe_from_stream},
 };
 
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(900);
@@ -52,7 +65,6 @@ pub enum WsEvent {
     Threads(ThreadEvent),
     Dashboards(DashboardEvent),
     Datasets(DatasetEvent),
-    Sql(SqlEvent),
     Users(UserEvent),
     Collections(CollectionEvent),
     Teams(TeamEvent),
@@ -220,7 +232,11 @@ pub async fn ws(
     })
 }
 
-async fn ws_handler(stream: WebSocket, user: AuthenticatedUser, shutdown_tx: Arc<broadcast::Sender<()>>) {
+async fn ws_handler(
+    stream: WebSocket,
+    user: AuthenticatedUser,
+    shutdown_tx: Arc<broadcast::Sender<()>>,
+) {
     let mut shutdown_rx = shutdown_tx.subscribe();
 
     let (sender, mut receiver) = stream.split();

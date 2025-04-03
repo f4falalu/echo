@@ -102,10 +102,10 @@ async fn get_dataset_data_sample_handler(
             Ok(data) => data,
             Err(e) => {
                 tracing::error!("Error getting dataset data: {:?}", e);
-                Vec::new()
+                return Err(anyhow!("Error getting dataset data: {:?}", e));
             }
         }
     };
 
-    Ok(data)
+    Ok(data.data)
 }

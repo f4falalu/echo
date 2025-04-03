@@ -11,7 +11,19 @@ use crate::routes::ws::{
 };
 
 use super::{
-    collections::collections_router::{collections_router, CollectionRoute}, dashboards::dashboards_router::DashboardRoute, data_sources::data_sources_router::{data_sources_router, DataSourceRoute}, datasets::datasets_router::DatasetRoute, metrics::{metrics_router, MetricRoute}, organizations::organization_router::{organizations_router, OrganizationRoute}, permissions::permissions_router::{permissions_router, PermissionRoute}, search::search_router::{search_router, SearchRoute}, sql::sql_router::{sql_router, SqlRoute}, teams::teams_routes::{teams_router, TeamRoute}, terms::terms_router::{terms_router, TermRoute}, threads_and_messages::threads_router::{threads_router, ThreadRoute}, users::users_router::{users_router, UserRoute}, ws::SubscriptionRwLock
+    collections::collections_router::{collections_router, CollectionRoute},
+    dashboards::dashboards_router::DashboardRoute,
+    data_sources::data_sources_router::{data_sources_router, DataSourceRoute},
+    datasets::datasets_router::DatasetRoute,
+    metrics::{metrics_router, MetricRoute},
+    organizations::organization_router::{organizations_router, OrganizationRoute},
+    permissions::permissions_router::{permissions_router, PermissionRoute},
+    search::search_router::{search_router, SearchRoute},
+    teams::teams_routes::{teams_router, TeamRoute},
+    terms::terms_router::{terms_router, TermRoute},
+    threads_and_messages::threads_router::{threads_router, ThreadRoute},
+    users::users_router::{users_router, UserRoute},
+    ws::SubscriptionRwLock,
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -22,7 +34,6 @@ pub enum WsRoutes {
     Datasets(DatasetRoute),
     Users(UserRoute),
     Collections(CollectionRoute),
-    Sql(SqlRoute),
     Teams(TeamRoute),
     DataSources(DataSourceRoute),
     Permissions(PermissionRoute),
@@ -45,7 +56,6 @@ impl WsRoutes {
             "datasets" => Ok(Self::Datasets(DatasetRoute::from_str(path)?)),
             "users" => Ok(Self::Users(UserRoute::from_str(path)?)),
             "collections" => Ok(Self::Collections(CollectionRoute::from_str(path)?)),
-            "sql" => Ok(Self::Sql(SqlRoute::from_str(path)?)),
             "teams" => Ok(Self::Teams(TeamRoute::from_str(path)?)),
             "data_sources" => Ok(Self::DataSources(DataSourceRoute::from_str(path)?)),
             "permissions" => Ok(Self::Permissions(PermissionRoute::from_str(path)?)),

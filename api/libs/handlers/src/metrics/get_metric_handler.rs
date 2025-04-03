@@ -1,22 +1,20 @@
 use anyhow::{anyhow, Result};
 use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable};
 use diesel_async::RunQueryDsl;
+use futures::future::{join};
 use middleware::AuthenticatedUser;
 use serde_yaml;
 use uuid::Uuid;
-use futures::future::{join, try_join};
 
 use crate::metrics::types::{
-    BusterMetric, ColumnMetaData, ColumnType, DataMetadata, Dataset, MinMaxValue, SimpleType,
-    AssociatedDashboard, AssociatedCollection,
+    AssociatedCollection, AssociatedDashboard, BusterMetric, Dataset,
 };
 use database::enums::{AssetPermissionRole, AssetType, IdentityType};
 use database::helpers::metric_files::fetch_metric_file_with_permissions;
 use database::pool::get_pg_pool;
 use database::schema::{
-    asset_permissions, datasets, users, 
-    collections, collections_to_assets, 
-    dashboard_files, metric_files_to_dashboard_files
+    asset_permissions, collections, collections_to_assets, dashboard_files, datasets,
+    metric_files_to_dashboard_files, users,
 };
 use sharing::check_permission_access;
 
@@ -37,10 +35,15 @@ struct AssetPermissionInfo {
 }
 
 /// Fetch the dashboards associated with the given metric id
-async fn fetch_associated_dashboards_for_metric(metric_id: Uuid) -> Result<Vec<AssociatedDashboard>> {
+async fn fetch_associated_dashboards_for_metric(
+    metric_id: Uuid,
+) -> Result<Vec<AssociatedDashboard>> {
     let mut conn = get_pg_pool().get().await?;
     let associated_dashboards = metric_files_to_dashboard_files::table
-        .inner_join(dashboard_files::table.on(dashboard_files::id.eq(metric_files_to_dashboard_files::dashboard_file_id)))
+        .inner_join(
+            dashboard_files::table
+                .on(dashboard_files::id.eq(metric_files_to_dashboard_files::dashboard_file_id)),
+        )
         .filter(metric_files_to_dashboard_files::metric_file_id.eq(metric_id))
         .filter(dashboard_files::deleted_at.is_null())
         .filter(metric_files_to_dashboard_files::deleted_at.is_null())
@@ -48,16 +51,15 @@ async fn fetch_associated_dashboards_for_metric(metric_id: Uuid) -> Result<Vec<A
         .load::<(Uuid, String)>(&mut conn)
         .await?
         .into_iter()
-        .map(|(id, name)| AssociatedDashboard {
-            id,
-            name,
-        })
+        .map(|(id, name)| AssociatedDashboard { id, name })
         .collect();
     Ok(associated_dashboards)
 }
 
 /// Fetch the collections associated with the given metric id
-async fn fetch_associated_collections_for_metric(metric_id: Uuid) -> Result<Vec<AssociatedCollection>> {
+async fn fetch_associated_collections_for_metric(
+    metric_id: Uuid,
+) -> Result<Vec<AssociatedCollection>> {
     let mut conn = get_pg_pool().get().await?;
     let associated_collections = collections_to_assets::table
         .inner_join(collections::table.on(collections::id.eq(collections_to_assets::collection_id)))
@@ -69,10 +71,7 @@ async fn fetch_associated_collections_for_metric(metric_id: Uuid) -> Result<Vec<
         .load::<(Uuid, String)>(&mut conn)
         .await?
         .into_iter()
-        .map(|(id, name)| AssociatedCollection {
-            id,
-            name,
-        })
+        .map(|(id, name)| AssociatedCollection { id, name })
         .collect();
     Ok(associated_collections)
 }
@@ -100,7 +99,12 @@ pub async fn get_metric_handler(
     // 2. Check if user has at least FullAccess permission
     if !check_permission_access(
         metric_file.permission,
-        &[AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
+        &[
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+            AssetPermissionRole::Editor,
+            AssetPermissionRole::Viewer,
+        ],
         metric_file.metric_file.organization_id,
         &user.organizations,
     ) {
@@ -160,38 +164,10 @@ pub async fn get_metric_handler(
         Err(e) => return Err(anyhow!("Failed to convert content to YAML: {}", e)),
     };
 
-    let mut conn = get_pg_pool().get().await?;
+    // Data metadata is fetched directly from the metric_file database record
+    let data_metadata = metric_file.data_metadata;
 
-    // Parse data metadata from the selected version's MetricYml
-    let data_metadata = metric_content.data_metadata.map(|metadata| {
-        DataMetadata {
-            column_count: metadata.len() as i32,
-            column_metadata: metadata
-                .iter()
-                .map(|col| ColumnMetaData {
-                    name: col.name.clone(),
-                    min_value: MinMaxValue::Number(0.0), // Default value
-                    max_value: MinMaxValue::Number(0.0), // Default value
-                    unique_values: 0,                    // Default value
-                    simple_type: match col.data_type.as_str() {
-                        "string" => SimpleType::Text,
-                        "number" => SimpleType::Number,
-                        "boolean" => SimpleType::Boolean,
-                        "date" => SimpleType::Date,
-                        _ => SimpleType::Text,
-                    },
-                    column_type: match col.data_type.as_str() {
-                        "string" => ColumnType::Text,
-                        "number" => ColumnType::Number,
-                        "boolean" => ColumnType::Boolean,
-                        "date" => ColumnType::Date,
-                        _ => ColumnType::Text,
-                    },
-                })
-                .collect(),
-            row_count: 1, // Default value since it's not in the MetricYml structure
-        }
-    });
+    let mut conn = get_pg_pool().get().await?;
 
     // Get dataset information for all dataset IDs
     let mut datasets = Vec::new();
@@ -260,23 +236,31 @@ pub async fn get_metric_handler(
     let metrics_id_clone = *metric_id;
     let dashboards_future = fetch_associated_dashboards_for_metric(metrics_id_clone);
     let collections_future = fetch_associated_collections_for_metric(metrics_id_clone);
-    
+
     // Await both futures concurrently
     let (dashboards_result, collections_result) = join(dashboards_future, collections_future).await;
-    
+
     // Handle results, logging errors but returning empty Vecs for failed tasks
     let dashboards = match dashboards_result {
         Ok(dashboards) => dashboards,
         Err(e) => {
-            tracing::error!("Failed to fetch associated dashboards for metric {}: {}", metric_id, e);
+            tracing::error!(
+                "Failed to fetch associated dashboards for metric {}: {}",
+                metric_id,
+                e
+            );
             vec![]
         }
     };
-    
+
     let collections = match collections_result {
         Ok(collections) => collections,
         Err(e) => {
-            tracing::error!("Failed to fetch associated collections for metric {}: {}", metric_id, e);
+            tracing::error!(
+                "Failed to fetch associated collections for metric {}: {}",
+                metric_id,
+                e
+            );
             vec![]
         }
     };
@@ -329,10 +313,8 @@ pub async fn get_metric_handler(
         dashboards,
         collections,
         versions,
-        // Use the actual permission from the fetch operation
         permission,
         sql: metric_content.sql,
-        // New sharing fields
         individual_permissions,
         publicly_accessible: metric_file.publicly_accessible,
         public_expiry_date: metric_file.public_expiry_date,
