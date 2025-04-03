@@ -20,13 +20,14 @@ import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { useMemo } from 'react';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useGetUserFavorites } from '../users';
-import type { DataMetadata, IBusterMetric } from '@/api/asset_interfaces/metric';
+import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { create } from 'mutative';
 import {
   useAddAssetToCollection,
   useRemoveAssetFromCollection
 } from '../collections/queryRequests';
 import { useSearchParams } from 'next/navigation';
+import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
 
 /**
  * This is a hook that will use the version number from the URL params if it exists.
@@ -41,6 +42,7 @@ export const useGetMetric = <TData = IBusterMetric>(
   },
   select?: (data: IBusterMetric) => TData
 ) => {
+  const { setOriginalMetric } = useOriginalMetricStore();
   const searchParams = useSearchParams();
   const queryVersionNumber = searchParams.get('metric_version_number');
   const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
@@ -61,7 +63,9 @@ export const useGetMetric = <TData = IBusterMetric>(
   const queryFn = useMemoizedFn(async () => {
     const result = await getMetric({ id: id!, password, version_number });
     const oldMetric = queryClient.getQueryData(options.queryKey);
-    return upgradeMetricToIMetric(result, oldMetric || null);
+    const updatedMetric = upgradeMetricToIMetric(result, oldMetric || null);
+    setOriginalMetric(updatedMetric);
+    return updatedMetric;
   });
 
   return useQuery({
@@ -143,6 +147,8 @@ export const prefetchGetMetricDataClient = async (
 export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
   const queryClient = useQueryClient();
+  const { setOriginalMetric } = useOriginalMetricStore();
+
   return useMutation({
     mutationFn: updateMetric,
     onMutate: async ({ id, restore_to_version }) => {
@@ -163,13 +169,14 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
       }
     },
     onSuccess: (data) => {
+      const oldMetric = queryClient.getQueryData(
+        metricsQueryKeys.metricsGetMetric(data.id).queryKey
+      );
+      const newMetric = upgradeMetricToIMetric(data, oldMetric || null);
       if (updateOnSave && data) {
-        const oldMetric = queryClient.getQueryData(
-          metricsQueryKeys.metricsGetMetric(data.id).queryKey
-        );
-        const newMetric = upgradeMetricToIMetric(data, oldMetric || null);
         queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(data.id).queryKey, newMetric);
       }
+      setOriginalMetric(newMetric);
     }
   });
 };
@@ -269,6 +276,7 @@ export const useDuplicateMetric = () => {
   });
 };
 
+//add a user to a metric
 export const useShareMetric = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -291,6 +299,7 @@ export const useShareMetric = () => {
   });
 };
 
+//remove a user from a metric
 export const useUnshareMetric = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -314,6 +323,7 @@ export const useUnshareMetric = () => {
   });
 };
 
+//update the share settings for a metric
 export const useUpdateMetricShare = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -344,7 +354,7 @@ export const useUpdateMetricShare = () => {
   });
 };
 
-export const useUpdateMetric = (params?: {
+export const useUpdateMetric = (params: {
   wait?: number;
   updateOnSave?: boolean;
   updateVersion?: boolean;
@@ -354,7 +364,7 @@ export const useUpdateMetric = (params?: {
     wait = 650,
     updateOnSave = false,
     updateVersion = false,
-    saveToServer = true
+    saveToServer = false
   } = params || {};
   const queryClient = useQueryClient();
   const { mutateAsync: saveMetric } = useSaveMetric({ updateOnSave });
@@ -402,6 +412,7 @@ export const useUpdateMetric = (params?: {
     mutationFn,
     onSuccess: (data) => {
       if (data) {
+        //THIS IS NOT SERVER DATA! THIS IS FROM THE mutationFn
         queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(data.id).queryKey, data);
       }
     }

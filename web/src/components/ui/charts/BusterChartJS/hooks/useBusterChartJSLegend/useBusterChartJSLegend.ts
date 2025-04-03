@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useTransition } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import { ChartJSOrUndefined } from '../../core/types';
 import {
   BusterChartProps,
@@ -8,7 +8,7 @@ import {
   ChartType,
   ComboChartAxis
 } from '@/api/asset_interfaces/metric/charts';
-import { useDebounceFn, useMemoizedFn } from '@/hooks';
+import { useDebounceEffect, useDebounceFn, useMemoizedFn, useWhyDidYouUpdate } from '@/hooks';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import {
   addLegendHeadlines,
@@ -55,7 +55,9 @@ export const useBusterChartJSLegend = ({
   columnMetadata,
   columnSettings
 }: UseBusterChartJSLegendProps): UseChartLengendReturnValues => {
-  const [isTransitioning, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
+  const [isUpdatingChart, setIsUpdatingChart] = useState(false);
+
   const {
     inactiveDatasets,
     setInactiveDatasets,
@@ -142,14 +144,10 @@ export const useBusterChartJSLegend = ({
     chartjs.update();
   });
 
-  const [isUpdatingChart, setIsUpdatingChart] = React.useState(false);
-
   const onLegendItemClick = useMemoizedFn((item: BusterChartLegendItem) => {
     const chartjs = chartRef.current;
 
     if (!chartjs) return;
-
-    console.log(chartjs.data.datasets.length);
 
     const data = chartjs.data;
     const hasAnimation = chartjs.options.animation !== false;
@@ -228,12 +226,19 @@ export const useBusterChartJSLegend = ({
     }
   });
 
+  useDebounceEffect(
+    () => {
+      calculateLegendItems();
+    },
+    [selectedChartType],
+    { wait: 3 }
+  );
+
   //immediate items
   useEffect(() => {
     calculateLegendItems();
   }, [
     chartMounted,
-    selectedChartType,
     isStackPercentage,
     inactiveDatasets,
     showLegend,

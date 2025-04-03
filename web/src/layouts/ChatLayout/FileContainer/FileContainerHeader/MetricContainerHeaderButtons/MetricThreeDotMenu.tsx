@@ -288,10 +288,10 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
 
 const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
   const { data: metricStatus } = useGetMetric({ id: metricId }, (x) => x.status);
-  const { mutateAsync: updateMetric } = useUpdateMetric();
+  const { mutate: updateMetric } = useUpdateMetric({ updateVersion: false });
 
   const onChangeStatus = useMemoizedFn(async (status: VerificationStatus) => {
-    await updateMetric({ id: metricId, status });
+    return updateMetric({ id: metricId, status });
   });
 
   const dropdownProps = useStatusDropdownContent({

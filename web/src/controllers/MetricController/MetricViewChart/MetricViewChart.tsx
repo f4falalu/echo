@@ -47,7 +47,7 @@ export const MetricViewChart: React.FC<{
     } = useGetMetricData({ id: metricId });
     const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
 
-    const { mutateAsync: updateMetric } = useUpdateMetric();
+    const { mutate: updateMetric } = useUpdateMetric({ wait: 0, updateVersion: false });
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
 
     const isTable = metric?.chart_config.selectedChartType === ChartType.Table;

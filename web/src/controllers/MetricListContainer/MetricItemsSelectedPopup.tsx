@@ -120,7 +120,7 @@ const StatusButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const { mutateAsync: updateMetric } = useUpdateMetric();
+  const { mutateAsync: updateMetric } = useUpdateMetric({ updateVersion: false });
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
 
   const onVerify = useMemoizedFn(async (d: { id: string; status: VerificationStatus }[]) => {

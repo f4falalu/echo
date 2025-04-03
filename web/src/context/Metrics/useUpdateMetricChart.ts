@@ -14,7 +14,17 @@ import { useParams } from 'next/navigation';
 export const useUpdateMetricChart = (props?: { metricId?: string }) => {
   const params = useParams<{ metricId?: string }>();
   const metricId = props?.metricId ?? params.metricId ?? '';
-  const { mutate: onUpdateMetricDebounced } = useUpdateMetric();
+  const { mutate: onUpdateMetricDebounced } = useUpdateMetric({
+    updateVersion: false,
+    updateOnSave: false,
+    saveToServer: false
+  });
+  const { mutate: saveMetricToServer } = useUpdateMetric({
+    updateVersion: true,
+    updateOnSave: true,
+    saveToServer: true
+  });
+
   const getMetricMemoized = useGetMetricMemoized();
 
   const onUpdateMetricChartConfig = useMemoizedFn(
@@ -96,7 +106,13 @@ export const useUpdateMetricChart = (props?: { metricId?: string }) => {
     }
   );
 
+  const onSaveMetricToServer = useMemoizedFn(() => {
+    const currentMetric = getMetricMemoized(metricId);
+    if (currentMetric) saveMetricToServer(currentMetric);
+  });
+
   return {
+    onSaveMetricToServer,
     onUpdateMetricChartConfig,
     onUpdateColumnLabelFormat,
     onUpdateColumnSetting

@@ -4,7 +4,7 @@ import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
@@ -13,13 +13,20 @@ import { useGetMetricMemoized } from '@/context/Metrics';
 export const useMetricRunSQL = () => {
   const queryClient = useQueryClient();
   const getMetricMemoized = useGetMetricMemoized();
-  const { mutateAsync: updateMetricMutation } = useUpdateMetric();
+  const { mutateAsync: stageMetric } = useUpdateMetric({
+    updateVersion: false,
+    saveToServer: false,
+    updateOnSave: false,
+    wait: 0
+  });
   const {
     mutateAsync: saveMetric,
     error: saveMetricError,
     isPending: isSavingMetric
   } = useUpdateMetric({
     updateOnSave: true,
+    updateVersion: true,
+    saveToServer: true,
     wait: 0
   });
   const {
@@ -94,7 +101,7 @@ export const useMetricRunSQL = () => {
           isDataFromRerun: true,
           data_metadata
         });
-        updateMetricMutation({
+        stageMetric({
           id: metricId,
           chart_config: totallyDefaultChartConfig
         });
@@ -126,7 +133,7 @@ export const useMetricRunSQL = () => {
   const resetRunSQLData = useMemoizedFn(({ metricId }: { metricId: string }) => {
     if (!originalConfigs.current) return;
     const oldConfig = originalConfigs.current?.chartConfig;
-    updateMetricMutation({
+    stageMetric({
       id: metricId,
       chart_config: oldConfig
     });
