@@ -297,7 +297,7 @@ export const WithDataLabelsAndStackTotal: Story = {
         showDataLabelsAsPercentage: false
       },
       units: {
-        showDataLabels: false,
+        showDataLabels: true,
         showDataLabelsAsPercentage: false
       }
     },
