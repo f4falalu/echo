@@ -245,7 +245,7 @@ export const WithDataLabels: Story = {
         showDataLabelsAsPercentage: false
       },
       units: {
-        showDataLabels: false,
+        showDataLabels: true,
         showDataLabelsAsPercentage: false
       }
     },

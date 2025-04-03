@@ -133,41 +133,6 @@ export const barBuilder = ({
   const usePercentage = !!columnSetting?.showDataLabelsAsPercentage;
   const showLabels = !!columnSetting?.showDataLabels;
 
-  const setBarDataLabelsManager = (context: Context, formattedValue: string, rotation: number) => {
-    const dataIndex = context.dataIndex;
-    const datasetIndex = context.datasetIndex;
-    context.chart.$barDataLabels = {
-      ...context.chart.$barDataLabels,
-      [datasetIndex]: {
-        ...context.chart.$barDataLabels?.[datasetIndex],
-        [dataIndex]: {
-          formattedValue,
-          rotation
-        }
-      }
-    };
-  };
-
-  const getBarDataLabelsManager = (context: Context) => {
-    const dataIndex = context.dataIndex;
-    const datasetIndex = context.datasetIndex;
-    const values = context.chart.$barDataLabels?.[datasetIndex]?.[dataIndex];
-
-    return {
-      formattedValue: values?.formattedValue,
-      rotation: values?.rotation
-    };
-  };
-
-  const getBarDimensions = (context: Context) => {
-    const barElement = context.chart.getDatasetMeta(context.datasetIndex).data[
-      context.dataIndex
-    ] as BarElement;
-
-    const { width: barWidth, height: barHeight } = barElement.getProps(['width', 'height'], true);
-    return { barWidth, barHeight };
-  };
-
   const textWidthBuffer = 4;
 
   return {
@@ -186,8 +151,10 @@ export const barBuilder = ({
         barTotal: {
           display: (context) => {
             const rawValue = context.dataset.data[context.dataIndex] as number;
+
             if (!showLabels || !rawValue) return false;
             const { barWidth, barHeight } = getBarDimensions(context);
+
             if (barWidth < 13) return false;
             const formattedValue = formatBarAndLineDataLabel(
               rawValue,
@@ -201,7 +168,10 @@ export const barBuilder = ({
             if (rotation === -90 && widthOfFormattedValue > barHeight - textWidthBuffer) {
               return false;
             }
+
             setBarDataLabelsManager(context, formattedValue, rotation);
+
+            if (barHeight < 16) return false;
 
             return 'auto';
           },
@@ -226,8 +196,43 @@ export const barBuilder = ({
         },
         ...dataLabelOptions
       }
-    }
+    } as ChartProps<'bar'>['data']['datasets'][number]['datalabels']
   } as ChartProps<'bar'>['data']['datasets'][number];
+};
+
+const setBarDataLabelsManager = (context: Context, formattedValue: string, rotation: number) => {
+  const dataIndex = context.dataIndex;
+  const datasetIndex = context.datasetIndex;
+  context.chart.$barDataLabels = {
+    ...context.chart.$barDataLabels,
+    [datasetIndex]: {
+      ...context.chart.$barDataLabels?.[datasetIndex],
+      [dataIndex]: {
+        formattedValue,
+        rotation
+      }
+    }
+  };
+};
+
+const getBarDimensions = (context: Context) => {
+  const barElement = context.chart.getDatasetMeta(context.datasetIndex).data[
+    context.dataIndex
+  ] as BarElement;
+
+  const { width: barWidth, height: barHeight } = barElement.getProps(['width', 'height'], true);
+  return { barWidth, barHeight };
+};
+
+const getBarDataLabelsManager = (context: Context) => {
+  const dataIndex = context.dataIndex;
+  const datasetIndex = context.datasetIndex;
+  const values = context.chart.$barDataLabels?.[datasetIndex]?.[dataIndex];
+
+  return {
+    formattedValue: values?.formattedValue,
+    rotation: values?.rotation
+  };
 };
 
 export const barSeriesBuilder_labels = (props: LabelBuilderProps) => {
