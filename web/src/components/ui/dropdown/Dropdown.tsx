@@ -66,6 +66,7 @@ export interface DropdownProps<T = string> extends DropdownMenuProps {
   footerClassName?: string;
   sideOffset?: number;
   disabled?: boolean;
+  menuHeaderClassName?: string;
 }
 
 export interface DropdownContentProps<T = string>
@@ -94,6 +95,7 @@ export const DropdownBase = <T,>({
   footerContent,
   dir,
   modal,
+  menuHeaderClassName,
   sideOffset,
   footerClassName = '',
   showIndex = false,
@@ -125,6 +127,7 @@ export const DropdownBase = <T,>({
           footerContent={footerContent}
           className={contentClassName}
           footerClassName={footerClassName}
+          menuHeaderClassName={menuHeaderClassName}
         />
       </DropdownMenuContent>
     </DropdownMenu>
@@ -142,6 +145,7 @@ export const DropdownContent = <T,>({
   emptyStateText = 'No items found',
   footerContent,
   className,
+  menuHeaderClassName,
   footerClassName,
   onSelect
 }: DropdownContentProps<T>) => {
@@ -213,7 +217,7 @@ export const DropdownContent = <T,>({
     <>
       {menuHeader && (
         <div className="flex flex-col">
-          <div className="p-1">
+          <div className={cn('p-1', menuHeaderClassName)}>
             <DropdownMenuHeaderSelector
               menuHeader={menuHeader}
               onChange={handleSearchChange}
