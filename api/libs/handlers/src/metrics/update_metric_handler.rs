@@ -5,7 +5,7 @@ use database::{
     helpers::metric_files::fetch_metric_file_with_permissions,
     pool::get_pg_pool,
     schema::{datasets, metric_files},
-    types::{MetricYml, VersionContent, VersionHistory},
+    types::{ColumnLabelFormat, MetricYml, VersionContent, VersionHistory},
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
@@ -102,26 +102,33 @@ pub async fn update_metric_handler(
     let metric_file_with_permissions = fetch_metric_file_with_permissions(metric_id, &user.id)
         .await
         .map_err(|e| anyhow!("Failed to fetch metric file with permissions: {}", e))?;
-    
-    let (permission, organization_id) = if let Some(file_with_permission) = metric_file_with_permissions {
-        (
-            file_with_permission.permission,
-            file_with_permission.metric_file.organization_id,
-        )
-    } else {
-        return Err(anyhow!("Metric file not found"));
-    };
-    
+
+    let (permission, organization_id) =
+        if let Some(file_with_permission) = metric_file_with_permissions {
+            (
+                file_with_permission.permission,
+                file_with_permission.metric_file.organization_id,
+            )
+        } else {
+            return Err(anyhow!("Metric file not found"));
+        };
+
     // Verify the user has at least Editor, FullAccess, or Owner permission
     if !check_permission_access(
         permission,
-        &[AssetPermissionRole::Editor, AssetPermissionRole::FullAccess, AssetPermissionRole::Owner],
+        &[
+            AssetPermissionRole::Editor,
+            AssetPermissionRole::FullAccess,
+            AssetPermissionRole::Owner,
+        ],
         organization_id,
         &user.organizations,
     ) {
-        return Err(anyhow!("You don't have permission to update this metric. Editor or higher role required."));
+        return Err(anyhow!(
+            "You don't have permission to update this metric. Editor or higher role required."
+        ));
     }
-    
+
     // Now get the full metric with all its data needed for the update
     let metric = get_metric_handler(metric_id, user, None).await?;
 
@@ -134,7 +141,7 @@ pub async fn update_metric_handler(
         .map_err(|e| anyhow!("Failed to get version history: {}", e))?;
 
     // Version restoration takes highest precedence
-    let content = if let Some(version_number) = request.restore_to_version {
+    let mut content = if let Some(version_number) = request.restore_to_version {
         // Fetch the requested version
         let version = current_version_history
             .get_version(version_number)
@@ -233,6 +240,25 @@ pub async fn update_metric_handler(
             .await
             .map_err(|e| anyhow!("Failed to execute SQL for metadata calculation: {}", e))?;
 
+        // Generate default column formats based on metadata using the new method
+        let default_formats =
+            ColumnLabelFormat::generate_formats_from_metadata(&query_result.metadata);
+
+        // Get existing chart config
+        let existing_config = serde_json::to_value(&content.chart_config)?;
+
+        // Create a new JSON object with column_label_formats
+        let column_formats_json = serde_json::to_value(&default_formats)?;
+        let format_update = serde_json::json!({
+            "columnLabelFormats": column_formats_json
+        });
+
+        // Merge the formats with existing config
+        let merged_config = merge_json_objects(existing_config, format_update)?;
+
+        // Update the content's chart_config
+        content.chart_config = serde_json::from_value(merged_config)?;
+
         // Return metadata
         Some(query_result.metadata)
     } else {
@@ -305,6 +331,9 @@ pub async fn update_metric_handler(
 
 #[cfg(test)]
 mod tests {
+    use database::types::{ColumnMetaData, ColumnType, DataMetadata, SimpleType};
+    use serde_json::json;
+
     use super::*;
 
     #[test]
@@ -483,5 +512,82 @@ mod tests {
 
         let result = merge_json_objects(base, update).unwrap();
         assert_eq!(result["arr"], serde_json::json!([4, 5])); // Array is replaced, not merged
+    }
+
+    #[test]
+    fn test_update_column_formats_from_metadata() {
+        // Create a mock existing chart_config with some existing column formats
+        let existing_config = serde_json::json!({
+            "selectedChartType": "bar",
+            "columnLabelFormats": {
+                "existing_column": {
+                    "columnType": "number",
+                    "style": "currency",
+                    "currency": "USD"
+                }
+            }
+        });
+
+        // Create a test DataMetadata with two columns - one existing and one new
+        let metadata = DataMetadata {
+            column_count: 2,
+            row_count: 10,
+            column_metadata: vec![
+                ColumnMetaData {
+                    name: "existing_column".to_string(),
+                    min_value: json!(0),
+                    max_value: json!(100),
+                    unique_values: 10,
+                    simple_type: SimpleType::Number,
+                    column_type: ColumnType::Float8,
+                },
+                ColumnMetaData {
+                    name: "new_column".to_string(),
+                    min_value: json!("2023-01-01"),
+                    max_value: json!("2023-12-31"),
+                    unique_values: 12,
+                    simple_type: SimpleType::Date,
+                    column_type: ColumnType::Date,
+                },
+            ],
+        };
+
+        // Generate default column formats
+        let default_formats = ColumnLabelFormat::generate_formats_from_metadata(&metadata);
+
+        // Convert to JSON for merging
+        let column_formats_json = serde_json::to_value(&default_formats).unwrap();
+        let format_update = serde_json::json!({
+            "columnLabelFormats": column_formats_json
+        });
+
+        // Merge with existing config
+        let merged_config = merge_json_objects(existing_config, format_update).unwrap();
+
+        // Verify the merged config
+
+        // Check that existing column kept its custom currency format
+        assert_eq!(
+            merged_config["columnLabelFormats"]["existing_column"]["style"],
+            "currency"
+        );
+        assert_eq!(
+            merged_config["columnLabelFormats"]["existing_column"]["currency"],
+            "USD"
+        );
+
+        // Check that new column has the default date format
+        assert_eq!(
+            merged_config["columnLabelFormats"]["new_column"]["columnType"],
+            "date"
+        );
+        assert_eq!(
+            merged_config["columnLabelFormats"]["new_column"]["style"],
+            "date"
+        );
+        assert_eq!(
+            merged_config["columnLabelFormats"]["new_column"]["dateFormat"],
+            "auto"
+        );
     }
 }
