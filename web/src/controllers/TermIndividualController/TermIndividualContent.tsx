@@ -130,11 +130,6 @@ export const TermIndividualContent: React.FC<{
                 onChange={(v) => {
                   onSetTermSQL.run(v);
                 }}
-                monacoEditorOptions={{
-                  scrollbar: {
-                    alwaysConsumeMouseWheel: false
-                  }
-                }}
               />
             </div>
           </ItemContainer>

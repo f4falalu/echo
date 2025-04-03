@@ -67,6 +67,15 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
           renderOverviewRuler: false,
           wordWrap: 'on',
           scrollBeyondLastLine: true,
+          scrollbar: {
+            verticalScrollbarSize: 5,
+            alwaysConsumeMouseWheel: false,
+            useShadows: false
+          },
+          padding: {
+            top: 10
+          },
+          glyphMargin: false,
           minimap: {
             enabled: false
           },
@@ -103,11 +112,18 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
         const originalEditor = editor.getOriginalEditor();
         originalEditor.updateOptions({
           wordWrap: 'on',
-          wrappingStrategy: 'advanced'
+          wrappingStrategy: 'advanced',
+          padding: { top: 16 },
+          glyphMargin: true
         });
 
         // Get the modified editor and add change listener
         const modifiedEditor = editor.getModifiedEditor();
+        modifiedEditor.updateOptions({
+          padding: { top: 16 },
+          glyphMargin: true
+        });
+
         if (!readOnly && !disabled) {
           modifiedEditor.onDidChangeModelContent(() => {
             onChange?.(modifiedEditor.getValue() || '');

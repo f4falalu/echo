@@ -83,6 +83,11 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
         minimap: {
           enabled: false
         },
+        scrollbar: {
+          verticalScrollbarSize: 5,
+          alwaysConsumeMouseWheel: false,
+          useShadows: false
+        },
         padding: {
           top: 10
         },
