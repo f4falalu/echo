@@ -446,6 +446,23 @@ export const WithLinks: Story = {
   }
 };
 
+export const WithManyItemsToSearch: Story = {
+  args: {
+    menuHeader: 'Search items...',
+    items: [
+      ...Array.from({ length: 100 }).map(() => {
+        const product = faker.commerce.productAdjective() + ' ' + faker.commerce.product();
+        return {
+          value: product + ' ' + faker.string.uuid(),
+          label: product
+        };
+      })
+    ],
+    onSelect: fn(),
+    children: <Button>Menu with Many Items</Button>
+  }
+};
+
 // Interactive example with links and multiple selection
 export const WithLinksAndMultipleSelection: Story = {
   render: () => {

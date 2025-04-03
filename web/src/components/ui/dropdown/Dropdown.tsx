@@ -585,6 +585,14 @@ const DropdownMenuHeaderSearch = <T,>({
       e.preventDefault();
       const index = parseInt(e.key);
       onSelectItem?.(index);
+    } else if (e.key === 'ArrowDown') {
+      // Find the first dropdown item and focus it
+      const menuItems = document.querySelectorAll('[role="menuitem"]');
+      if (menuItems.length > 0) {
+        e.preventDefault();
+        e.stopPropagation();
+        (menuItems[0] as HTMLElement).focus();
+      }
     } else {
       e.stopPropagation();
     }
