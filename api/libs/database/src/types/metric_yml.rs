@@ -11,6 +11,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::io::Write;
 use uuid::Uuid;
+use crate::types::{DataMetadata, ColumnMetaData, SimpleType, ColumnType};
+use serde_json::json;
 
 #[derive(Debug, Serialize, Deserialize, Clone, FromSqlRow, AsExpression)]
 #[diesel(sql_type = Jsonb)]
@@ -373,6 +375,102 @@ pub struct ColumnLabelFormat {
     pub convert_number_to: Option<String>,
 }
 
+impl ColumnLabelFormat {
+    /// Creates a new ColumnLabelFormat with appropriate defaults for the given type
+    pub fn new_for_type(simple_type: &crate::types::SimpleType) -> Self {
+        match simple_type {
+            crate::types::SimpleType::Number => Self::new_number(),
+            crate::types::SimpleType::String => Self::new_string(),
+            crate::types::SimpleType::Date => Self::new_date(),
+            crate::types::SimpleType::Boolean => Self::new_boolean(),
+            crate::types::SimpleType::Other => Self::new_string(),
+        }
+    }
+
+    /// Creates a new ColumnLabelFormat for number type
+    pub fn new_number() -> Self {
+        Self {
+            column_type: "number".to_string(),
+            style: "number".to_string(),
+            display_name: None,
+            number_separator_style: Some(",".to_string()),
+            minimum_fraction_digits: Some(0),
+            maximum_fraction_digits: Some(2),
+            multiplier: None,
+            prefix: None,
+            suffix: None,
+            replace_missing_data_with: None,
+            compact_numbers: None,
+            currency: None,
+            date_format: None,
+            use_relative_time: None,
+            is_utc: None,
+            convert_number_to: None,
+        }
+    }
+
+    /// Creates a new ColumnLabelFormat for string type
+    pub fn new_string() -> Self {
+        Self {
+            column_type: "string".to_string(),
+            style: "string".to_string(),
+            display_name: None,
+            number_separator_style: None,
+            minimum_fraction_digits: None,
+            maximum_fraction_digits: None,
+            multiplier: None,
+            prefix: None,
+            suffix: None,
+            replace_missing_data_with: None,
+            compact_numbers: None,
+            currency: None,
+            date_format: None,
+            use_relative_time: None,
+            is_utc: None,
+            convert_number_to: None,
+        }
+    }
+
+    /// Creates a new ColumnLabelFormat for date type
+    pub fn new_date() -> Self {
+        Self {
+            column_type: "date".to_string(),
+            style: "date".to_string(),
+            display_name: None,
+            number_separator_style: None,
+            minimum_fraction_digits: None,
+            maximum_fraction_digits: None,
+            multiplier: None,
+            prefix: None,
+            suffix: None,
+            replace_missing_data_with: None,
+            compact_numbers: None,
+            currency: None,
+            date_format: Some("auto".to_string()),
+            use_relative_time: None,
+            is_utc: Some(false),
+            convert_number_to: None,
+        }
+    }
+
+    /// Creates a new ColumnLabelFormat for boolean type
+    pub fn new_boolean() -> Self {
+        Self::new_string() // Booleans use string formatting by default
+    }
+    
+    /// Generate column formats from data metadata
+    pub fn generate_formats_from_metadata(metadata: &crate::types::DataMetadata) -> indexmap::IndexMap<String, Self> {
+        let mut formats = indexmap::IndexMap::new();
+        
+        for column in &metadata.column_metadata {
+            let format = Self::new_for_type(&column.simple_type);
+            formats.insert(column.name.clone(), format);
+        }
+        
+        formats
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ColumnSettings {
@@ -710,5 +808,86 @@ mod tests {
         }
 
         Ok(())
+    }
+
+    #[test]
+    fn test_column_label_format_constructors() {
+        // Test number format
+        let number_format = ColumnLabelFormat::new_number();
+        assert_eq!(number_format.column_type, "number");
+        assert_eq!(number_format.style, "number");
+        assert_eq!(number_format.number_separator_style, Some(",".to_string()));
+        assert_eq!(number_format.minimum_fraction_digits, Some(0));
+        assert_eq!(number_format.maximum_fraction_digits, Some(2));
+        
+        // Test string format
+        let string_format = ColumnLabelFormat::new_string();
+        assert_eq!(string_format.column_type, "string");
+        assert_eq!(string_format.style, "string");
+        assert_eq!(string_format.number_separator_style, None);
+        
+        // Test date format
+        let date_format = ColumnLabelFormat::new_date();
+        assert_eq!(date_format.column_type, "date");
+        assert_eq!(date_format.style, "date");
+        assert_eq!(date_format.date_format, Some("auto".to_string()));
+        assert_eq!(date_format.is_utc, Some(false));
+        
+        // Test boolean format - should be same as string
+        let boolean_format = ColumnLabelFormat::new_boolean();
+        assert_eq!(boolean_format.column_type, "string");
+        assert_eq!(boolean_format.style, "string");
+    }
+    
+    #[test]
+    fn test_generate_formats_from_metadata() {
+        // Create test metadata
+        let metadata = DataMetadata {
+            column_count: 3,
+            row_count: 10,
+            column_metadata: vec![
+                ColumnMetaData {
+                    name: "id".to_string(),
+                    min_value: json!(1),
+                    max_value: json!(100),
+                    unique_values: 10,
+                    simple_type: SimpleType::Number,
+                    column_type: ColumnType::Int4,
+                },
+                ColumnMetaData {
+                    name: "name".to_string(),
+                    min_value: json!("A"),
+                    max_value: json!("Z"),
+                    unique_values: 5,
+                    simple_type: SimpleType::String,
+                    column_type: ColumnType::Varchar,
+                },
+                ColumnMetaData {
+                    name: "created_at".to_string(),
+                    min_value: json!("2023-01-01T00:00:00"),
+                    max_value: json!("2023-12-31T23:59:59"),
+                    unique_values: 10,
+                    simple_type: SimpleType::Date,
+                    column_type: ColumnType::Timestamp,
+                },
+            ],
+        };
+        
+        // Generate formats
+        let formats = ColumnLabelFormat::generate_formats_from_metadata(&metadata);
+        
+        // Check we have formats for all columns
+        assert_eq!(formats.len(), 3);
+        
+        // Check individual formats
+        let id_format = formats.get("id").unwrap();
+        assert_eq!(id_format.column_type, "number");
+        
+        let name_format = formats.get("name").unwrap();
+        assert_eq!(name_format.column_type, "string");
+        
+        let date_format = formats.get("created_at").unwrap();
+        assert_eq!(date_format.column_type, "date");
+        assert_eq!(date_format.style, "date");
     }
 }
