@@ -1,7 +1,13 @@
+'use client';
+
 import type { editor } from 'monaco-editor';
 
-const editorBackground = '#ffffff';
-const primaryColor = '#7C3AED';
+const editorBackground = getComputedStyle(document.documentElement).getPropertyValue(
+  '--color-background'
+);
+const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary');
+const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--color-border');
+const textColor = getComputedStyle(document.documentElement).getPropertyValue('--color-foreground');
 
 const theme: editor.IStandaloneThemeData = {
   base: 'vs',
@@ -356,7 +362,11 @@ const theme: editor.IStandaloneThemeData = {
     'editorIndentGuide.background': '#959da5',
     'editorIndentGuide.activeBackground': '#24292e',
     'editor.selectionHighlightBorder': '#fafbfc',
-    focusBorder: '#00000000'
+    focusBorder: '#00000000',
+    'editorHoverWidget.background': editorBackground,
+    'editorHoverWidget.border': borderColor,
+    'inputValidation.infoBorder': borderColor,
+    'editorHoverWidget.foreground': textColor
   }
 };
 
