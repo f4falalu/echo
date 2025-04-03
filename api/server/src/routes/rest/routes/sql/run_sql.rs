@@ -10,10 +10,12 @@ use diesel_async::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 
 use database::{
-    enums::UserOrganizationRole, models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue}, pool::get_pg_pool, schema::{data_sources, datasets, users_to_organizations}
+    enums::UserOrganizationRole,
+    models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue},
+    pool::get_pg_pool,
+    schema::{data_sources, datasets, users_to_organizations},
 };
 
-use middleware::AuthenticatedUser;
 use crate::{
     routes::rest::ApiResponse,
     utils::{
@@ -24,6 +26,7 @@ use crate::{
         security::dataset_security::has_dataset_access,
     },
 };
+use middleware::AuthenticatedUser;
 
 const MAX_UNIQUE_VALUES: usize = 100;
 
@@ -116,194 +119,20 @@ async fn run_dataset_sql_handler(
 #[derive(Debug, Serialize)]
 pub struct DataObject {
     pub data: Vec<IndexMap<String, DataType>>,
-    pub data_metadata: DataMetadataJsonBody,
+    pub data_metadata: DataMetadata,
 }
 
 pub async fn fetch_data(sql: &String, dataset_id: &Uuid) -> Result<DataObject> {
-    let data = match query_engine(&dataset_id, &sql).await {
-        Ok(data) => data,
+    let query_result = match query_engine(&dataset_id, &sql).await {
+        Ok(result) => result,
         Err(e) => {
             return Err(anyhow!(e));
         }
     };
 
-    let data_metadata = match process_data_metadata(&data).await {
-        Ok(data_metadata) => data_metadata,
-        Err(e) => {
-            return Err(e);
-        }
-    };
-
     Ok(DataObject {
-        data,
-        data_metadata,
-    })
-}
-
-async fn process_data_metadata(
-    data: &Vec<IndexMap<String, DataType>>,
-) -> Result<DataMetadataJsonBody> {
-    if data.is_empty() {
-        return Ok(DataMetadataJsonBody {
-            column_count: 0,
-            row_count: 0,
-            column_metadata: vec![],
-        });
-    }
-
-    let first_row = &data[0];
-    let columns: Vec<_> = first_row.keys().cloned().collect();
-
-    let column_metadata: Vec<_> = columns
-        .par_iter() // Parallel iterator
-        .map(|column_name| {
-            let mut unique_values = Vec::with_capacity(MAX_UNIQUE_VALUES);
-            let mut min_value = None;
-            let mut max_value = None;
-            let mut unique_values_exceeded = false;
-            let mut is_date_type = false;
-            let mut min_value_str: Option<String> = None;
-            let mut max_value_str: Option<String> = None;
-
-            for row in data {
-                if let Some(value) = row.get(column_name) {
-                    if !unique_values_exceeded && unique_values.len() < MAX_UNIQUE_VALUES {
-                        if !unique_values.iter().any(|x| x == value) {
-                            unique_values.push(value.clone());
-                        }
-                    } else {
-                        unique_values_exceeded = true;
-                    }
-
-                    // Update min/max for numeric types
-                    match value {
-                        DataType::Int8(Some(n)) => {
-                            let n = *n as f64;
-                            min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                            max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
-                        }
-                        DataType::Int4(Some(n)) => {
-                            let n = *n as f64;
-                            min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                            max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
-                        }
-                        DataType::Int2(Some(n)) => {
-                            let n = *n as f64;
-                            min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                            max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
-                        }
-                        DataType::Float4(Some(n)) => {
-                            let n = *n as f64;
-                            min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                            max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
-                        }
-                        DataType::Float8(Some(n)) => {
-                            let n = *n as f64;
-                            min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                            max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
-                        }
-                        DataType::Date(Some(date)) => {
-                            is_date_type = true;
-                            let date_str = date.to_string();
-                            min_value = match min_value {
-                                None => Some(date_str.parse::<f64>().unwrap_or(0.0)),
-                                Some(_) => None, // Clear numeric min/max since we'll use strings
-                            };
-                            max_value = None;
-                            if let Some(current_min) = &min_value_str {
-                                if date_str < *current_min {
-                                    min_value_str = Some(date_str.clone());
-                                }
-                            } else {
-                                min_value_str = Some(date_str.clone());
-                            }
-                            if let Some(current_max) = &max_value_str {
-                                if date_str > *current_max {
-                                    max_value_str = Some(date_str);
-                                }
-                            } else {
-                                max_value_str = Some(date_str);
-                            }
-                        }
-                        DataType::Timestamp(Some(ts)) => {
-                            is_date_type = true;
-                            let ts_str = ts.to_string();
-                            min_value = match min_value {
-                                None => Some(ts_str.parse::<f64>().unwrap_or(0.0)),
-                                Some(_) => None,
-                            };
-                            max_value = None;
-                            if let Some(current_min) = &min_value_str {
-                                if ts_str < *current_min {
-                                    min_value_str = Some(ts_str.clone());
-                                }
-                            } else {
-                                min_value_str = Some(ts_str.clone());
-                            }
-                            if let Some(current_max) = &max_value_str {
-                                if ts_str > *current_max {
-                                    max_value_str = Some(ts_str);
-                                }
-                            } else {
-                                max_value_str = Some(ts_str);
-                            }
-                        }
-                        DataType::Timestamptz(Some(ts)) => {
-                            is_date_type = true;
-                            let ts_str = ts.naive_utc().to_string();
-                            min_value = match min_value {
-                                None => Some(ts_str.parse::<f64>().unwrap_or(0.0)),
-                                Some(_) => None,
-                            };
-                            max_value = None;
-                            if let Some(current_min) = &min_value_str {
-                                if ts_str < *current_min {
-                                    min_value_str = Some(ts_str.clone());
-                                }
-                            } else {
-                                min_value_str = Some(ts_str.clone());
-                            }
-                            if let Some(current_max) = &max_value_str {
-                                if ts_str > *current_max {
-                                    max_value_str = Some(ts_str);
-                                }
-                            } else {
-                                max_value_str = Some(ts_str);
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-            }
-
-            let column_type = first_row.get(column_name).unwrap();
-            ColumnMetadata {
-                name: column_name.clone(),
-                type_: column_type.to_string(),
-                simple_type: column_type.simple_type(),
-                unique_values: if !unique_values_exceeded {
-                    unique_values.len() as i32
-                } else {
-                    MAX_UNIQUE_VALUES as i32
-                },
-                min_value: if is_date_type {
-                    min_value_str.map(MinMaxValue::String)
-                } else {
-                    min_value.map(MinMaxValue::Number)
-                },
-                max_value: if is_date_type {
-                    max_value_str.map(MinMaxValue::String)
-                } else {
-                    max_value.map(MinMaxValue::Number)
-                },
-            }
-        })
-        .collect();
-
-    Ok(DataMetadataJsonBody {
-        column_count: first_row.len() as i32,
-        row_count: data.len() as i32,
-        column_metadata,
+        data: query_result.data,
+        data_metadata: query_result.metadata,
     })
 }
 
@@ -312,20 +141,13 @@ async fn run_data_source_sql_handler(
     data_source_id: &Uuid,
     user_id: &Uuid,
 ) -> Result<DataObject> {
-    let data = match modeling_query_engine(data_source_id, sql, user_id).await {
-        Ok(data) => data,
+    let query_result = match modeling_query_engine(&data_source_id, &sql, &user_id).await {
+        Ok(result) => result,
         Err(e) => return Err(e),
     };
 
-    let data_metadata = match process_data_metadata(&data).await {
-        Ok(data_metadata) => data_metadata,
-        Err(e) => return Err(e),
-    };
-
-    let data_object = DataObject {
-        data,
-        data_metadata,
-    };
-
-    Ok(data_object)
+    Ok(DataObject {
+        data: query_result.data,
+        data_metadata: query_result.metadata
+    })
 }

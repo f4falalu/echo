@@ -20,14 +20,7 @@ pub struct MetricYml {
     pub time_frame: String,
     pub sql: String,
     pub chart_config: ChartConfig,
-    pub data_metadata: Option<Vec<DataMetadata>>,
     pub dataset_ids: Vec<Uuid>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct DataMetadata {
-    pub name: String,
-    pub data_type: String,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -69,7 +62,9 @@ impl<'de> Deserialize<'de> for ChartConfig {
             .or_else(|| obj.get("selected_chart_type"))
             .and_then(|v| v.as_str())
             .ok_or_else(|| {
-                serde::de::Error::custom("missing or invalid 'selectedChartType' or 'selected_chart_type' field")
+                serde::de::Error::custom(
+                    "missing or invalid 'selectedChartType' or 'selected_chart_type' field",
+                )
             })?;
 
         // Clone the object and remove both possible tag fields
@@ -102,7 +97,10 @@ impl<'de> Deserialize<'de> for ChartConfig {
                 let config = match serde_json::from_value::<ScatterChartConfig>(config_value) {
                     Ok(config) => config,
                     Err(e) => {
-                        return Err(detailed_deserialization_error::<D::Error>("Scatter chart", &e));
+                        return Err(detailed_deserialization_error::<D::Error>(
+                            "Scatter chart",
+                            &e,
+                        ));
                     }
                 };
                 Ok(ChartConfig::Scatter(config))
@@ -120,7 +118,10 @@ impl<'de> Deserialize<'de> for ChartConfig {
                 let config = match serde_json::from_value::<ComboChartConfig>(config_value) {
                     Ok(config) => config,
                     Err(e) => {
-                        return Err(detailed_deserialization_error::<D::Error>("Combo chart", &e));
+                        return Err(detailed_deserialization_error::<D::Error>(
+                            "Combo chart",
+                            &e,
+                        ));
                     }
                 };
                 Ok(ChartConfig::Combo(config))
@@ -129,7 +130,10 @@ impl<'de> Deserialize<'de> for ChartConfig {
                 let config = match serde_json::from_value::<MetricChartConfig>(config_value) {
                     Ok(config) => config,
                     Err(e) => {
-                        return Err(detailed_deserialization_error::<D::Error>("Metric chart", &e));
+                        return Err(detailed_deserialization_error::<D::Error>(
+                            "Metric chart",
+                            &e,
+                        ));
                     }
                 };
                 Ok(ChartConfig::Metric(config))
@@ -138,7 +142,10 @@ impl<'de> Deserialize<'de> for ChartConfig {
                 let config = match serde_json::from_value::<TableChartConfig>(config_value) {
                     Ok(config) => config,
                     Err(e) => {
-                        return Err(detailed_deserialization_error::<D::Error>("Table chart", &e));
+                        return Err(detailed_deserialization_error::<D::Error>(
+                            "Table chart",
+                            &e,
+                        ));
                     }
                 };
                 Ok(ChartConfig::Table(config))
@@ -152,10 +159,13 @@ impl<'de> Deserialize<'de> for ChartConfig {
 }
 
 // Helper function to create detailed error messages for deserialization failures
-fn detailed_deserialization_error<E: serde::de::Error>(chart_type: &str, err: &serde_json::Error) -> E {
+fn detailed_deserialization_error<E: serde::de::Error>(
+    chart_type: &str,
+    err: &serde_json::Error,
+) -> E {
     // Get the error message as a string
     let err_msg = err.to_string();
-    
+
     // Match different error patterns to extract field information
     let detailed_error = match extract_detailed_error_info(&err_msg) {
         Some((field_name, expected_type, found_type)) => {
@@ -168,13 +178,16 @@ fn detailed_deserialization_error<E: serde::de::Error>(chart_type: &str, err: &s
         None => {
             // Try to at least extract the field name
             if let Some(field_name) = extract_field_from_error(&err_msg) {
-                format!("{} config error at field '{}': {}", chart_type, field_name, err)
+                format!(
+                    "{} config error at field '{}': {}",
+                    chart_type, field_name, err
+                )
             } else {
                 format!("{} config error: {}", chart_type, err)
             }
         }
     };
-    
+
     E::custom(detailed_error)
 }
 
@@ -186,73 +199,73 @@ fn extract_detailed_error_info(err_msg: &str) -> Option<(String, String, String)
         let parts: Vec<&str> = err_msg.split(", expected ").collect();
         if parts.len() >= 2 {
             let found_type = parts[0].replace("invalid type: ", "").trim().to_string();
-            
+
             // Extract field path and expected type
             let remaining = parts[1];
             let field_parts: Vec<&str> = remaining.split(" at ").collect();
             let expected_type = field_parts[0].trim().to_string();
-            
+
             // Try to extract field name
             if field_parts.len() >= 2 {
                 if let Some(field_name) = extract_field_path(field_parts[1]) {
                     return Some((field_name, expected_type, found_type));
                 }
             }
-            
+
             // If we couldn't extract field but have types, use a placeholder
             return Some(("unknown_field".to_string(), expected_type, found_type));
         }
     }
-    
+
     None
 }
 
 // Helper function to extract field path from location info
 fn extract_field_path(location_info: &str) -> Option<String> {
     // Try to extract field name from different patterns
-    
+
     // Pattern: key `field_name` at line X column Y
     if let Some(start_idx) = location_info.find("key `") {
         if let Some(end_idx) = location_info[start_idx + 5..].find('`') {
             return Some(location_info[start_idx + 5..start_idx + 5 + end_idx].to_string());
         }
     }
-    
+
     // Pattern: at key "field_name"
     if let Some(start_idx) = location_info.find("at key \"") {
         if let Some(end_idx) = location_info[start_idx + 8..].find('"') {
             return Some(location_info[start_idx + 8..start_idx + 8 + end_idx].to_string());
         }
     }
-    
+
     // Pattern: "field_name":
     if let Some(start_idx) = location_info.find('"') {
         if let Some(end_idx) = location_info[start_idx + 1..].find('"') {
             return Some(location_info[start_idx + 1..start_idx + 1 + end_idx].to_string());
         }
     }
-    
+
     None
 }
 
 // Helper function to extract field name from error message
 fn extract_field_from_error(err_msg: &str) -> Option<String> {
     // Try multiple patterns to extract field names
-    
+
     // Pattern: key `field_name` at line X column Y
     if let Some(start_idx) = err_msg.find("key `") {
         if let Some(end_idx) = err_msg[start_idx + 5..].find('`') {
             return Some(err_msg[start_idx + 5..start_idx + 5 + end_idx].to_string());
         }
     }
-    
+
     // Pattern: at key "field_name"
     if let Some(start_idx) = err_msg.find("at key \"") {
         if let Some(end_idx) = err_msg[start_idx + 8..].find('"') {
             return Some(err_msg[start_idx + 8..start_idx + 8 + end_idx].to_string());
         }
     }
-    
+
     // Pattern: "field_name":
     if let Some(start_idx) = err_msg.find('"') {
         if let Some(end_idx) = err_msg[start_idx + 1..].find('"') {
@@ -263,7 +276,7 @@ fn extract_field_from_error(err_msg: &str) -> Option<String> {
             }
         }
     }
-    
+
     None
 }
 
@@ -608,15 +621,16 @@ impl MetricYml {
             Err(e) => {
                 // Extract field information from error message if possible
                 let error_message = format!("Error parsing YAML: {}", e);
-                
+
                 // Try to extract field path from YAML error
                 let yaml_error_str = e.to_string();
-                let detailed_error = if yaml_error_str.contains("at line") && yaml_error_str.contains("column") {
-                    format!("Error parsing YAML at {}", yaml_error_str)
-                } else {
-                    error_message
-                };
-                
+                let detailed_error =
+                    if yaml_error_str.contains("at line") && yaml_error_str.contains("column") {
+                        format!("Error parsing YAML at {}", yaml_error_str)
+                    } else {
+                        error_message
+                    };
+
                 return Err(anyhow::anyhow!(detailed_error));
             }
         };
@@ -694,14 +708,6 @@ mod tests {
             }
             _ => panic!("Expected Bar chart type"),
         }
-
-        // Verify data metadata
-        let metadata = metric.data_metadata.unwrap();
-        assert_eq!(metadata.len(), 2);
-        assert_eq!(metadata[0].name, "rep_id");
-        assert_eq!(metadata[0].data_type, "string");
-        assert_eq!(metadata[1].name, "average_time_to_close");
-        assert_eq!(metadata[1].data_type, "number");
 
         Ok(())
     }

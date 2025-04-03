@@ -4,8 +4,8 @@ use database::{
     enums::AssetPermissionRole,
     helpers::metric_files::fetch_metric_file_with_permissions,
     pool::get_pg_pool,
-    schema::metric_files,
-    types::{MetricYml, VersionContent, VersionHistory},
+    schema::{datasets, metric_files},
+    types::{MetricYml, VersionContent, VersionHistory, data_metadata::DataMetadata},
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
@@ -13,6 +13,7 @@ use middleware::AuthenticatedUser;
 use serde_json::Value;
 use sharing::check_permission_access;
 use uuid::Uuid;
+use query_engine::data_source_query_routes::query_engine;
 
 /// Recursively merges two JSON objects.
 /// The second object (update) takes precedence over the first (base) where there are conflicts.
@@ -186,6 +187,28 @@ pub async fn update_metric_handler(
         current_version_history.update_latest_version(content.clone());
     }
 
+    // Calculate data_metadata if SQL changed
+    let data_metadata = if request.sql.is_some() || request.file.is_some() || request.restore_to_version.is_some() {
+        // Get data source for dataset
+        let dataset_id = content.dataset_ids.get(0).ok_or_else(|| anyhow!("No dataset ID found"))?;
+        
+        let data_source_id = datasets::table
+            .filter(datasets::id.eq(dataset_id))
+            .select(datasets::data_source_id)
+            .first::<Uuid>(&mut conn)
+            .await
+            .map_err(|e| anyhow!("Failed to get data source ID: {}", e))?;
+        
+        // Execute query and get results with metadata
+        let query_result = query_engine(&data_source_id, &content.sql, Some(100)).await
+            .map_err(|e| anyhow!("Failed to execute SQL for metadata calculation: {}", e))?;
+        
+        // Return metadata
+        Some(query_result.metadata)
+    } else {
+        None
+    };
+
     // Convert content to JSON for storage
     let content_json = serde_json::to_value(content.clone())?;
 
@@ -194,28 +217,55 @@ pub async fn update_metric_handler(
         .filter(metric_files::id.eq(metric_id))
         .filter(metric_files::deleted_at.is_null());
 
-    // Update based on whether verification is provided
+    // Update based on whether verification and metadata are provided
     if let Some(verification) = request.verification {
-        builder
-            .set((
-                metric_files::name.eq(content.name.clone()),
-                metric_files::verification.eq(verification),
-                metric_files::content.eq(content_json),
-                metric_files::updated_at.eq(Utc::now()),
-                metric_files::version_history.eq(current_version_history),
-            ))
-            .execute(&mut conn)
-            .await
+        if let Some(metadata) = data_metadata {
+            builder
+                .set((
+                    metric_files::name.eq(content.name.clone()),
+                    metric_files::verification.eq(verification),
+                    metric_files::content.eq(content_json),
+                    metric_files::updated_at.eq(Utc::now()),
+                    metric_files::version_history.eq(current_version_history),
+                    metric_files::data_metadata.eq(metadata),
+                ))
+                .execute(&mut conn)
+                .await
+        } else {
+            builder
+                .set((
+                    metric_files::name.eq(content.name.clone()),
+                    metric_files::verification.eq(verification),
+                    metric_files::content.eq(content_json),
+                    metric_files::updated_at.eq(Utc::now()),
+                    metric_files::version_history.eq(current_version_history),
+                ))
+                .execute(&mut conn)
+                .await
+        }
     } else {
-        builder
-            .set((
-                metric_files::name.eq(content.name.clone()),
-                metric_files::content.eq(content_json),
-                metric_files::updated_at.eq(Utc::now()),
-                metric_files::version_history.eq(current_version_history),
-            ))
-            .execute(&mut conn)
-            .await
+        if let Some(metadata) = data_metadata {
+            builder
+                .set((
+                    metric_files::name.eq(content.name.clone()),
+                    metric_files::content.eq(content_json),
+                    metric_files::updated_at.eq(Utc::now()),
+                    metric_files::version_history.eq(current_version_history),
+                    metric_files::data_metadata.eq(metadata),
+                ))
+                .execute(&mut conn)
+                .await
+        } else {
+            builder
+                .set((
+                    metric_files::name.eq(content.name.clone()),
+                    metric_files::content.eq(content_json),
+                    metric_files::updated_at.eq(Utc::now()),
+                    metric_files::version_history.eq(current_version_history),
+                ))
+                .execute(&mut conn)
+                .await
+        }
     }
     .map_err(|e| anyhow!("Failed to update metric: {}", e))?;
 

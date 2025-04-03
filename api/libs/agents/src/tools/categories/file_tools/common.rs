@@ -3,9 +3,10 @@ use chrono::Utc;
 use database::{
     enums::Verification,
     models::{DashboardFile, MetricFile},
+    organization::get_user_organization_id,
     pool::get_pg_pool,
     schema::{datasets, metric_files},
-    types::{DashboardYml, MetricYml, VersionHistory},
+    types::{data_metadata::DataMetadata, DashboardYml, MetricYml, VersionHistory},
 };
 use indexmap::IndexMap;
 use query_engine::{data_source_query_routes::query_engine::query_engine, data_types::DataType};
@@ -24,11 +25,15 @@ use super::file_types::file::FileWithId;
 // Import the types needed for the modification function
 
 /// Validates SQL query using existing query engine by attempting to run it
-/// Returns a tuple with a message about the number of records and the results (if ≤ 13 records)
+/// Returns a tuple with a message about the number of records, the results (if ≤ 13 records), and metadata
 pub async fn validate_sql(
     sql: &str,
     dataset_id: &Uuid,
-) -> Result<(String, Vec<IndexMap<String, DataType>>)> {
+) -> Result<(
+    String,
+    Vec<IndexMap<String, DataType>>,
+    Option<DataMetadata>,
+)> {
     debug!("Validating SQL query for dataset {}", dataset_id);
 
     if sql.trim().is_empty() {
@@ -48,12 +53,12 @@ pub async fn validate_sql(
     };
 
     // Try to execute the query using query_engine
-    let results = match query_engine(&data_source_id, sql, Some(15)).await {
-        Ok(results) => results,
+    let query_result = match query_engine(&data_source_id, sql, Some(15)).await {
+        Ok(result) => result,
         Err(e) => return Err(anyhow!("SQL validation failed: {}", e)),
     };
 
-    let num_records = results.len();
+    let num_records = query_result.data.len();
 
     // Create appropriate message based on number of records
     let message = if num_records == 0 {
@@ -66,12 +71,12 @@ pub async fn validate_sql(
 
     // Return at most 13 records
     let return_records = if num_records <= 13 {
-        results
+        query_result.data.clone()
     } else {
-        results.into_iter().take(13).collect() // Take first 13 records when more than 13
+        query_result.data.into_iter().take(13).collect() // Take first 13 records when more than 13
     };
 
-    Ok((message, return_records))
+    Ok((message, return_records, Some(query_result.metadata)))
 }
 
 /// Validates existence of metric IDs in database
@@ -133,12 +138,6 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 #   pie_chart_axis: {...}  # Required for pie charts OR
 #   combo_chart_axis: {...}  # Required for combo charts OR
 #   metric_column_id: "column_id"  # Required for metric charts
-#
-# data_metadata:  # Column definitions
-#   - name: "date"
-#     data_type: "date"
-#   - name: "total" 
-#     data_type: "number"
 # -------------------------------------
 
 type: object
@@ -201,23 +200,6 @@ properties:
       - $ref: "#/definitions/combo_chart_config"
       - $ref: "#/definitions/metric_chart_config"
       - $ref: "#/definitions/table_chart_config"
-
-  # DATA METADATA
-  data_metadata:
-    type: array
-    description: "Column definitions with name and data_type"
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-          description: "Column name"
-        data_type:
-          type: string
-          description: "Data type (string, number, date)"
-      required:
-        - name
-        - data_type
 
 required:
   - name
@@ -597,44 +579,77 @@ pub async fn process_metric_file(
     ),
     String,
 > {
-    debug!("Processing metric file: {}", file_name);
+    // Parse YAML to MetricYml struct
+    let metric_yml = match MetricYml::new(yml_content) {
+        Ok(yml) => yml,
+        Err(e) => return Err(format!("Invalid YAML format: {}", e)),
+    };
 
-    let metric_yml =
-        MetricYml::new(yml_content.clone()).map_err(|e| format!("Invalid YAML format: {}", e))?;
-
-    let metric_id = generate_deterministic_uuid(&tool_call_id, &file_name, "metric").unwrap();
-
-    // Check if dataset_ids is empty
-    if metric_yml.dataset_ids.is_empty() {
-        return Err("Missing required field 'dataset_ids'".to_string());
+    // Validate MetricYml structure
+    if let Err(e) = metric_yml.validate() {
+        return Err(format!("Invalid metric structure: {}", e));
     }
 
-    // Use the first dataset_id for SQL validation
-    let dataset_id = metric_yml.dataset_ids[0];
-    debug!("Validating SQL using dataset_id: {}", dataset_id);
+    let dataset_ids = &metric_yml.dataset_ids;
+    if dataset_ids.is_empty() {
+        return Err("No dataset IDs provided".to_string());
+    }
+
+    // Validate dataset IDs
+    let missing_ids = match validate_metric_ids(dataset_ids).await {
+        Ok(ids) => ids,
+        Err(e) => return Err(format!("Error validating dataset IDs: {}", e)),
+    };
+
+    if !missing_ids.is_empty() {
+        return Err(format!(
+            "Invalid dataset IDs: {}",
+            missing_ids
+                .iter()
+                .map(|id| id.to_string())
+                .collect::<Vec<String>>()
+                .join(", ")
+        ));
+    }
+
+    // Use the first dataset ID for SQL validation
+    let dataset_id = dataset_ids[0];
 
     // Validate SQL with the selected dataset_id and get results
-    let (message, results) = match validate_sql(&metric_yml.sql, &dataset_id).await {
+    let (message, results, metadata) = match validate_sql(&metric_yml.sql, &dataset_id).await {
         Ok(results) => results,
         Err(e) => return Err(format!("Invalid SQL query: {}", e)),
     };
 
-    let _metric_yml_json = match serde_json::to_value(metric_yml.clone()) {
-        Ok(json) => json,
-        Err(e) => return Err(format!("Failed to process metric: {}", e)),
+    // Get current user's organization
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => return Err(format!("Database connection error: {}", e)),
     };
 
+    let organization_id = get_user_organization_id(user_id)
+        .await
+        .map_err(|e| format!("Error getting organization: {}", e))?;
+
+
+    // Generate deterministic UUID
+    let id = match generate_deterministic_uuid(&tool_call_id, &file_name, "metric") {
+        Ok(id) => id,
+        Err(e) => return Err(format!("Error generating file ID: {}", e)),
+    };
+
+    // Create metric file
     let metric_file = MetricFile {
-        id: metric_id,
-        name: file_name.clone(),
-        file_name: file_name.clone(),
+        id,
+        name: metric_yml.name.clone(),
+        file_name,
         content: metric_yml.clone(),
-        created_by: *user_id,
         verification: Verification::NotRequested,
         evaluation_obj: None,
         evaluation_summary: None,
         evaluation_score: None,
-        organization_id: Uuid::new_v4(),
+        organization_id,
+        created_by: *user_id,
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
@@ -642,6 +657,7 @@ pub async fn process_metric_file(
         publicly_enabled_by: None,
         public_expiry_date: None,
         version_history: VersionHistory::new(1, metric_yml.clone()),
+        data_metadata: metadata,
     };
 
     Ok((metric_file, metric_yml, message, results))
@@ -727,7 +743,7 @@ pub async fn process_metric_file_modification(
 
                     let dataset_id = new_yml.dataset_ids[0];
                     match validate_sql(&new_yml.sql, &dataset_id).await {
-                        Ok((message, validation_results)) => {
+                        Ok((message, validation_results, _metadata)) => {
                             // Update file record
                             file.content = new_yml.clone();
                             file.updated_at = Utc::now();
@@ -794,7 +810,7 @@ pub async fn process_metric_file_modification(
             } else {
                 "modification"
             };
-            
+
             error!(
                 file_id = %file.id,
                 file_name = %modification.file_name,
@@ -987,7 +1003,7 @@ pub async fn process_dashboard_file_modification(
             } else {
                 "modification"
             };
-            
+
             error!(
                 file_id = %file.id,
                 file_name = %modification.file_name,
@@ -1089,9 +1105,11 @@ pub fn apply_modifications_to_content(
                 modification.content_to_replace
             ));
         }
-        
+
         // Check if it appears multiple times by searching for all occurrences
-        let matches: Vec<_> = modified_content.match_indices(&modification.content_to_replace).collect();
+        let matches: Vec<_> = modified_content
+            .match_indices(&modification.content_to_replace)
+            .collect();
         if matches.len() > 1 {
             return Err(anyhow::anyhow!(
                 "Content to replace found in multiple locations ({} occurrences) in file '{}'. Please provide more specific content to ensure only one match: '{}'",
@@ -1100,7 +1118,7 @@ pub fn apply_modifications_to_content(
                 modification.content_to_replace
             ));
         }
-        
+
         // Only one match found, safe to replace
         modified_content =
             modified_content.replace(&modification.content_to_replace, &modification.new_content);
@@ -1113,13 +1131,9 @@ pub fn apply_modifications_to_content(
 mod tests {
     use super::*;
     use chrono::Utc;
-    use database::{
-        models::DashboardFile,
-        types::DashboardYml,
-    };
-    
-    use uuid::Uuid;
+    use database::{models::DashboardFile, types::DashboardYml};
 
+    use uuid::Uuid;
 
     #[tokio::test]
     async fn test_validate_sql_empty() {
@@ -1133,16 +1147,16 @@ mod tests {
     fn test_apply_modifications_multiple_matches() {
         // Content with repeated text
         let content = "name: Test Dashboard\ndescription: Test description\nTest Dashboard is a dashboard for testing";
-        
+
         // Modification that would affect two places
         let modifications = vec![Modification {
             content_to_replace: "Test Dashboard".to_string(),
             new_content: "Updated Dashboard".to_string(),
         }];
-        
+
         // Try to apply the modification
         let result = apply_modifications_to_content(&content, &modifications, "test.yml");
-        
+
         // Verify it fails with the expected error
         assert!(result.is_err());
         let err_msg = result.unwrap_err().to_string();
@@ -1208,7 +1222,7 @@ rows:
         // We need to mock the validation of metric IDs since we can't access the database
         // This is a simplified version just for testing the modification process
         // In a real test, we would mock the database connection
-        
+
         // Process the modification - we'll use a simplified version that doesn't validate metrics
         let result = apply_dashboard_modification_test(dashboard_file, &modification, 100);
 
@@ -1223,7 +1237,7 @@ rows:
             // Print debug info
             println!("Modified file name: '{}'", modified_file.name);
             println!("Modified yml name: '{}'", modified_yml.name);
-            
+
             // Check file was updated
             assert_eq!(modified_file.name, "Updated Dashboard");
             assert_eq!(modified_yml.name, "Updated Dashboard");
@@ -1234,7 +1248,7 @@ rows:
             assert_eq!(results[0].modification_type, "content");
         }
     }
-    
+
     // Helper function for testing dashboard modifications without database access
     fn apply_dashboard_modification_test(
         mut file: DashboardFile,
@@ -1312,7 +1326,7 @@ rows:
                 } else {
                     "modification"
                 };
-                
+
                 results.push(ModificationResult {
                     file_id: file.id,
                     file_name: modification.file_name.clone(),

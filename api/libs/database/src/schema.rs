@@ -406,6 +406,7 @@ diesel::table! {
         publicly_enabled_by -> Nullable<Uuid>,
         public_expiry_date -> Nullable<Timestamptz>,
         version_history -> Jsonb,
+        data_metadata -> Nullable<Jsonb>,
     }
 }
 

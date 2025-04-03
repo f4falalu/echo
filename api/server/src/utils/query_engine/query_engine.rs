@@ -4,6 +4,7 @@ use database::{
     models::DataSource,
     pool::get_pg_pool,
     schema::{data_sources, datasets, users_to_organizations},
+    types::data_metadata::DataMetadata,
 };
 use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
@@ -13,10 +14,16 @@ use uuid::Uuid;
 use super::data_source_query_routes::query_router::query_router;
 use super::data_types::DataType;
 
+// Define a QueryResult structure to match the one in the query_engine library
+pub struct QueryResult {
+    pub data: Vec<IndexMap<String, DataType>>,
+    pub metadata: DataMetadata,
+}
+
 pub async fn query_engine(
     dataset_id: &Uuid,
     sql: &String,
-) -> Result<Vec<IndexMap<String, DataType>>> {
+) -> Result<QueryResult> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => {
@@ -39,19 +46,30 @@ pub async fn query_engine(
         Err(_) => return Err(anyhow::anyhow!("Data source not found")),
     };
 
-    let results = match query_router(&data_source, sql, None, false).await {
-        Ok(results) => results,
+    // Call the enhanced query_engine
+    let query_result = match query_engine::data_source_query_routes::query_engine::query_engine(
+        &data_source.id,
+        sql,
+        None,
+    )
+    .await
+    {
+        Ok(result) => result,
         Err(e) => return Err(e),
     };
 
-    Ok(results)
+    // Return both data and metadata
+    Ok(QueryResult {
+        data: query_result.data,
+        metadata: query_result.metadata,
+    })
 }
 
 pub async fn modeling_query_engine(
     data_source_id: &Uuid,
     sql: &String,
     user_id: &Uuid,
-) -> Result<Vec<IndexMap<String, DataType>>> {
+) -> Result<QueryResult> {
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
         Err(e) => {
@@ -94,10 +112,21 @@ pub async fn modeling_query_engine(
         Err(_) => return Err(anyhow::anyhow!("Data source not found")),
     };
 
-    let results = match query_router(&data_source, sql, Some(25), false).await {
-        Ok(results) => results,
+    // Call the enhanced query_engine with a limit of 25
+    let query_result = match query_engine::data_source_query_routes::query_engine::query_engine(
+        &data_source.id,
+        sql,
+        Some(25),
+    )
+    .await
+    {
+        Ok(result) => result,
         Err(e) => return Err(e),
     };
 
-    Ok(results)
+    // Return both data and metadata
+    Ok(QueryResult {
+        data: query_result.data,
+        metadata: query_result.metadata,
+    })
 }

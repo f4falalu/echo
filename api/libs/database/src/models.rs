@@ -1,7 +1,6 @@
 use crate::enums::*;
 use crate::schema::*;
-use crate::types::VersionHistory;
-use crate::types::{DashboardYml, MetricYml};
+use crate::types::*;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -91,6 +90,7 @@ pub struct MetricFile {
     pub publicly_enabled_by: Option<Uuid>,
     pub public_expiry_date: Option<DateTime<Utc>>,
     pub version_history: VersionHistory,
+    pub data_metadata: Option<DataMetadata>,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]

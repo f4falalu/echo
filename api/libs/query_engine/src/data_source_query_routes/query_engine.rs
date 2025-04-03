@@ -1,4 +1,5 @@
 use indexmap::IndexMap;
+use std::collections::HashSet;
 
 use anyhow::{anyhow, Result};
 use uuid::Uuid;
@@ -16,6 +17,7 @@ use crate::{
     data_types::DataType,
 };
 
+use database::types::data_metadata::{ColumnMetaData, ColumnType, DataMetadata, SimpleType};
 use database::vault::read_secret;
 
 use super::{
@@ -25,11 +27,18 @@ use super::{
     sql_server_query::sql_server_query,
 };
 
+// Define a QueryResult structure to hold both results and metadata
+#[derive(Debug, Clone)]
+pub struct QueryResult {
+    pub data: Vec<IndexMap<String, DataType>>,
+    pub metadata: DataMetadata,
+}
+
 pub async fn query_engine(
     data_source_id: &Uuid,
     sql: &str,
     limit: Option<i64>,
-) -> Result<Vec<IndexMap<String, DataType>>> {
+) -> Result<QueryResult> {
     let corrected_sql = sql.to_owned();
 
     let secure_sql = corrected_sql.clone();
@@ -47,7 +56,185 @@ pub async fn query_engine(
         }
     };
 
-    Ok(results)
+    // Compute metadata from results
+    let metadata = compute_data_metadata(&results);
+    
+    // Return both results and metadata in the QueryResult structure
+    Ok(QueryResult {
+        data: results,
+        metadata,
+    })
+}
+
+// Consolidated metadata calculation function
+fn compute_data_metadata(data: &[IndexMap<String, DataType>]) -> DataMetadata {
+    if data.is_empty() {
+        return DataMetadata {
+            column_count: 0,
+            row_count: 0,
+            column_metadata: vec![],
+        };
+    }
+
+    let first_row = &data[0];
+    let column_count = first_row.len() as i64;
+    let row_count = data.len() as i64;
+    let column_metadata = compute_column_metadata(data);
+
+    DataMetadata {
+        column_count,
+        row_count,
+        column_metadata,
+    }
+}
+
+// Helper function for computing column metadata
+fn compute_column_metadata(data: &[IndexMap<String, DataType>]) -> Vec<ColumnMetaData> {
+    if data.is_empty() {
+        return vec![];
+    }
+
+    let first_row = &data[0];
+    let columns: Vec<_> = first_row.keys().cloned().collect();
+
+    columns.iter().map(|column_name| {
+        let mut value_map = HashSet::new();
+        let mut min_value = None;
+        let mut max_value = None;
+        let mut is_date_type = false;
+        let mut min_value_str: Option<String> = None;
+        let mut max_value_str: Option<String> = None;
+
+        for row in data {
+            if let Some(value) = row.get(column_name) {
+                // Track unique values (up to a reasonable limit)
+                if value_map.len() < 100 {
+                    value_map.insert(format!("{:?}", value));
+                }
+
+                // Calculate min/max for appropriate types
+                match value {
+                    DataType::Int2(Some(v)) => {
+                        let n = *v as f64;
+                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
+                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                    }
+                    DataType::Int4(Some(v)) => {
+                        let n = *v as f64;
+                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
+                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                    }
+                    DataType::Int8(Some(v)) => {
+                        let n = *v as f64;
+                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
+                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                    }
+                    DataType::Float4(Some(v)) => {
+                        let n = *v as f64;
+                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
+                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                    }
+                    DataType::Float8(Some(v)) => {
+                        let n = *v as f64;
+                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
+                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                    }
+                    DataType::Date(Some(date)) => {
+                        is_date_type = true;
+                        let date_str = date.to_string();
+                        update_date_min_max(&date_str, &mut min_value_str, &mut max_value_str);
+                    }
+                    DataType::Timestamp(Some(ts)) => {
+                        is_date_type = true;
+                        let ts_str = ts.to_string();
+                        update_date_min_max(&ts_str, &mut min_value_str, &mut max_value_str);
+                    }
+                    DataType::Timestamptz(Some(ts)) => {
+                        is_date_type = true;
+                        let ts_str = ts.to_string();
+                        update_date_min_max(&ts_str, &mut min_value_str, &mut max_value_str);
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        // Determine the column type and simple type
+        let column_type = first_row.get(column_name).unwrap();
+        let (simple_type, column_type) = determine_types(column_type);
+
+        // Format min/max values appropriately based on type
+        let (min_value, max_value) = if is_date_type {
+            (
+                min_value_str.map_or(serde_json::Value::Null, |v| serde_json::Value::String(v)),
+                max_value_str.map_or(serde_json::Value::Null, |v| serde_json::Value::String(v)),
+            )
+        } else {
+            (
+                min_value.map_or(serde_json::Value::Null, |v| {
+                    match serde_json::Number::from_f64(v) {
+                        Some(num) => serde_json::Value::Number(num),
+                        None => serde_json::Value::Null,
+                    }
+                }),
+                max_value.map_or(serde_json::Value::Null, |v| {
+                    match serde_json::Number::from_f64(v) {
+                        Some(num) => serde_json::Value::Number(num),
+                        None => serde_json::Value::Null,
+                    }
+                }),
+            )
+        };
+
+        ColumnMetaData {
+            name: column_name.clone(),
+            min_value,
+            max_value,
+            unique_values: value_map.len() as i32,
+            simple_type,
+            column_type,
+        }
+    }).collect()
+}
+
+// Helper function to update min/max date values
+fn update_date_min_max(
+    date_str: &str,
+    min_value_str: &mut Option<String>,
+    max_value_str: &mut Option<String>,
+) {
+    if let Some(ref min) = *min_value_str {
+        if date_str < min.as_str() {
+            *min_value_str = Some(date_str.to_string());
+        }
+    } else {
+        *min_value_str = Some(date_str.to_string());
+    }
+
+    if let Some(ref max) = *max_value_str {
+        if date_str > max.as_str() {
+            *max_value_str = Some(date_str.to_string());
+        }
+    } else {
+        *max_value_str = Some(date_str.to_string());
+    }
+}
+
+// Helper function to determine column types
+fn determine_types(data_type: &DataType) -> (SimpleType, ColumnType) {
+    match data_type {
+        DataType::Int2(_) => (SimpleType::Number, ColumnType::Int2),
+        DataType::Int4(_) => (SimpleType::Number, ColumnType::Int4),
+        DataType::Int8(_) => (SimpleType::Number, ColumnType::Int8),
+        DataType::Float4(_) => (SimpleType::Number, ColumnType::Float4),
+        DataType::Float8(_) => (SimpleType::Number, ColumnType::Float8),
+        DataType::Text(_) => (SimpleType::String, ColumnType::Text),
+        DataType::Bool(_) => (SimpleType::Boolean, ColumnType::Bool),
+        DataType::Date(_) => (SimpleType::Date, ColumnType::Date),
+        DataType::Timestamp(_) => (SimpleType::Date, ColumnType::Timestamp),
+        DataType::Timestamptz(_) => (SimpleType::Date, ColumnType::Timestamptz),
+        _ => (SimpleType::Other, ColumnType::Other),
+    }
 }
 
 #[cfg(test)]
