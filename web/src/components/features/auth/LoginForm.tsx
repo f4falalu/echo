@@ -189,13 +189,17 @@ const LoginOptions: React.FC<{
     onSubmitClick(d);
   });
 
-  useHotkeys('meta+shift+b', () => {
-    setSignUpFlow(false);
-    onSubmitClickPreflight({
-      email: DEFAULT_CREDENTIALS.email,
-      password: DEFAULT_CREDENTIALS.password
-    });
-  });
+  useHotkeys(
+    'meta+shift+b',
+    (e) => {
+      setSignUpFlow(false);
+      onSubmitClickPreflight({
+        email: DEFAULT_CREDENTIALS.email,
+        password: DEFAULT_CREDENTIALS.password
+      });
+    },
+    { preventDefault: true }
+  );
 
   return (
     <>

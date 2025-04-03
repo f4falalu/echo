@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CodeCard } from '@/components/ui/card';
 import { useMemoizedFn } from '@/hooks';
 import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
@@ -17,7 +17,7 @@ export const DashboardViewFileController: React.FC<{
 
   const { file: fileProp, file_name } = dashboard || {};
 
-  const [file, setFile] = React.useState(fileProp);
+  const [file, setFile] = useState(fileProp);
 
   const showPopup = file !== fileProp && !!file;
 
@@ -47,7 +47,7 @@ export const DashboardViewFileController: React.FC<{
         onMetaEnter={onSaveFile}
       />
 
-      <SaveResetFilePopup open={showPopup} onReset={onResetFile} onSave={onSaveFile} />
+      <SaveResetFilePopup open={showPopup} onReset={onResetFile} onSave={onSaveFile} showHotsKeys />
     </div>
   );
 });

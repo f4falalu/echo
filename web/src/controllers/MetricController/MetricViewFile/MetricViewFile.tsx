@@ -19,6 +19,8 @@ export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metr
     error: updateMetricError
   } = useUpdateMetric({
     updateOnSave: true,
+    saveToServer: true,
+    updateVersion: true,
     wait: 0
   });
 
@@ -62,6 +64,7 @@ export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metr
         onReset={onResetFile}
         onSave={onSaveFile}
         isSaving={isUpdatingMetric}
+        showHotsKeys
       />
     </div>
   );

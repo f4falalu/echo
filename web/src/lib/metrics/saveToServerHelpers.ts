@@ -27,7 +27,15 @@ export const getChangedTopLevelMessageValues = (
   newMetric: IBusterMetric,
   oldMetric: IBusterMetric
 ) => {
-  return getChangedValues(oldMetric, newMetric, ['name', 'feedback', 'status', 'sql', 'file']);
+  const changes = getChangedValues(oldMetric, newMetric, [
+    'name',
+    'feedback',
+    'status',
+    'sql',
+    'file'
+  ]);
+
+  return changes;
 };
 
 const keySpecificHandlers: Partial<Record<keyof IBusterMetricChartConfig, (value: any) => any>> = {
@@ -141,6 +149,7 @@ export const prepareMetricUpdateMetric = (
     newMetric,
     prevMetric
   ) as unknown as Parameters<typeof updateMetric>[0];
+  console.log('changedTopLevelValues', changedTopLevelValues?.name);
   const dataMetadata = prevMetric.data_metadata;
 
   const changedChartConfig = combineChangeFromDefaultChartConfig(newMetric, dataMetadata);

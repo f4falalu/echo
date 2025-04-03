@@ -11,16 +11,19 @@ import { useMemoizedFn } from '@/hooks';
 import { useGetMetricMemoized } from './useGetMetricMemoized';
 import { useParams } from 'next/navigation';
 import { useOriginalMetricStore } from './useOriginalMetricStore';
+import { timeout } from '@/lib';
+import { useState } from 'react';
 
 export const useUpdateMetricChart = (props?: { metricId?: string }) => {
   const params = useParams<{ metricId?: string }>();
   const metricId = props?.metricId ?? params.metricId ?? '';
+  const [isSaving, setIsSaving] = useState(false);
   const { mutate: onUpdateMetricDebounced } = useUpdateMetric({
     updateVersion: false,
     updateOnSave: false,
     saveToServer: false
   });
-  const { mutate: saveMetricToServer } = useUpdateMetric({
+  const { mutateAsync: saveMetricToServer } = useUpdateMetric({
     updateVersion: true,
     updateOnSave: true,
     saveToServer: true
@@ -107,15 +110,20 @@ export const useUpdateMetricChart = (props?: { metricId?: string }) => {
     }
   );
 
-  const onSaveMetricToServer = useMemoizedFn(() => {
+  const onSaveMetricToServer = useMemoizedFn(async () => {
+    setIsSaving(true);
     const currentMetric = getMetricMemoized(metricId);
-    if (currentMetric) saveMetricToServer(currentMetric);
+    console.log('currentMetric', currentMetric.name);
+    if (currentMetric) await saveMetricToServer(currentMetric);
+    await timeout(350);
+    setIsSaving(false);
   });
 
   return {
     onSaveMetricToServer,
     onUpdateMetricChartConfig,
     onUpdateColumnLabelFormat,
-    onUpdateColumnSetting
+    onUpdateColumnSetting,
+    isSaving
   };
 };

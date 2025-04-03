@@ -361,29 +361,30 @@ export const useUpdateMetric = (params: {
   saveToServer?: boolean;
 }) => {
   const {
-    wait = 650,
+    wait = 0,
     updateOnSave = false,
-    updateVersion = false,
+    updateVersion = true,
     saveToServer = false
   } = params || {};
   const queryClient = useQueryClient();
   const { mutateAsync: saveMetric } = useSaveMetric({ updateOnSave });
+  const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
 
   const { run: saveMetricToServerDebounced } = useDebounceFn(
-    useMemoizedFn((newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
+    useMemoizedFn(async (newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
       const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
       if (changedValues) {
-        saveMetric({ ...changedValues, update_version: updateVersion });
+        await saveMetric({ ...changedValues, update_version: updateVersion });
       }
     }),
     { wait, leading: false }
   );
 
   const combineAndSaveMetric = useMemoizedFn(
-    async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
+    (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
       const metricId = newMetricPartial.id;
       const options = metricsQueryKeys.metricsGetMetric(metricId);
-      const prevMetric = queryClient.getQueryData(options.queryKey);
+      const prevMetric = getOriginalMetric(metricId);
       const newMetric = create(prevMetric, (draft) => {
         Object.assign(draft || {}, newMetricPartial);
       });
@@ -398,10 +399,10 @@ export const useUpdateMetric = (params: {
 
   const mutationFn = useMemoizedFn(
     async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
-      const { newMetric, prevMetric } = await combineAndSaveMetric(newMetricPartial);
+      const { newMetric, prevMetric } = combineAndSaveMetric(newMetricPartial);
 
       if (newMetric && prevMetric && saveToServer) {
-        saveMetricToServerDebounced(newMetric, prevMetric);
+        return await saveMetricToServerDebounced(newMetric, prevMetric);
       }
 
       return newMetric;
@@ -412,7 +413,7 @@ export const useUpdateMetric = (params: {
     mutationFn,
     onSuccess: (data) => {
       if (data) {
-        //THIS IS NOT SERVER DATA! THIS IS FROM THE mutationFn
+        //THIS CAN BE SERVER DATA, but not always. This is from the mutationFn
         queryClient.setQueryData(metricsQueryKeys.metricsGetMetric(data.id).queryKey, data);
       }
     }

@@ -288,7 +288,11 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
 
 const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
   const { data: metricStatus } = useGetMetric({ id: metricId }, (x) => x.status);
-  const { mutate: updateMetric } = useUpdateMetric({ updateVersion: false });
+  const { mutate: updateMetric } = useUpdateMetric({
+    updateVersion: false,
+    saveToServer: true,
+    updateOnSave: true
+  });
 
   const onChangeStatus = useMemoizedFn(async (status: VerificationStatus) => {
     return updateMetric({ id: metricId, status });

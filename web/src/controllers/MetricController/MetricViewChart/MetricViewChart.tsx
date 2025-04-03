@@ -50,7 +50,11 @@ export const MetricViewChart: React.FC<{
     } = useGetMetricData({ id: metricId });
     const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
 
-    const { mutate: updateMetric } = useUpdateMetric({ wait: 0, updateVersion: false });
+    const { mutate: updateMetric } = useUpdateMetric({
+      updateOnSave: false,
+      updateVersion: true,
+      saveToServer: true
+    });
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
 
     const isTable = metric?.chart_config.selectedChartType === ChartType.Table;
@@ -157,14 +161,15 @@ const AnimatePresenceWrapper: React.FC<{
 
 const MetricSaveFilePopup: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
   const { isMetricChanged, onResetMetricToOriginal } = useIsMetricChanged({ metricId });
-  const { onSaveMetricToServer } = useUpdateMetricChart({ metricId });
+  const { onSaveMetricToServer, isSaving } = useUpdateMetricChart({ metricId });
 
   return (
     <SaveResetFilePopup
       open={isMetricChanged}
       onReset={onResetMetricToOriginal}
       onSave={onSaveMetricToServer}
-      isSaving={false}
+      isSaving={isSaving}
+      showHotsKeys={false}
     />
   );
 });

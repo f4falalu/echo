@@ -1,8 +1,6 @@
 import {
   getChangedTopLevelMessageValues,
-  getChangesFromDefaultChartConfig,
-  prepareMetricUpdateMetric,
-  combineChangeFromDefaultChartConfig
+  getChangesFromDefaultChartConfig
 } from './saveToServerHelpers';
 import { DEFAULT_COLUMN_SETTINGS, type IBusterMetric } from '@/api/asset_interfaces/metric';
 import { VerificationStatus } from '@/api/asset_interfaces/share/verificationInterfaces';
@@ -149,6 +147,15 @@ describe('getChangedTopLevelMessageValues', () => {
     const result = getChangedTopLevelMessageValues(newMetric, oldMetric);
 
     expect(result).toEqual({ sql: null });
+  });
+
+  it('shoudl handle a name change', () => {
+    const oldMetric = createMockMetric();
+    const newMetric = createMockMetric({ name: 'Updated Metric Name is a good name' });
+
+    const result = getChangedTopLevelMessageValues(newMetric, oldMetric);
+
+    expect(result).toEqual({ name: 'Updated Metric Name is a good name' });
   });
 });
 

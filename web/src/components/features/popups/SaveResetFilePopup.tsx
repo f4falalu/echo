@@ -4,6 +4,7 @@ import { Text } from '@/components/ui/typography';
 import { Button } from '@/components/ui/buttons';
 import { Command, ReturnKey, TriangleWarning } from '@/components/ui/icons';
 import { PreventNavigation } from '@/components/ui/layouts/PreventNavigation';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export const SaveResetFilePopup: React.FC<{
   open: boolean;
@@ -11,20 +12,35 @@ export const SaveResetFilePopup: React.FC<{
   onSave: () => void;
   isSaving?: boolean;
   className?: string;
-}> = React.memo(({ open, onReset, onSave, isSaving = false, className = '' }) => {
-  return (
-    <PopupContainer show={open} className={className}>
-      <SplitterContent onReset={onReset} onSave={onSave} isSaving={isSaving} open={open} />
-    </PopupContainer>
-  );
-});
+  showHotsKeys?: boolean;
+}> = React.memo(
+  ({ open, onReset, onSave, isSaving = false, className = '', showHotsKeys = false }) => {
+    return (
+      <PopupContainer show={open} className={className}>
+        <SplitterContent
+          onReset={onReset}
+          onSave={onSave}
+          isSaving={isSaving}
+          open={open}
+          showHotsKeys={showHotsKeys}
+        />
+      </PopupContainer>
+    );
+  }
+);
 
 const SplitterContent: React.FC<{
   onReset: () => void;
   onSave: () => void;
   isSaving: boolean;
   open: boolean;
-}> = React.memo(({ onReset, onSave, isSaving, open }) => {
+  showHotsKeys: boolean;
+}> = React.memo(({ onReset, onSave, isSaving, open, showHotsKeys = false }) => {
+  useHotkeys('meta+enter', (e) => onSave(), {
+    enabled: showHotsKeys && open && !isSaving,
+    preventDefault: true
+  });
+
   return (
     <React.Fragment>
       <div className="flex w-full items-center space-x-2.5">
@@ -43,10 +59,12 @@ const SplitterContent: React.FC<{
             onClick={onSave}
             loading={isSaving}
             suffix={
-              <div className="flex space-x-1">
-                <Command />
-                <ReturnKey />
-              </div>
+              showHotsKeys && (
+                <div className="flex space-x-1">
+                  <Command />
+                  <ReturnKey />
+                </div>
+              )
             }>
             Save
           </Button>
