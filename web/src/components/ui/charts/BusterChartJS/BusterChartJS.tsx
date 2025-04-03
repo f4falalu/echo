@@ -41,8 +41,6 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
     onInitialAnimationEnd?.();
   });
 
-  console.log('showLegend', showLegend);
-
   return (
     <BusterChartJSLegendWrapper
       animateLegend={animateLegend}

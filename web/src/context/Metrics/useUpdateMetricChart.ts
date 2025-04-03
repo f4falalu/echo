@@ -10,6 +10,7 @@ import { useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { useGetMetricMemoized } from './useGetMetricMemoized';
 import { useParams } from 'next/navigation';
+import { useOriginalMetricStore } from './useOriginalMetricStore';
 
 export const useUpdateMetricChart = (props?: { metricId?: string }) => {
   const params = useParams<{ metricId?: string }>();

@@ -1,15 +1,17 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { cn } from '@/lib/classMerge';
 
 export const PopupContainer: React.FC<{
   show: boolean;
   children: React.ReactNode;
-}> = ({ show, children }) => {
+  className?: string;
+}> = ({ show, children, className = '' }) => {
   return (
     <AnimatePresence mode="wait">
       {show && (
         <motion.div
-          className="absolute bottom-10 z-50 flex w-full justify-center"
+          className={cn('absolute bottom-10 z-50 flex w-full justify-center', className)}
           initial={{ opacity: 0, y: -3 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -3 }}

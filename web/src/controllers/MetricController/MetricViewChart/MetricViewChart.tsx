@@ -12,6 +12,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { canEdit } from '@/lib/share';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
+import { useIsMetricChanged } from '@/context/Metrics/useOriginalMetricStore';
+import { useUpdateMetricChart } from '@/context/Metrics';
 
 export const MetricViewChart: React.FC<{
   metricId: string;
@@ -100,6 +103,8 @@ export const MetricViewChart: React.FC<{
             evaluationSummary={evaluation_summary}
           />
         </AnimatePresenceWrapper>
+
+        <MetricSaveFilePopup metricId={metricId} />
       </div>
     );
   }
@@ -149,3 +154,19 @@ const AnimatePresenceWrapper: React.FC<{
     </AnimatePresence>
   );
 };
+
+const MetricSaveFilePopup: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
+  const { isMetricChanged, onResetMetricToOriginal } = useIsMetricChanged({ metricId });
+  const { onSaveMetricToServer } = useUpdateMetricChart({ metricId });
+
+  return (
+    <SaveResetFilePopup
+      open={isMetricChanged}
+      onReset={onResetMetricToOriginal}
+      onSave={onSaveMetricToServer}
+      isSaving={false}
+    />
+  );
+});
+
+MetricSaveFilePopup.displayName = 'MetricSaveFilePopup';

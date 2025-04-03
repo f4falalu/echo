@@ -1,10 +1,10 @@
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { create } from 'zustand';
-import isEqual from 'lodash/isEqual';
+import { compareObjectsByKeys } from '@/lib/objects';
+import { useGetMetric } from '@/api/buster_rest/metrics/queryRequests';
+import { useMemoizedFn } from '@/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import pick from 'lodash/pick';
-import { compareObjectsByKeys } from '@/lib/objects';
 
 export const useOriginalMetricStore = create<{
   originalMetrics: Record<string, IBusterMetric>;
@@ -30,18 +30,36 @@ export const useOriginalMetricStore = create<{
 
 export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
   const queryClient = useQueryClient();
-  const options = metricsQueryKeys.metricsGetMetric(metricId);
-  const originalMetric = useOriginalMetricStore.getState().getOriginalMetric(metricId);
-  const currentMetric = queryClient.getQueryData<IBusterMetric>(options.queryKey);
+  const originalMetric = useOriginalMetricStore((x) => x.getOriginalMetric(metricId));
 
-  if (!originalMetric || !currentMetric) {
-    return false;
-  }
+  const { data: currentMetric, refetch: refetchCurrentMetric } = useGetMetric(
+    { id: metricId },
+    (x) => ({
+      name: x.name,
+      description: x.description,
+      chart_config: x.chart_config,
+      file: x.file
+    })
+  );
 
-  return !compareObjectsByKeys(originalMetric, currentMetric, [
-    'name',
-    'description',
-    'chart_config',
-    'file'
-  ]);
+  const onResetMetricToOriginal = useMemoizedFn(() => {
+    const options = metricsQueryKeys.metricsGetMetric(metricId);
+    if (originalMetric) {
+      queryClient.setQueryData(options.queryKey, originalMetric);
+    }
+    refetchCurrentMetric();
+  });
+
+  return {
+    onResetMetricToOriginal,
+    isMetricChanged:
+      !originalMetric ||
+      !currentMetric ||
+      !compareObjectsByKeys(originalMetric, currentMetric, [
+        'name',
+        'description',
+        'chart_config',
+        'file'
+      ])
+  };
 };

@@ -1,5 +1,5 @@
-import { PopupContainer, PopupSplitter } from '@/components/ui/popup';
 import React from 'react';
+import { PopupContainer, PopupSplitter } from '@/components/ui/popup';
 import { Text } from '@/components/ui/typography';
 import { Button } from '@/components/ui/buttons';
 import { Command, ReturnKey, TriangleWarning } from '@/components/ui/icons';
@@ -10,9 +10,10 @@ export const SaveResetFilePopup: React.FC<{
   onReset: () => void;
   onSave: () => void;
   isSaving?: boolean;
-}> = React.memo(({ open, onReset, onSave, isSaving = false }) => {
+  className?: string;
+}> = React.memo(({ open, onReset, onSave, isSaving = false, className = '' }) => {
   return (
-    <PopupContainer show={open}>
+    <PopupContainer show={open} className={className}>
       <SplitterContent onReset={onReset} onSave={onSave} isSaving={isSaving} open={open} />
     </PopupContainer>
   );
