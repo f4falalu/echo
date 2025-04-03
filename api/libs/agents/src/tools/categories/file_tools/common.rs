@@ -595,23 +595,6 @@ pub async fn process_metric_file(
         return Err("No dataset IDs provided".to_string());
     }
 
-    // Validate dataset IDs
-    let missing_ids = match validate_metric_ids(dataset_ids).await {
-        Ok(ids) => ids,
-        Err(e) => return Err(format!("Error validating dataset IDs: {}", e)),
-    };
-
-    if !missing_ids.is_empty() {
-        return Err(format!(
-            "Invalid dataset IDs: {}",
-            missing_ids
-                .iter()
-                .map(|id| id.to_string())
-                .collect::<Vec<String>>()
-                .join(", ")
-        ));
-    }
-
     // Use the first dataset ID for SQL validation
     let dataset_id = dataset_ids[0];
 
@@ -619,12 +602,6 @@ pub async fn process_metric_file(
     let (message, results, metadata) = match validate_sql(&metric_yml.sql, &dataset_id).await {
         Ok(results) => results,
         Err(e) => return Err(format!("Invalid SQL query: {}", e)),
-    };
-
-    // Get current user's organization
-    let mut conn = match get_pg_pool().get().await {
-        Ok(conn) => conn,
-        Err(e) => return Err(format!("Database connection error: {}", e)),
     };
 
     let organization_id = match get_user_organization_id(user_id).await {
