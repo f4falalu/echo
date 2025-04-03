@@ -58,6 +58,11 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
         target = target.parentElement as HTMLElement;
       }
 
+      // Check if we're navigating to the same URL - if so, allow the navigation
+      if (href && new URL(href).pathname === window.location.pathname) {
+        return; // Allow navigation to the same URL
+      }
+
       if (isDirty) {
         event.preventDefault();
         event.stopPropagation();
