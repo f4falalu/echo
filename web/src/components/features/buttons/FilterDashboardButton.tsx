@@ -1,15 +1,22 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/buttons';
-import { BarsFilter } from '@/components/ui/icons';
+import { ArrowUpRight, BarsFilter } from '@/components/ui/icons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { Input } from '@/components/ui/inputs';
 import { MagnifierSparkle } from '@/components/ui/icons';
 import { Text } from '@/components/ui/typography';
 import { faker } from '@faker-js/faker';
 import { cn } from '@/lib/classMerge';
+import { DropdownMenuHeaderSearch } from '@/components/ui/dropdown/DropdownMenuHeaderSearch';
+import { useDebounceSearch, useMemoizedFn } from '@/hooks';
 
-const filterItems = Array.from({ length: 100 }, (_, index) => {
-  const randomWord = faker.commerce.productAdjective() + ' ' + faker.commerce.productMaterial();
+const items = Array.from({ length: 100 }, (_, index) => {
+  const randomWord =
+    faker.commerce.productAdjective() +
+    ' ' +
+    faker.commerce.productMaterial() +
+    ' ' +
+    faker.airline.airline().name;
   return {
     label: randomWord,
     value: randomWord + index
@@ -17,39 +24,37 @@ const filterItems = Array.from({ length: 100 }, (_, index) => {
 });
 
 export const FilterDashboardButton: React.FC = React.memo(() => {
-  const [filterText, setFilterText] = useState('');
+  const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
+    items: items,
+    searchPredicate: (item, searchText) =>
+      item.label.toLowerCase().includes(searchText.toLowerCase())
+  });
 
-  const allDropdownItems: DropdownItems = useMemo(() => {
-    return [
-      ...filterItems.filter((item) => item.label.toLowerCase().includes(filterText.toLowerCase()))
-    ];
-  }, [filterText]);
+  const onSelectItem = useMemoizedFn((value: (typeof filteredItems)[number]['value']) => {
+    console.log(value);
+  });
+
+  const onPressEnter = useMemoizedFn(() => {
+    console.log('onPressEnter', searchText);
+  });
 
   const menuHeader = useMemo(() => {
     return (
       <div className="flex flex-col">
-        <div className="flex items-center gap-x-2 p-1">
-          <Input
-            placeholder="Filters..."
-            autoFocus
-            variant={'ghost'}
-            value={filterText}
-            onKeyDown={(e) => {
-              //  e.preventDefault();
-              e.stopPropagation();
-            }}
-            onChange={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setFilterText(e.target.value);
-            }}
-          />
-        </div>
+        <DropdownMenuHeaderSearch
+          placeholder="Search filters..."
+          className="p-1"
+          text={searchText}
+          onChange={handleSearchChange}
+          onPressEnter={onPressEnter}
+        />
         <div className="flex border-t p-1">
           <div
             className={cn(
-              'hover:bg-item-select flex w-full cursor-pointer items-center gap-x-1.5 rounded p-1',
-              filterText && 'bg-item-select'
+              'flex h-8 w-full cursor-pointer items-center gap-x-1.5 rounded px-2.5',
+              searchText
+                ? 'bg-item-select hover:bg-item-select'
+                : 'cursor-not-allowed bg-transparent'
             )}>
             <span className="text-icon-color">
               <MagnifierSparkle />
@@ -57,19 +62,44 @@ export const FilterDashboardButton: React.FC = React.memo(() => {
             <Text className="whitespace-nowrap" variant="default">
               AI Filter
             </Text>
-            {filterText && (
+            {searchText && (
               <Text truncate variant="tertiary">
-                "{filterText}"
+                "{searchText}"
               </Text>
             )}
           </div>
         </div>
       </div>
     );
-  }, [filterText]);
+  }, [searchText]);
+
+  const showFooter = useMemo(() => {
+    if (!items.length) return false;
+    if (!searchText) return true;
+    return 'Manage filters'.toLowerCase().includes(searchText.toLowerCase());
+  }, [items, searchText]);
+
+  const footerContent = useMemo(() => {
+    if (!showFooter) return null;
+    return (
+      <div className="hover:bg-item-select flex cursor-pointer items-center gap-x-1 rounded px-2 py-1 transition">
+        <span className="text-icon-color">
+          <ArrowUpRight />
+        </span>
+        <Text variant="default">Manage filters</Text>
+      </div>
+    );
+  }, [showFooter]);
 
   return (
-    <Dropdown items={allDropdownItems} menuHeader={menuHeader} menuHeaderClassName="p-0!">
+    <Dropdown
+      items={filteredItems}
+      menuHeader={menuHeader}
+      footerContent={footerContent}
+      showEmptyState={false}
+      emptyStateText="No filters found"
+      menuHeaderClassName="p-0!"
+      onSelect={onSelectItem}>
       <Button variant="ghost" prefix={<BarsFilter />}>
         Filter
       </Button>

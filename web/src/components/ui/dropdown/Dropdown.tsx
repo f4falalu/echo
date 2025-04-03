@@ -26,6 +26,9 @@ import { Input } from '../inputs/Input';
 import { useDebounceSearch } from '@/hooks';
 import Link from 'next/link';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useRadixDropdownSearch } from './useRadixDropdownSearch';
+import { Magnifier } from '../icons';
+import { DropdownMenuHeaderSearch } from './DropdownMenuHeaderSearch';
 
 export interface DropdownItem<T = string> {
   label: React.ReactNode | string;
@@ -67,6 +70,7 @@ export interface DropdownProps<T = string> extends DropdownMenuProps {
   sideOffset?: number;
   disabled?: boolean;
   menuHeaderClassName?: string;
+  showEmptyState?: boolean;
 }
 
 export interface DropdownContentProps<T = string>
@@ -99,7 +103,8 @@ export const DropdownBase = <T,>({
   sideOffset,
   footerClassName = '',
   showIndex = false,
-  disabled = false
+  disabled = false,
+  showEmptyState = true
 }: DropdownProps<T>) => {
   return (
     <DropdownMenu
@@ -128,6 +133,7 @@ export const DropdownBase = <T,>({
           className={contentClassName}
           footerClassName={footerClassName}
           menuHeaderClassName={menuHeaderClassName}
+          showEmptyState={showEmptyState}
         />
       </DropdownMenuContent>
     </DropdownMenu>
@@ -147,6 +153,7 @@ export const DropdownContent = <T,>({
   className,
   menuHeaderClassName,
   footerClassName,
+  showEmptyState,
   onSelect
 }: DropdownContentProps<T>) => {
   const { filteredItems, searchText, handleSearchChange } = useDebounceSearch({
@@ -281,9 +288,11 @@ export const DropdownContent = <T,>({
             })}
           </>
         ) : (
-          <DropdownMenuItem disabled className="text-gray-light text-center">
-            {emptyStateText}
-          </DropdownMenuItem>
+          showEmptyState && (
+            <DropdownMenuItem disabled className="text-gray-light text-center">
+              {emptyStateText}
+            </DropdownMenuItem>
+          )
         )}
       </div>
 
@@ -555,62 +564,3 @@ const DropdownMenuHeaderSelector = <T,>({
   return menuHeader;
 };
 DropdownMenuHeaderSelector.displayName = 'DropdownMenuHeaderSelector';
-
-interface DropdownMenuHeaderSearchProps<T> {
-  text: string;
-  onChange: (text: string) => void;
-  onSelectItem: (index: number) => void;
-  placeholder?: string;
-  showIndex: boolean;
-}
-
-const DropdownMenuHeaderSearch = <T,>({
-  text,
-  onChange,
-  onSelectItem,
-  showIndex,
-  placeholder
-}: DropdownMenuHeaderSearchProps<T>) => {
-  const onChangePreflight = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
-    e.preventDefault();
-    onChange(e.target.value);
-  });
-
-  const onKeyDownPreflight = useMemoizedFn((e: React.KeyboardEvent<HTMLInputElement>) => {
-    const isFirstCharacter = (e.target as HTMLInputElement).value.length === 0;
-
-    // Only prevent default for digit shortcuts when showIndex is true
-    if (showIndex && isFirstCharacter && /^Digit[0-9]$/.test(e.code)) {
-      e.preventDefault();
-      const index = parseInt(e.key);
-      onSelectItem?.(index);
-    } else if (e.key === 'ArrowDown') {
-      // Find the first dropdown item and focus it
-      const menuItems = document.querySelectorAll('[role="menuitem"]');
-      if (menuItems.length > 0) {
-        e.preventDefault();
-        e.stopPropagation();
-        (menuItems[0] as HTMLElement).focus();
-      }
-    } else {
-      e.stopPropagation();
-    }
-  });
-
-  return (
-    <div className="flex items-center gap-x-2">
-      <Input
-        autoFocus
-        variant={'ghost'}
-        size={'small'}
-        placeholder={placeholder}
-        value={text}
-        onChange={onChangePreflight}
-        onKeyDown={onKeyDownPreflight}
-      />
-    </div>
-  );
-};
-
-DropdownMenuHeaderSearch.displayName = 'DropdownMenuHeaderSearch';
