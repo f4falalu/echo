@@ -14,7 +14,7 @@ export interface AppDiffCodeEditorProps {
   isDarkMode?: boolean;
   onMount?: (editor: editor.IStandaloneDiffEditor, monaco: typeof import('monaco-editor')) => void;
   original?: string;
-  modified?: string;
+  modified: string;
   onChange?: (value: string) => void;
   style?: React.CSSProperties;
   language?: string;
@@ -23,6 +23,7 @@ export interface AppDiffCodeEditorProps {
   monacoEditorOptions?: editor.IStandaloneDiffEditorConstructionOptions;
   variant?: 'bordered' | null;
   viewMode?: 'side-by-side' | 'inline';
+  disabled?: boolean;
 }
 
 export interface AppDiffCodeEditorHandle {
@@ -34,7 +35,7 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
     {
       style,
       monacoEditorOptions,
-      language = 'typescript',
+      language = 'sql',
       className,
       readOnly,
       onChange,
@@ -45,7 +46,8 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
       modified = '',
       readOnlyMessage = 'Editing code is not allowed',
       variant,
-      viewMode = 'side-by-side'
+      viewMode = 'side-by-side',
+      disabled = false
     },
     ref
   ) => {
@@ -57,7 +59,7 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
         return {
           originalEditable: false,
           automaticLayout: true,
-          readOnly,
+          readOnly: readOnly || disabled,
           renderSideBySide: viewMode === 'side-by-side',
           folding: false,
           lineDecorationsWidth: 15,
@@ -68,7 +70,7 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
           minimap: {
             enabled: false
           },
-          renderSideBySideInlineBreakpoint: 600,
+          renderSideBySideInlineBreakpoint: 400,
           compactMode: true,
           renderIndicators: false,
           onlyShowAccessibleDiffViewer: false,
@@ -81,7 +83,7 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
           },
           ...monacoEditorOptions
         } satisfies editor.IStandaloneDiffEditorConstructionOptions;
-      }, [readOnlyMessage, monacoEditorOptions, viewMode]);
+      }, [readOnlyMessage, monacoEditorOptions, viewMode, readOnly, disabled]);
 
     const onMountDiffEditor = useMemoizedFn(
       async (editor: editor.IStandaloneDiffEditor, monaco: typeof import('monaco-editor')) => {
@@ -106,7 +108,7 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
 
         // Get the modified editor and add change listener
         const modifiedEditor = editor.getModifiedEditor();
-        if (!readOnly) {
+        if (!readOnly && !disabled) {
           modifiedEditor.onDidChangeModelContent(() => {
             onChange?.(modifiedEditor.getValue() || '');
           });
