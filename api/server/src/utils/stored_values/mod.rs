@@ -1,18 +1,18 @@
 pub mod search;
+use query_engine::data_source_query_routes::query_engine::query_engine;
 
+use query_engine::data_types::DataType;
 pub use search::*;
 
+use crate::utils::clients::ai::embedding_router::embedding_router;
 use anyhow::Result;
 use chrono::Utc;
-use diesel::prelude::*;
-use diesel_async::RunQueryDsl;
-use uuid::Uuid;
 use database::enums::StoredValuesStatus;
 use database::{pool::get_pg_pool, schema::dataset_columns};
-use crate::utils::clients::ai::embedding_router::embedding_router;
-use diesel::sql_types::{Text, Uuid as SqlUuid, Array, Float4, Timestamptz, Integer};
-
-use super::query_engine::{data_types::DataType, query_engine::query_engine};
+use diesel::prelude::*;
+use diesel::sql_types::{Array, Float4, Integer, Text, Timestamptz, Uuid as SqlUuid};
+use diesel_async::RunQueryDsl;
+use uuid::Uuid;
 
 #[derive(Debug, QueryableByName)]
 pub struct StoredValueRow {
@@ -39,10 +39,7 @@ pub async fn ensure_stored_values_schema(organization_id: &Uuid) -> Result<()> {
 
     // Create schema and table using raw SQL
     let schema_name = organization_id.to_string().replace("-", "_");
-    let create_schema_sql = format!(
-        "CREATE SCHEMA IF NOT EXISTS values_{}",
-        schema_name
-    );
+    let create_schema_sql = format!("CREATE SCHEMA IF NOT EXISTS values_{}", schema_name);
 
     let create_table_sql = format!(
         "CREATE TABLE IF NOT EXISTS values_{}.values_v1 (
@@ -64,9 +61,15 @@ pub async fn ensure_stored_values_schema(organization_id: &Uuid) -> Result<()> {
         schema_name
     );
 
-    diesel::sql_query(create_schema_sql).execute(&mut conn).await?;
-    diesel::sql_query(create_table_sql).execute(&mut conn).await?;
-    diesel::sql_query(create_index_sql).execute(&mut conn).await?;
+    diesel::sql_query(create_schema_sql)
+        .execute(&mut conn)
+        .await?;
+    diesel::sql_query(create_table_sql)
+        .execute(&mut conn)
+        .await?;
+    diesel::sql_query(create_index_sql)
+        .execute(&mut conn)
+        .await?;
 
     Ok(())
 }
@@ -99,12 +102,19 @@ pub async fn store_column_values(
              AND length(\"{}\") <= {} 
              ORDER BY \"{}\" 
              LIMIT {} OFFSET {}",
-            column_name, schema, table_name, column_name, column_name, 
-            MAX_VALUE_LENGTH, column_name, BATCH_SIZE, offset
+            column_name,
+            schema,
+            table_name,
+            column_name,
+            column_name,
+            MAX_VALUE_LENGTH,
+            column_name,
+            BATCH_SIZE,
+            offset
         );
 
-        let results = match query_engine(dataset_id, &query).await {
-            Ok(results) => results,
+        let results = match query_engine(dataset_id, &query, None).await {
+            Ok(results) => results.data,
             Err(e) => {
                 tracing::error!("Error querying stored values: {:?}", e);
                 if first_batch {
@@ -113,7 +123,7 @@ pub async fn store_column_values(
                 vec![]
             }
         };
-        
+
         if results.is_empty() {
             break;
         }
@@ -137,12 +147,13 @@ pub async fn store_column_values(
         // If this is the first batch and we have 15 or fewer values, handle as enum
         if first_batch && values.len() <= 15 {
             // Get current description
-            let current_description = diesel::sql_query("SELECT description FROM dataset_columns WHERE id = $1")
-                .bind::<SqlUuid, _>(column_id)
-                .get_result::<StoredValueRow>(&mut conn)
-                .await
-                .ok()
-                .and_then(|row| Some(row.value));
+            let current_description =
+                diesel::sql_query("SELECT description FROM dataset_columns WHERE id = $1")
+                    .bind::<SqlUuid, _>(column_id)
+                    .get_result::<StoredValueRow>(&mut conn)
+                    .await
+                    .ok()
+                    .and_then(|row| Some(row.value));
 
             // Format new description
             let enum_list = format!("Values for this column are: {}", values.join(", "));
@@ -207,7 +218,7 @@ pub async fn search_stored_values(
     organization_id: &Uuid,
     dataset_id: &Uuid,
     query_embedding: Vec<f32>,
-    limit: Option<i32>
+    limit: Option<i32>,
 ) -> Result<Vec<(String, String, Uuid)>> {
     let pool = get_pg_pool();
     let mut conn = pool.get().await?;
@@ -231,7 +242,10 @@ pub async fn search_stored_values(
         .load(&mut conn)
         .await?;
 
-    Ok(results.into_iter().map(|r| (r.value, r.column_name, r.column_id)).collect())
+    Ok(results
+        .into_iter()
+        .map(|r| (r.value, r.column_name, r.column_id))
+        .collect())
 }
 
 pub struct StoredValueColumn {
@@ -254,7 +268,9 @@ pub async fn process_stored_values_background(columns: Vec<StoredValueColumn>) {
             &column.data_source_id,
             &column.schema,
             &column.table_name,
-        ).await {
+        )
+        .await
+        {
             Ok(_) => {
                 tracing::info!(
                     "Successfully processed stored values for column '{}' in dataset '{}'",
@@ -272,4 +288,4 @@ pub async fn process_stored_values_background(columns: Vec<StoredValueColumn>) {
             }
         }
     }
-} 
+}

@@ -5,6 +5,7 @@ use axum::{extract::Json, Extension};
 use chrono::{DateTime, Utc};
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use query_engine::credentials::get_data_source_credentials;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
@@ -20,10 +21,6 @@ use crate::{
     },
     routes::rest::ApiResponse,
     utils::{
-        query_engine::{
-            credentials::get_data_source_credentials,
-            import_dataset_columns::retrieve_dataset_columns_batch,
-        },
         security::checks::is_user_workspace_admin_or_data_admin,
         user::user_info::get_user_organization_id,
         validation::{ValidationError, ValidationResult},

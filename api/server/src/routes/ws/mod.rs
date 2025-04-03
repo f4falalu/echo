@@ -1,14 +1,11 @@
 mod collections;
-mod dashboards;
-mod data_sources;
-mod datasets;
+mod metrics;
 mod organizations;
 mod permissions;
 mod search;
 mod teams;
 mod terms;
-mod metrics;
-pub mod threads_and_messages;
+mod threads_and_messages;
 mod users;
 pub mod ws;
 pub mod ws_router;

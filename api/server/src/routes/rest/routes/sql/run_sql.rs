@@ -2,7 +2,9 @@ use anyhow::{anyhow, Result};
 use axum::{Extension, Json};
 use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
 use indexmap::IndexMap;
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use query_engine::data_source_query_routes::query_engine::query_engine;
+use query_engine::data_types::DataType;
+use rayon::iter::ParallelIterator;
 use reqwest::StatusCode;
 use uuid::Uuid;
 
@@ -11,21 +13,12 @@ use serde::{Deserialize, Serialize};
 
 use database::{
     enums::UserOrganizationRole,
-    models::{ColumnMetadata, DataMetadataJsonBody, MinMaxValue},
     pool::get_pg_pool,
-    schema::{data_sources, datasets, users_to_organizations}, types::DataMetadata,
+    schema::{data_sources, datasets, users_to_organizations},
+    types::DataMetadata,
 };
 
-use crate::{
-    routes::rest::ApiResponse,
-    utils::{
-        query_engine::{
-            data_types::DataType,
-            query_engine::{modeling_query_engine, query_engine},
-        },
-        security::dataset_security::has_dataset_access,
-    },
-};
+use crate::{routes::rest::ApiResponse, utils::dataset_security::has_dataset_access};
 use middleware::AuthenticatedUser;
 
 const MAX_UNIQUE_VALUES: usize = 100;
@@ -123,7 +116,7 @@ pub struct DataObject {
 }
 
 pub async fn fetch_data(sql: &String, dataset_id: &Uuid) -> Result<DataObject> {
-    let query_result = match query_engine(&dataset_id, &sql).await {
+    let query_result = match query_engine(&dataset_id, &sql, None).await {
         Ok(result) => result,
         Err(e) => {
             return Err(anyhow!(e));
@@ -141,13 +134,13 @@ async fn run_data_source_sql_handler(
     data_source_id: &Uuid,
     user_id: &Uuid,
 ) -> Result<DataObject> {
-    let query_result = match modeling_query_engine(&data_source_id, &sql, &user_id).await {
+    let query_result = match query_engine(&data_source_id, &sql, None).await {
         Ok(result) => result,
         Err(e) => return Err(e),
     };
 
     Ok(DataObject {
         data: query_result.data,
-        data_metadata: query_result.metadata
+        data_metadata: query_result.metadata,
     })
 }

@@ -15,8 +15,10 @@ use crate::{
         schema::{datasets, users_to_organizations},
     },
     routes::rest::ApiResponse,
-    utils::query_engine::{data_types::DataType, query_engine::query_engine},
 };
+
+use query_engine::data_types::DataType;
+use query_engine::data_source_query_routes::query_engine::query_engine;
 
 #[derive(Serialize)]
 pub struct GetDatasetOwner {
@@ -98,8 +100,8 @@ async fn get_dataset_data_sample_handler(
         let schema = dataset.schema.clone();
         let database_name = dataset.database_name.clone();
         let sql = format!("SELECT * FROM {}.{} LIMIT 25", schema, database_name);
-        match query_engine(dataset_id, &sql).await {
-            Ok(data) => data,
+        match query_engine(dataset_id, &sql, None).await {
+            Ok(data) => data.data,
             Err(e) => {
                 tracing::error!("Error getting dataset data: {:?}", e);
                 return Err(anyhow!("Error getting dataset data: {:?}", e));
@@ -107,5 +109,5 @@ async fn get_dataset_data_sample_handler(
         }
     };
 
-    Ok(data.data)
+    Ok(data)
 }
