@@ -49,21 +49,32 @@ export const ChatResponseReasoning: React.FC<{
     return lastMessageTitle || 'Thinking...';
   }, [lastMessageTitle, finalReasoningMessage, blackBoxMessage]);
 
+  const onClickReasoningFile = useMemoizedFn(() => {
+    onSetSelectedFile(isReasonginFileSelected ? null : { id: messageId, type: 'reasoning' });
+  });
+
   const href = useMemo(() => {
+    if (isReasonginFileSelected) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID,
+        chatId
+      });
+    }
+
     return createBusterRoute({
       route: BusterRoutes.APP_CHAT_ID_REASONING_ID,
       messageId,
       chatId
     });
-  }, [isReasonginFileSelected, messageId]);
+  }, [isReasonginFileSelected, messageId, chatId]);
 
   return (
-    <Link href={href}>
+    <Link href={href} onClick={onClickReasoningFile}>
       <AnimatePresence initial={!isCompletedStream} mode="wait">
         <motion.div
           {...animations}
           key={text}
-          className="mb-3.5 flex h-[14px] max-h-[14px] w-fit cursor-pointer items-center">
+          className="flex h-[14px] max-h-[14px] w-fit cursor-pointer items-center">
           {!showShimmerText ? (
             <Text variant={'secondary'} className="hover:text-text-default hover:underline">
               {text}
