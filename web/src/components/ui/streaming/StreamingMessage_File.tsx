@@ -9,7 +9,7 @@ import { itemAnimationConfig } from './animationConfig';
 import { StatusIndicator } from '@/components/ui/indicators';
 import { FileCard } from '../card/FileCard';
 import { TextAndVersionPill } from '../typography/TextAndVersionPill';
-
+import { cn } from '@/lib/utils';
 export const StreamingMessage_File: React.FC<{
   isSelectedFile: boolean;
   responseMessage: BusterChatResponseMessage_file;
@@ -26,6 +26,7 @@ export const StreamingMessage_File: React.FC<{
     <AnimatePresence initial={!isCompletedStream}>
       <motion.div id={id} {...itemAnimationConfig}>
         <FileCard
+          className={cn(isSelectedFile && 'border-foreground shadow-md')}
           fileName={<TextAndVersionPill fileName={file_name} versionNumber={version_number} />}>
           <StreamingMessageBody metadata={metadata} />
         </FileCard>

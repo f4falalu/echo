@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
-import { useDebounceFn, useMemoizedFn } from '@/hooks';
+import { useDebounceFn, useMemoizedFn, useWhyDidYouUpdate } from '@/hooks';
 import {
   deleteMetrics,
   duplicateMetric,
@@ -17,7 +17,7 @@ import {
 import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '@/lib/metrics';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useGetUserFavorites } from '../users';
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
@@ -42,7 +42,8 @@ export const useGetMetric = <TData = IBusterMetric>(
   },
   select?: (data: IBusterMetric) => TData
 ) => {
-  const { setOriginalMetric } = useOriginalMetricStore();
+  const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
+  const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
   const searchParams = useSearchParams();
   const queryVersionNumber = searchParams.get('metric_version_number');
   const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
@@ -68,7 +69,7 @@ export const useGetMetric = <TData = IBusterMetric>(
     return updatedMetric;
   });
 
-  return useQuery({
+  const result = useQuery({
     ...options,
     queryFn,
     select,
@@ -80,6 +81,8 @@ export const useGetMetric = <TData = IBusterMetric>(
       return false;
     }
   });
+
+  return result;
 };
 
 export const useGetMetricsList = (

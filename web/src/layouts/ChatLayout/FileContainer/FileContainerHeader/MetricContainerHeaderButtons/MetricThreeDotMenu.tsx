@@ -50,7 +50,6 @@ import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuConte
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { BusterRoutes, createBusterRoute } from '@/routes';
 import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
