@@ -254,8 +254,8 @@ pub async fn get_user_collection_permission(
         .into_iter()
         .max_by_key(|role| match role {
             AssetPermissionRole::Owner => 3,
-            AssetPermissionRole::Editor => 2,
-            AssetPermissionRole::Viewer => 1,
+            AssetPermissionRole::CanEdit=> 2,
+            AssetPermissionRole::CanView => 1,
             _ => 0,
         })
         .ok_or_else(|| anyhow!("No collection found with permissions"))?;
@@ -375,8 +375,8 @@ async fn get_collection_and_check_permissions(
         .into_iter()
         .max_by_key(|(_, role)| match role {
             AssetPermissionRole::Owner => 3,
-            AssetPermissionRole::Editor => 2,
-            AssetPermissionRole::Viewer => 1,
+            AssetPermissionRole::CanEdit => 2,
+            AssetPermissionRole::CanView => 1,
             _ => 0,
         })
         .ok_or_else(|| anyhow!("No collection found with permissions"))?;

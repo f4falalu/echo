@@ -1,11 +1,11 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    enums::Verification,
+    enums::{AssetPermissionRole, AssetType, IdentityType, Verification},
     pool::get_pg_pool,
-    schema::{metric_files, users},
+    schema::{asset_permissions, metric_files, users},
 };
-use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl};
+use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
@@ -47,6 +47,15 @@ pub async fn list_metrics_handler(
     // Build the base query
     let mut metric_statement = metric_files::table
         .inner_join(users::table.on(metric_files::created_by.eq(users::id)))
+        .left_join(
+            asset_permissions::table.on(
+                metric_files::id.eq(asset_permissions::asset_id)
+                    .and(asset_permissions::asset_type.eq(AssetType::MetricFile))
+                    .and(asset_permissions::identity_type.eq(IdentityType::User))
+                    .and(asset_permissions::identity_id.eq(&user.id))
+                    .and(asset_permissions::deleted_at.is_null())
+            )
+        )
         .select((
             (
                 metric_files::id,
@@ -70,10 +79,24 @@ pub async fn list_metrics_handler(
         .limit(request.page_size)
         .into_boxed();
 
-    // Add filters for shared_with_me and only_my_metrics if provided
+    // Add filters based on request parameters
     if let Some(true) = request.only_my_metrics {
-        metric_statement =
-            diesel::QueryDsl::filter(metric_statement, metric_files::created_by.eq(&user.id));
+        // Show only metrics created by the user
+        metric_statement = metric_statement.filter(metric_files::created_by.eq(&user.id));
+    } else if let Some(true) = request.shared_with_me {
+        // Show only metrics shared with the user (not created by them)
+        metric_statement = metric_statement.filter(
+            asset_permissions::identity_id.is_not_null()
+                .and(metric_files::created_by.ne(&user.id))
+        );
+    } else {
+        // Show metrics that are either:
+        // 1. Created by the user
+        // 2. User has permission to view them through asset_permissions
+        metric_statement = metric_statement.filter(
+            metric_files::created_by.eq(&user.id)
+                .or(asset_permissions::identity_id.is_not_null())
+        );
     }
 
     // Execute the query
@@ -110,10 +133,10 @@ pub async fn list_metrics_handler(
                     last_edited: updated_at,
                     created_by_id: created_by,
                     created_by_name: created_by_name.unwrap_or(created_by_email.clone()),
-                    created_by_email: created_by_email,
-                    created_by_avatar: created_by_avatar,
+                    created_by_email,
+                    created_by_avatar,
                     status,
-                    is_shared: false, // Would determine based on permissions
+                    is_shared: created_by != user.id, // Mark as shared if the user is not the creator
                 }
             },
         )

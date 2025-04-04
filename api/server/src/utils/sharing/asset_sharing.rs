@@ -409,7 +409,7 @@ async fn grant_user_access_to_asset(
                     .iter()
                     .find(|u| u.user_email == email)
                     .map(|u| u.role)
-                    .unwrap_or(AssetPermissionRole::Viewer);
+                    .unwrap_or(AssetPermissionRole::CanView);
                 (id, email, role)
             })
             .collect(),

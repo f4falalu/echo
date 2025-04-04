@@ -31,7 +31,7 @@ pub struct UpdateMetricSharingRequest {
     /// Password for public access (if null, will clear existing password)
     pub public_password: Option<Option<String>>,
     /// Expiration date for public access (if null, will clear existing expiration)
-    pub public_expiration: Option<Option<DateTime<Utc>>>,
+    pub public_expiry_date: Option<Option<DateTime<Utc>>>,
 }
 
 /// Handler to update sharing permissions for a metric
@@ -115,7 +115,7 @@ pub async fn update_metric_sharing_handler(
     }
 
     // 4. Update public access settings if provided
-    if request.publicly_accessible.is_some() || request.public_expiration.is_some() {
+    if request.publicly_accessible.is_some() || request.public_expiry_date.is_some() {
         // No need to get a new connection as we already have one
 
         // Create a mutable metric record to update using the metric we already have
@@ -140,7 +140,7 @@ pub async fn update_metric_sharing_handler(
         }
 
         // Update public_expiry_date if provided
-        if let Some(public_expiration) = &request.public_expiration {
+        if let Some(public_expiration) = &request.public_expiry_date {
             info!(
                 metric_id = %metric_id,
                 "Updating public expiration for metric"
@@ -194,7 +194,7 @@ mod tests {
             }]),
             publicly_accessible: None,
             public_password: None,
-            public_expiration: None,
+            public_expiry_date: None,
         };
 
         let result = update_metric_sharing_handler(&metric_id, &user, request).await;
@@ -224,7 +224,7 @@ mod tests {
             users: None,
             publicly_accessible: Some(true),
             public_password: None,
-            public_expiration: Some(Some(Utc::now())),
+            public_expiry_date: Some(Some(Utc::now())),
         };
 
         let result = update_metric_sharing_handler(&metric_id, &user, request).await;
@@ -256,7 +256,7 @@ mod tests {
             users: None,
             publicly_accessible: Some(true),
             public_password: None,
-            public_expiration: Some(Some(Utc::now())),
+            public_expiry_date: Some(Some(Utc::now())),
         };
 
         // This test will fail in isolation as we can't easily mock the database

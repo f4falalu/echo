@@ -33,7 +33,7 @@ pub struct UpdateDashboardSharingRequest {
     /// Password for public access (if null, will clear existing password)
     pub public_password: Option<Option<String>>,
     /// Expiration date for public access (if null, will clear existing expiration)
-    pub public_expiration: Option<Option<DateTime<Utc>>>,
+    pub public_expiry_date: Option<Option<DateTime<Utc>>>,
 }
 
 /// Updates sharing permissions for a dashboard
@@ -123,7 +123,7 @@ pub async fn update_dashboard_sharing_handler(
 
     // Update public access settings if provided
     if request.publicly_accessible.is_some() || 
-       request.public_expiration.is_some() {
+       request.public_expiry_date.is_some() {
         
         let dashboard_file = dashboard_with_permission.dashboard_file;
         let pool = database::pool::get_pg_pool();
@@ -141,7 +141,7 @@ pub async fn update_dashboard_sharing_handler(
         };
         
         // Set public_expiry_date if provided, otherwise keep the current value
-        let public_expiry_date = request.public_expiration.unwrap_or(dashboard_file.public_expiry_date);
+        let public_expiry_date = request.public_expiry_date.unwrap_or(dashboard_file.public_expiry_date);
         
         // Set publicly_accessible if provided, otherwise keep the current value
         let publicly_accessible = request.publicly_accessible.unwrap_or(dashboard_file.publicly_accessible);

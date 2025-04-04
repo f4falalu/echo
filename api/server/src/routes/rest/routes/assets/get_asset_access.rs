@@ -225,10 +225,8 @@ pub async fn get_user_dashboard_permission(
         .into_iter()
         .max_by_key(|role| match role {
             AssetPermissionRole::Owner => 3,
-            AssetPermissionRole::Editor => 2,
-            AssetPermissionRole::Viewer => 1,
-            AssetPermissionRole::CanView => 0,
-            AssetPermissionRole::FullAccess => 0,
+            AssetPermissionRole::CanView => 2,
+            AssetPermissionRole::FullAccess => 1,
             AssetPermissionRole::CanEdit => 0,
             AssetPermissionRole::CanFilter => 0,
         })
@@ -299,8 +297,8 @@ pub async fn get_user_thread_permission(
             .into_iter()
             .max_by_key(|role| match role {
                 AssetPermissionRole::Owner => 3,
-                AssetPermissionRole::Editor => 2,
-                AssetPermissionRole::Viewer => 1,
+                AssetPermissionRole::CanEdit => 2,
+                AssetPermissionRole::CanView => 1,
                 _ => 0,
             })
             .ok_or_else(|| anyhow!("No thread found with permissions"))?;
