@@ -1,8 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/buttons';
 import { ArrowUpRight, BarsFilter } from '@/components/ui/icons';
-import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
-import { Input } from '@/components/ui/inputs';
+import { Dropdown } from '@/components/ui/dropdown';
 import { MagnifierSparkle } from '@/components/ui/icons';
 import { Text } from '@/components/ui/typography';
 import { faker } from '@faker-js/faker';

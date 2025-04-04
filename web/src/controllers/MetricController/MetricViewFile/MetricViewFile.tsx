@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { CodeCard } from '@/components/ui/card';
 import { useMemoizedFn } from '@/hooks';
-import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useGetMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
+import { EditFileContainer } from '@/components/features/files/EditFileContainer';
 
 export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
   const { data: metric } = useGetMetric({ id: metricId }, ({ file, file_name }) => ({
@@ -26,15 +25,7 @@ export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metr
 
   const updateMetricErrorMessage = updateMetricError?.message;
 
-  const { file: fileProp, file_name } = metric || {};
-
-  const [file, setFile] = React.useState(fileProp);
-
-  const showPopup = file !== fileProp && !!file;
-
-  const onResetFile = useMemoizedFn(() => {
-    setFile(fileProp);
-  });
+  const { file, file_name } = metric || {};
 
   const onSaveFile = useMemoizedFn(async () => {
     await updateMetric({
@@ -44,29 +35,14 @@ export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metr
     openSuccessMessage(`${file_name} saved`);
   });
 
-  useEffect(() => {
-    setFile(fileProp);
-  }, [fileProp]);
-
   return (
-    <div className="relative h-full overflow-hidden p-5">
-      <CodeCard
-        code={file || ''}
-        language="yaml"
-        fileName={file_name || ''}
-        onChange={setFile}
-        onMetaEnter={onSaveFile}
-        error={updateMetricErrorMessage}
-      />
-
-      <SaveResetFilePopup
-        open={showPopup}
-        onReset={onResetFile}
-        onSave={onSaveFile}
-        isSaving={isUpdatingMetric}
-        showHotsKeys
-      />
-    </div>
+    <EditFileContainer
+      fileName={file_name}
+      file={file}
+      onSaveFile={onSaveFile}
+      error={updateMetricErrorMessage}
+      isSaving={isUpdatingMetric}
+    />
   );
 });
 

@@ -2,18 +2,16 @@ import React from 'react';
 import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { cn } from '@/lib/classMerge';
 import { Button } from '../buttons/Button';
-import { Card, CardHeader, CardContent } from './CardBase';
 import { Download, Copy } from '../icons';
 import { ErrorClosableContainer } from '../error/ErrorClosableContainer';
+import { FileCard } from './FileCard';
 
 export const CodeCard: React.FC<{
   code: string;
   language: string;
   fileName: string;
   className?: string;
-  bodyClassName?: string;
   error?: string;
   buttons?: React.ReactNode | true;
   onChange?: (code: string) => void;
@@ -26,7 +24,6 @@ export const CodeCard: React.FC<{
     language = 'yml',
     fileName,
     className = 'h-full overflow-hidden',
-    bodyClassName = 'h-full',
     buttons = true,
     onChange,
     readOnly = false,
@@ -40,28 +37,20 @@ export const CodeCard: React.FC<{
       );
 
     return (
-      <Card className={cn('h-full', className)}>
-        <CardHeader variant={'gray'} size={'xsmall'} className="justify-center">
-          <div className="flex items-center justify-between gap-x-1">
-            <span className="truncate text-base">{fileName}</span>
-            {ShownButtons}
-          </div>
-        </CardHeader>
-        <CardContent className={cn('bg-background overflow-hidden p-0', bodyClassName)}>
-          <div className={cn('bg-background relative', bodyClassName)}>
-            <AppCodeEditor
-              language={language}
-              value={code}
-              onChange={onChange}
-              readOnly={readOnly}
-              height="100%"
-              onMetaEnter={onMetaEnter}
-              className="border-none"
-            />
-            {error && <ErrorClosableContainer error={error} className="bottom-10!" />}
-          </div>
-        </CardContent>
-      </Card>
+      <FileCard fileName={fileName} headerButtons={ShownButtons} className={className}>
+        <>
+          <AppCodeEditor
+            language={language}
+            value={code}
+            onChange={onChange}
+            readOnly={readOnly}
+            height="100%"
+            onMetaEnter={onMetaEnter}
+            className="border-none"
+          />
+          {error && <ErrorClosableContainer error={error} className="bottom-10!" />}
+        </>
+      </FileCard>
     );
   }
 );
