@@ -58,7 +58,7 @@ pub async fn search(
         options.num_results
     );
 
-    let mut results = sqlx::query(&query).fetch(&mut *conn);
+    let mut results = sqlx::raw_sql(&query).fetch(&mut *conn);
     let mut results_vec = Vec::new();
 
     while let Some(row) = results.try_next().await? {

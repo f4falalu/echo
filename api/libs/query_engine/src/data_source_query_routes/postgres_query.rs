@@ -74,7 +74,7 @@ pub async fn postgres_query(
     let limit_value = limit.unwrap_or(default_limit) as usize;
     
     // Create query stream without appending LIMIT
-    let mut stream = sqlx::query(&formatted_sql).fetch(&pg_pool);
+    let mut stream = sqlx::raw_sql(&formatted_sql).fetch(&pg_pool);
 
     // Pre-allocate result vector with estimated capacity to reduce allocations
     let mut result: Vec<IndexMap<String, DataType>> = Vec::with_capacity(limit_value);

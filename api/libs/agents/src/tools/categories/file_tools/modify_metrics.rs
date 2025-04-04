@@ -4,21 +4,22 @@ use anyhow::Result;
 use async_trait::async_trait;
 use braintrust::{get_prompt_system_message, BraintrustClient};
 use database::{
-    models::MetricFile, pool::get_pg_pool, schema::metric_files,
+    models::MetricFile,
+    pool::get_pg_pool,
+    schema::{datasets, metric_files},
     types::MetricYml,
 };
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
-use query_engine::data_types::DataType;
+use query_engine::{data_source_query_routes::query_engine::query_engine, data_types::DataType};
 use serde_json::Value;
 use tracing::{debug, error, info};
 use uuid::Uuid;
 
 use super::{
     common::{
-        process_metric_file_modification, ModificationResult, ModifyFilesOutput,
-        ModifyFilesParams,
+        process_metric_file_modification, ModificationResult, ModifyFilesOutput, ModifyFilesParams,
     },
     file_types::file::FileWithId,
     FileModificationTool,
@@ -60,10 +61,13 @@ impl ToolExecutor for ModifyMetricFilesTool {
     }
 
     async fn is_enabled(&self) -> bool {
-        matches!((
-            self.agent.get_state_value("metrics_available").await,
-            self.agent.get_state_value("plan_available").await,
-        ), (Some(_), Some(_)))
+        matches!(
+            (
+                self.agent.get_state_value("metrics_available").await,
+                self.agent.get_state_value("plan_available").await,
+            ),
+            (Some(_), Some(_))
+        )
     }
 
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
@@ -113,19 +117,78 @@ impl ToolExecutor for ModifyMetricFilesTool {
                     for file in files {
                         if let Some(modifications) = file_map.get(&file.id) {
                             match process_metric_file_modification(
-                                file,
+                                file.clone(),
                                 modifications,
                                 start_time.elapsed().as_millis() as i64,
                             )
                             .await
                             {
                                 Ok((
-                                    metric_file,
+                                    mut metric_file,
                                     metric_yml,
                                     results,
                                     validation_message,
                                     validation_results,
                                 )) => {
+                                    // Calculate next version number from existing version history
+                                    let next_version =
+                                        match metric_file.version_history.get_latest_version() {
+                                            Some(version) => version.version_number + 1,
+                                            None => 1,
+                                        };
+
+                                    // Add new version to history
+                                    metric_file
+                                        .version_history
+                                        .add_version(next_version, metric_yml.clone());
+
+                                    // Update metadata if SQL has changed
+                                    // The SQL is already validated by process_metric_file_modification
+                                    if results.iter().any(|r| r.modification_type == "content") {
+                                        // Update the name field from the metric_yml
+                                        // This is redundant but ensures the name is set correctly
+                                        metric_file.name = metric_yml.name.clone();
+                                        
+                                        // Check if we have a dataset to work with
+                                        if !metric_yml.dataset_ids.is_empty() {
+                                            let dataset_id = metric_yml.dataset_ids[0];
+
+                                            // Get data source for the dataset
+                                            match datasets::table
+                                                .filter(datasets::id.eq(dataset_id))
+                                                .select(datasets::data_source_id)
+                                                .first::<Uuid>(&mut conn)
+                                                .await
+                                            {
+                                                Ok(data_source_id) => {
+                                                    // Execute query to get metadata
+                                                    match query_engine(
+                                                        &data_source_id,
+                                                        &metric_yml.sql,
+                                                        Some(100),
+                                                    )
+                                                    .await
+                                                    {
+                                                        Ok(query_result) => {
+                                                            // Update metadata
+                                                            metric_file.data_metadata =
+                                                                Some(query_result.metadata);
+                                                            debug!("Updated metadata for metric file {}", metric_file.id);
+                                                        }
+                                                        Err(e) => {
+                                                            debug!("Failed to execute SQL for metadata: {}", e);
+                                                            // Continue with the update even if metadata refresh fails
+                                                        }
+                                                    }
+                                                }
+                                                Err(e) => {
+                                                    debug!("Failed to get data source ID: {}", e);
+                                                    // Continue with the update even if we can't get data source
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     batch.files.push(metric_file);
                                     batch.ymls.push(metric_yml);
                                     batch.modification_results.extend(results);
@@ -160,7 +223,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
             duration,
         };
 
-        // Update metric files in database
+        // Update metric files in database with version history and metadata
         if !batch.files.is_empty() {
             use diesel::insert_into;
             match insert_into(metric_files::table)
@@ -170,12 +233,16 @@ impl ToolExecutor for ModifyMetricFilesTool {
                 .set((
                     metric_files::content.eq(excluded(metric_files::content)),
                     metric_files::updated_at.eq(excluded(metric_files::updated_at)),
+                    metric_files::version_history.eq(excluded(metric_files::version_history)),
+                    // Explicitly set name even though it's in content to ensure it's updated in case content parsing fails
+                    metric_files::name.eq(excluded(metric_files::name)),
+                    metric_files::data_metadata.eq(excluded(metric_files::data_metadata)),
                 ))
                 .execute(&mut conn)
                 .await
             {
                 Ok(_) => {
-                    debug!("Successfully updated metric files in database");
+                    debug!("Successfully updated metric files with versioning and metadata");
                 }
                 Err(e) => {
                     error!("Failed to update metric files in database: {}", e);
@@ -190,7 +257,10 @@ impl ToolExecutor for ModifyMetricFilesTool {
         // Generate output
         let duration = start_time.elapsed().as_millis() as i64;
         let mut output = ModifyFilesOutput {
-            message: format!("Modified {} metric files", batch.files.len()),
+            message: format!(
+                "Modified {} metric files and created new versions",
+                batch.files.len()
+            ),
             duration,
             files: Vec::new(),
         };
@@ -349,7 +419,8 @@ async fn get_modify_metrics_new_content_description() -> String {
 
 async fn get_modify_metrics_content_to_replace_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The exact content in the file that should be replaced. Must match exactly.".to_string();
+        return "The exact content in the file that should be replaced. Must match exactly."
+            .to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -458,7 +529,6 @@ mod tests {
 
     #[test]
     fn test_tool_parameter_validation() {
-
         // Test valid parameters
         let valid_params = json!({
             "files": [{

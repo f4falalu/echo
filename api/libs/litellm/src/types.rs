@@ -67,7 +67,7 @@ impl Default for ChatCompletionRequest {
         Self {
             model: String::new(),
             messages: Vec::new(),
-            store: Some(true),
+            store: None,
             reasoning_effort: None,
             frequency_penalty: None,
             logit_bias: None,
