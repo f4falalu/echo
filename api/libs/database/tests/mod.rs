@@ -4,6 +4,15 @@
 use database::pool::init_pools;
 use lazy_static::lazy_static;
 
+// Import test modules
+pub mod helpers;
+
+// Re-export test modules
+#[allow(unused_imports)]
+use helpers::dashboard_files_test;
+#[allow(unused_imports)]
+use helpers::metric_files_test;
+
 lazy_static! {
     // Initialize test environment once across all tests
     static ref TEST_ENV: () = {
