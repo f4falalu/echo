@@ -62,7 +62,7 @@ export const Default: Story = {
   args: {
     rows: sampleData,
     resizable: true,
-    draggable: true,
+
     sortable: true
   },
   render: (args) => (
@@ -76,7 +76,7 @@ export const NonResizable: Story = {
   args: {
     rows: sampleData,
     resizable: false,
-    draggable: true,
+
     sortable: true
   }
 };
@@ -85,8 +85,7 @@ export const NonDraggable: Story = {
   args: {
     rows: sampleData,
     resizable: true,
-    draggable: false,
-    sortable: true
+    sortable: false
   }
 };
 
@@ -94,7 +93,7 @@ export const NonSortable: Story = {
   args: {
     rows: sampleData,
     resizable: true,
-    draggable: true,
+
     sortable: false
   }
 };
@@ -104,7 +103,7 @@ export const CustomColumnOrder: Story = {
     rows: sampleData,
     columnOrder: ['name', 'email', 'age', 'id', 'joinDate'],
     resizable: true,
-    draggable: true,
+
     sortable: true
   }
 };
@@ -120,7 +119,7 @@ export const CustomColumnWidths: Story = {
       joinDate: 120
     },
     resizable: true,
-    draggable: true,
+
     sortable: true
   }
 };
@@ -139,7 +138,7 @@ export const CustomFormatting: Story = {
       return String(value);
     },
     resizable: true,
-    draggable: true,
+
     sortable: true
   }
 };
@@ -151,7 +150,7 @@ export const WithCallbacks: Story = {
     onResizeColumns: (columnSizes) => console.log('Columns resized:', columnSizes),
     onReady: () => console.log('Grid is ready'),
     resizable: true,
-    draggable: true,
+
     sortable: true
   }
 };
@@ -170,7 +169,7 @@ export const ManyRows: Story = {
       ).toISOString()
     })),
     resizable: true,
-    draggable: true,
+
     sortable: true
   }
 };

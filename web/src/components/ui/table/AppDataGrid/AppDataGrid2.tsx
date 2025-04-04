@@ -17,31 +17,31 @@ import {
   useSensor,
   useSensors,
   closestCenter,
+  pointerWithin,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
   useDraggable,
   useDroppable,
-  DragOverEvent,
-  defaultDropAnimationSideEffects
+  DragOverEvent
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import sampleSize from 'lodash/sampleSize';
 import { defaultCellFormat, defaultHeaderFormat } from './helpers';
 import { cn } from '@/lib/classMerge';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
+import { useMemoizedFn } from '@/hooks';
+import { CaretDown, CaretUp } from '../../icons/NucleoIconFilled';
 
 export interface AppDataGridProps {
   className?: string;
   resizable?: boolean;
-  draggable?: boolean;
   sortable?: boolean;
   rows: Record<string, string | number | null | Date>[];
   columnOrder?: string[];
   columnWidths?: Record<string, number>;
-  headerFormat?: (value: any, columnName: string) => string;
-  cellFormat?: (value: any, columnName: string) => string;
+  headerFormat?: (value: string | number | Date | null, columnName: string) => string;
+  cellFormat?: (value: string | number | Date | null, columnName: string) => string;
   onReorderColumns?: (columnIds: string[]) => void;
   onReady?: () => void;
   onResizeColumns?: (
@@ -53,95 +53,113 @@ export interface AppDataGridProps {
 }
 
 interface DraggableHeaderProps {
-  header: any; // Header<any, unknown>
-  sortable: boolean;
+  header: Header<Record<string, string | number | Date | null>, unknown>;
   resizable: boolean;
-  isOverTarget: boolean;
+  sortable: boolean;
+  overTargetId: string | null;
 }
 
 // Constants for consistent sizing
 const HEADER_HEIGHT = 36; // 9*4 = 36px (h-9 in Tailwind)
 
-const DraggableHeader: React.FC<DraggableHeaderProps> = ({
-  header,
-  sortable,
-  resizable,
-  isOverTarget
-}) => {
-  // Set up dnd-kit's useDraggable for this header cell
-  const {
-    attributes,
-    listeners,
-    isDragging,
-    setNodeRef: setDragNodeRef
-  } = useDraggable({
-    id: header.id,
-    // This ensures the drag overlay matches the element's position exactly
-    data: {
-      type: 'header'
-    }
-  });
+const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
+  ({ header, sortable, resizable, overTargetId }) => {
+    // Set up dnd-kit's useDraggable for this header cell
+    const {
+      attributes,
+      listeners,
+      isDragging,
+      setNodeRef: setDragNodeRef
+    } = useDraggable({
+      id: header.id,
+      // This ensures the drag overlay matches the element's position exactly
+      data: {
+        type: 'header'
+      }
+    });
 
-  // Set up droppable area to detect when a header is over this target
-  const { setNodeRef: setDropNodeRef } = useDroppable({
-    id: `droppable-${header.id}`
-  });
+    // Set up droppable area to detect when a header is over this target
+    const { setNodeRef: setDropNodeRef } = useDroppable({
+      id: `droppable-${header.id}`
+    });
 
-  const style: CSSProperties = {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    width: header.column.getSize(),
-    opacity: isDragging ? 0.4 : 1,
-    transition: 'none', // Prevent any transitions for snappy changes
-    height: `${HEADER_HEIGHT}px` // Set fixed header height
-  };
+    const isOverTarget = overTargetId === header.id;
 
-  return (
-    <div
-      ref={setDropNodeRef}
-      style={style}
-      className={cn(
-        'bg-background relative border select-none',
-        isOverTarget && 'bg-primary/10 border-primary rounded-sm border-dashed'
-      )}
-      // onClick toggles sorting if enabled
-      onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}>
+    const style: CSSProperties = {
+      position: 'relative',
+      whiteSpace: 'nowrap',
+      width: header.column.getSize(),
+      opacity: isDragging ? 0.4 : 1,
+      transition: 'none', // Prevent any transitions for snappy changes
+      height: `${HEADER_HEIGHT}px` // Set fixed header height
+    };
+
+    return (
       <div
-        className="flex h-full flex-1 items-center p-2"
-        ref={setDragNodeRef}
-        {...attributes}
-        {...listeners}
-        style={{ cursor: 'grab' }}>
-        {flexRender(header.column.columnDef.header, header.getContext())}
-        {header.column.getIsSorted() === 'asc' && <span> 🔼</span>}
-        {header.column.getIsSorted() === 'desc' && <span> 🔽</span>}
-      </div>
-      {resizable && (
+        ref={setDropNodeRef}
+        style={style}
+        className={cn(
+          'bg-background relative border select-none',
+          isOverTarget && 'bg-primary/10 border-primary rounded-sm border-dashed'
+        )}
+        // onClick toggles sorting if enabled
+        onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}>
         <div
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-          }}>
-          <div
-            onMouseDown={header.getResizeHandler()}
-            onTouchStart={header.getResizeHandler()}
-            className="absolute top-0 right-0 h-full w-2 cursor-col-resize select-none"
-          />
+          className="flex h-full flex-1 items-center space-x-1 p-2"
+          ref={sortable ? setDragNodeRef : undefined}
+          {...attributes}
+          {...listeners}
+          style={{ cursor: 'grab' }}>
+          <span className="text-gray-dark">
+            {flexRender(header.column.columnDef.header, header.getContext())}
+          </span>
+          {header.column.getIsSorted() === 'asc' && (
+            <span className="text-icon-color text-xs">
+              <CaretUp />
+            </span>
+          )}
+          {header.column.getIsSorted() === 'desc' && (
+            <span className="text-icon-color text-xs">
+              <CaretDown />
+            </span>
+          )}
         </div>
-      )}
-    </div>
-  );
-};
+        {resizable && (
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}>
+            <div
+              onMouseDown={header.getResizeHandler()}
+              onTouchStart={header.getResizeHandler()}
+              className={cn(
+                'hover:bg-primary absolute top-0 -right-[3px] z-10 h-full w-1 cursor-col-resize rounded transition-colors duration-200 select-none',
+                header.column.getIsResizing() && 'bg-primary'
+              )}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+);
+
+DraggableHeader.displayName = 'DraggableHeader';
 
 // Header content component to use in the DragOverlay
-const HeaderDragOverlay = ({ header }: { header: Header<any, unknown> }) => {
+const HeaderDragOverlay = ({
+  header
+}: {
+  header: Header<Record<string, string | number | Date | null>, unknown>;
+}) => {
   return (
     <div
       className="flex items-center rounded border bg-white p-2 shadow-lg"
       style={{
         width: header.column.getSize(),
         height: `${HEADER_HEIGHT}px`,
-        opacity: 0.9,
+        opacity: 0.85,
         transform: 'translate3d(0, 0, 0)', // Ensure no unexpected transforms are applied
         pointerEvents: 'none' // Prevent the overlay from intercepting pointer events
       }}>
@@ -156,7 +174,6 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
   ({
     className = '',
     resizable = true,
-    draggable = true,
     sortable = true,
     columnWidths: columnWidthsProp,
     columnOrder: serverColumnOrder,
@@ -191,10 +208,15 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
     const [overTargetId, setOverTargetId] = useState<string | null>(null);
 
     // Store active header for overlay rendering
-    const [activeHeader, setActiveHeader] = useState<any>(null);
+    const [activeHeader, setActiveHeader] = useState<Header<
+      Record<string, string | number | Date | null>,
+      unknown
+    > | null>(null);
 
     // Build columns from fields.
-    const columns = useMemo<ColumnDef<any, any>[]>(
+    const columns = useMemo<
+      ColumnDef<Record<string, string | number | Date | null>, string | number | Date | null>[]
+    >(
       () =>
         fields.map((field) => ({
           id: field,
@@ -252,10 +274,19 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
       useSensor(KeyboardSensor)
     );
 
+    // Reference to the style element for cursor handling
+    const styleRef = useRef<HTMLStyleElement | null>(null);
+
     // Handle drag start to capture the active header
-    const handleDragStart = (event: DragStartEvent) => {
+    const handleDragStart = useMemoizedFn((event: DragStartEvent) => {
       const { active } = event;
       setActiveId(active.id as string);
+
+      // Add global cursor style
+      const style = document.createElement('style');
+      style.innerHTML = `* { cursor: grabbing !important; }`;
+      document.head.appendChild(style);
+      styleRef.current = style;
 
       // Find and store the active header for the overlay
       const headerIndex = table
@@ -265,10 +296,10 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
       if (headerIndex !== undefined && headerIndex !== -1) {
         setActiveHeader(table.getHeaderGroups()[0]?.headers[headerIndex]);
       }
-    };
+    });
 
     // Handle drag over to highlight the target
-    const handleDragOver = (event: DragOverEvent) => {
+    const handleDragOver = useMemoizedFn((event: DragOverEvent) => {
       const { over } = event;
       if (over) {
         // Extract the actual header ID from the droppable ID
@@ -277,11 +308,17 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
       } else {
         setOverTargetId(null);
       }
-    };
+    });
 
     // Handle drag end to reorder columns.
-    const handleDragEnd = (event: DragEndEvent) => {
+    const handleDragEnd = useMemoizedFn((event: DragEndEvent) => {
       const { active, over } = event;
+
+      // Remove global cursor style
+      if (styleRef.current) {
+        document.head.removeChild(styleRef.current);
+        styleRef.current = null;
+      }
 
       // Reset states immediately to prevent animation
       setActiveId(null);
@@ -300,7 +337,18 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
           if (onReorderColumns) onReorderColumns(newOrder);
         }
       }
-    };
+    });
+
+    // Clean up any styles on unmount
+    useEffect(() => {
+      return () => {
+        // Clean up cursor style if component unmounts during a drag
+        if (styleRef.current) {
+          document.head.removeChild(styleRef.current);
+          styleRef.current = null;
+        }
+      };
+    }, []);
 
     // Set up the virtualizer for infinite scrolling.
     const parentRef = useRef<HTMLDivElement>(null);
@@ -332,7 +380,7 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
           <DndContext
             sensors={sensors}
             modifiers={[restrictToHorizontalAxis]}
-            collisionDetection={closestCenter}
+            collisionDetection={pointerWithin}
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}>
@@ -345,7 +393,7 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
                     header={header}
                     sortable={sortable}
                     resizable={resizable}
-                    isOverTarget={header.id === overTargetId}
+                    overTargetId={overTargetId}
                   />
                 ))}
             </div>
@@ -372,12 +420,9 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
                   height: `${virtualRow.size}px`
                 }}>
                 {row.getVisibleCells().map((cell) => (
-                  <div
-                    key={cell.id}
-                    className="border p-2"
-                    style={{ width: cell.column.getSize() }}>
+                  <td key={cell.id} className="border p-2" style={{ width: cell.column.getSize() }}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </div>
+                  </td>
                 ))}
               </div>
             );
