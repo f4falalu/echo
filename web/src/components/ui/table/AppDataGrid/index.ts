@@ -1,4 +1,3 @@
-import AppDataGrid from './AppDataGrid';
-export { AppDataGrid };
+import { TanStackDataGrid } from './TanStackDataGrid';
 
-export default AppDataGrid;
+export { TanStackDataGrid as AppDataGrid };

@@ -1,6 +1,6 @@
 import type { IDataResult } from '@/api/asset_interfaces';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
-import AppDataGrid from '@/components/ui/table/AppDataGrid';
+import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import { useUserConfigContextSelector } from '@/context/Users';
 import React from 'react';
 import { Text } from '@/components/ui/typography';
@@ -25,11 +25,10 @@ export const OverviewData: React.FC<{
       ) : !isEmpty(data) ? (
         <AppDataGrid
           rows={data || []}
-          headerFormat={isAdmin ? (v) => v : undefined}
+          headerFormat={isAdmin ? (v) => String(v) : undefined}
           cellFormat={defaultCellFormatter}
           resizable={true}
-          draggable={false}
-          animate={false}
+          sortable={false}
         />
       ) : (
         <EmptyState />

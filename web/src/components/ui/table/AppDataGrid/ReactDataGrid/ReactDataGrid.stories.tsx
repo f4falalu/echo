@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AppDataGrid } from './AppDataGrid';
+import { ReactDataGrid } from './ReactDataGrid';
 
-const meta: Meta<typeof AppDataGrid> = {
-  title: 'UI/Table/AppDataGrid',
-  component: AppDataGrid,
+const meta: Meta<typeof ReactDataGrid> = {
+  title: 'UI/Table/ReactDataGrid',
+  component: ReactDataGrid,
   parameters: {
     layout: 'fullscreen'
   },
@@ -11,7 +11,7 @@ const meta: Meta<typeof AppDataGrid> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof AppDataGrid>;
+type Story = StoryObj<typeof ReactDataGrid>;
 
 const sampleData = [
   { id: 1, name: 'John Doe', age: 30, email: 'john@example.com', joinDate: new Date('2023-01-15') },

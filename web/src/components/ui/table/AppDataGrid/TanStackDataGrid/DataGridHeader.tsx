@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useRef, useState } from 'react';
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -67,8 +67,8 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
         ref={setDropNodeRef}
         style={style}
         className={cn(
-          'group relative border-r select-none last:border-r-0',
-          header.column.getIsResizing() && 'bg-primary/8',
+          'group bg-background relative border-r select-none last:border-r-0',
+          header.column.getIsResizing() ? 'bg-primary/8' : 'hover:bg-item-hover',
           isOverTarget &&
             'bg-primary/10 border-primary inset rounded-sm border border-r border-dashed'
         )}
@@ -169,6 +169,8 @@ export const DataGridHeader: React.FC<DataGridHeaderProps> = ({
   // Reference to the style element for cursor handling
   const styleRef = useRef<HTMLStyleElement | null>(null);
 
+  const memoizedModifiers = useMemo(() => [restrictToHorizontalAxis], []);
+
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
@@ -257,15 +259,15 @@ export const DataGridHeader: React.FC<DataGridHeaderProps> = ({
   }, []);
 
   return (
-    <thead className="bg-background sticky top-0 z-10 w-full" suppressHydrationWarning>
+    <thead className="bg-background sticky top-0 z-10 w-full border-b" suppressHydrationWarning>
       <DndContext
         sensors={sensors}
-        modifiers={[restrictToHorizontalAxis]}
+        modifiers={memoizedModifiers}
         collisionDetection={pointerWithin}
         onDragStart={onDragStart}
         onDragOver={onDragOver}
         onDragEnd={onDragEnd}>
-        <tr className="flex border-b">
+        <tr className="flex">
           {table
             .getHeaderGroups()[0]
             ?.headers.map(

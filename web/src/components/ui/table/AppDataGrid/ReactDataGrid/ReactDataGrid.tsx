@@ -14,21 +14,21 @@ import isString from 'lodash/isString';
 import { Text } from '@/components/ui/typography';
 import round from 'lodash/round';
 import { ErrorBoundary } from '@/components/ui/error';
-import { CaretDown } from '../../icons/NucleoIconFilled';
+import { CaretDown } from '../../../icons/NucleoIconFilled';
 import styles from './AppDataGrid.module.css';
 
 //https://www.npmjs.com/package/react-spreadsheet-grid#live-playground
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useDebounceEffect, useDebounceFn, useMemoizedFn, useMount, useSize } from '@/hooks';
+import { useDebounceFn, useMemoizedFn, useMount, useSize } from '@/hooks';
 import sampleSize from 'lodash/sampleSize';
 import isEmpty from 'lodash/isEmpty';
+import { cn } from '@/lib/classMerge';
 import {
   createInitialColumnWidths,
   defaultCellFormat,
   defaultHeaderFormat,
   MIN_WIDTH
 } from './helpers';
-import { cn } from '@/lib/classMerge';
 
 type Row = Record<string, string | number | null | Date>;
 
@@ -38,7 +38,7 @@ const DEFAULT_COLUMN_WIDTH = {
   //  maxWidth: columnsOrder.length <= 2 ? undefined : MAX_WIDTH
 };
 
-export interface AppDataGridProps {
+export interface ReactDataGridProps {
   className?: string;
   initialWidth?: number;
   animate?: boolean;
@@ -60,7 +60,7 @@ export interface AppDataGridProps {
   ) => void;
 }
 
-export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
+export const ReactDataGrid: React.FC<ReactDataGridProps> = React.memo(
   ({
     className = '',
     resizable = true,
@@ -355,7 +355,7 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
     );
   },
   (prevProps, nextProps) => {
-    const keysToCheck: (keyof AppDataGridProps)[] = [
+    const keysToCheck: (keyof ReactDataGridProps)[] = [
       'cellFormat',
       'headerFormat',
       'columnOrder',
@@ -366,7 +366,7 @@ export const AppDataGrid: React.FC<AppDataGridProps> = React.memo(
     return keysToCheck.every((key) => prevProps[key] === nextProps[key]);
   }
 );
-AppDataGrid.displayName = 'AppDataGrid';
+ReactDataGrid.displayName = 'AppDataGrid';
 
 const HeaderCell: React.FC<
   RenderHeaderCellProps<Row, unknown> & {
@@ -406,4 +406,4 @@ const GridCell: React.FC<
 });
 GridCell.displayName = 'GridCell';
 
-export default AppDataGrid;
+export default ReactDataGrid;

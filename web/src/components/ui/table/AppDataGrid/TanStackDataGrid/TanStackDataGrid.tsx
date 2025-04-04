@@ -9,7 +9,7 @@ import {
   SortingState
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { defaultCellFormat, defaultHeaderFormat } from '../helpers';
+import { defaultCellFormat, defaultHeaderFormat } from './defaultFormat';
 import { cn } from '@/lib/classMerge';
 import { DataGridHeader } from './DataGridHeader';
 import { DataGridRow } from './DataGridRow';

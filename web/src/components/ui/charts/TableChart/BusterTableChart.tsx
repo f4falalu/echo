@@ -9,7 +9,7 @@ import {
 } from '@/api/asset_interfaces/metric';
 import { useMemoizedFn } from '@/hooks';
 import { useChartWrapperContextSelector } from '../chartHooks/useChartWrapperProvider';
-import AppDataGrid from '@/components/ui/table/AppDataGrid/AppDataGrid';
+import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import './TableChart.css';
 import { cn } from '@/lib/classMerge';
 
@@ -84,10 +84,9 @@ const BusterTableChartBase: React.FC<
       className={cn('buster-table-chart', className)}
       key={data.length}
       rows={data}
-      initialWidth={containerWidth}
       columnOrder={tableColumnOrder || undefined}
       columnWidths={tableColumnWidths || undefined}
-      draggable={!readOnly}
+      sortable={!readOnly}
       resizable={!readOnly}
       onReady={onReady}
       headerFormat={onFormatHeader}
