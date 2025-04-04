@@ -41,7 +41,7 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
       position: 'relative',
       whiteSpace: 'nowrap',
       width: header.column.getSize(),
-      opacity: isDragging ? 0.4 : 1,
+      opacity: isDragging ? 0.65 : 1,
       transition: 'none', // Prevent any transitions for snappy changes
       height: `${HEADER_HEIGHT}px` // Set fixed header height
     };
@@ -53,16 +53,18 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
         className={cn(
           'group bg-background relative border-r select-none last:border-r-0',
           header.column.getIsResizing() ? 'bg-primary/8' : 'hover:bg-item-hover',
-          isOverTarget && 'bg-primary/10 border-primary inset border border-r border-dashed'
+          isOverTarget && 'bg-primary/10 border-primary inset border border-r! border-dashed'
         )}
         // onClick toggles sorting if enabled
         onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}>
         <span
-          className="flex h-full flex-1 items-center space-x-1.5 p-2"
+          className={cn(
+            'flex h-full flex-1 items-center space-x-1.5 p-2',
+            sortable && 'cursor-grab'
+          )}
           ref={sortable ? setDragNodeRef : undefined}
           {...attributes}
-          {...listeners}
-          style={{ cursor: 'grab' }}>
+          {...listeners}>
           <span className="text-gray-dark text-base font-normal">
             {flexRender(header.column.columnDef.header, header.getContext())}
           </span>

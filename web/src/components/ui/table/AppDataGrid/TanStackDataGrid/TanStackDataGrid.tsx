@@ -16,6 +16,7 @@ import { DataGridRow } from './DataGridRow';
 import { CELL_HEIGHT, OVERSCAN } from './constants';
 import { initializeColumnWidths } from './initializeColumnWidths';
 import { SortColumnWrapper } from './SortColumnWrapper';
+import { useDebounceFn, useThrottleFn } from '@/hooks';
 
 export interface TanStackDataGridProps {
   className?: string;
@@ -104,11 +105,18 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
       overscan: OVERSCAN
     });
 
+    const { run: onResizeColumnsDebounced } = useDebounceFn(onResizeColumns || (() => {}), {
+      wait: 450
+    });
+
     // Notify when column sizing changes.
     useEffect(() => {
       if (onResizeColumns) {
         const sizes = Object.entries(columnSizing).map(([key, size]) => ({ key, size }));
-        onResizeColumns(sizes);
+        const isDifferent = sizes.some((size) => size.size !== columnWidthsProp?.[size.key]);
+        if (isDifferent) {
+          onResizeColumnsDebounced(sizes);
+        }
       }
     }, [columnSizing, onResizeColumns]);
 

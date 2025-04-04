@@ -1,18 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { TanStackDataGrid } from './TanStackDataGrid';
 import { faker } from '@faker-js/faker';
-
-const meta: Meta<typeof TanStackDataGrid> = {
-  title: 'UI/Table/TanStackDataGrid',
-  component: TanStackDataGrid,
-  parameters: {
-    layout: 'fullscreen'
-  },
-  tags: ['autodocs']
-};
-
-export default meta;
-type Story = StoryObj<typeof TanStackDataGrid>;
+import { fn } from '@storybook/test';
 
 const sampleData = Array.from({ length: 1000 }, (_, index) => ({
   id: index + 1,
@@ -22,31 +11,52 @@ const sampleData = Array.from({ length: 1000 }, (_, index) => ({
   joinDate: faker.date.past().toISOString()
 }));
 
-export const Default: Story = {
+const meta: Meta<typeof TanStackDataGrid> = {
+  title: 'UI/Table/TanStackDataGrid',
+  component: TanStackDataGrid,
+  parameters: {
+    layout: 'fullscreen'
+  },
+  tags: ['autodocs'],
   args: {
     rows: sampleData,
-    resizable: true,
-
-    sortable: true
+    onReorderColumns: fn(),
+    onResizeColumns: fn(),
+    onReady: fn()
   },
-  render: (args) => (
-    <div className="h-[500px] p-0">
-      <TanStackDataGrid {...args} />
-    </div>
-  )
+  decorators: [
+    (Story) => (
+      <div className="h-[80vh] w-[90vw] p-0">
+        <Story />
+      </div>
+    )
+  ]
+};
+
+export default meta;
+type Story = StoryObj<typeof TanStackDataGrid>;
+
+export const Default: Story = {
+  args: {
+    ...meta.args,
+    rows: sampleData,
+    resizable: true,
+    sortable: true
+  }
 };
 
 export const NonResizable: Story = {
   args: {
+    ...meta.args,
     rows: sampleData,
     resizable: false,
-
     sortable: true
   }
 };
 
 export const NonDraggable: Story = {
   args: {
+    ...meta.args,
     rows: sampleData,
     resizable: true,
     sortable: false
@@ -55,6 +65,7 @@ export const NonDraggable: Story = {
 
 export const NonSortable: Story = {
   args: {
+    ...meta.args,
     rows: sampleData,
     resizable: true,
 
@@ -64,6 +75,7 @@ export const NonSortable: Story = {
 
 export const CustomColumnOrder: Story = {
   args: {
+    ...meta.args,
     rows: sampleData,
     columnOrder: ['name', 'email', 'age', 'id', 'joinDate'],
     resizable: true,
@@ -74,6 +86,7 @@ export const CustomColumnOrder: Story = {
 
 export const CustomColumnWidths: Story = {
   args: {
+    ...meta.args,
     rows: sampleData,
     columnWidths: {
       id: 70,
@@ -90,6 +103,7 @@ export const CustomColumnWidths: Story = {
 
 export const CustomFormatting: Story = {
   args: {
+    ...meta.args,
     rows: sampleData,
     headerFormat: (value, columnName) => columnName.toUpperCase(),
     cellFormat: (value, columnName) => {
@@ -109,6 +123,7 @@ export const CustomFormatting: Story = {
 
 export const WithCallbacks: Story = {
   args: {
+    ...meta.args,
     rows: sampleData,
     onReorderColumns: (columnIds) => console.log('Columns reordered:', columnIds),
     onResizeColumns: (columnSizes) => console.log('Columns resized:', columnSizes),
@@ -119,9 +134,10 @@ export const WithCallbacks: Story = {
   }
 };
 
-export const ManyRows: Story = {
+export const TenThousandRows: Story = {
   args: {
-    rows: Array.from({ length: 1000 }).map((_, index) => ({
+    ...meta.args,
+    rows: Array.from({ length: 10000 }).map((_, index) => ({
       id: index + 1,
       name: `User ${index + 1}`,
       age: Math.floor(Math.random() * 50) + 18,
