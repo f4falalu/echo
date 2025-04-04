@@ -33,7 +33,9 @@ use uuid::Uuid;
 use middleware::AuthenticatedUser;
 
 use super::{
-    collections::collections_router::CollectionEvent, metrics::MetricEvent, organizations::organization_router::OrganizationEvent, permissions::permissions_router::PermissionEvent, search::search_router::SearchEvent, teams::teams_routes::TeamEvent, terms::terms_router::TermEvent, threads_and_messages::threads_router::ThreadEvent, users::users_router::UserEvent, ws_router::{ws_router, WsRoutes}, ws_utils::{subscribe_to_stream, unsubscribe_from_stream}
+    threads_and_messages::threads_router::ThreadEvent,
+    ws_router::{ws_router, WsRoutes},
+    ws_utils::{subscribe_to_stream, unsubscribe_from_stream},
 };
 
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(900);
@@ -49,14 +51,6 @@ pub struct WsRequestMessage {
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum WsEvent {
-    Users(UserEvent),
-    Collections(CollectionEvent),
-    Teams(TeamEvent),
-    Permissions(PermissionEvent),
-    Terms(TermEvent),
-    Search(SearchEvent),
-    Organizations(OrganizationEvent),
-    Metrics(MetricEvent),
     Threads(ThreadEvent),
 }
 

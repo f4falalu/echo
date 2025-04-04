@@ -1,12 +1,4 @@
-mod collections;
-mod metrics;
-mod organizations;
-mod permissions;
-mod search;
-mod teams;
-mod terms;
 mod threads_and_messages;
-mod users;
 pub mod ws;
 pub mod ws_router;
 pub mod ws_utils;

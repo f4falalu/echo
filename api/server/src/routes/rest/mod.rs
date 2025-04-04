@@ -9,14 +9,9 @@ use axum::{
 use middleware::auth;
 
 mod routes;
-mod webhooks;
 
 pub fn router() -> Router {
-    Router::new().nest("/", routes::router()).merge(
-        Router::new()
-            .nest("/webhooks", webhooks::router())
-            .route_layer(axum_middleware::from_fn(auth)),
-    )
+    Router::new().nest("/", routes::router())
 }
 
 pub enum ApiResponse<T> {
