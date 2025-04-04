@@ -9,13 +9,15 @@ import {
   DragOverEvent,
   DragEndEvent,
   DndContext,
-  pointerWithin
+  pointerWithin,
+  DragOverlay
 } from '@dnd-kit/core';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { arrayMove } from '@dnd-kit/sortable';
-import { Header, Table } from '@tanstack/react-table';
+import { flexRender, Header, Table } from '@tanstack/react-table';
 import { useState, useRef, useMemo, useEffect } from 'react';
 import { useContextSelector, createContext } from 'use-context-selector';
+import { HEADER_HEIGHT } from './constants';
 
 export const SortColumnWrapper: React.FC<{
   table: Table<Record<string, string | number | Date | null>>;
@@ -136,24 +138,51 @@ export const SortColumnWrapper: React.FC<{
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}>
-      <SortColumnContext.Provider value={{ activeId, overTargetId, activeHeader }}>
+      <SortColumnContext.Provider value={{ overTargetId }}>
         {children}
+
+        <DragOverlay
+          wrapperElement="span"
+          adjustScale={false}
+          dropAnimation={null} // Using null to completely disable animation
+          zIndex={1000}>
+          {activeId && activeHeader && <HeaderDragOverlay header={activeHeader} />}
+        </DragOverlay>
       </SortColumnContext.Provider>
     </DndContext>
   );
 };
 
 type SortColumnContextType = {
-  activeId: string | null;
   overTargetId: string | null;
-  activeHeader: Header<Record<string, string | number | Date | null>, unknown> | null;
 };
 
 export const SortColumnContext = createContext<SortColumnContextType>({
-  activeId: null,
-  overTargetId: null,
-  activeHeader: null
+  overTargetId: null
 });
 
 export const useSortColumnContext = <T,>(selector: (ctx: SortColumnContextType) => T) =>
   useContextSelector(SortColumnContext, selector);
+
+// Header content component to use in the DragOverlay
+const HeaderDragOverlay = ({
+  header
+}: {
+  header: Header<Record<string, string | number | Date | null>, unknown>;
+}) => {
+  return (
+    <div
+      className="flex items-center rounded-sm border bg-white p-2 shadow-lg"
+      style={{
+        width: header.column.getSize(),
+        height: `${HEADER_HEIGHT}px`,
+        opacity: 0.85,
+        transform: 'translate3d(0, 0, 0)', // Ensure no unexpected transforms are applied
+        pointerEvents: 'none' // Prevent the overlay from intercepting pointer events
+      }}>
+      {flexRender(header.column.columnDef.header, header.getContext())}
+      {header.column.getIsSorted() === 'asc' && <span> 🔼</span>}
+      {header.column.getIsSorted() === 'desc' && <span> 🔽</span>}
+    </div>
+  );
+};

@@ -126,7 +126,12 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
           setColOrder={setColOrder}
           onReorderColumns={onReorderColumns}>
           <table className="bg-background w-full">
-            <DataGridHeader table={table} sortable={sortable} resizable={resizable} />
+            <DataGridHeader
+              table={table}
+              sortable={sortable}
+              resizable={resizable}
+              rowVirtualizer={rowVirtualizer}
+            />
 
             <tbody
               className="relative"

@@ -6,16 +6,18 @@ import { cn } from '@/lib/classMerge';
 import { CaretDown, CaretUp } from '../../../icons/NucleoIconFilled';
 import { HEADER_HEIGHT } from './constants';
 import { useSortColumnContext } from './SortColumnWrapper';
+import { Virtualizer } from '@tanstack/react-virtual';
+import { useMount } from '@/hooks';
 
 interface DraggableHeaderProps {
   header: Header<Record<string, string | number | Date | null>, unknown>;
   resizable: boolean;
   sortable: boolean;
-  overTargetId: string | null;
+  isOverTarget: boolean;
 }
 
 const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
-  ({ header, sortable, resizable, overTargetId }) => {
+  ({ header, sortable, resizable, isOverTarget }) => {
     // Set up dnd-kit's useDraggable for this header cell
     const {
       attributes,
@@ -35,8 +37,6 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
       id: `droppable-${header.id}`
     });
 
-    const isOverTarget = overTargetId === header.id;
-
     const style: CSSProperties = {
       position: 'relative',
       whiteSpace: 'nowrap',
@@ -53,8 +53,7 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
         className={cn(
           'group bg-background relative border-r select-none last:border-r-0',
           header.column.getIsResizing() ? 'bg-primary/8' : 'hover:bg-item-hover',
-          isOverTarget &&
-            'bg-primary/10 border-primary inset rounded-sm border border-r border-dashed'
+          isOverTarget && 'bg-primary/10 border-primary inset border border-r border-dashed'
         )}
         // onClick toggles sorting if enabled
         onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}>
@@ -101,65 +100,47 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
 
 DraggableHeader.displayName = 'DraggableHeader';
 
-// Header content component to use in the DragOverlay
-const HeaderDragOverlay = ({
-  header
-}: {
-  header: Header<Record<string, string | number | Date | null>, unknown>;
-}) => {
-  return (
-    <div
-      className="flex items-center rounded-sm border bg-white p-2 shadow-lg"
-      style={{
-        width: header.column.getSize(),
-        height: `${HEADER_HEIGHT}px`,
-        opacity: 0.85,
-        transform: 'translate3d(0, 0, 0)', // Ensure no unexpected transforms are applied
-        pointerEvents: 'none' // Prevent the overlay from intercepting pointer events
-      }}>
-      {flexRender(header.column.columnDef.header, header.getContext())}
-      {header.column.getIsSorted() === 'asc' && <span> 🔼</span>}
-      {header.column.getIsSorted() === 'desc' && <span> 🔽</span>}
-    </div>
-  );
-};
-
 interface DataGridHeaderProps {
   table: Table<Record<string, string | number | Date | null>>;
   sortable: boolean;
   resizable: boolean;
+  rowVirtualizer: Virtualizer<HTMLDivElement, Element>;
 }
 
-export const DataGridHeader: React.FC<DataGridHeaderProps> = ({ table, sortable, resizable }) => {
-  const { activeId, overTargetId, activeHeader } = useSortColumnContext((x) => x);
+export const DataGridHeader: React.FC<DataGridHeaderProps> = ({
+  rowVirtualizer,
+  table,
+  sortable,
+  resizable
+}) => {
+  const overTargetId = useSortColumnContext((x) => x.overTargetId);
+
+  const showScrollShadow = (rowVirtualizer?.scrollOffset || 0) > 10;
 
   return (
-    <thead className="bg-background sticky top-0 z-10 w-full" suppressHydrationWarning>
-      <tr className="flex border-b shadow">
-        {table
-          .getHeaderGroups()[0]
-          ?.headers.map(
-            (header: Header<Record<string, string | number | Date | null>, unknown>) => (
-              <DraggableHeader
-                key={header.id}
-                header={header}
-                sortable={sortable}
-                resizable={resizable}
-                overTargetId={overTargetId}
-              />
-            )
-          )}
-      </tr>
-
-      {/* Drag Overlay */}
-      <DragOverlay
-        wrapperElement="span"
-        adjustScale={false}
-        dropAnimation={null} // Using null to completely disable animation
-        zIndex={1000}>
-        {activeId && activeHeader && <HeaderDragOverlay header={activeHeader} />}
-      </DragOverlay>
-    </thead>
+    <>
+      <thead className="bg-background sticky top-0 z-10 w-full" suppressHydrationWarning>
+        <tr
+          className={cn(
+            'flex border-b transition-all duration-200',
+            showScrollShadow && 'shadow-sm'
+          )}>
+          {table
+            .getHeaderGroups()[0]
+            ?.headers.map(
+              (header: Header<Record<string, string | number | Date | null>, unknown>) => (
+                <DraggableHeader
+                  key={header.id}
+                  header={header}
+                  sortable={sortable}
+                  resizable={resizable}
+                  isOverTarget={overTargetId === header.id}
+                />
+              )
+            )}
+        </tr>
+      </thead>
+    </>
   );
 };
 
