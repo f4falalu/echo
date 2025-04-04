@@ -10,7 +10,7 @@ use database::pool::get_pg_pool;
 use database::models::PermissionGroup;
 use database::schema::permission_groups;
 use crate::routes::rest::ApiResponse;
-use crate::utils::user::user_info::get_user_organization_id;
+use database::organization::get_user_organization_id;
 use middleware::AuthenticatedUser;
 
 #[derive(Debug, Serialize)]
@@ -47,7 +47,10 @@ async fn get_permission_group_handler(
     permission_group_id: Uuid,
 ) -> Result<PermissionGroupInfo> {
     let mut conn = get_pg_pool().get().await?;
-    let organization_id = get_user_organization_id(&user.id).await?;
+    let organization_id = match get_user_organization_id(&user.id).await? {
+        Some(organization_id) => organization_id,
+        None => return Err(anyhow::anyhow!("User does not belong to any organization")),
+    };
 
     let permission_group = permission_groups::table
         .filter(permission_groups::id.eq(permission_group_id))

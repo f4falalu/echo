@@ -12,7 +12,7 @@ use uuid::Uuid;
 
 use crate::metrics::Version;
 use super::{BusterDashboard, BusterDashboardResponse, DashboardConfig};
-use crate::utils::user::user_info::get_user_organization_id;
+use database::organization::get_user_organization_id;
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
 use database::schema::asset_permissions;
 use std::collections::HashMap;
@@ -37,7 +37,10 @@ pub async fn create_dashboard_handler(user: &AuthenticatedUser) -> Result<Buster
     let dashboard_id = Uuid::new_v4();
 
     // Get user's organization ID
-    let organization_id = get_user_organization_id(&user.id).await?;
+    let organization_id = match get_user_organization_id(&user.id).await? {
+        Some(organization_id) => organization_id,
+        None => return Err(anyhow::anyhow!("User does not belong to any organization")),
+    };
 
     // Current timestamp
     let now = Utc::now();

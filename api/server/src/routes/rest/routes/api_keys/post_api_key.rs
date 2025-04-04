@@ -5,16 +5,16 @@ use chrono::Utc;
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 use jsonwebtoken::{encode, EncodingKey, Header};
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use std::env;
 use uuid::Uuid;
-use middleware::AuthenticatedUser;
 
-use database::pool::get_pg_pool;
-use database::models::ApiKey;
-use database::schema::api_keys;
 use crate::routes::rest::ApiResponse;
-use crate::utils::user::user_info::get_user_organization_id;
+use database::models::ApiKey;
+use database::organization::get_user_organization_id;
+use database::pool::get_pg_pool;
+use database::schema::api_keys;
 
 #[derive(Debug, Serialize)]
 pub struct PostApiKeyResponse {
@@ -70,7 +70,10 @@ async fn post_api_key_handler(user: AuthenticatedUser) -> Result<String> {
     };
 
     let organization_id = match get_user_organization_id(&user.id).await {
-        Ok(organization_id) => organization_id,
+        Ok(Some(organization_id)) => organization_id,
+        Ok(None) => {
+            return Err(anyhow::anyhow!("User does not belong to any organization"));
+        }
         Err(e) => {
             tracing::error!("Error getting organization ID: {:?}", e);
             return Err(anyhow::anyhow!("Error getting organization ID"));

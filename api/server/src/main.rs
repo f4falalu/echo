@@ -1,5 +1,4 @@
 mod routes;
-mod types;
 pub mod utils;
 
 use std::env;

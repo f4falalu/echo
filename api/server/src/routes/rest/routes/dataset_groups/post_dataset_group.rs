@@ -12,7 +12,7 @@ use database::models::DatasetGroup;
 use database::schema::dataset_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
-use crate::utils::user::user_info::get_user_organization_id;
+use database::organization::get_user_organization_id;
 use middleware::AuthenticatedUser;
 
 #[derive(Debug, Deserialize)]
@@ -33,10 +33,14 @@ pub async fn post_dataset_group(
     Json(request): Json<PostDatasetGroupRequest>,
 ) -> Result<ApiResponse<PostDatasetGroupResponse>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin
-    let organization_id = get_user_organization_id(&user.id).await.map_err(|e| {
-        tracing::error!("Error getting user organization id: {:?}", e);
-        (StatusCode::INTERNAL_SERVER_ERROR, "Error getting user organization id")
-    })?;
+    let organization_id = match get_user_organization_id(&user.id).await {
+        Ok(Some(organization_id)) => organization_id,
+        Ok(None) => return Err((StatusCode::FORBIDDEN, "User does not belong to any organization")),
+        Err(e) => {
+            tracing::error!("Error getting user organization id: {:?}", e);
+            return Err((StatusCode::INTERNAL_SERVER_ERROR, "Error getting user organization id"));
+        }
+    };
 
     match is_user_workspace_admin_or_data_admin(&user, &organization_id).await {
         Ok(true) => (),
@@ -75,7 +79,10 @@ async fn post_dataset_group_handler(
 ) -> Result<DatasetGroup> {
     let mut conn = get_pg_pool().get().await?;
 
-    let organization_id = get_user_organization_id(&user.id).await?;
+    let organization_id = match get_user_organization_id(&user.id).await? {
+        Some(organization_id) => organization_id,
+        None => return Err(anyhow::anyhow!("User does not belong to any organization")),
+    };
 
     let dataset_group = DatasetGroup {
         id: Uuid::new_v4(),

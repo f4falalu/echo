@@ -2,24 +2,23 @@ use anyhow::{anyhow, Result};
 use axum::{extract::Json, Extension};
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use reqwest::StatusCode;
 use serde::Deserialize;
 use uuid::Uuid;
-use middleware::AuthenticatedUser;
 
 use crate::{
     database::{
         enums::DatasetType,
-        pool::get_pg_pool,
         models::{DataSource, Dataset},
+        pool::get_pg_pool,
         schema::{data_sources, datasets},
     },
     routes::rest::ApiResponse,
-    utils::{
-        security::checks::is_user_workspace_admin_or_data_admin,
-        user::user_info::get_user_organization_id,
-    },
+    utils::security::checks::is_user_workspace_admin_or_data_admin,
 };
+
+use database::organization::get_user_organization_id;
 
 #[derive(Debug, Deserialize)]
 pub struct PostDatasetReq {
@@ -33,12 +32,18 @@ pub async fn post_dataset(
 ) -> Result<ApiResponse<Dataset>, (axum::http::StatusCode, String)> {
     // Check if user is workspace admin or data admin
     let organization_id = match get_user_organization_id(&user.id).await {
-        Ok(id) => id,
+        Ok(Some(id)) => id,
+        Ok(None) => {
+            return Err((
+                StatusCode::FORBIDDEN,
+                "User does not belong to any organization",
+            ));
+        }
         Err(e) => {
             tracing::error!("Error getting user organization id: {:?}", e);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Error getting user organization id".to_string(),
+                "Error getting user organization id",
             ));
         }
     };
@@ -48,14 +53,14 @@ pub async fn post_dataset(
         Ok(false) => {
             return Err((
                 StatusCode::FORBIDDEN,
-                "Insufficient permissions".to_string(),
+                "Insufficient permissions",
             ))
         }
         Err(e) => {
             tracing::error!("Error checking user permissions: {:?}", e);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Error checking user permissions".to_string(),
+                "Error checking user permissions",
             ));
         }
     }
@@ -73,7 +78,7 @@ pub async fn post_dataset(
             tracing::error!("Error creating dataset: {:?}", e);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Error creating dataset".to_string(),
+                "Error creating dataset",
             ));
         }
     };

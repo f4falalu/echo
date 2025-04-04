@@ -10,7 +10,7 @@ use database::pool::get_pg_pool;
 use database::schema::dataset_groups;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
-use crate::utils::user::user_info::get_user_organization_id;
+use database::organization::get_user_organization_id;
 use middleware::AuthenticatedUser;
 
 #[derive(Debug, Deserialize, Clone)]
@@ -24,10 +24,14 @@ pub async fn put_dataset_group(
     Json(request): Json<Vec<DatasetGroupUpdate>>,
 ) -> Result<ApiResponse<()>, (StatusCode, &'static str)> {
     // Check if user is workspace admin or data admin
-    let organization_id = get_user_organization_id(&user.id).await.map_err(|e| {
-        tracing::error!("Error getting user organization id: {:?}", e);
-        (StatusCode::INTERNAL_SERVER_ERROR, "Error getting user organization id")
-    })?;
+    let organization_id = match get_user_organization_id(&user.id).await {
+        Ok(Some(organization_id)) => organization_id,
+        Ok(None) => return Err((StatusCode::FORBIDDEN, "User does not belong to any organization")),
+        Err(e) => {
+            tracing::error!("Error getting user organization id: {:?}", e);
+            return Err((StatusCode::INTERNAL_SERVER_ERROR, "Error getting user organization id"));
+        }
+    };
 
     match is_user_workspace_admin_or_data_admin(&user, &organization_id).await {
         Ok(true) => (),
