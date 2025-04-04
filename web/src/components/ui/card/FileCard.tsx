@@ -23,21 +23,27 @@ export const FileCard = React.memo(
     footer,
     footerClassName
   }: FileCardProps) => {
+    const showHeader = !!fileName || !!headerButtons;
+
     return (
       <Card className={cn('h-full', className)}>
-        <CardHeader variant={'gray'} size={'xsmall'} className="justify-center">
-          <div className="flex items-center justify-between gap-x-1">
-            <Text truncate>{fileName}</Text>
-            <div className="flex items-center gap-1">{headerButtons}</div>
-          </div>
-        </CardHeader>
+        {showHeader && (
+          <CardHeader variant={'gray'} size={'xsmall'} className="justify-center">
+            <div className="flex items-center justify-between gap-x-1">
+              {typeof fileName === 'string' ? <Text truncate>{fileName}</Text> : fileName}
+              <div className="flex items-center gap-1">{headerButtons}</div>
+            </div>
+          </CardHeader>
+        )}
 
         <CardContent
           className={cn('bg-background relative h-full overflow-hidden p-0', bodyClassName)}>
           {children}
         </CardContent>
 
-        <CardFooter className={cn('bg-background', footerClassName)}>{footer}</CardFooter>
+        {footer && (
+          <CardFooter className={cn('bg-background', footerClassName)}>{footer}</CardFooter>
+        )}
       </Card>
     );
   }

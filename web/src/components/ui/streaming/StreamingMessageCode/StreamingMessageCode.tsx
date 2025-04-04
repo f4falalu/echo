@@ -10,8 +10,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@/components/ui/typography';
 import pluralize from 'pluralize';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { StreamingMessageCodeTitle } from './StreamingMessageCodeTitle';
-import { TextDotLoader } from '../../loaders/PulseLoader';
+import { TextAndVersionPill } from '../../typography/TextAndVersionPill';
 
 const style = SyntaxHighlighterLightTheme;
 
@@ -120,7 +119,7 @@ export const StreamingMessageCode: React.FC<
 
   return (
     <AppCodeBlockWrapper
-      title={<StreamingMessageCodeTitle file_name={file_name} version_number={version_number} />}
+      title={<TextAndVersionPill fileName={file_name} versionNumber={version_number} />}
       language={'yaml'}
       showCopyButton={false}
       buttons={buttons}>

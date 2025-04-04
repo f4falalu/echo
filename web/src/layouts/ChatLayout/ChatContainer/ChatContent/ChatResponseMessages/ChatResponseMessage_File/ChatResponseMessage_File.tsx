@@ -15,6 +15,7 @@ import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import Link from 'next/link';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 import { useRouter } from 'next/navigation';
+import { TextAndVersionPill } from '@/components/ui/typography/TextAndVersionPill';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
   ({ isCompletedStream, chatId, responseMessageId, messageId }) => {
@@ -78,9 +79,8 @@ ChatResponseMessage_File.displayName = 'ChatResponseMessage_File';
 const ChatResponseMessageHeader: React.FC<{ file_name: string; version_number: number }> =
   React.memo(({ file_name, version_number }) => {
     return (
-      <div className="file-header bg-item-hover border-border flex h-8 w-full items-center space-x-1.5 overflow-hidden border-b px-2.5">
-        <Text truncate>{file_name}</Text>
-        <VersionPill version_number={version_number} />
+      <div className="file-header bg-item-hover border-border flex h-8 w-full overflow-hidden border-b px-2.5">
+        <TextAndVersionPill fileName={file_name} versionNumber={version_number} />
       </div>
     );
   });
