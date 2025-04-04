@@ -8,7 +8,7 @@ use crate::enums::{AssetPermissionRole, AssetType};
 
 use crate::models::{AssetPermission, DashboardFile};
 use crate::pool::get_pg_pool;
-use crate::schema::{asset_permissions, dashboard_files};
+use crate::schema::{asset_permissions, dashboard_files, collections_to_assets};
 
 /// Fetches a single dashboard file by ID that hasn't been deleted
 ///
@@ -90,6 +90,44 @@ async fn fetch_dashboard_permission(id: &Uuid, user_id: &Uuid) -> Result<Option<
     Ok(permission)
 }
 
+/// Helper function to fetch collection-based permissions for a dashboard file
+///
+/// Checks if the user has access to the dashboard file through collections
+/// by finding collections that contain this dashboard file and checking
+/// if the user has permissions on those collections
+async fn fetch_collection_permissions_for_dashboard(
+    id: &Uuid,
+    user_id: &Uuid
+) -> Result<Option<AssetPermissionRole>> {
+    let mut conn = get_pg_pool().get().await?;
+    
+    // Find collections containing this dashboard file
+    // then join with asset_permissions to find user's permissions on those collections
+    let permissions = asset_permissions::table
+        .inner_join(
+            collections_to_assets::table.on(
+                asset_permissions::asset_id.eq(collections_to_assets::collection_id)
+                .and(asset_permissions::asset_type.eq(AssetType::Collection))
+                .and(collections_to_assets::asset_id.eq(id))
+                .and(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
+                .and(collections_to_assets::deleted_at.is_null())
+            )
+        )
+        .filter(asset_permissions::identity_id.eq(user_id))
+        .filter(asset_permissions::deleted_at.is_null())
+        .select(asset_permissions::role)
+        .load::<AssetPermissionRole>(&mut conn)
+        .await?;
+    
+    // Return any collection-based permission
+    if permissions.is_empty() {
+        Ok(None)
+    } else {
+        // Just take the first one since any collection permission is sufficient
+        Ok(permissions.into_iter().next())
+    }
+}
+
 #[derive(Queryable)]
 pub struct DashboardFileWithPermission {
     pub dashboard_file: DashboardFile,
@@ -100,10 +138,11 @@ pub async fn fetch_dashboard_file_with_permission(
     id: &Uuid,
     user_id: &Uuid,
 ) -> Result<Option<DashboardFileWithPermission>> {
-    // Run both queries concurrently
-    let (dashboard_file, permission) = try_join!(
+    // Run all queries concurrently
+    let (dashboard_file, direct_permission, collection_permission) = try_join!(
         fetch_dashboard(id),
-        fetch_dashboard_permission(id, user_id)
+        fetch_dashboard_permission(id, user_id),
+        fetch_collection_permissions_for_dashboard(id, user_id)
     )?;
 
     // If the dashboard file doesn't exist, return None
@@ -112,9 +151,15 @@ pub async fn fetch_dashboard_file_with_permission(
         None => return Ok(None),
     };
 
+    // If collection permission exists, use it; otherwise use direct permission
+    let effective_permission = match collection_permission {
+        Some(collection) => Some(collection),
+        None => direct_permission
+    };
+
     Ok(Some(DashboardFileWithPermission {
         dashboard_file,
-        permission,
+        permission: effective_permission,
     }))
 }
 
@@ -136,27 +181,19 @@ pub async fn fetch_dashboard_files_with_permissions(
 
     let mut conn = get_pg_pool().get().await?;
 
-    // Use a LEFT JOIN to fetch dashboard files and their permissions in a single query
-    let mut results = dashboard_files::table
-        .left_join(
-            asset_permissions::table.on(asset_permissions::asset_id
-                .eq(dashboard_files::id)
-                .and(asset_permissions::asset_type.eq(AssetType::Dashboard))
-                .and(asset_permissions::identity_id.eq(user_id))
-                .and(asset_permissions::deleted_at.is_null()))
-        )
+    // 1. Fetch all dashboard files
+    let mut dashboard_files = dashboard_files::table
         .filter(dashboard_files::id.eq_any(ids))
         .filter(dashboard_files::deleted_at.is_null())
-        .select((dashboard_files::all_columns, asset_permissions::role.nullable()))
-        .load::<(DashboardFile, Option<AssetPermissionRole>)>(&mut conn)
+        .load::<DashboardFile>(&mut conn)
         .await?;
 
-    if results.is_empty() {
+    if dashboard_files.is_empty() {
         return Ok(Vec::new());
     }
 
     // Ensure all rows have IDs (for backwards compatibility)
-    for (dashboard_file, _) in &mut results {
+    for dashboard_file in &mut dashboard_files {
         for (index, row) in dashboard_file.content.rows.iter_mut().enumerate() {
             if row.id == 0 {
                 row.id = (index as u32) + 1;
@@ -164,12 +201,63 @@ pub async fn fetch_dashboard_files_with_permissions(
         }
     }
 
-    // Create DashboardFileWithPermission objects
-    let result = results
+    // 2. Fetch direct permissions for these dashboard files
+    let direct_permissions = asset_permissions::table
+        .filter(asset_permissions::asset_id.eq_any(ids))
+        .filter(asset_permissions::asset_type.eq(AssetType::DashboardFile))
+        .filter(asset_permissions::identity_id.eq(user_id))
+        .filter(asset_permissions::deleted_at.is_null())
+        .select((asset_permissions::asset_id, asset_permissions::role))
+        .load::<(Uuid, AssetPermissionRole)>(&mut conn)
+        .await?;
+
+    // 3. Fetch collection-based permissions for these dashboard files
+    let collection_permissions = asset_permissions::table
+        .inner_join(
+            collections_to_assets::table.on(
+                asset_permissions::asset_id.eq(collections_to_assets::collection_id)
+                .and(asset_permissions::asset_type.eq(AssetType::Collection))
+                .and(collections_to_assets::asset_id.eq_any(ids))
+                .and(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
+                .and(collections_to_assets::deleted_at.is_null())
+            )
+        )
+        .filter(asset_permissions::identity_id.eq(user_id))
+        .filter(asset_permissions::deleted_at.is_null())
+        .select((collections_to_assets::asset_id, asset_permissions::role))
+        .load::<(Uuid, AssetPermissionRole)>(&mut conn)
+        .await?;
+
+    // Create maps for easier lookup
+    let mut direct_permission_map = std::collections::HashMap::new();
+    for (asset_id, role) in direct_permissions {
+        direct_permission_map.insert(asset_id, role);
+    }
+
+    // Create map for collection permissions (just take first one for each asset)
+    let mut collection_permission_map = std::collections::HashMap::new();
+    for (asset_id, role) in collection_permissions {
+        // Only insert if not already present (first one wins)
+        collection_permission_map.entry(asset_id).or_insert(role);
+    }
+
+    // Create DashboardFileWithPermission objects with effective permissions
+    let result = dashboard_files
         .into_iter()
-        .map(|(dashboard_file, permission)| DashboardFileWithPermission {
-            dashboard_file,
-            permission,
+        .map(|dashboard_file| {
+            let direct_permission = direct_permission_map.get(&dashboard_file.id).cloned();
+            let collection_permission = collection_permission_map.get(&dashboard_file.id).cloned();
+            
+            // Use collection permission if it exists, otherwise use direct permission
+            let effective_permission = match collection_permission {
+                Some(collection) => Some(collection),
+                None => direct_permission
+            };
+
+            DashboardFileWithPermission {
+                dashboard_file,
+                permission: effective_permission,
+            }
         })
         .collect();
 

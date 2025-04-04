@@ -11,17 +11,19 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::io::Write;
 use uuid::Uuid;
-use crate::types::{DataMetadata, ColumnMetaData, SimpleType, ColumnType};
-use serde_json::json;
 
 #[derive(Debug, Serialize, Deserialize, Clone, FromSqlRow, AsExpression)]
 #[diesel(sql_type = Jsonb)]
+#[serde(rename_all = "camelCase")]
 pub struct MetricYml {
     pub name: String,
     pub description: Option<String>,
+    #[serde(alias = "time_frame")]
     pub time_frame: String,
     pub sql: String,
+    #[serde(alias = "chart_config")]
     pub chart_config: ChartConfig,
+    #[serde(alias = "dataset_ids")]
     pub dataset_ids: Vec<Uuid>,
 }
 
@@ -457,16 +459,18 @@ impl ColumnLabelFormat {
     pub fn new_boolean() -> Self {
         Self::new_string() // Booleans use string formatting by default
     }
-    
+
     /// Generate column formats from data metadata
-    pub fn generate_formats_from_metadata(metadata: &crate::types::DataMetadata) -> indexmap::IndexMap<String, Self> {
+    pub fn generate_formats_from_metadata(
+        metadata: &crate::types::DataMetadata,
+    ) -> indexmap::IndexMap<String, Self> {
         let mut formats = indexmap::IndexMap::new();
-        
+
         for column in &metadata.column_metadata {
             let format = Self::new_for_type(&column.simple_type);
             formats.insert(column.name.clone(), format);
         }
-        
+
         formats
     }
 }
@@ -762,6 +766,10 @@ impl ToSql<Jsonb, Pg> for MetricYml {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::json;
+
+    use crate::types::{ColumnMetaData, ColumnType, DataMetadata, SimpleType};
+
     use super::*;
 
     fn normalize_whitespace(s: &str) -> String {
@@ -819,26 +827,26 @@ mod tests {
         assert_eq!(number_format.number_separator_style, Some(",".to_string()));
         assert_eq!(number_format.minimum_fraction_digits, Some(0));
         assert_eq!(number_format.maximum_fraction_digits, Some(2));
-        
+
         // Test string format
         let string_format = ColumnLabelFormat::new_string();
         assert_eq!(string_format.column_type, "string");
         assert_eq!(string_format.style, "string");
         assert_eq!(string_format.number_separator_style, None);
-        
+
         // Test date format
         let date_format = ColumnLabelFormat::new_date();
         assert_eq!(date_format.column_type, "date");
         assert_eq!(date_format.style, "date");
         assert_eq!(date_format.date_format, Some("auto".to_string()));
         assert_eq!(date_format.is_utc, Some(false));
-        
+
         // Test boolean format - should be same as string
         let boolean_format = ColumnLabelFormat::new_boolean();
         assert_eq!(boolean_format.column_type, "string");
         assert_eq!(boolean_format.style, "string");
     }
-    
+
     #[test]
     fn test_generate_formats_from_metadata() {
         // Create test metadata
@@ -872,20 +880,20 @@ mod tests {
                 },
             ],
         };
-        
+
         // Generate formats
         let formats = ColumnLabelFormat::generate_formats_from_metadata(&metadata);
-        
+
         // Check we have formats for all columns
         assert_eq!(formats.len(), 3);
-        
+
         // Check individual formats
         let id_format = formats.get("id").unwrap();
         assert_eq!(id_format.column_type, "number");
-        
+
         let name_format = formats.get("name").unwrap();
         assert_eq!(name_format.column_type, "string");
-        
+
         let date_format = formats.get("created_at").unwrap();
         assert_eq!(date_format.column_type, "date");
         assert_eq!(date_format.style, "date");

@@ -1,14 +1,14 @@
 use crate::enums::{AssetPermissionRole, AssetType};
 use anyhow::Result;
+use diesel::JoinOnDsl;
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, Queryable};
-use diesel::{JoinOnDsl, NullableExpressionMethods};
 use diesel_async::RunQueryDsl;
 use tokio::try_join;
 use uuid::Uuid;
 
 use crate::models::{AssetPermission, Chat};
 use crate::pool::get_pg_pool;
-use crate::schema::{asset_permissions, chats};
+use crate::schema::{asset_permissions, chats, collections_to_assets};
 
 /// Fetches a single chat by ID that hasn't been deleted
 ///
@@ -72,6 +72,43 @@ async fn fetch_chat_permission(id: &Uuid, user_id: &Uuid) -> Result<Option<Asset
     Ok(permission)
 }
 
+/// Helper function to fetch collection-based permissions for a chat
+///
+/// Checks if the user has access to the chat through collections
+/// by finding collections that contain this chat and checking
+/// if the user has permissions on those collections
+async fn fetch_collection_permissions_for_chat(
+    id: &Uuid,
+    user_id: &Uuid,
+) -> Result<Option<AssetPermissionRole>> {
+    let mut conn = get_pg_pool().get().await?;
+
+    // Find collections containing this chat
+    // then join with asset_permissions to find user's permissions on those collections
+    let permissions = asset_permissions::table
+        .inner_join(
+            collections_to_assets::table.on(asset_permissions::asset_id
+                .eq(collections_to_assets::collection_id)
+                .and(asset_permissions::asset_type.eq(AssetType::Collection))
+                .and(collections_to_assets::asset_id.eq(id))
+                .and(collections_to_assets::asset_type.eq(AssetType::Chat))
+                .and(collections_to_assets::deleted_at.is_null())),
+        )
+        .filter(asset_permissions::identity_id.eq(user_id))
+        .filter(asset_permissions::deleted_at.is_null())
+        .select(asset_permissions::role)
+        .load::<AssetPermissionRole>(&mut conn)
+        .await?;
+
+    // Return any collection-based permission
+    if permissions.is_empty() {
+        Ok(None)
+    } else {
+        // Just take the first one since any collection permission is sufficient
+        Ok(permissions.into_iter().next())
+    }
+}
+
 #[derive(Queryable)]
 pub struct ChatWithPermission {
     pub chat: Chat,
@@ -82,8 +119,12 @@ pub async fn fetch_chat_with_permission(
     id: &Uuid,
     user_id: &Uuid,
 ) -> Result<Option<ChatWithPermission>> {
-    // Run both queries concurrently
-    let (chat, permission) = try_join!(fetch_chat_helper(id), fetch_chat_permission(id, user_id))?;
+    // Run all queries concurrently
+    let (chat, direct_permission, collection_permission) = try_join!(
+        fetch_chat_helper(id),
+        fetch_chat_permission(id, user_id),
+        fetch_collection_permissions_for_chat(id, user_id)
+    )?;
 
     // If the chat doesn't exist, return None
     let chat = match chat {
@@ -91,7 +132,16 @@ pub async fn fetch_chat_with_permission(
         None => return Ok(None),
     };
 
-    Ok(Some(ChatWithPermission { chat, permission }))
+    // If collection permission exists, use it; otherwise use direct permission
+    let effective_permission = match collection_permission {
+        Some(collection) => Some(collection),
+        None => direct_permission,
+    };
+
+    Ok(Some(ChatWithPermission {
+        chat,
+        permission: effective_permission,
+    }))
 }
 
 /// Fetches multiple chats with their permissions in a single operation
@@ -112,29 +162,74 @@ pub async fn fetch_chats_with_permissions(
 
     let mut conn = get_pg_pool().get().await?;
 
-    // Use a LEFT JOIN to fetch chats and their permissions in a single query
-    let results = chats::table
-        .left_join(
-            asset_permissions::table.on(asset_permissions::asset_id
-                .eq(chats::id)
-                .and(asset_permissions::asset_type.eq(AssetType::Chat))
-                .and(asset_permissions::identity_id.eq(user_id))
-                .and(asset_permissions::deleted_at.is_null())),
-        )
+    // 1. Fetch all chats
+    let chats_data = chats::table
         .filter(chats::id.eq_any(ids))
         .filter(chats::deleted_at.is_null())
-        .select((chats::all_columns, asset_permissions::role.nullable()))
-        .load::<(Chat, Option<AssetPermissionRole>)>(&mut conn)
+        .load::<Chat>(&mut conn)
         .await?;
 
-    if results.is_empty() {
+    if chats_data.is_empty() {
         return Ok(Vec::new());
     }
 
-    // Create ChatWithPermission objects
-    let result = results
+    // 2. Fetch direct permissions for these chats
+    let direct_permissions = asset_permissions::table
+        .filter(asset_permissions::asset_id.eq_any(ids))
+        .filter(asset_permissions::asset_type.eq(AssetType::Chat))
+        .filter(asset_permissions::identity_id.eq(user_id))
+        .filter(asset_permissions::deleted_at.is_null())
+        .select((asset_permissions::asset_id, asset_permissions::role))
+        .load::<(Uuid, AssetPermissionRole)>(&mut conn)
+        .await?;
+
+    // 3. Fetch collection-based permissions for these chats
+    let collection_permissions = asset_permissions::table
+        .inner_join(
+            collections_to_assets::table.on(asset_permissions::asset_id
+                .eq(collections_to_assets::collection_id)
+                .and(asset_permissions::asset_type.eq(AssetType::Collection))
+                .and(collections_to_assets::asset_id.eq_any(ids))
+                .and(collections_to_assets::asset_type.eq(AssetType::Chat))
+                .and(collections_to_assets::deleted_at.is_null())),
+        )
+        .filter(asset_permissions::identity_id.eq(user_id))
+        .filter(asset_permissions::deleted_at.is_null())
+        .select((collections_to_assets::asset_id, asset_permissions::role))
+        .load::<(Uuid, AssetPermissionRole)>(&mut conn)
+        .await?;
+
+    // Create maps for easier lookup
+    let mut direct_permission_map = std::collections::HashMap::new();
+    for (asset_id, role) in direct_permissions {
+        direct_permission_map.insert(asset_id, role);
+    }
+
+    // Create map for collection permissions (just take first one for each asset)
+    let mut collection_permission_map = std::collections::HashMap::new();
+    for (asset_id, role) in collection_permissions {
+        // Only insert if not already present (first one wins)
+        collection_permission_map.entry(asset_id).or_insert(role);
+    }
+
+    // Create ChatWithPermission objects with effective permissions
+    let result = chats_data
         .into_iter()
-        .map(|(chat, permission)| ChatWithPermission { chat, permission })
+        .map(|chat| {
+            let direct_permission = direct_permission_map.get(&chat.id).cloned();
+            let collection_permission = collection_permission_map.get(&chat.id).cloned();
+
+            // Use collection permission if it exists, otherwise use direct permission
+            let effective_permission = match collection_permission {
+                Some(collection) => Some(collection),
+                None => direct_permission,
+            };
+
+            ChatWithPermission {
+                chat,
+                permission: effective_permission,
+            }
+        })
         .collect();
 
     Ok(result)
