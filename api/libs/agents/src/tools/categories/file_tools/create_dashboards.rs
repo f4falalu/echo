@@ -131,7 +131,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
 
     async fn is_enabled(&self) -> bool {
         matches!((
-            self.agent.get_state_value("metrics_available").await,
+            self.agent.get_state_value("dashboards_available").await,
             self.agent.get_state_value("plan_available").await,
         ), (Some(_), Some(_)))
     }
