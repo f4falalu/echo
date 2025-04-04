@@ -22,7 +22,8 @@ import {
   DragStartEvent,
   useDraggable,
   useDroppable,
-  DragOverEvent
+  DragOverEvent,
+  defaultDropAnimationSideEffects
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -58,6 +59,9 @@ interface DraggableHeaderProps {
   isOverTarget: boolean;
 }
 
+// Constants for consistent sizing
+const HEADER_HEIGHT = 36; // 9*4 = 36px (h-9 in Tailwind)
+
 const DraggableHeader: React.FC<DraggableHeaderProps> = ({
   header,
   sortable,
@@ -71,7 +75,11 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = ({
     isDragging,
     setNodeRef: setDragNodeRef
   } = useDraggable({
-    id: header.id
+    id: header.id,
+    // This ensures the drag overlay matches the element's position exactly
+    data: {
+      type: 'header'
+    }
   });
 
   // Set up droppable area to detect when a header is over this target
@@ -83,7 +91,9 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = ({
     position: 'relative',
     whiteSpace: 'nowrap',
     width: header.column.getSize(),
-    opacity: isDragging ? 0.4 : 1
+    opacity: isDragging ? 0.4 : 1,
+    transition: 'none', // Prevent any transitions for snappy changes
+    height: `${HEADER_HEIGHT}px` // Set fixed header height
   };
 
   return (
@@ -91,13 +101,13 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = ({
       ref={setDropNodeRef}
       style={style}
       className={cn(
-        'relative flex items-center border bg-gray-100 p-2 select-none',
-        isOverTarget && 'border-dashed border-blue-500 bg-blue-50'
+        'bg-background relative border select-none',
+        isOverTarget && 'bg-primary/10 border-primary rounded-sm border-dashed'
       )}
       // onClick toggles sorting if enabled
       onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}>
       <div
-        className="flex-1"
+        className="flex h-full flex-1 items-center p-2"
         ref={setDragNodeRef}
         {...attributes}
         {...listeners}
@@ -127,12 +137,17 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = ({
 const HeaderDragOverlay = ({ header }: { header: Header<any, unknown> }) => {
   return (
     <div
-      className="rounded border bg-white p-2 shadow-lg"
+      className="flex items-center rounded border bg-white p-2 shadow-lg"
       style={{
         width: header.column.getSize(),
-        opacity: 0.9
+        height: `${HEADER_HEIGHT}px`,
+        opacity: 0.9,
+        transform: 'translate3d(0, 0, 0)', // Ensure no unexpected transforms are applied
+        pointerEvents: 'none' // Prevent the overlay from intercepting pointer events
       }}>
       {flexRender(header.column.columnDef.header, header.getContext())}
+      {header.column.getIsSorted() === 'asc' && <span> 🔼</span>}
+      {header.column.getIsSorted() === 'desc' && <span> 🔽</span>}
     </div>
   );
 };
@@ -268,7 +283,7 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
     const handleDragEnd = (event: DragEndEvent) => {
       const { active, over } = event;
 
-      // Reset states
+      // Reset states immediately to prevent animation
       setActiveId(null);
       setActiveHeader(null);
       setOverTargetId(null);
@@ -296,10 +311,24 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
       overscan: 5
     });
 
+    // Create a reference to measure header height
+    const headerRef = useRef<HTMLDivElement>(null);
+    const [headerHeight, setHeaderHeight] = useState(36); // Default height
+
+    // Measure the actual header height once mounted
+    useEffect(() => {
+      if (headerRef.current) {
+        const height = headerRef.current.getBoundingClientRect().height;
+        if (height > 0) {
+          setHeaderHeight(height);
+        }
+      }
+    }, []);
+
     return (
       <div ref={parentRef} className={cn('h-full w-full overflow-auto', className)}>
         {/* Header */}
-        <div className="sticky top-0 z-10 w-full bg-gray-100">
+        <div className="sticky top-0 z-10 w-full bg-gray-100" ref={headerRef}>
           <DndContext
             sensors={sensors}
             modifiers={[restrictToHorizontalAxis]}
@@ -322,7 +351,10 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
             </div>
 
             {/* Drag Overlay */}
-            <DragOverlay adjustScale={false}>
+            <DragOverlay
+              adjustScale={false}
+              dropAnimation={null} // Using null to completely disable animation
+              zIndex={1000}>
               {activeId && activeHeader && <HeaderDragOverlay header={activeHeader} />}
             </DragOverlay>
           </DndContext>

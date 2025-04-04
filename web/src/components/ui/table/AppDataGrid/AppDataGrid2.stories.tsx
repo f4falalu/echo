@@ -64,7 +64,12 @@ export const Default: Story = {
     resizable: true,
     draggable: true,
     sortable: true
-  }
+  },
+  render: (args) => (
+    <div className="h-[500px] overflow-y-auto border p-3">
+      <AppDataGrid2 {...args} />
+    </div>
+  )
 };
 
 export const NonResizable: Story = {
