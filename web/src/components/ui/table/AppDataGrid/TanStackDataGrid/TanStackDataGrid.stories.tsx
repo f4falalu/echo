@@ -63,16 +63,6 @@ export const NonDraggable: Story = {
   }
 };
 
-export const NonSortable: Story = {
-  args: {
-    ...meta.args,
-    rows: sampleData,
-    resizable: true,
-
-    sortable: false
-  }
-};
-
 export const CustomColumnOrder: Story = {
   args: {
     ...meta.args,
