@@ -1,27 +1,11 @@
-import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  DndContext,
-  DragOverlay,
-  useDraggable,
-  useDroppable,
-  DragStartEvent,
-  DragOverEvent,
-  DragEndEvent,
-  MouseSensor,
-  TouchSensor,
-  KeyboardSensor,
-  useSensors,
-  useSensor
-} from '@dnd-kit/core';
+import React, { CSSProperties } from 'react';
+import { DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core';
 import { Header, Table } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
 import { cn } from '@/lib/classMerge';
-import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
-import { pointerWithin } from '@dnd-kit/core';
 import { CaretDown, CaretUp } from '../../../icons/NucleoIconFilled';
 import { HEADER_HEIGHT } from './constants';
-import { useMemoizedFn } from '@/hooks';
-import { arrayMove } from '@dnd-kit/sortable';
+import { useSortColumnContext } from './SortColumnWrapper';
 
 interface DraggableHeaderProps {
   header: Header<Record<string, string | number | Date | null>, unknown>;
@@ -144,154 +128,37 @@ interface DataGridHeaderProps {
   table: Table<Record<string, string | number | Date | null>>;
   sortable: boolean;
   resizable: boolean;
-  colOrder: string[];
-  setColOrder: (colOrder: string[]) => void;
-  onReorderColumns?: (colOrder: string[]) => void;
 }
 
-export const DataGridHeader: React.FC<DataGridHeaderProps> = ({
-  table,
-  colOrder,
-  sortable,
-  resizable,
-  setColOrder,
-  onReorderColumns
-}) => {
-  // Track active drag item and over target
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [overTargetId, setOverTargetId] = useState<string | null>(null);
-  // Store active header for overlay rendering
-  const [activeHeader, setActiveHeader] = useState<Header<
-    Record<string, string | number | Date | null>,
-    unknown
-  > | null>(null);
-
-  // Reference to the style element for cursor handling
-  const styleRef = useRef<HTMLStyleElement | null>(null);
-
-  const memoizedModifiers = useMemo(() => [restrictToHorizontalAxis], []);
-
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 2
-      }
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        distance: 2
-      }
-    }),
-    useSensor(KeyboardSensor)
-  );
-
-  // Handle drag start to capture the active header
-  const onDragStart = useMemoizedFn((event: DragStartEvent) => {
-    const { active } = event;
-    setActiveId(active.id as string);
-
-    // Add global cursor style
-    const style = document.createElement('style');
-    style.innerHTML = `* { cursor: grabbing !important; }`;
-    document.head.appendChild(style);
-    styleRef.current = style;
-
-    // Find and store the active header for the overlay
-    const headerIndex = table
-      .getHeaderGroups()[0]
-      ?.headers.findIndex((header) => header.id === active.id);
-
-    if (headerIndex !== undefined && headerIndex !== -1) {
-      setActiveHeader(table.getHeaderGroups()[0]?.headers[headerIndex]);
-    }
-  });
-
-  // Handle drag over to highlight the target
-  const onDragOver = useMemoizedFn((event: DragOverEvent) => {
-    const { over } = event;
-    if (over) {
-      // Extract the actual header ID from the droppable ID
-      const headerId = over.id.toString().replace('droppable-', '');
-      setOverTargetId(headerId);
-    } else {
-      setOverTargetId(null);
-    }
-  });
-
-  // Handle drag end to reorder columns.
-  const onDragEnd = useMemoizedFn((event: DragEndEvent) => {
-    const { active, over } = event;
-
-    // Remove global cursor style
-    if (styleRef.current) {
-      document.head.removeChild(styleRef.current);
-      styleRef.current = null;
-    }
-
-    // Reset states immediately to prevent animation
-    setActiveId(null);
-    setActiveHeader(null);
-    setOverTargetId(null);
-
-    if (active && over) {
-      // Extract the actual header ID from the droppable ID
-      const overId = over.id.toString().replace('droppable-', '');
-
-      if (active.id !== overId) {
-        const oldIndex = colOrder.indexOf(active.id as string);
-        const newIndex = colOrder.indexOf(overId);
-        const newOrder = arrayMove(colOrder, oldIndex, newIndex);
-        setColOrder(newOrder);
-        if (onReorderColumns) onReorderColumns(newOrder);
-      }
-    }
-  });
-
-  // Clean up any styles on unmount
-  useEffect(() => {
-    return () => {
-      // Clean up cursor style if component unmounts during a drag
-      if (styleRef.current) {
-        document.head.removeChild(styleRef.current);
-        styleRef.current = null;
-      }
-    };
-  }, []);
+export const DataGridHeader: React.FC<DataGridHeaderProps> = ({ table, sortable, resizable }) => {
+  const { activeId, overTargetId, activeHeader } = useSortColumnContext((x) => x);
 
   return (
-    <thead className="bg-background sticky top-0 z-10 w-full border-b" suppressHydrationWarning>
-      <DndContext
-        sensors={sensors}
-        modifiers={memoizedModifiers}
-        collisionDetection={pointerWithin}
-        onDragStart={onDragStart}
-        onDragOver={onDragOver}
-        onDragEnd={onDragEnd}>
-        <tr className="flex">
-          {table
-            .getHeaderGroups()[0]
-            ?.headers.map(
-              (header: Header<Record<string, string | number | Date | null>, unknown>) => (
-                <DraggableHeader
-                  key={header.id}
-                  header={header}
-                  sortable={sortable}
-                  resizable={resizable}
-                  overTargetId={overTargetId}
-                />
-              )
-            )}
-        </tr>
+    <thead className="bg-background sticky top-0 z-10 w-full" suppressHydrationWarning>
+      <tr className="flex border-b shadow">
+        {table
+          .getHeaderGroups()[0]
+          ?.headers.map(
+            (header: Header<Record<string, string | number | Date | null>, unknown>) => (
+              <DraggableHeader
+                key={header.id}
+                header={header}
+                sortable={sortable}
+                resizable={resizable}
+                overTargetId={overTargetId}
+              />
+            )
+          )}
+      </tr>
 
-        {/* Drag Overlay */}
-        <DragOverlay
-          wrapperElement="span"
-          adjustScale={false}
-          dropAnimation={null} // Using null to completely disable animation
-          zIndex={1000}>
-          {activeId && activeHeader && <HeaderDragOverlay header={activeHeader} />}
-        </DragOverlay>
-      </DndContext>
+      {/* Drag Overlay */}
+      <DragOverlay
+        wrapperElement="span"
+        adjustScale={false}
+        dropAnimation={null} // Using null to completely disable animation
+        zIndex={1000}>
+        {activeId && activeHeader && <HeaderDragOverlay header={activeHeader} />}
+      </DragOverlay>
     </thead>
   );
 };

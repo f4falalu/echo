@@ -15,6 +15,7 @@ import { DataGridHeader } from './DataGridHeader';
 import { DataGridRow } from './DataGridRow';
 import { CELL_HEIGHT, OVERSCAN } from './constants';
 import { initializeColumnWidths } from './initializeColumnWidths';
+import { SortColumnWrapper } from './SortColumnWrapper';
 
 export interface TanStackDataGridProps {
   className?: string;
@@ -118,26 +119,25 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
 
     return (
       <div ref={parentRef} className={cn('h-full w-full overflow-auto border', className)}>
-        <table className="bg-background w-full">
-          <DataGridHeader
-            table={table}
-            sortable={sortable}
-            resizable={resizable}
-            colOrder={colOrder}
-            setColOrder={setColOrder}
-            onReorderColumns={onReorderColumns}
-          />
+        <SortColumnWrapper
+          table={table}
+          sortable={sortable}
+          colOrder={colOrder}
+          setColOrder={setColOrder}
+          onReorderColumns={onReorderColumns}>
+          <table className="bg-background w-full">
+            <DataGridHeader table={table} sortable={sortable} resizable={resizable} />
 
-          {/* Body */}
-          <tbody
-            className="relative"
-            style={{ display: 'grid', height: `${rowVirtualizer.getTotalSize()}px` }}>
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-              const row = table.getRowModel().rows[virtualRow.index];
-              return <DataGridRow key={row.id} row={row} virtualRow={virtualRow} />;
-            })}
-          </tbody>
-        </table>
+            <tbody
+              className="relative"
+              style={{ display: 'grid', height: `${rowVirtualizer.getTotalSize()}px` }}>
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const row = table.getRowModel().rows[virtualRow.index];
+                return <DataGridRow key={row.id} row={row} virtualRow={virtualRow} />;
+              })}
+            </tbody>
+          </table>
+        </SortColumnWrapper>
       </div>
     );
   }
