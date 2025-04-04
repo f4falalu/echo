@@ -261,6 +261,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
                             results: None,
                             created_at: dashboard_records[i].created_at,
                             updated_at: dashboard_records[i].updated_at,
+                            version_number: dashboard_records[i].version_history.get_version_number(),
                         });
                     }
                 }

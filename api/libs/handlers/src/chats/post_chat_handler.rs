@@ -1298,8 +1298,8 @@ fn tool_modify_metrics(id: String, content: String) -> Result<Vec<BusterReasonin
         let buster_file = BusterFile {
             id: file_id.clone(),
             file_type: "metric".to_string(),
-            file_name: file.name.clone(),
-            version_number: 1,
+            file_name: file.name.clone(), // Use the updated name from the file
+            version_number: file.version_number,
             status: "completed".to_string(),
             file: BusterFileContent {
                 text: Some(file.yml_content),

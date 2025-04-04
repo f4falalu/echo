@@ -148,7 +148,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                                         // Update the name field from the metric_yml
                                         // This is redundant but ensures the name is set correctly
                                         metric_file.name = metric_yml.name.clone();
-                                        
+
                                         // Check if we have a dataset to work with
                                         if !metric_yml.dataset_ids.is_empty() {
                                             let dataset_id = metric_yml.dataset_ids[0];
@@ -279,6 +279,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                     results: Some(batch.validation_results[i].clone()),
                     created_at: file.created_at,
                     updated_at: file.updated_at,
+                    version_number: file.version_history.get_version_number(),
                 }
             }));
 

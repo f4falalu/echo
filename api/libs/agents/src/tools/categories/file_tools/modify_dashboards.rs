@@ -1,5 +1,5 @@
-use std::{env, sync::Arc};
 use std::time::Instant;
+use std::{env, sync::Arc};
 
 use anyhow::Result;
 use async_trait::async_trait;
@@ -16,8 +16,8 @@ use tracing::{debug, error, info};
 
 use super::{
     common::{
-        ModificationResult,
-        ModifyFilesOutput, ModifyFilesParams, process_dashboard_file_modification,
+        process_dashboard_file_modification, ModificationResult, ModifyFilesOutput,
+        ModifyFilesParams,
     },
     file_types::file::FileWithId,
     FileModificationTool,
@@ -59,10 +59,13 @@ impl ToolExecutor for ModifyDashboardFilesTool {
     }
 
     async fn is_enabled(&self) -> bool {
-        matches!((
-            self.agent.get_state_value("dashboards_available").await,
-            self.agent.get_state_value("plan_available").await,
-        ), (Some(_), Some(_)))
+        matches!(
+            (
+                self.agent.get_state_value("dashboards_available").await,
+                self.agent.get_state_value("plan_available").await,
+            ),
+            (Some(_), Some(_))
+        )
     }
 
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
@@ -96,22 +99,38 @@ impl ToolExecutor for ModifyDashboardFilesTool {
             {
                 Ok(dashboard_file) => {
                     let duration = start_time.elapsed().as_millis() as i64;
-                    
+
                     // Process the dashboard file modification
                     match process_dashboard_file_modification(
-                        dashboard_file,
+                        dashboard_file.clone(),
                         &modification,
                         duration,
                     )
                     .await
                     {
                         Ok((
-                            dashboard_file,
+                            mut dashboard_file,
                             dashboard_yml,
                             results,
                             validation_message,
                             validation_results,
                         )) => {
+                            // Calculate next version number from existing version history
+                            let next_version =
+                                match dashboard_file.version_history.get_latest_version() {
+                                    Some(version) => version.version_number + 1,
+                                    None => 1,
+                                };
+
+                            // Add new version to history
+                            dashboard_file
+                                .version_history
+                                .add_version(next_version, dashboard_yml.clone());
+
+                            // Ensure the name field is updated
+                            // This is redundant but ensures the name is set correctly
+                            dashboard_file.name = dashboard_yml.name.clone();
+
                             batch.files.push(dashboard_file);
                             batch.ymls.push(dashboard_yml);
                             batch.modification_results.extend(results);
@@ -134,7 +153,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
             }
         }
 
-        // Update dashboard files in database
+        // Update dashboard files in database with version history
         if !batch.files.is_empty() {
             use diesel::insert_into;
             match insert_into(dashboard_files::table)
@@ -144,12 +163,16 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                 .set((
                     dashboard_files::content.eq(excluded(dashboard_files::content)),
                     dashboard_files::updated_at.eq(excluded(dashboard_files::updated_at)),
+                    // Add version history and name to ensure they're updated
+                    dashboard_files::version_history.eq(excluded(dashboard_files::version_history)),
+                    // Explicitly set name even though it's in content to ensure it's updated in case content parsing fails
+                    dashboard_files::name.eq(excluded(dashboard_files::name)),
                 ))
                 .execute(&mut conn)
                 .await
             {
                 Ok(_) => {
-                    debug!("Successfully updated dashboard files in database");
+                    debug!("Successfully updated dashboard files with versioning");
                 }
                 Err(e) => {
                     error!("Failed to update dashboard files in database: {}", e);
@@ -164,7 +187,10 @@ impl ToolExecutor for ModifyDashboardFilesTool {
         // Generate output
         let duration = start_time.elapsed().as_millis() as i64;
         let mut output = ModifyFilesOutput {
-            message: format!("Modified {} dashboard files", batch.files.len()),
+            message: format!(
+                "Modified {} dashboard files and created new versions",
+                batch.files.len()
+            ),
             duration,
             files: Vec::new(),
         };
@@ -183,6 +209,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                     results: Some(batch.validation_results[i].clone()),
                     created_at: file.created_at,
                     updated_at: file.updated_at,
+                    version_number: file.version_history.get_version_number(),
                 }
             }));
 
@@ -335,7 +362,8 @@ async fn get_modify_dashboards_new_content_description() -> String {
 
 async fn get_modify_dashboards_content_to_replace_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The exact content in the file that should be replaced. Must match exactly.".to_string();
+        return "The exact content in the file that should be replaced. Must match exactly."
+            .to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -432,7 +460,6 @@ mod tests {
 
     #[test]
     fn test_tool_parameter_validation() {
-
         // Test valid parameters
         let valid_params = json!({
             "files": [{

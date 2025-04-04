@@ -24,6 +24,7 @@ pub struct FileWithId {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub results: Option<Vec<IndexMap<String, DataType>>>,
     pub created_at: DateTime<Utc>,
+    pub version_number: i32,
     pub updated_at: DateTime<Utc>,
 }
 

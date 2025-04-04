@@ -442,6 +442,7 @@ definitions:
           metric_value_aggregate:
             type: string
             enum: ["sum", "average", "median", "max", "min", "count", "first"]
+            description: "Optional - only used when the user specifically requests it, otherwise leave blank"
         required:
           - selected_chart_type
           - metric_column_id

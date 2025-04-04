@@ -74,6 +74,12 @@ impl VersionHistory {
         self.0.values().max_by_key(|v| v.version_number)
     }
 
+    pub fn get_version_number(&self) -> i32 {
+        self.get_latest_version()
+            .map(|version| version.version_number)
+            .unwrap_or(1)
+    }
+
     /// Updates the content of the latest version without creating a new version
     /// 
     /// This is used when we want to overwrite the current version instead of creating a new one.

@@ -176,6 +176,7 @@ impl ToolExecutor for CreateMetricFilesTool {
                             results: Some(results_vec[i].1.clone()),
                             created_at: metric_records[i].created_at,
                             updated_at: metric_records[i].updated_at,
+                            version_number: metric_records[i].version_history.get_version_number(),
                         });
                     }
                 }
