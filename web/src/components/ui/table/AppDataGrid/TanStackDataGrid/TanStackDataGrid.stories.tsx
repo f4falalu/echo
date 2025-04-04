@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AppDataGrid2 } from './AppDataGrid2';
+import { TanStackDataGrid } from './TanStackDataGrid';
+import { faker } from '@faker-js/faker';
 
-const meta: Meta<typeof AppDataGrid2> = {
-  title: 'UI/Table/AppDataGrid2',
-  component: AppDataGrid2,
+const meta: Meta<typeof TanStackDataGrid> = {
+  title: 'UI/Table/TanStackDataGrid',
+  component: TanStackDataGrid,
   parameters: {
     layout: 'fullscreen'
   },
@@ -11,52 +12,15 @@ const meta: Meta<typeof AppDataGrid2> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof AppDataGrid2>;
+type Story = StoryObj<typeof TanStackDataGrid>;
 
-const sampleData = [
-  {
-    id: 1,
-    name: 'John Doe',
-    age: 30,
-    email: 'john@example.com',
-    joinDate: new Date('2023-01-15').toISOString()
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    age: 25,
-    email: 'jane@example.com',
-    joinDate: new Date('2023-02-20').toISOString()
-  },
-  {
-    id: 3,
-    name: 'Bob Johnson',
-    age: 35,
-    email: 'bob@example.com',
-    joinDate: new Date('2023-03-10').toISOString()
-  },
-  {
-    id: 4,
-    name: 'Alice Brown',
-    age: 28,
-    email: 'alice@example.com',
-    joinDate: new Date('2023-04-05').toISOString()
-  },
-  {
-    id: 5,
-    name: 'Michael Wilson',
-    age: 42,
-    email: 'michael@example.com',
-    joinDate: new Date('2023-05-12').toISOString()
-  },
-  {
-    id: 6,
-    name: 'Sarah Davis',
-    age: 31,
-    email: 'sarah@example.com',
-    joinDate: new Date('2023-06-08').toISOString()
-  }
-];
+const sampleData = Array.from({ length: 1000 }, (_, index) => ({
+  id: index + 1,
+  name: faker.person.fullName(),
+  age: faker.number.int({ min: 18, max: 90 }),
+  email: faker.internet.email(),
+  joinDate: faker.date.past().toISOString()
+}));
 
 export const Default: Story = {
   args: {
@@ -66,8 +30,8 @@ export const Default: Story = {
     sortable: true
   },
   render: (args) => (
-    <div className="h-[500px] overflow-y-auto border p-3">
-      <AppDataGrid2 {...args} />
+    <div className="h-[500px] p-0">
+      <TanStackDataGrid {...args} />
     </div>
   )
 };

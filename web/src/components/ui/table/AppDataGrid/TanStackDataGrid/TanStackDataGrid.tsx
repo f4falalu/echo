@@ -16,7 +16,6 @@ import {
   KeyboardSensor,
   useSensor,
   useSensors,
-  closestCenter,
   pointerWithin,
   DragEndEvent,
   DragOverlay,
@@ -27,13 +26,13 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import sampleSize from 'lodash/sampleSize';
-import { defaultCellFormat, defaultHeaderFormat } from './helpers';
+import { defaultCellFormat, defaultHeaderFormat } from '../helpers';
 import { cn } from '@/lib/classMerge';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { useMemoizedFn } from '@/hooks';
-import { CaretDown, CaretUp } from '../../icons/NucleoIconFilled';
+import { CaretDown, CaretUp } from '../../../icons/NucleoIconFilled';
 
-export interface AppDataGridProps {
+export interface TanStackDataGridProps {
   className?: string;
   resizable?: boolean;
   sortable?: boolean;
@@ -95,22 +94,23 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
     };
 
     return (
-      <div
+      <th
         ref={setDropNodeRef}
         style={style}
         className={cn(
-          'bg-background relative border select-none',
-          isOverTarget && 'bg-primary/10 border-primary rounded-sm border-dashed'
+          'relative border-r select-none last:border-r-0',
+          isOverTarget &&
+            'bg-primary/10 border-primary inset rounded-sm border border-r border-dashed'
         )}
         // onClick toggles sorting if enabled
         onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}>
         <div
-          className="flex h-full flex-1 items-center space-x-1 p-2"
+          className="flex h-full flex-1 items-center space-x-1.5 p-2"
           ref={sortable ? setDragNodeRef : undefined}
           {...attributes}
           {...listeners}
           style={{ cursor: 'grab' }}>
-          <span className="text-gray-dark">
+          <span className="text-gray-dark text-base font-normal">
             {flexRender(header.column.columnDef.header, header.getContext())}
           </span>
           {header.column.getIsSorted() === 'asc' && (
@@ -140,7 +140,7 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
             />
           </div>
         )}
-      </div>
+      </th>
     );
   }
 );
@@ -170,7 +170,7 @@ const HeaderDragOverlay = ({
   );
 };
 
-export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
+export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
   ({
     className = '',
     resizable = true,
@@ -355,82 +355,75 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
     const rowVirtualizer = useVirtualizer({
       count: table.getRowModel().rows.length,
       getScrollElement: () => parentRef.current,
-      estimateSize: () => 35, // estimated row height
+      estimateSize: () => 36, // estimated row height
       overscan: 5
     });
 
-    // Create a reference to measure header height
-    const headerRef = useRef<HTMLDivElement>(null);
-    const [headerHeight, setHeaderHeight] = useState(36); // Default height
-
-    // Measure the actual header height once mounted
-    useEffect(() => {
-      if (headerRef.current) {
-        const height = headerRef.current.getBoundingClientRect().height;
-        if (height > 0) {
-          setHeaderHeight(height);
-        }
-      }
-    }, []);
-
     return (
       <div ref={parentRef} className={cn('h-full w-full overflow-auto', className)}>
-        {/* Header */}
-        <div className="sticky top-0 z-10 w-full bg-gray-100" ref={headerRef}>
-          <DndContext
-            sensors={sensors}
-            modifiers={[restrictToHorizontalAxis]}
-            collisionDetection={pointerWithin}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDragEnd={handleDragEnd}>
-            <div className="flex">
-              {table
-                .getHeaderGroups()[0]
-                ?.headers.map((header) => (
-                  <DraggableHeader
-                    key={header.id}
-                    header={header}
-                    sortable={sortable}
-                    resizable={resizable}
-                    overTargetId={overTargetId}
-                  />
-                ))}
-            </div>
+        <table className="bg-background w-full">
+          {/* Header */}
+          <thead className="bg-background sticky top-0 z-10 w-full">
+            <DndContext
+              sensors={sensors}
+              modifiers={[restrictToHorizontalAxis]}
+              collisionDetection={pointerWithin}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDragEnd={handleDragEnd}>
+              <tr className="flex border-b">
+                {table
+                  .getHeaderGroups()[0]
+                  ?.headers.map((header) => (
+                    <DraggableHeader
+                      header={header}
+                      sortable={sortable}
+                      resizable={resizable}
+                      overTargetId={overTargetId}
+                    />
+                  ))}
+              </tr>
 
-            {/* Drag Overlay */}
-            <DragOverlay
-              adjustScale={false}
-              dropAnimation={null} // Using null to completely disable animation
-              zIndex={1000}>
-              {activeId && activeHeader && <HeaderDragOverlay header={activeHeader} />}
-            </DragOverlay>
-          </DndContext>
-        </div>
-        {/* Body */}
-        <div className="relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-            const row = table.getRowModel().rows[virtualRow.index];
-            return (
-              <div
-                key={row.id}
-                className="absolute inset-x-0 flex"
-                style={{
-                  transform: `translateY(${virtualRow.start}px)`,
-                  height: `${virtualRow.size}px`
-                }}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="border p-2" style={{ width: cell.column.getSize() }}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </div>
-            );
-          })}
-        </div>
+              {/* Drag Overlay */}
+              <DragOverlay
+                adjustScale={false}
+                dropAnimation={null} // Using null to completely disable animation
+                zIndex={1000}>
+                {activeId && activeHeader && <HeaderDragOverlay header={activeHeader} />}
+              </DragOverlay>
+            </DndContext>
+          </thead>
+
+          {/* Body */}
+          <tbody
+            className="relative"
+            style={{ display: 'grid', height: `${rowVirtualizer.getTotalSize()}px` }}>
+            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const row = table.getRowModel().rows[virtualRow.index];
+              return (
+                <tr
+                  key={row.id}
+                  className="absolute inset-x-0 flex border-b last:border-b-0"
+                  style={{
+                    transform: `translateY(${virtualRow.start}px)`,
+                    height: `${virtualRow.size}px`
+                  }}>
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className="border-r p-2 last:border-r-0"
+                      style={{ width: cell.column.getSize() }}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     );
   }
 );
 
-AppDataGrid2.displayName = 'AppDataGrid2';
+TanStackDataGrid.displayName = 'TanStackDataGrid';
