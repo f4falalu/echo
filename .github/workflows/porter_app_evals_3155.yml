@@ -2,6 +2,8 @@
     push:
         branches:
             - evals
+        paths:
+            - 'api/**'
 name: Deploy to evals
 jobs:
     database-deploy:
@@ -43,7 +45,7 @@ jobs:
             DATABASE_URL: ${{ secrets.EVAL_DB_URL }}
             PGSSLMODE: disable
     porter-deploy:
-      runs-on: blacksmith-16vcpu-ubuntu-2204
+      runs-on: blacksmith-32vcpu-ubuntu-2204
       steps:
         - name: Checkout code
           uses: actions/checkout@v4
