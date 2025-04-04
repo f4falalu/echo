@@ -498,7 +498,7 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 #     items:
 #       - id: "metric-uuid-1"  # UUIDv4 of an existing metric
 #     column_sizes: [12]   # Required - must sum to exactly 12
-#   - id: 2
+#   - id: 2 # REQUIRED
 #     items:
 #       - id: "metric-uuid-2"
 #       - id: "metric-uuid-3"
