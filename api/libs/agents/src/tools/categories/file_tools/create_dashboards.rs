@@ -131,7 +131,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
 
     async fn is_enabled(&self) -> bool {
         matches!((
-            self.agent.get_state_value("dashboards_available").await,
+            self.agent.get_state_value("metrics_available").await,
             self.agent.get_state_value("plan_available").await,
         ), (Some(_), Some(_)))
     }
@@ -311,11 +311,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
         let duration = start_time.elapsed().as_millis() as i64;
 
         self.agent
-            .set_state_value(String::from("files_available"), Value::Bool(true))
-            .await;
-
-        self.agent
-            .set_state_value(String::from("dashboards_available"), Value::Bool(true))
+            .set_state_value(String::from("metrics_available"), Value::Bool(true))
             .await;
 
         Ok(CreateDashboardFilesOutput {
