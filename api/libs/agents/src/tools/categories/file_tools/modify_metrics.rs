@@ -357,7 +357,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
 async fn get_modify_metrics_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Modifies existing metric configuration files by replacing specified content with new content".to_string();
+        return "Modifies existing metric configuration files by replacing specified content with new content. When modifying a metric's SQL, make sure to also update the name and/or time frame to reflect the changes.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -365,14 +365,14 @@ async fn get_modify_metrics_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "Modifies existing metric configuration files by replacing specified content with new content".to_string()
+            "Modifies existing metric configuration files by replacing specified content with new content. When modifying a metric's SQL, make sure to also update the name and/or time frame to reflect the changes.".to_string()
         }
     }
 }
 
 async fn get_modify_metrics_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return METRIC_YML_SCHEMA.to_string();
+        return format!("{}. Remember to update the metric name and/or time frame properties when modifying SQL to ensure they reflect the changes.", METRIC_YML_SCHEMA);
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -380,7 +380,7 @@ async fn get_modify_metrics_yml_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            METRIC_YML_SCHEMA.to_string()
+            format!("{}. Remember to update the metric name and/or time frame properties when modifying SQL to ensure they reflect the changes.", METRIC_YML_SCHEMA)
         }
     }
 }
@@ -417,7 +417,7 @@ async fn get_modify_metrics_modifications_description() -> String {
 
 async fn get_modify_metrics_new_content_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The new content to replace the existing content with".to_string();
+        return "The new content to replace the existing content with. If modifying SQL, ensure name and time frame properties are also updated to reflect the changes.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -425,14 +425,14 @@ async fn get_modify_metrics_new_content_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "The new content to replace the existing content with".to_string()
+            "The new content to replace the existing content with. If modifying SQL, ensure name and time frame properties are also updated to reflect the changes.".to_string()
         }
     }
 }
 
 async fn get_modify_metrics_content_to_replace_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The exact content in the file that should be replaced. Must match exactly."
+        return "The exact content in the file that should be replaced. Must match exactly and be specific enough to only match once. Use an empty string to append the new content to the end of the file."
             .to_string();
     }
 
@@ -441,7 +441,7 @@ async fn get_modify_metrics_content_to_replace_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "The exact content in the file that should be replaced. Must match exactly.".to_string()
+            "The exact content in the file that should be replaced. Must match exactly and be specific enough to only match once. Use an empty string to append the new content to the end of the file.".to_string()
         }
     }
 }

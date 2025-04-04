@@ -272,7 +272,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
 
 async fn get_modify_dashboards_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Modifies existing dashboard configuration files by replacing specified content with new content".to_string();
+        return "Modifies existing dashboard configuration files by replacing specified content with new content. If the dashboard fundamentally changes, the name should be updated to reflect the changes. However, if the core dashboard topic remains the same, the name should stay unchanged.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -280,14 +280,14 @@ async fn get_modify_dashboards_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "Modifies existing dashboard configuration files by replacing specified content with new content".to_string()
+            "Modifies existing dashboard configuration files by replacing specified content with new content. If the dashboard fundamentally changes, the name should be updated to reflect the changes. However, if the core dashboard topic remains the same, the name should stay unchanged.".to_string()
         }
     }
 }
 
 async fn get_modify_dashboards_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return DASHBOARD_YML_SCHEMA.to_string();
+        return format!("{}. When making significant changes to a dashboard, update the name to reflect these changes. If the dashboard's core topic remains the same, keep the original name.", DASHBOARD_YML_SCHEMA);
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -295,7 +295,7 @@ async fn get_modify_dashboards_yml_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            DASHBOARD_YML_SCHEMA.to_string()
+            format!("{}. When making significant changes to a dashboard, update the name to reflect these changes. If the dashboard's core topic remains the same, keep the original name.", DASHBOARD_YML_SCHEMA)
         }
     }
 }
@@ -347,7 +347,7 @@ async fn get_modify_dashboards_modifications_description() -> String {
 
 async fn get_modify_dashboards_new_content_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The new content to replace the existing content with".to_string();
+        return "The new content to replace the existing content with. If fundamentally changing the dashboard's purpose or focus, update the name property accordingly. If the core topic remains the same, maintain the original name.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -355,14 +355,14 @@ async fn get_modify_dashboards_new_content_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "The new content to replace the existing content with".to_string()
+            "The new content to replace the existing content with. If fundamentally changing the dashboard's purpose or focus, update the name property accordingly. If the core topic remains the same, maintain the original name.".to_string()
         }
     }
 }
 
 async fn get_modify_dashboards_content_to_replace_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The exact content in the file that should be replaced. Must match exactly."
+        return "The exact content in the file that should be replaced. Must match exactly and be specific enough to only match once. Use an empty string to append the new content to the end of the file."
             .to_string();
     }
 
@@ -371,7 +371,7 @@ async fn get_modify_dashboards_content_to_replace_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "The exact content in the file that should be replaced. Must match exactly.".to_string()
+            "The exact content in the file that should be replaced. Must match exactly and be specific enough to only match once. Use an empty string to append the new content to the end of the file.".to_string()
         }
     }
 }
@@ -486,5 +486,21 @@ mod tests {
         let missing_args = serde_json::to_string(&missing_fields_params).unwrap();
         let result = serde_json::from_str::<ModifyFilesParams>(&missing_args);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_apply_modifications_append() {
+        let original_content = "name: test_dashboard\ntype: dashboard\ndescription: A test dashboard";
+
+        // Test appending content with empty content_to_replace
+        let mods = vec![Modification {
+            content_to_replace: "".to_string(),
+            new_content: "\nvisibility: public".to_string(),
+        }];
+        let result = apply_modifications_to_content(original_content, &mods, "test.yml").unwrap();
+        assert_eq!(
+            result,
+            "name: test_dashboard\ntype: dashboard\ndescription: A test dashboard\nvisibility: public"
+        );
     }
 }

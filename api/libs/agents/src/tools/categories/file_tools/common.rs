@@ -1074,6 +1074,17 @@ pub fn apply_modifications_to_content(
     let mut modified_content = content.to_string();
 
     for modification in modifications {
+        // If content_to_replace is empty, append the new content to the end of the file
+        if modification.content_to_replace.is_empty() {
+            // Add a newline at the end if the content doesn't end with one
+            if !modified_content.ends_with('\n') {
+                modified_content.push('\n');
+            }
+            // Append the new content
+            modified_content.push_str(&modification.new_content);
+            continue;
+        }
+
         // Check if the content to replace exists in the file
         if !modified_content.contains(&modification.content_to_replace) {
             return Err(anyhow::anyhow!(
@@ -1139,6 +1150,30 @@ mod tests {
         let err_msg = result.unwrap_err().to_string();
         assert!(err_msg.contains("multiple locations"));
         assert!(err_msg.contains("2 occurrences"));
+    }
+
+    #[test]
+    fn test_apply_modifications_empty_content_to_replace() {
+        let original_content = "name: test_metric\ntype: counter\ndescription: A test metric";
+
+        // Test appending content when content_to_replace is empty
+        let mods = vec![Modification {
+            content_to_replace: "".to_string(),
+            new_content: "additional_field: true".to_string(),
+        }];
+        let result = apply_modifications_to_content(original_content, &mods, "test.yml").unwrap();
+        assert_eq!(
+            result,
+            "name: test_metric\ntype: counter\ndescription: A test metric\nadditional_field: true"
+        );
+
+        // Test appending content when original content doesn't end with newline
+        let original_content_no_newline = "name: test_metric\ntype: counter\ndescription: A test metric";
+        let result = apply_modifications_to_content(original_content_no_newline, &mods, "test.yml").unwrap();
+        assert_eq!(
+            result,
+            "name: test_metric\ntype: counter\ndescription: A test metric\nadditional_field: true"
+        );
     }
 
     // Note: We'll need integration tests with a real database for testing actual SQL validation
