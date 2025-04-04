@@ -45,20 +45,11 @@ export const Default: Story = {
   }
 };
 
-export const NonResizable: Story = {
+export const NonEditable: Story = {
   args: {
     ...meta.args,
     rows: sampleData,
     resizable: false,
-    sortable: true
-  }
-};
-
-export const NonDraggable: Story = {
-  args: {
-    ...meta.args,
-    rows: sampleData,
-    resizable: true,
     sortable: false
   }
 };
@@ -69,7 +60,6 @@ export const CustomColumnOrder: Story = {
     rows: sampleData,
     columnOrder: ['name', 'email', 'age', 'id', 'joinDate'],
     resizable: true,
-
     sortable: true
   }
 };
@@ -86,7 +76,6 @@ export const CustomColumnWidths: Story = {
       joinDate: 120
     },
     resizable: true,
-
     sortable: true
   }
 };
@@ -104,23 +93,7 @@ export const CustomFormatting: Story = {
         return `${value} years`;
       }
       return String(value);
-    },
-    resizable: true,
-
-    sortable: true
-  }
-};
-
-export const WithCallbacks: Story = {
-  args: {
-    ...meta.args,
-    rows: sampleData,
-    onReorderColumns: (columnIds) => console.log('Columns reordered:', columnIds),
-    onResizeColumns: (columnSizes) => console.log('Columns resized:', columnSizes),
-    onReady: () => console.log('Grid is ready'),
-    resizable: true,
-
-    sortable: true
+    }
   }
 };
 
@@ -139,7 +112,6 @@ export const TenThousandRows: Story = {
       ).toISOString()
     })),
     resizable: true,
-
     sortable: true
   }
 };
