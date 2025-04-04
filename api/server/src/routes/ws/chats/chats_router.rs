@@ -8,17 +8,17 @@ use middleware::AuthenticatedUser;
 
 use crate::routes::ws::ws::SubscriptionRwLock;
 
-use super::post_thread::post_thread;
+use super::post_chat::post_thread;
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub enum ThreadRoute {
+pub enum ChatsRoute {
     #[serde(rename = "/chats/post")]
     Post,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub enum ThreadEvent {
+pub enum ChatEvent {
     Thought,
     InitializeThread,
     ModifyVisualization,
@@ -56,15 +56,15 @@ pub enum ThreadEvent {
     GetChat,
 }
 
-pub async fn threads_router(
-    route: ThreadRoute,
+pub async fn chats_router(
+    route: ChatsRoute,
     data: Value,
     subscriptions: &Arc<SubscriptionRwLock>,
     user_group: &String,
     user: &AuthenticatedUser,
 ) -> Result<()> {
     match route {
-        ThreadRoute::Post => {
+        ChatsRoute::Post => {
             let req = serde_json::from_value(data)?;
 
             post_thread(user, req).await?;
@@ -74,7 +74,7 @@ pub async fn threads_router(
     Ok(())
 }
 
-impl ThreadRoute {
+impl ChatsRoute {
     pub fn from_str(path: &str) -> Result<Self> {
         match path {
             "/chats/post" => Ok(Self::Post),

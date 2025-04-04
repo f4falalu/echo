@@ -33,7 +33,7 @@ use uuid::Uuid;
 use middleware::AuthenticatedUser;
 
 use super::{
-    threads_and_messages::threads_router::ThreadEvent,
+    chats::chats_router::ChatEvent,
     ws_router::{ws_router, WsRoutes},
     ws_utils::{subscribe_to_stream, unsubscribe_from_stream},
 };
@@ -51,7 +51,7 @@ pub struct WsRequestMessage {
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum WsEvent {
-    Threads(ThreadEvent),
+    Threads(ChatEvent),
 }
 
 #[derive(Serialize, Deserialize, Clone)]

@@ -1,4 +1,4 @@
-mod threads_and_messages;
+mod chats;
 pub mod ws;
 pub mod ws_router;
 pub mod ws_utils;

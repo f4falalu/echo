@@ -7,14 +7,14 @@ use serde_json::Value;
 use middleware::AuthenticatedUser;
 
 use super::{
-    threads_and_messages::threads_router::{threads_router, ThreadRoute},
+    chats::chats_router::{chats_router, ChatsRoute},
     ws::SubscriptionRwLock,
 };
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum WsRoutes {
-    Threads(ThreadRoute),
+    Chats(ChatsRoute),
 }
 
 impl WsRoutes {
@@ -25,7 +25,7 @@ impl WsRoutes {
             .ok_or_else(|| anyhow!("Invalid path"))?;
 
         match first_segment {
-            "chats" => Ok(Self::Threads(ThreadRoute::from_str(path)?)),
+            "chats" => Ok(Self::Chats(ChatsRoute::from_str(path)?)),
             _ => Err(anyhow!("Invalid path")),
         }
     }
@@ -46,8 +46,8 @@ pub async fn ws_router(
     };
 
     let result = match parsed_route {
-        WsRoutes::Threads(threads_route) => {
-            threads_router(threads_route, payload, subscriptions, user_group, user).await
+        WsRoutes::Chats(threads_route) => {
+            chats_router(threads_route, payload, subscriptions, user_group, user).await
         }
     };
 

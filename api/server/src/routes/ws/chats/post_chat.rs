@@ -6,7 +6,7 @@ use middleware::AuthenticatedUser;
 use tokio::sync::mpsc;
 
 use crate::routes::ws::{
-        threads_and_messages::threads_router::{ThreadEvent as WSThreadEvent, ThreadRoute},
+        chats::chats_router::{ChatEvent as WSThreadEvent, ChatsRoute},
         ws::{WsEvent, WsResponseMessage, WsSendMethod, WsErrorCode},
         ws_router::WsRoutes,
         ws_utils::{send_ws_message, send_error_message},
@@ -28,7 +28,7 @@ pub async fn post_thread(
     if request.asset_id.is_some() && request.asset_type.is_none() {
         return send_error_message(
             &user.id.to_string(),
-            WsRoutes::Threads(ThreadRoute::Post),
+            WsRoutes::Chats(ChatsRoute::Post),
             WsEvent::Threads(WSThreadEvent::PostThread),
             WsErrorCode::BadRequest,
             "asset_type must be provided when asset_id is specified".to_string(),
@@ -66,7 +66,7 @@ pub async fn post_thread(
                     };
 
                     let response = WsResponseMessage::new_no_user(
-                        WsRoutes::Threads(ThreadRoute::Post),
+                        WsRoutes::Chats(ChatsRoute::Post),
                         event,
                         &container,
                         None,
@@ -84,7 +84,7 @@ pub async fn post_thread(
                     // Send error message to client
                     if let Err(e) = send_error_message(
                         &user_id,
-                        WsRoutes::Threads(ThreadRoute::Post),
+                        WsRoutes::Chats(ChatsRoute::Post),
                         WsEvent::Threads(WSThreadEvent::PostThread),
                         WsErrorCode::InternalServerError,
                         format!("Error processing thread: {}", err),
@@ -107,7 +107,7 @@ pub async fn post_thread(
             // For prompt-less flows, the handler might already be done, so explicitly send the completed event
             // This ensures the client knows the process is complete
             let response = WsResponseMessage::new_no_user(
-                WsRoutes::Threads(ThreadRoute::Post),
+                WsRoutes::Chats(ChatsRoute::Post),
                 WsEvent::Threads(WSThreadEvent::Complete),
                 &post_chat_handler::BusterContainer::Chat(chat_with_messages),
                 None,
@@ -120,7 +120,7 @@ pub async fn post_thread(
         Err(e) => {
             send_error_message(
                 &user.id.to_string(),
-                WsRoutes::Threads(ThreadRoute::Post),
+                WsRoutes::Chats(ChatsRoute::Post),
                 WsEvent::Threads(WSThreadEvent::PostThread),
                 WsErrorCode::InternalServerError,
                 format!("Error creating thread: {}", e),
