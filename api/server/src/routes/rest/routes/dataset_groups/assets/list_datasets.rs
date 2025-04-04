@@ -11,7 +11,7 @@ use database::pool::get_pg_pool;
 use database::schema::{datasets, datasets_to_dataset_groups};
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
-use crate::utils::user::user_info::get_user_organization_id;
+use database::organization::get_user_organization_id;
 use middleware::AuthenticatedUser;
 
 /// Represents dataset information with its assignment status to a dataset group
@@ -44,7 +44,10 @@ pub async fn list_datasets(
 
 async fn list_datasets_handler(user: AuthenticatedUser, dataset_group_id: Uuid) -> Result<Vec<DatasetInfo>> {
     let mut conn = get_pg_pool().get().await?;
-    let organization_id = get_user_organization_id(&user.id).await?;
+    let organization_id = match get_user_organization_id(&user.id).await? {
+        Some(organization_id) => organization_id,
+        None => return Err(anyhow::anyhow!("User does not belong to any organization")),
+    };
 
     if !is_user_workspace_admin_or_data_admin(&user, &organization_id).await? {
         return Err(anyhow::anyhow!(

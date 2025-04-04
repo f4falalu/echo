@@ -13,7 +13,7 @@ use database::models::DatasetGroupPermission;
 use database::schema::dataset_groups_permissions;
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
-use crate::utils::user::user_info::get_user_organization_id;
+use database::organization::get_user_organization_id;
 use middleware::AuthenticatedUser;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -46,7 +46,10 @@ async fn put_users_handler(
     dataset_group_id: Uuid,
     assignments: Vec<UserAssignment>,
 ) -> Result<()> {
-    let organization_id = get_user_organization_id(&user.id).await?;
+    let organization_id = match get_user_organization_id(&user.id).await? {
+        Some(organization_id) => organization_id,
+        None => return Err(anyhow::anyhow!("User does not belong to any organization")),
+    };
 
     if !is_user_workspace_admin_or_data_admin(&user, &organization_id).await? {
         return Err(anyhow::anyhow!(

@@ -8,7 +8,7 @@ use database::{enums::UserOrganizationRole, pool::get_pg_pool};
 use crate::routes::rest::ApiResponse;
 use crate::utils::clients::sentry_utils::send_sentry_error;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
-use crate::utils::user::user_info::get_user_organization_id;
+use database::organization::get_user_organization_id;
 use axum::http::StatusCode;
 use diesel::{update, ExpressionMethods};
 use diesel_async::RunQueryDsl;
@@ -64,7 +64,10 @@ pub async fn update_user_handler(
     };
 
     let user_organization_id = match get_user_organization_id(&user_id).await {
-        Ok(id) => id,
+        Ok(Some(id)) => id,
+        Ok(None) => {
+            return Err(anyhow::anyhow!("User does not belong to any organization"));
+        }
         Err(e) => {
             return Err(anyhow::anyhow!(
                 "Error getting user organization id: {:?}",

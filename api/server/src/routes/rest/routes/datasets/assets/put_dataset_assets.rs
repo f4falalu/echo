@@ -16,7 +16,7 @@ use database::{
 };
 use crate::routes::rest::ApiResponse;
 use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
-use crate::utils::user::user_info::get_user_organization_id;
+use database::organization::get_user_organization_id;
 
 #[derive(Debug, Deserialize)]
 pub struct AssetAssignment {
@@ -45,7 +45,10 @@ pub async fn put_permissions_handler(
     (dataset_id, permission_type): (Uuid, String),
     assignments: Vec<AssetAssignment>,
 ) -> Result<()> {
-    let organization_id = get_user_organization_id(&user.id).await?;
+    let organization_id = match get_user_organization_id(&user.id).await? {
+        Some(organization_id) => organization_id,
+        None => return Err(anyhow::anyhow!("User does not belong to any organization")),
+    };
 
     match is_user_workspace_admin_or_data_admin(&user, &organization_id).await {
         Ok(true) => (),

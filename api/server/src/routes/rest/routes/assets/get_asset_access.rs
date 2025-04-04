@@ -12,7 +12,7 @@ use axum::http::StatusCode;
 use middleware::AuthenticatedUser;
 
 use crate::routes::rest::ApiResponse;
-use crate::utils::user::user_info::get_user_organization_id;
+use database::organization::get_user_organization_id;
 use database::enums::{AssetPermissionRole, AssetType, UserOrganizationRole};
 use database::pool::{get_pg_pool, PgPool};
 use database::schema::{
@@ -370,7 +370,10 @@ async fn is_organization_admin_or_owner(
     user_id: Arc<Uuid>,
 ) -> anyhow::Result<bool> {
     let user_organization_id = match get_user_organization_id(&user_id).await {
-        Ok(organization_id) => organization_id,
+        Ok(Some(organization_id)) => organization_id,
+        Ok(None) => {
+            return Err(anyhow::anyhow!("User does not belong to any organization"));
+        }
         Err(e) => {
             tracing::error!("Error getting user organization id: {}", e);
             return Ok(false);
