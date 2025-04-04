@@ -5,7 +5,8 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
-  SortingState
+  SortingState,
+  Header
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import {
@@ -16,10 +17,14 @@ import {
   useSensor,
   useSensors,
   closestCenter,
-  DragEndEvent
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  useDraggable,
+  useDroppable,
+  DragOverEvent
 } from '@dnd-kit/core';
-import { arrayMove, SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
+import { arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import sampleSize from 'lodash/sampleSize';
 import { defaultCellFormat, defaultHeaderFormat } from './helpers';
@@ -46,34 +51,57 @@ export interface AppDataGridProps {
   ) => void;
 }
 
-interface SortableHeaderProps {
+interface DraggableHeaderProps {
   header: any; // Header<any, unknown>
   sortable: boolean;
   resizable: boolean;
+  isOverTarget: boolean;
 }
-const SortableHeader: React.FC<SortableHeaderProps> = ({ header, sortable, resizable }) => {
-  // Set up dnd-kit’s useSortable for this header cell.
-  const { attributes, listeners, isDragging, setNodeRef, transform, transition } = useSortable({
+
+const DraggableHeader: React.FC<DraggableHeaderProps> = ({
+  header,
+  sortable,
+  resizable,
+  isOverTarget
+}) => {
+  // Set up dnd-kit's useDraggable for this header cell
+  const {
+    attributes,
+    listeners,
+    isDragging,
+    setNodeRef: setDragNodeRef
+  } = useDraggable({
     id: header.id
   });
+
+  // Set up droppable area to detect when a header is over this target
+  const { setNodeRef: setDropNodeRef } = useDroppable({
+    id: `droppable-${header.id}`
+  });
+
   const style: CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
     position: 'relative',
-    transform: CSS.Translate.toString(transform), // translate instead of transform to avoid squishing
-    transition: 'width transform 0.2s ease-in-out',
     whiteSpace: 'nowrap',
     width: header.column.getSize(),
-    zIndex: isDragging ? 1 : 0,
-    boxShadow: isDragging ? '0 0 10px rgba(0, 0, 0, 0.5)' : 'none'
+    opacity: isDragging ? 0.4 : 1
   };
 
   return (
     <div
+      ref={setDropNodeRef}
       style={style}
-      className="relative flex items-center border bg-gray-100 p-2 select-none"
+      className={cn(
+        'relative flex items-center border bg-gray-100 p-2 select-none',
+        isOverTarget && 'border-dashed border-blue-500 bg-blue-50'
+      )}
       // onClick toggles sorting if enabled
       onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}>
-      <div className="flex-1" ref={setNodeRef} {...attributes} {...listeners}>
+      <div
+        className="flex-1"
+        ref={setDragNodeRef}
+        {...attributes}
+        {...listeners}
+        style={{ cursor: 'grab' }}>
         {flexRender(header.column.columnDef.header, header.getContext())}
         {header.column.getIsSorted() === 'asc' && <span> 🔼</span>}
         {header.column.getIsSorted() === 'desc' && <span> 🔽</span>}
@@ -91,6 +119,20 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({ header, sortable, resiz
           />
         </div>
       )}
+    </div>
+  );
+};
+
+// Header content component to use in the DragOverlay
+const HeaderDragOverlay = ({ header }: { header: Header<any, unknown> }) => {
+  return (
+    <div
+      className="rounded border bg-white p-2 shadow-lg"
+      style={{
+        width: header.column.getSize(),
+        opacity: 0.9
+      }}>
+      {flexRender(header.column.columnDef.header, header.getContext())}
     </div>
   );
 };
@@ -128,6 +170,13 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
       return initial;
     });
     const [colOrder, setColOrder] = useState<string[]>(serverColumnOrder || fields);
+
+    // Track active drag item and over target
+    const [activeId, setActiveId] = useState<string | null>(null);
+    const [overTargetId, setOverTargetId] = useState<string | null>(null);
+
+    // Store active header for overlay rendering
+    const [activeHeader, setActiveHeader] = useState<any>(null);
 
     // Build columns from fields.
     const columns = useMemo<ColumnDef<any, any>[]>(
@@ -188,15 +237,53 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
       useSensor(KeyboardSensor)
     );
 
+    // Handle drag start to capture the active header
+    const handleDragStart = (event: DragStartEvent) => {
+      const { active } = event;
+      setActiveId(active.id as string);
+
+      // Find and store the active header for the overlay
+      const headerIndex = table
+        .getHeaderGroups()[0]
+        ?.headers.findIndex((header) => header.id === active.id);
+
+      if (headerIndex !== undefined && headerIndex !== -1) {
+        setActiveHeader(table.getHeaderGroups()[0]?.headers[headerIndex]);
+      }
+    };
+
+    // Handle drag over to highlight the target
+    const handleDragOver = (event: DragOverEvent) => {
+      const { over } = event;
+      if (over) {
+        // Extract the actual header ID from the droppable ID
+        const headerId = over.id.toString().replace('droppable-', '');
+        setOverTargetId(headerId);
+      } else {
+        setOverTargetId(null);
+      }
+    };
+
     // Handle drag end to reorder columns.
     const handleDragEnd = (event: DragEndEvent) => {
       const { active, over } = event;
-      if (active && over && active.id !== over.id) {
-        const oldIndex = colOrder.indexOf(active.id as string);
-        const newIndex = colOrder.indexOf(over.id as string);
-        const newOrder = arrayMove(colOrder, oldIndex, newIndex);
-        setColOrder(newOrder);
-        if (onReorderColumns) onReorderColumns(newOrder);
+
+      // Reset states
+      setActiveId(null);
+      setActiveHeader(null);
+      setOverTargetId(null);
+
+      if (active && over) {
+        // Extract the actual header ID from the droppable ID
+        const overId = over.id.toString().replace('droppable-', '');
+
+        if (active.id !== overId) {
+          const oldIndex = colOrder.indexOf(active.id as string);
+          const newIndex = colOrder.indexOf(overId);
+          const newOrder = arrayMove(colOrder, oldIndex, newIndex);
+          setColOrder(newOrder);
+          if (onReorderColumns) onReorderColumns(newOrder);
+        }
       }
     };
 
@@ -217,23 +304,27 @@ export const AppDataGrid2: React.FC<AppDataGridProps> = React.memo(
             sensors={sensors}
             modifiers={[restrictToHorizontalAxis]}
             collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}>
-            <SortableContext
-              items={table.getHeaderGroups()[0]?.headers.map((header) => header.id) || []}
-              strategy={horizontalListSortingStrategy}>
-              <div className="flex">
-                {table
-                  .getHeaderGroups()[0]
-                  ?.headers.map((header) => (
-                    <SortableHeader
-                      key={header.id}
-                      header={header}
-                      sortable={sortable}
-                      resizable={resizable}
-                    />
-                  ))}
-              </div>
-            </SortableContext>
+            <div className="flex">
+              {table
+                .getHeaderGroups()[0]
+                ?.headers.map((header) => (
+                  <DraggableHeader
+                    key={header.id}
+                    header={header}
+                    sortable={sortable}
+                    resizable={resizable}
+                    isOverTarget={header.id === overTargetId}
+                  />
+                ))}
+            </div>
+
+            {/* Drag Overlay */}
+            <DragOverlay adjustScale={false}>
+              {activeId && activeHeader && <HeaderDragOverlay header={activeHeader} />}
+            </DragOverlay>
           </DndContext>
         </div>
         {/* Body */}
