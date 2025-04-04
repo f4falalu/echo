@@ -9,7 +9,6 @@ edition = "2021"
 anyhow = { workspace = true }
 serde = { workspace = true }
 tokio = { workspace = true }
-thiserror = { workspace = true }
 async-trait = { workspace = true }
 uuid = { workspace = true }
 litellm = { path = "../litellm" }
@@ -18,8 +17,6 @@ query_engine = { path = "../query_engine" }
 braintrust = { path = "../braintrust" }
 serde_json = { workspace = true }
 futures = { workspace = true }
-futures-util = { workspace = true }
-sqlparser = { workspace = true }
 chrono = { workspace = true }
 diesel = { workspace = true }
 diesel-async = { workspace = true }
