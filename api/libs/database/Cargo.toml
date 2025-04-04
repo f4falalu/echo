@@ -31,3 +31,5 @@ reqwest = { workspace = true }
 
 [dev-dependencies]
 tokio-test = { workspace = true } 
+lazy_static = { workspace = true }
+ctor = "0.4.1" 

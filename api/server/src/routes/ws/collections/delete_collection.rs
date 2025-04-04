@@ -78,7 +78,7 @@ async fn delete_collection_handler(
     let filtered_ids_to_delete: Vec<Uuid> = ids
         .into_iter()
         .filter(|id| match roles.get(id) {
-            Some(role) if *role != AssetPermissionRole::Viewer => true,
+            Some(role) if *role != AssetPermissionRole::CanView => true,
             _ => false,
         })
         .collect();

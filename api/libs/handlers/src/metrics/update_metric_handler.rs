@@ -117,7 +117,7 @@ pub async fn update_metric_handler(
     if !check_permission_access(
         permission,
         &[
-            AssetPermissionRole::Editor,
+            AssetPermissionRole::CanEdit,
             AssetPermissionRole::FullAccess,
             AssetPermissionRole::Owner,
         ],

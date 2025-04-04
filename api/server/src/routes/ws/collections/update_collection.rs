@@ -67,7 +67,7 @@ pub async fn update_collection(
         }
     };
 
-    if user_permission == AssetPermissionRole::Viewer {
+    if user_permission == AssetPermissionRole::CanView{
         send_error_message(
             &user.id.to_string(),
             WsRoutes::Collections(CollectionRoute::Update),

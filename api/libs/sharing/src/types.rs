@@ -29,9 +29,7 @@ impl From<AssetPermissionRole> for AssetPermissionLevel {
             AssetPermissionRole::FullAccess => AssetPermissionLevel::FullAccess,
             AssetPermissionRole::CanEdit => AssetPermissionLevel::CanEdit,
             AssetPermissionRole::CanFilter => AssetPermissionLevel::CanFilter,
-            AssetPermissionRole::CanView | AssetPermissionRole::Editor | AssetPermissionRole::Viewer => {
-                AssetPermissionLevel::CanView
-            }
+            AssetPermissionRole::CanView => AssetPermissionLevel::CanView,
         }
     }
 }

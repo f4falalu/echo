@@ -96,8 +96,6 @@ pub enum AssetPermissionRole {
     CanEdit,
     CanFilter,
     CanView,
-    Editor,
-    Viewer,
 }
 
 impl AssetPermissionRole {
@@ -116,24 +114,6 @@ impl AssetPermissionRole {
                 AssetPermissionRole::CanFilter
             }
             (AssetPermissionRole::CanView, _) => AssetPermissionRole::CanView,
-            (AssetPermissionRole::Editor, AssetPermissionRole::Editor) => {
-                AssetPermissionRole::Editor
-            }
-            (AssetPermissionRole::Editor, AssetPermissionRole::Viewer) => {
-                AssetPermissionRole::Viewer
-            }
-            (AssetPermissionRole::Editor, AssetPermissionRole::CanView) => {
-                AssetPermissionRole::CanView
-            }
-            (AssetPermissionRole::Viewer, AssetPermissionRole::Editor) => {
-                AssetPermissionRole::Editor
-            }
-            (AssetPermissionRole::Viewer, AssetPermissionRole::Viewer) => {
-                AssetPermissionRole::Viewer
-            }
-            (AssetPermissionRole::Viewer, AssetPermissionRole::CanView) => {
-                AssetPermissionRole::CanView
-            }
         }
     }
 }
@@ -643,8 +623,6 @@ impl ToSql<sql_types::AssetPermissionRoleEnum, Pg> for AssetPermissionRole {
             AssetPermissionRole::CanEdit => out.write_all(b"can_edit")?,
             AssetPermissionRole::CanFilter => out.write_all(b"can_filter")?,
             AssetPermissionRole::CanView => out.write_all(b"can_view")?,
-            AssetPermissionRole::Editor => out.write_all(b"editor")?,
-            AssetPermissionRole::Viewer => out.write_all(b"viewer")?,
         }
         Ok(IsNull::No)
     }
@@ -658,8 +636,8 @@ impl FromSql<sql_types::AssetPermissionRoleEnum, Pg> for AssetPermissionRole {
             b"can_edit" => Ok(AssetPermissionRole::CanEdit),
             b"can_filter" => Ok(AssetPermissionRole::CanFilter),
             b"can_view" => Ok(AssetPermissionRole::CanView),
-            b"editor" => Ok(AssetPermissionRole::Editor),
-            b"viewer" => Ok(AssetPermissionRole::Viewer),
+            b"editor" => Ok(AssetPermissionRole::CanEdit),
+            b"viewer" => Ok(AssetPermissionRole::CanView),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

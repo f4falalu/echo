@@ -208,7 +208,7 @@ mod tests {
             "not-an-email",
             Uuid::new_v4(),
             AssetType::Collection,
-            AssetPermissionRole::Viewer,
+            AssetPermissionRole::CanView,
             Uuid::new_v4(),
         ));
 

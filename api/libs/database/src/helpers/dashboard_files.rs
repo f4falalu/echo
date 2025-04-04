@@ -70,6 +70,15 @@ async fn fetch_dashboard(id: &Uuid) -> Result<Option<DashboardFile>> {
     Ok(result)
 }
 
+/// Helper function to check if a dashboard file is publicly accessible
+async fn is_publicly_accessible(dashboard_file: &DashboardFile) -> bool {
+    // Check if the file is publicly accessible and either has no expiry date
+    // or the expiry date has not passed
+    dashboard_file.publicly_accessible && 
+    dashboard_file.public_expiry_date
+        .map_or(true, |expiry| expiry > chrono::Utc::now())
+}
+
 /// Helper function to fetch permission for a dashboard file
 async fn fetch_dashboard_permission(id: &Uuid, user_id: &Uuid) -> Result<Option<AssetPermissionRole>> {
     let mut conn = get_pg_pool().get().await?;
@@ -151,11 +160,22 @@ pub async fn fetch_dashboard_file_with_permission(
         None => return Ok(None),
     };
 
+    // Check if the file is publicly accessible
+    let is_public = is_publicly_accessible(&dashboard_file).await;
+
     // If collection permission exists, use it; otherwise use direct permission
-    let effective_permission = match collection_permission {
+    let mut effective_permission = match collection_permission {
         Some(collection) => Some(collection),
         None => direct_permission
     };
+
+    // If the file is publicly accessible and either no permission exists or it's lower than CanView,
+    // grant CanView permission
+    if is_public {
+        if effective_permission.is_none() {
+            effective_permission = Some(AssetPermissionRole::CanView);
+        }
+    }
 
     Ok(Some(DashboardFileWithPermission {
         dashboard_file,
@@ -241,6 +261,9 @@ pub async fn fetch_dashboard_files_with_permissions(
         collection_permission_map.entry(asset_id).or_insert(role);
     }
 
+    // Get current time once
+    let now = chrono::Utc::now();
+
     // Create DashboardFileWithPermission objects with effective permissions
     let result = dashboard_files
         .into_iter()
@@ -249,10 +272,21 @@ pub async fn fetch_dashboard_files_with_permissions(
             let collection_permission = collection_permission_map.get(&dashboard_file.id).cloned();
             
             // Use collection permission if it exists, otherwise use direct permission
-            let effective_permission = match collection_permission {
+            let mut effective_permission = match collection_permission {
                 Some(collection) => Some(collection),
                 None => direct_permission
             };
+
+            // Check if the file is publicly accessible and its expiry date hasn't passed
+            let is_public = dashboard_file.publicly_accessible && 
+                dashboard_file.public_expiry_date
+                    .map_or(true, |expiry| expiry > now);
+
+            // If the file is publicly accessible and either no permission exists or it's lower than CanView,
+            // grant CanView permission
+            if is_public && (effective_permission.is_none()) {
+                effective_permission = Some(AssetPermissionRole::CanView);
+            }
 
             DashboardFileWithPermission {
                 dashboard_file,

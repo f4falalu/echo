@@ -1,14 +1,12 @@
 use anyhow::{anyhow, Result};
 use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable};
 use diesel_async::RunQueryDsl;
-use futures::future::{join};
+use futures::future::join;
 use middleware::AuthenticatedUser;
 use serde_yaml;
 use uuid::Uuid;
 
-use crate::metrics::types::{
-    AssociatedCollection, AssociatedDashboard, BusterMetric, Dataset,
-};
+use crate::metrics::types::{AssociatedCollection, AssociatedDashboard, BusterMetric, Dataset};
 use database::enums::{AssetPermissionRole, AssetType, IdentityType};
 use database::helpers::metric_files::fetch_metric_file_with_permissions;
 use database::pool::get_pg_pool;
@@ -96,14 +94,16 @@ pub async fn get_metric_handler(
         return Err(anyhow!("Metric file not found"));
     };
 
+    println!("metric_file: {:?}", metric_file.permission);
+
     // 2. Check if user has at least FullAccess permission
     if !check_permission_access(
         metric_file.permission,
         &[
             AssetPermissionRole::FullAccess,
             AssetPermissionRole::Owner,
-            AssetPermissionRole::Editor,
-            AssetPermissionRole::Viewer,
+            AssetPermissionRole::CanEdit,
+            AssetPermissionRole::CanView,
         ],
         metric_file.metric_file.organization_id,
         &user.organizations,
