@@ -10,6 +10,7 @@ import { StatusIndicator } from '@/components/ui/indicators';
 import { FileCard } from '../card/FileCard';
 import { TextAndVersionPill } from '../typography/TextAndVersionPill';
 import { cn } from '@/lib/utils';
+
 export const StreamingMessage_File: React.FC<{
   isSelectedFile: boolean;
   responseMessage: BusterChatResponseMessage_file;

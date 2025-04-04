@@ -54,7 +54,7 @@ const DashboardMetricItemBase: React.FC<{
   const metricLink = useMemo(() => {
     if (chatId) {
       return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_METRIC_ID,
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
         chatId,
         metricId
       });

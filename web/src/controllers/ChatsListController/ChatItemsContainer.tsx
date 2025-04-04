@@ -40,7 +40,7 @@ export const ChatItemsContainer: React.FC<{
       switch (chat.latest_file_type) {
         case 'metric':
           return createBusterRoute({
-            route: BusterRoutes.APP_CHAT_ID_METRIC_ID,
+            route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
             chatId: chat.id,
             metricId: chat.latest_file_id
           });

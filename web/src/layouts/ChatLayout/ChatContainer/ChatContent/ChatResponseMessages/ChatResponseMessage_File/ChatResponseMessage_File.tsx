@@ -7,10 +7,9 @@ import type {
 import { Text } from '@/components/ui/typography';
 import { StatusIndicator } from '@/components/ui/indicators';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
-import { VersionPill } from '@/components/ui/tags/VersionPill';
 import { StreamingMessage_File } from '@/components/ui/streaming/StreamingMessage_File';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
-import { useMemoizedFn, useMount } from '@/hooks';
+import { useMount } from '@/hooks';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import Link from 'next/link';
 import { createBusterRoute, BusterRoutes } from '@/routes';
@@ -35,9 +34,16 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
     const href = useMemo(() => {
       if (!chatId) return '';
 
+      if (isSelectedFile) {
+        return createBusterRoute({
+          route: BusterRoutes.APP_CHAT_ID,
+          chatId
+        });
+      }
+
       if (file_type === 'metric') {
         return createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_METRIC_ID,
+          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
           chatId,
           metricId: id
         });
@@ -54,7 +60,7 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
       console.warn('Unknown file type', file_type);
 
       return '';
-    }, [chatId, file_type, id]);
+    }, [chatId, file_type, id, isSelectedFile]);
 
     useMount(() => {
       if (href) {
