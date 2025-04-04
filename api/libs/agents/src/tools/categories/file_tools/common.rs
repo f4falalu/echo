@@ -498,12 +498,10 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 #     items:
 #       - id: "metric-uuid-1"  # UUIDv4 of an existing metric
 #     column_sizes: [12]   # Required - must sum to exactly 12
-#   - id: 2
+#   - id: 2 # REQUIRED
 #     items:
 #       - id: "metric-uuid-2"
-#         width: 6
 #       - id: "metric-uuid-3"
-#         width: 6
 #     column_sizes: [6, 6] # Required - must sum to exactly 12
 #
 # Rules:
@@ -532,7 +530,7 @@ properties:
       properties:
         id:
           type: integer
-          description: "Required row ID (integer)"
+          description: "This is just an integer representing the row number 1 -> n"
         items:
           type: array
           description: "Array of metrics to display in this row (max 4 items)"
