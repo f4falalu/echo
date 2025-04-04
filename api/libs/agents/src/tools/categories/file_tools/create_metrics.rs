@@ -12,6 +12,9 @@ use database::{
 };
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
+use futures::future::join_all;
+use indexmap::IndexMap;
+use query_engine::data_types::DataType;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -87,27 +90,44 @@ impl ToolExecutor for CreateMetricFilesTool {
         let mut created_files = vec![];
         let mut failed_files = vec![];
 
-        // Process metric files
+        // Create futures for concurrent processing
+        let process_futures = files
+            .into_iter()
+            .map(|file| {
+                let tool_call_id_clone = tool_call_id.clone();
+                let user_id = self.agent.get_user_id();
+                
+                async move {
+                    let result = process_metric_file(
+                        tool_call_id_clone,
+                        file.name.clone(),
+                        file.yml_content.clone(),
+                        &user_id,
+                    )
+                    .await;
+                    
+                    (file.name.clone(), result)
+                }
+            })
+            .collect::<Vec<_>>();
+
+        // Wait for all futures to complete
+        let results = join_all(process_futures).await;
+
+        // Process results
         let mut metric_records = vec![];
         let mut metric_ymls = vec![];
         let mut results_vec = vec![];
-        // First pass - validate and prepare all records
-        for file in files {
-            match process_metric_file(
-                tool_call_id.clone(),
-                file.name.clone(),
-                file.yml_content.clone(),
-                &self.agent.get_user_id(),
-            )
-            .await
-            {
+
+        for (file_name, result) in results {
+            match result {
                 Ok((metric_file, metric_yml, message, results)) => {
                     metric_records.push(metric_file);
                     metric_ymls.push(metric_yml);
                     results_vec.push((message, results));
                 }
                 Err(e) => {
-                    failed_files.push((file.name, e));
+                    failed_files.push((file_name, e));
                 }
             }
         }
