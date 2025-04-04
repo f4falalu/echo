@@ -1,10 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import lightTheme from './light';
-import { AppCodeBlockWrapper } from './AppCodeBlockWrapper';
 import { cn } from '@/lib/classMerge';
+import { useMemoizedFn } from '@/hooks';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { FileCard } from '../../card/FileCard';
+import { Button } from '../../buttons';
+import { Copy } from '../../icons';
 
 export const AppCodeBlock: React.FC<{
   language?: string;
@@ -27,6 +31,13 @@ export const AppCodeBlock: React.FC<{
   } = props;
   const style = lightTheme;
   const code = String(children).replace(/\n$/, '');
+  const { openSuccessMessage } = useBusterNotifications();
+
+  const copyCode = useMemoizedFn(() => {
+    if (!code) return;
+    navigator.clipboard.writeText(code);
+    openSuccessMessage('Copied to clipboard');
+  });
 
   //this is a huge assumption, but if there is no language, it is probably an inline code block
   if (!language) {
@@ -34,11 +45,16 @@ export const AppCodeBlock: React.FC<{
   }
 
   return (
-    <AppCodeBlockWrapper
+    <FileCard
+      fileName={title || language}
       className={wrapperClassName}
-      code={code}
-      language={title || language}
-      showCopyButton={showCopyButton}>
+      headerButtons={
+        showCopyButton && (
+          <Button variant="ghost" onClick={copyCode} prefix={<Copy />}>
+            Copy
+          </Button>
+        )
+      }>
       <div className="w-full overflow-x-auto">
         <div className="code-wrapper">
           {language ? (
@@ -56,7 +72,7 @@ export const AppCodeBlock: React.FC<{
           )}
         </div>
       </div>
-    </AppCodeBlockWrapper>
+    </FileCard>
   );
 });
 AppCodeBlock.displayName = 'AppCodeBlock';

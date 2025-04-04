@@ -1,16 +1,14 @@
 'use client';
 
 import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
-import {
-  AppCodeBlockWrapper,
-  SyntaxHighlighterLightTheme
-} from '@/components/ui/typography/AppCodeBlock';
-import React, { useEffect, useState } from 'react';
+import { SyntaxHighlighterLightTheme } from '@/components/ui/typography/AppCodeBlock';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@/components/ui/typography';
 import pluralize from 'pluralize';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { TextAndVersionPill } from '../../typography/TextAndVersionPill';
+import { FileCard } from '../../card/FileCard';
 
 const style = SyntaxHighlighterLightTheme;
 
@@ -118,11 +116,14 @@ export const StreamingMessageCode: React.FC<
   }, [text, modified]);
 
   return (
-    <AppCodeBlockWrapper
-      title={<TextAndVersionPill fileName={file_name} versionNumber={version_number} />}
-      language={'yaml'}
-      showCopyButton={false}
-      buttons={buttons}>
+    <FileCard
+      fileName={useMemo(
+        () => (
+          <TextAndVersionPill fileName={file_name} versionNumber={version_number} />
+        ),
+        [file_name, version_number]
+      )}
+      headerButtons={buttons}>
       <AnimatePresence initial={!isCompletedStream}>
         <motion.div
           className="w-full overflow-x-auto p-3"
@@ -143,7 +144,7 @@ export const StreamingMessageCode: React.FC<
           ))}
         </motion.div>
       </AnimatePresence>
-    </AppCodeBlockWrapper>
+    </FileCard>
   );
 };
 
