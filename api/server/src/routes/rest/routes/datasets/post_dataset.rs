@@ -36,14 +36,14 @@ pub async fn post_dataset(
         Ok(None) => {
             return Err((
                 StatusCode::FORBIDDEN,
-                "User does not belong to any organization",
+                "User does not belong to any organization".to_string(),
             ));
         }
         Err(e) => {
             tracing::error!("Error getting user organization id: {:?}", e);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Error getting user organization id",
+                "Error getting user organization id".to_string(),
             ));
         }
     };
@@ -53,14 +53,14 @@ pub async fn post_dataset(
         Ok(false) => {
             return Err((
                 StatusCode::FORBIDDEN,
-                "Insufficient permissions",
+                "Insufficient permissions".to_string(),
             ))
         }
         Err(e) => {
             tracing::error!("Error checking user permissions: {:?}", e);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Error checking user permissions",
+                "Error checking user permissions".to_string(),
             ));
         }
     }
@@ -78,7 +78,7 @@ pub async fn post_dataset(
             tracing::error!("Error creating dataset: {:?}", e);
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Error creating dataset",
+                "Error creating dataset".to_string(),
             ));
         }
     };
