@@ -2,12 +2,12 @@
 
 import type { editor } from 'monaco-editor';
 
-const editorBackground = getComputedStyle(document.documentElement).getPropertyValue(
-  '--color-background'
-);
 const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary');
 const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--color-border');
-const textColor = getComputedStyle(document.documentElement).getPropertyValue('--color-foreground');
+
+//these two do not work with the bundler. They strip it to #fff. Instead of #ffffff
+const textColor = '#000000';
+const editorBackground = '#ffffff';
 
 const theme: editor.IStandaloneThemeData = {
   base: 'vs',
