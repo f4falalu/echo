@@ -9,7 +9,6 @@ use database::schema::{
     organizations, teams, teams_to_users, users, users_to_organizations,
 };
 use crate::routes::rest::ApiResponse;
-use crate::utils::clients::sentry_utils::send_sentry_error;
 use axum::http::StatusCode;
 use diesel::{
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
@@ -25,7 +24,6 @@ pub async fn get_user(
         Ok(user_info_object) => user_info_object,
         Err(e) => {
             tracing::error!("Error getting user information: {:?}", e);
-            send_sentry_error(&e.to_string(), Some(&user.id));
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Error getting user information",

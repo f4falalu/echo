@@ -5,8 +5,6 @@ use html_escape::encode_text as escape_html;
 
 use resend_rs::{types::CreateEmailBaseOptions, Resend};
 
-use crate::utils::clients::sentry_utils::send_sentry_error;
-
 lazy_static::lazy_static! {
     static ref RESEND_API_KEY: String = env::var("RESEND_API_KEY").expect("RESEND_API_KEY must be set");
     static ref RESEND_CLIENT: Resend = Resend::new(&RESEND_API_KEY);
@@ -86,7 +84,6 @@ pub async fn send_email(to_addresses: HashSet<String>, email_type: EmailType) ->
                 Ok(_) => (),
                 Err(e) => {
                     tracing::error!("Error sending email: {e}");
-                    send_sentry_error(&format!("Error sending email: {e}"), None)
                 }
             }
         });

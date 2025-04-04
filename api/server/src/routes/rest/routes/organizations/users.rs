@@ -11,7 +11,7 @@ use database::{
     schema::{users, users_to_organizations},
 };
 
-use crate::{routes::rest::ApiResponse, utils::clients::sentry_utils::send_sentry_error};
+use crate::routes::rest::ApiResponse;
 use middleware::AuthenticatedUser;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -31,7 +31,6 @@ pub async fn list_organization_users(
         Ok(users) => users,
         Err(e) => {
             tracing::error!("Error listing organization users: {:?}", e);
-            send_sentry_error(&e.to_string(), Some(&user.id));
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Error listing organization users",
