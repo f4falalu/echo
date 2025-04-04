@@ -10,6 +10,7 @@ import { formatLabel } from '@/lib/columnFormatter';
 import { extractFieldsFromChain } from '../../../chartHooks';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
 import { yAxisSimilar } from '../../../commonHelpers';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 
 export const useGoalLines = ({
   goalLines,
@@ -33,7 +34,7 @@ export const useGoalLines = ({
     const isSimilar = yAxisSimilar(allKeys, columnLabelFormats);
     if (isSimilar) {
       const key = extractFieldsFromChain(yAxisKeys[0]!)[0]?.key!;
-      return columnLabelFormats[key!];
+      return columnLabelFormats[key] || DEFAULT_COLUMN_LABEL_FORMAT;
     }
     return {
       columnType: 'number',

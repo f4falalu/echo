@@ -15,8 +15,8 @@ export type BusterChartConfigProps = {
   selectedChartType: ChartType;
 
   //COLUMN SETTINGS
-  columnSettings?: Record<string, ColumnSettings>; //OPTIONAL because the defaults will be determined by the UI
-  columnLabelFormats?: Record<string, IColumnLabelFormat>;
+  columnSettings?: Record<string, ColumnSettings | undefined>; //OPTIONAL because the defaults will be determined by the UI
+  columnLabelFormats?: Record<string, IColumnLabelFormat | undefined>;
   colors?: string[]; //OPTIONAL: default is the buster color palette
   showLegend?: boolean | null; //OPTIONAL: default is null and will be true if there are multiple Y axes or if a category axis is used
   gridLines?: boolean; //OPTIONAL: default: true

@@ -1,5 +1,6 @@
 import isNumber from 'lodash/isNumber';
 import { formatNumber } from './numbers';
+import truncate from 'lodash/truncate';
 
 export const inputHasText = (input: unknown): boolean => {
   if (typeof input !== 'string') {
@@ -81,6 +82,5 @@ export const calculateTextWidth = (text: string, font: string): number => {
 
 export const truncateText = (text: string, characters: number) => {
   if (text.length <= characters) return text;
-  const truncatedText = (String(text || '') || '').slice(0, characters) + '...';
-  return truncatedText;
+  return truncate(text, { length: characters });
 };

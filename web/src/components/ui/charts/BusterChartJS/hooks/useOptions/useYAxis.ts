@@ -12,6 +12,7 @@ import { useMemo } from 'react';
 import { yAxisSimilar, formatYAxisLabel } from '../../../commonHelpers';
 import { useIsStacked } from './useIsStacked';
 import { useYAxisTitle } from '../../../commonHelpers/useYAxisTitle';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 
 export const useYAxis = ({
   columnLabelFormats,
@@ -63,7 +64,7 @@ export const useYAxis = ({
     if (!isSupportedType) return {};
 
     return selectedAxis.y.reduce<Record<string, IColumnLabelFormat>>((acc, y) => {
-      acc[y] = columnLabelFormats[y];
+      acc[y] = columnLabelFormats[y] || DEFAULT_COLUMN_LABEL_FORMAT;
       return acc;
     }, {});
   }, [selectedAxis.y, columnLabelFormats, isSupportedType]);

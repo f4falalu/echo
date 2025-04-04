@@ -15,6 +15,7 @@ import { BusterChartJSTooltip } from './BusterChartJSTooltip';
 import { DatasetOption, extractFieldsFromChain } from '../../../../chartHooks';
 import React from 'react';
 import { isNumericColumnType } from '@/lib/messages';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 
 type TooltipContext = Parameters<TooltipOptions['external']>[0];
 
@@ -94,15 +95,19 @@ export const useTooltipOptions = ({
     if (useGlobalPercentage)
       return tooltipKeys.filter((key) => {
         const extractedKey = extractFieldsFromChain(key).at(-1)?.key!;
-        return isNumericColumnType(columnLabelFormats[extractedKey]?.columnType);
+        const selectedColumnLabelFormat =
+          columnLabelFormats[extractedKey] || DEFAULT_COLUMN_LABEL_FORMAT;
+        return isNumericColumnType(selectedColumnLabelFormat.columnType);
       });
 
     if (selectedChartType === 'bar') {
       return tooltipKeys.filter((key) => {
         const extractedKey = extractFieldsFromChain(key).at(-1)?.key!;
+        const selectedColumnLabelFormat =
+          columnLabelFormats[extractedKey] || DEFAULT_COLUMN_LABEL_FORMAT;
         return (
           columnSettings[extractedKey]?.showDataLabelsAsPercentage &&
-          isNumericColumnType(columnLabelFormats[extractedKey]?.columnType)
+          isNumericColumnType(selectedColumnLabelFormat.columnType)
         );
       });
     }

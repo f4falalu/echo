@@ -1,13 +1,14 @@
 import { formatLabel } from '@/lib';
 import isEmpty from 'lodash/isEmpty';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps, ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { extractFieldsFromChain } from '../chartHooks';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 
 export const JOIN_CHARACTER = ' | ';
 
 export const formatChartLabelDelimiter = (
   text: string,
-  columnLabelFormats: Record<string, ColumnLabelFormat>
+  columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>
 ): string => {
   const fields = extractFieldsFromChain(text);
 
@@ -23,7 +24,7 @@ export const formatChartLabelDelimiter = (
 //used in the legend and axis labels. exported only for tooltip
 const formatLabelField = (
   field: { value: string; key: string },
-  columnLabelFormats: Record<string, ColumnLabelFormat>
+  columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>
 ) => {
   const { value, key = '' } = field;
   const hasValue = !isEmpty(value) && typeof value !== 'number';
@@ -34,7 +35,7 @@ const formatLabelField = (
 export const formatChartValueDelimiter = (
   rawValue: string | number,
   columnNameDelimiter: string,
-  columnLabelFormats: Record<string, ColumnLabelFormat>
+  columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>
 ) => {
   const fields = extractFieldsFromChain(columnNameDelimiter);
   const lastField = fields[fields.length - 1]; //if there are categories, the last field is the value
@@ -45,7 +46,11 @@ export const formatChartValueDelimiter = (
 const formatValueField = (
   rawValue: string | number,
   columnName: string = '', //must be columnName, not delimiter
-  columnLabelFormats: Record<string, ColumnLabelFormat>
+  columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>
 ) => {
-  return formatLabel(rawValue, columnLabelFormats[columnName], false);
+  return formatLabel(
+    rawValue,
+    columnLabelFormats[columnName] || DEFAULT_COLUMN_LABEL_FORMAT,
+    false
+  );
 };

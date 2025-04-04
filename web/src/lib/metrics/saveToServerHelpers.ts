@@ -56,7 +56,7 @@ const keySpecificHandlers: Partial<Record<keyof IBusterMetricChartConfig, (value
 
       // Check each default setting
       for (const [settingKey, defaultValue] of DEFAULT_COLUMN_SETTINGS_ENTRIES) {
-        const columnSettingValue = value[settingKey as keyof ColumnSettings];
+        const columnSettingValue = value?.[settingKey as keyof ColumnSettings];
         if (!isEqual(defaultValue, columnSettingValue)) {
           //@ts-ignore
           changedSettings[settingKey as keyof ColumnSettings] = columnSettingValue as any;

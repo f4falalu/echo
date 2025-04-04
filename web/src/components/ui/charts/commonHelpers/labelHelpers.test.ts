@@ -1,11 +1,11 @@
 import { formatChartValueDelimiter } from './labelHelpers';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnLabelFormat, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 
 describe('formatChartValueDelimiter', () => {
   it('should format a numeric value using the column format', () => {
     const rawValue = 1234.56;
     const columnNameDelimiter = 'value__🔑__';
-    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
       value: {
         style: 'number',
         columnType: 'number',
@@ -21,7 +21,7 @@ describe('formatChartValueDelimiter', () => {
   it('If the key is not found, it will fallback to the default format', () => {
     const rawValue = 1234.56;
     const columnNameDelimiter = 'THIS_IS_INVALID_KEY';
-    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
       value: {
         style: 'number',
         columnType: 'number',
@@ -37,7 +37,7 @@ describe('formatChartValueDelimiter', () => {
   it('should return a valid dollar format', () => {
     const rawValue = 3363690.3966666665;
     const columnNameDelimiter = 'long_term_avg__🔑__';
-    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
       month: {
         style: 'date',
         compactNumbers: false,

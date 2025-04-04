@@ -44,7 +44,7 @@ export const processScatterData = (
   measureFields: string[],
   categoryFields: string[],
   sizeFieldArray: ScatterAxis['size'],
-  columnLabelFormats: Record<string, ColumnLabelFormat>,
+  columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>,
   categoriesSet: Set<string>
 ): (string | number | null)[][] => {
   const processedData: (string | number | null)[][] = [];

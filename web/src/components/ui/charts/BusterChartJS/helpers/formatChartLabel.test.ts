@@ -1,5 +1,5 @@
 import { formatChartLabel } from './formatChartLabel';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 
 describe('formatChartLabel', () => {
   it('should format label correctly when hasCategoryAxis is true and hasMultipleMeasures is false', () => {
@@ -61,7 +61,7 @@ describe('formatChartLabel', () => {
         replaceMissingDataWith: 0,
         makeLabelHumanReadable: true
       }
-    } satisfies Record<string, IColumnLabelFormat>;
+    } satisfies NonNullable<BusterChartProps['columnLabelFormats']>;
 
     // Act
     let result = formatChartLabel('recent_total__🔑__', columnLabelFormats, true, false);

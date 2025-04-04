@@ -16,7 +16,7 @@ import { useIsStacked } from './useIsStacked';
 import { formatLabel, isNumericColumnType, truncateText } from '@/lib';
 import isDate from 'lodash/isDate';
 import { Chart as ChartJS } from 'chart.js';
-import { truncate } from 'lodash';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 
 const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category.ticks.callback;
 
@@ -61,7 +61,7 @@ export const useXAxis = ({
     if (!isSupportedType) return {};
 
     return selectedAxis.x.reduce<Record<string, IColumnLabelFormat>>((acc, x) => {
-      acc[x] = columnLabelFormats[x];
+      acc[x] = columnLabelFormats[x] || DEFAULT_COLUMN_LABEL_FORMAT;
       return acc;
     }, {});
   }, [selectedAxis.x, columnLabelFormats, isSupportedType]);

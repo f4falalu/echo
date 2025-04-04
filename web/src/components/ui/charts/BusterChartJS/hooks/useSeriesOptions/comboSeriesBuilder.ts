@@ -2,7 +2,11 @@ import type { ChartProps } from '../../core';
 import { LabelBuilderProps } from './useSeriesOptions';
 import { SeriesBuilderProps } from './interfaces';
 import { extractFieldsFromChain } from '../../../chartHooks';
-import { DEFAULT_COLUMN_SETTINGS, ENABLED_DOTS_ON_LINE_SIZE } from '@/api/asset_interfaces';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
+  ENABLED_DOTS_ON_LINE_SIZE
+} from '@/api/asset_interfaces/metric';
 import { barBuilder } from './barSeriesBuilder';
 import { createDayjsDate } from '@/lib/date';
 import { formatChartLabelDelimiter } from '../../../commonHelpers';
@@ -52,7 +56,7 @@ export const comboSeriesBuilder_labels = ({
   allYAxisKeysIndexes,
   columnSettings
 }: LabelBuilderProps): (string | Date)[] => {
-  const xColumnLabelFormat = columnLabelFormats[xAxisKeys[0]];
+  const xColumnLabelFormat = columnLabelFormats[xAxisKeys[0]] || DEFAULT_COLUMN_LABEL_FORMAT;
   const useDateLabels =
     xAxisKeys.length === 1 &&
     xColumnLabelFormat.columnType === 'date' &&
@@ -111,7 +115,7 @@ const dotSeriesBuilder = (
   const { yAxisItem, columnSettings, index } = props;
   const yKey = extractFieldsFromChain(yAxisItem.name).at(-1)?.key!;
   const uniqueColumnSetting = { ...columnSettings };
-  const columnSetting = uniqueColumnSetting[yKey];
+  const columnSetting = uniqueColumnSetting[yKey] || DEFAULT_COLUMN_SETTINGS;
   columnSetting.lineWidth = 0;
   columnSetting.lineSymbolSize = ENABLED_DOTS_ON_LINE_SIZE;
 

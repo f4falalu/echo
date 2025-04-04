@@ -191,7 +191,7 @@ export const lineSeriesBuilder_labels = ({
   xAxisKeys,
   columnLabelFormats
 }: LabelBuilderProps): (string | Date)[] => {
-  const xColumnLabelFormat = columnLabelFormats[xAxisKeys[0]];
+  const xColumnLabelFormat = columnLabelFormats[xAxisKeys[0]] || DEFAULT_COLUMN_LABEL_FORMAT;
   const useDateLabels =
     xAxisKeys.length === 1 &&
     xColumnLabelFormat.columnType === 'date' &&

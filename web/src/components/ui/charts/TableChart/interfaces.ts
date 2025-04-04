@@ -1,8 +1,4 @@
-import type {
-  BusterChartConfigProps,
-  ChartType,
-  IColumnLabelFormat
-} from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartConfigProps, ChartType } from '@/api/asset_interfaces/metric/charts';
 
 export type BusterTableChartConfig = {
   type: ChartType.Table;
@@ -11,5 +7,5 @@ export type BusterTableChartConfig = {
   tableHeaderBackgroundColor?: string | null;
   tableHeaderFontColor?: string | null;
   tableColumnFontColor?: string | null;
-  columnLabelFormats?: Record<string, IColumnLabelFormat>;
+  columnLabelFormats?: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
 };

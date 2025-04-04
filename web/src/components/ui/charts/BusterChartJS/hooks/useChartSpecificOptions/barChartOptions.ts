@@ -20,7 +20,7 @@ export const barPluginsHandler = ({
   ...rest
 }: ChartSpecificOptionsProps): DeepPartial<PluginChartOptions<ChartJSChartType>>['plugins'] => {
   const hasShowLabelAsPercentage = Object.entries(columnSettings || {}).some(
-    ([key, columnSetting]) => columnSetting.showDataLabelsAsPercentage
+    ([key, columnSetting]) => columnSetting?.showDataLabelsAsPercentage
   );
 
   return {

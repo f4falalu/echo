@@ -2,7 +2,7 @@ import type { ChartProps } from '../../core';
 import { LabelBuilderProps } from './useSeriesOptions';
 import { SeriesBuilderProps } from './interfaces';
 import { ScriptableContext } from 'chart.js';
-import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces';
+import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 import { addOpacityToColor } from '@/lib/colors';
 import { isDateColumnType } from '@/lib/messages';
 import { createDayjsDate } from '@/lib/date';
@@ -17,7 +17,7 @@ export const scatterSeriesBuilder_data = ({
   xAxisKeys
 }: SeriesBuilderProps): ChartProps<'bubble'>['data']['datasets'] => {
   const xAxisKey = xAxisKeys[0];
-  const xAxisColumnLabelFormat = columnLabelFormats[xAxisKey];
+  const xAxisColumnLabelFormat = columnLabelFormats[xAxisKey] || DEFAULT_COLUMN_LABEL_FORMAT;
   const isXAxisDate = isDateColumnType(xAxisColumnLabelFormat.columnType);
 
   return allYAxisKeysIndexes.map((yKeyIndex, index) => {

@@ -2,7 +2,7 @@ import { formatLabel } from '@/lib/columnFormatter';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 import isNumber from 'lodash/isNumber';
-import type { ColumnMetaData } from '@/api/asset_interfaces';
+import type { ColumnMetaData } from '@/api/asset_interfaces/metric';
 import { formatChartLabelDelimiter } from './labelHelpers';
 import {
   type ChartEncodes,

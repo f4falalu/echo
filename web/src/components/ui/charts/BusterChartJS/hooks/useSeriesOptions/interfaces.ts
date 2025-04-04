@@ -1,7 +1,6 @@
 import type {
   BusterChartProps,
   ChartEncodes,
-  IColumnLabelFormat,
   ScatterAxis
 } from '@/api/asset_interfaces/metric/charts';
 import type { DatasetOption } from '../../../chartHooks';
@@ -18,7 +17,7 @@ export interface SeriesBuilderProps {
   }[];
   columnSettings: NonNullable<BusterChartProps['columnSettings']>;
   colors: string[];
-  columnLabelFormats: Record<string, IColumnLabelFormat>;
+  columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>;
   xAxisKeys: ChartEncodes['x'];
   categoryKeys: ScatterAxis['category'];
   sizeKeyIndex: {

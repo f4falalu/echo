@@ -1,4 +1,4 @@
-import type { BusterChartProps } from '@/api/asset_interfaces';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric';
 import { extractFieldsFromChain, appendToKeyValueChain } from '../../chartHooks';
 import { formatChartLabelDelimiter } from '../../commonHelpers';
 

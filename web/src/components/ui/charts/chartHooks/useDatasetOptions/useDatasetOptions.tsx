@@ -32,6 +32,7 @@ import {
 } from './datasetHelpers_Scatter';
 import { TrendlineDataset, useDataTrendlineOptions } from './useDataTrendlineOptions';
 import { DatasetOption } from './interfaces';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 
 type DatasetHookResult = {
   datasetOptions: DatasetOption[];
@@ -94,7 +95,9 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   const tooltipFieldsString = useMemo(() => tooltipFields.join(','), [tooltipFields]);
 
   const xFieldColumnLabelFormatColumnTypes: IColumnLabelFormat['columnType'][] = useMemo(() => {
-    return xFields.map((field) => columnLabelFormats[field]?.columnType);
+    return xFields.map(
+      (field) => columnLabelFormats[field]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
+    );
   }, [xFieldsString, columnLabelFormats]);
 
   //WILL ONLY BE USED FOR BAR CHART

@@ -11,7 +11,7 @@ import type { ScaleChartOptions, Scale } from 'chart.js';
 import { useMemo } from 'react';
 import { yAxisSimilar, formatYAxisLabel } from '../../../commonHelpers';
 import { useY2AxisTitle } from '../../../commonHelpers/useY2AxisTitle';
-import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces';
+import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric';
 
 export const useY2Axis = ({
   columnLabelFormats,

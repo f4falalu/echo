@@ -3,13 +3,13 @@
 import {
   type BusterChartProps,
   type ChartType,
-  type BarSortBy,
-  type ColumnLabelFormat
+  type BarSortBy
 } from '@/api/asset_interfaces/metric/charts';
 import { createDayjsDate } from '@/lib/date';
 import { extractFieldsFromChain, appendToKeyValueChain } from './groupingHelpers';
 import { DATASET_IDS, GROUPING_SEPARATOR } from './config';
 import { DatasetOption } from './interfaces';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 
 type DataItem = NonNullable<BusterChartProps['data']>[number];
 
@@ -116,7 +116,7 @@ export const processLineBarData = (
   xValuesSet: Set<string>,
   dataMap: Map<string | number, Record<string, string | number | Date | null>>,
   measureFields: string[],
-  columnLabelFormats: Record<string, ColumnLabelFormat>
+  columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>
 ) => {
   const categories = Array.from(categoriesSet);
 
@@ -133,7 +133,7 @@ export const processLineBarData = (
     measureFields.forEach((measure) => {
       categories.forEach((category) => {
         const key = `${xValue}|${category}`;
-        const columnLabelFormat = columnLabelFormats[measure];
+        const columnLabelFormat = columnLabelFormats[measure] || DEFAULT_COLUMN_LABEL_FORMAT;
         const replaceMissingDataWith = columnLabelFormat?.replaceMissingDataWith;
 
         const value =

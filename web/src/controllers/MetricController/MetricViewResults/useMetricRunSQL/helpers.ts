@@ -64,7 +64,7 @@ export const simplifyChatConfigForSQLChange = (
   // Create a new mapping of column name to format settings
   // This preserves existing format settings only when the column type hasn't changed
   const columnLabelFormats = data_metadata?.column_metadata?.reduce<
-    Record<string, ColumnLabelFormat>
+    NonNullable<BusterChartConfigProps['columnLabelFormats']>
   >((acc, x) => {
     // Get the existing format for this column (if any)
     const oldFormat: undefined | Required<IColumnLabelFormat> =
@@ -77,9 +77,7 @@ export const simplifyChatConfigForSQLChange = (
     const value = didTypeChange ? undefined : oldFormat;
 
     // Add this column's format to our accumulated result
-    acc[x.name] = {
-      ...value
-    };
+    acc[x.name] = value;
     return acc;
   }, {});
 

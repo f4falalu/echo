@@ -9,7 +9,7 @@ import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOption
 import type { Options } from 'chartjs-plugin-datalabels/types/options';
 import { DEFAULT_CHART_LAYOUT } from '../../ChartJSTheme';
 import { extractFieldsFromChain } from '../../../chartHooks';
-import { IColumnLabelFormat } from '@/api/asset_interfaces/metric';
+import { DEFAULT_COLUMN_LABEL_FORMAT, IColumnLabelFormat } from '@/api/asset_interfaces/metric';
 
 export const barSeriesBuilder = ({
   selectedDataset,
@@ -171,7 +171,7 @@ export const barBuilder = ({
 
             const formattedValue = getFormattedValue(context, {
               usePercentage,
-              columnLabelFormat
+              columnLabelFormat: columnLabelFormat || DEFAULT_COLUMN_LABEL_FORMAT
             });
 
             // Get text width for this specific label
@@ -272,6 +272,7 @@ const setGlobalRotation = (context: Context) => {
     });
 
   const labelNeedsToBeRotated = labels.some((label) => {
+    if (!label) return false;
     const { width: textWidth } = context.chart.ctx.measureText(label);
     const { barWidth, barHeight } = getBarDimensions(context);
     return textWidth > barWidth - TEXT_WIDTH_BUFFER;

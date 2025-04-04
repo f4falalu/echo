@@ -8,8 +8,8 @@ import {
   ChartType,
   ComboChartAxis
 } from '@/api/asset_interfaces/metric/charts';
-import { useDebounceEffect, useDebounceFn, useMemoizedFn, useWhyDidYouUpdate } from '@/hooks';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import { useDebounceEffect, useMemoizedFn } from '@/hooks';
+import type { IBusterMetricChartConfig } from '@/api/asset_interfaces/metric';
 import {
   addLegendHeadlines,
   BusterChartLegendItem,

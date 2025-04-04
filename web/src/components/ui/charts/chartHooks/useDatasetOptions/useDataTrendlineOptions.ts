@@ -1,4 +1,5 @@
 import {
+  BusterChartProps,
   type ChartEncodes,
   ChartType,
   type IColumnLabelFormat,
@@ -21,6 +22,7 @@ import {
 import { extractFieldsFromChain } from './groupingHelpers';
 import last from 'lodash/last';
 import { DatasetOption } from './interfaces';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 
 export const useDataTrendlineOptions = ({
   datasetOptions,
@@ -33,7 +35,7 @@ export const useDataTrendlineOptions = ({
   trendlines: Trendline[] | undefined;
   selectedChartType: ChartType;
   selectedAxis: ChartEncodes;
-  columnLabelFormats: Record<string, IColumnLabelFormat>;
+  columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>;
 }) => {
   const hasTrendlines = trendlines && trendlines.length > 0;
 
@@ -105,7 +107,7 @@ const trendlineDatasetCreator: Record<
   (
     trendline: Trendline,
     rawDataset: DatasetOption,
-    columnLabelFormats: Record<string, IColumnLabelFormat>
+    columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>
   ) => TrendlineDataset[]
 > = {
   logarithmic_regression: (trendline, rawDataset, columnLabelFormats) => {
@@ -191,7 +193,9 @@ const trendlineDatasetCreator: Record<
     const source = selectedDataset.source as Array<[string, ...number[]]>;
     const dimensions = selectedDataset.dimensions as string[];
     const xAxisColumn = dimensions[0];
-    const isXAxisNumeric = isNumericColumnType(columnLabelFormats[xAxisColumn]?.columnType);
+    const isXAxisNumeric = isNumericColumnType(
+      columnLabelFormats[xAxisColumn]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
+    );
 
     if (isXAxisNumeric) {
       const { mappedData, indexOfTrendlineColumn } = polyExpoRegressionDataMapper(
@@ -346,34 +350,53 @@ const trendlineDatasetCreator: Record<
 
 const canSupportTrendlineRecord: Record<
   Trendline['type'],
-  (columnLabelFormats: Record<string, IColumnLabelFormat>, trendline: Trendline) => boolean
+  (
+    columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>,
+    trendline: Trendline
+  ) => boolean
 > = {
   linear_regression: (columnLabelFormats, trendline) => {
-    return isNumericColumnType(columnLabelFormats[trendline.columnId]?.columnType);
+    return isNumericColumnType(
+      columnLabelFormats[trendline.columnId]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
+    );
   },
   logarithmic_regression: (columnLabelFormats, trendline) => {
-    return isNumericColumnType(columnLabelFormats[trendline.columnId]?.columnType);
+    return isNumericColumnType(
+      columnLabelFormats[trendline.columnId]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
+    );
   },
   exponential_regression: (columnLabelFormats, trendline) => {
-    return isNumericColumnType(columnLabelFormats[trendline.columnId]?.columnType);
+    return isNumericColumnType(
+      columnLabelFormats[trendline.columnId]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
+    );
   },
   polynomial_regression: (columnLabelFormats, trendline) => {
-    return isNumericColumnType(columnLabelFormats[trendline.columnId]?.columnType);
+    return isNumericColumnType(
+      columnLabelFormats[trendline.columnId]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
+    );
   },
   min: (columnLabelFormats, trendline) =>
-    isNumericColumnType(columnLabelFormats[trendline.columnId]?.columnType),
+    isNumericColumnType(
+      columnLabelFormats[trendline.columnId]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
+    ),
   max: (columnLabelFormats, trendline) =>
-    isNumericColumnType(columnLabelFormats[trendline.columnId]?.columnType),
+    isNumericColumnType(
+      columnLabelFormats[trendline.columnId]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
+    ),
   median: (columnLabelFormats, trendline) =>
-    isNumericColumnType(columnLabelFormats[trendline.columnId]?.columnType),
+    isNumericColumnType(
+      columnLabelFormats[trendline.columnId]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
+    ),
   average: (columnLabelFormats, trendline) =>
-    isNumericColumnType(columnLabelFormats[trendline.columnId]?.columnType)
+    isNumericColumnType(
+      columnLabelFormats[trendline.columnId]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
+    )
 };
 
 const polyExpoRegressionDataMapper = (
   trendline: Trendline,
   rawDataset: DatasetOption,
-  columnLabelFormats: Record<string, IColumnLabelFormat>
+  columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>
 ) => {
   const source = rawDataset.source as Array<[string | number, ...number[]]>;
   const dimensions = rawDataset.dimensions as string[];
