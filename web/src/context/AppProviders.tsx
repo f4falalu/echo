@@ -9,6 +9,8 @@ import { BusterPosthogProvider } from './Posthog';
 import { BusterNewChatProvider } from './Chats';
 import type { UseSupabaseUserContextType } from '@/lib/supabase';
 import { dehydrate, HydrationBoundary, type QueryClient } from '@tanstack/react-query';
+import { RoutePrefetcher } from './RoutePrefetcher';
+import { isDev } from '@/config';
 
 // scan({
 //   enabled: true,
@@ -32,6 +34,7 @@ export const AppProviders: React.FC<
                 <BusterAssetsProvider>
                   <BusterNewChatProvider>
                     <BusterPosthogProvider>{children}</BusterPosthogProvider>
+                    {!isDev && <RoutePrefetcher />}
                   </BusterNewChatProvider>
                 </BusterAssetsProvider>
               </BusterUserConfigProvider>
