@@ -4,7 +4,7 @@ import { cn } from '@/lib/classMerge';
 import { Text } from '../typography';
 
 interface FileCardProps {
-  fileName: string | React.ReactNode;
+  fileName?: string | React.ReactNode;
   headerButtons?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
@@ -42,7 +42,9 @@ export const FileCard = React.memo(
         </CardContent>
 
         {footer && (
-          <CardFooter className={cn('bg-background', footerClassName)}>{footer}</CardFooter>
+          <CardFooter className={cn('bg-background px-4 py-2.5', footerClassName)}>
+            {footer}
+          </CardFooter>
         )}
       </Card>
     );

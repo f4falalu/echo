@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import * as yaml from 'js-yaml';
 import * as monaco from 'monaco-editor';
 import { type editor } from 'monaco-editor/esm/vs/editor/editor.api';
@@ -37,20 +37,29 @@ export const validateMetricYaml = (
   try {
     parsed = yaml.load(content);
   } catch (error: any) {
-    // For parse errors, try to extract line information from the error message
+    // For parse errors, extract line and column information from the error
     let lineNumber = 1;
-    const lineMatch = error.message.match(/line (\d+)/i);
-    if (lineMatch && lineMatch[1]) {
-      lineNumber = parseInt(lineMatch[1], 10);
+    let columnNumber = 1;
+
+    // js-yaml errors include mark object with position information
+    if (error.mark) {
+      lineNumber = error.mark.line + 1; // Convert to 1-based line numbering
+      columnNumber = error.mark.column + 1; // Convert to 1-based column numbering
+    } else {
+      // Fallback to regex for older versions or different error types
+      const lineMatch = error.message.match(/line (\d+)/i);
+      if (lineMatch && lineMatch[1]) {
+        lineNumber = parseInt(lineMatch[1], 10);
+      }
     }
 
     markers.push({
       severity: monaco.MarkerSeverity.Error,
-      message: 'Invalid YAML 🤣: ' + error.message,
+      message: 'Invalid YAML: ' + error.message,
       startLineNumber: lineNumber,
-      startColumn: 1,
+      startColumn: columnNumber,
       endLineNumber: lineNumber,
-      endColumn: 1
+      endColumn: columnNumber + 1 // Highlight at least one character
     });
     return markers;
   }
@@ -184,18 +193,70 @@ export const validateMetricYaml = (
   return markers;
 };
 
+// Helper to configure Monaco YAML schema
+const configureYamlSchema = (
+  monaco: typeof import('monaco-editor'),
+  editor: editor.IStandaloneCodeEditor
+) => {
+  // This assumes you have monaco-yaml configured via yamlHelper.ts in the project
+  // The schema will help with validation and autocomplete
+  const model = editor.getModel();
+  if (model) {
+    // Check if the YAML language support exists
+    // This is dynamically added by monaco-yaml and may not be typed correctly
+    const yamlDefaults = (monaco.languages as any).yaml?.yamlDefaults;
+    if (yamlDefaults && typeof yamlDefaults.setDiagnosticsOptions === 'function') {
+      yamlDefaults.setDiagnosticsOptions({
+        validate: true,
+        schemas: [
+          {
+            uri: 'http://myserver/metric-yaml-schema.json',
+            fileMatch: ['*'],
+            schema: {
+              type: 'object',
+              required: ['Person', 'Place', 'Age', 'Siblings'],
+              properties: {
+                Person: { type: 'string' },
+                Place: { type: 'string' },
+                Age: { type: 'number' },
+                Siblings: {
+                  type: 'object',
+                  additionalProperties: { type: 'number' }
+                }
+              }
+            }
+          }
+        ]
+      });
+    }
+  }
+};
+
 export const MyYamlEditor: React.FC = () => {
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   // Called once the Monaco editor is mounted
-  const editorDidMount = (editor: any, monacoInstance: typeof import('monaco-editor')) => {
+  const editorDidMount = (
+    editor: editor.IStandaloneCodeEditor,
+    monacoInstance: typeof import('monaco-editor')
+  ) => {
     editorRef.current = editor;
 
-    // Lint the document on every change
+    // Try to configure YAML schema if monaco-yaml is properly loaded
+    try {
+      // Check if the YAML language support exists using type assertion
+      if ((monacoInstance.languages as any).yaml?.yamlDefaults) {
+        configureYamlSchema(monacoInstance, editor);
+      }
+    } catch (err) {
+      console.error('Failed to configure YAML schema:', err);
+    }
+
+    // Lint the document on every change using our custom validator
     editor.onDidChangeModelContent(() => {
       const value = editor.getValue();
       const markers = validateMetricYaml(value, monacoInstance);
-      monacoInstance.editor.setModelMarkers(editor.getModel(), 'yaml', markers);
+      monacoInstance.editor.setModelMarkers(editor.getModel()!, 'yaml', markers);
     });
   };
 

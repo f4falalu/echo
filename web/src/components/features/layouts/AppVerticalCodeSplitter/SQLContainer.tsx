@@ -5,10 +5,11 @@ import { AppCodeEditor } from '@/components/ui/inputs/AppCodeEditor';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
 import { Button } from '@/components/ui/buttons/Button';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { AppVerticalCodeSplitterProps } from './AppVerticalCodeSplitter';
 import { cn } from '@/lib/classMerge';
 import { ErrorClosableContainer } from '@/components/ui/error/ErrorClosableContainer';
+import { FileCard } from '@/components/ui/card/FileCard';
 
 export const SQLContainer: React.FC<{
   className?: string;
@@ -34,22 +35,9 @@ export const SQLContainer: React.FC<{
       setIsRunning(false);
     });
 
-    return (
-      <div
-        className={cn(
-          'flex h-full w-full flex-col overflow-hidden',
-          'bg-background rounded border',
-          className
-        )}>
-        <AppCodeEditor
-          className="overflow-hidden border-x-0 border-t-0"
-          value={sql}
-          onChange={setDatasetSQL}
-          onMetaEnter={onRunQueryPreflight}
-          variant={null}
-        />
-        <div className="bg-border-color my-0! h-[0.5px] w-full" />
-        <div className="relative flex items-center justify-between px-4 py-2.5">
+    const memoizedFooter = useMemo(() => {
+      return (
+        <>
           <Button onClick={onCopySQL}>Copy SQL</Button>
 
           <div className="flex items-center gap-2">
@@ -77,10 +65,25 @@ export const SQLContainer: React.FC<{
               Run
             </Button>
           </div>
+        </>
+      );
+    }, [disabledSave, isRunning, onCopySQL, onRunQueryPreflight, onSaveSQL, sql]);
 
-          {error && <ErrorClosableContainer error={error} />}
-        </div>
-      </div>
+    return (
+      <FileCard
+        className={className}
+        footerClassName="flex justify-between space-x-4"
+        footer={memoizedFooter}>
+        <AppCodeEditor
+          className="overflow-hidden border-x-0 border-t-0"
+          value={sql}
+          onChange={setDatasetSQL}
+          onMetaEnter={onRunQueryPreflight}
+          variant={null}
+        />
+
+        {error && <ErrorClosableContainer error={error} />}
+      </FileCard>
     );
   }
 );

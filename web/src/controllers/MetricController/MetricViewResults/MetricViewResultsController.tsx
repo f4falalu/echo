@@ -52,16 +52,15 @@ export const MetricViewResults: React.FC<{ metricId: string }> = React.memo(({ m
         metricId
       });
 
-      if (res) {
-        if (data && data.length > 0) {
-          const headerHeight = 50;
-          const heightOfRow = 36;
-          const heightOfDataContainer = headerHeight + heightOfRow * (data.length || 0);
-          const containerHeight = containerRef.current?.clientHeight || 0;
-          const maxHeight = Math.floor(containerHeight * 0.6);
-          const finalHeight = Math.min(heightOfDataContainer, maxHeight);
-          appSplitterRef.current?.setSplitSizes(['auto', `${finalHeight}px`]);
-        }
+      if (res && res.data && res.data.length > 0) {
+        const data = res.data;
+        const headerHeight = 50;
+        const heightOfRow = 36;
+        const heightOfDataContainer = headerHeight + heightOfRow * (data.length || 0);
+        const containerHeight = containerRef.current?.clientHeight || 0;
+        const maxHeight = Math.floor(containerHeight * 0.6);
+        const finalHeight = Math.min(heightOfDataContainer, maxHeight);
+        appSplitterRef.current?.setSplitSizes(['auto', `${finalHeight}px`]);
       }
     } catch (error) {
       //

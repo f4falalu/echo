@@ -15,8 +15,7 @@ export const DataContainer: React.FC<{
   return (
     <div
       className={cn(
-        'bg-background rounded border shadow',
-        'relative h-full w-full overflow-hidden',
+        'bg-background relative h-full w-full overflow-hidden rounded border shadow',
         className
       )}>
       <IndeterminateLinearLoader
