@@ -38,7 +38,7 @@ impl ChatContextLoader {
                         agent.set_state_value(String::from("metrics_available"), Value::Bool(true))
                             .await;
                     },
-                    "create_dashboard" | "update_dashboard" => {
+                    "create_dashboards" | "update_dashboards" => {
                         agent.set_state_value(String::from("dashboards_available"), Value::Bool(true))
                             .await;
                     },
