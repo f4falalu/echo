@@ -3,8 +3,6 @@ import { AppTooltip } from '@/components/ui/tooltip';
 import { ArrowUpRight } from '@/components/ui/icons';
 import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
-import { useMemoizedFn } from '@/hooks';
 import Link from 'next/link';
 import { createChatAssetRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 

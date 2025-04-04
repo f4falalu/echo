@@ -13,6 +13,7 @@ import { Copy2 } from '@/components/ui/icons';
 import { Text } from '@/components/ui/typography';
 import { VersionPill } from '@/components/ui/tags/VersionPill';
 import { FileCard } from '@/components/ui/card/FileCard';
+import { TextAndVersionPill } from '@/components/ui/typography/TextAndVersionPill';
 
 export const DiffSQLContainer: React.FC<{
   className?: string;
@@ -64,10 +65,7 @@ export const DiffSQLContainer: React.FC<{
         )}
         fileName={useMemo(
           () => (
-            <div className="flex items-center gap-x-1.5">
-              <Text>{fileName}</Text>
-              {versionNumber && <VersionPill version_number={versionNumber} />}
-            </div>
+            <TextAndVersionPill fileName={fileName || ''} versionNumber={versionNumber || 0} />
           ),
           [fileName, versionNumber]
         )}>

@@ -7,8 +7,8 @@ import { Text } from '@/components/ui/typography';
 import { motion, AnimatePresence } from 'framer-motion';
 import { itemAnimationConfig } from './animationConfig';
 import { StatusIndicator } from '@/components/ui/indicators';
-import { VersionPill } from '@/components/ui/tags/VersionPill';
-import { cn } from '@/lib/classMerge';
+import { FileCard } from '../card/FileCard';
+import { TextAndVersionPill } from '../typography/TextAndVersionPill';
 
 export const StreamingMessage_File: React.FC<{
   isSelectedFile: boolean;
@@ -24,34 +24,17 @@ export const StreamingMessage_File: React.FC<{
 
   return (
     <AnimatePresence initial={!isCompletedStream}>
-      <motion.div
-        id={id}
-        {...itemAnimationConfig}
-        className={cn(
-          'border-border hover:border-text-tertiary flex cursor-pointer flex-col items-center overflow-hidden rounded border transition-all duration-200 hover:shadow',
-          isSelectedFile && 'border-black shadow'
-        )}>
-        <StreamHeader file_name={file_name} version_number={version_number} />
-        <StreamingMessageBody metadata={metadata} />
+      <motion.div id={id} {...itemAnimationConfig}>
+        <FileCard
+          fileName={<TextAndVersionPill fileName={file_name} versionNumber={version_number} />}>
+          <StreamingMessageBody metadata={metadata} />
+        </FileCard>
       </motion.div>
     </AnimatePresence>
   );
 });
 
 StreamingMessage_File.displayName = 'StreamingMessage_File';
-
-const StreamHeader: React.FC<{ file_name: string; version_number: number }> = React.memo(
-  ({ file_name, version_number }) => {
-    return (
-      <div className="file-header bg-item-select border-border flex h-8 w-full items-center space-x-1.5 overflow-hidden border-b px-2.5">
-        <Text truncate>{file_name}</Text>
-        <VersionPill version_number={version_number} />
-      </div>
-    );
-  }
-);
-
-StreamHeader.displayName = 'ChatResponseMessageHeader';
 
 const StreamingMessageBody: React.FC<{
   metadata: BusterChatResponseMessage_fileMetadata[];
@@ -79,15 +62,13 @@ const MetadataItem: React.FC<{ metadata: BusterChatResponseMessage_fileMetadata 
 
   return (
     <div
-      className="@container flex w-full items-center justify-start space-x-1.5 overflow-hidden"
+      className="@container flex w-full items-center justify-start space-x-1.5"
       style={{
         containerType: 'inline-size'
       }}>
-      <div>
-        <StatusIndicator status={status} />
-      </div>
+      <StatusIndicator status={status} />
 
-      <Text truncate size="xs" variant="secondary">
+      <Text truncate size="xs" className="leading-1.3" variant="secondary">
         {message}
       </Text>
 

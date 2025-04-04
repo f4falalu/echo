@@ -38,7 +38,7 @@ const mockResponseMessage: BusterChatResponseMessage_file = {
     },
     {
       status: 'loading',
-      message: 'Analyzing file contents',
+      message: 'Analyzing file contents with a really long message that should truncate in the ui',
       timestamp: 1.2
     }
   ]
