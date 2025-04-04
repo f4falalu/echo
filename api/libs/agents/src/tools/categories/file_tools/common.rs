@@ -109,8 +109,8 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 #
 # name: "Your Metric Title"
 # description: "A detailed description of what this metric measures and how it should be interpreted"  # Optional
-# dataset_ids: ["123e4567-e89b-12d3-a456-426614174000"]  # Dataset UUIDs (not names)
-# time_frame: "Last 30 days"  # Human-readable time period covered by the query
+# datasetIds: ["123e4567-e89b-12d3-a456-426614174000"]  # Dataset UUIDs (not names)
+# timeFrame: "Last 30 days"  # Human-readable time period covered by the query
 # sql: |
 #   SELECT 
 #     date,
@@ -118,26 +118,26 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 #   FROM sales
 #   GROUP BY date
 # 
-# chart_config:
-#   selected_chart_type: "bar"  # One of: bar, line, scatter, pie, combo, metric, table
-#   column_label_formats: {     # REQUIRED - Must define formatting for all columns
+# chartConfig:
+#   selectedChartType: "bar"  # One of: bar, line, scatter, pie, combo, metric, table
+#   columnLabelFormats: {     # REQUIRED - Must define formatting for all columns
 #     "date": {
-#       "column_type": "date",
+#       "columnType": "date",
 #       "style": "date",
-#       "date_format": "MMM DD, YYYY"
+#       "dateFormat": "MMM DD, YYYY"
 #     },
 #     "total": {
-#       "column_type": "number",
+#       "columnType": "number",
 #       "style": "currency",
 #       "currency": "USD",
-#       "minimum_fraction_digits": 2
+#       "minimumFractionDigits": 2
 #     }
 #   }
-#   bar_and_line_axis: {...}  # Required for bar and line charts OR
-#   scatter_axis: {...}  # Required for scatter charts OR
-#   pie_chart_axis: {...}  # Required for pie charts OR
-#   combo_chart_axis: {...}  # Required for combo charts OR
-#   metric_column_id: "column_id"  # Required for metric charts
+#   barAndLineAxis: {...}  # Required for bar and line charts OR
+#   scatterAxis: {...}  # Required for scatter charts OR
+#   pieChartAxis: {...}  # Required for pie charts OR
+#   comboChartAxis: {...}  # Required for combo charts OR
+#   metricColumnId: "column_id"  # Required for metric charts
 # -------------------------------------
 
 type: object
@@ -156,7 +156,7 @@ properties:
     description: "A detailed description of what this metric measures and how it should be interpreted"
 
   # DATASET IDS
-  dataset_ids:
+  datasetIds:
     type: array
     description: "UUIDs of datasets this metric belongs to"
     items:
@@ -165,7 +165,7 @@ properties:
       description: "UUID string of the dataset (not the dataset name)"
     
   # TIME FRAME
-  time_frame:
+  timeFrame:
     type: string
     description: "Human-readable time period covered by the query (e.g., 'Last 30 days', 'All time', 'August 1, 2024 - January 1, 2025', 'Comparison: August 2025 to August 2024')"
 
@@ -191,7 +191,7 @@ properties:
     description: "SQL query using YAML pipe syntax (|)"
 
   # CHART CONFIGURATION
-  chart_config:
+  chartConfig:
     description: "Visualization settings (must match one chart type)"
     oneOf: # REQUIRED
       - $ref: "#/definitions/bar_line_chart_config"
@@ -203,25 +203,25 @@ properties:
 
 required:
   - name
-  - dataset_ids
-  - time_frame
+  - datasetIds
+  - timeFrame
   - sql
-  - chart_config
+  - chartConfig
 
 definitions:
   # BASE CHART CONFIG (common to all chart types)
   base_chart_config:
     type: object
     properties:
-      selected_chart_type:
+      selectedChartType:
         type: string
         description: "Chart type (bar, line, scatter, pie, combo, metric, table)"
-      column_label_formats:
+      columnLabelFormats:
         type: object
         description: The formatting for each column.
         additionalProperties:
           $ref: "#/definitions/column_label_format"
-      column_settings:
+      columnSettings:
         type: object
         description: "Visual settings {columnId: settingsObject}"
         additionalProperties:
@@ -230,11 +230,11 @@ definitions:
         type: array
         items:
           type: string
-      show_legend:
+      showLegend:
         type: boolean
-      grid_lines:
+      gridLines:
         type: boolean
-      goal_lines:
+      goalLines:
         type: array
         items:
           $ref: "#/definitions/goal_line"
@@ -243,29 +243,29 @@ definitions:
         items:
           $ref: "#/definitions/trendline"
     required:
-      - selected_chart_type
-      - column_label_formats
+      - selectedChartType
+      - columnLabelFormats
 
   # COLUMN FORMATTING
-  column_label_format:
+  columnLabelFormat:
     type: object
     properties:
-      column_type:
+      columnType:
         type: string
         description: "number, string, date"
       style:
         type: string
         enum: ["currency", "percent", "number", "date", "string"]
-      display_name:
+      displayName:
         type: string
         description: "Custom display name for the column"
-      number_separator_style:
+      numberSeparatorStyle:
         type: string
         description: "Style for number separators"
-      minimum_fraction_digits:
+      minimumFractionDigits:
         type: integer
         description: "Minimum number of fraction digits to display"
-      maximum_fraction_digits:
+      maximumFractionDigits:
         type: integer
         description: "Maximum number of fraction digits to display"
       multiplier:
@@ -277,45 +277,45 @@ definitions:
       suffix:
         type: string
         description: "Text to display after the value"
-      replace_missing_data_with:
+      replaceMissingDataWith:
         description: "Value to display when data is missing"
-      compact_numbers:
+      compactNumbers:
         type: boolean
         description: "Whether to display numbers in compact form (e.g., 1K, 1M)"
       currency:
         type: string
         description: "Currency code for currency formatting (e.g., USD, EUR)"
-      date_format:
+      dateFormat:
         type: string
         description: "Format string for date display"
-      use_relative_time:
+      useRelativeTime:
         type: boolean
         description: "Whether to display dates as relative time (e.g., '2 days ago')"
-      is_utc:
+      isUtc:
         type: boolean
         description: "Whether to interpret dates as UTC"
-      convert_number_to:
+      convertNumberTo:
         type: string
         description: "Convert number to a different format"
     required:
-      - column_type
+      - columnType
       - style
 
   # COLUMN VISUAL SETTINGS
   column_settings:
     type: object
     properties:
-      show_data_labels:
+      showDataLabels:
         type: boolean
-      column_visualization:
+      columnVisualization:
         type: string
         enum: ["bar", "line", "dot"]
-      line_width:
+      lineWidth:
         type: number
-      line_style:
+      lineStyle:
         type: string
         enum: ["area", "line"]
-      line_type:
+      lineType:
         type: string
         enum: ["normal", "smooth", "step"]
 
@@ -325,9 +325,9 @@ definitions:
       - $ref: "#/definitions/base_chart_config"
       - type: object
         properties:
-          selected_chart_type:
+          selectedChartType:
             enum: ["bar", "line"]
-          bar_and_line_axis:
+          barAndLineAxis:
             type: object
             properties:
               x:
@@ -345,24 +345,24 @@ definitions:
             required:
               - x
               - y
-          bar_layout:
+          barLayout:
             type: string
             enum: ["horizontal", "vertical"]
-          bar_group_type:
+          barGroupType:
             type: string
             enum: ["stack", "group", "percentage-stack"]
         required:
-          - selected_chart_type
-          - bar_and_line_axis
+          - selectedChartType
+          - barAndLineAxis
 
   scatter_chart_config:
     allOf:
       - $ref: "#/definitions/base_chart_config"
       - type: object
         properties:
-          selected_chart_type:
+          selectedChartType:
             enum: ["scatter"]
-          scatter_axis:
+          scatterAxis:
             type: object
             properties:
               x:
@@ -377,17 +377,17 @@ definitions:
               - x
               - y
         required:
-          - selected_chart_type
-          - scatter_axis
+          - selectedChartType
+          - scatterAxis
 
   pie_chart_config:
     allOf:
       - $ref: "#/definitions/base_chart_config"
       - type: object
         properties:
-          selected_chart_type:
+          selectedChartType:
             enum: ["pie"]
-          pie_chart_axis:
+          pieChartAxis:
             type: object
             properties:
               x:
@@ -402,17 +402,17 @@ definitions:
               - x
               - y
         required:
-          - selected_chart_type
-          - pie_chart_axis
+          - selectedChartType
+          - pieChartAxis
 
   combo_chart_config:
     allOf:
       - $ref: "#/definitions/base_chart_config"
       - type: object
         properties:
-          selected_chart_type:
+          selectedChartType:
             enum: ["combo"]
-          combo_chart_axis:
+          comboChartAxis:
             type: object
             properties:
               x:
@@ -427,39 +427,39 @@ definitions:
               - x
               - y
         required:
-          - selected_chart_type
-          - combo_chart_axis
+          - selectedChartType
+          - comboChartAxis
 
   metric_chart_config:
     allOf:
       - $ref: "#/definitions/base_chart_config"
       - type: object
         properties:
-          selected_chart_type:
+          selectedChartType:
             enum: ["metric"]
-          metric_column_id:
+          metricColumnId:
             type: string
-          metric_value_aggregate:
+          metricValueAggregate:
             type: string
             enum: ["sum", "average", "median", "max", "min", "count", "first"]
             description: "Optional - only used when the user specifically requests it, otherwise leave blank"
         required:
-          - selected_chart_type
-          - metric_column_id
+          - selectedChartType
+          - metricColumnId
 
   table_chart_config:
     allOf:
       - $ref: "#/definitions/base_chart_config"
       - type: object
         properties:
-          selected_chart_type:
+          selectedChartType:
             enum: ["table"]
-          table_column_order:
+          tableColumnOrder:
             type: array
             items:
               type: string
         required:
-          - selected_chart_type
+          - selectedChartType
           # No additional required fields for table chart
 
   # HELPER OBJECTS
@@ -470,7 +470,7 @@ definitions:
         type: boolean
       value:
         type: number
-      goal_line_label:
+      goalLineLabel:
         type: string
 
   trendline:
@@ -479,11 +479,11 @@ definitions:
       type:
         type: string
         enum: ["average", "linear_regression", "min", "max", "median"]
-      column_id:
+      columnId:
         type: string
     required:
       - type
-      - column_id
+      - columnId
 "##;
 
 pub const DASHBOARD_YML_SCHEMA: &str = r##"
@@ -497,18 +497,18 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 #   - id: 1               # Required row ID (integer)
 #     items:
 #       - id: "metric-uuid-1"  # UUIDv4 of an existing metric
-#     column_sizes: [12]   # Required - must sum to exactly 12
+#     columnSizes: [12]   # Required - must sum to exactly 12
 #   - id: 2 # REQUIRED
 #     items:
 #       - id: "metric-uuid-2"
 #       - id: "metric-uuid-3"
-#     column_sizes: [6, 6] # Required - must sum to exactly 12
+#     columnSizes: [6, 6] # Required - must sum to exactly 12
 #
 # Rules:
 # 1. Each row can have up to 4 items
 # 2. Each row must have a unique ID
-# 3. column_sizes is required and must specify the width for each item
-# 4. Sum of column_sizes in a row must be exactly 12
+# 3. columnSizes is required and must specify the width for each item
+# 4. Sum of columnSizes in a row must be exactly 12
 # 5. Each column size must be at least 3
 # ----------------------------------------
 
@@ -534,7 +534,7 @@ properties:
         items:
           type: array
           description: "Array of metrics to display in this row (max 4 items)"
-          max_items: 4
+          maxItems: 4
           items:
             type: object
             properties:
@@ -543,7 +543,7 @@ properties:
                 description: "UUIDv4 identifier of an existing metric"
             required:
               - id
-        column_sizes:
+        columnSizes:
           type: array
           description: "Required array of column sizes (must sum to exactly 12)"
           items:
@@ -553,7 +553,7 @@ properties:
       required:
         - id
         - items
-        - column_sizes
+        - columnSizes
 required:
   - name
   - description
@@ -705,7 +705,7 @@ pub async fn process_metric_file_modification(
 
                     // Validate SQL and get dataset_id from the first dataset
                     if new_yml.dataset_ids.is_empty() {
-                        let error = "Missing required field 'dataset_ids'".to_string();
+                        let error = "Missing required field 'dataset_iids'".to_string();
                         results.push(ModificationResult {
                             file_id: file.id,
                             file_name: modification.file_name.clone(),

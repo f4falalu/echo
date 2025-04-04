@@ -1408,7 +1408,7 @@ fn tool_modify_dashboards(id: String, content: String) -> Result<Vec<BusterReaso
             id: file_id.clone(),
             file_type: "dashboard".to_string(),
             file_name: file.name.clone(),
-            version_number: 1,
+            version_number: file.version_number,
             status: "completed".to_string(),
             file: BusterFileContent {
                 text: Some(file.yml_content),
