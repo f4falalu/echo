@@ -1,4 +1,4 @@
-import type { IDataResult } from '@/api/asset_interfaces';
+import type { IDataResult } from '@/api/asset_interfaces/metric';
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
