@@ -7,7 +7,7 @@ use handlers::organizations::{
     update_organization_handler,
 };
 
-use crate::{routes::rest::ApiResponse, utils::clients::sentry_utils::send_sentry_error};
+use crate::routes::rest::ApiResponse;
 use middleware::AuthenticatedUser;
 
 pub async fn update_organization(
@@ -27,7 +27,6 @@ pub async fn update_organization(
         Ok(organization) => organization,
         Err(e) => {
             tracing::error!("Error updating organization: {:?}", e);
-            send_sentry_error(&e.to_string(), Some(&user.id));
             
             if e.to_string().contains("not a workspace admin") {
                 return Err((StatusCode::FORBIDDEN, "User is not a workspace admin"));

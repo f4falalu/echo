@@ -74,7 +74,8 @@ redis = { version = "0.27.5", features = [
     "tls-rustls-webpki-roots",
 ] }
 resend-rs = "0.10.0"
-sentry = { version = "0.35.0", features = ["tokio", "sentry-tracing"] }
+sentry = { version = "0.37.0", features = ["tokio", "sentry-tracing"] }
+sentry-tower = { version = "0.37.0", features = ["axum", "http"] }
 serde_urlencoded = "0.7.1"
 snowflake-api = "0.11.0"
 tempfile = "3.10.1"
@@ -89,6 +90,7 @@ tiberius = { version = "0.12.2", default-features = false, features = [
 tiktoken-rs = "0.6.0"
 tokio-stream = "0.1.15"
 tokio-util = { version = "0.7.11", features = ["compat"] }
+tower = { version = "0.5.2" }
 tower-http = { version = "0.6.2", features = [
     "cors",
     "trace",
@@ -106,5 +108,5 @@ incremental = true
 
 [profile.dev]
 incremental = true
-opt-level = 0  # Ensure this is 0 for faster debug builds
-debug = 1      # Reduce debug info slightly while keeping enough for backtraces
+opt-level = 0      # Ensure this is 0 for faster debug builds
+debug = 1          # Reduce debug info slightly while keeping enough for backtraces

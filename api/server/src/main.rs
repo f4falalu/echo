@@ -4,7 +4,7 @@ pub mod utils;
 use std::env;
 use std::sync::Arc;
 
-use axum::{Extension, Router};
+use axum::{Extension, Router, extract::Request};
 use middleware::cors::cors;
 use database::{self, pool::init_pools};
 use diesel::{Connection, PgConnection};
@@ -12,6 +12,7 @@ use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use dotenv::dotenv;
 use rustls::crypto::ring;
 use tokio::sync::broadcast;
+use tower::ServiceBuilder;
 use tower_http::{compression::CompressionLayer, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
@@ -23,16 +24,26 @@ async fn main() {
     dotenv().ok();
 
     let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string());
+    let is_development = environment == "development";
 
     ring::default_provider()
         .install_default()
         .expect("Failed to install default crypto provider");
 
-    let _guard = sentry::init(("https://a417fbed1de30d2714a8afbe38d5bc1b@o4505360096428032.ingest.us.sentry.io/4507360721043456", sentry::ClientOptions {
-        release: sentry::release_name!(),
-        environment: Some(environment.into()),
-        ..Default::default()
-    }));
+    // Only initialize Sentry if not in development environment
+    let _guard = if !is_development {
+        Some(sentry::init((
+            "https://a417fbed1de30d2714a8afbe38d5bc1b@o4505360096428032.ingest.us.sentry.io/4507360721043456", 
+            sentry::ClientOptions {
+                release: sentry::release_name!(),
+                environment: Some(environment.clone().into()),
+                traces_sample_rate: 1.0,
+                ..Default::default()
+            }
+        )))
+    } else {
+        None
+    };
 
     tracing_subscriber::registry()
         .with(
@@ -67,6 +78,7 @@ async fn main() {
     let (shutdown_tx, _) = broadcast::channel::<()>(1);
     let shutdown_tx = Arc::new(shutdown_tx);
 
+    // Build the router with or without Sentry layers based on environment
     let app = Router::new()
         .merge(protected_router)
         .merge(public_router)
@@ -74,6 +86,17 @@ async fn main() {
         .layer(cors())
         .layer(CompressionLayer::new())
         .layer(Extension(shutdown_tx.clone()));
+
+    // Add Sentry layers if not in development
+    let app = if !is_development {
+        app.layer(
+            ServiceBuilder::new()
+                .layer(sentry_tower::NewSentryLayer::<Request>::new_from_top())
+                .layer(sentry_tower::SentryHttpLayer::with_transaction())
+        )
+    } else {
+        app
+    };
 
     let port_number: u16 = env::var("PORT")
         .unwrap_or_else(|_| "3001".to_string())

@@ -13,7 +13,7 @@ use database::{
     },
 };
 
-use crate::{routes::rest::ApiResponse, utils::clients::sentry_utils::send_sentry_error};
+use crate::routes::rest::ApiResponse;
 use axum::http::StatusCode;
 use diesel::{
     BoolExpressionMethods, ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl,
@@ -54,7 +54,6 @@ pub async fn get_user_by_id(
         Ok(user_info) => user_info,
         Err(e) => {
             tracing::error!("Error getting user information: {:?}", e);
-            send_sentry_error(&e.to_string(), Some(&user.id));
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Error getting user information",

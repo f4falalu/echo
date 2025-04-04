@@ -2,19 +2,18 @@ use anyhow::Result;
 use axum::extract::Path;
 use axum::{Extension, Json};
 
+use crate::routes::rest::ApiResponse;
+use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
+use axum::http::StatusCode;
 use database::enums::UserOrganizationStatus;
+use database::organization::get_user_organization_id;
 use database::schema::{users, users_to_organizations};
 use database::{enums::UserOrganizationRole, pool::get_pg_pool};
-use crate::routes::rest::ApiResponse;
-use crate::utils::clients::sentry_utils::send_sentry_error;
-use crate::utils::security::checks::is_user_workspace_admin_or_data_admin;
-use database::organization::get_user_organization_id;
-use axum::http::StatusCode;
 use diesel::{update, ExpressionMethods};
 use diesel_async::RunQueryDsl;
+use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use middleware::AuthenticatedUser;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct UserResponse {
@@ -40,7 +39,6 @@ pub async fn update_user(
         Ok(_) => (),
         Err(e) => {
             tracing::error!("Error getting user information: {:?}", e);
-            send_sentry_error(&e.to_string(), Some(&user.id));
             return Err((
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "Error getting user information",
@@ -120,7 +118,7 @@ pub async fn update_user_handler(
                         ))
                     }
                 };
-            },
+            }
             Ok(false) => return Err(anyhow::anyhow!("Insufficient permissions to update role")),
             Err(e) => {
                 tracing::error!("Error checking user permissions for role update: {:?}", e);

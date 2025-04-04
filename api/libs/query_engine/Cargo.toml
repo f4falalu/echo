@@ -26,7 +26,6 @@ tokio-util = { workspace = true }
 rand = { workspace = true }
 futures = { workspace = true }
 sqlparser = { workspace = true }
-once_cell = { workspace = true }
 num-traits = { workspace = true }
 reqwest = { workspace = true }
 
