@@ -74,8 +74,9 @@ redis = { version = "0.27.5", features = [
     "tls-rustls-webpki-roots",
 ] }
 resend-rs = "0.10.0"
-sentry = { version = "0.37.0", features = ["tokio", "sentry-tracing"] }
+sentry = { version = "0.37.0", features = ["tokio"] }
 sentry-tower = { version = "0.37.0", features = ["axum", "http"] }
+sentry-tracing = { version = "0.37.0"}
 serde_urlencoded = "0.7.1"
 snowflake-api = "0.11.0"
 tempfile = "3.10.1"
