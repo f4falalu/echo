@@ -26,7 +26,7 @@ export const DataContainer: React.FC<{
       />
 
       {hasData ? (
-        <AppDataGrid rows={data} resizable={false} sortable={false} className="border-none!" />
+        <AppDataGrid rows={data} resizable={true} sortable={false} />
       ) : (
         <div className="flex h-full items-center justify-center">
           {fetchingData ? 'Loading data...' : 'No data returned'}

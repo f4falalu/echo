@@ -22,6 +22,7 @@ export interface TanStackDataGridProps {
   className?: string;
   resizable?: boolean;
   sortable?: boolean;
+  draggable?: boolean;
   rows: Record<string, string | number | null | Date>[];
   columnOrder?: string[];
   columnWidths?: Record<string, number>;
@@ -42,6 +43,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
     className = '',
     resizable = true,
     sortable = true,
+    draggable = true,
     columnWidths: columnWidthsProp,
     columnOrder: serverColumnOrder,
     onReorderColumns,
@@ -74,9 +76,10 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
           header: () => headerFormat(field, field),
           cell: (info) => cellFormat(info.getValue(), field),
           enableSorting: sortable,
-          enableResizing: resizable
+          enableResizing: resizable,
+          enableDragging: draggable
         })),
-      [fields, headerFormat, cellFormat, sortable, resizable]
+      [fields, headerFormat, cellFormat, sortable, resizable, draggable]
     );
 
     // Create the table instance.
@@ -88,6 +91,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
         columnSizing,
         columnOrder: colOrder
       },
+      enableSorting: sortable,
       onSortingChange: setSorting,
       onColumnSizingChange: setColumnSizing,
       onColumnOrderChange: setColOrder,
@@ -137,6 +141,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
             <DataGridHeader
               table={table}
               sortable={sortable}
+              draggable={draggable}
               resizable={resizable}
               rowVirtualizer={rowVirtualizer}
             />

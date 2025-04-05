@@ -13,10 +13,11 @@ interface DraggableHeaderProps {
   resizable: boolean;
   sortable: boolean;
   isOverTarget: boolean;
+  draggable: boolean;
 }
 
 const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
-  ({ header, sortable, resizable, isOverTarget }) => {
+  ({ header, sortable, resizable, isOverTarget, draggable }) => {
     // Set up dnd-kit's useDraggable for this header cell
     const {
       attributes,
@@ -24,11 +25,8 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
       isDragging,
       setNodeRef: setDragNodeRef
     } = useDraggable({
-      id: header.id,
-      // This ensures the drag overlay matches the element's position exactly
-      data: {
-        type: 'header'
-      }
+      disabled: !draggable,
+      id: header.id
     });
 
     // Set up droppable area to detect when a header is over this target
@@ -47,7 +45,7 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
 
     return (
       <th
-        ref={setDropNodeRef}
+        ref={draggable ? setDropNodeRef : undefined}
         style={style}
         className={cn(
           'group bg-background relative border-r select-none last:border-r-0',
@@ -59,9 +57,9 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
         <span
           className={cn(
             'flex h-full flex-1 items-center space-x-1.5 p-2',
-            sortable && 'cursor-grab'
+            draggable && 'cursor-grab'
           )}
-          ref={sortable ? setDragNodeRef : undefined}
+          ref={draggable ? setDragNodeRef : undefined}
           {...attributes}
           {...listeners}>
           <span className="text-gray-dark text-base font-normal">
@@ -84,15 +82,6 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
               e.stopPropagation();
               e.preventDefault();
             }}>
-            {/* <span
-              onMouseDown={header.getResizeHandler()}
-              onTouchStart={header.getResizeHandler()}
-              className={cn(
-                'hover:bg-primary group-hover:bg-border absolute top-0 -right-[2.5px] z-10 h-full w-1 cursor-col-resize transition-colors duration-100 select-none hover:w-1',
-                header.column.getIsResizing() && 'bg-primary'
-              )}
-            /> */}
-
             <span
               onMouseDown={header.getResizeHandler()}
               onTouchStart={header.getResizeHandler()}
@@ -114,6 +103,7 @@ interface DataGridHeaderProps {
   table: Table<Record<string, string | number | Date | null>>;
   sortable: boolean;
   resizable: boolean;
+  draggable: boolean;
   rowVirtualizer: Virtualizer<HTMLDivElement, Element>;
 }
 
@@ -121,7 +111,8 @@ export const DataGridHeader: React.FC<DataGridHeaderProps> = ({
   rowVirtualizer,
   table,
   sortable,
-  resizable
+  resizable,
+  draggable
 }) => {
   const overTargetId = useSortColumnContext((x) => x.overTargetId);
 
@@ -143,6 +134,7 @@ export const DataGridHeader: React.FC<DataGridHeaderProps> = ({
                   key={header.id}
                   header={header}
                   sortable={sortable}
+                  draggable={draggable}
                   resizable={resizable}
                   isOverTarget={overTargetId === header.id}
                 />

@@ -20,6 +20,9 @@ const meta: Meta<typeof TanStackDataGrid> = {
   tags: ['autodocs'],
   args: {
     rows: sampleData,
+    draggable: true,
+    sortable: true,
+    resizable: true,
     onReorderColumns: fn(),
     onResizeColumns: fn(),
     onReady: fn()
@@ -55,7 +58,16 @@ export const NonEditable: Story = {
     ...meta.args,
     rows: sampleData,
     resizable: false,
-    sortable: false
+    sortable: false,
+    draggable: false
+  }
+};
+
+export const NonDraggable: Story = {
+  args: {
+    ...meta.args,
+    rows: sampleData,
+    draggable: false
   }
 };
 
