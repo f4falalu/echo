@@ -8,7 +8,6 @@ import {
   DEFAULT_CHART_CONFIG
 } from '@/api/asset_interfaces/metric';
 import { useMemoizedFn } from '@/hooks';
-import { useChartWrapperContextSelector } from '../chartHooks/useChartWrapperProvider';
 import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import './TableChart.css';
 import { cn } from '@/lib/classMerge';
@@ -35,8 +34,6 @@ const BusterTableChartBase: React.FC<
   animate,
   tableColumnFontColor
 }) => {
-  const containerWidth = useChartWrapperContextSelector(({ width }) => width);
-
   //THIS MUST BE A USE CALLBACK
   const onFormatHeader = useCallback(
     (value: any, columnName: string) => {
