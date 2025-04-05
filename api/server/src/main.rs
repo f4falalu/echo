@@ -5,7 +5,7 @@ use std::env;
 use std::sync::Arc;
 
 use axum::{Extension, Router, extract::Request};
-use middleware::cors::cors;
+use middleware::{cors::cors, error::{init_sentry, sentry_layer, init_tracing_subscriber}};
 use database::{self, pool::init_pools};
 use diesel::{Connection, PgConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
@@ -30,33 +30,21 @@ async fn main() {
         .install_default()
         .expect("Failed to install default crypto provider");
 
-    // Only initialize Sentry if not in development environment
-    let _guard = if !is_development {
-        Some(sentry::init((
-            "https://a417fbed1de30d2714a8afbe38d5bc1b@o4505360096428032.ingest.us.sentry.io/4507360721043456", 
-            sentry::ClientOptions {
-                release: sentry::release_name!(),
-                environment: Some(environment.clone().into()),
-                traces_sample_rate: 1.0,
-                ..Default::default()
-            }
-        )))
-    } else {
-        None
-    };
+    // Initialize Sentry using our middleware helper
+    let _guard = init_sentry(
+        "https://a417fbed1de30d2714a8afbe38d5bc1b@o4505360096428032.ingest.us.sentry.io/4507360721043456"
+    );
 
-    tracing_subscriber::registry()
-        .with(
-            EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| {
-                    let log_level = env::var("LOG_LEVEL")
-                        .unwrap_or_else(|_| "warn".to_string())
-                        .to_uppercase();
-                    EnvFilter::new(log_level)
-                }),
-        )
-        .with(tracing_subscriber::fmt::layer())
-        .init();
+    // Set up the tracing subscriber with conditional Sentry integration
+    let log_level = env::var("LOG_LEVEL")
+        .unwrap_or_else(|_| "warn".to_string())
+        .to_uppercase();
+    
+    let env_filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new(log_level));
+
+    // Initialize the tracing subscriber with Sentry integration using our middleware helper
+    init_tracing_subscriber(env_filter);
 
     if let Err(e) = init_pools().await {
         tracing::error!("Failed to initialize database pools: {}", e);
@@ -78,7 +66,7 @@ async fn main() {
     let (shutdown_tx, _) = broadcast::channel::<()>(1);
     let shutdown_tx = Arc::new(shutdown_tx);
 
-    // Build the router with or without Sentry layers based on environment
+    // Base router configuration
     let app = Router::new()
         .merge(protected_router)
         .merge(public_router)
@@ -87,13 +75,9 @@ async fn main() {
         .layer(CompressionLayer::new())
         .layer(Extension(shutdown_tx.clone()));
 
-    // Add Sentry layers if not in development
+    // Add Sentry layers if not in development using our middleware helper
     let app = if !is_development {
-        app.layer(
-            ServiceBuilder::new()
-                .layer(sentry_tower::NewSentryLayer::<Request>::new_from_top())
-                .layer(sentry_tower::SentryHttpLayer::with_transaction())
-        )
+        app.layer(sentry_layer())
     } else {
         app
     };
