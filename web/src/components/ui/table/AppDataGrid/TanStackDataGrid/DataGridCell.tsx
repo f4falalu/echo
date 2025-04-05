@@ -13,7 +13,7 @@ export const DataGridCell: React.FC<DataGridCellProps> = ({ cell }) => {
     <td
       className={cn(
         'relative flex items-center border-r px-2 last:border-r-0',
-        cell.column.getIsResizing() && 'bg-primary/3'
+        cell.column.getIsResizing() && 'bg-primary/4'
       )}
       style={{ width: cell.column.getSize(), height: CELL_HEIGHT }}>
       <div className="truncate">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>

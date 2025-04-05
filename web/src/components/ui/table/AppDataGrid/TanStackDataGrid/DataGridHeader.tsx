@@ -7,7 +7,6 @@ import { CaretDown, CaretUp } from '../../../icons/NucleoIconFilled';
 import { HEADER_HEIGHT } from './constants';
 import { useSortColumnContext } from './SortColumnWrapper';
 import { Virtualizer } from '@tanstack/react-virtual';
-import { useMount } from '@/hooks';
 
 interface DraggableHeaderProps {
   header: Header<Record<string, string | number | Date | null>, unknown>;
@@ -52,7 +51,7 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
         style={style}
         className={cn(
           'group bg-background relative border-r select-none last:border-r-0',
-          header.column.getIsResizing() ? 'bg-primary/8' : 'hover:bg-item-hover',
+          header.column.getIsResizing() ? 'bg-primary/10' : 'hover:bg-item-hover',
           isOverTarget && 'bg-primary/10 border-primary inset border border-r! border-dashed'
         )}
         // onClick toggles sorting if enabled
@@ -85,11 +84,20 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
               e.stopPropagation();
               e.preventDefault();
             }}>
+            {/* <span
+              onMouseDown={header.getResizeHandler()}
+              onTouchStart={header.getResizeHandler()}
+              className={cn(
+                'hover:bg-primary group-hover:bg-border absolute top-0 -right-[2.5px] z-10 h-full w-1 cursor-col-resize transition-colors duration-100 select-none hover:w-1',
+                header.column.getIsResizing() && 'bg-primary'
+              )}
+            /> */}
+
             <span
               onMouseDown={header.getResizeHandler()}
               onTouchStart={header.getResizeHandler()}
               className={cn(
-                'hover:bg-primary group-hover:bg-border absolute top-0 -right-[3px] z-10 h-full w-1 cursor-col-resize transition-colors duration-100 select-none hover:w-1',
+                'group-hover:bg-border hover:bg-primary absolute inset-y-0 -right-0.5 z-10 w-1 cursor-col-resize transition-colors duration-100 select-none',
                 header.column.getIsResizing() && 'bg-primary'
               )}
             />

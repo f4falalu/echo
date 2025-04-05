@@ -126,7 +126,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
     }, [onReady]);
 
     return (
-      <div ref={parentRef} className={cn('h-full w-full overflow-auto border', className)}>
+      <div ref={parentRef} className={cn('h-full w-full overflow-auto', className)}>
         <SortColumnWrapper
           table={table}
           sortable={sortable}
