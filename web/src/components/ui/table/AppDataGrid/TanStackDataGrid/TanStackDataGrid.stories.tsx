@@ -75,7 +75,8 @@ export const NonResizable: Story = {
   args: {
     ...meta.args,
     rows: sampleData,
-    resizable: false
+    resizable: false,
+    draggable: true
   }
 };
 
@@ -83,7 +84,8 @@ export const NonSortable: Story = {
   args: {
     ...meta.args,
     rows: sampleData,
-    sortable: false
+    sortable: false,
+    draggable: true
   }
 };
 

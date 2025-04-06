@@ -16,7 +16,7 @@ import { DataGridRow } from './DataGridRow';
 import { CELL_HEIGHT, OVERSCAN } from './constants';
 import { initializeColumnWidths } from './initializeColumnWidths';
 import { SortColumnWrapper } from './SortColumnWrapper';
-import { useDebounceFn, useThrottleFn } from '@/hooks';
+import { useDebounceFn } from '@/hooks';
 
 export interface TanStackDataGridProps {
   className?: string;
@@ -133,7 +133,7 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
       <div ref={parentRef} className={cn('h-full w-full overflow-auto', className)}>
         <SortColumnWrapper
           table={table}
-          sortable={sortable}
+          draggable={draggable}
           colOrder={colOrder}
           setColOrder={setColOrder}
           onReorderColumns={onReorderColumns}>

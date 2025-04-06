@@ -15,18 +15,24 @@ import {
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import { arrayMove } from '@dnd-kit/sortable';
 import { flexRender, Header, Table } from '@tanstack/react-table';
-import { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { useContextSelector, createContext } from 'use-context-selector';
 import { HEADER_HEIGHT } from './constants';
 
+const ACTIVATION_CONSTRAINT = {
+  activationConstraint: {
+    distance: 2
+  }
+};
+
 export const SortColumnWrapper: React.FC<{
   table: Table<Record<string, string | number | Date | null>>;
-  sortable: boolean;
+  draggable: boolean;
   children: React.ReactNode;
   colOrder: string[];
   setColOrder: (colOrder: string[]) => void;
   onReorderColumns?: (colOrder: string[]) => void;
-}> = ({ table, sortable, children, colOrder, setColOrder, onReorderColumns }) => {
+}> = React.memo(({ table, draggable, children, colOrder, setColOrder, onReorderColumns }) => {
   // Track active drag item and over target
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overTargetId, setOverTargetId] = useState<string | null>(null);
@@ -42,16 +48,8 @@ export const SortColumnWrapper: React.FC<{
   const memoizedModifiers = useMemo(() => [restrictToHorizontalAxis], []);
 
   const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 2
-      }
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        distance: 2
-      }
-    }),
+    useSensor(MouseSensor, ACTIVATION_CONSTRAINT),
+    useSensor(TouchSensor, ACTIVATION_CONSTRAINT),
     useSensor(KeyboardSensor)
   );
 
@@ -128,7 +126,7 @@ export const SortColumnWrapper: React.FC<{
     };
   }, []);
 
-  if (!sortable) return <>{children}</>;
+  if (!draggable) return <>{children}</>;
 
   return (
     <DndContext
@@ -151,7 +149,9 @@ export const SortColumnWrapper: React.FC<{
       </SortColumnContext.Provider>
     </DndContext>
   );
-};
+});
+
+SortColumnWrapper.displayName = 'SortColumnWrapper';
 
 type SortColumnContextType = {
   overTargetId: string | null;
