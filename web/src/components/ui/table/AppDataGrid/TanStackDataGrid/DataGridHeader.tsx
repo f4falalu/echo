@@ -1,5 +1,5 @@
 import React, { CSSProperties } from 'react';
-import { DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { Header, Table } from '@tanstack/react-table';
 import { flexRender } from '@tanstack/react-table';
 import { cn } from '@/lib/classMerge';
@@ -16,86 +16,95 @@ interface DraggableHeaderProps {
   draggable: boolean;
 }
 
-const DraggableHeader: React.FC<DraggableHeaderProps> = React.memo(
-  ({ header, sortable, resizable, isOverTarget, draggable }) => {
-    // Set up dnd-kit's useDraggable for this header cell
-    const {
-      attributes,
-      listeners,
-      isDragging,
-      setNodeRef: setDragNodeRef
-    } = useDraggable({
-      disabled: !draggable,
-      id: header.id
-    });
+const DraggableHeader: React.FC<DraggableHeaderProps> = ({
+  header,
+  sortable,
+  resizable,
+  isOverTarget,
+  draggable
+}) => {
+  // Set up dnd-kit's useDraggable for this header cell
+  const {
+    attributes,
+    listeners,
+    isDragging,
+    setNodeRef: setDragNodeRef
+  } = useDraggable({
+    disabled: !draggable,
+    id: header.id
+  });
 
-    // Set up droppable area to detect when a header is over this target
-    const { setNodeRef: setDropNodeRef } = useDroppable({
-      id: `droppable-${header.id}`
-    });
+  // Set up droppable area to detect when a header is over this target
+  const { setNodeRef: setDropNodeRef } = useDroppable({
+    id: `droppable-${header.id}`
+  });
 
-    const style: CSSProperties = {
-      position: 'relative',
-      whiteSpace: 'nowrap',
-      width: header.column.getSize(),
-      opacity: isDragging ? 0.65 : 1,
-      transition: 'none', // Prevent any transitions for snappy changes
-      height: `${HEADER_HEIGHT}px` // Set fixed header height
-    };
+  const style: CSSProperties = {
+    position: 'relative',
+    whiteSpace: 'nowrap',
+    width: header.column.getSize(),
+    opacity: isDragging ? 0.65 : 1,
+    transition: 'none', // Prevent any transitions for snappy changes
+    height: `${HEADER_HEIGHT}px` // Set fixed header height
+  };
 
-    return (
-      <th
-        ref={draggable ? setDropNodeRef : undefined}
-        style={style}
+  return (
+    <th
+      ref={draggable ? setDropNodeRef : undefined}
+      style={style}
+      className={cn(
+        'group bg-background relative border-r select-none last:border-r-0',
+        header.column.getIsResizing() ? 'bg-primary/10' : 'hover:bg-item-hover',
+        isOverTarget && 'bg-primary/10 border-primary inset border border-r! border-dashed'
+      )}
+      // onClick toggles sorting if enabled
+      onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}>
+      <span
         className={cn(
-          'group bg-background relative border-r select-none last:border-r-0',
-          header.column.getIsResizing() ? 'bg-primary/10' : 'hover:bg-item-hover',
-          isOverTarget && 'bg-primary/10 border-primary inset border border-r! border-dashed'
+          'flex h-full flex-1 items-center space-x-1.5 p-2',
+          draggable && 'cursor-grab'
         )}
-        // onClick toggles sorting if enabled
-        onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}>
-        <span
-          className={cn(
-            'flex h-full flex-1 items-center space-x-1.5 p-2',
-            draggable && 'cursor-grab'
-          )}
-          ref={draggable ? setDragNodeRef : undefined}
-          {...attributes}
-          {...listeners}>
-          <span className="text-gray-dark text-base font-normal">
-            {flexRender(header.column.columnDef.header, header.getContext())}
-          </span>
-          {header.column.getIsSorted() === 'asc' && (
-            <span className="text-icon-color text-xs">
-              <CaretUp />
-            </span>
-          )}
-          {header.column.getIsSorted() === 'desc' && (
-            <span className="text-icon-color text-xs">
-              <CaretDown />
-            </span>
-          )}
+        ref={draggable ? setDragNodeRef : undefined}
+        {...attributes}
+        {...listeners}>
+        <span className="text-gray-dark text-base font-normal">
+          {flexRender(header.column.columnDef.header, header.getContext())}
         </span>
-        {resizable && (
-          <span
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}>
-            <span
-              onMouseDown={header.getResizeHandler()}
-              onTouchStart={header.getResizeHandler()}
-              className={cn(
-                'group-hover:bg-border hover:bg-primary absolute inset-y-0 -right-0.5 z-10 w-1 cursor-col-resize transition-colors duration-100 select-none',
-                header.column.getIsResizing() && 'bg-primary'
-              )}
-            />
-          </span>
+
+        {sortable && (
+          <>
+            {header.column.getIsSorted() === 'asc' && (
+              <span className="text-icon-color text-xs">
+                <CaretUp />
+              </span>
+            )}
+            {header.column.getIsSorted() === 'desc' && (
+              <span className="text-icon-color text-xs">
+                <CaretDown />
+              </span>
+            )}
+          </>
         )}
-      </th>
-    );
-  }
-);
+      </span>
+      {resizable && (
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}>
+          <span
+            onMouseDown={header.getResizeHandler()}
+            onTouchStart={header.getResizeHandler()}
+            className={cn(
+              'group-hover:bg-border hover:bg-primary absolute inset-y-0 -right-0.5 z-10 w-1 cursor-col-resize transition-colors duration-100 select-none',
+              header.column.getIsResizing() && 'bg-primary'
+            )}
+          />
+        </span>
+      )}
+    </th>
+  );
+};
 
 DraggableHeader.displayName = 'DraggableHeader';
 

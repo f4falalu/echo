@@ -25,10 +25,8 @@ export const OverviewData: React.FC<{
       ) : !isEmpty(data) ? (
         <AppDataGrid
           rows={data || []}
-          headerFormat={isAdmin ? (v) => String(v) : undefined}
+          headerFormat={isAdmin ? stableHeaderFormat : undefined}
           cellFormat={defaultCellFormatter}
-          resizable={true}
-          sortable={false}
         />
       ) : (
         <EmptyState />
@@ -53,4 +51,8 @@ const LoadingState: React.FC<{}> = () => {
       <ShimmerText text="Loading data..." />
     </div>
   );
+};
+
+const stableHeaderFormat = (value: string | number | Date | null, key: string): string => {
+  return String(value);
 };

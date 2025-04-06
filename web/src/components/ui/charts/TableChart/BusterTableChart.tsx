@@ -85,6 +85,7 @@ const BusterTableChartBase: React.FC<
       columnWidths={tableColumnWidths || undefined}
       sortable={!readOnly}
       resizable={!readOnly}
+      draggable={!readOnly}
       onReady={onReady}
       headerFormat={onFormatHeader}
       cellFormat={onFormatCell}

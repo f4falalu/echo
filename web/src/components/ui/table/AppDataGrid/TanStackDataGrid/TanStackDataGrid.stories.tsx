@@ -71,6 +71,22 @@ export const NonDraggable: Story = {
   }
 };
 
+export const NonResizable: Story = {
+  args: {
+    ...meta.args,
+    rows: sampleData,
+    resizable: false
+  }
+};
+
+export const NonSortable: Story = {
+  args: {
+    ...meta.args,
+    rows: sampleData,
+    sortable: false
+  }
+};
+
 export const CustomColumnOrder: Story = {
   args: {
     ...meta.args,
