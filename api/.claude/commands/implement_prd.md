@@ -16,4 +16,4 @@ you should think hard about your implementation and then implement carefully.
 
 you are not done until the tests for your specific file are finished and run successfully and a cargo check runs successfully.
 
-You must work as efficiently as possible, our time is more valuable than gold.
+please reference the prd frequently to ensure you are on track with the work..
