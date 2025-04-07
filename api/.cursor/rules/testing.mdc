@@ -20,6 +20,185 @@ For consistent mocking across the codebase, use these libraries:
 
 Always prefer dependency injection patterns to enable easy mocking of dependencies.
 
+### Test Utilities and Setup
+
+#### Core Test Types
+
+The test infrastructure provides several core test utilities for consistent test setup:
+
+```rust
+// Example of TestDb and TestSetup implementation
+pub struct TestDb {
+    pub test_id: String,
+    pub organization_id: Uuid,
+    pub user_id: Uuid,
+    initialized: bool,
+}
+
+impl TestDb {
+    pub async fn new() -> Result<Self> {
+        // Load environment variables
+        dotenv().ok();
+        
+        // Initialize test pools using existing pools
+        let test_id = format!("test-{}", Uuid::new_v4());
+        let organization_id = Uuid::new_v4();
+        let user_id = Uuid::new_v4();
+        
+        Ok(Self {
+            test_id,
+            organization_id,
+            user_id,
+            initialized: true,
+        })
+    }
+    
+    // Get connections from pre-initialized pools
+    pub async fn diesel_conn(&self) -> Result<AsyncPgConnection> {
+        get_pg_pool()
+            .get()
+            .await
+            .map_err(|e| anyhow!("Failed to get diesel connection: {}", e))
+    }
+    
+    pub async fn sqlx_conn(&self) -> Result<PgConnection> {
+        get_sqlx_pool()
+            .acquire()
+            .await
+            .map_err(|e| anyhow!("Failed to get sqlx connection: {}", e))
+    }
+    
+    pub async fn redis_conn(&self) -> Result<RedisConnection> {
+        get_redis_pool()
+            .get()
+            .await
+            .map_err(|e| antml!("Failed to get redis connection: {}", e))
+    }
+    
+    // Create test organization
+    pub async fn create_organization(&self) -> Result<Organization> {
+        let org = Organization {
+            id: Uuid::new_v4(),
+            name: "Test Organization".to_string(),
+            domain: Some("test.org".to_string()),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+        };
+        
+        let mut conn = self.diesel_conn().await?;
+        diesel::insert_into(organizations::table)
+            .values(&org)
+            .execute(&mut conn)
+            .await?;
+            
+        Ok(org)
+    }
+
+    // Create test user
+    pub async fn create_user(&self) -> Result<User> {
+        let user = User {
+            id: Uuid::new_v4(),
+            email: format!("test-{}@example.com", Uuid::new_v4()),
+            name: Some("Test User".to_string()),
+            config: json!({}),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            attributes: json!({}),
+            avatar_url: None,
+        };
+        
+        let mut conn = self.diesel_conn().await?;
+        diesel::insert_into(users::table)
+            .values(&user)
+            .execute(&mut conn)
+            .await?;
+            
+        Ok(user)
+    }
+
+    // Create user-organization relationship
+    pub async fn create_user_to_org(
+        &self,
+        user_id: Uuid,
+        org_id: Uuid,
+        role: UserOrganizationRole,
+    ) -> Result<UserToOrganization> {
+        let user_org = UserToOrganization {
+            user_id,
+            organization_id: org_id,
+            role,
+            sharing_setting: SharingSetting::Private,
+            edit_sql: true,
+            upload_csv: true,
+            export_assets: true,
+            email_slack_enabled: true,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            created_by: user_id,
+            updated_by: user_id,
+            deleted_by: None,
+            status: UserOrganizationStatus::Active,
+        };
+        
+        let mut conn = self.diesel_conn().await?;
+        diesel::insert_into(users_to_organizations::table)
+            .values(&user_org)
+            .execute(&mut conn)
+            .await?;
+            
+        Ok(user_org)
+    }
+
+    // Create authenticated user for testing
+    pub async fn create_authenticated_user(
+        &self,
+        role: Option<UserOrganizationRole>,
+    ) -> Result<(AuthenticatedUser, Organization)> {
+        let org = self.create_organization().await?;
+        let user = self.create_user().await?;
+        
+        let role = role.unwrap_or(UserOrganizationRole::Admin);
+        self.create_user_to_org(user.id, org.id, role).await?;
+        
+        let auth_user = AuthenticatedUser {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            organization_id: org.id,
+            role,
+            sharing_setting: SharingSetting::Private,
+            edit_sql: true,
+            upload_csv: true,
+            export_assets: true,
+            email_slack_enabled: true,
+        };
+        
+        Ok((auth_user, org))
+    }
+}
+
+// Helper struct for test setup
+pub struct TestSetup {
+    pub user: AuthenticatedUser,
+    pub organization: Organization,
+    pub db: TestDb,
+}
+
+impl TestSetup {
+    pub async fn new(role: Option<UserOrganizationRole>) -> Result<Self> {
+        let test_db = TestDb::new().await?;
+        let (user, org) = test_db.create_authenticated_user(role).await?;
+        
+        Ok(Self {
+            user,
+            organization: org,
+            db: test_db,
+        })
+    }
+}
+
 ### Library Code Testing Structure
 - **Unit Tests**: Include unit tests inside library source files using `#[cfg(test)]` modules
 - **Integration Tests**: Place integration tests in the lib's `tests/` directory
@@ -215,8 +394,7 @@ Integration tests are specifically designed to verify the interaction with exter
 - **Configuration**:
   - Configuration should come from environment variables via `.env` files
   - Use `dotenv` to load environment variables during test setup
-  - Example: Database connection parameters should come from `.env`
-  - Prefer `.env.test` for test-specific configurations
+  - Example: Database connection parameters should come from- Prefer `.env.test` forific configurations
 
 ```rust
 // Example of proper integration test setup
@@ -379,8 +557,8 @@ async fn test_user_creation() -> Result<()> {
   ```
 
 #### Database Setup
-- All integration tests must import and utilize the application's schema from [schema.rs](mdc:src/database/schema.rs)
-- Database models from [models.rs](mdc:src/database/models.rs) should be used for test data setup and verification
+- All integration tests must import and utilize the application's schema from @schema.rs
+- Database models from @models.rs should be used for test data setup and verification
 - Use the `testkit` library for test IDs and directly access pools from the database library:
   ```rust
   // tests/common/db.rs
@@ -1710,5 +1888,4 @@ async fn test_user_api() -> Result<()> {
     
     Ok(())
 }
-```
 ```
