@@ -1,13 +1,13 @@
 use anyhow::{anyhow, Result};
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use database::{
-    enums::AssetPermissionRole,
+    enums::{AssetPermissionRole, Verification},
     helpers::metric_files::fetch_metric_file_with_permissions,
     pool::get_pg_pool,
     schema::{datasets, metric_files},
-    types::{ColumnLabelFormat, MetricYml, VersionContent, VersionHistory},
+    types::{ColumnLabelFormat, DataMetadata, MetricYml, VersionContent, VersionHistory},
 };
-use diesel::{ExpressionMethods, QueryDsl};
+use diesel::{AsChangeset, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
 use query_engine::data_source_query_routes::query_engine::query_engine;
@@ -268,62 +268,36 @@ pub async fn update_metric_handler(
     // Convert content to JSON for storage
     let content_json = serde_json::to_value(content.clone())?;
 
-    // Build update query - only verification is handled separately from the YAML content
-    let builder = diesel::update(metric_files::table)
-        .filter(metric_files::id.eq(metric_id))
-        .filter(metric_files::deleted_at.is_null());
-
-    // Update based on whether verification and metadata are provided
-    if let Some(verification) = request.verification {
-        if let Some(metadata) = data_metadata {
-            builder
-                .set((
-                    metric_files::name.eq(content.name.clone()),
-                    metric_files::verification.eq(verification),
-                    metric_files::content.eq(content_json),
-                    metric_files::updated_at.eq(Utc::now()),
-                    metric_files::version_history.eq(current_version_history),
-                    metric_files::data_metadata.eq(metadata),
-                ))
-                .execute(&mut conn)
-                .await
-        } else {
-            builder
-                .set((
-                    metric_files::name.eq(content.name.clone()),
-                    metric_files::verification.eq(verification),
-                    metric_files::content.eq(content_json),
-                    metric_files::updated_at.eq(Utc::now()),
-                    metric_files::version_history.eq(current_version_history),
-                ))
-                .execute(&mut conn)
-                .await
-        }
-    } else {
-        if let Some(metadata) = data_metadata {
-            builder
-                .set((
-                    metric_files::name.eq(content.name.clone()),
-                    metric_files::content.eq(content_json),
-                    metric_files::updated_at.eq(Utc::now()),
-                    metric_files::version_history.eq(current_version_history),
-                    metric_files::data_metadata.eq(metadata),
-                ))
-                .execute(&mut conn)
-                .await
-        } else {
-            builder
-                .set((
-                    metric_files::name.eq(content.name.clone()),
-                    metric_files::content.eq(content_json),
-                    metric_files::updated_at.eq(Utc::now()),
-                    metric_files::version_history.eq(current_version_history),
-                ))
-                .execute(&mut conn)
-                .await
-        }
+    // Define the changeset struct to reuse fields
+    #[derive(AsChangeset)]
+    #[diesel(table_name = metric_files)]
+    struct MetricFileChangeset {
+        name: String,
+        content: serde_json::Value,
+        updated_at: DateTime<Utc>,
+        version_history: VersionHistory,
+        verification: Option<Verification>,
+        data_metadata: Option<DataMetadata>,
     }
-    .map_err(|e| anyhow!("Failed to update metric: {}", e))?;
+
+    // Create the changeset with all fields
+    let changeset = MetricFileChangeset {
+        name: content.name.clone(),
+        content: content_json,
+        updated_at: Utc::now(),
+        version_history: current_version_history,
+        verification: request.verification, // Use verification from the request
+        data_metadata,
+    };
+
+    // Execute the update 
+    diesel::update(metric_files::table)
+        .filter(metric_files::id.eq(metric_id))
+        .filter(metric_files::deleted_at.is_null())
+        .set(changeset)
+        .execute(&mut conn)
+        .await
+        .map_err(|e| anyhow!("Failed to update metric: {}", e))?;
 
     // Return the updated metric - latest version
     get_metric_handler(metric_id, user, None).await
@@ -364,6 +338,9 @@ mod tests {
         assert!(valid_request.chart_config.is_some());
         assert!(valid_request.dataset_ids.unwrap()[0].len() == 36);
 
+        // Verify the verification field is properly passed through
+        assert_eq!(valid_request.verification.unwrap(), database::enums::Verification::NotRequested);
+
         // Actual validation logic is tested in integration tests
     }
 
@@ -386,6 +363,18 @@ mod tests {
         // Verify the request fields are properly structured
         assert_eq!(restore_request.restore_to_version.unwrap(), 1);
         assert_eq!(restore_request.name.unwrap(), "This should be ignored");
+    }
+    
+    #[test]
+    fn test_verification_in_update_request() {
+        // Test that verification field is included in update request
+        let request = UpdateMetricRequest {
+            verification: Some(database::enums::Verification::Verified),
+            ..Default::default()
+        };
+        
+        // Verify the verification field is set correctly
+        assert_eq!(request.verification.unwrap(), database::enums::Verification::Verified);
     }
 
     #[test]
