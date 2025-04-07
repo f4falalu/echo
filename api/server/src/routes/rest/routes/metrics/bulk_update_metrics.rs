@@ -31,23 +31,23 @@ pub async fn bulk_update_metrics_rest_handler(
     Extension(user): Extension<AuthenticatedUser>,
     Json(request): Json<BulkUpdateMetricsRequest>,
 ) -> Result<ApiResponse<BulkUpdateMetricsResponse>, (StatusCode, &'static str)> {
-    // Validate batch size
-    if request.batch_size > 100 {
-        return Err((
-            StatusCode::BAD_REQUEST,
-            "Batch size cannot exceed 100",
-        ));
-    }
+    // Validate batch size - REMOVED as batch_size is no longer in the request
+    // if request.batch_size > 100 {
+    //     return Err((
+    //         StatusCode::BAD_REQUEST,
+    //         "Batch size cannot exceed 100",
+    //     ));
+    // }
 
-    // Validate request 
-    if request.updates.is_empty() {
+    // Validate request (using `request` directly as it's the Vec)
+    if request.is_empty() {
         return Err((
             StatusCode::BAD_REQUEST,
             "Updates list cannot be empty",
         ));
     }
 
-    if request.updates.len() > 1000 {
+    if request.len() > 1000 {
         return Err((
             StatusCode::BAD_REQUEST,
             "Cannot process more than 1000 updates in a single request",
@@ -56,12 +56,12 @@ pub async fn bulk_update_metrics_rest_handler(
 
     tracing::info!(
         "Processing bulk update request for {} metrics from user {}",
-        request.updates.len(),
+        request.len(), // Use request.len() directly
         user.id
     );
 
-    // Process the bulk update
-    match bulk_update_metrics_handler(request.updates, Some(request.batch_size), &user).await {
+    // Process the bulk update - Pass None for batch_size, handler will use default
+    match bulk_update_metrics_handler(request, None, &user).await {
         Ok(response) => {
             tracing::info!(
                 "Bulk update processed. Success: {}, Failed: {}",

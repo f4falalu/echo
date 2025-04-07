@@ -160,7 +160,7 @@ async fn test_metric_permission_field_consistency() -> Result<()> {
     };
     
     // Get metric with the user who has owner permission
-    let metric_response = get_metric_handler(&metric.id, &middleware_user, None).await?;
+    let metric_response = get_metric_handler(&metric.id, &middleware_user, None, None).await?;
     
     // Check if permission field matches what we set
     assert_eq!(metric_response.permission, AssetPermissionRole::Owner);
@@ -241,7 +241,7 @@ async fn test_public_metric_permission_field() -> Result<()> {
     };
     
     // Get metric with the other user who doesn't have direct permission
-    let metric_response = get_metric_handler(&metric.id, &other_middleware_user, None).await?;
+    let metric_response = get_metric_handler(&metric.id, &other_middleware_user, None, None).await?;
     
     // Public assets should have CanView permission by default
     assert_eq!(metric_response.permission, AssetPermissionRole::CanView);
@@ -287,12 +287,140 @@ async fn test_metric_permission_denied() -> Result<()> {
     };
     
     // Try to get metric with a user who has no permissions
-    let result = get_metric_handler(&metric.id, &other_middleware_user, None).await;
+    let result = get_metric_handler(&metric.id, &other_middleware_user, None, None).await;
     
     // Should be denied access
     assert!(result.is_err());
     let error = result.unwrap_err();
     assert!(error.to_string().contains("You don't have permission"));
+    
+    Ok(())
+}
+
+/// Test to ensure password protection works for public metrics
+#[tokio::test]
+async fn test_password_protection() -> Result<()> {
+    // Create user and organization for testing
+    let owner_id = Uuid::new_v4();
+    let org_id = Uuid::new_v4();
+    
+    // Create test metric
+    let metric = create_test_metric(
+        org_id, 
+        owner_id, 
+        "Password Protected Metric"
+    ).await?;
+    
+    // Make metric public with password
+    let mut conn = get_pg_pool().get().await?;
+    let password = "secret123";
+    diesel::update(metric_files::table)
+        .filter(metric_files::id.eq(metric.id))
+        .set((
+            metric_files::publicly_accessible.eq(true),
+            metric_files::publicly_enabled_by.eq(Some(owner_id)),
+            metric_files::public_password.eq(Some(password.to_string())),
+        ))
+        .execute(&mut conn)
+        .await?;
+    
+    // Create another user in a different organization
+    let other_user_id = Uuid::new_v4();
+    let other_org_id = Uuid::new_v4();
+    
+    // Create middleware user for other user
+    let other_middleware_user = middleware::AuthenticatedUser {
+        id: other_user_id,
+        email: "other@example.com".to_string(),
+        name: Some("Other User".to_string()),
+        config: serde_json::json!({}),
+        created_at: chrono::Utc::now(),
+        updated_at: chrono::Utc::now(),
+        attributes: serde_json::json!({}),
+        avatar_url: None,
+        organizations: vec![
+            middleware::OrganizationMembership {
+                id: other_org_id,
+                role: database::enums::UserOrganizationRole::Viewer,
+            },
+        ],
+        teams: vec![],
+    };
+    
+    // Try to access without password - should be denied
+    let result = get_metric_handler(&metric.id, &other_middleware_user, None, None).await;
+    assert!(result.is_err());
+    let error = result.unwrap_err();
+    assert!(error.to_string().contains("public_password required"));
+    
+    // Try with incorrect password - should be denied
+    let result = get_metric_handler(&metric.id, &other_middleware_user, None, Some("wrongpassword".to_string())).await;
+    assert!(result.is_err());
+    let error = result.unwrap_err();
+    assert!(error.to_string().contains("Incorrect password"));
+    
+    // Try with correct password - should be allowed
+    let result = get_metric_handler(&metric.id, &other_middleware_user, None, Some(password.to_string())).await;
+    assert!(result.is_ok());
+    
+    Ok(())
+}
+
+/// Test to ensure expired public access is denied
+#[tokio::test]
+async fn test_expired_public_access() -> Result<()> {
+    // Create user and organization for testing
+    let owner_id = Uuid::new_v4();
+    let org_id = Uuid::new_v4();
+    
+    // Create test metric
+    let metric = create_test_metric(
+        org_id, 
+        owner_id, 
+        "Expired Public Metric"
+    ).await?;
+    
+    // Make metric public with an expiry date in the past
+    let mut conn = get_pg_pool().get().await?;
+    let past_date = chrono::Utc::now() - chrono::Duration::days(1);
+    diesel::update(metric_files::table)
+        .filter(metric_files::id.eq(metric.id))
+        .set((
+            metric_files::publicly_accessible.eq(true),
+            metric_files::publicly_enabled_by.eq(Some(owner_id)),
+            metric_files::public_expiry_date.eq(Some(past_date)),
+        ))
+        .execute(&mut conn)
+        .await?;
+    
+    // Create another user in a different organization
+    let other_user_id = Uuid::new_v4();
+    let other_org_id = Uuid::new_v4();
+    
+    // Create middleware user for other user
+    let other_middleware_user = middleware::AuthenticatedUser {
+        id: other_user_id,
+        email: "other@example.com".to_string(),
+        name: Some("Other User".to_string()),
+        config: serde_json::json!({}),
+        created_at: chrono::Utc::now(),
+        updated_at: chrono::Utc::now(),
+        attributes: serde_json::json!({}),
+        avatar_url: None,
+        organizations: vec![
+            middleware::OrganizationMembership {
+                id: other_org_id,
+                role: database::enums::UserOrganizationRole::Viewer,
+            },
+        ],
+        teams: vec![],
+    };
+    
+    // Try to access the expired public metric - should be denied
+    let result = get_metric_handler(&metric.id, &other_middleware_user, None, None).await;
+    assert!(result.is_err());
+    let error = result.unwrap_err();
+    assert!(error.to_string().contains("expired"));
     
     Ok(())
 }

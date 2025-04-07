@@ -60,6 +60,7 @@ pub struct UpdateMetricRequest {
     pub chart_config: Option<Value>,
     pub time_frame: Option<String>,
     pub dataset_ids: Option<Vec<String>>,
+    #[serde(alias = "status")]
     pub verification: Option<database::enums::Verification>,
     pub file: Option<String>,
     pub sql: Option<String>,
@@ -130,7 +131,7 @@ pub async fn update_metric_handler(
     }
 
     // Now get the full metric with all its data needed for the update
-    let metric = get_metric_handler(metric_id, user, None).await?;
+    let metric = get_metric_handler(metric_id, user, None, None).await?;
 
     // Get version history
     let mut current_version_history: VersionHistory = metric_files::table
@@ -300,7 +301,7 @@ pub async fn update_metric_handler(
         .map_err(|e| anyhow!("Failed to update metric: {}", e))?;
 
     // Return the updated metric - latest version
-    get_metric_handler(metric_id, user, None).await
+    get_metric_handler(metric_id, user, None, None).await
 }
 
 #[cfg(test)]

@@ -96,20 +96,9 @@ pub enum DataValue {
     Null,
 }
 
-/// Default batch size for bulk updates
-fn default_batch_size() -> usize {
-    50
-}
-
-/// Request type for bulk updating metric verification statuses
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BulkUpdateMetricsRequest {
-    /// List of metric status updates to process
-    pub updates: Vec<MetricStatusUpdate>,
-    /// Optional batch size for concurrent processing (defaults to 50)
-    #[serde(default = "default_batch_size")]
-    pub batch_size: usize,
-}
+/// Request type for bulk updating metric verification statuses.
+/// This is now a direct list of updates.
+pub type BulkUpdateMetricsRequest = Vec<MetricStatusUpdate>;
 
 /// Individual metric status update in a bulk update request
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -117,6 +106,7 @@ pub struct MetricStatusUpdate {
     /// ID of the metric to update
     pub id: Uuid,
     /// New verification status to apply
+    #[serde(alias = "status")]
     pub verification: Verification,
 }
 

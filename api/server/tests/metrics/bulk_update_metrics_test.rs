@@ -7,9 +7,12 @@ use database::tests::common::permissions::PermissionTestHelpers;
 use database::tests::common::users::UserTestHelpers;
 use futures::future::try_join_all;
 use handlers::metrics::{BulkUpdateMetricsRequest, BulkUpdateMetricsResponse, MetricStatusUpdate};
-use middleware::AuthenticatedUser;
+use middleware::{AuthenticatedUser, OrganizationMembership};
 use uuid::Uuid;
 use database::types::VersionHistory;
+use diesel::prelude::*;
+use diesel_async::RunQueryDsl;
+use chrono::Utc;
 
 /// Test the bulk update endpoint with authorization
 #[tokio::test]
@@ -18,14 +21,20 @@ async fn test_bulk_update_metrics_endpoint() -> Result<()> {
     let (app, test_db, _auth_token, user) = DbTestHelpers::init_test_app_with_auth().await?;
     
     // Create authenticated user with admin role
-    let admin_authenticated_user = AuthenticatedUser {
+    let _admin_authenticated_user = AuthenticatedUser {
         id: user.id,
         email: user.email.clone(),
-        name: user.name.clone().unwrap_or_default(),
-        organizations: vec![middleware::Organization {
+        name: user.name.clone(),
+        organizations: vec![OrganizationMembership {
             id: test_db.organization_id,
             role: UserOrganizationRole::WorkspaceAdmin,
         }],
+        config: serde_json::Value::Null,
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        attributes: serde_json::Value::Null,
+        avatar_url: None,
+        teams: Vec::new(),
     };
 
     // Create test metrics
@@ -59,10 +68,8 @@ async fn test_bulk_update_metrics_endpoint() -> Result<()> {
         })
         .collect();
     
-    let request = BulkUpdateMetricsRequest {
-        updates,
-        batch_size: 5,
-    };
+    // The request is now just the vector of updates
+    let request: BulkUpdateMetricsRequest = updates;
     
     // Test successful update
     let response = reqwest::Client::new()
@@ -82,31 +89,14 @@ async fn test_bulk_update_metrics_endpoint() -> Result<()> {
     // Verify database state
     let mut conn = test_db.get_conn().await?;
     for id in &metric_ids {
-        let metric_file = database::schema::metric_files::table
+        use database::schema::metric_files::dsl::*;
+        let metric_file = metric_files
             .filter(database::schema::metric_files::id.eq(id))
             .first::<database::models::MetricFile>(&mut conn)
             .await?;
             
         assert_eq!(metric_file.verification, Verification::Verified);
     }
-    
-    // Test invalid batch size
-    let request = BulkUpdateMetricsRequest {
-        updates: vec![MetricStatusUpdate {
-            id: metric_ids[0],
-            verification: Verification::InReview,
-        }],
-        batch_size: 101, // Exceeds max allowed batch size
-    };
-    
-    let response = reqwest::Client::new()
-        .put(format!("{}/metrics", app.address))
-        .header("Authorization", format!("Bearer {}", _auth_token))
-        .json(&request)
-        .send()
-        .await?;
-    
-    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
     
     // Test unauthorized access
     let other_user = UserTestHelpers::create_test_user(&test_db).await?;
@@ -118,19 +108,16 @@ async fn test_bulk_update_metrics_endpoint() -> Result<()> {
     ).await?;
     
     // Try to update a mix of allowed and forbidden metrics
-    let request = BulkUpdateMetricsRequest {
-        updates: vec![
-            MetricStatusUpdate {
-                id: metric_ids[0],
-                verification: Verification::InReview,
-            },
-            MetricStatusUpdate {
-                id: other_metric,
-                verification: Verification::InReview,
-            },
-        ],
-        batch_size: 10,
-    };
+    let request: BulkUpdateMetricsRequest = vec![
+        MetricStatusUpdate {
+            id: metric_ids[0],
+            verification: Verification::InReview,
+        },
+        MetricStatusUpdate {
+            id: other_metric,
+            verification: Verification::InReview,
+        },
+    ];
     
     let response = reqwest::Client::new()
         .put(format!("{}/metrics", app.address))
@@ -149,15 +136,12 @@ async fn test_bulk_update_metrics_endpoint() -> Result<()> {
     assert_eq!(body.failed_updates[0].error_code, "PERMISSION_DENIED");
     
     // Test with nonexistent metrics
-    let request = BulkUpdateMetricsRequest {
-        updates: vec![
-            MetricStatusUpdate {
-                id: Uuid::new_v4(),
-                verification: Verification::Verified,
-            },
-        ],
-        batch_size: 10,
-    };
+    let request: BulkUpdateMetricsRequest = vec![
+        MetricStatusUpdate {
+            id: Uuid::new_v4(),
+            verification: Verification::Verified,
+        },
+    ];
     
     let response = reqwest::Client::new()
         .put(format!("{}/metrics", app.address))
@@ -174,10 +158,7 @@ async fn test_bulk_update_metrics_endpoint() -> Result<()> {
     assert_eq!(body.failed_updates[0].error_code, "NOT_FOUND");
     
     // Test with empty updates list
-    let request = BulkUpdateMetricsRequest {
-        updates: vec![],
-        batch_size: 10,
-    };
+    let request: BulkUpdateMetricsRequest = vec![];
     
     let response = reqwest::Client::new()
         .put(format!("{}/metrics", app.address))
@@ -189,10 +170,8 @@ async fn test_bulk_update_metrics_endpoint() -> Result<()> {
     assert_eq!(response.status(), StatusCode::BAD_REQUEST);
     
     // Cleanup
-    for id in &metric_ids {
-        database::tests::helpers::test_utils::cleanup_test_data(&mut conn, &[*id]).await?;
-    }
-    database::tests::helpers::test_utils::cleanup_test_data(&mut conn, &[other_metric]).await?;
+    drop(conn);
+    test_db.cleanup().await?;
     
     Ok(())
 }
@@ -204,14 +183,20 @@ async fn test_bulk_update_concurrency() -> Result<()> {
     let (app, test_db, _auth_token, user) = DbTestHelpers::init_test_app_with_auth().await?;
     
     // Create authenticated user with admin role
-    let admin_authenticated_user = AuthenticatedUser {
+    let _admin_authenticated_user = AuthenticatedUser {
         id: user.id,
         email: user.email.clone(),
-        name: user.name.clone().unwrap_or_default(),
-        organizations: vec![middleware::Organization {
+        name: user.name.clone(),
+        organizations: vec![OrganizationMembership {
             id: test_db.organization_id,
             role: UserOrganizationRole::WorkspaceAdmin,
         }],
+        config: serde_json::Value::Null,
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        attributes: serde_json::Value::Null,
+        avatar_url: None,
+        teams: Vec::new(),
     };
 
     // Create test metrics (a larger batch)
@@ -245,37 +230,32 @@ async fn test_bulk_update_concurrency() -> Result<()> {
         })
         .collect();
     
-    // Test different batch sizes
-    let batch_sizes = vec![5, 10, 25];
+    // Test different batch sizes - REMOVED as batch size is not controllable via the request anymore.
+    // We just send the request once.
+    // let batch_sizes = vec![5, 10, 25];
     
-    for batch_size in batch_sizes {
-        let request = BulkUpdateMetricsRequest {
-            updates: updates.clone(),
-            batch_size,
-        };
+    // for batch_size in batch_sizes {
+    let request: BulkUpdateMetricsRequest = updates.clone();
         
-        let start = std::time::Instant::now();
-        let response = reqwest::Client::new()
-            .put(format!("{}/metrics", app.address))
-            .header("Authorization", format!("Bearer {}", _auth_token))
-            .json(&request)
-            .send()
-            .await?;
-        let duration = start.elapsed();
+    let start = std::time::Instant::now();
+    let response = reqwest::Client::new()
+        .put(format!("{}/metrics", app.address))
+        .header("Authorization", format!("Bearer {}", _auth_token))
+        .json(&request)
+        .send()
+        .await?;
+    let duration = start.elapsed();
         
-        assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(response.status(), StatusCode::OK);
         
-        println!("Batch size {} took {:?} for {} metrics", batch_size, duration, metric_count);
+    println!("Bulk update took {:?} for {} metrics (using default batching)", duration, metric_count);
         
-        let body: BulkUpdateMetricsResponse = response.json().await?;
-        assert_eq!(body.success_count, metric_count);
-    }
+    let body: BulkUpdateMetricsResponse = response.json().await?;
+    assert_eq!(body.success_count, metric_count);
+    // }
     
     // Cleanup
-    let mut conn = test_db.get_conn().await?;
-    for id in &metric_ids {
-        database::tests::helpers::test_utils::cleanup_test_data(&mut conn, &[*id]).await?;
-    }
+    test_db.cleanup().await?;
     
     Ok(())
 }

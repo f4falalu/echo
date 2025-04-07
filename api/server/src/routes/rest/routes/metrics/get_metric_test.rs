@@ -9,6 +9,8 @@ mod tests {
     use database::tests::common::assets::AssetTestHelpers;
     use database::tests::common::permissions::PermissionTestHelpers;
     use middleware::AuthenticatedUser;
+    use diesel::prelude::*;
+    use diesel::ExpressionMethods;
 
     use super::GetMetricQueryParams;
     use super::get_metric_rest_handler;
@@ -105,7 +107,83 @@ mod tests {
         Ok(())
     }
 
-    // Note: We can't easily test the public_password required case
-    // in unit tests since it requires configuring the metric with a public password,
-    // which would need additional setup. This would be better tested at the API level.
+    #[tokio::test]
+    async fn test_metric_password_required() -> Result<()> {
+        // Setup test environment
+        let setup = TestSetup::new(Some(UserOrganizationRole::WorkspaceAdmin)).await?;
+        
+        // Create a metric
+        let mut metric = AssetTestHelpers::create_test_metric_with_permission(
+            &setup.db,
+            "Password Protected Metric",
+            setup.user.id,
+            AssetPermissionRole::Owner
+        ).await?;
+        
+        // Create another user who won't have direct permission
+        let other_setup = TestSetup::new(Some(UserOrganizationRole::Viewer)).await?;
+        
+        // Make the metric public with password protection
+        let mut conn = setup.db.pool.get().await?;
+        diesel::update(database::schema::metric_files::table)
+            .filter(database::schema::metric_files::id.eq(metric.id))
+            .set((
+                database::schema::metric_files::publicly_accessible.eq(true),
+                database::schema::metric_files::publicly_enabled_by.eq(Some(setup.user.id)),
+                database::schema::metric_files::public_password.eq(Some("secret123".to_string())),
+            ))
+            .execute(&mut conn)
+            .await?;
+        
+        // Try to access without providing password
+        let params = GetMetricQueryParams { 
+            version_number: None,
+            password: None
+        };
+        
+        // Call the handler directly with the other user
+        let result = get_metric_rest_handler(
+            Extension(other_setup.user),
+            Path(metric.id),
+            Query(params)
+        ).await;
+        
+        // Verify we get the correct 418 IM_A_TEAPOT status code
+        assert!(matches!(result, Err((StatusCode::IM_A_TEAPOT, _))), 
+            "Expected IM_A_TEAPOT status code for missing password");
+        
+        // Try with wrong password
+        let params = GetMetricQueryParams { 
+            version_number: None,
+            password: Some("wrong".to_string())
+        };
+        
+        let result = get_metric_rest_handler(
+            Extension(other_setup.user.clone()),
+            Path(metric.id),
+            Query(params)
+        ).await;
+        
+        // Should still get error
+        assert!(result.is_err());
+        
+        // Now try with correct password
+        let params = GetMetricQueryParams { 
+            version_number: None,
+            password: Some("secret123".to_string())
+        };
+        
+        let result = get_metric_rest_handler(
+            Extension(other_setup.user),
+            Path(metric.id),
+            Query(params)
+        ).await;
+        
+        // Should succeed
+        assert!(result.is_ok());
+        
+        setup.db.cleanup().await?;
+        other_setup.db.cleanup().await?;
+        Ok(())
+    }
 }

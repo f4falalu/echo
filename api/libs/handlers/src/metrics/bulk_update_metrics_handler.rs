@@ -94,7 +94,8 @@ pub async fn bulk_update_metrics_handler(
         });
     }
     
-    let batch_size = batch_size.unwrap_or(50).min(100); // Enforce reasonable batch size limit
+    // Use the provided batch_size or default to 50, and ensure it's within limits
+    let batch_size = batch_size.unwrap_or(50).clamp(1, 100); 
     
     tracing::info!(
         user_id = %user.id,

@@ -14,6 +14,8 @@ use crate::routes::rest::ApiResponse;
 pub struct GetMetricQueryParams {
     #[serde(rename = "version_number")]
     pub version_number: Option<i32>,
+    /// Optional password for accessing public password-protected metrics
+    pub password: Option<String>,
 }
 
 pub async fn get_metric_rest_handler(
@@ -28,14 +30,16 @@ pub async fn get_metric_rest_handler(
         params.version_number
     );
 
-    let metric = match get_metric_handler(&id, &user, params.version_number).await {
+    let metric = match get_metric_handler(&id, &user, params.version_number, params.password).await {
         Ok(response) => response,
         Err(e) => {
             tracing::error!("Error getting metric: {}", e);
             let error_message = e.to_string();
             
             // Simple string matching for common error cases
+            // Check for password required error
             if error_message.contains("public_password required") {
+                tracing::info!("Password required error detected: {}", error_message);
                 return Err((StatusCode::IM_A_TEAPOT, "Password required for public access"));
             }
             if error_message.contains("don't have permission") {

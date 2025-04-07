@@ -44,7 +44,7 @@ pub async fn get_metric_data_handler(
     );
 
     // Retrieve the metric definition based on version, if none, use latest.
-    let metric = get_metric_handler(&request.metric_id, &user, request.version_number).await?;
+    let metric = get_metric_handler(&request.metric_id, &user, request.version_number, None).await?;
 
     // Parse the metric definition from YAML to get SQL and dataset IDs
     let metric_yml = serde_yaml::from_str::<MetricYml>(&metric.file)?;

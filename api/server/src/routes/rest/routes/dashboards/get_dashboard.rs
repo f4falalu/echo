@@ -11,6 +11,8 @@ use uuid::Uuid;
 pub struct GetDashboardQueryParams {
     #[serde(rename = "version_number")]
     pub version_number: Option<i32>,
+    /// Optional password for accessing public password-protected dashboards
+    pub password: Option<String>,
 }
 
 pub async fn get_dashboard_rest_handler(
@@ -25,14 +27,16 @@ pub async fn get_dashboard_rest_handler(
         params.version_number
     );
     
-    let dashboard = match get_dashboard_handler(&id, &user, params.version_number).await {
+    let dashboard = match get_dashboard_handler(&id, &user, params.version_number, params.password).await {
         Ok(response) => response,
         Err(e) => {
             tracing::error!("Error getting dashboard: {}", e);
             let error_message = e.to_string();
             
             // Use same error matching as metrics for consistency
+            // Check for password required error
             if error_message.contains("public_password required") {
+                tracing::info!("Password required error detected: {}", error_message);
                 return Err((StatusCode::IM_A_TEAPOT, "Password required for public access"));
             }
             if error_message.contains("don't have permission") {

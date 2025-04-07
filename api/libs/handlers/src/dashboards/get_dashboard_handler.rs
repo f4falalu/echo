@@ -77,6 +77,7 @@ pub async fn get_dashboard_handler(
     dashboard_id: &Uuid,
     user: &AuthenticatedUser,
     version_number: Option<i32>,
+    password: Option<String>,
 ) -> Result<BusterDashboardResponse> {
     // First check if the user has permission to view this dashboard
     let dashboard_with_permission =
@@ -88,9 +89,10 @@ pub async fn get_dashboard_handler(
         None => return Err(anyhow!("Dashboard not found")),
     };
 
-    // Check if user has permission to view the dashboard
-    // Users need at least CanView permission or any higher permission
-    if !check_permission_access(
+    let dashboard_file = dashboard_with_permission.dashboard_file;
+    
+    // Check if user has proper permission to view the dashboard
+    let has_direct_permission = check_permission_access(
         dashboard_with_permission.permission,
         &[
             AssetPermissionRole::CanView,
@@ -98,10 +100,39 @@ pub async fn get_dashboard_handler(
             AssetPermissionRole::FullAccess,
             AssetPermissionRole::Owner,
         ],
-        dashboard_with_permission.dashboard_file.organization_id,
+        dashboard_file.organization_id,
         &user.organizations,
-    ) {
-        return Err(anyhow!("You don't have permission to view this dashboard"));
+    );
+    
+    // If the user doesn't have direct permission, check if the asset is publicly accessible
+    if !has_direct_permission {
+        // Not publicly accessible, so they don't have permission
+        if !dashboard_file.publicly_accessible {
+            return Err(anyhow!("You don't have permission to view this dashboard"));
+        }
+        
+        // Check if the public access has expired
+        if let Some(expiry_date) = dashboard_file.public_expiry_date {
+            if expiry_date < chrono::Utc::now() {
+                return Err(anyhow!("Public access to this dashboard has expired"));
+            }
+        }
+        
+        // Check if a password is required and provided correctly
+        if let Some(required_password) = &dashboard_file.public_password {
+            match password {
+                Some(provided_password) => {
+                    if provided_password != *required_password {
+                        return Err(anyhow!("Incorrect password for public access"));
+                    }
+                    // Password is correct, continue
+                }
+                None => {
+                    // Password is required but not provided
+                    return Err(anyhow!("public_password required for this dashboard"));
+                }
+            }
+        }
     }
 
     // Extract permission for consistent use in response
@@ -113,8 +144,6 @@ pub async fn get_dashboard_handler(
         Ok(conn) => conn,
         Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
     };
-
-    let dashboard_file = dashboard_with_permission.dashboard_file;
 
     // Determine which version to use based on version_number parameter
     let (content, version_num) = if let Some(version) = version_number {
@@ -175,7 +204,7 @@ pub async fn get_dashboard_handler(
     // Fetch all metrics concurrently (latest versions)
     let metric_futures: Vec<_> = metric_ids
         .iter()
-        .map(|metric_id| get_metric_handler(metric_id, &user, None))
+        .map(|metric_id| get_metric_handler(metric_id, &user, None, None))
         .collect();
 
     let metric_results = join_all(metric_futures).await;
@@ -289,7 +318,7 @@ pub async fn get_dashboard_handler(
         metrics,
         dashboard,
         permission,
-        public_password: None,
+        public_password: dashboard_file.public_password,
         collections, // Now populated with associated collections
         // New sharing fields
         individual_permissions,
