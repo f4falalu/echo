@@ -12,49 +12,27 @@ use serde_json::json;
 use std::sync::Once;
 use uuid::Uuid;
 
-// Used to initialize the database pool once for all tests
-static INIT: Once = Once::new();
-static mut POOL_INITIALIZED: bool = false;
-
-// Initialize database pool
-async fn initialize() -> Result<()> {
-    unsafe {
-        if POOL_INITIALIZED {
-            return Ok(());
-        }
+// This constructor runs when the test binary loads
+// It initializes the database pool once for all tests
+#[ctor::ctor]
+fn init_test_env() {
+    // Set environment variables for database connection
+    std::env::set_var("DATABASE_URL", "postgresql://postgres:postgres@127.0.0.1:54322/postgres");
+    std::env::set_var("TEST_DATABASE_URL", "postgresql://postgres:postgres@127.0.0.1:54322/postgres");
+    
+    // Create a runtime for initialization
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap();
         
-        INIT.call_once(|| {
-            println!("Database pool initialization called");
-            // Set environment variables for database connection
-            std::env::set_var("DATABASE_URL", "postgresql://postgres:postgres@127.0.0.1:54322/postgres");
-            std::env::set_var("TEST_DATABASE_URL", "postgresql://postgres:postgres@127.0.0.1:54322/postgres");
-            
-            // Create a runtime for initialization
-            let rt = tokio::runtime::Builder::new_current_thread()
-                .enable_all()
-                .build()
-                .unwrap();
-                
-            // Initialize the pools
-            rt.block_on(async {
-                match init_pools().await {
-                    Ok(_) => {
-                        println!("Database pool initialized successfully");
-                        POOL_INITIALIZED = true;
-                    },
-                    Err(e) => {
-                        println!("Database pool initialization error: {}", e);
-                    },
-                }
-            });
-        });
-        
-        if POOL_INITIALIZED {
-            Ok(())
-        } else {
-            Err(anyhow::anyhow!("Failed to initialize database pool"))
+    // Initialize the pools
+    rt.block_on(async {
+        match init_pools().await {
+            Ok(_) => println!("Database pool initialized successfully for tests"),
+            Err(e) => println!("Database pool initialization error: {}", e),
         }
-    }
+    });
 }
 
 // Create a simplified test setup for our test
@@ -67,8 +45,8 @@ struct TestSetup {
 // Integration test that tests metric status update functionality
 #[tokio::test]
 async fn test_update_metric_status() -> Result<()> {
-    // Initialize the database pool
-    initialize().await?;
+    // Pool is already initialized at test binary startup
+    // No need to initialize it again
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
@@ -322,8 +300,8 @@ fn create_default_chart_config() -> database::types::metric_yml::ChartConfig {
 // Test unauthorized access
 #[tokio::test]
 async fn test_update_metric_status_unauthorized() -> Result<()> {
-    // Initialize the database pool
-    initialize().await?;
+    // Pool is already initialized at test binary startup
+    // No need to initialize it again
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
@@ -542,8 +520,8 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
 // Test edge cases for status updates
 #[tokio::test]
 async fn test_update_metric_status_null_value() -> Result<()> {
-    // Initialize the database pool
-    initialize().await?;
+    // Pool is already initialized at test binary startup
+    // No need to initialize it again
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
