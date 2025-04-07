@@ -30,3 +30,4 @@ fn init_test_env() {
 
 // Test modules
 pub mod dashboards;
+pub mod sharing;

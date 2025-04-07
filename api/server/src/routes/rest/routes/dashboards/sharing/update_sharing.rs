@@ -19,8 +19,8 @@ use crate::routes::rest::ApiResponse;
 /// * `request` - An UpdateDashboardSharingRequest object with optional fields:
 ///   - users: List of users to share with (email and role)
 ///   - publicly_accessible: Whether the dashboard should be publicly accessible
-///   - public_password: Password for public access (null to remove)
-///   - public_expiration: Expiration date for public access (null to remove)
+///   - public_password: Password for public access (use "no_change", "set_null", or {"update": "password"})
+///   - public_expiry_date: Expiration date for public access (use "no_change", "set_null", or {"update": "2023-12-31T23:59:59Z"})
 ///
 /// # Returns
 ///
@@ -55,6 +55,10 @@ pub async fn update_dashboard_sharing_rest_handler(
                 ));
             } else if error_message.contains("Invalid email") {
                 return Err((StatusCode::BAD_REQUEST, format!("Invalid email: {}", e)));
+            } else if error_message.contains("password cannot be empty") {
+                return Err((StatusCode::BAD_REQUEST, format!("Invalid password: {}", e)));
+            } else if error_message.contains("expiry date must be in the future") {
+                return Err((StatusCode::BAD_REQUEST, format!("Invalid expiry date: {}", e)));
             }
 
             Err((

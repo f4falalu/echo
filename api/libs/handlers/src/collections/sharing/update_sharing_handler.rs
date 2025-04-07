@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use sharing::{
     check_permission_access,
     create_asset_permission::create_share_by_email,
+    types::UpdateField,
 };
 use tracing::info;
 use uuid::Uuid;
@@ -28,12 +29,14 @@ pub struct UpdateCollectionSharingRequest {
     /// Whether the collection should be publicly accessible
     /// Note: Collections are not publicly accessible, this field is ignored
     pub publicly_accessible: Option<bool>,
-    /// Password for public access (if null, will clear existing password)
+    /// Password for public access
     /// Note: Collections are not publicly accessible, this field is ignored
-    pub public_password: Option<Option<String>>,
-    /// Expiration date for public access (if null, will clear existing expiration)
+    #[serde(default)]
+    pub public_password: UpdateField<String>,
+    /// Expiration date for public access
     /// Note: Collections are not publicly accessible, this field is ignored
-    pub public_expiration: Option<Option<DateTime<Utc>>>,
+    #[serde(default)]
+    pub public_expiry_date: UpdateField<DateTime<Utc>>,
 }
 
 /// Update sharing permissions for a collection

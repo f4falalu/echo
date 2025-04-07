@@ -18,12 +18,12 @@ use uuid::Uuid;
 ///     "users": [
 ///         {
 ///             "email": "user@example.com",
-///             "role": "Viewer"
+///             "role": "CanView"
 ///         }
 ///     ],
 ///     "publicly_accessible": true,
-///     "public_password": "password",
-///     "public_expiration": "2023-12-31T23:59:59Z"
+///     "public_password": {"update": "password"},
+///     "public_expiry_date": {"update": "2023-12-31T23:59:59Z"}
 /// }
 /// ```
 /// All fields are optional. If a field is not provided, it won't be updated.

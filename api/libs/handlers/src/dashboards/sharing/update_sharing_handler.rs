@@ -4,6 +4,7 @@ use database::{
     enums::{AssetPermissionRole, AssetType},
     helpers::dashboard_files::fetch_dashboard_file_with_permission,
     schema::dashboard_files::dsl,
+    pool::get_pg_pool,
 };
 use diesel::ExpressionMethods;
 use diesel_async::RunQueryDsl as AsyncRunQueryDsl;
@@ -12,6 +13,7 @@ use serde::{Deserialize, Serialize};
 use sharing::{
     check_permission_access,
     create_asset_permission::create_share_by_email,
+    types::UpdateField,
 };
 use tracing::{error, info};
 use uuid::Uuid;
@@ -30,10 +32,12 @@ pub struct UpdateDashboardSharingRequest {
     pub users: Option<Vec<ShareRecipient>>,
     /// Whether the dashboard should be publicly accessible
     pub publicly_accessible: Option<bool>,
-    /// Password for public access (if null, will clear existing password)
-    pub public_password: Option<Option<String>>,
-    /// Expiration date for public access (if null, will clear existing expiration)
-    pub public_expiry_date: Option<Option<DateTime<Utc>>>,
+    /// Password for public access
+    #[serde(default)]
+    pub public_password: UpdateField<String>,
+    /// Expiration date for public access
+    #[serde(default)]
+    pub public_expiry_date: UpdateField<DateTime<Utc>>,
 }
 
 /// Updates sharing permissions for a dashboard
@@ -121,45 +125,101 @@ pub async fn update_dashboard_sharing_handler(
         }
     }
 
-    // Update public access settings if provided
-    if request.publicly_accessible.is_some() || 
-       request.public_expiry_date.is_some() {
+    // Update public access settings
+    let pool = get_pg_pool();
+    let mut conn = pool.get().await?;
+    
+    // Load current dashboard data for updates
+    let dashboard = dashboard_with_permission.dashboard_file;
+    
+    // Create update values with current values as defaults
+    let mut publicly_accessible = dashboard.publicly_accessible;
+    let mut publicly_enabled_by = dashboard.publicly_enabled_by;
+    let mut public_password = dashboard.public_password;
+    let mut public_expiry_date = dashboard.public_expiry_date;
+    let mut update_needed = false;
+    
+    // Update publicly_accessible if provided
+    if let Some(value) = request.publicly_accessible {
+        info!(
+            dashboard_id = %dashboard_id,
+            "Updating public accessibility for dashboard to {}",
+            value
+        );
+        publicly_accessible = value;
         
-        let dashboard_file = dashboard_with_permission.dashboard_file;
-        let pool = database::pool::get_pg_pool();
-        let mut conn = pool.get().await?;
-        
-        // Set publicly_enabled_by based on publicly_accessible value
-        let publicly_enabled_by = if let Some(publicly_accessible) = request.publicly_accessible {
-            if publicly_accessible {
-                Some(user.id)
-            } else {
-                None
-            }
+        // Update publicly_enabled_by based on publicly_accessible
+        publicly_enabled_by = if value {
+            Some(user.id)
         } else {
-            dashboard_file.publicly_enabled_by
+            None
         };
         
-        // Set public_expiry_date if provided, otherwise keep the current value
-        let public_expiry_date = request.public_expiry_date.unwrap_or(dashboard_file.public_expiry_date);
-        
-        // Set publicly_accessible if provided, otherwise keep the current value
-        let publicly_accessible = request.publicly_accessible.unwrap_or(dashboard_file.publicly_accessible);
-        
-        // Update the dashboard in the database
+        update_needed = true;
+    }
+    
+    // Handle public_password using UpdateField
+    match request.public_password {
+        UpdateField::Update(password) => {
+            if password.trim().is_empty() {
+                return Err(anyhow!("Public password cannot be empty"));
+            }
+            info!(
+                dashboard_id = %dashboard_id,
+                "Setting public password for dashboard"
+            );
+            public_password = Some(password);
+            update_needed = true;
+        }
+        UpdateField::SetNull => {
+            info!(
+                dashboard_id = %dashboard_id,
+                "Removing public password for dashboard"
+            );
+            public_password = None;
+            update_needed = true;
+        }
+        UpdateField::NoChange => {}
+    }
+    
+    // Handle public_expiry_date using UpdateField
+    match request.public_expiry_date {
+        UpdateField::Update(date) => {
+            // Validate that expiry date is in the future
+            if date < Utc::now() {
+                return Err(anyhow!("Public expiry date must be in the future"));
+            }
+            info!(
+                dashboard_id = %dashboard_id,
+                "Setting public expiry date for dashboard"
+            );
+            public_expiry_date = Some(date);
+            update_needed = true;
+        }
+        UpdateField::SetNull => {
+            info!(
+                dashboard_id = %dashboard_id,
+                "Removing public expiry date for dashboard"
+            );
+            public_expiry_date = None;
+            update_needed = true;
+        }
+        UpdateField::NoChange => {}
+    }
+    
+    // Execute the update if any changes were made
+    if update_needed {
         diesel::update(dsl::dashboard_files)
             .filter(dsl::id.eq(dashboard_id))
             .set((
                 dsl::publicly_accessible.eq(publicly_accessible),
                 dsl::publicly_enabled_by.eq(publicly_enabled_by),
+                dsl::public_password.eq(public_password),
                 dsl::public_expiry_date.eq(public_expiry_date),
             ))
             .execute(&mut conn)
             .await?;
     }
-    
-    // Note: Currently public_password is not implemented
-    // If public_password becomes needed in the future, additional implementation will be required
     
     info!(
         dashboard_id = %dashboard_id,
