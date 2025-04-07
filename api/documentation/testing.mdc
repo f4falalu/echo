@@ -22,25 +22,31 @@ Always prefer dependency injection patterns to enable easy mocking of dependenci
 
 ### Test Utilities and Setup
 
-#### Core Test Types
+The project provides a comprehensive test infrastructure that offers standard utilities for database tests, permission testing, and asset management. These utilities are located in the `libs/database/tests/common` directory.
 
-The test infrastructure provides several core test utilities for consistent test setup:
+#### Core Test Infrastructure Components
+
+1. **TestDb**: Central database test utility for connections and cleanup
+2. **PermissionTestHelpers**: Utilities for testing permissions
+3. **AssetTestHelpers**: Utilities for creating and managing test assets
+4. **AuthenticatedUser**: Test user representation for auth scenarios
+
+#### TestDb
+
+The `TestDb` struct is the foundation of the test infrastructure, providing database connections, test isolation via unique IDs, and cleanup functionality:
 
 ```rust
-// Example of TestDb and TestSetup implementation
 pub struct TestDb {
-    pub test_id: String,
-    pub organization_id: Uuid,
-    pub user_id: Uuid,
-    initialized: bool,
+    pub test_id: String,           // Unique identifier for test isolation
+    pub organization_id: Uuid,     // Test organization ID
+    pub user_id: Uuid,             // Test user ID
+    initialized: bool,             // Tracks initialization state
 }
 
 impl TestDb {
+    /// Creates a new test database environment
     pub async fn new() -> Result<Self> {
-        // Load environment variables
-        dotenv().ok();
-        
-        // Initialize test pools using existing pools
+        // Uses the pools already initialized in the test framework
         let test_id = format!("test-{}", Uuid::new_v4());
         let organization_id = Uuid::new_v4();
         let user_id = Uuid::new_v4();
@@ -53,133 +59,199 @@ impl TestDb {
         })
     }
     
-    // Get connections from pre-initialized pools
-    pub async fn diesel_conn(&self) -> Result<AsyncPgConnection> {
+    /// Gets a database connection for testing
+    pub async fn diesel_conn(&self) -> Result<PooledConnection<'_, AsyncPgConnection>> {
         get_pg_pool()
             .get()
             .await
             .map_err(|e| anyhow!("Failed to get diesel connection: {}", e))
     }
     
-    pub async fn sqlx_conn(&self) -> Result<PgConnection> {
-        get_sqlx_pool()
-            .acquire()
-            .await
-            .map_err(|e| anyhow!("Failed to get sqlx connection: {}", e))
+    /// Creates a mock authenticated user for testing
+    pub fn user(&self) -> AuthenticatedUser {
+        AuthenticatedUser {
+            id: self.user_id,
+            organization_id: self.organization_id,
+            // ... other fields ...
+        }
     }
     
-    pub async fn redis_conn(&self) -> Result<RedisConnection> {
-        get_redis_pool()
-            .get()
-            .await
-            .map_err(|e| antml!("Failed to get redis connection: {}", e))
-    }
-    
-    // Create test organization
+    /// Creates test data including users and organizations
     pub async fn create_organization(&self) -> Result<Organization> {
-        let org = Organization {
-            id: Uuid::new_v4(),
-            name: "Test Organization".to_string(),
-            domain: Some("test.org".to_string()),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-        };
-        
-        let mut conn = self.diesel_conn().await?;
-        diesel::insert_into(organizations::table)
-            .values(&org)
-            .execute(&mut conn)
-            .await?;
-            
-        Ok(org)
+        // Implementation for creating a test organization
     }
-
-    // Create test user
+    
     pub async fn create_user(&self) -> Result<User> {
-        let user = User {
-            id: Uuid::new_v4(),
-            email: format!("test-{}@example.com", Uuid::new_v4()),
-            name: Some("Test User".to_string()),
-            config: json!({}),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            attributes: json!({}),
-            avatar_url: None,
-        };
-        
-        let mut conn = self.diesel_conn().await?;
-        diesel::insert_into(users::table)
-            .values(&user)
-            .execute(&mut conn)
-            .await?;
-            
-        Ok(user)
+        // Implementation for creating a test user
     }
-
-    // Create user-organization relationship
+    
+    /// Creates a user-organization relationship
     pub async fn create_user_to_org(
         &self,
         user_id: Uuid,
-        org_id: Uuid,
+        org_id: Uuid, 
         role: UserOrganizationRole,
     ) -> Result<UserToOrganization> {
-        let user_org = UserToOrganization {
-            user_id,
-            organization_id: org_id,
-            role,
-            sharing_setting: SharingSetting::Private,
-            edit_sql: true,
-            upload_csv: true,
-            export_assets: true,
-            email_slack_enabled: true,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-            created_by: user_id,
-            updated_by: user_id,
-            deleted_by: None,
-            status: UserOrganizationStatus::Active,
-        };
-        
-        let mut conn = self.diesel_conn().await?;
-        diesel::insert_into(users_to_organizations::table)
-            .values(&user_org)
-            .execute(&mut conn)
-            .await?;
-            
-        Ok(user_org)
+        // Implementation for creating user-org relationship
     }
-
-    // Create authenticated user for testing
+    
+    /// Creates an authenticated user with organization
     pub async fn create_authenticated_user(
         &self,
         role: Option<UserOrganizationRole>,
     ) -> Result<(AuthenticatedUser, Organization)> {
-        let org = self.create_organization().await?;
-        let user = self.create_user().await?;
-        
-        let role = role.unwrap_or(UserOrganizationRole::Admin);
-        self.create_user_to_org(user.id, org.id, role).await?;
-        
-        let auth_user = AuthenticatedUser {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            organization_id: org.id,
-            role,
-            sharing_setting: SharingSetting::Private,
-            edit_sql: true,
-            upload_csv: true,
-            export_assets: true,
-            email_slack_enabled: true,
-        };
-        
-        Ok((auth_user, org))
+        // Implementation for creating authenticated test user
+    }
+    
+    /// Cleans up all test data
+    pub async fn cleanup(&self) -> Result<()> {
+        // Removes all data created with this test instance
     }
 }
+```
 
-// Helper struct for test setup
+#### AuthenticatedUser
+
+The `AuthenticatedUser` struct provides a simplified version of the application's authenticated user for testing:
+
+```rust
+#[derive(Debug, Clone)]
+pub struct AuthenticatedUser {
+    pub id: Uuid,
+    pub organization_id: Uuid,
+    pub email: String,
+    pub name: Option<String>,
+    pub role: UserOrganizationRole,
+    // ... other fields ...
+}
+
+impl AuthenticatedUser {
+    /// Creates a new random authenticated user with given role
+    pub fn mock_with_role(role: UserOrganizationRole) -> Self {
+        // Implementation
+    }
+    
+    /// Creates a new random administrator user
+    pub fn mock_admin() -> Self {
+        // Implementation
+    }
+    
+    // Other helper methods for different roles
+}
+```
+
+#### PermissionTestHelpers
+
+The `PermissionTestHelpers` struct provides utilities for testing permissions:
+
+```rust
+pub struct PermissionTestHelpers;
+
+impl PermissionTestHelpers {
+    /// Creates a permission for an asset
+    pub async fn create_permission(
+        test_db: &TestDb,
+        asset_id: Uuid,
+        asset_type: AssetType,
+        identity_id: Uuid,
+        identity_type: IdentityType,
+        role: AssetPermissionRole,
+    ) -> Result<AssetPermission> {
+        // Implementation
+    }
+    
+    /// Creates a user permission for an asset
+    pub async fn create_user_permission(
+        test_db: &TestDb,
+        asset_id: Uuid,
+        asset_type: AssetType,
+        user_id: Uuid,
+        role: AssetPermissionRole,
+    ) -> Result<AssetPermission> {
+        // Implementation
+    }
+    
+    /// Verifies that a permission exists with expected role
+    pub async fn verify_permission(
+        test_db: &TestDb,
+        asset_id: Uuid,
+        identity_id: Uuid,
+        expected_role: AssetPermissionRole,
+    ) -> Result<()> {
+        // Implementation
+    }
+    
+    /// Gets all permissions for an asset
+    pub async fn get_asset_permissions(
+        test_db: &TestDb,
+        asset_id: Uuid,
+    ) -> Result<Vec<AssetPermission>> {
+        // Implementation
+    }
+    
+    // Other permission helper methods
+}
+```
+
+#### AssetTestHelpers
+
+The `AssetTestHelpers` struct provides utilities for creating and managing test assets:
+
+```rust
+pub struct AssetTestHelpers;
+
+impl AssetTestHelpers {
+    /// Creates a test metric file
+    pub async fn create_test_metric(
+        test_db: &TestDb,
+        name: &str,
+    ) -> Result<MetricFile> {
+        // Implementation
+    }
+    
+    /// Creates a test dashboard file
+    pub async fn create_test_dashboard(
+        test_db: &TestDb,
+        name: &str,
+    ) -> Result<DashboardFile> {
+        // Implementation
+    }
+    
+    /// Creates a test collection
+    pub async fn create_test_collection(
+        test_db: &TestDb,
+        name: &str,
+    ) -> Result<Collection> {
+        // Implementation
+    }
+    
+    /// Creates a test chat
+    pub async fn create_test_chat(
+        test_db: &TestDb,
+        title: &str,
+    ) -> Result<Chat> {
+        // Implementation
+    }
+    
+    /// Creates a test asset with permission in one step
+    pub async fn create_test_metric_with_permission(
+        test_db: &TestDb,
+        name: &str,
+        user_id: Uuid,
+        role: AssetPermissionRole,
+    ) -> Result<MetricFile> {
+        // Implementation
+    }
+    
+    // Similar methods for other asset types with permissions
+}
+```
+
+#### TestSetup
+
+The `TestSetup` struct combines the core utilities for easy test setup:
+
+```rust
 pub struct TestSetup {
     pub user: AuthenticatedUser,
     pub organization: Organization,
@@ -187,6 +259,7 @@ pub struct TestSetup {
 }
 
 impl TestSetup {
+    /// Creates a new test setup with authenticated user
     pub async fn new(role: Option<UserOrganizationRole>) -> Result<Self> {
         let test_db = TestDb::new().await?;
         let (user, org) = test_db.create_authenticated_user(role).await?;

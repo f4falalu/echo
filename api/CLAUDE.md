@@ -42,6 +42,7 @@ While these files contain best practices for writing tests, REST patterns, etc.,
 - All dependencies inherit from workspace using `{ workspace = true }`
 - Use database connection pool from `get_pg_pool().get().await?`
 - Write tests with `tokio::test` for async tests
+- Use test infrastructure utilities in `libs/database/tests/common/` for database tests
 
 ## Common Database Pattern
 ```rust
