@@ -4,7 +4,9 @@ order and accomplishing the tasks while referencing the prd, its notes, and reco
 make sure to mark off completed tasks as you go.
 
 you should follow best practices as related in documentation/ for database migrations, testing.mdc, handlers.mdc, 
-etc. Plase analyze them before you modify a file.
+etc. Please analyze them before you modify a file.
+
+Particularly you should always reference: documentation/testing.mdc before writing tests.
 
 please analyze all files before proceeding with any implementations.
 
