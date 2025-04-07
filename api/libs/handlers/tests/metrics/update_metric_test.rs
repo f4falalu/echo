@@ -3,54 +3,40 @@ use chrono::Utc;
 use database::enums::{AssetPermissionRole, AssetType, UserOrganizationRole, Verification};
 use database::models::MetricFile;
 use database::schema::metric_files;
-use middleware::{AuthenticatedUser, OrganizationMembership};
+use database::tests::common::db::TestSetup;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use handlers::metrics::update_metric_handler::{update_metric_handler, UpdateMetricRequest};
-use serde_json::json;
 use uuid::Uuid;
+
+// Force the initialization of database pools
+lazy_static::lazy_static! {
+    static ref _INIT: () = {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        if let Err(e) = rt.block_on(database::pool::init_pools()) {
+            panic!("Failed to initialize test pools: {}", e);
+        }
+    };
+}
 
 // Integration test that tests metric status update functionality
 #[tokio::test]
 async fn test_update_metric_status() -> Result<()> {
-    // Initialize database pool
-    let pool = database::pool::get_pg_pool();
+    // Initialize lazy static to ensure pools are initialized
+    lazy_static::initialize(&_INIT);
     
-    // Generate a unique test identifier
-    let test_id = format!("test-{}", Uuid::new_v4());
-    
-    // Create test organization
-    let organization_id = Uuid::new_v4();
-    let mut conn = pool.get().await?;
-    
-    // Create test user
-    let user_id = Uuid::new_v4();
-    
-    // Create mock authenticated user
-    let user = AuthenticatedUser {
-        id: user_id,
-        email: format!("test-{}@example.com", test_id),
-        name: Some(format!("Test User {}", test_id)),
-        config: json!({"preferences": {"theme": "light"}}),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
-        attributes: json!({}),
-        avatar_url: None,
-        organizations: vec![OrganizationMembership {
-            id: organization_id,
-            role: UserOrganizationRole::WorkspaceAdmin,
-        }],
-        teams: vec![],
-    };
+    // Set up test environment with admin user
+    let setup = TestSetup::new(Some(UserOrganizationRole::WorkspaceAdmin)).await?;
     
     // Create a test metric file
     let metric_id = Uuid::new_v4();
-    let current_time = chrono::Utc::now();
+    let current_time = Utc::now();
+    let mut conn = setup.db.diesel_conn().await?;
     
     // Create a simple metric with test content
     let content = database::types::MetricYml {
-        name: format!("Test Metric {}", test_id),
-        description: Some(format!("Test metric description for {}", test_id)),
+        name: format!("Test Metric {}", setup.db.test_id),
+        description: Some(format!("Test metric description for {}", setup.db.test_id)),
         sql: "SELECT * FROM test".to_string(),
         time_frame: "last 30 days".to_string(),
         chart_config: create_default_chart_config(),
@@ -63,15 +49,15 @@ async fn test_update_metric_status() -> Result<()> {
     // Create the test metric file
     let metric_file = MetricFile {
         id: metric_id,
-        name: format!("{}-Test Metric", test_id),
-        file_name: format!("{}-test_metric.yml", test_id),
+        name: format!("{}-Test Metric", setup.db.test_id),
+        file_name: format!("{}-test_metric.yml", setup.db.test_id),
         content: content.clone(),
         verification: initial_verification,
         evaluation_obj: None,
         evaluation_summary: None,
         evaluation_score: None,
-        organization_id,
-        created_by: user_id,
+        organization_id: setup.organization.id,
+        created_by: setup.user.id,
         created_at: current_time,
         updated_at: current_time,
         deleted_at: None,
@@ -92,7 +78,7 @@ async fn test_update_metric_status() -> Result<()> {
     // Create permission for the user
     diesel::insert_into(database::schema::asset_permissions::table)
         .values((
-            database::schema::asset_permissions::identity_id.eq(user_id),
+            database::schema::asset_permissions::identity_id.eq(setup.user.id),
             database::schema::asset_permissions::identity_type.eq(database::enums::IdentityType::User),
             database::schema::asset_permissions::asset_id.eq(metric_id),
             database::schema::asset_permissions::asset_type.eq(AssetType::MetricFile),
@@ -100,8 +86,8 @@ async fn test_update_metric_status() -> Result<()> {
             database::schema::asset_permissions::created_at.eq(current_time),
             database::schema::asset_permissions::updated_at.eq(current_time),
             database::schema::asset_permissions::deleted_at.eq::<Option<chrono::DateTime<chrono::Utc>>>(None),
-            database::schema::asset_permissions::created_by.eq(user_id),
-            database::schema::asset_permissions::updated_by.eq(user_id),
+            database::schema::asset_permissions::created_by.eq(setup.user.id),
+            database::schema::asset_permissions::updated_by.eq(setup.user.id),
         ))
         .execute(&mut conn)
         .await?;
@@ -115,7 +101,7 @@ async fn test_update_metric_status() -> Result<()> {
     // Call the update_metric_handler
     let updated_metric = update_metric_handler(
         &metric_id,
-        &user,
+        &setup.user,
         request
     ).await?;
     
@@ -140,6 +126,9 @@ async fn test_update_metric_status() -> Result<()> {
         .filter(database::schema::asset_permissions::asset_id.eq(metric_id))
         .execute(&mut conn)
         .await?;
+    
+    // Use TestDb cleanup for thorough cleanup
+    setup.db.cleanup().await?;
     
     Ok(())
 }
@@ -182,44 +171,21 @@ fn create_default_chart_config() -> database::types::metric_yml::ChartConfig {
 // Test unauthorized access
 #[tokio::test]
 async fn test_update_metric_status_unauthorized() -> Result<()> {
-    // Initialize database pool
-    let pool = database::pool::get_pg_pool();
+    // Initialize lazy static to ensure pools are initialized
+    lazy_static::initialize(&_INIT);
     
-    // Generate a unique test identifier
-    let test_id = format!("test-{}", Uuid::new_v4());
-    
-    // Create test organization
-    let organization_id = Uuid::new_v4();
-    let mut conn = pool.get().await?;
-    
-    // Create test user
-    let user_id = Uuid::new_v4();
-    
-    // Create mock authenticated user
-    let user = AuthenticatedUser {
-        id: user_id,
-        email: format!("test-{}@example.com", test_id),
-        name: Some(format!("Test User {}", test_id)),
-        config: json!({"preferences": {"theme": "light"}}),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
-        attributes: json!({}),
-        avatar_url: None,
-        organizations: vec![OrganizationMembership {
-            id: organization_id,
-            role: UserOrganizationRole::Viewer,
-        }],
-        teams: vec![],
-    };
+    // Set up test environment with viewer user (limited permissions)
+    let setup = TestSetup::new(Some(UserOrganizationRole::Viewer)).await?;
     
     // Create a test metric file
     let metric_id = Uuid::new_v4();
-    let current_time = chrono::Utc::now();
+    let current_time = Utc::now();
+    let mut conn = setup.db.diesel_conn().await?;
     
     // Create a simple metric with test content
     let content = database::types::MetricYml {
-        name: format!("Test Metric {}", test_id),
-        description: Some(format!("Test metric description for {}", test_id)),
+        name: format!("Test Metric {}", setup.db.test_id),
+        description: Some(format!("Test metric description for {}", setup.db.test_id)),
         sql: "SELECT * FROM test".to_string(),
         time_frame: "last 30 days".to_string(),
         chart_config: create_default_chart_config(),
@@ -232,15 +198,15 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
     // Create the test metric file
     let metric_file = MetricFile {
         id: metric_id,
-        name: format!("{}-Test Metric", test_id),
-        file_name: format!("{}-test_metric.yml", test_id),
+        name: format!("{}-Test Metric", setup.db.test_id),
+        file_name: format!("{}-test_metric.yml", setup.db.test_id),
         content: content.clone(),
         verification: initial_verification,
         evaluation_obj: None,
         evaluation_summary: None,
         evaluation_score: None,
-        organization_id,
-        created_by: user_id,
+        organization_id: setup.organization.id,
+        created_by: setup.user.id,
         created_at: current_time,
         updated_at: current_time,
         deleted_at: None,
@@ -261,7 +227,7 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
     // Create view-only permission
     diesel::insert_into(database::schema::asset_permissions::table)
         .values((
-            database::schema::asset_permissions::identity_id.eq(user_id),
+            database::schema::asset_permissions::identity_id.eq(setup.user.id),
             database::schema::asset_permissions::identity_type.eq(database::enums::IdentityType::User),
             database::schema::asset_permissions::asset_id.eq(metric_id),
             database::schema::asset_permissions::asset_type.eq(AssetType::MetricFile),
@@ -269,8 +235,8 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
             database::schema::asset_permissions::created_at.eq(current_time),
             database::schema::asset_permissions::updated_at.eq(current_time),
             database::schema::asset_permissions::deleted_at.eq::<Option<chrono::DateTime<chrono::Utc>>>(None),
-            database::schema::asset_permissions::created_by.eq(user_id),
-            database::schema::asset_permissions::updated_by.eq(user_id),
+            database::schema::asset_permissions::created_by.eq(setup.user.id),
+            database::schema::asset_permissions::updated_by.eq(setup.user.id),
         ))
         .execute(&mut conn)
         .await?;
@@ -284,7 +250,7 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
     // Call the update_metric_handler - should fail
     let result = update_metric_handler(
         &metric_id,
-        &user,
+        &setup.user,
         request
     ).await;
     
@@ -310,50 +276,30 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
         .execute(&mut conn)
         .await?;
     
+    // Use TestDb cleanup for thorough cleanup
+    setup.db.cleanup().await?;
+    
     Ok(())
 }
 
 // Test edge cases for status updates
 #[tokio::test]
 async fn test_update_metric_status_null_value() -> Result<()> {
-    // Initialize database pool
-    let pool = database::pool::get_pg_pool();
+    // Initialize lazy static to ensure pools are initialized
+    lazy_static::initialize(&_INIT);
     
-    // Generate a unique test identifier
-    let test_id = format!("test-{}", Uuid::new_v4());
-    
-    // Create test organization
-    let organization_id = Uuid::new_v4();
-    let mut conn = pool.get().await?;
-    
-    // Create test user
-    let user_id = Uuid::new_v4();
-    
-    // Create mock authenticated user
-    let user = AuthenticatedUser {
-        id: user_id,
-        email: format!("test-{}@example.com", test_id),
-        name: Some(format!("Test User {}", test_id)),
-        config: json!({"preferences": {"theme": "light"}}),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
-        attributes: json!({}),
-        avatar_url: None,
-        organizations: vec![OrganizationMembership {
-            id: organization_id,
-            role: UserOrganizationRole::WorkspaceAdmin,
-        }],
-        teams: vec![],
-    };
+    // Set up test environment with admin user
+    let setup = TestSetup::new(Some(UserOrganizationRole::WorkspaceAdmin)).await?;
     
     // Create a test metric file
     let metric_id = Uuid::new_v4();
-    let current_time = chrono::Utc::now();
+    let current_time = Utc::now();
+    let mut conn = setup.db.diesel_conn().await?;
     
     // Create a simple metric with test content
     let content = database::types::MetricYml {
-        name: format!("Test Metric {}", test_id),
-        description: Some(format!("Test metric description for {}", test_id)),
+        name: format!("Test Metric {}", setup.db.test_id),
+        description: Some(format!("Test metric description for {}", setup.db.test_id)),
         sql: "SELECT * FROM test".to_string(),
         time_frame: "last 30 days".to_string(),
         chart_config: create_default_chart_config(),
@@ -366,15 +312,15 @@ async fn test_update_metric_status_null_value() -> Result<()> {
     // Create the test metric file
     let metric_file = MetricFile {
         id: metric_id,
-        name: format!("{}-Test Metric", test_id),
-        file_name: format!("{}-test_metric.yml", test_id),
+        name: format!("{}-Test Metric", setup.db.test_id),
+        file_name: format!("{}-test_metric.yml", setup.db.test_id),
         content: content.clone(),
         verification: initial_verification,
         evaluation_obj: None,
         evaluation_summary: None,
         evaluation_score: None,
-        organization_id,
-        created_by: user_id,
+        organization_id: setup.organization.id,
+        created_by: setup.user.id,
         created_at: current_time,
         updated_at: current_time,
         deleted_at: None,
@@ -395,7 +341,7 @@ async fn test_update_metric_status_null_value() -> Result<()> {
     // Create permission for the user
     diesel::insert_into(database::schema::asset_permissions::table)
         .values((
-            database::schema::asset_permissions::identity_id.eq(user_id),
+            database::schema::asset_permissions::identity_id.eq(setup.user.id),
             database::schema::asset_permissions::identity_type.eq(database::enums::IdentityType::User),
             database::schema::asset_permissions::asset_id.eq(metric_id),
             database::schema::asset_permissions::asset_type.eq(AssetType::MetricFile),
@@ -403,8 +349,8 @@ async fn test_update_metric_status_null_value() -> Result<()> {
             database::schema::asset_permissions::created_at.eq(current_time),
             database::schema::asset_permissions::updated_at.eq(current_time),
             database::schema::asset_permissions::deleted_at.eq::<Option<chrono::DateTime<chrono::Utc>>>(None),
-            database::schema::asset_permissions::created_by.eq(user_id),
-            database::schema::asset_permissions::updated_by.eq(user_id),
+            database::schema::asset_permissions::created_by.eq(setup.user.id),
+            database::schema::asset_permissions::updated_by.eq(setup.user.id),
         ))
         .execute(&mut conn)
         .await?;
@@ -418,7 +364,7 @@ async fn test_update_metric_status_null_value() -> Result<()> {
     // Call the update_metric_handler
     let updated_metric = update_metric_handler(
         &metric_id,
-        &user,
+        &setup.user,
         request
     ).await?;
     
@@ -443,6 +389,9 @@ async fn test_update_metric_status_null_value() -> Result<()> {
         .filter(database::schema::asset_permissions::asset_id.eq(metric_id))
         .execute(&mut conn)
         .await?;
+    
+    // Use TestDb cleanup for thorough cleanup
+    setup.db.cleanup().await?;
     
     Ok(())
 }
