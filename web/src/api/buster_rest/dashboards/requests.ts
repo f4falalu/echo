@@ -9,6 +9,7 @@ import {
   SharePostRequest,
   ShareUpdateRequest
 } from '@/api/asset_interfaces/shared_interfaces';
+import { serverFetch } from '@/api/createServerInstance';
 
 export const dashboardsGetList = async (params: {
   /** The page number to fetch */
@@ -40,6 +41,17 @@ export const dashboardsGetDashboard = async ({
       params: { password, version_number }
     })
     .then((res) => res.data);
+};
+
+export const getDashboard_server = async ({
+  id,
+  password,
+  version_number
+}: Parameters<typeof dashboardsGetDashboard>[0]) => {
+  return serverFetch<BusterDashboardResponse>(`/dashboards/${id}`, {
+    method: 'GET',
+    params: { password, version_number }
+  });
 };
 
 export const dashboardsCreateDashboard = async (params: {

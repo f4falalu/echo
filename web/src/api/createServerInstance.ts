@@ -41,9 +41,11 @@ export const serverFetch = async <T>(url: string, config: FetchConfig = {}): Pro
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+
       throw {
         status: response.status,
-        message: response.statusText
+        message: errorText || response.statusText
       } satisfies RustApiError;
     }
 

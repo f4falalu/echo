@@ -11,6 +11,7 @@ export const prefetchGetMetric = async (
   queryClientProp?: QueryClient
 ) => {
   const queryClient = queryClientProp || new QueryClient();
+
   await queryClient.prefetchQuery({
     ...metricsQueryKeys.metricsGetMetric(params.id, params.version_number),
     queryFn: async () => {
