@@ -1,3 +1,4 @@
+pub mod bulk_update_metrics_handler;
 pub mod delete_metric_handler;
 pub mod get_metric_data_handler;
 pub mod get_metric_handler;
@@ -7,6 +8,7 @@ pub mod types;
 pub mod update_metric_handler;
 
 // Re-export specific items from handlers
+pub use bulk_update_metrics_handler::*;
 pub use delete_metric_handler::*;
 pub use get_metric_handler::*;
 pub use list_metrics_handler::*;
