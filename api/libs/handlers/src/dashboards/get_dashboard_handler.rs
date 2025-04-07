@@ -90,7 +90,7 @@ pub async fn get_dashboard_handler(
 
     // Check if user has permission to view the dashboard
     // Users need at least CanView permission or any higher permission
-    let has_permission = check_permission_access(
+    if !check_permission_access(
         dashboard_with_permission.permission,
         &[
             AssetPermissionRole::CanView,
@@ -100,11 +100,14 @@ pub async fn get_dashboard_handler(
         ],
         dashboard_with_permission.dashboard_file.organization_id,
         &user.organizations,
-    );
-
-    if !has_permission {
+    ) {
         return Err(anyhow!("You don't have permission to view this dashboard"));
     }
+
+    // Extract permission for consistent use in response
+    // If the asset is public and the user has no direct permission, default to CanView
+    let permission = dashboard_with_permission.permission
+        .unwrap_or(AssetPermissionRole::CanView);
 
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
@@ -282,14 +285,10 @@ pub async fn get_dashboard_handler(
     };
 
     Ok(BusterDashboardResponse {
-        access: dashboard_with_permission
-            .permission
-            .unwrap_or(AssetPermissionRole::Owner),
+        access: permission,
         metrics,
         dashboard,
-        permission: dashboard_with_permission
-            .permission
-            .unwrap_or(AssetPermissionRole::Owner),
+        permission,
         public_password: None,
         collections, // Now populated with associated collections
         // New sharing fields

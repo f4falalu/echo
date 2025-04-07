@@ -88,36 +88,33 @@ pub async fn get_metric_handler(
         .await
         .map_err(|e| anyhow!("Failed to fetch metric file with permissions: {}", e))?;
 
-    let metric_file = if let Some(metric_file) = metric_file_with_permission {
+    let metric_file_with_permission = if let Some(metric_file) = metric_file_with_permission {
         metric_file
     } else {
         return Err(anyhow!("Metric file not found"));
     };
 
-    println!("metric_file: {:?}", metric_file.permission);
-
-    // 2. Check if user has at least FullAccess permission
+    // 2. Check if user has at least CanView permission
     if !check_permission_access(
-        metric_file.permission,
+        metric_file_with_permission.permission,
         &[
             AssetPermissionRole::FullAccess,
             AssetPermissionRole::Owner,
             AssetPermissionRole::CanEdit,
             AssetPermissionRole::CanView,
         ],
-        metric_file.metric_file.organization_id,
+        metric_file_with_permission.metric_file.organization_id,
         &user.organizations,
     ) {
         return Err(anyhow!("You don't have permission to view this metric"));
     }
 
-    let permission = if let Some(permission) = metric_file.permission {
-        permission
-    } else {
-        return Err(anyhow!("You don't have permission to view this metric"));
-    };
+    // 3. Extract permission for consistent use in response
+    // If the asset is public and the user has no direct permission, default to CanView
+    let permission = metric_file_with_permission.permission
+        .unwrap_or(AssetPermissionRole::CanView);
 
-    let metric_file = metric_file.metric_file;
+    let metric_file = metric_file_with_permission.metric_file;
 
     // Map evaluation score to High/Moderate/Low
     let evaluation_score = metric_file.evaluation_score.map(|score| {

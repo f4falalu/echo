@@ -30,3 +30,5 @@ fn init_test_env() {
 
 // Test modules
 pub mod dashboards;
+pub mod metrics;
+pub mod collections;
