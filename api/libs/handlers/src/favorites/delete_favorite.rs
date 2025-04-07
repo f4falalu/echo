@@ -42,37 +42,3 @@ pub async fn delete_favorites_bulk(user: &AuthenticatedUser, ids: &[Uuid]) -> Re
 
     list_user_favorites(user).await
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use database::enums::AssetType;
-    use middleware::AuthenticatedUser;
-    use uuid::Uuid;
-    use tokio;
-    use anyhow::Result;
-    
-    // Placeholder for a real test
-    #[tokio::test]
-    async fn test_delete_favorites_bulk() -> Result<()> {
-        // Create test user
-        let user = AuthenticatedUser {
-            id: Uuid::new_v4(),
-            // Add other fields as needed
-        };
-        
-        // Create test favorite ids
-        let favorite_ids = vec![
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-        ];
-        
-        // In a real test, we would use a test database
-        // For now, we'll just assert that the function doesn't panic
-        let result = delete_favorites_bulk(&user, &favorite_ids).await;
-        assert!(result.is_ok() || result.is_err());
-        
-        Ok(())
-    }
-}

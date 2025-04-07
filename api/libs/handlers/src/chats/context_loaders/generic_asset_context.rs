@@ -3,16 +3,13 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use database::{
     enums::AssetType,
-    models::{Dataset, DashboardFile, MetricFile},
+    models::{DashboardFile, MetricFile},
     pool::get_pg_pool,
-    schema::{dashboard_files, datasets, metric_files},
+    schema::{dashboard_files, metric_files},
 };
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
-use litellm::MessageProgress;
 use middleware::AuthenticatedUser;
-use serde_json::Value;
-use std::collections::HashSet;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -35,7 +32,10 @@ impl GenericAssetContextLoader {
     /// * `asset_id` - The ID of the asset to load
     /// * `asset_type` - The type of the asset (e.g., MetricFile, DashboardFile)
     pub fn new(asset_id: Uuid, asset_type: AssetType) -> Self {
-        Self { asset_id, asset_type }
+        Self {
+            asset_id,
+            asset_type,
+        }
     }
 }
 
@@ -57,7 +57,10 @@ impl ContextLoader for GenericAssetContextLoader {
                 dashboard_loader.load_context(user, agent).await
             }
             // Other asset types - can implement specialized handling for other types later
-            _ => Err(anyhow!("Unsupported asset type for context loading: {:?}", self.asset_type)),
+            _ => Err(anyhow!(
+                "Unsupported asset type for context loading: {:?}",
+                self.asset_type
+            )),
         }
     }
 }
@@ -74,10 +77,7 @@ impl ContextLoader for GenericAssetContextLoader {
 ///
 /// # Returns
 /// * `AssetDetails` structure containing the asset's ID, name, and file type
-pub async fn fetch_asset_details(
-    asset_id: Uuid,
-    asset_type: AssetType,
-) -> Result<AssetDetails> {
+pub async fn fetch_asset_details(asset_id: Uuid, asset_type: AssetType) -> Result<AssetDetails> {
     let mut conn = get_pg_pool().get().await.map_err(|e| {
         anyhow!(
             "Failed to get database connection for fetching asset details: {}",
@@ -91,14 +91,13 @@ pub async fn fetch_asset_details(
                 .filter(metric_files::id.eq(asset_id))
                 .first::<MetricFile>(&mut conn)
                 .await
-                .map_err(|e| {
-                    anyhow!("Failed to load metric (id: {}): {}", asset_id, e)
-                })?;
+                .map_err(|e| anyhow!("Failed to load metric (id: {}): {}", asset_id, e))?;
 
             Ok(AssetDetails {
                 id: metric.id,
                 name: metric.name,
                 file_type: "metric".to_string(),
+                version_number: metric.version_history.get_version_number(),
             })
         }
         AssetType::DashboardFile => {
@@ -106,18 +105,20 @@ pub async fn fetch_asset_details(
                 .filter(dashboard_files::id.eq(asset_id))
                 .first::<DashboardFile>(&mut conn)
                 .await
-                .map_err(|e| {
-                    anyhow!("Failed to load dashboard (id: {}): {}", asset_id, e)
-                })?;
+                .map_err(|e| anyhow!("Failed to load dashboard (id: {}): {}", asset_id, e))?;
 
             Ok(AssetDetails {
                 id: dashboard.id,
                 name: dashboard.name,
                 file_type: "dashboard".to_string(),
+                version_number: dashboard.version_history.get_version_number(),
             })
         }
         // Add other asset types here as needed
-        _ => Err(anyhow!("Unsupported asset type for fetching details: {:?}", asset_type)),
+        _ => Err(anyhow!(
+            "Unsupported asset type for fetching details: {:?}",
+            asset_type
+        )),
     }
 }
 
@@ -133,4 +134,6 @@ pub struct AssetDetails {
     pub name: String,
     /// The file type of the asset (e.g., "metric", "dashboard")
     pub file_type: String,
+    /// The version number of the asset
+    pub version_number: i32,
 }

@@ -635,6 +635,7 @@ pub async fn process_metric_file(
         public_expiry_date: None,
         version_history: VersionHistory::new(1, metric_yml.clone()),
         data_metadata: metadata,
+        public_password: None,
     };
 
     Ok((metric_file, metric_yml, message, results))
@@ -1219,6 +1220,7 @@ rows:
             publicly_enabled_by: None,
             public_expiry_date: None,
             version_history,
+            public_password: None,
         };
 
         // Create a file modification
@@ -1393,6 +1395,7 @@ rows:
             publicly_enabled_by: None,
             public_expiry_date: None,
             version_history,
+            public_password: None,
         };
 
         // Create a file modification that would match in multiple places

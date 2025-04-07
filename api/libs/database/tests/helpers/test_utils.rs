@@ -91,6 +91,7 @@ impl TestDb {
             public_expiry_date: None,
             version_history: VersionHistory(std::collections::HashMap::new()),
             data_metadata: None,
+            public_password: None,
         };
         
         Ok(metric_file)
@@ -120,6 +121,7 @@ impl TestDb {
             publicly_enabled_by: None,
             public_expiry_date: None,
             version_history: VersionHistory(std::collections::HashMap::new()),
+            public_password: None,
         };
         
         Ok(dashboard_file)

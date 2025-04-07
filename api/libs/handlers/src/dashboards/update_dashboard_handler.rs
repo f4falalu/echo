@@ -412,17 +412,6 @@ async fn update_dashboard_metric_associations(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use database::types::Version;
-    use mockall::mock;
-    use mockall::predicate::*;
-
-    // Create mock for database operations and other dependencies
-    mock! {
-        pub AsyncPgConnection {
-            async fn execute(&mut self) -> Result<usize, diesel::result::Error>;
-            async fn first<T>(&mut self) -> Result<T, diesel::result::Error>;
-        }
-    }
 
     // Helper to create a test version history with multiple versions
     fn create_test_version_history() -> VersionHistory {

@@ -1,14 +1,14 @@
+use crate::enums::{AssetPermissionRole, AssetType};
 use anyhow::Result;
+use diesel::JoinOnDsl;
 use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, Queryable};
 use diesel_async::RunQueryDsl;
-use diesel::{JoinOnDsl, NullableExpressionMethods};
-use uuid::Uuid;
 use tokio::try_join;
-use crate::enums::{AssetPermissionRole, AssetType};
+use uuid::Uuid;
 
 use crate::models::{AssetPermission, DashboardFile};
 use crate::pool::get_pg_pool;
-use crate::schema::{asset_permissions, dashboard_files, collections_to_assets};
+use crate::schema::{asset_permissions, collections_to_assets, dashboard_files};
 
 /// Fetches a single dashboard file by ID that hasn't been deleted
 ///
@@ -46,7 +46,7 @@ pub async fn fetch_dashboard_file(id: &Uuid) -> Result<Option<DashboardFile>> {
 /// Helper function to fetch a dashboard file by ID
 async fn fetch_dashboard(id: &Uuid) -> Result<Option<DashboardFile>> {
     let mut conn = get_pg_pool().get().await?;
-    
+
     let mut result = match dashboard_files::table
         .filter(dashboard_files::id.eq(id))
         .filter(dashboard_files::deleted_at.is_null())
@@ -57,7 +57,7 @@ async fn fetch_dashboard(id: &Uuid) -> Result<Option<DashboardFile>> {
         Err(diesel::NotFound) => None,
         Err(e) => return Err(e.into()),
     };
-    
+
     // Ensure all rows have IDs (for backwards compatibility)
     if let Some(ref mut dashboard_file) = result {
         for (index, row) in dashboard_file.content.rows.iter_mut().enumerate() {
@@ -66,7 +66,7 @@ async fn fetch_dashboard(id: &Uuid) -> Result<Option<DashboardFile>> {
             }
         }
     }
-    
+
     Ok(result)
 }
 
@@ -74,15 +74,19 @@ async fn fetch_dashboard(id: &Uuid) -> Result<Option<DashboardFile>> {
 async fn is_publicly_accessible(dashboard_file: &DashboardFile) -> bool {
     // Check if the file is publicly accessible and either has no expiry date
     // or the expiry date has not passed
-    dashboard_file.publicly_accessible && 
-    dashboard_file.public_expiry_date
-        .map_or(true, |expiry| expiry > chrono::Utc::now())
+    dashboard_file.publicly_accessible
+        && dashboard_file
+            .public_expiry_date
+            .map_or(true, |expiry| expiry > chrono::Utc::now())
 }
 
 /// Helper function to fetch permission for a dashboard file
-async fn fetch_dashboard_permission(id: &Uuid, user_id: &Uuid) -> Result<Option<AssetPermissionRole>> {
+async fn fetch_dashboard_permission(
+    id: &Uuid,
+    user_id: &Uuid,
+) -> Result<Option<AssetPermissionRole>> {
     let mut conn = get_pg_pool().get().await?;
-    
+
     let permission = match asset_permissions::table
         .filter(asset_permissions::asset_id.eq(id))
         .filter(asset_permissions::asset_type.eq(AssetType::DashboardFile))
@@ -95,7 +99,7 @@ async fn fetch_dashboard_permission(id: &Uuid, user_id: &Uuid) -> Result<Option<
         Err(diesel::NotFound) => None,
         Err(e) => return Err(e.into()),
     };
-        
+
     Ok(permission)
 }
 
@@ -106,28 +110,27 @@ async fn fetch_dashboard_permission(id: &Uuid, user_id: &Uuid) -> Result<Option<
 /// if the user has permissions on those collections
 async fn fetch_collection_permissions_for_dashboard(
     id: &Uuid,
-    user_id: &Uuid
+    user_id: &Uuid,
 ) -> Result<Option<AssetPermissionRole>> {
     let mut conn = get_pg_pool().get().await?;
-    
+
     // Find collections containing this dashboard file
     // then join with asset_permissions to find user's permissions on those collections
     let permissions = asset_permissions::table
         .inner_join(
-            collections_to_assets::table.on(
-                asset_permissions::asset_id.eq(collections_to_assets::collection_id)
+            collections_to_assets::table.on(asset_permissions::asset_id
+                .eq(collections_to_assets::collection_id)
                 .and(asset_permissions::asset_type.eq(AssetType::Collection))
                 .and(collections_to_assets::asset_id.eq(id))
                 .and(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
-                .and(collections_to_assets::deleted_at.is_null())
-            )
+                .and(collections_to_assets::deleted_at.is_null())),
         )
         .filter(asset_permissions::identity_id.eq(user_id))
         .filter(asset_permissions::deleted_at.is_null())
         .select(asset_permissions::role)
         .load::<AssetPermissionRole>(&mut conn)
         .await?;
-    
+
     // Return any collection-based permission
     if permissions.is_empty() {
         Ok(None)
@@ -166,7 +169,7 @@ pub async fn fetch_dashboard_file_with_permission(
     // If collection permission exists, use it; otherwise use direct permission
     let mut effective_permission = match collection_permission {
         Some(collection) => Some(collection),
-        None => direct_permission
+        None => direct_permission,
     };
 
     // If the file is publicly accessible and either no permission exists or it's lower than CanView,
@@ -234,13 +237,12 @@ pub async fn fetch_dashboard_files_with_permissions(
     // 3. Fetch collection-based permissions for these dashboard files
     let collection_permissions = asset_permissions::table
         .inner_join(
-            collections_to_assets::table.on(
-                asset_permissions::asset_id.eq(collections_to_assets::collection_id)
+            collections_to_assets::table.on(asset_permissions::asset_id
+                .eq(collections_to_assets::collection_id)
                 .and(asset_permissions::asset_type.eq(AssetType::Collection))
                 .and(collections_to_assets::asset_id.eq_any(ids))
                 .and(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
-                .and(collections_to_assets::deleted_at.is_null())
-            )
+                .and(collections_to_assets::deleted_at.is_null())),
         )
         .filter(asset_permissions::identity_id.eq(user_id))
         .filter(asset_permissions::deleted_at.is_null())
@@ -270,16 +272,17 @@ pub async fn fetch_dashboard_files_with_permissions(
         .map(|dashboard_file| {
             let direct_permission = direct_permission_map.get(&dashboard_file.id).cloned();
             let collection_permission = collection_permission_map.get(&dashboard_file.id).cloned();
-            
+
             // Use collection permission if it exists, otherwise use direct permission
             let mut effective_permission = match collection_permission {
                 Some(collection) => Some(collection),
-                None => direct_permission
+                None => direct_permission,
             };
 
             // Check if the file is publicly accessible and its expiry date hasn't passed
-            let is_public = dashboard_file.publicly_accessible && 
-                dashboard_file.public_expiry_date
+            let is_public = dashboard_file.publicly_accessible
+                && dashboard_file
+                    .public_expiry_date
                     .map_or(true, |expiry| expiry > now);
 
             // If the file is publicly accessible and either no permission exists or it's lower than CanView,
