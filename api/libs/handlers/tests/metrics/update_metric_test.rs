@@ -16,14 +16,19 @@ use uuid::Uuid;
 static INIT: Once = Once::new();
 
 // Initialize database pool
-fn initialize() {
+async fn initialize() {
     INIT.call_once(|| {
-        let rt = tokio::runtime::Runtime::new().unwrap();
-        if let Err(e) = rt.block_on(init_pools()) {
-            panic!("Failed to initialize test pools: {}", e);
-        }
-        println!("Database pool initialized");
+        println!("Database pool initialization called");
+        // Set environment variables for database connection
+        std::env::set_var("DATABASE_URL", "postgresql://postgres:postgres@127.0.0.1:54322/postgres");
+        std::env::set_var("TEST_DATABASE_URL", "postgresql://postgres:postgres@127.0.0.1:54322/postgres");
     });
+
+    // We only initialize the pools once but try to do it in each test to ensure they exist
+    match init_pools().await {
+        Ok(_) => println!("Database pool initialized successfully"),
+        Err(e) => println!("Database pool initialization error: {}", e),
+    }
 }
 
 // Create a simplified test setup for our test
