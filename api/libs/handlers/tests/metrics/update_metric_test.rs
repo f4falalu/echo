@@ -16,7 +16,7 @@ use uuid::Uuid;
 static INIT: Once = Once::new();
 
 // Initialize database pool
-async fn initialize() {
+async fn initialize() -> Result<()> {
     INIT.call_once(|| {
         println!("Database pool initialization called");
         // Set environment variables for database connection
@@ -26,8 +26,14 @@ async fn initialize() {
 
     // We only initialize the pools once but try to do it in each test to ensure they exist
     match init_pools().await {
-        Ok(_) => println!("Database pool initialized successfully"),
-        Err(e) => println!("Database pool initialization error: {}", e),
+        Ok(_) => {
+            println!("Database pool initialized successfully");
+            Ok(())
+        },
+        Err(e) => {
+            println!("Database pool initialization error: {}", e);
+            Err(anyhow::anyhow!("Failed to initialize database pool: {}", e))
+        },
     }
 }
 
@@ -42,7 +48,7 @@ struct TestSetup {
 #[tokio::test]
 async fn test_update_metric_status() -> Result<()> {
     // Initialize the database pool
-    initialize();
+    initialize().await?;
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
@@ -297,7 +303,7 @@ fn create_default_chart_config() -> database::types::metric_yml::ChartConfig {
 #[tokio::test]
 async fn test_update_metric_status_unauthorized() -> Result<()> {
     // Initialize the database pool
-    initialize();
+    initialize().await?;
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
@@ -517,7 +523,7 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
 #[tokio::test]
 async fn test_update_metric_status_null_value() -> Result<()> {
     // Initialize the database pool
-    initialize();
+    initialize().await?;
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
