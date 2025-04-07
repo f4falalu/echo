@@ -18,15 +18,32 @@ use uuid::Uuid;
 ///     "users": [
 ///         {
 ///             "email": "user@example.com",
-///             "role": "Viewer"
+///             "role": "CanView"
 ///         }
 ///     ],
 ///     "publicly_accessible": true,
-///     "public_password": "password",
-///     "public_expiration": "2023-12-31T23:59:59Z"
+///     "public_password": {
+///         "update": "password" 
+///     },
+///     "public_expiry_date": {
+///         "update": "2023-12-31T23:59:59Z"
+///     }
 /// }
 /// ```
-/// All fields are optional. If a field is not provided, it won't be updated.
+/// All fields are optional. Field update options:
+/// - `users`: List of users to share with. If omitted, existing shares are not changed.
+/// - `publicly_accessible`: Boolean flag. If `true`, asset becomes public; if `false`, asset becomes private.
+/// - `public_password`: Object with one of these values:
+///   - `"no_change"`: Keep existing password (default if field omitted)
+///   - `"set_null"`: Remove existing password
+///   - `{"update": "new_password"}`: Set a new password
+/// - `public_expiry_date`: Object with one of these values:
+///   - `"no_change"`: Keep existing expiry date (default if field omitted)
+///   - `"set_null"`: Remove existing expiry date
+///   - `{"update": "2023-12-31T23:59:59Z"}`: Set a new expiry date (ISO-8601 format)
+/// 
+/// Note: Currently, chats don't support public sharing. The `public_*` fields are included for API consistency
+/// but are ignored in the implementation.
 /// 
 
 
