@@ -1,11 +1,13 @@
 use anyhow::Result;
+use chrono::Utc;
 use database::enums::{AssetPermissionRole, AssetType, UserOrganizationRole, Verification};
 use database::models::MetricFile;
 use database::schema::metric_files;
-use middleware::AuthenticatedUser;
+use middleware::{AuthenticatedUser, OrganizationMembership};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use handlers::metrics::update_metric_handler::{update_metric_handler, UpdateMetricRequest};
+use serde_json::json;
 use uuid::Uuid;
 
 // Integration test that tests metric status update functionality
@@ -27,15 +29,18 @@ async fn test_update_metric_status() -> Result<()> {
     // Create mock authenticated user
     let user = AuthenticatedUser {
         id: user_id,
-        organization_id,
         email: format!("test-{}@example.com", test_id),
         name: Some(format!("Test User {}", test_id)),
-        role: UserOrganizationRole::WorkspaceAdmin,
-        sharing_setting: database::enums::SharingSetting::None, 
-        edit_sql: true,
-        upload_csv: true,
-        export_assets: true,
-        email_slack_enabled: true,
+        config: json!({"preferences": {"theme": "light"}}),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        attributes: json!({}),
+        avatar_url: None,
+        organizations: vec![OrganizationMembership {
+            id: organization_id,
+            role: UserOrganizationRole::WorkspaceAdmin,
+        }],
+        teams: vec![],
     };
     
     // Create a test metric file
@@ -193,15 +198,18 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
     // Create mock authenticated user
     let user = AuthenticatedUser {
         id: user_id,
-        organization_id,
         email: format!("test-{}@example.com", test_id),
         name: Some(format!("Test User {}", test_id)),
-        role: UserOrganizationRole::Viewer,
-        sharing_setting: database::enums::SharingSetting::None, 
-        edit_sql: true,
-        upload_csv: true,
-        export_assets: true,
-        email_slack_enabled: true,
+        config: json!({"preferences": {"theme": "light"}}),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        attributes: json!({}),
+        avatar_url: None,
+        organizations: vec![OrganizationMembership {
+            id: organization_id,
+            role: UserOrganizationRole::Viewer,
+        }],
+        teams: vec![],
     };
     
     // Create a test metric file
@@ -324,15 +332,18 @@ async fn test_update_metric_status_null_value() -> Result<()> {
     // Create mock authenticated user
     let user = AuthenticatedUser {
         id: user_id,
-        organization_id,
         email: format!("test-{}@example.com", test_id),
         name: Some(format!("Test User {}", test_id)),
-        role: UserOrganizationRole::WorkspaceAdmin,
-        sharing_setting: database::enums::SharingSetting::None, 
-        edit_sql: true,
-        upload_csv: true,
-        export_assets: true,
-        email_slack_enabled: true,
+        config: json!({"preferences": {"theme": "light"}}),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        attributes: json!({}),
+        avatar_url: None,
+        organizations: vec![OrganizationMembership {
+            id: organization_id,
+            role: UserOrganizationRole::WorkspaceAdmin,
+        }],
+        teams: vec![],
     };
     
     // Create a test metric file
