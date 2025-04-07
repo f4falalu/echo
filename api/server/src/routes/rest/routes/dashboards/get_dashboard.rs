@@ -10,7 +10,7 @@ use uuid::Uuid;
 #[derive(Debug, Deserialize)]
 pub struct GetDashboardQueryParams {
     #[serde(rename = "version_number")]
-    version_number: Option<i32>,
+    pub version_number: Option<i32>,
 }
 
 pub async fn get_dashboard_rest_handler(
@@ -30,16 +30,25 @@ pub async fn get_dashboard_rest_handler(
         Err(e) => {
             tracing::error!("Error getting dashboard: {}", e);
             let error_message = e.to_string();
-            // Return 404 if version not found, or if dashboard not found
+            
+            // Use same error matching as metrics for consistency
+            if error_message.contains("public_password required") {
+                return Err((StatusCode::IM_A_TEAPOT, "Password required for public access"));
+            }
+            if error_message.contains("don't have permission") {
+                return Err((StatusCode::FORBIDDEN, "Permission denied"));
+            }
             if error_message.contains("Version") && error_message.contains("not found") {
                 return Err((StatusCode::NOT_FOUND, "Version not found"));
             }
-            else if error_message.contains("not found") || error_message.contains("unauthorized") {
-                return Err((StatusCode::NOT_FOUND, "Dashboard not found or unauthorized"));
+            if error_message.contains("not found") {
+                return Err((StatusCode::NOT_FOUND, "Dashboard not found"));
             }
+            
             return Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to get dashboard"));
         }
     };
 
     Ok(ApiResponse::JsonData(dashboard))
 }
+
