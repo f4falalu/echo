@@ -9,296 +9,210 @@ ticket: BUS-1067
 
 # HTTP Status Code Fix
 
+## Parent Project
+
+This is a sub-PRD of the [Bug Fixes and Testing Improvements](project_bug_fixes_and_testing.md) project. Please refer to the parent PRD for the overall project context, goals, and implementation plan.
+
 ## Problem Statement
 
-The API is currently returning incorrect HTTP status codes in several scenarios, particularly in error cases. This inconsistency makes it difficult for clients to properly handle errors and leads to confusion in error handling. The main issues are:
+<!-- 
+Clearly articulate the problem you're solving. Include:
+- Current state and behavior
+- Expected behavior
+- How this fits into the larger project
+- Specific pain points this component addresses
+-->
 
 Current behavior:
-- Some error responses return 200 OK with error in body
-- Inconsistent use of 4xx status codes
-- Missing proper status codes for specific error cases
-- Lack of standardization across handlers
+- Permission denied errors return 404 instead of 403
+- Version not found errors have inconsistent handling
+- Error status codes differ between metrics and dashboards
+- Error messages in status codes don't match handler messages
+- No standardized error response format
 
 Expected behavior:
-- Proper HTTP status codes for all responses
-- Consistent error status codes
-- Clear mapping between error types and status codes
+- Permission denied returns 403 Forbidden
+- Version not found returns 404 Not Found
+- Consistent error handling across all asset types
+- Clear mapping between handler errors and status codes
 - Standardized error response format
 
 ## Goals
 
-1. Standardize HTTP status codes across all handlers
-2. Implement proper error status codes
-3. Create error-to-status code mapping
-4. Add tests for status code verification
-5. Document status code usage
+1. Standardize HTTP status codes for asset handlers
+2. Implement proper error status codes for permission and version errors
+3. Create consistent error-to-status code mapping
+4. Add comprehensive tests for status code verification
 
 ## Non-Goals
 
-1. Changing error message format
+1. Changing handler error messages
 2. Adding new error types
 3. Modifying success response format
-4. Changing API contracts
-
-## Technical Design
-
-### Overview
-
-The fix involves creating a standardized error-to-status code mapping and updating all handlers to use this mapping consistently.
-
-### Error Status Code Mapping
-
-```rust
-// libs/handlers/src/error.rs
-
-#[derive(Debug)]
-pub enum HandlerError {
-    NotFound(String),
-    Unauthorized(String),
-    Forbidden(String),
-    BadRequest(String),
-    Conflict(String),
-    Internal(String),
-}
-
-impl HandlerError {
-    pub fn status_code(&self) -> StatusCode {
-        match self {
-            HandlerError::NotFound(_) => StatusCode::NOT_FOUND,
-            HandlerError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
-            HandlerError::Forbidden(_) => StatusCode::FORBIDDEN,
-            HandlerError::BadRequest(_) => StatusCode::BAD_REQUEST,
-            HandlerError::Conflict(_) => StatusCode::CONFLICT,
-            HandlerError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
-        }
-    }
-}
-
-impl From<HandlerError> for Response {
-    fn from(error: HandlerError) -> Self {
-        let status = error.status_code();
-        let body = json!({
-            "error": {
-                "message": error.to_string(),
-                "code": status.as_u16()
-            }
-        });
-        
-        Response::builder()
-            .status(status)
-            .header("Content-Type", "application/json")
-            .body(body.to_string())
-            .unwrap_or_else(|_| {
-                Response::builder()
-                    .status(StatusCode::INTERNAL_SERVER_ERROR)
-                    .body("Internal server error".to_string())
-                    .unwrap()
-            })
-    }
-}
-```
-
-### Handler Updates
-
-Example handler update:
-
-```rust
-// libs/handlers/src/assets/get_asset.rs
-
-pub async fn get_asset_handler(
-    asset_id: &Uuid,
-    user: &AuthenticatedUser,
-) -> Result<Response, HandlerError> {
-    let asset = match Asset::find_by_id(asset_id).await {
-        Ok(asset) => asset,
-        Err(_) => return Err(HandlerError::NotFound(
-            format!("Asset {} not found", asset_id)
-        )),
-    };
-    
-    if !user.can_view(&asset) {
-        return Err(HandlerError::Forbidden(
-            "User does not have permission to view this asset".to_string()
-        ));
-    }
-    
-    Ok(Response::builder()
-        .status(StatusCode::OK)
-        .body(json!(asset).to_string())
-        .unwrap())
-}
-```
-
-### Test Cases
-
-```rust
-// libs/handlers/tests/error_status_test.rs
-
-#[tokio::test]
-async fn test_not_found_status() -> Result<()> {
-    // Create test setup with admin user
-    let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
-    let fake_id = Uuid::new_v4();
-    
-    let response = get_asset_handler(
-        &fake_id,
-        &setup.user
-    ).await;
-    
-    assert!(response.is_err());
-    let err = response.unwrap_err();
-    assert_eq!(err.status_code(), StatusCode::NOT_FOUND);
-    
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_forbidden_status() -> Result<()> {
-    // Create test setup with viewer role
-    let setup = TestSetup::new(Some(UserOrganizationRole::Viewer)).await?;
-    
-    // Create asset without permissions
-    let asset_id = AssetTestHelpers::create_test_asset(
-        &setup.db,
-        "Test Asset",
-        setup.organization.id
-    ).await?;
-    
-    let response = get_asset_handler(
-        &asset_id,
-        &setup.user
-    ).await;
-    
-    assert!(response.is_err());
-    let err = response.unwrap_err();
-    assert_eq!(err.status_code(), StatusCode::FORBIDDEN);
-    
-    // Verify error is logged
-    let mut conn = setup.db.diesel_conn().await?;
-    let error_log = error_logs::table
-        .filter(error_logs::asset_id.eq(asset_id))
-        .filter(error_logs::user_id.eq(setup.user.id))
-        .first::<ErrorLog>(&mut conn)
-        .await?;
-    
-    assert_eq!(error_log.status_code, StatusCode::FORBIDDEN.as_u16() as i32);
-    
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_error_response_format() -> Result<()> {
-    // Create test setup with viewer role
-    let setup = TestSetup::new(Some(UserOrganizationRole::Viewer)).await?;
-    
-    // Create test asset
-    let asset_id = AssetTestHelpers::create_test_asset(
-        &setup.db,
-        "Test Asset",
-        setup.organization.id
-    ).await?;
-    
-    let response = get_asset_handler(
-        &asset_id,
-        &setup.user
-    ).await;
-    
-    assert!(response.is_err());
-    let err = response.unwrap_err();
-    
-    // Convert error to response
-    let error_response: Response = err.into();
-    
-    // Verify response format
-    let body = hyper::body::to_bytes(error_response.into_body()).await?;
-    let error_json: serde_json::Value = serde_json::from_slice(&body)?;
-    
-    assert!(error_json.get("error").is_some());
-    assert!(error_json["error"].get("message").is_some());
-    assert!(error_json["error"].get("code").is_some());
-    
-    Ok(())
-}
-```
-
-### Dependencies
-
-1. Test infrastructure from [Test Infrastructure Setup](api_test_infrastructure.md)
-2. Existing handler implementations
-3. HTTP status code definitions
-4. Error type definitions
+4. Changing handler logic
 
 ## Implementation Plan
 
-### Phase 1: Error Type Updates
+### Phase 1: Error Mapping ⏳ (In Progress)
 
-1. Create/update error types
-2. Implement status code mapping
-3. Add error response formatting
-4. Update documentation
+#### Technical Design
 
-### Phase 2: Handler Updates
+```rust
+// Error mapping structure
+pub struct ErrorMapping {
+    pub pattern: &'static str,
+    pub status: StatusCode,
+    pub message: &'static str,
+}
 
-1. Update handlers to use new error types
-2. Add proper status code returns
-3. Implement error handling
-4. Add tests
+// Error mappings
+const ERROR_MAPPINGS: &[ErrorMapping] = &[
+    ErrorMapping {
+        pattern: "don't have permission",
+        status: StatusCode::FORBIDDEN,
+        message: "Permission denied",
+    },
+    ErrorMapping {
+        pattern: "not found",
+        status: StatusCode::NOT_FOUND,
+        message: "Resource not found",
+    },
+    // ... more mappings
+];
+```
 
-### Phase 3: Testing
+#### Implementation Steps
+1. [ ] Create error mapping structure
+   - Define error patterns
+   - Map to status codes
+   - Standardize messages
+   - Testing requirements:
+     - Pattern matching
+     - Message formatting
+     - Edge cases
 
-1. Add status code tests
-2. Test error scenarios
-3. Verify response formats
-4. Test edge cases
+2. [ ] Update metric route handler
+   - Add error mapping
+   - Update response format
+   - Testing requirements:
+     - All error types
+     - Status code verification
+     - Message validation
 
-## Testing Strategy
+3. [ ] Update dashboard route handler
+   - Add error mapping
+   - Update response format
+   - Testing requirements:
+     - All error types
+     - Status code verification
+     - Message validation
 
-### Unit Tests
+#### Tests
 
-- Test error type mapping
-- Test status code assignment
-- Test error response format
-- Test handler error cases
+##### Unit Tests
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-### Integration Tests
+    #[test]
+    fn test_permission_denied_mapping() {
+        let error = anyhow!("User doesn't have permission to access this resource");
+        let result = map_error(error);
+        assert_eq!(result.status(), StatusCode::FORBIDDEN);
+        assert_eq!(result.message(), "Permission denied");
+    }
 
-- Test complete request flow
-- Verify status codes
-- Test error scenarios
-- Test response format
+    #[test]
+    fn test_not_found_mapping() {
+        let error = anyhow!("Metric not found");
+        let result = map_error(error);
+        assert_eq!(result.status(), StatusCode::NOT_FOUND);
+        assert_eq!(result.message(), "Resource not found");
+    }
 
-## Success Criteria
+    #[test]
+    fn test_version_not_found_mapping() {
+        let error = anyhow!("Version 123 not found");
+        let result = map_error(error);
+        assert_eq!(result.status(), StatusCode::NOT_FOUND);
+        assert_eq!(result.message(), "Version not found");
+    }
 
-1. All handlers return correct status codes
-2. Error responses are properly formatted
-3. Tests pass for all scenarios
-4. Documentation is updated
+    #[test]
+    fn test_unknown_error_mapping() {
+        let error = anyhow!("Some unexpected error");
+        let result = map_error(error);
+        assert_eq!(result.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+}
+```
 
-## Rollout Plan
+##### Integration Tests
+- Test Scenario: Permission Denied
+  - Setup:
+    - Create test metric
+    - Create user without permissions
+  - Steps:
+    1. Attempt to access metric
+    2. Verify response
+  - Assertions:
+    - Status code is 403
+    - Message is "Permission denied"
+  - Edge Cases:
+    - Inherited permissions
+    - Public resources
+    - Invalid user
 
-1. Implement error type changes
-2. Update handlers incrementally
-3. Deploy to staging
-4. Monitor for issues
-5. Deploy to production
+- Test Scenario: Resource Not Found
+  - Setup:
+    - Create test user
+    - Generate invalid UUID
+  - Steps:
+    1. Attempt to access non-existent resource
+    2. Verify response
+  - Assertions:
+    - Status code is 404
+    - Message is "Resource not found"
+  - Edge Cases:
+    - Deleted resources
+    - Case sensitivity
+    - Special characters
 
-## Appendix
+#### Success Criteria
+- [ ] All error mappings implemented
+- [ ] Unit tests passing
+- [ ] Integration tests passing
+- [ ] Consistent behavior across asset types
 
-### Related Files
+### Phase 2: Handler Updates 🔜 (Not Started)
 
-- `libs/handlers/src/error.rs`
-- `libs/handlers/src/assets/*.rs`
-- `libs/handlers/tests/error_status_test.rs`
-- `libs/handlers/tests/assets/*.rs`
+[Similar structure to Phase 1]
 
-### HTTP Status Code Reference
+## Dependencies on Other Components
 
-Common status codes used:
-- 200: OK
-- 201: Created
-- 400: Bad Request
-- 401: Unauthorized
-- 403: Forbidden
-- 404: Not Found
-- 409: Conflict
-- 500: Internal Server Error 
+1. Test Infrastructure
+   - Interface: TestDb for database access
+   - Testing: Permission setup utilities
+
+2. Asset Handlers
+   - Interface: Error types and messages
+   - Testing: Error generation scenarios
+
+## Security Considerations
+
+- Consideration 1: Error Information Exposure
+  - Risk: Detailed errors could expose system info
+  - Mitigation: Standardized error messages
+  - Testing: Message content validation
+
+- Consideration 2: Permission Checks
+  - Risk: Incorrect status codes bypass frontend checks
+  - Mitigation: Comprehensive error mapping
+  - Testing: All permission scenarios
+
+## References
+
+- [HTTP Status Code Standards](link_to_standards)
+- [Error Handling Guidelines](link_to_guidelines)
+- [Testing Best Practices](link_to_practices) 
