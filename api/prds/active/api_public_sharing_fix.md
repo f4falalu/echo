@@ -444,26 +444,26 @@ Would you like me to implement any additional test cases or modify the existing 
 ## Implementation Plan
 
 ### Phase 1: Type Updates
-1. [ ] Add `UpdateField` enum
-2. [ ] Update sharing request structs
-3. [ ] Add helper methods for diesel conversion
+1. [x] Add `UpdateField` enum
+2. [x] Update sharing request structs
+3. [x] Add helper methods for diesel conversion
 
 ### Phase 2: Handler Updates
-1. [ ] Update metric sharing handler
-2. [ ] Update dashboard sharing handler
-3. [ ] Add changeset logic
-4. [ ] Update tests
+1. [x] Update metric sharing handler
+2. [x] Update dashboard sharing handler
+3. [x] Add changeset logic
+4. [x] Update tests
 
 ### Phase 3: REST Updates
-1. [ ] Update REST handlers for new types
-2. [ ] Add request validation
-3. [ ] Update error handling
+1. [x] Update REST handlers for new types
+2. [x] Add request validation
+3. [x] Update error handling
 
 ## Success Criteria
-1. [ ] Clear distinction between null and no-change cases
-2. [ ] Proper handling of public sharing fields
-3. [ ] Consistent behavior across assets
-4. [ ] All tests passing
+1. [x] Clear distinction between null and no-change cases
+2. [x] Proper handling of public sharing fields
+3. [x] Consistent behavior across assets
+4. [x] All tests passing
 
 ## References
 

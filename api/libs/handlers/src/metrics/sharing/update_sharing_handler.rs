@@ -10,7 +10,11 @@ use diesel::ExpressionMethods;
 use diesel_async::RunQueryDsl as AsyncRunQueryDsl;
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
-use sharing::{check_permission_access, create_asset_permission::create_share_by_email};
+use sharing::{
+    check_permission_access, 
+    create_asset_permission::create_share_by_email,
+    types::UpdateField,
+};
 use tracing::info;
 use uuid::Uuid;
 
@@ -28,10 +32,12 @@ pub struct UpdateMetricSharingRequest {
     pub users: Option<Vec<ShareRecipient>>,
     /// Whether the metric should be publicly accessible
     pub publicly_accessible: Option<bool>,
-    /// Password for public access (if null, will clear existing password)
-    pub public_password: Option<Option<String>>,
-    /// Expiration date for public access (if null, will clear existing expiration)
-    pub public_expiry_date: Option<Option<DateTime<Utc>>>,
+    /// Password for public access
+    #[serde(default)]
+    pub public_password: UpdateField<String>,
+    /// Expiration date for public access
+    #[serde(default)]
+    pub public_expiry_date: UpdateField<DateTime<Utc>>,
 }
 
 /// Handler to update sharing permissions for a metric
@@ -115,54 +121,97 @@ pub async fn update_metric_sharing_handler(
     }
 
     // 4. Update public access settings if provided
-    if request.publicly_accessible.is_some() || request.public_expiry_date.is_some() {
-        // No need to get a new connection as we already have one
-
-        // Create a mutable metric record to update using the metric we already have
-        let mut metric = metric_file;
-
-        // Update publicly_accessible if provided
-        if let Some(publicly_accessible) = request.publicly_accessible {
-            info!(
-                metric_id = %metric_id,
-                publicly_accessible = publicly_accessible,
-                "Updating public accessibility for metric"
-            );
-
-            metric.metric_file.publicly_accessible = publicly_accessible;
-
-            // Set publicly_enabled_by based on publicly_accessible value
-            if publicly_accessible {
-                metric.metric_file.publicly_enabled_by = Some(user.id);
-            } else {
-                metric.metric_file.publicly_enabled_by = None;
+    // Load current metric data for updates
+    let metric = metric_file.metric_file;
+    
+    // Create update values with current values as defaults
+    let mut publicly_accessible = metric.publicly_accessible;
+    let mut publicly_enabled_by = metric.publicly_enabled_by;
+    let mut public_password = metric.public_password;
+    let mut public_expiry_date = metric.public_expiry_date;
+    let mut update_needed = false;
+    
+    // Update publicly_accessible if provided
+    if let Some(value) = request.publicly_accessible {
+        info!(
+            metric_id = %metric_id,
+            "Updating public accessibility for metric to {}",
+            value
+        );
+        publicly_accessible = value;
+        
+        // Update publicly_enabled_by based on publicly_accessible
+        publicly_enabled_by = if value {
+            Some(user.id)
+        } else {
+            None
+        };
+        
+        update_needed = true;
+    }
+    
+    // Handle public_password using UpdateField
+    match request.public_password {
+        UpdateField::Update(password) => {
+            if password.trim().is_empty() {
+                return Err(anyhow!("Public password cannot be empty"));
             }
-        }
-
-        // Update public_expiry_date if provided
-        if let Some(public_expiration) = &request.public_expiry_date {
             info!(
                 metric_id = %metric_id,
-                "Updating public expiration for metric"
+                "Setting public password for metric"
             );
-
-            metric.metric_file.public_expiry_date = *public_expiration;
+            public_password = Some(password);
+            update_needed = true;
         }
-
-        // Update the metric in the database
+        UpdateField::SetNull => {
+            info!(
+                metric_id = %metric_id,
+                "Removing public password for metric"
+            );
+            public_password = None;
+            update_needed = true;
+        }
+        UpdateField::NoChange => {}
+    }
+    
+    // Handle public_expiry_date using UpdateField
+    match request.public_expiry_date {
+        UpdateField::Update(date) => {
+            // Validate that expiry date is in the future
+            if date < Utc::now() {
+                return Err(anyhow!("Public expiry date must be in the future"));
+            }
+            info!(
+                metric_id = %metric_id,
+                "Setting public expiry date for metric"
+            );
+            public_expiry_date = Some(date);
+            update_needed = true;
+        }
+        UpdateField::SetNull => {
+            info!(
+                metric_id = %metric_id,
+                "Removing public expiry date for metric"
+            );
+            public_expiry_date = None;
+            update_needed = true;
+        }
+        UpdateField::NoChange => {}
+    }
+    
+    // Execute the update if any changes were made
+    if update_needed {
         diesel::update(dsl::metric_files)
             .filter(dsl::id.eq(metric_id))
             .set((
-                dsl::publicly_accessible.eq(metric.metric_file.publicly_accessible),
-                dsl::publicly_enabled_by.eq(metric.metric_file.publicly_enabled_by),
-                dsl::public_expiry_date.eq(metric.metric_file.public_expiry_date),
+                dsl::publicly_accessible.eq(publicly_accessible),
+                dsl::publicly_enabled_by.eq(publicly_enabled_by),
+                dsl::public_password.eq(public_password),
+                dsl::public_expiry_date.eq(public_expiry_date),
             ))
             .execute(&mut conn)
             .await?;
     }
-
-    // Note: Currently public_password is not implemented
-    // If public_password becomes needed in the future, additional implementation will be required
 
     Ok(())
 }
@@ -178,13 +227,13 @@ mod tests {
             id: Uuid::new_v4(),
             email: "test@example.com".to_string(),
             organizations: vec![],
-            name: todo!(),
-            config: todo!(),
-            created_at: todo!(),
-            updated_at: todo!(),
-            attributes: todo!(),
-            avatar_url: todo!(),
-            teams: todo!(),
+            name: Some("Test".to_string()),
+            config: serde_json::Value::Null,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            attributes: serde_json::Value::Null,
+            avatar_url: None,
+            teams: vec![],
         };
 
         let request = UpdateMetricSharingRequest {
@@ -193,8 +242,8 @@ mod tests {
                 role: AssetPermissionRole::CanView,
             }]),
             publicly_accessible: None,
-            public_password: None,
-            public_expiry_date: None,
+            public_password: UpdateField::NoChange,
+            public_expiry_date: UpdateField::NoChange,
         };
 
         let result = update_metric_sharing_handler(&metric_id, &user, request).await;
@@ -211,20 +260,20 @@ mod tests {
             id: Uuid::new_v4(),
             email: "test@example.com".to_string(),
             organizations: vec![],
-            name: todo!(),
-            config: todo!(),
-            created_at: todo!(),
-            updated_at: todo!(),
-            attributes: todo!(),
-            avatar_url: todo!(),
-            teams: todo!(),
+            name: Some("Test".to_string()),
+            config: serde_json::Value::Null,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            attributes: serde_json::Value::Null,
+            avatar_url: None,
+            teams: vec![],
         };
 
         let request = UpdateMetricSharingRequest {
             users: None,
             publicly_accessible: Some(true),
-            public_password: None,
-            public_expiry_date: Some(Some(Utc::now())),
+            public_password: UpdateField::NoChange,
+            public_expiry_date: UpdateField::Update(Utc::now() + chrono::Duration::days(1)),
         };
 
         let result = update_metric_sharing_handler(&metric_id, &user, request).await;
@@ -243,20 +292,20 @@ mod tests {
             id: Uuid::new_v4(),
             email: "test@example.com".to_string(),
             organizations: vec![],
-            name: todo!(),
-            config: todo!(),
-            created_at: todo!(),
-            updated_at: todo!(),
-            attributes: todo!(),
-            avatar_url: todo!(),
-            teams: todo!(),
+            name: Some("Test".to_string()),
+            config: serde_json::Value::Null,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            attributes: serde_json::Value::Null,
+            avatar_url: None,
+            teams: vec![],
         };
 
         let request = UpdateMetricSharingRequest {
             users: None,
             publicly_accessible: Some(true),
-            public_password: None,
-            public_expiry_date: Some(Some(Utc::now())),
+            public_password: UpdateField::NoChange,
+            public_expiry_date: UpdateField::Update(Utc::now() + chrono::Duration::days(1)),
         };
 
         // This test will fail in isolation as we can't easily mock the database

@@ -162,7 +162,7 @@ mod tests {
        - Error scenarios
        - Permission checks
 
-2. [Metric Status Update Fix](api_metric_status_fix.md) ✅
+2. [Metric Status Update Fix](api_metric_status_fix.md) ⏳
    - Dependencies: Test Infrastructure
    - Can be developed concurrently with: 1, 3, 4
    - Testing Requirements:
@@ -184,7 +184,7 @@ mod tests {
        - Sharing scenarios
        - Permission checks
 
-4. [Permission Field Fix](api_permission_field_fix.md) ✅
+4. [Permission Field Fix](api_permission_field_fix.md) ⏳
    - Dependencies: Test Infrastructure
    - Can be developed concurrently with: 1, 2, 3
    - Testing Requirements:

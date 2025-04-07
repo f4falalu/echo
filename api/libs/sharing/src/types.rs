@@ -6,6 +6,44 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+/// Represents a field that can be either kept unchanged, set to null, or updated with a value
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum UpdateField<T> {
+    /// Don't change the current value
+    NoChange,
+    /// Set the value to null/None
+    SetNull,
+    /// Update with a new value
+    Update(T),
+}
+
+impl<T> Default for UpdateField<T> {
+    fn default() -> Self {
+        UpdateField::NoChange
+    }
+}
+
+impl<T> UpdateField<T> {
+    /// Converts the UpdateField into an Option<Option<T>> for diesel
+    pub fn into_option(self) -> Option<Option<T>> {
+        match self {
+            UpdateField::NoChange => None,
+            UpdateField::SetNull => Some(None),
+            UpdateField::Update(value) => Some(Some(value)),
+        }
+    }
+
+    /// Creates an UpdateField from an Option<Option<T>> (for backward compatibility)
+    pub fn from_option(option: Option<Option<T>>) -> Self {
+        match option {
+            None => UpdateField::NoChange,
+            Some(None) => UpdateField::SetNull,
+            Some(Some(value)) => UpdateField::Update(value),
+        }
+    }
+}
+
 /// Represents the permission level required for an operation
 /// This is used to check if a user has sufficient permission level
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
