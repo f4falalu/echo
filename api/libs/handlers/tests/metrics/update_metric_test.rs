@@ -209,11 +209,50 @@ fn create_default_chart_config() -> database::types::metric_yml::ChartConfig {
 // Test unauthorized access
 #[tokio::test]
 async fn test_update_metric_status_unauthorized() -> Result<()> {
-    // Initialize lazy static to ensure pools are initialized
-    lazy_static::initialize(&_INIT);
+    // Initialize database connection pool
+    if let Err(e) = init_pools().await {
+        panic!("Failed to initialize test pools: {}", e);
+    }
     
-    // Set up test environment with viewer user (limited permissions)
-    let setup = TestSetup::new(Some(UserOrganizationRole::Viewer)).await?;
+    // Create a test ID for unique naming
+    let test_id = format!("test-{}", Uuid::new_v4());
+    
+    // Create organization and user IDs
+    let organization_id = Uuid::new_v4();
+    let user_id = Uuid::new_v4();
+    
+    // Create mock user and organization - with VIEWER role
+    let user = AuthenticatedUser {
+        id: user_id,
+        email: format!("test-{}@example.com", test_id),
+        name: Some(format!("Test User {}", test_id)),
+        config: json!({"preferences": {"theme": "light"}}),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        attributes: json!({}),
+        avatar_url: None,
+        organizations: vec![OrganizationMembership {
+            id: organization_id,
+            role: UserOrganizationRole::Viewer,
+        }],
+        teams: vec![],
+    };
+    
+    let organization = Organization {
+        id: organization_id,
+        name: format!("Test Organization {}", test_id),
+        domain: Some(format!("test-{}.org", test_id)),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        deleted_at: None,
+    };
+    
+    // Create our simplified test setup
+    let setup = TestSetup {
+        user,
+        organization,
+        test_id,
+    };
     
     // Create a test metric file
     let metric_id = Uuid::new_v4();
@@ -323,11 +362,50 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
 // Test edge cases for status updates
 #[tokio::test]
 async fn test_update_metric_status_null_value() -> Result<()> {
-    // Initialize lazy static to ensure pools are initialized
-    lazy_static::initialize(&_INIT);
+    // Initialize database connection pool
+    if let Err(e) = init_pools().await {
+        panic!("Failed to initialize test pools: {}", e);
+    }
     
-    // Set up test environment with admin user
-    let setup = TestSetup::new(Some(UserOrganizationRole::WorkspaceAdmin)).await?;
+    // Create a test ID for unique naming
+    let test_id = format!("test-{}", Uuid::new_v4());
+    
+    // Create organization and user IDs
+    let organization_id = Uuid::new_v4();
+    let user_id = Uuid::new_v4();
+    
+    // Create mock user and organization
+    let user = AuthenticatedUser {
+        id: user_id,
+        email: format!("test-{}@example.com", test_id),
+        name: Some(format!("Test User {}", test_id)),
+        config: json!({"preferences": {"theme": "light"}}),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        attributes: json!({}),
+        avatar_url: None,
+        organizations: vec![OrganizationMembership {
+            id: organization_id,
+            role: UserOrganizationRole::WorkspaceAdmin,
+        }],
+        teams: vec![],
+    };
+    
+    let organization = Organization {
+        id: organization_id,
+        name: format!("Test Organization {}", test_id),
+        domain: Some(format!("test-{}.org", test_id)),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        deleted_at: None,
+    };
+    
+    // Create our simplified test setup
+    let setup = TestSetup {
+        user,
+        organization,
+        test_id,
+    };
     
     // Create a test metric file
     let metric_id = Uuid::new_v4();
