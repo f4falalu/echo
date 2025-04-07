@@ -11,333 +11,467 @@ ticket: BUS-1064
 
 ## Problem Statement
 
-The public sharing functionality is not properly handling sharing parameters, particularly in the context of asset visibility and access control. The current implementation has several issues:
-
 Current behavior:
-- Public sharing parameters are not properly validated
-- Inconsistent handling of visibility settings
-- Missing checks for valid sharing configurations
-- Lack of proper error handling for invalid parameters
+- Public sharing parameters using `Option<Option<T>>` are confusing and error-prone
+- Diesel treats `None` as "don't update" vs `Some(None)` as "update to null"
+- No clear distinction between "remove value" and "don't change value"
+- Inconsistent handling between metrics and dashboards
 
 Expected behavior:
-- Proper validation of all sharing parameters
-- Consistent visibility handling
-- Clear error messages for invalid configurations
-- Proper access control enforcement
-
-## Goals
-
-1. Fix public sharing parameter validation
-2. Implement proper visibility checks
-3. Add comprehensive parameter validation
-4. Improve error handling
-5. Add tests for sharing scenarios
-
-## Non-Goals
-
-1. Adding new sharing features
-2. Modifying sharing UI
-3. Changing sharing model
-4. Adding new permission types
+- Clear enum for handling null vs none cases
+- Consistent parameter handling across assets
+- Proper diesel changeset updates
+- Type-safe handling of public sharing fields
 
 ## Technical Design
 
-### Overview
-
-The fix involves updating the sharing parameter validation logic and implementing proper checks for visibility settings.
-
-### Parameter Validation
+### Parameter Types
 
 ```rust
-// libs/handlers/src/sharing/validate.rs
-
+/// Represents a field that can be either kept unchanged, set to null, or updated with a value
 #[derive(Debug, Serialize, Deserialize)]
-pub struct SharingParameters {
-    pub is_public: bool,
-    pub allow_anonymous: bool,
-    pub expiration: Option<DateTime<Utc>>,
-    pub access_level: AccessLevel,
+#[serde(rename_all = "snake_case")]
+pub enum UpdateField<T> {
+    NoChange,
+    SetNull,
+    Update(T),
 }
 
-impl SharingParameters {
-    pub fn validate(&self) -> Result<(), HandlerError> {
-        // Check for valid combinations
-        if self.is_public && !self.allow_anonymous {
-            return Err(HandlerError::BadRequest(
-                "Public sharing must allow anonymous access".to_string()
-            ));
+/// Request for updating sharing settings
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateSharingRequest {
+    /// List of users to share with
+    pub users: Option<Vec<ShareRecipient>>,
+    /// Whether the asset should be publicly accessible
+    pub publicly_accessible: Option<bool>,
+    /// Password for public access
+    pub public_password: UpdateField<String>,
+    /// Expiration date for public access
+    pub public_expiry_date: UpdateField<DateTime<Utc>>,
+}
+
+impl<T> UpdateField<T> {
+    /// Converts the UpdateField into an Option<Option<T>> for diesel
+    pub fn into_option(self) -> Option<Option<T>> {
+        match self {
+            UpdateField::NoChange => None,
+            UpdateField::SetNull => Some(None),
+            UpdateField::Update(value) => Some(Some(value)),
         }
-        
-        // Validate expiration
-        if let Some(exp) = self.expiration {
-            if exp < Utc::now() {
-                return Err(HandlerError::BadRequest(
-                    "Expiration date must be in the future".to_string()
-                ));
-            }
-        }
-        
-        // Validate access level
-        if self.is_public && self.access_level > AccessLevel::ReadOnly {
-            return Err(HandlerError::BadRequest(
-                "Public sharing cannot grant write access".to_string()
-            ));
-        }
-        
-        Ok(())
     }
 }
 ```
 
-### Sharing Handler Update
+### Handler Update
 
 ```rust
-// libs/handlers/src/sharing/update_sharing.rs
-
 pub async fn update_sharing_handler(
     asset_id: &Uuid,
     user: &AuthenticatedUser,
-    params: SharingParameters,
-) -> Result<Response, HandlerError> {
-    // Validate parameters
-    params.validate()?;
-    
-    // Check user permissions
-    let asset = Asset::find_by_id(asset_id).await?;
-    if !user.can_manage_sharing(&asset) {
-        return Err(HandlerError::Forbidden(
-            "User does not have permission to update sharing settings".to_string()
-        ));
+    request: UpdateSharingRequest,
+) -> Result<()> {
+    // ... permission checks ...
+
+    let mut changeset = diesel::update(dsl::asset_files)
+        .filter(dsl::id.eq(asset_id));
+
+    // Only include fields in changeset if they should be updated
+    if let Some(publicly_accessible) = request.publicly_accessible {
+        changeset = changeset.set(dsl::publicly_accessible.eq(publicly_accessible));
+        
+        // Update publicly_enabled_by based on publicly_accessible
+        let enabled_by = if publicly_accessible {
+            Some(user.id)
+        } else {
+            None
+        };
+        changeset = changeset.set(dsl::publicly_enabled_by.eq(enabled_by));
     }
-    
-    // Update sharing settings
-    asset.update_sharing(params).await?;
-    
-    Ok(Response::builder()
-        .status(StatusCode::OK)
-        .body(json!({"status": "success"}).to_string())
-        .unwrap())
+
+    // Handle public_password using UpdateField
+    match request.public_password {
+        UpdateField::Update(password) => {
+            changeset = changeset.set(dsl::public_password.eq(Some(password)));
+        }
+        UpdateField::SetNull => {
+            changeset = changeset.set(dsl::public_password.eq(None::<String>));
+        }
+        UpdateField::NoChange => {}
+    }
+
+    // Handle public_expiry_date using UpdateField
+    match request.public_expiry_date {
+        UpdateField::Update(date) => {
+            changeset = changeset.set(dsl::public_expiry_date.eq(Some(date)));
+        }
+        UpdateField::SetNull => {
+            changeset = changeset.set(dsl::public_expiry_date.eq(None::<DateTime<Utc>>));
+        }
+        UpdateField::NoChange => {}
+    }
+
+    // Execute the update
+    changeset.execute(&mut conn).await?;
+
+    Ok(())
 }
 ```
 
 ### Test Cases
 
 ```rust
-// libs/handlers/tests/sharing/sharing_params_test.rs
+// libs/handlers/tests/sharing/public_update_tests.rs
+
+use chrono::{Duration, Utc};
+use database::tests::common::{TestSetup, UserOrganizationRole};
+use database::tests::common::assets::AssetTestHelpers;
 
 #[tokio::test]
-async fn test_invalid_public_sharing() -> Result<()> {
-    // Create test setup with admin user
+async fn test_metric_public_updates() -> Result<()> {
     let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
     
-    let params = SharingParameters {
-        is_public: true,
-        allow_anonymous: false,
-        expiration: None,
-        access_level: AccessLevel::ReadOnly,
-    };
-    
-    let result = params.validate();
-    assert!(result.is_err());
-    
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_expired_sharing() -> Result<()> {
-    // Create test setup with admin user
-    let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
-    
-    let params = SharingParameters {
-        is_public: true,
-        allow_anonymous: true,
-        expiration: Some(Utc::now() - Duration::hours(1)),
-        access_level: AccessLevel::ReadOnly,
-    };
-    
-    let result = params.validate();
-    assert!(result.is_err());
-    
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_invalid_public_access() -> Result<()> {
-    // Create test setup with admin user
-    let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
-    
-    let params = SharingParameters {
-        is_public: true,
-        allow_anonymous: true,
-        expiration: None,
-        access_level: AccessLevel::ReadWrite,
-    };
-    
-    let result = params.validate();
-    assert!(result.is_err());
-    
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_valid_sharing() -> Result<()> {
-    // Create test setup with admin user
-    let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
-    
-    // Create test asset
-    let asset_id = AssetTestHelpers::create_test_asset(
+    // Create test metric
+    let metric_id = AssetTestHelpers::create_test_metric(
         &setup.db,
-        "Test Asset",
+        "Test Metric",
         setup.organization.id
     ).await?;
-    
-    // Add owner permission
-    PermissionTestHelpers::create_permission(
-        &setup.db,
-        asset_id,
-        setup.user.id,
-        AssetPermissionRole::Owner
-    ).await?;
-    
-    let params = SharingParameters {
-        is_public: true,
-        allow_anonymous: true,
-        expiration: Some(Utc::now() + Duration::days(7)),
-        access_level: AccessLevel::ReadOnly,
+
+    // Test 1: Make public with password and expiry
+    let request = UpdateMetricSharingRequest {
+        users: None,
+        publicly_accessible: Some(true),
+        public_password: UpdateField::Update("secretpass123".to_string()),
+        public_expiry_date: UpdateField::Update(Utc::now() + Duration::days(7)),
     };
-    
-    let response = update_sharing_handler(
-        &asset_id,
-        &setup.user,
-        params.clone()
-    ).await;
-    
-    assert!(response.is_ok());
-    
-    // Verify sharing settings in database
-    let mut conn = setup.db.diesel_conn().await?;
-    let sharing = sharing_settings::table
-        .filter(sharing_settings::asset_id.eq(asset_id))
-        .first::<SharingSettings>(&mut conn)
-        .await?;
-    
-    assert_eq!(sharing.is_public, params.is_public);
-    assert_eq!(sharing.allow_anonymous, params.allow_anonymous);
-    assert_eq!(sharing.access_level, params.access_level);
-    assert_eq!(sharing.expiration, params.expiration);
-    
+
+    let result = update_metric_sharing_handler(&metric_id, &setup.user, request).await;
+    assert!(result.is_ok());
+
+    // Verify updates
+    let metric = fetch_metric_with_permission(&metric_id, &setup.user.id).await?;
+    assert!(metric.publicly_accessible);
+    assert_eq!(metric.publicly_enabled_by, Some(setup.user.id));
+    assert_eq!(metric.public_password, Some("secretpass123".to_string()));
+    assert!(metric.public_expiry_date.is_some());
+
+    // Test 2: Remove password but keep public
+    let request = UpdateMetricSharingRequest {
+        users: None,
+        publicly_accessible: None, // Don't change
+        public_password: UpdateField::SetNull,
+        public_expiry_date: UpdateField::NoChange,
+    };
+
+    let result = update_metric_sharing_handler(&metric_id, &setup.user, request).await;
+    assert!(result.is_ok());
+
+    // Verify only password was removed
+    let metric = fetch_metric_with_permission(&metric_id, &setup.user.id).await?;
+    assert!(metric.publicly_accessible); // Still public
+    assert_eq!(metric.publicly_enabled_by, Some(setup.user.id));
+    assert_eq!(metric.public_password, None); // Password removed
+    assert!(metric.public_expiry_date.is_some()); // Expiry unchanged
+
+    // Test 3: Make private
+    let request = UpdateMetricSharingRequest {
+        users: None,
+        publicly_accessible: Some(false),
+        public_password: UpdateField::NoChange,
+        public_expiry_date: UpdateField::NoChange,
+    };
+
+    let result = update_metric_sharing_handler(&metric_id, &setup.user, request).await;
+    assert!(result.is_ok());
+
+    // Verify made private
+    let metric = fetch_metric_with_permission(&metric_id, &setup.user.id).await?;
+    assert!(!metric.publicly_accessible);
+    assert_eq!(metric.publicly_enabled_by, None);
+    assert_eq!(metric.public_password, None);
+    assert!(metric.public_expiry_date.is_some()); // Unchanged since NoChange
+
+    // Test 4: Clear all public settings
+    let request = UpdateMetricSharingRequest {
+        users: None,
+        publicly_accessible: Some(false),
+        public_password: UpdateField::SetNull,
+        public_expiry_date: UpdateField::SetNull,
+    };
+
+    let result = update_metric_sharing_handler(&metric_id, &setup.user, request).await;
+    assert!(result.is_ok());
+
+    // Verify all public settings cleared
+    let metric = fetch_metric_with_permission(&metric_id, &setup.user.id).await?;
+    assert!(!metric.publicly_accessible);
+    assert_eq!(metric.publicly_enabled_by, None);
+    assert_eq!(metric.public_password, None);
+    assert_eq!(metric.public_expiry_date, None);
+
     Ok(())
 }
 
 #[tokio::test]
-async fn test_sharing_update_history() -> Result<()> {
-    // Create test setup with admin user
+async fn test_dashboard_public_updates() -> Result<()> {
     let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
     
-    // Create test asset
-    let asset_id = AssetTestHelpers::create_test_asset(
+    // Create test dashboard
+    let dashboard_id = AssetTestHelpers::create_test_dashboard(
         &setup.db,
-        "Test Asset",
+        "Test Dashboard",
         setup.organization.id
     ).await?;
-    
-    // Add owner permission
-    PermissionTestHelpers::create_permission(
-        &setup.db,
-        asset_id,
-        setup.user.id,
-        AssetPermissionRole::Owner
-    ).await?;
-    
-    let params = SharingParameters {
-        is_public: true,
-        allow_anonymous: true,
-        expiration: None,
-        access_level: AccessLevel::ReadOnly,
+
+    // Test 1: Make public with expiry but no password
+    let request = UpdateDashboardSharingRequest {
+        users: None,
+        publicly_accessible: Some(true),
+        public_password: UpdateField::NoChange,
+        public_expiry_date: UpdateField::Update(Utc::now() + Duration::days(7)),
     };
+
+    let result = update_dashboard_sharing_handler(&dashboard_id, &setup.user, request).await;
+    assert!(result.is_ok());
+
+    // Verify updates
+    let dashboard = fetch_dashboard_with_permission(&dashboard_id, &setup.user.id).await?;
+    assert!(dashboard.publicly_accessible);
+    assert_eq!(dashboard.publicly_enabled_by, Some(setup.user.id));
+    assert_eq!(dashboard.public_password, None);
+    assert!(dashboard.public_expiry_date.is_some());
+
+    // Test 2: Add password to public dashboard
+    let request = UpdateDashboardSharingRequest {
+        users: None,
+        publicly_accessible: None, // Don't change
+        public_password: UpdateField::Update("dashpass123".to_string()),
+        public_expiry_date: UpdateField::NoChange,
+    };
+
+    let result = update_dashboard_sharing_handler(&dashboard_id, &setup.user, request).await;
+    assert!(result.is_ok());
+
+    // Verify password added
+    let dashboard = fetch_dashboard_with_permission(&dashboard_id, &setup.user.id).await?;
+    assert!(dashboard.publicly_accessible); // Still public
+    assert_eq!(dashboard.publicly_enabled_by, Some(setup.user.id));
+    assert_eq!(dashboard.public_password, Some("dashpass123".to_string()));
+    assert!(dashboard.public_expiry_date.is_some()); // Unchanged
+
+    // Test 3: Update expiry only
+    let new_expiry = Utc::now() + Duration::days(14);
+    let request = UpdateDashboardSharingRequest {
+        users: None,
+        publicly_accessible: None,
+        public_password: UpdateField::NoChange,
+        public_expiry_date: UpdateField::Update(new_expiry),
+    };
+
+    let result = update_dashboard_sharing_handler(&dashboard_id, &setup.user, request).await;
+    assert!(result.is_ok());
+
+    // Verify only expiry updated
+    let dashboard = fetch_dashboard_with_permission(&dashboard_id, &setup.user.id).await?;
+    assert!(dashboard.publicly_accessible); // Unchanged
+    assert_eq!(dashboard.publicly_enabled_by, Some(setup.user.id));
+    assert_eq!(dashboard.public_password, Some("dashpass123".to_string())); // Unchanged
+    assert!(dashboard.public_expiry_date.unwrap().timestamp() == new_expiry.timestamp());
+
+    // Test 4: Make private but keep password and expiry
+    let request = UpdateDashboardSharingRequest {
+        users: None,
+        publicly_accessible: Some(false),
+        public_password: UpdateField::NoChange,
+        public_expiry_date: UpdateField::NoChange,
+    };
+
+    let result = update_dashboard_sharing_handler(&dashboard_id, &setup.user, request).await;
+    assert!(result.is_ok());
+
+    // Verify made private but kept other settings
+    let dashboard = fetch_dashboard_with_permission(&dashboard_id, &setup.user.id).await?;
+    assert!(!dashboard.publicly_accessible);
+    assert_eq!(dashboard.publicly_enabled_by, None);
+    assert_eq!(dashboard.public_password, Some("dashpass123".to_string())); // Unchanged
+    assert!(dashboard.public_expiry_date.is_some()); // Unchanged
+
+    // Test 5: Clear all public settings
+    let request = UpdateDashboardSharingRequest {
+        users: None,
+        publicly_accessible: Some(false),
+        public_password: UpdateField::SetNull,
+        public_expiry_date: UpdateField::SetNull,
+    };
+
+    let result = update_dashboard_sharing_handler(&dashboard_id, &setup.user, request).await;
+    assert!(result.is_ok());
+
+    // Verify all public settings cleared
+    let dashboard = fetch_dashboard_with_permission(&dashboard_id, &setup.user.id).await?;
+    assert!(!dashboard.publicly_accessible);
+    assert_eq!(dashboard.publicly_enabled_by, None);
+    assert_eq!(dashboard.public_password, None);
+    assert_eq!(dashboard.public_expiry_date, None);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_public_update_edge_cases() -> Result<()> {
+    let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
     
-    // Update sharing settings
-    update_sharing_handler(
-        &asset_id,
-        &setup.user,
-        params
+    // Create test metric
+    let metric_id = AssetTestHelpers::create_test_metric(
+        &setup.db,
+        "Test Metric",
+        setup.organization.id
     ).await?;
+
+    // Test 1: Make public with expired date (should fail)
+    let request = UpdateMetricSharingRequest {
+        users: None,
+        publicly_accessible: Some(true),
+        public_password: UpdateField::NoChange,
+        public_expiry_date: UpdateField::Update(Utc::now() - Duration::days(1)),
+    };
+
+    let result = update_metric_sharing_handler(&metric_id, &setup.user, request).await;
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("expiry date must be in the future"));
+
+    // Test 2: Update with empty password (should fail)
+    let request = UpdateMetricSharingRequest {
+        users: None,
+        publicly_accessible: Some(true),
+        public_password: UpdateField::Update("".to_string()),
+        public_expiry_date: UpdateField::NoChange,
+    };
+
+    let result = update_metric_sharing_handler(&metric_id, &setup.user, request).await;
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("password cannot be empty"));
+
+    // Test 3: Concurrent updates
+    let concurrent_setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
+
+    let request1 = UpdateMetricSharingRequest {
+        users: None,
+        publicly_accessible: Some(true),
+        public_password: UpdateField::Update("pass1".to_string()),
+        public_expiry_date: UpdateField::NoChange,
+    };
+
+    let request2 = UpdateMetricSharingRequest {
+        users: None,
+        publicly_accessible: Some(true),
+        public_password: UpdateField::Update("pass2".to_string()),
+        public_expiry_date: UpdateField::NoChange,
+    };
+
+    let (result1, result2) = tokio::join!(
+        update_metric_sharing_handler(&metric_id, &setup.user, request1),
+        update_metric_sharing_handler(&metric_id, &concurrent_setup.user, request2)
+    );
+
+    assert!(result1.is_ok() || result2.is_ok()); // At least one should succeed
     
-    // Verify history entry in database
-    let mut conn = setup.db.diesel_conn().await?;
-    let history = sharing_history::table
-        .filter(sharing_history::asset_id.eq(asset_id))
-        .order_by(sharing_history::created_at.desc())
-        .first::<SharingHistory>(&mut conn)
-        .await?;
+    // Verify final state (last write wins)
+    let metric = fetch_metric_with_permission(&metric_id, &setup.user.id).await?;
+    assert!(metric.publicly_accessible);
+    assert!(metric.public_password == Some("pass1".to_string()) || 
+           metric.public_password == Some("pass2".to_string()));
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_public_update_permissions() -> Result<()> {
+    // Test with viewer role (should not be able to update public settings)
+    let setup = TestSetup::new(Some(UserOrganizationRole::Viewer)).await?;
     
-    assert_eq!(history.user_id, setup.user.id);
-    assert_eq!(history.action, "update");
-    
+    let metric_id = AssetTestHelpers::create_test_metric(
+        &setup.db,
+        "Test Metric",
+        setup.organization.id
+    ).await?;
+
+    let request = UpdateMetricSharingRequest {
+        users: None,
+        publicly_accessible: Some(true),
+        public_password: UpdateField::NoChange,
+        public_expiry_date: UpdateField::NoChange,
+    };
+
+    let result = update_metric_sharing_handler(&metric_id, &setup.user, request).await;
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("permission"));
+
     Ok(())
 }
 ```
 
-### Dependencies
+These tests cover:
 
-1. Test infrastructure from [Test Infrastructure Setup](api_test_infrastructure.md)
-2. Existing sharing implementation
-3. Permission system
-4. Error handling system from [HTTP Status Code Fix](api_http_status_fix.md)
+1. Metric Public Updates:
+   - Making public with password and expiry
+   - Removing password while keeping public
+   - Making private
+   - Clearing all public settings
+
+2. Dashboard Public Updates:
+   - Making public with expiry only
+   - Adding password to public dashboard
+   - Updating expiry only
+   - Making private while keeping settings
+   - Clearing all public settings
+
+3. Edge Cases:
+   - Expired dates
+   - Empty passwords
+   - Concurrent updates
+   - Permission checks
+
+Each test verifies:
+- Correct field updates
+- Field preservation when using `NoChange`
+- Proper null handling with `SetNull`
+- Proper enabled_by updates
+- Permission enforcement
+
+Would you like me to implement any additional test cases or modify the existing ones?
 
 ## Implementation Plan
 
-### Phase 1: Parameter Validation
-
-1. Implement parameter validation
-2. Add validation tests
-3. Update error handling
-4. Document validation rules
+### Phase 1: Type Updates
+1. [ ] Add `UpdateField` enum
+2. [ ] Update sharing request structs
+3. [ ] Add helper methods for diesel conversion
 
 ### Phase 2: Handler Updates
+1. [ ] Update metric sharing handler
+2. [ ] Update dashboard sharing handler
+3. [ ] Add changeset logic
+4. [ ] Update tests
 
-1. Update sharing handlers
-2. Add validation checks
-3. Implement error handling
-4. Add handler tests
-
-### Phase 3: Testing
-
-1. Add validation tests
-2. Test sharing scenarios
-3. Test error cases
-4. Test edge cases
-
-## Testing Strategy
-
-### Unit Tests
-
-- Test parameter validation
-- Test invalid combinations
-- Test expiration handling
-- Test access level validation
-
-### Integration Tests
-
-- Test sharing updates
-- Test permission checks
-- Test error handling
-- Test complete sharing flow
+### Phase 3: REST Updates
+1. [ ] Update REST handlers for new types
+2. [ ] Add request validation
+3. [ ] Update error handling
 
 ## Success Criteria
+1. [ ] Clear distinction between null and no-change cases
+2. [ ] Proper handling of public sharing fields
+3. [ ] Consistent behavior across assets
+4. [ ] All tests passing
 
-1. All sharing parameters are properly validated
-2. Invalid configurations are rejected
-3. Tests pass for all scenarios
-4. Documentation is updated
+## References
 
-## Rollout Plan
-
-1. Implement validation changes
-2. Update handlers
-3. Deploy to staging
-4. Monitor for issues
-5. Deploy to production
+### Related Files
+- `libs/handlers/src/metrics/sharing/update_sharing_handler.rs`
+- `libs/handlers/src/dashboards/sharing/update_sharing_handler.rs`
+- `server/src/routes/rest/routes/metrics/sharing/update_sharing.rs`
+- `server/src/routes/rest/routes/dashboards/sharing/update_sharing.rs`
 
 ## Appendix
 

@@ -29,6 +29,7 @@ Current behavior:
 - Error status codes differ between metrics and dashboards
 - Error messages in status codes don't match handler messages
 - No standardized error response format
+- Public password requirement needs 418 Teapot status
 
 Expected behavior:
 - Permission denied returns 403 Forbidden
@@ -36,6 +37,7 @@ Expected behavior:
 - Consistent error handling across all asset types
 - Clear mapping between handler errors and status codes
 - Standardized error response format
+- Public password requirement returns 418 I'm a Teapot
 
 ## Goals
 
@@ -53,166 +55,158 @@ Expected behavior:
 
 ## Implementation Plan
 
-### Phase 1: Error Mapping ⏳ (In Progress)
+### Phase 1: REST Handler Updates ⏳ (In Progress)
 
 #### Technical Design
 
-```rust
-// Error mapping structure
-pub struct ErrorMapping {
-    pub pattern: &'static str,
-    pub status: StatusCode,
-    pub message: &'static str,
-}
+Update the REST handlers to use simple string matching for error mapping:
 
-// Error mappings
-const ERROR_MAPPINGS: &[ErrorMapping] = &[
-    ErrorMapping {
-        pattern: "don't have permission",
-        status: StatusCode::FORBIDDEN,
-        message: "Permission denied",
-    },
-    ErrorMapping {
-        pattern: "not found",
-        status: StatusCode::NOT_FOUND,
-        message: "Resource not found",
-    },
-    // ... more mappings
-];
+```rust
+// Example for get_metric.rs
+pub async fn get_metric_rest_handler(
+    Extension(user): Extension<AuthenticatedUser>,
+    Path(id): Path<Uuid>,
+    Query(params): Query<GetMetricQueryParams>,
+) -> Result<ApiResponse<BusterMetric>, (StatusCode, &'static str)> {
+    match get_metric_handler(&id, &user, params.version_number).await {
+        Ok(response) => Ok(ApiResponse::JsonData(response)),
+        Err(e) => {
+            tracing::error!("Error getting metric: {}", e);
+            let error_message = e.to_string();
+            
+            // Simple string matching for common error cases
+            if error_message.contains("public_password required") {
+                return Err((StatusCode::IM_A_TEAPOT, "Password required for public access"));
+            }
+            if error_message.contains("don't have permission") {
+                return Err((StatusCode::FORBIDDEN, "Permission denied"));
+            }
+            if error_message.contains("Version") && error_message.contains("not found") {
+                return Err((StatusCode::NOT_FOUND, "Version not found"));
+            }
+            if error_message.contains("not found") {
+                return Err((StatusCode::NOT_FOUND, "Metric not found"));
+            }
+            
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"))
+        }
+    }
+}
+```
+
+Similar update for dashboard handler:
+```rust
+// Example for get_dashboard.rs
+pub async fn get_dashboard_rest_handler(
+    Extension(user): Extension<AuthenticatedUser>,
+    Path(id): Path<Uuid>,
+    Query(params): Query<GetDashboardQueryParams>,
+) -> Result<ApiResponse<BusterDashboardResponse>, (StatusCode, &'static str)> {
+    match get_dashboard_handler(&id, &user, params.version_number).await {
+        Ok(response) => Ok(ApiResponse::JsonData(response)),
+        Err(e) => {
+            tracing::error!("Error getting dashboard: {}", e);
+            let error_message = e.to_string();
+            
+            // Use same error matching as metrics for consistency
+            if error_message.contains("public_password required") {
+                return Err((StatusCode::IM_A_TEAPOT, "Password required for public access"));
+            }
+            if error_message.contains("don't have permission") {
+                return Err((StatusCode::FORBIDDEN, "Permission denied"));
+            }
+            if error_message.contains("Version") && error_message.contains("not found") {
+                return Err((StatusCode::NOT_FOUND, "Version not found"));
+            }
+            if error_message.contains("not found") {
+                return Err((StatusCode::NOT_FOUND, "Dashboard not found"));
+            }
+            
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"))
+        }
+    }
+}
 ```
 
 #### Implementation Steps
-1. [ ] Create error mapping structure
-   - Define error patterns
-   - Map to status codes
-   - Standardize messages
-   - Testing requirements:
-     - Pattern matching
-     - Message formatting
-     - Edge cases
+1. [ ] Update metric REST handler
+   - Add error string matching
+   - Standardize error messages
+   - Add error logging
 
-2. [ ] Update metric route handler
-   - Add error mapping
-   - Update response format
-   - Testing requirements:
-     - All error types
-     - Status code verification
-     - Message validation
-
-3. [ ] Update dashboard route handler
-   - Add error mapping
-   - Update response format
-   - Testing requirements:
-     - All error types
-     - Status code verification
-     - Message validation
+2. [ ] Update dashboard REST handler
+   - Add error string matching
+   - Standardize error messages
+   - Add error logging
 
 #### Tests
 
-##### Unit Tests
 ```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_permission_denied_mapping() {
-        let error = anyhow!("User doesn't have permission to access this resource");
-        let result = map_error(error);
-        assert_eq!(result.status(), StatusCode::FORBIDDEN);
-        assert_eq!(result.message(), "Permission denied");
-    }
-
-    #[test]
-    fn test_not_found_mapping() {
-        let error = anyhow!("Metric not found");
-        let result = map_error(error);
-        assert_eq!(result.status(), StatusCode::NOT_FOUND);
-        assert_eq!(result.message(), "Resource not found");
-    }
-
-    #[test]
-    fn test_version_not_found_mapping() {
-        let error = anyhow!("Version 123 not found");
-        let result = map_error(error);
-        assert_eq!(result.status(), StatusCode::NOT_FOUND);
-        assert_eq!(result.message(), "Version not found");
-    }
-
-    #[test]
-    fn test_unknown_error_mapping() {
-        let error = anyhow!("Some unexpected error");
-        let result = map_error(error);
-        assert_eq!(result.status(), StatusCode::INTERNAL_SERVER_ERROR);
-    }
+#[tokio::test]
+async fn test_metric_errors() -> Result<()> {
+    let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
+    
+    // Test not found
+    let response = get_metric_rest_handler(
+        Extension(setup.user.clone()),
+        Path(Uuid::new_v4()),
+        Query(GetMetricQueryParams { version_number: None })
+    ).await;
+    
+    assert!(matches!(response, Err((StatusCode::NOT_FOUND, _))));
+    
+    // Test permission denied
+    let metric_id = AssetTestHelpers::create_test_metric(
+        &setup.db,
+        "Test Metric",
+        setup.organization.id
+    ).await?;
+    
+    let viewer = TestSetup::new(Some(UserOrganizationRole::Viewer)).await?;
+    let response = get_metric_rest_handler(
+        Extension(viewer.user),
+        Path(metric_id),
+        Query(GetMetricQueryParams { version_number: None })
+    ).await;
+    
+    assert!(matches!(response, Err((StatusCode::FORBIDDEN, _))));
+    
+    Ok(())
 }
+
+// Similar test for dashboard errors
 ```
 
-##### Integration Tests
-- Test Scenario: Permission Denied
-  - Setup:
-    - Create test metric
-    - Create user without permissions
-  - Steps:
-    1. Attempt to access metric
-    2. Verify response
-  - Assertions:
-    - Status code is 403
-    - Message is "Permission denied"
-  - Edge Cases:
-    - Inherited permissions
-    - Public resources
-    - Invalid user
-
-- Test Scenario: Resource Not Found
-  - Setup:
-    - Create test user
-    - Generate invalid UUID
-  - Steps:
-    1. Attempt to access non-existent resource
-    2. Verify response
-  - Assertions:
-    - Status code is 404
-    - Message is "Resource not found"
-  - Edge Cases:
-    - Deleted resources
-    - Case sensitivity
-    - Special characters
-
 #### Success Criteria
-- [ ] All error mappings implemented
-- [ ] Unit tests passing
-- [ ] Integration tests passing
-- [ ] Consistent behavior across asset types
+- [ ] REST handlers return correct status codes
+- [ ] Error messages are consistent
+- [ ] Tests pass for all error scenarios
+- [ ] Error handling matches between metrics and dashboards
 
-### Phase 2: Handler Updates 🔜 (Not Started)
+### Phase 2: Documentation Updates 🔜 (Not Started)
 
-[Similar structure to Phase 1]
-
-## Dependencies on Other Components
-
-1. Test Infrastructure
-   - Interface: TestDb for database access
-   - Testing: Permission setup utilities
-
-2. Asset Handlers
-   - Interface: Error types and messages
-   - Testing: Error generation scenarios
+1. Update API documentation with error codes
+2. Add examples of error responses
+3. Document error handling patterns
 
 ## Security Considerations
 
-- Consideration 1: Error Information Exposure
-  - Risk: Detailed errors could expose system info
-  - Mitigation: Standardized error messages
-  - Testing: Message content validation
-
-- Consideration 2: Permission Checks
-  - Risk: Incorrect status codes bypass frontend checks
-  - Mitigation: Comprehensive error mapping
-  - Testing: All permission scenarios
+- Error messages should not expose internal details
+- Permission checks must return correct status codes
+- Error responses should be consistent and predictable
 
 ## References
 
 - [HTTP Status Code Standards](link_to_standards)
 - [Error Handling Guidelines](link_to_guidelines)
-- [Testing Best Practices](link_to_practices) 
+- [Testing Best Practices](link_to_practices)
+
+### HTTP Status Code Reference
+
+Status codes used:
+- 200: OK (Successful request)
+- 400: Bad Request (Invalid version format)
+- 403: Forbidden (Permission denied)
+- 404: Not Found (Resource or version not found)
+- 418: I'm a Teapot (Public password required)
+- 500: Internal Server Error (Unexpected errors) 

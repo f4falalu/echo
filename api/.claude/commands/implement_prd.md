@@ -8,6 +8,10 @@ etc. Plase analyze them before you modify a file.
 
 please analyze all files before proceeding with any implementations.
 
+feel free to explore the codebase while implementing the prd.
+
 you should think hard about your implementation and then implement carefully.
 
-you are not done until tests for your specific file are finsished and a cargo check runs successfully.
+you are not done until the tests for your specific file are finished and run successfully and a cargo check runs successfully.
+
+You must work as efficiently as possible, our time is more valuable than gold.

@@ -18,12 +18,19 @@ Current behavior:
 - Inconsistent permission field format
 - Missing role information
 - Incorrect inherited permissions
+- Lack of comprehensive testing for permission scenarios
 
 Expected behavior:
 - Consistent permission field presence
 - Standardized permission format
 - Complete role information
 - Proper inheritance handling
+- Comprehensive test coverage using new test infrastructure
+
+Impact:
+- User Impact: Incorrect permission display and access control
+- System Impact: Inconsistent permission state
+- Testing Impact: Missing edge cases and inheritance scenarios
 
 ## Goals
 
@@ -31,7 +38,7 @@ Expected behavior:
 2. Standardize permission format
 3. Add complete role information
 4. Fix permission inheritance
-5. Add permission field tests
+5. Implement comprehensive tests using new test infrastructure
 
 ## Non-Goals
 
@@ -44,7 +51,7 @@ Expected behavior:
 
 ### Overview
 
-The fix involves standardizing the permission field format and ensuring consistent inclusion in responses.
+The fix involves standardizing the permission field format and ensuring consistent inclusion in responses, with comprehensive testing using the new test infrastructure.
 
 ### Permission Field Structure
 
@@ -133,27 +140,29 @@ impl Asset {
 ```rust
 // libs/models/tests/permission_field_test.rs
 
+use database::tests::common::{TestDb, TestSetup};
+use database::tests::common::permissions::PermissionTestHelpers;
+use database::tests::common::assets::AssetTestHelpers;
+
 #[tokio::test]
 async fn test_permission_field_direct() -> Result<()> {
     // Create test setup with admin user
     let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
     
-    // Create test asset
+    // Create test asset using asset helpers
     let asset_id = AssetTestHelpers::create_test_asset(
         &setup.db,
-        "Test Asset",
-        setup.organization.id
+        "Test Asset"
     ).await?;
     
-    // Add direct permission
-    let permission = PermissionTestHelpers::create_permission(
+    // Add direct permission using permission helpers
+    PermissionTestHelpers::create_permission(
         &setup.db,
         asset_id,
-        setup.user.id,
         AssetPermissionRole::Owner
     ).await?;
     
-    // Get asset response
+    // Get asset response using test db connection
     let mut conn = setup.db.diesel_conn().await?;
     let asset = Asset::find_by_id(asset_id).await?;
     let response = asset.to_response(
@@ -178,29 +187,25 @@ async fn test_permission_field_inherited() -> Result<()> {
     // Create test setup with admin user
     let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
     
-    // Create parent asset
+    // Create parent and child assets using asset helpers
     let parent_id = AssetTestHelpers::create_test_asset(
         &setup.db,
-        "Parent Asset",
-        setup.organization.id
+        "Parent Asset"
     ).await?;
     
-    // Create child asset
     let child_id = AssetTestHelpers::create_test_asset(
         &setup.db,
-        "Child Asset",
-        setup.organization.id
+        "Child Asset"
     ).await?;
     
-    // Add parent permission
+    // Add parent permission using permission helpers
     PermissionTestHelpers::create_permission(
         &setup.db,
         parent_id,
-        setup.user.id,
         AssetPermissionRole::Owner
     ).await?;
     
-    // Set inheritance
+    // Set inheritance using test db connection
     let mut conn = setup.db.diesel_conn().await?;
     diesel::update(assets::table)
         .filter(assets::id.eq(child_id))
@@ -228,14 +233,13 @@ async fn test_permission_field_missing() -> Result<()> {
     // Create test setup with viewer role
     let setup = TestSetup::new(Some(UserOrganizationRole::Viewer)).await?;
     
-    // Create asset without permission
+    // Create asset without permission using asset helpers
     let asset_id = AssetTestHelpers::create_test_asset(
         &setup.db,
-        "Test Asset",
-        setup.organization.id
+        "Test Asset"
     ).await?;
     
-    // Try to get asset response
+    // Try to get asset response using test db connection
     let mut conn = setup.db.diesel_conn().await?;
     let asset = Asset::find_by_id(asset_id).await?;
     let result = asset.to_response(
@@ -245,62 +249,108 @@ async fn test_permission_field_missing() -> Result<()> {
     
     assert!(result.is_err());
     
-    // Verify error is logged
+    // Verify error is logged using test db connection
     let error_log = error_logs::table
         .filter(error_logs::asset_id.eq(asset_id))
-        .filter(error_logs::user_id.eq(setup.user.id))
         .first::<ErrorLog>(&mut conn)
         .await?;
-    
-    assert_eq!(error_log.error_type, "missing_permission");
+        
+    assert_eq!(error_log.error_type, "PermissionNotFound");
     
     Ok(())
 }
 
 #[tokio::test]
-async fn test_permission_field_serialization() -> Result<()> {
+async fn test_permission_field_edge_cases() -> Result<()> {
     // Create test setup with admin user
     let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
     
-    // Create test asset
+    // Create test assets using asset helpers
     let asset_id = AssetTestHelpers::create_test_asset(
         &setup.db,
-        "Test Asset",
-        setup.organization.id
+        "Test Asset"
     ).await?;
     
-    // Add permission
+    // Test edge cases
+    
+    // Case 1: Multiple inheritance levels
+    let parent_id = AssetTestHelpers::create_test_asset(
+        &setup.db,
+        "Parent Asset"
+    ).await?;
+    
+    let grandparent_id = AssetTestHelpers::create_test_asset(
+        &setup.db,
+        "Grandparent Asset"
+    ).await?;
+    
+    // Set up inheritance chain
+    let mut conn = setup.db.diesel_conn().await?;
+    diesel::update(assets::table)
+        .filter(assets::id.eq(asset_id))
+        .set(assets::parent_id.eq(parent_id))
+        .execute(&mut conn)
+        .await?;
+        
+    diesel::update(assets::table)
+        .filter(assets::id.eq(parent_id))
+        .set(assets::parent_id.eq(grandparent_id))
+        .execute(&mut conn)
+        .await?;
+    
+    // Add permission to grandparent
     PermissionTestHelpers::create_permission(
         &setup.db,
-        asset_id,
-        setup.user.id,
+        grandparent_id,
         AssetPermissionRole::Owner
     ).await?;
     
-    // Get asset response
-    let mut conn = setup.db.diesel_conn().await?;
+    // Verify permission inheritance through chain
     let asset = Asset::find_by_id(asset_id).await?;
     let response = asset.to_response(
         setup.user.id,
         &mut conn
     ).await?;
     
-    // Serialize response
-    let json = serde_json::to_value(&response)?;
+    assert_eq!(response.permission.role, AssetPermissionRole::Owner);
+    assert!(response.permission.inherited);
+    assert_eq!(response.permission.inherited_from, Some(grandparent_id));
     
-    // Verify permission field structure
-    assert!(json.get("permission").is_some());
-    assert_eq!(
-        json["permission"]["role"].as_str(),
-        Some("owner")
-    );
-    assert_eq!(
-        json["permission"]["inherited"].as_bool(),
-        Some(false)
-    );
-    assert!(json["permission"]["inherited_from"].is_null());
-    assert!(json["permission"]["granted_at"].is_string());
-    assert!(json["permission"]["granted_by"].is_string());
+    // Case 2: Permission overrides
+    
+    // Add direct permission that should override inherited
+    PermissionTestHelpers::create_permission(
+        &setup.db,
+        asset_id,
+        AssetPermissionRole::CanEdit
+    ).await?;
+    
+    let response = asset.to_response(
+        setup.user.id,
+        &mut conn
+    ).await?;
+    
+    // Direct permission should take precedence
+    assert_eq!(response.permission.role, AssetPermissionRole::CanEdit);
+    assert!(!response.permission.inherited);
+    assert!(response.permission.inherited_from.is_none());
+    
+    // Case 3: Circular inheritance
+    
+    // Create circular reference
+    diesel::update(assets::table)
+        .filter(assets::id.eq(grandparent_id))
+        .set(assets::parent_id.eq(asset_id))
+        .execute(&mut conn)
+        .await?;
+        
+    // Should handle circular reference gracefully
+    let result = asset.to_response(
+        setup.user.id,
+        &mut conn
+    ).await;
+    
+    assert!(result.is_ok());
     
     Ok(())
 }
@@ -309,63 +359,98 @@ async fn test_permission_field_serialization() -> Result<()> {
 ### Dependencies
 
 1. Test infrastructure from [Test Infrastructure Setup](api_test_infrastructure.md)
-2. Existing permission system
-3. Asset response handling
-4. Error handling system from [HTTP Status Code Fix](api_http_status_fix.md)
+   - TestDb for database connections
+   - TestSetup for user/org creation
+   - PermissionTestHelpers for permission management
+   - AssetTestHelpers for asset creation
+2. Existing permission models
+3. Database schema
+4. Error logging system
 
 ## Implementation Plan
 
-### Phase 1: Field Structure
+### Phase 1: Fix Implementation
 
-1. Implement permission field structure
-2. Add field serialization
-3. Update response types
-4. Document field format
+1. Update permission field structure
+2. Standardize response format
+3. Fix inheritance logic
+4. Add error handling
 
-### Phase 2: Response Updates
+### Phase 2: Testing
 
-1. Update asset responses
-2. Add permission field
-3. Handle missing permissions
-4. Add response tests
-
-### Phase 3: Testing
-
-1. Add field tests
-2. Test inheritance
-3. Test error cases
-4. Test edge cases
+1. Implement test cases using new test infrastructure:
+   - Direct permission tests
+   - Inheritance tests
+   - Missing permission tests
+   - Edge case tests
+2. Verify test isolation using TestDb
+3. Validate cleanup functionality
 
 ## Testing Strategy
 
 ### Unit Tests
 
-- Test field structure
-- Test serialization
-- Test inheritance
-- Test missing permissions
+1. Permission Field Tests
+   - Test field structure
+   - Verify serialization
+   - Check field validation
+
+2. Permission Inheritance Tests
+   - Test direct permissions
+   - Test inherited permissions
+   - Test permission overrides
+   - Test inheritance chain
+
+3. Edge Case Tests
+   - Test missing permissions
+   - Test circular inheritance
+   - Test multiple inheritance levels
+   - Test concurrent modifications
 
 ### Integration Tests
 
-- Test response format
-- Test permission flow
-- Test error handling
-- Test complete asset flow
+1. API Tests
+   - Test permission field in responses
+   - Verify error handling
+   - Check inheritance behavior
+
+2. Workflow Tests
+   - Test permission changes
+   - Verify inheritance updates
+   - Test with asset operations
+
+### Test Data Management
+
+Using the new test infrastructure:
+- Unique test IDs for isolation
+- Automatic cleanup after tests
+- Standardized test data creation
 
 ## Success Criteria
 
-1. Permission field is consistent
-2. Inheritance works correctly
-3. Tests pass for all scenarios
-4. Documentation is updated
+1. All tests passing using new infrastructure
+2. Permission fields consistent in responses
+3. Inheritance working correctly
+4. Edge cases handled properly
+5. Documentation updated
 
-## Rollout Plan
+## Security Considerations
 
-1. Implement field changes
-2. Update responses
-3. Deploy to staging
-4. Monitor for issues
-5. Deploy to production
+1. Permission Validation
+   - Risk: Incorrect permission assignment
+   - Mitigation: Comprehensive permission tests
+   - Testing: Role-based access tests
+
+2. Inheritance Security
+   - Risk: Unintended permission escalation
+   - Mitigation: Strict inheritance rules
+   - Testing: Inheritance chain validation
+
+## References
+
+- [Test Infrastructure Documentation](api_test_infrastructure.md)
+- [Permission System Documentation](link_to_docs)
+- [Database Schema](link_to_schema)
 
 ## Appendix
 
