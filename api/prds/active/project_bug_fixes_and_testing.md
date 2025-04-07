@@ -151,7 +151,7 @@ mod tests {
 ### Phase 2: Bug Fixes (Concurrent) 🔜 (Not Started)
 
 #### Sub-PRDs
-1. [HTTP Status Code Fix](api_http_status_fix.md)
+1. [HTTP Status Code Fix](api_http_status_fix.md) ✅
    - Dependencies: Test Infrastructure
    - Can be developed concurrently with: 2, 3, 4
    - Testing Requirements:
@@ -162,7 +162,7 @@ mod tests {
        - Error scenarios
        - Permission checks
 
-2. [Metric Status Update Fix](api_metric_status_fix.md)
+2. [Metric Status Update Fix](api_metric_status_fix.md) ✅
    - Dependencies: Test Infrastructure
    - Can be developed concurrently with: 1, 3, 4
    - Testing Requirements:
@@ -173,7 +173,7 @@ mod tests {
        - Full update flow
        - State verification
 
-3. [Sharing Parameters Fix](api_sharing_parameters_fix.md)
+3. [Sharing Parameters Fix](api_sharing_parameters_fix.md) ✅
    - Dependencies: Test Infrastructure
    - Can be developed concurrently with: 1, 2, 4
    - Testing Requirements:
@@ -184,7 +184,7 @@ mod tests {
        - Sharing scenarios
        - Permission checks
 
-4. [Permission Field Fix](api_permission_field_fix.md)
+4. [Permission Field Fix](api_permission_field_fix.md) ✅
    - Dependencies: Test Infrastructure
    - Can be developed concurrently with: 1, 2, 3
    - Testing Requirements:
