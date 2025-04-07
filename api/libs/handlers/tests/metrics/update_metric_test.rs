@@ -2,7 +2,7 @@ use anyhow::Result;
 use database::enums::{AssetPermissionRole, AssetType, UserOrganizationRole, Verification};
 use database::models::MetricFile;
 use database::schema::metric_files;
-use database::tests::common::users::AuthenticatedUser;
+use middleware::AuthenticatedUser;
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use handlers::metrics::update_metric_handler::{update_metric_handler, UpdateMetricRequest};
