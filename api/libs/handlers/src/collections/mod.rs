@@ -11,6 +11,7 @@ pub mod sharing;
 
 // Re-export types
 pub use types::*;
+pub use types::GetCollectionRequest;
 
 // Re-export handlers
 pub use add_assets_to_collection_handler::{add_assets_to_collection_handler, AssetToAdd, AddAssetsToCollectionResult};

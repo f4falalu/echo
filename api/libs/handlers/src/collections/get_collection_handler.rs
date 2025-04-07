@@ -80,7 +80,7 @@ pub async fn get_collection_handler(
     
     // Check if user has permission to view the collection
     // Users need at least CanView permission or any higher permission
-    let has_permission = check_permission_access(
+    if !check_permission_access(
         collection_with_permission.permission,
         &[
             AssetPermissionRole::CanView,
@@ -90,11 +90,14 @@ pub async fn get_collection_handler(
         ],
         collection_with_permission.collection.organization_id,
         &user.organizations,
-    );
-    
-    if !has_permission {
+    ) {
         return Err(anyhow!("You don't have permission to view this collection"));
     }
+
+    // Extract permission for consistent use in response
+    // If the asset is public and the user has no direct permission, default to CanView
+    let permission = collection_with_permission.permission
+        .unwrap_or(AssetPermissionRole::CanView);
 
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,
@@ -232,7 +235,7 @@ pub async fn get_collection_handler(
     let collection_state = CollectionState {
         collection: collection_with_permission.collection,
         assets: Some(formatted_assets),
-        permission: collection_with_permission.permission.unwrap_or(AssetPermissionRole::Owner),
+        permission,
         organization_permissions: false, // TODO: Implement organization permissions
         individual_permissions,
         publicly_accessible,
