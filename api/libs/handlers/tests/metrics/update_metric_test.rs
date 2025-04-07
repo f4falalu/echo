@@ -9,7 +9,22 @@ use diesel_async::RunQueryDsl;
 use handlers::metrics::update_metric_handler::{update_metric_handler, UpdateMetricRequest};
 use middleware::{AuthenticatedUser, OrganizationMembership};
 use serde_json::json;
+use std::sync::Once;
 use uuid::Uuid;
+
+// Used to initialize the database pool once for all tests
+static INIT: Once = Once::new();
+
+// Initialize database pool
+fn initialize() {
+    INIT.call_once(|| {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        if let Err(e) = rt.block_on(init_pools()) {
+            panic!("Failed to initialize test pools: {}", e);
+        }
+        println!("Database pool initialized");
+    });
+}
 
 // Create a simplified test setup for our test
 struct TestSetup {
@@ -21,8 +36,8 @@ struct TestSetup {
 // Integration test that tests metric status update functionality
 #[tokio::test]
 async fn test_update_metric_status() -> Result<()> {
-    // Get database pool - it's already initialized
-    let _ = get_pg_pool();
+    // Initialize the database pool
+    initialize();
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
@@ -276,8 +291,8 @@ fn create_default_chart_config() -> database::types::metric_yml::ChartConfig {
 // Test unauthorized access
 #[tokio::test]
 async fn test_update_metric_status_unauthorized() -> Result<()> {
-    // Get database pool - it's already initialized
-    let _ = get_pg_pool();
+    // Initialize the database pool
+    initialize();
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
@@ -496,8 +511,8 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
 // Test edge cases for status updates
 #[tokio::test]
 async fn test_update_metric_status_null_value() -> Result<()> {
-    // Get database pool - it's already initialized
-    let _ = get_pg_pool();
+    // Initialize the database pool
+    initialize();
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
