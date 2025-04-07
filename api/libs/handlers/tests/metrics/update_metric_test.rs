@@ -14,26 +14,46 @@ use uuid::Uuid;
 
 // Used to initialize the database pool once for all tests
 static INIT: Once = Once::new();
+static mut POOL_INITIALIZED: bool = false;
 
 // Initialize database pool
 async fn initialize() -> Result<()> {
-    INIT.call_once(|| {
-        println!("Database pool initialization called");
-        // Set environment variables for database connection
-        std::env::set_var("DATABASE_URL", "postgresql://postgres:postgres@127.0.0.1:54322/postgres");
-        std::env::set_var("TEST_DATABASE_URL", "postgresql://postgres:postgres@127.0.0.1:54322/postgres");
-    });
-
-    // We only initialize the pools once but try to do it in each test to ensure they exist
-    match init_pools().await {
-        Ok(_) => {
-            println!("Database pool initialized successfully");
+    unsafe {
+        if POOL_INITIALIZED {
+            return Ok(());
+        }
+        
+        INIT.call_once(|| {
+            println!("Database pool initialization called");
+            // Set environment variables for database connection
+            std::env::set_var("DATABASE_URL", "postgresql://postgres:postgres@127.0.0.1:54322/postgres");
+            std::env::set_var("TEST_DATABASE_URL", "postgresql://postgres:postgres@127.0.0.1:54322/postgres");
+            
+            // Create a runtime for initialization
+            let rt = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .unwrap();
+                
+            // Initialize the pools
+            rt.block_on(async {
+                match init_pools().await {
+                    Ok(_) => {
+                        println!("Database pool initialized successfully");
+                        POOL_INITIALIZED = true;
+                    },
+                    Err(e) => {
+                        println!("Database pool initialization error: {}", e);
+                    },
+                }
+            });
+        });
+        
+        if POOL_INITIALIZED {
             Ok(())
-        },
-        Err(e) => {
-            println!("Database pool initialization error: {}", e);
-            Err(anyhow::anyhow!("Failed to initialize database pool: {}", e))
-        },
+        } else {
+            Err(anyhow::anyhow!("Failed to initialize database pool"))
+        }
     }
 }
 
