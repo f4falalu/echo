@@ -21,10 +21,8 @@ struct TestSetup {
 // Integration test that tests metric status update functionality
 #[tokio::test]
 async fn test_update_metric_status() -> Result<()> {
-    // Initialize database connection pool
-    if let Err(e) = init_pools().await {
-        panic!("Failed to initialize test pools: {}", e);
-    }
+    // Get database pool - it's already initialized
+    let _ = get_pg_pool();
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
@@ -65,6 +63,59 @@ async fn test_update_metric_status() -> Result<()> {
         organization,
         test_id,
     };
+    
+    // Insert the organization and user into the database
+    let mut conn = get_pg_pool().get().await?;
+    
+    // Insert the organization
+    diesel::insert_into(database::schema::organizations::table)
+        .values(&setup.organization)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+        .await?;
+        
+    // Insert the user
+    let user_model = database::models::User {
+        id: setup.user.id,
+        email: setup.user.email.clone(),
+        name: setup.user.name.clone(),
+        config: setup.user.config.clone(),
+        created_at: setup.user.created_at,
+        updated_at: setup.user.updated_at,
+        attributes: setup.user.attributes.clone(),
+        avatar_url: setup.user.avatar_url.clone(),
+    };
+    
+    diesel::insert_into(database::schema::users::table)
+        .values(&user_model)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+        .await?;
+        
+    // Create the relationship between user and organization
+    let user_org = database::models::UserToOrganization {
+        user_id: setup.user.id,
+        organization_id: setup.organization.id,
+        role: setup.user.organizations[0].role,
+        sharing_setting: database::enums::SharingSetting::None,
+        edit_sql: true,
+        upload_csv: true,
+        export_assets: true,
+        email_slack_enabled: true,
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        deleted_at: None,
+        created_by: setup.user.id,
+        updated_by: setup.user.id,
+        deleted_by: None,
+        status: database::enums::UserOrganizationStatus::Active,
+    };
+    
+    diesel::insert_into(database::schema::users_to_organizations::table)
+        .values(&user_org)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+        .await?;
     
     // Create a test metric file
     let metric_id = Uuid::new_v4();
@@ -164,6 +215,22 @@ async fn test_update_metric_status() -> Result<()> {
         .filter(database::schema::asset_permissions::asset_id.eq(metric_id))
         .execute(&mut conn)
         .await?;
+        
+    // Clean up user data - cascades to related tables
+    diesel::delete(database::schema::users_to_organizations::table)
+        .filter(database::schema::users_to_organizations::user_id.eq(setup.user.id))
+        .execute(&mut conn)
+        .await?;
+        
+    diesel::delete(database::schema::users::table)
+        .filter(database::schema::users::id.eq(setup.user.id))
+        .execute(&mut conn)
+        .await?;
+        
+    diesel::delete(database::schema::organizations::table)
+        .filter(database::schema::organizations::id.eq(setup.organization.id))
+        .execute(&mut conn)
+        .await?;
     
     // No TestDb cleanup in our simplified setup - we manually clean up
     // But in a real test, we would use a TestDb cleanup helper
@@ -209,10 +276,8 @@ fn create_default_chart_config() -> database::types::metric_yml::ChartConfig {
 // Test unauthorized access
 #[tokio::test]
 async fn test_update_metric_status_unauthorized() -> Result<()> {
-    // Initialize database connection pool
-    if let Err(e) = init_pools().await {
-        panic!("Failed to initialize test pools: {}", e);
-    }
+    // Get database pool - it's already initialized
+    let _ = get_pg_pool();
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
@@ -253,6 +318,59 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
         organization,
         test_id,
     };
+    
+    // Insert the organization and user into the database
+    let mut conn = get_pg_pool().get().await?;
+    
+    // Insert the organization
+    diesel::insert_into(database::schema::organizations::table)
+        .values(&setup.organization)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+        .await?;
+        
+    // Insert the user
+    let user_model = database::models::User {
+        id: setup.user.id,
+        email: setup.user.email.clone(),
+        name: setup.user.name.clone(),
+        config: setup.user.config.clone(),
+        created_at: setup.user.created_at,
+        updated_at: setup.user.updated_at,
+        attributes: setup.user.attributes.clone(),
+        avatar_url: setup.user.avatar_url.clone(),
+    };
+    
+    diesel::insert_into(database::schema::users::table)
+        .values(&user_model)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+        .await?;
+        
+    // Create the relationship between user and organization
+    let user_org = database::models::UserToOrganization {
+        user_id: setup.user.id,
+        organization_id: setup.organization.id,
+        role: setup.user.organizations[0].role,
+        sharing_setting: database::enums::SharingSetting::None,
+        edit_sql: true,
+        upload_csv: true,
+        export_assets: true,
+        email_slack_enabled: true,
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        deleted_at: None,
+        created_by: setup.user.id,
+        updated_by: setup.user.id,
+        deleted_by: None,
+        status: database::enums::UserOrganizationStatus::Active,
+    };
+    
+    diesel::insert_into(database::schema::users_to_organizations::table)
+        .values(&user_org)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+        .await?;
     
     // Create a test metric file
     let metric_id = Uuid::new_v4();
@@ -352,6 +470,22 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
         .filter(database::schema::asset_permissions::asset_id.eq(metric_id))
         .execute(&mut conn)
         .await?;
+        
+    // Clean up user data - cascades to related tables
+    diesel::delete(database::schema::users_to_organizations::table)
+        .filter(database::schema::users_to_organizations::user_id.eq(setup.user.id))
+        .execute(&mut conn)
+        .await?;
+        
+    diesel::delete(database::schema::users::table)
+        .filter(database::schema::users::id.eq(setup.user.id))
+        .execute(&mut conn)
+        .await?;
+        
+    diesel::delete(database::schema::organizations::table)
+        .filter(database::schema::organizations::id.eq(setup.organization.id))
+        .execute(&mut conn)
+        .await?;
     
     // No TestDb cleanup in our simplified setup - we manually clean up
     // But in a real test, we would use a TestDb cleanup helper
@@ -362,10 +496,8 @@ async fn test_update_metric_status_unauthorized() -> Result<()> {
 // Test edge cases for status updates
 #[tokio::test]
 async fn test_update_metric_status_null_value() -> Result<()> {
-    // Initialize database connection pool
-    if let Err(e) = init_pools().await {
-        panic!("Failed to initialize test pools: {}", e);
-    }
+    // Get database pool - it's already initialized
+    let _ = get_pg_pool();
     
     // Create a test ID for unique naming
     let test_id = format!("test-{}", Uuid::new_v4());
@@ -406,6 +538,59 @@ async fn test_update_metric_status_null_value() -> Result<()> {
         organization,
         test_id,
     };
+    
+    // Insert the organization and user into the database
+    let mut conn = get_pg_pool().get().await?;
+    
+    // Insert the organization
+    diesel::insert_into(database::schema::organizations::table)
+        .values(&setup.organization)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+        .await?;
+        
+    // Insert the user
+    let user_model = database::models::User {
+        id: setup.user.id,
+        email: setup.user.email.clone(),
+        name: setup.user.name.clone(),
+        config: setup.user.config.clone(),
+        created_at: setup.user.created_at,
+        updated_at: setup.user.updated_at,
+        attributes: setup.user.attributes.clone(),
+        avatar_url: setup.user.avatar_url.clone(),
+    };
+    
+    diesel::insert_into(database::schema::users::table)
+        .values(&user_model)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+        .await?;
+        
+    // Create the relationship between user and organization
+    let user_org = database::models::UserToOrganization {
+        user_id: setup.user.id,
+        organization_id: setup.organization.id,
+        role: setup.user.organizations[0].role,
+        sharing_setting: database::enums::SharingSetting::None,
+        edit_sql: true,
+        upload_csv: true,
+        export_assets: true,
+        email_slack_enabled: true,
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+        deleted_at: None,
+        created_by: setup.user.id,
+        updated_by: setup.user.id,
+        deleted_by: None,
+        status: database::enums::UserOrganizationStatus::Active,
+    };
+    
+    diesel::insert_into(database::schema::users_to_organizations::table)
+        .values(&user_org)
+        .on_conflict_do_nothing()
+        .execute(&mut conn)
+        .await?;
     
     // Create a test metric file
     let metric_id = Uuid::new_v4();
@@ -503,6 +688,22 @@ async fn test_update_metric_status_null_value() -> Result<()> {
     
     diesel::delete(database::schema::asset_permissions::table)
         .filter(database::schema::asset_permissions::asset_id.eq(metric_id))
+        .execute(&mut conn)
+        .await?;
+        
+    // Clean up user data - cascades to related tables
+    diesel::delete(database::schema::users_to_organizations::table)
+        .filter(database::schema::users_to_organizations::user_id.eq(setup.user.id))
+        .execute(&mut conn)
+        .await?;
+        
+    diesel::delete(database::schema::users::table)
+        .filter(database::schema::users::id.eq(setup.user.id))
+        .execute(&mut conn)
+        .await?;
+        
+    diesel::delete(database::schema::organizations::table)
+        .filter(database::schema::organizations::id.eq(setup.organization.id))
         .execute(&mut conn)
         .await?;
     
