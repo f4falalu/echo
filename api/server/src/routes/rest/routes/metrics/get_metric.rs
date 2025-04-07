@@ -13,7 +13,7 @@ use crate::routes::rest::ApiResponse;
 #[derive(Debug, Deserialize)]
 pub struct GetMetricQueryParams {
     #[serde(rename = "version_number")]
-    version_number: Option<i32>,
+    pub version_number: Option<i32>,
 }
 
 pub async fn get_metric_rest_handler(
@@ -33,13 +33,25 @@ pub async fn get_metric_rest_handler(
         Err(e) => {
             tracing::error!("Error getting metric: {}", e);
             let error_message = e.to_string();
-            // Return 404 if version not found, otherwise 500
+            
+            // Simple string matching for common error cases
+            if error_message.contains("public_password required") {
+                return Err((StatusCode::IM_A_TEAPOT, "Password required for public access"));
+            }
+            if error_message.contains("don't have permission") {
+                return Err((StatusCode::FORBIDDEN, "Permission denied"));
+            }
             if error_message.contains("Version") && error_message.contains("not found") {
                 return Err((StatusCode::NOT_FOUND, "Version not found"));
             }
+            if error_message.contains("not found") {
+                return Err((StatusCode::NOT_FOUND, "Metric not found"));
+            }
+            
             return Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to get metric"));
         }
     };
 
     Ok(ApiResponse::JsonData(metric))
 }
+
