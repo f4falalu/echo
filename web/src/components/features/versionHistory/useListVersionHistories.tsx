@@ -125,7 +125,7 @@ const useListDashboardVersions = ({
     },
     {
       select: (x) => ({
-        versions: x.dashboard.versions,
+        versions: x.versions,
         version_number: x.dashboard.version_number
       })
     }

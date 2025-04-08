@@ -45,6 +45,7 @@ export const useGetFileHref = ({
     }
 
     if (file_type === 'dashboard') {
+      console.log('dashboard', { isLatestVersion, id, version_number });
       if (isLatestVersion) {
         return createBusterRoute({
           route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,

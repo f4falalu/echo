@@ -28,8 +28,8 @@ export const useGetIsSelectedFile = ({
     }
     case 'dashboard': {
       const options = queryKeys.dashboardGetDashboard(responseMessage.id);
-      const data = queryClient.getQueryData(options.queryKey)?.dashboard;
-      const lastVersion = data?.versions[data.versions.length - 1];
+      const versions = queryClient.getQueryData(options.queryKey)?.versions;
+      const lastVersion = versions?.[versions.length - 1];
       const isLatestVersion = lastVersion?.version_number === versionNumber;
       return { isSelectedFile: isSelectedFile && isLatestVersion, isLatestVersion };
     }

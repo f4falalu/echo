@@ -10,7 +10,6 @@ import { MetricContainerHeaderSegment } from './MetricContainerHeaderSegment';
 import { MetricContainerHeaderButtons } from './MetricContainerHeaderButtons';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { ReasoningContainerHeaderSegment } from './ReasoningContainerHeaderSegment';
-import { useAssetCheck } from '@/api/buster_rest/assets/queryRequests';
 import { FileContainerHeaderVersionHistory } from './FileContainerHeaderVersionHistory';
 
 export const FileContainerHeader: React.FC = React.memo(() => {
@@ -38,12 +37,6 @@ export const FileContainerHeader: React.FC = React.memo(() => {
     [selectedFileType]
   );
 
-  const { data: hasAccessQuery } = useAssetCheck(
-    { assetId: selectedFileId, fileType: selectedFileType },
-    (x) => x.has_access
-  );
-  const hasAccess = hasAccessQuery ?? true; // we assume access until it is revoked
-
   if (isVersionHistoryMode) return <FileContainerHeaderVersionHistory />;
 
   return (
@@ -53,7 +46,7 @@ export const FileContainerHeader: React.FC = React.memo(() => {
           showCollapseButton={showCollapseButton}
           onCollapseFileClick={onCollapseFileClick}
         />
-        {hasAccess && selectedFileView && (
+        {selectedFileView && (
           <SelectedFileSegment
             selectedFileView={selectedFileView}
             selectedFileId={selectedFileId}
@@ -62,9 +55,7 @@ export const FileContainerHeader: React.FC = React.memo(() => {
         )}
       </div>
 
-      {hasAccess && (
-        <SelectedFileButtons selectedFileView={selectedFileView} selectedFileId={selectedFileId} />
-      )}
+      <SelectedFileButtons selectedFileView={selectedFileView} selectedFileId={selectedFileId} />
     </>
   );
 });

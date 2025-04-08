@@ -104,8 +104,7 @@ refresh_interval: 300`,
     status: VerificationStatus.NOT_REQUESTED,
     config: {
       rows
-    },
-    versions: []
+    }
   };
 
   const response: BusterDashboardResponse = {
@@ -118,7 +117,8 @@ refresh_interval: 300`,
     public_expiry_date: null,
     public_enabled_by: null,
     publicly_accessible: false,
-    collections: []
+    collections: [],
+    versions: []
   };
 
   return { dashboard, response };

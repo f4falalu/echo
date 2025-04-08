@@ -31,6 +31,10 @@ export type BusterDashboardResponse = {
     id: string;
     name: string;
   }[];
+  versions: {
+    version_number: number;
+    updated_at: string;
+  }[];
 } & BusterShare;
 
 export interface BusterDashboard {
@@ -47,8 +51,4 @@ export interface BusterDashboard {
   version_number: number;
   file: string; //yaml file
   file_name: string;
-  versions: {
-    version_number: number;
-    updated_at: string;
-  }[];
 }

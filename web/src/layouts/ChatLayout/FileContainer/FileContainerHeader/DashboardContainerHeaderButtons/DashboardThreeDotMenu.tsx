@@ -93,7 +93,7 @@ const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) =
     { id: dashboardId },
     {
       select: (x) => ({
-        versions: x?.dashboard?.versions || [],
+        versions: x?.versions || [],
         version_number: x?.dashboard?.version_number
       })
     }

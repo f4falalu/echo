@@ -19,10 +19,10 @@ export const createBusterRoute = ({ route, ...args }: BusterRoutesWithArgsRoute)
   const queryParams = queryTemplate
     .split('&')
     .map((param) => {
-      const [key] = param.split('=');
-      const paramName = key.replace(':', '');
-      const value = (args as Record<string, string | undefined>)[paramName];
-      return value != null ? `${key.replace(':', '')}=${value}` : null;
+      const [key, value] = param.split('=');
+      const paramName = value.replace(':', '');
+      const paramValue = (args as Record<string, string | undefined>)[paramName];
+      return paramValue != null ? `${key}=${paramValue}` : null;
     })
     .filter(Boolean);
 
