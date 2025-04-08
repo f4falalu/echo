@@ -62,7 +62,7 @@ While these files contain best practices for writing tests, REST patterns, etc.,
 
 - ](./CLAUDE-LIBRARY-INDEX.md) - Comprehensive index of all functries
 - [**Library Template**](./libs/CLAUDE-TEMPLATE.ing new library documentation
-- [**Database Test Guide**](./libs/database/tests/CLAUDE.md) - Detailed guide for using the database test infrastructure
+- [**Database Test Guide**](mdc:libs/database/tests/CLAUDE.md) - Detailed guide for using the database test infrastructure
 
 ## Library Relationships
 - **agents** → depends on → **litellm**, **database**, **braintrust**
