@@ -6,15 +6,15 @@ import type {
 } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
 import { StatusIndicator } from '@/components/ui/indicators';
-import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { StreamingMessage_File } from '@/components/ui/streaming/StreamingMessage_File';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { useMount } from '@/hooks';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import Link from 'next/link';
-import { createBusterRoute, BusterRoutes } from '@/routes';
 import { useRouter } from 'next/navigation';
 import { TextAndVersionPill } from '@/components/ui/typography/TextAndVersionPill';
+import { useGetIsSelectedFile } from './useGetIsSelectedFile';
+import { useGetFileHref } from './useGetFileHref';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
   ({ isCompletedStream, chatId, responseMessageId, messageId }) => {
@@ -24,43 +24,12 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
       (x) => x?.response_messages?.[responseMessageId]
     ) as BusterChatResponseMessage_file;
 
-    const isSelectedFile = useChatIndividualContextSelector(
-      (x) => x.selectedFileId === responseMessage.id
-    );
-    const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
-
     const { file_type, id } = responseMessage;
 
-    const href = useMemo(() => {
-      if (!chatId) return '';
+    const isSelectedFile = useGetIsSelectedFile({ responseMessage });
+    const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
 
-      if (isSelectedFile) {
-        return createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID,
-          chatId
-        });
-      }
-
-      if (file_type === 'metric') {
-        return createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
-          chatId,
-          metricId: id
-        });
-      }
-
-      if (file_type === 'dashboard') {
-        return createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
-          chatId,
-          dashboardId: id
-        });
-      }
-
-      console.warn('Unknown file type', file_type);
-
-      return '';
-    }, [chatId, file_type, id, isSelectedFile]);
+    const href = useGetFileHref({ responseMessage, isSelectedFile, chatId });
 
     useMount(() => {
       if (href) {
@@ -69,7 +38,10 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
     });
 
     return (
-      <Link href={href} prefetch onClick={() => onSetSelectedFile({ id, type: file_type })}>
+      <Link
+        href={href}
+        prefetch
+        onClick={() => onSetSelectedFile(isSelectedFile ? { id, type: file_type } : null)}>
         <StreamingMessage_File
           isCompletedStream={isCompletedStream}
           responseMessage={responseMessage}
