@@ -50,7 +50,7 @@ pub async fn generate_asset_messages(
     let tool_call_id = format!("call_{}", Uuid::new_v4().simple().to_string());
     
     // Prepare asset data based on asset type
-    let (asset_data, asset_type_str) = match asset_type {
+    let (asset_data, asset_type_str, additional_files) = match asset_type {
         AssetType::MetricFile => {
             let metric = metric_files::table
                 .filter(metric_files::id.eq(asset_id))
@@ -78,7 +78,7 @@ pub async fn generate_asset_messages(
                 "updated_at": metric.updated_at
             });
             
-            (asset_data, "metric")
+            (asset_data, "metric", Vec::new())
         },
         AssetType::DashboardFile => {
             let dashboard = dashboard_files::table
@@ -101,18 +101,77 @@ pub async fn generate_asset_messages(
                 "updated_at": dashboard.updated_at
             });
             
-            (asset_data, "dashboard")
+            // Extract metric IDs from dashboard
+            let mut metric_ids = std::collections::HashSet::new();
+            for row in &dashboard.content.rows {
+                for item in &row.items {
+                    metric_ids.insert(item.id);
+                }
+            }
+            
+            // Load all associated metrics for context (they won't be shown in UI)
+            let mut metric_files_data = Vec::new();
+            for metric_id in metric_ids {
+                match metric_files::table
+                    .filter(metric_files::id.eq(metric_id))
+                    .first::<MetricFile>(&mut conn)
+                    .await 
+                {
+                    Ok(metric) => {
+                        // Get YAML content for this metric
+                        if let Ok(yml_content) = serde_yaml::to_string(&metric.content) {
+                            // Add metric as additional file data for agent context
+                            let metric_data = json!({
+                                "id": metric.id.to_string(),
+                                "name": metric.name,
+                                "file_type": "metric",
+                                "asset_type": "metric",
+                                "yml_content": yml_content,
+                                "created_at": metric.created_at,
+                                "version_number": metric.version_history.get_version_number(),
+                                "updated_at": metric.updated_at
+                            });
+                            
+                            metric_files_data.push(metric_data);
+                        }
+                    },
+                    Err(e) => {
+                        // Log error but continue with other metrics
+                        tracing::warn!("Failed to load metric {} for dashboard context: {}", metric_id, e);
+                    }
+                }
+            }
+            
+            tracing::info!(
+                "Loaded {} metrics as context for dashboard import", 
+                metric_files_data.len()
+            );
+            
+            (asset_data, "dashboard", metric_files_data)
         },
         _ => {
             return Err(anyhow!("Unsupported asset type for generating asset messages: {:?}", asset_type));
         }
     };
     
+    // Determine appropriate message based on file count
+    let additional_files_count = additional_files.len();
+    let message_text = if additional_files_count == 0 {
+        format!("Successfully imported 1 {} file.", asset_type_str)
+    } else {
+        format!("Successfully imported 1 {} file with {} additional context files.", 
+                asset_type_str, additional_files_count)
+    };
+    
+    // Create combined file list with the main asset first, followed by context files
+    let mut all_files = vec![asset_data];
+    all_files.extend(additional_files);
+    
     // Create the tool response content
     let tool_response_content = json!({
-        "message": format!("Successfully imported 1 {} files.", asset_type_str),
+        "message": message_text,
         "duration": 928, // Example duration
-        "files": [asset_data]
+        "files": all_files
     }).to_string();
     
     // Create the Assistant message with tool call
