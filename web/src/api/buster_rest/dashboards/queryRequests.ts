@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import {
   dashboardsGetList,
   dashboardsGetDashboard,
@@ -27,6 +27,7 @@ import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { addMetricToDashboardConfig, removeMetricFromDashboardConfig } from './helpers';
 import { addAndRemoveMetricsToDashboard } from './helpers/addAndRemoveMetricsToDashboard';
 import { useSearchParams } from 'next/navigation';
+import { RustApiError } from '../errors';
 
 export const useGetDashboardsList = (
   params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
@@ -73,7 +74,10 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
     id,
     version_number: version_number_prop
   }: { id: string | undefined; version_number?: number | null },
-  select?: (data: BusterDashboardResponse) => TData
+  params?: Omit<
+    UseQueryOptions<BusterDashboardResponse, RustApiError, TData>,
+    'queryKey' | 'queryFn'
+  >
 ) => {
   const searchParams = useSearchParams();
   const queryFn = useGetDashboardAndInitializeMetrics();
@@ -88,7 +92,8 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
     ...dashboardQueryKeys.dashboardGetDashboard(id!, version_number),
     queryFn: () => queryFn(id!, version_number),
     enabled: !!id,
-    select
+    select: params?.select,
+    ...params
   });
 };
 

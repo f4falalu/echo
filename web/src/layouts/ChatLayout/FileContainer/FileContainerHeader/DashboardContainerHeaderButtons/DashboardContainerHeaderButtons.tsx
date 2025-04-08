@@ -22,7 +22,7 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
 
     const { data: permission, error: dashboardError } = useGetDashboard(
       { id: dashboardId },
-      (x) => x.permission
+      { select: (x) => x.permission }
     );
 
     if (dashboardError) return null;

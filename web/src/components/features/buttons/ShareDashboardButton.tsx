@@ -6,7 +6,10 @@ import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { getShareAssetConfig } from '../ShareMenu/helpers';
 
 export const ShareDashboardButton = React.memo(({ dashboardId }: { dashboardId: string }) => {
-  const { data: dashboardResponse } = useGetDashboard({ id: dashboardId }, getShareAssetConfig);
+  const { data: dashboardResponse } = useGetDashboard(
+    { id: dashboardId },
+    { select: getShareAssetConfig }
+  );
 
   return (
     <ShareMenu

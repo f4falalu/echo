@@ -10,7 +10,10 @@ export const DashboardViewFileController: React.FC<{
   dashboardId: string;
   chatId?: string | undefined;
 }> = React.memo(({ dashboardId }) => {
-  const { data: dashboard } = useGetDashboard({ id: dashboardId }, (data) => data.dashboard);
+  const { data: dashboard } = useGetDashboard(
+    { id: dashboardId },
+    { select: (data) => data.dashboard }
+  );
   const { openSuccessMessage } = useBusterNotifications();
   const {
     mutateAsync: onUpdateDashboard,

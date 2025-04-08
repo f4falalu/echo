@@ -123,10 +123,12 @@ const useListDashboardVersions = ({
       id: type === 'dashboard' ? assetId : undefined,
       version_number: null
     },
-    (x) => ({
-      versions: x.dashboard.versions,
-      version_number: x.dashboard.version_number
-    })
+    {
+      select: (x) => ({
+        versions: x.dashboard.versions,
+        version_number: x.dashboard.version_number
+      })
+    }
   );
 
   const dashboardVersions = dashData?.versions;

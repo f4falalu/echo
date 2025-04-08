@@ -46,12 +46,14 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) 
 
   const { data: currentDashboard, refetch: refetchCurrentDashboard } = useGetDashboard(
     { id: dashboardId },
-    (x) => ({
-      name: x.dashboard.name,
-      description: x.dashboard.description,
-      config: x.dashboard.config,
-      file: x.dashboard.file
-    })
+    {
+      select: (x) => ({
+        name: x.dashboard.name,
+        description: x.dashboard.description,
+        config: x.dashboard.config,
+        file: x.dashboard.file
+      })
+    }
   );
 
   const onResetDashboardToOriginal = useMemoizedFn(() => {
