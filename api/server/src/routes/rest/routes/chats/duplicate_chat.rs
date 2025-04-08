@@ -98,7 +98,7 @@ mod tests {
         let org_id = Uuid::new_v4();
         let organizations = vec![OrganizationMembership {
             id: org_id,
-            role: UserOrganizationRole::Owner,
+            role: UserOrganizationRole::WorkspaceAdmin,
         }];
 
         let auth_user = AuthenticatedUser {
@@ -203,6 +203,7 @@ mod tests {
             id: Uuid::new_v4(),
             message_id: *message_id,
             file_id,
+            version_number: 1,
             created_at: now,
             updated_at: now,
             deleted_at: None,

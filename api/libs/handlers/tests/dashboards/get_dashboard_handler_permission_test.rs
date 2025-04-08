@@ -1,6 +1,6 @@
 use anyhow::{Result, Context};
 use chrono::Utc;
-use database::enums::{AssetPermissionRole, AssetType};
+use database::enums::{AssetPermissionRole, AssetType, UserOrganizationRole};
 use database::test_utils::{TestDb, cleanup_test_data, insert_test_dashboard_file, insert_test_permission};
 use handlers::dashboards::get_dashboard_handler;
 use middleware::{AuthenticatedUser, OrganizationMembership};
@@ -31,10 +31,9 @@ fn create_test_auth_user(user_id: Uuid, organization_id: Option<Uuid>) -> Authen
 #[tokio::test]
 async fn test_get_dashboard_no_permission_private() -> Result<()> {
     let test_db = TestDb::new().await?;
-    let mut conn = test_db.get_conn().await?;
     let owner = test_db.create_test_user().await?;
     let dashboard = test_db.create_test_dashboard_file(&owner.id).await?;
-    insert_test_dashboard_file(&mut conn, &dashboard).await?;
+    insert_test_dashboard_file(&dashboard).await?;
 
     let random_user = create_test_auth_user(Uuid::new_v4(), None); // User not in org, no share
 
@@ -43,18 +42,17 @@ async fn test_get_dashboard_no_permission_private() -> Result<()> {
     assert!(result.is_err());
     assert!(result.unwrap_err().to_string().contains("don't have permission"));
 
-    cleanup_test_data(&mut conn, &[dashboard.id]).await?;
+    cleanup_test_data(&[dashboard.id]).await?;
     Ok(())
 }
 
 #[tokio::test]
 async fn test_get_dashboard_no_permission_public_no_password() -> Result<()> {
     let test_db = TestDb::new().await?;
-    let mut conn = test_db.get_conn().await?;
     let owner = test_db.create_test_user().await?;
     let mut dashboard = test_db.create_test_dashboard_file(&owner.id).await?;
     dashboard.publicly_accessible = true;
-    insert_test_dashboard_file(&mut conn, &dashboard).await?;
+    insert_test_dashboard_file(&dashboard).await?;
 
     let random_user = create_test_auth_user(Uuid::new_v4(), None);
 
@@ -64,20 +62,19 @@ async fn test_get_dashboard_no_permission_public_no_password() -> Result<()> {
     let response = result.unwrap();
     assert_eq!(response.permission, AssetPermissionRole::CanView);
 
-    cleanup_test_data(&mut conn, &[dashboard.id]).await?;
+    cleanup_test_data(&[dashboard.id]).await?;
     Ok(())
 }
 
 #[tokio::test]
 async fn test_get_dashboard_no_permission_public_correct_password() -> Result<()> {
     let test_db = TestDb::new().await?;
-    let mut conn = test_db.get_conn().await?;
     let owner = test_db.create_test_user().await?;
     let mut dashboard = test_db.create_test_dashboard_file(&owner.id).await?;
     dashboard.publicly_accessible = true;
     let password = "testpassword".to_string();
     dashboard.public_password = Some(password.clone());
-    insert_test_dashboard_file(&mut conn, &dashboard).await?;
+    insert_test_dashboard_file(&dashboard).await?;
 
     let random_user = create_test_auth_user(Uuid::new_v4(), None);
 
@@ -87,19 +84,18 @@ async fn test_get_dashboard_no_permission_public_correct_password() -> Result<()
     let response = result.unwrap();
     assert_eq!(response.permission, AssetPermissionRole::CanView);
 
-    cleanup_test_data(&mut conn, &[dashboard.id]).await?;
+    cleanup_test_data(&[dashboard.id]).await?;
     Ok(())
 }
 
 #[tokio::test]
 async fn test_get_dashboard_no_permission_public_incorrect_password() -> Result<()> {
     let test_db = TestDb::new().await?;
-    let mut conn = test_db.get_conn().await?;
     let owner = test_db.create_test_user().await?;
     let mut dashboard = test_db.create_test_dashboard_file(&owner.id).await?;
     dashboard.publicly_accessible = true;
     dashboard.public_password = Some("correctpassword".to_string());
-    insert_test_dashboard_file(&mut conn, &dashboard).await?;
+    insert_test_dashboard_file(&dashboard).await?;
 
     let random_user = create_test_auth_user(Uuid::new_v4(), None);
 
@@ -108,19 +104,18 @@ async fn test_get_dashboard_no_permission_public_incorrect_password() -> Result<
     assert!(result.is_err());
     assert!(result.unwrap_err().to_string().contains("Incorrect password"));
 
-    cleanup_test_data(&mut conn, &[dashboard.id]).await?;
+    cleanup_test_data(&[dashboard.id]).await?;
     Ok(())
 }
 
 #[tokio::test]
 async fn test_get_dashboard_no_permission_public_missing_password() -> Result<()> {
     let test_db = TestDb::new().await?;
-    let mut conn = test_db.get_conn().await?;
     let owner = test_db.create_test_user().await?;
     let mut dashboard = test_db.create_test_dashboard_file(&owner.id).await?;
     dashboard.publicly_accessible = true;
     dashboard.public_password = Some("correctpassword".to_string());
-    insert_test_dashboard_file(&mut conn, &dashboard).await?;
+    insert_test_dashboard_file(&dashboard).await?;
 
     let random_user = create_test_auth_user(Uuid::new_v4(), None);
 
@@ -129,19 +124,18 @@ async fn test_get_dashboard_no_permission_public_missing_password() -> Result<()
     assert!(result.is_err());
     assert!(result.unwrap_err().to_string().contains("public_password required"));
 
-    cleanup_test_data(&mut conn, &[dashboard.id]).await?;
+    cleanup_test_data(&[dashboard.id]).await?;
     Ok(())
 }
 
 #[tokio::test]
 async fn test_get_dashboard_no_permission_public_expired() -> Result<()> {
     let test_db = TestDb::new().await?;
-    let mut conn = test_db.get_conn().await?;
     let owner = test_db.create_test_user().await?;
     let mut dashboard = test_db.create_test_dashboard_file(&owner.id).await?;
     dashboard.publicly_accessible = true;
     dashboard.public_expiry_date = Some(Utc::now() - chrono::Duration::days(1)); // Expired
-    insert_test_dashboard_file(&mut conn, &dashboard).await?;
+    insert_test_dashboard_file(&dashboard).await?;
 
     let random_user = create_test_auth_user(Uuid::new_v4(), None);
 
@@ -150,7 +144,7 @@ async fn test_get_dashboard_no_permission_public_expired() -> Result<()> {
     assert!(result.is_err());
     assert!(result.unwrap_err().to_string().contains("expired"));
 
-    cleanup_test_data(&mut conn, &[dashboard.id]).await?;
+    cleanup_test_data(&[dashboard.id]).await?;
     Ok(())
 }
 
@@ -158,15 +152,14 @@ async fn test_get_dashboard_no_permission_public_expired() -> Result<()> {
 async fn test_get_dashboard_direct_permission_public_password() -> Result<()> {
     // User has direct CanEdit permission, should bypass public password check
     let test_db = TestDb::new().await?;
-    let mut conn = test_db.get_conn().await?;
     let user = test_db.create_test_user().await?;
     let mut dashboard = test_db.create_test_dashboard_file(&user.id).await?;
     dashboard.publicly_accessible = true;
     dashboard.public_password = Some("testpassword".to_string());
-    insert_test_dashboard_file(&mut conn, &dashboard).await?;
+    insert_test_dashboard_file(&dashboard).await?;
 
     let permission = test_db.create_asset_permission(&dashboard.id, AssetType::DashboardFile, &user.id, AssetPermissionRole::CanEdit).await?;
-    insert_test_permission(&mut conn, &permission).await?;
+    insert_test_permission(&permission).await?;
 
     let auth_user = create_test_auth_user(user.id, Some(test_db.organization_id));
 
@@ -176,7 +169,7 @@ async fn test_get_dashboard_direct_permission_public_password() -> Result<()> {
     let response = result.unwrap();
     assert_eq!(response.permission, AssetPermissionRole::CanEdit);
 
-    cleanup_test_data(&mut conn, &[dashboard.id]).await?;
+    cleanup_test_data(&[dashboard.id]).await?;
     Ok(())
 }
 
@@ -184,12 +177,11 @@ async fn test_get_dashboard_direct_permission_public_password() -> Result<()> {
 async fn test_get_dashboard_admin_role_public_password() -> Result<()> {
     // User is WorkspaceAdmin, should bypass public password check
     let test_db = TestDb::new().await?;
-    let mut conn = test_db.get_conn().await?;
     let admin_user = test_db.create_test_user().await?;
     let mut dashboard = test_db.create_test_dashboard_file(&admin_user.id).await?;
     dashboard.publicly_accessible = true;
     dashboard.public_password = Some("testpassword".to_string());
-    insert_test_dashboard_file(&mut conn, &dashboard).await?;
+    insert_test_dashboard_file(&dashboard).await?;
 
     let auth_user = AuthenticatedUser {
         id: admin_user.id,
@@ -214,7 +206,7 @@ async fn test_get_dashboard_admin_role_public_password() -> Result<()> {
     let response = result.unwrap();
     assert_eq!(response.permission, AssetPermissionRole::CanView);
 
-    cleanup_test_data(&mut conn, &[dashboard.id]).await?;
+    cleanup_test_data(&[dashboard.id]).await?;
     Ok(())
 }
 

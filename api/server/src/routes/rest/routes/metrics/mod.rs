@@ -7,8 +7,6 @@ use axum::{
 mod bulk_update_metrics;
 mod delete_metric;
 mod get_metric;
-#[cfg(test)]
-mod get_metric_test;
 mod get_metric_data;
 mod list_metrics;
 mod sharing;
