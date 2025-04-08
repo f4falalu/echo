@@ -10,6 +10,7 @@ import { prefetchGetMetric } from '@/api/buster_rest/metrics/queryReqestsServer'
 import { prefetchGetDashboard } from '@/api/buster_rest/dashboards/queryServerRequests';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
+import { HydrationBoundaryAssetStore } from '@/context/Assets/HydrationBoundaryAssetStore';
 
 export type AppAssetCheckLayoutProps = {
   assetId: string;
@@ -53,9 +54,11 @@ export const AppAssetCheckLayout: React.FC<
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <AppAssetLoadingContainer assetId={assetId} type={type}>
-        {Component}
-      </AppAssetLoadingContainer>
+      <HydrationBoundaryAssetStore asset={queryData}>
+        <AppAssetLoadingContainer assetId={assetId} type={type}>
+          {Component}
+        </AppAssetLoadingContainer>
+      </HydrationBoundaryAssetStore>
     </HydrationBoundary>
   );
 };

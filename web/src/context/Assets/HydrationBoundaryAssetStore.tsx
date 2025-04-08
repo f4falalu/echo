@@ -25,16 +25,3 @@ export const HydrationBoundaryAssetStore: React.FC<{
 
   return <>{children}</>;
 };
-
-// export const HydrationBoundaryMetricStore: React.FC<{
-//     children: React.ReactNode;
-//     metric?: OriginalMetricStore['originalMetrics'][string];
-//   }> = ({ children, metric }) => {
-//     const setOriginalMetrics = useOriginalMetricStore((x) => x.setOriginalMetric);
-
-//     useMount(() => {
-//       if (metric) setOriginalMetrics(metric);
-//     });
-
-//     return <>{children}</>;
-//   };
