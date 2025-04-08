@@ -7,18 +7,18 @@
 
 ## 1. Overview
 
-This PRD details the creation or enhancement of a centralized helper function within the `libs/sharing` crate. This function will encapsulate the logic for checking if a given user has at least one of a set of required permission roles for a specific asset (identified by ID and type). This promotes consistency and simplifies permission checking in various handlers.
+This PRD details the creation or enhancement of a centralized helper function within the `libs/sharing` crate. This function will encapsulate the logic for checking if a given user has at least one of a set of required permission roles for a specific asset (identified by ID and type). This promotes consistency and simplifies permission checking in various handlers, including those retrieving asset metadata (like `get_metric_handler`, `get_collection_handler`) and those executing actions based on assets (like the handler running metric SQL queries).
 
 ## 2. Problem Statement
 
-Currently, permission checking logic might be duplicated or slightly varied across different handlers (e.g., `get_collection_handler`, `get_dashboard_handler`, `get_metric_handler`). Checking permissions for assets *contained within* other assets requires a standardized approach that considers direct user permissions, organization roles, and potentially public access settings of the specific asset.
+Currently, permission checking logic might be duplicated or slightly varied across different handlers (e.g., `get_collection_handler`, `get_dashboard_handler`, `get_metric_handler`, and potentially data execution handlers). Checking permissions for assets *contained within* other assets, or *before executing* an action related to an asset, requires a standardized, testable approach that considers direct user permissions, organization roles, and potentially public access settings of the specific asset.
 
 ## 3. Goals
 
-- Create a reusable function `check_specific_asset_access` within `libs/sharing`.
+- Create a reusable, modular, and easily testable function `check_specific_asset_access` within `libs/sharing`.
 - This function should accept user context, asset details (ID, type, org ID), and required permission levels.
 - It should return `Ok(true)` if the user meets the requirements, `Ok(false)` if they don't, and `Err` only for database or unexpected errors.
-- Consolidate permission checking logic for specific assets into this helper.
+- Consolidate permission checking logic for specific assets into this single helper, callable from multiple contexts (metadata retrieval, action execution).
 
 ## 4. Non-Goals
 
@@ -56,7 +56,37 @@ Currently, permission checking logic might be duplicated or slightly varied acro
         asset_organization_id: Uuid,
         required_roles: &[AssetPermissionRole],
     ) -> Result<bool> {
-        // --- 1. Check Direct Permissions ---
+        // --- 1. Check High-Level Organization Permissions First ---
+        // Check if the user is WorkspaceAdmin or DataAdmin in the asset's organization
+        let high_level_org_roles = [
+             database::enums::UserOrganizationRole::WorkspaceAdmin,
+             database::enums::UserOrganizationRole::DataAdmin,
+        ];
+
+        let has_high_level_org_role = select(exists(
+            users_to_organizations::table
+                .filter(users_to_organizations::user_id.eq(&user.id))
+                .filter(users_to_organizations::organization_id.eq(asset_organization_id))
+                .filter(users_to_organizations::deleted_at.is_null())
+                .filter(users_to_organizations::status.eq(database::enums::UserOrganizationStatus::Active))
+                .filter(users_to_organizations::role.eq_any(high_level_org_roles))
+        ))
+        .get_result::<bool>(conn)
+        .await;
+
+        match has_high_level_org_role {
+            Ok(true) => return Ok(true), // User is Org Admin/Data Admin, grant access
+            Ok(false) => { /* Continue to check direct permissions */ }
+            Err(e) => {
+                tracing::error!(
+                    "DB error checking high-level organization permissions for user {} in org {}: {}",
+                    user.id, asset_organization_id, e
+                );
+                return Err(anyhow!("Failed to check organization permissions: {}", e));
+            }
+        }
+
+        // --- 2. Check Direct Permissions ---
         let direct_permission_exists = select(exists(
             asset_permissions::table
                 .filter(asset_permissions::identity_id.eq(&user.id))
@@ -82,44 +112,41 @@ Currently, permission checking logic might be duplicated or slightly varied acro
             }
         }
 
-        // --- 2. Check Organization Permissions ---
-        // Check if the user is part of the asset's organization AND has an Admin/Owner role
-        // (Adjust roles based on specific requirements - maybe Members also get view?)
-        let org_roles_to_check = [
-             database::enums::UserOrganizationRole::Admin,
-             database::enums::UserOrganizationRole::Owner,
-             // Add database::enums::UserOrganizationRole::Member if members should have view access
-        ];
+        // --- 3. Check Other Organization Permissions (e.g., Member role granting CanView) ---
+        // If specific roles like Member should grant CanView, add that check here.
+        // This check is only relevant if high-level admin check and direct permission check failed.
+        // Example (If Member grants CanView):
+        /*
+        if required_roles.contains(&AssetPermissionRole::CanView) {
+            let is_org_member = select(exists(
+                users_to_organizations::table
+                    .filter(users_to_organizations::user_id.eq(&user.id))
+                    .filter(users_to_organizations::organization_id.eq(asset_organization_id))
+                    .filter(users_to_organizations::deleted_at.is_null())
+                    .filter(users_to_organizations::status.eq(database::enums::UserOrganizationStatus::Active))
+                    .filter(users_to_organizations::role.eq(database::enums::UserOrganizationRole::Member)) // Check for Member
+            ))
+            .get_result::<bool>(conn)
+            .await;
 
-        let sufficient_org_role_exists = select(exists(
-            users_to_organizations::table
-                .filter(users_to_organizations::user_id.eq(&user.id))
-                .filter(users_to_organizations::organization_id.eq(asset_organization_id))
-                .filter(users_to_organizations::deleted_at.is_null())
-                .filter(users_to_organizations::status.eq(database::enums::UserOrganizationStatus::Active))
-                .filter(users_to_organizations::role.eq_any(org_roles_to_check))
-                // We implicitly assume org roles grant at least 'CanView' equivalent.
-                // If finer control is needed, we might need a mapping from OrgRole -> AssetPermissionRole.
-                // For now, if any required_role is <= CanView and user has sufficient org role, grant access.
-                // This simplifies logic: if user needs CanView/Edit/FullAccess/Owner and is Org Admin/Owner, they likely have it.
-        ))
-        // Only check org permissions if required_roles includes something an org admin might have (e.g., CanView)
-        .filter(required_roles.iter().any(|r| *r <= AssetPermissionRole::CanView))
-        .get_result::<bool>(conn)
-        .await;
+            match is_org_member {
+                Ok(true) => return Ok(true), // Org Member grants CanView
+                Ok(false) => { /* Continue */ }
+                Err(e) => {
+                     tracing::error!(
+                         "DB error checking Member organization permissions for asset {} type {:?} in org {}: {}",
+                         asset_id, asset_type, asset_organization_id, e
+                     );
+                     // Don't return Err here, as failure to check Member role shouldn't block access
+                     // if other permissions might exist (though they were already checked).
+                     // Fall through to return false.
+                }
+            }
+        }
+        */
 
-
-        match sufficient_org_role_exists {
-             Ok(true) => Ok(true), // Found sufficient org permission
-             Ok(false) => Ok(false), // No sufficient direct or org permission found
-             Err(e) => {
-                 tracing::error!(
-                     "DB error checking organization permissions for asset {} type {:?} in org {}: {}",
-                     asset_id, asset_type, asset_organization_id, e
-                 );
-                 Err(anyhow!("Failed to check organization asset permissions: {}", e))
-             }
-         }
+        // If none of the above checks granted access, return false
+        Ok(false)
     }
     ```
 3.  **File Changes:**
@@ -142,7 +169,7 @@ Currently, permission checking logic might be duplicated or slightly varied acro
         -   User has direct `Owner` permission -> returns `Ok(true)` when `CanView` or `Owner` is required.
         -   User has direct `CanView` permission -> returns `Ok(false)` when `Owner` is required.
         -   User has no direct permission but Org Admin role -> returns `Ok(true)` when `CanView` is required.
-        -   User has no direct permission and Org Member role -> returns `Ok(false)` (unless Member is added to `org_roles_to_check`).
+        -   User has no direct permission and Org Member role -> returns `Ok(false)` (unless Member role check is added and CanView is required).
         -   User has no relevant direct or org permission -> returns `Ok(false)`.
         -   Database error during direct permission check -> returns `Err`.
         -   Database error during org permission check -> returns `Err`.

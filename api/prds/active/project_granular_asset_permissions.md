@@ -25,13 +25,14 @@ This project aims to implement fine-grained permission checks for assets (like m
 
 ## 4. Implementation Plan
 
-The implementation will be broken down into three sub-PRDs, executed in the specified order due to dependencies:
+The implementation will be broken down into four sub-PRDs, executed in the specified order due to dependencies:
 
 1.  **Upcoming:** [Refactor Sharing Permission Helper](mdc:prds/active/refactor_sharing_permission_helper.md) - Create/Enhance a centralized helper function in `libs/sharing` for checking specific asset permissions.
 2.  **Upcoming:** [Enhance Collection Asset Permissions](mdc:prds/active/enhancement_collection_asset_permissions.md) - Modify `get_collection_handler` and related types to use the new helper and include the `has_access` flag. (Depends on #1)
 3.  **Upcoming:** [Enhance Dashboard Metric Permissions](mdc:prds/active/enhancement_dashboard_metric_permissions.md) - Modify `get_dashboard_handler`, potentially `get_metric_handler`, and related types to use the new helper and include the `has_access` flag. (Depends on #1)
+4.  **Upcoming:** Enhance Data Execution Handler - Modify the handler responsible for executing metric SQL queries to call the permission helper before execution. (Depends on #1)
 
-**Concurrency:** Sub-PRDs #2 and #3 can potentially be worked on concurrently *after* Sub-PRD #1 is completed and merged, as they modify different handlers but depend on the same shared helper.
+**Concurrency:** Sub-PRDs #2 and #3 can potentially be worked on concurrently *after* Sub-PRD #1 is completed and merged, as they modify different handlers but depend on the same shared helper. Sub-PRD #4 also depends on #1 and can likely be done concurrently with #2/#3.
 
 ## 5. High-Level Technical Design
 
@@ -39,6 +40,7 @@ The implementation will be broken down into three sub-PRDs, executed in the spec
 - Develop a reusable function `check_specific_asset_access` in `libs/sharing` to determine if a user has the required permission level for a given asset ID and type.
 - Modify `get_collection_handler` to fetch all associated asset IDs, use the helper function (potentially in batch) to check permissions, and populate the `has_access` field in the response.
 - Modify `get_dashboard_handler` (and potentially underlying asset fetchers like `get_metric_handler`) to use the helper function. For assets where the user lacks permission, return a minimal representation of the asset with `has_access: false` instead of filtering it out or returning a hard error solely due to permissions.
+- **Crucially, modify the handler responsible for executing metric SQL queries to call `check_specific_asset_access` before running the query. If the check returns `false`, the handler must return a permission error instead of executing the query.**
 
 ## 6. Testing Strategy
 

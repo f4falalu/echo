@@ -9,6 +9,8 @@
 
 This PRD details the modifications required for the `get_collection_handler` to incorporate granular permission checks for each asset (Metric, Dashboard, etc.) contained within a collection. It introduces a `has_access` flag to the `CollectionAsset` type to indicate whether the requesting user has permission to view the specific asset.
 
+**Note on Concurrency:** This work depends on the completion of the [Refactor Sharing Permission Helper](mdc:prds/active/refactor_sharing_permission_helper.md). Once the helper is available, this task can potentially be performed concurrently with the enhancements for the dashboard and data execution handlers.
+
 ## 2. Problem Statement
 
 The current `get_collection_handler` lists assets associated with a collection but doesn't verify the user's permission for each *individual* asset. This can lead to users seeing assets in the list that they cannot actually access, creating a confusing user experience.

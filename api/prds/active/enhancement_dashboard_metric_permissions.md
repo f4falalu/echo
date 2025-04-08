@@ -9,6 +9,8 @@
 
 This PRD describes the modifications needed for the `get_dashboard_handler` to implement granular permission checks for each metric included in a dashboard. It involves leveraging the central permission helper and adjusting how metric data is fetched and represented in the response, potentially by modifying `get_metric_handler` or how its results are processed.
 
+**Note on Concurrency:** This work depends on the completion of the [Refactor Sharing Permission Helper](mdc:prds/active/refactor_sharing_permission_helper.md). Once the helper is available, this task can potentially be performed concurrently with the enhancements for the collection and data execution handlers.
+
 ## 2. Problem Statement
 
 Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_handler`. If `get_metric_handler` fails (potentially due to permissions), the metric is silently filtered out from the dashboard response's `metrics` map. Users aren't informed *why* a metric configured in the dashboard isn't visible, and they can't distinguish between a metric failing to load due to an error vs. lack of permissions.
@@ -19,6 +21,7 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
 - Ensure that if a user lacks `CanView` permission for a metric configured in a dashboard, the metric is still included in the response's `metrics` map, but represented minimally with `has_access: false`.
 - Add the `has_access: bool` field to the `BusterMetric` type.
 - Leverage the `check_specific_asset_access` helper for permission verification.
+- **Note:** This handler modification primarily affects the *metadata* served about the metric. Blocking the actual *execution* of the metric's SQL query for data retrieval will be handled by adding permission checks to the relevant data execution handler (as per the project PRD).
 
 ## 4. Non-Goals
 
@@ -30,9 +33,13 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
 **Option A: Modify `get_metric_handler` (Recommended)**
 
 1.  **Type Modification:**
-    -   Add `has_access: bool` to `BusterMetric` struct (likely in `libs/handlers/src/metrics/types.rs`). Also ensure relevant nested types like `MetricConfig` are adjusted if necessary or handled during minimal object creation.
+    -   Add `has_access: bool` to `BusterMetric` struct (likely in `libs/handlers/src/metrics/types.rs`). Also ensure relevant nested types like `ChartConfig` (note: it's from `database::types::ChartConfig`) are handled during minimal object creation.
         ```rust
         // libs/handlers/src/metrics/types.rs (adjust path as needed)
+        use database::types::ChartConfig; // Import the correct ChartConfig
+        use database::enums::Verification;
+        use chrono::{DateTime, Utc, TimeZone};
+
         #[derive(Serialize, Deserialize, Debug, Clone)] // Add necessary derives
         pub struct BusterMetric {
              // --- Fields always present, even if no access ---
@@ -57,6 +64,9 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
         }
 
         // Add default implementation if needed for minimal construction
+        // Note: Default cannot be easily derived due to non-optional fields.
+        // We will construct the minimal object manually.
+        /*
         impl Default for BusterMetric {
             fn default() -> Self {
                 Self {
@@ -72,6 +82,7 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
                 }
             }
         }
+        */
         ```
 
 2.  **Modify `get_metric_handler.rs`:**
@@ -86,12 +97,12 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
         let basic_metric_info = metric_files::table
             .filter(metric_files::id.eq(metric_id))
             .filter(metric_files::deleted_at.is_null())
-            .select((metric_files::id, metric_files::name, metric_files::organization_id))
-            .first::<(Uuid, String, Uuid)>(&mut conn)
+            .select((metric_files::id, metric_files::name, metric_files::organization_id, metric_files::created_by))
+            .first::<(Uuid, String, Uuid, Uuid)>(&mut conn) // Fetch created_by too
             .await
             .optional()?; // Use optional() to handle not found gracefully
 
-        let (id, name, org_id) = match basic_metric_info {
+        let (id, name, org_id, created_by_id) = match basic_metric_info {
              Some(info) => info,
              None => return Err(anyhow!("Metric not found")), // Return Err if metric doesn't exist
         };
@@ -114,11 +125,43 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
             })
         } else {
             // Construct minimal BusterMetric with has_access: false
+            // Need to provide defaults for non-optional fields.
+            let default_time = Utc.timestamp_opt(0, 0).unwrap(); // Use epoch for timestamps
             Ok(BusterMetric {
                 id,
+                metric_type: "metric".to_string(),
                 name, // Use fetched name
+                version_number: 0, // Default version
+                description: None, // Optional
+                file_name: "".to_string(), // Default empty
+                time_frame: "".to_string(), // Default empty
+                datasets: vec![], // Default empty
+                data_source_id: "".to_string(), // Default empty
+                error: None, // Optional
+                chart_config: None, // Optional
+                data_metadata: None, // Optional
+                status: Verification::Unverified, // Default status
+                evaluation_score: None, // Optional
+                evaluation_summary: "".to_string(), // Default empty
+                file: "".to_string(), // Default empty YAML
+                created_at: default_time, // Default timestamp
+                updated_at: default_time, // Default timestamp
+                sent_by_id: created_by_id, // Use fetched creator ID
+                sent_by_name: "(Restricted Access)".to_string(), // Placeholder name
+                sent_by_avatar_url: None, // Optional
+                code: None, // Optional (SQL query)
+                dashboards: vec![], // Default empty
+                collections: vec![], // Default empty
+                versions: vec![], // Default empty
+                permission: AssetPermissionRole::CanView, // Technically viewable, but content restricted
+                sql: "-- Restricted Access --".to_string(), // Placeholder SQL
+                individual_permissions: None, // Optional
+                public_expiry_date: None, // Optional
+                public_enabled_by: None, // Optional
+                publicly_accessible: false, // Default
+                public_password: None, // Optional
+                // **Crucially set has_access to false**
                 has_access: false,
-                ..Default::default() // Use default for other fields
             })
         }
         ```

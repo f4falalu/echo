@@ -1,1 +1,0 @@
-mod bulk_update_metrics_test;

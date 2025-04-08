@@ -1,112 +1,44 @@
 use anyhow::Result;
-use database::enums::{AssetPermissionRole, AssetType, IdentityType};
-use database::models::{AssetPermission, DashboardFile};
+use database::enums::{AssetPermissionRole, AssetType, IdentityType, UserOrganizationRole};
+use database::models::{DashboardFile, UserToOrganization};
 use database::pool::get_pg_pool;
-use database::schema::{asset_permissions, dashboard_files};
-use database::models::UserToOrganization;
+use database::schema::{asset_permissions, dashboard_files, users_to_organizations};
 use database::types::{DashboardYml, VersionHistory};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use handlers::dashboards::get_dashboard_handler;
+use middleware::{AuthenticatedUser, OrganizationMembership};
 use std::collections::HashMap;
 use uuid::Uuid;
 
-/// Helper function to create a test dashboard file
-async fn create_test_dashboard(
-    organization_id: Uuid,
-    user_id: Uuid,
-    name: &str,
-) -> Result<DashboardFile> {
-    let mut conn = get_pg_pool().get().await?;
-    let dashboard_id = Uuid::new_v4();
-    
-    // Create a simple dashboard content
-    let content = DashboardYml {
-        name: name.to_string(),
-        description: Some(format!("Test dashboard description for {}", name)),
-        rows: Vec::new(),
-    };
-    
-    let dashboard_file = DashboardFile {
-        id: dashboard_id,
-        name: name.to_string(),
-        file_name: format!("{}.yml", name.to_lowercase().replace(" ", "_")),
-        content,
-        filter: None,
-        organization_id,
-        created_by: user_id,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        deleted_at: None,
-        publicly_accessible: false,
-        publicly_enabled_by: None,
-        public_expiry_date: None,
-        version_history: VersionHistory(HashMap::new()),
-        public_password: None,
-    };
-    
-    diesel::insert_into(dashboard_files::table)
-        .values(&dashboard_file)
-        .execute(&mut conn)
-        .await?;
-        
-    Ok(dashboard_file)
-}
-
-/// Helper function to add permission for a dashboard
-async fn add_permission(
-    asset_id: Uuid,
-    user_id: Uuid,
-    role: AssetPermissionRole,
-    created_by: Uuid,
-) -> Result<()> {
-    let mut conn = get_pg_pool().get().await?;
-    
-    let permission = AssetPermission {
-        identity_id: user_id,
-        identity_type: IdentityType::User,
-        asset_id,
-        asset_type: AssetType::DashboardFile,
-        role,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        deleted_at: None,
-        created_by,
-        updated_by: created_by,
-    };
-    
-    diesel::insert_into(asset_permissions::table)
-        .values(&permission)
-        .execute(&mut conn)
-        .await?;
-        
-    Ok(())
-}
+// Use test_utils helpers
+use database::test_utils::{TestDb, insert_test_dashboard_file, insert_test_permission, cleanup_test_data};
 
 /// Test to ensure permission fields in dashboard response match the permission used for access control
 #[tokio::test]
 async fn test_dashboard_permission_field_consistency() -> Result<()> {
-    // Create user and organization for testing
-    let user_id = Uuid::new_v4();
-    let org_id = Uuid::new_v4();
+    // Use TestDb for setup
+    let test_db = TestDb::new().await?;
+    let user_id = test_db.user_id;
+    let org_id = test_db.organization_id;
     
-    // Create test dashboard
-    let dashboard = create_test_dashboard(
-        org_id, 
-        user_id, 
-        "Test Permission Dashboard"
-    ).await?;
+    // Create test dashboard using TestDb helper
+    let dashboard = test_db.create_test_dashboard_file(&user_id).await?;
+    // Insert dashboard using helper
+    insert_test_dashboard_file(&dashboard).await?;
     
-    // Add permission for asset
-    add_permission(
-        dashboard.id, 
-        user_id, 
-        AssetPermissionRole::Owner,
-        user_id
+    // Add permission for asset using TestDb helper
+    let permission = test_db.create_asset_permission(
+        &dashboard.id, 
+        AssetType::DashboardFile, 
+        &user_id, 
+        AssetPermissionRole::Owner
     ).await?;
+    // Insert permission using helper
+    insert_test_permission(&permission).await?;
     
     // Create middleware user
-    let middleware_user = middleware::AuthenticatedUser {
+    let middleware_user = AuthenticatedUser {
         id: user_id,
         email: "test@example.com".to_string(),
         name: Some("Test User".to_string()),
@@ -116,58 +48,55 @@ async fn test_dashboard_permission_field_consistency() -> Result<()> {
         attributes: serde_json::json!({}),
         avatar_url: None,
         organizations: vec![
-            middleware::OrganizationMembership {
+            OrganizationMembership {
                 id: org_id,
-                role: database::enums::UserOrganizationRole::WorkspaceAdmin,
+                role: UserOrganizationRole::WorkspaceAdmin,
             },
         ],
         teams: vec![],
     };
     
     // Get dashboard with the user who has owner permission
-    let dashboard_response = get_dashboard_handler(&dashboard.id, &middleware_user, None).await?;
+    let dashboard_response = get_dashboard_handler(&dashboard.id, &middleware_user, None, None).await?;
     
     // Check if permission fields are consistent
     assert_eq!(dashboard_response.permission, AssetPermissionRole::Owner);
     assert_eq!(dashboard_response.access, AssetPermissionRole::Owner);
     
+    // Clean up using helper
+    cleanup_test_data(&[dashboard.id]).await?;
+
     Ok(())
 }
 
 /// Test to ensure public dashboards grant CanView permission to users without direct permissions
 #[tokio::test]
 async fn test_public_dashboard_permission_field() -> Result<()> {
-    // Create user and organization for testing
-    let owner_id = Uuid::new_v4();
-    let org_id = Uuid::new_v4();
+    // Use TestDb for setup
+    let test_db = TestDb::new().await?;
+    let owner_id = test_db.user_id;
+    let org_id = test_db.organization_id;
     
-    // Create test dashboard
-    let dashboard = create_test_dashboard(
-        org_id, 
-        owner_id, 
-        "Public Dashboard"
-    ).await?;
+    // Create test dashboard using TestDb helper
+    let mut dashboard = test_db.create_test_dashboard_file(&owner_id).await?;
     
     // Make dashboard public
-    let mut conn = get_pg_pool().get().await?;
-    diesel::update(dashboard_files::table)
-        .filter(dashboard_files::id.eq(dashboard.id))
-        .set((
-            dashboard_files::publicly_accessible.eq(true),
-            dashboard_files::publicly_enabled_by.eq(Some(owner_id)),
-            dashboard_files::public_expiry_date.eq(Some(chrono::Utc::now() + chrono::Duration::days(7))),
-        ))
-        .execute(&mut conn)
-        .await?;
+    dashboard.publicly_accessible = true;
+    dashboard.publicly_enabled_by = Some(owner_id);
+    dashboard.public_expiry_date = Some(chrono::Utc::now() + chrono::Duration::days(7));
+
+    // Insert dashboard using helper
+    insert_test_dashboard_file(&dashboard).await?;
     
-    // Create another user
+    // Create another user (just need the ID)
     let other_user_id = Uuid::new_v4();
     
-    // Add user to organization with viewer role
+    // Add user to organization with viewer role (manual insert, no helper yet)
+    let mut conn = get_pg_pool().get().await?;
     let user_org = UserToOrganization {
         user_id: other_user_id,
         organization_id: org_id,
-        role: database::enums::UserOrganizationRole::Viewer,
+        role: UserOrganizationRole::Viewer,
         sharing_setting: database::enums::SharingSetting::None,
         edit_sql: true,
         upload_csv: true,
@@ -182,13 +111,13 @@ async fn test_public_dashboard_permission_field() -> Result<()> {
         status: database::enums::UserOrganizationStatus::Active,
     };
     
-    diesel::insert_into(database::schema::users_to_organizations::table)
+    diesel::insert_into(users_to_organizations::table)
         .values(&user_org)
         .execute(&mut conn)
         .await?;
     
     // Create middleware user for other user
-    let other_middleware_user = middleware::AuthenticatedUser {
+    let other_middleware_user = AuthenticatedUser {
         id: other_user_id,
         email: "other@example.com".to_string(),
         name: Some("Other User".to_string()),
@@ -198,44 +127,53 @@ async fn test_public_dashboard_permission_field() -> Result<()> {
         attributes: serde_json::json!({}),
         avatar_url: None,
         organizations: vec![
-            middleware::OrganizationMembership {
+            OrganizationMembership {
                 id: org_id,
-                role: database::enums::UserOrganizationRole::Viewer,
+                role: UserOrganizationRole::Viewer,
             },
         ],
         teams: vec![],
     };
     
     // Get dashboard with the other user who doesn't have direct permission
-    let dashboard_response = get_dashboard_handler(&dashboard.id, &other_middleware_user, None).await?;
+    let dashboard_response = get_dashboard_handler(&dashboard.id, &other_middleware_user, None, None).await?;
     
     // Public assets should have CanView permission by default
     assert_eq!(dashboard_response.permission, AssetPermissionRole::CanView);
     assert_eq!(dashboard_response.access, AssetPermissionRole::CanView);
     
+    // Clean up using helper (also removes permissions)
+    cleanup_test_data(&[dashboard.id]).await?;
+
+    // Manual cleanup for user_org association
+    diesel::delete(users_to_organizations::table)
+        .filter(users_to_organizations::user_id.eq(other_user_id))
+        .filter(users_to_organizations::organization_id.eq(org_id))
+        .execute(&mut conn)
+        .await?;
+
     Ok(())
 }
 
 /// Test to ensure access is denied for users without permissions and non-public dashboards
 #[tokio::test]
 async fn test_dashboard_permission_denied() -> Result<()> {
-    // Create user and organization for testing
-    let owner_id = Uuid::new_v4();
-    let org_id = Uuid::new_v4();
+    // Use TestDb for setup
+    let test_db = TestDb::new().await?;
+    let owner_id = test_db.user_id;
+    let org_id = test_db.organization_id;
     
-    // Create a private test dashboard
-    let dashboard = create_test_dashboard(
-        org_id, 
-        owner_id, 
-        "Private Dashboard"
-    ).await?;
+    // Create a private test dashboard using TestDb helper
+    let dashboard = test_db.create_test_dashboard_file(&owner_id).await?;
+    // Insert dashboard using helper
+    insert_test_dashboard_file(&dashboard).await?;
     
     // Create another user in a different organization
     let other_user_id = Uuid::new_v4();
     let other_org_id = Uuid::new_v4();
     
     // Create middleware user for other user
-    let other_middleware_user = middleware::AuthenticatedUser {
+    let other_middleware_user = AuthenticatedUser {
         id: other_user_id,
         email: "other@example.com".to_string(),
         name: Some("Other User".to_string()),
@@ -245,21 +183,24 @@ async fn test_dashboard_permission_denied() -> Result<()> {
         attributes: serde_json::json!({}),
         avatar_url: None,
         organizations: vec![
-            middleware::OrganizationMembership {
+            OrganizationMembership {
                 id: other_org_id,
-                role: database::enums::UserOrganizationRole::Viewer,
+                role: UserOrganizationRole::Viewer,
             },
         ],
         teams: vec![],
     };
     
     // Try to get dashboard with a user who has no permissions
-    let result = get_dashboard_handler(&dashboard.id, &other_middleware_user, None).await;
+    let result = get_dashboard_handler(&dashboard.id, &other_middleware_user, None, None).await;
     
     // Should be denied access
     assert!(result.is_err());
     let error = result.unwrap_err();
     assert!(error.to_string().contains("You don't have permission"));
+    
+    // Clean up using helper
+    cleanup_test_data(&[dashboard.id]).await?;
     
     Ok(())
 }
