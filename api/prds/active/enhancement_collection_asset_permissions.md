@@ -50,7 +50,7 @@ The current `get_collection_handler` lists assets associated with a collection b
         ```
 
 2.  **Handler Modification (`get_collection_handler.rs`):**
-    -   **Fetch Assets & Permissions Efficiently:** Instead of fetching assets and then checking permissions iteratively, adapt or create a batch fetch helper (similar to `fetch_metric_files_with_permissions`) that returns assets along with their pre-calculated direct/collection permission level (which internally handles `deleted_at`). Let's call the hypothetical result type `FetchedAssetWithPermission { asset: AssetQueryResult, base_permission: Option<AssetPermissionRole> }`. The `AssetQueryResult` needs to include `id`, `name`, `asset_type`, `organization_id`, and creator info.
+    -   **Fetch Assets & Permissions Efficiently:** This is the primary **addition**. Adapt or create a batch fetch helper (similar to `fetch_metric_files_with_permissions`) that returns assets (`AssetQueryResult` including `id`, `name`, `asset_type`, `organization_id`, etc.) along with their pre-calculated `base_permission: Option<AssetPermissionRole>` (derived from direct/collection checks, handling `deleted_at`).
         ```rust
         // Example Query Result Struct needed
         #[derive(Queryable, Clone, Debug)]
@@ -72,16 +72,9 @@ The current `get_collection_handler` lists assets associated with a collection b
         }
 
         // Fetch assets and their base permissions efficiently
-        // let fetched_assets_with_perms: Vec<FetchedAssetWithPermission> = /* ... */ ;
-        // This might involve joining collections_to_assets with metric_files/dashboard_files
-        // and LEFT JOINING asset_permissions twice (once for direct, once for collection via collections_to_assets)
-        // or using a helper function.
+        // let fetched_assets_with_perms: Vec<FetchedAssetWithPermission> = /* Call new/adapted helper */ ;
         ```
-    -   **Determine Final Access:** Iterate through `fetched_assets_with_perms`. For each item:
-        -   Check if the user is a `WorkspaceAdmin` or `DataAdmin` for the `asset.organization_id` using the cached `user.organizations`.
-        -   If they are an admin, `has_access` is `true`.
-        -   If not an admin, check if `item.base_permission` (the pre-fetched direct/collection permission) is `Some` and meets the minimum requirement (e.g., `CanView`). If yes, `has_access` is `true`.
-        -   Otherwise, `has_access` is `false`.
+    -   **Determine Final Access:** This is the second main **addition**. Iterate through `fetched_assets_with_perms`. For each item, determine the final `has_access` flag by checking: (1) if the user is an Org Admin for the asset's org (using cached `user.organizations`), or (2) if the `item.base_permission` meets the `CanView` requirement.
         ```rust
         let mut final_assets: Vec<CollectionAsset> = Vec::new();
         let required_role = AssetPermissionRole::CanView; // Minimum requirement
@@ -106,11 +99,10 @@ The current `get_collection_handler` lists assets associated with a collection b
                 base_permission.map_or(false, |role| role >= required_role)
             };
 
-            // Construct minimal or full object based on has_access
-            // For collections, we might always show the basic info
+            // Construct the CollectionAsset object
             final_assets.push(CollectionAsset {
                 id: asset.id,
-                name: asset.name, // Assuming name is okay to show
+                name: asset.name,
                 created_by: AssetUser { /* ... from asset ... */ },
                 created_at: asset.created_at,
                 updated_at: asset.updated_at,
@@ -118,20 +110,13 @@ The current `get_collection_handler` lists assets associated with a collection b
                 has_access, // Set the final flag
             });
         }
-
-        // Use final_assets in the response
-        let collection_state = CollectionState {
-            // ... other fields ...
-            assets: Some(final_assets),
-            // ...
-        };
         ```
-    -   **Populate Response:** Use the resulting list containing `CollectionAsset` objects (each with the correctly determined `has_access` flag) in the final `CollectionState` response.
+    -   **Populate Response:** Use the `final_assets` list (now containing the `has_access` flag) in the final `CollectionState` response. The existing logic for fetching the collection itself and checking its permission remains unchanged.
 
 3.  **File Changes:**
-    -   Modify: `libs/handlers/src/collections/get_collection_handler.rs`
-    -   Modify: `libs/handlers/src/collections/types.rs`
-    -   Potentially Modify/Create: A helper function in `libs/database/src/helpers/` for the efficient batch fetching of assets with permissions.
+    -   Modify: `libs/handlers/src/collections/get_collection_handler.rs` (to add fetch call and access determination loop).
+    -   Modify: `libs/handlers/src/collections/types.rs` (to add `has_access`).
+    -   Potentially Modify/Create: Helper function in `libs/database/src/helpers/` for efficient batch asset+permission fetching for collections.
 
 ## 6. Implementation Plan
 
@@ -145,17 +130,9 @@ The current `get_collection_handler` lists assets associated with a collection b
 
 -   **Unit Tests:** Not directly applicable to the handler itself, focus on integration tests. Test modifications to `format_assets` logic if separated.
 -   **Integration Tests:**
-    -   Setup: User, Collection, Metric A (user has CanView), Dashboard B (user has no permission), Metric C (doesn't exist).
-    -   Execute `get_collection_handler`.
-    -   Verify:
-        -   Response status is OK.
-        -   `collection_state.assets` contains representations for Metric A and Dashboard B.
-        -   Metric A has `has_access: true`.
-        -   Dashboard B has `has_access: false`.
-        -   Metric C is not present.
-        -   Basic details (id, name, type) are present for both A and B.
-    -   Test variations with different user roles (Owner, Org Admin, Member, No Access).
-    -   Test scenario where `check_specific_asset_access` returns an `Err` (e.g., simulate DB failure during check) -> Verify asset is omitted or marked inaccessible based on error handling decision.
+    -   Setup: Use test helpers like `TestDb` and `TestSetup` (defined in `libs/database/tests/common` or similar) to create an isolated test environment with a User, Collection, and associated assets (Metrics, Dashboards).
+    -   Grant specific permissions using direct `asset_permissions` entries for the test user and assets.
+    -   Example Scenario: User, Collection, Metric A (user has CanView), Dashboard B (user has no permission), Metric C (doesn't exist).
 
 ## 8. Rollback Plan
 

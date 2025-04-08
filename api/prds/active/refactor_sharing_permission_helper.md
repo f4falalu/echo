@@ -7,11 +7,11 @@
 
 ## 1. Overview
 
-This PRD details the creation of a simplified, centralized helper function within the `libs/sharing` crate. This function is primarily intended for contexts (like pre-execution checks) where only an asset's ID is available, and an efficient permission check is needed. It leverages the user's cached organization roles and performs a targeted database query only for direct asset permissions.
+This PRD details the creation of a simplified, centralized helper function within the `libs/sharing` crate. This function is primarily intended for contexts (like pre-execution checks where only an asset ID is available, e.g., `get_metric_data_handler` before running SQL) and an efficient permission check is needed. It leverages the user's cached organization roles and performs a targeted database query only for direct asset permissions. It differs from fetch helpers like `fetch_metric_file_with_permissions` which retrieve the full asset alongside its base permission.
 
 ## 2. Problem Statement
 
-While handlers retrieving full asset metadata can use efficient fetch helpers (like `fetch_..._with_permissions`), handlers performing actions based only on an asset ID (e.g., executing a query for a metric ID) need a way to check permissions without re-fetching the user's organization roles. A dedicated helper using cached roles and querying only direct permissions is needed for these scenarios.
+While handlers retrieving full asset metadata use efficient fetch helpers (like `fetch_..._with_permissions`), handlers performing actions based only on an asset ID (e.g., executing a query for a metric ID) need a way to check permissions without re-fetching the user's organization roles or the full asset. A dedicated helper using cached roles and querying only direct permissions is needed for these specific scenarios.
 
 ## 3. Goals
 
@@ -110,22 +110,6 @@ While handlers retrieving full asset metadata can use efficient fetch helpers (l
 
 -   **Unit Tests:**
     -   Mock `AuthenticatedUser` with various `organizations` states.
-    -   Mock `AsyncPgConnection` and `asset_permissions` query results.
+    -   Mock the `AsyncPgConnection` dependency (e.g., using `mockall` if the connection is passed via a trait, or by creating a mock connection object) to simulate different `asset_permissions` query results without hitting a real database.
     -   Test cases:
-        -   User has `WorkspaceAdmin` role in cache for the asset's org -> returns `Ok(true)` without DB query.
-        -   User has `DataAdmin` role in cache -> returns `Ok(true)` without DB query.
-        -   User has other role in cache, direct `CanView` in DB -> returns `Ok(true)` when `CanView` required.
-        -   User has other role in cache, direct `CanView` in DB -> returns `Ok(false)` when `Owner` required.
-        -   User has other role in cache, no direct permission in DB -> returns `Ok(false)`.
-        -   User has no role in cache for asset's org, direct `CanView` in DB -> returns `Ok(true)` when `CanView` required.
-        -   User has no role in cache, no direct permission -> returns `Ok(false)`.
-        -   Direct permission exists but `deleted_at` is set -> returns `Ok(false)`.
-        -   Database error during direct permission check -> returns `Err`.
-
-## 8. Rollback Plan
-
--   Revert the changes to `libs/sharing`.
-
-## 9. Dependencies
-
--   None. 
+        -   User has `

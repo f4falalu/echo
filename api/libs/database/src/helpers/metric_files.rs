@@ -180,14 +180,22 @@ pub async fn fetch_metric_file_with_permissions(
     // Determine effective permission (prioritizing collection over direct)
     // Dashboard permission is NOT considered here for the base permission level.
     // The handler should check dashboard access separately if direct/collection/public checks fail.
-    let effective_permission = match collection_permission {
+    let mut effective_permission = match collection_permission {
         Some(collection) => Some(collection),
         None => direct_permission,
     };
 
+    // Ensure at least CanView if user has access via any dashboard containing this metric
+    if let Some(dashboard_view_permission) = dashboard_permission {
+        effective_permission = match effective_permission {
+            Some(current_role) => Some(current_role.max(dashboard_view_permission)), // Use max to ensure CanView is minimum
+            None => Some(dashboard_view_permission), // Grant CanView if no other permission exists
+        };
+    }
+
     Ok(Some(MetricFileWithPermission {
         metric_file,
-        permission: effective_permission, // Now only reflects direct or collection permission
+        permission: effective_permission, // Now reflects Direct/Collection/Dashboard logic
     }))
 }
 
@@ -301,10 +309,10 @@ pub async fn fetch_metric_files_with_permissions(
 
             // Ensure at least CanView if user has access via any dashboard containing this metric
             if let Some(dashboard_view_permission) = dashboard_permission {
-                 effective_permission = match effective_permission {
-                     Some(current_role) => Some(current_role.max(dashboard_view_permission)), // Use max to ensure CanView is minimum
-                     None => Some(dashboard_view_permission), // Grant CanView if no other permission exists
-                 };
+                effective_permission = match effective_permission {
+                    Some(current_role) => Some(current_role.max(dashboard_view_permission)), // Use max to ensure CanView is minimum
+                    None => Some(dashboard_view_permission), // Grant CanView if no other permission exists
+                };
             }
 
             // Check if the file is publicly accessible and its expiry date hasn't passed

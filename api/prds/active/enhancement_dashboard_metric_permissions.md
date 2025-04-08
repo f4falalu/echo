@@ -32,6 +32,8 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
 
 **Option A: Modify `get_metric_handler` (Recommended)**
 
+This approach minimizes disruption by leveraging existing efficient helper functions.
+
 1.  **Type Modification:**
     -   Add `has_access: bool` to `BusterMetric` struct (likely in `libs/handlers/src/metrics/types.rs`). Also ensure relevant nested types like `ChartConfig` (note: it's from `database::types::ChartConfig`) are handled during minimal object creation.
         ```rust
@@ -86,7 +88,7 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
         ```
 
 2.  **Modify `get_metric_handler.rs`:**
-    -   **Initial Fetch & Check:** Use the existing efficient `fetch_metric_file_with_permissions` helper. This helper already fetches the `MetricFile` and its calculated `base_permission` (direct or collection, handling `deleted_at`).
+    -   **Leverage Existing Fetch & Check:** Continue using the existing efficient `fetch_metric_file_with_permissions` helper. This fetches the `MetricFile` and its calculated `base_permission` (direct/collection). The subsequent logic using `check_permission_access` (or similar checks for org admin roles and public access) also remains largely the same for *determining* if access should be granted.
         ```rust
         // Inside get_metric_handler...
         let metric_id = /* get metric_id */;
@@ -107,7 +109,7 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
         let metric_file = metric_file_with_permission.metric_file;
         let base_permission = metric_file_with_permission.permission; // Direct or Collection permission
         ```
-    -   **Determine Final Access:** Check cached org roles and potentially public access rules (as the handler already does) to determine the final `has_access` status.
+    -   **Determine Final Access & Modify Return:** The primary change is *after* access is determined (using existing logic involving `base_permission`, cached `user.organizations` admin roles, and public access checks). Instead of returning `Err` on access denial, calculate a final `has_access: bool` flag and conditionally construct the response.
         ```rust
         // Still inside get_metric_handler...
 
@@ -163,7 +165,7 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
             };
             Ok(full_metric)
         } else {
-            // ... (Construct MINIMAL BusterMetric as defined previously) ...
+            // ... (Construct MINIMAL BusterMetric, setting has_access: false, permission: appropriate_indicator) ...
              let minimal_metric = BusterMetric {
                  id: metric_file.id,
                  name: metric_file.name,
@@ -175,10 +177,10 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
             Ok(minimal_metric)
         }
         ```
-    -   **Return Value:** Returns `Ok(BusterMetric)` containing either the full or minimal representation based on the final `has_access` decision. Only returns `Err` on fetch failures or other unrecoverable errors.
+    -   **Return Value:** The key change is that the handler returns `Ok(BusterMetric)` in both access granted (full object) and access denied (minimal object) scenarios for existing metrics. `Err` is reserved for actual fetch errors (metric not found, DB issues).
 
 3.  **Modify `get_dashboard_handler.rs`:**
-    -   The logic using `join_all` on `get_metric_handler` calls remains the same. The results will now consistently be `Ok(BusterMetric)`, with the `has_access` flag indicating accessibility. The filtering logic correctly handles potential `Err` results from fetch failures.
+    -   Requires minimal-to-no change. It continues to call `get_metric_handler`. Since `get_metric_handler` now consistently returns `Ok` for existing metrics (with `has_access` indicating permission), the dashboard handler correctly includes all configured metrics in its response map.
 
 **Option B: Handle in `get_dashboard_handler` (Less Recommended)**
 
@@ -203,23 +205,12 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
 ## 7. Testing Strategy
 
 -   **Unit Tests (`get_metric_handler`):**
-    -   Mock DB interactions.
-    -   Test case: User lacks `CanView` -> returns `Ok(BusterMetric { id, name, has_access: false, ... })`.
-    -   Test case: User has `CanView` -> returns `Ok(BusterMetric { has_access: true, ...full details... })`.
-    -   Test case: Metric ID not found -> returns `Err`.
-    -   Test case: DB error during permission check -> returns `Err`.
-    -   Test case: DB error during full data fetch (when permitted) -> returns `Err`.
+    -   Mock DB interactions (e.g., the return value of `fetch_metric_file_with_permissions`) using `mockall` or similar if the fetch logic is abstracted behind a trait, or by carefully constructing mock `MetricFileWithPermission` objects.
+    -   Mock the `AuthenticatedUser` object with different organization roles.
 -   **Integration Tests (`get_dashboard_handler`):**
-    -   Setup: User, Dashboard, Metric A (user has CanView), Metric B (user has no permission), Metric C (ID in dashboard config but doesn't exist).
-    -   Execute `get_dashboard_handler`.
-    -   Verify:
-        -   Response status is OK.
-        -   `response.metrics` map contains keys for Metric A and Metric B.
-        -   `response.metrics[&MetricA_ID]` has `has_access: true` and full details.
-        -   `response.metrics[&MetricB_ID]` has `has_access: false` and minimal details (id, name).
-        -   `response.metrics` does not contain a key for Metric C.
-        -   An error related to Metric C failing to load should be logged.
-    -   Test variations with different user roles and public dashboard access.
+    -   Setup: Use test helpers like `TestDb` and `TestSetup` to create an isolated test environment with a User, Dashboard, and associated Metrics.
+    -   Grant specific permissions using direct `asset_permissions` entries for the test user and metrics.
+    -   Example Scenario: User, Dashboard, Metric A (user has CanView), Metric B (user has no permission), Metric C (ID in dashboard config but doesn't exist).
 
 ## 8. Rollback Plan
 
