@@ -154,13 +154,29 @@ impl TestDb {
 
 /// Insert a test asset permission
 pub async fn insert_test_permission(
-    _conn: &mut diesel_async::pooled_connection::bb8::PooledConnection<'_, diesel_async::AsyncPgConnection>,
-    _permission: &AssetPermission,
+    conn: &mut diesel_async::pooled_connection::bb8::PooledConnection<'_, diesel_async::AsyncPgConnection>,
+    permission: &AssetPermission,
 ) -> Result<()> {
-    // In a real test, we would insert the permission into the database
-    // However, for these tests, we'll skip actual DB operations to avoid foreign key constraints
-    // and just simulate the operations
-    println!("Simulated inserting permission");
+    use database::schema::asset_permissions;
+
+    diesel::insert_into(asset_permissions::table)
+        .values(permission)
+        .on_conflict((
+            asset_permissions::identity_id,
+            asset_permissions::asset_id,
+            asset_permissions::asset_type,
+            asset_permissions::identity_type,
+        ))
+        .do_update()
+        .set((
+            asset_permissions::role.eq(permission.role),
+            asset_permissions::updated_at.eq(permission.updated_at),
+            asset_permissions::updated_by.eq(permission.updated_by),
+            asset_permissions::deleted_at.eq::<Option<chrono::DateTime<Utc>>>(None), // Ensure not deleted on update
+        ))
+        .execute(conn)
+        .await?;
+
     Ok(())
 }
 

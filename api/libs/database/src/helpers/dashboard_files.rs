@@ -163,26 +163,28 @@ pub async fn fetch_dashboard_file_with_permission(
         None => return Ok(None),
     };
 
-    // Check if the file is publicly accessible
-    let is_public = is_publicly_accessible(&dashboard_file).await;
+    // Check if the file is publicly accessible (we don't grant permission here anymore)
+    // let is_public = is_publicly_accessible(&dashboard_file).await;
 
     // If collection permission exists, use it; otherwise use direct permission
-    let mut effective_permission = match collection_permission {
+    let effective_permission = match collection_permission {
         Some(collection) => Some(collection),
         None => direct_permission,
     };
 
-    // If the file is publicly accessible and either no permission exists or it's lower than CanView,
-    // grant CanView permission
+    // REMOVED: Logic that automatically granted CanView for public access.
+    // The handler is now responsible for checking public access rules.
+    /*
     if is_public {
         if effective_permission.is_none() {
             effective_permission = Some(AssetPermissionRole::CanView);
         }
     }
+    */
 
     Ok(Some(DashboardFileWithPermission {
         dashboard_file,
-        permission: effective_permission,
+        permission: effective_permission, // Now only reflects direct or collection permission
     }))
 }
 
@@ -273,27 +275,29 @@ pub async fn fetch_dashboard_files_with_permissions(
             let direct_permission = direct_permission_map.get(&dashboard_file.id).cloned();
             let collection_permission = collection_permission_map.get(&dashboard_file.id).cloned();
 
-            // Use collection permission if it exists, otherwise use direct permission
+            // Determine effective permission (prioritizing collection over direct)
             let mut effective_permission = match collection_permission {
                 Some(collection) => Some(collection),
                 None => direct_permission,
             };
 
             // Check if the file is publicly accessible and its expiry date hasn't passed
+            // We still need this check for other potential uses, but don't grant permission based on it here.
             let is_public = dashboard_file.publicly_accessible
                 && dashboard_file
                     .public_expiry_date
                     .map_or(true, |expiry| expiry > now);
 
-            // If the file is publicly accessible and either no permission exists or it's lower than CanView,
-            // grant CanView permission
+            // REMOVED: Logic that automatically granted CanView for public access.
+            /*
             if is_public && (effective_permission.is_none()) {
                 effective_permission = Some(AssetPermissionRole::CanView);
             }
+            */
 
             DashboardFileWithPermission {
                 dashboard_file,
-                permission: effective_permission,
+                permission: effective_permission, // Now only reflects direct or collection permission
             }
         })
         .collect();

@@ -80,20 +80,29 @@ pub async fn get_dashboard_handler(
     password: Option<String>,
 ) -> Result<BusterDashboardResponse> {
     // First check if the user has permission to view this dashboard
-    let dashboard_with_permission =
+    let dashboard_with_permission_option =
         fetch_dashboard_file_with_permission(dashboard_id, &user.id).await?;
 
     // If dashboard not found, return error
-    let dashboard_with_permission = match dashboard_with_permission {
+    let dashboard_with_permission = match dashboard_with_permission_option {
         Some(dwp) => dwp,
-        None => return Err(anyhow!("Dashboard not found")),
+        None => {
+            tracing::warn!(dashboard_id = %dashboard_id, "Dashboard file not found during fetch");
+            return Err(anyhow!("Dashboard not found"))
+        },
     };
 
     let dashboard_file = dashboard_with_permission.dashboard_file;
+    let direct_permission_level = dashboard_with_permission.permission;
     
     // Check if user has proper permission to view the dashboard
-    let has_direct_permission = check_permission_access(
-        dashboard_with_permission.permission,
+    let permission: AssetPermissionRole;
+    tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, "Checking permissions for dashboard");
+
+    // Check for direct/admin permission first
+    tracing::debug!(dashboard_id = %dashboard_id, "Checking direct/admin permissions first.");
+    let has_sufficient_direct_permission = check_permission_access(
+        direct_permission_level,
         &[
             AssetPermissionRole::CanView,
             AssetPermissionRole::CanEdit,
@@ -103,42 +112,57 @@ pub async fn get_dashboard_handler(
         dashboard_file.organization_id,
         &user.organizations,
     );
-    
-    // If the user doesn't have direct permission, check if the asset is publicly accessible
-    if !has_direct_permission {
-        // Not publicly accessible, so they don't have permission
+    tracing::debug!(dashboard_id = %dashboard_id, ?direct_permission_level, has_sufficient_direct_permission, "Direct permission check result");
+
+    if has_sufficient_direct_permission {
+        // User has direct/admin permission, use that role
+        permission = direct_permission_level.unwrap_or(AssetPermissionRole::CanView); // Default just in case
+        tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, ?permission, "Granting access via direct/admin permission.");
+    } else {
+        // No sufficient direct/admin permission, check public access rules
+        tracing::debug!(dashboard_id = %dashboard_id, "Insufficient direct/admin permission. Checking public access rules.");
         if !dashboard_file.publicly_accessible {
+            tracing::warn!(dashboard_id = %dashboard_id, user_id = %user.id, "Permission denied (not public, insufficient direct permission).");
             return Err(anyhow!("You don't have permission to view this dashboard"));
         }
+        tracing::debug!(dashboard_id = %dashboard_id, "Dashboard is publicly accessible.");
         
         // Check if the public access has expired
         if let Some(expiry_date) = dashboard_file.public_expiry_date {
+            tracing::debug!(dashboard_id = %dashboard_id, ?expiry_date, "Checking expiry date");
             if expiry_date < chrono::Utc::now() {
+                tracing::warn!(dashboard_id = %dashboard_id, "Public access expired");
                 return Err(anyhow!("Public access to this dashboard has expired"));
             }
         }
         
-        // Check if a password is required and provided correctly
+        // Check if a password is required
+        tracing::debug!(dashboard_id = %dashboard_id, has_password = dashboard_file.public_password.is_some(), "Checking password requirement");
         if let Some(required_password) = &dashboard_file.public_password {
+            tracing::debug!(dashboard_id = %dashboard_id, "Password required. Checking provided password.");
             match password {
                 Some(provided_password) => {
                     if provided_password != *required_password {
+                        // Incorrect password provided
+                        tracing::warn!(dashboard_id = %dashboard_id, user_id = %user.id, "Incorrect public password provided");
                         return Err(anyhow!("Incorrect password for public access"));
                     }
-                    // Password is correct, continue
+                    // Correct password provided, grant CanView via public access
+                    tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, "Correct public password provided. Granting CanView.");
+                    permission = AssetPermissionRole::CanView;
                 }
                 None => {
-                    // Password is required but not provided
+                    // Password required but none provided
+                    tracing::warn!(dashboard_id = %dashboard_id, user_id = %user.id, "Public password required but none provided");
                     return Err(anyhow!("public_password required for this dashboard"));
                 }
             }
+        } else {
+            // Publicly accessible, not expired, and no password required
+            tracing::debug!(dashboard_id = %dashboard_id, "Public access granted (no password required).");
+            permission = AssetPermissionRole::CanView;
         }
     }
-
-    // Extract permission for consistent use in response
-    // If the asset is public and the user has no direct permission, default to CanView
-    let permission = dashboard_with_permission.permission
-        .unwrap_or(AssetPermissionRole::CanView);
 
     let mut conn = match get_pg_pool().get().await {
         Ok(conn) => conn,

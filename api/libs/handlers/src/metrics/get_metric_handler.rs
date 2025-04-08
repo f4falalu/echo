@@ -85,21 +85,28 @@ pub async fn get_metric_handler(
     password: Option<String>,
 ) -> Result<BusterMetric> {
     // 1. Fetch metric file with permission
-    let metric_file_with_permission = fetch_metric_file_with_permissions(metric_id, &user.id)
+    let metric_file_with_permission_option = fetch_metric_file_with_permissions(metric_id, &user.id)
         .await
         .map_err(|e| anyhow!("Failed to fetch metric file with permissions: {}", e))?;
 
-    let metric_file_with_permission = if let Some(metric_file) = metric_file_with_permission {
-        metric_file
+    let metric_file_with_permission = if let Some(mf) = metric_file_with_permission_option {
+        mf
     } else {
+        tracing::warn!(metric_id = %metric_id, "Metric file not found during fetch");
         return Err(anyhow!("Metric file not found"));
     };
 
     let metric_file = metric_file_with_permission.metric_file;
+    let direct_permission_level = metric_file_with_permission.permission;
     
-    // 2. Check if user has proper permission to view the metric
-    let has_direct_permission = check_permission_access(
-        metric_file_with_permission.permission,
+    // 2. Determine the user's access level and enforce access rules
+    let permission: AssetPermissionRole;
+    tracing::debug!(metric_id = %metric_id, user_id = %user.id, "Checking permissions for metric");
+
+    // Check for direct/admin permission first
+    tracing::debug!(metric_id = %metric_id, "Checking direct/admin permissions first.");
+    let has_sufficient_direct_permission = check_permission_access(
+        direct_permission_level,
         &[
             AssetPermissionRole::FullAccess,
             AssetPermissionRole::Owner,
@@ -109,42 +116,57 @@ pub async fn get_metric_handler(
         metric_file.organization_id,
         &user.organizations,
     );
-    
-    // If the user doesn't have direct permission, check if the asset is publicly accessible
-    if !has_direct_permission {
-        // Not publicly accessible, so they don't have permission
+    tracing::debug!(metric_id = %metric_id, ?direct_permission_level, has_sufficient_direct_permission, "Direct permission check result");
+
+    if has_sufficient_direct_permission {
+        // User has direct/admin permission, use that role
+        permission = direct_permission_level.unwrap_or(AssetPermissionRole::CanView); // Default just in case
+        tracing::debug!(metric_id = %metric_id, user_id = %user.id, ?permission, "Granting access via direct/admin permission.");
+    } else {
+        // No sufficient direct/admin permission, check public access rules
+        tracing::debug!(metric_id = %metric_id, "Insufficient direct/admin permission. Checking public access rules.");
         if !metric_file.publicly_accessible {
+            tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Permission denied (not public, insufficient direct permission).");
             return Err(anyhow!("You don't have permission to view this metric"));
         }
+        tracing::debug!(metric_id = %metric_id, "Metric is publicly accessible.");
         
         // Check if the public access has expired
         if let Some(expiry_date) = metric_file.public_expiry_date {
+            tracing::debug!(metric_id = %metric_id, ?expiry_date, "Checking expiry date");
             if expiry_date < chrono::Utc::now() {
+                tracing::warn!(metric_id = %metric_id, "Public access expired");
                 return Err(anyhow!("Public access to this metric has expired"));
             }
         }
         
-        // Check if a password is required and provided correctly
+        // Check if a password is required
+        tracing::debug!(metric_id = %metric_id, has_password = metric_file.public_password.is_some(), "Checking password requirement");
         if let Some(required_password) = &metric_file.public_password {
+            tracing::debug!(metric_id = %metric_id, "Password required. Checking provided password.");
             match password {
                 Some(provided_password) => {
                     if provided_password != *required_password {
+                        // Incorrect password provided
+                        tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Incorrect public password provided");
                         return Err(anyhow!("Incorrect password for public access"));
                     }
-                    // Password is correct, continue
+                    // Correct password provided, grant CanView via public access
+                    tracing::debug!(metric_id = %metric_id, user_id = %user.id, "Correct public password provided. Granting CanView.");
+                    permission = AssetPermissionRole::CanView;
                 }
                 None => {
-                    // Password is required but not provided
+                    // Password required but none provided
+                    tracing::warn!(metric_id = %metric_id, user_id = %user.id, "Public password required but none provided");
                     return Err(anyhow!("public_password required for this metric"));
                 }
             }
+        } else {
+            // Publicly accessible, not expired, and no password required
+            tracing::debug!(metric_id = %metric_id, "Public access granted (no password required).");
+            permission = AssetPermissionRole::CanView;
         }
     }
-
-    // 3. Extract permission for consistent use in response
-    // If the asset is public and the user has no direct permission, default to CanView
-    let permission = metric_file_with_permission.permission
-        .unwrap_or(AssetPermissionRole::CanView);
 
     // Map evaluation score to High/Moderate/Low
     let evaluation_score = metric_file.evaluation_score.map(|score| {
