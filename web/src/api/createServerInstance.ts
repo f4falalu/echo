@@ -20,7 +20,13 @@ export const serverFetch = async <T>(url: string, config: FetchConfig = {}): Pro
 
   // Construct URL with query parameters
   const queryParams = params
-    ? `?${new URLSearchParams(Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)])))}`
+    ? `?${new URLSearchParams(
+        Object.fromEntries(
+          Object.entries(params)
+            .filter(([_, v]) => v !== undefined)
+            .map(([k, v]) => [k, String(v)])
+        )
+      )}`
     : '';
 
   const fullUrl = `${baseURL}${url}${queryParams}`;

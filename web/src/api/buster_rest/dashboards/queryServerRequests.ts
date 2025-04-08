@@ -10,7 +10,9 @@ export const prefetchGetDashboard = async (
 
   await queryClient.prefetchQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(params.id, params.version_number),
-    queryFn: () => getDashboard_server(params)
+    queryFn: async () => {
+      return await getDashboard_server(params);
+    }
   });
 
   return queryClient;
