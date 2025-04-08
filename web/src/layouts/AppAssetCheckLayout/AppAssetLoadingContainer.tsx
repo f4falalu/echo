@@ -61,8 +61,8 @@ export const AppAssetLoadingContainer: React.FC<{
 AppAssetLoadingContainer.displayName = 'AppAssetLoadingContainer';
 
 const useGetMetricAssetData = ({ assetId, enabled }: { assetId: string; enabled: boolean }) => {
-  const { isFetched: isMetricFetched, ...rest } = useQuery({
-    queryKey: metricsQueryKeys.metricsGetMetric(assetId).queryKey
+  const { isFetched: isMetricFetched, ...rest } = useGetMetric({
+    id: enabled ? assetId : undefined
   });
   const { isFetched: isMetricDataFetched } = useGetMetricData({
     id: enabled ? assetId : undefined
