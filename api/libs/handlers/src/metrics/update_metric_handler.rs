@@ -14,6 +14,7 @@ use query_engine::data_source_query_routes::query_engine::query_engine;
 use serde_json::Value;
 use sharing::check_permission_access;
 use uuid::Uuid;
+use indexmap;
 
 /// Recursively merges two JSON objects.
 /// The second object (update) takes precedence over the first (base) where there are conflicts.
@@ -204,20 +205,6 @@ pub async fn update_metric_handler(
         content
     };
 
-    // Calculate the next version number
-    let next_version = metric.versions.len() as i32 + 1;
-
-    // Only add a new version if update_version is true (defaults to true)
-    let should_update_version = request.update_version.unwrap_or(true);
-
-    // Add the new version to the version history or update the latest version
-    if should_update_version {
-        current_version_history.add_version(next_version, content.clone());
-    } else {
-        // Overwrite the current version instead of creating a new one
-        current_version_history.update_latest_version(content.clone());
-    }
-
     // Calculate data_metadata if SQL changed
     let data_metadata = if request.sql.is_some()
         || request.file.is_some()
@@ -241,30 +228,96 @@ pub async fn update_metric_handler(
             .await
             .map_err(|e| anyhow!("Failed to execute SQL for metadata calculation: {}", e))?;
 
-        // Generate default column formats based on metadata using the new method
-        let default_formats =
+        // Generate default column formats based ONLY on the new metadata
+        let default_formats_map: indexmap::IndexMap<String, ColumnLabelFormat> =
             ColumnLabelFormat::generate_formats_from_metadata(&query_result.metadata);
 
-        // Get existing chart config
-        let existing_config = serde_json::to_value(&content.chart_config)?;
+        // Get mutable access to the BaseChartConfig within the ChartConfig enum
+        let base_chart_config = match &mut content.chart_config {
+            database::types::ChartConfig::Bar(config) => &mut config.base,
+            database::types::ChartConfig::Line(config) => &mut config.base,
+            database::types::ChartConfig::Scatter(config) => &mut config.base,
+            database::types::ChartConfig::Pie(config) => &mut config.base,
+            database::types::ChartConfig::Combo(config) => &mut config.base,
+            database::types::ChartConfig::Metric(config) => &mut config.base,
+            database::types::ChartConfig::Table(config) => &mut config.base,
+        };
 
-        // Create a new JSON object with column_label_formats
-        let column_formats_json = serde_json::to_value(&default_formats)?;
-        let format_update = serde_json::json!({
-            "columnLabelFormats": column_formats_json
-        });
+        // Clone existing formats for comparison
+        let existing_formats_map = base_chart_config.column_label_formats.clone();
 
-        // Merge the formats with existing config
-        let merged_config = merge_json_objects(existing_config, format_update)?;
+        // Clear column_settings since the SQL has changed and old settings might
+        // reference columns that no longer exist in the result set
+        base_chart_config.column_settings = None;
+        
+        // Also clear other column-specific configurations that might be invalidated by SQL changes
+        if let Some(trendlines) = &mut base_chart_config.trendlines {
+            trendlines.clear();
+        }
 
-        // Update the content's chart_config
-        content.chart_config = serde_json::from_value(merged_config)?;
+        // Build the final map, starting empty. This ensures only columns from the
+        // new metadata are included.
+        let mut final_formats_map = indexmap::IndexMap::new();
+
+        // Iterate through the new defaults (columns guaranteed to exist in the new SQL result)
+        for (column_name, new_default_format) in default_formats_map {
+            let final_format = match existing_formats_map.get(&column_name) {
+                // Column existed before, merge existing customizations onto new default structure
+                Some(existing_format) => {
+                    // Convert both to Value for merging
+                    // We need to clone new_default_format as it's moved in the loop otherwise
+                    let new_default_value = serde_json::to_value(new_default_format.clone())?;
+                    let existing_value = serde_json::to_value(existing_format.clone())?;
+
+                    // Merge existing settings onto the default structure
+                    let merged_value = merge_json_objects(new_default_value, existing_value)?;
+
+                    // Attempt to deserialize back into ColumnLabelFormat
+                    match serde_json::from_value::<ColumnLabelFormat>(merged_value) {
+                        Ok(merged_format) => merged_format,
+                        Err(e) => {
+                            // Log the error and fallback to the new default format from metadata
+                            tracing::warn!(
+                                metric_id = %metric_id,
+                                column_name = %column_name,
+                                error = %e,
+                                "Failed to merge existing column format. Using default format from new metadata."
+                            );
+                            // Use the original default format from the map iteration (before clone)
+                            new_default_format
+                        }
+                    }
+                }
+                // Column is new, use the generated default format
+                None => new_default_format,
+            };
+            final_formats_map.insert(column_name, final_format);
+        }
+
+        // Replace the formats in the base config with the newly constructed map
+        base_chart_config.column_label_formats = final_formats_map;
 
         // Return metadata
         Some(query_result.metadata)
     } else {
         None
     };
+
+    // Calculate the next version number
+    let next_version = metric.versions.len() as i32 + 1;
+
+    // Only add a new version if update_version is true (defaults to true)
+    let should_update_version = request.update_version.unwrap_or(true);
+
+    // Add the new version to the version history or update the latest version
+    // IMPORTANT: This happens AFTER we've updated the column_label_formats
+    // to ensure the version history captures those changes
+    if should_update_version {
+        current_version_history.add_version(next_version, content.clone());
+    } else {
+        // Overwrite the current version instead of creating a new one
+        current_version_history.update_latest_version(content.clone());
+    }
 
     // Convert content to JSON for storage
     let content_json = serde_json::to_value(content.clone())?;
