@@ -46,12 +46,14 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
 
   const { data: currentMetric, refetch: refetchCurrentMetric } = useGetMetric(
     { id: metricId },
-    (x) => ({
-      name: x.name,
-      description: x.description,
-      chart_config: x.chart_config,
-      file: x.file
-    })
+    {
+      select: (x) => ({
+        name: x.name,
+        description: x.description,
+        chart_config: x.chart_config,
+        file: x.file
+      })
+    }
   );
 
   const onResetMetricToOriginal = useMemoizedFn(() => {
@@ -75,7 +77,6 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
       ])
   };
 };
-
 export const HydrationBoundaryMetricStore: React.FC<{
   children: React.ReactNode;
   metric?: OriginalMetricStore['originalMetrics'][string];

@@ -25,23 +25,25 @@ export const MetricViewChart: React.FC<{
   ({ metricId, readOnly: readOnlyProp = false, className = '', cardClassName = '' }) => {
     const { data: metric } = useGetMetric(
       { id: metricId },
-      ({
-        chart_config,
-        name,
-        description,
-        time_frame,
-        permission,
-        evaluation_score,
-        evaluation_summary
-      }) => ({
-        name,
-        description,
-        time_frame,
-        permission,
-        evaluation_score,
-        evaluation_summary,
-        chart_config
-      })
+      {
+        select: ({
+          chart_config,
+          name,
+          description,
+          time_frame,
+          permission,
+          evaluation_score,
+          evaluation_summary
+        }) => ({
+          name,
+          description,
+          time_frame,
+          permission,
+          evaluation_score,
+          evaluation_summary,
+          chart_config
+        })
+      }
     );
     const {
       data: metricData,

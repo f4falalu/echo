@@ -84,6 +84,7 @@ export const NewUserController = () => {
             value={name || ''}
             name="name"
             onChange={(e) => setName(e.target.value)}
+            onPressEnter={handleSubmit}
           />
           <Input
             placeholder="What is the name of your company"

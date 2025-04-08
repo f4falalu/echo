@@ -21,7 +21,7 @@ export const MetricStylingApp: React.FC<{
   const [segment, setSegment] = useState<MetricStylingAppSegments>(
     MetricStylingAppSegments.VISUALIZE
   );
-  const { data: chartConfig } = useGetMetric({ id: metricId }, (x) => x.chart_config);
+  const { data: chartConfig } = useGetMetric({ id: metricId }, { select: (x) => x.chart_config });
   const { data: metricData } = useGetMetricData({ id: metricId });
 
   if (!chartConfig) return null;

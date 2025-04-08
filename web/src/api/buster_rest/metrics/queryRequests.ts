@@ -1,8 +1,8 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
-import { useDebounceFn, useMemoizedFn, useWhyDidYouUpdate } from '@/hooks';
+import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import {
   deleteMetrics,
   duplicateMetric,
@@ -17,7 +17,7 @@ import {
 import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '@/lib/metrics';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useGetUserFavorites } from '../users';
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
@@ -28,6 +28,7 @@ import {
 } from '../collections/queryRequests';
 import { useSearchParams } from 'next/navigation';
 import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
+import { RustApiError } from '../../buster_rest/errors';
 
 /**
  * This is a hook that will use the version number from the URL params if it exists.
@@ -40,10 +41,9 @@ export const useGetMetric = <TData = IBusterMetric>(
     id: string | undefined;
     version_number?: number | null; //if null it will not use a params from the query params
   },
-  select?: (data: IBusterMetric) => TData
+  params?: Omit<UseQueryOptions<IBusterMetric, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
-  const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
   const searchParams = useSearchParams();
   const queryVersionNumber = searchParams.get('metric_version_number');
   const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
@@ -69,20 +69,19 @@ export const useGetMetric = <TData = IBusterMetric>(
     return updatedMetric;
   });
 
-  const result = useQuery({
+  return useQuery({
     ...options,
     queryFn,
-    select,
     enabled: !!id,
     retry(failureCount, error) {
       if (error?.message !== undefined) {
         setAssetPasswordError(id!, error.message || 'An error occurred');
       }
       return false;
-    }
+    },
+    select: params?.select,
+    ...params
   });
-
-  return result;
 };
 
 export const useGetMetricsList = (
@@ -111,6 +110,7 @@ export const useGetMetricData = ({
   id: string | undefined;
   version_number?: number;
 }) => {
+  const { isFetched: isFetchedMetric, error: errorMetric } = useGetMetric({ id });
   const searchParams = useSearchParams();
   const queryVersionNumber = searchParams.get('metric_version_number');
 
@@ -125,7 +125,9 @@ export const useGetMetricData = ({
   return useQuery({
     ...metricsQueryKeys.metricsGetData(id!, version_number),
     queryFn,
-    enabled: !!id
+    enabled: () => {
+      return !!id && isFetchedMetric && !errorMetric;
+    }
   });
 };
 

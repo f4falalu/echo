@@ -6,11 +6,13 @@ import type { FileView } from '../../ChatLayoutContext/useLayoutConfig';
 import { type SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { useGetMetric } from '@/api/buster_rest/metrics';
 
 export const MetricContainerHeaderSegment: React.FC<FileContainerSegmentProps> = React.memo(
   ({ selectedFileView, chatId }) => {
     const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
     const metricId = useChatLayoutContextSelector((x) => x.metricId) || '';
+    const { error } = useGetMetric({ id: metricId });
 
     const onChange = useMemoizedFn((fileView: SegmentedItem<FileView>) => {
       onSetFileView({ fileView: fileView.value });
@@ -66,7 +68,7 @@ export const MetricContainerHeaderSegment: React.FC<FileContainerSegmentProps> =
           link: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_FILE, metricId })
         }
       ];
-    }, [chatId, metricId]);
+    }, [chatId, error, metricId]);
 
     return (
       <AppSegmented

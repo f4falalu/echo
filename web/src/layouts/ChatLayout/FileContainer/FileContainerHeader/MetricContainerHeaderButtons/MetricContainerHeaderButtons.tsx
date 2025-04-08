@@ -27,7 +27,7 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
   const metricId = selectedFileId;
   const { error: metricError, data: permission } = useGetMetric(
     { id: metricId },
-    (x) => x.permission
+    { select: (x) => x.permission }
   );
 
   //we assume it is fetched until it is not

@@ -2,32 +2,41 @@
 
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
+import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
-import React, { useMemo } from 'react';
+import { useMount } from '@/hooks';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useMemo, useState } from 'react';
 
 export const AppAssetLoadingContainer: React.FC<{
   assetId: string;
   type: 'metric' | 'dashboard';
   children: React.ReactNode;
 }> = React.memo(({ assetId, type, children }) => {
-  const { isFetchedConfig: isFetchedMetricConfig, isFetchedData: isFetchedMetricData } =
-    useGetMetricAssetData({
-      assetId,
-      enabled: type === 'metric'
-    });
-  const { isFetchedConfig: isFetchedDashboardConfig, isFetchedData: isFetchedDashboardData } =
-    useGetDashboardAssetData({
-      assetId,
-      enabled: type === 'dashboard'
-    });
+  const {
+    isFetchedConfig: isFetchedMetricConfig,
+    isFetchedData: isFetchedMetricData,
+    error: metricError
+  } = useGetMetricAssetData({
+    assetId,
+    enabled: type === 'metric'
+  });
+  const {
+    isFetchedConfig: isFetchedDashboardConfig,
+    isFetchedData: isFetchedDashboardData,
+    error: dashboardError
+  } = useGetDashboardAssetData({
+    assetId,
+    enabled: type === 'dashboard'
+  });
 
   const showLoader = useMemo(() => {
     if (type === 'metric') {
-      return !isFetchedMetricConfig || !isFetchedMetricData;
+      return (!isFetchedMetricConfig || !isFetchedMetricData) && !metricError;
     }
 
     if (type === 'dashboard') {
-      return !isFetchedDashboardConfig || !isFetchedDashboardData;
+      return (!isFetchedDashboardConfig || !isFetchedDashboardData) && !dashboardError;
     }
 
     return true;
@@ -36,21 +45,15 @@ export const AppAssetLoadingContainer: React.FC<{
     isFetchedMetricData,
     isFetchedDashboardConfig,
     isFetchedDashboardData,
+    metricError,
+    dashboardError,
     type
   ]);
-
-  const isFetchedConfig = useMemo(() => {
-    if (type === 'metric') {
-      return isFetchedMetricConfig;
-    }
-
-    return isFetchedDashboardConfig;
-  }, [isFetchedMetricConfig, isFetchedDashboardConfig, type]);
 
   return (
     <>
       {showLoader && <FileIndeterminateLoader />}
-      {isFetchedConfig && children}
+      {children}
     </>
   );
 });
@@ -58,8 +61,8 @@ export const AppAssetLoadingContainer: React.FC<{
 AppAssetLoadingContainer.displayName = 'AppAssetLoadingContainer';
 
 const useGetMetricAssetData = ({ assetId, enabled }: { assetId: string; enabled: boolean }) => {
-  const { isFetched: isMetricFetched } = useGetMetric({
-    id: enabled ? assetId : undefined
+  const { isFetched: isMetricFetched, ...rest } = useQuery({
+    queryKey: metricsQueryKeys.metricsGetMetric(assetId).queryKey
   });
   const { isFetched: isMetricDataFetched } = useGetMetricData({
     id: enabled ? assetId : undefined
@@ -67,17 +70,19 @@ const useGetMetricAssetData = ({ assetId, enabled }: { assetId: string; enabled:
 
   return {
     isFetchedConfig: isMetricFetched,
-    isFetchedData: isMetricDataFetched
+    isFetchedData: isMetricDataFetched,
+    error: rest.error
   };
 };
 
 const useGetDashboardAssetData = ({ assetId, enabled }: { assetId: string; enabled: boolean }) => {
-  const { isFetched: isDashboardFetched } = useGetDashboard({
+  const { isFetched: isDashboardFetched, error: dashboardError } = useGetDashboard({
     id: enabled ? assetId : undefined
   });
 
   return {
     isFetchedConfig: isDashboardFetched,
-    isFetchedData: isDashboardFetched
+    isFetchedData: isDashboardFetched,
+    error: dashboardError
   };
 };

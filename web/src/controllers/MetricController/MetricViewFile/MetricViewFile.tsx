@@ -7,10 +7,15 @@ import { useGetMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
 import { EditFileContainer } from '@/components/features/files/EditFileContainer';
 
 export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
-  const { data: metric } = useGetMetric({ id: metricId }, ({ file, file_name }) => ({
-    file,
-    file_name
-  }));
+  const { data: metric } = useGetMetric(
+    { id: metricId },
+    {
+      select: ({ file, file_name }) => ({
+        file,
+        file_name
+      })
+    }
+  );
   const { openSuccessMessage } = useBusterNotifications();
   const {
     mutateAsync: updateMetric,

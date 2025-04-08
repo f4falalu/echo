@@ -1,12 +1,15 @@
 'use server';
 
 import React from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces';
+import { BusterDashboardResponse, IBusterMetric, ShareAssetType } from '@/api/asset_interfaces';
 import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
-import { prefetchAssetCheck } from '@/api/buster_rest/assets';
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { AppAssetLoadingContainer } from './AppAssetLoadingContainer';
+import { prefetchGetMetric } from '@/api/buster_rest/metrics/queryReqestsServer';
+import { prefetchGetDashboard } from '@/api/buster_rest/dashboards/queryServerRequests';
+import { metricsQueryKeys } from '@/api/query_keys/metric';
+import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 
 export type AppAssetCheckLayoutProps = {
   assetId: string;
@@ -18,9 +21,14 @@ export const AppAssetCheckLayout: React.FC<
     children: React.ReactNode;
   } & AppAssetCheckLayoutProps
 > = async ({ children, type, assetId }) => {
-  const { queryClient, res } = await prefetchAssetCheck({ assetId: assetId, fileType: type });
+  const queryClient = await prefetchAsset(assetId, type);
 
-  const { has_access, password_required, public: pagePublic } = res;
+  const {
+    has_access,
+    password_required,
+    public: pagePublic,
+    queryData
+  } = getAssetAccess({ assetId, type, queryClient });
 
   const Component = (() => {
     if (!has_access && !pagePublic) {
@@ -38,7 +46,10 @@ export const AppAssetCheckLayout: React.FC<
     return <>{children}</>;
   })();
 
-  const dehydratedState = dehydrate(queryClient);
+  const dehydratedState = dehydrate(queryClient, {
+    shouldDehydrateQuery: () => true,
+    shouldRedactErrors: () => false
+  });
 
   return (
     <HydrationBoundary state={dehydratedState}>
@@ -47,4 +58,70 @@ export const AppAssetCheckLayout: React.FC<
       </AppAssetLoadingContainer>
     </HydrationBoundary>
   );
+};
+
+const prefetchAsset = async (assetId: string, type: 'metric' | 'dashboard') => {
+  let queryClient = new QueryClient();
+
+  switch (type) {
+    case 'metric':
+      queryClient = await prefetchGetMetric({ id: assetId }, queryClient);
+      break;
+    case 'dashboard':
+      queryClient = await prefetchGetDashboard({ id: assetId }, queryClient);
+      break;
+    default:
+      const _exhaustiveCheck: never = type;
+  }
+
+  return queryClient;
+};
+
+const getAssetAccess = ({
+  assetId,
+  type,
+  queryClient
+}: {
+  assetId: string;
+  type: AppAssetCheckLayoutProps['type'];
+  queryClient: QueryClient;
+}): {
+  has_access: boolean;
+  password_required: boolean;
+  public: boolean;
+  queryData?: IBusterMetric | BusterDashboardResponse | undefined;
+} => {
+  const options =
+    type === 'metric'
+      ? metricsQueryKeys.metricsGetMetric(assetId)
+      : dashboardQueryKeys.dashboardGetDashboard(assetId);
+
+  const queryState = queryClient.getQueryState(options.queryKey);
+  const queryData = queryClient.getQueryData(options.queryKey);
+  const error = queryState?.error;
+
+  if (!error) {
+    return {
+      has_access: true,
+      password_required: false,
+      public: false
+    };
+  }
+
+  const status = error?.status;
+
+  if (status === 418) {
+    return {
+      has_access: false,
+      password_required: true,
+      public: true
+    };
+  }
+
+  return {
+    has_access: false,
+    password_required: false,
+    public: false,
+    queryData
+  };
 };

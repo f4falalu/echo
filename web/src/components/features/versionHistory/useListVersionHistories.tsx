@@ -177,10 +177,12 @@ const useListMetricVersions = ({
       id: type === 'metric' ? assetId : undefined,
       version_number: null
     },
-    (x) => ({
-      versions: x.versions,
-      version_number: x.version_number
-    })
+    {
+      select: (x) => ({
+        versions: x.versions,
+        version_number: x.version_number
+      })
+    }
   );
   const metricVersions = metricData?.versions;
   const selectedVersion = metricData?.version_number;

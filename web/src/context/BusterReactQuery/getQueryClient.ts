@@ -45,10 +45,8 @@ function makeQueryClient(params?: {
         }
       },
       dehydrate: {
-        // include pending queries in dehydration
-        shouldDehydrateQuery: (query) => {
-          return defaultShouldDehydrateQuery(query) || query.state.status === 'pending';
-        }
+        shouldDehydrateQuery: (query) => true,
+        shouldRedactErrors: (error) => false
       }
     }
   });

@@ -54,7 +54,7 @@ import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpe
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { openSuccessMessage } = useBusterNotifications();
-  const { data: permission } = useGetMetric({ id: metricId }, (x) => x.permission);
+  const { data: permission } = useGetMetric({ id: metricId }, { select: (x) => x.permission });
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
   const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
@@ -135,7 +135,7 @@ ThreeDotMenuButton.displayName = 'ThreeDotMenuButton';
 const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: saveMetricsToDashboard } = useAddMetricsToDashboard();
   const { mutateAsync: removeMetricsFromDashboard } = useRemoveMetricsFromDashboard();
-  const { data: dashboards } = useGetMetric({ id: metricId }, (x) => x.dashboards);
+  const { data: dashboards } = useGetMetric({ id: metricId }, { select: (x) => x.dashboards });
 
   const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
     await Promise.all(
@@ -186,10 +186,15 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
 const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const { data } = useGetMetric({ id: metricId }, (x) => ({
-    versions: x.versions,
-    version_number: x.version_number
-  }));
+  const { data } = useGetMetric(
+    { id: metricId },
+    {
+      select: (x) => ({
+        versions: x.versions,
+        version_number: x.version_number
+      })
+    }
+  );
   const { versions = [], version_number } = data || {};
 
   const createRouteWithQueryParams = useMemoizedFn((versionNumber: number) => {
@@ -235,7 +240,7 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
 const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
-  const { data: collections } = useGetMetric({ id: metricId }, (x) => x.collections);
+  const { data: collections } = useGetMetric({ id: metricId }, { select: (x) => x.collections });
   const { openInfoMessage } = useBusterNotifications();
 
   const selectedCollections = useMemo(() => {
@@ -286,7 +291,7 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: metricStatus } = useGetMetric({ id: metricId }, (x) => x.status);
+  const { data: metricStatus } = useGetMetric({ id: metricId }, { select: (x) => x.status });
   const { mutate: updateMetric } = useUpdateMetric({
     updateVersion: false,
     saveToServer: true,
@@ -321,7 +326,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: name } = useGetMetric({ id: metricId }, (x) => x.name);
+  const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: metricId,
     type: ShareAssetType.METRIC,
@@ -398,7 +403,7 @@ const useSQLEditorSelectMenu = () => {
 const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const { data: metricData } = useGetMetricData({ id: metricId });
-  const { data: name } = useGetMetric({ id: metricId }, (x) => x.name);
+  const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
 
   return useMemo(
     () => ({
@@ -421,10 +426,10 @@ const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
 
 const useDownloadPNGSelectMenu = ({ metricId }: { metricId: string }) => {
   const { openErrorMessage } = useBusterNotifications();
-  const { data: name } = useGetMetric({ id: metricId }, (x) => x.name);
+  const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
   const { data: selectedChartType } = useGetMetric(
     { id: metricId },
-    (x) => x.chart_config?.selectedChartType
+    { select: (x) => x.chart_config?.selectedChartType }
   );
 
   const canDownload = selectedChartType && selectedChartType !== 'table';
@@ -490,7 +495,7 @@ const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: metric } = useGetMetric({ id: metricId }, getShareAssetConfig);
+  const { data: metric } = useGetMetric({ id: metricId }, { select: getShareAssetConfig });
 
   return useMemo(
     () => ({
