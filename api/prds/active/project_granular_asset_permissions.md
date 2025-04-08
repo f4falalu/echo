@@ -25,14 +25,35 @@ This project aims to implement fine-grained permission checks for assets (like m
 
 ## 4. Implementation Plan
 
-The implementation will be broken down into four sub-PRDs, executed in the specified order due to dependencies:
+The implementation is divided into the following phases and corresponding sub-PRDs. Phase 1 must be completed before Phases 2, 3, and 4 can begin. Phases 2, 3, and 4 can be implemented concurrently after Phase 1 is complete.
 
-1.  **Upcoming:** [Refactor Sharing Permission Helper](mdc:prds/active/refactor_sharing_permission_helper.md) - Create/Enhance a centralized helper function in `libs/sharing` for checking specific asset permissions.
-2.  **Upcoming:** [Enhance Collection Asset Permissions](mdc:prds/active/enhancement_collection_asset_permissions.md) - Modify `get_collection_handler` and related types to use the new helper and include the `has_access` flag. (Depends on #1)
-3.  **Upcoming:** [Enhance Dashboard Metric Permissions](mdc:prds/active/enhancement_dashboard_metric_permissions.md) - Modify `get_dashboard_handler`, potentially `get_metric_handler`, and related types to use the new helper and include the `has_access` flag. (Depends on #1)
-4.  **Upcoming:** Enhance Data Execution Handler - Modify the handler responsible for executing metric SQL queries to call the permission helper before execution. (Depends on #1)
+**Phase 1: Foundational Permission Helper (Blocking)**
 
-**Concurrency:** Sub-PRDs #2 and #3 can potentially be worked on concurrently *after* Sub-PRD #1 is completed and merged, as they modify different handlers but depend on the same shared helper. Sub-PRD #4 also depends on #1 and can likely be done concurrently with #2/#3.
+*   **Task:** Implement the centralized permission checking logic.
+*   **Sub-PRD:** [Refactor Sharing Permission Helper](mdc:prds/active/refactor_sharing_permission_helper.md)
+*   **Status:** Upcoming
+*   **Details:** Create or enhance the `check_specific_asset_access` function in `libs/sharing` to reliably check user permissions against specific assets, considering direct permissions and organization roles.
+
+**Phase 2: Concurrent Enhancements (Requires Phase 1 Completion)**
+
+*   **Task A (Concurrent):** Enhance Collection Handler
+    *   **Sub-PRD:** [Enhance Collection Asset Permissions](mdc:prds/active/enhancement_collection_asset_permissions.md)
+    *   **Status:** Upcoming
+    *   **Details:** Modify `get_collection_handler` to use the helper from Phase 1. Add `has_access` field to `CollectionAsset` type and populate it based on permissions.
+*   **Task B (Concurrent):** Enhance Dashboard/Metric Handlers
+    *   **Sub-PRD:** [Enhance Dashboard Metric Permissions](mdc:prds/active/enhancement_dashboard_metric_permissions.md)
+    *   **Status:** Upcoming
+    *   **Details:** Modify `get_metric_handler` (and potentially `get_dashboard_handler`'s result processing) to use the helper from Phase 1. Add `has_access` field to `BusterMetric` type. Return minimal metric object with `has_access: false` when permission is denied.
+*   **Task C (Concurrent):** Enhance Data Execution Handler
+    *   **Sub-PRD:** [Enhance Data Execution Handler Permissions](mdc:prds/active/enhancement_data_execution_permissions.md)
+    *   **Status:** Upcoming
+    *   **Details:** Modify the handler(s) responsible for executing metric SQL queries to call the helper from Phase 1 *before* execution. Return a permission error if access is denied.
+
+**Phase 3: Integration Testing & Rollout**
+
+*   **Task:** Perform end-to-end testing covering all enhanced handlers and scenarios involving mixed permissions.
+*   **Details:** Ensure collections, dashboards, and direct data execution requests correctly reflect and enforce the granular permissions.
+*   **Rollout:** Deploy changes once all phases are complete and tested.
 
 ## 5. High-Level Technical Design
 
