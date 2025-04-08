@@ -823,14 +823,12 @@ pub struct BusterChatResponseFileMetadata {
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "type")]
 pub enum BusterChatMessage {
-    #[serde(rename_all = "camelCase")]
     Text {
         id: String,
         message: Option<String>,
         message_chunk: Option<String>,
         is_final_message: Option<bool>,
     },
-    #[serde(rename_all = "snake_case")]
     File {
         id: String,
         file_type: String,
