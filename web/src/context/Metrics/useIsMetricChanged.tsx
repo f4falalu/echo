@@ -4,6 +4,7 @@ import { useMemoizedFn } from '@/hooks';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { compareObjectsByKeys } from '@/lib/objects';
+import { useMemo } from 'react';
 
 export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
   const queryClient = useQueryClient();
@@ -29,9 +30,8 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
     refetchCurrentMetric();
   });
 
-  return {
-    onResetMetricToOriginal,
-    isMetricChanged:
+  const isMetricChanged = useMemo(
+    () =>
       !originalMetric ||
       !currentMetric ||
       !compareObjectsByKeys(originalMetric, currentMetric, [
@@ -39,6 +39,12 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
         'description',
         'chart_config',
         'file'
-      ])
+      ]),
+    [originalMetric, currentMetric]
+  );
+
+  return {
+    onResetMetricToOriginal,
+    isMetricChanged
   };
 };

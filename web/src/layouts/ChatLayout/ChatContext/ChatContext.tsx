@@ -6,6 +6,7 @@ import { useGetChat } from '@/api/buster_rest/chats';
 import { useQueries } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 import { IBusterChatMessage } from '@/api/asset_interfaces/chat';
+import { useChatLayoutContextSelector } from '..';
 
 const useChatIndividualContext = ({
   chatId,
@@ -84,30 +85,22 @@ const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualC
   {} as ReturnType<typeof useChatIndividualContext>
 );
 
-export const ChatContextProvider = React.memo(
-  ({
+export const ChatContextProvider = React.memo(({ children }: PropsWithChildren<{}>) => {
+  const chatId = useChatLayoutContextSelector((x) => x.chatId);
+  const selectedFile = useChatLayoutContextSelector((x) => x.selectedFile);
+  const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
+  const useChatContextValue = useChatIndividualContext({
     chatId,
     selectedFile,
-    onSetSelectedFile,
-    children
-  }: PropsWithChildren<{
-    chatId: string | undefined;
-    selectedFile: SelectedFile | null;
-    onSetSelectedFile: (file: SelectedFile) => void;
-  }>) => {
-    const useChatContextValue = useChatIndividualContext({
-      chatId,
-      selectedFile,
-      onSetSelectedFile
-    });
+    onSetSelectedFile
+  });
 
-    return (
-      <IndividualChatContext.Provider value={useChatContextValue}>
-        {children}
-      </IndividualChatContext.Provider>
-    );
-  }
-);
+  return (
+    <IndividualChatContext.Provider value={useChatContextValue}>
+      {children}
+    </IndividualChatContext.Provider>
+  );
+});
 
 ChatContextProvider.displayName = 'ChatContextProvider';
 

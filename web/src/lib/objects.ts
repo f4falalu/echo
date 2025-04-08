@@ -5,8 +5,77 @@ import pickBy from 'lodash/pickBy';
 type ObjectKeys<T> = keyof T;
 type CommonKeys<T, U> = ObjectKeys<T> & ObjectKeys<U>;
 
-export const compareObjectsByKeys = <T, U>(obj1: T, obj2: U, keys: CommonKeys<T, U>[]) => {
-  return isEqual(pick(obj1, keys), pick(obj2, keys));
+/**
+ * Compares two objects based on specified keys
+ * @param obj1 First object to compare
+ * @param obj2 Second object to compare
+ * @param keys Array of keys to compare
+ * @returns boolean indicating if the objects are equal for the specified keys
+ * @throws Error if either object is null/undefined or keys array is empty
+ */
+export const compareObjectsByKeys = <K extends string>(
+  obj1: Record<K, unknown>,
+  obj2: Record<K, unknown>,
+  keys: K[]
+): boolean => {
+  // Input validation
+  if (!obj1 || !obj2) {
+    throw new Error('Both objects must be defined');
+  }
+
+  if (!Array.isArray(keys) || keys.length === 0) {
+    throw new Error('Keys array must be non-empty');
+  }
+
+  // Compare values for each key
+  return keys.every((key) => {
+    const val1 = obj1[key];
+    const val2 = obj2[key];
+
+    // Handle special cases
+    if (val1 === val2) return true;
+    if (val1 === null || val2 === null) return val1 === val2;
+
+    // Handle arrays explicitly
+    if (Array.isArray(val1) && Array.isArray(val2)) {
+      const arrayEqual = isEqual(val1, val2);
+      if (!arrayEqual) {
+        console.log('Arrays not equal:', {
+          key,
+          array1: val1,
+          array2: val2,
+          length1: val1.length,
+          length2: val2.length
+        });
+      }
+      return arrayEqual;
+    }
+
+    // Handle other objects
+    if (typeof val1 === 'object' && typeof val2 === 'object') {
+      const isWasEqual = isEqual(JSON.stringify(val1), JSON.stringify(val2));
+      if (!isWasEqual) {
+        console.log('Objects not equal:', {
+          key,
+          object1: val1,
+          object2: val2
+        });
+      }
+      return isWasEqual;
+    }
+
+    const itWasEqual = isEqual(val1, val2);
+    if (!itWasEqual) {
+      console.log('Values not equal:', {
+        key,
+        value1: val1,
+        value2: val2,
+        type1: typeof val1,
+        type2: typeof val2
+      });
+    }
+    return itWasEqual;
+  });
 };
 
 export const isJsonParsed = (jsonString: string): boolean => {

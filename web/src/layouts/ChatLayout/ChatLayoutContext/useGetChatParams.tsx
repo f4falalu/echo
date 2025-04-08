@@ -15,7 +15,6 @@ export const useGetChatParams = () => {
   };
   const searchParams = useSearchParams();
   const currentRoute = useAppLayoutContextSelector((state) => state.currentRoute);
-
   const metricVersionNumber = searchParams.get('metric_version_number');
   const dashboardVersionNumber = searchParams.get('dashboard_version_number');
 

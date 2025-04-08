@@ -12,6 +12,7 @@ import { useDashboardContentStore } from '@/context/Dashboards';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { canEdit } from '@/lib/share';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+import { StatusCard } from '@/components/ui/card/StatusCard';
 
 export const DashboardViewDashboardController: React.FC<{
   dashboardId: string;
@@ -19,7 +20,12 @@ export const DashboardViewDashboardController: React.FC<{
   readOnly?: boolean;
 }> = ({ dashboardId, chatId, readOnly: readOnlyProp = false }) => {
   const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
-  const { data: dashboardResponse } = useGetDashboard({ id: dashboardId });
+  const {
+    data: dashboardResponse,
+    isFetched,
+    isError,
+    error
+  } = useGetDashboard({ id: dashboardId });
   const { mutateAsync: onUpdateDashboard } = useUpdateDashboard();
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
   const onOpenAddContentModal = useDashboardContentStore((x) => x.onOpenAddContentModal);
@@ -27,6 +33,18 @@ export const DashboardViewDashboardController: React.FC<{
   const metrics = dashboardResponse?.metrics;
   const dashboard = dashboardResponse?.dashboard;
   const readOnly = readOnlyProp || !canEdit(dashboardResponse?.permission) || isVersionHistoryMode;
+
+  if (isError) {
+    return (
+      <div className="p-10">
+        <StatusCard variant="danger" title="Error" message={error?.message || ''} />
+      </div>
+    );
+  }
+
+  if (!isFetched) {
+    return <></>;
+  }
 
   return (
     <ScrollArea className="h-full">

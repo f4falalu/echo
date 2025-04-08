@@ -7,15 +7,12 @@ import { FileContainer } from '../FileContainer';
 import { ChatLayoutContextProvider, useChatLayoutContext } from '../ChatLayoutContext';
 import { ChatContextProvider } from '../ChatContext/ChatContext';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from '../ChatLayoutContext/config';
-import { useParams } from 'next/navigation';
 
 interface ChatSplitterProps {
   children?: React.ReactNode;
 }
 
 export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
-  const params = useParams();
-
   const appSplitterRef = useRef<AppSplitterRef>(null);
   const chatLayoutProps = useChatLayoutContext({ appSplitterRef });
   const { selectedLayout, selectedFile, onSetSelectedFile, chatId } = chatLayoutProps;
@@ -28,10 +25,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
 
   return (
     <ChatLayoutContextProvider chatLayoutProps={chatLayoutProps}>
-      <ChatContextProvider
-        chatId={chatId}
-        selectedFile={selectedFile}
-        onSetSelectedFile={onSetSelectedFile}>
+      <ChatContextProvider>
         <AppSplitter
           ref={appSplitterRef}
           leftChildren={useMemo(

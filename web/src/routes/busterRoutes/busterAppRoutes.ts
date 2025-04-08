@@ -59,7 +59,7 @@ export type BusterAppRoutesWithArgs = {
   [BusterAppRoutes.APP_METRIC_ID_VERSION_NUMBER]: {
     route: BusterAppRoutes.APP_METRIC_ID_VERSION_NUMBER;
     metricId: string;
-    versionNumber: string;
+    versionNumber: number;
   };
   [BusterAppRoutes.APP_METRIC_ID_FILE]: {
     route: BusterAppRoutes.APP_METRIC_ID_FILE;
@@ -77,7 +77,7 @@ export type BusterAppRoutesWithArgs = {
   [BusterAppRoutes.APP_DASHBOARD_ID_VERSION_NUMBER]: {
     route: BusterAppRoutes.APP_DASHBOARD_ID_VERSION_NUMBER;
     dashboardId: string;
-    versionNumber: string;
+    versionNumber: number;
   };
   [BusterAppRoutes.APP_DASHBOARD_ID_FILE]: {
     route: BusterAppRoutes.APP_DASHBOARD_ID_FILE;
@@ -134,7 +134,7 @@ export type BusterAppRoutesWithArgs = {
     route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER;
     chatId: string;
     metricId: string;
-    versionNumber: string;
+    versionNumber: number;
   };
   [BusterAppRoutes.APP_CHAT_ID_METRIC_ID_FILE]: {
     route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_FILE;
@@ -160,7 +160,7 @@ export type BusterAppRoutesWithArgs = {
     route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER;
     chatId: string;
     dashboardId: string;
-    versionNumber: string;
+    versionNumber: number;
   };
   [BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE]: {
     route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE;

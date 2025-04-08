@@ -1,5 +1,6 @@
 import { BusterChatResponseMessage_file } from '@/api/asset_interfaces';
 import { queryKeys } from '@/api/query_keys';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -9,36 +10,30 @@ export const useGetIsSelectedFile = ({
   responseMessage: Pick<BusterChatResponseMessage_file, 'file_type' | 'id' | 'version_number'>;
 }): {
   isSelectedFile: boolean;
-  isLatestVersion: boolean;
 } => {
   const queryClient = useQueryClient();
   const isSelectedFile = useChatIndividualContextSelector(
     (x) => x.selectedFileId === responseMessage.id
   );
-
+  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
+  const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
   const versionNumber = responseMessage.version_number;
 
   switch (responseMessage.file_type) {
     case 'metric': {
-      const options = queryKeys.metricsGetMetric(responseMessage.id);
-      const data = queryClient.getQueryData(options.queryKey);
-      const lastVersion = data?.versions[data.versions.length - 1];
-      const isLatestVersion = lastVersion?.version_number === versionNumber;
-      return { isSelectedFile: isSelectedFile && isLatestVersion, isLatestVersion };
+      const isSelectedVersion = versionNumber.toString() === metricVersionNumber;
+      return { isSelectedFile: isSelectedFile && isSelectedVersion };
     }
     case 'dashboard': {
-      const options = queryKeys.dashboardGetDashboard(responseMessage.id);
-      const versions = queryClient.getQueryData(options.queryKey)?.versions;
-      const lastVersion = versions?.[versions.length - 1];
-      const isLatestVersion = lastVersion?.version_number === versionNumber;
-      return { isSelectedFile: isSelectedFile && isLatestVersion, isLatestVersion };
+      const isSelectedVersion = versionNumber.toString() === dashboardVersionNumber;
+      return { isSelectedFile: isSelectedFile && isSelectedVersion };
     }
     case 'reasoning': {
-      return { isSelectedFile: false, isLatestVersion: false };
+      return { isSelectedFile: false };
     }
     default: {
       const exhaustiveCheck: never = responseMessage.file_type;
-      return { isSelectedFile: false, isLatestVersion: false };
+      return { isSelectedFile: false };
     }
   }
 };

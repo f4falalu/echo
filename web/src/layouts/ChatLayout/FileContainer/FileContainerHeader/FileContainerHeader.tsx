@@ -20,6 +20,7 @@ export const FileContainerHeader: React.FC = React.memo(() => {
   const onCollapseFileClick = useChatLayoutContextSelector((state) => state.onCollapseFileClick);
   const selectedLayout = useChatLayoutContextSelector((x) => x.selectedLayout);
   const showCollapseButton = selectedLayout === 'both';
+
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const SelectedFileSegment = React.useMemo(
     () =>
