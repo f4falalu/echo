@@ -284,6 +284,14 @@ fn extract_field_from_error(err_msg: &str) -> Option<String> {
     None
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+#[serde(untagged)]
+pub enum ShowLegendHeadline {
+    Boolean(bool),
+    String(String),
+}
+
 // Base chart config shared by all chart types
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -303,7 +311,7 @@ pub struct BaseChartConfig {
     pub grid_lines: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "show_legend_headline")]
-    pub show_legend_headline: Option<String>,
+    pub show_legend_headline: Option<ShowLegendHeadline>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "goal_lines")]
     pub goal_lines: Option<Vec<GoalLine>>,
