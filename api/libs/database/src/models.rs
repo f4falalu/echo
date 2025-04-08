@@ -114,6 +114,7 @@ pub struct Chat {
     pub public_expiry_date: Option<DateTime<Utc>>,
     pub most_recent_file_id: Option<Uuid>,
     pub most_recent_file_type: Option<String>,
+    pub most_recent_version_number: Option<i32>,
 }
 
 #[derive(Queryable, Insertable, Associations, Debug)]

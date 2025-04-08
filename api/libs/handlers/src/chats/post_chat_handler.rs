@@ -2101,6 +2101,7 @@ async fn initialize_chat(
             public_expiry_date: None,
             most_recent_file_id: None,
             most_recent_file_type: None,
+            most_recent_version_number: None,
         };
 
         // Create initial message

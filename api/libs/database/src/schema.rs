@@ -98,6 +98,7 @@ diesel::table! {
         most_recent_file_id -> Nullable<Uuid>,
         #[max_length = 255]
         most_recent_file_type -> Nullable<Varchar>,
+        most_recent_version_number -> Nullable<Int4>,
     }
 }
 
