@@ -177,35 +177,17 @@ pub async fn fetch_metric_file_with_permissions(
         None => return Ok(None),
     };
 
-    // Check if the file is publicly accessible
-    let is_public = is_publicly_accessible(&metric_file).await;
-
-    // If collection permission exists, use it; otherwise use direct permission
-    let mut effective_permission = match collection_permission {
+    // Determine effective permission (prioritizing collection over direct)
+    // Dashboard permission is NOT considered here for the base permission level.
+    // The handler should check dashboard access separately if direct/collection/public checks fail.
+    let effective_permission = match collection_permission {
         Some(collection) => Some(collection),
         None => direct_permission,
     };
 
-    // If the file is publicly accessible and either no permission exists or it's lower than CanView,
-    // grant CanView permission
-    if is_public {
-        if effective_permission.is_none() {
-            effective_permission = Some(AssetPermissionRole::CanView);
-        }
-    }
-
-    // If the user has dashboard-based access to this metric file, 
-    // grant CanView permission if they don't already have a higher permission
-    if let Some(dashboard_role) = dashboard_permission {
-        effective_permission = match effective_permission {
-            Some(current_role) => Some(current_role.max(dashboard_role)),
-            None => Some(dashboard_role),
-        };
-    }
-
     Ok(Some(MetricFileWithPermission {
         metric_file,
-        permission: effective_permission,
+        permission: effective_permission, // Now only reflects direct or collection permission
     }))
 }
 
@@ -311,36 +293,40 @@ pub async fn fetch_metric_files_with_permissions(
             let collection_permission = collection_permission_map.get(&metric_file.id).cloned();
             let dashboard_permission = dashboard_permission_map.get(&metric_file.id).cloned();
 
-            // Use collection permission if it exists, otherwise use direct permission
+            // Determine effective permission (prioritizing collection over direct)
+            // Dashboard permission is NOT considered here for the base permission level.
             let mut effective_permission = match collection_permission {
                 Some(collection) => Some(collection),
                 None => direct_permission,
             };
 
             // Check if the file is publicly accessible and its expiry date hasn't passed
+            // We still need this check for other potential uses, but don't grant permission based on it here.
             let is_public = metric_file.publicly_accessible
                 && metric_file
                     .public_expiry_date
                     .map_or(true, |expiry| expiry > now);
 
-            // If the file is publicly accessible and either no permission exists or it's lower than CanView,
-            // grant CanView permission
+            // REMOVED: Logic that automatically granted CanView for public access.
+            /*
             if is_public && (effective_permission.is_none()) {
                 effective_permission = Some(AssetPermissionRole::CanView);
             }
+            */
 
-            // If the user has dashboard-based access to this metric file,
-            // grant CanView permission if they don't already have a higher permission
+            // REMOVED: Logic that granted CanView based on dashboard access.
+            /*
             if let Some(dashboard_role) = dashboard_permission {
                 effective_permission = match effective_permission {
                     Some(current_role) => Some(current_role.max(dashboard_role)),
                     None => Some(dashboard_role),
                 };
             }
+            */
 
             MetricFileWithPermission {
                 metric_file,
-                permission: effective_permission,
+                permission: effective_permission, // Now only reflects direct or collection permission
             }
         })
         .collect();

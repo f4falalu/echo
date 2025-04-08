@@ -8,6 +8,8 @@ use axum::{
 mod create_dashboard;
 mod delete_dashboard;
 mod get_dashboard;
+#[cfg(test)]
+mod get_dashboard_test;
 mod list_dashboards;
 mod sharing;
 mod update_dashboard;

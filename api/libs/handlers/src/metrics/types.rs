@@ -95,3 +95,43 @@ pub enum DataValue {
     Number(f64),
     Null,
 }
+
+/// Request type for bulk updating metric verification statuses.
+/// This is now a direct list of updates.
+pub type BulkUpdateMetricsRequest = Vec<MetricStatusUpdate>;
+
+/// Individual metric status update in a bulk update request
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct MetricStatusUpdate {
+    /// ID of the metric to update
+    pub id: Uuid,
+    /// New verification status to apply
+    #[serde(alias = "status")]
+    pub verification: Verification,
+}
+
+/// Response type for bulk metric updates
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BulkUpdateMetricsResponse {
+    /// Successfully updated metrics
+    pub updated_metrics: Vec<BusterMetric>,
+    /// Failed metric updates with error details
+    pub failed_updates: Vec<FailedMetricUpdate>,
+    /// Total number of metrics processed
+    pub total_processed: usize,
+    /// Number of successful updates
+    pub success_count: usize,
+    /// Number of failed updates
+    pub failure_count: usize,
+}
+
+/// Details of a failed metric update
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FailedMetricUpdate {
+    /// ID of the metric that failed to update
+    pub metric_id: Uuid,
+    /// Error message describing the failure
+    pub error: String,
+    /// Error code for client handling
+    pub error_code: String,
+}

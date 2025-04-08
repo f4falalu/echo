@@ -115,6 +115,7 @@ async fn process_dashboard_file(
         publicly_enabled_by: None,
         public_expiry_date: None,
         version_history: VersionHistory::new(1, dashboard_yml.clone()),
+        public_password: None,
     };
 
     Ok((dashboard_file, dashboard_yml))

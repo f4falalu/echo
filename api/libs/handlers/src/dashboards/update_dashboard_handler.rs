@@ -97,7 +97,7 @@ pub async fn update_dashboard_handler(
     let mut conn = get_pg_pool().get().await?;
 
     // Get existing dashboard to read the file content
-    let current_dashboard = get_dashboard_handler(&dashboard_id, user, None).await?;
+    let current_dashboard = get_dashboard_handler(&dashboard_id, user, None, None).await?;
 
     // Get and update version history before processing the changes
     // Create minimal dashboard if needed
@@ -308,7 +308,7 @@ pub async fn update_dashboard_handler(
     update_dashboard_metric_associations(dashboard_id, metric_ids, &user.id, &mut conn).await?;
 
     // Return the updated dashboard
-    get_dashboard_handler(&dashboard_id, user, None).await
+    get_dashboard_handler(&dashboard_id, user, None, None).await
 }
 
 /// Extract metric IDs from dashboard content
@@ -412,17 +412,6 @@ async fn update_dashboard_metric_associations(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use database::types::Version;
-    use mockall::mock;
-    use mockall::predicate::*;
-
-    // Create mock for database operations and other dependencies
-    mock! {
-        pub AsyncPgConnection {
-            async fn execute(&mut self) -> Result<usize, diesel::result::Error>;
-            async fn first<T>(&mut self) -> Result<T, diesel::result::Error>;
-        }
-    }
 
     // Helper to create a test version history with multiple versions
     fn create_test_version_history() -> VersionHistory {

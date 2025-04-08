@@ -19,7 +19,9 @@ use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
     models::{AssetPermission, Chat, Message, MessageToFile},
     pool::get_pg_pool,
-    schema::{asset_permissions, chats, dashboard_files, messages, messages_to_files, metric_files},
+    schema::{
+        asset_permissions, chats, dashboard_files, messages, messages_to_files, metric_files,
+    },
 };
 use diesel::{insert_into, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
@@ -214,10 +216,17 @@ pub async fn post_chat_handler(
                 if !response_arr.is_empty() {
                     if let Some(response) = response_arr.get(0) {
                         if response.get("type").map_or(false, |t| t == "file") {
+                            // Extract version_number from response, default to 1 if not found
+                            let asset_version_number = response.get("versionNumber")
+                                .and_then(|v| v.as_i64())
+                                .map(|v| v as i32)
+                                .unwrap_or(1);
+                                
                             // Create association in database
                             let _ = create_message_file_association(
                                 message.id,
                                 asset_id_value,
+                                asset_version_number,
                                 asset_type_value,
                             )
                             .await;
@@ -686,7 +695,7 @@ async fn process_completed_files(
                             continue;
                         }
 
-                        if let Some(_file_content) = file.files.get(file_id) {
+                        if let Some(file_content) = file.files.get(file_id) {
                             // Only process files that have completed reasoning
                             // Create message-to-file association
                             let message_to_file = MessageToFile {
@@ -697,6 +706,7 @@ async fn process_completed_files(
                                 updated_at: Utc::now(),
                                 deleted_at: None,
                                 is_duplicate: false,
+                                version_number: file_content.version_number,
                             };
 
                             // Insert the message to file association
@@ -708,13 +718,13 @@ async fn process_completed_files(
                             // Determine file type
                             let file_type = if let Ok(uuid) = Uuid::parse_str(file_id) {
                                 let dashboard_exists = diesel::dsl::select(diesel::dsl::exists(
-                                    dashboard_files::table.filter(dashboard_files::id.eq(&uuid))
+                                    dashboard_files::table.filter(dashboard_files::id.eq(&uuid)),
                                 ))
                                 .get_result::<bool>(conn)
                                 .await;
 
                                 let metric_exists = diesel::dsl::select(diesel::dsl::exists(
-                                    metric_files::table.filter(metric_files::id.eq(&uuid))
+                                    metric_files::table.filter(metric_files::id.eq(&uuid)),
                                 ))
                                 .get_result::<bool>(conn)
                                 .await;

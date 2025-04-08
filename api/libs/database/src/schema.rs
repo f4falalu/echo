@@ -147,6 +147,7 @@ diesel::table! {
         publicly_enabled_by -> Nullable<Uuid>,
         public_expiry_date -> Nullable<Timestamptz>,
         version_history -> Jsonb,
+        public_password -> Nullable<Text>,
     }
 }
 
@@ -381,6 +382,7 @@ diesel::table! {
         updated_at -> Timestamptz,
         deleted_at -> Nullable<Timestamptz>,
         is_duplicate -> Bool,
+        version_number -> Int4,
     }
 }
 
@@ -407,6 +409,7 @@ diesel::table! {
         public_expiry_date -> Nullable<Timestamptz>,
         version_history -> Jsonb,
         data_metadata -> Nullable<Jsonb>,
+        public_password -> Nullable<Text>,
     }
 }
 

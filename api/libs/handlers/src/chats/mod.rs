@@ -12,9 +12,6 @@ pub mod asset_messages;
 pub mod restore_chat_handler;
 pub mod duplicate_chat_handler;
 
-#[cfg(test)]
-pub mod tests;
-
 pub use get_chat_handler::get_chat_handler;
 pub use get_raw_llm_messages_handler::get_raw_llm_messages_handler;
 pub use post_chat_handler::post_chat_handler;

@@ -6,7 +6,7 @@ use database::{
 };
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
-use sharing::{check_permission_access, create_share_by_email};
+use sharing::{check_permission_access, create_share_by_email, types::UpdateField};
 use tracing::info;
 use uuid::Uuid;
 
@@ -24,10 +24,12 @@ pub struct UpdateChatSharingRequest {
     pub users: Option<Vec<ShareRecipient>>,
     /// Whether the chat should be publicly accessible
     pub publicly_accessible: Option<bool>,
-    /// Password for public access (if null, will clear existing password)
-    pub public_password: Option<Option<String>>,
-    /// Expiration date for public access (if null, will clear existing expiration)
-    pub public_expiration: Option<Option<DateTime<Utc>>>,
+    /// Password for public access
+    #[serde(default)]
+    pub public_password: UpdateField<String>,
+    /// Expiration date for public access
+    #[serde(default)]
+    pub public_expiry_date: UpdateField<DateTime<Utc>>,
 }
 
 /// Updates sharing permissions for a chat
@@ -107,8 +109,10 @@ pub async fn update_chat_sharing_handler(
         }
     }
 
-    // Note: Chat doesn't have password_secret_id in its database model
-    // If public_password becomes needed in the future, additional implementation will be required
+    // Note: Currently, chats don't support public sharing
+    // The public_* fields are included for API consistency but are ignored
+    // If public sharing for chats is implemented in the future, this section will need to be updated
+    // Following the pattern from metric_sharing_handler.rs and dashboard_sharing_handler.rs
 
     Ok(())
 }
@@ -148,8 +152,8 @@ mod tests {
         let request = UpdateChatSharingRequest {
             users: None,
             publicly_accessible: None,
-            public_password: None,
-            public_expiration: None,
+            public_password: UpdateField::NoChange,
+            public_expiry_date: UpdateField::NoChange,
         };
 
         // Call handler - should fail because the chat doesn't exist
@@ -191,8 +195,8 @@ mod tests {
                 role: AssetPermissionRole::CanView,
             }]),
             publicly_accessible: None,
-            public_password: None,
-            public_expiration: None,
+            public_password: UpdateField::NoChange,
+            public_expiry_date: UpdateField::NoChange,
         };
 
         // This test will fail in isolation as we can't easily mock the database
@@ -228,8 +232,8 @@ mod tests {
         let request = UpdateChatSharingRequest {
             users: None,
             publicly_accessible: Some(true),
-            public_password: None,
-            public_expiration: Some(Some(Utc::now())),
+            public_password: UpdateField::NoChange,
+            public_expiry_date: UpdateField::Update(Utc::now()),
         };
 
         // This test will fail in isolation as we can't easily mock the database

@@ -6,6 +6,8 @@ use lazy_static::lazy_static;
 
 // Import test modules
 pub mod helpers;
+pub mod common;
+pub mod test_infrastructure;
 
 // Re-export test modules
 #[allow(unused_imports)]

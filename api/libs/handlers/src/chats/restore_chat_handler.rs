@@ -229,6 +229,7 @@ pub async fn restore_chat_handler(
         updated_at: now,
         deleted_at: None,
         is_duplicate: false,
+        version_number: version_number,
     };
 
     // Insert the message-to-file association into the database
@@ -239,68 +240,4 @@ pub async fn restore_chat_handler(
 
     // Return the updated chat with messages
     get_chat_handler(chat_id, user, false).await
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::chats::get_chat_handler::get_chat_handler;
-    use database::enums::AssetType;
-    use middleware::test_utils::create_test_user;
-    use uuid::Uuid;
-
-    // This is a mock test to demonstrate the expected implementation
-    // Actual tests would need a test database with proper fixtures
-    #[tokio::test]
-    async fn test_restore_chat_handler() {
-        // Setup would include:
-        // 1. Create a test database connection
-        // 2. Create a test user, chat, and assets
-        // 3. Create version history for the assets
-
-        // Example test structure (not functional without test setup):
-        /*
-        // Create test user
-        let user = create_test_user();
-
-        // Create a test chat
-        let chat_id = Uuid::new_v4();
-
-        // Create a test dashboard with multiple versions
-        let dashboard_id = Uuid::new_v4();
-
-        // Create a restore request
-        let request = ChatRestoreRequest {
-            asset_id: dashboard_id,
-            asset_type: AssetType::DashboardFile,
-            version_number: 1,  // Restore to version 1
-        };
-
-        // Call the handler
-        let result = restore_chat_handler(&chat_id, &user, request).await;
-
-        // Verify success
-        assert!(result.is_ok());
-
-        // Get the updated chat
-        let chat = result.unwrap();
-
-        // Verify messages were created
-        assert!(chat.messages.len() >= 2); // At least the restoration message and file message
-
-        // Verify one message contains restoration text
-        let has_restoration_message = chat.messages.values().any(|msg|
-            msg.message_type == "text" &&
-            msg.request_message.contains("by restoring version")
-        );
-        assert!(has_restoration_message);
-
-        // Verify one message is a file message
-        let has_file_message = chat.messages.values().any(|msg|
-            msg.message_type == "file" &&
-            msg.file_type == Some("dashboard".to_string())
-        );
-        assert!(has_file_message);
-        */
-    }
 }

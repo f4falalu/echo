@@ -303,7 +303,7 @@ pub struct BaseChartConfig {
     pub grid_lines: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "show_legend_headline")]
-    pub show_legend_headline: Option<bool>,
+    pub show_legend_headline: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "goal_lines")]
     pub goal_lines: Option<Vec<GoalLine>>,

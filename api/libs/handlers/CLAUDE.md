@@ -122,31 +122,53 @@ async fn example_handler(req: PostChatRequest, user: AuthenticatedUser) -> Resul
 - Run tests with: `cargo test -p handlers`
 - Create tests for each handler in the corresponding `tests/` directory
 
-### Automatic Test Environment Setup
+### Automatic Test Environment Setup and Best Practices
 
-Integration tests in this library use an automatic database pool initialization system. The environment is set up once when the test module is loaded, eliminating the need for explicit initialization in each test.
+Integration tests in this library benefit from an automatic database pool initialization system configured in `tests/mod.rs`. This setup uses `lazy_static` and `ctor` to initialize database pools (Postgres, Redis) once when the test module loads, meaning individual tests **do not** need to perform pool initialization.
 
-**Important Notes:**
-- This is a test-only feature that is excluded from release builds
-- The test dependencies (`lazy_static` and `ctor`) are listed under `[dev-dependencies]` in Cargo.toml
-- The entire `/tests` directory is only compiled during test runs (`cargo test`)
+**Best Practice:** While you *can* directly use `get_pg_pool()` etc., it is **strongly recommended** to use the `TestSetup` or `TestDb` utilities from the `database` library's test commons (`database::tests::common::db`) for structuring your tests:
 
-Key components:
-- `tests/mod.rs` contains the initialization code using `lazy_static` and `ctor`
-- Database pools are initialized only once for all tests
-- Tests can directly use `get_pg_pool()` without any setup code
+1.  **Consistent Setup:** `TestSetup` provides a standard starting point with a pre-created test user, organization, and a `TestDb` instance. Use `TestDb` directly if you need more control over the initial setup.
+2.  **Helper Methods:** `TestDb` offers convenient methods for obtaining connections (`diesel_conn`, `sqlx_conn`, `redis_conn`) and creating common test entities (users, orgs, relationships) linked to the test instance.
+3.  **Crucial Cleanup:** `TestDb` includes a vital `cleanup()` method that removes data created during the test, ensuring test isolation. **This cleanup method MUST be called at the end of every test.**
 
-Example test:
+**Example Test Structure:**
+
 ```rust
 use anyhow::Result;
-use database::pool::get_pg_pool;
+// Adjust import path based on actual visibility/re-exports
+use database::tests::common::db::{TestSetup, TestDb};
+use database::enums::UserOrganizationRole;
 
 #[tokio::test]
-async fn test_handler_functionality() -> Result<()> {
-    // Database pool is already initialized
-    let pool = get_pg_pool();
-    
-    // Test code here using the pool
+async fn test_handler_with_setup() -> Result<()> {
+    // 1. Initialize test environment using TestSetup
+    //    This gives a user, org, and db instance.
+    let setup = TestSetup::new(Some(UserOrganizationRole::Member)).await?;
+
+    // 2. Get connections via the db instance
+    let mut conn = setup.db.diesel_conn().await?;
+
+    // 3. Use setup data (setup.user, setup.organization) and helpers (setup.db.create_...)
+    //    Perform test logic...
+    //    assert!(...)
+
+    // 4. !!! Crucially, cleanup test data !!!
+    setup.db.cleanup().await?;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_handler_with_direct_db() -> Result<()> {
+    // Alternative: Use TestDb directly if no initial user/org needed
+    let db = TestDb::new().await?;
+    let mut conn = db.diesel_conn().await?;
+
+    // Perform test logic...
+
+    // !!! Crucially, cleanup test data !!!
+    db.cleanup().await?;
     Ok(())
 }
 ```
@@ -154,4 +176,4 @@ async fn test_handler_functionality() -> Result<()> {
 To add new test modules, simply:
 1. Create a new module in the `tests/` directory
 2. Add it to the module declarations in `tests/mod.rs`
-3. Write standard async tests using `#[tokio::test]`
+3. Write standard async tests using `#[tokio::test]` following the `TestSetup`/`TestDb` pattern above.

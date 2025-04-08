@@ -1,5 +1,44 @@
 # Buster API Repository Navigation Guide
 
+> **Last Updated**: April 7, 2025  
+> **Version**: 1.0.1
+
+## Architecture Overview
+
+```
+                  ┌─────────────────┐
+                  │    Web Client   │
+                  └─────────────────┘
+                           │
+                           ▼
+┌───────────────────────────────────────────────┐
+│                  API Layer                     │
+├───────────────┬──────────────┬────────────────┤
+│  REST Routes  │ WS Routes    │ Authentication │
+└───────────────┴──────────────┴────────────────┘
+                           │
+                           ▼
+┌───────────────────────────────────────────────┐
+│               Handlers Layer                   │
+├─────────┬───────────┬───────────┬─────────────┤
+│ Metrics │ Dashboards│  Chats    │ Collections │
+└─────────┴───────────┴───────────┴─────────────┘
+                           │
+                           ▼
+┌───────────────────────────────────────────────┐
+│              Libraries Layer                   │
+├─────────┬───────────┬───────────┬─────────────┤
+│ Database│ Agents    │ Sharing   │ Query Engine│
+└─────────┴───────────┴───────────┴─────────────┘
+                           │
+                           ▼
+┌───────────────────────────────────────────────┐
+│              External Services                 │
+├─────────┬───────────┬───────────┬─────────────┤
+│Postgres │  Redis    │   LLMs    │ Data Sources│
+└─────────┴───────────┴───────────┴─────────────┘
+```
+
 ## Row Limit Implementation Notes
 All database query functions in the query_engine library have been updated to respect a 5000 row limit by default. The limit can be overridden by passing an explicit limit value. This is implemented in the libs/query_engine directory.
 
@@ -13,6 +52,18 @@ The project's detailed documentation is in the `/documentation` directory:
 - `websockets.mdc` - WebSocket patterns
 
 While these files contain best practices for writing tests, REST patterns, etc., **each subdirectory should have its own README.md or CLAUDE.md** that should be referenced first when working in that specific area. These subdirectory-specific guides often contain implementation details and patterns specific to that component.
+
+### Additional Documentation Resources
+
+- [**Library Index**](./CLAUDE-LIBRARY-INDEX.md) - Comprehensive index of all functionality across libraries
+- [**Library Template**](./libs/CLAUDE-TEMPLATE.md) - Template for creating new library documentation
+- [**Database Test Guide**](./libs/database/tests/CLAUDE.md) - Detailed guide for using the database test infrastructure
+
+## Library Relationships
+- **agents** → depends on → **litellm**, **database**, **braintrust**
+- **handlers** → depends on → **database**, **agents**, **sharing**
+- **query_engine** → depends on → **database** 
+- All libraries depend on common workspace dependencies
 
 ## Repository Structure
 - `src/` - Main server code
@@ -33,6 +84,35 @@ While these files contain best practices for writing tests, REST patterns, etc.,
 - `cargo clippy` - Run linter
 - `cargo build` - Build project
 
+## Common Test Commands 
+
+### Run Specific Tests
+```bash
+# Run tests for a specific library
+cargo test -p database
+
+# Run a specific test function
+cargo test -p handlers -- test_get_dashboard_handler
+
+# Run tests with filter
+cargo test metrics
+
+# Run with output visible and single-threaded
+cargo test -- --test-threads=1 --nocapture
+```
+
+### Test Database Environment
+```bash
+# Test database setup pattern
+let test_db = TestDb::new().await?;
+
+# Clean up test data
+test_db.cleanup().await?;
+
+# Full user+org setup
+let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
+```
+
 ## Core Guidelines
 - Use `anyhow::Result` for error handling
 - Group imports (std lib, external, internal)
@@ -42,6 +122,7 @@ While these files contain best practices for writing tests, REST patterns, etc.,
 - All dependencies inherit from workspace using `{ workspace = true }`
 - Use database connection pool from `get_pg_pool().get().await?`
 - Write tests with `tokio::test` for async tests
+- Use test infrastructure utilities in `libs/database/tests/common/` for database tests
 
 ## Common Database Pattern
 ```rust
@@ -63,3 +144,31 @@ let futures: Vec<_> = items
     .collect();
 let results = try_join_all(futures).await?;
 ```
+
+## Troubleshooting Guide
+
+### Common Issues
+
+1. **Test Database Connection Issues**
+   - **Symptom**: Tests fail with connection pool errors
+   - **Solution**: Check that test database is running and DATABASE_URL is correct in .env.test
+   - **Example Error**: `Failed to get diesel connection: connection pool timeout`
+
+2. **Test Cleanup Issues**
+   - **Symptom**: Tests fail with duplicate records or constraint violations
+   - **Solution**: Make sure `test_db.cleanup().await?` is called at the end of tests
+   - **Example Error**: `duplicate key value violates unique constraint`
+
+3. **Missing Permissions in Handlers**
+   - **Symptom**: 403 errors in REST or WebSocket endpoints
+   - **Solution**: Use the `check_permission_access` function from the sharing library
+   - **Example Error**: `You don't have permission to view this dashboard`
+
+4. **Tool Execution Failures**
+   - **Symptom**: Agent tools fail to execute properly
+   - **Solution**: Implement the `ToolExecutor` trait fully with proper error handling
+   - **Example Error**: `Failed to execute tool: invalid schema`
+
+### Library-Specific Troubleshooting
+
+Check individual CLAUDE.md files in each library directory for specific troubleshooting guidance.

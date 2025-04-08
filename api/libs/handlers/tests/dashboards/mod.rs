@@ -1,1 +1,2 @@
-mod list_sharing_test;
+mod get_dashboard_handler_permission_test;
+mod permission_field_test;

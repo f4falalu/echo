@@ -49,8 +49,7 @@ pub async fn generate_asset_messages(
             "id": file_message_id.to_string(),
             "fileType": asset_details.file_type,
             "fileName": asset_details.name,
-            "versionId": asset_id.to_string(),
-            "versionNumber": 1,
+            "versionNumber": asset_details.version_number,
             "filterVersionId": null,
             "metadata": [
                 {
@@ -103,6 +102,7 @@ pub async fn generate_asset_messages(
 pub async fn create_message_file_association(
     message_id: Uuid,
     file_id: Uuid,
+    version_number: i32,
     asset_type: AssetType,
 ) -> Result<()> {
     // Only create association for file-type assets
@@ -120,6 +120,7 @@ pub async fn create_message_file_association(
         updated_at: Utc::now(),
         deleted_at: None,
         is_duplicate: false,
+        version_number,
     };
     
     // Insert the message-to-file association

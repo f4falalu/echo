@@ -22,6 +22,7 @@ pub struct GetMetricDataRequest {
     pub metric_id: Uuid,
     pub version_number: Option<i32>,
     pub limit: Option<i64>,
+    pub password: Option<String>,
 }
 
 /// Structure for the metric data response
@@ -44,7 +45,12 @@ pub async fn get_metric_data_handler(
     );
 
     // Retrieve the metric definition based on version, if none, use latest.
-    let metric = get_metric_handler(&request.metric_id, &user, request.version_number).await?;
+    let metric = get_metric_handler(
+        &request.metric_id, 
+        &user, 
+        request.version_number, 
+        request.password
+    ).await?;
 
     // Parse the metric definition from YAML to get SQL and dataset IDs
     let metric_yml = serde_yaml::from_str::<MetricYml>(&metric.file)?;

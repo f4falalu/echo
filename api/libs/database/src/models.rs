@@ -37,6 +37,7 @@ pub struct DashboardFile {
     pub publicly_enabled_by: Option<Uuid>,
     pub public_expiry_date: Option<DateTime<Utc>>,
     pub version_history: VersionHistory,
+    pub public_password: Option<String>,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
@@ -68,6 +69,7 @@ pub struct MessageToFile {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub is_duplicate: bool,
+    pub version_number: i32,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Debug, Clone, Serialize)]
@@ -91,6 +93,7 @@ pub struct MetricFile {
     pub public_expiry_date: Option<DateTime<Utc>>,
     pub version_history: VersionHistory,
     pub data_metadata: Option<DataMetadata>,
+    pub public_password: Option<String>,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
