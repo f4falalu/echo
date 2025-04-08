@@ -85,9 +85,10 @@ pub async fn get_metric_handler(
     password: Option<String>,
 ) -> Result<BusterMetric> {
     // 1. Fetch metric file with permission
-    let metric_file_with_permission_option = fetch_metric_file_with_permissions(metric_id, &user.id)
-        .await
-        .map_err(|e| anyhow!("Failed to fetch metric file with permissions: {}", e))?;
+    let metric_file_with_permission_option =
+        fetch_metric_file_with_permissions(metric_id, &user.id)
+            .await
+            .map_err(|e| anyhow!("Failed to fetch metric file with permissions: {}", e))?;
 
     let metric_file_with_permission = if let Some(mf) = metric_file_with_permission_option {
         mf
@@ -98,7 +99,7 @@ pub async fn get_metric_handler(
 
     let metric_file = metric_file_with_permission.metric_file;
     let direct_permission_level = metric_file_with_permission.permission;
-    
+
     // 2. Determine the user's access level and enforce access rules
     let permission: AssetPermissionRole;
     tracing::debug!(metric_id = %metric_id, user_id = %user.id, "Checking permissions for metric");
@@ -130,7 +131,7 @@ pub async fn get_metric_handler(
             return Err(anyhow!("You don't have permission to view this metric"));
         }
         tracing::debug!(metric_id = %metric_id, "Metric is publicly accessible.");
-        
+
         // Check if the public access has expired
         if let Some(expiry_date) = metric_file.public_expiry_date {
             tracing::debug!(metric_id = %metric_id, ?expiry_date, "Checking expiry date");
@@ -139,7 +140,7 @@ pub async fn get_metric_handler(
                 return Err(anyhow!("Public access to this metric has expired"));
             }
         }
-        
+
         // Check if a password is required
         tracing::debug!(metric_id = %metric_id, has_password = metric_file.public_password.is_some(), "Checking password requirement");
         if let Some(required_password) = &metric_file.public_password {
@@ -179,42 +180,53 @@ pub async fn get_metric_handler(
         }
     });
 
-    // Determine which version to use based on version_number parameter
-    let (metric_content, version_num) = if let Some(version) = version_number {
-        // Get the specific version if it exists
-        if let Some(v) = metric_file.version_history.get_version(version) {
+    // Determine which content and version number to use
+    let metric_content: database::types::MetricYml;
+    let version_num: i32;
+    let current_data_metadata: Option<database::types::DataMetadata> = metric_file.data_metadata;
+
+    if let Some(requested_version) = version_number {
+        // --- Specific version requested ---
+        tracing::debug!(metric_id = %metric_id, version = requested_version, "Attempting to retrieve specific version");
+        if let Some(v) = metric_file.version_history.get_version(requested_version) {
             match &v.content {
                 database::types::VersionContent::MetricYml(content) => {
-                    (content.clone(), v.version_number)
+                    metric_content = (**content).clone(); // Deref the Box and clone
+                    version_num = v.version_number;
+                    tracing::debug!(metric_id = %metric_id, version = requested_version, "Successfully retrieved specific version content");
                 }
-                _ => return Err(anyhow!("Invalid version content type")),
+                _ => {
+                    tracing::error!(metric_id = %metric_id, version = requested_version, "Invalid content type found for requested version");
+                    return Err(anyhow!(
+                        "Invalid content type found for version {}",
+                        requested_version
+                    ));
+                }
             }
         } else {
-            return Err(anyhow!("Version {} not found", version));
+            tracing::warn!(metric_id = %metric_id, version = requested_version, "Requested version not found in history");
+            return Err(anyhow!("Version {} not found", requested_version));
         }
     } else {
-        // Get the latest version
-        if let Some(v) = metric_file.version_history.get_latest_version() {
-            match &v.content {
-                database::types::VersionContent::MetricYml(content) => {
-                    (content.clone(), v.version_number)
-                }
-                _ => return Err(anyhow!("Invalid version content type")),
-            }
-        } else {
-            // Fall back to current content if no version history
-            (Box::new(metric_file.content.clone()), 1)
+        // --- No specific version requested - use current state from the main table row ---
+        tracing::debug!(metric_id = %metric_id, "No specific version requested, using current metric file content");
+        metric_content = metric_file.content; // Use the content directly from the fetched MetricFile
+                                              // Determine the latest version number from history, defaulting to 1 if none
+        version_num = metric_file.version_history.get_version_number();
+        tracing::debug!(metric_id = %metric_id, latest_version = version_num, "Determined latest version number");
+    }
+
+    // Convert the selected content to pretty YAML for the 'file' field
+    let file = match serde_yaml::to_string(&metric_content) {
+        Ok(yaml) => yaml,
+        Err(e) => {
+            tracing::error!(metric_id = %metric_id, error = %e, "Failed to serialize selected metric content to YAML");
+            return Err(anyhow!("Failed to convert metric content to YAML: {}", e));
         }
     };
 
-    // Convert content to pretty YAML
-    let file = match serde_yaml::to_string(&metric_content) {
-        Ok(yaml) => yaml,
-        Err(e) => return Err(anyhow!("Failed to convert content to YAML: {}", e)),
-    };
-
-    // Data metadata is fetched directly from the metric_file database record
-    let data_metadata = metric_file.data_metadata;
+    // Data metadata always comes from the main table record (current state)
+    let data_metadata = current_data_metadata;
 
     let mut conn = get_pg_pool().get().await?;
 
@@ -368,6 +380,6 @@ pub async fn get_metric_handler(
         publicly_accessible: metric_file.publicly_accessible,
         public_expiry_date: metric_file.public_expiry_date,
         public_enabled_by: public_enabled_by_user,
-        public_password: metric_file.public_password
+        public_password: metric_file.public_password,
     })
 }

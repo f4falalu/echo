@@ -210,37 +210,51 @@ pub async fn post_chat_handler(
         for mut message in messages {
             message.chat_id = chat_id;
 
-            // If this is a file message, create file association
-            if message.response_messages.is_array() {
-                let response_arr = message.response_messages.as_array().unwrap();
-                if !response_arr.is_empty() {
-                    if let Some(response) = response_arr.get(0) {
-                        if response.get("type").map_or(false, |t| t == "file") {
-                            // Extract version_number from response, default to 1 if not found
-                            let asset_version_number = response.get("versionNumber")
-                                .and_then(|v| v.as_i64())
-                                .map(|v| v as i32)
-                                .unwrap_or(1);
-                                
-                            // Create association in database
-                            let _ = create_message_file_association(
-                                message.id,
-                                asset_id_value,
-                                asset_version_number,
-                                asset_type_value,
-                            )
-                            .await;
-                        }
-                    }
-                }
-            }
-
-            // Insert message into database
+            // Insert message into database first
             let mut conn = get_pg_pool().get().await?;
             insert_into(database::schema::messages::table)
                 .values(&message)
                 .execute(&mut conn)
                 .await?;
+            
+            // After message is inserted, create file association if needed
+            if message.response_messages.is_array() {
+                let response_arr = message.response_messages.as_array().unwrap();
+                
+                // Find a file response in the array
+                for response in response_arr {
+                    if response.get("type").map_or(false, |t| t == "file") {
+                        // Extract version_number from response, default to 1 if not found
+                        let asset_version_number = response.get("version_number")
+                            .and_then(|v| v.as_i64())
+                            .map(|v| v as i32)
+                            .unwrap_or(1);
+                        
+                        // Ensure the response id matches the asset_id
+                        let response_id = response.get("id")
+                            .and_then(|id| id.as_str())
+                            .and_then(|id_str| Uuid::parse_str(id_str).ok())
+                            .unwrap_or(asset_id_value);
+                            
+                        // Verify the response ID matches the asset ID
+                        if response_id == asset_id_value {
+                            // Create association in database - now the message exists in DB
+                            if let Err(e) = create_message_file_association(
+                                message.id,
+                                asset_id_value,
+                                asset_version_number,
+                                asset_type_value,
+                            )
+                            .await {
+                                tracing::warn!("Failed to create message file association: {}", e);
+                            }
+                        }
+                        
+                        // We only need to process one file association
+                        break;
+                    }
+                }
+            }
 
             // Add to updated messages for the response
             updated_messages.push(message);
@@ -264,8 +278,38 @@ pub async fn post_chat_handler(
             );
 
             chat_with_messages.add_message(chat_message);
+            
+            // We don't need to process the raw_llm_messages here
+            // The ChatContextLoader.update_context_from_tool_calls function will handle the asset state
+            // when the agent is initialized and loads the context
         }
 
+        // Explicitly update the chat in the database with most_recent_file information
+        // to ensure it behaves like files generated in a chat
+        let asset_type_string = match asset_type_value {
+            AssetType::MetricFile => Some("metric".to_string()),
+            AssetType::DashboardFile => Some("dashboard".to_string()),
+            _ => None,
+        };
+        
+        if let Some(file_type) = asset_type_string {
+            // Update the chat directly to ensure it has the most_recent_file information
+            let mut conn = get_pg_pool().get().await?;
+            diesel::update(chats::table.find(chat_id))
+                .set((
+                    chats::most_recent_file_id.eq(Some(asset_id_value)),
+                    chats::most_recent_file_type.eq(Some(file_type.clone())),
+                    chats::updated_at.eq(Utc::now()),
+                ))
+                .execute(&mut conn)
+                .await?;
+
+            tracing::info!(
+                "Updated chat {} with most_recent_file_id: {}, most_recent_file_type: {}",
+                chat_id, asset_id_value, file_type
+            );
+        }
+        
         // Return early with auto-generated messages - no need for agent processing
         return Ok(chat_with_messages);
     }
@@ -486,7 +530,7 @@ pub async fn post_chat_handler(
         }),
         response_messages.clone(),
         reasoning_messages.clone(),
-        Some(formatted_reasoning_duration.clone()), // Use the formatted duration string
+        Some(formatted_reasoning_duration.clone()), // Use formatted reasoning duration for regular messages
         Utc::now(),
     );
 
@@ -503,7 +547,7 @@ pub async fn post_chat_handler(
         deleted_at: None,
         response_messages: serde_json::to_value(&response_messages)?,
         reasoning: serde_json::to_value(&reasoning_messages)?,
-        final_reasoning_message: Some(formatted_reasoning_duration), // Use the formatted duration string
+        final_reasoning_message: Some(formatted_reasoning_duration), // Use formatted reasoning duration for regular messages
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
         feedback: None,
@@ -797,6 +841,7 @@ pub struct BusterReasoningMessageContainer {
 }
 
 #[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "snake_case")]
 pub struct BusterChatResponseFileMetadata {
     pub status: String,
     pub message: String,
@@ -805,7 +850,6 @@ pub struct BusterChatResponseFileMetadata {
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "type")]
-#[serde(rename_all = "camelCase")]
 pub enum BusterChatMessage {
     Text {
         id: String,
@@ -1009,10 +1053,7 @@ pub async fn transform_message(
                                             filter_version_id: None,
                                             metadata: Some(vec![BusterChatResponseFileMetadata {
                                                 status: "completed".to_string(),
-                                                message: format!(
-                                                    "Created new {}",
-                                                    file_content.file_type
-                                                ),
+                                                message: "Created by Buster".to_string(),
                                                 timestamp: Some(Utc::now().timestamp()),
                                             }]),
                                         };
@@ -1095,10 +1136,7 @@ pub async fn transform_message(
                                             filter_version_id: None,
                                             metadata: Some(vec![BusterChatResponseFileMetadata {
                                                 status: "completed".to_string(),
-                                                message: format!(
-                                                    "Created new {}",
-                                                    file_content.file_type
-                                                ),
+                                                message: "Created by Buster".to_string(),
                                                 timestamp: Some(Utc::now().timestamp()),
                                             }]),
                                         };
@@ -1953,6 +1991,8 @@ Return only the title text with no additional formatting, explanation, quotes, n
 /// The function streams the title back as it's being generated.
 type BusterContainerResult = Result<(BusterContainer, ThreadEvent)>;
 
+// The implementation has been moved to ChatContextLoader.update_context_from_tool_calls
+
 pub async fn generate_conversation_title(
     messages: &[AgentMessage],
     message_id: &Uuid,
@@ -2050,7 +2090,7 @@ async fn initialize_chat(
         let (asset_id, asset_type) = normalize_asset_fields(request);
         if let (Some(asset_id), Some(asset_type)) = (asset_id, asset_type) {
             match fetch_asset_details(asset_id, asset_type).await {
-                Ok(details) => format!("View {}", details.name),
+                Ok(details) => details.name.clone(),
                 Err(_) => "New Chat".to_string(),
             }
         } else {
@@ -2101,6 +2141,7 @@ async fn initialize_chat(
             public_expiry_date: None,
             most_recent_file_id: None,
             most_recent_file_type: None,
+            most_recent_version_number: None,
         };
 
         // Create initial message

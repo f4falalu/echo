@@ -1,7 +1,7 @@
 # Buster API Repository Navigation Guide
 
 > **Last Updated**: April 7, 2025  
-> **Version**: 1.0.1
+> **Version**: 1.0.2
 
 ## Architecture Overview
 
@@ -66,15 +66,17 @@ While these files contain best practices for writing tests, REST patterns, etc.,
 - All libraries depend on common workspace dependencies
 
 ## Repository Structure
-- `src/` - Main server code
-  - `routes/` - API endpoints (REST, WebSocket)
-  - `utils/` - Shared utilities
-  - `types/` - Common type definitions
-- `libs/` - Shared libraries
-  - Each lib has its own Cargo.toml and docs
-- `migrations/` - Database migrations
-- `tests/` - Integration tests
-- `documentation/` - Detailed docs
+- `src/` - Main server code (Axum application wiring)
+  - `routes/` - API endpoints (REST, WebSocket) - Defines routes, applies middleware
+  - `utils/` - Shared server-specific utilities
+  - `types/` - Common type definitions for the server layer
+- `libs/` - Shared libraries (Core logic)
+  - `database/` - Database interactions, schema, models, migrations, **test utilities**
+  - `handlers/` - Request handling logic for specific routes/features
+  - `agents/`, `sharing/`, `query_engine/`, etc. - Other core logic libraries
+  - Each lib has its own `Cargo.toml`, `src/`, and `tests/` (for lib-specific integration tests)
+- `server/tests/` - Focused integration tests for the `server` crate (routing, middleware), **mocks handlers**.
+- `documentation/` - Detailed docs (`*.mdc` files)
 - `prds/` - Product requirements
 
 ## Build Commands
@@ -88,29 +90,45 @@ While these files contain best practices for writing tests, REST patterns, etc.,
 
 ### Run Specific Tests
 ```bash
-# Run tests for a specific library
+# Run tests for a specific library (e.g., database integration tests)
 cargo test -p database
 
-# Run a specific test function
+# Run tests for the handlers library
+cargo test -p handlers
+
+# Run focused server integration tests (routing, middleware)
+cargo test -p server
+
+# Run a specific test function (e.g., in handlers)
 cargo test -p handlers -- test_get_dashboard_handler
 
-# Run tests with filter
-cargo test metrics
+# Run tests with filter (e.g., all tests containing "metric")
+cargo test metric
 
 # Run with output visible and single-threaded
 cargo test -- --test-threads=1 --nocapture
 ```
 
-### Test Database Environment
-```bash
-# Test database setup pattern
-let test_db = TestDb::new().await?;
+### Test Database Environment (Using `database::test_utils`)
+```rust
+use database::test_utils::{TestDb, insert_test_metric_file, cleanup_test_data};
 
-# Clean up test data
-test_db.cleanup().await?;
-
-# Full user+org setup
-let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
+#[tokio::test] async fn my_db_test() -> anyhow::Result<()> {
+  // Assumes pools are initialized beforehand (e.g., via #[ctor])
+  let test_db = TestDb::new().await?;
+  
+  // Create test data structs
+  let metric = test_db.create_test_metric_file(&test_db.user_id).await?;
+  let metric_id = metric.id;
+  
+  // Insert data using helpers
+  insert_test_metric_file(&metric).await?;
+  
+  // ... perform test logic ...
+  
+  // Clean up specific test data
+  cleanup_test_data(&[metric_id]).await?;
+  Ok(())}
 ```
 
 ## Core Guidelines
@@ -121,8 +139,10 @@ let setup = TestSetup::new(Some(UserOrganizationRole::Admin)).await?;
 - Never log secrets or sensitive data
 - All dependencies inherit from workspace using `{ workspace = true }`
 - Use database connection pool from `get_pg_pool().get().await?`
-- Write tests with `tokio::test` for async tests
-- Use test infrastructure utilities in `libs/database/tests/common/` for database tests
+- Write tests with `#[tokio::test]` for async tests.
+- Use database test utilities from `libs/database/src/test_utils.rs` for managing test data.
+- Use mocking (`mockall`, `mockito`) for unit tests.
+- Use `axum_test_helper::TestClient` for server integration tests (`server/tests/`).
 
 ## Common Database Pattern
 ```rust
@@ -136,27 +156,18 @@ diesel::update(table)
     .await?
 ```
 
-## Common Concurrency Pattern
-```rust
-let futures: Vec<_> = items
-    .into_iter()
-    .map(|item| process_item(item))
-    .collect();
-let results = try_join_all(futures).await?;
-```
-
 ## Troubleshooting Guide
 
 ### Common Issues
 
 1. **Test Database Connection Issues**
-   - **Symptom**: Tests fail with connection pool errors
-   - **Solution**: Check that test database is running and DATABASE_URL is correct in .env.test
+   - **Symptom**: Tests fail with connection pool errors or timeouts.
+   - **Solution**: Ensure test database service is running. Verify `DATABASE_URL` in `.env.test` is correct. Check pool initialization logic (e.g., `#[ctor]` setup).
    - **Example Error**: `Failed to get diesel connection: connection pool timeout`
 
 2. **Test Cleanup Issues**
-   - **Symptom**: Tests fail with duplicate records or constraint violations
-   - **Solution**: Make sure `test_db.cleanup().await?` is called at the end of tests
+   - **Symptom**: Tests fail with duplicate records, unique constraint violations, or unexpected data from previous runs.
+   - **Solution**: Ensure `cleanup_test_data(&[asset_ids])` is called at the end of *every* integration test that modifies the database, cleaning up precisely the data it created.
    - **Example Error**: `duplicate key value violates unique constraint`
 
 3. **Missing Permissions in Handlers**
@@ -171,4 +182,4 @@ let results = try_join_all(futures).await?;
 
 ### Library-Specific Troubleshooting
 
-Check individual CLAUDE.md files in each library directory for specific troubleshooting guidance.
+Check individual CLAUDE.md files or READMEs in each library directory for specific troubleshooting guidance.
