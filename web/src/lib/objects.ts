@@ -39,41 +39,19 @@ export const compareObjectsByKeys = <K extends string>(
     // Handle arrays explicitly
     if (Array.isArray(val1) && Array.isArray(val2)) {
       const arrayEqual = isEqual(val1, val2);
-      if (!arrayEqual) {
-        console.log('Arrays not equal:', {
-          key,
-          array1: val1,
-          array2: val2,
-          length1: val1.length,
-          length2: val2.length
-        });
-      }
+
       return arrayEqual;
     }
 
     // Handle other objects
     if (typeof val1 === 'object' && typeof val2 === 'object') {
       const isWasEqual = isEqual(JSON.stringify(val1), JSON.stringify(val2));
-      if (!isWasEqual) {
-        console.log('Objects not equal:', {
-          key,
-          object1: val1,
-          object2: val2
-        });
-      }
+
       return isWasEqual;
     }
 
     const itWasEqual = isEqual(val1, val2);
-    if (!itWasEqual) {
-      console.log('Values not equal:', {
-        key,
-        value1: val1,
-        value2: val2,
-        type1: typeof val1,
-        type2: typeof val2
-      });
-    }
+
     return itWasEqual;
   });
 };

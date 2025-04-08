@@ -67,10 +67,8 @@ export const useAutoChangeLayout = ({
           currentFile: lastFile
         });
 
-        console.log(href);
         if (href) {
-          //   onChangePage(href);
-
+          onChangePage(href);
           onSetSelectedFile({
             id: lastFileId,
             type: lastFile.file_type,

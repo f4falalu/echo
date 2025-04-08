@@ -40,47 +40,6 @@ export const useOriginalDashboardStore = create<OriginalDashboardStore>((set, ge
     })
 }));
 
-export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) => {
-  const queryClient = useQueryClient();
-  const originalDashboard = useOriginalDashboardStore((x) => x.getOriginalDashboard(dashboardId));
-
-  const { data: currentDashboard, refetch: refetchCurrentDashboard } = useGetDashboard(
-    { id: dashboardId },
-    {
-      select: (x) => ({
-        name: x.dashboard.name,
-        description: x.dashboard.description,
-        config: x.dashboard.config,
-        file: x.dashboard.file
-      })
-    }
-  );
-
-  const onResetDashboardToOriginal = useMemoizedFn(() => {
-    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
-    const currentDashboard = queryClient.getQueryData<BusterDashboardResponse>(options.queryKey);
-    if (originalDashboard && currentDashboard) {
-      queryClient.setQueryData(options.queryKey, {
-        ...currentDashboard,
-        dashboard: originalDashboard
-      });
-    }
-    refetchCurrentDashboard();
-  });
-
-  return {
-    onResetDashboardToOriginal,
-    isDashboardChanged:
-      !originalDashboard ||
-      !currentDashboard ||
-      !compareObjectsByKeys(originalDashboard, currentDashboard, [
-        'name',
-        'description',
-        'config',
-        'file'
-      ])
-  };
-};
 export const HydrationBoundaryDashboardStore: React.FC<{
   children: React.ReactNode;
   dashboard?: OriginalDashboardStore['originalDashboards'][string];

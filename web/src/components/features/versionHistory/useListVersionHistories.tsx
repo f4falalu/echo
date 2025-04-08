@@ -117,7 +117,10 @@ const useListDashboardVersions = ({
   type: 'metric' | 'dashboard';
 }) => {
   const selectedVersionParam = useSearchParams().get('dashboard_version_number');
-  const { mutateAsync: updateDashboard, isPending: isSavingDashboard } = useUpdateDashboard();
+  const { mutateAsync: updateDashboard, isPending: isSavingDashboard } = useUpdateDashboard({
+    saveToServer: true,
+    updateVersion: true
+  });
   const { data: dashData } = useGetDashboard(
     {
       id: type === 'dashboard' ? assetId : undefined,

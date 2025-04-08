@@ -108,11 +108,6 @@ describe('compareObjectsByKeys', () => {
 
     const result = compareObjectsByKeys(object1, object2, ['colors']);
 
-    // Log what was actually compared
-    if (!result) {
-      console.log('Comparison failed. Console output:', consoleSpy.mock.calls);
-    }
-
     expect(result).toBe(true);
     consoleSpy.mockRestore();
   });

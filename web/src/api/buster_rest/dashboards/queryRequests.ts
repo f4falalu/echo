@@ -109,10 +109,27 @@ export const useCreateDashboard = () => {
   });
 };
 
-export const useUpdateDashboard = () => {
+export const useUpdateDashboard = (params?: {
+  updateVersion?: boolean;
+  saveToServer?: boolean;
+}) => {
+  const { updateVersion = true, saveToServer = false } = params || {};
+
   const queryClient = useQueryClient();
+
+  const mutationFn = useMemoizedFn(
+    async (variables: Parameters<typeof dashboardsUpdateDashboard>[0]) => {
+      if (saveToServer) {
+        return await dashboardsUpdateDashboard({
+          ...variables,
+          update_version: updateVersion
+        });
+      }
+    }
+  );
+
   return useMutation({
-    mutationFn: dashboardsUpdateDashboard,
+    mutationFn,
     onMutate: (variables) => {
       const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
@@ -135,8 +152,15 @@ export const useUpdateDashboard = () => {
   });
 };
 
-export const useUpdateDashboardConfig = () => {
-  const { mutateAsync } = useUpdateDashboard();
+export const useUpdateDashboardConfig = (params?: {
+  saveToServer?: boolean;
+  updateVersion?: boolean;
+}) => {
+  const { saveToServer = false, updateVersion = true } = params || {};
+  const { mutateAsync } = useUpdateDashboard({
+    saveToServer,
+    updateVersion
+  });
   const queryClient = useQueryClient();
 
   const method = useMemoizedFn(

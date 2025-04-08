@@ -1,7 +1,7 @@
 import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import React from 'react';
-import { type useUpdateDashboard } from '@/api/buster_rest/dashboards';
+import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 
 export const DASHBOARD_TITLE_INPUT_ID = 'dashboard-title-input';
@@ -13,11 +13,14 @@ const descriptionAutoResize = {
 
 export const DashboardEditTitles: React.FC<{
   title: string;
-  onUpdateDashboard: ReturnType<typeof useUpdateDashboard>['mutateAsync'];
   description: string;
   readOnly?: boolean;
   dashboardId: string;
-}> = React.memo(({ onUpdateDashboard, readOnly, title, description, dashboardId }) => {
+}> = React.memo(({ readOnly, title, description, dashboardId }) => {
+  const { mutateAsync: onUpdateDashboard } = useUpdateDashboard({
+    saveToServer: false
+  });
+
   const onChangeTitle = useMemoizedFn((name: string) => {
     if (!readOnly) onUpdateDashboard({ name, id: dashboardId });
   });

@@ -19,7 +19,9 @@ export const DashboardViewFileController: React.FC<{
     mutateAsync: onUpdateDashboard,
     isPending: isUpdatingDashboard,
     error: updateDashboardError
-  } = useUpdateDashboard();
+  } = useUpdateDashboard({
+    saveToServer: false
+  });
 
   const { file, file_name } = dashboard || {};
   const updateDashboardErrorMessage = updateDashboardError?.message;
