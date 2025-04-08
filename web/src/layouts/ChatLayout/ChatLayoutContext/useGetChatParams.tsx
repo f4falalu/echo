@@ -48,14 +48,17 @@ export const useGetChatParams = () => {
   }, [versionNumberPath, dashboardId, queryDashboardVersionNumber]);
 
   const isVersionHistoryMode: boolean = useMemo(() => {
-    if (!chatId && (metricVersionNumber || dashboardVersionNumber)) return true; // we don't need to show the version history mode if we are in a chat
+    if (!chatId && (metricVersionNumber || dashboardVersionNumber)) return true;
 
-    return (
-      !!chatId &&
-      !!(metricVersionNumber || dashboardVersionNumber) &&
-      segments.some((segment) => segment.startsWith('version'))
-    );
-  }, [segments, !!chatId, !!metricVersionNumber, !!dashboardVersionNumber]);
+    return !!chatId && segments.some((segment) => segment.startsWith('version'));
+  }, [
+    segments,
+    !!chatId,
+    !!metricVersionNumber,
+    !!dashboardVersionNumber,
+    !!queryMetricVersionNumber,
+    !!queryDashboardVersionNumber
+  ]);
 
   return useMemo(
     () => ({

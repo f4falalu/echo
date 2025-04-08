@@ -15,7 +15,7 @@ interface ChatSplitterProps {
 export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
   const chatLayoutProps = useChatLayoutContext({ appSplitterRef });
-  const { selectedLayout, selectedFile, onSetSelectedFile, chatId } = chatLayoutProps;
+  const { selectedLayout, selectedFile } = chatLayoutProps;
 
   const defaultSplitterLayout = useMemo(() => {
     if (selectedLayout === 'chat') return ['100%', '0%'];
@@ -34,7 +34,12 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
             ),
             []
           )}
-          rightChildren={<FileContainer>{children}</FileContainer>}
+          rightChildren={useMemo(
+            () => (
+              <FileContainer>{children}</FileContainer>
+            ),
+            [children]
+          )}
           autoSaveId="chat-splitter"
           defaultLayout={defaultSplitterLayout}
           allowResize={selectedLayout === 'both'}

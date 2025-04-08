@@ -7,7 +7,7 @@ import findLast from 'lodash/findLast';
 import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
-import { useWhyDidYouUpdate } from '@/hooks';
+import { useChatLayoutContextSelector } from '../ChatLayoutContext';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
@@ -20,6 +20,7 @@ export const useAutoChangeLayout = ({
   selectedFileId: string | undefined;
   chatId: string | undefined;
 }) => {
+  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const previousLastMessageId = useRef<string | null>(null);
   const reasoningMessagesLength = useGetChatMessage(
@@ -76,11 +77,10 @@ export const useAutoChangeLayout = ({
           });
         }
 
-        if (link && !selectedVersionNumber) {
-          console.log('changing page', { link, selectedVersionNumber, selectedFileId });
+        if (link && !selectedVersionNumber && !isVersionHistoryMode) {
           onChangePage(link);
         }
       }
     }
-  }, [isCompletedStream, chatId, hasReasoning, lastMessageId]);
+  }, [isCompletedStream, hasReasoning, lastMessageId]);
 };

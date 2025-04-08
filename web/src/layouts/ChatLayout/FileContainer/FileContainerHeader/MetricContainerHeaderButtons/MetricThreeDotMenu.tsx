@@ -52,6 +52,7 @@ import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { openSuccessMessage } = useBusterNotifications();
@@ -198,7 +199,7 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
   );
   const { versions = [], version_number } = data || {};
 
-  const createRouteWithQueryParams = useMemoizedFn((versionNumber: number) => {
+  const createRoute = useMemoizedFn((versionNumber: number) => {
     if (chatId) {
       return createBusterRoute({
         route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_HISTORY_NUMBER,
@@ -215,21 +216,14 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
     });
   });
 
-  const versionHistoryItems: DropdownItems = useMemo(() => {
-    return [...versions].reverse().map((x) => ({
-      label: `Version ${x.version_number}`,
-      secondaryLabel: timeFromNow(x.updated_at, false),
-      value: x.version_number.toString(),
-      selected: x.version_number === version_number,
-      onClick: () => onChangePage(createRouteWithQueryParams(x.version_number))
-    }));
-  }, [
+  const versionHistoryItems: DropdownItems = useListVersionDropdownItems({
     versions,
-    version_number,
-    createRouteWithQueryParams,
-    onChangePage,
-    createRouteWithQueryParams
-  ]);
+    selectedVersion: version_number,
+    chatId,
+    fileId: metricId,
+    fileType: 'metric',
+    useVersionHistoryMode: true
+  });
 
   return useMemo(
     () => ({

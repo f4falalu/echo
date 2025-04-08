@@ -1,0 +1,59 @@
+import { useGetMetric } from '@/api/buster_rest/metrics';
+import { canEdit } from '@/lib/share';
+import { useMemo } from 'react';
+import last from 'lodash/last';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+
+export const useIsMetricReadOnly = ({
+  metricId,
+  readOnly
+}: {
+  metricId: string;
+  readOnly?: boolean;
+}) => {
+  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
+  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
+  const {
+    data: metricData,
+    isFetched,
+    isError
+  } = useGetMetric(
+    { id: metricId },
+    {
+      enabled: false,
+      select: (x) => ({
+        permission: x.permission,
+        versions: x.versions
+      })
+    }
+  );
+
+  const isViewingOldVersion = useMemo(() => {
+    if (!metricVersionNumber) return false;
+    if (metricVersionNumber !== last(metricData?.versions)?.version_number) return true;
+    return false;
+  }, [metricVersionNumber, metricData]);
+
+  const isReadOnly = useMemo(() => {
+    if (readOnly) return true;
+    if (isError) return true;
+    if (!isFetched) return true;
+    if (!canEdit(metricData?.permission)) return true;
+    if (isVersionHistoryMode) return true;
+    if (isViewingOldVersion) return true;
+    return false;
+  }, [
+    isError,
+    isFetched,
+    metricData,
+    metricVersionNumber,
+    isVersionHistoryMode,
+    isViewingOldVersion
+  ]);
+
+  return {
+    isVersionHistoryMode,
+    isReadOnly,
+    isViewingOldVersion
+  };
+};

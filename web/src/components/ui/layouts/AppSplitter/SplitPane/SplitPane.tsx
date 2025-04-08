@@ -202,15 +202,17 @@ const SplitPane = ({
             const isPane = childNode.type === Pane;
             const paneProps = isPane ? childNode.props : {};
 
+            const style = {
+              ...paneProps.style,
+              [sizeName]: paneSizes[childIndex],
+              [splitPos]: panePoses[childIndex]
+            };
+
             return (
               <Pane
                 key={childIndex}
                 className={classNames(paneClassName, paneProps.className)}
-                style={{
-                  ...paneProps.style,
-                  [sizeName]: paneSizes[childIndex],
-                  [splitPos]: panePoses[childIndex]
-                }}>
+                style={style}>
                 {isPane ? paneProps.children : childNode}
               </Pane>
             );

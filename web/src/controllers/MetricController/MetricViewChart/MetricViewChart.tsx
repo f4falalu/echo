@@ -15,6 +15,7 @@ import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
 import { useIsMetricChanged } from '@/context/Metrics/useIsMetricChanged';
 import { useUpdateMetricChart } from '@/context/Metrics';
+import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 
 export const MetricViewChart: React.FC<{
   metricId: string;
@@ -50,7 +51,6 @@ export const MetricViewChart: React.FC<{
       isFetched: isFetchedMetricData,
       error: metricDataError
     } = useGetMetricData({ id: metricId });
-    const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
 
     const { mutate: updateMetric } = useUpdateMetric({
       updateOnSave: false,
@@ -60,7 +60,10 @@ export const MetricViewChart: React.FC<{
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
 
     const isTable = metric?.chart_config.selectedChartType === ChartType.Table;
-    const readOnly = readOnlyProp || !canEdit(metric?.permission) || isVersionHistoryMode;
+    const { isReadOnly, isVersionHistoryMode } = useIsMetricReadOnly({
+      metricId,
+      readOnly: readOnlyProp
+    });
     const loadingData = !isFetchedMetricData;
     const errorData = !!metricDataError;
     const showEvaluation = !!evaluation_score && !!evaluation_summary;
@@ -89,7 +92,7 @@ export const MetricViewChart: React.FC<{
             description={description}
             timeFrame={time_frame}
             onSetTitle={onSetTitle}
-            readOnly={readOnly}
+            readOnly={isReadOnly}
           />
           <div className={'border-border border-b'} />
           <MetricViewChartContent
@@ -99,7 +102,7 @@ export const MetricViewChart: React.FC<{
             fetchedData={isFetchedMetricData}
             errorMessage={metricDataError?.message}
             metricId={metricId}
-            readOnly={readOnly}
+            readOnly={isReadOnly}
           />
         </MetricViewChartCard>
 

@@ -8,7 +8,6 @@ import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { useCloseVersionHistory } from '@/layouts/ChatLayout/FileContainer/FileContainerHeader/FileContainerHeaderVersionHistory';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import last from 'lodash/last';
-import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 
 export const useListVersionHistories = ({
@@ -18,8 +17,7 @@ export const useListVersionHistories = ({
   assetId: string;
   type: 'metric' | 'dashboard';
 }) => {
-  const removeVersionHistoryQueryParams = useCloseVersionHistory();
-  const onChangeQueryParams = useAppLayoutContextSelector((x) => x.onChangeQueryParams);
+  const onCloseVersionHistory = useCloseVersionHistory();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const {
     dashboardVersions,
@@ -55,10 +53,6 @@ export const useListVersionHistories = ({
     return type === 'metric' ? metricSelectedQueryVersion : dashboardSelectedQueryVersion;
   }, [type, dashboardSelectedQueryVersion, metricSelectedQueryVersion]);
 
-  const onClickVersionHistory = useMemoizedFn((versionNumber: number) => {
-    alert('TODO');
-  });
-
   const onClickRestoreVersion = useMemoizedFn(
     async (versionNumber: number, rereouteToAsset: boolean = true) => {
       if (type === 'metric') {
@@ -84,7 +78,7 @@ export const useListVersionHistories = ({
         }
       }
 
-      removeVersionHistoryQueryParams();
+      onCloseVersionHistory();
     }
   );
 
@@ -93,7 +87,6 @@ export const useListVersionHistories = ({
       listItems,
       selectedVersion,
       selectedQueryVersion,
-      onClickVersionHistory,
       onClickRestoreVersion,
       isRestoringVersion: isSavingDashboard || isSavingMetric
     };
@@ -101,7 +94,6 @@ export const useListVersionHistories = ({
     listItems,
     selectedVersion,
     selectedQueryVersion,
-    onClickVersionHistory,
     onClickRestoreVersion,
     isSavingDashboard,
     isSavingMetric
@@ -134,7 +126,7 @@ const useListDashboardVersions = ({
   );
 
   const dashboardVersions = dashData?.versions;
-  const selectedVersion = dashData?.version_number;
+  const selectedVersion = dashboardVersionNumber || dashData?.version_number;
 
   const selectedQueryVersion = useMemo(() => {
     if (dashboardVersionNumber) return dashboardVersionNumber;
@@ -191,7 +183,7 @@ const useListMetricVersions = ({
     }
   );
   const metricVersions = metricData?.versions;
-  const selectedVersion = metricData?.version_number;
+  const selectedVersion = metricVersionNumber || metricData?.version_number;
 
   const onRestoreVersion = useMemoizedFn(async (versionNumber: number) => {
     await updateMetric({

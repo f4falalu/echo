@@ -6,16 +6,14 @@ import { DashboardContentController } from './DashboardContentController';
 import { useGetDashboard, useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
 import { useDashboardContentStore, useIsDashboardChanged } from '@/context/Dashboards';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { canEdit } from '@/lib/share';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { StatusCard } from '@/components/ui/card/StatusCard';
+import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
 
 export const DashboardViewDashboardController: React.FC<{
   dashboardId: string;
   chatId: string | undefined;
   readOnly?: boolean;
 }> = ({ dashboardId, chatId, readOnly: readOnlyProp = false }) => {
-  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
   const {
     data: dashboardResponse,
     isFetched,
@@ -31,7 +29,10 @@ export const DashboardViewDashboardController: React.FC<{
 
   const metrics = dashboardResponse?.metrics;
   const dashboard = dashboardResponse?.dashboard;
-  const readOnly = readOnlyProp || !canEdit(dashboardResponse?.permission) || isVersionHistoryMode;
+  const { isReadOnly } = useIsDashboardReadOnly({
+    dashboardId,
+    readOnly: readOnlyProp
+  });
 
   if (isError) {
     return (
@@ -50,7 +51,7 @@ export const DashboardViewDashboardController: React.FC<{
       <div className="flex h-full flex-col space-y-3 p-10">
         <DashboardEditTitles
           dashboardId={dashboardId}
-          readOnly={readOnly}
+          readOnly={isReadOnly}
           title={dashboardResponse?.dashboard?.name || ''}
           description={dashboardResponse?.dashboard?.description || ''}
         />
@@ -61,7 +62,7 @@ export const DashboardViewDashboardController: React.FC<{
           chatId={chatId}
           onUpdateDashboardConfig={onUpdateDashboardConfig}
           onOpenAddContentModal={onOpenAddContentModal}
-          readOnly={readOnly}
+          readOnly={isReadOnly}
         />
       </div>
     </ScrollArea>

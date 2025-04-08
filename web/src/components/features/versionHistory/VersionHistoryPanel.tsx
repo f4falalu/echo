@@ -10,20 +10,27 @@ import { AppPageLayout } from '@/components/ui/layouts';
 import { useListVersionHistories } from './useListVersionHistories';
 import { useMount } from '@/hooks';
 import { AppTooltip } from '@/components/ui/tooltip';
+import Link from 'next/link';
+import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 
 export const VersionHistoryPanel = React.memo(
-  ({ assetId, type }: { assetId: string; type: 'metric' | 'dashboard' }) => {
-    const removeVersionHistoryQueryParams = useCloseVersionHistory();
-    const {
-      listItems,
-      selectedVersion,
-      selectedQueryVersion,
-      onClickRestoreVersion,
-      onClickVersionHistory
-    } = useListVersionHistories({
-      assetId,
-      type
-    });
+  ({
+    assetId,
+    type,
+    chatId
+  }: {
+    assetId: string;
+    type: 'metric' | 'dashboard';
+    chatId: string | undefined;
+  }) => {
+    const onCloseVersionHistory = useCloseVersionHistory();
+    const { listItems, selectedVersion, selectedQueryVersion, onClickRestoreVersion } =
+      useListVersionHistories({
+        assetId,
+        type
+      });
+    const { getFileLink } = useGetFileLink();
+
     const bodyRef = useRef<HTMLDivElement>(null);
 
     useMount(async () => {
@@ -40,7 +47,7 @@ export const VersionHistoryPanel = React.memo(
       <AppPageLayout
         header={useMemo(
           () => (
-            <PanelHeader removeVersionHistoryQueryParams={removeVersionHistoryQueryParams} />
+            <PanelHeader onCloseVersionHistory={onCloseVersionHistory} />
           ),
           []
         )}
@@ -53,8 +60,16 @@ export const VersionHistoryPanel = React.memo(
               {...item}
               selected={item.version_number === selectedQueryVersion}
               showRestoreButton={item.version_number !== selectedVersion}
-              onClickVersionHistory={onClickVersionHistory}
               onClickRestoreVersion={onClickRestoreVersion}
+              link={
+                getFileLink({
+                  fileId: assetId,
+                  fileType: type,
+                  chatId,
+                  versionNumber: item.version_number,
+                  useVersionHistoryMode: true
+                }) || ''
+              }
             />
           ))}
         </div>
@@ -69,63 +84,64 @@ const ListItem = React.memo(
     updated_at,
     selected,
     showRestoreButton,
-    onClickVersionHistory,
+    link,
     onClickRestoreVersion
   }: {
     version_number: number;
     updated_at: string;
     selected: boolean;
     showRestoreButton: boolean;
-    onClickVersionHistory: (versionNumber: number) => void;
     onClickRestoreVersion: (versionNumber: number) => void;
+    link: string;
   }) => {
     return (
-      <div
-        onClick={() => onClickVersionHistory(version_number)}
-        className={cn(
-          'group hover:bg-item-hover flex cursor-pointer items-center justify-between space-x-2 rounded px-2.5 py-1.5',
-          selected && 'bg-item-select hover:bg-item-select selected-version'
-        )}>
-        <div className="flex flex-col justify-center space-y-0.5">
-          <Text>{`Version ${version_number}`}</Text>
-          <Text size={'xs'} variant={'secondary'}>
-            {timeFromNow(updated_at, false)}
-          </Text>
-        </div>
+      <Link prefetch={false} href={link}>
+        <div
+          className={cn(
+            'group hover:bg-item-hover flex cursor-pointer items-center justify-between space-x-2 rounded px-2.5 py-1.5',
+            selected && 'bg-item-select hover:bg-item-select selected-version'
+          )}>
+          <div className="flex flex-col justify-center space-y-0.5">
+            <Text>{`Version ${version_number}`}</Text>
+            <Text size={'xs'} variant={'secondary'}>
+              {timeFromNow(updated_at, false)}
+            </Text>
+          </div>
 
-        <div className="text-icon-color animate-in fade-in-0 flex items-center space-x-2 duration-200">
-          {showRestoreButton && (
-            <AppTooltip title="Restore version">
-              <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  onClickRestoreVersion(version_number);
-                }}
-                className="hover:bg-gray-light/20 hover:text-foreground -mr-1 rounded p-1 opacity-0 group-hover:block group-hover:opacity-100">
-                <History />
+          <div className="text-icon-color animate-in fade-in-0 flex items-center space-x-2 duration-200">
+            {showRestoreButton && (
+              <AppTooltip title="Restore version">
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onClickRestoreVersion(version_number);
+                  }}
+                  className="hover:bg-gray-light/20 hover:text-foreground -mr-1 rounded p-1 opacity-0 group-hover:block group-hover:opacity-100">
+                  <History />
+                </div>
+              </AppTooltip>
+            )}
+
+            {selected && (
+              <div className="group-hover:opacity-100">
+                <Check3 />
               </div>
-            </AppTooltip>
-          )}
-
-          {selected && (
-            <div className="group-hover:opacity-100">
-              <Check3 />
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      </Link>
     );
   }
 );
 ListItem.displayName = 'ListItem';
 
 const PanelHeader = React.memo(
-  ({ removeVersionHistoryQueryParams }: { removeVersionHistoryQueryParams: () => void }) => {
+  ({ onCloseVersionHistory }: { onCloseVersionHistory: () => void }) => {
     return (
       <div className="flex w-full items-center justify-between">
         <Text>Version History</Text>
-        <Button variant="ghost" prefix={<Xmark />} onClick={removeVersionHistoryQueryParams} />
+        <Button variant="ghost" prefix={<Xmark />} onClick={onCloseVersionHistory} />
       </div>
     );
   }

@@ -192,6 +192,15 @@ export const AppSplitter = React.memo(
           // Calculate current percentage considering 'auto' cases
           const currentSizeNumber = getCurrentSizePercentage(currentSize, otherSize, container);
 
+          if (
+            currentSizeNumber === Infinity ||
+            currentSizeNumber === -Infinity ||
+            targetPercentage === Infinity ||
+            targetPercentage === -Infinity
+          ) {
+            return;
+          }
+
           await new Promise((resolve) => {
             const startTime = performance.now();
             const endTime = startTime + duration * 1000;
@@ -208,6 +217,7 @@ export const AppSplitter = React.memo(
               const otherSize = `${100 - newSizeNumber}%`;
 
               const newSizes = side === 'left' ? [newSize, otherSize] : [otherSize, newSize];
+
               setSplitSizes(newSizes);
 
               if (currentTime < endTime) {
