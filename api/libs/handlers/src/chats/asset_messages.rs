@@ -2,25 +2,30 @@ use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
     enums::AssetType,
-    models::{Message, MessageToFile},
+    models::{DashboardFile, Message, MessageToFile, MetricFile},
     pool::get_pg_pool,
-    schema::{chats, messages, messages_to_files},
+    schema::{chats, dashboard_files, messages, messages_to_files, metric_files},
 };
 use diesel::{insert_into, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
+// Using json for our serialization
 use middleware::AuthenticatedUser;
+use serde_json::json;
 use uuid::Uuid;
 
 use super::context_loaders::fetch_asset_details;
 
 /// Generate default messages for prompt-less asset-based chats
 /// 
-/// This function creates a pair of messages to be shown in a chat when a user
-/// opens an asset without providing a prompt:
-/// 1. A file message that represents the asset itself
-/// 2. A text message with placeholder content
+/// This function creates a message to be shown in a chat when a user
+/// opens an asset without providing a prompt. It includes:
+/// 1. A file response that represents the asset itself
+/// 2. A text response with helpful context
 /// 
-/// The function also checks that the user has permission to view the asset
+/// The function also adds the asset information to raw_llm_messages so
+/// the agent can understand the context of the asset being viewed.
+/// 
+/// The function checks that the user has permission to view the asset
 /// and fetches the asset details for display.
 pub async fn generate_asset_messages(
     asset_id: Uuid,
@@ -38,6 +43,105 @@ pub async fn generate_asset_messages(
     let message_id = Uuid::new_v4();
     let timestamp = Utc::now().timestamp();
     
+    // Fetch detailed asset information
+    let mut conn = get_pg_pool().get().await?;
+    
+    // Create the import_assets tool call sequence
+    let tool_call_id = format!("call_{}", Uuid::new_v4().simple().to_string());
+    
+    // Prepare asset data based on asset type
+    let (asset_data, asset_type_str) = match asset_type {
+        AssetType::MetricFile => {
+            let metric = metric_files::table
+                .filter(metric_files::id.eq(asset_id))
+                .first::<MetricFile>(&mut conn)
+                .await?;
+            
+            // Get YAML content
+            let yml_content = serde_yaml::to_string(&metric.content)?;
+            
+            // For simplicity, we'll just use an empty array for results
+            // since MetricYml may not have results field
+            let results = serde_json::json!([]);
+            
+            // Create asset data object
+            let asset_data = json!({
+                "id": asset_id.to_string(),
+                "name": metric.name,
+                "file_type": "metric",
+                "asset_type": "metric",
+                "yml_content": yml_content,
+                "result_message": "0 records were returned",
+                "results": results,
+                "created_at": metric.created_at,
+                "version_number": metric.version_history.get_version_number(),
+                "updated_at": metric.updated_at
+            });
+            
+            (asset_data, "metric")
+        },
+        AssetType::DashboardFile => {
+            let dashboard = dashboard_files::table
+                .filter(dashboard_files::id.eq(asset_id))
+                .first::<DashboardFile>(&mut conn)
+                .await?;
+            
+            // Get YAML content
+            let yml_content = serde_yaml::to_string(&dashboard.content)?;
+            
+            // Create asset data object
+            let asset_data = json!({
+                "id": asset_id.to_string(),
+                "name": dashboard.name,
+                "file_type": "dashboard", 
+                "asset_type": "dashboard",
+                "yml_content": yml_content,
+                "created_at": dashboard.created_at,
+                "version_number": dashboard.version_history.get_version_number(),
+                "updated_at": dashboard.updated_at
+            });
+            
+            (asset_data, "dashboard")
+        },
+        _ => {
+            return Err(anyhow!("Unsupported asset type for generating asset messages: {:?}", asset_type));
+        }
+    };
+    
+    // Create the tool response content
+    let tool_response_content = json!({
+        "message": format!("Successfully imported 1 {} files.", asset_type_str),
+        "duration": 928, // Example duration
+        "files": [asset_data]
+    }).to_string();
+    
+    // Create the Assistant message with tool call
+    let assistant_message = serde_json::json!({
+        "name": "buster_super_agent",
+        "role": "assistant",
+        "tool_calls": [
+            {
+                "id": tool_call_id,
+                "type": "function",
+                "function": {
+                    "name": "import_assets",
+                    "arguments": "{}"
+                }
+            }
+        ]
+    });
+    
+    // Create the Tool response message
+    let tool_message = serde_json::json!({
+        "name": "import_assets",
+        "role": "tool",
+        "content": tool_response_content,
+        "tool_call_id": tool_call_id
+    });
+    
+    // Combine into raw_llm_messages
+    let raw_llm_messages = serde_json::json!([assistant_message, tool_message]);
+    
     let message = Message {
         id: message_id,
         request_message: None, // Empty request for auto-generated messages
@@ -51,7 +155,7 @@ pub async fn generate_asset_messages(
                 "type": "text",
                 "id": Uuid::new_v4().to_string(),
                 "message": format!("{} has been pulled into a new chat.\n\nContinue chatting to modify or make changes to it.", asset_details.name),
-                "isFinalMessage": true
+                "is_final_message": true
             },
             {
                 "type": "file",
@@ -72,7 +176,7 @@ pub async fn generate_asset_messages(
         reasoning: serde_json::Value::Array(vec![]),
         final_reasoning_message: Some("".to_string()),
         title: asset_details.name.clone(),
-        raw_llm_messages: serde_json::json!([]),
+        raw_llm_messages, // Add the agent context messages
         feedback: None,
     };
     

@@ -276,6 +276,10 @@ pub async fn post_chat_handler(
             );
 
             chat_with_messages.add_message(chat_message);
+            
+            // We don't need to process the raw_llm_messages here
+            // The ChatContextLoader.update_context_from_tool_calls function will handle the asset state
+            // when the agent is initialized and loads the context
         }
 
         // Return early with auto-generated messages - no need for agent processing
@@ -498,7 +502,7 @@ pub async fn post_chat_handler(
         }),
         response_messages.clone(),
         reasoning_messages.clone(),
-        Some("".to_string()), // Empty string as requested
+        Some(formatted_reasoning_duration.clone()), // Use formatted reasoning duration for regular messages
         Utc::now(),
     );
 
@@ -515,7 +519,7 @@ pub async fn post_chat_handler(
         deleted_at: None,
         response_messages: serde_json::to_value(&response_messages)?,
         reasoning: serde_json::to_value(&reasoning_messages)?,
-        final_reasoning_message: Some("".to_string()), // Empty string as requested
+        final_reasoning_message: Some(formatted_reasoning_duration), // Use formatted reasoning duration for regular messages
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
         feedback: None,
@@ -1023,7 +1027,7 @@ pub async fn transform_message(
                                             filter_version_id: None,
                                             metadata: Some(vec![BusterChatResponseFileMetadata {
                                                 status: "completed".to_string(),
-                                                message: "Pulled into new chat".to_string(),
+                                                message: "Created by Buster".to_string(),
                                                 timestamp: Some(Utc::now().timestamp()),
                                             }]),
                                         };
@@ -1106,7 +1110,7 @@ pub async fn transform_message(
                                             filter_version_id: None,
                                             metadata: Some(vec![BusterChatResponseFileMetadata {
                                                 status: "completed".to_string(),
-                                                message: "Pulled into new chat".to_string(),
+                                                message: "Created by Buster".to_string(),
                                                 timestamp: Some(Utc::now().timestamp()),
                                             }]),
                                         };
@@ -1960,6 +1964,8 @@ Return only the title text with no additional formatting, explanation, quotes, n
 /// Generates a title for a conversation by processing user and assistant messages.
 /// The function streams the title back as it's being generated.
 type BusterContainerResult = Result<(BusterContainer, ThreadEvent)>;
+
+// The implementation has been moved to ChatContextLoader.update_context_from_tool_calls
 
 pub async fn generate_conversation_title(
     messages: &[AgentMessage],
