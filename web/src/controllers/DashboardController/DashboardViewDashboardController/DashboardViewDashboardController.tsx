@@ -11,12 +11,14 @@ import {
 import { useDashboardContentStore } from '@/context/Dashboards';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { canEdit } from '@/lib/share';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 
 export const DashboardViewDashboardController: React.FC<{
   dashboardId: string;
   chatId: string | undefined;
   readOnly?: boolean;
 }> = ({ dashboardId, chatId, readOnly: readOnlyProp = false }) => {
+  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
   const { data: dashboardResponse } = useGetDashboard({ id: dashboardId });
   const { mutateAsync: onUpdateDashboard } = useUpdateDashboard();
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
@@ -24,7 +26,7 @@ export const DashboardViewDashboardController: React.FC<{
 
   const metrics = dashboardResponse?.metrics;
   const dashboard = dashboardResponse?.dashboard;
-  const readOnly = readOnlyProp || !canEdit(dashboardResponse?.permission);
+  const readOnly = readOnlyProp || !canEdit(dashboardResponse?.permission) || isVersionHistoryMode;
 
   return (
     <ScrollArea className="h-full">

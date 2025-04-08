@@ -91,7 +91,7 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
   return useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id!, version_number),
     queryFn: () => queryFn(id!, version_number),
-    enabled: false, //it is false because we fetch the dashboard server side
+    enabled: !!id, //it is false because we fetch the dashboard server side
     select: params?.select,
     ...params
   });
