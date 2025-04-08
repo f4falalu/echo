@@ -1,4 +1,5 @@
 import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
+import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { BusterRoutes } from '@/routes';
 
 import { createBusterRoute } from '@/routes';
@@ -15,6 +16,8 @@ export const useGetFileHref = ({
 }) => {
   const { file_type, id, version_number } = responseMessage;
 
+  const { getFileLink } = useGetFileLink();
+
   const href = useMemo(() => {
     if (!chatId) return '';
 
@@ -25,27 +28,15 @@ export const useGetFileHref = ({
       });
     }
 
-    if (file_type === 'metric') {
-      return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
-        chatId,
-        metricId: id,
-        versionNumber: version_number
-      });
-    }
+    const link = getFileLink({
+      fileId: id,
+      fileType: file_type,
+      chatId,
+      versionNumber: version_number,
+      useVersionHistoryMode: false
+    });
 
-    if (file_type === 'dashboard') {
-      return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
-        chatId,
-        dashboardId: id,
-        versionNumber: version_number
-      });
-    }
-
-    console.warn('Unknown file type', file_type);
-
-    return '';
+    return link || '';
   }, [chatId, file_type, id, version_number, isSelectedFile]);
 
   return href;

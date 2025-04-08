@@ -18,19 +18,11 @@ export const useSelectedFile = ({
   appSplitterRef: React.RefObject<AppSplitterRef | null>;
   chatParams: ReturnType<typeof useGetChatParams>;
 }) => {
-  const { metricVersionNumber, dashboardVersionNumber, chatId } = chatParams;
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
 
   const selectedFile: SelectedFile | null = useMemo(() => {
     return createSelectedFile(chatParams);
   }, [chatParams]);
-
-  const isVersionHistoryMode = useMemo(() => {
-    if (chatId) return false; // we don't need to show the version history mode if we are in a chat
-    if (selectedFile?.type === 'metric') return !!metricVersionNumber;
-    if (selectedFile?.type === 'dashboard') return !!dashboardVersionNumber;
-    return false;
-  }, [selectedFile?.type, metricVersionNumber, dashboardVersionNumber, chatId]);
 
   /**
    * @description Opens the splitter if the file is not already open.
@@ -61,11 +53,10 @@ export const useSelectedFile = ({
 
   return useMemo(
     () => ({
-      isVersionHistoryMode,
       onSetSelectedFile,
       selectedFile
     }),
-    [onSetSelectedFile, isVersionHistoryMode, selectedFile]
+    [onSetSelectedFile, selectedFile]
   );
 };
 

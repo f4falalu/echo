@@ -4,6 +4,7 @@ import { useGetDashboard, useUpdateDashboard } from '@/api/buster_rest/dashboard
 import { useGetMetric, useSaveMetric } from '@/api/buster_rest/metrics';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from '@/hooks';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { useCloseVersionHistory } from '@/layouts/ChatLayout/FileContainer/FileContainerHeader/FileContainerHeaderVersionHistory';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import last from 'lodash/last';
@@ -55,9 +56,7 @@ export const useListVersionHistories = ({
   }, [type, dashboardSelectedQueryVersion, metricSelectedQueryVersion]);
 
   const onClickVersionHistory = useMemoizedFn((versionNumber: number) => {
-    if (type === 'metric') onChangeQueryParams({ metric_version_number: versionNumber.toString() });
-    if (type === 'dashboard')
-      onChangeQueryParams({ dashboard_version_number: versionNumber.toString() });
+    alert('TODO');
   });
 
   const onClickRestoreVersion = useMemoizedFn(
@@ -116,7 +115,7 @@ const useListDashboardVersions = ({
   assetId: string;
   type: 'metric' | 'dashboard';
 }) => {
-  const selectedVersionParam = useSearchParams().get('dashboard_version_number');
+  const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
   const { mutateAsync: updateDashboard, isPending: isSavingDashboard } = useUpdateDashboard({
     saveToServer: true,
     updateVersion: true
@@ -138,9 +137,9 @@ const useListDashboardVersions = ({
   const selectedVersion = dashData?.version_number;
 
   const selectedQueryVersion = useMemo(() => {
-    if (selectedVersionParam) return parseInt(selectedVersionParam);
+    if (dashboardVersionNumber) return dashboardVersionNumber;
     return last(dashboardVersions)?.version_number;
-  }, [dashboardVersions, selectedVersionParam]);
+  }, [dashboardVersions, dashboardVersionNumber]);
 
   const onRestoreVersion = useMemoizedFn(async (versionNumber: number) => {
     await updateDashboard({
@@ -176,7 +175,9 @@ const useListMetricVersions = ({
   const { mutateAsync: updateMetric, isPending: isSavingMetric } = useSaveMetric({
     updateOnSave: true
   });
-  const selectedVersionParam = useSearchParams().get('metric_version_number');
+
+  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
+
   const { data: metricData } = useGetMetric(
     {
       id: type === 'metric' ? assetId : undefined,
@@ -200,9 +201,9 @@ const useListMetricVersions = ({
   });
 
   const selectedQueryVersion = useMemo(() => {
-    if (selectedVersionParam) return parseInt(selectedVersionParam);
+    if (metricVersionNumber) return metricVersionNumber;
     return last(metricVersions)?.version_number;
-  }, [metricVersions, selectedVersionParam]);
+  }, [metricVersions, metricVersionNumber]);
 
   return useMemo(() => {
     return {

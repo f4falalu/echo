@@ -35,7 +35,7 @@ import { canEdit, canFilter, getIsEffectiveOwner } from '@/lib/share';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { useDashboardContentStore } from '@/context/Dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { BusterRoutes } from '@/routes/busterRoutes';
+import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 
 export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
@@ -103,18 +103,21 @@ const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) =
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
 
   const createRouteWithQueryParams = useMemoizedFn((versionNumber: number) => {
-    const baseRoute = assetParamsToRoute({
-      chatId,
-      assetId: dashboardId,
-      type: 'dashboard',
-      secondaryView: 'version-history'
+    if (chatId) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_HISTORY_NUMBER,
+        chatId,
+        dashboardId,
+        versionNumber
+      });
+    }
+
+    return createBusterRoute({
+      route: BusterRoutes.APP_DASHBOARD_ID_VERSION_HISTORY_NUMBER,
+      dashboardId,
+      versionNumber
     });
-
-    return `${baseRoute}?${new URLSearchParams({
-      dashboard_version_number: versionNumber.toString()
-    }).toString()}`;
   });
-
   const versionHistoryItems: DropdownItems = useMemo(() => {
     return [...(versions || [])].reverse().map((x) => ({
       label: `Version ${x.version_number}`,

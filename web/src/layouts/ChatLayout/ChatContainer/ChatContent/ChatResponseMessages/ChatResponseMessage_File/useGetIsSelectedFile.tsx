@@ -1,8 +1,6 @@
 import { BusterChatResponseMessage_file } from '@/api/asset_interfaces';
-import { queryKeys } from '@/api/query_keys';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
-import { useQueryClient } from '@tanstack/react-query';
 
 export const useGetIsSelectedFile = ({
   responseMessage
@@ -11,7 +9,6 @@ export const useGetIsSelectedFile = ({
 }): {
   isSelectedFile: boolean;
 } => {
-  const queryClient = useQueryClient();
   const isSelectedFile = useChatIndividualContextSelector(
     (x) => x.selectedFileId === responseMessage.id
   );
@@ -21,11 +18,11 @@ export const useGetIsSelectedFile = ({
 
   switch (responseMessage.file_type) {
     case 'metric': {
-      const isSelectedVersion = versionNumber.toString() === metricVersionNumber;
+      const isSelectedVersion = versionNumber === metricVersionNumber;
       return { isSelectedFile: isSelectedFile && isSelectedVersion };
     }
     case 'dashboard': {
-      const isSelectedVersion = versionNumber.toString() === dashboardVersionNumber;
+      const isSelectedVersion = versionNumber === dashboardVersionNumber;
       return { isSelectedFile: isSelectedFile && isSelectedVersion };
     }
     case 'reasoning': {

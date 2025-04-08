@@ -4,11 +4,10 @@ import { useGetChatMessageMemoized, useGetChatMessage } from '@/api/buster_rest/
 import type { SelectedFile } from '../interfaces';
 import { useEffect, useRef } from 'react';
 import findLast from 'lodash/findLast';
-import { BusterChatResponseMessage_file, FileType } from '@/api/asset_interfaces/chat';
-import { useMemoizedFn } from '@/hooks';
-import { useChatLayoutContextSelector } from '../ChatLayoutContext';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useGetFileLink } from '@/context/Assets/useGetFileLink';
+import { useWhyDidYouUpdate } from '@/hooks';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
@@ -28,7 +27,7 @@ export const useAutoChangeLayout = ({
     (x) => x?.reasoning_message_ids?.length || 0
   );
   const getChatMessageMemoized = useGetChatMessageMemoized();
-  const getFileHref = useGetFileHref({ chatId });
+  const { getFileLinkMeta } = useGetFileLink();
 
   const isCompletedStream = useGetChatMessage(lastMessageId, (x) => x?.isCompletedStream);
 
@@ -58,73 +57,30 @@ export const useAutoChangeLayout = ({
         | undefined;
 
       if (lastFileId && lastFile) {
-        if (selectedFileId !== lastFileId) {
-        }
-
-        const href = getFileHref({
+        const { link, isSelected, selectedVersionNumber } = getFileLinkMeta({
           fileId: lastFileId,
           fileType: lastFile.file_type,
-          currentFile: lastFile
+          chatId,
+          versionNumber: lastFile.version_number,
+          useVersionHistoryMode: !chatId
         });
 
-        if (href) {
-          onChangePage(href);
+        if (
+          !isSelected &&
+          selectedVersionNumber !== lastFile.version_number &&
+          selectedFileId !== lastFileId
+        ) {
           onSetSelectedFile({
             id: lastFileId,
-            type: lastFile.file_type,
-            versionNumber: lastFile.version_number
+            type: lastFile.file_type
           });
+        }
+
+        if (link && !selectedVersionNumber) {
+          console.log('changing page', { link, selectedVersionNumber, selectedFileId });
+          onChangePage(link);
         }
       }
     }
   }, [isCompletedStream, chatId, hasReasoning, lastMessageId]);
-};
-
-const useGetFileHref = ({ chatId }: { chatId: string | undefined }) => {
-  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
-  const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
-
-  const getFileHref = useMemoizedFn(
-    ({
-      fileId,
-      fileType,
-      currentFile
-    }: {
-      fileId: string;
-      fileType: FileType;
-      currentFile: BusterChatResponseMessage_file | undefined;
-    }) => {
-      if (!currentFile || !chatId || metricVersionNumber || dashboardVersionNumber) return false;
-
-      if (fileType === 'metric') {
-        if (metricVersionNumber) return false;
-        return createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
-          chatId: chatId,
-          metricId: fileId,
-          versionNumber: currentFile.version_number
-        });
-      }
-
-      if (fileType === 'dashboard') {
-        if (dashboardVersionNumber) return false;
-        return createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
-          chatId: chatId,
-          dashboardId: fileId,
-          versionNumber: currentFile.version_number
-        });
-      }
-
-      if (fileType === 'reasoning') {
-        return false;
-      }
-
-      const exhaustiveCheck: never = fileType;
-
-      return false;
-    }
-  );
-
-  return getFileHref;
 };

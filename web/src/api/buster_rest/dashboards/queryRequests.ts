@@ -26,7 +26,7 @@ import {
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { addMetricToDashboardConfig, removeMetricFromDashboardConfig } from './helpers';
 import { addAndRemoveMetricsToDashboard } from './helpers/addAndRemoveMetricsToDashboard';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { RustApiError } from '../errors';
 
 export const useGetDashboardsList = (
@@ -79,14 +79,13 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
     'queryKey' | 'queryFn'
   >
 ) => {
-  const searchParams = useSearchParams();
   const queryFn = useGetDashboardAndInitializeMetrics();
-  const queryVersionNumber = searchParams.get('dashboard_version_number');
+  const { versionId } = useParams() as { versionId: string | undefined };
 
   const version_number = useMemo(() => {
     if (version_number_prop === null) return undefined;
-    return version_number_prop || queryVersionNumber ? parseInt(queryVersionNumber!) : undefined;
-  }, [version_number_prop, queryVersionNumber]);
+    return version_number_prop || versionId ? parseInt(versionId!) : undefined;
+  }, [version_number_prop, versionId]);
 
   return useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id!, version_number),

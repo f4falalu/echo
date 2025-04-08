@@ -26,7 +26,7 @@ import {
   useAddAssetToCollection,
   useRemoveAssetFromCollection
 } from '../collections/queryRequests';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
 import { RustApiError } from '../../buster_rest/errors';
 
@@ -44,8 +44,10 @@ export const useGetMetric = <TData = IBusterMetric>(
   params?: Omit<UseQueryOptions<IBusterMetric, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
-  const searchParams = useSearchParams();
-  const queryVersionNumber = searchParams.get('metric_version_number');
+  const pathParams = useParams() as { versionNumber: string | undefined };
+  const queryVersionNumber = pathParams.versionNumber
+    ? parseInt(pathParams.versionNumber)
+    : undefined;
   const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
   const setAssetPasswordError = useBusterAssetsContextSelector((x) => x.setAssetPasswordError);
   const { password } = getAssetPassword(id!);
@@ -54,7 +56,7 @@ export const useGetMetric = <TData = IBusterMetric>(
 
   const version_number = useMemo(() => {
     if (version_number_prop === null) return undefined;
-    return version_number_prop || queryVersionNumber ? parseInt(queryVersionNumber!) : undefined;
+    return version_number_prop || queryVersionNumber ? queryVersionNumber! : undefined;
   }, [version_number_prop, queryVersionNumber]);
 
   const options = useMemo(() => {
@@ -115,11 +117,13 @@ export const useGetMetricData = ({
     error: errorMetric,
     data: fetchedMetricData
   } = useGetMetric({ id }, { select: (x) => x.id });
-  const searchParams = useSearchParams();
-  const queryVersionNumber = searchParams.get('metric_version_number');
+  const pathParams = useParams() as { versionNumber: string | undefined };
+  const queryVersionNumber = pathParams.versionNumber
+    ? parseInt(pathParams.versionNumber)
+    : undefined;
 
   const version_number = useMemo(() => {
-    return version_number_prop || queryVersionNumber ? parseInt(queryVersionNumber!) : undefined;
+    return version_number_prop || queryVersionNumber ? queryVersionNumber! : undefined;
   }, [version_number_prop, queryVersionNumber]);
 
   const queryFn = useMemoizedFn(() => {

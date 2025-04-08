@@ -51,6 +51,7 @@ import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
   const { openSuccessMessage } = useBusterNotifications();
@@ -198,16 +199,20 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
   const { versions = [], version_number } = data || {};
 
   const createRouteWithQueryParams = useMemoizedFn((versionNumber: number) => {
-    const baseRoute = assetParamsToRoute({
-      chatId,
-      assetId: metricId,
-      type: 'metric',
-      secondaryView: 'version-history'
-    });
+    if (chatId) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_HISTORY_NUMBER,
+        chatId,
+        metricId,
+        versionNumber
+      });
+    }
 
-    return `${baseRoute}?${new URLSearchParams({
-      metric_version_number: versionNumber.toString()
-    }).toString()}`;
+    return createBusterRoute({
+      route: BusterRoutes.APP_METRIC_ID_VERSION_HISTORY_NUMBER,
+      metricId,
+      versionNumber
+    });
   });
 
   const versionHistoryItems: DropdownItems = useMemo(() => {

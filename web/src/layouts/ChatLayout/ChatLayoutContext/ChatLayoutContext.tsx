@@ -37,7 +37,7 @@ export const useChatLayoutContext = ({ appSplitterRef }: UseLayoutConfigProps) =
     }
   });
 
-  const { selectedFile, onSetSelectedFile, isVersionHistoryMode } = useSelectedFile({
+  const { selectedFile, onSetSelectedFile } = useSelectedFile({
     animateOpenSplitter,
     chatParams,
     appSplitterRef
@@ -54,7 +54,6 @@ export const useChatLayoutContext = ({ appSplitterRef }: UseLayoutConfigProps) =
   } = useLayoutConfig({
     ...chatParams,
     selectedFile,
-    isVersionHistoryMode,
     animateOpenSplitter,
     onSetSelectedFile
   });
@@ -71,8 +70,7 @@ export const useChatLayoutContext = ({ appSplitterRef }: UseLayoutConfigProps) =
     selectedFile,
     onCollapseFileClick,
     onSetSelectedFile,
-    animateOpenSplitter,
-    isVersionHistoryMode
+    animateOpenSplitter
   };
 };
 
