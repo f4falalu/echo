@@ -27,6 +27,7 @@ impl ChatContextLoader {
 
     // Helper function to check for tool usage and set appropriate context
     async fn update_context_from_tool_calls(agent: &Arc<Agent>, message: &AgentMessage) {
+        // Handle tool calls from assistant messages
         if let AgentMessage::Assistant { tool_calls: Some(tool_calls), .. } = message {
             for tool_call in tool_calls {
                 match tool_call.function.name.as_str() {
@@ -42,11 +43,91 @@ impl ChatContextLoader {
                         agent.set_state_value(String::from("dashboards_available"), Value::Bool(true))
                             .await;
                     },
+                    "import_assets" => {
+                        // When we see import_assets, we need to check the content in the corresponding tool response
+                        // This will be handled separately when processing tool messages
+                    },
                     name if name.contains("file") || name.contains("read") || name.contains("write") || name.contains("edit") => {
                         agent.set_state_value(String::from("files_available"), Value::Bool(true))
                             .await;
                     },
                     _ => {}
+                }
+            }
+        }
+        
+        // Handle tool responses - important for import_assets
+        if let AgentMessage::Tool { name: Some(tool_name), content, .. } = message {
+            if tool_name == "import_assets" {
+                // Parse the tool response to see what was imported
+                if let Ok(import_result) = serde_json::from_str::<serde_json::Value>(content) {
+                    // Check for files array
+                    if let Some(files) = import_result.get("files").and_then(|f| f.as_array()) {
+                        if !files.is_empty() {
+                            // Set files_available for any imported files
+                            agent.set_state_value(String::from("files_available"), Value::Bool(true))
+                                .await;
+                            
+                            // Check each file to determine its type
+                            let mut has_metrics = false;
+                            let mut has_dashboards = false;
+                            let mut has_datasets = false;
+                            
+                            for file in files {
+                                // Check file_type/asset_type to determine what kind of asset this is
+                                let file_type = file.get("file_type").and_then(|ft| ft.as_str())
+                                    .or_else(|| file.get("asset_type").and_then(|at| at.as_str()));
+                                
+                                tracing::debug!("Processing imported file with type: {:?}", file_type);
+                                
+                                match file_type {
+                                    Some("metric") => {
+                                        has_metrics = true;
+                                        
+                                        // Check if the metric has dataset references
+                                        if let Some(yml_content) = file.get("yml_content").and_then(|y| y.as_str()) {
+                                            if yml_content.contains("dataset") || yml_content.contains("datasetIds") {
+                                                has_datasets = true;
+                                            }
+                                        }
+                                    },
+                                    Some("dashboard") => {
+                                        has_dashboards = true;
+                                        
+                                        // Dashboards often reference metrics too
+                                        has_metrics = true;
+                                        
+                                        // Check if the dashboard has dataset references via metrics
+                                        if let Some(yml_content) = file.get("yml_content").and_then(|y| y.as_str()) {
+                                            if yml_content.contains("dataset") || yml_content.contains("datasetIds") {
+                                                has_datasets = true;
+                                            }
+                                        }
+                                    },
+                                    _ => {
+                                        tracing::debug!("Unknown file type in import_assets: {:?}", file_type);
+                                    }
+                                }
+                            }
+                            
+                            // Set appropriate state values based on what we found
+                            if has_metrics {
+                                tracing::debug!("Setting metrics_available state to true");
+                                agent.set_state_value(String::from("metrics_available"), Value::Bool(true))
+                                    .await;
+                            }
+                            if has_dashboards {
+                                tracing::debug!("Setting dashboards_available state to true");
+                                agent.set_state_value(String::from("dashboards_available"), Value::Bool(true))
+                                    .await;
+                            }
+                            if has_datasets {
+                                tracing::debug!("Setting data_context state to true");
+                                agent.set_state_value(String::from("data_context"), Value::Bool(true))
+                                    .await;
+                            }
+                        }
+                    }
                 }
             }
         }
