@@ -107,7 +107,8 @@ const getAssetAccess = ({
     return {
       has_access: true,
       password_required: false,
-      public: false
+      public: false,
+      queryData
     };
   }
 
@@ -117,7 +118,8 @@ const getAssetAccess = ({
     return {
       has_access: false,
       password_required: true,
-      public: true
+      public: true,
+      queryData
     };
   }
 

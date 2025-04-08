@@ -40,43 +40,6 @@ export const useOriginalMetricStore = create<OriginalMetricStore>((set, get) => 
     })
 }));
 
-export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
-  const queryClient = useQueryClient();
-  const originalMetric = useOriginalMetricStore((x) => x.getOriginalMetric(metricId));
-
-  const { data: currentMetric, refetch: refetchCurrentMetric } = useGetMetric(
-    { id: metricId },
-    {
-      select: (x) => ({
-        name: x.name,
-        description: x.description,
-        chart_config: x.chart_config,
-        file: x.file
-      })
-    }
-  );
-
-  const onResetMetricToOriginal = useMemoizedFn(() => {
-    const options = metricsQueryKeys.metricsGetMetric(metricId);
-    if (originalMetric) {
-      queryClient.setQueryData(options.queryKey, originalMetric);
-    }
-    refetchCurrentMetric();
-  });
-
-  return {
-    onResetMetricToOriginal,
-    isMetricChanged:
-      !originalMetric ||
-      !currentMetric ||
-      !compareObjectsByKeys(originalMetric, currentMetric, [
-        'name',
-        'description',
-        'chart_config',
-        'file'
-      ])
-  };
-};
 export const HydrationBoundaryMetricStore: React.FC<{
   children: React.ReactNode;
   metric?: OriginalMetricStore['originalMetrics'][string];

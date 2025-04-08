@@ -8,7 +8,7 @@ import { Text } from '@/components/ui/typography';
 import { StatusIndicator } from '@/components/ui/indicators';
 import { StreamingMessage_File } from '@/components/ui/streaming/StreamingMessage_File';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
-import { useMount } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -31,6 +31,14 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
 
     const href = useGetFileHref({ isLatestVersion, responseMessage, isSelectedFile, chatId });
 
+    const onLinkClick = useMemoizedFn(() => {
+      if (isSelectedFile) {
+        onSetSelectedFile(null);
+      }
+
+      onSetSelectedFile({ id, type: file_type });
+    });
+
     useMount(() => {
       if (href) {
         router.prefetch(href);
@@ -38,10 +46,7 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
     });
 
     return (
-      <Link
-        href={href}
-        prefetch
-        onClick={() => onSetSelectedFile(isSelectedFile ? { id, type: file_type } : null)}>
+      <Link href={href} prefetch onClick={onLinkClick}>
         <StreamingMessage_File
           isCompletedStream={isCompletedStream}
           responseMessage={responseMessage}
