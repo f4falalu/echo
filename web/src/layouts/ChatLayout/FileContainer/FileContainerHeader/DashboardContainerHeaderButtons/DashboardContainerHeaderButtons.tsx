@@ -25,7 +25,7 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
       { select: (x) => x.permission }
     );
 
-    if (dashboardError) return null;
+    if (dashboardError || !permission) return null;
 
     const isEditor = canEdit(permission);
     const isEffectiveOwner = getIsEffectiveOwner(permission);

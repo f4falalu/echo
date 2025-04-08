@@ -49,7 +49,7 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
     const url = useMemo(() => {
       let url = '';
       if (assetType === ShareAssetType.METRIC) {
-        url = createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: assetId });
+        url = createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: assetId });
       } else if (assetType === ShareAssetType.DASHBOARD) {
         url = createBusterRoute({ route: BusterRoutes.APP_DASHBOARD_ID, dashboardId: assetId });
       } else if (assetType === ShareAssetType.COLLECTION) {

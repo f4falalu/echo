@@ -38,7 +38,7 @@ export const MetricItemsContainer: React.FC<{
         id: metric.id,
         data: metric,
         link: createBusterRoute({
-          route: BusterRoutes.APP_METRIC_ID,
+          route: BusterRoutes.APP_METRIC_ID_CHART,
           metricId: metric.id
         })
       }));

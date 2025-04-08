@@ -25,7 +25,7 @@ export const ShareMenuContent: React.FC<{
   const onCopyLink = useMemoizedFn(() => {
     let url = '';
     if (assetType === ShareAssetType.METRIC && assetId) {
-      url = createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: assetId });
+      url = createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: assetId });
     } else if (assetType === ShareAssetType.DASHBOARD && assetId) {
       url = createBusterRoute({
         route: BusterRoutes.APP_DASHBOARD_ID,

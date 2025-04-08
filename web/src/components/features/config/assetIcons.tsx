@@ -28,7 +28,7 @@ export const assetTypeToIcon = (assetType: ShareAssetType) => {
 export const assetTypeToRoute = (assetType: ShareAssetType, assetId: string) => {
   switch (assetType) {
     case ShareAssetType.METRIC:
-      return createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: assetId });
+      return createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: assetId });
     case ShareAssetType.DASHBOARD:
       return createBusterRoute({ route: BusterRoutes.APP_DASHBOARD_ID, dashboardId: assetId });
     case ShareAssetType.COLLECTION:

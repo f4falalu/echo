@@ -34,7 +34,7 @@ const mockFavorites = [
   {
     id: '456',
     name: 'Important Metrics',
-    route: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: '456' }),
+    route: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: '456' }),
     ype: ShareAssetType.METRIC,
     asset_id: '456',
     created_at: new Date().toISOString(),
@@ -43,7 +43,7 @@ const mockFavorites = [
   {
     id: '789',
     name: 'Favorite Metric 3',
-    route: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: '789' }),
+    route: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: '789' }),
     ype: ShareAssetType.METRIC,
     asset_id: '789',
     created_at: new Date().toISOString(),
@@ -96,6 +96,6 @@ export const FavoritesActiveRoute: Story = {
   args: {
     isAdmin: true,
     favorites: mockFavorites,
-    activePage: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID, metricId: '456' })
+    activePage: createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: '456' })
   }
 };

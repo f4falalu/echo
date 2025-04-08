@@ -15,11 +15,7 @@ import { useGetMetric } from '@/api/buster_rest/metrics';
 import { ThreeDotMenuButton } from './MetricThreeDotMenu';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import Link from 'next/link';
-import { BusterRoutes, createBusterRoute } from '@/routes';
-import {
-  assetParamsToRoute,
-  createChatAssetRoute
-} from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
+import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const selectedLayout = useChatLayoutContextSelector((x) => x.selectedLayout);
@@ -31,7 +27,7 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
   );
 
   //we assume it is fetched until it is not
-  if (metricError) return null;
+  if (metricError || !permission) return null;
 
   const isEditor = canEdit(permission);
   const isEffectiveOwner = getIsEffectiveOwner(permission);

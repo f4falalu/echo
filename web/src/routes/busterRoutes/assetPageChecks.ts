@@ -5,14 +5,16 @@ import { NextRequest } from 'next/server';
 import { createPathnameToBusterRoute } from './createRouteHelpers';
 
 const assetCheckPages: BusterRoutes[] = [
-  BusterRoutes.APP_METRIC_ID,
+  BusterRoutes.APP_METRIC_ID_CHART,
+  BusterRoutes.APP_METRIC_ID_RESULTS,
+  BusterRoutes.APP_METRIC_ID_FILE,
   BusterRoutes.APP_DASHBOARD_ID,
   BusterRoutes.APP_CHAT
 ];
 
 const publicPages: BusterRoutes[] = [
-  BusterRoutes.APP_METRIC_ID,
-  BusterRoutes.APP_DASHBOARD_ID,
+  BusterRoutes.EMBED_METRIC_ID,
+  BusterRoutes.EMBED_DASHBOARD_ID,
   ...Object.values(BusterEmbedRoutes),
   ...Object.values(BusterAuthRoutes)
 ];

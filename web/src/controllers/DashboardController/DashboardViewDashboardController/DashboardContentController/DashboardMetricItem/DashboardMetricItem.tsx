@@ -60,7 +60,7 @@ const DashboardMetricItemBase: React.FC<{
       });
     }
     return createBusterRoute({
-      route: BusterRoutes.APP_METRIC_ID,
+      route: BusterRoutes.APP_METRIC_ID_CHART,
       metricId: metricId
     });
   }, [metricId, chatId]);

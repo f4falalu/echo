@@ -22,14 +22,14 @@ export const ShareMenuContentEmbed: React.FC<ShareMenuContentBodyProps> = React.
 
       if (assetType === ShareAssetType.METRIC) {
         url = createBusterRoute({
-          route: BusterRoutes.APP_METRIC_ID,
+          route: BusterRoutes.EMBED_METRIC_ID,
           metricId: assetId
         });
       }
 
       if (assetType === ShareAssetType.DASHBOARD) {
         url = createBusterRoute({
-          route: BusterRoutes.APP_DASHBOARD_ID,
+          route: BusterRoutes.EMBED_DASHBOARD_ID,
           dashboardId: assetId
         });
       }

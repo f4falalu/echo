@@ -3,7 +3,6 @@ export enum BusterAppRoutes {
   APP_COLLECTIONS = '/app/collections',
   APP_COLLECTIONS_ID = '/app/collections/:collectionId',
   APP_METRIC = '/app/metrics',
-  APP_METRIC_ID = '/app/metrics/:metricId',
   APP_METRIC_ID_CHART = '/app/metrics/:metricId/chart',
   APP_METRIC_ID_VERSION_NUMBER = '/app/metrics/:metricId/chart?metric_version_number=:versionNumber',
   APP_METRIC_ID_FILE = '/app/metrics/:metricId/file',
@@ -53,7 +52,6 @@ export type BusterAppRoutesWithArgs = {
     collectionId: string;
   };
   [BusterAppRoutes.APP_METRIC]: { route: BusterAppRoutes.APP_METRIC };
-  [BusterAppRoutes.APP_METRIC_ID]: { route: BusterAppRoutes.APP_METRIC_ID; metricId: string };
   [BusterAppRoutes.APP_METRIC_ID_CHART]: {
     route: BusterAppRoutes.APP_METRIC_ID_CHART;
     metricId: string;
@@ -184,6 +182,5 @@ export type BusterAppRoutesWithArgs = {
     chatId: string;
     valueId: string;
   };
-  [BusterAppRoutes.APP_METRIC_ID]: { route: BusterAppRoutes.APP_METRIC_ID; metricId: string };
   [BusterAppRoutes.APP_VALUE_ID]: { route: BusterAppRoutes.APP_VALUE_ID; valueId: string };
 };

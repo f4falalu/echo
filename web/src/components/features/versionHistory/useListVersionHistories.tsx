@@ -67,7 +67,7 @@ export const useListVersionHistories = ({
         if (rereouteToAsset) {
           await onChangePage(
             createBusterRoute({
-              route: BusterRoutes.APP_METRIC_ID,
+              route: BusterRoutes.APP_METRIC_ID_CHART,
               metricId: assetId
             })
           );
