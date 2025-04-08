@@ -11,8 +11,6 @@ pub mod test_infrastructure;
 
 // Re-export test modules
 #[allow(unused_imports)]
-use helpers::dashboard_files_test;
-#[allow(unused_imports)]
 use helpers::metric_files_test;
 
 lazy_static! {

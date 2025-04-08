@@ -34,6 +34,10 @@ The current `get_collection_handler` lists assets associated with a collection b
     -   Add `has_access: bool` to `CollectionAsset` struct:
         ```rust
         // libs/handlers/src/collections/types.rs
+        use database::enums::{AssetType, AssetPermissionRole};
+        use chrono::{DateTime, Utc};
+        use uuid::Uuid;
+
         pub struct CollectionAsset {
             pub id: Uuid,
             pub name: String,
@@ -41,14 +45,14 @@ The current `get_collection_handler` lists assets associated with a collection b
             pub created_at: DateTime<Utc>,
             pub updated_at: DateTime<Utc>,
             pub asset_type: AssetType,
-            pub has_access: bool, // New field
+            pub has_access: bool,
         }
         ```
 
 2.  **Handler Modification (`get_collection_handler.rs`):**
-    -   **Fetch Assets:** Continue fetching associated metric and dashboard assets as currently done (results in `Vec<AssetQueryResult>`). Add `organization_id` from the joined `metric_files` or `dashboard_files` table to the `AssetQueryResult` struct if not already present.
+    -   **Fetch Assets & Permissions Efficiently:** Instead of fetching assets and then checking permissions iteratively, adapt or create a batch fetch helper (similar to `fetch_metric_files_with_permissions`) that returns assets along with their pre-calculated direct/collection permission level (which internally handles `deleted_at`). Let's call the hypothetical result type `FetchedAssetWithPermission { asset: AssetQueryResult, base_permission: Option<AssetPermissionRole> }`. The `AssetQueryResult` needs to include `id`, `name`, `asset_type`, `organization_id`, and creator info.
         ```rust
-        // Define or modify AssetQueryResult
+        // Example Query Result Struct needed
         #[derive(Queryable, Clone, Debug)]
         struct AssetQueryResult {
             id: Uuid,
@@ -58,80 +62,83 @@ The current `get_collection_handler` lists assets associated with a collection b
             created_at: DateTime<Utc>,
             updated_at: DateTime<Utc>,
             asset_type: AssetType,
-            organization_id: Uuid, // Ensure this is selected
-        }
-        ```
-    -   **Check Permissions:** After fetching `all_assets: Vec<AssetQueryResult>`, iterate through them. For each `asset_result`:
-        -   Call `sharing::check_specific_asset_access` with the user context, asset details (`asset_result.id`, `asset_result.asset_type`, `asset_result.organization_id`), and required roles (e.g., `&[AssetPermissionRole::CanView]`).
-        -   Store the boolean result (true/false) alongside the asset data. Handle potential `Err` results from the check (log and treat as `has_access: false` or filter out as per project decision).
-        ```rust
-        // Example logic within get_collection_handler
-        let mut assets_with_access: Vec<(AssetQueryResult, bool)> = Vec::new();
-        for asset_result in all_assets {
-            let required_roles = [AssetPermissionRole::CanView]; // Minimum role needed
-            let check_result = sharing::check_specific_asset_access(
-                &mut conn, // Get mutable conn borrow
-                user,
-                &asset_result.id,
-                asset_result.asset_type,
-                asset_result.organization_id,
-                &required_roles,
-            )
-            .await;
-
-            match check_result {
-                Ok(has_access) => {
-                    assets_with_access.push((asset_result, has_access));
-                }
-                Err(e) => {
-                    tracing::error!(
-                        "Failed permission check for asset {} in collection {}: {}",
-                        asset_result.id, req.id, e
-                    );
-                    // Decide how to handle error: push with false or omit
-                    // Following project decision: Omit on hard DB errors, log.
-                    // If check_specific_asset_access only returns Err on DB error, we omit here.
-                    // If it could return Err for other reasons, might push with false.
-                    // Assuming Err means DB error:
-                     continue; // Skip asset if permission check failed
-                     // Alternatively, to show it exists but is inaccessible due to error:
-                     // assets_with_access.push((asset_result, false));
-                }
-            }
-        }
-        ```
-    -   **Format Response:** Modify `format_assets` (or create a new formatting step) to accept the `Vec<(AssetQueryResult, bool)>` and populate the `CollectionAsset` including the `has_access` field.
-        ```rust
-        // Modify or replace format_assets
-        fn format_assets_with_access(assets: Vec<(AssetQueryResult, bool)>) -> Vec<CollectionAsset> {
-            assets
-                .into_iter()
-                .map(|(asset, has_access)| CollectionAsset {
-                    id: asset.id,
-                    name: asset.name,
-                    created_by: AssetUser { /* ... */ },
-                    created_at: asset.created_at,
-                    updated_at: asset.updated_at,
-                    asset_type: asset.asset_type,
-                    has_access, // Set the flag
-                })
-                .collect()
+            organization_id: Uuid,
         }
 
-        // Call the modified formatter
-        let formatted_assets = format_assets_with_access(assets_with_access);
+        // Hypothetical efficient fetch result
+        struct FetchedAssetWithPermission {
+            asset: AssetQueryResult,
+            base_permission: Option<AssetPermissionRole> // From direct/collection checks
+        }
+
+        // Fetch assets and their base permissions efficiently
+        // let fetched_assets_with_perms: Vec<FetchedAssetWithPermission> = /* ... */ ;
+        // This might involve joining collections_to_assets with metric_files/dashboard_files
+        // and LEFT JOINING asset_permissions twice (once for direct, once for collection via collections_to_assets)
+        // or using a helper function.
         ```
+    -   **Determine Final Access:** Iterate through `fetched_assets_with_perms`. For each item:
+        -   Check if the user is a `WorkspaceAdmin` or `DataAdmin` for the `asset.organization_id` using the cached `user.organizations`.
+        -   If they are an admin, `has_access` is `true`.
+        -   If not an admin, check if `item.base_permission` (the pre-fetched direct/collection permission) is `Some` and meets the minimum requirement (e.g., `CanView`). If yes, `has_access` is `true`.
+        -   Otherwise, `has_access` is `false`.
+        ```rust
+        let mut final_assets: Vec<CollectionAsset> = Vec::new();
+        let required_role = AssetPermissionRole::CanView; // Minimum requirement
+        let admin_roles = [
+            database::enums::UserOrganizationRole::WorkspaceAdmin,
+            database::enums::UserOrganizationRole::DataAdmin,
+        ];
+
+        for item in fetched_assets_with_perms {
+            let asset = item.asset;
+            let base_permission = item.base_permission;
+
+            // Check org admin override from cache
+            let is_org_admin = user.organizations.iter().any(|org| {
+                org.id == asset.organization_id && admin_roles.contains(&org.role)
+            });
+
+            let has_access = if is_org_admin {
+                true
+            } else {
+                // Check if base permission (direct/collection) is sufficient
+                base_permission.map_or(false, |role| role >= required_role)
+            };
+
+            // Construct minimal or full object based on has_access
+            // For collections, we might always show the basic info
+            final_assets.push(CollectionAsset {
+                id: asset.id,
+                name: asset.name, // Assuming name is okay to show
+                created_by: AssetUser { /* ... from asset ... */ },
+                created_at: asset.created_at,
+                updated_at: asset.updated_at,
+                asset_type: asset.asset_type,
+                has_access, // Set the final flag
+            });
+        }
+
+        // Use final_assets in the response
+        let collection_state = CollectionState {
+            // ... other fields ...
+            assets: Some(final_assets),
+            // ...
+        };
+        ```
+    -   **Populate Response:** Use the resulting list containing `CollectionAsset` objects (each with the correctly determined `has_access` flag) in the final `CollectionState` response.
 
 3.  **File Changes:**
     -   Modify: `libs/handlers/src/collections/get_collection_handler.rs`
     -   Modify: `libs/handlers/src/collections/types.rs`
+    -   Potentially Modify/Create: A helper function in `libs/database/src/helpers/` for the efficient batch fetching of assets with permissions.
 
 ## 6. Implementation Plan
 
 1.  Modify `CollectionAsset` struct.
-2.  Update database queries in `get_collection_handler` to select `organization_id` for assets.
-3.  Integrate the call to `check_specific_asset_access` for each asset.
-4.  Update the asset formatting logic to include the `has_access` flag.
+2.  Implement or adapt the efficient batch asset fetching logic (including base permissions).
+3.  Integrate the access determination logic using fetched permissions and cached org roles.
+4.  Ensure minimal `CollectionAsset` details are always included, regardless of `has_access`.
 5.  Add/update integration tests.
 
 ## 7. Testing Strategy
@@ -156,4 +163,4 @@ The current `get_collection_handler` lists assets associated with a collection b
 
 ## 9. Dependencies
 
--   Completion of [Refactor Sharing Permission Helper](mdc:prds/active/refactor_sharing_permission_helper.md). 
+-   Completion of Phase 1 (Type modifications for `has_access`). The simplified helper from the revised `refactor_sharing_permission_helper.md` is *not* directly used here. 
