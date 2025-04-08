@@ -1,13 +1,13 @@
+use crate::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
+use crate::models::{AssetPermission, DashboardFile, MetricFile, User};
+use crate::pool::get_pg_pool;
+use crate::types::metric_yml::{BarAndLineAxis, BarLineChartConfig, BaseChartConfig, ChartConfig};
+use crate::types::{DashboardYml, MetricYml, VersionHistory};
 use anyhow::Result;
 use chrono::Utc;
-use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
-use database::models::{AssetPermission, DashboardFile, MetricFile, User};
-use database::pool::get_pg_pool;
-use database::types::{DashboardYml, MetricYml, VersionHistory};
-use database::types::metric_yml::{BaseChartConfig, BarAndLineAxis, BarLineChartConfig, ColumnLabelFormat, ChartConfig};
 use diesel::prelude::*;
-use indexmap;
 use diesel_async::RunQueryDsl;
+use indexmap;
 use uuid::Uuid;
 
 /// Test database utilities
@@ -23,26 +23,30 @@ impl TestDb {
         let test_id = format!("test-{}", Uuid::new_v4());
         let organization_id = Uuid::new_v4();
         let user_id = Uuid::new_v4();
-        
+
         Ok(Self {
             test_id,
             organization_id,
             user_id,
         })
     }
-    
+
     /// Get a database connection from the pool
-    pub async fn get_conn(&self) -> Result<diesel_async::pooled_connection::bb8::PooledConnection<diesel_async::AsyncPgConnection>> {
+    pub async fn get_conn(
+        &self,
+    ) -> Result<
+        diesel_async::pooled_connection::bb8::PooledConnection<diesel_async::AsyncPgConnection>,
+    > {
         let pool = get_pg_pool();
         Ok(pool.get().await?)
     }
-    
+
     /// Create a test user
     pub async fn create_test_user(&self) -> Result<User> {
         // This is a utility for creating test users
         // In a real test, we would insert the user in the database,
         // but here we just create and return the struct
-        
+
         let user = User {
             id: self.user_id,
             email: format!("user-{}@example.com", self.test_id),
@@ -53,13 +57,13 @@ impl TestDb {
             attributes: serde_json::json!({}),
             avatar_url: None,
         };
-        
+
         // This would normally insert the user, but we'll skip actual DB modifications
         // in test utilities and just return the struct
-        
+
         Ok(user)
     }
-    
+
     /// Create a test metric file
     pub async fn create_test_metric_file(&self, owner_id: &Uuid) -> Result<MetricFile> {
         let metric_id = Uuid::new_v4();
@@ -71,7 +75,7 @@ impl TestDb {
             chart_config: create_default_chart_config(),
             dataset_ids: Vec::new(),
         };
-        
+
         let metric_file = MetricFile {
             id: metric_id,
             name: format!("Test Metric {}", self.test_id),
@@ -93,10 +97,10 @@ impl TestDb {
             data_metadata: None,
             public_password: None,
         };
-        
+
         Ok(metric_file)
     }
-    
+
     /// Create a test dashboard file
     pub async fn create_test_dashboard_file(&self, owner_id: &Uuid) -> Result<DashboardFile> {
         let dashboard_id = Uuid::new_v4();
@@ -105,7 +109,7 @@ impl TestDb {
             description: Some("Test dashboard description".to_string()),
             rows: Vec::new(),
         };
-        
+
         let dashboard_file = DashboardFile {
             id: dashboard_id,
             name: format!("Test Dashboard {}", self.test_id),
@@ -123,10 +127,10 @@ impl TestDb {
             version_history: VersionHistory(std::collections::HashMap::new()),
             public_password: None,
         };
-        
+
         Ok(dashboard_file)
     }
-    
+
     /// Create an asset permission for a file
     pub async fn create_asset_permission(
         &self,
@@ -147,17 +151,18 @@ impl TestDb {
             created_by: self.user_id,
             updated_by: self.user_id,
         };
-        
+
         Ok(permission)
     }
 }
 
 /// Insert a test asset permission
 pub async fn insert_test_permission(
-    conn: &mut diesel_async::pooled_connection::bb8::PooledConnection<'_, diesel_async::AsyncPgConnection>,
     permission: &AssetPermission,
 ) -> Result<()> {
-    use database::schema::asset_permissions;
+    use crate::schema::asset_permissions;
+    let pool = get_pg_pool();
+    let mut conn = pool.get().await?;
 
     diesel::insert_into(asset_permissions::table)
         .values(permission)
@@ -174,7 +179,7 @@ pub async fn insert_test_permission(
             asset_permissions::updated_by.eq(permission.updated_by),
             asset_permissions::deleted_at.eq::<Option<chrono::DateTime<Utc>>>(None), // Ensure not deleted on update
         ))
-        .execute(conn)
+        .execute(&mut conn)
         .await?;
 
     Ok(())
@@ -182,31 +187,33 @@ pub async fn insert_test_permission(
 
 /// Insert a test metric file
 pub async fn insert_test_metric_file(
-    conn: &mut diesel_async::pooled_connection::bb8::PooledConnection<'_, diesel_async::AsyncPgConnection>,
     metric_file: &MetricFile,
 ) -> Result<()> {
-    use database::schema::metric_files;
-    
+    use crate::schema::metric_files;
+    let pool = get_pg_pool();
+    let mut conn = pool.get().await?;
+
     diesel::insert_into(metric_files::table)
         .values(metric_file)
-        .execute(conn)
+        .execute(&mut conn)
         .await?;
-        
+
     Ok(())
 }
 
 /// Insert a test dashboard file
 pub async fn insert_test_dashboard_file(
-    conn: &mut diesel_async::pooled_connection::bb8::PooledConnection<'_, diesel_async::AsyncPgConnection>,
     dashboard_file: &DashboardFile,
 ) -> Result<()> {
-    use database::schema::dashboard_files;
-    
+    use crate::schema::dashboard_files;
+    let pool = get_pg_pool();
+    let mut conn = pool.get().await?;
+
     diesel::insert_into(dashboard_files::table)
         .values(dashboard_file)
-        .execute(conn)
+        .execute(&mut conn)
         .await?;
-        
+
     Ok(())
 }
 
@@ -243,26 +250,30 @@ fn create_default_chart_config() -> ChartConfig {
 }
 
 /// Clean up test data
-pub async fn cleanup_test_data(conn: &mut diesel_async::pooled_connection::bb8::PooledConnection<'_, diesel_async::AsyncPgConnection>, asset_ids: &[Uuid]) -> Result<()> {
-    use database::schema::{asset_permissions, dashboard_files, metric_files};
-    
+pub async fn cleanup_test_data(
+    asset_ids: &[Uuid],
+) -> Result<()> {
+    use crate::schema::{asset_permissions, dashboard_files, metric_files};
+    let pool = get_pg_pool();
+    let mut conn = pool.get().await?;
+
     // Delete any asset permissions for the test assets
     diesel::delete(asset_permissions::table)
         .filter(asset_permissions::asset_id.eq_any(asset_ids))
-        .execute(conn)
+        .execute(&mut conn)
         .await?;
-        
+
     // Delete test metric files
     diesel::delete(metric_files::table)
         .filter(metric_files::id.eq_any(asset_ids))
-        .execute(conn)
+        .execute(&mut conn)
         .await?;
-        
+
     // Delete test dashboard files
     diesel::delete(dashboard_files::table)
         .filter(dashboard_files::id.eq_any(asset_ids))
-        .execute(conn)
+        .execute(&mut conn)
         .await?;
-        
+
     Ok(())
 }
