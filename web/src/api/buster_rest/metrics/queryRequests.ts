@@ -110,7 +110,11 @@ export const useGetMetricData = ({
   id: string | undefined;
   version_number?: number;
 }) => {
-  const { isFetched: isFetchedMetric, error: errorMetric } = useGetMetric({ id });
+  const {
+    isFetched: isFetchedMetric,
+    error: errorMetric,
+    data: fetchedMetricData
+  } = useGetMetric({ id }, { select: (x) => x.id });
   const searchParams = useSearchParams();
   const queryVersionNumber = searchParams.get('metric_version_number');
 
@@ -126,7 +130,7 @@ export const useGetMetricData = ({
     ...metricsQueryKeys.metricsGetData(id!, version_number),
     queryFn,
     enabled: () => {
-      return !!id && isFetchedMetric && !errorMetric;
+      return !!id && isFetchedMetric && !errorMetric && !!fetchedMetricData;
     }
   });
 };
