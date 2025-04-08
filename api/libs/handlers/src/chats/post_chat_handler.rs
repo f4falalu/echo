@@ -210,18 +210,27 @@ pub async fn post_chat_handler(
         for mut message in messages {
             message.chat_id = chat_id;
 
-            // If this is a file message, create file association
+            // If this is a message with file responses, create file association
             if message.response_messages.is_array() {
                 let response_arr = message.response_messages.as_array().unwrap();
-                if !response_arr.is_empty() {
-                    if let Some(response) = response_arr.get(0) {
-                        if response.get("type").map_or(false, |t| t == "file") {
-                            // Extract version_number from response, default to 1 if not found
-                            let asset_version_number = response.get("versionNumber")
-                                .and_then(|v| v.as_i64())
-                                .map(|v| v as i32)
-                                .unwrap_or(1);
-                                
+                
+                // Find a file response in the array
+                for response in response_arr {
+                    if response.get("type").map_or(false, |t| t == "file") {
+                        // Extract version_number from response, default to 1 if not found
+                        let asset_version_number = response.get("version_number")
+                            .and_then(|v| v.as_i64())
+                            .map(|v| v as i32)
+                            .unwrap_or(1);
+                        
+                        // Ensure the response id matches the asset_id
+                        let response_id = response.get("id")
+                            .and_then(|id| id.as_str())
+                            .and_then(|id_str| Uuid::parse_str(id_str).ok())
+                            .unwrap_or(asset_id_value);
+                            
+                        // Verify the response ID matches the asset ID
+                        if response_id == asset_id_value {
                             // Create association in database
                             let _ = create_message_file_association(
                                 message.id,
@@ -231,6 +240,9 @@ pub async fn post_chat_handler(
                             )
                             .await;
                         }
+                        
+                        // We only need to process one file association
+                        break;
                     }
                 }
             }
@@ -486,7 +498,7 @@ pub async fn post_chat_handler(
         }),
         response_messages.clone(),
         reasoning_messages.clone(),
-        Some(formatted_reasoning_duration.clone()), // Use the formatted duration string
+        Some("".to_string()), // Empty string as requested
         Utc::now(),
     );
 
@@ -503,7 +515,7 @@ pub async fn post_chat_handler(
         deleted_at: None,
         response_messages: serde_json::to_value(&response_messages)?,
         reasoning: serde_json::to_value(&reasoning_messages)?,
-        final_reasoning_message: Some(formatted_reasoning_duration), // Use the formatted duration string
+        final_reasoning_message: Some("".to_string()), // Empty string as requested
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
         feedback: None,
@@ -797,6 +809,7 @@ pub struct BusterReasoningMessageContainer {
 }
 
 #[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "snake_case")]
 pub struct BusterChatResponseFileMetadata {
     pub status: String,
     pub message: String,
@@ -805,14 +818,15 @@ pub struct BusterChatResponseFileMetadata {
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "type")]
-#[serde(rename_all = "camelCase")]
 pub enum BusterChatMessage {
+    #[serde(rename_all = "camelCase")]
     Text {
         id: String,
         message: Option<String>,
         message_chunk: Option<String>,
         is_final_message: Option<bool>,
     },
+    #[serde(rename_all = "snake_case")]
     File {
         id: String,
         file_type: String,
@@ -1009,10 +1023,7 @@ pub async fn transform_message(
                                             filter_version_id: None,
                                             metadata: Some(vec![BusterChatResponseFileMetadata {
                                                 status: "completed".to_string(),
-                                                message: format!(
-                                                    "Created new {}",
-                                                    file_content.file_type
-                                                ),
+                                                message: "Pulled into new chat".to_string(),
                                                 timestamp: Some(Utc::now().timestamp()),
                                             }]),
                                         };
@@ -1095,10 +1106,7 @@ pub async fn transform_message(
                                             filter_version_id: None,
                                             metadata: Some(vec![BusterChatResponseFileMetadata {
                                                 status: "completed".to_string(),
-                                                message: format!(
-                                                    "Created new {}",
-                                                    file_content.file_type
-                                                ),
+                                                message: "Pulled into new chat".to_string(),
                                                 timestamp: Some(Utc::now().timestamp()),
                                             }]),
                                         };
@@ -2050,7 +2058,7 @@ async fn initialize_chat(
         let (asset_id, asset_type) = normalize_asset_fields(request);
         if let (Some(asset_id), Some(asset_type)) = (asset_id, asset_type) {
             match fetch_asset_details(asset_id, asset_type).await {
-                Ok(details) => format!("View {}", details.name),
+                Ok(details) => details.name.clone(),
                 Err(_) => "New Chat".to_string(),
             }
         } else {

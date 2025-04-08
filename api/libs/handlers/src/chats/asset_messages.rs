@@ -34,62 +34,49 @@ pub async fn generate_asset_messages(
     // Fetch asset details based on type
     let asset_details = fetch_asset_details(asset_id, asset_type).await?;
     
-    // Create file message
-    let file_message_id = Uuid::new_v4();
-    let file_message = Message {
-        id: file_message_id,
+    // Create a single message with both text and file response
+    let message_id = Uuid::new_v4();
+    let timestamp = Utc::now().timestamp();
+    
+    let message = Message {
+        id: message_id,
         request_message: None, // Empty request for auto-generated messages
         chat_id: Uuid::nil(), // Will be set by caller
         created_by: user.id,
         created_at: Utc::now(),
         updated_at: Utc::now(),
         deleted_at: None,
-        response_messages: serde_json::json!([{
-            "type": "file",
-            "id": file_message_id.to_string(),
-            "fileType": asset_details.file_type,
-            "fileName": asset_details.name,
-            "versionNumber": asset_details.version_number,
-            "filterVersionId": null,
-            "metadata": [
-                {
-                    "status": "completed",
-                    "message": format!("File {} completed", asset_details.name),
-                    "timestamp": Utc::now().timestamp()
-                }
-            ]
-        }]),
+        response_messages: serde_json::json!([
+            {
+                "type": "text",
+                "id": Uuid::new_v4().to_string(),
+                "message": format!("{} has been pulled into a new chat.\n\nContinue chatting to modify or make changes to it.", asset_details.name),
+                "isFinalMessage": true
+            },
+            {
+                "type": "file",
+                "id": asset_id.to_string(),
+                "file_type": asset_details.file_type,
+                "file_name": asset_details.name,
+                "version_number": asset_details.version_number,
+                "filter_version_id": null,
+                "metadata": [
+                    {
+                        "status": "completed",
+                        "message": "Pulled into new chat",
+                        "timestamp": timestamp
+                    }
+                ]
+            }
+        ]),
         reasoning: serde_json::Value::Array(vec![]),
-        final_reasoning_message: None,
-        title: format!("Chat with {}", asset_details.name),
+        final_reasoning_message: Some("".to_string()),
+        title: asset_details.name.clone(),
         raw_llm_messages: serde_json::json!([]),
         feedback: None,
     };
     
-    // Create text message with placeholder content
-    let text_message_id = Uuid::new_v4();
-    let text_message = Message {
-        id: text_message_id,
-        request_message: None, // Empty request for auto-generated messages
-        chat_id: Uuid::nil(), // Will be set by caller
-        created_by: user.id,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
-        deleted_at: None,
-        response_messages: serde_json::json!([{
-            "type": "text",
-            "id": text_message_id.to_string(),
-            "message": "DALLIN NEEDS TO PUT VALUE HERE",
-            "isFinalMessage": true
-        }]),
-        reasoning: serde_json::Value::Array(vec![]),
-        final_reasoning_message: None,
-        title: format!("Chat with {}", asset_details.name),
-        raw_llm_messages: serde_json::json!([]),
-        feedback: None,
-    };
-    
-    Ok(vec![file_message, text_message])
+    Ok(vec![message])
 }
 
 /// Create association between message and file in the database
