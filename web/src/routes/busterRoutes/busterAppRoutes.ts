@@ -29,10 +29,12 @@ export enum BusterAppRoutes {
   APP_CHAT_ID_REASONING_ID = '/app/chats/:chatId/reasoning/:messageId',
   APP_CHAT_ID_METRIC_ID = '/app/chats/:chatId/metrics/:metricId',
   APP_CHAT_ID_METRIC_ID_CHART = '/app/chats/:chatId/metrics/:metricId/chart',
+  APP_CHAT_ID_METRIC_ID_VERSION_NUMBER = '/app/chats/:chatId/metrics/:metricId/chart?metric_version_number=:versionNumber',
   APP_CHAT_ID_METRIC_ID_FILE = '/app/chats/:chatId/metrics/:metricId/file',
   APP_CHAT_ID_METRIC_ID_RESULTS = '/app/chats/:chatId/metrics/:metricId/results',
   APP_CHAT_ID_COLLECTION_ID = '/app/chats/:chatId/collections/:collectionId',
   APP_CHAT_ID_DASHBOARD_ID = '/app/chats/:chatId/dashboards/:dashboardId',
+  APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER = '/app/chats/:chatId/dashboards/:dashboardId?dashboard_version_number=:versionNumber',
   APP_CHAT_ID_DASHBOARD_ID_FILE = '/app/chats/:chatId/dashboards/:dashboardId/file',
   APP_CHAT_ID_DATASET_ID = '/app/chats/:chatId/datasets/:datasetId',
   APP_CHAT_ID_TERM_ID = '/app/chats/:chatId/term/:termId',
@@ -117,6 +119,12 @@ export type BusterAppRoutesWithArgs = {
     route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_CHART;
     chatId: string;
     metricId: string;
+  };
+  [BusterAppRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER]: {
+    route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER;
+    chatId: string;
+    metricId: string;
+    versionNumber: string;
   };
   [BusterAppRoutes.APP_CHAT_ID_METRIC_ID_FILE]: {
     route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_FILE;

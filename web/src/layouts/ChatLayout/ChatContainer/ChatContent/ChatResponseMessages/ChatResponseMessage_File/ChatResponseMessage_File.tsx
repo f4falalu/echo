@@ -26,10 +26,10 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
 
     const { file_type, id } = responseMessage;
 
-    const isSelectedFile = useGetIsSelectedFile({ responseMessage });
+    const { isSelectedFile, isLatestVersion } = useGetIsSelectedFile({ responseMessage });
     const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
 
-    const href = useGetFileHref({ responseMessage, isSelectedFile, chatId });
+    const href = useGetFileHref({ isLatestVersion, responseMessage, isSelectedFile, chatId });
 
     useMount(() => {
       if (href) {

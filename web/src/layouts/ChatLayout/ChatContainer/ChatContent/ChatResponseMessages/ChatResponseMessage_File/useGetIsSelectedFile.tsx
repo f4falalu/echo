@@ -7,7 +7,10 @@ export const useGetIsSelectedFile = ({
   responseMessage
 }: {
   responseMessage: Pick<BusterChatResponseMessage_file, 'file_type' | 'id' | 'version_number'>;
-}) => {
+}): {
+  isSelectedFile: boolean;
+  isLatestVersion: boolean;
+} => {
   const queryClient = useQueryClient();
   const isSelectedFile = useChatIndividualContextSelector(
     (x) => x.selectedFileId === responseMessage.id
@@ -20,20 +23,22 @@ export const useGetIsSelectedFile = ({
       const options = queryKeys.metricsGetMetric(responseMessage.id);
       const data = queryClient.getQueryData(options.queryKey);
       const lastVersion = data?.versions[data.versions.length - 1];
-      return isSelectedFile && lastVersion?.version_number === versionNumber;
+      const isLatestVersion = lastVersion?.version_number === versionNumber;
+      return { isSelectedFile: isSelectedFile && isLatestVersion, isLatestVersion };
     }
     case 'dashboard': {
       const options = queryKeys.dashboardGetDashboard(responseMessage.id);
       const data = queryClient.getQueryData(options.queryKey)?.dashboard;
       const lastVersion = data?.versions[data.versions.length - 1];
-      return isSelectedFile && lastVersion?.version_number === versionNumber;
+      const isLatestVersion = lastVersion?.version_number === versionNumber;
+      return { isSelectedFile: isSelectedFile && isLatestVersion, isLatestVersion };
     }
     case 'reasoning': {
-      return false;
+      return { isSelectedFile: false, isLatestVersion: false };
     }
     default: {
       const exhaustiveCheck: never = responseMessage.file_type;
-      return false;
+      return { isSelectedFile: false, isLatestVersion: false };
     }
   }
 };

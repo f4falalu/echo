@@ -7,10 +7,12 @@ import { useMemo } from 'react';
 export const useGetFileHref = ({
   responseMessage,
   isSelectedFile,
+  isLatestVersion,
   chatId
 }: {
   responseMessage: BusterChatResponseMessage_file;
   isSelectedFile: boolean;
+  isLatestVersion: boolean;
   chatId: string;
 }) => {
   const { file_type, id, version_number } = responseMessage;
@@ -26,19 +28,36 @@ export const useGetFileHref = ({
     }
 
     if (file_type === 'metric') {
-      console.log(responseMessage);
+      if (isLatestVersion) {
+        return createBusterRoute({
+          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+          chatId,
+          metricId: id
+        });
+      }
+
       return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
         chatId,
-        metricId: id
+        metricId: id,
+        versionNumber: version_number.toString()
       });
     }
 
     if (file_type === 'dashboard') {
+      if (isLatestVersion) {
+        return createBusterRoute({
+          route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
+          chatId,
+          dashboardId: id
+        });
+      }
+
       return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
+        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
         chatId,
-        dashboardId: id
+        dashboardId: id,
+        versionNumber: version_number.toString()
       });
     }
 
