@@ -180,14 +180,22 @@ pub async fn fetch_metric_file_with_permissions(
     // Determine effective permission (prioritizing collection over direct)
     // Dashboard permission is NOT considered here for the base permission level.
     // The handler should check dashboard access separately if direct/collection/public checks fail.
-    let effective_permission = match collection_permission {
+    let mut effective_permission = match collection_permission {
         Some(collection) => Some(collection),
         None => direct_permission,
     };
 
+    // Ensure at least CanView if user has access via any dashboard containing this metric
+    if let Some(dashboard_view_permission) = dashboard_permission {
+        effective_permission = match effective_permission {
+            Some(current_role) => Some(current_role.max(dashboard_view_permission)), // Use max to ensure CanView is minimum
+            None => Some(dashboard_view_permission), // Grant CanView if no other permission exists
+        };
+    }
+
     Ok(Some(MetricFileWithPermission {
         metric_file,
-        permission: effective_permission, // Now only reflects direct or collection permission
+        permission: effective_permission, // Now reflects Direct/Collection/Dashboard logic
     }))
 }
 
@@ -291,18 +299,25 @@ pub async fn fetch_metric_files_with_permissions(
         .map(|metric_file| {
             let direct_permission = direct_permission_map.get(&metric_file.id).cloned();
             let collection_permission = collection_permission_map.get(&metric_file.id).cloned();
-            let dashboard_permission = dashboard_permission_map.get(&metric_file.id).cloned();
+            let dashboard_permission = dashboard_permission_map.get(&metric_file.id).cloned(); // This is Some(CanView) or None
 
-            // Determine effective permission (prioritizing collection over direct)
-            // Dashboard permission is NOT considered here for the base permission level.
+            // Determine base permission (prioritizing collection over direct)
             let mut effective_permission = match collection_permission {
                 Some(collection) => Some(collection),
                 None => direct_permission,
             };
 
+            // Ensure at least CanView if user has access via any dashboard containing this metric
+            if let Some(dashboard_view_permission) = dashboard_permission {
+                effective_permission = match effective_permission {
+                    Some(current_role) => Some(current_role.max(dashboard_view_permission)), // Use max to ensure CanView is minimum
+                    None => Some(dashboard_view_permission), // Grant CanView if no other permission exists
+                };
+            }
+
             // Check if the file is publicly accessible and its expiry date hasn't passed
             // We still need this check for other potential uses, but don't grant permission based on it here.
-            let is_public = metric_file.publicly_accessible
+            let _is_public = metric_file.publicly_accessible
                 && metric_file
                     .public_expiry_date
                     .map_or(true, |expiry| expiry > now);
@@ -314,7 +329,7 @@ pub async fn fetch_metric_files_with_permissions(
             }
             */
 
-            // REMOVED: Logic that granted CanView based on dashboard access.
+            // REMOVED: Previous dashboard logic was here, now handled above.
             /*
             if let Some(dashboard_role) = dashboard_permission {
                 effective_permission = match effective_permission {
@@ -326,7 +341,7 @@ pub async fn fetch_metric_files_with_permissions(
 
             MetricFileWithPermission {
                 metric_file,
-                permission: effective_permission, // Now only reflects direct or collection permission
+                permission: effective_permission, // Reflects Direct/Collection/Dashboard logic
             }
         })
         .collect();

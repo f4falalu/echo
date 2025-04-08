@@ -32,6 +32,8 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
 
 **Option A: Modify `get_metric_handler` (Recommended)**
 
+This approach minimizes disruption by leveraging existing efficient helper functions.
+
 1.  **Type Modification:**
     -   Add `has_access: bool` to `BusterMetric` struct (likely in `libs/handlers/src/metrics/types.rs`). Also ensure relevant nested types like `ChartConfig` (note: it's from `database::types::ChartConfig`) are handled during minimal object creation.
         ```rust
@@ -86,104 +88,99 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
         ```
 
 2.  **Modify `get_metric_handler.rs`:**
-    -   **Initial Fetch & Check:** Start by fetching the basic `metric_files` record *and* checking permission using `check_specific_asset_access` (or `fetch_metric_file_with_permission` if it can be adapted to return the basic file even on permission denial).
+    -   **Leverage Existing Fetch & Check:** Continue using the existing efficient `fetch_metric_file_with_permissions` helper. This fetches the `MetricFile` and its calculated `base_permission` (direct/collection). The subsequent logic using `check_permission_access` (or similar checks for org admin roles and public access) also remains largely the same for *determining* if access should be granted.
         ```rust
         // Inside get_metric_handler...
-        let mut conn = get_pg_pool().get().await?;
         let metric_id = /* get metric_id */;
         let user = /* get user */;
 
-        // Fetch basic info first (needed for permission check and minimal response)
-        let basic_metric_info = metric_files::table
-            .filter(metric_files::id.eq(metric_id))
-            .filter(metric_files::deleted_at.is_null())
-            .select((metric_files::id, metric_files::name, metric_files::organization_id, metric_files::created_by))
-            .first::<(Uuid, String, Uuid, Uuid)>(&mut conn) // Fetch created_by too
+        // Fetch metric and its base permission level efficiently
+        let metric_file_with_permission_option = fetch_metric_file_with_permissions(metric_id, &user.id)
             .await
-            .optional()?; // Use optional() to handle not found gracefully
+            .map_err(|e| anyhow!("Failed to fetch metric file with permissions: {}", e))?;
 
-        let (id, name, org_id, created_by_id) = match basic_metric_info {
-             Some(info) => info,
-             None => return Err(anyhow!("Metric not found")), // Return Err if metric doesn't exist
+        let metric_file_with_permission = if let Some(mf) = metric_file_with_permission_option {
+            mf
+        } else {
+            tracing::warn!(metric_id = %metric_id, "Metric file not found during fetch");
+            return Err(anyhow!("Metric file not found"));
         };
 
-        // Check permission
-        let required_roles = [AssetPermissionRole::CanView];
-        let has_permission = sharing::check_specific_asset_access(
-            &mut conn, user, &id, AssetType::MetricFile, org_id, &required_roles
-        ).await?; // Propagate DB errors from check
+        let metric_file = metric_file_with_permission.metric_file;
+        let base_permission = metric_file_with_permission.permission; // Direct or Collection permission
+        ```
+    -   **Determine Final Access & Modify Return:** The primary change is *after* access is determined (using existing logic involving `base_permission`, cached `user.organizations` admin roles, and public access checks). Instead of returning `Err` on access denial, calculate a final `has_access: bool` flag and conditionally construct the response.
+        ```rust
+        // Still inside get_metric_handler...
 
-        if has_permission {
-            // Proceed to fetch full metric details (content, version history, etc.) as before
-            // ... fetch full_metric_file ...
-            // Construct full BusterMetric with has_access: true
-            Ok(BusterMetric {
-                id,
-                name, // Use fetched name
-                has_access: true,
-                // ... populate all other fields from full_metric_file ...
-            })
+        // Check org admin override from cache
+        let admin_roles = [
+            database::enums::UserOrganizationRole::WorkspaceAdmin,
+            database::enums::UserOrganizationRole::DataAdmin,
+        ];
+        let is_org_admin = user.organizations.iter().any(|org| {
+            org.id == metric_file.organization_id && admin_roles.contains(&org.role)
+        });
+
+        // Check public access rules (simplified example, adapt from existing handler logic)
+        let is_publicly_viewable = metric_file.publicly_accessible
+            && metric_file.public_expiry_date.map_or(true, |expiry| expiry > chrono::Utc::now())
+            && metric_file.public_password.is_none(); // Simplification: ignore password case for now
+
+        let required_role = AssetPermissionRole::CanView; // Minimum requirement
+
+        let has_access = if is_org_admin {
+            true
+        } else if base_permission.map_or(false, |role| role >= required_role) {
+            true // Has sufficient direct/collection permission
         } else {
-            // Construct minimal BusterMetric with has_access: false
-            // Need to provide defaults for non-optional fields.
-            let default_time = Utc.timestamp_opt(0, 0).unwrap(); // Use epoch for timestamps
-            Ok(BusterMetric {
-                id,
-                metric_type: "metric".to_string(),
-                name, // Use fetched name
-                version_number: 0, // Default version
-                description: None, // Optional
-                file_name: "".to_string(), // Default empty
-                time_frame: "".to_string(), // Default empty
-                datasets: vec![], // Default empty
-                data_source_id: "".to_string(), // Default empty
-                error: None, // Optional
-                chart_config: None, // Optional
-                data_metadata: None, // Optional
-                status: Verification::Unverified, // Default status
-                evaluation_score: None, // Optional
-                evaluation_summary: "".to_string(), // Default empty
-                file: "".to_string(), // Default empty YAML
-                created_at: default_time, // Default timestamp
-                updated_at: default_time, // Default timestamp
-                sent_by_id: created_by_id, // Use fetched creator ID
-                sent_by_name: "(Restricted Access)".to_string(), // Placeholder name
-                sent_by_avatar_url: None, // Optional
-                code: None, // Optional (SQL query)
-                dashboards: vec![], // Default empty
-                collections: vec![], // Default empty
-                versions: vec![], // Default empty
-                permission: AssetPermissionRole::CanView, // Technically viewable, but content restricted
-                sql: "-- Restricted Access --".to_string(), // Placeholder SQL
-                individual_permissions: None, // Optional
-                public_expiry_date: None, // Optional
-                public_enabled_by: None, // Optional
-                publicly_accessible: false, // Default
-                public_password: None, // Optional
-                // **Crucially set has_access to false**
-                has_access: false,
-            })
+            is_publicly_viewable // Fallback to public access check
+        };
+
+        // Determine effective permission role to return (for display/context)
+        let effective_permission = if is_org_admin {
+             base_permission.unwrap_or(AssetPermissionRole::Owner) // Admins often treated as Owners
+        } else if let Some(role) = base_permission {
+             role
+        } else if is_publicly_viewable {
+             AssetPermissionRole::CanView
+        } else {
+             // This case should ideally not be reached if has_access logic is correct
+             // but provide a default if needed, maybe linked to has_access=false outcome.
+             // If has_access is false here, maybe return a specific 'NoAccess' pseudo-role?
+             // For now, align with has_access outcome:
+             if has_access { AssetPermissionRole::CanView } else { /* Need a way to signify no access */ AssetPermissionRole::CanView } // Placeholder!
+        };
+
+        // If has_access is false, construct minimal object. Otherwise, construct full object.
+        if has_access {
+            // ... (fetch version content, datasets, user info, dashboards, collections etc. as before) ...
+            // ... (construct FULL BusterMetric) ...
+            let full_metric = BusterMetric {
+                 id: metric_file.id,
+                 // ... all fields populated ...
+                 has_access: true,
+                 permission: effective_permission, // Use determined effective permission
+                 // ...
+            };
+            Ok(full_metric)
+        } else {
+            // ... (Construct MINIMAL BusterMetric, setting has_access: false, permission: appropriate_indicator) ...
+             let minimal_metric = BusterMetric {
+                 id: metric_file.id,
+                 name: metric_file.name,
+                 has_access: false,
+                 permission: AssetPermissionRole::CanView, // Or a 'NoAccess' pseudo-role if defined
+                 // ... provide defaults for other non-optional fields ...
+                 ..Default::default() // Use defaults where possible, but override required fields
+             };
+            Ok(minimal_metric)
         }
         ```
-    -   **Return Value:** The handler now always returns `Ok(BusterMetric)` if the metric exists, differentiating access via the `has_access` flag. It only returns `Err` if the metric record itself is not found or if a database error occurs during the permission check or data fetching.
+    -   **Return Value:** The key change is that the handler returns `Ok(BusterMetric)` in both access granted (full object) and access denied (minimal object) scenarios for existing metrics. `Err` is reserved for actual fetch errors (metric not found, DB issues).
 
 3.  **Modify `get_dashboard_handler.rs`:**
-    -   The logic using `join_all` and collecting results into the `metrics: HashMap<Uuid, BusterMetric>` map can remain largely the same, as `get_metric_handler` will now consistently return `Ok` for existing metrics. Errors genuinely representing fetch failures (metric not found, DB error) will still be `Err` and should be logged/handled.
-        ```rust
-         // In get_dashboard_handler, processing results:
-         let metric_results = join_all(metric_futures).await;
-         let metrics: HashMap<Uuid, BusterMetric> = metric_results
-             .into_iter()
-             .filter_map(|result| match result {
-                 Ok(metric) => Some((metric.id, metric)), // metric includes has_access flag
-                 Err(e) => {
-                     // Log actual errors (metric not found, DB connection issues, etc.)
-                     tracing::error!("Failed to fetch metric details for dashboard (non-permission error): {}", e);
-                     None // Exclude metric if there was a real error
-                 }
-             })
-             .collect();
-        ```
+    -   Requires minimal-to-no change. It continues to call `get_metric_handler`. Since `get_metric_handler` now consistently returns `Ok` for existing metrics (with `has_access` indicating permission), the dashboard handler correctly includes all configured metrics in its response map.
 
 **Option B: Handle in `get_dashboard_handler` (Less Recommended)**
 
@@ -208,23 +205,12 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
 ## 7. Testing Strategy
 
 -   **Unit Tests (`get_metric_handler`):**
-    -   Mock DB interactions.
-    -   Test case: User lacks `CanView` -> returns `Ok(BusterMetric { id, name, has_access: false, ... })`.
-    -   Test case: User has `CanView` -> returns `Ok(BusterMetric { has_access: true, ...full details... })`.
-    -   Test case: Metric ID not found -> returns `Err`.
-    -   Test case: DB error during permission check -> returns `Err`.
-    -   Test case: DB error during full data fetch (when permitted) -> returns `Err`.
+    -   Mock DB interactions (e.g., the return value of `fetch_metric_file_with_permissions`) using `mockall` or similar if the fetch logic is abstracted behind a trait, or by carefully constructing mock `MetricFileWithPermission` objects.
+    -   Mock the `AuthenticatedUser` object with different organization roles.
 -   **Integration Tests (`get_dashboard_handler`):**
-    -   Setup: User, Dashboard, Metric A (user has CanView), Metric B (user has no permission), Metric C (ID in dashboard config but doesn't exist).
-    -   Execute `get_dashboard_handler`.
-    -   Verify:
-        -   Response status is OK.
-        -   `response.metrics` map contains keys for Metric A and Metric B.
-        -   `response.metrics[&MetricA_ID]` has `has_access: true` and full details.
-        -   `response.metrics[&MetricB_ID]` has `has_access: false` and minimal details (id, name).
-        -   `response.metrics` does not contain a key for Metric C.
-        -   An error related to Metric C failing to load should be logged.
-    -   Test variations with different user roles and public dashboard access.
+    -   Setup: Use test helpers like `TestDb` and `TestSetup` to create an isolated test environment with a User, Dashboard, and associated Metrics.
+    -   Grant specific permissions using direct `asset_permissions` entries for the test user and metrics.
+    -   Example Scenario: User, Dashboard, Metric A (user has CanView), Metric B (user has no permission), Metric C (ID in dashboard config but doesn't exist).
 
 ## 8. Rollback Plan
 
@@ -232,4 +218,4 @@ Currently, `get_dashboard_handler` fetches associated metrics using `get_metric_
 
 ## 9. Dependencies
 
--   Completion of [Refactor Sharing Permission Helper](mdc:prds/active/refactor_sharing_permission_helper.md). 
+-   Completion of Phase 1 (Type modifications for `has_access`). The simplified helper from the revised `refactor_sharing_permission_helper.md` is *not* directly used here. 
