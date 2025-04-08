@@ -210,7 +210,14 @@ pub async fn post_chat_handler(
         for mut message in messages {
             message.chat_id = chat_id;
 
-            // If this is a message with file responses, create file association
+            // Insert message into database first
+            let mut conn = get_pg_pool().get().await?;
+            insert_into(database::schema::messages::table)
+                .values(&message)
+                .execute(&mut conn)
+                .await?;
+            
+            // After message is inserted, create file association if needed
             if message.response_messages.is_array() {
                 let response_arr = message.response_messages.as_array().unwrap();
                 
@@ -231,14 +238,16 @@ pub async fn post_chat_handler(
                             
                         // Verify the response ID matches the asset ID
                         if response_id == asset_id_value {
-                            // Create association in database
-                            let _ = create_message_file_association(
+                            // Create association in database - now the message exists in DB
+                            if let Err(e) = create_message_file_association(
                                 message.id,
                                 asset_id_value,
                                 asset_version_number,
                                 asset_type_value,
                             )
-                            .await;
+                            .await {
+                                tracing::warn!("Failed to create message file association: {}", e);
+                            }
                         }
                         
                         // We only need to process one file association
@@ -246,13 +255,6 @@ pub async fn post_chat_handler(
                     }
                 }
             }
-
-            // Insert message into database
-            let mut conn = get_pg_pool().get().await?;
-            insert_into(database::schema::messages::table)
-                .values(&message)
-                .execute(&mut conn)
-                .await?;
 
             // Add to updated messages for the response
             updated_messages.push(message);
@@ -282,6 +284,32 @@ pub async fn post_chat_handler(
             // when the agent is initialized and loads the context
         }
 
+        // Explicitly update the chat in the database with most_recent_file information
+        // to ensure it behaves like files generated in a chat
+        let asset_type_string = match asset_type_value {
+            AssetType::MetricFile => Some("metric".to_string()),
+            AssetType::DashboardFile => Some("dashboard".to_string()),
+            _ => None,
+        };
+        
+        if let Some(file_type) = asset_type_string {
+            // Update the chat directly to ensure it has the most_recent_file information
+            let mut conn = get_pg_pool().get().await?;
+            diesel::update(chats::table.find(chat_id))
+                .set((
+                    chats::most_recent_file_id.eq(Some(asset_id_value)),
+                    chats::most_recent_file_type.eq(Some(file_type.clone())),
+                    chats::updated_at.eq(Utc::now()),
+                ))
+                .execute(&mut conn)
+                .await?;
+
+            tracing::info!(
+                "Updated chat {} with most_recent_file_id: {}, most_recent_file_type: {}",
+                chat_id, asset_id_value, file_type
+            );
+        }
+        
         // Return early with auto-generated messages - no need for agent processing
         return Ok(chat_with_messages);
     }
