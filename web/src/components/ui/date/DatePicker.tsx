@@ -42,10 +42,11 @@ function DatePickerComponent({
           variant={'ghost'}
           prefix={<CalendarIcon />}
           suffix={
-            clearable && (
+            clearable &&
+            selected && (
               <div
                 onClick={onClickCancel}
-                className="hover:bg-gray-light/20 hover:text-default! flex items-center justify-center rounded-sm p-0.5 text-xs opacity-30 transition-opacity duration-200 group-hover:opacity-100">
+                className="hover:bg-gray-light/20 hover:text-default! -mr-1 flex items-center justify-center rounded-sm p-1 text-xs opacity-30 transition-opacity duration-200 group-hover:opacity-100">
                 <Xmark />
               </div>
             )
@@ -65,7 +66,7 @@ function DatePickerComponent({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={selected} onSelect={onSelect} initialFocus />
+        <Calendar {...props} mode="single" selected={selected} onSelect={onSelect} initialFocus />
       </PopoverContent>
     </Popover>
   );

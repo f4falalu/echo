@@ -320,7 +320,10 @@ export const useShareDashboard = () => {
       const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         return create(previousData!, (draft) => {
-          draft.individual_permissions?.push(...variables.params);
+          draft.individual_permissions = [
+            ...variables.params,
+            ...(draft.individual_permissions || [])
+          ];
         });
       });
     },

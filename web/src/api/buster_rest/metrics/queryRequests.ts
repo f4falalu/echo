@@ -312,7 +312,10 @@ export const useShareMetric = () => {
       const queryKey = metricsQueryKeys.metricsGetMetric(variables.id).queryKey;
       queryClient.setQueryData(queryKey, (previousData: IBusterMetric | undefined) => {
         return create(previousData!, (draft: IBusterMetric) => {
-          draft.individual_permissions?.push(...variables.params);
+          draft.individual_permissions = [
+            ...variables.params,
+            ...(draft.individual_permissions || [])
+          ];
         });
       });
     },

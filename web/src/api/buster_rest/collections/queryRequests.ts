@@ -135,7 +135,7 @@ export const useShareCollection = () => {
       const queryKey = collectionQueryKeys.collectionsGetCollection(id).queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         return create(previousData!, (draft: BusterCollection) => {
-          draft.individual_permissions?.push(...params);
+          draft.individual_permissions = [...params, ...(draft.individual_permissions || [])];
         });
       });
     },
