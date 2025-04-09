@@ -25,11 +25,10 @@ export const DashboardEditTitles: React.FC<{
     if (!readOnly) onUpdateDashboard({ name, id: dashboardId });
   });
 
-  const { run: onChangeDashboardDescription } = useDebounceFn(
-    useMemoizedFn((value: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const onChangeDashboardDescription = useMemoizedFn(
+    (value: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (!readOnly) onUpdateDashboard({ description: value.target.value, id: dashboardId });
-    }),
-    { wait: 650 }
+    }
   );
 
   return (
@@ -37,6 +36,7 @@ export const DashboardEditTitles: React.FC<{
       <EditableTitle
         className="w-full truncate"
         readOnly={readOnly}
+        onSetValue={onChangeTitle}
         onChange={onChangeTitle}
         id={DASHBOARD_TITLE_INPUT_ID}
         placeholder="New dashboard"

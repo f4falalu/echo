@@ -94,7 +94,7 @@ export const DashboardContentController: React.FC<{
 
     const onRowLayoutChange = useMemoizedFn((rows: BusterResizeableGridRow[]) => {
       if (dashboard) {
-        onUpdateDashboardConfig({ rows: removeChildrenFromItems(rows), id: dashboard.id });
+        onUpdateDashboardConfig({ rows: removeChildrenFromItems(rows), dashboardId: dashboard.id });
       }
     });
 
@@ -108,7 +108,7 @@ export const DashboardContentController: React.FC<{
 
     useEffect(() => {
       if (remapMetrics && dashboard?.id) {
-        debouncedForInitialRenderOnUpdateDashboardConfig({ rows, id: dashboard.id });
+        debouncedForInitialRenderOnUpdateDashboardConfig({ rows, dashboardId: dashboard.id });
       }
     }, [dashboard?.id, remapMetrics]);
 

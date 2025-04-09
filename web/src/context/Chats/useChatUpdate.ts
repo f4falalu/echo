@@ -8,8 +8,8 @@ export const useChatUpdate = () => {
   const queryClient = useQueryClient();
 
   const onUpdateChat = useMemoizedFn(
-    async (newChatConfig: Partial<IBusterChat> & { id: string }) => {
-      const options = queryKeys.chatsGetChat(newChatConfig.id);
+    async ({ id: chatId, ...newChatConfig }: Partial<IBusterChat> & { id: string }) => {
+      const options = queryKeys.chatsGetChat(chatId);
       const queryKey = options.queryKey;
       const currentData = queryClient.getQueryData<IBusterChat>(queryKey);
       const iChat = create(currentData || ({} as IBusterChat), (draft) => {

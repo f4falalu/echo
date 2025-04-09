@@ -32,6 +32,7 @@ import { addMetricToDashboardConfig, removeMetricFromDashboardConfig } from './h
 import { addAndRemoveMetricsToDashboard } from './helpers/addAndRemoveMetricsToDashboard';
 import { useParams, useSearchParams } from 'next/navigation';
 import { RustApiError } from '../errors';
+import { useOriginalDashboardStore } from '@/context/Dashboards';
 
 export const useGetDashboardsList = (
   params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
@@ -125,7 +126,8 @@ export const useUpdateDashboard = (params?: {
   updateVersion?: boolean;
   saveToServer?: boolean;
 }) => {
-  const { updateVersion = true, saveToServer = false } = params || {};
+  const setOriginalDashboards = useOriginalDashboardStore((x) => x.setOriginalDashboard);
+  const { updateVersion = false, saveToServer = false } = params || {};
 
   const queryClient = useQueryClient();
 
@@ -159,6 +161,7 @@ export const useUpdateDashboard = (params?: {
           dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey,
           data
         );
+        setOriginalDashboards(data.dashboard);
       }
     }
   });
@@ -176,12 +179,13 @@ export const useUpdateDashboardConfig = (params?: {
   const queryClient = useQueryClient();
 
   const method = useMemoizedFn(
-    async (
-      newDashboard: Partial<BusterDashboard['config']> & {
-        id: string;
-      }
-    ) => {
-      const options = dashboardQueryKeys.dashboardGetDashboard(newDashboard.id);
+    async ({
+      dashboardId,
+      ...newDashboard
+    }: Partial<BusterDashboard['config']> & {
+      dashboardId: string;
+    }) => {
+      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
       const previousDashboard = queryClient.getQueryData(options.queryKey);
       const previousConfig = previousDashboard?.dashboard?.config;
       if (previousConfig) {
@@ -189,7 +193,7 @@ export const useUpdateDashboardConfig = (params?: {
           Object.assign(draft, newDashboard);
         });
         return mutateAsync({
-          id: newDashboard.id,
+          id: dashboardId,
           config: newConfig
         });
       }

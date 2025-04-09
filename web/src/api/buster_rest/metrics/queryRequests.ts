@@ -390,7 +390,7 @@ export const useUpdateMetric = (params: {
   const {
     wait = 0,
     updateOnSave = false,
-    updateVersion = true,
+    updateVersion = false,
     saveToServer = false
   } = params || {};
   const queryClient = useQueryClient();
@@ -408,8 +408,10 @@ export const useUpdateMetric = (params: {
   );
 
   const combineAndSaveMetric = useMemoizedFn(
-    (newMetricPartial: Omit<Partial<IBusterMetric>, 'status'> & { id: string }) => {
-      const metricId = newMetricPartial.id;
+    ({
+      id: metricId,
+      ...newMetricPartial
+    }: Omit<Partial<IBusterMetric>, 'status'> & { id: string }) => {
       const options = metricsQueryKeys.metricsGetMetric(metricId);
       const prevMetric = getOriginalMetric(metricId);
       const newMetric = create(prevMetric, (draft) => {

@@ -14,8 +14,7 @@ import {
   useBulkUpdateMetricVerificationStatus,
   useDeleteMetric,
   useRemoveMetricFromCollection,
-  useSaveMetricToCollections,
-  useUpdateMetric
+  useSaveMetricToCollections
 } from '@/api/buster_rest/metrics';
 import { useThreeDotFavoritesOptions } from '@/components/features/dropdowns/useThreeDotFavoritesOptions';
 
@@ -123,7 +122,6 @@ const StatusButton: React.FC<{
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
 
   const onVerify = useMemoizedFn(async (data: { id: string; status: VerificationStatus }[]) => {
-    console.log('onVerify', data);
     await updateStatus(data);
     onSelectChange([]);
   });

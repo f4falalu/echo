@@ -63,7 +63,6 @@ export const BusterResizeableGrid: React.FC<{
     if (checkRowEquality(filteredRows, rows)) {
       return;
     }
-
     onRowLayoutChange(filteredRows);
     setRows(filteredRows);
   });

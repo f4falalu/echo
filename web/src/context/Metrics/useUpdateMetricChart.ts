@@ -10,7 +10,6 @@ import { useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { useGetMetricMemoized } from './useGetMetricMemoized';
 import { useParams } from 'next/navigation';
-import { useOriginalMetricStore } from './useOriginalMetricStore';
 import { timeout } from '@/lib';
 import { useState } from 'react';
 

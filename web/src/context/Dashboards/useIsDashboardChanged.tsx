@@ -5,6 +5,8 @@ import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { compareObjectsByKeys } from '@/lib/objects';
+import { useMemo } from 'react';
+import { create } from 'mutative';
 
 export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) => {
   const queryClient = useQueryClient();
@@ -26,17 +28,16 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) 
     const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
     const currentDashboard = queryClient.getQueryData<BusterDashboardResponse>(options.queryKey);
     if (originalDashboard && currentDashboard) {
-      queryClient.setQueryData(options.queryKey, {
-        ...currentDashboard,
-        dashboard: originalDashboard
+      const resetDashboard = create(currentDashboard, (draft) => {
+        Object.assign(draft, originalDashboard);
       });
+      queryClient.setQueryData(options.queryKey, resetDashboard);
     }
     refetchCurrentDashboard();
   });
 
-  return {
-    onResetDashboardToOriginal,
-    isDashboardChanged:
+  const isDashboardChanged = useMemo(() => {
+    return (
       !originalDashboard ||
       !currentDashboard ||
       !compareObjectsByKeys(originalDashboard, currentDashboard, [
@@ -45,5 +46,11 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) 
         'config',
         'file'
       ])
+    );
+  }, [originalDashboard, currentDashboard]);
+
+  return {
+    onResetDashboardToOriginal,
+    isDashboardChanged
   };
 };

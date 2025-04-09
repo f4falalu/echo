@@ -8,6 +8,8 @@ import { useDashboardContentStore, useIsDashboardChanged } from '@/context/Dashb
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+import { DashboardSaveFilePopup } from './DashboardSaveFilePopup';
 
 export const DashboardViewDashboardController: React.FC<{
   dashboardId: string;
@@ -22,10 +24,8 @@ export const DashboardViewDashboardController: React.FC<{
   } = useGetDashboard({ id: dashboardId });
 
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
+  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
   const onOpenAddContentModal = useDashboardContentStore((x) => x.onOpenAddContentModal);
-  const { isDashboardChanged, onResetDashboardToOriginal } = useIsDashboardChanged({
-    dashboardId
-  });
 
   const metrics = dashboardResponse?.metrics;
   const dashboard = dashboardResponse?.dashboard;
@@ -34,16 +34,16 @@ export const DashboardViewDashboardController: React.FC<{
     readOnly: readOnlyProp
   });
 
+  if (!isFetched) {
+    return <></>;
+  }
+
   if (isError) {
     return (
       <div className="p-10">
         <StatusCard variant="danger" title="Error" message={error?.message || ''} />
       </div>
     );
-  }
-
-  if (!isFetched) {
-    return <></>;
   }
 
   return (
@@ -64,6 +64,8 @@ export const DashboardViewDashboardController: React.FC<{
           onOpenAddContentModal={onOpenAddContentModal}
           readOnly={isReadOnly}
         />
+
+        {!isVersionHistoryMode && <DashboardSaveFilePopup dashboardId={dashboardId} />}
       </div>
     </ScrollArea>
   );

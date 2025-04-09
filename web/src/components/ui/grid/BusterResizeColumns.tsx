@@ -133,7 +133,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
 
   useLayoutEffect(() => {
     setSizes(columnSpansToPercent(columnSizes));
-  }, [items.length, columnSizes?.length]);
+  }, [items.length, columnSizes]);
 
   return (
     <SortableContext id={rowId} items={items} disabled={false}>

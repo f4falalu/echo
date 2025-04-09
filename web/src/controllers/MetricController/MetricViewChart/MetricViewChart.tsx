@@ -14,6 +14,7 @@ import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePo
 import { useIsMetricChanged } from '@/context/Metrics/useIsMetricChanged';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
+import { MetricSaveFilePopup } from './MetricSaveFilePopup';
 
 export const MetricViewChart: React.FC<{
   metricId: string;
@@ -161,20 +162,3 @@ const AnimatePresenceWrapper: React.FC<{
     </AnimatePresence>
   );
 };
-
-const MetricSaveFilePopup: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
-  const { isMetricChanged, onResetMetricToOriginal } = useIsMetricChanged({ metricId });
-  const { onSaveMetricToServer, isSaving } = useUpdateMetricChart({ metricId });
-
-  return (
-    <SaveResetFilePopup
-      open={isMetricChanged}
-      onReset={onResetMetricToOriginal}
-      onSave={onSaveMetricToServer}
-      isSaving={isSaving}
-      showHotsKeys={false}
-    />
-  );
-});
-
-MetricSaveFilePopup.displayName = 'MetricSaveFilePopup';
