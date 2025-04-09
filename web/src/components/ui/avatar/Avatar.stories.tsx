@@ -62,3 +62,9 @@ export const ProblematicLeadingCharacter: Story = {
     name: 'jared yes @'
   }
 };
+
+export const WithEmail: Story = {
+  args: {
+    name: 'jared@yes.com'
+  }
+};
