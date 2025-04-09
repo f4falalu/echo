@@ -165,14 +165,9 @@ pub async fn post_chat_handler(
     user: AuthenticatedUser,
     tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<ChatWithMessages> {
-    // Create a request-local chunk tracker instance instead of using global static
     let chunk_tracker = ChunkTracker::new();
     let reasoning_duration = Instant::now();
-
-    // Normalize request to use asset_id/asset_type if legacy fields are provided
     let (asset_id, asset_type) = normalize_asset_fields(&request);
-
-    // Validate that only one context type is provided
     validate_context_request(
         request.chat_id,
         asset_id,
@@ -180,7 +175,6 @@ pub async fn post_chat_handler(
         request.metric_id,
         request.dashboard_id,
     )?;
-
     let user_org_id = match user.attributes.get("organization_id") {
         Some(Value::String(org_id)) => Uuid::parse_str(org_id).unwrap_or_default(),
         _ => {
@@ -188,8 +182,6 @@ pub async fn post_chat_handler(
             return Err(anyhow!("User has no organization ID"));
         }
     };
-
-    // Initialize chat - either get existing or create new
     let (chat_id, message_id, mut chat_with_messages) =
         initialize_chat(&request, &user, user_org_id).await?;
 
@@ -198,7 +190,6 @@ pub async fn post_chat_handler(
         chat_id, message_id, user_org_id, user.id
     );
 
-    // Send initial chat state to client
     if let Some(tx) = tx.clone() {
         tx.send(Ok((
             BusterContainer::Chat(chat_with_messages.clone()),
@@ -207,7 +198,6 @@ pub async fn post_chat_handler(
         .await?;
     }
 
-    // If prompt is None but asset_id is provided, generate asset messages
     if request.prompt.is_none() && asset_id.is_some() && asset_type.is_some() {
         let asset_id_value = asset_id.unwrap();
         let asset_type_value = asset_type.unwrap();
@@ -323,10 +313,7 @@ pub async fn post_chat_handler(
         return Ok(chat_with_messages);
     }
 
-    // Initialize agent with context if provided
     let mut initial_messages = vec![];
-
-    // Initialize agent to add context
     let agent = BusterSuperAgent::new(user.id, chat_id).await?;
 
     // Load context if provided (combines both legacy and new asset references)
@@ -388,6 +375,8 @@ pub async fn post_chat_handler(
     // Collect all messages for final processing
     let mut all_messages: Vec<AgentMessage> = Vec::new();
     let mut all_transformed_containers: Vec<BusterContainer> = Vec::new();
+    let mut sent_initial_files = false; // Flag to track if initial files have been sent
+    let mut early_sent_file_messages: Vec<Value> = Vec::new(); // Store file messages sent early
 
     // Process all messages from the agent
     while let Ok(message_result) = rx.recv().await {
@@ -460,36 +449,65 @@ pub async fn post_chat_handler(
                     _ => {} // Ignore other message types
                 }
 
-                // Always transform the message
-                match transform_message(&chat_id, &message_id, msg, tx.as_ref(), &chunk_tracker)
-                    .await
-                {
-                    Ok(containers) => {
-                        // Store all transformed containers
-                        for (container, _) in containers.clone() {
-                            all_transformed_containers.push(container.clone());
-                        }
+                // Store transformed containers BEFORE potential early file sending
+                // This ensures the files are based on the most up-to-date reasoning
+                let transformed_results = transform_message(&chat_id, &message_id, msg.clone(), tx.as_ref(), &chunk_tracker).await;
 
-                        // If we have a tx channel, send the transformed messages
-                        if let Some(tx) = &tx {
-                            for (container, thread_event) in containers {
-                                if tx.send(Ok((container, thread_event))).await.is_err() {
-                                    // Client disconnected, but continue processing messages
-                                    tracing::warn!(
-                                        "Client disconnected, but continuing to process messages"
-                                    );
-                                    break;
+                match transformed_results {
+                    Ok(containers) => {
+                        // Store all transformed containers first
+                        all_transformed_containers.extend(containers.iter().map(|(c, _)| c.clone()));
+
+                        // --- START: Early File Sending Logic ---
+                        // Check if this is the first text chunk and we haven't sent files yet
+                        if !sent_initial_files {
+                            // Look for an incoming text chunk within the *current* message `msg`
+                            if let AgentMessage::Assistant { content: Some(_), progress: MessageProgress::InProgress, .. } = &msg {
+                                if let Some(tx_channel) = &tx {
+                                    // Set flag immediately to prevent re-entry
+                                    sent_initial_files = true;
+
+                                    // Perform filtering based on containers received SO FAR
+                                    let current_completed_files = collect_completed_files(&all_transformed_containers);
+                                    let filtered_files = apply_file_filtering_rules(&current_completed_files);
+                                    early_sent_file_messages = generate_file_response_values(&filtered_files);
+
+                                    // Send the filtered file messages FIRST
+                                    for file_value in &early_sent_file_messages {
+                                        if let Ok(buster_chat_message) = serde_json::from_value::<BusterChatMessage>(file_value.clone()) {
+                                            let file_container = BusterContainer::ChatMessage(BusterChatMessageContainer {
+                                                response_message: buster_chat_message,
+                                                chat_id,
+                                                message_id,
+                                            });
+                                            if tx_channel.send(Ok((file_container, ThreadEvent::GeneratingResponseMessage))).await.is_err() {
+                                                tracing::warn!("Client disconnected while sending early file messages");
+                                                // Setting the flag ensures we don't retry, but allows loop to continue processing other messages if needed
+                                                // Potentially break here if sending is critical: break;
+                                            }
+                                        } else {
+                                             tracing::error!("Failed to deserialize early file message value: {:?}", file_value);
+                                        }
+                                    }
                                 }
                             }
                         }
+                        // --- END: Early File Sending Logic ---
+
+                        // Now send the transformed containers for the current message
+                        if let Some(tx_channel) = &tx {
+                             for (container, thread_event) in containers {
+                                 if tx_channel.send(Ok((container, thread_event))).await.is_err() {
+                                     tracing::warn!("Client disconnected, but continuing to process messages");
+                                     // Don't break immediately, allow storing final state
+                                 }
+                             }
+                         }
                     }
                     Err(e) => {
-                        // Log the error but continue processing
                         tracing::error!("Error transforming message: {}", e);
-
-                        // If we have a tx channel, send the error
-                        if let Some(tx) = &tx {
-                            let _ = tx.send(Err(e)).await;
+                        if let Some(tx_channel) = &tx {
+                            let _ = tx_channel.send(Err(e)).await;
                         }
                     }
                 }
@@ -524,81 +542,18 @@ pub async fn post_chat_handler(
         }
     };
 
-    // --- START: New File Filtering Logic ---
-
-    // 1. Collect all completed files from reasoning messages
-    let mut completed_files: Vec<CompletedFileInfo> = Vec::new();
-    for container in &all_transformed_containers {
-        if let BusterContainer::ReasoningMessage(reasoning_msg) = container {
-            if let BusterReasoningMessage::File(file_reasoning) = &reasoning_msg.reasoning {
-                // Consider files from both create and modify operations ("files" type)
-                // Check if the overall reasoning status is completed
-                if file_reasoning.message_type == "files" && file_reasoning.status == "completed" {
-                    for (_file_id_key, file_detail) in &file_reasoning.files {
-                        // Also ensure the individual file status is completed
-                        if file_detail.status == "completed" {
-                            completed_files.push(CompletedFileInfo {
-                                id: file_detail.id.clone(),
-                                file_type: file_detail.file_type.clone(),
-                                file_name: file_detail.file_name.clone(),
-                                version_number: file_detail.version_number,
-                            });
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // 2. Apply filtering logic
-    let contains_metrics = completed_files.iter().any(|f| f.file_type == "metric");
-    let contains_dashboards = completed_files.iter().any(|f| f.file_type == "dashboard");
-
-    let filtered_files_for_response: Vec<CompletedFileInfo> = if contains_dashboards {
-        // If any dashboards exist (created or modified), only show dashboards
-        completed_files.into_iter().filter(|f| f.file_type == "dashboard").collect()
-    } else if contains_metrics {
-        // If only metrics exist, show all metrics
-        completed_files.into_iter().filter(|f| f.file_type == "metric").collect()
-    } else {
-        // If neither (or empty), show nothing
-        vec![]
-    };
-
-    // 3. Generate BusterChatMessage::File for the filtered files
-    // Populate the vector declared outside the scope
-    let mut filtered_file_response_messages: Vec<Value> = Vec::new();
-    for file_info in filtered_files_for_response {
-        let response_message = BusterChatMessage::File {
-            id: file_info.id.clone(),
-            file_type: file_info.file_type.clone(),
-            file_name: file_info.file_name.clone(),
-            version_number: file_info.version_number,
-            filter_version_id: None, // Assuming no filter ID needed here
-            metadata: Some(vec![BusterChatResponseFileMetadata {
-                status: "completed".to_string(),
-                message: "Generated by Buster".to_string(), // Or indicate modification if possible? Needs more state tracking.
-                timestamp: Some(Utc::now().timestamp()),
-            }]),
-        };
-        if let Ok(value) = serde_json::to_value(&response_message) {
-            filtered_file_response_messages.push(value);
-        }
-    }
-
-    // --- END: New File Filtering Logic ---
-
     // Transform all messages for final storage
     // Get initial response messages (text, etc.) and reasoning messages separately
     let (mut text_and_other_response_messages, reasoning_messages) =
         prepare_final_message_state(&all_transformed_containers)?;
 
     // Create the final response message list: Start with filtered files, then add text/other messages
-    let mut final_response_messages = filtered_file_response_messages;
+    // Use the file messages that were generated and sent early
+    let mut final_response_messages = early_sent_file_messages; // Use early sent files
     final_response_messages.append(&mut text_and_other_response_messages);
 
     // Update chat_with_messages with final state (now including filtered files first)
-    let message = ChatMessage::new_with_messages(
+    let final_message = ChatMessage::new_with_messages(
         message_id,
         Some(ChatUserMessage {
             request: request.prompt.clone().unwrap_or_default(),
@@ -612,7 +567,7 @@ pub async fn post_chat_handler(
         Utc::now(),
     );
 
-    chat_with_messages.update_message(message);
+    chat_with_messages.update_message(final_message);
 
     // Create and store message in the database with final state
     let db_message = Message {
@@ -784,94 +739,86 @@ fn prepare_final_message_state(containers: &[BusterContainer]) -> Result<(Vec<Va
 async fn process_completed_files(
     conn: &mut diesel_async::AsyncPgConnection,
     message: &Message,
-    messages: &[AgentMessage],
+    messages: &[AgentMessage], // Use original AgentMessages for context if needed
     _organization_id: &Uuid,
     _user_id: &Uuid,
-    chunk_tracker: &ChunkTracker,
+    chunk_tracker: &ChunkTracker, // Pass tracker if needed for transforming messages again
 ) -> Result<()> {
-    let mut transformed_messages = Vec::new();
+    // Transform messages again specifically for DB processing if needed,
+    // or directly use reasoning messages if they contain enough info.
+    let mut transformed_messages_for_db = Vec::new();
+     for msg in messages {
+         // Use a temporary tracker instance if needed, or reuse the main one
+         if let Ok(containers) = transform_message(
+             &message.chat_id, &message.id, msg.clone(), None, chunk_tracker
+         ).await {
+             transformed_messages_for_db.extend(containers.into_iter().map(|(c, _)| c));
+         }
+     }
+
     let mut processed_file_ids = std::collections::HashSet::new();
 
-    for msg in messages {
-        if let Ok(containers) = transform_message(
-            &message.chat_id,
-            &message.id,
-            msg.clone(),
-            None,
-            chunk_tracker,
-        )
-        .await
-        {
-            transformed_messages.extend(containers);
-        }
-    }
-
-    // Process files for database updates only
-    for (container, _) in transformed_messages {
+    for container in transformed_messages_for_db { // Use the re-transformed messages
         if let BusterContainer::ReasoningMessage(msg) = container {
             match &msg.reasoning {
-                BusterReasoningMessage::File(file) if file.message_type == "files" => {
-                    for file_id in &file.file_ids {
-                        // Skip if we've already processed this file ID
-                        if !processed_file_ids.insert(file_id.clone()) {
-                            continue;
-                        }
+                BusterReasoningMessage::File(file) if file.message_type == "files" && file.status == "completed" => {
+                    for (file_id_key, file_content) in &file.files {
+                         if file_content.status == "completed" { // Ensure inner file is also complete
+                            let file_uuid = match Uuid::parse_str(file_id_key) {
+                                Ok(uuid) => uuid,
+                                Err(_) => {
+                                     tracing::warn!("Invalid UUID format for file ID in reasoning: {}", file_id_key);
+                                     continue; // Skip this file
+                                }
+                            };
 
-                        if let Some(file_content) = file.files.get(file_id) {
-                            // Only process files that have completed reasoning
+                            // Skip if we've already processed this file ID
+                            if !processed_file_ids.insert(file_uuid) {
+                                continue;
+                            }
+
                             // Create message-to-file association
                             let message_to_file = MessageToFile {
                                 id: Uuid::new_v4(),
                                 message_id: message.id,
-                                file_id: Uuid::parse_str(file_id)?,
+                                file_id: file_uuid,
                                 created_at: Utc::now(),
                                 updated_at: Utc::now(),
                                 deleted_at: None,
-                                is_duplicate: false,
+                                is_duplicate: false, // Determine duplication logic if needed
                                 version_number: file_content.version_number,
                             };
 
                             // Insert the message to file association
-                            diesel::insert_into(messages_to_files::table)
+                            if let Err(e) = diesel::insert_into(messages_to_files::table)
                                 .values(&message_to_file)
                                 .execute(conn)
-                                .await?;
+                                .await {
+                                     tracing::error!("Failed to insert message_to_file link for file {}: {}", file_uuid, e);
+                                     continue; // Skip chat update if DB link fails
+                                 }
 
-                            // Determine file type
-                            let file_type = if let Ok(uuid) = Uuid::parse_str(file_id) {
-                                let dashboard_exists = diesel::dsl::select(diesel::dsl::exists(
-                                    dashboard_files::table.filter(dashboard_files::id.eq(&uuid)),
-                                ))
-                                .get_result::<bool>(conn)
-                                .await;
 
-                                let metric_exists = diesel::dsl::select(diesel::dsl::exists(
-                                    metric_files::table.filter(metric_files::id.eq(&uuid)),
-                                ))
-                                .get_result::<bool>(conn)
-                                .await;
-
-                                match (dashboard_exists, metric_exists) {
-                                    (Ok(true), _) => Some("dashboard".to_string()),
-                                    (_, Ok(true)) => Some("metric".to_string()),
-                                    _ => None,
-                                }
-                            } else {
-                                None
-                            };
+                            // Determine file type for chat update
+                             let file_type_for_chat = match file_content.file_type.as_str() {
+                                 "dashboard" => Some("dashboard".to_string()),
+                                 "metric" => Some("metric".to_string()),
+                                 _ => None,
+                             };
 
                             // Update the chat with the most recent file info
-                            if let Ok(file_uuid) = Uuid::parse_str(file_id) {
-                                diesel::update(chats::table.find(message.chat_id))
-                                    .set((
-                                        chats::most_recent_file_id.eq(Some(file_uuid)),
-                                        chats::most_recent_file_type.eq(file_type),
-                                        chats::updated_at.eq(Utc::now()),
-                                    ))
-                                    .execute(conn)
-                                    .await?;
-                            }
-                        }
+                             if let Err(e) = diesel::update(chats::table.find(message.chat_id))
+                                .set((
+                                    chats::most_recent_file_id.eq(Some(file_uuid)),
+                                    chats::most_recent_file_type.eq(file_type_for_chat),
+                                    // chats::most_recent_version_number implicitly handled by file version
+                                    chats::updated_at.eq(Utc::now()),
+                                ))
+                                .execute(conn)
+                                .await {
+                                     tracing::error!("Failed to update chat {} with most recent file info for {}: {}", message.chat_id, file_uuid, e);
+                                 }
+                         }
                     }
                 }
                 _ => (),
@@ -918,7 +865,7 @@ pub struct BusterReasoningMessageContainer {
     pub message_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
 pub struct BusterChatResponseFileMetadata {
     pub status: String,
@@ -926,7 +873,7 @@ pub struct BusterChatResponseFileMetadata {
     pub timestamp: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum BusterChatMessage {
     Text {
@@ -2199,4 +2146,65 @@ async fn initialize_chat(
 
         Ok((chat_id, message_id, chat_with_messages))
     }
+}
+
+// Helper function to encapsulate file collection
+fn collect_completed_files(containers: &[BusterContainer]) -> Vec<CompletedFileInfo> {
+    let mut completed_files = Vec::new();
+    for container in containers {
+        if let BusterContainer::ReasoningMessage(reasoning_msg) = container {
+            if let BusterReasoningMessage::File(file_reasoning) = &reasoning_msg.reasoning {
+                if file_reasoning.message_type == "files" && file_reasoning.status == "completed" {
+                    for (_file_id_key, file_detail) in &file_reasoning.files {
+                        if file_detail.status == "completed" {
+                            completed_files.push(CompletedFileInfo {
+                                id: file_detail.id.clone(),
+                                file_type: file_detail.file_type.clone(),
+                                file_name: file_detail.file_name.clone(),
+                                version_number: file_detail.version_number,
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+    completed_files
+}
+
+// Helper function to encapsulate filtering rules
+fn apply_file_filtering_rules(completed_files: &[CompletedFileInfo]) -> Vec<CompletedFileInfo> {
+    let contains_metrics = completed_files.iter().any(|f| f.file_type == "metric");
+    let contains_dashboards = completed_files.iter().any(|f| f.file_type == "dashboard");
+
+    if contains_dashboards {
+        completed_files.iter().filter(|f| f.file_type == "dashboard").cloned().collect()
+    } else if contains_metrics {
+        completed_files.iter().filter(|f| f.file_type == "metric").cloned().collect()
+    } else {
+        vec![]
+    }
+}
+
+// Helper function to generate response message JSON values
+fn generate_file_response_values(filtered_files: &[CompletedFileInfo]) -> Vec<Value> {
+    let mut file_response_values = Vec::new();
+    for file_info in filtered_files {
+        let response_message = BusterChatMessage::File {
+            id: file_info.id.clone(),
+            file_type: file_info.file_type.clone(),
+            file_name: file_info.file_name.clone(),
+            version_number: file_info.version_number,
+            filter_version_id: None,
+            metadata: Some(vec![BusterChatResponseFileMetadata {
+                status: "completed".to_string(),
+                message: "Generated by Buster".to_string(),
+                timestamp: Some(Utc::now().timestamp()),
+            }]),
+        };
+        if let Ok(value) = serde_json::to_value(&response_message) {
+            file_response_values.push(value);
+        }
+    }
+    file_response_values
 }
