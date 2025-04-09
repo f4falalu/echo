@@ -10,8 +10,9 @@ export const EditFileContainer: React.FC<{
   error: string | undefined;
   isSaving: boolean | undefined;
   language?: string;
+  readOnly: boolean | undefined;
 }> = React.memo(
-  ({ fileName, error, isSaving, file: fileProp = '', onSaveFile, language = 'yaml' }) => {
+  ({ fileName, readOnly, error, isSaving, file: fileProp = '', onSaveFile, language = 'yaml' }) => {
     const [file, setFile] = useState<string>(fileProp || '');
 
     const showPopup = file !== fileProp && !!file;
@@ -37,6 +38,7 @@ export const EditFileContainer: React.FC<{
           onChange={setFile}
           onMetaEnter={onSaveFilePreflight}
           error={error}
+          readOnly={readOnly}
         />
 
         <SaveResetFilePopup

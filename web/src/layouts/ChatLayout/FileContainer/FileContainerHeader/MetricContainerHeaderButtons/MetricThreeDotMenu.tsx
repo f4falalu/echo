@@ -49,7 +49,6 @@ import { ShareMenuContent } from '@/components/features/ShareMenu/ShareMenuConte
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
 
@@ -453,6 +452,7 @@ const useDownloadPNGSelectMenu = ({ metricId }: { metricId: string }) => {
 
 const useDeleteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
   const { mutateAsync: deleteMetric } = useDeleteMetric();
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
 
   return useMemo(
     () => ({
@@ -461,6 +461,7 @@ const useDeleteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
       icon: <Trash />,
       onClick: async () => {
         await deleteMetric({ ids: [metricId] });
+        onChangePage({ route: BusterRoutes.APP_METRIC });
       }
     }),
     [metricId]

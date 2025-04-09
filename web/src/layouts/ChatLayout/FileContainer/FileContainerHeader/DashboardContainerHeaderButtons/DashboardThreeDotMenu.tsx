@@ -55,18 +55,19 @@ export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId:
   const isEditor = canEdit(permission);
 
   const items: DropdownItems = useMemo(
-    () => [
-      isFilter && filterDashboardMenu,
-      isEditor && addContentToDashboardMenu,
-      { type: 'divider' },
-      isOwner && shareMenu,
-      collectionSelectMenu,
-      favoriteDashboard,
-      versionHistoryItems,
-      { type: 'divider' },
-      isEditor && renameDashboardMenu,
-      isOwner && deleteDashboardMenu
-    ],
+    () =>
+      [
+        isFilter && filterDashboardMenu,
+        isEditor && addContentToDashboardMenu,
+        { type: 'divider' },
+        isOwner && shareMenu,
+        collectionSelectMenu,
+        favoriteDashboard,
+        versionHistoryItems,
+        { type: 'divider' },
+        isEditor && renameDashboardMenu,
+        isOwner && deleteDashboardMenu
+      ].filter(Boolean) as DropdownItems,
     [
       filterDashboardMenu,
       addContentToDashboardMenu,

@@ -5,6 +5,7 @@ import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useGetMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
 import { EditFileContainer } from '@/components/features/files/EditFileContainer';
+import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 
 export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
   const { data: metric } = useGetMetric(
@@ -28,6 +29,10 @@ export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metr
     wait: 0
   });
 
+  const { isReadOnly } = useIsMetricReadOnly({
+    metricId
+  });
+
   const updateMetricErrorMessage = updateMetricError?.message;
 
   const { file, file_name } = metric || {};
@@ -47,6 +52,7 @@ export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metr
       onSaveFile={onSaveFile}
       error={updateMetricErrorMessage}
       isSaving={isUpdatingMetric}
+      readOnly={isReadOnly}
     />
   );
 });
