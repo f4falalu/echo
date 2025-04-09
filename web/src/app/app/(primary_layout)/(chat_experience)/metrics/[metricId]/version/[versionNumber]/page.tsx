@@ -1,8 +1,10 @@
+import { MetricViewChart } from '@/controllers/MetricController/MetricViewChart';
+
 export default async function MetricVersionPage({
   params
 }: {
-  params: Promise<{ versionNumber: string }>;
+  params: Promise<{ versionNumber: string; metricId: string }>;
 }) {
-  const { versionNumber } = await params;
-  return <div>MetricVersionPage {versionNumber}</div>;
+  const { versionNumber, metricId } = await params;
+  return <MetricViewChart metricId={metricId} />;
 }

@@ -3,9 +3,15 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useInViewport } from '@/hooks';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 
-export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
+export const useDashboardMetric = ({
+  metricId,
+  versionNumber
+}: {
+  metricId: string;
+  versionNumber: number | undefined;
+}) => {
   const { data: metric, isFetched: isMetricFetched } = useGetMetric(
-    { id: metricId },
+    { id: metricId, versionNumber },
     {
       select: ({
         name,
@@ -32,7 +38,7 @@ export const useDashboardMetric = ({ metricId }: { metricId: string }) => {
     data: metricData,
     isFetched: isFetchedMetricData,
     dataUpdatedAt: metricDataUpdatedAt
-  } = useGetMetricData({ id: metricId });
+  } = useGetMetricData({ id: metricId, versionNumber });
   const dashboard = useDashboardContentControllerContextSelector(({ dashboard }) => dashboard);
   const metricMetadata = useDashboardContentControllerContextSelector(
     ({ metricMetadata }) => metricMetadata[metricId]

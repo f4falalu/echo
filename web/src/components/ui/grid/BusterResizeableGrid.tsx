@@ -18,12 +18,12 @@ import {
 import { arrayMove } from '@dnd-kit/sortable';
 import { BusterSortableOverlay } from './_BusterSortableOverlay';
 import { BusterResizeableGridRow } from './interfaces';
-import clsx from 'clsx';
 import { v4 as uuidv4 } from 'uuid';
 import { useMemoizedFn } from '@/hooks';
 import isEqual from 'lodash/isEqual';
 import { BusterResizeRows } from './BusterResizeRows';
 import { NUMBER_OF_COLUMNS, NEW_ROW_ID, MIN_ROW_HEIGHT, TOP_SASH_ID } from './helpers';
+import { cn } from '@/lib/utils';
 
 const measuringConfig = {
   droppable: {
@@ -331,7 +331,7 @@ export const BusterResizeableGrid: React.FC<{
       onDragCancel={onDragCancel}
       collisionDetection={collisionDetectionStrategy}
       sensors={sensors}>
-      <div className={clsx('h-full w-full', 'buster-resizeable-grid', className)}>
+      <div className={cn('buster-resizeable-grid h-full w-full', className)}>
         <BusterResizeRows
           rows={rows}
           className={className}

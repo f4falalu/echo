@@ -137,7 +137,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
 
   return (
     <SortableContext id={rowId} items={items} disabled={false}>
-      <div ref={setNodeRef} className="relative h-full w-full">
+      <div ref={setNodeRef} className="buster-resize-columns relative h-full w-full">
         <BusterDragColumnMarkers
           isDraggingIndex={columnMarkerColumnIndex}
           itemsLength={items.length}

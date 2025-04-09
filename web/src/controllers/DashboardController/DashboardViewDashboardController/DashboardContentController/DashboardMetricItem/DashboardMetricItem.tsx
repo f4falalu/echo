@@ -9,6 +9,7 @@ import { BusterChart } from '@/components/ui/charts/BusterChart';
 
 const DashboardMetricItemBase: React.FC<{
   metricId: string;
+  versionNumber: number | undefined;
   chatId: string | undefined;
   dashboardId: string;
   numberOfMetrics: number;
@@ -18,6 +19,7 @@ const DashboardMetricItemBase: React.FC<{
 }> = ({
   readOnly,
   dashboardId,
+  versionNumber,
   className = '',
   metricId,
   isDragOverlay = false,
@@ -32,7 +34,7 @@ const DashboardMetricItemBase: React.FC<{
     initialAnimationEnded,
     setInitialAnimationEnded,
     isFetchedMetricData
-  } = useDashboardMetric({ metricId });
+  } = useDashboardMetric({ metricId, versionNumber });
 
   const loadingMetricData = !!metric && !isFetchedMetricData;
   const chartOptions = metric?.chart_config;
@@ -69,8 +71,6 @@ const DashboardMetricItemBase: React.FC<{
     setInitialAnimationEnded(metricId);
   });
 
-  if (!chartOptions) return null;
-
   return (
     <Card
       ref={conatinerRef}
@@ -96,7 +96,7 @@ const DashboardMetricItemBase: React.FC<{
           isTable ? '' : 'p-3',
           isDragOverlay ? 'pointer-events-none' : 'pointer-events-auto'
         )}>
-        {renderChart && (
+        {renderChart && chartOptions && (
           <BusterChart
             data={data}
             loading={loading}
@@ -115,5 +115,9 @@ const DashboardMetricItemBase: React.FC<{
 };
 
 export const DashboardMetricItem = React.memo(DashboardMetricItemBase, (prev, next) => {
-  return prev.metricId === next.metricId && prev.dashboardId === next.dashboardId;
+  return (
+    prev.metricId === next.metricId &&
+    prev.dashboardId === next.dashboardId &&
+    prev.versionNumber === next.versionNumber
+  );
 });

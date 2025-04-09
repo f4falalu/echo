@@ -10,22 +10,23 @@ export const DashboardLayoutContainer: React.FC<{
   children: React.ReactNode;
   dashboardId: string;
 }> = ({ children, dashboardId }) => {
-  const { data: permission } = useGetDashboard(
-    { id: dashboardId },
-    { select: (x) => x.permission }
-  );
-  const isEditor = canEdit(permission);
-
   return (
     <>
       {children}
-      {isEditor && <MemoizedAddToDashboardModal dashboardId={dashboardId} />}
+      <MemoizedAddToDashboardModal dashboardId={dashboardId} />
     </>
   );
 };
 
 const MemoizedAddToDashboardModal = React.memo(({ dashboardId }: { dashboardId: string }) => {
+  const { data: permission } = useGetDashboard(
+    { id: dashboardId },
+    { select: (x) => x.permission }
+  );
+  const isEditor = canEdit(permission);
   const { openAddContentModal, onCloseAddContentModal } = useDashboardContentStore();
+
+  if (!isEditor) return null;
 
   return (
     <AddToDashboardModal

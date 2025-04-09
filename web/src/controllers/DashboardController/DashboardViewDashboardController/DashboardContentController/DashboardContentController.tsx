@@ -19,6 +19,7 @@ import type {
 } from '@/api/asset_interfaces';
 import { DashboardEmptyState } from './DashboardEmptyState';
 import { type useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
+import last from 'lodash/last';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
 const DEFAULT_EMPTY_METRICS: Record<string, BusterMetric> = {};
@@ -61,6 +62,12 @@ export const DashboardContentController: React.FC<{
           return {
             ...row,
             items: row.items.map((item) => {
+              const selectedMetric = metrics[item.id];
+              const versionNumber =
+                last(selectedMetric.versions)?.version_number === selectedMetric.version_number
+                  ? undefined
+                  : selectedMetric.version_number;
+
               return {
                 ...item,
                 children: (
@@ -71,6 +78,7 @@ export const DashboardContentController: React.FC<{
                     readOnly={readOnly}
                     chatId={chatId}
                     numberOfMetrics={numberOfMetrics}
+                    versionNumber={versionNumber}
                   />
                 )
               };
@@ -104,6 +112,8 @@ export const DashboardContentController: React.FC<{
       }
     }, [dashboard?.id, remapMetrics]);
 
+    console.log(hasMetrics, dashboardRows, dashboard);
+
     return (
       <div className="dashboard-content-controller">
         {hasMetrics && !!dashboardRows.length && !!dashboard ? (
@@ -118,11 +128,12 @@ export const DashboardContentController: React.FC<{
                 draggingId && (
                   <DashboardMetricItem
                     metricId={draggingId}
-                    readOnly={false}
+                    readOnly={true}
                     dashboardId={dashboard.id}
                     isDragOverlay
                     numberOfMetrics={numberOfMetrics}
                     chatId={undefined}
+                    versionNumber={metrics[draggingId]?.version_number}
                   />
                 )
               }
