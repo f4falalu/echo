@@ -65,7 +65,7 @@ const FileContainerHeaderStandard: React.FC<{
           />
         )}
       </div>
-      <div className="flex-1">
+      <div className="flex flex-1 items-center justify-end">
         <SelectedFileButtons selectedFileView={selectedFileView} selectedFileId={selectedFileId} />
       </div>
     </>

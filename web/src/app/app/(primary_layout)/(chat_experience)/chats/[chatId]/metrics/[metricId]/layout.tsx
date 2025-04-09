@@ -5,12 +5,12 @@ export default async function MetricLayout({
   params
 }: {
   children: React.ReactNode;
-  params: Promise<{ metricId: string }>;
+  params: Promise<{ metricId: string; versionNumber?: number }>;
 }) {
-  const { metricId } = await params;
+  const { metricId, versionNumber } = await params;
 
   return (
-    <AppAssetCheckLayout assetId={metricId} type="metric">
+    <AppAssetCheckLayout assetId={metricId} type="metric" versionNumber={versionNumber}>
       {children}
     </AppAssetCheckLayout>
   );

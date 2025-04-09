@@ -21,14 +21,13 @@ export const useCloseVersionHistory = () => {
       chatId: string | undefined;
     }) => {
       closeSecondaryView();
-      await timeout(chatId ? 250 : 0);
+      await timeout(chatId ? 250 : 0); //wait for the secondary view to close
       startTransition(() => {
         const link = getFileLink({
           fileId: assetId,
           fileType: type,
           chatId
         });
-        alert(link);
         if (link) onChangePage(link);
       });
     }

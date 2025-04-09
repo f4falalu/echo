@@ -2,24 +2,23 @@
 
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
-import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
-import { useMount } from '@/hooks';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 
 export const AppAssetLoadingContainer: React.FC<{
   assetId: string;
   type: 'metric' | 'dashboard';
   children: React.ReactNode;
-}> = React.memo(({ assetId, type, children }) => {
+  versionNumber: number | undefined;
+}> = React.memo(({ assetId, type, children, versionNumber }) => {
   const {
     isFetchedConfig: isFetchedMetricConfig,
     isFetchedData: isFetchedMetricData,
     error: metricError
   } = useGetMetricAssetData({
     assetId,
-    enabled: type === 'metric'
+    enabled: type === 'metric',
+    versionNumber
   });
   const {
     isFetchedConfig: isFetchedDashboardConfig,
@@ -27,7 +26,8 @@ export const AppAssetLoadingContainer: React.FC<{
     error: dashboardError
   } = useGetDashboardAssetData({
     assetId,
-    enabled: type === 'dashboard'
+    enabled: type === 'dashboard',
+    versionNumber
   });
 
   const showLoader = useMemo(() => {
@@ -60,12 +60,22 @@ export const AppAssetLoadingContainer: React.FC<{
 
 AppAssetLoadingContainer.displayName = 'AppAssetLoadingContainer';
 
-const useGetMetricAssetData = ({ assetId, enabled }: { assetId: string; enabled: boolean }) => {
+const useGetMetricAssetData = ({
+  assetId,
+  enabled,
+  versionNumber
+}: {
+  assetId: string;
+  enabled: boolean;
+  versionNumber: number | undefined;
+}) => {
   const { isFetched: isMetricFetched, ...rest } = useGetMetric({
-    id: enabled ? assetId : undefined
+    id: enabled ? assetId : undefined,
+    versionNumber
   });
   const { isFetched: isMetricDataFetched } = useGetMetricData({
-    id: enabled ? assetId : undefined
+    id: enabled ? assetId : undefined,
+    versionNumber
   });
 
   return {
@@ -75,9 +85,18 @@ const useGetMetricAssetData = ({ assetId, enabled }: { assetId: string; enabled:
   };
 };
 
-const useGetDashboardAssetData = ({ assetId, enabled }: { assetId: string; enabled: boolean }) => {
+const useGetDashboardAssetData = ({
+  assetId,
+  enabled,
+  versionNumber
+}: {
+  assetId: string;
+  enabled: boolean;
+  versionNumber: number | undefined;
+}) => {
   const { isFetched: isDashboardFetched, error: dashboardError } = useGetDashboard({
-    id: enabled ? assetId : undefined
+    id: enabled ? assetId : undefined,
+    versionNumber
   });
 
   return {

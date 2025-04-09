@@ -15,14 +15,15 @@ import { HydrationBoundaryAssetStore } from '@/context/Assets/HydrationBoundaryA
 export type AppAssetCheckLayoutProps = {
   assetId: string;
   type: 'metric' | 'dashboard';
+  versionNumber?: number;
 };
 
 export const AppAssetCheckLayout: React.FC<
   {
     children: React.ReactNode;
   } & AppAssetCheckLayoutProps
-> = async ({ children, type, assetId }) => {
-  const queryClient = await prefetchAsset(assetId, type);
+> = async ({ children, type, assetId, versionNumber }) => {
+  const queryClient = await prefetchAsset(assetId, type, versionNumber);
 
   const {
     has_access,
@@ -55,7 +56,7 @@ export const AppAssetCheckLayout: React.FC<
   return (
     <HydrationBoundary state={dehydratedState}>
       <HydrationBoundaryAssetStore asset={queryData}>
-        <AppAssetLoadingContainer assetId={assetId} type={type}>
+        <AppAssetLoadingContainer assetId={assetId} type={type} versionNumber={versionNumber}>
           {Component}
         </AppAssetLoadingContainer>
       </HydrationBoundaryAssetStore>
@@ -63,15 +64,25 @@ export const AppAssetCheckLayout: React.FC<
   );
 };
 
-const prefetchAsset = async (assetId: string, type: 'metric' | 'dashboard') => {
+const prefetchAsset = async (
+  assetId: string,
+  type: 'metric' | 'dashboard',
+  versionNumber?: number
+) => {
   let queryClient = new QueryClient();
 
   switch (type) {
     case 'metric':
-      queryClient = await prefetchGetMetric({ id: assetId }, queryClient);
+      queryClient = await prefetchGetMetric(
+        { id: assetId, version_number: versionNumber },
+        queryClient
+      );
       break;
     case 'dashboard':
-      queryClient = await prefetchGetDashboard({ id: assetId }, queryClient);
+      queryClient = await prefetchGetDashboard(
+        { id: assetId, version_number: versionNumber },
+        queryClient
+      );
       break;
     default:
       const _exhaustiveCheck: never = type;

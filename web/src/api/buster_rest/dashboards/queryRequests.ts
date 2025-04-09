@@ -72,8 +72,8 @@ const useGetDashboardAndInitializeMetrics = () => {
 export const useGetDashboard = <TData = BusterDashboardResponse>(
   {
     id,
-    version_number: version_number_prop
-  }: { id: string | undefined; version_number?: number | null },
+    versionNumber: versionNumberProp
+  }: { id: string | undefined; versionNumber?: number | null },
   params?: Omit<
     UseQueryOptions<BusterDashboardResponse, RustApiError, TData>,
     'queryKey' | 'queryFn'
@@ -85,12 +85,14 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
   };
   const versionNumberQueryParam = useSearchParams().get('versionNumber');
 
-  const versionNumber = versionNumberQueryParam || verionNumberPathParam;
+  const versionNumberFromParams = versionNumberQueryParam || verionNumberPathParam;
 
   const version_number = useMemo(() => {
-    if (version_number_prop === null) return undefined;
-    return version_number_prop || versionNumber ? parseInt(versionNumber!) : undefined;
-  }, [version_number_prop, versionNumber]);
+    if (versionNumberProp === null) return undefined;
+    return versionNumberProp || versionNumberFromParams
+      ? parseInt(versionNumberFromParams!)
+      : undefined;
+  }, [versionNumberProp, versionNumberFromParams]);
 
   return useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id!, version_number),
