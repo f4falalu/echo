@@ -1,6 +1,7 @@
 use dashmap::DashMap;
 use middleware::AuthenticatedUser;
 use std::{collections::HashMap, time::Instant};
+use std::collections::HashSet;
 
 use agents::{
     tools::{
@@ -48,6 +49,8 @@ use crate::messages::types::{ChatMessage, ChatUserMessage};
 use super::types::ChatWithMessages;
 use tokio::sync::mpsc;
 
+use database::types::dashboard_yml::DashboardYml;
+
 // Define the helper struct at the module level
 #[derive(Debug, Clone)]
 struct CompletedFileInfo {
@@ -55,6 +58,7 @@ struct CompletedFileInfo {
     file_type: String, // "metric" or "dashboard"
     file_name: String,
     version_number: i32,
+    content: String, // Added to store file content for parsing
 }
 
 // Define ThreadEvent
@@ -2157,11 +2161,15 @@ fn collect_completed_files(containers: &[BusterContainer]) -> Vec<CompletedFileI
                 if file_reasoning.message_type == "files" && file_reasoning.status == "completed" {
                     for (_file_id_key, file_detail) in &file_reasoning.files {
                         if file_detail.status == "completed" {
+                            // Extract content, default to empty string if None
+                            let content = file_detail.file.text.clone().unwrap_or_default();
+
                             completed_files.push(CompletedFileInfo {
                                 id: file_detail.id.clone(),
                                 file_type: file_detail.file_type.clone(),
                                 file_name: file_detail.file_name.clone(),
                                 version_number: file_detail.version_number,
+                                content, // Populate the content field
                             });
                         }
                     }
@@ -2177,11 +2185,71 @@ fn apply_file_filtering_rules(completed_files: &[CompletedFileInfo]) -> Vec<Comp
     let contains_metrics = completed_files.iter().any(|f| f.file_type == "metric");
     let contains_dashboards = completed_files.iter().any(|f| f.file_type == "dashboard");
 
-    if contains_dashboards {
+    if contains_metrics && contains_dashboards {
+        // Case: Both metrics and dashboards were created/modified
+        let metrics: Vec<_> = completed_files.iter().filter(|f| f.file_type == "metric").cloned().collect();
+        let dashboards: Vec<_> = completed_files.iter().filter(|f| f.file_type == "dashboard").cloned().collect();
+
+        let mut metric_uuids = HashSet::new();
+        for metric in &metrics {
+            if let Ok(uuid) = Uuid::parse_str(&metric.id) {
+                metric_uuids.insert(uuid);
+            }
+        }
+
+        let mut referenced_metric_uuids = HashSet::new();
+        for dashboard_info in &dashboards {
+            match DashboardYml::new(dashboard_info.content.clone()) {
+                Ok(dashboard_yml) => {
+                    for row in dashboard_yml.rows {
+                        for item in row.items {
+                            referenced_metric_uuids.insert(item.id);
+                        }
+                    }
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        "Failed to parse dashboard YML content for ID {}: {}. Skipping for metric reference check.",
+                        dashboard_info.id,
+                        e
+                    );
+                }
+            }
+        }
+
+        // Check if all generated/modified metrics are referenced in generated/modified dashboards
+        // Calculate the set of unreferenced metric UUIDs
+        let unreferenced_metric_uuids: HashSet<_> = metric_uuids
+            .difference(&referenced_metric_uuids)
+            .copied() // Copy the borrowed Uuids
+            .collect();
+
+        if unreferenced_metric_uuids.is_empty() {
+            // All metrics referenced (or no metrics to begin with), return only dashboards
+            dashboards
+        } else {
+            // Filter the original metrics list to get only the unreferenced ones
+            let unreferenced_metrics: Vec<_> = metrics
+                .into_iter()
+                .filter(|m| {
+                    Uuid::parse_str(&m.id)
+                        .map_or(false, |uuid| unreferenced_metric_uuids.contains(&uuid))
+                })
+                .collect();
+
+            // Not all metrics referenced, return unreferenced metrics first, then dashboards
+            let mut combined = unreferenced_metrics;
+            combined.extend(dashboards);
+            combined
+        }
+    } else if contains_dashboards {
+        // Only dashboards
         completed_files.iter().filter(|f| f.file_type == "dashboard").cloned().collect()
     } else if contains_metrics {
+        // Only metrics
         completed_files.iter().filter(|f| f.file_type == "metric").cloned().collect()
     } else {
+        // Neither
         vec![]
     }
 }
