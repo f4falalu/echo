@@ -6,6 +6,7 @@ mod utils;
 use clap::{Parser, Subcommand};
 use colored::*;
 use commands::{auth::AuthArgs, deploy, init};
+use utils::updater::check_for_updates;
 
 pub const APP_NAME: &str = "buster";
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -83,6 +84,9 @@ pub struct Args {
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
+
+    // Spawn the update check in the background
+    tokio::spawn(check_for_updates());
 
     // TODO: All commands should check for an update.
     let result = match args.cmd {

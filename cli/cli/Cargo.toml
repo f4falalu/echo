@@ -38,6 +38,7 @@ url = { workspace = true }
 zip = { workspace = true }
 glob = { workspace = true }
 walkdir = { workspace = true }
+semver = { workspace = true }
 # Add the shared query engine library
 query_engine = { workspace = true }
 

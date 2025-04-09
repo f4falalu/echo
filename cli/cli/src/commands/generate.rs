@@ -1,21 +1,20 @@
-use anyhow::Result;
-use std::path::{Path, PathBuf};
-use std::collections::HashMap;
-use regex::Regex;
-use lazy_static::lazy_static;
-use std::ffi::OsStr;
-use serde::{Deserialize, Serialize};
-use std::fs;
-use std::fmt;
-use inquire::{Text, required};
-use walkdir::WalkDir;
 use crate::utils::{
-    buster_credentials::get_and_validate_buster_credentials,
-    BusterClient, GenerateApiRequest, GenerateApiResponse,
-    yaml_diff_merger::YamlDiffMerger, BusterConfig, ExclusionManager,
-    find_sql_files, ProgressTracker,
+    buster::{BusterClient, GenerateApiRequest, GenerateApiResponse},
+    exclusion::{find_sql_files, BusterConfig, ExclusionManager, ProgressTracker},
+    file::buster_credentials::get_and_validate_buster_credentials, yaml_diff_merger::YamlDiffMerger,
 };
+use anyhow::Result;
 use glob;
+use inquire::{required, Text};
+use lazy_static::lazy_static;
+use regex::Regex;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::ffi::OsStr;
+use std::fmt;
+use std::fs;
+use std::path::{Path, PathBuf};
+use walkdir::WalkDir;
 
 #[derive(Debug)]
 pub struct GenerateCommand {
@@ -60,9 +59,18 @@ enum GenerateError {
 impl fmt::Display for GenerateError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            GenerateError::DuplicateModelName { name, first_occurrence, duplicate_occurrence } => {
-                write!(f, "Duplicate model name '{}' found. First occurrence: {}, Duplicate: {}", 
-                    name, first_occurrence.display(), duplicate_occurrence.display())
+            GenerateError::DuplicateModelName {
+                name,
+                first_occurrence,
+                duplicate_occurrence,
+            } => {
+                write!(
+                    f,
+                    "Duplicate model name '{}' found. First occurrence: {}, Duplicate: {}",
+                    name,
+                    first_occurrence.display(),
+                    duplicate_occurrence.display()
+                )
             }
             GenerateError::MissingBusterYmlField { field } => {
                 write!(f, "Missing required field in buster.yml: {}", field)
@@ -126,17 +134,26 @@ impl GenerateProgress {
 
     fn log_excluded_tag(&mut self, file: &str, tag: &str) {
         self.excluded_tags += 1;
-        println!("⛔ Excluding file: {} (matched excluded tag: {})", file, tag);
+        println!(
+            "⛔ Excluding file: {} (matched excluded tag: {})",
+            file, tag
+        );
     }
-    
+
     fn log_summary(&self) {
         println!("\n📊 Processing Summary");
         println!("==================");
-        println!("✅ Successfully processed: {} files", self.processed - self.excluded_files - self.excluded_tags);
-        
+        println!(
+            "✅ Successfully processed: {} files",
+            self.processed - self.excluded_files - self.excluded_tags
+        );
+
         // Only show exclusion details if files were excluded
         if self.excluded_files > 0 || self.excluded_tags > 0 {
-            println!("\n⛔ Excluded files: {} total", self.excluded_files + self.excluded_tags);
+            println!(
+                "\n⛔ Excluded files: {} total",
+                self.excluded_files + self.excluded_tags
+            );
             if self.excluded_files > 0 {
                 println!("  - {} files excluded by pattern", self.excluded_files);
             }
@@ -156,7 +173,10 @@ impl ProgressTracker for GenerateProgress {
 
     fn log_excluded_tag(&mut self, path: &str, tag: &str) {
         self.excluded_tags += 1;
-        println!("⛔ Excluding file: {} (matched excluded tag: {})", path, tag);
+        println!(
+            "⛔ Excluding file: {} (matched excluded tag: {})",
+            path, tag
+        );
     }
 }
 
@@ -190,11 +210,11 @@ impl GenerateCommand {
 
     pub async fn execute(&self) -> Result<()> {
         let mut progress = GenerateProgress::new(0);
-        
+
         // First handle buster.yml
         progress.status = "Checking buster.yml configuration...".to_string();
         progress.log_progress();
-        
+
         let config = self.handle_buster_yml().await?;
 
         progress.status = "Scanning source directory...".to_string();
@@ -207,18 +227,25 @@ impl GenerateCommand {
             data_source_name: self.data_source_name.clone(),
             schema: self.schema.clone(),
             database: self.database.clone(),
-            config,  // Use the loaded config
+            config, // Use the loaded config
             maintain_directory_structure: self.maintain_directory_structure,
         };
 
         let model_names = cmd.process_sql_files(&mut progress).await?;
-        
+
         // Print results
         println!("\n✅ Successfully processed all files");
         println!("\nFound {} model names:", model_names.len());
         for model in &model_names {
-            println!("  - {} ({})", model.name, 
-                if model.is_from_alias { "from alias" } else { "from filename" });
+            println!(
+                "  - {} ({})",
+                model.name,
+                if model.is_from_alias {
+                    "from alias"
+                } else {
+                    "from filename"
+                }
+            );
         }
 
         // Create API client
@@ -230,7 +257,10 @@ impl GenerateCommand {
 
         // Prepare API request
         let request = GenerateApiRequest {
-            data_source_name: cmd.config.data_source_name.expect("data_source_name is required"),
+            data_source_name: cmd
+                .config
+                .data_source_name
+                .expect("data_source_name is required"),
             schema: cmd.config.schema.expect("schema is required"),
             database: cmd.config.database,
             model_names: model_names.iter().map(|m| m.name.clone()).collect(),
@@ -245,23 +275,26 @@ impl GenerateCommand {
                 // Process each model's YAML
                 for (model_name, yml_content) in response.yml_contents {
                     // Find the source file for this model
-                    let source_file = model_names.iter()
+                    let source_file = model_names
+                        .iter()
                         .find(|m| m.name == model_name)
                         .map(|m| m.source_file.clone())
-                        .unwrap_or_else(|| self.destination_path.join(format!("{}.sql", model_name)));
-                    
+                        .unwrap_or_else(|| {
+                            self.destination_path.join(format!("{}.sql", model_name))
+                        });
+
                     // Determine output path based on source file
                     let file_path = self.get_output_path(&model_name, &source_file);
-                    
+
                     // Create parent directories if they don't exist
                     if let Some(parent) = file_path.parent() {
                         fs::create_dir_all(parent)?;
                     }
-                    
+
                     if file_path.exists() {
                         // Use YAML diff merger for existing files
                         let merger = YamlDiffMerger::new(file_path.clone(), yml_content);
-                        
+
                         match merger.compute_diff() {
                             Ok(diff_result) => {
                                 // Preview changes
@@ -275,12 +308,20 @@ impl GenerateCommand {
                                         println!("✅ Updated {}", file_path.display());
                                     }
                                     Err(e) => {
-                                        progress.log_error(&format!("Failed to update {}: {}", file_path.display(), e));
+                                        progress.log_error(&format!(
+                                            "Failed to update {}: {}",
+                                            file_path.display(),
+                                            e
+                                        ));
                                     }
                                 }
                             }
                             Err(e) => {
-                                progress.log_error(&format!("Failed to compute diff for {}: {}", file_path.display(), e));
+                                progress.log_error(&format!(
+                                    "Failed to compute diff for {}: {}",
+                                    file_path.display(),
+                                    e
+                                ));
                             }
                         }
                     } else {
@@ -291,7 +332,11 @@ impl GenerateCommand {
                                 println!("✅ Created new file {}", file_path.display());
                             }
                             Err(e) => {
-                                progress.log_error(&format!("Failed to write {}: {}", file_path.display(), e));
+                                progress.log_error(&format!(
+                                    "Failed to write {}: {}",
+                                    file_path.display(),
+                                    e
+                                ));
                             }
                         }
                     }
@@ -316,7 +361,7 @@ impl GenerateCommand {
                 return Err(anyhow::anyhow!("Failed to generate YAML files: {}", e));
             }
         }
-        
+
         Ok(())
     }
 
@@ -325,11 +370,11 @@ impl GenerateCommand {
 
         if buster_yml_path.exists() {
             println!("✅ Found existing buster.yml");
-            
+
             // Use our unified config loader
             let config = BusterConfig::load_from_dir(&self.destination_path)?
                 .ok_or_else(|| anyhow::anyhow!("Failed to load buster.yml"))?;
-            
+
             // Validate required fields
             let mut missing_fields = Vec::new();
             if config.data_source_name.is_none() {
@@ -349,7 +394,7 @@ impl GenerateCommand {
             Ok(config)
         } else {
             println!("ℹ️  No buster.yml found, creating new configuration");
-            
+
             // Use command line args if provided, otherwise prompt
             let data_source_name = self.data_source_name.clone().unwrap_or_else(|| {
                 Text::new("Enter data source name:")
@@ -369,7 +414,11 @@ impl GenerateCommand {
                 let input = Text::new("Enter database name (optional):")
                     .prompt()
                     .unwrap_or_else(|_| String::new());
-                if input.is_empty() { None } else { Some(input) }
+                if input.is_empty() {
+                    None
+                } else {
+                    Some(input)
+                }
             });
 
             // Ask if user wants to specify model paths
@@ -379,10 +428,11 @@ impl GenerateCommand {
                 .unwrap_or(false);
 
             let model_paths = if add_model_paths {
-                let input = Text::new("Enter comma-separated model paths (e.g., models,shared/models):")
-                    .prompt()
-                    .unwrap_or_else(|_| String::new());
-                
+                let input =
+                    Text::new("Enter comma-separated model paths (e.g., models,shared/models):")
+                        .prompt()
+                        .unwrap_or_else(|_| String::new());
+
                 if input.is_empty() {
                     None
                 } else {
@@ -392,8 +442,12 @@ impl GenerateCommand {
                         .map(|s| s.trim().to_string())
                         .filter(|s| !s.is_empty())
                         .collect();
-                    
-                    if paths.is_empty() { None } else { Some(paths) }
+
+                    if paths.is_empty() {
+                        None
+                    } else {
+                        Some(paths)
+                    }
                 }
             } else {
                 None
@@ -411,7 +465,7 @@ impl GenerateCommand {
             // Write the config to file
             let yaml = serde_yaml::to_string(&config)?;
             fs::write(&buster_yml_path, yaml)?;
-            
+
             println!("✅ Created new buster.yml configuration");
             Ok(config)
         }
@@ -432,19 +486,20 @@ impl GenerateCommand {
         let resolved_paths = self.config.resolve_model_paths(&self.destination_path);
         let has_model_paths = !resolved_paths.is_empty();
         let mut all_files = Vec::new();
-        
+
         // Process each resolved path
         for path in resolved_paths {
             progress.status = format!("Scanning path: {}", path.display());
             progress.log_progress();
-            
+
             if path.exists() {
                 if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("sql") {
                     // Single SQL file
                     all_files.push(path);
                 } else if path.is_dir() {
                     // Directory - find all SQL files recursively
-                    let mut dir_files = find_sql_files(&path, true, &exclusion_manager, Some(progress))?;
+                    let mut dir_files =
+                        find_sql_files(&path, true, &exclusion_manager, Some(progress))?;
                     all_files.append(&mut dir_files);
                 } else {
                     progress.log_warning(&format!("Skipping invalid path: {}", path.display()));
@@ -453,14 +508,18 @@ impl GenerateCommand {
                 progress.log_warning(&format!("Path not found: {}", path.display()));
             }
         }
-        
+
         // If no files found through model_paths, fall back to source_path
         if all_files.is_empty() && has_model_paths {
-            progress.log_warning("No SQL files found in specified model paths, falling back to source path");
-            all_files = find_sql_files(&self.source_path, true, &exclusion_manager, Some(progress))?;
+            progress.log_warning(
+                "No SQL files found in specified model paths, falling back to source path",
+            );
+            all_files =
+                find_sql_files(&self.source_path, true, &exclusion_manager, Some(progress))?;
         } else if all_files.is_empty() {
             // No model_paths specified and no files found, use source_path
-            all_files = find_sql_files(&self.source_path, true, &exclusion_manager, Some(progress))?;
+            all_files =
+                find_sql_files(&self.source_path, true, &exclusion_manager, Some(progress))?;
         }
 
         let sql_files = all_files;
@@ -470,20 +529,24 @@ impl GenerateCommand {
 
         for file_path in sql_files {
             progress.processed += 1;
-            
+
             // Get the relative path from the source directory
-            let relative_path = file_path.strip_prefix(&self.source_path)
+            let relative_path = file_path
+                .strip_prefix(&self.source_path)
                 .unwrap_or(&file_path)
                 .to_string_lossy()
                 .into_owned();
-            
+
             progress.current_file = relative_path.clone();
             progress.status = "Processing file...".to_string();
             progress.log_progress();
 
             match self.process_single_sql_file(&file_path).await {
                 Ok(model_name) => {
-                    println!("📝 Processing model: {} from file: {}", model_name.name, relative_path);
+                    println!(
+                        "📝 Processing model: {} from file: {}",
+                        model_name.name, relative_path
+                    );
                     if let Some(existing) = seen_names.get(&model_name.name) {
                         errors.push(GenerateError::DuplicateModelName {
                             name: model_name.name,
@@ -494,7 +557,11 @@ impl GenerateCommand {
                         progress.log_info(&format!(
                             "Found model name: {} ({})",
                             model_name.name,
-                            if model_name.is_from_alias { "from alias" } else { "from filename" }
+                            if model_name.is_from_alias {
+                                "from alias"
+                            } else {
+                                "from filename"
+                            }
                         ));
                         seen_names.insert(model_name.name.clone(), file_path.clone());
                         names.push(model_name);
@@ -521,7 +588,11 @@ impl GenerateCommand {
             println!("\n❌ Encountered errors during processing:");
             for error in &errors {
                 match error {
-                    GenerateError::DuplicateModelName { name, first_occurrence, duplicate_occurrence } => {
+                    GenerateError::DuplicateModelName {
+                        name,
+                        first_occurrence,
+                        duplicate_occurrence,
+                    } => {
                         println!("  - Duplicate model name '{}' found:", name);
                         println!("    First occurrence: {}", first_occurrence.display());
                         println!("    Duplicate: {}", duplicate_occurrence.display());
@@ -542,11 +613,10 @@ impl GenerateCommand {
 
     async fn process_single_sql_file(&self, path: &PathBuf) -> Result<ModelName, GenerateError> {
         // Read file content
-        let content = fs::read_to_string(path)
-            .map_err(|e| GenerateError::FileAccessError {
-                path: path.clone(),
-                error: e,
-            })?;
+        let content = fs::read_to_string(path).map_err(|e| GenerateError::FileAccessError {
+            path: path.clone(),
+            error: e,
+        })?;
 
         // Try to find alias in content
         if let Some(alias) = self.extract_alias(&content) {
@@ -563,10 +633,7 @@ impl GenerateCommand {
                 .map(|s| s.to_string())
                 .ok_or_else(|| GenerateError::FileAccessError {
                     path: path.clone(),
-                    error: std::io::Error::new(
-                        std::io::ErrorKind::InvalidData,
-                        "Invalid filename",
-                    ),
+                    error: std::io::Error::new(std::io::ErrorKind::InvalidData, "Invalid filename"),
                 })?;
 
             Ok(ModelName {
@@ -579,13 +646,10 @@ impl GenerateCommand {
 
     fn extract_alias(&self, content: &str) -> Option<String> {
         lazy_static! {
-            static ref ALIAS_RE: Regex = Regex::new(
-                r#"(?i)alias\s*=\s*['"]([^'"]+)['"]"#
-            ).unwrap();
+            static ref ALIAS_RE: Regex = Regex::new(r#"(?i)alias\s*=\s*['"]([^'"]+)['"]"#).unwrap();
         }
-        
-        ALIAS_RE.captures(content)
-            .map(|cap| cap[1].to_string())
+
+        ALIAS_RE.captures(content).map(|cap| cap[1].to_string())
     }
 
     // Add a method to determine the output path for a model
@@ -594,9 +658,13 @@ impl GenerateCommand {
         if self.destination_path != self.source_path {
             // Use destination path with flat or mirrored structure
             if self.maintain_directory_structure {
-                let relative = source_file.strip_prefix(&self.source_path).unwrap_or(Path::new(""));
+                let relative = source_file
+                    .strip_prefix(&self.source_path)
+                    .unwrap_or(Path::new(""));
                 let parent = relative.parent().unwrap_or(Path::new(""));
-                self.destination_path.join(parent).join(format!("{}.yml", model_name))
+                self.destination_path
+                    .join(parent)
+                    .join(format!("{}.yml", model_name))
             } else {
                 // Flat structure
                 self.destination_path.join(format!("{}.yml", model_name))
@@ -620,14 +688,8 @@ pub async fn generate(
     let source = PathBuf::from(source_path.unwrap_or("."));
     let destination = PathBuf::from(destination_path.unwrap_or("."));
 
-    let mut cmd = GenerateCommand::new(
-        source,
-        destination,
-        data_source_name,
-        schema,
-        database,
-    );
-    
+    let mut cmd = GenerateCommand::new(source, destination, data_source_name, schema, database);
+
     // Set directory structure preference
     cmd.maintain_directory_structure = !flat_structure;
 

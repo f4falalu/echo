@@ -4,8 +4,8 @@ use inquire::{Password, Text};
 use thiserror::Error;
 
 use crate::utils::{
-    buster_credentials::{get_buster_credentials, set_buster_credentials, BusterCredentials},
-    BusterClient,
+    buster::BusterClient,
+    file::buster_credentials::{get_buster_credentials, set_buster_credentials, BusterCredentials},
 };
 
 const DEFAULT_HOST: &str = "https://api2.buster.so";

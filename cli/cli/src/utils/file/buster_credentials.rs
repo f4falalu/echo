@@ -3,7 +3,7 @@ use dirs::home_dir;
 use serde::{Deserialize, Serialize};
 use tokio::fs;
 
-use crate::{error::BusterError, utils::BusterClient};
+use crate::{error::BusterError, utils::buster::BusterClient};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct BusterCredentials {

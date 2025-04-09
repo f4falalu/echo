@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "cli",
+    "libs/dbt_utils",
     # Add "libs/*" or specific lib crates here later
 ]
 
@@ -42,6 +43,7 @@ walkdir = "2.5.0"
 # The query_engine dependency needs a workspace-relative path
 query_engine = { path = "../api/libs/query_engine" } # Adjusted path
 chrono = "0.4" # Moved from build-dependencies
+semver = "1.0.19"
 
 # Keep dev-dependencies separate if they aren't shared
 # tempfile = "3.16.0" 
