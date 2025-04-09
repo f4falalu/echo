@@ -1,0 +1,48 @@
+[package]
+name = "buster-cli"
+version = "0.0.7"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+name = "buster_cli"
+path = "src/lib.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true, features = ["derive", "env"] }
+confy = { workspace = true }
+dirs = { workspace = true }
+futures = { workspace = true }
+indicatif = { workspace = true }
+inquire = { workspace = true }
+lazy_static = { workspace = true }
+ratatui = { workspace = true }
+regex = { workspace = true }
+reqwest = { workspace = true, features = ["json", "rustls-tls", "stream"] }
+rpassword = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+tempfile = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true, features = ["io"] }
+futures-util = { workspace = true }
+uuid = { workspace = true, features = ["v4", "serde"] }
+colored = { workspace = true }
+rustls = { workspace = true, features = ["tls12"] }
+url = { workspace = true }
+zip = { workspace = true }
+glob = { workspace = true }
+walkdir = { workspace = true }
+# Add the shared query engine library
+query_engine = { workspace = true }
+
+[build-dependencies]
+chrono = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.16.0"
