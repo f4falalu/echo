@@ -4,35 +4,30 @@ use semver::Version;
 use serde::Deserialize;
 use std::time::Duration;
 
-const CRATES_IO_API_URL: &str = "https://crates.io/api/v1/crates/";
-const CRATE_NAME: &str = env!("CARGO_PKG_NAME"); // Read crate name from Cargo.toml
+const GITHUB_API_LATEST_RELEASE_URL: &str =
+    "https://api.github.com/repos/buster-so/buster/releases/latest";
 const CURRENT_VERSION: &str = env!("CARGO_PKG_VERSION"); // Read current version from Cargo.toml
+const USER_AGENT: &str = "buster-cli";
 
-// Simplified struct to deserialize only the version field from the crates.io response
+// Struct to deserialize the tag_name from the GitHub API response
 #[derive(Deserialize, Debug)]
-struct CrateInfo {
-    #[serde(rename = "crate")]
-    krate: CrateData,
+struct GitHubReleaseInfo {
+    tag_name: String,
 }
 
-#[derive(Deserialize, Debug)]
-struct CrateData {
-    max_stable_version: String,
-}
-
-/// Checks crates.io for a newer version of the CLI.
-/// Prints a message to stderr indicating if an update is available or if the CLI is up-to-date.
+/// Checks GitHub Releases for a newer version of the CLI.
+/// Prints a message to stderr indicating if an update is available.
 /// Fails silently if there's an error checking (e.g., network issues).
 pub async fn check_for_updates() {
-    // Use a short timeout to avoid blocking the CLI for too long
     let client = Client::builder()
         .timeout(Duration::from_secs(3))
+        .user_agent(USER_AGENT) // Add User-Agent header
         .build();
 
     let client = match client {
         Ok(c) => c,
         Err(e) => {
-            // Using eprintln to avoid interfering with potential stdout parsing
+            // Log subtly
             eprintln!(
                 "{}",
                 format!("Failed to build HTTP client for update check: {}", e).yellow()
@@ -41,12 +36,9 @@ pub async fn check_for_updates() {
         }
     };
 
-    let url = format!("{}{}", CRATES_IO_API_URL, CRATE_NAME);
-
-    let response = match client.get(&url).send().await {
+    let response = match client.get(GITHUB_API_LATEST_RELEASE_URL).send().await {
         Ok(resp) => resp,
         Err(e) => {
-            // Log network errors subtly to stderr
             eprintln!("{}", format!("Update check failed: {}", e).yellow());
             return;
         }
@@ -56,15 +48,16 @@ pub async fn check_for_updates() {
         eprintln!(
             "{}",
             format!(
-                "Update check received non-success status: {}",
-                response.status()
+                "Update check received non-success status: {}\nURL: {}",
+                response.status(),
+                GITHUB_API_LATEST_RELEASE_URL
             )
             .yellow()
         );
         return;
     }
 
-    let crate_info = match response.json::<CrateInfo>().await {
+    let release_info = match response.json::<GitHubReleaseInfo>().await {
         Ok(info) => info,
         Err(e) => {
             eprintln!(
@@ -75,7 +68,8 @@ pub async fn check_for_updates() {
         }
     };
 
-    let latest_version_str = &crate_info.krate.max_stable_version;
+    // Remove potential 'v' prefix from tag name
+    let latest_version_str = release_info.tag_name.trim_start_matches('v');
 
     match (
         Version::parse(CURRENT_VERSION),
@@ -84,7 +78,7 @@ pub async fn check_for_updates() {
         (Ok(current), Ok(latest)) => {
             if latest > current {
                 eprintln!(
-                    "\n{}", // Add newline for spacing
+                    "\n{}",
                     format!(
                         "A new version of buster ({}) is available! You have {}.",
                         latest, current
@@ -96,10 +90,8 @@ pub async fn check_for_updates() {
                     "{}",
                     "Please run `buster update` to get the latest version.".red()
                 );
-            } else {
-                // Optionally print the up-to-date message, or keep it silent
-                // eprintln!("{}", "buster is up-to-date.".green());
             }
+            // No message if up-to-date
         }
         (Err(e), _) => {
             eprintln!(
@@ -111,8 +103,9 @@ pub async fn check_for_updates() {
             eprintln!(
                 "{}",
                 format!(
-                    "Failed to parse latest version ({}): {}",
-                    latest_version_str, e
+                    "Failed to parse latest version tag ('{}'): {}",
+                    release_info.tag_name, // Show original tag in error
+                    e
                 )
                 .yellow()
             );

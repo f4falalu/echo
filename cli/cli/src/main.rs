@@ -85,8 +85,7 @@ pub struct Args {
 async fn main() {
     let args = Args::parse();
 
-    // Spawn the update check in the background
-    tokio::spawn(check_for_updates());
+    check_for_updates().await;
 
     // TODO: All commands should check for an update.
     let result = match args.cmd {
