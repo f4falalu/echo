@@ -1,5 +1,5 @@
 import { useGetMetricsList } from '@/api/buster_rest/metrics';
-import { useMemoizedFn } from '@/hooks';
+import { useDebounce, useMemoizedFn } from '@/hooks';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { InputSelectModal, InputSelectModalProps } from '@/components/ui/modal/InputSelectModal';
 import { formatDate } from '@/lib';
@@ -12,6 +12,8 @@ import {
 import { Text } from '@/components/ui/typography';
 import { ASSET_ICONS } from '../config/assetIcons';
 import pluralize from 'pluralize';
+import { useSearch } from '@/api/buster_rest/search';
+import { ShareAssetType } from '@/api/asset_interfaces/share';
 
 export const AddToCollectionModal: React.FC<{
   open: boolean;
@@ -19,64 +21,63 @@ export const AddToCollectionModal: React.FC<{
   collectionId: string;
 }> = React.memo(({ open, onClose, collectionId }) => {
   const { data: collection, isFetched: isFetchedCollection } = useGetCollection(collectionId);
-  const { data: metrics, isFetched: isFetchedMetrics } = useGetMetricsList({});
-  const { data: dashboards, isFetched: isFetchedDashboards } = useGetDashboardsList({});
   const { mutateAsync: addAndRemoveAssetsFromCollection } = useAddAndRemoveAssetsFromCollection();
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, { wait: 150 });
+  const { data: searchResults } = useSearch({
+    query: debouncedSearchTerm,
+    asset_types: ['metric', 'dashboard'],
+    num_results: 100
+  });
 
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
 
-  const columns: InputSelectModalProps['columns'] = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      render: (name, data: { type: 'metric' | 'dashboard' }) => {
-        const Icon = data.type === 'metric' ? ASSET_ICONS.metrics : ASSET_ICONS.dashboards;
-        return (
-          <div className="flex items-center gap-1.5">
-            <span className="text-icon-color">
-              <Icon />
-            </span>
-            <Text>{name}</Text>
-          </div>
-        );
+  const columns = useMemo<InputSelectModalProps['columns']>(
+    () => [
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        render: (name, data: { type: 'metric' | 'dashboard' }) => {
+          const Icon = data.type === 'metric' ? ASSET_ICONS.metrics : ASSET_ICONS.dashboards;
+          return (
+            <div className="flex items-center gap-1.5">
+              <span className="text-icon-color">
+                <Icon />
+              </span>
+              <Text>{name}</Text>
+            </div>
+          );
+        }
+      },
+      {
+        title: 'Updated',
+        dataIndex: 'updated_at',
+        width: 140,
+        render: (value: string, x) => {
+          return formatDate({
+            date: value,
+            format: 'lll'
+          });
+        }
       }
-    },
-    {
-      title: 'Last edited',
-      dataIndex: 'last_edited',
-      width: 132,
-      render: (value: string, x) => {
-        return formatDate({
-          date: value,
-          format: 'lll'
-        });
-      }
-    }
-  ];
+    ],
+    []
+  );
 
   const rows = useMemo(() => {
-    return [
-      ...(metrics?.map<{
-        id: string;
-        data: { name: string; type: 'metric'; last_edited: string };
-      }>((metric) => ({
-        id: metric.id,
-        data: { name: metric.name, type: 'metric', last_edited: metric.last_edited }
-      })) || []),
-      ...(dashboards?.map<{
-        id: string;
-        data: { name: string; type: 'dashboard'; last_edited: string };
-      }>((dashboard) => ({
-        id: dashboard.id,
-        data: { name: dashboard.name, type: 'dashboard', last_edited: dashboard.last_edited }
-      })) || [])
-    ];
-  }, [metrics, dashboards]);
+    return (
+      searchResults?.map((asset) => ({
+        id: asset.id,
+        data: { name: asset.name, type: asset.type, updated_at: asset.updated_at }
+      })) || []
+    );
+  }, [searchResults]);
 
   const handleAddAndRemoveMetrics = useMemoizedFn(async () => {
     const keyedAssets = rows.reduce<Record<string, { type: 'metric' | 'dashboard'; id: string }>>(
       (acc, asset) => {
-        acc[asset.id] = { type: asset.data.type, id: asset.id };
+        acc[asset.id] = { type: asset.data.type as 'metric' | 'dashboard', id: asset.id };
         return acc;
       },
       {}
@@ -103,14 +104,11 @@ export const AddToCollectionModal: React.FC<{
   }, [originalIds, selectedAssets]);
 
   const emptyState = useMemo(() => {
-    if (!isFetchedMetrics || !isFetchedDashboards) {
-      return 'Loading assets...';
-    }
     if (rows.length === 0) {
       return 'No assets found';
     }
     return undefined;
-  }, [isFetchedMetrics, isFetchedDashboards, rows]);
+  }, [rows.length]);
 
   const footer: NonNullable<InputSelectModalProps['footer']> = useMemo(() => {
     return {
@@ -156,6 +154,8 @@ export const AddToCollectionModal: React.FC<{
       selectedRowKeys={selectedAssets}
       footer={footer}
       emptyState={emptyState}
+      searchText={searchTerm}
+      handleSearchChange={setSearchTerm}
     />
   );
 });
