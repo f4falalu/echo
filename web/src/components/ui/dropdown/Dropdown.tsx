@@ -296,7 +296,11 @@ export const DropdownContent = <T,>({
         )}
       </div>
 
-      {footerContent && <div className={cn('border-t p-1', footerClassName)}>{footerContent}</div>}
+      {footerContent && (
+        <div className={cn(hasShownItem && 'border-t', 'p-1', footerClassName)}>
+          {footerContent}
+        </div>
+      )}
     </>
   );
 };

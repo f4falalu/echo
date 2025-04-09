@@ -52,9 +52,7 @@ export const MetricViewChart: React.FC<{
     } = useGetMetricData({ id: metricId });
 
     const { mutate: updateMetric } = useUpdateMetric({
-      updateOnSave: false,
-      updateVersion: true,
-      saveToServer: true
+      saveToServer: false
     });
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
 

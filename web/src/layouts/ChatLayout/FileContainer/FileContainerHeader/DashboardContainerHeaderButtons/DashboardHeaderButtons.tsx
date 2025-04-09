@@ -31,7 +31,7 @@ export const DashboardHeaderButtons: React.FC<{
       {isEditor && <AddContentToDashboardButton />}
       <DashboardThreeDotMenu dashboardId={dashboardId} />
       <HideButtonContainer show>
-        <CreateChatButton />
+        <CreateChatButton assetId={dashboardId} assetType="dashboard" />
       </HideButtonContainer>
     </FileButtonContainer>
   );

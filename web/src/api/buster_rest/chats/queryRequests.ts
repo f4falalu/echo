@@ -8,7 +8,8 @@ import {
   updateChat,
   deleteChat,
   getListLogs,
-  duplicateChat
+  duplicateChat,
+  startChatFromAsset
 } from './requests';
 import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import { queryKeys } from '@/api/query_keys';
@@ -78,7 +79,6 @@ export const useGetChat = <TData = IBusterChat>(
   const queryFn = useMemoizedFn(() => {
     return getChat(params).then((chat) => {
       const { iChat, iChatMessages } = updateChatToIChat(chat, false);
-
       const lastMessageId = last(iChat.message_ids);
       const lastMessage = iChatMessages[lastMessageId!];
       if (lastMessage) {
@@ -105,6 +105,32 @@ export const useGetChat = <TData = IBusterChat>(
     enabled: !!params.id,
     queryFn,
     select
+  });
+};
+
+export const useStartChatFromAsset = () => {
+  const queryClient = useQueryClient();
+
+  const mutationFn = useMemoizedFn(async (params: Parameters<typeof startChatFromAsset>[0]) => {
+    const chat = await startChatFromAsset(params);
+    const { iChat, iChatMessages } = updateChatToIChat(chat, false);
+    iChat.message_ids.forEach((messageId) => {
+      queryClient.setQueryData(
+        queryKeys.chatsMessages(messageId).queryKey,
+        iChatMessages[messageId]
+      );
+    });
+    queryClient.setQueryData(queryKeys.chatsGetChat(chat.id).queryKey, iChat);
+    return iChat;
+  });
+
+  return useMutation({
+    mutationFn,
+    onSuccess: (chat) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.chatsGetList().queryKey
+      });
+    }
   });
 };
 

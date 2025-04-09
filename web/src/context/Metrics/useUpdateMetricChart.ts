@@ -23,7 +23,6 @@ export const useUpdateMetricChart = (props?: { metricId?: string }) => {
     saveToServer: false
   });
   const { mutateAsync: saveMetricToServer } = useUpdateMetric({
-    updateVersion: true,
     updateOnSave: true,
     saveToServer: true
   });

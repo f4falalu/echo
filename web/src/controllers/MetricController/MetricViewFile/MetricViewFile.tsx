@@ -25,8 +25,7 @@ export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metr
   } = useUpdateMetric({
     updateOnSave: true,
     saveToServer: true,
-    updateVersion: true,
-    wait: 0
+    updateVersion: false
   });
 
   const { isReadOnly } = useIsMetricReadOnly({

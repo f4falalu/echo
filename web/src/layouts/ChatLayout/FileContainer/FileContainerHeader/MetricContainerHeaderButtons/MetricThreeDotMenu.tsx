@@ -104,7 +104,6 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
       deleteMetricMenu,
       downloadCSVMenu,
       downloadPNGMenu,
-      metricId,
       openSuccessMessage,
       onSetSelectedFile,
       versionHistoryItems,

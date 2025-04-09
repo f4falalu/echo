@@ -41,7 +41,7 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
       {isEffectiveOwner && <ShareMetricButton metricId={metricId} />}
       <ThreeDotMenuButton metricId={metricId} />
       <HideButtonContainer show={selectedLayout === 'file'}>
-        <CreateChatButton />
+        <CreateChatButton assetId={metricId} assetType="metric" />
       </HideButtonContainer>
     </FileButtonContainer>
   );

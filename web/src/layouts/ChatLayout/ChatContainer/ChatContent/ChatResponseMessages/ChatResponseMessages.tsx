@@ -19,16 +19,19 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
       (x) => x?.reasoning_message_ids?.[x.reasoning_message_ids.length - 1]
     );
     const finalReasoningMessage = useGetChatMessage(messageId, (x) => x?.final_reasoning_message);
+    const showReasoningMessage = !!lastReasoningMessageId || !isCompletedStream;
 
     return (
       <MessageContainer className="flex w-full flex-col space-y-3 overflow-hidden">
-        <ChatResponseReasoning
-          reasoningMessageId={lastReasoningMessageId}
-          finalReasoningMessage={finalReasoningMessage}
-          isCompletedStream={isCompletedStream}
-          messageId={messageId}
-          chatId={chatId}
-        />
+        {showReasoningMessage && (
+          <ChatResponseReasoning
+            reasoningMessageId={lastReasoningMessageId}
+            finalReasoningMessage={finalReasoningMessage}
+            isCompletedStream={isCompletedStream}
+            messageId={messageId}
+            chatId={chatId}
+          />
+        )}
 
         {responseMessageIds.map((responseMessageId, index) => (
           <React.Fragment key={responseMessageId}>

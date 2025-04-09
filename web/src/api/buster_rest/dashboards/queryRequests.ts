@@ -171,7 +171,7 @@ export const useUpdateDashboardConfig = (params?: {
   saveToServer?: boolean;
   updateVersion?: boolean;
 }) => {
-  const { saveToServer = false, updateVersion = true } = params || {};
+  const { saveToServer = false, updateVersion = false } = params || {};
   const { mutateAsync } = useUpdateDashboard({
     saveToServer,
     updateVersion

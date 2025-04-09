@@ -16,8 +16,7 @@ export const useMetricRunSQL = () => {
   const { mutateAsync: stageMetric } = useUpdateMetric({
     updateVersion: false,
     saveToServer: false,
-    updateOnSave: false,
-    wait: 0
+    updateOnSave: false
   });
   const {
     mutateAsync: saveMetric,
@@ -26,8 +25,7 @@ export const useMetricRunSQL = () => {
   } = useUpdateMetric({
     updateOnSave: true,
     updateVersion: true,
-    saveToServer: true,
-    wait: 0
+    saveToServer: true
   });
   const {
     mutateAsync: runSQLMutation,

@@ -163,7 +163,7 @@ export const useLayoutConfig = ({
       return 'chat';
     }
     return 'file';
-  }, [selectedFileId]);
+  }, [selectedFileId, chatId]);
 
   useEffect(() => {
     if (
