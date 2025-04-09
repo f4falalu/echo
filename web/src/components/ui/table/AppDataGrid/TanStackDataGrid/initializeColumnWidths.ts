@@ -20,6 +20,8 @@ export const initializeColumnWidths = (
   return initial;
 };
 
+const OFFSET = 20;
+
 const getDefaultColumnWidth = (
   rows: Record<string, string | number | null | Date>[],
   field: string,
@@ -32,7 +34,7 @@ const getDefaultColumnWidth = (
     if (!currString) return acc;
     return acc.length > currString.length ? acc : currString;
   }, headerString);
-  const longestWidth = measureTextWidth(longestString).width + 10;
+  const longestWidth = measureTextWidth(longestString).width + OFFSET;
   const width = clamp(longestWidth, MIN_COLUMN_WIDTH, MAX_COLUMN_WIDTH);
   return width;
 };
