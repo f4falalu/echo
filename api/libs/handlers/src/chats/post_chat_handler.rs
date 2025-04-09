@@ -849,7 +849,7 @@ pub struct BusterChatResponseFileMetadata {
 }
 
 #[derive(Debug, Serialize, Clone)]
-#[serde(tag = "type")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum BusterChatMessage {
     Text {
         id: String,
