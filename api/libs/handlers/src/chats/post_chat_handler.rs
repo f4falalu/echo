@@ -737,17 +737,6 @@ pub async fn post_chat_handler(
 
     if let Some(title) = title.title {
         chat_with_messages.title = title.clone();
-
-        // Update the chat title in the database to match
-        let update_result = diesel::update(chats::table)
-            .filter(chats::id.eq(chat_id))
-            .set((chats::title.eq(title), chats::updated_at.eq(Utc::now())))
-            .execute(&mut conn)
-            .await?;
-
-        if update_result == 0 {
-            tracing::warn!("Failed to update chat title in database");
-        }
     }
 
     // Send final completed state
@@ -2151,6 +2140,22 @@ pub async fn generate_conversation_title(
         )))
         .await?;
     }
+
+    let mut conn = match get_pg_pool().get().await {
+        Ok(conn) => conn,
+        Err(e) => {
+            return Err(anyhow::anyhow!("Failed to get database connection: {}", e));
+        }
+    };
+
+    diesel::update(chats::table)
+        .filter(chats::id.eq(*session_id))
+        .set((
+            chats::title.eq(title.title.clone().unwrap_or_default()),
+            chats::updated_at.eq(Utc::now()),
+        ))
+        .execute(&mut conn)
+        .await?;
 
     Ok(title)
 }
