@@ -11,6 +11,7 @@ import { Dropdown } from '@/components/ui/dropdown';
 import { StatusBadgeButton } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Dots, Trash } from '@/components/ui/icons';
 import {
+  useBulkUpdateMetricVerificationStatus,
   useDeleteMetric,
   useRemoveMetricFromCollection,
   useSaveMetricToCollections,
@@ -118,22 +119,12 @@ const StatusButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const { mutateAsync: updateMetric } = useUpdateMetric({
-    updateVersion: false,
-    saveToServer: true,
-    updateOnSave: true
-  });
+  const { mutateAsync: updateStatus } = useBulkUpdateMetricVerificationStatus();
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);
 
-  const onVerify = useMemoizedFn(async (d: { id: string; status: VerificationStatus }[]) => {
-    await Promise.all(
-      d.map(({ id, status }) => {
-        return updateMetric({
-          id,
-          status
-        });
-      })
-    );
+  const onVerify = useMemoizedFn(async (data: { id: string; status: VerificationStatus }[]) => {
+    console.log('onVerify', data);
+    await updateStatus(data);
     onSelectChange([]);
   });
 

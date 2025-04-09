@@ -91,9 +91,7 @@ export const ChatItemsContainer: React.FC<{
       {
         dataIndex: 'name',
         title: 'Name',
-        render: (name, record) => (
-          <TitleCell name={name} status={record?.status} chatId={record?.id} />
-        )
+        render: (name, record) => <TitleCell name={name} chatId={record?.id} />
       },
       {
         dataIndex: 'last_edited',
@@ -182,28 +180,26 @@ const EmptyState: React.FC<{
 });
 EmptyState.displayName = 'EmptyState';
 
-const TitleCell = React.memo<{ name: string; status: VerificationStatus; chatId: string }>(
-  ({ name, status, chatId }) => {
-    const onFavoriteDivClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
-      e.stopPropagation();
-    });
+const TitleCell = React.memo<{ name: string; chatId: string }>(({ name, chatId }) => {
+  const onFavoriteDivClick = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  });
 
-    return (
-      <div className="flex w-full items-center space-x-2">
-        <Text truncate>{name}</Text>
-        <div className="mr-2 flex items-center" onClick={onFavoriteDivClick}>
-          <FavoriteStar
-            id={chatId}
-            type={ShareAssetType.CHAT}
-            iconStyle="tertiary"
-            title={name}
-            className="hidden! group-hover:flex!"
-          />
-        </div>
+  return (
+    <div className="flex w-full items-center space-x-2">
+      <Text truncate>{name}</Text>
+      <div className="mr-2 flex items-center" onClick={onFavoriteDivClick}>
+        <FavoriteStar
+          id={chatId}
+          type={ShareAssetType.CHAT}
+          iconStyle="tertiary"
+          title={name}
+          className="hidden! group-hover:flex!"
+        />
       </div>
-    );
-  }
-);
+    </div>
+  );
+});
 TitleCell.displayName = 'TitleCell';
 
 const OwnerCell = memo<{ name: string; image: string | undefined }>(({ name, image }) => (

@@ -12,7 +12,8 @@ import {
   updateMetric,
   shareMetric,
   unshareMetric,
-  updateMetricShare
+  updateMetricShare,
+  bulkUpdateMetricVerificationStatus
 } from './requests';
 import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '@/lib/metrics';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
@@ -407,7 +408,7 @@ export const useUpdateMetric = (params: {
   );
 
   const combineAndSaveMetric = useMemoizedFn(
-    (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
+    (newMetricPartial: Omit<Partial<IBusterMetric>, 'status'> & { id: string }) => {
       const metricId = newMetricPartial.id;
       const options = metricsQueryKeys.metricsGetMetric(metricId);
       const prevMetric = getOriginalMetric(metricId);
@@ -424,7 +425,7 @@ export const useUpdateMetric = (params: {
   );
 
   const mutationFn = useMemoizedFn(
-    async (newMetricPartial: Partial<IBusterMetric> & { id: string }) => {
+    async (newMetricPartial: Omit<Partial<IBusterMetric>, 'status'> & { id: string }) => {
       const { newMetric, prevMetric } = combineAndSaveMetric(newMetricPartial);
 
       if (newMetric && prevMetric && saveToServer) {
@@ -446,4 +447,24 @@ export const useUpdateMetric = (params: {
   });
 
   return mutationRes;
+};
+
+export const useBulkUpdateMetricVerificationStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: bulkUpdateMetricVerificationStatus,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: metricsQueryKeys.metricsGetList({}).queryKey });
+      data.updated_metrics.forEach((metric) => {
+        const oldMetric = queryClient.getQueryData(
+          metricsQueryKeys.metricsGetMetric(metric.id).queryKey
+        );
+        const upgradedMetric = upgradeMetricToIMetric(metric, oldMetric || null);
+        queryClient.setQueryData(
+          metricsQueryKeys.metricsGetMetric(metric.id).queryKey,
+          upgradedMetric
+        );
+      });
+    }
+  });
 };

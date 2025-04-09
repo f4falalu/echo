@@ -1,10 +1,10 @@
 import {
+  useBulkUpdateMetricVerificationStatus,
   useDeleteMetric,
   useGetMetric,
   useGetMetricData,
   useRemoveMetricFromCollection,
-  useSaveMetricToCollections,
-  useUpdateMetric
+  useSaveMetricToCollections
 } from '@/api/buster_rest/metrics';
 import {
   useAddMetricsToDashboard,
@@ -33,13 +33,12 @@ import { useMemo, useState } from 'react';
 import { Dropdown } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import React from 'react';
-import { timeFromNow } from '@/lib/date';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { useSaveToDashboardDropdownContent } from '@/components/features/dropdowns/SaveToDashboardDropdown';
 import { useMemoizedFn } from '@/hooks';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces/share';
-import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/StatusDropdownContent';
+import { useStatusDropdownContent } from '@/components/features/metrics/StatusBadgeIndicator/useStatusDropdownContent';
 import { StatusBadgeIndicator } from '@/components/features/metrics/StatusBadgeIndicator';
 import { useFavoriteStar } from '@/components/features/list/FavoriteStar';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
@@ -291,14 +290,10 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
 
 const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
   const { data: metricStatus } = useGetMetric({ id: metricId }, { select: (x) => x.status });
-  const { mutate: updateMetric } = useUpdateMetric({
-    updateVersion: false,
-    saveToServer: true,
-    updateOnSave: true
-  });
+  const { mutate: updateStatus } = useBulkUpdateMetricVerificationStatus();
 
   const onChangeStatus = useMemoizedFn(async (status: VerificationStatus) => {
-    return updateMetric({ id: metricId, status });
+    return updateStatus([{ id: metricId, status }]);
   });
 
   const dropdownProps = useStatusDropdownContent({

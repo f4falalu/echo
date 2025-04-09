@@ -71,8 +71,6 @@ export const updateMetric = async (params: {
   sql?: string;
   /** chart_config to update */
   chart_config?: BusterChartConfigProps;
-  /** Admin only: verification status update */
-  status?: VerificationStatus;
   /** file in yaml format to update */
   file?: string;
   /** update the version number of the metric - default is true */
@@ -97,6 +95,23 @@ export const duplicateMetric = async (params: {
   share_with_same_people: boolean;
 }) => {
   return mainApi.post<BusterMetric>(`/metrics/duplicate`, params).then((res) => res.data);
+};
+
+export const bulkUpdateMetricVerificationStatus = async (
+  params: {
+    id: string;
+    status: VerificationStatus;
+  }[]
+) => {
+  return mainApi
+    .put<{
+      failed_updates: [];
+      failure_count: 0;
+      success_count: 0;
+      total_processed: 0;
+      updated_metrics: BusterMetric[];
+    }>(`/metrics`, params)
+    .then((res) => res.data);
 };
 
 // share metrics
