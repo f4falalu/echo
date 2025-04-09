@@ -1,29 +1,25 @@
 import React, { useState } from 'react';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
+import { Dropdown } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
-import {
-  useAddUserFavorite,
-  useDeleteUserFavorite,
-  useGetUserFavorites
-} from '@/api/buster_rest/users';
+import { Dots, Trash } from '@/components/ui/icons';
 import { ShareAssetType } from '@/api/asset_interfaces/share';
 import {
   useAddDashboardToCollection,
   useDeleteDashboards,
   useRemoveDashboardFromCollection
 } from '@/api/buster_rest/dashboards';
+import { useThreeDotFavoritesOptions } from '@/components/features/dropdowns/useThreeDotFavoritesOptions';
 
 export const DashboardSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
   hasSelected: boolean;
-}> = ({ selectedRowKeys, onSelectChange, hasSelected }) => {
+}> = React.memo(({ selectedRowKeys, onSelectChange, hasSelected }) => {
   return (
     <BusterListSelectedOptionPopupContainer
       selectedRowKeys={selectedRowKeys}
@@ -48,7 +44,9 @@ export const DashboardSelectedOptionPopup: React.FC<{
       show={hasSelected}
     />
   );
-};
+});
+
+DashboardSelectedOptionPopup.displayName = 'DashboardSelectedOptionPopup';
 
 const CollectionsButton: React.FC<{
   selectedRowKeys: string[];
@@ -115,37 +113,11 @@ const ThreeDotButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
-  const { mutateAsync: addUserFavorite } = useAddUserFavorite();
-  const { mutateAsync: removeUserFavorite } = useDeleteUserFavorite();
-  const { data: userFavorites } = useGetUserFavorites();
-
-  const dropdownOptions: DropdownItems = [
-    {
-      label: 'Add to favorites',
-      icon: <Star />,
-      value: 'add-to-favorites',
-      onClick: async () => {
-        await Promise.all(
-          selectedRowKeys.map((id) => {
-            const name = userFavorites?.find((f) => f.id === id)?.name || '';
-            return addUserFavorite({
-              id,
-              asset_type: ShareAssetType.DASHBOARD,
-              name
-            });
-          })
-        );
-      }
-    },
-    {
-      label: 'Remove from favorites',
-      icon: <Xmark />,
-      value: 'remove-from-favorites',
-      onClick: async () => {
-        await Promise.all(selectedRowKeys.map((id) => removeUserFavorite(id)));
-      }
-    }
-  ];
+  const dropdownOptions = useThreeDotFavoritesOptions({
+    itemIds: selectedRowKeys,
+    assetType: ShareAssetType.DASHBOARD,
+    onFinish: () => onSelectChange([])
+  });
 
   return (
     <Dropdown items={dropdownOptions}>

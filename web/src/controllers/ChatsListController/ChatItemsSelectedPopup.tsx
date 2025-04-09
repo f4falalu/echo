@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
+import { Dots, Trash } from '@/components/ui/icons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
-import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
+import { Dropdown } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import { useMemoizedFn } from '@/hooks';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
@@ -14,12 +14,8 @@ import {
   useSaveChatToCollections,
   useRemoveChatFromCollections
 } from '@/api/buster_rest/chats';
-import {
-  useAddUserFavorite,
-  useDeleteUserFavorite,
-  useGetUserFavorites
-} from '@/api/buster_rest/users';
 import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { useThreeDotFavoritesOptions } from '@/components/features/dropdowns/useThreeDotFavoritesOptions';
 
 export const ChatSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -117,40 +113,11 @@ const ThreeDotButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = React.memo(({ selectedRowKeys, onSelectChange }) => {
-  const { mutateAsync: removeUserFavorite, isPending: removingFromFavorites } =
-    useDeleteUserFavorite();
-  const { mutateAsync: addUserFavorite, isPending: addingToFavorites } = useAddUserFavorite();
-  const { data: userFavorites } = useGetUserFavorites();
-
-  const dropdownOptions: DropdownItems = [
-    {
-      label: 'Add to favorites',
-      icon: <Star />,
-      value: 'add-to-favorites',
-      loading: addingToFavorites,
-      onClick: async () => {
-        await Promise.all(
-          selectedRowKeys.map((id) => {
-            const name = userFavorites?.find((f) => f.id === id)?.name || '';
-            return addUserFavorite({
-              id,
-              asset_type: ShareAssetType.CHAT,
-              name
-            });
-          })
-        );
-      }
-    },
-    {
-      label: 'Remove from favorites',
-      icon: <Xmark />,
-      loading: removingFromFavorites,
-      value: 'remove-from-favorites',
-      onClick: async () => {
-        await Promise.all(selectedRowKeys.map((id) => removeUserFavorite(id)));
-      }
-    }
-  ];
+  const dropdownOptions = useThreeDotFavoritesOptions({
+    itemIds: selectedRowKeys,
+    assetType: ShareAssetType.CHAT,
+    onFinish: () => onSelectChange([])
+  });
 
   return (
     <Dropdown items={dropdownOptions}>

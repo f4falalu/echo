@@ -101,7 +101,9 @@ export const useAddUserFavorite = () => {
     mutationFn: createUserFavorite,
     onMutate: (params) => {
       queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, (prev) => {
-        return [params, ...(prev || [])];
+        const prevIds = prev?.map((p) => p.id) || [];
+        const dedupedAdd = params.filter((p) => !prevIds.includes(p.id));
+        return [...dedupedAdd, ...(prev || [])];
       });
     },
     onSuccess: (data) => {
@@ -116,7 +118,7 @@ export const useDeleteUserFavorite = () => {
     mutationFn: deleteUserFavorite,
     onMutate: (id) => {
       queryClient.setQueryData(queryKeys.favoritesGetList.queryKey, (prev) => {
-        return prev?.filter((fav) => fav.id !== id);
+        return prev?.filter((fav) => !id.includes(fav.id));
       });
     },
     onSuccess: (data) => {

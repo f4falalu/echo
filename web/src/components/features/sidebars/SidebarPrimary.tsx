@@ -241,7 +241,7 @@ const favoritesDropdown = (
     deleteUserFavorite
   }: {
     onFavoritesReorder: (itemIds: string[]) => void;
-    deleteUserFavorite: (itemId: string) => void;
+    deleteUserFavorite: (itemIds: string[]) => void;
   }
 ): ISidebarGroup => {
   return {
@@ -257,7 +257,7 @@ const favoritesDropdown = (
         icon: <Icon />,
         route,
         id: favorite.id,
-        onRemove: () => deleteUserFavorite(favorite.id)
+        onRemove: () => deleteUserFavorite([favorite.id])
       };
     })
   };

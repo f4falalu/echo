@@ -9,7 +9,7 @@ export const CollectionIndividualSelectedPopup: React.FC<{
   selectedRowKeys: string[];
   collectionId: string;
   onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange, collectionId }) => {
+}> = React.memo(({ selectedRowKeys, onSelectChange, collectionId }) => {
   const show = selectedRowKeys.length > 0;
 
   return (
@@ -27,7 +27,9 @@ export const CollectionIndividualSelectedPopup: React.FC<{
       show={show}
     />
   );
-};
+});
+
+CollectionIndividualSelectedPopup.displayName = 'CollectionIndividualSelectedPopup';
 
 const CollectionDeleteButton: React.FC<{
   selectedRowKeys: string[];

@@ -7,26 +7,22 @@ import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveT
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { Button } from '@/components/ui/buttons';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
-import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
+import { Dropdown } from '@/components/ui/dropdown';
 import { StatusBadgeButton } from '@/components/features/metrics/StatusBadgeIndicator';
-import { Dots, Star, Trash, Xmark } from '@/components/ui/icons';
+import { Dots, Trash } from '@/components/ui/icons';
 import {
   useDeleteMetric,
   useRemoveMetricFromCollection,
   useSaveMetricToCollections,
   useUpdateMetric
 } from '@/api/buster_rest/metrics';
-import {
-  useAddUserFavorite,
-  useDeleteUserFavorite,
-  useGetUserFavorites
-} from '@/api/buster_rest/users';
+import { useThreeDotFavoritesOptions } from '@/components/features/dropdowns/useThreeDotFavoritesOptions';
 
 export const MetricSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
   hasSelected: boolean;
-}> = ({ selectedRowKeys, onSelectChange, hasSelected }) => {
+}> = React.memo(({ selectedRowKeys, onSelectChange, hasSelected }) => {
   return (
     <BusterListSelectedOptionPopupContainer
       selectedRowKeys={selectedRowKeys}
@@ -61,7 +57,9 @@ export const MetricSelectedOptionPopup: React.FC<{
       show={hasSelected}
     />
   );
-};
+});
+
+MetricSelectedOptionPopup.displayName = 'MetricSelectedOptionPopup';
 
 const CollectionsButton: React.FC<{
   selectedRowKeys: string[];
@@ -177,42 +175,18 @@ const DeleteButton: React.FC<{
 const ThreeDotButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
-}> = ({ selectedRowKeys, onSelectChange }) => {
-  const { mutateAsync: addUserFavorite } = useAddUserFavorite();
-  const { mutateAsync: removeUserFavorite } = useDeleteUserFavorite();
-  const { data: userFavorites } = useGetUserFavorites();
-
-  const dropdownOptions: DropdownItems = [
-    {
-      label: 'Add to favorites',
-      icon: <Star />,
-      value: 'add-to-favorites',
-      onClick: async () => {
-        await Promise.all(
-          selectedRowKeys.map((id) => {
-            const name = userFavorites?.find((f) => f.id === id)?.name || '';
-            return addUserFavorite({
-              id,
-              asset_type: ShareAssetType.METRIC,
-              name
-            });
-          })
-        );
-      }
-    },
-    {
-      label: 'Remove from favorites',
-      icon: <Xmark />,
-      value: 'remove-from-favorites',
-      onClick: async () => {
-        await Promise.all(selectedRowKeys.map((id) => removeUserFavorite(id)));
-      }
-    }
-  ];
+}> = React.memo(({ selectedRowKeys, onSelectChange }) => {
+  const dropdownOptions = useThreeDotFavoritesOptions({
+    itemIds: selectedRowKeys,
+    assetType: ShareAssetType.METRIC,
+    onFinish: () => onSelectChange([])
+  });
 
   return (
     <Dropdown items={dropdownOptions}>
       <Button prefix={<Dots />} />
     </Dropdown>
   );
-};
+});
+
+ThreeDotButton.displayName = 'ThreeDotButton';

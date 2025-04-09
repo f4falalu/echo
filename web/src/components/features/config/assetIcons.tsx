@@ -19,8 +19,10 @@ export const assetTypeToIcon = (assetType: ShareAssetType) => {
       return ASSET_ICONS.dashboards;
     case ShareAssetType.COLLECTION:
       return ASSET_ICONS.collections;
+    case ShareAssetType.CHAT:
+      return ASSET_ICONS.chats;
     default:
-      const _result: unknown = assetType;
+      const _result: never = assetType;
       return ASSET_ICONS.metrics;
   }
 };

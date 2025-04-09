@@ -84,13 +84,17 @@ export const useFavoriteStar = ({
   const onFavoriteClick = useMemoizedFn(async (e?: React.MouseEvent<HTMLButtonElement>) => {
     e?.stopPropagation();
     e?.preventDefault();
-    if (!isFavorited)
-      return await addItemToFavorite({
-        asset_type: type,
-        id,
-        name
-      });
-    await removeItemFromFavorite(id);
+    if (!isFavorited) {
+      return await addItemToFavorite([
+        {
+          asset_type: type,
+          id,
+          name
+        }
+      ]);
+    }
+
+    return await removeItemFromFavorite([id]);
   });
 
   return useMemo(
