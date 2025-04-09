@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemoizedFn, useMount } from '@/hooks';
+import { useMemoizedFn, useMount, useSize } from '@/hooks';
 import React, {
   useEffect,
   useMemo,
@@ -251,10 +251,7 @@ export const AppSplitter = React.memo(
       // Add useImperativeHandle to expose the function
       useImperativeHandle(ref, imperativeHandleMethods);
 
-      const isNested = useMemo(() => {
-        console.log('ref', ref);
-        return !!ref;
-      }, [ref]);
+      const size = useSize(containerRef);
 
       return (
         <div className={cn('flex h-full w-full flex-col', className)} ref={containerRef}>
@@ -275,14 +272,14 @@ export const AppSplitter = React.memo(
               className="left-pane flex h-full flex-col"
               minSize={leftPanelMinSize}
               maxSize={leftPanelMaxSize}>
-              {leftHidden ? null : leftChildren}
+              {leftHidden || size?.width === 0 ? null : leftChildren}
             </Pane>
             <Pane
               className="right-pane flex h-full flex-col"
               style={memoizedRightPaneStyle}
               minSize={rightPanelMinSize}
               maxSize={rightPanelMaxSize}>
-              {rightHidden ? null : rightChildren}
+              {rightHidden || size?.width === 0 ? null : rightChildren}
             </Pane>
           </SplitPane>
         </div>

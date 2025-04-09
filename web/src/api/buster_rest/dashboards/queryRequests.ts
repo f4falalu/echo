@@ -80,12 +80,17 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
   >
 ) => {
   const queryFn = useGetDashboardAndInitializeMetrics();
-  const { versionId } = useParams() as { versionId: string | undefined };
+  const { versionNumber: verionNumberPathParam } = useParams() as {
+    versionNumber: string | undefined;
+  };
+  const versionNumberQueryParam = useSearchParams().get('versionNumber');
+
+  const versionNumber = versionNumberQueryParam || verionNumberPathParam;
 
   const version_number = useMemo(() => {
     if (version_number_prop === null) return undefined;
-    return version_number_prop || versionId ? parseInt(versionId!) : undefined;
-  }, [version_number_prop, versionId]);
+    return version_number_prop || versionNumber ? parseInt(versionNumber!) : undefined;
+  }, [version_number_prop, versionNumber]);
 
   return useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id!, version_number),

@@ -1,7 +1,7 @@
 'use client';
 
 import { FileType } from '@/api/asset_interfaces/chat';
-import { useLayoutEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './interfaces';
 import { useMemoizedFn } from '@/hooks';
 import { create } from 'mutative';
@@ -165,7 +165,7 @@ export const useLayoutConfig = ({
     return 'file';
   }, [selectedFileId]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (
       isVersionHistoryMode &&
       selectedFileId &&

@@ -12,17 +12,11 @@ import { useMount } from '@/hooks';
 import { AppTooltip } from '@/components/ui/tooltip';
 import Link from 'next/link';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 
 export const VersionHistoryPanel = React.memo(
-  ({
-    assetId,
-    type,
-    chatId
-  }: {
-    assetId: string;
-    type: 'metric' | 'dashboard';
-    chatId: string | undefined;
-  }) => {
+  ({ assetId, type }: { assetId: string; type: 'metric' | 'dashboard' }) => {
+    const chatId = useChatLayoutContextSelector((x) => x.chatId);
     const onCloseVersionHistory = useCloseVersionHistory();
     const { listItems, selectedVersion, selectedQueryVersion, onClickRestoreVersion } =
       useListVersionHistories({
