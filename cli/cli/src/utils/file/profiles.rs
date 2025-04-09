@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tokio::fs;
 
-use crate::utils::{BusterClient, PostDataSourcesRequest};
+use crate::utils::{buster::BusterClient, buster::PostDataSourcesRequest};
 
 use super::{buster_credentials::BusterCredentials, project_files::get_current_project};
 

@@ -7,10 +7,15 @@ use tokio::task;
 use walkdir::WalkDir;
 
 use crate::utils::{
-    buster_credentials::get_and_validate_buster_credentials, BusterClient,
-    DeployDatasetsColumnsRequest, DeployDatasetsEntityRelationshipsRequest, DeployDatasetsRequest,
-    ValidationError, ValidationErrorType, ValidationResult, BusterConfig, ExclusionManager,
-    find_yml_files, ProgressTracker,
+    buster::ValidationError,
+    buster::ValidationErrorType,
+    buster::ValidationResult,
+    buster::{
+        BusterClient, DeployDatasetsColumnsRequest, DeployDatasetsEntityRelationshipsRequest,
+        DeployDatasetsRequest,
+    },
+    file::buster_credentials::get_and_validate_buster_credentials,
+    exclusion::{find_yml_files, BusterConfig, ExclusionManager, ProgressTracker},
 };
 
 // Use the unified BusterConfig from exclusion.rs instead
@@ -183,7 +188,7 @@ impl DeployProgress {
         self.excluded += 1;
         println!("⚠️  Skipping {} ({})", self.current_file, reason);
     }
-    
+
     fn log_summary(&self, result: &DeployResult) {
         // Print final summary with more details
         println!("\n📊 Deployment Summary");
@@ -229,7 +234,10 @@ impl ProgressTracker for DeployProgress {
 
     fn log_excluded_tag(&mut self, path: &str, tag: &str) {
         self.excluded += 1;
-        println!("⛔ Excluding file: {} (matched excluded tag: {})", path, tag);
+        println!(
+            "⛔ Excluding file: {} (matched excluded tag: {})",
+            path, tag
+        );
     }
 }
 
@@ -261,7 +269,7 @@ impl ModelFile {
         }
 
         let content = std::fs::read_to_string(sql_path)?;
-        
+
         // Create temporary exclusion manager just for tag checking
         let mut temp_config = BusterConfig {
             data_source_name: None,
@@ -271,10 +279,10 @@ impl ModelFile {
             exclude_tags: Some(exclude_tags.to_vec()),
             model_paths: None,
         };
-        
+
         let manager = ExclusionManager::new(&temp_config)?;
         let (should_exclude, _) = manager.should_exclude_by_tags(&content);
-        
+
         Ok(should_exclude)
     }
 
@@ -854,7 +862,7 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
     } else {
         ExclusionManager::empty()
     };
-    
+
     let yml_files = if recursive {
         println!("Recursively searching for model files...");
         // Use the config's model_paths if available, otherwise use the target path
@@ -1147,7 +1155,7 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
 
     // Report deployment results and return
     progress.log_summary(&result);
-    
+
     if !result.failures.is_empty() {
         return Err(anyhow::anyhow!("Some models failed to deploy"));
     }
@@ -1156,13 +1164,17 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
 }
 
 // New helper function to find YML files recursively with exclusion support
-fn find_yml_files_recursively(dir: &Path, config: Option<&BusterConfig>, progress: Option<&mut DeployProgress>) -> Result<Vec<PathBuf>> {
+fn find_yml_files_recursively(
+    dir: &Path,
+    config: Option<&BusterConfig>,
+    progress: Option<&mut DeployProgress>,
+) -> Result<Vec<PathBuf>> {
     let exclusion_manager = if let Some(cfg) = config {
         ExclusionManager::new(cfg)?
     } else {
         ExclusionManager::empty()
     };
-    
+
     // Check if we have model_paths in the config
     if let Some(cfg) = config {
         if let Some(model_paths) = &cfg.model_paths {
@@ -1170,22 +1182,29 @@ fn find_yml_files_recursively(dir: &Path, config: Option<&BusterConfig>, progres
             for path in model_paths {
                 println!("   - {}", path);
             }
-            
+
             // Use the resolve_model_paths method
             let resolved_paths = cfg.resolve_model_paths(dir);
             let mut all_files = Vec::new();
-            
+
             // Process each resolved path
             for path in resolved_paths {
                 if path.exists() {
-                    if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("yml") {
+                    if path.is_file()
+                        && path.extension().and_then(|ext| ext.to_str()) == Some("yml")
+                    {
                         // Single YML file
                         all_files.push(path.clone());
                         println!("     Found YML file: {}", path.display());
                     } else if path.is_dir() {
                         // Process directory
                         println!("     Scanning directory: {}", path.display());
-                        let dir_files = find_yml_files(&path, true, &exclusion_manager, None::<&mut DeployProgress>)?;
+                        let dir_files = find_yml_files(
+                            &path,
+                            true,
+                            &exclusion_manager,
+                            None::<&mut DeployProgress>,
+                        )?;
                         println!("     Found {} YML files in directory", dir_files.len());
                         all_files.extend(dir_files);
                     } else {
@@ -1195,7 +1214,7 @@ fn find_yml_files_recursively(dir: &Path, config: Option<&BusterConfig>, progres
                     println!("     Path not found: {}", path.display());
                 }
             }
-            
+
             // If we have a progress tracker, update it with our findings
             if let Some(tracker) = progress {
                 for file in &all_files {
@@ -1208,12 +1227,12 @@ fn find_yml_files_recursively(dir: &Path, config: Option<&BusterConfig>, progres
                     }
                 }
             }
-            
+
             println!("Found {} total YML files in model paths", all_files.len());
             return Ok(all_files);
         }
     }
-    
+
     // Fall back to the original behavior if no model_paths specified
     find_yml_files(dir, true, &exclusion_manager, progress)
 }
@@ -1563,4 +1582,3 @@ mod tests {
         Ok(())
     }
 }
-

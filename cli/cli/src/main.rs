@@ -5,7 +5,8 @@ mod utils;
 
 use clap::{Parser, Subcommand};
 use colored::*;
-use commands::{auth::AuthArgs, deploy, init};
+use commands::{auth::AuthArgs, deploy, init, auth::check_authentication};
+use utils::updater::check_for_updates;
 
 pub const APP_NAME: &str = "buster";
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -84,6 +85,8 @@ pub struct Args {
 async fn main() {
     let args = Args::parse();
 
+    check_for_updates().await;
+
     // TODO: All commands should check for an update.
     let result = match args.cmd {
         Commands::Init { destination_path } => init(destination_path.as_deref()).await,
@@ -118,6 +121,7 @@ async fn main() {
                 Ok(None) => println!("\n{}", "Unable to check for updates".yellow()),
                 Err(e) => println!("\n{}: {}", "Error checking for updates".red(), e),
             }
+            // Explicitly return Ok(()) to match the other arms' types
             Ok(())
         }
         Commands::Update {
@@ -135,7 +139,8 @@ async fn main() {
             schema,
             database,
             flat_structure,
-        } => {
+        } => async move {
+            check_authentication().await?;
             commands::generate(
                 source_path.as_deref(),
                 destination_path.as_deref(),
@@ -145,12 +150,15 @@ async fn main() {
                 flat_structure,
             )
             .await
-        }
+        }.await,
         Commands::Deploy {
             path,
             dry_run,
             recursive,
-        } => deploy(path.as_deref(), dry_run, recursive).await,
+        } => async move {
+            check_authentication().await?;
+            deploy(path.as_deref(), dry_run, recursive).await
+        }.await,
     };
 
     if let Err(e) = result {
