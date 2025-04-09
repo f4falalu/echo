@@ -106,7 +106,7 @@ export const updateCollectionShare = async ({
 
 export const addAssetToCollection = async ({
   id,
-  ...params
+  assets
 }: {
   id: string;
   assets: {
@@ -114,13 +114,14 @@ export const addAssetToCollection = async ({
     id: string;
   }[];
 }) => {
-  return mainApi.post<null>(`/collections/${id}/assets`, params).then((res) => res.data);
+  return mainApi.post<null>(`/collections/${id}/assets`, { assets }).then((res) => res.data);
 };
 
-export const removeAssetFromCollection = async (
-  params: Parameters<typeof addAssetToCollection>[0]
-) => {
+export const removeAssetFromCollection = async ({
+  id,
+  assets
+}: Parameters<typeof addAssetToCollection>[0]) => {
   return mainApi
-    .delete<null>(`/collections/${params.id}/assets`, { data: params })
+    .delete<null>(`/collections/${id}/assets`, { data: { assets } })
     .then((res) => res.data);
 };

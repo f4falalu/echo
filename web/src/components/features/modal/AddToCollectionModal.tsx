@@ -1,19 +1,15 @@
-import { useGetMetricsList } from '@/api/buster_rest/metrics';
 import { useDebounce, useMemoizedFn } from '@/hooks';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { InputSelectModal, InputSelectModalProps } from '@/components/ui/modal/InputSelectModal';
 import { formatDate } from '@/lib';
 import { Button } from '@/components/ui/buttons';
-import { useGetDashboardsList } from '@/api/buster_rest/dashboards';
 import {
   useAddAndRemoveAssetsFromCollection,
   useGetCollection
 } from '@/api/buster_rest/collections';
 import { Text } from '@/components/ui/typography';
 import { ASSET_ICONS } from '../config/assetIcons';
-import pluralize from 'pluralize';
 import { useSearch } from '@/api/buster_rest/search';
-import { ShareAssetType } from '@/api/asset_interfaces/share';
 
 export const AddToCollectionModal: React.FC<{
   open: boolean;
@@ -103,6 +99,61 @@ export const AddToCollectionModal: React.FC<{
     return originalIds.length !== newIds.length || originalIds.some((id) => !newIds.includes(id));
   }, [originalIds, selectedAssets]);
 
+  const removedAssetCount = useMemo(() => {
+    return originalIds.filter((id) => !selectedAssets.includes(id)).length;
+  }, [originalIds, selectedAssets]);
+
+  const addedAssetCount = useMemo(() => {
+    return selectedAssets.filter((id) => !originalIds.includes(id)).length;
+  }, [originalIds, selectedAssets]);
+
+  const primaryButtonText = useMemo(() => {
+    if (!isFetchedCollection) {
+      return 'Loading assets...';
+    }
+
+    const hasRemovedItems = removedAssetCount > 0;
+    const hasAddedItems = addedAssetCount > 0;
+
+    if (hasRemovedItems && hasAddedItems) {
+      return `Update collection`;
+    }
+
+    if (hasRemovedItems) {
+      return `Remove assets`;
+    }
+
+    if (hasAddedItems) {
+      return `Add assets`;
+    }
+
+    return `Update collection`;
+  }, [isFetchedCollection, removedAssetCount, addedAssetCount]);
+
+  const primaryButtonTooltipText = useMemo(() => {
+    if (!isFetchedCollection) {
+      return '';
+    }
+
+    const hasRemovedItems = removedAssetCount > 0;
+    const hasAddedItems = addedAssetCount > 0;
+    const returnText: string[] = [];
+
+    if (!hasRemovedItems && !hasAddedItems) {
+      return 'No changes to update';
+    }
+
+    if (hasRemovedItems) {
+      returnText.push(`Removing ${removedAssetCount}`);
+    }
+
+    if (hasAddedItems) {
+      returnText.push(`Adding ${addedAssetCount}`);
+    }
+
+    return returnText.join(', ');
+  }, [isFetchedCollection, addedAssetCount, removedAssetCount]);
+
   const emptyState = useMemo(() => {
     if (rows.length === 0) {
       return 'No assets found';
@@ -123,18 +174,19 @@ export const AddToCollectionModal: React.FC<{
         onClick: onClose
       },
       primaryButton: {
-        text:
-          selectedAssets.length === 0
-            ? 'Update collection'
-            : `Add ${selectedAssets.length} ${pluralize('asset', selectedAssets.length)} to collection`,
+        text: primaryButtonText,
         onClick: handleAddAndRemoveMetrics,
         disabled: !isSelectedChanged,
-        tooltip: isSelectedChanged
-          ? `Adding ${selectedAssets.length} assets`
-          : 'No changes to update'
+        tooltip: primaryButtonTooltipText
       }
     };
-  }, [selectedAssets.length, isSelectedChanged, handleAddAndRemoveMetrics]);
+  }, [
+    selectedAssets.length,
+    isSelectedChanged,
+    handleAddAndRemoveMetrics,
+    primaryButtonText,
+    primaryButtonTooltipText
+  ]);
 
   useLayoutEffect(() => {
     if (isFetchedCollection) {

@@ -6,6 +6,7 @@ import { useDebounceSearch } from '@/hooks';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 import { Text } from '../typography';
+import { cn } from '@/lib/classMerge';
 
 export interface InputSelectModalProps extends Omit<BorderedModalProps, 'children'> {
   inputPlaceholder?: string;
@@ -25,6 +26,7 @@ export const InputSelectModal = React.memo(
     columns,
     rows,
     emptyState,
+    className,
     onSelectChange,
     selectedRowKeys,
     searchText,
@@ -51,7 +53,13 @@ export const InputSelectModal = React.memo(
     }, [searchText, handleSearchChange, inputPlaceholder, rows.length]);
 
     return (
-      <BorderedModal header={memoizedHeader} {...props}>
+      <BorderedModal
+        header={memoizedHeader}
+        className={cn(
+          'data-[state=closed]:slide-out-to-top-[5%]! data-[state=open]:slide-in-from-top-[5%]! top-28 translate-y-0',
+          className
+        )}
+        {...props}>
         <div
           className="max-h-[65vh]"
           style={{

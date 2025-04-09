@@ -189,7 +189,6 @@ export const AddToDashboardModal: React.FC<{
       emptyState={emptyState}
       searchText={searchTerm}
       handleSearchChange={setSearchTerm}
-      className="data-[state=closed]:slide-out-to-top-[5%]! data-[state=open]:slide-in-from-top-[5%]! top-28 translate-y-0"
     />
   );
 });
