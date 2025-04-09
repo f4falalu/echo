@@ -257,7 +257,6 @@ impl ToolExecutor for CreateDashboardFilesTool {
                             id: dashboard_records[i].id,
                             name: dashboard_records[i].name.clone(),
                             file_type: "dashboard".to_string(),
-                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
                             result_message: None,
                             results: None,
                             created_at: dashboard_records[i].created_at,

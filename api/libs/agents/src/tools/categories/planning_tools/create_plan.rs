@@ -11,7 +11,6 @@ use crate::{agent::Agent, tools::ToolExecutor};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreatePlanOutput {
     pub message: String,
-    pub plan_markdown: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -38,14 +37,13 @@ impl ToolExecutor for CreatePlan {
         "create_plan".to_string()
     }
 
-    async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
+    async fn execute(&self, _params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         self.agent
             .set_state_value(String::from("plan_available"), Value::Bool(true))
             .await;
 
         Ok(CreatePlanOutput {
             message: "Plan created successfully".to_string(),
-            plan_markdown: params.plan_markdown,
         })
     }
 
