@@ -210,10 +210,17 @@ pub async fn post_chat_handler(
     }
 
     if request.prompt.is_none() && asset_id.is_some() && asset_type.is_some() {
+        // Remove the initial empty message added by initialize_chat in this specific case
+        let message_id_str = message_id.to_string();
+        chat_with_messages.messages.remove(&message_id_str);
+        chat_with_messages.message_ids.retain(|id| id != &message_id_str);
+
         let asset_id_value = asset_id.unwrap();
         let asset_type_value = asset_type.unwrap();
 
         let messages = generate_asset_messages(asset_id_value, asset_type_value, &user).await?;
+
+        println!("messages: {:?}", messages);
 
         // Add messages to chat and associate with chat_id
         let mut updated_messages = Vec::new();
