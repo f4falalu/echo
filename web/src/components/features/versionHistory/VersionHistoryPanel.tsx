@@ -18,7 +18,7 @@ export const VersionHistoryPanel = React.memo(
   ({ assetId, type }: { assetId: string; type: 'metric' | 'dashboard' }) => {
     const chatId = useChatLayoutContextSelector((x) => x.chatId);
     const onCloseVersionHistory = useCloseVersionHistory();
-    const { listItems, selectedVersion, selectedQueryVersion, onClickRestoreVersion } =
+    const { listItems, currentVersionNumber, selectedQueryVersion, onClickRestoreVersion } =
       useListVersionHistories({
         assetId,
         type
@@ -55,7 +55,7 @@ export const VersionHistoryPanel = React.memo(
               key={item.version_number}
               {...item}
               selected={item.version_number === selectedQueryVersion}
-              showRestoreButton={item.version_number !== selectedVersion}
+              showRestoreButton={item.version_number !== currentVersionNumber}
               onClickRestoreVersion={onClickRestoreVersion}
               link={
                 getFileLink({

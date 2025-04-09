@@ -23,7 +23,7 @@ export const useListVersionHistories = ({
   const {
     dashboardVersions,
     selectedQueryVersion: dashboardSelectedQueryVersion,
-    selectedVersion: dashboardSelectedVersion,
+    currentVersionNumber: dashboardCurrentVersionNumber,
     onRestoreVersion: onRestoreDashboardVersion,
     isSavingDashboard
   } = useListDashboardVersions({
@@ -33,7 +33,7 @@ export const useListVersionHistories = ({
   const {
     metricVersions,
     selectedQueryVersion: metricSelectedQueryVersion,
-    selectedVersion: metricSelectedVersion,
+    currentVersionNumber: metricCurrentVersionNumber,
     onRestoreVersion: onRestoreMetricVersion,
     isSavingMetric
   } = useListMetricVersions({
@@ -46,9 +46,9 @@ export const useListVersionHistories = ({
     return items ? [...items].reverse() : undefined;
   }, [type, dashboardVersions, metricVersions]);
 
-  const selectedVersion = useMemo(() => {
-    return type === 'metric' ? metricSelectedVersion : dashboardSelectedVersion;
-  }, [type, dashboardSelectedVersion, metricSelectedVersion]);
+  const currentVersionNumber = useMemo(() => {
+    return type === 'metric' ? metricCurrentVersionNumber : dashboardCurrentVersionNumber;
+  }, [type, dashboardCurrentVersionNumber, metricCurrentVersionNumber]);
 
   const selectedQueryVersion = useMemo(() => {
     return type === 'metric' ? metricSelectedQueryVersion : dashboardSelectedQueryVersion;
@@ -86,14 +86,14 @@ export const useListVersionHistories = ({
   return useMemo(() => {
     return {
       listItems,
-      selectedVersion,
+      currentVersionNumber,
       selectedQueryVersion,
       onClickRestoreVersion,
       isRestoringVersion: isSavingDashboard || isSavingMetric
     };
   }, [
     listItems,
-    selectedVersion,
+    currentVersionNumber,
     selectedQueryVersion,
     onClickRestoreVersion,
     isSavingDashboard,
@@ -113,10 +113,10 @@ const useListDashboardVersions = ({
     saveToServer: true,
     updateVersion: true
   });
-  const { data: dashData } = useGetDashboard(
+  const { data: dashboardData } = useGetDashboard(
     {
       id: type === 'dashboard' ? assetId : undefined,
-      version_number: null
+      versionNumber: null
     },
     {
       select: (x) => ({
@@ -126,8 +126,8 @@ const useListDashboardVersions = ({
     }
   );
 
-  const dashboardVersions = dashData?.versions;
-  const selectedVersion = dashboardVersionNumber || dashData?.version_number;
+  const dashboardVersions = dashboardData?.versions;
+  const currentVersionNumber = dashboardData?.version_number;
 
   const selectedQueryVersion = useMemo(() => {
     if (dashboardVersionNumber) return dashboardVersionNumber;
@@ -146,12 +146,12 @@ const useListDashboardVersions = ({
       dashboardVersions,
       selectedQueryVersion,
       onRestoreVersion,
-      selectedVersion,
+      currentVersionNumber,
       isSavingDashboard
     };
   }, [
     dashboardVersions,
-    selectedVersion,
+    currentVersionNumber,
     onRestoreVersion,
     selectedQueryVersion,
     isSavingDashboard
@@ -174,7 +174,7 @@ const useListMetricVersions = ({
   const { data: metricData } = useGetMetric(
     {
       id: type === 'metric' ? assetId : undefined,
-      version_number: null
+      versionNumber: null
     },
     {
       select: (x) => ({
@@ -184,7 +184,7 @@ const useListMetricVersions = ({
     }
   );
   const metricVersions = metricData?.versions;
-  const selectedVersion = metricVersionNumber || metricData?.version_number;
+  const currentVersionNumber = metricVersionNumber || metricData?.version_number;
 
   const onRestoreVersion = useMemoizedFn(async (versionNumber: number) => {
     await updateMetric({
@@ -203,8 +203,14 @@ const useListMetricVersions = ({
       metricVersions,
       selectedQueryVersion,
       onRestoreVersion,
-      selectedVersion,
+      currentVersionNumber,
       isSavingMetric
     };
-  }, [metricVersions, onRestoreVersion, selectedQueryVersion, selectedVersion, isSavingMetric]);
+  }, [
+    metricVersions,
+    onRestoreVersion,
+    selectedQueryVersion,
+    currentVersionNumber,
+    isSavingMetric
+  ]);
 };

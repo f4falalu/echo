@@ -112,8 +112,6 @@ export const DashboardContentController: React.FC<{
       }
     }, [dashboard?.id, remapMetrics]);
 
-    console.log(hasMetrics, dashboardRows, dashboard);
-
     return (
       <div className="dashboard-content-controller">
         {hasMetrics && !!dashboardRows.length && !!dashboard ? (

@@ -10,8 +10,6 @@ import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
-import { canEdit } from '@/lib/share';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
 import { useIsMetricChanged } from '@/context/Metrics/useIsMetricChanged';
 import { useUpdateMetricChart } from '@/context/Metrics';
