@@ -125,6 +125,41 @@ pub async fn search(
         results_vec.push(search_object);
     }
 
+    // Sort the results: prioritize by number of highlights, then by original rank.
+    results_vec.sort_by(|a, b| {
+        let highlights_a = match a {
+            SearchObject::Collection(c) => c.highlights.len(),
+            SearchObject::Dashboard(d) => d.highlights.len(),
+            SearchObject::Metric(m) => m.highlights.len(),
+            // Add other SearchObject variants if they exist and are relevant
+            _ => 0,
+        };
+        let highlights_b = match b {
+            SearchObject::Collection(c) => c.highlights.len(),
+            SearchObject::Dashboard(d) => d.highlights.len(),
+            SearchObject::Metric(m) => m.highlights.len(),
+            // Add other SearchObject variants if they exist and are relevant
+            _ => 0,
+        };
+
+        let score_a = match a {
+            SearchObject::Collection(c) => c.score,
+            SearchObject::Dashboard(d) => d.score,
+            SearchObject::Metric(m) => m.score,
+            _ => 0.0,
+        };
+        let score_b = match b {
+            SearchObject::Collection(c) => c.score,
+            SearchObject::Dashboard(d) => d.score,
+            SearchObject::Metric(m) => m.score,
+            _ => 0.0,
+        };
+
+        // Compare highlights count (descending), then score (descending)
+        highlights_b.cmp(&highlights_a)
+            .then_with(|| score_b.partial_cmp(&score_a).unwrap_or(std::cmp::Ordering::Equal))
+    });
+
     // Only filter when we have a query
     if !query.is_empty() {
         results_vec = results_vec
