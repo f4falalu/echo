@@ -26,7 +26,7 @@ export const ResetPasswordForm: React.FC<{
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
   const [goodPassword, setGoodPassword] = useState(false);
-  const { openErrorNotification, openSuccessMessage } = useBusterNotifications();
+  const { openErrorMessage, openSuccessMessage } = useBusterNotifications();
   const [countdown, setCountdown] = useState(5);
 
   const disabled = !goodPassword || loading || !password || !password2 || password !== password2;
@@ -60,7 +60,7 @@ export const ResetPasswordForm: React.FC<{
         startCountdown();
       }
     } catch (error) {
-      openErrorNotification(error);
+      openErrorMessage(error as string);
     }
   });
 

@@ -17,11 +17,15 @@ export const AddToDashboardModal: React.FC<{
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const debouncedSearchTerm = useDebounce(searchTerm, { wait: 150 });
-  const { data: searchResults } = useSearch({
-    query: debouncedSearchTerm,
-    asset_types: ['metric'],
-    num_results: 100
-  });
+
+  const { data: searchResults } = useSearch(
+    {
+      query: debouncedSearchTerm,
+      asset_types: ['metric'],
+      num_results: 100
+    },
+    { enabled: open }
+  );
 
   const columns = useMemo<InputSelectModalProps['columns']>(
     () => [
@@ -81,6 +85,63 @@ export const AddToDashboardModal: React.FC<{
     return undefined;
   }, [isFetchedDashboard, rows]);
 
+  const addedMetricCount = useMemo(() => {
+    return selectedMetrics.filter((id) => !Object.keys(dashboard?.metrics || {}).includes(id))
+      .length;
+  }, [dashboard?.metrics, selectedMetrics]);
+
+  const removedMetricCount = useMemo(() => {
+    return Object.keys(dashboard?.metrics || {}).filter((id) => !selectedMetrics.includes(id))
+      .length;
+  }, [dashboard?.metrics, selectedMetrics]);
+
+  const primaryButtonText = useMemo(() => {
+    if (!isFetchedDashboard) {
+      return 'Loading metrics...';
+    }
+
+    const hasRemovedItems = removedMetricCount > 0;
+    const hasAddedItems = addedMetricCount > 0;
+
+    if (hasRemovedItems && hasAddedItems) {
+      return `Update dashboard`;
+    }
+
+    if (hasRemovedItems) {
+      return `Remove metrics`;
+    }
+
+    if (hasAddedItems) {
+      return `Add metrics`;
+    }
+
+    return `Update dashboard`;
+  }, [isFetchedDashboard, removedMetricCount, addedMetricCount]);
+
+  const primaryButtonTooltipText = useMemo(() => {
+    if (!isFetchedDashboard) {
+      return '';
+    }
+
+    const hasRemovedItems = removedMetricCount > 0;
+    const hasAddedItems = addedMetricCount > 0;
+    const returnText: string[] = [];
+
+    if (!hasRemovedItems && !hasAddedItems) {
+      return 'No changes to update';
+    }
+
+    if (hasRemovedItems) {
+      returnText.push(`Removing ${removedMetricCount}`);
+    }
+
+    if (hasAddedItems) {
+      returnText.push(`Adding ${addedMetricCount}`);
+    }
+
+    return returnText.join(', ');
+  }, [isFetchedDashboard, addedMetricCount, removedMetricCount]);
+
   const footer: NonNullable<InputSelectModalProps['footer']> = useMemo(() => {
     return {
       left:
@@ -94,15 +155,19 @@ export const AddToDashboardModal: React.FC<{
         onClick: onClose
       },
       primaryButton: {
-        text: `Update metrics`,
+        text: primaryButtonText,
         onClick: handleAddAndRemoveMetrics,
         disabled: !isSelectedChanged,
-        tooltip: isSelectedChanged
-          ? `Adding ${selectedMetrics.length} metrics`
-          : 'No changes to update'
+        tooltip: primaryButtonTooltipText
       }
     };
-  }, [selectedMetrics.length, isSelectedChanged, handleAddAndRemoveMetrics]);
+  }, [
+    selectedMetrics.length,
+    primaryButtonTooltipText,
+    primaryButtonText,
+    isSelectedChanged,
+    handleAddAndRemoveMetrics
+  ]);
 
   useLayoutEffect(() => {
     if (isFetchedDashboard) {
@@ -113,7 +178,7 @@ export const AddToDashboardModal: React.FC<{
 
   return (
     <InputSelectModal
-      width={665}
+      width={675}
       open={open}
       onClose={onClose}
       columns={columns}
