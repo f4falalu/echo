@@ -169,6 +169,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
                 value={inputValue}
                 onChange={onChangeInputValue}
                 onPressEnter={onSubmitNewEmail}
+                autoComplete="off"
               />
 
               {inputValue && (
