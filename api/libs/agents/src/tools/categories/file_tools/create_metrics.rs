@@ -191,7 +191,6 @@ impl ToolExecutor for CreateMetricFilesTool {
                             id: metric_records[i].id,
                             name: metric_records[i].name.clone(),
                             file_type: "metric".to_string(),
-                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
                             result_message: Some(results_vec[i].0.clone()),
                             results: Some(results_vec[i].1.clone()),
                             created_at: metric_records[i].created_at,
