@@ -20,7 +20,7 @@ export const AddToCollectionModal: React.FC<{
   const { mutateAsync: addAndRemoveAssetsFromCollection } = useAddAndRemoveAssetsFromCollection();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearchTerm = useDebounce(searchTerm, { wait: 150 });
+  const debouncedSearchTerm = useDebounce(searchTerm, { wait: 100 });
   const { data: searchResults } = useSearch({
     query: debouncedSearchTerm,
     asset_types: ['metric', 'dashboard'],
