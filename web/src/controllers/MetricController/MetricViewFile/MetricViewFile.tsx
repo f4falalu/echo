@@ -32,7 +32,7 @@ export const MetricViewFile: React.FC<{ metricId: string }> = React.memo(({ metr
 
   const { file, file_name } = metric || {};
 
-  const onSaveFile = useMemoizedFn(async () => {
+  const onSaveFile = useMemoizedFn(async (file: string) => {
     await updateMetric({
       file,
       id: metricId

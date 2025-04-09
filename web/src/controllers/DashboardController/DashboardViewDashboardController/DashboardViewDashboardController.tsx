@@ -4,12 +4,12 @@ import React from 'react';
 import { DashboardEditTitles } from './DashboardEditTitle';
 import { DashboardContentController } from './DashboardContentController';
 import { useGetDashboard, useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
-import { useDashboardContentStore, useIsDashboardChanged } from '@/context/Dashboards';
+import { useDashboardContentStore } from '@/context/Dashboards';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
-import { DashboardSaveFilePopup } from './DashboardSaveFilePopup';
+import { DashboardSavePopup } from './DashboardSavePopup';
 
 export const DashboardViewDashboardController: React.FC<{
   dashboardId: string;
@@ -65,7 +65,7 @@ export const DashboardViewDashboardController: React.FC<{
           readOnly={isReadOnly}
         />
 
-        {!isVersionHistoryMode && <DashboardSaveFilePopup dashboardId={dashboardId} />}
+        {!isVersionHistoryMode && <DashboardSavePopup dashboardId={dashboardId} />}
       </div>
     </ScrollArea>
   );

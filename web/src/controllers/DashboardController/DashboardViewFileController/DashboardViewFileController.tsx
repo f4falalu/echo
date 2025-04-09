@@ -20,13 +20,13 @@ export const DashboardViewFileController: React.FC<{
     isPending: isUpdatingDashboard,
     error: updateDashboardError
   } = useUpdateDashboard({
-    saveToServer: false
+    saveToServer: true
   });
 
   const { file, file_name } = dashboard || {};
   const updateDashboardErrorMessage = updateDashboardError?.message;
 
-  const onSaveFile = useMemoizedFn(async () => {
+  const onSaveFile = useMemoizedFn(async (file: string) => {
     await onUpdateDashboard({
       file,
       id: dashboardId

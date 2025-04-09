@@ -4,7 +4,7 @@ import { useIsDashboardChanged } from '@/context/Dashboards';
 import { useMemoizedFn } from '@/hooks';
 import React from 'react';
 
-export const DashboardSaveFilePopup: React.FC<{ dashboardId: string }> = React.memo(
+export const DashboardSavePopup: React.FC<{ dashboardId: string }> = React.memo(
   ({ dashboardId }) => {
     const { data: dashboardResponse } = useGetDashboard({ id: dashboardId });
     const { isDashboardChanged, onResetDashboardToOriginal } = useIsDashboardChanged({
@@ -14,14 +14,13 @@ export const DashboardSaveFilePopup: React.FC<{ dashboardId: string }> = React.m
       saveToServer: true
     });
 
-    const onSaveDashboardToServer = useMemoizedFn(() => {
+    const onSaveDashboardFileToServer = useMemoizedFn(() => {
       const dashboard = dashboardResponse?.dashboard;
       onSaveDashboard({
         id: dashboardId,
         name: dashboard?.name,
         description: dashboard?.description,
-        config: dashboard?.config,
-        file: dashboard?.file
+        config: dashboard?.config
       });
     });
 
@@ -29,7 +28,7 @@ export const DashboardSaveFilePopup: React.FC<{ dashboardId: string }> = React.m
       <SaveResetFilePopup
         open={isDashboardChanged}
         onReset={onResetDashboardToOriginal}
-        onSave={onSaveDashboardToServer}
+        onSave={onSaveDashboardFileToServer}
         isSaving={isSaving}
         showHotsKeys={false}
       />
