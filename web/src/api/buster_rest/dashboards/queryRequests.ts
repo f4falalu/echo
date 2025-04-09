@@ -10,7 +10,11 @@ import {
   unshareDashboard
 } from './requests';
 import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
-import { BusterDashboard, BusterDashboardResponse } from '@/api/asset_interfaces/dashboard';
+import {
+  BusterDashboard,
+  BusterDashboardResponse,
+  MAX_NUMBER_OF_ITEMS_ON_DASHBOARD
+} from '@/api/asset_interfaces/dashboard';
 import { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -407,9 +411,22 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
   const { openErrorMessage } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig();
 
-  const addMetricToDashboard = useMemoizedFn(
+  const addAndRemoveMetrics = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
       const dashboardResponse = await ensureDashboardConfig(dashboardId);
+
+      const numberOfItemsOnDashboard: number =
+        dashboardResponse?.dashboard.config.rows?.reduce(
+          (acc, row) => acc + (row.items?.length || 0),
+          0
+        ) || 0;
+
+      if (numberOfItemsOnDashboard > MAX_NUMBER_OF_ITEMS_ON_DASHBOARD) {
+        openErrorMessage(
+          `Dashboard is full, please remove some metrics before adding more. You can only have ${MAX_NUMBER_OF_ITEMS_ON_DASHBOARD} metrics on a dashboard`
+        );
+        return;
+      }
 
       if (dashboardResponse) {
         const newConfig = addAndRemoveMetricsToDashboard(
@@ -427,7 +444,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
   );
 
   return useMutation({
-    mutationFn: addMetricToDashboard,
+    mutationFn: addAndRemoveMetrics,
     onSuccess: (data, variables) => {
       if (data) {
         queryClient.setQueryData(
