@@ -52,7 +52,7 @@ const FileContainerHeaderStandard: React.FC<{
 
   return (
     <>
-      <div className="flex items-center gap-1.5">
+      <div className="flex min-w-0 shrink items-center gap-1.5 overflow-hidden">
         <CollapseFileButton
           showCollapseButton={showCollapseButton}
           onCollapseFileClick={onCollapseFileClick}
@@ -65,8 +65,9 @@ const FileContainerHeaderStandard: React.FC<{
           />
         )}
       </div>
-
-      <SelectedFileButtons selectedFileView={selectedFileView} selectedFileId={selectedFileId} />
+      <div className="flex-1">
+        <SelectedFileButtons selectedFileView={selectedFileView} selectedFileId={selectedFileId} />
+      </div>
     </>
   );
 };

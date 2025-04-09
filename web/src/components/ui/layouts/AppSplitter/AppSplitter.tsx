@@ -21,6 +21,7 @@ import {
 import Cookies from 'js-cookie';
 import { cn } from '@/lib/classMerge';
 import './splitterStyles.css';
+import { timeout } from '@/lib';
 
 // First, define the ref type
 export interface AppSplitterRef {
@@ -171,6 +172,12 @@ export const AppSplitter = React.memo(
 
           const containerWidth = container.getBoundingClientRect().width;
           let targetPercentage: number;
+
+          // If the container width is 0, wait for 10ms and try again
+          if (containerWidth === 0) {
+            await timeout(25);
+            return animateWidth(width, side, duration);
+          }
 
           // Convert target width to percentage
           if (targetUnit === 'px') {

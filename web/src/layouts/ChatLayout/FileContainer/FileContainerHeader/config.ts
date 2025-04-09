@@ -6,16 +6,6 @@ import { DashboardContainerHeaderSegment } from './DashboardContainerHeaderSegme
 import { MetricContainerHeaderSegment } from './MetricContainerHeaderSegment';
 import { ReasoningContainerHeaderSegment } from './ReasoningContainerHeaderSegment';
 
-export const SelectedFileButtonsRecord: Record<FileType, React.FC<FileContainerButtonsProps>> = {
-  metric: MetricContainerHeaderButtons,
-  dashboard: DashboardContainerHeaderButtons,
-  reasoning: () => null
-  // value: ValueContainerHeaderButtons,
-  // term: TermContainerHeaderButtons,
-  // dataset: DatasetContainerHeaderButtons,
-  // collection: CollectionContainerHeaderButtons
-};
-
 export const SelectedFileSegmentRecord: Record<FileType, React.FC<FileContainerSegmentProps>> = {
   metric: MetricContainerHeaderSegment,
   dashboard: DashboardContainerHeaderSegment,
@@ -24,4 +14,14 @@ export const SelectedFileSegmentRecord: Record<FileType, React.FC<FileContainerS
   // term: TermContainerHeaderSegment,
   // dataset: DatasetContainerHeaderSegment,
   // collection: CollectionContainerHeaderSegment
+};
+
+export const SelectedFileButtonsRecord: Record<FileType, React.FC<FileContainerButtonsProps>> = {
+  metric: MetricContainerHeaderButtons,
+  dashboard: DashboardContainerHeaderButtons,
+  reasoning: () => null
+  // value: ValueContainerHeaderButtons,
+  // term: TermContainerHeaderButtons,
+  // dataset: DatasetContainerHeaderButtons,
+  // collection: CollectionContainerHeaderButtons
 };

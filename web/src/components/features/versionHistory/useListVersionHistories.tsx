@@ -17,6 +17,7 @@ export const useListVersionHistories = ({
   assetId: string;
   type: 'metric' | 'dashboard';
 }) => {
+  const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const onCloseVersionHistory = useCloseVersionHistory();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const {
@@ -78,7 +79,7 @@ export const useListVersionHistories = ({
         }
       }
 
-      onCloseVersionHistory();
+      onCloseVersionHistory({ assetId, type, chatId });
     }
   );
 
