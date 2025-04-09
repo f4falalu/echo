@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import React, {
   useEffect,
   useMemo,
@@ -250,6 +250,11 @@ export const AppSplitter = React.memo(
 
       // Add useImperativeHandle to expose the function
       useImperativeHandle(ref, imperativeHandleMethods);
+
+      const isNested = useMemo(() => {
+        console.log('ref', ref);
+        return !!ref;
+      }, [ref]);
 
       return (
         <div className={cn('flex h-full w-full flex-col', className)} ref={containerRef}>

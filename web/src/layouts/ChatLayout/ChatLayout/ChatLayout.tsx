@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { AppSplitter, AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { ChatContainer } from '../ChatContainer';
 import { FileContainer } from '../FileContainer';
 import { ChatLayoutContextProvider, useChatLayoutContext } from '../ChatLayoutContext';
 import { ChatContextProvider } from '../ChatContext/ChatContext';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from '../ChatLayoutContext/config';
+import { useMount } from '@/hooks';
 
 interface ChatSplitterProps {
   children?: React.ReactNode;
@@ -14,6 +15,8 @@ interface ChatSplitterProps {
 
 export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
+  const [mounted, setMounted] = useState(false);
+
   const chatLayoutProps = useChatLayoutContext({ appSplitterRef });
   const { selectedLayout, selectedFile } = chatLayoutProps;
 
@@ -23,22 +26,19 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
     return ['380px', 'auto'];
   }, [selectedLayout]);
 
+  useMount(() => {
+    setMounted(true); //we need to wait for the app splitter to be mounted because this is nested in the app splitter
+  });
+
   return (
     <ChatLayoutContextProvider chatLayoutProps={chatLayoutProps}>
       <ChatContextProvider>
         <AppSplitter
           ref={appSplitterRef}
-          leftChildren={useMemo(
-            () => (
-              <ChatContainer />
-            ),
-            []
-          )}
+          leftChildren={useMemo(() => mounted && <ChatContainer />, [mounted])}
           rightChildren={useMemo(
-            () => (
-              <FileContainer>{children}</FileContainer>
-            ),
-            [children]
+            () => mounted && <FileContainer>{children}</FileContainer>,
+            [children, mounted]
           )}
           autoSaveId="chat-splitter"
           defaultLayout={defaultSplitterLayout}
