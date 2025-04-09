@@ -18,6 +18,7 @@ pub struct FileWithId {
     pub id: Uuid,
     pub name: String,
     pub file_type: String,
+    pub yml_content: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub result_message: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
