@@ -1,0 +1,9 @@
+[package]
+name = "semantic_layer"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# Dependencies will be inherited from the workspace
