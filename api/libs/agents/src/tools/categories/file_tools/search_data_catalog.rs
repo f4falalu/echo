@@ -179,6 +179,7 @@ impl SearchDataCatalogTool {
                     trace_id: session_id.to_string(),
                 }),
                 max_completion_tokens: Some(8092),
+                temperature: Some(0.0),
                 ..Default::default()
             };
 
