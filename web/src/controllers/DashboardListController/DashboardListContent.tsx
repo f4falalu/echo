@@ -62,8 +62,8 @@ const columns: BusterListColumn[] = [
     dataIndex: 'owner',
     title: 'Owner',
     width: 55,
-    render: (_, data) => {
-      return <Avatar image={data?.avatar_url} name={data?.name} size={18} />;
+    render: (_, data: BusterDashboardListItem) => {
+      return <Avatar image={data?.owner?.avatar_url} name={data?.owner?.name} size={18} />;
     }
   }
 ];

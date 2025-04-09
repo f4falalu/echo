@@ -6,7 +6,7 @@ import { BusterLogo } from '@/assets/svg/BusterLogo';
 import { cn } from '@/lib/utils';
 
 export interface AvatarProps {
-  image?: string;
+  image?: string | null;
   name?: string | null;
   className?: string;
   fallbackClassName?: string;
