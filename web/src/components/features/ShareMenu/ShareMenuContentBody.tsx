@@ -22,6 +22,7 @@ import {
   useUnshareDashboard,
   useUpdateDashboardShare
 } from '@/api/buster_rest/dashboards';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
@@ -77,6 +78,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     const { mutateAsync: onUnshareMetric } = useUnshareMetric();
     const { mutateAsync: onUnshareDashboard } = useUnshareDashboard();
     const { mutateAsync: onUnshareCollection } = useUnshareCollection();
+    const { openErrorMessage } = useBusterNotifications();
 
     const isInviting = isInvitingMetric || isInvitingDashboard || isInvitingCollection;
 
@@ -90,7 +92,16 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     const onSubmitNewEmail = useMemoizedFn(async () => {
       const isValidEmail = validate(inputValue);
       if (!isValidEmail) {
-        alert('Invalid email address');
+        openErrorMessage('Invalid email address');
+        return;
+      }
+
+      const isAlreadyShared = individual_permissions?.some(
+        (permission) => permission.email === inputValue
+      );
+
+      if (isAlreadyShared) {
+        openErrorMessage('Email already shared');
         return;
       }
 
