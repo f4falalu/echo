@@ -1,4 +1,4 @@
-import { Popover } from '@/components/ui/tooltip/Popover';
+import { Popover } from '@/components/ui/popover/Popover';
 import React from 'react';
 import { BusterChartLegendItem, BusterChartLegendProps } from './interfaces';
 import { LegendItem } from './LegendItem';

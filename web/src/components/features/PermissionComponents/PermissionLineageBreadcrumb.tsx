@@ -1,6 +1,6 @@
 import type { DatasetPermissionOverviewUser } from '@/api/asset_interfaces';
 import { ChevronRight } from '@/components/ui/icons';
-import { Popover } from '@/components/ui/tooltip/Popover';
+import { Popover } from '@/components/ui/popover/Popover';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import Link from 'next/link';
 import React, { useMemo } from 'react';

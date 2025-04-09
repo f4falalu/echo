@@ -10,7 +10,7 @@ import {
   PopoverRoot as Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/tooltip/PopoverBase';
+} from '@/components/ui/popover/PopoverBase';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 export function DateTimePicker() {
@@ -43,10 +43,7 @@ export function DateTimePicker() {
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
-          className={cn(
-            'w-full justify-start text-left font-normal',
-            !date && 'text-muted-foreground'
-          )}>
+          className={cn('w-full justify-start text-left font-normal', !date && 'text-gray-light')}>
           <div className="mr-2 h-4 w-4">
             <CalendarIcon />
           </div>

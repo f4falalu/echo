@@ -16,6 +16,8 @@ export const StatusDropdownContent: React.FC<{
     onChangeStatus
   });
 
+  //TODO move this to a combobox
+
   return (
     <Dropdown {...dropdownProps} onOpenChange={onOpenChange}>
       {children}

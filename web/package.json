@@ -57,6 +57,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "chartjs-plugin-deferred": "^2.0.0",
     "class-variance-authority": "^0.7.1",
+    "cmdk": "^1.1.1",
     "dayjs": "^1.11.13",
     "dom-to-image": "^2.6.0",
     "email-validator": "^2.0.4",

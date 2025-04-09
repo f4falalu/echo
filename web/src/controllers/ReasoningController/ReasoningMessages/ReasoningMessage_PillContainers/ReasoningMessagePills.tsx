@@ -2,7 +2,7 @@ import type { BusterChatMessageReasoning_pill, FileType } from '@/api/asset_inte
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMemoizedFn } from '@/hooks';
-import { Popover } from '@/components/ui/tooltip/Popover';
+import { Popover } from '@/components/ui/popover/Popover';
 import { cn } from '@/lib/classMerge';
 import Link from 'next/link';
 import { createChatAssetRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';

@@ -56,9 +56,7 @@ export const WithCustomHeader: Story = {
     header: (
       <div className="flex flex-col space-y-2 text-center">
         <h3 className="text-2xl font-bold tracking-tight">Custom Header</h3>
-        <p className="text-muted-foreground">
-          This example shows how to use a custom header component
-        </p>
+        <p className="text-gray-light">This example shows how to use a custom header component</p>
       </div>
     ),
     children: (
@@ -68,7 +66,7 @@ export const WithCustomHeader: Story = {
       </div>
     ),
     footer: {
-      left: <span className="text-muted-foreground text-sm">Footer left content</span>,
+      left: <span className="text-gray-light text-sm">Footer left content</span>,
       primaryButton: {
         text: 'Confirm',
         onClick: fn(),

@@ -81,7 +81,7 @@ export const WideContent: Story = {
                   height={400}
                 />
               </div>
-              <figcaption className="text-muted-foreground pt-2 text-xs">
+              <figcaption className="text-gray-light pt-2 text-xs">
                 Photo by <span className="text-foreground font-semibold">{artwork.artist}</span>
               </figcaption>
             </figure>

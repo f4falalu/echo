@@ -1,5 +1,5 @@
 import React from 'react';
-import { PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/tooltip/PopoverBase';
+import { PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/popover/PopoverBase';
 import { cva } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/buttons';

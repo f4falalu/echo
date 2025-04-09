@@ -1,10 +1,11 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { BusterSearchResult } from '@/api/asset_interfaces/search';
+import { search } from '../buster_rest/search';
 
-export const getSearchResult = (searchTerm: string) =>
+export const getSearchResult = (params: Parameters<typeof search>[0]) =>
   queryOptions<BusterSearchResult[]>({
-    queryKey: ['search', 'results', searchTerm] as const,
-    staleTime: 1000 * 30 // 30 seconds
+    queryKey: ['search', 'results', params] as const,
+    staleTime: 1000 * 10 // 10 seconds,
   });
 
 export const searchQueryKeys = {

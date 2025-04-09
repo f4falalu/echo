@@ -6,7 +6,6 @@ import {
   PopoverTriggerType
 } from './PopoverBase';
 import React from 'react';
-import { Separator } from '../seperator/Separator';
 
 export interface PopoverProps
   extends React.ComponentProps<typeof PopoverBase>,

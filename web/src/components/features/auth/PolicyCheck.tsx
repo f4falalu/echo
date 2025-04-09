@@ -1,7 +1,7 @@
 import { CircleCheck, CircleXmark, CircleInfo } from '@/components/ui/icons';
 import React, { useEffect, useMemo } from 'react';
 import { Text } from '@/components/ui/typography';
-import { Popover, PopoverProps } from '@/components/ui/tooltip/Popover';
+import { Popover, PopoverProps } from '@/components/ui/popover/Popover';
 import { Button } from '@/components/ui/buttons/Button';
 
 export const PolicyCheck: React.FC<{

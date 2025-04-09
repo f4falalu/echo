@@ -1,10 +1,10 @@
-import { useGetMetricsList } from '@/api/buster_rest/metrics';
-import { useMemoizedFn } from '@/hooks';
+import { useDebounce, useMemoizedFn } from '@/hooks';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { InputSelectModal, InputSelectModalProps } from '@/components/ui/modal/InputSelectModal';
 import { formatDate } from '@/lib';
 import { Button } from '@/components/ui/buttons';
 import { useAddAndRemoveMetricsFromDashboard, useGetDashboard } from '@/api/buster_rest/dashboards';
+import { useSearch } from '@/api/buster_rest/search';
 
 export const AddToDashboardModal: React.FC<{
   open: boolean;
@@ -12,35 +12,46 @@ export const AddToDashboardModal: React.FC<{
   dashboardId: string;
 }> = React.memo(({ open, onClose, dashboardId }) => {
   const { data: dashboard, isFetched: isFetchedDashboard } = useGetDashboard({ id: dashboardId });
-  const { data: metrics, isFetched: isFetchedMetrics } = useGetMetricsList({});
   const { mutateAsync: addAndRemoveMetricsFromDashboard } = useAddAndRemoveMetricsFromDashboard();
 
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
+  const debouncedSearchTerm = useDebounce(searchTerm, { wait: 150 });
+  const { data: searchResults } = useSearch({
+    query: debouncedSearchTerm,
+    asset_types: ['metric'],
+    num_results: 100
+  });
 
-  const columns: InputSelectModalProps['columns'] = [
-    {
-      title: 'Name',
-      dataIndex: 'name'
-    },
-    {
-      title: 'Last edited',
-      dataIndex: 'last_edited',
-      width: 132,
-      render: (value: string, x) => {
-        return formatDate({
-          date: value,
-          format: 'lll'
-        });
+  const columns = useMemo<InputSelectModalProps['columns']>(
+    () => [
+      {
+        title: 'Name',
+        dataIndex: 'name'
+      },
+      {
+        title: 'Updated',
+        dataIndex: 'updated_at',
+        width: 140,
+        render: (value: string, x) => {
+          return formatDate({
+            date: value,
+            format: 'lll'
+          });
+        }
       }
-    }
-  ];
+    ],
+    []
+  );
 
   const rows = useMemo(() => {
-    return metrics.map((metric) => ({
-      id: metric.id,
-      data: metric
-    }));
-  }, [metrics.length]);
+    return (
+      searchResults?.map((result) => ({
+        id: result.id,
+        data: result
+      })) || []
+    );
+  }, [searchResults]);
 
   const handleAddAndRemoveMetrics = useMemoizedFn(async () => {
     await addAndRemoveMetricsFromDashboard({
@@ -61,14 +72,14 @@ export const AddToDashboardModal: React.FC<{
   }, [dashboard?.metrics, selectedMetrics]);
 
   const emptyState = useMemo(() => {
-    if (!isFetchedMetrics || !isFetchedDashboard) {
+    if (!isFetchedDashboard) {
       return 'Loading metrics...';
     }
     if (rows.length === 0) {
       return 'No metrics found';
     }
     return undefined;
-  }, [isFetchedMetrics, isFetchedDashboard, rows]);
+  }, [isFetchedDashboard, rows]);
 
   const footer: NonNullable<InputSelectModalProps['footer']> = useMemo(() => {
     return {
@@ -111,6 +122,9 @@ export const AddToDashboardModal: React.FC<{
       selectedRowKeys={selectedMetrics}
       footer={footer}
       emptyState={emptyState}
+      searchText={searchTerm}
+      handleSearchChange={setSearchTerm}
+      className="data-[state=closed]:slide-out-to-top-[5%]! data-[state=open]:slide-in-from-top-[5%]! top-28 translate-y-0"
     />
   );
 });

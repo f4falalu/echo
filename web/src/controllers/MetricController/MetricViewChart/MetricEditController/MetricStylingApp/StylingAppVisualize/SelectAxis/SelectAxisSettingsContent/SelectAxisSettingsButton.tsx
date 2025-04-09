@@ -4,7 +4,7 @@ import { SelectAxisContainerId } from '../config';
 import { SelectAxisSettingContent } from './SelectAxisSettingContent';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
 import { zoneIdToAxisSettingContent } from './config';
-import { Popover } from '@/components/ui/tooltip/Popover';
+import { Popover } from '@/components/ui/popover/Popover';
 import { Sliders3 } from '@/components/ui/icons';
 
 export const SelectAxisSettingsButton: React.FC<{

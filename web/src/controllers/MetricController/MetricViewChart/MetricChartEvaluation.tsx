@@ -5,7 +5,7 @@ import {
   CircleWarning,
   TriangleWarning
 } from '@/components/ui/icons/NucleoIconFilled';
-import { Popover } from '@/components/ui/tooltip/Popover';
+import { Popover } from '@/components/ui/popover/Popover';
 import { Button, type ButtonProps } from '@/components/ui/buttons';
 
 export const MetricChartEvaluation: React.FC<{

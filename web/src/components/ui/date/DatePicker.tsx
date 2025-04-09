@@ -10,7 +10,7 @@ import {
   PopoverRoot as Popover,
   PopoverContent,
   PopoverTrigger
-} from '@/components/ui/tooltip/PopoverBase';
+} from '@/components/ui/popover/PopoverBase';
 import { formatDate } from '@/lib';
 import { Xmark } from '../icons/NucleoIconFilled';
 import { useMemoizedFn } from '@/hooks';
@@ -52,7 +52,7 @@ function DatePickerComponent({
           }
           className={cn(
             'group justify-start text-left font-normal',
-            !selected && 'text-muted-foreground'
+            !selected && 'text-gray-light'
           )}>
           {selected ? (
             formatDate({

@@ -4,7 +4,7 @@ import { Input } from '../inputs/Input';
 import { BusterList, BusterListProps } from '../list/BusterList';
 import { useDebounceSearch } from '@/hooks';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { DialogTitle } from '@radix-ui/react-dialog';
+import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 import { Text } from '../typography';
 
 export interface InputSelectModalProps extends Omit<BorderedModalProps, 'children'> {
@@ -15,6 +15,8 @@ export interface InputSelectModalProps extends Omit<BorderedModalProps, 'childre
   onSelectChange: NonNullable<BusterListProps['onSelectChange']>;
   selectedRowKeys: NonNullable<BusterListProps['selectedRowKeys']>;
   showHeader?: NonNullable<BusterListProps['showHeader']>;
+  searchText: string;
+  handleSearchChange: (searchText: string) => void;
 }
 
 export const InputSelectModal = React.memo(
@@ -25,42 +27,39 @@ export const InputSelectModal = React.memo(
     emptyState,
     onSelectChange,
     selectedRowKeys,
+    searchText,
+    handleSearchChange,
     showHeader = true,
     ...props
   }: InputSelectModalProps) => {
-    const { filteredItems, handleSearchChange, searchText } = useDebounceSearch({
-      items: rows,
-      searchPredicate: (item, searchText) => {
-        const values = Object.values(item.data || {});
-        return values.some((value) =>
-          value.toString().toLowerCase().includes(searchText.toLowerCase())
-        );
-      }
-    });
+    const memoizedHeader = useMemo(() => {
+      return (
+        <>
+          <InputSelecteHeader
+            searchText={searchText}
+            handleSearchChange={handleSearchChange}
+            inputPlaceholder={inputPlaceholder}
+          />
+          <VisuallyHidden>
+            <DialogTitle>Input Modal</DialogTitle>
+            <DialogDescription>
+              {rows.length} {rows.length === 1 ? 'item' : 'items'} found
+            </DialogDescription>
+          </VisuallyHidden>
+        </>
+      );
+    }, [searchText, handleSearchChange, inputPlaceholder, rows.length]);
 
     return (
-      <BorderedModal
-        header={
-          <>
-            <InputSelecteHeader
-              searchText={searchText}
-              handleSearchChange={handleSearchChange}
-              inputPlaceholder={inputPlaceholder}
-            />
-            <VisuallyHidden>
-              <DialogTitle>Input Modal</DialogTitle>
-            </VisuallyHidden>
-          </>
-        }
-        {...props}>
+      <BorderedModal header={memoizedHeader} {...props}>
         <div
           className="max-h-[65vh]"
           style={{
-            height: (filteredItems.length || 1) * 48 + (showHeader ? 32 : 0) //32 is the height of the header
+            height: (rows.length || 1) * 48 + (showHeader ? 32 : 0) //32 is the height of the header
           }}>
           <BusterList
             columns={columns}
-            rows={filteredItems}
+            rows={rows}
             onSelectChange={onSelectChange}
             emptyState={useMemo(
               () => emptyState || <Text variant={'secondary'}>No items found</Text>,

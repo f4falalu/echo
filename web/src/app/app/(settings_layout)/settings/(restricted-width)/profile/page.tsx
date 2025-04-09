@@ -26,7 +26,7 @@ export default function ProfilePage() {
             <Title as="h3" className="text-foreground">
               {name}
             </Title>
-            <Text className="text-muted-foreground mt-1">{email}</Text>
+            <Text className="text-gray-light mt-1">{email}</Text>
           </div>
         </div>
 

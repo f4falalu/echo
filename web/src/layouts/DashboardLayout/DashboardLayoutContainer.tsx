@@ -13,7 +13,7 @@ export const DashboardLayoutContainer: React.FC<{
   return (
     <>
       {children}
-      {/* <MemoizedAddToDashboardModal dashboardId={dashboardId} /> */}
+      <MemoizedAddToDashboardModal dashboardId={dashboardId} />
     </>
   );
 };

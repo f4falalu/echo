@@ -301,7 +301,7 @@ const useFilterDashboardSelectMenu = () => {
       icon: <Filter />,
       items: [
         <div className="p-2" key="coming-soon">
-          Coming soon...
+          Coming soon 🤙...
         </div>
       ]
     }),

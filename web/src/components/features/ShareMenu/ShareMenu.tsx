@@ -1,7 +1,7 @@
 'use client';
 
 import React, { PropsWithChildren, useState } from 'react';
-import { Popover } from '@/components/ui/tooltip/Popover';
+import { Popover } from '@/components/ui/popover/Popover';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useMemoizedFn } from '@/hooks';
 import { BusterShare, ShareAssetType } from '@/api/asset_interfaces';

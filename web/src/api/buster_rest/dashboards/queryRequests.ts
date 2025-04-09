@@ -108,9 +108,11 @@ export const useCreateDashboard = () => {
   return useMutation({
     mutationFn: dashboardsCreateDashboard,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: dashboardQueryKeys.dashboardGetList({}).queryKey
-      });
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: dashboardQueryKeys.dashboardGetList({}).queryKey
+        });
+      }, 350);
     }
   });
 };
