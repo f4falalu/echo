@@ -19,7 +19,7 @@ import { configureMonacoToUseYaml } from './yamlHelper';
 import { Editor as DynamicEditor } from '@monaco-editor/react';
 import { useTheme } from 'next-themes';
 
-export interface AppCodeEditorProps {
+interface AppCodeEditorProps {
   className?: string;
   onChangeEditorHeight?: (height: number) => void;
   height?: string;

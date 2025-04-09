@@ -6,6 +6,7 @@ import '../styles/styles.scss';
 export const metadata: Metadata = {
   title: 'Buster',
   description: 'Buster.so is the open source, AI-native data platform.',
+  metadataBase: new URL('https://buster.so'),
   icons: {
     icon: '/favicon.ico'
   },

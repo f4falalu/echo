@@ -1,17 +1,12 @@
 'use client';
 
-import { Command, ReturnKey } from '@/components/ui/icons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
 import { Button } from '@/components/ui/buttons/Button';
 import React, { useMemo, useState } from 'react';
 import type { AppVerticalCodeSplitterProps } from './AppVerticalCodeSplitter';
-import { cn } from '@/lib/classMerge';
-import { ErrorClosableContainer } from '@/components/ui/error/ErrorClosableContainer';
-import { AppDiffCodeEditor } from '@/components/ui/inputs';
+import { AppDiffCodeEditor } from '@/components/ui/inputs/AppDiffCodeEditor';
 import { Copy2 } from '@/components/ui/icons';
-import { Text } from '@/components/ui/typography';
-import { VersionPill } from '@/components/ui/tags/VersionPill';
 import { FileCard } from '@/components/ui/card/FileCard';
 import { TextAndVersionPill } from '@/components/ui/typography/TextAndVersionPill';
 
