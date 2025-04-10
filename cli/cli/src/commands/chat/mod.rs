@@ -1,5 +1,6 @@
 pub mod args;
 pub mod config;
+pub mod completion;
 pub mod logic;
 pub mod state;
 pub mod ui;

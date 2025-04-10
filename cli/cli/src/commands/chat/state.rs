@@ -1,10 +1,12 @@
 use agents::{AgentError, AgentThread};
+use crate::commands::chat::completion; // Add import for completion logic
 use litellm::{AgentMessage, MessageProgress, ToolCall};
 use uuid::Uuid;
 use std::time::Instant;
 use serde_json;
 use serde_json::Value;
 use serde::{Deserialize, Serialize};
+use std::time::SystemTime; // For timestamps
 
 // --- Structs for specific tool results (add more as needed) ---
 #[derive(Serialize, Deserialize, Debug)]
@@ -21,6 +23,15 @@ struct ListDirectoryResult {
     entries: Vec<ListDirectoryEntry>,
 }
 
+// --- NEW: Struct/Enum for Display Log ---
+#[derive(Debug, Clone)]
+pub enum DisplayLogEntry {
+    ShellCommand { timestamp: SystemTime, command: String },
+    ShellOutput { timestamp: SystemTime, stdout: String, stderr: String, status: String }, // Use String for status for simplicity
+    ShellError { timestamp: SystemTime, error: String },
+    Info { timestamp: SystemTime, message: String }, // General purpose info
+}
+
 // --- Application State Structs ---
 #[derive(Debug, Clone)]
 pub struct ActiveToolCall {
@@ -33,12 +44,22 @@ pub struct ActiveToolCall {
 pub struct AppState {
     pub input: String,
     pub messages: Vec<AgentMessage>,
+    pub display_log: Vec<DisplayLogEntry>,
     pub scroll_offset: u16,
     pub should_quit: bool,
+    pub reset_scroll_request: bool,
     pub active_tool_calls: Vec<ActiveToolCall>,
     pub current_error: Option<String>,
     pub agent_thread: AgentThread,
     pub is_agent_processing: bool,
+
+    // --- Autocompletion State ---
+    pub is_completing: bool,
+    pub completions: Vec<String>,
+    pub completion_index: Option<usize>,
+    // Store info about the text fragment being completed
+    completion_fragment_start: Option<usize>,
+    completion_fragment_len: Option<usize>,
 }
 
 // --- AppState Implementation ---
@@ -47,12 +68,21 @@ impl AppState {
         AppState {
             input: String::new(),
             messages: vec![],
+            display_log: Vec::new(),
             scroll_offset: 0,
             should_quit: false,
+            reset_scroll_request: false,
             active_tool_calls: Vec::new(),
             current_error: None,
             agent_thread: AgentThread::new(Some(session_id), user_id, vec![]),
             is_agent_processing: false,
+
+            // --- Autocompletion State ---
+            is_completing: false,
+            completions: Vec::new(),
+            completion_index: None,
+            completion_fragment_start: None,
+            completion_fragment_len: None,
         }
     }
 
@@ -434,9 +464,127 @@ impl AppState {
 
     pub fn scroll_up(&mut self) {
         self.scroll_offset = self.scroll_offset.saturating_add(1);
+        self.reset_scroll_request = false; // User manually scrolled
     }
 
     pub fn scroll_down(&mut self) {
         self.scroll_offset = self.scroll_offset.saturating_sub(1);
+        self.reset_scroll_request = false; // User manually scrolled
+    }
+
+    // --- Autocompletion Methods ---
+
+    /// Updates the list of path completions based on the current input.
+    pub fn update_completions(&mut self, cwd: &str) {
+        let (new_completions, target_opt) = completion::get_completions(&self.input, cwd);
+        if !new_completions.is_empty() {
+            if let Some(target) = target_opt {
+                self.completions = new_completions;
+                self.completion_index = Some(0); // Select the first one
+                self.is_completing = true;
+                // Store target info for applying the completion later
+                self.completion_fragment_start = Some(target.fragment_start_index);
+                self.completion_fragment_len = Some(target.fragment.len());
+            } else {
+                // This case might occur if completions were generated but the target info is missing (shouldn't happen with current logic)
+                self.cancel_completion();
+            }
+        } else {
+            self.cancel_completion();
+        }
+    }
+
+    /// Starts completion if not already active, or applies if only one unambiguous option.
+    pub fn start_or_apply_completion(&mut self, cwd: &str) {
+        if self.is_completing {
+            // If already completing, Tab likely means apply (handled elsewhere)
+            return;
+        }
+        let (new_completions, target_opt) = completion::get_completions(&self.input, cwd);
+        match new_completions.len() {
+            0 => self.cancel_completion(),
+            1 => {
+                 // Apply immediately if only one option
+                 if let Some(target) = target_opt {
+                     let selected_completion = new_completions[0].clone(); // Clone before potentially modifying state
+                     self.completions = new_completions;
+                     self.completion_index = Some(0);
+                     self.completion_fragment_start = Some(target.fragment_start_index);
+                     self.completion_fragment_len = Some(target.fragment.len());
+                     if self.apply_completion() { // Apply the single completion
+                         // If it was a directory, update completions immediately
+                         if selected_completion.ends_with('/') {
+                            self.update_completions(cwd);
+                         }
+                     }
+                 } else {
+                      self.cancel_completion(); // Should have target if completions exist
+                 }
+            }
+            _ => {
+                // Multiple options, enter completion mode
+                 if let Some(target) = target_opt {
+                    self.completions = new_completions;
+                    self.completion_index = Some(0); // Select the first one
+                    self.is_completing = true;
+                    self.completion_fragment_start = Some(target.fragment_start_index);
+                    self.completion_fragment_len = Some(target.fragment.len());
+                } else {
+                    self.cancel_completion(); // Should have target if completions exist
+                }
+            }
+        }
+    }
+
+    /// Cycles through the completion list.
+    pub fn cycle_completion(&mut self, forward: bool) {
+        if !self.is_completing || self.completions.is_empty() {
+            return;
+        }
+        let current_index = self.completion_index.unwrap_or(0);
+        let next_index = if forward {
+            (current_index + 1) % self.completions.len()
+        } else {
+            (current_index + self.completions.len() - 1) % self.completions.len()
+        };
+        self.completion_index = Some(next_index);
+    }
+
+    /// Applies the currently selected completion to the input field.
+    /// Returns true if a completion was successfully applied.
+    pub fn apply_completion(&mut self) -> bool {
+        if let (Some(index), Some(start), Some(len)) =
+            (self.completion_index, self.completion_fragment_start, self.completion_fragment_len)
+        {
+            if let Some(selected_completion) = self.completions.get(index).cloned() {
+                // Replace the fragment in the input string
+                let end = start + len;
+                if end <= self.input.len() { // Basic sanity check
+                    self.input.replace_range(start..end, &selected_completion);
+
+                    let is_dir = selected_completion.ends_with('/');
+                    self.cancel_completion(); // Exit completion mode after applying
+
+                    // Return true, let the caller decide if update_completions is needed (e.g., for dirs)
+                    return true;
+                } else {
+                    // Index out of bounds - indicates an issue, cancel
+                    self.cancel_completion();
+                    return false;
+                }
+            }
+        }
+        // If no index or target info, cancel
+        self.cancel_completion();
+        false
+    }
+
+    /// Cancels the current completion mode.
+    pub fn cancel_completion(&mut self) {
+        self.is_completing = false;
+        self.completions.clear();
+        self.completion_index = None;
+        self.completion_fragment_start = None;
+        self.completion_fragment_len = None;
     }
 }
