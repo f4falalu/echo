@@ -106,6 +106,8 @@ impl BusterMultiAgent {
             user_id,
             session_id,
             "buster_super_agent".to_string(),
+            None,
+            None,
         ));
 
         let manager = Self { agent };

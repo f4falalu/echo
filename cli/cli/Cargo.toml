@@ -12,7 +12,7 @@ path = "src/lib.rs"
 
 [dependencies]
 anyhow = { workspace = true }
-async-trait = { workspace = true }
+async-trait = "0.1.77"
 clap = { workspace = true, features = ["derive", "env"] }
 confy = { workspace = true }
 dirs = { workspace = true }
@@ -20,19 +20,21 @@ futures = { workspace = true }
 indicatif = { workspace = true }
 inquire = { workspace = true }
 lazy_static = { workspace = true }
-ratatui = { workspace = true }
+ratatui = { workspace = true, features = ["crossterm"] }
+crossterm = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true, features = ["json", "rustls-tls", "stream"] }
 rpassword = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
+strip-ansi-escapes = "0.2.0"
 tempfile = { workspace = true }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = ["full"] }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "sync", "time"] }
 tokio-util = { workspace = true, features = ["io"] }
 futures-util = { workspace = true }
-uuid = { workspace = true, features = ["v4", "serde"] }
+uuid = { workspace = true }
 colored = { workspace = true }
 rustls = { workspace = true, features = ["tls12"] }
 url = { workspace = true }
@@ -42,6 +44,18 @@ walkdir = { workspace = true }
 semver = { workspace = true }
 # Add the shared query engine library
 query_engine = { workspace = true }
+
+litellm = { path = "../../api/libs/litellm" }
+
+rustyline = { workspace = true }
+
+# Add the agents crate
+agents = { path = "../../api/libs/agents" }
+
+[profile.dev]
+# Increase parallel code generation units for faster debug builds
+codegen-units = 16 
+debug = 1
 
 [build-dependencies]
 chrono = { workspace = true }

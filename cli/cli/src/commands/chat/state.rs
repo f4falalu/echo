@@ -1,0 +1,387 @@
+use agents::{AgentError, AgentThread};
+use litellm::{AgentMessage, MessageProgress, ToolCall};
+use uuid::Uuid;
+// --- Application State Structs ---
+#[derive(Debug, Clone)]
+pub struct ActiveToolCall {
+    pub id: String,
+    pub name: String,
+    pub status: String,
+    pub content: Option<String>,
+}
+
+pub struct AppState {
+    pub input: String,
+    pub messages: Vec<AgentMessage>,
+    pub scroll_offset: u16,
+    pub should_quit: bool,
+    pub active_tool_calls: Vec<ActiveToolCall>,
+    pub current_error: Option<String>,
+    pub agent_thread: AgentThread,
+    pub is_agent_processing: bool,
+}
+
+// --- AppState Implementation ---
+impl AppState {
+    pub fn new(user_id: Uuid, session_id: Uuid) -> Self {
+        AppState {
+            input: String::new(),
+            messages: vec![],
+            scroll_offset: 0,
+            should_quit: false,
+            active_tool_calls: Vec::new(),
+            current_error: None,
+            agent_thread: AgentThread::new(Some(session_id), user_id, vec![]),
+            is_agent_processing: false,
+        }
+    }
+
+    pub fn submit_message(&mut self) {
+        if !self.input.is_empty() && !self.is_agent_processing && self.active_tool_calls.is_empty()
+        {
+            let user_message = AgentMessage::user(self.input.clone());
+            self.messages.push(user_message.clone());
+            self.agent_thread.messages.push(user_message);
+
+            self.input.clear();
+            self.scroll_offset = 0;
+            self.is_agent_processing = true;
+            self.current_error = None;
+        }
+    }
+
+    pub fn process_agent_message(&mut self, msg_result: Result<AgentMessage, AgentError>) {
+        match msg_result {
+            Ok(msg) => {
+                self.current_error = None;
+                match msg {
+                    AgentMessage::Assistant {
+                        id,
+                        content,
+                        tool_calls,
+                        progress,
+                        initial,
+                        name,
+                    } => {
+                        self.handle_assistant_message(
+                            id,
+                            content,
+                            tool_calls,
+                            progress,
+                            Some(initial),
+                            name,
+                        );
+                    }
+                    AgentMessage::Tool {
+                        id,
+                        name: tool_name,
+                        content,
+                        tool_call_id,
+                        progress,
+                    } => {
+                        self.handle_tool_message(id, content, tool_call_id, tool_name, progress);
+                    }
+                    AgentMessage::Done => {
+                        self.is_agent_processing = false;
+                        self.active_tool_calls.clear();
+                    }
+                    AgentMessage::User { .. } | AgentMessage::Developer { .. } => {}
+                }
+            }
+            Err(e) => {
+                self.current_error = Some(format!("Agent Error: {}", e.0));
+                self.is_agent_processing = false;
+                self.active_tool_calls.clear();
+                self.messages.push(AgentMessage::Assistant {
+                    id: None,
+                    content: Some(format!("Error: {}", e.0)),
+                    name: Some("System".to_string()),
+                    tool_calls: None,
+                    progress: MessageProgress::Complete,
+                    initial: false,
+                });
+            }
+        }
+        self.scroll_offset = 0;
+    }
+
+    fn handle_assistant_message(
+        &mut self,
+        _id: Option<String>,
+        content: Option<String>,
+        tool_calls: Option<Vec<ToolCall>>,
+        progress: MessageProgress,
+        _initial: Option<bool>, // Parameter name changed to avoid conflict
+        name: Option<String>,
+    ) {
+        let agent_name = name.unwrap_or_else(|| "Assistant".to_string());
+        match progress {
+            MessageProgress::InProgress => {
+                self.is_agent_processing = true;
+
+                // Clone values needed in both update/add paths *before* potential move
+                let _id_clone = _id.clone();
+                let content_clone = content.clone();
+                let progress_clone = progress.clone();
+
+                // --- Update or add the main Assistant message ---
+                let last_assistant_msg_index = self
+                    .messages
+                    .iter()
+                    .rposition(|msg| matches!(msg, AgentMessage::Assistant { .. }));
+                let mut updated_existing = false;
+
+                if let Some(index) = last_assistant_msg_index {
+                    if let Some(AgentMessage::Assistant {
+                        progress: existing_progress,
+                        ..
+                    }) = self.messages.get_mut(index)
+                    {
+                        if *existing_progress == MessageProgress::InProgress {
+                            // Update existing InProgress message
+                            *self.messages.get_mut(index).unwrap() = AgentMessage::Assistant {
+                                id: _id,
+                                content,
+                                tool_calls: tool_calls.clone(),
+                                progress,
+                                initial: false,
+                                name: Some(agent_name.clone()),
+                            };
+                            updated_existing = true;
+                        }
+                    }
+                }
+
+                if !updated_existing {
+                    // Push a new Assistant message if none was updated
+                    self.messages.push(AgentMessage::Assistant {
+                        id: _id_clone,
+                        content: content_clone,
+                        tool_calls: tool_calls.clone(),
+                        progress: progress_clone,
+                        initial: false,
+                        name: Some(agent_name.clone()),
+                    });
+                }
+
+                // --- Handle tool calls (update status bar and add placeholders) ---
+                // Use the original tool_calls value passed to the function
+                if let Some(calls) = &tool_calls {
+                    // BORROW original tool_calls
+                    // Update active_tool_calls for status bar
+                    self.active_tool_calls = calls
+                        .iter()
+                        .map(|tc| ActiveToolCall {
+                            id: tc.id.clone(),
+                            name: tc.function.name.clone(),
+                            status: "Starting".to_string(),
+                            content: None,
+                        })
+                        .collect();
+
+                    // Add placeholders *after* the assistant message
+                    // Check if placeholders for these specific calls already exist? (More robust)
+                    let existing_tool_ids: std::collections::HashSet<String> = self
+                        .messages
+                        .iter()
+                        .filter_map(|msg| {
+                            if let AgentMessage::Developer { id: Some(id), .. } = msg {
+                                Some(id.clone())
+                            } else {
+                                None
+                            }
+                        })
+                        .collect();
+
+                    for tc in calls {
+                        if !existing_tool_ids.contains(&tc.id) {
+                            self.messages.push(AgentMessage::Developer {
+                                id: Some(tc.id.clone()),
+                                content: format!("Executing: {}...", tc.function.name),
+                                name: Some("Tool".to_string()),
+                            });
+                        }
+                    }
+                } else {
+                    // If no tool calls in this specific message, clear the active list only if agent isn't processing anymore?
+                    // Let's keep the logic simple: don't clear here. Complete/Done will handle it.
+                    // self.active_tool_calls.clear();
+                }
+            }
+            MessageProgress::Complete => {
+                // --- This block needs similar review, but the error was in InProgress ---
+                // --- For now, let's assume the existing Complete logic is mostly okay, ---
+                // --- but ensure tool_calls is cloned if moved into a message. ---
+
+                if tool_calls.is_none() {
+                    // === Case 1: No tool calls, final assistant response ===
+                    // (Simplified logic: Assume we always update/add the last message)
+                    let last_assistant_msg_index = self
+                        .messages
+                        .iter()
+                        .rposition(|msg| matches!(msg, AgentMessage::Assistant { .. }));
+
+                    if let Some(index) = last_assistant_msg_index {
+                        // Update existing message (might be InProgress or already Complete)
+                        *self.messages.get_mut(index).unwrap() = AgentMessage::Assistant {
+                            id: _id,
+                            content,
+                            tool_calls: None,
+                            progress,
+                            initial: false,
+                            name: Some(agent_name),
+                        };
+                    } else {
+                        // Add new final message
+                        self.messages.push(AgentMessage::Assistant {
+                            id: _id,
+                            content,
+                            tool_calls: None,
+                            progress,
+                            initial: false,
+                            name: Some(agent_name),
+                        });
+                    }
+
+                    self.is_agent_processing = false;
+                    self.active_tool_calls.clear();
+                } else {
+                    // === Case 2: Tool calls were generated, assistant text part is complete ===
+                    // Update the assistant message that initiated tools (if it was InProgress)
+                    let last_assistant_msg_index = self
+                        .messages
+                        .iter()
+                        .rposition(|msg| matches!(msg, AgentMessage::Assistant { .. }));
+                    if let Some(index) = last_assistant_msg_index {
+                        if let Some(AgentMessage::Assistant {
+                            progress: existing_progress,
+                            ..
+                        }) = self.messages.get_mut(index)
+                        {
+                            if *existing_progress == MessageProgress::InProgress {
+                                *self.messages.get_mut(index).unwrap() = AgentMessage::Assistant {
+                                    id: _id,
+                                    content,                        // Update final content
+                                    tool_calls: tool_calls.clone(), // CLONE for message
+                                    progress,                       // Mark as Complete
+                                    initial: false,
+                                    name: Some(agent_name),
+                                };
+                            }
+                        }
+                    }
+                    // If no InProgress found, we don't add a new Complete message here.
+
+                    // Update status bar (borrow original tool_calls)
+                    if let Some(calls) = &tool_calls {
+                        // BORROW original
+                        self.active_tool_calls = calls
+                            .iter()
+                            .map(|tc| ActiveToolCall {
+                                id: tc.id.clone(),
+                                name: tc.function.name.clone(),
+                                status: "Pending Execution".to_string(),
+                                content: None,
+                            })
+                            .collect();
+
+                        // --- ADD PLACEHOLDERS HERE TOO --- 
+                        // Covers the case where only a Complete message with tool_calls is sent.
+                        let existing_tool_ids: std::collections::HashSet<String> = self.messages.iter().filter_map(|msg| {
+                            if let AgentMessage::Developer { id: Some(id), .. } = msg { Some(id.clone()) } else { None }
+                        }).collect();
+
+                        for tc in calls {
+                            if !existing_tool_ids.contains(&tc.id) {
+                                self.messages.push(AgentMessage::Developer {
+                                    id: Some(tc.id.clone()),
+                                    content: format!("Executing: {}...", tc.function.name), // Or maybe "Called:"?
+                                    name: Some("Tool".to_string()),
+                                });
+                            }
+                        }
+                    }
+                    // Placeholders were added by InProgress or just now. Keep processing.
+                    self.is_agent_processing = true;
+                }
+            }
+        }
+    }
+
+    fn handle_tool_message(
+        &mut self,
+        _id: Option<String>,
+        content: String,
+        tool_call_id: String,
+        tool_name: Option<String>,
+        progress: MessageProgress,
+    ) {
+        let name = tool_name.unwrap_or_else(|| "Unknown Tool".to_string());
+        let mut found_message = false;
+
+        // Update the placeholder message in the main history
+        for msg in self.messages.iter_mut() {
+            if let AgentMessage::Developer {
+                id: msg_id,
+                content: msg_content,
+                ..
+            } = msg
+            {
+                if msg_id.as_ref() == Some(&tool_call_id) {
+                    *msg_content = match progress {
+                        MessageProgress::InProgress => format!("Running {}: {}...", name, content), // Show partial content?
+                        MessageProgress::Complete => format!("Result ({}): {}", name, content),
+                    };
+                    found_message = true;
+                    break;
+                }
+            }
+        }
+        if !found_message {
+            eprintln!(
+                "Warning: Could not find placeholder message for tool call ID: {}",
+                tool_call_id
+            );
+            // Optionally, add a new Developer message anyway?
+            // self.messages.push(AgentMessage::Developer { ... });
+        }
+
+        // --- Original logic to update status bar ---
+        if let Some(tool) = self
+            .active_tool_calls
+            .iter_mut()
+            .find(|t| t.id == tool_call_id)
+        {
+            match progress {
+                MessageProgress::InProgress => {
+                    tool.status = "Running".to_string();
+                    tool.content = Some(content); // Update status bar content too
+                    self.is_agent_processing = true; // Keep processing
+                }
+                MessageProgress::Complete => {
+                    // Remove from active list, but don't change is_agent_processing yet.
+                    // The agent needs to process the result.
+                    self.active_tool_calls.retain(|t| t.id != tool_call_id);
+                    // Only set is_agent_processing = true if this was the *last* active tool call.
+                    // The agent will send AgentMessage::Done or a final Assistant message later.
+                    if self.active_tool_calls.is_empty() {
+                        self.is_agent_processing = true; // Still true, agent needs to process results
+                    }
+                }
+            }
+        } else {
+            eprintln!(
+                "Warning: Received tool message for unknown or completed call ID: {}",
+                tool_call_id
+            );
+        }
+    }
+
+    pub fn scroll_up(&mut self) {
+        self.scroll_offset = self.scroll_offset.saturating_add(1);
+    }
+
+    pub fn scroll_down(&mut self) {
+        self.scroll_offset = self.scroll_offset.saturating_sub(1);
+    }
+}

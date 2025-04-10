@@ -73,6 +73,16 @@ pub enum Commands {
         #[arg(long, default_value_t = true)]
         recursive: bool,
     },
+    /// Start an interactive chat session
+    Chat {
+        /// The API base URL to use
+        #[arg(long, env = "OPENAI_API_BASE")]
+        base_url: Option<String>,
+
+        /// The API key to use
+        #[arg(long, env = "OPENAI_API_KEY")]
+        api_key: Option<String>,
+    },
 }
 
 #[derive(Parser)]
@@ -158,6 +168,16 @@ async fn main() {
         } => async move {
             check_authentication().await?;
             deploy(path.as_deref(), dry_run, recursive).await
+        }.await,
+        Commands::Chat {
+            base_url,
+            api_key,
+        } => async move {
+            // No explicit auth check needed here as chat command handles its own logic
+            commands::chat::chat_command(commands::chat::ChatArgs {
+                base_url,
+                api_key,
+            }).await
         }.await,
     };
 
