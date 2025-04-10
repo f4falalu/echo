@@ -95,22 +95,22 @@ const AutoScrollDemo = () => {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => scrollToTop('smooth')}
+            onClick={() => scrollToTop()}
             className="rounded bg-gray-500 px-3 py-1 text-white hover:bg-gray-600">
             Scroll to Top (smooth)
           </button>
           <button
-            onClick={() => scrollToTop('instant')}
+            onClick={() => scrollToTop()}
             className="rounded bg-gray-500 px-3 py-1 text-white hover:bg-gray-600">
             Scroll to Top (instant)
           </button>
           <button
-            onClick={() => scrollToBottom('smooth')}
+            onClick={() => scrollToBottom()}
             className="rounded bg-gray-500 px-3 py-1 text-white hover:bg-gray-600">
             Scroll to Bottom (smooth)
           </button>
           <button
-            onClick={() => scrollToBottom('instant')}
+            onClick={() => scrollToBottom()}
             className="rounded bg-gray-500 px-3 py-1 text-white hover:bg-gray-600">
             Scroll to Bottom (instant)
           </button>
@@ -268,12 +268,12 @@ export const ScrollAreaComponentWithAutoScroll: Story = {
               Auto-scroll {isAutoScrollEnabled ? 'ON' : 'OFF'}
             </button>
             <button
-              onClick={() => scrollToTop('smooth')}
+              onClick={() => scrollToTop()}
               className="rounded bg-gray-500 px-3 py-1 text-sm text-white hover:bg-gray-600">
               To Top
             </button>
             <button
-              onClick={() => scrollToBottom('smooth')}
+              onClick={() => scrollToBottom()}
               className="rounded bg-gray-500 px-3 py-1 text-sm text-white hover:bg-gray-600">
               To Bottom
             </button>
