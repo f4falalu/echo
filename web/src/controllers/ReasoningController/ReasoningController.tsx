@@ -5,6 +5,7 @@ import { useGetChat, useGetChatMessage } from '@/api/buster_rest/chats';
 import { ReasoningMessageSelector } from './ReasoningMessages';
 import { BlackBoxMessage } from './ReasoningMessages/ReasoningBlackBoxMessage';
 import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ReasoningControllerProps {
   chatId: string;
@@ -19,18 +20,20 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   if (!hasChat || !reasoningMessageIds) return <FileIndeterminateLoader />;
 
   return (
-    <div className="h-full flex-col space-y-2 overflow-y-auto p-5">
-      {reasoningMessageIds?.map((reasoningMessageId) => (
-        <ReasoningMessageSelector
-          key={reasoningMessageId}
-          reasoningMessageId={reasoningMessageId}
-          isCompletedStream={isCompletedStream ?? true}
-          chatId={chatId}
-          messageId={messageId}
-        />
-      ))}
+    <ScrollArea>
+      <div className="h-full flex-col space-y-2 overflow-y-auto p-5">
+        {reasoningMessageIds?.map((reasoningMessageId) => (
+          <ReasoningMessageSelector
+            key={reasoningMessageId}
+            reasoningMessageId={reasoningMessageId}
+            isCompletedStream={isCompletedStream ?? true}
+            chatId={chatId}
+            messageId={messageId}
+          />
+        ))}
 
-      <BlackBoxMessage messageId={messageId} />
-    </div>
+        <BlackBoxMessage messageId={messageId} />
+      </div>
+    </ScrollArea>
   );
 };

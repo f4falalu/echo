@@ -73,7 +73,7 @@ ChartJS.register(
 );
 
 ChartJS.defaults.responsive = true;
-ChartJS.defaults.resizeDelay = 6;
+ChartJS.defaults.resizeDelay = 7;
 ChartJS.defaults.maintainAspectRatio = false;
 ChartJS.defaults.color = color;
 ChartJS.defaults.backgroundColor = DEFAULT_CHART_THEME;

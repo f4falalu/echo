@@ -111,7 +111,7 @@ export const AppSplitter = React.memo(
 
       const hideSash = useMemo(() => {
         return hideSplitter ?? (leftHidden || rightHidden);
-      }, [hideSplitter, leftHidden, rightHidden]);
+      }, [hideSplitter, allowResize, leftHidden, rightHidden]);
 
       const sashRender = useMemoizedFn((_: number, active: boolean) => (
         <AppSplitterSash
