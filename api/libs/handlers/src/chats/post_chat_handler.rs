@@ -1329,32 +1329,41 @@ struct GenericPlanOutput {
 }
 
 fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
-    // Attempt to parse the generic structure
-    let plan_output = match serde_json::from_str::<GenericPlanOutput>(&content) {
-        Ok(result) => result,
+    // Define a struct to parse the success status (optional)
+    #[derive(Deserialize)]
+    struct PlanOutput {
+        success: bool,
+    }
+
+    // Attempt to parse the success field (optional validation)
+    match serde_json::from_str::<PlanOutput>(&content) {
+        Ok(output) if output.success => {
+            // Successfully completed, no need to return a message
+            // as assistant_create_plan_input already created it.
+            tracing::debug!("Tool create_plan {} completed successfully.", id);
+            Ok(vec![])
+        }
+        Ok(_) => {
+            tracing::warn!(
+                "Tool create_plan {} output indicates failure: {}.",
+                id,
+                content
+            );
+            // Optionally return an error message here if needed
+            Ok(vec![])
+        }
         Err(e) => {
-            // Remove the fallback logic for the old CreatePlanOutput
+            // Log the parsing error, but still return Ok([]) as the primary
+            // purpose is just acknowledging completion.
             tracing::error!(
-                "Failed to parse plan output for tool call {}: {}. Content: {}",
+                "Failed to parse tool_create_plan output for {}: {}. Content: {}",
                 id,
                 e,
                 content
             );
-            return Ok(vec![]); // Return empty if parsing fails
+            Ok(vec![])
         }
-    };
-
-    let buster_message = BusterReasoningMessage::Text(BusterReasoningText {
-        id,
-        reasoning_type: "text".to_string(),
-        title: "Plan".to_string(),
-        secondary_title: "".to_string(),
-        message: Some(plan_output.plan), // Use the 'plan' field
-        message_chunk: None,
-        status: Some("completed".to_string()),
-    });
-
-    Ok(vec![buster_message])
+    }
 }
 
 // Update tool_create_metrics to require ID
@@ -1702,6 +1711,16 @@ fn transform_assistant_tool_message(
                 progress.clone(),
                 initial,
             )?,
+            "create_plan_investigative" => assistant_create_plan_input(
+                tool_id,
+                tool_call.function.arguments.clone(),
+                progress.clone(),
+            )?,
+            "create_plan_straightforward" => assistant_create_plan_input(
+                tool_id,
+                tool_call.function.arguments.clone(),
+                progress.clone(),
+            )?,
             _ => vec![],
         };
 
@@ -1967,6 +1986,41 @@ fn assistant_create_plan(
         Ok(None) => Ok(vec![]), // No complete message chunk parsed yet
         Err(e) => {
              tracing::error!("Failed to parse plan arguments chunk for {}: {}. Content: {}", id, e, content);
+             Err(e) // Propagate the error
+        }
+    }
+}
+
+// Create a new function to handle the plan from tool input arguments
+fn assistant_create_plan_input(
+    id: String,
+    arguments_json: String, // This is the potentially partial JSON chunk
+    _progress: MessageProgress, // Keep progress for potential future use
+) -> Result<Vec<BusterReasoningMessage>> {
+    // Use the streaming parser to handle potentially incomplete JSON chunks
+    let mut parser = StreamingParser::new();
+
+    // Call process_plan_chunk which handles parsing the 'plan' field from chunks
+    match parser.process_plan_chunk(id.clone(), &arguments_json) {
+        Ok(Some(message)) => {
+            // The parser returns the correct BusterReasoningMessage structure with message_chunk
+            // Ensure the status is loading as it's an assistant message
+            match message {
+                BusterReasoningMessage::Text(mut text) => {
+                    // Parser sets message_chunk, we ensure status is loading
+                    text.status = Some("loading".to_string());
+                    Ok(vec![BusterReasoningMessage::Text(text)])
+                }
+                 // Handle other types potentially returned by the parser if necessary (though unlikely for plan)
+                _ => {
+                    tracing::warn!("StreamingParser::process_plan_chunk returned unexpected type for {}", id);
+                    Ok(vec![])
+                }
+            }
+        }
+        Ok(None) => Ok(vec![]), // No complete message chunk parsed yet or not a plan structure
+        Err(e) => {
+             tracing::error!("Failed to parse plan arguments chunk for {}: {}. Content: {}", id, e, arguments_json);
              Err(e) // Propagate the error
         }
     }
