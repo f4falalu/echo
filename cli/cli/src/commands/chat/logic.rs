@@ -13,6 +13,7 @@ use std::time::Instant;
 use thiserror::Error;
 use tokio::sync::broadcast;
 use uuid::Uuid;
+use std::process::Command;
 
 // --- Agent Imports ---
 use agents::{AgentError, AgentExt, AgentThread, BusterCliAgent};
@@ -105,6 +106,15 @@ pub async fn run_chat(args: ChatArgs) -> Result<()> {
     let cwd = env::current_dir()
         .map(|p| p.display().to_string())
         .unwrap_or_else(|_| "<unknown>".to_string());
+
+    // --- Git Repository Check ---
+    let git_check = Command::new("git")
+        .args(["rev-parse", "--is-inside-work-tree"])
+        .output(); // Use output to capture status and stderr/stdout if needed
+
+    if git_check.is_err() || !git_check.unwrap().status.success() {
+         println!("{}", colored::Colorize::yellow("Warning: Buster operates best in a git repository."));
+    }
 
     // --- Get Credentials ---
     let (base_url, api_key) = get_api_credentials(&args)?;
