@@ -48,8 +48,8 @@ export const EditorContent: React.FC<{
     try {
       const result = await runQuery();
       if (result && result.length > 0) {
-        const headerHeight = 50;
-        const heightOfRow = 36;
+        const headerHeight = 30;
+        const heightOfRow = 28;
         const heightOfDataContainer = headerHeight + heightOfRow * (result.length || 0);
         const containerHeight = ref.current?.clientHeight || 0;
         const maxHeight = Math.floor(containerHeight * 0.6);

@@ -1,4 +1,8 @@
-import type { BusterMetricData, IBusterMetricChartConfig } from '@/api/asset_interfaces/metric';
+import type {
+  BusterMetricData,
+  IBusterMetricChartConfig,
+  IBusterMetricData
+} from '@/api/asset_interfaces/metric';
 import { RunSQLResponse } from '@/api/asset_interfaces/sql';
 import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -9,6 +13,8 @@ import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useGetMetricMemoized } from '@/context/Metrics';
+import { createDefaultChartConfig } from '@/lib/metrics/messageAutoChartHandler';
+import { timeout } from '@/lib';
 
 export const useMetricRunSQL = () => {
   const queryClient = useQueryClient();
@@ -35,7 +41,7 @@ export const useMetricRunSQL = () => {
   const { openSuccessNotification } = useBusterNotifications();
 
   const getDataByMetricIdMemoized = useMemoizedFn(
-    (metricId: string): BusterMetricData | undefined => {
+    (metricId: string): IBusterMetricData | undefined => {
       const options = queryKeys.metricsGetData(metricId);
       return queryClient.getQueryData(options.queryKey);
     }
@@ -61,11 +67,14 @@ export const useMetricRunSQL = () => {
   }) => {
     const options = queryKeys.metricsGetData(metricId);
     const currentData = getDataByMetricIdMemoized(metricId);
+    if (!currentData) return;
     const setter = isDataFromRerun ? 'dataFromRerun' : 'data';
+
     queryClient.setQueryData(options.queryKey, {
-      ...currentData!,
+      ...currentData,
       [setter]: data,
-      data_metadata
+      data_metadata,
+      ...(!isDataFromRerun && { dataFromRerun: undefined })
     });
   };
 
@@ -88,7 +97,6 @@ export const useMetricRunSQL = () => {
         const newColumnData = data_metadata?.column_metadata;
 
         const didDataMetadataChange = didColumnDataChange(oldColumnData, newColumnData);
-
         const totallyDefaultChartConfig: IBusterMetricChartConfig = didDataMetadataChange
           ? simplifyChatConfigForSQLChange(metricMessage.chart_config, data_metadata)
           : metricMessage.chart_config;
@@ -154,11 +162,10 @@ export const useMetricRunSQL = () => {
       sql: string;
       dataSourceId?: string;
     }) => {
-      const ogConfigs = originalConfigs.current;
       const currentMetric = getMetricMemoized(metricId);
       const dataSourceId = dataSourceIdProp || currentMetric?.data_source_id;
 
-      if (!ogConfigs || ogConfigs.sql !== sql) {
+      if (!originalConfigs.current || originalConfigs.current.sql !== sql) {
         try {
           await runSQL({
             metricId,
@@ -169,20 +176,30 @@ export const useMetricRunSQL = () => {
           throw error;
         }
       }
+      await timeout(50);
 
+      const currentChartConfig = getMetricMemoized(metricId)?.chart_config; //grab it like this because we need the reset based on stageMetric function
       await saveMetric({
         id: metricId,
-        sql
+        sql,
+        chart_config: currentChartConfig //this is reset based on stageMetric function
       });
+      await timeout(50);
 
-      if (originalConfigs.current) {
+      const currentData = getDataByMetricIdMemoized(metricId);
+
+      if (currentData?.data_metadata && currentData?.dataFromRerun) {
         onSetDataForMetric({
           metricId,
-          data: originalConfigs.current?.data!,
-          data_metadata: originalConfigs.current?.dataMetadata!,
+          data: currentData?.dataFromRerun,
+          data_metadata: currentData?.data_metadata,
           isDataFromRerun: false
         });
       }
+
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.metricsGetMetric(metricId).queryKey
+      });
 
       setTimeout(() => {
         openSuccessNotification({

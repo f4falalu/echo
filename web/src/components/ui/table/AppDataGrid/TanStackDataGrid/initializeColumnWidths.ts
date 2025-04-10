@@ -20,7 +20,7 @@ export const initializeColumnWidths = (
   return initial;
 };
 
-const OFFSET = 20;
+const OFFSET = 40;
 
 const getDefaultColumnWidth = (
   rows: Record<string, string | number | null | Date>[],

@@ -7,7 +7,6 @@ import { useMemoizedFn } from '@/hooks';
 import { Button } from '@/components/ui/buttons/Button';
 import React, { useMemo, useState } from 'react';
 import type { AppVerticalCodeSplitterProps } from './AppVerticalCodeSplitter';
-import { cn } from '@/lib/classMerge';
 import { ErrorClosableContainer } from '@/components/ui/error/ErrorClosableContainer';
 import { FileCard } from '@/components/ui/card/FileCard';
 
@@ -16,12 +15,13 @@ export const SQLContainer: React.FC<{
   sql: string | undefined;
   setDatasetSQL: (sql: string) => void;
   onRunQuery: () => Promise<void>;
-  onSaveSQL?: AppVerticalCodeSplitterProps['onSaveSQL'];
+  onSaveSQL: AppVerticalCodeSplitterProps['onSaveSQL'];
   disabledSave?: AppVerticalCodeSplitterProps['disabledSave'];
   error?: string | null;
 }> = React.memo(
   ({ disabledSave, className = '', sql, setDatasetSQL, onRunQuery, onSaveSQL, error }) => {
     const [isRunning, setIsRunning] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const { openInfoMessage } = useBusterNotifications();
 
     const onCopySQL = useMemoizedFn(() => {
@@ -35,6 +35,12 @@ export const SQLContainer: React.FC<{
       setIsRunning(false);
     });
 
+    const onSaveSQLPreflight = useMemoizedFn(async () => {
+      setIsSaving(true);
+      await onSaveSQL?.();
+      setIsSaving(false);
+    });
+
     const memoizedFooter = useMemo(() => {
       return (
         <>
@@ -45,7 +51,8 @@ export const SQLContainer: React.FC<{
               <Button
                 disabled={disabledSave || !sql || isRunning}
                 variant="black"
-                onClick={onSaveSQL}>
+                loading={isSaving}
+                onClick={onSaveSQLPreflight}>
                 Save
               </Button>
             )}
