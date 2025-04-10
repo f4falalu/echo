@@ -23,7 +23,6 @@ import {
 } from './chatStreamMessageHelper';
 import { useChatUpdate } from './useChatUpdate';
 import { prefetchGetMetricDataClient } from '@/api/buster_rest/metrics';
-import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
 
 export const useChatStreamMessage = () => {
   const queryClient = useQueryClient();
