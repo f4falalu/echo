@@ -11,8 +11,8 @@ const itemVariants = cva(
   {
     variants: {
       size: {
-        sm: 'w-[8px] h-[12px]',
-        default: 'w-[18px] h-[12px]'
+        sm: 'w-2 h-3',
+        default: 'w-4.5 h-3'
       }
     }
   }
@@ -25,9 +25,9 @@ const dotVariants = cva('bg-border transition-colors duration-100', {
       default: ''
     },
     type: {
-      bar: 'w-[18px] h-[12px] rounded-sm',
-      line: 'w-[18px] h-[4px] rounded-sm',
-      scatter: 'w-[12px] h-[12px] rounded-full'
+      bar: 'w-4.5 h-3 rounded-sm',
+      line: 'w-4.5 h-1 rounded-sm',
+      scatter: 'w-3 h-3 rounded-full'
     }
   },
 
@@ -35,17 +35,17 @@ const dotVariants = cva('bg-border transition-colors duration-100', {
     {
       size: 'sm',
       type: 'bar',
-      className: 'w-[8px] h-[8px] rounded-[1.5px]'
+      className: 'w-2 h-2 rounded-[1.5px]'
     },
     {
       size: 'sm',
       type: 'line',
-      className: 'w-[8px] h-[2px] rounded-1.5px'
+      className: 'w-2 h-0.5 rounded-1.5px'
     },
     {
       size: 'sm',
       type: 'scatter',
-      className: 'w-[8px] h-[8px]'
+      className: 'w-2 h-2'
     }
   ]
 });

@@ -211,10 +211,9 @@ const DropzonePlaceholder: React.FC<{
   return (
     <div
       className={cn(
-        'pointer-events-none absolute top-0 bottom-0 h-full w-[4px] rounded-lg transition-opacity duration-200',
-        'bg-nav-item-hover z-[1]',
+        'bg-nav-item-hover pointer-events-none absolute top-0 bottom-0 z-[1] h-full w-1 rounded-lg transition-opacity duration-200',
         isDropzoneActives && 'placeholder',
-        active && 'bg-primary! opacity-100'
+        active && 'bg-primary! z-10 opacity-100'
       )}
       style={memoizedStyle}
     />
@@ -231,7 +230,7 @@ const ColumnSash: React.FC<{
   return (
     <div
       className={cn(
-        'grid-column-sash h-full w-[4px] rounded-lg',
+        'grid-column-sash h-full w-1 rounded-lg',
         'z-10 transition-colors duration-200 ease-in-out',
         allowEdit ? 'hover:bg-border' : 'hidden',
         active ? 'bg-border' : '',
