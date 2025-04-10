@@ -6,14 +6,10 @@ use cohere_rust::{
 use database::{pool::get_pg_pool, schema::datasets};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
-use futures::{
-    future::join_all,
-    stream::{self, StreamExt},
-};
+use futures::stream::{self, StreamExt};
 use litellm::{AgentMessage, ChatCompletionRequest, LiteLLMClient, Metadata, ResponseFormat};
 use middleware::types::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
@@ -163,10 +159,18 @@ async fn handle_search_data_catalog(
 
     // Store user_request for passing to process_query
     let user_request = request.user_request.clone();
-    
+
     // Process all queries concurrently using Cohere reranking
     let ranked_datasets_futures = stream::iter(request.queries)
-        .map(|query| process_query(query, datasets.clone(), documents.clone(), &user, user_request.clone()))
+        .map(|query| {
+            process_query(
+                query,
+                datasets.clone(),
+                documents.clone(),
+                &user,
+                user_request.clone(),
+            )
+        })
         .buffer_unordered(5) // Process up to 5 queries concurrently
         .collect::<Vec<_>>()
         .await;
@@ -223,7 +227,8 @@ async fn process_query(
     }
 
     // Step 2: Filter with LLM for true relevance
-    let filtered_datasets = filter_datasets_with_llm(&query, ranked_datasets, user, user_request).await?;
+    let filtered_datasets =
+        filter_datasets_with_llm(&query, ranked_datasets, user, user_request).await?;
 
     Ok(filtered_datasets)
 }

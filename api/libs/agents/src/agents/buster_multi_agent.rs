@@ -1,10 +1,10 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::broadcast;
 use uuid::Uuid;
-use serde_json::Value;
 
 use crate::{
     tools::{
@@ -13,7 +13,8 @@ use crate::{
                 CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
                 ModifyMetricFilesTool, SearchDataCatalogTool,
             },
-            planning_tools::CreatePlan,
+            planning_tools::{CreatePlanInvestigative, CreatePlanStraightforward},
+            response_tools::{Done, MessageNotifyUser, MessageUserClarifyingQuestion},
         },
         IntoToolCallExecutor, ToolExecutor,
     },
@@ -21,9 +22,6 @@ use crate::{
 };
 
 use litellm::AgentMessage;
-
-// Type alias for the enablement condition closure for tools
-type ToolEnablementCondition = Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BusterSuperAgentOutput {
@@ -54,33 +52,58 @@ impl BusterMultiAgent {
     async fn load_tools(&self) -> Result<()> {
         // Create tools using the shared Arc
         let search_data_catalog_tool = SearchDataCatalogTool::new(Arc::clone(&self.agent));
-        let create_plan_tool = CreatePlan::new(Arc::clone(&self.agent));
+        let create_plan_straightforward_tool =
+            CreatePlanStraightforward::new(Arc::clone(&self.agent));
+        let create_plan_investigative_tool = CreatePlanInvestigative::new(Arc::clone(&self.agent));
         let create_metric_files_tool = CreateMetricFilesTool::new(Arc::clone(&self.agent));
         let modify_metric_files_tool = ModifyMetricFilesTool::new(Arc::clone(&self.agent));
         let create_dashboard_files_tool = CreateDashboardFilesTool::new(Arc::clone(&self.agent));
         let modify_dashboard_files_tool = ModifyDashboardFilesTool::new(Arc::clone(&self.agent));
+        let message_notify_user_tool = MessageNotifyUser::new();
+        let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new();
+        let done_tool = Done::new();
 
-        // Define enablement conditions as closures
-        let search_data_catalog_condition: Option<Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>> = None; // Always enabled
+        let response_tools_condition = Some(|state: &HashMap<String, Value>| -> bool {
+            // Check the state map for the follow-up indicator
+            let is_follow_up = state
+                .get("is_follow_up")
+                .and_then(Value::as_bool)
+                .unwrap_or(false);
 
-        let create_plan_condition = Some(|state: &HashMap<String, Value>| -> bool {
+            if is_follow_up {
+                // For follow-ups, enable if neither data context nor plan is available
+                !state.contains_key("data_context") && !state.contains_key("plan_available")
+            } else {
+                // For initial requests, enable only if data context is not yet available
+                !state.contains_key("data_context")
+            }
+        });
+
+        let planning_tools_condition = Some(|state: &HashMap<String, Value>| -> bool {
             state.contains_key("data_context") // Enabled if data_context exists
         });
 
         let create_metric_files_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            state.contains_key("data_context") && state.contains_key("plan_available")
+            state.contains_key("data_context")
+                && state.contains_key("plan_available")
         });
 
         let modify_metric_files_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            state.contains_key("metrics_available") && state.contains_key("plan_available")
+            state.contains_key("metrics_available")
+                && state.contains_key("plan_available")
+                && state.contains_key("data_context")
         });
 
         let create_dashboard_files_condition = Some(|state: &HashMap<String, Value>| -> bool {
-             state.contains_key("metrics_available") && state.contains_key("plan_available")
+            state.contains_key("metrics_available")
+                && state.contains_key("plan_available")
+                && state.contains_key("data_context")
         });
 
         let modify_dashboard_files_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            state.contains_key("dashboards_available") && state.contains_key("plan_available")
+            state.contains_key("dashboards_available")
+                && state.contains_key("plan_available")
+                && state.contains_key("data_context")
         });
 
         // Add tools to the agent with their conditions
@@ -88,7 +111,7 @@ impl BusterMultiAgent {
             .add_tool(
                 search_data_catalog_tool.get_name(),
                 search_data_catalog_tool.into_tool_call_executor(),
-                search_data_catalog_condition,
+                None::<Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>>, // Always enabled
             )
             .await;
         self.agent
@@ -121,9 +144,37 @@ impl BusterMultiAgent {
             .await;
         self.agent
             .add_tool(
-                create_plan_tool.get_name(),
-                create_plan_tool.into_tool_call_executor(),
-                create_plan_condition,
+                create_plan_straightforward_tool.get_name(),
+                create_plan_straightforward_tool.into_tool_call_executor(),
+                planning_tools_condition.clone(),
+            )
+            .await;
+        self.agent
+            .add_tool(
+                create_plan_investigative_tool.get_name(),
+                create_plan_investigative_tool.into_tool_call_executor(),
+                planning_tools_condition,
+            )
+            .await;
+        self.agent
+            .add_tool(
+                message_notify_user_tool.get_name(),
+                message_notify_user_tool.into_tool_call_executor(),
+                response_tools_condition.clone(),
+            )
+            .await;
+        self.agent
+            .add_tool(
+                message_user_clarifying_question_tool.get_name(),
+                message_user_clarifying_question_tool.into_tool_call_executor(),
+                response_tools_condition,
+            )
+            .await;
+        self.agent
+            .add_tool(
+                done_tool.get_name(),
+                done_tool.into_tool_call_executor(),
+                None::<Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>>, // Always enabled
             )
             .await;
 
@@ -131,9 +182,9 @@ impl BusterMultiAgent {
     }
 
     pub async fn new(
-        user_id: Uuid, 
+        user_id: Uuid,
         session_id: Uuid,
-        is_follow_up: bool // Add flag to determine initial prompt
+        is_follow_up: bool, // Add flag to determine initial prompt
     ) -> Result<Self> {
         // Select initial default prompt based on whether it's a follow-up
         let initial_default_prompt = if is_follow_up {
@@ -141,7 +192,7 @@ impl BusterMultiAgent {
         } else {
             INTIALIZATION_PROMPT.to_string()
         };
-        
+
         // Create agent, passing the selected initialization prompt as default
         let agent = Arc::new(Agent::new(
             "o3-mini".to_string(),
@@ -153,22 +204,28 @@ impl BusterMultiAgent {
             initial_default_prompt, // Use selected default prompt
         ));
 
+        if is_follow_up {
+            agent.set_state_value("is_follow_up".to_string(), Value::Bool(true)).await;
+        }
+
         // Define prompt switching conditions
         let needs_plan_condition = |state: &HashMap<String, Value>| -> bool {
             state.contains_key("data_context") && !state.contains_key("plan_available")
         };
         let needs_analysis_condition = |state: &HashMap<String, Value>| -> bool {
             // Example: Trigger analysis prompt once plan is available and metrics/dashboards are not yet available
-            state.contains_key("plan_available") 
-            && !state.contains_key("metrics_available")
-            && !state.contains_key("dashboards_available") 
+            state.contains_key("plan_available") && state.contains_key("data_context")
         };
 
         // Add prompt rules (order matters)
         // The agent will use the prompt associated with the first condition that evaluates to true.
         // If none match, it uses the default (INITIALIZATION_PROMPT).
-        agent.add_dynamic_prompt_rule(needs_plan_condition, CREATE_PLAN_PROMPT.to_string()).await;
-        agent.add_dynamic_prompt_rule(needs_analysis_condition, ANALYSIS_PROMPT.to_string()).await;
+        agent
+            .add_dynamic_prompt_rule(needs_plan_condition, CREATE_PLAN_PROMPT.to_string())
+            .await;
+        agent
+            .add_dynamic_prompt_rule(needs_analysis_condition, ANALYSIS_PROMPT.to_string())
+            .await;
 
         let manager = Self { agent };
         manager.load_tools().await?; // Load tools with conditions
@@ -176,7 +233,7 @@ impl BusterMultiAgent {
     }
 
     pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
-        // Create a new agent instance using Agent::from_existing, 
+        // Create a new agent instance using Agent::from_existing,
         // specifically setting the default prompt to the follow-up version.
         let agent = Arc::new(Agent::from_existing(
             existing_agent,
@@ -189,12 +246,16 @@ impl BusterMultiAgent {
             state.contains_key("data_context") && !state.contains_key("plan_available")
         };
         let needs_analysis_condition = |state: &HashMap<String, Value>| -> bool {
-            state.contains_key("plan_available") 
-            && !state.contains_key("metrics_available")
-            && !state.contains_key("dashboards_available") 
+            state.contains_key("plan_available")
+                && !state.contains_key("metrics_available")
+                && !state.contains_key("dashboards_available")
         };
-        agent.add_dynamic_prompt_rule(needs_plan_condition, CREATE_PLAN_PROMPT.to_string()).await;
-        agent.add_dynamic_prompt_rule(needs_analysis_condition, ANALYSIS_PROMPT.to_string()).await;
+        agent
+            .add_dynamic_prompt_rule(needs_plan_condition, CREATE_PLAN_PROMPT.to_string())
+            .await;
+        agent
+            .add_dynamic_prompt_rule(needs_analysis_condition, ANALYSIS_PROMPT.to_string())
+            .await;
 
         let manager = Self { agent };
         manager.load_tools().await?; // Load tools with conditions for the new agent instance

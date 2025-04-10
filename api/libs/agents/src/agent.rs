@@ -588,7 +588,7 @@ impl Agent {
                 generation_name: "agent".to_string(),
                 user_id: thread.user_id.to_string(),
                 session_id: thread.id.to_string(),
-                trace_id: thread.id.to_string(),
+                trace_id: Uuid::new_v4().to_string(),
             }),
             ..Default::default()
         };
@@ -925,6 +925,8 @@ impl Agent {
 
             // Create a new thread with the tool results and continue recursively
             let mut new_thread = thread.clone();
+            // Add the assistant message that contained the tool_calls to ensure correct history order
+            new_thread.messages.push(final_message); // Add the assistant message
             // The assistant message that requested the tools is already added above
             new_thread.messages.extend(results);
 

@@ -1,79 +1,117 @@
+use std::collections::{HashMap, HashSet};
 use std::{env, sync::Arc, time::Instant};
 
 use anyhow::Result;
 use async_trait::async_trait;
 use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::{DateTime, Utc};
+use cohere_rust::{
+    api::rerank::{ReRankModel, ReRankRequest},
+    Cohere,
+};
 use database::{pool::get_pg_pool, schema::datasets};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
+use futures::stream::{self, StreamExt};
+use litellm::{AgentMessage, ChatCompletionRequest, LiteLLMClient, Metadata, ResponseFormat};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use tracing::{debug, error, warn};
+use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
 use crate::{agent::Agent, tools::ToolExecutor};
 
-use litellm::{AgentMessage, ChatCompletionRequest, LiteLLMClient, Metadata, ResponseFormat};
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchDataCatalogParams {
-    search_requirements: String,
+    queries: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchDataCatalogOutput {
     pub message: String,
-    pub search_requirements: String,
+    pub queries: Vec<String>,
     pub duration: i64,
     pub results: Vec<DatasetSearchResult>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 pub struct DatasetSearchResult {
     pub id: Uuid,
     pub name: Option<String>,
     pub yml_content: Option<String>,
 }
 
+#[derive(Debug, Serialize, Clone, PartialEq, Eq, Hash)]
+struct DatasetResult {
+    id: Uuid,
+    name: Option<String>,
+    yml_content: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+struct RankedDataset {
+    dataset: Dataset,
+    relevance_score: f64,
+}
+
 #[derive(Debug, Deserialize)]
-struct RawLLMResponse {
-    results: Vec<Value>,
+struct LLMFilterResponse {
+    results: Vec<FilteredDataset>,
 }
 
-const CATALOG_SEARCH_PROMPT: &str = r#"
-You are a dataset search assistant tasked with finding highly relevant datasets that SPECIFICALLY match the user's requirements.
-Your task is to identify the most relevant datasets based on the following search request:
+#[derive(Debug, Deserialize)]
+struct FilteredDataset {
+    id: String,
+    #[allow(dead_code)]
+    reason: String,
+}
 
-{queries_joined_with_newlines}
+const LLM_FILTER_PROMPT: &str = r#"
+You are a dataset relevance evaluator. Your task is to determine which datasets might contain information relevant to the user's query based on their structure and metadata. Be inclusive in your evaluation - if there's a reasonable chance the dataset could be useful, include it.
 
-Evaluation Criteria:
-1. Direct Relevance: The dataset must directly address the core aspects of the search query
-2. Schema Alignment: The dataset's structure should contain fields that match the required information
-3. Data Coverage: The dataset should cover the specific domain or business context mentioned
-4. Recency & Quality: Prefer datasets with complete metadata and documentation
+USER REQUEST: {user_request}
+SEARCH QUERY: {query}
 
-IMPORTANT: You must return your response in this exact JSON format:
+Below is a list of datasets that were identified as potentially relevant by an initial semantic ranking system.
+For each dataset, review its description in the YAML format and determine if its structure could potentially be suitable for the user's query.
+Include datasets that have even a reasonable possibility of containing relevant information.
+
+DATASETS:
+{datasets_json}
+
+Return a JSON response with the following structure:
+```json
 {
-    "results": [
-        {
-            "id": "uuid-string-here"
-        }
-        // ... more results in order of relevance
-    ]
+  "results": [
+    {
+      "id": "dataset-uuid-here",
+      "reason": "Brief explanation of why this dataset's structure might be relevant"
+    },
+    // ... more potentially relevant datasets
+  ]
 }
+```
 
-Available datasets:
-{datasets_array_as_json}
-
-Requirements:
-1. Order results from most to least relevant
-2. ALWAYS include the "results" key in your response, even if the array is empty
-3. Each result MUST ONLY include the "id" field containing the UUID string
-4. If no datasets meet the relevance criteria, return {"results": []}
-5. CRITICAL: Each result MUST contain ONLY a valid UUID string with the key "id" - no other fields are allowed
-6. CRITICAL: The "id" value MUST be a valid UUID string (e.g., "550e8400-e29b-41d4-a716-446655440000")
-7. Any result without a valid UUID "id" field will be rejected
+IMPORTANT GUIDELINES:
+1. Be inclusive - if there's a reasonable possibility the dataset could be useful, include it
+2. Consider both direct and indirect relationships to the query
+3. For example, if a user asks about "red bull sales", consider datasets about:
+   - Direct relevance: products, sales, inventory
+   - Indirect relevance: marketing campaigns, customer demographics, store locations
+4. Evaluate based on whether the dataset's schema, fields, or description MIGHT contain or relate to the relevant information
+5. Include datasets that could provide contextual or supporting information
+6. When in doubt about relevance, lean towards including the dataset
+7. Ensure the "id" field exactly matches the dataset's UUID
+8. Use both the USER REQUEST and SEARCH QUERY to understand the user's information needs broadly
+9. Consider these elements in the dataset metadata:
+   - Column names and their data types
+   - Entity relationships
+   - Predefined metrics
+   - Table schemas
+   - Dimension hierarchies
+   - Related or connected data structures
+10. While you shouldn't assume specific data exists, you can be optimistic about the potential usefulness of related data structures
+11. A dataset is relevant if its structure could reasonably support or contribute to answering the query, either directly or indirectly
 "#;
 
 pub struct SearchDataCatalogTool {
@@ -90,184 +128,11 @@ impl SearchDataCatalogTool {
         true
     }
 
-    async fn format_search_prompt(
-        query_params: &[String],
-        datasets: &[DatasetRecord],
-    ) -> Result<String> {
-        let datasets_json = datasets
-            .iter()
-            .map(|d| d.to_llm_format())
-            .collect::<Vec<_>>();
-
-        Ok(SearchDataCatalogTool::get_search_prompt()
-            .await
-            .replace("{queries_joined_with_newlines}", &query_params.join("\n"))
-            .replace(
-                "{datasets_array_as_json}",
-                &serde_json::to_string_pretty(&datasets_json)?,
-            ))
-    }
-
-    async fn get_search_prompt() -> String {
-        if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-            return CATALOG_SEARCH_PROMPT.to_string();
-        }
-
-        let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
-        match get_prompt_system_message(&client, "812b3f76-20d5-49e3-884c-2c8084800b43").await {
-            Ok(message) => message,
-            Err(e) => {
-                eprintln!("Failed to get prompt system message: {}", e);
-                CATALOG_SEARCH_PROMPT.to_string()
-            }
-        }
-    }
-
-    async fn perform_llm_search(
-        prompt: String,
-        user_id: &Uuid,
-        session_id: &Uuid,
-    ) -> Result<Vec<DatasetSearchResult>> {
-        debug!("Performing LLM search");
-
-        // Setup LiteLLM client
-        let llm_client = LiteLLMClient::new(None, None);
-
-        // Maximum number of retries for parsing errors
-        const MAX_RETRIES: usize = 3;
-        let mut retry_count = 0;
-        let mut last_error = None;
-        let mut current_prompt = prompt;
-
-        while retry_count < MAX_RETRIES {
-            let request = ChatCompletionRequest {
-                model: "gemini-2.0-flash-001".to_string(),
-                messages: vec![AgentMessage::User {
-                    id: None,
-                    content: current_prompt.clone(),
-                    name: None,
-                }],
-                stream: Some(false),
-                response_format: Some(ResponseFormat {
-                    type_: "json_object".to_string(),
-                    json_schema: Some(json!({
-                      "type": "object",
-                      "properties": {
-                        "results": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid"
-                              }
-                            },
-                            "required": ["id"],
-                            "additionalProperties": false
-                          }
-                        }
-                      },
-                      "required": ["results"],
-                      "additionalProperties": false
-                    })),
-                }),
-                metadata: Some(Metadata {
-                    generation_name: "search_data_catalog".to_string(),
-                    user_id: user_id.to_string(),
-                    session_id: session_id.to_string(),
-                    trace_id: session_id.to_string(),
-                }),
-                max_completion_tokens: Some(8092),
-                temperature: Some(0.0),
-                ..Default::default()
-            };
-
-            // Get response from LLM
-            let response = match llm_client.chat_completion(request).await {
-                Ok(resp) => resp,
-                Err(e) => {
-                    error!(error = %e, "Failed to get response from LLM");
-                    return Err(anyhow::anyhow!("Failed to get response from LLM: {}", e));
-                }
-            };
-
-            // Parse LLM response
-            let content = match &response.choices[0].message {
-                AgentMessage::Assistant {
-                    content: Some(content),
-                    ..
-                } => content,
-                _ => {
-                    error!("LLM response missing content");
-                    return Err(anyhow::anyhow!("LLM response missing content"));
-                }
-            };
-
-            // Parse into raw response first
-            match serde_json::from_str::<RawLLMResponse>(content) {
-                Ok(raw_response) => {
-                    // Process each result, logging any invalid ones
-                    let mut valid_results = Vec::new();
-                    let mut invalid_count = 0;
-
-                    for result in raw_response.results {
-                        match parse_search_result(&result) {
-                            Ok(result) => valid_results.push(result),
-                            Err(e) => {
-                                warn!(error = %e, "Invalid search result from LLM");
-                                invalid_count += 1;
-                            }
-                        }
-                    }
-
-                    if invalid_count > 0 {
-                        warn!(count = invalid_count, "Found invalid search results");
-                    }
-
-                    return Ok(valid_results);
-                }
-                Err(e) => {
-                    // Store the error for potential return
-                    let error_message = e.to_string();
-                    last_error = Some(error_message.clone());
-
-                    // Log the error and retry
-                    warn!(
-                        error = %error_message,
-                        retry = retry_count + 1,
-                        max_retries = MAX_RETRIES,
-                        "Failed to parse LLM response as JSON, retrying with error feedback..."
-                    );
-
-                    // Increment retry counter
-                    retry_count += 1;
-
-                    // Only modify the prompt if we're going to retry
-                    if retry_count < MAX_RETRIES {
-                        // Add the error to the prompt to help the LLM correct its response
-                        current_prompt = format!(
-                            "{}\n\nYour previous response could not be parsed correctly. Error: {}\n\nPlease ensure your response is valid JSON with the exact format specified. The response must include a 'results' array containing objects with only an 'id' field that is a valid UUID string.",
-                            current_prompt, error_message
-                        );
-                    }
-                }
-            }
-        }
-
-        // If we've exhausted all retries, return the last error
-        Err(anyhow::anyhow!(
-            "Failed to parse search results after {} retries: {}",
-            MAX_RETRIES,
-            last_error.unwrap_or_else(|| "Unknown error".to_string())
-        ))
-    }
-
-    async fn get_datasets() -> Result<Vec<DatasetRecord>> {
-        debug!("Fetching datasets");
+    async fn get_datasets() -> Result<Vec<Dataset>> {
+        debug!("Fetching datasets for agent tool");
         let mut conn = get_pg_pool().get().await?;
 
-        let datasets = datasets::table
+        let datasets_result = datasets::table
             .select((
                 datasets::id,
                 datasets::name,
@@ -277,16 +142,23 @@ impl SearchDataCatalogTool {
                 datasets::deleted_at,
             ))
             .filter(datasets::deleted_at.is_null())
+            .filter(datasets::yml_file.is_not_null())
             .load::<Dataset>(&mut conn)
-            .await?;
+            .await;
 
-        debug!(count = datasets.len(), "Successfully loaded datasets");
-
-        // Convert to DatasetRecord format
-        datasets
-            .into_iter()
-            .map(DatasetRecord::from_dataset)
-            .collect()
+        match datasets_result {
+            Ok(datasets) => {
+                debug!(
+                    count = datasets.len(),
+                    "Successfully loaded datasets for agent tool"
+                );
+                Ok(datasets)
+            }
+            Err(e) => {
+                error!("Failed to load datasets for agent tool: {}", e);
+                Err(anyhow::anyhow!("Database error fetching datasets: {}", e))
+            }
+        }
     }
 }
 
@@ -297,72 +169,135 @@ impl ToolExecutor for SearchDataCatalogTool {
 
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
+        let user_id = self.agent.get_user_id();
+        let session_id = self.agent.get_session_id();
 
-        // Fetch all non-deleted datasets
-        let datasets = Self::get_datasets().await?;
-        if datasets.is_empty() {
-            let duration = start_time.elapsed().as_millis();
-
+        if params.queries.is_empty() {
+            warn!("SearchDataCatalogTool executed with no queries.");
             return Ok(SearchDataCatalogOutput {
-                message: "No datasets available to search".to_string(),
-                search_requirements: params.search_requirements,
-                duration: duration as i64,
+                message: "No search queries provided.".to_string(),
+                queries: params.queries,
+                duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
             });
         }
 
-        // Format prompt and perform search
-        let prompt =
-            Self::format_search_prompt(&[params.search_requirements.clone()], &datasets).await?;
-        let search_results = match Self::perform_llm_search(
-            prompt,
-            &self.agent.get_user_id(),
-            &self.agent.get_session_id(),
-        )
-        .await
-        {
-            Ok(results) => results,
+        let all_datasets = match Self::get_datasets().await {
+            Ok(datasets) => datasets,
             Err(e) => {
-                let duration = start_time.elapsed().as_millis();
-
+                error!("Failed to retrieve datasets for tool execution: {}", e);
                 return Ok(SearchDataCatalogOutput {
-                    message: format!("Search failed: {}", e),
-                    search_requirements: params.search_requirements.clone(),
-                    duration: duration as i64,
+                    message: format!("Error fetching datasets: {}", e),
+                    queries: params.queries,
+                    duration: start_time.elapsed().as_millis() as i64,
                     results: vec![],
                 });
             }
         };
 
-        let search_results = search_results
-            .into_iter()
-            .map(|result| {
-                let matching_dataset = datasets.iter().find(|dataset| dataset.id == result.id);
-                DatasetSearchResult {
-                    id: result.id,
-                    name: matching_dataset.map(|d| d.name.clone()),
-                    yml_content: matching_dataset.map(|d| d.yml_content.clone()),
+        if all_datasets.is_empty() {
+            info!("No datasets found for the organization.");
+            return Ok(SearchDataCatalogOutput {
+                message: "No datasets available to search.".to_string(),
+                queries: params.queries,
+                duration: start_time.elapsed().as_millis() as i64,
+                results: vec![],
+            });
+        }
+
+        let documents: Vec<String> = all_datasets
+            .iter()
+            .filter_map(|dataset| dataset.yml_content.clone())
+            .collect();
+
+        if documents.is_empty() {
+            warn!("No datasets with YML content found after filtering.");
+            return Ok(SearchDataCatalogOutput {
+                message: "No searchable dataset content found.".to_string(),
+                queries: params.queries,
+                duration: start_time.elapsed().as_millis() as i64,
+                results: vec![],
+            });
+        }
+
+        let query_results_futures = stream::iter(params.queries.clone())
+            .map(|query| {
+                let current_query = query.clone();
+                let datasets_clone = all_datasets.clone();
+                let documents_clone = documents.clone();
+                let user_id_clone = user_id;
+                let session_id_clone = session_id;
+
+                async move {
+                    let ranked = match rerank_datasets(&current_query, &datasets_clone, &documents_clone).await {
+                        Ok(r) => r,
+                        Err(e) => {
+                            error!(error = %e, query = current_query, "Reranking failed for query");
+                            return Ok(vec![]);
+                        }
+                    };
+
+                    match filter_datasets_with_llm(&current_query, ranked, &user_id_clone, &session_id_clone).await {
+                        Ok(filtered) => Ok(filtered),
+                        Err(e) => {
+                            error!(error = %e, query = current_query, "LLM filtering failed for query");
+                            Ok(vec![])
+                        }
+                    }
                 }
             })
-            .collect::<Vec<_>>();
+            .buffer_unordered(5);
 
-        let message = if search_results.is_empty() {
-            "No relevant datasets found".to_string()
+        let all_query_results: Vec<Result<Vec<DatasetResult>>> =
+            query_results_futures.collect().await;
+
+        let mut combined_results = Vec::new();
+        let mut unique_ids = HashSet::new();
+
+        for result in all_query_results {
+            match result {
+                Ok(datasets) => {
+                    for dataset in datasets {
+                        if unique_ids.insert(dataset.id) {
+                            combined_results.push(dataset);
+                        }
+                    }
+                }
+                Err(e) => {
+                    warn!("Error processing a query stream: {}", e);
+                }
+            }
+        }
+
+        let final_search_results: Vec<DatasetSearchResult> = combined_results
+            .into_iter()
+            .map(|result| DatasetSearchResult {
+                id: result.id,
+                name: result.name,
+                yml_content: result.yml_content,
+            })
+            .collect();
+
+        let message = if final_search_results.is_empty() {
+            "No relevant datasets found after filtering.".to_string()
         } else {
-            format!("Found {} relevant datasets", search_results.len())
+            format!("Found {} relevant datasets.", final_search_results.len())
         };
 
         self.agent
-            .set_state_value(String::from("data_context"), Value::Bool(true))
+            .set_state_value(
+                String::from("data_context"),
+                Value::Bool(!final_search_results.is_empty()),
+            )
             .await;
 
         let duration = start_time.elapsed().as_millis();
 
         Ok(SearchDataCatalogOutput {
             message,
-            search_requirements: params.search_requirements,
+            queries: params.queries,
             duration: duration as i64,
-            results: search_results,
+            results: final_search_results,
         })
     }
 
@@ -377,12 +312,16 @@ impl ToolExecutor for SearchDataCatalogTool {
           "parameters": {
             "type": "object",
             "required": [
-              "search_requirements"
+              "queries"
             ],
             "properties": {
-              "search_requirements": {
-                "type": "string",
-                "description": get_search_requirements_description().await
+              "queries": {
+                "type": "array",
+                "description": "A list of entity-focused search queries—typically one for the primary entity and its properties in specific requests, plus complementary queries for context, or multiple queries inferring entities for vague or multi-faceted goals. Each query aligns with the ontology's core classes and user intent.",
+                "items": {
+                  "type": "string",
+                  "description": "A concise, human-like query targeting an entity and its properties or related assets, e.g., 'Find customer data where shipping address differs from billing address' or 'Search for metrics tracking revenue growth over time.'"
+                }
               }
             },
             "additionalProperties": false
@@ -393,121 +332,203 @@ impl ToolExecutor for SearchDataCatalogTool {
 
 async fn get_search_data_catalog_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Use to search across a user's data catalog for metadata, documentation, column definitions, or business terminology.".to_string();
+        return "Search the data catalog with natural language queries that target entities like 'customers,' 'products,' or 'events' when mentioned, or infer relevant entities from your intent for vague requests. For specific asks like 'Pull a list of customers whose shipping address differs from their billing address,' it generates 'Find customer data where shipping address differs from billing address' plus complementary details like names. For broader goals like 'Analyze growth,' it maps to entities (e.g., revenue, customers) with queries like 'Find datasets tracking growth trends' and adds metrics or documentation. The tool searches objects, metrics, events, and documentation in the ontology, respecting entity-property relationships. Results are ranked by relevance, include assets for digestibility (e.g., identifiers, breakdowns), and offer suggestions for ambiguous or unmatched queries.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
     match get_prompt_system_message(&client, "865efb24-4355-4abb-aaf7-260af0f06794").await {
         Ok(message) => message,
         Err(e) => {
-            eprintln!("Failed to get prompt system message: {}", e);
-            "Use to search across a user's data catalog for metadata, documentation, column definitions, or business terminology.".to_string()
+            eprintln!(
+                "Failed to get prompt system message for tool description: {}",
+                e
+            );
+            "Search the data catalog with natural language queries that target entities like 'customers,' 'products,' or 'events' when mentioned, or infer relevant entities from your intent for vague requests. For specific asks like 'Pull a list of customers whose shipping address differs from their billing address,' it generates 'Find customer data where shipping address differs from billing address' plus complementary details like names. For broader goals like 'Analyze growth,' it maps to entities (e.g., revenue, customers) with queries like 'Find datasets tracking growth trends' and adds metrics or documentation. The tool searches objects, metrics, events, and documentation in the ontology, respecting entity-property relationships. Results are ranked by relevance, include assets for digestibility (e.g., identifiers, breakdowns), and offer suggestions for ambiguous or unmatched queries.".to_string()
         }
     }
 }
 
-async fn get_search_requirements_description() -> String {
-    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Write a brief outline that explains the documentation (mostly datasets) that you would like to search the data catalog for. It should start with 'I need...' and then proceed to briefly describe the needed documentation. Specifically, you should describe the types of datasets and topics that you will likely need to understand to accomplish your task or workflow. You don't know exactly what data exists, so your request needs to be broad and general.".to_string();
+async fn rerank_datasets(
+    query: &str,
+    all_datasets: &[Dataset],
+    documents: &[String],
+) -> Result<Vec<RankedDataset>, anyhow::Error> {
+    if documents.is_empty() || all_datasets.is_empty() {
+        return Ok(vec![]);
     }
+    let co = Cohere::default();
 
-    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
-    match get_prompt_system_message(&client, "2f13acae-7cf7-4f75-bf6b-9c8838f818fb").await {
-        Ok(message) => message,
+    let request = ReRankRequest {
+        query,
+        documents,
+        model: ReRankModel::EnglishV3,
+        top_n: Some(30),
+        ..Default::default()
+    };
+
+    let rerank_results = match co.rerank(&request).await {
+        Ok(results) => results,
         Err(e) => {
-            eprintln!("Failed to get prompt system message: {}", e);
-            "Write a brief outline that explains the documentation (mostly datasets) that you would like to search the data catalog for. It should start with 'I need...' and then proceed to briefly describe the needed documentation. Specifically, you should describe the types of datasets and topics that you will likely need to understand to accomplish your task or workflow. You don't know exactly what data exists, so your request needs to be broad and general.".to_string()
+            error!(error = %e, query = query, "Cohere rerank API call failed");
+            return Err(anyhow::anyhow!("Cohere rerank failed: {}", e));
+        }
+    };
+
+    let mut ranked_datasets = Vec::new();
+    for result in rerank_results {
+        if let Some(dataset) = all_datasets.get(result.index as usize) {
+            ranked_datasets.push(RankedDataset {
+                dataset: dataset.clone(),
+                relevance_score: result.relevance_score,
+            });
+        } else {
+            error!(
+                "Invalid dataset index {} from Cohere for query '{}'. Max index: {}",
+                result.index,
+                query,
+                all_datasets.len() - 1
+            );
         }
     }
+
+    ranked_datasets.sort_by(|a, b| {
+        b.relevance_score
+            .partial_cmp(&a.relevance_score)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+
+    let relevant_datasets = ranked_datasets.into_iter().collect::<Vec<_>>();
+
+    Ok(relevant_datasets)
 }
 
-// Helper types and functions
+async fn filter_datasets_with_llm(
+    query: &str,
+    ranked_datasets: Vec<RankedDataset>,
+    user_id: &Uuid,
+    session_id: &Uuid,
+) -> Result<Vec<DatasetResult>, anyhow::Error> {
+    if ranked_datasets.is_empty() {
+        return Ok(vec![]);
+    }
 
-#[derive(Queryable, Selectable)]
+    debug!(
+        "Filtering {} datasets with LLM for query: {}",
+        ranked_datasets.len(),
+        query
+    );
+
+    let datasets_json = ranked_datasets
+        .iter()
+        .map(|ranked| {
+            serde_json::json!({
+                "id": ranked.dataset.id.to_string(),
+                "name": ranked.dataset.name,
+                "yml_content": ranked.dataset.yml_content.clone().unwrap_or_default(),
+                "relevance_score": ranked.relevance_score
+            })
+        })
+        .collect::<Vec<_>>();
+
+    let prompt = LLM_FILTER_PROMPT
+        .replace("{user_request}", query)
+        .replace("{query}", query)
+        .replace(
+            "{datasets_json}",
+            &serde_json::to_string_pretty(&datasets_json)?,
+        );
+
+    let llm_client = LiteLLMClient::new(None, None);
+
+    let request = ChatCompletionRequest {
+        model: "gemini-2.0-flash-001".to_string(),
+        messages: vec![AgentMessage::User {
+            id: None,
+            content: prompt,
+            name: None,
+        }],
+        stream: Some(false),
+        response_format: Some(ResponseFormat {
+            type_: "json_object".to_string(),
+            json_schema: None,
+        }),
+        metadata: Some(Metadata {
+            generation_name: "filter_data_catalog_agent".to_string(),
+            user_id: user_id.to_string(),
+            session_id: session_id.to_string(),
+            trace_id: session_id.to_string(),
+        }),
+        max_completion_tokens: Some(8096),
+        temperature: Some(0.0),
+        ..Default::default()
+    };
+
+    let response = llm_client.chat_completion(request).await?;
+
+    let content = match &response.choices[0].message {
+        AgentMessage::Assistant {
+            content: Some(content),
+            ..
+        } => content,
+        _ => {
+            error!("LLM filter response missing content for query: {}", query);
+            return Err(anyhow::anyhow!("LLM filter response missing content"));
+        }
+    };
+
+    let filter_response: LLMFilterResponse = match serde_json::from_str(content) {
+        Ok(response) => response,
+        Err(e) => {
+            error!(
+                "Failed to parse LLM filter response for query '{}': {}. Content: {}",
+                query, e, content
+            );
+            return Err(anyhow::anyhow!(
+                "Failed to parse LLM filter response: {}",
+                e
+            ));
+        }
+    };
+
+    let dataset_map: HashMap<Uuid, &Dataset> = ranked_datasets
+        .iter()
+        .map(|ranked| (ranked.dataset.id, &ranked.dataset))
+        .collect();
+
+    let filtered_datasets: Vec<DatasetResult> = filter_response
+        .results
+        .into_iter()
+        .filter_map(|result| {
+            Uuid::parse_str(&result.id).ok().and_then(|id| {
+                dataset_map.get(&id).map(|dataset| DatasetResult {
+                    id: dataset.id,
+                    name: Some(dataset.name.clone()),
+                    yml_content: dataset.yml_content.clone(),
+                })
+            })
+        })
+        .collect();
+
+    debug!(
+        "LLM filtering complete for query '{}', keeping {} relevant datasets",
+        query,
+        filtered_datasets.len()
+    );
+    Ok(filtered_datasets)
+}
+
+#[derive(Queryable, Selectable, Clone, Debug)]
 #[diesel(table_name = datasets)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 struct Dataset {
     id: Uuid,
     name: String,
-    yml_file: Option<String>,
+    #[diesel(column_name = "yml_file")]
+    yml_content: Option<String>,
     #[allow(dead_code)]
     created_at: DateTime<Utc>,
     #[allow(dead_code)]
     updated_at: DateTime<Utc>,
     #[allow(dead_code)]
     deleted_at: Option<DateTime<Utc>>,
-}
-
-struct DatasetRecord {
-    id: Uuid,
-    name: String,
-    yml_content: String,
-}
-
-impl DatasetRecord {
-    fn to_llm_format(&self) -> Value {
-        json!({
-            "id": self.id.to_string(),
-            "name": self.name,
-            "content": self.yml_content,
-        })
-    }
-
-    fn from_dataset(dataset: Dataset) -> Result<Self> {
-        Ok(Self {
-            id: dataset.id,
-            name: dataset.name,
-            yml_content: dataset.yml_file.unwrap_or_default(),
-        })
-    }
-}
-
-fn parse_search_result(result: &Value) -> Result<DatasetSearchResult> {
-    Ok(DatasetSearchResult {
-        id: Uuid::parse_str(
-            result
-                .get("id")
-                .and_then(|v| v.as_str())
-                .ok_or_else(|| anyhow::anyhow!("Missing id"))?,
-        )?,
-        name: None,
-        yml_content: None,
-    })
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse_valid_search_result() {
-        let result = json!({
-            "id": "550e8400-e29b-41d4-a716-446655440000",
-            "name": "Test Dataset",
-            "yml_content": "description: Test dataset\nschema:\n  - name: id\n    type: uuid"
-        });
-
-        let _ = parse_search_result(&result).unwrap();
-    }
-
-    #[test]
-    fn test_parse_invalid_search_result() {
-        let result = json!({
-            "id": "invalid-uuid",
-            "name": "Test Dataset",
-            "yml_content": "test content"
-        });
-
-        assert!(parse_search_result(&result).is_err());
-    }
-
-    #[test]
-    fn test_parse_missing_fields() {
-        let result = json!({
-            "id": "550e8400-e29b-41d4-a716-446655440000",
-            "name": "Test Dataset"
-        });
-
-        assert!(parse_search_result(&result).is_err());
-    }
 }
