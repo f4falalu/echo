@@ -221,7 +221,6 @@ export const useAutoScroll = (
       // Only disable auto–scroll if we're not near the bottom.
       if (!isAtBottom(container, bottomThreshold)) {
         setIsAutoScrollEnabled(false);
-        console.log('disableAutoScrollHandler', isAutoScrollEnabled, enabled);
 
         // Stop any ongoing animations
         if (rAFIdRef.current) {

@@ -1,17 +1,16 @@
-import { type useAutoScroll } from '@/hooks/useAutoScroll';
-import React from 'react';
 import { ChevronDown } from '@/components/ui/icons';
-import { cn } from '@/lib/utils';
 import { AppTooltip } from '@/components/ui/tooltip';
+import { cn } from '@/lib/classMerge';
+import React from 'react';
 
-export const ChatScrollToBottom: React.FC<{
+export const ReasoningScrollToBottom: React.FC<{
   isAutoScrollEnabled: boolean;
-  scrollToBottom: ReturnType<typeof useAutoScroll>['scrollToBottom'];
+  scrollToBottom: () => void;
 }> = React.memo(({ isAutoScrollEnabled, scrollToBottom }) => {
   return (
     <div
       className={cn(
-        'absolute -top-9 right-3 z-10 transition-all duration-300 hover:scale-105 hover:shadow-md',
+        'absolute right-4 bottom-4 z-10 duration-300',
         isAutoScrollEnabled
           ? 'pointer-events-none scale-90 opacity-0'
           : 'pointer-events-auto scale-100 cursor-pointer opacity-100'
@@ -20,7 +19,7 @@ export const ChatScrollToBottom: React.FC<{
         <button
           onClick={scrollToBottom}
           className={
-            'bg-background/90 hover:bg-item-hover/90 cursor-pointer rounded-full border p-2 shadow transition-all duration-300'
+            'bg-background/90 hover:bg-item-hover/90 cursor-pointer rounded-full border p-2 shadow transition-all duration-300 hover:scale-105 hover:shadow-md'
           }>
           <ChevronDown />
         </button>
@@ -29,4 +28,4 @@ export const ChatScrollToBottom: React.FC<{
   );
 });
 
-ChatScrollToBottom.displayName = 'ChatScrollToBottom';
+ReasoningScrollToBottom.displayName = 'ReasoningScrollToBottom';
