@@ -325,7 +325,7 @@ export const RapidTextAppend: Story = {
         }
         setIsRunning(false);
       } else {
-        intervalRef.current = setInterval(addWord, 50);
+        intervalRef.current = setInterval(addWord, 10);
         setIsRunning(true);
         enableAutoScroll();
       }
@@ -333,6 +333,7 @@ export const RapidTextAppend: Story = {
 
     // Cleanup interval on unmount
     useEffect(() => {
+      toggleRunning();
       return () => {
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
