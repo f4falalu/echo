@@ -4,7 +4,6 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { StreamingMessageCode } from './StreamingMessageCode';
 import type { FileType } from '@/api/asset_interfaces';
 import { Button } from '@/components/ui/buttons';
-import { fn } from '@storybook/test';
 import React from 'react';
 
 const meta: Meta<typeof StreamingMessageCode> = {
@@ -23,9 +22,60 @@ const sampleYaml = `apiVersion: v1
 kind: ConfigMap
 metadata:
   name: my-config
+  namespace: production
+  labels:
+    app: my-application
+    environment: production
+    team: platform
+  annotations:
+    description: "Production configuration for my-application"
+    lastModified: "2024-03-20"
+    version: "1.0.0"
 data:
-  key1: value1
-  key2: value2
+  # Database Configuration
+  database:
+    host: db.example.com
+    port: "5432"
+    name: production_db
+    max_connections: "100"
+    idle_timeout: "300"
+    connection_timeout: "30"
+
+  # Cache Configuration
+  redis:
+    host: redis.example.com
+    port: "6379"
+    max_memory: "2gb"
+    eviction_policy: "allkeys-lru"
+    databases: "16"
+
+  # Application Settings
+  app_settings:
+    log_level: "INFO"
+    debug_mode: "false"
+    max_threads: "50"
+    worker_processes: "4"
+    request_timeout: "30s"
+    session_timeout: "24h"
+
+  # Feature Flags
+  features:
+    enable_new_ui: "true"
+    enable_analytics: "true"
+    enable_caching: "true"
+    enable_rate_limiting: "true"
+    beta_features: "false"
+
+  # API Configuration
+  api:
+    version: "v2"
+    base_url: "https://api.example.com"
+    rate_limit: "1000"
+    timeout: "5s"
+    retry_attempts: "3"
+    retry_delay: "1s"
+
+
 `;
 
 const baseProps = {
@@ -125,7 +175,7 @@ export const InteractiveStreaming: Story = {
           }
           return prev + 1;
         });
-      }, 500);
+      }, 50);
     };
 
     return (

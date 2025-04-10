@@ -8,6 +8,7 @@ import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
+import { usePrevious } from '@/hooks';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
@@ -31,6 +32,7 @@ export const useAutoChangeLayout = ({
   const { getFileLinkMeta } = useGetFileLink();
 
   const isCompletedStream = useGetChatMessage(lastMessageId, (x) => x?.isCompletedStream);
+  const previousIsCompletedStream = usePrevious(isCompletedStream);
 
   const hasReasoning = !!reasoningMessagesLength;
 
@@ -47,7 +49,8 @@ export const useAutoChangeLayout = ({
       previousLastMessageId.current = lastMessageId;
     }
 
-    if (isCompletedStream) {
+    //we check for false because on initial load, the isCompletedStream is false
+    if (isCompletedStream && previousIsCompletedStream === false) {
       const chatMessage = getChatMessageMemoized(lastMessageId);
       const lastFileId = findLast(chatMessage?.response_message_ids, (id) => {
         const responseMessage = chatMessage?.response_messages[id];

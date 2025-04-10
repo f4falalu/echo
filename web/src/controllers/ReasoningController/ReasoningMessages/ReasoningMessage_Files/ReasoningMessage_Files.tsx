@@ -4,7 +4,6 @@ import type {
   BusterChatMessageReasoning_files,
   BusterChatMessage
 } from '@/api/asset_interfaces/chat';
-import { BarContainer } from '../BarContainer';
 import { ReasoningMessage_File } from './ReasoningMessageFile';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 

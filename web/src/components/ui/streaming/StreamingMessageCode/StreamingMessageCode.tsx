@@ -3,12 +3,12 @@
 import { BusterChatMessageReasoning_file } from '@/api/asset_interfaces';
 import { SyntaxHighlighterLightTheme } from '@/components/ui/typography/AppCodeBlock';
 import React, { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 import { Text } from '@/components/ui/typography';
 import pluralize from 'pluralize';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { TextAndVersionPill } from '../../typography/TextAndVersionPill';
 import { FileCard } from '../../card/FileCard';
+import { cn } from '@/lib/classMerge';
 
 const style = SyntaxHighlighterLightTheme;
 
@@ -19,39 +19,12 @@ type LineSegment = {
   numberOfLines?: number;
 };
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      opacity: { duration: 0.12 },
-      staggerChildren: 0.08
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, x: 0 },
-  show: { opacity: 1, x: 0 }
-};
-
 export const StreamingMessageCode: React.FC<
   BusterChatMessageReasoning_file & {
     isCompletedStream: boolean;
     buttons?: React.ReactNode;
   }
-> = ({
-  status,
-  isCompletedStream,
-  file,
-  id,
-  file_name,
-  version_number,
-  file_type,
-  version_id,
-  buttons
-}) => {
-  const showLoader = status === 'loading' && !isCompletedStream;
+> = ({ status, isCompletedStream, file, file_name, version_number, buttons }) => {
   const { text = '', modified } = file;
 
   const [lineSegments, setLineSegments] = useState<LineSegment[]>([]);
@@ -124,26 +97,22 @@ export const StreamingMessageCode: React.FC<
         [file_name, version_number]
       )}
       headerButtons={buttons}>
-      <AnimatePresence initial={!isCompletedStream}>
-        <motion.div
-          className="w-full overflow-x-auto p-3"
-          variants={containerVariants}
-          initial="hidden"
-          animate="show">
-          {lineSegments.map((segment, index) => (
-            <motion.div
-              key={`${segment.lineNumber}-${index}`}
-              variants={itemVariants}
-              className="line-number pr-1">
-              {segment.type === 'text' ? (
-                <MemoizedSyntaxHighlighter lineNumber={segment.lineNumber} text={segment.content} />
-              ) : (
-                <HiddenSection numberOfLinesUnmodified={segment.numberOfLines || 0} />
-              )}
-            </motion.div>
-          ))}
-        </motion.div>
-      </AnimatePresence>
+      <div className="w-full overflow-x-auto p-3">
+        {lineSegments.map((segment, index) => (
+          <div
+            key={`${segment.lineNumber}-${index}`}
+            className={cn(
+              'line-number pr-1',
+              !isCompletedStream && 'animate-in fade-in duration-700'
+            )}>
+            {segment.type === 'text' ? (
+              <MemoizedSyntaxHighlighter lineNumber={segment.lineNumber} text={segment.content} />
+            ) : (
+              <HiddenSection numberOfLinesUnmodified={segment.numberOfLines || 0} />
+            )}
+          </div>
+        ))}
+      </div>
     </FileCard>
   );
 };
