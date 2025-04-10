@@ -20,7 +20,8 @@ futures = { workspace = true }
 indicatif = { workspace = true }
 inquire = { workspace = true }
 lazy_static = { workspace = true }
-ratatui = { workspace = true }
+ratatui = { workspace = true, features = ["crossterm"] }
+crossterm = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true, features = ["json", "rustls-tls", "stream"] }
 rpassword = { workspace = true }
