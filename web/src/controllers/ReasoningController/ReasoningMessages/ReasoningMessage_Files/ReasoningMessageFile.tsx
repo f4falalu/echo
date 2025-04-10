@@ -32,12 +32,18 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
 
     if (isEmpty(file)) return null;
 
-    const { status, file_type, version_id } = file;
+    const { status, file_type, id, version_number } = file;
 
     const buttons = !isCompletedStream ? (
       <StreamingMessageStatus status={status} />
     ) : (
-      <ReasoningFileButtons fileType={file_type} chatId={chatId} fileId={version_id} type="file" />
+      <ReasoningFileButtons
+        fileType={file_type}
+        chatId={chatId}
+        fileId={id}
+        versionNumber={version_number}
+        type="file"
+      />
     );
 
     return (

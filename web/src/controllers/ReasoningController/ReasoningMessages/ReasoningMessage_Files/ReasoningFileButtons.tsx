@@ -11,16 +11,19 @@ export const ReasoningFileButtons = React.memo(
     fileType,
     fileId,
     type,
-    chatId
+    chatId,
+    versionNumber
   }: {
     fileType: FileType;
     fileId: string;
     type: 'file' | 'status';
     chatId: string;
+    versionNumber?: number;
   }) => {
     const href = useMemo(() => {
       return createChatAssetRoute({
         chatId: chatId,
+        versionNumber,
         assetId: fileId,
         type: fileType
       });
@@ -30,13 +33,7 @@ export const ReasoningFileButtons = React.memo(
 
     return (
       <AppTooltip title="Open file" sideOffset={12}>
-        <Link
-          href={href || ''}
-          prefetch
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}>
+        <Link href={href || ''} prefetch>
           <Button variant="ghost" prefix={<ArrowUpRight />} />
         </Link>
       </AppTooltip>

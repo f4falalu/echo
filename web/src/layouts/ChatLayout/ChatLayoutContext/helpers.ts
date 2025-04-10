@@ -7,7 +7,10 @@ import type {
   MetricFileViewSecondary
 } from './useLayoutConfig';
 
-const chatRouteRecord: Record<AllFileTypes, (chatId: string, assetId: string) => string | null> = {
+const chatRouteRecord: Record<
+  AllFileTypes,
+  (chatId: string, assetId: string, versionNumber?: number) => string | null
+> = {
   collection: (chatId, assetId) =>
     createBusterRoute({
       route: BusterRoutes.APP_CHAT_ID_COLLECTION_ID,
@@ -20,18 +23,36 @@ const chatRouteRecord: Record<AllFileTypes, (chatId: string, assetId: string) =>
       chatId,
       datasetId: assetId
     }),
-  metric: (chatId, assetId) =>
-    createBusterRoute({
+  metric: (chatId, assetId, versionNumber) => {
+    if (versionNumber) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
+        chatId,
+        metricId: assetId,
+        versionNumber
+      });
+    }
+    return createBusterRoute({
       route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
       chatId,
       metricId: assetId
-    }),
-  dashboard: (chatId, assetId) =>
-    createBusterRoute({
+    });
+  },
+  dashboard: (chatId, assetId, versionNumber) => {
+    if (versionNumber) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+        chatId,
+        dashboardId: assetId,
+        versionNumber
+      });
+    }
+    return createBusterRoute({
       route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
       chatId,
       dashboardId: assetId
-    }),
+    });
+  },
   term: (chatId, assetId) =>
     createBusterRoute({
       route: BusterRoutes.APP_CHAT_ID_TERM_ID,
@@ -91,15 +112,17 @@ const assetRouteRecord: Record<AllFileTypes, (assetId: string) => string | null>
 export const createChatAssetRoute = ({
   chatId,
   assetId,
-  type
+  type,
+  versionNumber
 }: {
   chatId: string | undefined;
   assetId: string;
   type: FileType;
+  versionNumber?: number;
 }) => {
   const routeBuilder = chatRouteRecord[type];
   if (!routeBuilder) return null;
-  if (chatId) return routeBuilder(chatId, assetId);
+  if (chatId) return routeBuilder(chatId, assetId, versionNumber);
 
   const assetRouteBuilder = assetRouteRecord[type];
   if (!assetRouteBuilder) return null;
