@@ -161,11 +161,10 @@ impl Agent {
         user_id: Uuid,
         session_id: Uuid,
         name: String,
+        api_key: Option<String>,
+        base_url: Option<String>,
     ) -> Self {
-        let llm_api_key = env::var("LLM_API_KEY").expect("LLM_API_KEY must be set");
-        let llm_base_url = env::var("LLM_BASE_URL").expect("LLM_API_BASE must be set");
-
-        let llm_client = LiteLLMClient::new(Some(llm_api_key), Some(llm_base_url));
+        let llm_client = LiteLLMClient::new(api_key, base_url);
 
         // When creating a new agent, initialize broadcast channel with higher capacity for better concurrency
         let (tx, _rx) = broadcast::channel(5000);
@@ -1083,6 +1082,8 @@ mod tests {
             Uuid::new_v4(),
             Uuid::new_v4(),
             "test_agent".to_string(),
+            env::var("LLM_API_KEY").ok(),
+            env::var("LLM_BASE_URL").ok(),
         );
 
         let thread = AgentThread::new(
@@ -1108,6 +1109,8 @@ mod tests {
             Uuid::new_v4(),
             Uuid::new_v4(),
             "test_agent".to_string(),
+            env::var("LLM_API_KEY").ok(),
+            env::var("LLM_BASE_URL").ok(),
         );
 
         // Create weather tool with reference to agent
@@ -1141,6 +1144,8 @@ mod tests {
             Uuid::new_v4(),
             Uuid::new_v4(),
             "test_agent".to_string(),
+            env::var("LLM_API_KEY").ok(),
+            env::var("LLM_BASE_URL").ok(),
         );
 
         let weather_tool = WeatherTool::new(Arc::new(agent.clone()));
@@ -1172,6 +1177,8 @@ mod tests {
             Uuid::new_v4(),
             Uuid::new_v4(),
             "test_agent".to_string(),
+            env::var("LLM_API_KEY").ok(),
+            env::var("LLM_BASE_URL").ok(),
         );
 
         // Test setting single values

@@ -487,16 +487,84 @@ fn ui(frame: &mut Frame, app: &AppState, cwd: &str) {
     }
 }
 
+// --- Reinstate Credential Logic (adapted) ---
+// Function to get API credentials, now accepting args
+fn get_api_credentials(args: &ChatArgs) -> Result<(Option<String>, Option<String>), ChatError> {
+    // 0. Try loading from config file first
+    if let Ok(config) = load_chat_config() {
+        // Return even if one is empty, agent handles None
+        if config.base_url.is_some() || config.api_key.is_some() {
+             return Ok((config.base_url, config.api_key));
+        }
+    }
+
+    // 1. Prioritize arguments
+    if args.base_url.is_some() || args.api_key.is_some() {
+        println!("Using API credentials from command-line arguments/environment/defaults.");
+        let key = args.api_key.clone().or_else(|| env::var("OPENAI_API_KEY").ok());
+        let base = args.base_url.clone().or_else(|| env::var("OPENAI_API_BASE").ok()).or_else(|| key.as_ref().map(|_| DEFAULT_OPENAI_BASE_URL.to_string())); // Default base only if key is present
+        return Ok((base, key));
+    }
+
+    // 2. Check environment variables if args are not provided
+    let api_key_env = env::var("OPENAI_API_KEY").ok();
+    let base_url_env = env::var("OPENAI_API_BASE").ok();
+
+    if api_key_env.is_some() || base_url_env.is_some() {
+        println!("Using OpenAI credentials from environment variables/defaults.");
+         let base = base_url_env.or_else(|| api_key_env.as_ref().map(|_| DEFAULT_OPENAI_BASE_URL.to_string()));
+         return Ok((base, api_key_env));
+    }
+
+    // 3. Prompt user if credentials not found anywhere
+    println!("API credentials not found. Prompting for input.");
+    let mut rl =
+        DefaultEditor::new().map_err(|e| ChatError::InitializationError(e.to_string()))?;
+
+    let base_url_input = rl
+        .readline_with_initial(
+            &format!(
+                "Enter API Base URL (optional, default: {} if key provided): ",
+                DEFAULT_OPENAI_BASE_URL
+            ),
+            ("", ""), // No default in prompt itself
+        )
+        .map_err(|e| ChatError::InputError(e.to_string()))?;
+    let base_url = if base_url_input.trim().is_empty() { None } else { Some(base_url_input.trim().to_string()) };
+
+    let api_key_input = rl
+        .readline("Enter API Key (optional): ")
+        .map_err(|e| ChatError::InputError(e.to_string()))?;
+    let api_key = if api_key_input.trim().is_empty() { None } else { Some(api_key_input.trim().to_string()) };
+
+    // Apply default base URL logic if needed
+    let final_base_url = base_url.or_else(|| api_key.as_ref().map(|_| DEFAULT_OPENAI_BASE_URL.to_string()));
+
+    Ok((final_base_url, api_key))
+
+}
+
 // --- Main Chat Execution Logic ---
 pub async fn run_chat(args: ChatArgs) -> Result<()> {
+    // --- Initial Setup ---
     let cwd = env::current_dir()
         .map(|p| p.display().to_string())
         .unwrap_or_else(|_| "<unknown>".to_string());
 
+    // --- Get Credentials ---
+    let (base_url, api_key) = get_api_credentials(&args)?;
+    // Note: Agent/LiteLLMClient might handle the case where both are None, but good practice to check.
+    if api_key.is_none() {
+         println!("{}", colored::Colorize::yellow("Warning: No API key provided. Requests may fail if required."));
+         // Potentially return Err here if key is strictly required
+         // return Err(ChatError::ConfigError("API Key is required but not found.".into()).into());
+    }
+
+    // --- Agent Initialization ---
     let user_id = Uuid::new_v4();
     let session_id = Uuid::new_v4();
-    let cli_agent = BusterCliAgent::new(user_id, session_id)
-        .await
+    // Pass credentials to agent
+    let cli_agent = BusterCliAgent::new(user_id, session_id, api_key, base_url).await
         .map_err(|e| ChatError::InitializationError(format!("Failed to create agent: {}", e)))?;
 
     enable_raw_mode()?;

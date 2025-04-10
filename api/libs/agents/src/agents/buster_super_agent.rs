@@ -1,8 +1,8 @@
 use anyhow::Result;
 use braintrust::{get_prompt_system_message, BraintrustClient};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, env};
 use std::sync::Arc;
+use std::{collections::HashMap, env};
 use tokio::sync::broadcast;
 use uuid::Uuid;
 
@@ -106,6 +106,8 @@ impl BusterSuperAgent {
             user_id,
             session_id,
             "buster_super_agent".to_string(),
+            None,
+            None,
         ));
 
         let manager = Self { agent };

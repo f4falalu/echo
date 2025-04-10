@@ -47,7 +47,12 @@ impl BusterCliAgent {
         Ok(())
     }
 
-    pub async fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
+    pub async fn new(
+        user_id: Uuid, 
+        session_id: Uuid, 
+        api_key: Option<String>, // Add parameter
+        base_url: Option<String> // Add parameter
+    ) -> Result<Self> {
         // Create agent with o3-mini model and empty tools map initially
         let agent = Arc::new(Agent::new(
             "o3-mini".to_string(), // Use o3-mini as requested
@@ -55,6 +60,8 @@ impl BusterCliAgent {
             user_id,
             session_id,
             "buster_cli_agent".to_string(),
+            api_key, // Pass through
+            base_url // Pass through
         ));
 
         let cli_agent = Self { agent };
