@@ -127,7 +127,41 @@ fn render_messages(frame: &mut Frame, app: &AppState, area: Rect) {
                     message_lines.push(Line::from(""));
                 }
             }
+            AgentMessage::Developer { content, name, .. } => {
+                // Render tool messages/results
+                let prefix = Span::styled(
+                    format!("{} {}: ", "🔩", name.as_deref().unwrap_or("Tool")), // Use a gear icon
+                    Style::default().fg(Color::DarkGray).add_modifier(Modifier::BOLD),
+                );
+                let content_style = Style::default().fg(Color::DarkGray);
+
+                let lines: Vec<&str> = content.split('\n').collect();
+                for (i, line_content) in lines.iter().enumerate() {
+                    let line_span = Span::styled(*line_content, content_style);
+                    if i == 0 {
+                        message_lines.push(Line::from(vec![prefix.clone(), line_span]));
+                    } else {
+                        message_lines.push(Line::from(vec![
+                            Span::raw("  "), // Indent subsequent lines
+                            line_span,
+                        ]));
+                    }
+                }
+                 message_lines.push(Line::from("")); // Add space after tool message
+            }
             _ => {} // Ignore other message types for history display
+        }
+    }
+
+    // Add "Thinking..." indicator if processing and no tool calls active
+    if app.is_agent_processing && app.active_tool_calls.is_empty() && !matches!(app.messages.last(), Some(AgentMessage::Developer { .. })) {
+        // Check if the last message isn't already an InProgress Assistant message
+        let last_msg_is_thinking = matches!(app.messages.last(), Some(AgentMessage::Assistant { progress: MessageProgress::InProgress, .. }));
+        if !last_msg_is_thinking {
+            message_lines.push(Line::from(Span::styled(
+                "🤔 Thinking...",
+                 Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC),
+            )));
         }
     }
 
