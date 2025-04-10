@@ -21,9 +21,6 @@ pub trait ToolExecutor: Send + Sync {
     /// Get the name of this tool
     fn get_name(&self) -> String;
 
-    /// Check if this tool is currently enabled
-    async fn is_enabled(&self) -> bool;
-
     /// Handle shutdown signal. Default implementation does nothing.
     /// Tools should override this if they need to perform cleanup on shutdown.
     async fn handle_shutdown(&self) -> Result<()> {
@@ -66,10 +63,6 @@ where
     fn get_name(&self) -> String {
         self.inner.get_name()
     }
-
-    async fn is_enabled(&self) -> bool {
-        self.inner.is_enabled().await
-    }
 }
 
 /// Implementation for Box<T> to enable dynamic dispatch
@@ -88,10 +81,6 @@ impl<T: ToolExecutor<Output = Value, Params = Value> + Send + Sync> ToolExecutor
 
     fn get_name(&self) -> String {
         (**self).get_name()
-    }
-
-    async fn is_enabled(&self) -> bool {
-        (**self).is_enabled().await
     }
 }
 

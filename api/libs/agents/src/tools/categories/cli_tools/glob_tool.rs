@@ -39,10 +39,6 @@ impl ToolExecutor for FindFilesGlobTool {
         "find_files_glob".to_string()
     }
 
-    async fn is_enabled(&self) -> bool {
-        true
-    }
-
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output, anyhow::Error> {
         let base_path = match params.base_directory {
             Some(dir) => PathBuf::from(dir),

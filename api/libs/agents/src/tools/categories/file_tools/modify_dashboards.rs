@@ -58,16 +58,6 @@ impl ToolExecutor for ModifyDashboardFilesTool {
         "update_dashboards".to_string()
     }
 
-    async fn is_enabled(&self) -> bool {
-        matches!(
-            (
-                self.agent.get_state_value("dashboards_available").await,
-                self.agent.get_state_value("plan_available").await,
-            ),
-            (Some(_), Some(_))
-        )
-    }
-
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 

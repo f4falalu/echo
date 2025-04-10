@@ -42,10 +42,6 @@ impl ToolExecutor for ReadFileContentTool {
         "read_file_content".to_string()
     }
 
-    async fn is_enabled(&self) -> bool {
-        true
-    }
-
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output, anyhow::Error> {
         let file_path = Path::new(&params.file_path);
         if !file_path.exists() {

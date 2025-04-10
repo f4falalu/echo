@@ -3,10 +3,8 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::process::Command;
-use crate::{
-    agent::Agent,
-    tools::ToolExecutor
-};
+use crate::{agent::Agent, tools::ToolExecutor};
+use anyhow::Result;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RunBashParams {
@@ -22,12 +20,12 @@ pub struct RunBashOutput {
 }
 
 pub struct RunBashCommandTool {
-    agent: Arc<Agent>,
+    _agent: Arc<Agent>,
 }
 
 impl RunBashCommandTool {
     pub fn new(agent: Arc<Agent>) -> Self {
-        Self { agent }
+        Self { _agent: agent }
     }
 }
 
@@ -37,32 +35,32 @@ impl ToolExecutor for RunBashCommandTool {
     type Params = RunBashParams;
 
     fn get_name(&self) -> String {
-        "run_bash_command".to_string()
+        "bash".to_string()
     }
 
-    async fn is_enabled(&self) -> bool {
-        true
-    }
-
-    async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output, anyhow::Error> {
+    async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         let mut command = Command::new("sh");
         command.arg("-c").arg(&params.command);
 
         if let Some(dir) = &params.working_directory {
-            command.current_dir(dir);
+            if std::path::Path::new(dir).is_dir() {
+                command.current_dir(dir);
+            } else {
+                return Err(anyhow::anyhow!("Working directory '{}' not found or is not a directory.", dir));
+            }
         }
 
         match command.output() {
-            Ok(output) => {
-                Ok(RunBashOutput {
-                    stdout: String::from_utf8_lossy(&output.stdout).to_string(),
-                    stderr: String::from_utf8_lossy(&output.stderr).to_string(),
-                    exit_code: output.status.code(),
-                })
-            }
-            Err(e) => {
-                Err(anyhow::anyhow!("Failed to execute command '{}': {}", params.command, e))
-            }
+            Ok(output) => Ok(RunBashOutput {
+                stdout: String::from_utf8_lossy(&output.stdout).to_string(),
+                stderr: String::from_utf8_lossy(&output.stderr).to_string(),
+                exit_code: output.status.code(),
+            }),
+            Err(e) => Err(anyhow::anyhow!(
+                "Failed to execute command '{}': {}",
+                params.command,
+                e
+            )),
         }
     }
 

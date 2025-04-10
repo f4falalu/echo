@@ -366,10 +366,6 @@ impl ToolExecutor for SearchDataCatalogTool {
         })
     }
 
-    async fn is_enabled(&self) -> bool {
-        true
-    }
-
     fn get_name(&self) -> String {
         "search_data_catalog".to_string()
     }

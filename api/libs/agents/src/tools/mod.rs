@@ -11,7 +11,6 @@ pub use executor::{ToolExecutor, ToolCallExecutor, IntoToolCallExecutor};
 // Re-export commonly used tool categories
 pub use categories::file_tools;
 pub use categories::planning_tools;
-pub use categories::agents_as_tools;
 
 // Re-export specific tools or entire categories
 pub use categories::cli_tools::{ 

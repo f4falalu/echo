@@ -49,10 +49,6 @@ impl ToolExecutor for SearchFileContentGrepTool {
         "search_file_content_grep".to_string()
     }
 
-    async fn is_enabled(&self) -> bool {
-        true
-    }
-
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output, anyhow::Error> {
         let mut matches = Vec::new();
         let use_regex = params.use_regex.unwrap_or(false);

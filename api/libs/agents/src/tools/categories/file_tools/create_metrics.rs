@@ -76,13 +76,6 @@ impl ToolExecutor for CreateMetricFilesTool {
         "create_metrics".to_string()
     }
 
-    async fn is_enabled(&self) -> bool {
-        matches!((
-            self.agent.get_state_value("data_context").await,
-            self.agent.get_state_value("plan_available").await,
-        ), (Some(_), Some(_)))
-    }
-
     async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 
