@@ -45,7 +45,7 @@ export const compareObjectsByKeys = <K extends string>(
 
     // Handle other objects
     if (typeof val1 === 'object' && typeof val2 === 'object') {
-      const isWasEqual = isEqual(JSON.stringify(val1), JSON.stringify(val2));
+      const isWasEqual = isEqual(val1, val2) || isEqual(JSON.stringify(val1), JSON.stringify(val2));
 
       return isWasEqual;
     }
