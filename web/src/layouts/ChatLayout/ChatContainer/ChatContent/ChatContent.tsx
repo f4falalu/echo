@@ -1,12 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useChatIndividualContextSelector } from '../../ChatContext';
 import { ChatMessageBlock } from './ChatMessageBlock';
 import { ChatInput } from './ChatInput';
-import ScrollToBottom from 'react-scroll-to-bottom';
-import { faker } from '@faker-js/faker';
-import { cn } from '@/lib/classMerge';
 
 const autoClass = 'mx-auto max-w-[600px] w-full';
 

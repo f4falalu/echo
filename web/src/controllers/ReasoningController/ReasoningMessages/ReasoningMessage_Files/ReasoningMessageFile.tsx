@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import {
+import type {
   BusterChatMessageReasoning_file,
   BusterChatMessageReasoning_files
-} from '@/api/asset_interfaces';
+} from '@/api/asset_interfaces/chat';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { ReasoningFileButtons } from './ReasoningFileButtons';
 import { StreamingMessageCode } from '@/components/ui/streaming/StreamingMessageCode';

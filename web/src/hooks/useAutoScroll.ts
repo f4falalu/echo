@@ -6,6 +6,8 @@ interface UseAutoScrollOptions {
   debounceDelay?: number;
   /** Smooth scroll behavior duration in milliseconds */
   scrollBehavior?: ScrollBehavior;
+  /** Whether the auto-scroll functionality is enabled */
+  enabled?: boolean;
 }
 
 interface UseAutoScrollReturn {
@@ -33,13 +35,18 @@ export const useAutoScroll = (
   containerRef: React.RefObject<HTMLElement>,
   options: UseAutoScrollOptions = {}
 ): UseAutoScrollReturn => {
-  const { debounceDelay = 150, scrollBehavior = 'smooth' } = options;
+  const { debounceDelay = 150, scrollBehavior = 'smooth', enabled = true } = options;
 
-  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(enabled);
   const wasAtBottom = useRef(true);
   const isScrollingRef = useRef(false);
   const mutationDebounceRef = useRef<number>();
   const forceScrollRef = useRef(false);
+
+  // Update isAutoScrollEnabled when enabled prop changes
+  useEffect(() => {
+    setIsAutoScrollEnabled(enabled);
+  }, [enabled]);
 
   const scrollToBottom = useCallback(
     (behavior: ScrollBehavior = scrollBehavior) => {
@@ -58,9 +65,11 @@ export const useAutoScroll = (
           behavior
         });
 
-        // Always enable auto-scroll when manually scrolling to bottom
-        setIsAutoScrollEnabled(true);
-        wasAtBottom.current = true;
+        // Only enable auto-scroll if the feature is enabled
+        if (enabled) {
+          setIsAutoScrollEnabled(true);
+          wasAtBottom.current = true;
+        }
 
         // Reset the force scroll flag after the scroll completes
         if (behavior === 'instant') {
@@ -73,7 +82,7 @@ export const useAutoScroll = (
         }
       });
     },
-    [containerRef, scrollBehavior]
+    [containerRef, scrollBehavior, enabled]
   );
 
   const scrollToTop = useCallback(
@@ -116,7 +125,8 @@ export const useAutoScroll = (
             containerRef.current.scrollHeight - (scrollTop + containerRef.current.clientHeight)
           ) <= 30;
 
-        if (isBottom) {
+        // Only enable auto-scroll if the feature is enabled
+        if (isBottom && enabled) {
           setIsAutoScrollEnabled(true);
           wasAtBottom.current = true;
         }
@@ -132,13 +142,13 @@ export const useAutoScroll = (
         }
       });
     },
-    [containerRef, scrollBehavior]
+    [containerRef, scrollBehavior, enabled]
   );
 
   // Debounced scroll handler
   const handleScrollThrottled = useCallback(
     debounce(() => {
-      if (!containerRef.current || forceScrollRef.current) return;
+      if (!containerRef.current || forceScrollRef.current || !enabled) return;
 
       const atBottom = isAtBottom(containerRef.current);
 
@@ -153,23 +163,23 @@ export const useAutoScroll = (
       wasAtBottom.current = atBottom;
       isScrollingRef.current = false;
     }, debounceDelay),
-    [containerRef]
+    [containerRef, enabled]
   );
 
   // Immediate scroll handler that calls the debounced version
   const handleScroll = useCallback(() => {
-    if (forceScrollRef.current) return;
+    if (forceScrollRef.current || !enabled) return;
 
     if (!isScrollingRef.current) {
       isScrollingRef.current = true;
     }
     handleScrollThrottled();
-  }, [handleScrollThrottled]);
+  }, [handleScrollThrottled, enabled]);
 
   // Handle content changes
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || !enabled) return;
 
     // Debounced mutation handler to prevent rapid scroll updates
     const handleMutation = () => {
@@ -198,24 +208,25 @@ export const useAutoScroll = (
         window.cancelAnimationFrame(mutationDebounceRef.current);
       }
     };
-  }, [containerRef, isAutoScrollEnabled, scrollToBottom]);
+  }, [containerRef, isAutoScrollEnabled, scrollToBottom, enabled]);
 
   // Handle scroll events
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || !enabled) return;
 
     container.addEventListener('scroll', handleScroll);
     return () => {
       container.removeEventListener('scroll', handleScroll);
       handleScrollThrottled.cancel();
     };
-  }, [containerRef, handleScroll, handleScrollThrottled]);
+  }, [containerRef, handleScroll, handleScrollThrottled, enabled]);
 
   const enableAutoScroll = useCallback(() => {
+    if (!enabled) return;
     setIsAutoScrollEnabled(true);
     scrollToBottom();
-  }, [scrollToBottom]);
+  }, [scrollToBottom, enabled]);
 
   const disableAutoScroll = useCallback(() => {
     setIsAutoScrollEnabled(false);
