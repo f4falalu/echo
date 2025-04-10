@@ -10,8 +10,11 @@ pub struct MessageUserClarifyingQuestionInput {
     text: String,
 }
 
-// The output is essentially the same as the input, just confirming the question.
-pub type MessageUserClarifyingQuestionOutput = MessageUserClarifyingQuestionInput;
+// Define the new standard output struct
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MessageUserClarifyingQuestionOutput {
+    pub success: bool,
+}
 
 pub struct MessageUserClarifyingQuestion;
 
@@ -33,7 +36,7 @@ impl ToolExecutor for MessageUserClarifyingQuestion {
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         // Similar to message_notify_user, this tool validates the schema and confirms
         // the question text. The actual interaction logic resides elsewhere.
-        Ok(MessageUserClarifyingQuestionOutput { text: params.text })
+        Ok(MessageUserClarifyingQuestionOutput { success: true })
     }
 
     async fn get_schema(&self) -> Value {

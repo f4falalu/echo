@@ -1,9 +1,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use braintrust::{get_prompt_system_message, BraintrustClient};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::env;
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -11,8 +9,7 @@ use crate::{agent::Agent, tools::ToolExecutor};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreatePlanInvestigativeOutput {
-    pub message: String,
-    pub plan: String,
+    pub success: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -40,15 +37,11 @@ impl ToolExecutor for CreatePlanInvestigative {
     }
 
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
-        let start_time = Instant::now();
         self.agent
             .set_state_value(String::from("plan_available"), Value::Bool(true))
             .await;
 
-        Ok(CreatePlanInvestigativeOutput {
-            message: "Investigative plan created successfully".to_string(),
-            plan: params.plan,
-        })
+        Ok(CreatePlanInvestigativeOutput { success: true })
     }
 
     async fn get_schema(&self) -> Value {
@@ -197,4 +190,4 @@ Add any assumptions, limitations, or clarifications about the analysis and findi
    - Verify visualizations reveal key turnover factors and patterns.
    - Review work and respond to the user.
 ```
-"##; 
+"##;

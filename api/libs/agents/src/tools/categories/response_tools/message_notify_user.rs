@@ -10,8 +10,11 @@ pub struct MessageNotifyUserInput {
     text: String,
 }
 
-// The output is essentially the same as the input, just confirming the message.
-pub type MessageNotifyUserOutput = MessageNotifyUserInput;
+// Define the new standard output struct
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MessageNotifyUserOutput {
+    pub success: bool,
+}
 
 pub struct MessageNotifyUser;
 
@@ -33,7 +36,7 @@ impl ToolExecutor for MessageNotifyUser {
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         // This tool's primary function is schema validation and confirming the message text.
         // The actual sending logic would reside elsewhere in the system.
-        Ok(MessageNotifyUserOutput { text: params.text })
+        Ok(MessageNotifyUserOutput { success: true })
     }
 
     async fn get_schema(&self) -> Value {

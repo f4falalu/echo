@@ -86,7 +86,6 @@ impl BusterMultiAgent {
         let create_metric_files_condition = Some(|state: &HashMap<String, Value>| -> bool {
             state.contains_key("data_context")
                 && state.contains_key("plan_available")
-                && state.contains_key("metrics_available")
         });
 
         let modify_metric_files_condition = Some(|state: &HashMap<String, Value>| -> bool {
@@ -206,7 +205,7 @@ impl BusterMultiAgent {
         ));
 
         if is_follow_up {
-            agent.set_state_value("is_follow_up".to_string(), Value::Bool(true));
+            agent.set_state_value("is_follow_up".to_string(), Value::Bool(true)).await;
         }
 
         // Define prompt switching conditions

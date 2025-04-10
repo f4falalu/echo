@@ -10,8 +10,11 @@ pub struct DoneInput {
     final_response: String,
 }
 
-// The output is the same as the input, confirming the final response.
-pub type DoneOutput = DoneInput;
+// Define the new standard output struct
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DoneOutput {
+    pub success: bool,
+}
 
 pub struct Done;
 
@@ -33,7 +36,7 @@ impl ToolExecutor for Done {
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         // This tool signals the end of the workflow and provides the final response.
         // The actual agent termination logic resides elsewhere.
-        Ok(DoneOutput { final_response: params.final_response })
+        Ok(DoneOutput { success: true })
     }
 
     async fn get_schema(&self) -> Value {

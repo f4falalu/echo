@@ -1,9 +1,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use braintrust::{get_prompt_system_message, BraintrustClient};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::env;
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -11,8 +9,7 @@ use crate::{agent::Agent, tools::ToolExecutor};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreatePlanStraightforwardOutput {
-    pub message: String,
-    pub plan: String,
+    pub success: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -45,10 +42,7 @@ impl ToolExecutor for CreatePlanStraightforward {
             .set_state_value(String::from("plan_available"), Value::Bool(true))
             .await;
 
-        Ok(CreatePlanStraightforwardOutput {
-            message: "Straightforward plan created successfully".to_string(),
-            plan: params.plan,
-        })
+        Ok(CreatePlanStraightforwardOutput { success: true })
     }
 
     async fn get_schema(&self) -> Value {
@@ -98,10 +92,10 @@ async fn get_plan_straightforward_description() -> String {
 }
 
 const PLAN_STRAIGHTFORWARD_TEMPLATE: &str = r##"
-Use this template to create a clear and actionable plan tailored to the user’s request.
+Use this template to create a clear and actionable plan tailored to the user's request.
 
 **Thought**  
-Analyze the user’s request and outline your approach. Keep it simple. Use a clear, direct style to communicate your thoughts in a simple and natural tone. Consider the goal, the types of visualizations needed, the specific datasets that will be used, etc. For broad or summary requests (e.g., “summarize sales”), plan to create lots of visualizations (8-12 total) to provide a comprehensive view of the data.
+Analyze the user's request and outline your approach. Keep it simple. Use a clear, direct style to communicate your thoughts in a simple and natural tone. Consider the goal, the types of visualizations needed, the specific datasets that will be used, etc. For broad or summary requests (e.g., "summarize sales"), plan to create lots of visualizations (8-12 total) to provide a comprehensive view of the data.
 
 **Step-by-Step Plan**  
 Outline actionable steps to fulfill the request. Your plan should mirror the exact template below:
@@ -114,7 +108,7 @@ Outline actionable steps to fulfill the request. Your plan should mirror the exa
 2. **[(Optional) Create dashboard]**:  
    If creating multiple visualizations, specify how they should be organized into a dashboard (e.g., title, layout).
 3. **Review & Finish**:  
-   Verify that visualizations display data correctly (e.g., no empty results, correct timeframes) and meet the user’s request. Adjust the plan if needed.
+   Verify that visualizations display data correctly (e.g., no empty results, correct timeframes) and meet the user's request. Adjust the plan if needed.
 
 **Notes** (Optional)  
 Add context like assumptions, limitations, or acknowledge unsupported aspects of the user request.
@@ -122,7 +116,7 @@ Add context like assumptions, limitations, or acknowledge unsupported aspects of
 ---
 
 #### Guidelines
-- **Visualizations**: Describe what the visualization should show (e.g., “a bar chart with months on the x-axis and sales on the y-axis”). Avoid SQL or technical details. Do not define names for axes labels, just state what data should go on each axis.
+- **Visualizations**: Describe what the visualization should show (e.g., "a bar chart with months on the x-axis and sales on the y-axis"). Avoid SQL or technical details. Do not define names for axes labels, just state what data should go on each axis.
 - **Create Visualizations in One Step**: All visualizations should be created in a single, bulk step (typically the first step) titled "Create [specify the number] visualizations"
 - **Broad Requests**: For broad or summary requests (e.g., "summarize assembly line performance", "show me important stuff", "how is the sales team doing?"), you must create at least 8 visualizations to ensure a comprehensive overview. Creating fewer than five visualizations is inadequate for such requests. Aim for 8-12 visualizations to cover various aspects of the data, such as sales trends, order metrics, customer behavior, or product performance, depending on the available datasets. Include lots of trends (time-series data), groupings, segments, etc. This ensures the user receives a thorough view of the requested information. 
 - **Review**: Always include a review step to ensure accuracy and relevance.
@@ -136,15 +130,15 @@ Add context like assumptions, limitations, or acknowledge unsupported aspects of
 #### Examples
 
 **Example 1: Single Visualization**  
-*User Request*: “Show me our total new customers per month over the last year with a bar chart.”  
+*User Request*: "Show me our total new customers per month over the last year with a bar chart."  
 
 ```
 **Thought**: 
-The user wants a bar chart showing total new customers per month over the last year. I’ll use the `sem.entity_customer` dataset. I'll calculate "new customers" as those with their first purchase in each month. The time frame is the past 12 months, with months on the x-axis and customer counts on the y-axis.
+The user wants a bar chart showing total new customers per month over the last year. I'll use the `sem.entity_customer` dataset. I'll calculate "new customers" as those with their first purchase in each month. The time frame is the past 12 months, with months on the x-axis and customer counts on the y-axis.
 
 **Step-by-Step Plan**:  
 1. **Create 1 Visualization**:  
-   - **Title**: “Monthly New Customers (Last 12 Months)”  
+   - **Title**: "Monthly New Customers (Last 12 Months)"  
    - **Type**: Bar Chart  
    - **Datasets**: `sem.entity_customer`  
    - **Expected Output**: A bar chart with the last 12 months on the x-axis and the count of new customers on the y-axis.
@@ -155,11 +149,11 @@ The user wants a bar chart showing total new customers per month over the last y
 ---
 
 **Example 2: Multiple Visualizations with Dashboard**  
-*User Request*: “Build a dashboard with monthly sales, total sales, and monthly sales by sales rep for the last 12 months.”  
+*User Request*: "Build a dashboard with monthly sales, total sales, and monthly sales by sales rep for the last 12 months."  
 
 ```
 **Thought**: 
-The user wants a dashboard with three specific visualizations to see sales performance over the last 12 months (monthly sales, total sales, and monthly sales by sales rep). I’ll use the `sales_data` dataset to create a line chart for monthly sales, a number card for total sales, and a line chart for sales by rep.
+The user wants a dashboard with three specific visualizations to see sales performance over the last 12 months (monthly sales, total sales, and monthly sales by sales rep). I'll use the `sales_data` dataset to create a line chart for monthly sales, a number card for total sales, and a line chart for sales by rep.
 
 **Step-by-Step Plan**:  
 1. **Create 3 Visualizations**:  
@@ -176,7 +170,7 @@ The user wants a dashboard with three specific visualizations to see sales perfo
      - **Datasets**: `sales_data`  
      - **Expected Output**: A line chart with the last 12 months on the x-axis and sales amounts on the y-axis, with each line labeled by sales rep full names.
 2. **Create Dashboard**:  
-   - Title: “Sales Performance, Last 12 Months”  
+   - Title: "Sales Performance, Last 12 Months"  
    - Add all three visualizations.
 3. **Review & Finish**:  
    - Ensure no empty results and correct segmentation. Respond to the user.
@@ -185,11 +179,11 @@ The user wants a dashboard with three specific visualizations to see sales perfo
 ---
 
 **Example 3: Broad Request**  
-*User Request*: “Summarize our product performance.”  
+*User Request*: "Summarize our product performance."  
 
 ```
 **Thought**:  
-The user is asking for a summary of product performance. This is an ambiguous, overview request. I’ll create 9 robust visualizations to summarize product performance comprehensively, covering revenue, sales volume, profitability, etc., using datasets like `entity_transaction_history` and `entity_product`. I’ll focus on the last 12 months.
+The user is asking for a summary of product performance. This is an ambiguous, overview request. I'll create 9 robust visualizations to summarize product performance comprehensively, covering revenue, sales volume, profitability, etc., using datasets like `entity_transaction_history` and `entity_product`. I'll focus on the last 12 months.
 
 **Step-by-Step Plan**:  
 1. **Create 9 Visualizations**:  
@@ -230,7 +224,7 @@ The user is asking for a summary of product performance. This is an ambiguous, o
      - **Datasets**: `entity_customer_feedback`, `entity_product`  
      - **Expected Output**: A bar chart with categories on the x-axis and satisfaction scores on the y-axis.
 2. **Create Dashboard**:  
-   - Title: “Product Performance Summary”  
+   - Title: "Product Performance Summary"  
    - Add all visualizations.
 3. **Review & Finish**:  
    - Verify data for the last 12 months and respond to the user.
