@@ -13,7 +13,7 @@ export const AppPasswordAccess: React.FC<{
   assetId: string;
   type: ShareAssetType;
   children: React.ReactNode;
-}> = React.memo(({ children, assetId }) => {
+}> = React.memo(({ children, assetId, type }) => {
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
   const { password, error } = getAssetPassword(assetId);
 
@@ -21,7 +21,9 @@ export const AppPasswordAccess: React.FC<{
     return <>{children}</>;
   }
 
-  return <AppPasswordInputComponent password={password} error={error} assetId={assetId} />;
+  return (
+    <AppPasswordInputComponent password={password} error={error} assetId={assetId} type={type} />
+  );
 });
 
 AppPasswordAccess.displayName = 'AppPasswordAccess';
@@ -30,12 +32,13 @@ const AppPasswordInputComponent: React.FC<{
   password: string | undefined;
   error: string | null;
   assetId: string;
-}> = ({ password, error, assetId }) => {
-  const setAssetPassword = useBusterAssetsContextSelector((state) => state.setAssetPassword);
+  type: ShareAssetType;
+}> = ({ password, error, assetId, type }) => {
+  const onSetAssetPassword = useBusterAssetsContextSelector((state) => state.onSetAssetPassword);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const onEnterPassword = useMemoizedFn((v: string) => {
-    setAssetPassword(assetId, v);
+    onSetAssetPassword(assetId, v, type);
   });
 
   const onPressEnter = useMemoizedFn((v: React.KeyboardEvent<HTMLInputElement>) => {
@@ -72,12 +75,13 @@ const AppPasswordInputComponent: React.FC<{
               className="w-full"
               placeholder="Enter password"
               type="password"
+              autoFocus
             />
-            {error ? (
+            {/* {error ? (
               <Text className="mb-1!" variant="danger">
                 {error}
               </Text>
-            ) : null}
+            ) : null} */}
           </div>
 
           <Button block variant="black" onClick={onEnterButtonPress}>

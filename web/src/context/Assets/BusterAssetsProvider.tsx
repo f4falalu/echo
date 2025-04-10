@@ -1,19 +1,58 @@
 'use client';
 
+import type { ShareAssetType } from '@/api/asset_interfaces/share';
+import { queryKeys } from '@/api/query_keys';
 import { useMemoizedFn } from '@/hooks';
+import { timeout } from '@/lib';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useState } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 
 const useBusterAssets = () => {
-  const [assetsToPasswords, setAssetsToPasswords] = useState<Record<string, string>>({});
+  const queryClient = useQueryClient();
+  const [assetsToPasswords, setAssetsToPasswords] = useState<
+    Record<
+      string,
+      {
+        password: string;
+        type: ShareAssetType;
+      }
+    >
+  >({});
   const [assetsPasswordErrors, setAssetsPasswordErrors] = useState<Record<string, string | null>>(
     {}
   );
 
-  const setAssetPassword = useMemoizedFn((assetId: string, password: string) => {
-    setAssetsToPasswords((prev) => ({ ...prev, [assetId]: password }));
-    removeAssetPasswordError(assetId);
+  const invalidateAssetData = useMemoizedFn(async (assetId: string, type: ShareAssetType) => {
+    if (type === 'metric') {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.metricsGetMetric(assetId).queryKey
+      });
+    } else if (type === 'dashboard') {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboardGetDashboard(assetId).queryKey
+      });
+    } else if (type === 'collection') {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.collectionsGetCollection(assetId).queryKey
+      });
+    } else if (type === 'chat') {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.chatsGetChat(assetId).queryKey
+      });
+    } else {
+      const exhaustiveCheck: never = type;
+    }
   });
+
+  const onSetAssetPassword = useMemoizedFn(
+    async (assetId: string, password: string, type: ShareAssetType) => {
+      setAssetsToPasswords((prev) => ({ ...prev, [assetId]: { password, type } }));
+      removeAssetPasswordError(assetId);
+      await timeout(150);
+      await invalidateAssetData(assetId, type);
+    }
+  );
 
   const getAssetPassword = useCallback(
     (
@@ -21,9 +60,11 @@ const useBusterAssets = () => {
     ): {
       password: undefined | string;
       error: string | null;
+      type: ShareAssetType | undefined;
     } => {
       return {
-        password: assetsToPasswords[assetId] || undefined,
+        password: assetsToPasswords[assetId]?.password || undefined,
+        type: assetsToPasswords[assetId]?.type || undefined,
         error: assetsPasswordErrors[assetId] || null
       };
     },
@@ -43,7 +84,7 @@ const useBusterAssets = () => {
   return {
     setAssetPasswordError,
     removeAssetPasswordError,
-    setAssetPassword,
+    onSetAssetPassword,
     getAssetPassword
   };
 };

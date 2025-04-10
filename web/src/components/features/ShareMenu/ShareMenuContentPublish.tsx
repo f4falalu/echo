@@ -166,7 +166,6 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
             <div className={cn('flex justify-end space-x-2 border-t', className)}>
               <Button
                 block
-                loading={isPublishing}
                 onClick={async (v) => {
                   onTogglePublish(false);
                 }}>

@@ -21,7 +21,7 @@ import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { useMemo } from 'react';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useGetUserFavorites } from '../users';
-import type { IBusterMetric } from '@/api/asset_interfaces/metric';
+import type { BusterMetricData, IBusterMetric } from '@/api/asset_interfaces/metric';
 import { create } from 'mutative';
 import {
   useAddAssetToCollection,
@@ -81,7 +81,7 @@ export const useGetMetric = <TData = IBusterMetric>(
   return useQuery({
     ...options,
     queryFn,
-    enabled: !!id,
+    enabled: false, //In the year of our lord 2025, April 10, I, Nate Kelley, decided to disable this query in favor of explicityly fetching the data. May god have mercy on our souls.
     retry(failureCount, error) {
       if (error?.message !== undefined) {
         setAssetPasswordError(id!, error.message || 'An error occurred');
@@ -112,13 +112,19 @@ export const useGetMetricsList = (
 /**
  * This is a hook that will use the version number from the URL params if it exists.
  */
-export const useGetMetricData = ({
-  id,
-  versionNumber: versionNumberProp
-}: {
-  id: string | undefined;
-  versionNumber?: number;
-}) => {
+export const useGetMetricData = <TData = BusterMetricData>(
+  {
+    id,
+    versionNumber: versionNumberProp
+  }: {
+    id: string | undefined;
+    versionNumber?: number;
+  },
+  params?: Omit<UseQueryOptions<BusterMetricData, RustApiError, TData>, 'queryKey' | 'queryFn'>
+) => {
+  const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
+  const { password } = getAssetPassword(id!);
+
   const {
     isFetched: isFetchedMetric,
     error: errorMetric,
@@ -141,7 +147,7 @@ export const useGetMetricData = ({
   }, [versionNumberProp, versionNumberFromParams]);
 
   const queryFn = useMemoizedFn(() => {
-    return getMetricData({ id: id!, version_number: versionNumber });
+    return getMetricData({ id: id!, version_number: versionNumber, password });
   });
 
   return useQuery({
@@ -149,7 +155,9 @@ export const useGetMetricData = ({
     queryFn,
     enabled: () => {
       return !!id && isFetchedMetric && !errorMetric && !!fetchedMetricData;
-    }
+    },
+    select: params?.select,
+    ...params
   });
 };
 

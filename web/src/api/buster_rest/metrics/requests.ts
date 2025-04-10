@@ -37,13 +37,15 @@ export const getMetric_server = async ({ id, password }: Parameters<typeof getMe
 
 export const getMetricData = async ({
   id,
-  version_number
+  version_number,
+  password
 }: {
   id: string;
   version_number?: number;
+  password?: string;
 }) => {
   return mainApi
-    .get<BusterMetricData>(`/metrics/${id}/data`, { params: { version_number } })
+    .get<BusterMetricData>(`/metrics/${id}/data`, { params: { password, version_number } })
     .then((res) => res.data);
 };
 
