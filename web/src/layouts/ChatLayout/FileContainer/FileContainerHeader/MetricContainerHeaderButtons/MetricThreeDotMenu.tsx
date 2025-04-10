@@ -21,7 +21,9 @@ import {
   SquareCode,
   SquareChartPen,
   Star,
-  ShareRight
+  ShareRight,
+  FullScreen,
+  ArrowUpRight
 } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -51,10 +53,13 @@ import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
+import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 
 export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
+  const chatId = useChatIndividualContextSelector((x) => x.chatId);
   const { openSuccessMessage } = useBusterNotifications();
   const { data: permission } = useGetMetric({ id: metricId }, { select: (x) => x.permission });
+  const openFullScreenMetric = useOpenFullScreenMetric({ metricId });
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
   const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
@@ -77,6 +82,7 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
   const items: DropdownItems = useMemo(
     () =>
       [
+        chatId && openFullScreenMetric,
         isOwnerEffective && shareMenu,
         isEditor && statusSelectMenu,
         { type: 'divider' },
@@ -96,6 +102,8 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
         isOwner && deleteMetricMenu
       ].filter(Boolean) as DropdownItems,
     [
+      chatId,
+      openFullScreenMetric,
       isEditor,
       isOwner,
       isOwnerEffective,
@@ -505,6 +513,21 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
           assetType={ShareAssetType.METRIC}
         />
       )
+    }),
+    [metricId]
+  );
+};
+
+const useOpenFullScreenMetric = ({ metricId }: { metricId: string }) => {
+  return useMemo(
+    () => ({
+      label: 'Open in metric page',
+      value: 'open-in-full-screen',
+      icon: <ArrowUpRight />,
+      link: createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_CHART,
+        metricId
+      })
     }),
     [metricId]
   );

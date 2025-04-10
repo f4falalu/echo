@@ -13,7 +13,8 @@ import {
   Star,
   ShareRight,
   Plus,
-  Filter
+  Filter,
+  ArrowUpRight
 } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -36,10 +37,13 @@ import { getShareAssetConfig } from '@/components/features/ShareMenu/helpers';
 import { useDashboardContentStore } from '@/context/Dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
+import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 
 export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });
+  const chatId = useChatIndividualContextSelector((x) => x.chatId);
   const collectionSelectMenu = useCollectionSelectMenu({ dashboardId });
+  const openFullScreenDashboard = useOpenFullScreenDashboard({ dashboardId });
   const favoriteDashboard = useFavoriteDashboardSelectMenu({ dashboardId });
   const deleteDashboardMenu = useDeleteDashboardSelectMenu({ dashboardId });
   const renameDashboardMenu = useRenameDashboardSelectMenu({ dashboardId });
@@ -57,6 +61,7 @@ export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId:
   const items: DropdownItems = useMemo(
     () =>
       [
+        chatId && openFullScreenDashboard,
         isFilter && filterDashboardMenu,
         isEditor && addContentToDashboardMenu,
         { type: 'divider' },
@@ -69,6 +74,8 @@ export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId:
         isEffectiveOwner && deleteDashboardMenu
       ].filter(Boolean) as DropdownItems,
     [
+      chatId,
+      openFullScreenDashboard,
       filterDashboardMenu,
       addContentToDashboardMenu,
       shareMenu,
@@ -307,5 +314,20 @@ const useFilterDashboardSelectMenu = () => {
       ]
     }),
     []
+  );
+};
+
+const useOpenFullScreenDashboard = ({ dashboardId }: { dashboardId: string }) => {
+  return useMemo(
+    () => ({
+      label: 'Open in dashboard page',
+      value: 'open-in-full-screen',
+      icon: <ArrowUpRight />,
+      link: createBusterRoute({
+        route: BusterRoutes.APP_DASHBOARD_ID,
+        dashboardId
+      })
+    }),
+    [dashboardId]
   );
 };
