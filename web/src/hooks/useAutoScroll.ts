@@ -13,6 +13,8 @@ interface UseAutoScrollOptions {
   enabled?: boolean;
   /** Whether to observe deep changes in the DOM tree */
   observeDeepChanges?: boolean;
+  /** Specific node inside the container to observe for changes */
+  observeNode?: HTMLElement;
 }
 
 /**
@@ -76,7 +78,8 @@ export const useAutoScroll = (
     debounceDelay = 150,
     scrollBehavior = 'smooth',
     enabled = true,
-    observeDeepChanges = true
+    observeDeepChanges = true,
+    observeNode
   } = options;
 
   /** Current state of auto-scroll functionality */
@@ -240,6 +243,22 @@ export const useAutoScroll = (
     handleScrollThrottled();
   }, [handleScrollThrottled, enabled]);
 
+  /**
+   * Enables auto-scroll functionality and immediately scrolls to bottom
+   */
+  const enableAutoScroll = useCallback(() => {
+    if (!enabled) return;
+    setIsAutoScrollEnabled(true);
+    scrollToBottom();
+  }, [scrollToBottom, enabled]);
+
+  /**
+   * Disables auto-scroll functionality
+   */
+  const disableAutoScroll = useCallback(() => {
+    setIsAutoScrollEnabled(false);
+  }, []);
+
   // Handle content changes
   useEffect(() => {
     const container = containerRef.current;
@@ -267,7 +286,7 @@ export const useAutoScroll = (
     observer.observe(container, {
       childList: true, // Only observe direct children changes
       subtree: observeDeepChanges, // Don't observe deep changes
-      characterData: false, // Don't observe text changes,
+      characterData: observeDeepChanges, // Don't observe text changes,
       attributes: false
     });
 
@@ -290,22 +309,6 @@ export const useAutoScroll = (
       handleScrollThrottled.cancel();
     };
   }, [containerRef, handleScroll, handleScrollThrottled, enabled]);
-
-  /**
-   * Enables auto-scroll functionality and immediately scrolls to bottom
-   */
-  const enableAutoScroll = useCallback(() => {
-    if (!enabled) return;
-    setIsAutoScrollEnabled(true);
-    scrollToBottom();
-  }, [scrollToBottom, enabled]);
-
-  /**
-   * Disables auto-scroll functionality
-   */
-  const disableAutoScroll = useCallback(() => {
-    setIsAutoScrollEnabled(false);
-  }, []);
 
   return {
     isAutoScrollEnabled,

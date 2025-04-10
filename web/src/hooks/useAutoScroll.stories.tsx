@@ -300,3 +300,75 @@ export const ScrollAreaComponentWithAutoScroll: Story = {
     );
   }
 };
+
+export const RapidTextAppend: Story = {
+  render: () => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [text, setText] = useState<string>('');
+    const [isRunning, setIsRunning] = useState(false);
+    const intervalRef = useRef<NodeJS.Timeout>();
+    const { isAutoScrollEnabled, enableAutoScroll, disableAutoScroll } = useAutoScroll(
+      containerRef,
+      { observeDeepChanges: true }
+    );
+
+    const addWord = useCallback(() => {
+      const randomWord = faker.word.words(2);
+      setText((old) => old + ' ' + randomWord);
+    }, []);
+
+    const toggleRunning = useCallback(() => {
+      if (isRunning) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = undefined;
+        }
+        setIsRunning(false);
+      } else {
+        intervalRef.current = setInterval(addWord, 50);
+        setIsRunning(true);
+        enableAutoScroll();
+      }
+    }, [isRunning, addWord, enableAutoScroll]);
+
+    // Cleanup interval on unmount
+    useEffect(() => {
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
+    }, []);
+
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-4">
+          <h3 className="text-lg font-semibold">Rapid Text Append</h3>
+          <div className="flex gap-2">
+            <button
+              onClick={toggleRunning}
+              className={`rounded px-3 py-1 text-sm text-white ${
+                isRunning ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+              }`}>
+              {isRunning ? 'Stop' : 'Start'} Adding Words
+            </button>
+            <button
+              onClick={isAutoScrollEnabled ? disableAutoScroll : enableAutoScroll}
+              className={`rounded px-3 py-1 text-sm text-white ${
+                isAutoScrollEnabled
+                  ? 'bg-blue-500 hover:bg-blue-600'
+                  : 'bg-gray-500 hover:bg-gray-600'
+              }`}>
+              Auto-scroll {isAutoScrollEnabled ? 'ON' : 'OFF'}
+            </button>
+          </div>
+        </div>
+        <ScrollArea
+          viewportRef={containerRef}
+          className="h-[200px] w-[300px] rounded-lg border border-gray-200 p-4">
+          <div className="flex flex-wrap gap-1">{text}</div>
+        </ScrollArea>
+      </div>
+    );
+  }
+};
