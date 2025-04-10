@@ -1,6 +1,26 @@
 use agents::{AgentError, AgentThread};
 use litellm::{AgentMessage, MessageProgress, ToolCall};
 use uuid::Uuid;
+use std::time::Instant;
+use serde_json;
+use serde_json::Value;
+use serde::{Deserialize, Serialize};
+
+// --- Structs for specific tool results (add more as needed) ---
+#[derive(Serialize, Deserialize, Debug)]
+struct ListDirectoryEntry {
+    name: String,
+    path: String,
+    is_dir: bool,
+    size: Option<u64>,
+    // modified_at: Option<String>, // Ignoring for now
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ListDirectoryResult {
+    entries: Vec<ListDirectoryEntry>,
+}
+
 // --- Application State Structs ---
 #[derive(Debug, Clone)]
 pub struct ActiveToolCall {
@@ -195,10 +215,17 @@ impl AppState {
 
                     for tc in calls {
                         if !existing_tool_ids.contains(&tc.id) {
+                            // Format arguments nicely
+                            let args_json = serde_json::to_string_pretty(&tc.function.arguments)
+                                                .unwrap_or_else(|_| "<failed to format args>".to_string());
                             self.messages.push(AgentMessage::Developer {
                                 id: Some(tc.id.clone()),
-                                content: format!("Executing: {}...", tc.function.name),
-                                name: Some("Tool".to_string()),
+                                content: format!(
+                                    "Executing: {}\nArgs:\n{}",
+                                    tc.function.name,
+                                    args_json
+                                ),
+                                name: Some("Tool Call".to_string()), // Change name for clarity
                             });
                         }
                     }
@@ -293,10 +320,17 @@ impl AppState {
 
                         for tc in calls {
                             if !existing_tool_ids.contains(&tc.id) {
+                                // Format arguments nicely
+                                let args_json = serde_json::to_string_pretty(&tc.function.arguments)
+                                                    .unwrap_or_else(|_| "<failed to format args>".to_string());
                                 self.messages.push(AgentMessage::Developer {
                                     id: Some(tc.id.clone()),
-                                    content: format!("Executing: {}...", tc.function.name), // Or maybe "Called:"?
-                                    name: Some("Tool".to_string()),
+                                    content: format!(
+                                        "Executing: {}\nArgs:\n{}",
+                                        tc.function.name,
+                                        args_json
+                                    ),
+                                    name: Some("Tool Call".to_string()), // Change name for clarity
                                 });
                             }
                         }
@@ -321,16 +355,37 @@ impl AppState {
 
         // Update the placeholder message in the main history
         for msg in self.messages.iter_mut() {
-            if let AgentMessage::Developer {
-                id: msg_id,
-                content: msg_content,
-                ..
-            } = msg
-            {
+            if let AgentMessage::Developer { id: msg_id, content: msg_content, name: msg_name, .. } = msg {
                 if msg_id.as_ref() == Some(&tool_call_id) {
+                    *msg_name = Some(format!("{} Result", name)); // Update name to indicate result
                     *msg_content = match progress {
-                        MessageProgress::InProgress => format!("Running {}: {}...", name, content), // Show partial content?
-                        MessageProgress::Complete => format!("Result ({}): {}", name, content),
+                        MessageProgress::InProgress => {
+                             // Try to show formatted partial content if possible, else raw
+                            format!("Running {}: {}...", name, content)
+                        },
+                        MessageProgress::Complete => {
+                            // Attempt to parse and format known tool outputs
+                            match name.as_str() {
+                                "list_directory" => {
+                                    match serde_json::from_str::<ListDirectoryResult>(&content) {
+                                        Ok(parsed_result) => {
+                                            let mut formatted = String::from("Entries:\n");
+                                            for entry in parsed_result.entries {
+                                                formatted.push_str(&format!(
+                                                    "  - {} ({})\n",
+                                                    entry.name,
+                                                    if entry.is_dir { "directory" } else { "file" }
+                                                ));
+                                            }
+                                            formatted.trim_end().to_string() // Remove trailing newline
+                                        }
+                                        Err(_) => format!("Result ({}):\n{}", name, content), // Fallback to raw JSON on parse error
+                                    }
+                                }
+                                // Add more known tool formatters here
+                                _ => format!("Result ({}):\n{}", name, content), // Default: show raw JSON
+                            }
+                        },
                     };
                     found_message = true;
                     break;
