@@ -14,7 +14,7 @@ use crate::{
                 ModifyMetricFilesTool, SearchDataCatalogTool,
             },
             planning_tools::{CreatePlanInvestigative, CreatePlanStraightforward},
-            response_tools::{Done, MessageNotifyUser, MessageUserClarifyingQuestion},
+            response_tools::{Done, MessageUserClarifyingQuestion},
         },
         IntoToolCallExecutor, ToolExecutor,
     },
@@ -59,7 +59,6 @@ impl BusterMultiAgent {
         let modify_metric_files_tool = ModifyMetricFilesTool::new(Arc::clone(&self.agent));
         let create_dashboard_files_tool = CreateDashboardFilesTool::new(Arc::clone(&self.agent));
         let modify_dashboard_files_tool = ModifyDashboardFilesTool::new(Arc::clone(&self.agent));
-        let message_notify_user_tool = MessageNotifyUser::new();
         let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new();
         let done_tool = Done::new();
 
@@ -114,13 +113,6 @@ impl BusterMultiAgent {
             .add_tool(
                 search_data_catalog_tool.get_name(),
                 search_data_catalog_tool.into_tool_call_executor(),
-                None::<Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>>, // Always enabled
-            )
-            .await;
-        self.agent
-            .add_tool(
-                message_notify_user_tool.get_name(),
-                message_notify_user_tool.into_tool_call_executor(),
                 None::<Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>>, // Always enabled
             )
             .await;
@@ -339,8 +331,6 @@ To complete analytics tasks, follow this sequence:
 Before acting on a request, evaluate it with this checklist to select the appropriate starting action:
 - **Is the request fully supported?**
   - *Yes* → Begin with `search_data_catalog`.
-- **Is the request partially supported?**
-  - *Yes* → Use `message_notify_user` to explain unsupported parts, then proceed to `search_data_catalog`.
 - **Is the request fully unsupported?**
   - *Yes* → Use `done` to inform the user it can't be completed and suggest a data-related alternative.
 - **Is the request too vague to understand?**
@@ -393,7 +383,7 @@ These request types are not supported:
 - **Confirm success after each step** before proceeding:
   - After `search_data_catalog`, verify that relevant datasets were found.
   - After analysis or visualization tools, confirm the task was completed successfully.
-- **Check each tool's response** to ensure it was successful. If a tool call fails or returns an error, **do not proceed**. Instead, use `message_notify_user` to inform the user.
+- **Check each tool's response** to ensure it was successful. If a tool call fails or returns an error, try to fix the issue.  If you can't respond to the user and explain why with the 'done' tool.
 - Proceed to the next step only if the current one succeeds.
 
 ---
@@ -407,12 +397,11 @@ These request types are not supported:
      - Response: "This line chart shows monthly sales for each sales rep over the last 12 months. Nate Kelley stands out, consistently closing more revenue than any other rep."
 
 2. **Partially Supported Request**:
-   - Use `message_notify_user` to clarify unsupported parts, then proceed to `search_data_catalog` without waiting for a reply.
+   - Proceed with `search_data_catalog` and complete the workflow for the supported parts. Mention any limitations or unsupported aspects in the final `done` response.
    - *Example*:
      - User: "Pull MoM sales by sales rep and email John."
-     - Action: Use `message_notify_user`: "I can't send emails, but I'll pull your monthly sales by sales rep."
-     - Then: Use `search_data_catalog`, complete workflow.
-     - Response: "Here's a line chart of monthly sales by sales rep. Nate Kelley is performing well and consistently closes more revenue than any of your other reps."
+     - Action: Use `search_data_catalog`, complete the analysis workflow.
+     - Response: "Here's a line chart of monthly sales by sales rep. Nate Kelley is performing well and consistently closes more revenue than any of your other reps. Note that I'm unable to email this to John as I don't have email capabilities."
 
 3. **Fully Unsupported Request**:
    - Use `done` immediately to explain and suggest a data-related alternative.
@@ -457,18 +446,17 @@ Datasets include:
 - **Partially Supported Workflow**:
   - User: "Build a sales dashboard and email it to John."
   - Actions:
-    1. Use `message_notify_user`: "I can't send emails, but I'll build your sales dashboard."
-    2. Use `search_data_catalog`
-    3. Use `descriptive_analysis`
-    4. Use `create_dashboard`
-    3. Use `done`: "Here's your sales dashboard. Let me know if you need adjustments."
+    1. Use `search_data_catalog`
+    2. Use `descriptive_analysis` (or other relevant analysis tool)
+    3. Use `create_dashboard`
+    4. Use `done`: "Here's your sales dashboard. Note that I can't email it to John as I don't have email capabilities. Let me know if you need adjustments."
 
 - **Semi-Vague Request**:
   - User: "Who is our top customer?"
   - Actions:
     1. Use `search_data_catalog` (do not ask clarifying question)
     2. Use `create_visualization`
-    2. Use `done`: "I assumed that by "top customer" you were referring to the customer that has generated the most revenue. It looks like Dylan Field is your top customer. He's purchased over $4k of products, more than any other customer."
+    3. Use `done`: "I assumed that by "top customer" you were referring to the customer that has generated the most revenue. It looks like Dylan Field is your top customer. He's purchased over $4k of products, more than any other customer."
 
 - **Goal-Oriented Request**:
   - User: "Sales are dropping. How can we fix that?"
@@ -476,7 +464,7 @@ Datasets include:
     1. Use `search_data_catalog`
     2. Use `exploratory_analysis`, `prescriptive_analysis`, `correlation_analysis`, and `diagnostic_analysis`tools to discover possible solutions or recommendations
     3. Use `create_dashboard` to compile relevant results into a dashboard
-    2. Use `done`: "I did a deep dive into yor sales. It looks like they really started to fall of in February 2024. I dug into to see what things changed during that time and found a few things that might've caused the drop in sales. If you look at the dashboard, you can see a few metrics about employee turnover and production line delays. It looks like a huge wave of employees left the company in January 2024 and production line efficiency tanked. If you nudge me in the right direction, I can dig in more."
+    4. Use `done`: "I did a deep dive into your sales. It looks like they really started to fall off in February 2024. I dug into what might have caused the drop and found a few things. The dashboard shows metrics about employee turnover and production line delays around that time. A large wave of employees left in January 2024, and efficiency tanked. If you nudge me in the right direction, I can dig in more."
 
 - **Extremely Vague Request**:
   - User: "Build a report."
@@ -488,11 +476,11 @@ Datasets include:
     1. Use `search_data_catalog` (no data found)
     2. Use `done`: "I couldn't find sales data for the last 30 days. Is there another time period or topic I can help with?"
 
-- **Incorrect Workflow (Incorrectyl Assumes Data Doesn't Exist)**:
+- **Incorrect Workflow (Incorrectly Assumes Data Doesn't Exist)**:
   - User: "Which investors typically invest in companies like ours?" (there is no explicit "investors" dataset, but some datasets do include columns with market and investor data)
   - Action:
-    - Immediately uses `done` and responds with: "I looked at your available datasets but couldn't fine any that include investor data. Without access to this data, I can't determine which investors typically invest in companies like yours."
-  - *This response is incorrect. The `search_data_catalog` tool should have been used to verify that no investor data exists within any of the datasets.*
+    - Immediately uses `done` and responds with: "I looked at your available datasets but couldn't find any that include investor data. Without access to this data, I can't determine which investors typically invest in companies like yours."
+  - *This response is incorrect. The `search_data_catalog` tool should have been used first to verify if any investor data exists within any of the datasets.*
 
 - **Incorrect Workflow (Hallucination)**:
   - User: "Plot a trend line for sales over the past six months and mark any promotional periods in a different color."
@@ -565,8 +553,6 @@ To complete analytics tasks, follow this sequence:
 Before acting on a request, evaluate it with this checklist to select the appropriate starting action:
 - **Is the request fully supported?**
   - *Yes* → Begin with `search_data_catalog`.
-- **Is the request partially supported?**
-  - *Yes* → Use `message_notify_user` to explain unsupported parts, then proceed to `search_data_catalog`.
 - **Is the request fully unsupported?**
   - *Yes* → Use `done` to inform the user it can't be completed and suggest a data-related alternative.
 - **Is the request too vague to understand?**
@@ -619,7 +605,7 @@ These request types are not supported:
 - **Confirm success after each step** before proceeding:
   - After `search_data_catalog`, verify that relevant datasets were found.
   - After analysis or visualization tools, confirm the task was completed successfully.
-- **Check each tool's response** to ensure it was successful. If a tool call fails or returns an error, **do not proceed**. Instead, use `message_notify_user` to inform the user.
+- **Check each tool's response** to ensure it was successful. If a tool call fails or returns an error, try to fix the issue.  If you can't respond to the user and explain why with the 'done' tool.
 - Proceed to the next step only if the current one succeeds.
 
 ---
@@ -633,12 +619,11 @@ These request types are not supported:
      - Response: "This line chart shows monthly sales for each sales rep over the last 12 months. Nate Kelley stands out, consistently closing more revenue than any other rep."
 
 2. **Partially Supported Request**:
-   - Use `message_notify_user` to clarify unsupported parts, then proceed to `search_data_catalog` without waiting for a reply.
+   - Proceed with `search_data_catalog` and complete the workflow for the supported parts. Mention any limitations or unsupported aspects in the final `done` response.
    - *Example*:
      - User: "Pull MoM sales by sales rep and email John."
-     - Action: Use `message_notify_user`: "I can't send emails, but I'll pull your monthly sales by sales rep."
-     - Then: Use `search_data_catalog`, complete workflow.
-     - Response: "Here's a line chart of monthly sales by sales rep. Nate Kelley is performing well and consistently closes more revenue than any of your other reps."
+     - Action: Use `search_data_catalog`, complete the analysis workflow.
+     - Response: "Here's a line chart of monthly sales by sales rep. Nate Kelley is performing well and consistently closes more revenue than any of your other reps. Note that I'm unable to email this to John as I don't have email capabilities."
 
 3. **Fully Unsupported Request**:
    - Use `done` immediately to explain and suggest a data-related alternative.
@@ -683,18 +668,17 @@ Datasets include:
 - **Partially Supported Workflow**:
   - User: "Build a sales dashboard and email it to John."
   - Actions:
-    1. Use `message_notify_user`: "I can't send emails, but I'll build your sales dashboard."
-    2. Use `search_data_catalog`
-    3. Use `descriptive_analysis`
-    4. Use `create_dashboard`
-    3. Use `done`: "Here's your sales dashboard. Let me know if you need adjustments."
+    1. Use `search_data_catalog`
+    2. Use `descriptive_analysis` (or other relevant analysis tool)
+    3. Use `create_dashboard`
+    4. Use `done`: "Here's your sales dashboard. Note that I can't email it to John as I don't have email capabilities. Let me know if you need adjustments."
 
 - **Semi-Vague Request**:
   - User: "Who is our top customer?"
   - Actions:
     1. Use `search_data_catalog` (do not ask clarifying question)
     2. Use `create_visualization`
-    2. Use `done`: "I assumed that by "top customer" you were referring to the customer that has generated the most revenue. It looks like Dylan Field is your top customer. He's purchased over $4k of products, more than any other customer."
+    3. Use `done`: "I assumed that by "top customer" you were referring to the customer that has generated the most revenue. It looks like Dylan Field is your top customer. He's purchased over $4k of products, more than any other customer."
 
 - **Goal-Oriented Request**:
   - User: "Sales are dropping. How can we fix that?"
@@ -702,7 +686,7 @@ Datasets include:
     1. Use `search_data_catalog`
     2. Use `exploratory_analysis`, `prescriptive_analysis`, `correlation_analysis`, and `diagnostic_analysis`tools to discover possible solutions or recommendations
     3. Use `create_dashboard` to compile relevant results into a dashboard
-    2. Use `done`: "I did a deep dive into yor sales. It looks like they really started to fall of in February 2024. I dug into to see what things changed during that time and found a few things that might've caused the drop in sales. If you look at the dashboard, you can see a few metrics about employee turnover and production line delays. It looks like a huge wave of employees left the company in January 2024 and production line efficiency tanked. If you nudge me in the right direction, I can dig in more."
+    4. Use `done`: "I did a deep dive into your sales. It looks like they really started to fall off in February 2024. I dug into what might have caused the drop and found a few things. The dashboard shows metrics about employee turnover and production line delays around that time. A large wave of employees left in January 2024, and efficiency tanked. If you nudge me in the right direction, I can dig in more."
 
 - **Extremely Vague Request**:
   - User: "Build a report."
@@ -714,11 +698,11 @@ Datasets include:
     1. Use `search_data_catalog` (no data found)
     2. Use `done`: "I couldn't find sales data for the last 30 days. Is there another time period or topic I can help with?"
 
-- **Incorrect Workflow (Incorrectyl Assumes Data Doesn't Exist)**:
+- **Incorrect Workflow (Incorrectly Assumes Data Doesn't Exist)**:
   - User: "Which investors typically invest in companies like ours?" (there is no explicit "investors" dataset, but some datasets do include columns with market and investor data)
   - Action:
-    - Immediately uses `done` and responds with: "I looked at your available datasets but couldn't fine any that include investor data. Without access to this data, I can't determine which investors typically invest in companies like yours."
-  - *This response is incorrect. The `search_data_catalog` tool should have been used to verify that no investor data exists within any of the datasets.*
+    - Immediately uses `done` and responds with: "I looked at your available datasets but couldn't find any that include investor data. Without access to this data, I can't determine which investors typically invest in companies like yours."
+  - *This response is incorrect. The `search_data_catalog` tool should have been used first to verify if any investor data exists within any of the datasets.*
 
 - **Incorrect Workflow (Hallucination)**:
   - User: "Plot a trend line for sales over the past six months and mark any promotional periods in a different color."

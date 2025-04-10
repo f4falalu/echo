@@ -36,9 +36,9 @@ impl StreamingParser {
     // Process chunks meant for plan creation
     pub fn process_plan_chunk(
         &mut self,
-        id: String,
+        _id: String,
         chunk: &str,
-    ) -> Result<Option<BusterReasoningMessage>> {
+    ) -> Option<String> {
         // Clear buffer and add new chunk
         self.clear_buffer();
         self.buffer.push_str(chunk);
@@ -50,48 +50,34 @@ impl StreamingParser {
         if let Ok(value) = serde_json::from_str::<Value>(&processed_json) {
             // Check if it's a plan structure (has 'plan' key)
             if let Some(plan_content) = value.get("plan").and_then(Value::as_str) {
-                // Return the plan as a BusterReasoningText
-                return Ok(Some(BusterReasoningMessage::Text(BusterReasoningText {
-                    id,
-                    reasoning_type: "text".to_string(),
-                    title: "Creating Plan".to_string(),
-                    secondary_title: String::from(""),
-                    message: None,
-                    message_chunk: Some(plan_content.to_string()),
-                    status: Some("loading".to_string()),
-                })));
+                // Return the extracted plan string
+                return Some(plan_content.to_string());
             }
         }
 
-        Ok(None)
+        None
     }
 
     // Process chunks meant for search data catalog
     pub fn process_search_data_catalog_chunk(
         &mut self,
-        id: String,
+        _id: String,
         chunk: &str,
-    ) -> Result<Option<BusterReasoningMessage>> {
+    ) -> Option<Value> {
         self.clear_buffer();
         self.buffer.push_str(chunk);
 
-        // Check if the chunk indicates the start of the queries array
-        // We don't need to fully parse, just detect the intent to search.
-        if self.buffer.contains("\"queries\":") {
-            // Return a generic "Searching..." message
-            return Ok(Some(BusterReasoningMessage::Text(BusterReasoningText {
-                id,
-                reasoning_type: "text".to_string(),
-                title: "Searching your data catalog...".to_string(),
-                secondary_title: String::new(), // No secondary title needed during streaming
-                message: None,
-                message_chunk: None, // Don't show partial queries
-                status: Some("loading".to_string()),
-            })));
+        let processed_json = self.complete_json_structure(self.buffer.clone());
+
+        // Try to parse arguments, return Some(Value) if successful and looks like search args
+        if let Ok(value) = serde_json::from_str::<Value>(&processed_json) {
+             if value.get("queries").is_some() {
+                 return Some(value);
+             }
         }
 
         // If the start of queries is not detected, return None
-        Ok(None)
+        None
     }
 
     // Process chunks meant for metric files
@@ -298,5 +284,31 @@ impl StreamingParser {
             }
         }
         Ok(None)
+    }
+
+    // Process chunks meant for specific response tools like done, message_notify_user, etc.
+    pub fn process_response_tool_chunk(
+        &mut self,
+        chunk: &str,
+        argument_key: &str, // e.g., "text" or "final_response"
+    ) -> Option<String> {
+        // Clear buffer and add new chunk
+        self.clear_buffer();
+        self.buffer.push_str(chunk);
+
+        // Complete any incomplete JSON structure
+        let processed_json = self.complete_json_structure(self.buffer.clone());
+
+        // Try to parse the JSON
+        if let Ok(value) = serde_json::from_str::<Value>(&processed_json) {
+            // Check if it's an object and has the specified argument key
+            if let Some(text_content) = value.get(argument_key).and_then(Value::as_str) {
+                // Return the extracted text content
+                return Some(text_content.to_string());
+            }
+        }
+
+        // If parsing fails or structure doesn't match, return None
+        None
     }
 }
