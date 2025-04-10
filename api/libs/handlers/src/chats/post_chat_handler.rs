@@ -11,7 +11,7 @@ use agents::{
         },
         planning_tools::CreatePlanOutput,
     },
-    AgentExt, AgentMessage, AgentThread, BusterSuperAgent,
+    AgentExt, AgentMessage, AgentThread, BusterMultiAgent,
 };
 
 use anyhow::{anyhow, Result};
@@ -337,7 +337,9 @@ pub async fn post_chat_handler(
     }
 
     let mut initial_messages = vec![];
-    let agent = BusterSuperAgent::new(user.id, chat_id).await?;
+    // Determine if this is a follow-up message based on chat_id presence
+    let is_follow_up = request.chat_id.is_some();
+    let agent = BusterMultiAgent::new(user.id, chat_id, is_follow_up).await?;
 
     // Load context if provided (combines both legacy and new asset references)
     if let Some(existing_chat_id) = request.chat_id {

@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::env;
 use std::sync::Arc;
+use std::time::Instant;
 
 use crate::{agent::Agent, tools::ToolExecutor};
 
@@ -39,6 +40,7 @@ impl ToolExecutor for CreatePlan {
     }
 
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
+        let start_time = Instant::now();
         self.agent
             .set_state_value(String::from("plan_available"), Value::Bool(true))
             .await;
@@ -47,10 +49,6 @@ impl ToolExecutor for CreatePlan {
             message: "Plan created successfully".to_string(),
             plan_markdown: params.plan_markdown,
         })
-    }
-
-    async fn is_enabled(&self) -> bool {
-        self.agent.get_state_value("data_context").await.is_some()
     }
 
     async fn get_schema(&self) -> Value {

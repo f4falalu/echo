@@ -1,17 +1,49 @@
 use anyhow::Result;
-use std::{collections::HashMap, env, sync::Arc};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::{collections::HashMap, sync::Arc};
 use tokio::sync::broadcast;
-use uuid::Uuid;
+use uuid::Uuid; // Add for Value
 
 use crate::{
     agent::{Agent, AgentError, AgentExt},
     models::AgentThread,
-    tools::{ // Import the CLI tools
-        EditFileContentTool, FindFilesGlobTool, ListDirectoryTool, ReadFileContentTool, RunBashCommandTool, SearchFileContentGrepTool, WriteFileContentTool
-    }, ToolExecutor,
+    tools::{
+        // Import necessary tools
+        categories::cli_tools::{
+            // Import CLI tools using correct struct names from mod.rs
+            EditFileContentTool,       // Use correct export
+            FindFilesGlobTool,         // Use correct export
+            ListDirectoryTool,         // Use correct export
+            ReadFileContentTool,       // Use correct export
+            RunBashCommandTool,        // Use correct export
+            SearchFileContentGrepTool, // Use correct export
+            WriteFileContentTool,      // Use correct export
+        },
+        IntoToolCallExecutor,
+        ToolExecutor,
+    },
 };
 
 use litellm::AgentMessage;
+
+// Type alias for the enablement condition closure
+type EnablementCondition = Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BusterCliAgentOutput {
+    pub message: String,
+    pub duration: i64,
+    pub thread_id: Uuid,
+    pub messages: Vec<AgentMessage>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct BusterCliAgentInput {
+    pub prompt: String,
+    pub thread_id: Option<Uuid>,
+    pub message_id: Option<Uuid>,
+}
 
 #[derive(Clone)]
 pub struct BusterCliAgent {
@@ -26,42 +58,85 @@ impl AgentExt for BusterCliAgent {
 
 impl BusterCliAgent {
     async fn load_tools(&self) -> Result<()> {
-        // Create tools using the shared Arc
+        // Create tools using the shared Arc and correct struct names
         let bash_tool = RunBashCommandTool::new(Arc::clone(&self.agent));
+        let edit_file_tool = EditFileContentTool::new(Arc::clone(&self.agent));
         let glob_tool = FindFilesGlobTool::new(Arc::clone(&self.agent));
         let grep_tool = SearchFileContentGrepTool::new(Arc::clone(&self.agent));
         let ls_tool = ListDirectoryTool::new(Arc::clone(&self.agent));
-        let read_tool = ReadFileContentTool::new(Arc::clone(&self.agent));
-        let edit_tool = EditFileContentTool::new(Arc::clone(&self.agent));
-        let write_tool = WriteFileContentTool::new(Arc::clone(&self.agent));
+        let read_file_tool = ReadFileContentTool::new(Arc::clone(&self.agent));
+        let write_file_tool = WriteFileContentTool::new(Arc::clone(&self.agent));
 
-        // Add tools to the agent
-        self.agent.add_tool(bash_tool.get_name(), bash_tool).await;
-        self.agent.add_tool(glob_tool.get_name(), glob_tool).await;
-        self.agent.add_tool(grep_tool.get_name(), grep_tool).await;
-        self.agent.add_tool(ls_tool.get_name(), ls_tool).await;
-        self.agent.add_tool(read_tool.get_name(), read_tool).await;
-        self.agent.add_tool(edit_tool.get_name(), edit_tool).await;
-        self.agent.add_tool(write_tool.get_name(), write_tool).await;
+        // Add tools - Pass None directly since these tools are always enabled
+        self.agent
+            .add_tool(
+                bash_tool.get_name(),
+                bash_tool.into_tool_call_executor(),
+                None::<EnablementCondition>,
+            )
+            .await;
+        self.agent
+            .add_tool(
+                edit_file_tool.get_name(),
+                edit_file_tool.into_tool_call_executor(),
+                None::<EnablementCondition>,
+            )
+            .await;
+        self.agent
+            .add_tool(
+                glob_tool.get_name(),
+                glob_tool.into_tool_call_executor(),
+                None::<EnablementCondition>,
+            )
+            .await;
+        self.agent
+            .add_tool(
+                grep_tool.get_name(),
+                grep_tool.into_tool_call_executor(),
+                None::<EnablementCondition>,
+            )
+            .await;
+        self.agent
+            .add_tool(
+                ls_tool.get_name(),
+                ls_tool.into_tool_call_executor(),
+                None::<EnablementCondition>,
+            )
+            .await;
+        self.agent
+            .add_tool(
+                read_file_tool.get_name(),
+                read_file_tool.into_tool_call_executor(),
+                None::<EnablementCondition>,
+            )
+            .await;
+        self.agent
+            .add_tool(
+                write_file_tool.get_name(),
+                write_file_tool.into_tool_call_executor(),
+                None::<EnablementCondition>,
+            )
+            .await;
 
         Ok(())
     }
 
     pub async fn new(
-        user_id: Uuid, 
-        session_id: Uuid, 
-        api_key: Option<String>, // Add parameter
-        base_url: Option<String> // Add parameter
+        user_id: Uuid,
+        session_id: Uuid,
+        api_key: Option<String>,  // Add parameter
+        base_url: Option<String>, // Add parameter
+        cwd: Option<String>,      // Add parameter
     ) -> Result<Self> {
         // Create agent with o3-mini model and empty tools map initially
         let agent = Arc::new(Agent::new(
             "o3-mini".to_string(), // Use o3-mini as requested
-            HashMap::new(),
             user_id,
             session_id,
             "buster_cli_agent".to_string(),
-            api_key, // Pass through
-            base_url // Pass through
+            api_key,  // Pass through
+            base_url, // Pass through
+            get_system_message(&cwd.unwrap_or_else(|| ".".to_string())),
         ));
 
         let cli_agent = Self { agent };
@@ -69,19 +144,30 @@ impl BusterCliAgent {
         Ok(cli_agent)
     }
 
-    // Optional: Add from_existing if needed later, similar to BusterSuperAgent
-    // pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> { ... }
+    pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
+        let agent = Arc::new(Agent::from_existing(
+            existing_agent,
+            "buster_cli_agent".to_string(),
+            "You are a helpful CLI assistant. Use the available tools to interact with the file system and execute commands.".to_string()
+        ));
+        let manager = Self { agent };
+        manager.load_tools().await?; // Load tools with None condition
+        Ok(manager)
+    }
 
     pub async fn run(
         &self,
         thread: &mut AgentThread,
-        cwd: &str, // Accept current working directory
+        initialization_prompt: Option<String>, // Allow optional prompt
     ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
-        thread.set_developer_message(get_system_message(cwd)); // Pass cwd to system message
+        if let Some(prompt) = initialization_prompt {
+            thread.set_developer_message(prompt);
+        } else {
+            // Maybe set a default CLI prompt?
+            thread.set_developer_message("You are a helpful CLI assistant. Use the available tools to interact with the file system and execute commands.".to_string());
+        }
 
-        // Get shutdown receiver and start processing
         let rx = self.stream_process_thread(thread).await?;
-
         Ok(rx)
     }
 
@@ -95,7 +181,8 @@ impl BusterCliAgent {
 fn get_system_message(cwd: &str) -> String {
     // Simple fallback if Braintrust isn't configured
     // Consider adding Braintrust support similar to BusterSuperAgent if needed
-    format!(r#"
+    format!(
+        r#"
 ### Role & Task
 You are Buster CLI, a helpful AI assistant operating directly in the user's command line environment.
 Your primary goal is to assist the user with file system operations, file content manipulation, and executing shell commands based on their requests.
@@ -120,5 +207,7 @@ The user is currently operating in the following directory: `{}`
 3.  **File Paths:** Assume relative paths are based on the user's *Current Working Directory* unless the user provides an absolute path.
 4.  **Conciseness:** Provide responses suitable for a terminal interface. Use markdown for code blocks when showing file content or commands.
 5.  **No Assumptions:** Don't assume files or directories exist unless you've verified with `list_directory` or `find_files_glob`.
-"#, cwd)
-} 
+"#,
+        cwd
+    )
+}
