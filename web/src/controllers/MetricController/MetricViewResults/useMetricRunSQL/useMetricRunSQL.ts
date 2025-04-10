@@ -13,7 +13,6 @@ import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useGetMetricMemoized } from '@/context/Metrics';
-import { createDefaultChartConfig } from '@/lib/metrics/messageAutoChartHandler';
 import { timeout } from '@/lib';
 
 export const useMetricRunSQL = () => {
@@ -197,16 +196,12 @@ export const useMetricRunSQL = () => {
         });
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.metricsGetMetric(metricId).queryKey
-      });
-
       setTimeout(() => {
         openSuccessNotification({
           title: 'SQL Saved',
           message: 'Your changes have been saved.'
         });
-      }, 120);
+      }, 50);
 
       originalConfigs.current = null;
     }
