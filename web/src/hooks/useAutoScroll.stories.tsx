@@ -224,7 +224,7 @@ export const ScrollAreaComponentWithAutoScroll: Story = {
         }
         setIsAutoAddEnabled(false);
       } else {
-        intervalRef.current = setInterval(addCard, 2000);
+        intervalRef.current = setInterval(addCard, 1000);
         setIsAutoAddEnabled(true);
         enableAutoScroll(); // Enable auto-scroll when auto-adding cards
       }

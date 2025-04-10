@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import debounce from 'lodash/debounce';
 
+/**
+ * Options for configuring the auto-scroll behavior
+ */
 interface UseAutoScrollOptions {
   /** Debounce delay in milliseconds for scroll events */
   debounceDelay?: number;
@@ -8,10 +11,13 @@ interface UseAutoScrollOptions {
   scrollBehavior?: ScrollBehavior;
   /** Whether the auto-scroll functionality is enabled */
   enabled?: boolean;
-  /** Whether to observe deep changes */
+  /** Whether to observe deep changes in the DOM tree */
   observeDeepChanges?: boolean;
 }
 
+/**
+ * Return type for the useAutoScroll hook
+ */
 interface UseAutoScrollReturn {
   /** Whether auto-scrolling is currently enabled */
   isAutoScrollEnabled: boolean;
@@ -21,18 +27,47 @@ interface UseAutoScrollReturn {
   scrollToTop: (behavior?: ScrollBehavior) => void;
   /** Manually scroll to a specific node */
   scrollToNode: (node: HTMLElement, behavior?: ScrollBehavior) => void;
-
   /** Enable auto-scrolling */
   enableAutoScroll: () => void;
   /** Disable auto-scrolling */
   disableAutoScroll: () => void;
 }
 
+/**
+ * Checks if the scrollable element is at the bottom within a given threshold
+ * @param element - The HTML element to check
+ * @param threshold - The pixel threshold to consider as "at bottom"
+ * @returns boolean indicating if the element is scrolled to the bottom
+ */
 const isAtBottom = (element: HTMLElement, threshold = 30) => {
   const { scrollHeight, scrollTop, clientHeight } = element;
   return scrollHeight - (scrollTop + clientHeight) <= threshold;
 };
 
+/**
+ * A React hook that provides auto-scrolling functionality for a container element.
+ * It automatically scrolls to the bottom when new content is added and provides
+ * manual scroll controls.
+ *
+ * @param containerRef - React ref object pointing to the scrollable container element
+ * @param options - Configuration options for the auto-scroll behavior
+ *
+ * @example
+ * ```tsx
+ * const containerRef = useRef<HTMLDivElement>(null);
+ * const {
+ *   isAutoScrollEnabled,
+ *   scrollToBottom,
+ *   enableAutoScroll,
+ *   disableAutoScroll
+ * } = useAutoScroll(containerRef, {
+ *   debounceDelay: 150,
+ *   scrollBehavior: 'smooth'
+ * });
+ * ```
+ *
+ * @returns An object containing the auto-scroll state and control functions
+ */
 export const useAutoScroll = (
   containerRef: React.RefObject<HTMLElement>,
   options: UseAutoScrollOptions = {}
@@ -44,10 +79,15 @@ export const useAutoScroll = (
     observeDeepChanges = true
   } = options;
 
+  /** Current state of auto-scroll functionality */
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(enabled);
+  /** Tracks if the container was at the bottom during the last scroll event */
   const wasAtBottom = useRef(true);
+  /** Tracks if a scroll operation is currently in progress */
   const isScrollingRef = useRef(false);
+  /** Reference for the mutation observer's debounced callback */
   const mutationDebounceRef = useRef<number>();
+  /** Flag to indicate if a scroll is being forced programmatically */
   const forceScrollRef = useRef(false);
 
   // Update isAutoScrollEnabled when enabled prop changes
@@ -55,6 +95,10 @@ export const useAutoScroll = (
     setIsAutoScrollEnabled(enabled);
   }, [enabled]);
 
+  /**
+   * Scrolls the container to the bottom
+   * @param behavior - The scroll behavior to use ('auto', 'smooth', or 'instant')
+   */
   const scrollToBottom = useCallback(
     (behavior: ScrollBehavior = scrollBehavior) => {
       if (!containerRef.current) return;
@@ -92,6 +136,10 @@ export const useAutoScroll = (
     [containerRef, scrollBehavior, enabled]
   );
 
+  /**
+   * Scrolls the container to the top
+   * @param behavior - The scroll behavior to use ('auto', 'smooth', or 'instant')
+   */
   const scrollToTop = useCallback(
     (behavior: ScrollBehavior = scrollBehavior) => {
       if (!containerRef.current) return;
@@ -104,6 +152,11 @@ export const useAutoScroll = (
     [containerRef, scrollBehavior]
   );
 
+  /**
+   * Scrolls the container to bring a specific node into view
+   * @param node - The HTML element to scroll into view
+   * @param behavior - The scroll behavior to use ('auto', 'smooth', or 'instant')
+   */
   const scrollToNode = useCallback(
     (node: HTMLElement, behavior: ScrollBehavior = scrollBehavior) => {
       if (!containerRef.current || !node) return;
@@ -152,7 +205,9 @@ export const useAutoScroll = (
     [containerRef, scrollBehavior, enabled]
   );
 
-  // Debounced scroll handler
+  /**
+   * Debounced scroll event handler that manages auto-scroll state based on scroll position
+   */
   const handleScrollThrottled = useCallback(
     debounce(() => {
       if (!containerRef.current || forceScrollRef.current || !enabled) return;
@@ -173,7 +228,9 @@ export const useAutoScroll = (
     [containerRef, enabled]
   );
 
-  // Immediate scroll handler that calls the debounced version
+  /**
+   * Immediate scroll handler that triggers the debounced version
+   */
   const handleScroll = useCallback(() => {
     if (forceScrollRef.current || !enabled) return;
 
@@ -234,12 +291,18 @@ export const useAutoScroll = (
     };
   }, [containerRef, handleScroll, handleScrollThrottled, enabled]);
 
+  /**
+   * Enables auto-scroll functionality and immediately scrolls to bottom
+   */
   const enableAutoScroll = useCallback(() => {
     if (!enabled) return;
     setIsAutoScrollEnabled(true);
     scrollToBottom();
   }, [scrollToBottom, enabled]);
 
+  /**
+   * Disables auto-scroll functionality
+   */
   const disableAutoScroll = useCallback(() => {
     setIsAutoScrollEnabled(false);
   }, []);
