@@ -11,7 +11,7 @@ path = "src/lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.71"
+anyhow = { workspace = true }
 async-trait = "0.1.77"
 clap = { workspace = true, features = ["derive", "env"] }
 confy = { workspace = true }
@@ -28,13 +28,13 @@ rpassword = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
-strip-ansi-escapes = "0.2"
+strip-ansi-escapes = "0.2.0"
 tempfile = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "sync", "time"] }
 tokio-util = { workspace = true, features = ["io"] }
 futures-util = { workspace = true }
-uuid = { version = "1.4.1", features = ["v4", "serde"] }
+uuid = { workspace = true }
 colored = { workspace = true }
 rustls = { workspace = true, features = ["tls12"] }
 url = { workspace = true }
@@ -47,7 +47,10 @@ query_engine = { workspace = true }
 
 litellm = { path = "../../api/libs/litellm" }
 
-rustyline = "15.0"
+rustyline = { workspace = true }
+
+# Add the agents crate
+agents = { path = "../../api/libs/agents" }
 
 [profile.dev]
 # Increase parallel code generation units for faster debug builds

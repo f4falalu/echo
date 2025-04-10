@@ -2,17 +2,19 @@ use super::args::ChatArgs;
 use super::config::{get_config_path, load_chat_config, save_chat_config, ChatConfig};
 use anyhow::Result;
 use colored::*;
-use indicatif::{ProgressBar, ProgressStyle}; // Indicatif for spinner
-use litellm::{AgentMessage, ChatCompletionRequest, LiteLLMClient, MessageProgress, Metadata};
+use litellm::{AgentMessage, MessageProgress, ToolCall};
 use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
 use std::env;
 use std::io::{self, Stdout};
 use std::time::Instant;
-use strip_ansi_escapes::strip; // Add this import near other imports
+use strip_ansi_escapes::strip;
 use thiserror::Error;
+use tokio::sync::broadcast;
 use uuid::Uuid;
-use tokio::sync::mpsc; // Import mpsc for channels
+
+// --- Agent Imports ---
+use agents::{AgentError, AgentExt, AgentThread, BusterCliAgent};
 
 // Ratatui / Crossterm related imports
 use crossterm::{
@@ -24,7 +26,7 @@ use ratatui::{
     prelude::*,
     style::{Color, Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, Paragraph, Wrap},
+    widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
 };
 
 #[derive(Error, Debug)]
@@ -37,184 +39,253 @@ pub enum ChatError {
     ApiError(String),
     #[error("Configuration error: {0}")]
     ConfigError(String),
+    #[error("Agent processing error: {0}")]
+    AgentError(String),
 }
 
 const DEFAULT_OPENAI_BASE_URL: &str = "https://api.openai.com/v1";
 
-// Function to get API credentials, now accepting args
-fn get_api_credentials(args: &ChatArgs) -> Result<(String, String), ChatError> {
-    // 0. Try loading from config file first
-    if let Ok(config) = load_chat_config() {
-        if let (Some(base), Some(key)) = (config.base_url, config.api_key) {
-            if !base.is_empty() && !key.is_empty() {
-                return Ok((base, key));
-            }
-        }
-    }
-
-    // 1. Prioritize arguments
-    if let (Some(base), Some(key)) = (&args.base_url, &args.api_key) {
-        println!("Using API credentials from command-line arguments.");
-        return Ok((base.clone(), key.clone()));
-    }
-    // Handle cases where only one arg is provided (maybe combine with env later?)
-    else if let Some(base) = &args.base_url {
-        if let Some(key) = env::var("OPENAI_API_KEY").ok() {
-            println!("Using base URL from argument and API key from environment.");
-            return Ok((base.clone(), key));
-        }
-        // Fall through to prompt if key is missing
-    } else if let Some(key) = &args.api_key {
-        if let Some(base) = env::var("OPENAI_API_BASE").ok() {
-            println!("Using API key from argument and base URL from environment.");
-            return Ok((base, key.clone()));
-        } else {
-            println!("Using API key from argument and default base URL.");
-            return Ok((DEFAULT_OPENAI_BASE_URL.to_string(), key.clone()));
-        }
-    }
-
-    // 2. Check environment variables if args are not fully provided
-    let api_key_env = env::var("OPENAI_API_KEY");
-    let base_url_env = env::var("OPENAI_API_BASE");
-
-    match (api_key_env, base_url_env) {
-        (Ok(key), Ok(base)) => {
-            println!("Using OpenAI credentials from environment variables.");
-            Ok((base, key))
-        }
-        (Ok(key), Err(_)) => {
-            println!("Using OPENAI_API_KEY from environment variable and default base URL.");
-            Ok((DEFAULT_OPENAI_BASE_URL.to_string(), key))
-        }
-        _ => {
-            // 3. Prompt user if credentials not found in args or env
-            println!("API credentials not found in arguments or environment. Prompting for input.");
-            let mut rl =
-                DefaultEditor::new().map_err(|e| ChatError::InitializationError(e.to_string()))?;
-
-            let base_url = rl
-                .readline_with_initial(
-                    &format!(
-                        "Enter API Base URL (default: {}): ",
-                        DEFAULT_OPENAI_BASE_URL
-                    ),
-                    (DEFAULT_OPENAI_BASE_URL, ""),
-                )
-                .map_err(|e| ChatError::InputError(e.to_string()))?;
-            let base_url = if base_url.trim().is_empty() {
-                DEFAULT_OPENAI_BASE_URL
-            } else {
-                &base_url
-            };
-
-            let api_key = rl
-                .readline("Enter API Key (leave blank if none): ")
-                .map_err(|e| ChatError::InputError(e.to_string()))?;
-
-            Ok((base_url.trim().to_string(), api_key.trim().to_string()))
-        }
-    }
-}
-
-// Function to handle the /config command
-async fn handle_config_command(rl: &mut DefaultEditor) -> Result<()> {
-    println!("Entering configuration mode...");
-
-    let base_url = rl
-        .readline(&format!(
-            "Enter new API Base URL (default: {}): ",
-            DEFAULT_OPENAI_BASE_URL
-        ))
-        .map_err(|e| ChatError::InputError(e.to_string()))?;
-    let base_url = if base_url.trim().is_empty() {
-        DEFAULT_OPENAI_BASE_URL.to_string()
-    } else {
-        base_url.trim().to_string()
-    };
-
-    let api_key = rl
-        .readline("Enter new API Key (leave blank if none): ")
-        .map_err(|e| ChatError::InputError(e.to_string()))?;
-
-    let new_config = ChatConfig {
-        base_url: Some(base_url),
-        api_key: Some(api_key.trim().to_string()),
-    };
-
-    save_chat_config(&new_config)?;
-
-    match get_config_path() {
-        Ok(path) => println!("Configuration saved successfully to: {}", path.display()),
-        Err(_) => println!("Configuration saved successfully."), // Fallback message
-    }
-
-    println!("Restart the chat for the new configuration to take effect.");
-    Ok(())
-}
-
-// --- Application Event Enum (for channel communication) ---
-#[derive(Debug)]
-enum AppEvent {
-    // Represents the result of the API call
-    ApiResponse(Result<AgentMessage, String>), 
-}
-
 // --- Ratatui Application State ---
+#[derive(Debug, Clone)]
+struct ActiveToolCall {
+    id: String,
+    name: String,
+    status: String,
+    content: Option<String>,
+}
+
 struct AppState {
     input: String,
     messages: Vec<AgentMessage>,
     scroll_offset: u16,
-    is_loading: bool,
     should_quit: bool,
-    loading_start_time: Option<Instant>, // Add field to track loading start
+    active_tool_calls: Vec<ActiveToolCall>,
+    current_error: Option<String>,
+    agent_thread: AgentThread,
+    is_agent_processing: bool,
 }
 
 impl AppState {
-    fn new() -> Self {
+    fn new(user_id: Uuid, session_id: Uuid) -> Self {
         AppState {
             input: String::new(),
-            messages: vec![
-                // Remove initial hardcoded messages
-            ],
+            messages: vec![],
             scroll_offset: 0,
-            is_loading: false,
             should_quit: false,
-            loading_start_time: None, // Initialize as None
+            active_tool_calls: Vec::new(),
+            current_error: None,
+            agent_thread: AgentThread::new(Some(session_id), user_id, vec![]),
+            is_agent_processing: false,
         }
     }
 
     fn submit_message(&mut self) {
-        if !self.input.is_empty() && !self.is_loading {
-            let user_message = AgentMessage::User {
-                id: None,
-                name: None,
-                content: self.input.clone(),
-            };
-            self.messages.push(user_message);
+        if !self.input.is_empty() && !self.is_agent_processing && self.active_tool_calls.is_empty()
+        {
+            let user_message = AgentMessage::user(self.input.clone());
+            self.messages.push(user_message.clone());
+            self.agent_thread.messages.push(user_message);
+
             self.input.clear();
             self.scroll_offset = 0;
-            self.is_loading = true; // Set loading state
-            self.loading_start_time = Some(Instant::now()); // Record start time
+            self.is_agent_processing = true;
+            self.current_error = None;
         }
     }
 
-    fn add_response(&mut self, response: Result<AgentMessage, String>) {
-        let message_to_add = match response {
-            Ok(assistant_message) => assistant_message,
-            Err(e) => AgentMessage::Assistant { // Create an error message
-                id: None,
-                content: Some(format!("Error: {}", e)),
-                name: None,
-                tool_calls: None,
-                progress: MessageProgress::Complete,
-                initial: false,
-            },
-        };
-        self.messages.push(message_to_add);
-        self.scroll_offset = 0; // Reset scroll on new message
-        self.is_loading = false; // Clear loading state
-        self.loading_start_time = None; // Clear start time
+    fn process_agent_message(&mut self, msg_result: Result<AgentMessage, AgentError>) {
+        match msg_result {
+            Ok(msg) => {
+                self.current_error = None;
+                match msg {
+                    AgentMessage::Assistant {
+                        id,
+                        content,
+                        tool_calls,
+                        progress,
+                        initial,
+                        name,
+                    } => {
+                        self.handle_assistant_message(
+                            id, content, tool_calls, progress, Some(initial), name, 
+                        );
+                    }
+                    AgentMessage::Tool {
+                        id,
+                        name: tool_name,
+                        content,
+                        tool_call_id,
+                        progress,
+                    } => {
+                        self.handle_tool_message(id, content, tool_call_id, tool_name, progress);
+                    }
+                    AgentMessage::Done => {
+                        self.is_agent_processing = false;
+                        self.active_tool_calls.clear();
+                    }
+                    AgentMessage::User { .. } | AgentMessage::Developer { .. } => {}
+                }
+            }
+            Err(e) => {
+                self.current_error = Some(format!("Agent Error: {}", e.0));
+                self.is_agent_processing = false;
+                self.active_tool_calls.clear();
+                self.messages.push(AgentMessage::Assistant {
+                    id: None,
+                    content: Some(format!("Error: {}", e.0)),
+                    name: Some("System".to_string()),
+                    tool_calls: None,
+                    progress: MessageProgress::Complete,
+                    initial: false,
+                });
+            }
+        }
+        self.scroll_offset = 0;
+    }
+
+    fn handle_assistant_message(
+        &mut self,
+        _id: Option<String>,
+        content: Option<String>,
+        tool_calls: Option<Vec<ToolCall>>,
+        progress: MessageProgress,
+        initial: Option<bool>,
+        name: Option<String>,
+    ) {
+        let agent_name = name.unwrap_or_else(|| "Assistant".to_string());
+        match progress {
+            MessageProgress::InProgress => {
+                self.is_agent_processing = true;
+                if let Some(calls) = &tool_calls {
+                    self.active_tool_calls = calls
+                        .iter()
+                        .map(|tc| ActiveToolCall {
+                            id: tc.id.clone(),
+                            name: tc.function.name.clone(),
+                            status: "Starting".to_string(),
+                            content: None,
+                        })
+                        .collect();
+                }
+                if let Some(AgentMessage::Assistant {
+                    content: existing_content,
+                    progress: existing_progress,
+                    ..
+                }) = self.messages.last_mut()
+                {
+                    if *existing_progress == MessageProgress::InProgress {
+                        if let Some(new_content) = content {
+                            *existing_content = Some(new_content);
+                        }
+                    } else {
+                        self.messages.push(AgentMessage::Assistant {
+                            id: _id,
+                            content,
+                            tool_calls,
+                            progress,
+                            initial: false,
+                            name: Some(agent_name),
+                        });
+                    }
+                } else {
+                    self.messages.push(AgentMessage::Assistant {
+                        id: _id,
+                        content,
+                        tool_calls,
+                        progress,
+                        initial: false,
+                        name: Some(agent_name),
+                    });
+                }
+            }
+            MessageProgress::Complete => {
+                if tool_calls.is_none() {
+                    if let Some(AgentMessage::Assistant {
+                        progress: existing_progress,
+                        ..
+                    }) = self.messages.last_mut()
+                    {
+                        if *existing_progress == MessageProgress::InProgress {
+                            *self.messages.last_mut().unwrap() = AgentMessage::Assistant {
+                                id: _id,
+                                content,
+                                tool_calls,
+                                progress,
+                                initial: false,
+                                name: Some(agent_name),
+                            };
+                        } else {
+                            self.messages.push(AgentMessage::Assistant {
+                                id: _id,
+                                content,
+                                tool_calls,
+                                progress,
+                                initial: false,
+                                name: Some(agent_name),
+                            });
+                        }
+                    } else {
+                        self.messages.push(AgentMessage::Assistant {
+                            id: _id,
+                            content,
+                            tool_calls,
+                            progress,
+                            initial: false,
+                            name: Some(agent_name),
+                        });
+                    }
+                    self.is_agent_processing = false;
+                    self.active_tool_calls.clear();
+                } else {
+                    self.active_tool_calls = tool_calls
+                        .unwrap_or_default()
+                        .iter()
+                        .map(|tc| ActiveToolCall {
+                            id: tc.id.clone(),
+                            name: tc.function.name.clone(),
+                            status: "Pending Execution".to_string(),
+                            content: None,
+                        })
+                        .collect();
+                    self.is_agent_processing = true;
+                }
+            }
+        }
+    }
+
+    fn handle_tool_message(
+        &mut self,
+        _id: Option<String>,
+        content: String,
+        tool_call_id: String,
+        tool_name: Option<String>,
+        progress: MessageProgress,
+    ) {
+        let name = tool_name.unwrap_or_else(|| "Unknown Tool".to_string());
+        if let Some(tool) = self
+            .active_tool_calls
+            .iter_mut()
+            .find(|t| t.id == tool_call_id)
+        {
+            match progress {
+                MessageProgress::InProgress => {
+                    tool.status = "Running".to_string();
+                    tool.content = Some(content);
+                    self.is_agent_processing = true;
+                }
+                MessageProgress::Complete => {
+                    self.active_tool_calls.retain(|t| t.id != tool_call_id);
+                    if self.active_tool_calls.is_empty() {
+                        self.is_agent_processing = true;
+                    }
+                }
+            }
+        } else {
+            eprintln!(
+                "Warning: Received tool message for unknown or completed call ID: {}",
+                tool_call_id
+            );
+        }
     }
 
     fn scroll_up(&mut self) {
@@ -231,85 +302,102 @@ fn ui(frame: &mut Frame, app: &AppState, cwd: &str) {
     let main_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Min(1),    // Main content area (Messages OR Welcome/Tips)
-            Constraint::Length(3), // Input area (fixed height)
-            Constraint::Length(2), // Bottom spacer (Increased to 2)
+            Constraint::Min(1),
+            Constraint::Length(
+                if app.active_tool_calls.is_empty()
+                    && !app.is_agent_processing
+                    && app.current_error.is_none()
+                {
+                    0
+                } else {
+                    app.active_tool_calls.len() as u16 + 2
+                },
+            ),
+            Constraint::Length(3),
+            Constraint::Length(1),
         ])
         .split(frame.size());
 
-    // --- Main Content Area (Messages OR Welcome/Tips) --- (Uses main_chunks[0])
-    let has_assistant_message = app.messages.iter().any(|m| matches!(m, AgentMessage::Assistant { .. }));
-    let should_show_welcome = !has_assistant_message;
+    let has_any_message = !app.messages.is_empty();
 
-    if should_show_welcome {
-        // --- Render Welcome/Tips on startup ---
+    if !has_any_message {
         let welcome_tips_chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Length(4), // Welcome Box
-                Constraint::Length(5), // Tips Section
-                Constraint::Min(0),    // Spacer to fill rest of main_chunks[0]
+                Constraint::Length(4),
+                Constraint::Length(5),
+                Constraint::Min(0),
             ])
-            .split(main_chunks[0]); // Split the main content area
+            .split(main_chunks[0]);
 
-        // Welcome Box rendering (in welcome_tips_chunks[0])
-        let welcome_title = Span::styled("* Welcome to Buster Beta! *", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD));
-        let help_text = Line::from("  /help for help");
-        let cwd_text = Line::from(format!("  cwd: {}", cwd));
-        let welcome_text = vec![welcome_title.into(), help_text, cwd_text];
-        let welcome_box = Paragraph::new(welcome_text)
-            .block(Block::default().borders(Borders::ALL).border_style(Style::default().fg(Color::Rgb(255, 165, 0))))
-            .alignment(Alignment::Left)
-            .wrap(Wrap { trim: false });
+        let welcome_title = Span::styled(
+            "* Welcome to Buster CLI! *",
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        );
+        let cwd_text = Line::from(format!("  cwd: {}", cwd).fg(Color::DarkGray));
+        let welcome_text = vec![
+            welcome_title.into(),
+            Line::from(""),
+            Line::from("  Type your request and press Enter."),
+            cwd_text,
+        ];
+        let welcome_box = Paragraph::new(welcome_text).block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(Color::Rgb(255, 165, 0))),
+        );
         frame.render_widget(welcome_box, welcome_tips_chunks[0]);
 
-        // Tips Section rendering (in welcome_tips_chunks[1])
-        let tips_title = Line::from("Tips for getting started:");
-        let tip1 = Line::from("1. Run /init to create a BUSTER.md file with instructions for Buster");
-        let tip2 = Line::from("2. Use Buster to help with file analysis, editing, bash commands and git");
-        let tip3 = Line::from("3. Be as specific as you would with another engineer for the best results");
+        let tips_title = Line::from("Tips:");
+        let tip1 = Line::from("1. Ask questions about files (e.g., 'summarize README.md')");
+        let tip2 = Line::from("2. Ask to edit files (e.g., 'replace foo with bar in main.rs')");
+        let tip3 = Line::from("3. Run commands (e.g., 'run git status')");
         let tips_text = vec![Line::from(""), tips_title, tip1, tip2, tip3];
-        let tips_widget = Paragraph::new(tips_text)
-            .alignment(Alignment::Left)
-            .wrap(Wrap { trim: false });
+        let tips_widget = Paragraph::new(tips_text);
         frame.render_widget(tips_widget, welcome_tips_chunks[1]);
-
     } else {
-        // --- Render Message History --- (in main_chunks[0])
         let mut message_lines: Vec<Line> = Vec::new();
         for msg in app.messages.iter() {
             match msg {
                 AgentMessage::User { content, .. } => {
                     message_lines.push(Line::from(vec![
-                        Span::styled("> ", Style::default().fg(Color::DarkGray)),
-                        Span::styled(content, Style::default().fg(Color::DarkGray)),
+                        Span::styled("> ", Style::default().fg(Color::Green)),
+                        Span::styled(content, Style::default().fg(Color::White)),
                     ]));
                 }
                 AgentMessage::Assistant {
-                    content: Some(content),
+                    content,
+                    progress,
+                    tool_calls,
+                    name,
                     ..
                 } => {
-                    message_lines.push(Line::from("")); // BEFORE
-                    message_lines.push(Line::from(vec![
-                        Span::styled("• ", Style::default().fg(Color::White)),
-                        Span::styled(content, Style::default().fg(Color::White)),
-                    ]));
-                    message_lines.push(Line::from("")); // AFTER
+                    let is_in_progress = *progress == MessageProgress::InProgress;
+                    let prefix = Span::styled(
+                        format!(
+                            "{} {}: ",
+                            if is_in_progress { "…" } else { "•" },
+                            name.as_deref().unwrap_or("Assistant")
+                        ),
+                        Style::default()
+                            .fg(Color::Cyan)
+                            .add_modifier(Modifier::BOLD),
+                    );
+
+                    let mut lines_for_msg = vec![prefix];
+                    if let Some(c) = content {
+                        lines_for_msg.push(Span::styled(c, Style::default().fg(Color::White)));
+                    }
+
+                    message_lines.push(Line::from(lines_for_msg));
+
+                    if !is_in_progress {
+                        message_lines.push(Line::from(""));
+                    }
                 }
                 _ => {}
-            }
-        }
-
-        // Add loading indicator if necessary
-        if app.is_loading {
-            if let Some(start_time) = app.loading_start_time {
-                let elapsed = start_time.elapsed().as_secs();
-                message_lines.push(Line::from("")); // Space before loading
-                let loading_line = Line::from(Span::styled(
-                    format!("Thinking... {}s", elapsed),
-                    Style::default().fg(Color::Yellow),
-                ));
-                message_lines.push(loading_line);
             }
         }
 
@@ -324,180 +412,211 @@ fn ui(frame: &mut Frame, app: &AppState, cwd: &str) {
         frame.render_widget(messages_widget, main_chunks[0]);
     }
 
-    // --- Input Area --- (Uses main_chunks[1] now)
-    let input_display_text = format!("> {}", app.input);
-    let input_widget = Paragraph::new(input_display_text)
-        .block(Block::default().borders(Borders::ALL))
-        .wrap(Wrap { trim: false });
-    frame.render_widget(input_widget, main_chunks[1]);
+    if main_chunks[1].height > 0 {
+        let mut status_items: Vec<ListItem> = Vec::new();
 
-    // --- Cursor --- (Adjust chunk index)
-    if !app.is_loading {
-        frame.set_cursor(
-            main_chunks[1].x + app.input.chars().count() as u16 + 3,
-            main_chunks[1].y + 1,
-        )
+        for tool in &app.active_tool_calls {
+            let content_preview = tool.content.as_deref().unwrap_or("");
+            let display_content = if content_preview.len() > 50 {
+                format!("{}...", &content_preview[..50])
+            } else {
+                content_preview.to_string()
+            };
+            status_items.push(ListItem::new(Line::from(vec![
+                Span::styled("Tool: ", Style::default().fg(Color::Magenta)),
+                Span::styled(
+                    format!("{} ({})", tool.name, tool.status),
+                    Style::default().fg(Color::Yellow),
+                ),
+                Span::styled(
+                    format!(" {}", display_content),
+                    Style::default().fg(Color::DarkGray),
+                ),
+            ])));
+        }
+
+        if app.is_agent_processing && app.active_tool_calls.is_empty() {
+            status_items.push(ListItem::new(Line::from(Span::styled(
+                "Agent is thinking...",
+                Style::default().fg(Color::Yellow),
+            ))));
+        }
+
+        if let Some(err) = &app.current_error {
+            status_items.push(ListItem::new(Line::from(Span::styled(
+                err,
+                Style::default().fg(Color::Red),
+            ))));
+        }
+
+        if !status_items.is_empty() {
+            let status_list = List::new(status_items).block(
+                Block::default()
+                    .borders(Borders::TOP)
+                    .border_style(Style::default().fg(Color::DarkGray)),
+            );
+            frame.render_widget(status_list, main_chunks[1]);
+        }
+    }
+
+    let input_prefix = "> ";
+    let is_input_disabled = app.is_agent_processing || !app.active_tool_calls.is_empty();
+    let input_style = if is_input_disabled {
+        Style::default().fg(Color::DarkGray)
     } else {
-        frame.set_cursor(main_chunks[1].x + 3, main_chunks[1].y + 1)
+        Style::default().fg(Color::White)
+    };
+
+    let input_widget = Paragraph::new(Line::from(vec![
+        Span::styled(input_prefix, input_style),
+        Span::styled(&app.input, input_style),
+    ]))
+    .block(
+        Block::default()
+            .borders(Borders::ALL)
+            .border_style(input_style),
+    )
+    .wrap(Wrap { trim: false });
+    frame.render_widget(input_widget, main_chunks[2]);
+
+    if !is_input_disabled {
+        frame.set_cursor(
+            main_chunks[2].x + input_prefix.len() as u16 + app.input.chars().count() as u16,
+            main_chunks[2].y + 1,
+        )
     }
 }
 
-// --- Main Chat Execution Logic (Refactored for Ratatui) ---
+// --- Main Chat Execution Logic ---
 pub async fn run_chat(args: ChatArgs) -> Result<()> {
-    // --- Initial Setup (Credentials, etc. - Keep this part) ---
     let cwd = env::current_dir()
         .map(|p| p.display().to_string())
         .unwrap_or_else(|_| "<unknown>".to_string());
-    // cwd_clone no longer needed for ui
-    // let cwd_clone = cwd.clone(); 
 
-    // Get credentials (don't print welcome box here anymore)
-    let (base_url, api_key) = get_api_credentials(&args)?;
-    if base_url.is_empty() && api_key.is_empty() {
-        return Err(ChatError::ConfigError(
-            "API Base URL and API Key cannot both be empty.".into(),
-        )
-        .into());
-    }
-    
-    // --- Initialize Client and Session ID ---
-    let llm_client = LiteLLMClient::new(Some(api_key), Some(base_url));
-    let session_id = Uuid::new_v4().to_string(); 
+    let user_id = Uuid::new_v4();
+    let session_id = Uuid::new_v4();
+    let cli_agent = BusterCliAgent::new(user_id, session_id)
+        .await
+        .map_err(|e| ChatError::InitializationError(format!("Failed to create agent: {}", e)))?;
 
-    // --- Setup System Message (Use associated function and single format! string) ---
-    let system_message_content = format!(
-        // Combine into a single string literal
-        "You are a helpful assistant running in a command-line interface. The user is currently in the following directory: {}. Respond concisely and format responses appropriately for a terminal (e.g., use markdown for code).",
-        cwd // Pass cwd as argument to format!
-    );
-    let system_message = AgentMessage::developer(system_message_content);
-
-    // --- Setup Terminal ---
     enable_raw_mode()?;
     let mut stdout = io::stdout();
     execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    // --- Create App State (without system message) ---
-    let mut app_state = AppState::new();
+    let mut app_state = AppState::new(user_id, session_id);
 
-    // --- Create Communication Channel ---
-    let (tx, mut rx) = mpsc::unbounded_channel::<AppEvent>();
+    let mut agent_rx: Option<broadcast::Receiver<Result<AgentMessage, AgentError>>> = None;
 
-    // Ensure terminal cleanup even on panic
     let original_hook = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |panic_info| {
-        // Explicitly restore terminal before panicking
         let mut stdout = io::stdout();
         let _ = disable_raw_mode();
         let _ = execute!(stdout, LeaveAlternateScreen, DisableMouseCapture);
         original_hook(panic_info);
     }));
 
-    // Use a variable to store the result from within the loop
     let mut loop_result: Result<()> = Ok(());
-
-    // --- Initialize Tick Rate Variables --- 
-    let tick_rate = std::time::Duration::from_millis(100);
+    let tick_rate = std::time::Duration::from_millis(50);
     let mut last_tick = Instant::now();
 
     while !app_state.should_quit {
-        // Draw the UI - Pass cwd again
         if let Err(e) = terminal.draw(|f| ui(f, &app_state, &cwd)) {
-            loop_result = Err(e.into());
-            break; // Exit loop on draw error
+            loop_result =
+                Err(ChatError::InitializationError(format!("UI draw error: {}", e)).into());
+            break;
         }
 
-        // --- Handle App Events (from API tasks) ---
-        match rx.try_recv() {
-            Ok(AppEvent::ApiResponse(result)) => {
-                app_state.add_response(result);
-            }
-            Err(mpsc::error::TryRecvError::Empty) => { /* No message */ }
-            Err(mpsc::error::TryRecvError::Disconnected) => {
-                // Channel closed, should probably exit?
-                eprintln!("API communication channel closed unexpectedly.");
-                app_state.should_quit = true; // Exit if channel closes
+        if let Some(rx) = agent_rx.as_mut() {
+            match rx.try_recv() {
+                Ok(msg_result) => {
+                    app_state.process_agent_message(msg_result);
+                }
+                Err(broadcast::error::TryRecvError::Empty) => { /* No message */ }
+                Err(broadcast::error::TryRecvError::Closed) => {
+                    agent_rx = None;
+                    app_state.is_agent_processing = false;
+                    app_state.active_tool_calls.clear();
+                }
+                Err(broadcast::error::TryRecvError::Lagged(n)) => {
+                    eprintln!("Warning: Agent message receiver lagged by {} messages.", n);
+                }
             }
         }
-        
-        // --- Handle Terminal Input Events ---
+
         let timeout = tick_rate
             .checked_sub(last_tick.elapsed())
             .unwrap_or_else(|| std::time::Duration::from_secs(0));
 
         if crossterm::event::poll(timeout)? {
-             if let Event::Key(key) = event::read()? {
+            if let Event::Key(key) = event::read()? {
                 if key.kind == KeyEventKind::Press {
-                    // Prioritize Ctrl+C
-                    if key.modifiers.contains(event::KeyModifiers::CONTROL) && key.code == KeyCode::Char('c') {
+                    if key.modifiers.contains(event::KeyModifiers::CONTROL)
+                        && key.code == KeyCode::Char('c')
+                    {
                         app_state.should_quit = true;
                         continue;
                     }
-                    // Handle other keys
-                    match key.code {
-                        KeyCode::Enter => {
-                            if app_state.input == "/exit" {
-                                app_state.should_quit = true;
-                            } else if !app_state.input.is_empty() && !app_state.is_loading {
-                                // 1. Update state to indicate loading
-                                app_state.submit_message(); 
-                                
-                                // 2. Clone necessary data for the task
-                                let messages_history = app_state.messages.clone();
-                                let task_system_message = system_message.clone();
-                                let task_llm_client = llm_client.clone();
-                                let task_session_id = session_id.clone();
-                                let task_tx = tx.clone();
+                    if key.code == KeyCode::Esc {
+                        app_state.should_quit = true;
+                        continue;
+                    }
+                    if app_state.input == "/exit" && key.code == KeyCode::Enter {
+                        app_state.should_quit = true;
+                        continue;
+                    }
 
-                                // 3. Spawn the async task
+                    let can_input =
+                        !app_state.is_agent_processing && app_state.active_tool_calls.is_empty();
+
+                    if can_input {
+                        match key.code {
+                            KeyCode::Enter => {
+                                app_state.submit_message();
+
+                                let agent_clone = cli_agent.clone();
+                                let mut thread_clone = app_state.agent_thread.clone();
+                                let cwd_clone = cwd.clone();
+
                                 tokio::spawn(async move {
-                                    // Prepare request messages (System + History)
-                                    let mut request_messages = vec![task_system_message];
-                                    request_messages.extend(messages_history.into_iter());
-
-                                    let request = ChatCompletionRequest {
-                                        model: "gpt-4o".to_string(), // TODO: Make configurable?
-                                        messages: request_messages,
-                                        stream: Some(false),
-                                        metadata: Some(Metadata {
-                                            generation_name: "cli_chat".to_string(),
-                                            user_id: "cli_user".to_string(), 
-                                            session_id: task_session_id,
-                                            trace_id: Uuid::new_v4().to_string(), 
-                                        }),
-                                        ..Default::default()
-                                    };
-
-                                    // 4. Call LLM and process result
-                                    let result = match task_llm_client.chat_completion(request).await {
-                                        Ok(response) => {
-                                            if let Some(choice) = response.choices.first() {
-                                                 // Return the actual assistant message
-                                                 Ok(choice.message.clone())
-                                            } else {
-                                                Err("No response choices received from API.".to_string())
-                                            }
+                                    match agent_clone.run(&mut thread_clone, &cwd_clone).await {
+                                        Ok(rx) => {}
+                                        Err(e) => {
+                                            eprintln!("Error starting agent processing: {}", e);
                                         }
-                                        Err(e) => Err(format!("API call failed: {}", e)),
-                                    };
-                                    
-                                    // 5. Send result back via channel
-                                    let _ = task_tx.send(AppEvent::ApiResponse(result));
+                                    }
                                 });
+
+                                match cli_agent.run(&mut app_state.agent_thread, &cwd).await {
+                                    Ok(rx) => {
+                                        agent_rx = Some(rx);
+                                    }
+                                    Err(e) => {
+                                        app_state.process_agent_message(Err(AgentError(format!(
+                                            "Failed to start agent: {}",
+                                            e
+                                        ))));
+                                        app_state.is_agent_processing = false;
+                                    }
+                                }
                             }
+                            KeyCode::Char(c) => {
+                                app_state.input.push(c);
+                            }
+                            KeyCode::Backspace => {
+                                app_state.input.pop();
+                            }
+                            KeyCode::Up => app_state.scroll_up(),
+                            KeyCode::Down => app_state.scroll_down(),
+                            _ => {}
                         }
-                        KeyCode::Char(c) => {
-                            if !app_state.is_loading { app_state.input.push(c); }
+                    } else {
+                        match key.code {
+                            KeyCode::Up => app_state.scroll_up(),
+                            KeyCode::Down => app_state.scroll_down(),
+                            _ => {}
                         }
-                        KeyCode::Backspace => {
-                            if !app_state.is_loading { app_state.input.pop(); }
-                        }
-                        KeyCode::Up => app_state.scroll_up(),
-                        KeyCode::Down => app_state.scroll_down(),
-                        KeyCode::Esc => { app_state.should_quit = true; }
-                        _ => {}
                     }
                 }
             }
@@ -506,13 +625,9 @@ pub async fn run_chat(args: ChatArgs) -> Result<()> {
         if last_tick.elapsed() >= tick_rate {
             last_tick = Instant::now();
         }
-    } // End of while loop
+    }
 
-    // --- Restore Terminal --- 
-    // This code runs *after* the loop, regardless of how it exited.
-    let _ = std::panic::take_hook(); // Restore original panic hook
-    
-    // Explicitly restore terminal state
+    let _ = std::panic::take_hook();
     let cleanup_result = || -> Result<()> {
         disable_raw_mode()?;
         execute!(
@@ -524,9 +639,8 @@ pub async fn run_chat(args: ChatArgs) -> Result<()> {
         Ok(())
     }();
 
-    // Return the loop result if it's an error, otherwise return the cleanup result
     match loop_result {
         Ok(_) => cleanup_result,
-        Err(e) => Err(e), // Prioritize returning the error that broke the loop
+        Err(e) => Err(e),
     }
 }

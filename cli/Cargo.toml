@@ -46,7 +46,8 @@ walkdir = "2.5.0"
 query_engine = { path = "../api/libs/query_engine" } # Adjusted path
 chrono = "0.4" # Specify the version here
 semver = "1.0.19"
-crossterm = "0.27" # Add crossterm explicitly
+crossterm = "0.29" # Add crossterm explicitly
+rustyline = "15.0.0"
 
 # Keep dev-dependencies separate if they aren't shared
 # tempfile = "3.16.0" 

@@ -94,7 +94,7 @@ impl Default for ChatCompletionRequest {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub enum MessageProgress {
     InProgress,
     Complete,

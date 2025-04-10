@@ -9,4 +9,5 @@
 
 pub mod agents_as_tools;
 pub mod file_tools;
-pub mod planning_tools; 
+pub mod planning_tools;
+pub mod cli_tools; 
