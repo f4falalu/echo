@@ -208,7 +208,11 @@ impl Agent {
     }
 
     /// Create a new Agent that shares state and stream with an existing agent
-    pub fn from_existing(existing_agent: &Agent, name: String) -> Self {
+    pub fn from_existing(
+        existing_agent: &Agent, 
+        name: String,
+        default_prompt: String,
+    ) -> Self {
         let llm_api_key = env::var("LLM_API_KEY").ok(); // Use ok() instead of expect
         let llm_base_url = env::var("LLM_BASE_URL").ok(); // Use ok() instead of expect
 
@@ -225,7 +229,7 @@ impl Agent {
             session_id: existing_agent.session_id,
             shutdown_tx: Arc::clone(&existing_agent.shutdown_tx), // Shared shutdown
             name,
-            default_prompt: existing_agent.default_prompt.clone(),
+            default_prompt,
             dynamic_prompt_rules: Arc::new(RwLock::new(Vec::new())),
         }
     }
@@ -555,7 +559,7 @@ impl Agent {
         // --- Dynamic Prompt Selection --- 
         let current_system_prompt = self.get_current_prompt().await;
         let system_message = AgentMessage::developer(current_system_prompt);
-        
+
         // Prepare messages for LLM: Inject current system prompt and filter out old ones
         let mut llm_messages = vec![system_message];
         llm_messages.extend(
