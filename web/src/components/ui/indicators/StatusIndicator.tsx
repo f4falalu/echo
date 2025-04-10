@@ -13,13 +13,14 @@ const animationConfig = {
 export const StatusIndicator: React.FC<{
   status?: 'completed' | 'loading' | 'failed';
   isCompletedStream?: boolean;
-}> = React.memo(({ status }) => {
+}> = React.memo(({ status = 'completed' }) => {
   const inProgress = status === 'loading';
   const failed = status === 'failed';
 
   return (
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
+        key={status}
         className={cn(
           'text-gray-light relative flex items-center justify-center transition-all duration-300',
           inProgress && 'text-primary',

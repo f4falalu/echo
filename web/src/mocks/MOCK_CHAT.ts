@@ -61,7 +61,6 @@ const MOCK_MESSAGE_REASONING = (
         file_type: faker.helpers.arrayElement(['metric', 'dashboard']),
         file_name: faker.system.fileName(),
         version_number: faker.number.int({ min: 1, max: 10 }),
-        version_id: faker.string.uuid(),
         status: 'loading',
         file: {
           text: faker.lorem.sentence(),

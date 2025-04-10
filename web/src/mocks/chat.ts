@@ -54,7 +54,6 @@ export const mockBusterChatMessage: IBusterChatMessage = {
           file_type: 'metric',
           file_name: 'test.ts',
           version_number: 1,
-          version_id: 'v1',
           status: 'completed',
           file: {
             text: `
@@ -85,7 +84,6 @@ bilbo_baggins:
           file_type: 'dashboard',
           file_name: 'example.js',
           version_number: 1,
-          version_id: 'v1',
           status: 'loading',
           file: {
             text: `
