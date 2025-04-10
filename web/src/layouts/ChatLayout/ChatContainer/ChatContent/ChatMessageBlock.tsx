@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { ChatUserMessage } from './ChatUserMessage';
 import { ChatResponseMessages } from './ChatResponseMessages';

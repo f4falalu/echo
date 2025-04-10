@@ -20,6 +20,7 @@ export const AppPageLayout: React.FC<
     headerBorderVariant?: 'default' | 'ghost';
     headerClassName?: string;
     mainClassName?: string;
+    contentContainerId?: string;
   }>
 > = ({
   children,
@@ -29,7 +30,8 @@ export const AppPageLayout: React.FC<
   headerSizeVariant = 'default',
   headerBorderVariant = 'default',
   headerClassName = '',
-  mainClassName = ''
+  mainClassName = '',
+  contentContainerId
 }) => {
   return (
     <div
@@ -49,7 +51,8 @@ export const AppPageLayout: React.FC<
 
       <AppPageLayoutContent
         className={cn(headerBorderVariant === 'ghost' && 'scroll-shadow-container', mainClassName)}
-        scrollable={scrollable}>
+        scrollable={scrollable}
+        id={contentContainerId}>
         {header && scrollable && headerBorderVariant === 'ghost' && (
           <div className="scroll-header"></div>
         )}
