@@ -19,7 +19,8 @@ use agents::{AgentError, AgentExt, AgentThread, BusterCliAgent};
 
 // Ratatui / Crossterm related imports
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind,
+            MouseEventKind},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -177,69 +178,83 @@ pub async fn run_chat(args: ChatArgs) -> Result<()> {
             .unwrap_or_else(|| std::time::Duration::from_secs(0));
 
         if crossterm::event::poll(timeout)? {
-            if let Event::Key(key) = event::read()? {
-                if key.kind == KeyEventKind::Press {
-                    // Quit handlers
-                    if key.modifiers.contains(event::KeyModifiers::CONTROL)
-                        && key.code == KeyCode::Char('c')
-                    {
-                        app_state.should_quit = true;
-                        continue;
-                    }
-                    if key.code == KeyCode::Esc {
-                        app_state.should_quit = true;
-                        continue;
-                    }
-                    if app_state.input == "/exit" && key.code == KeyCode::Enter {
-                        app_state.should_quit = true;
-                        continue;
-                    }
+            match event::read()? {
+                Event::Key(key) => {
+                    if key.kind == KeyEventKind::Press {
+                        // Quit handlers
+                        if key.modifiers.contains(event::KeyModifiers::CONTROL)
+                            && key.code == KeyCode::Char('c')
+                        {
+                            app_state.should_quit = true;
+                            continue;
+                        }
+                        if key.code == KeyCode::Esc {
+                            app_state.should_quit = true;
+                            continue;
+                        }
+                        if app_state.input == "/exit" && key.code == KeyCode::Enter {
+                            app_state.should_quit = true;
+                            continue;
+                        }
 
-                    // Check if input allowed
-                    let can_input =
-                        !app_state.is_agent_processing && app_state.active_tool_calls.is_empty();
+                        // Check if input allowed
+                        let can_input =
+                            !app_state.is_agent_processing && app_state.active_tool_calls.is_empty();
 
-                    if can_input {
-                        match key.code {
-                            KeyCode::Enter => {
-                                // Submit message & trigger agent processing
-                                app_state.submit_message(); 
-                                
-                                // Get the agent receiver immediately
-                                // The agent's run method should quickly setup the stream 
-                                // and return the receiver before heavy processing.
-                                match cli_agent.run(&mut app_state.agent_thread, &cwd).await {
-                                    Ok(rx) => {
-                                        agent_rx = Some(rx); // Start polling this receiver
-                                    }
-                                    Err(e) => {
-                                        // Report error via AppState
-                                        app_state.process_agent_message(Err(AgentError(format!(
-                                            "Failed to start agent: {}",
-                                            e
-                                        ))));
+                        if can_input {
+                            match key.code {
+                                KeyCode::Enter => {
+                                    // Submit message & trigger agent processing
+                                    app_state.submit_message(); 
+                                    
+                                    // Get the agent receiver immediately
+                                    // The agent's run method should quickly setup the stream 
+                                    // and return the receiver before heavy processing.
+                                    match cli_agent.run(&mut app_state.agent_thread, &cwd).await {
+                                        Ok(rx) => {
+                                            agent_rx = Some(rx); // Start polling this receiver
+                                        }
+                                        Err(e) => {
+                                            // Report error via AppState
+                                            app_state.process_agent_message(Err(AgentError(format!(
+                                                "Failed to start agent: {}",
+                                                e
+                                            ))));
+                                        }
                                     }
                                 }
+                                KeyCode::Char(c) => {
+                                    app_state.input.push(c);
+                                }
+                                KeyCode::Backspace => {
+                                    app_state.input.pop();
+                                }
+                                KeyCode::Up => app_state.scroll_up(),
+                                KeyCode::Down => app_state.scroll_down(),
+                                _ => {} // Ignore other keys when input is enabled
                             }
-                            KeyCode::Char(c) => {
-                                app_state.input.push(c);
+                        } else {
+                            // Handle scrolling even when input is disabled
+                            match key.code {
+                                KeyCode::Up => app_state.scroll_up(),
+                                KeyCode::Down => app_state.scroll_down(),
+                                _ => {} // Ignore other input
                             }
-                            KeyCode::Backspace => {
-                                app_state.input.pop();
-                            }
-                            KeyCode::Up => app_state.scroll_up(),
-                            KeyCode::Down => app_state.scroll_down(),
-                            _ => {} // Ignore other keys when input is enabled
-                        }
-                    } else {
-                        // Handle scrolling even when input is disabled
-                        match key.code {
-                            KeyCode::Up => app_state.scroll_up(),
-                            KeyCode::Down => app_state.scroll_down(),
-                            _ => {} // Ignore other input
                         }
                     }
                 }
+                Event::Mouse(mouse_event) => {
+                    match mouse_event.kind {
+                        MouseEventKind::ScrollUp => {
+                            app_state.scroll_up();
+                        }
+                        MouseEventKind::ScrollDown => {
+                            app_state.scroll_down();
+                        }
+                        _ => {} // Ignore other mouse events (clicks, moves, etc.)
+                    }
+                }
+                _ => {} // Ignore other event types (like resize for now)
             }
         }
 

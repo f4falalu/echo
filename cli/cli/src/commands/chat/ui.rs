@@ -85,7 +85,9 @@ fn render_welcome(frame: &mut Frame, area: Rect, cwd: &str) {
 fn render_messages(frame: &mut Frame, app: &AppState, area: Rect) {
     use litellm::{AgentMessage, MessageProgress};
     let mut message_lines: Vec<Line> = Vec::new();
-    for msg in app.messages.iter() {
+    let num_messages = app.messages.len();
+
+    for (msg_index, msg) in app.messages.iter().enumerate() {
         match msg {
             AgentMessage::User { content, .. } => {
                 message_lines.push(Line::from(vec![
@@ -95,32 +97,54 @@ fn render_messages(frame: &mut Frame, app: &AppState, area: Rect) {
             }
             AgentMessage::Assistant { content, progress, name, .. } => {
                 let is_in_progress = *progress == MessageProgress::InProgress;
-                let prefix = Span::styled(
-                    format!(
-                        "{} {}: ",
-                        if is_in_progress { "…" } else { "•" },
-                        name.as_deref().unwrap_or("Assistant")
-                    ),
-                    Style::default()
-                        .fg(Color::Cyan)
-                        .add_modifier(Modifier::BOLD),
-                );
+                let is_last_message = msg_index == num_messages - 1;
+                let prev_msg_was_tool_result = if msg_index > 0 {
+                    matches!(app.messages.get(msg_index - 1), Some(AgentMessage::Developer { .. }))
+                } else {
+                    false
+                };
+
+                // Omit prefix if it's the last message AND the previous was a tool result
+                let show_prefix = !(is_last_message && prev_msg_was_tool_result && !is_in_progress);
+
+                let prefix = if show_prefix {
+                     Some(Span::styled(
+                        format!(
+                            "{} {}: ",
+                            if is_in_progress { "…" } else { "•" },
+                            name.as_deref().unwrap_or("Assistant")
+                        ),
+                        Style::default()
+                            .fg(Color::Cyan)
+                            .add_modifier(Modifier::BOLD),
+                    ))
+                } else {
+                    None // Don't show prefix
+                };
 
                 if let Some(c) = content {
                     let lines: Vec<&str> = c.split('\n').collect();
                     for (i, line_content) in lines.iter().enumerate() {
                         let line_span = Span::styled(*line_content, Style::default().fg(Color::White));
                         if i == 0 {
-                            message_lines.push(Line::from(vec![prefix.clone(), line_span]));
+                             if let Some(p) = prefix.clone() {
+                                message_lines.push(Line::from(vec![p, line_span]));
+                             } else {
+                                // No prefix, just the content line
+                                message_lines.push(Line::from(line_span));
+                             }
                         } else {
+                            // Indent subsequent lines (relative to prefix or start)
+                            let indent = if prefix.is_some() { "  " } else { "" };
                             message_lines.push(Line::from(vec![
-                                Span::raw("  "),
+                                Span::raw(indent),
                                 line_span,
                             ]));
                         }
                     }
-                } else {
-                    message_lines.push(Line::from(prefix));
+                } else if let Some(p) = prefix {
+                    // Show prefix even if content is None (e.g., for InProgress)
+                    message_lines.push(Line::from(p));
                 }
 
                 if !is_in_progress {
@@ -168,7 +192,11 @@ fn render_messages(frame: &mut Frame, app: &AppState, area: Rect) {
     let content_height = message_lines.len() as u16;
     let view_height = area.height;
     let max_scroll = content_height.saturating_sub(view_height);
-    let current_scroll = app.scroll_offset.min(max_scroll);
+    let current_scroll = if app.scroll_offset == 0 {
+        max_scroll
+    } else {
+        app.scroll_offset.min(max_scroll)
+    };
 
     let messages_widget = Paragraph::new(message_lines)
         .scroll((current_scroll, 0))
@@ -247,7 +275,7 @@ fn render_input(frame: &mut Frame, app: &AppState, area: Rect) {
     // --- Cursor ---
     if !is_input_disabled {
         frame.set_cursor(
-            area.x + input_prefix.len() as u16 + app.input.chars().count() as u16,
+            area.x + 1 + input_prefix.len() as u16 + app.input.chars().count() as u16, // +1 for left border
             area.y + 1,
         )
     }
