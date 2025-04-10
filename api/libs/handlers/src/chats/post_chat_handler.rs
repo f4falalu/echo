@@ -1737,8 +1737,8 @@ fn transform_assistant_tool_message(
                                     .or(text.message)
                                     .or(text.message_chunk.clone());
                                 text.message_chunk = None;
-                                // Always set status to loading for assistant messages
-                                text.status = Some("loading".to_string());
+                                // Set status based on progress
+                                text.status = Some("completed".to_string());
                                 tracker.clear_chunk(text.id.clone());
                                 Some(BusterReasoningMessage::Text(text))
                             }
@@ -1776,8 +1776,8 @@ fn transform_assistant_tool_message(
                                     let mut completed_content = file_content.clone();
                                     completed_content.file.text = Some(complete_text);
                                     completed_content.file.text_chunk = None;
-                                    // Always set status to loading
-                                    completed_content.status = "loading".to_string();
+                                    // Set status based on progress
+                                    completed_content.status = "completed".to_string();
                                     updated_files.insert(file_id.clone(), completed_content);
 
                                     tracker.clear_chunk(chunk_id);
@@ -1823,8 +1823,11 @@ fn transform_assistant_tool_message(
                         }
                     }
                     BusterReasoningMessage::Pill(mut pill) => {
-                        // Always set status to loading for pills
-                        pill.status = "loading".to_string();
+                        // Set status based on progress
+                        pill.status = match progress {
+                            MessageProgress::Complete => "completed".to_string(),
+                            MessageProgress::InProgress => "loading".to_string(),
+                        };
                         Some(BusterReasoningMessage::Pill(pill))
                     }
                 }
@@ -2127,7 +2130,7 @@ pub async fn generate_conversation_title(
 
     // Create the request
     let request = ChatCompletionRequest {
-        model: "gpt-4o-mini".to_string(),
+        model: "gemini-2.0-flash-001".to_string(),
         messages: vec![LiteLLMAgentMessage::User {
             id: None,
             content: prompt,
