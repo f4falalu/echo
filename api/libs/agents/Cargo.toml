@@ -26,6 +26,7 @@ indexmap = { workspace = true }
 once_cell = { workspace = true }
 regex = "1"
 glob = "0.3"
+cohere-rust = { workspace = true }
 
 # Development dependencies
 [dev-dependencies]

@@ -48,16 +48,16 @@ impl StreamingParser {
 
         // Try to parse the JSON
         if let Ok(value) = serde_json::from_str::<Value>(&processed_json) {
-            // Check if it's a plan structure (has plan_markdown key)
-            if let Some(plan_markdown) = value.get("plan_markdown").and_then(Value::as_str) {
+            // Check if it's a plan structure (has 'plan' key)
+            if let Some(plan_content) = value.get("plan").and_then(Value::as_str) {
                 // Return the plan as a BusterReasoningText
                 return Ok(Some(BusterReasoningMessage::Text(BusterReasoningText {
                     id,
                     reasoning_type: "text".to_string(),
-                    title: "Creating a plan...".to_string(),
+                    title: "Creating Plan".to_string(),
                     secondary_title: String::from(""),
                     message: None,
-                    message_chunk: Some(plan_markdown.to_string()),
+                    message_chunk: Some(plan_content.to_string()),
                     status: Some("loading".to_string()),
                 })));
             }
@@ -72,32 +72,25 @@ impl StreamingParser {
         id: String,
         chunk: &str,
     ) -> Result<Option<BusterReasoningMessage>> {
-        // Clear buffer and add new chunk
         self.clear_buffer();
         self.buffer.push_str(chunk);
 
-        // Complete any incomplete JSON structure
-        let processed_json = self.complete_json_structure(self.buffer.clone());
-
-        // Try to parse the JSON
-        if let Ok(value) = serde_json::from_str::<Value>(&processed_json) {
-            // Check if it's a search requirements structure
-            if let Some(search_requirements) =
-                value.get("search_requirements").and_then(Value::as_str)
-            {
-                // Return the search requirements as a BusterReasoningText
-                return Ok(Some(BusterReasoningMessage::Text(BusterReasoningText {
-                    id,
-                    reasoning_type: "text".to_string(),
-                    title: "Searching your data catalog...".to_string(),
-                    secondary_title: String::from(""),
-                    message: None,
-                    message_chunk: Some(search_requirements.to_string()),
-                    status: Some("loading".to_string()),
-                })));
-            }
+        // Check if the chunk indicates the start of the queries array
+        // We don't need to fully parse, just detect the intent to search.
+        if self.buffer.contains("\"queries\":") {
+            // Return a generic "Searching..." message
+            return Ok(Some(BusterReasoningMessage::Text(BusterReasoningText {
+                id,
+                reasoning_type: "text".to_string(),
+                title: "Searching your data catalog...".to_string(),
+                secondary_title: String::new(), // No secondary title needed during streaming
+                message: None,
+                message_chunk: None, // Don't show partial queries
+                status: Some("loading".to_string()),
+            })));
         }
 
+        // If the start of queries is not detected, return None
         Ok(None)
     }
 

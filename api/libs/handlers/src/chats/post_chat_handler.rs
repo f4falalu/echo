@@ -9,7 +9,8 @@ use agents::{
             common::ModifyFilesOutput, create_dashboards::CreateDashboardFilesOutput,
             create_metrics::CreateMetricFilesOutput, search_data_catalog::SearchDataCatalogOutput,
         },
-        planning_tools::CreatePlanOutput,
+        // Remove the old import
+        // planning_tools::CreatePlanOutput,
     },
     AgentExt, AgentMessage, AgentThread, BusterMultiAgent,
 };
@@ -1313,33 +1314,47 @@ fn transform_tool_message(
         "update_metrics" => tool_modify_metrics(id.clone(), content)?,
         "create_dashboards" => tool_create_dashboards(id.clone(), content)?,
         "update_dashboards" => tool_modify_dashboards(id.clone(), content)?,
-        "create_plan" => tool_create_plan(id.clone(), content)?,
+        // Handle both new plan tools here
+        "create_plan_straightforward" | "create_plan_investigative" => tool_create_plan(id.clone(), content)?,
         _ => vec![],
     };
 
     Ok(messages)
 }
 
+// Structs to parse the output of the new tools
+#[derive(Deserialize)]
+struct GenericPlanOutput {
+    plan: String,
+}
+
 fn tool_create_plan(id: String, content: String) -> Result<Vec<BusterReasoningMessage>> {
-    let plan_markdown = match serde_json::from_str::<CreatePlanOutput>(&content) {
-        Ok(result) => result.plan_markdown,
+    // Attempt to parse the generic structure
+    let plan_output = match serde_json::from_str::<GenericPlanOutput>(&content) {
+        Ok(result) => result,
         Err(e) => {
-            println!("Failed to parse CreatePlanOutput: {:?}", e);
-            return Ok(vec![]);
+            // Remove the fallback logic for the old CreatePlanOutput
+            tracing::error!(
+                "Failed to parse plan output for tool call {}: {}. Content: {}",
+                id,
+                e,
+                content
+            );
+            return Ok(vec![]); // Return empty if parsing fails
         }
     };
 
-    let buster_file = BusterReasoningMessage::Text(BusterReasoningText {
+    let buster_message = BusterReasoningMessage::Text(BusterReasoningText {
         id,
         reasoning_type: "text".to_string(),
         title: "Plan".to_string(),
         secondary_title: "".to_string(),
-        message: Some(plan_markdown),
+        message: Some(plan_output.plan), // Use the 'plan' field
         message_chunk: None,
         status: Some("completed".to_string()),
     });
 
-    Ok(vec![buster_file])
+    Ok(vec![buster_message])
 }
 
 // Update tool_create_metrics to require ID
@@ -1564,19 +1579,19 @@ fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<BusterRea
     let data_catalog_result = match serde_json::from_str::<SearchDataCatalogOutput>(&content) {
         Ok(result) => result,
         Err(e) => {
-            println!("Failed to parse SearchDataCatalogOutput: {:?}", e);
+            println!("Failed to parse SearchDataCatalogOutput: {}. Content: {}", e, content);
             return Ok(vec![]);
         }
     };
 
     let duration = (data_catalog_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
     let result_count = data_catalog_result.results.len();
-    let query_params = data_catalog_result.search_requirements.clone();
+    let input_queries = data_catalog_result.queries.join(", "); // Join queries for display
 
     let thought_pill_containers = match proccess_data_catalog_search_results(data_catalog_result) {
         Ok(containers) => containers,
         Err(e) => {
-            println!("Failed to process data catalog search results: {:?}", e);
+            println!("Failed to process data catalog search results: {}", e);
             return Ok(vec![]);
         }
     };
@@ -1585,8 +1600,8 @@ fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<BusterRea
         BusterReasoningMessage::Pill(BusterReasoningPill {
             id: id.clone(),
             thought_type: "pills".to_string(),
-            title: format!("Found {} results", result_count),
-            secondary_title: format!("{} seconds", duration),
+            title: "Data Catalog Search Results".to_string(), // Updated title
+            secondary_title: format!("Searched for: {}", input_queries), // Display input queries
             pill_containers: Some(thought_pill_containers),
             status: "completed".to_string(),
         })
@@ -1595,14 +1610,10 @@ fn tool_data_catalog_search(id: String, content: String) -> Result<Vec<BusterRea
             id: id.clone(),
             thought_type: "pills".to_string(),
             title: "No data catalog items found".to_string(),
-            secondary_title: format!("{} seconds", duration),
+            secondary_title: format!("Searched for: {}", input_queries), // Display input queries even if no results
             pill_containers: Some(vec![BusterThoughtPillContainer {
                 title: "No results found".to_string(),
-                pills: vec![BusterThoughtPill {
-                    id: "".to_string(),
-                    text: query_params,
-                    thought_file_type: "empty".to_string(),
-                }],
+                pills: vec![], // Keep pills empty as no results were found
             }]),
             status: "completed".to_string(),
         })
@@ -1822,59 +1833,16 @@ fn assistant_data_catalog_search(
                 text.status = Some("loading".to_string());
                 return Ok(vec![BusterReasoningMessage::Text(text)]);
             }
-            _ => unreachable!("Data catalog search should only return Text type"),
+            _ => {
+                // Log unexpected type if needed
+                tracing::warn!("Unexpected message type from search data catalog chunk processing: {:?}", message);
+                return Ok(vec![]) // Don't proceed if the type is unexpected
+            }
         }
     }
 
-    // Fall back to existing logic for full search results
-    let data_catalog_result = match serde_json::from_str::<SearchDataCatalogOutput>(&content) {
-        Ok(result) => result,
-        Err(e) => {
-            println!("Failed to parse SearchDataCatalogOutput: {:?}", e);
-            return Ok(vec![]);
-        }
-    };
-
-    let duration = (data_catalog_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
-    let result_count = data_catalog_result.results.len();
-    let query_params = data_catalog_result.search_requirements.clone();
-
-    let thought_pill_containers = match proccess_data_catalog_search_results(data_catalog_result) {
-        Ok(containers) => containers,
-        Err(e) => {
-            println!("Failed to process data catalog search results: {:?}", e);
-            return Ok(vec![]);
-        }
-    };
-
-    let thought = if result_count > 0 {
-        BusterReasoningMessage::Pill(BusterReasoningPill {
-            id: id.clone(),
-            thought_type: "thought".to_string(),
-            title: format!("Found {} results", result_count),
-            secondary_title: format!("{} seconds", duration),
-            pill_containers: Some(thought_pill_containers),
-            status: "loading".to_string(),
-        })
-    } else {
-        BusterReasoningMessage::Pill(BusterReasoningPill {
-            id: id.clone(),
-            thought_type: "thought".to_string(),
-            title: "No data catalog items found".to_string(),
-            secondary_title: format!("{} seconds", duration),
-            pill_containers: Some(vec![BusterThoughtPillContainer {
-                title: "No results found".to_string(),
-                pills: vec![BusterThoughtPill {
-                    id: "".to_string(),
-                    text: query_params,
-                    thought_file_type: "empty".to_string(),
-                }],
-            }]),
-            status: "loading".to_string(),
-        })
-    };
-
-    Ok(vec![thought])
+    // No need for fallback parsing logic here anymore, the parser handles the stream start
+    Ok(vec![])
 }
 
 fn assistant_create_metrics(
@@ -1982,19 +1950,25 @@ fn assistant_create_plan(
 ) -> Result<Vec<BusterReasoningMessage>> {
     let mut parser = StreamingParser::new();
 
+    // Directly call process_plan_chunk which handles parsing the 'plan' field
     match parser.process_plan_chunk(id.clone(), &content) {
         Ok(Some(message)) => {
+            // The parser returns the correct BusterReasoningMessage structure
+            // Ensure the status is loading as it's an assistant message
             match message {
                 BusterReasoningMessage::Text(mut text) => {
-                    // Always set status to loading for assistant messages
                     text.status = Some("loading".to_string());
                     Ok(vec![BusterReasoningMessage::Text(text)])
                 }
+                 // Handle other types potentially returned by the parser if necessary
                 _ => Ok(vec![message]),
             }
         }
-        Ok(None) => Ok(vec![]),
-        Err(e) => Err(e),
+        Ok(None) => Ok(vec![]), // No complete message chunk parsed yet
+        Err(e) => {
+             tracing::error!("Failed to parse plan arguments chunk for {}: {}. Content: {}", id, e, content);
+             Err(e) // Propagate the error
+        }
     }
 }
 
