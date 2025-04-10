@@ -20,7 +20,7 @@ const AutoScrollDemo = () => {
 
   const addMessage = () => {
     const newMessage: Message = {
-      id: messages.length + 1,
+      id: messages.length + 1 + faker.number.int({ min: 1, max: 1000000 }),
       text: `Message ${messages.length + 1}: ${Lorem.generateSentences(1)}`,
       timestamp: new Date().toLocaleTimeString()
     };

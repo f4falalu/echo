@@ -5,15 +5,28 @@ interface UseAutoScrollOptions {
   enabled?: boolean;
   /**
    * A threshold (in pixels) that defines what "at the bottom" means.
-   * When user scrolls within this threshold, auto–scroll re–engages.
+   * When the user is within this threshold from the bottom, auto-scroll will re–engage.
    */
   bottomThreshold?: number;
   /**
    * Easing factor determines how aggressively we "chase" the bottom.
-   * It is a fraction (0–1) to apply of the remaining distance each frame.
+   * It is a fraction (0–1) of the remaining distance applied each frame.
    * Typical values: 0.2–0.3.
    */
   chaseEasing?: number;
+
+  /**
+   * Whether to observe deep changes in the container.
+   * If true, the hook will observe changes to the container's content and scroll position.
+   * If false, the hook will only observe changes to the container's scroll position.
+   */
+  observeDeepChanges?: boolean;
+
+  /**
+   * Duration in milliseconds to continue animations after a mutation.
+   * Default is 500ms.
+   */
+  animationCooldown?: number;
 }
 
 interface UseAutoScrollReturn {
@@ -42,74 +55,197 @@ const isAtBottom = (element: HTMLElement, threshold: number = 30): boolean => {
 /**
  * Custom hook that "sticks" a container to its bottom while auto–scroll is enabled.
  *
- * When auto–scroll is active, a continuous chase loop will adjust scrollTop
- * (even if new content is added that increases the scrollHeight). To allow the
- * user to override auto–scroll, we listen to direct input events (wheel, touch, mousedown)
- * and cancel auto–scroll if detected. When the user scrolls back near the bottom
- * (within a threshold), auto–scroll is resumed.
+ * It uses a MutationObserver to watch for changes to the container's content
+ * and adjusts the scroll position with a hybrid approach:
+ * - Uses requestAnimationFrame for smooth scrolling
+ * - Only continues animation for a limited time after mutations are detected
+ * - Stops animation completely when no new content is being added
+ *
+ * When the container is scrolled back near the bottom (within bottomThreshold), auto–scroll
+ * is re–enabled.
  */
 export const useAutoScroll = (
   containerRef: React.RefObject<HTMLElement>,
   options: UseAutoScrollOptions = {}
 ): UseAutoScrollReturn => {
-  const { enabled = true, bottomThreshold = 50, chaseEasing = 0.2 } = options;
+  const {
+    enabled = true,
+    bottomThreshold = 50,
+    chaseEasing = 0.2,
+    observeDeepChanges = true,
+    animationCooldown = 500
+  } = options;
 
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(enabled);
-  // requestAnimationFrame id for the chasing loop.
+  const observerRef = useRef<MutationObserver | null>(null);
   const rAFIdRef = useRef<number | null>(null);
+  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastMutationTimeRef = useRef<number>(0);
+  const isAnimatingRef = useRef(false);
 
-  // This function continuously "chases" the bottom.
-  const chaseBottom = useCallback(() => {
-    if (!containerRef.current) return;
+  // Function to handle smooth scrolling with requestAnimationFrame
+  const animateScroll = useCallback(() => {
     const container = containerRef.current;
-    // Dynamically get the current bottom position.
+    if (!container || !isAutoScrollEnabled) {
+      isAnimatingRef.current = false;
+      return;
+    }
+
     const target = container.scrollHeight;
     const current = container.scrollTop;
-    // Determine the gap between current scroll position and the bottom.
     const gap = target - (current + container.clientHeight);
-    if (gap > 1) {
-      // Move a fraction of the remaining gap.
-      container.scrollTop = current + gap * chaseEasing;
-    } else {
-      // Snap to bottom if nearly there.
-      container.scrollTop = target;
-    }
-    // Continue the loop if auto-scroll is enabled.
-    if (isAutoScrollEnabled) {
-      rAFIdRef.current = requestAnimationFrame(chaseBottom);
-    }
-  }, [containerRef, chaseEasing, isAutoScrollEnabled]);
+    const now = Date.now();
 
-  // Start or stop the chase loop based on auto-scroll state.
-  useEffect(() => {
-    if (isAutoScrollEnabled && containerRef.current) {
-      rAFIdRef.current = requestAnimationFrame(chaseBottom);
+    // If gap is significant, apply easing
+    if (gap > 1) {
+      container.scrollTop = current + gap * chaseEasing;
+
+      // Continue animation only if we're within the cooldown period from last mutation
+      if (now - lastMutationTimeRef.current < animationCooldown) {
+        rAFIdRef.current = requestAnimationFrame(animateScroll);
+      } else {
+        // If cooldown expired, stop animation
+        isAnimatingRef.current = false;
+      }
+    } else if (gap > 0) {
+      // If gap is small, snap to bottom
+      container.scrollTop = target;
+      isAnimatingRef.current = false;
+    } else {
+      // No gap, animation complete
+      isAnimatingRef.current = false;
     }
-    return () => {
-      if (rAFIdRef.current !== null) {
+  }, [containerRef, chaseEasing, isAutoScrollEnabled, animationCooldown]);
+
+  // Start animation when mutations are observed
+  const startScrollAnimation = useCallback(() => {
+    if (isAnimatingRef.current) return;
+
+    // Record timestamp of the mutation
+    lastMutationTimeRef.current = Date.now();
+    isAnimatingRef.current = true;
+
+    // Clear existing timeout if there is one
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
+    }
+
+    // Start animation
+    if (rAFIdRef.current) {
+      cancelAnimationFrame(rAFIdRef.current);
+    }
+    rAFIdRef.current = requestAnimationFrame(animateScroll);
+
+    // Set a final timeout to ensure animation stops after cooldown
+    animationTimeoutRef.current = setTimeout(() => {
+      if (rAFIdRef.current) {
         cancelAnimationFrame(rAFIdRef.current);
         rAFIdRef.current = null;
       }
-    };
-  }, [isAutoScrollEnabled, chaseBottom, containerRef]);
+      isAnimatingRef.current = false;
+    }, animationCooldown + 50); // Add a small buffer
+  }, [animateScroll, animationCooldown]);
 
-  // Listen for user–initiated input that indicates the user wants control.
+  // Set up the mutation observer
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const disableAutoScrollHandler = (event: Event) => {
-      // Only disable auto-scroll if we're not at the bottom
+
+    // Clean up previous observer if it exists
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+
+    if (isAutoScrollEnabled) {
+      // Create a new observer
+      observerRef.current = new MutationObserver((mutations) => {
+        // Only scroll if there were actual content-related mutations
+        const hasRelevantChanges = mutations.some(
+          (mutation) =>
+            // Check for node additions/removals
+            (mutation.type === 'childList' &&
+              (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)) ||
+            // Check for text changes
+            mutation.type === 'characterData' ||
+            // Only certain attribute changes that affect layout
+            (mutation.type === 'attributes' &&
+              mutation.attributeName &&
+              ['style', 'class', 'height', 'width'].some((attr) =>
+                mutation.attributeName?.includes(attr)
+              ))
+        );
+
+        if (isAutoScrollEnabled && hasRelevantChanges) {
+          startScrollAnimation();
+        }
+      });
+
+      // Configure observer to watch for changes
+      const observerConfig = {
+        childList: true,
+        subtree: observeDeepChanges,
+        characterData: observeDeepChanges,
+        attributes: observeDeepChanges
+      };
+
+      // Start observing
+      observerRef.current.observe(container, observerConfig);
+
+      // Initial scroll to bottom without animation
+      container.scrollTop = container.scrollHeight;
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+
+      if (rAFIdRef.current) {
+        cancelAnimationFrame(rAFIdRef.current);
+        rAFIdRef.current = null;
+      }
+
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+        animationTimeoutRef.current = null;
+      }
+    };
+  }, [
+    isAutoScrollEnabled,
+    containerRef,
+    startScrollAnimation,
+    observeDeepChanges,
+    animationCooldown
+  ]);
+
+  // Listen for user–initiated events. Only disable auto–scroll if the container isn't near the bottom.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const disableAutoScrollHandler = () => {
+      // Only disable auto–scroll if we're not near the bottom.
       if (!isAtBottom(container, bottomThreshold)) {
         setIsAutoScrollEnabled(false);
-        if (rAFIdRef.current !== null) {
+
+        // Stop any ongoing animations
+        if (rAFIdRef.current) {
           cancelAnimationFrame(rAFIdRef.current);
           rAFIdRef.current = null;
         }
+
+        isAnimatingRef.current = false;
       }
+      // Otherwise, if the container is at the bottom, leave auto–scroll enabled.
     };
+
     container.addEventListener('wheel', disableAutoScrollHandler, { passive: true });
     container.addEventListener('touchstart', disableAutoScrollHandler, { passive: true });
     container.addEventListener('mousedown', disableAutoScrollHandler, { passive: true });
+
     return () => {
       container.removeEventListener('wheel', disableAutoScrollHandler);
       container.removeEventListener('touchstart', disableAutoScrollHandler);
@@ -122,39 +258,17 @@ export const useAutoScroll = (
     const container = containerRef.current;
     if (!container) return;
 
-    let scrollTimeoutId: NodeJS.Timeout | null = null;
-
     const onScroll = () => {
-      // For scroll events, we want to check immediately if we're at the bottom
-      // to provide responsive auto-scroll re-enabling
       if (isAtBottom(container, bottomThreshold)) {
-        if (!isAutoScrollEnabled) {
-          setIsAutoScrollEnabled(true);
-        }
-        return;
+        setIsAutoScrollEnabled(true);
       }
-
-      // For other scroll positions, we can debounce to avoid excessive state updates
-      if (scrollTimeoutId) {
-        clearTimeout(scrollTimeoutId);
-      }
-
-      scrollTimeoutId = setTimeout(() => {
-        if (isAtBottom(container, bottomThreshold)) {
-          setIsAutoScrollEnabled(true);
-        }
-      }, 100);
     };
 
     container.addEventListener('scroll', onScroll, { passive: true });
-
     return () => {
       container.removeEventListener('scroll', onScroll);
-      if (scrollTimeoutId) {
-        clearTimeout(scrollTimeoutId);
-      }
     };
-  }, [containerRef, bottomThreshold, isAutoScrollEnabled]);
+  }, [containerRef, bottomThreshold]);
 
   // Exposed functions.
 
@@ -165,14 +279,14 @@ export const useAutoScroll = (
     containerRef.current.scrollTop = containerRef.current.scrollHeight;
   }, [containerRef]);
 
-  // Scroll to the top and disable auto–scroll.
+  // Scroll to top and disable auto–scroll.
   const scrollToTop = useCallback(() => {
     if (!containerRef.current) return;
     setIsAutoScrollEnabled(false);
     containerRef.current.scrollTop = 0;
   }, [containerRef]);
 
-  // Scroll to a specific node inside the container and disable auto-scroll.
+  // Scroll to a specific node and disable auto–scroll.
   const scrollToNode = useCallback(
     (node: HTMLElement) => {
       if (!containerRef.current || !node) return;
@@ -180,13 +294,13 @@ export const useAutoScroll = (
       const container = containerRef.current;
       const containerRect = container.getBoundingClientRect();
       const nodeRect = node.getBoundingClientRect();
+      // Calculate the target scroll position relative to the container.
       const targetScroll = container.scrollTop + (nodeRect.top - containerRect.top);
       container.scrollTop = targetScroll;
     },
     [containerRef]
   );
 
-  // Explicitly enable or disable auto scroll.
   const enableAutoScroll = useCallback(() => {
     setIsAutoScrollEnabled(true);
   }, []);
