@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { useAutoScroll } from './useAutoScroll';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { faker } from '@faker-js/faker';
 
 interface Message {
   id: number;
@@ -186,3 +188,115 @@ export default meta;
 type Story = StoryObj<typeof AutoScrollDemo>;
 
 export const Default: Story = {};
+
+export const ScrollAreaComponentWithAutoScroll: Story = {
+  render: () => {
+    const generateCard = (index: number) => ({
+      id: index,
+      title: faker.company.name() + ' ' + index,
+      color: faker.color.rgb(),
+      sentences: faker.lorem.sentences(2)
+    });
+
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [cards, setCards] = useState(() =>
+      Array.from({ length: 9 }, (_, i) => generateCard(i + 1))
+    );
+    const [isAutoAddEnabled, setIsAutoAddEnabled] = useState(false);
+    const intervalRef = useRef<NodeJS.Timeout>();
+    const {
+      isAutoScrollEnabled,
+      scrollToBottom,
+      scrollToTop,
+      enableAutoScroll,
+      disableAutoScroll
+    } = useAutoScroll(containerRef, { observeDeepChanges: true });
+
+    const addCard = useCallback(() => {
+      setCards((prev) => [...prev, generateCard(prev.length + 1)]);
+    }, []);
+
+    const toggleAutoAdd = useCallback(() => {
+      if (isAutoAddEnabled) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = undefined;
+        }
+        setIsAutoAddEnabled(false);
+      } else {
+        intervalRef.current = setInterval(addCard, 2000);
+        setIsAutoAddEnabled(true);
+        enableAutoScroll(); // Enable auto-scroll when auto-adding cards
+      }
+    }, [isAutoAddEnabled, addCard, enableAutoScroll]);
+
+    // Cleanup interval on unmount
+    useEffect(() => {
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
+    }, []);
+
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-4">
+          <h3 className="text-lg font-semibold">Scrollable Grid Layout</h3>
+          <div className="flex gap-2">
+            <button
+              onClick={addCard}
+              className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600">
+              Add Card
+            </button>
+            <button
+              onClick={toggleAutoAdd}
+              className={`rounded px-3 py-1 text-sm text-white ${
+                isAutoAddEnabled
+                  ? 'bg-purple-500 hover:bg-purple-600'
+                  : 'bg-purple-400 hover:bg-purple-500'
+              }`}>
+              Auto Add {isAutoAddEnabled ? 'ON' : 'OFF'}
+            </button>
+            <button
+              onClick={isAutoScrollEnabled ? disableAutoScroll : enableAutoScroll}
+              className={`rounded px-3 py-1 text-sm text-white ${
+                isAutoScrollEnabled
+                  ? 'bg-green-500 hover:bg-green-600'
+                  : 'bg-red-500 hover:bg-red-600'
+              }`}>
+              Auto-scroll {isAutoScrollEnabled ? 'ON' : 'OFF'}
+            </button>
+            <button
+              onClick={() => scrollToTop('smooth')}
+              className="rounded bg-gray-500 px-3 py-1 text-sm text-white hover:bg-gray-600">
+              To Top
+            </button>
+            <button
+              onClick={() => scrollToBottom('smooth')}
+              className="rounded bg-gray-500 px-3 py-1 text-sm text-white hover:bg-gray-600">
+              To Bottom
+            </button>
+          </div>
+        </div>
+        <ScrollArea
+          viewportRef={containerRef}
+          className="h-[600px] w-[800px] rounded-lg border border-gray-200 p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {cards.map((card) => (
+              <div
+                key={card.id}
+                className="flex flex-col rounded-lg p-4 shadow-sm transition-all hover:shadow-md"
+                style={{ backgroundColor: card.color }}>
+                <h4 className="mb-2 text-lg font-medium text-white">{card.title}</h4>
+                <div className="flex-1">
+                  <p className="text-sm text-white/90">{card.sentences}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
+    );
+  }
+};

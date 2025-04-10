@@ -8,6 +8,8 @@ interface UseAutoScrollOptions {
   scrollBehavior?: ScrollBehavior;
   /** Whether the auto-scroll functionality is enabled */
   enabled?: boolean;
+  /** Whether to observe deep changes */
+  observeDeepChanges?: boolean;
 }
 
 interface UseAutoScrollReturn {
@@ -35,7 +37,12 @@ export const useAutoScroll = (
   containerRef: React.RefObject<HTMLElement>,
   options: UseAutoScrollOptions = {}
 ): UseAutoScrollReturn => {
-  const { debounceDelay = 150, scrollBehavior = 'smooth', enabled = true } = options;
+  const {
+    debounceDelay = 150,
+    scrollBehavior = 'smooth',
+    enabled = true,
+    observeDeepChanges = true
+  } = options;
 
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(enabled);
   const wasAtBottom = useRef(true);
@@ -179,10 +186,14 @@ export const useAutoScroll = (
   // Handle content changes
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !enabled) return;
+
+    if (!container || !enabled || !isAutoScrollEnabled) return;
+
+    let numberOfMutations = 0;
 
     // Debounced mutation handler to prevent rapid scroll updates
     const handleMutation = () => {
+      numberOfMutations++;
       if (mutationDebounceRef.current) {
         window.cancelAnimationFrame(mutationDebounceRef.current);
       }
@@ -198,8 +209,9 @@ export const useAutoScroll = (
 
     observer.observe(container, {
       childList: true, // Only observe direct children changes
-      subtree: false, // Don't observe deep changes
-      characterData: false // Don't observe text changes
+      subtree: observeDeepChanges, // Don't observe deep changes
+      characterData: false, // Don't observe text changes,
+      attributes: false
     });
 
     return () => {

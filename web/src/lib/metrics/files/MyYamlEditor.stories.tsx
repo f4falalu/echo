@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { MyYamlEditor } from './validateMetricYaml';
 
 const meta: Meta<typeof MyYamlEditor> = {
-  title: 'Metrics/Files/MyYamlEditor',
+  title: 'Lib/Files/MyYamlEditorWithValidation',
   component: MyYamlEditor,
   tags: ['autodocs'],
   parameters: {
