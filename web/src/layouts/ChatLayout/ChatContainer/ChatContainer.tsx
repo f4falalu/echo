@@ -9,9 +9,7 @@ export const ChatContainer = React.memo(() => {
       header={<ChatHeader />}
       headerBorderVariant="ghost"
       scrollable
-      className="flex h-full w-full min-w-[295px] flex-col"
-      //  mainClassName="max-w-[calc(100%_-_12px)]"
-    >
+      className="flex h-full w-full min-w-[295px] flex-col">
       <ChatContent />
     </AppPageLayout>
   );
