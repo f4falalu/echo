@@ -21,7 +21,11 @@ import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { useMemo } from 'react';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { useGetUserFavorites } from '../users';
-import type { BusterMetricData, IBusterMetric } from '@/api/asset_interfaces/metric';
+import type {
+  BusterMetricData,
+  IBusterMetric,
+  IBusterMetricData
+} from '@/api/asset_interfaces/metric';
 import { create } from 'mutative';
 import {
   useAddAssetToCollection,
@@ -112,7 +116,7 @@ export const useGetMetricsList = (
 /**
  * This is a hook that will use the version number from the URL params if it exists.
  */
-export const useGetMetricData = <TData = BusterMetricData>(
+export const useGetMetricData = <TData = IBusterMetricData>(
   {
     id,
     versionNumber: versionNumberProp
