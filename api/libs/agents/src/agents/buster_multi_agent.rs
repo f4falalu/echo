@@ -22,6 +22,9 @@ use crate::{
 
 use litellm::AgentMessage;
 
+// Type alias for the enablement condition closure for tools
+type ToolEnablementCondition = Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BusterSuperAgentOutput {
     pub message: String,
@@ -128,7 +131,7 @@ impl BusterMultiAgent {
     }
 
     pub async fn new(user_id: Uuid, session_id: Uuid) -> Result<Self> {
-        // Create agent (Agent::new no longer takes tools directly)
+        // Create agent, passing the initialization prompt as default
         let agent = Arc::new(Agent::new(
             "o3-mini".to_string(),
             user_id,
@@ -136,7 +139,25 @@ impl BusterMultiAgent {
             "buster_super_agent".to_string(),
             None,
             None,
+            INTIALIZATION_PROMPT.to_string(), // Default prompt
         ));
+
+        // Define prompt switching conditions
+        let needs_plan_condition = |state: &HashMap<String, Value>| -> bool {
+            state.contains_key("data_context") && !state.contains_key("plan_available")
+        };
+        let needs_analysis_condition = |state: &HashMap<String, Value>| -> bool {
+            // Example: Trigger analysis prompt once plan is available and metrics/dashboards are not yet available
+            state.contains_key("plan_available") 
+            && !state.contains_key("metrics_available")
+            && !state.contains_key("dashboards_available") 
+        };
+
+        // Add prompt rules (order matters)
+        // The agent will use the prompt associated with the first condition that evaluates to true.
+        // If none match, it uses the default (INITIALIZATION_PROMPT).
+        agent.add_dynamic_prompt_rule(needs_plan_condition, CREATE_PLAN_PROMPT.to_string()).await;
+        agent.add_dynamic_prompt_rule(needs_analysis_condition, ANALYSIS_PROMPT.to_string()).await;
 
         let manager = Self { agent };
         manager.load_tools().await?; // Load tools with conditions
@@ -149,6 +170,20 @@ impl BusterMultiAgent {
             existing_agent,
             "buster_super_agent".to_string(),
         ));
+
+        // Re-apply prompt rules for the new agent instance if necessary
+        // (Currently Agent::from_existing copies the default prompt but not rules)
+        let needs_plan_condition = |state: &HashMap<String, Value>| -> bool {
+            state.contains_key("data_context") && !state.contains_key("plan_available")
+        };
+        let needs_analysis_condition = |state: &HashMap<String, Value>| -> bool {
+            state.contains_key("plan_available") 
+            && !state.contains_key("metrics_available")
+            && !state.contains_key("dashboards_available") 
+        };
+        agent.add_dynamic_prompt_rule(needs_plan_condition, CREATE_PLAN_PROMPT.to_string()).await;
+        agent.add_dynamic_prompt_rule(needs_analysis_condition, ANALYSIS_PROMPT.to_string()).await;
+
         let manager = Self { agent };
         manager.load_tools().await?; // Load tools with conditions for the new agent instance
         Ok(manager)
@@ -158,9 +193,10 @@ impl BusterMultiAgent {
         &self,
         thread: &mut AgentThread,
     ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
-        thread.set_developer_message(INTIALIZATION_PROMPT.to_string());
+        // Remove the explicit setting of the developer message here
+        // thread.set_developer_message(INTIALIZATION_PROMPT.to_string());
 
-        // Get shutdown receiver
+        // Start processing (prompt is handled dynamically within process_thread_with_depth)
         let rx = self.stream_process_thread(thread).await?;
 
         Ok(rx)
