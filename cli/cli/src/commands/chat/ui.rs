@@ -106,12 +106,22 @@ fn render_messages(frame: &mut Frame, app: &AppState, area: Rect) {
                         .add_modifier(Modifier::BOLD),
                 );
 
-                let mut lines_for_msg = vec![prefix];
                 if let Some(c) = content {
-                    lines_for_msg.push(Span::styled(c, Style::default().fg(Color::White)));
+                    let lines: Vec<&str> = c.split('\n').collect();
+                    for (i, line_content) in lines.iter().enumerate() {
+                        let line_span = Span::styled(*line_content, Style::default().fg(Color::White));
+                        if i == 0 {
+                            message_lines.push(Line::from(vec![prefix.clone(), line_span]));
+                        } else {
+                            message_lines.push(Line::from(vec![
+                                Span::raw("  "),
+                                line_span,
+                            ]));
+                        }
+                    }
+                } else {
+                    message_lines.push(Line::from(prefix));
                 }
-
-                message_lines.push(Line::from(lines_for_msg));
 
                 if !is_in_progress {
                     message_lines.push(Line::from(""));
