@@ -31,7 +31,7 @@ export const FileCard = React.memo(
           <CardHeader variant={'gray'} size={'xsmall'} className="justify-center">
             <div className="flex items-center justify-between gap-x-1">
               {typeof fileName === 'string' ? <Text truncate>{fileName}</Text> : fileName}
-              <div className="flex items-center gap-1">{headerButtons}</div>
+              <div className="flex items-center gap-1 whitespace-nowrap">{headerButtons}</div>
             </div>
           </CardHeader>
         )}

@@ -59,9 +59,12 @@ const StreamingMessageStatus = React.memo(
     const content = useMemo(() => {
       if (status === 'loading')
         return (
-          <Text variant={'secondary'} size={'sm'} className="flex gap-1.5">
-            Running SQL... <CircleSpinnerLoader size={9} fill={'var(--color-text-secondary)'} />
-          </Text>
+          <div className="flex items-center gap-1.5">
+            <Text variant={'secondary'} size={'sm'}>
+              Running SQL...
+            </Text>
+            <CircleSpinnerLoader size={9} fill={'var(--color-text-primary)'} />
+          </div>
         );
       if (status === 'completed')
         return (
