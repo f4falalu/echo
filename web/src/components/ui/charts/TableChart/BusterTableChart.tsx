@@ -11,14 +11,11 @@ import { useMemoizedFn } from '@/hooks';
 import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import './TableChart.css';
 import { cn } from '@/lib/classMerge';
+import { useUpdateMetricChart } from '@/context/Metrics';
 
 export interface BusterTableChartProps extends BusterTableChartConfig, BusterChartPropsBase {}
 
-const BusterTableChartBase: React.FC<
-  BusterTableChartProps & {
-    onChangeConfig?: (config: Partial<IBusterMetricChartConfig>) => void;
-  }
-> = ({
+const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   className = '',
   onMounted,
   data,
@@ -27,13 +24,39 @@ const BusterTableChartBase: React.FC<
   tableColumnWidths = DEFAULT_CHART_CONFIG.tableColumnWidths,
   readOnly = false,
   onInitialAnimationEnd,
-  onChangeConfig,
   //TODO
   tableHeaderBackgroundColor,
   tableHeaderFontColor,
   animate,
   tableColumnFontColor
 }) => {
+  const { onUpdateMetricChartConfig } = useUpdateMetricChart();
+
+  const onChangeConfig = useMemoizedFn((config: Partial<IBusterMetricChartConfig>) => {
+    if (readOnly) return;
+    onUpdateMetricChartConfig({ chartConfig: config });
+  });
+
+  const onUpdateTableColumnOrder = useMemoizedFn((columns: string[]) => {
+    if (readOnly) return;
+    const config: Partial<IBusterMetricChartConfig> = {
+      tableColumnOrder: columns
+    };
+
+    onChangeConfig(config);
+  });
+
+  const onUpdateTableColumnSize = useMemoizedFn((columns: { key: string; size: number }[]) => {
+    if (readOnly) return;
+    const config: Partial<IBusterMetricChartConfig> = {
+      tableColumnWidths: columns.reduce<Record<string, number>>((acc, { key, size }) => {
+        acc[key] = Number(size.toFixed(1));
+        return acc;
+      }, {})
+    };
+    onChangeConfig(config);
+  });
+
   //THIS MUST BE A USE CALLBACK
   const onFormatHeader = useCallback(
     (value: any, columnName: string) => {
@@ -49,28 +72,8 @@ const BusterTableChartBase: React.FC<
     [columnLabelFormats]
   );
 
-  const onUpdateTableColumnOrder = useMemoizedFn((columns: string[]) => {
-    if (readOnly) return;
-    const config: Partial<IBusterMetricChartConfig> = {
-      tableColumnOrder: columns
-    };
-
-    onChangeConfig?.(config);
-  });
-
-  const onUpdateTableColumnSize = useMemoizedFn((columns: { key: string; size: number }[]) => {
-    if (readOnly) return;
-    const config: Partial<IBusterMetricChartConfig> = {
-      tableColumnWidths: columns.reduce<Record<string, number>>((acc, { key, size }) => {
-        acc[key] = size;
-        return acc;
-      }, {})
-    };
-    onChangeConfig?.(config);
-  });
-
   const onReady = useMemoizedFn(() => {
-    onMounted?.(); //I decided to remove this because it was causing a double render
+    onMounted?.();
     requestAnimationFrame(() => {
       onInitialAnimationEnd?.();
     });
