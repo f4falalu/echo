@@ -20,7 +20,9 @@ interface UseAutoScrollOptions {
    * If true, the hook will observe changes to the container's content and scroll position.
    * If false, the hook will only observe changes to the container's scroll position.
    */
-  observeDeepChanges?: boolean;
+  observeSubTree?: boolean;
+  observeCharacterData?: boolean;
+  observeAttributes?: boolean;
 
   /**
    * Duration in milliseconds to continue animations after a mutation.
@@ -72,7 +74,9 @@ export const useAutoScroll = (
     enabled = true,
     bottomThreshold = 50,
     chaseEasing = 0.2,
-    observeDeepChanges = true,
+    observeSubTree = true,
+    observeCharacterData = false,
+    observeAttributes = false,
     animationCooldown = 500
   } = options;
 
@@ -150,7 +154,8 @@ export const useAutoScroll = (
   // Set up the mutation observer
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !isAutoScrollEnabled || !enabled) return;
+
+    if (!container || !isAutoScrollEnabled) return;
 
     // Clean up previous observer if it exists
     if (observerRef.current) {
@@ -169,9 +174,9 @@ export const useAutoScroll = (
       // Configure observer to watch for changes
       const observerConfig = {
         childList: true,
-        subtree: observeDeepChanges,
-        characterData: observeDeepChanges,
-        attributes: observeDeepChanges
+        subtree: observeSubTree,
+        characterData: observeCharacterData,
+        attributes: observeAttributes
       };
 
       // Start observing
@@ -201,19 +206,22 @@ export const useAutoScroll = (
     isAutoScrollEnabled,
     containerRef,
     startScrollAnimation,
-    observeDeepChanges,
+    observeSubTree,
+    observeCharacterData,
+    observeAttributes,
     animationCooldown
   ]);
 
   // Listen for user–initiated events. Only disable auto–scroll if the container isn't near the bottom.
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !isAutoScrollEnabled || !enabled) return;
+    if (!container || !isAutoScrollEnabled) return;
 
     const disableAutoScrollHandler = () => {
       // Only disable auto–scroll if we're not near the bottom.
       if (!isAtBottom(container, bottomThreshold)) {
         setIsAutoScrollEnabled(false);
+        console.log('disableAutoScrollHandler', isAutoScrollEnabled, enabled);
 
         // Stop any ongoing animations
         if (rAFIdRef.current) {
@@ -235,7 +243,7 @@ export const useAutoScroll = (
       container.removeEventListener('touchstart', disableAutoScrollHandler);
       container.removeEventListener('mousedown', disableAutoScrollHandler);
     };
-  }, [containerRef, bottomThreshold, enabled]);
+  }, [containerRef, bottomThreshold, isAutoScrollEnabled]);
 
   // Listen for scroll events. If the user scrolls back close to the bottom, re-enable auto–scroll.
   useEffect(() => {
@@ -252,11 +260,7 @@ export const useAutoScroll = (
     return () => {
       container.removeEventListener('scroll', onScroll);
     };
-  }, [containerRef, bottomThreshold]);
-
-  useEffect(() => {
-    setIsAutoScrollEnabled(enabled);
-  }, [enabled]);
+  }, [containerRef, isAutoScrollEnabled, bottomThreshold]);
 
   // Exposed functions.
 

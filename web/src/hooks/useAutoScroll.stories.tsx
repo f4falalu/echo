@@ -14,9 +14,10 @@ const AutoScrollDemo = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAutoAddEnabled, setIsAutoAddEnabled] = useState(false);
+  const [enabled, setEnabled] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout>();
   const { isAutoScrollEnabled, scrollToBottom, scrollToTop, enableAutoScroll, disableAutoScroll } =
-    useAutoScroll(containerRef);
+    useAutoScroll(containerRef, { enabled, observeSubTree: true });
 
   const addMessage = () => {
     const newMessage: Message = {
@@ -79,6 +80,13 @@ const AutoScrollDemo = () => {
               : 'bg-purple-400 hover:bg-purple-500'
           }`}>
           Auto Add {isAutoAddEnabled ? 'ON' : 'OFF'}
+        </button>
+        <button
+          onClick={() => setEnabled(!enabled)}
+          className={`rounded px-4 py-2 text-white ${
+            enabled ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
+          }`}>
+          Enabled {enabled ? 'ON' : 'OFF'}
         </button>
       </div>
 
@@ -210,7 +218,7 @@ export const ScrollAreaComponentWithAutoScroll: Story = {
       scrollToTop,
       enableAutoScroll,
       disableAutoScroll
-    } = useAutoScroll(containerRef, { observeDeepChanges: true });
+    } = useAutoScroll(containerRef, {});
 
     const addCard = useCallback(() => {
       setCards((prev) => [...prev, generateCard(prev.length + 1)]);
@@ -309,7 +317,7 @@ export const RapidTextAppend: Story = {
     const intervalRef = useRef<NodeJS.Timeout>();
     const { isAutoScrollEnabled, enableAutoScroll, disableAutoScroll } = useAutoScroll(
       containerRef,
-      { observeDeepChanges: true }
+      { observeSubTree: true, observeCharacterData: true, observeAttributes: false }
     );
 
     const addWord = useCallback(() => {

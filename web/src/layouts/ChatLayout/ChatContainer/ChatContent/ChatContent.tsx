@@ -13,25 +13,19 @@ const autoClass = 'mx-auto max-w-[600px] w-full';
 export const ChatContent: React.FC<{}> = React.memo(() => {
   const chatId = useChatIndividualContextSelector((state) => state.chatId);
   const chatMessageIds = useChatIndividualContextSelector((state) => state.chatMessageIds);
-
   const containerRef = useRef<HTMLElement | null>(null);
-  const [autoMessages, setAutoMessages] = useState<string[]>([]);
-  const { isAutoScrollEnabled, scrollToBottom } = useAutoScroll(containerRef, {
-    observeDeepChanges: true
+
+  const { isAutoScrollEnabled, scrollToBottom, enableAutoScroll } = useAutoScroll(containerRef, {
+    observeSubTree: true,
+    enabled: false
   });
 
   useEffect(() => {
     const container = document.getElementById(CHAT_CONTENT_CONTAINER_ID);
     if (!container) return;
-    console.log('ADD IN A TODO ABOUT IS COMPLETED STREAM');
     containerRef.current = container;
-
-    setInterval(() => {
-      setAutoMessages((prev) => [...prev, 'This is a test ' + prev.length]);
-    }, 22220);
+    enableAutoScroll();
   }, []);
-
-  console.log('isAutoScrollEnabled', isAutoScrollEnabled);
 
   return (
     <>
@@ -41,14 +35,6 @@ export const ChatContent: React.FC<{}> = React.memo(() => {
             <ChatMessageBlock key={messageId} messageId={messageId} chatId={chatId || ''} />
           </div>
         ))}
-
-        <div className="mx-2 flex flex-wrap gap-1 overflow-hidden">
-          {autoMessages.map((message, index) => (
-            <span key={index} className="w-fit rounded border p-0.5 text-red-700">
-              {message}
-            </span>
-          ))}
-        </div>
       </div>
 
       <ChatInputWrapper>
