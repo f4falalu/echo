@@ -171,6 +171,8 @@ pub struct Agent {
     default_prompt: String,
     /// Ordered rules for dynamically selecting system prompts
     dynamic_prompt_rules: Arc<RwLock<Vec<DynamicPromptRule>>>,
+    /// List of tool names that should terminate the agent loop upon successful execution.
+    terminating_tool_names: Arc<RwLock<Vec<String>>>,
 }
 
 impl Agent {
@@ -204,12 +206,13 @@ impl Agent {
             name,
             default_prompt,
             dynamic_prompt_rules: Arc::new(RwLock::new(Vec::new())),
+            terminating_tool_names: Arc::new(RwLock::new(Vec::new())), // Initialize empty list
         }
     }
 
     /// Create a new Agent that shares state and stream with an existing agent
     pub fn from_existing(
-        existing_agent: &Agent, 
+        existing_agent: &Agent,
         name: String,
         default_prompt: String,
     ) -> Self {
@@ -231,6 +234,7 @@ impl Agent {
             name,
             default_prompt,
             dynamic_prompt_rules: Arc::new(RwLock::new(Vec::new())),
+            terminating_tool_names: Arc::clone(&existing_agent.terminating_tool_names), // Share the list with parent
         }
     }
 
@@ -582,7 +586,7 @@ impl Agent {
             model: self.model.clone(),
             messages: llm_messages, // Use the dynamically prepared messages list
             tools: if tools.is_empty() { None } else { Some(tools) },
-            tool_choice: Some(ToolChoice::Auto),
+            tool_choice: Some(ToolChoice::Required),
             stream: Some(true), // Enable streaming
             metadata: Some(Metadata {
                 generation_name: "agent".to_string(),
@@ -785,8 +789,10 @@ impl Agent {
         if let Some(tool_calls) = final_tool_calls {
             let mut results = Vec::new();
             let agent_tools = self.tools.read().await; // Read tools once
+            let terminating_names = self.terminating_tool_names.read().await; // Read terminating names once
 
             // Execute each requested tool
+            let mut should_terminate = false; // Flag to indicate if loop should terminate after this tool
             for tool_call in tool_calls {
                  // Find the registered tool entry
                 if let Some(registered_tool) = agent_tools.get(&tool_call.function.name) {
@@ -898,9 +904,16 @@ impl Agent {
                      }
 
 
-                    // Update thread with tool response
+                    // Update thread with tool response BEFORE checking termination
                     self.update_current_thread(tool_message.clone()).await?;
                     results.push(tool_message);
+
+                    // Check if this tool's name is in the terminating list
+                    if terminating_names.contains(&tool_call.function.name) {
+                        should_terminate = true;
+                        tracing::info!("Tool '{}' triggered agent termination.", tool_call.function.name);
+                        break; // Exit the tool execution loop
+                    }
                 } else {
                      // Handle case where the LLM hallucinated a tool name
                      let err_msg = format!("Attempted to call non-existent tool: {}", tool_call.function.name);
@@ -922,6 +935,18 @@ impl Agent {
                     // Continue processing other tool calls if any
                 }
             }
+
+            // If a tool signaled termination, send Done and finish.
+            if should_terminate {
+                 // Finish the trace without consuming it
+                self.finish_trace(&trace_builder).await?;
+                // Send Done message
+                if let Err(e) = self.get_stream_sender().await.send(Ok(AgentMessage::Done)) {
+                     tracing::debug!("Failed to send Done message after tool termination (receiver likely dropped): {}", e);
+                 }
+                return Ok(()); // Exit the function, preventing recursion
+            }
+
 
             // Create a new thread with the tool results and continue recursively
             let mut new_thread = thread.clone();
@@ -1045,6 +1070,11 @@ impl Agent {
         }
 
         self.default_prompt.clone() // Fallback to default prompt if no rules match
+    }
+
+    /// Register a tool name that should terminate the agent loop upon successful execution.
+    pub async fn register_terminating_tool(&self, name: String) {
+        self.terminating_tool_names.write().await.push(name);
     }
 }
 
