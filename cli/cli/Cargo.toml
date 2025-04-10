@@ -11,8 +11,8 @@ path = "src/lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = { workspace = true }
-async-trait = { workspace = true }
+anyhow = "1.0.71"
+async-trait = "0.1.77"
 clap = { workspace = true, features = ["derive", "env"] }
 confy = { workspace = true }
 dirs = { workspace = true }
@@ -27,12 +27,13 @@ rpassword = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
+strip-ansi-escapes = "0.2"
 tempfile = { workspace = true }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = ["full"] }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "sync", "time"] }
 tokio-util = { workspace = true, features = ["io"] }
 futures-util = { workspace = true }
-uuid = { workspace = true, features = ["v4", "serde"] }
+uuid = { version = "1.4.1", features = ["v4", "serde"] }
 colored = { workspace = true }
 rustls = { workspace = true, features = ["tls12"] }
 url = { workspace = true }
@@ -42,6 +43,15 @@ walkdir = { workspace = true }
 semver = { workspace = true }
 # Add the shared query engine library
 query_engine = { workspace = true }
+
+litellm = { path = "../../api/libs/litellm" }
+
+rustyline = "15.0"
+
+[profile.dev]
+# Increase parallel code generation units for faster debug builds
+codegen-units = 16 
+debug = 1
 
 [build-dependencies]
 chrono = { workspace = true }
