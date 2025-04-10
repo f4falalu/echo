@@ -85,56 +85,29 @@ const TitleContainer: React.FC<{
 }> = React.memo(({ title, secondaryTitle, isCompletedStream }) => {
   return (
     <div className={cn('@container', 'flex w-full items-center space-x-1.5 overflow-hidden')}>
-      <AnimatedThoughtTitle title={title} type="default" isCompletedStream={isCompletedStream} />
-      <AnimatedThoughtTitle
-        title={secondaryTitle}
-        isCompletedStream={isCompletedStream}
-        type="tertiary"
-        className="secondary-text truncate"
-      />
+      <AnimatePresence mode="wait" initial={!isCompletedStream}>
+        <motion.div
+          className="flex items-center space-x-1.5"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ delay: 0 }}
+          key={title + secondaryTitle}>
+          <Text size="sm" className={cn(`whitespace-nowrap`)} variant={'default'}>
+            {title}
+          </Text>
+          {secondaryTitle && (
+            <Text
+              size="sm"
+              className={cn(`hidden whitespace-nowrap @[170px]:flex!`)}
+              variant={'tertiary'}>
+              {secondaryTitle}
+            </Text>
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 });
 
 TitleContainer.displayName = 'TitleContainer';
-
-const AnimatedThoughtTitle = React.memo(
-  ({
-    title,
-    type,
-    isCompletedStream,
-    className = ''
-  }: {
-    title: string | undefined;
-    type: 'tertiary' | 'default';
-    className?: string;
-    isCompletedStream: boolean;
-  }) => {
-    const isSecondaryTitle = type === 'tertiary';
-    return (
-      <AnimatePresence initial={!isCompletedStream && isSecondaryTitle} mode="wait">
-        {title && (
-          <motion.div
-            className="flex"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ delay: isSecondaryTitle ? 0.5 : 0.125 }}
-            key={title}>
-            <Text
-              size="sm"
-              className={cn(
-                `whitespace-nowrap`,
-                isSecondaryTitle ? 'hidden @[170px]:flex!' : '',
-                className
-              )}
-              variant={type}>
-              {title}
-            </Text>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    );
-  }
-);
-AnimatedThoughtTitle.displayName = 'AnimatedThoughtTitle';
