@@ -92,7 +92,7 @@ export const useTrendlines = ({
           pointRadius: 0,
           yAxisID: 'y',
           stack: id,
-          tension: 0.35,
+          tension: 0.25,
           order: -1,
           datalabels: showTrendlineLabel
             ? {

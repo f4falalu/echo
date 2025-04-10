@@ -111,8 +111,6 @@ const getAssetAccess = ({
 
   const status = error?.status;
 
-  console.log(error, status);
-
   if (status === 418) {
     return {
       hasAccess: false,

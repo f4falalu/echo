@@ -152,7 +152,7 @@ const getLabelPosition = (isStackedArea: boolean) => {
 const getLineTension = (lineType: ColumnSettings['lineType']) => {
   switch (lineType) {
     case 'smooth':
-      return 0.125;
+      return 0.375;
     default:
       return 0;
   }
