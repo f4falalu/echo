@@ -80,6 +80,7 @@ type RenderBuilderProps = Pick<
   | 'columnLabelFormats'
   | 'xAxisKeys'
   | 'lineGroupType'
+  | 'barGroupType'
 > & {
   yAxisItem: SeriesBuilderProps['allYAxisKeysIndexes'][number];
   index: number;
