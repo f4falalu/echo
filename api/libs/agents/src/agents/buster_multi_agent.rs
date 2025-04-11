@@ -269,6 +269,13 @@ impl BusterMultiAgent {
         &self,
         thread: &mut AgentThread,
     ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
+        self.get_agent()
+            .set_state_value(
+                "user_prompt".to_string(),
+                Value::String(self.get_latest_user_message(thread).unwrap_or_default()),
+            )
+            .await;
+
         // Start processing (prompt is handled dynamically within process_thread_with_depth)
         let rx = self.stream_process_thread(thread).await?;
 
@@ -278,6 +285,20 @@ impl BusterMultiAgent {
     /// Shutdown the manager agent and all its tools
     pub async fn shutdown(&self) -> Result<()> {
         self.get_agent().shutdown().await
+    }
+
+    /// Gets the most recent user message from the agent thread
+    ///
+    /// This function extracts the latest message with role "user" from the thread's messages.
+    /// Returns None if no user messages are found.
+    pub fn get_latest_user_message(&self, thread: &AgentThread) -> Option<String> {
+        // Iterate through messages in reverse order to find the most recent user message
+        for message in thread.messages.iter().rev() {
+            if let AgentMessage::User { content, .. } = message {
+                return Some(content.clone());
+            }
+        }
+        None
     }
 }
 
