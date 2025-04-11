@@ -43,7 +43,7 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = ({
     position: 'relative',
     whiteSpace: 'nowrap',
     width: header.column.getSize(),
-    opacity: isDragging ? 0.65 : 1,
+    opacity: isDragging ? 0.95 : 1,
     transition: 'none', // Prevent any transitions for snappy changes
     height: `${HEADER_HEIGHT}px` // Set fixed header height
   };
@@ -116,6 +116,8 @@ interface DataGridHeaderProps {
   rowVirtualizer: Virtualizer<HTMLDivElement, Element>;
 }
 
+const HEADER_DROP_TARGET_ID = 'buster-base-header-container';
+
 export const DataGridHeader: React.FC<DataGridHeaderProps> = ({
   rowVirtualizer,
   table,
@@ -127,13 +129,20 @@ export const DataGridHeader: React.FC<DataGridHeaderProps> = ({
 
   const showScrollShadow = (rowVirtualizer?.scrollOffset || 0) > 10;
 
+  const { setNodeRef: setDropNodeRef } = useDroppable({
+    id: HEADER_DROP_TARGET_ID
+  });
+  const isOverHeaderDropTarget = overTargetId === HEADER_DROP_TARGET_ID;
+
   return (
     <>
       <thead className="bg-background sticky top-0 z-10 w-full" suppressHydrationWarning>
         <tr
+          ref={setDropNodeRef}
           className={cn(
-            'flex border-b transition-all duration-200',
-            showScrollShadow && 'shadow-sm'
+            'data-grid-header flex border-b transition-all duration-200',
+            showScrollShadow && 'shadow-sm',
+            isOverHeaderDropTarget && 'bg-primary/10'
           )}>
           {table
             .getHeaderGroups()[0]
