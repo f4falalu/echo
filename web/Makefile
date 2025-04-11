@@ -5,7 +5,7 @@ build:
 	rm -rf ./next && npm i && npm run build
 
 start:
-	npm run build && npm run start
+	npm i && npm run build && npm run start
 
 fast:
 	npm run dev
