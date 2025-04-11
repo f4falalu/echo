@@ -114,6 +114,42 @@ export const CustomList: React.FC<
   );
 };
 
+export const CustomOrderedList: React.FC<
+  {
+    children?: React.ReactNode;
+    markdown: string;
+    showLoader: boolean;
+  } & ExtraPropsExtra
+> = ({ children, markdown, showLoader, ...rest }) => {
+  return (
+    <ol
+      className={cn(
+        'leading-1.3 list-decimal space-y-1',
+        showLoader && 'animate-in fade-in duration-700'
+      )}>
+      {children}
+    </ol>
+  );
+};
+
+export const CustomUnorderedList: React.FC<
+  {
+    children?: React.ReactNode;
+    markdown: string;
+    showLoader: boolean;
+  } & ExtraPropsExtra
+> = ({ children, markdown, showLoader, ...rest }) => {
+  return (
+    <ul
+      className={cn(
+        'leading-1.3 mt-1 list-inside list-disc space-y-1',
+        showLoader && 'animate-in fade-in duration-700'
+      )}>
+      {children}
+    </ul>
+  );
+};
+
 export const CustomListItem: React.FC<
   {
     children?: React.ReactNode;
@@ -124,7 +160,7 @@ export const CustomListItem: React.FC<
   return (
     <li
       className={cn(
-        'leading-1.3 list-inside list-disc',
+        'leading-1.3 list-inside space-y-1',
         showLoader && 'animate-in fade-in duration-700'
       )}>
       {children}

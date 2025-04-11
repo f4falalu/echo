@@ -8,7 +8,9 @@ import {
   CustomListItem,
   CustomParagraph,
   CustomBlockquote,
-  CustomSpan
+  CustomSpan,
+  CustomOrderedList,
+  CustomUnorderedList
 } from './AppMarkdownCommon';
 import { useMemoizedFn } from '@/hooks';
 import styles from './AppMarkdown.module.css';
@@ -40,6 +42,8 @@ const AppMarkdownBase: React.FC<{
   const listItem = useMemoizedFn((props) => <CustomListItem {...props} {...commonProps} />);
   const blockquote = useMemoizedFn((props) => <CustomBlockquote {...props} {...commonProps} />);
   const span = useMemoizedFn((props) => <CustomSpan {...props} {...commonProps} />);
+  const ol = useMemoizedFn((props) => <CustomOrderedList {...props} {...commonProps} />);
+  const ul = useMemoizedFn((props) => <CustomUnorderedList {...props} {...commonProps} />);
   const li = useMemoizedFn((props) => <CustomListItem {...props} {...commonProps} />);
   const p = useMemoizedFn((props) => <CustomParagraph {...props} {...commonProps} />);
   const h1 = useMemoizedFn((props) => <CustomHeading level={1} {...props} {...commonProps} />);
@@ -65,7 +69,9 @@ const AppMarkdownBase: React.FC<{
       h4,
       h5,
       h6,
-      li
+      li,
+      ol,
+      ul
     };
   }, []);
 
