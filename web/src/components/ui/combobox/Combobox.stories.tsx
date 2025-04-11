@@ -4,7 +4,7 @@ import { Combobox } from './Combobox';
 import { Window, WindowUser, WindowSettings } from '@/components/ui/icons/NucleoIconOutlined';
 
 const meta: Meta<typeof Combobox> = {
-  title: 'UI/combobox/Combobox',
+  title: 'UI/Combobox/Combobox',
   component: Combobox,
   parameters: {
     layout: 'centered'

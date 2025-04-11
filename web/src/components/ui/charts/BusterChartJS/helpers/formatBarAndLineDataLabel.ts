@@ -9,7 +9,6 @@ export const formatBarAndLineDataLabel = (
   columnLabelFormat: ColumnLabelFormat
 ) => {
   if (!percentageMode) {
-    console.log('formatBarAndLineDataLabel', value, columnLabelFormat);
     return formatLabel(value, columnLabelFormat);
   }
 
