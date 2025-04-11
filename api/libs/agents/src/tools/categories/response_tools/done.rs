@@ -51,7 +51,7 @@ impl ToolExecutor for Done {
                 "properties": {
                 "final_response": {
                     "type": "string",
-                    "description": "The final response to display to the use after all tasks are completed."
+                    "description": "The final response done in markdown format. No headers though. Bullet points in markdown please."
                 }
                 },
                 "additionalProperties": false
