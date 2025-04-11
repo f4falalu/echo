@@ -2,8 +2,7 @@ import {
   DEFAULT_CHART_CONFIG_ENTRIES,
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,
-  type IBusterMetricChartConfig,
-  DEFAULT_CHART_CONFIG
+  type IBusterMetricChartConfig
 } from '@/api/asset_interfaces/metric';
 import { getChangedValues } from '@/lib/objects';
 import type { DataMetadata, IBusterMetric } from '@/api/asset_interfaces/metric';

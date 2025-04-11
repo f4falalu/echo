@@ -27,14 +27,18 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   //TODO
   tableHeaderBackgroundColor,
   tableHeaderFontColor,
-  animate,
   tableColumnFontColor
 }) => {
-  const { onUpdateMetricChartConfig } = useUpdateMetricChart();
+  const { onUpdateMetricChartConfig, onSaveMetricToServer } = useUpdateMetricChart();
 
   const onChangeConfig = useMemoizedFn((config: Partial<IBusterMetricChartConfig>) => {
     if (readOnly) return;
     onUpdateMetricChartConfig({ chartConfig: config });
+
+    if (tableColumnWidths === null) {
+      //if the tableColumnWidths is null, we need to save the metric to the server just to initialize the tableColumnWidths
+      setTimeout(() => onSaveMetricToServer(), 0);
+    }
   });
 
   const onUpdateTableColumnOrder = useMemoizedFn((columns: string[]) => {

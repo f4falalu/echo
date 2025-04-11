@@ -186,7 +186,7 @@ export const prefetchGetMetricDataClient = async (
 export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
   const queryClient = useQueryClient();
-  const { setOriginalMetric } = useOriginalMetricStore();
+  const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
 
   return useMutation({
     mutationFn: updateMetric,

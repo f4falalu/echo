@@ -1,9 +1,11 @@
 import { measureTextWidth } from '@/lib';
 import sampleSize from 'lodash/sampleSize';
 import clamp from 'lodash/clamp';
-import { MIN_COLUMN_WIDTH, MAX_COLUMN_WIDTH } from './constants';
 
-export const initializeColumnWidths = (
+export const MIN_COLUMN_WIDTH = 80;
+export const MAX_COLUMN_WIDTH = 370;
+
+export const createDefaultTableColumnWidths = (
   fields: string[],
   rows: Record<string, string | number | null | Date>[],
   columnWidthsProp: Record<string, number> | undefined,

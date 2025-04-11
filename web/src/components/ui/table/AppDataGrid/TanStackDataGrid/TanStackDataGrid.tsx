@@ -14,9 +14,9 @@ import { cn } from '@/lib/classMerge';
 import { DataGridHeader } from './DataGridHeader';
 import { DataGridRow } from './DataGridRow';
 import { CELL_HEIGHT, OVERSCAN } from './constants';
-import { initializeColumnWidths } from './initializeColumnWidths';
 import { SortColumnWrapper } from './SortColumnWrapper';
 import { useDebounceFn } from '@/hooks';
+import { createDefaultTableColumnWidths } from '@/lib/metrics/messageAutoChartHandler/createDefaultTableColumnWidths';
 
 export interface TanStackDataGridProps {
   className?: string;
@@ -61,7 +61,13 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
     // Set up initial states for sorting, column sizing, and column order.
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnSizing, setColumnSizing] = useState(() => {
-      return initializeColumnWidths(fields, rows, columnWidthsProp, cellFormat, headerFormat);
+      return createDefaultTableColumnWidths(
+        fields,
+        rows,
+        columnWidthsProp,
+        cellFormat,
+        headerFormat
+      );
     });
     const [colOrder, setColOrder] = useState<string[]>(serverColumnOrder || fields);
 

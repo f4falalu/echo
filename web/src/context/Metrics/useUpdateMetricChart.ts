@@ -17,7 +17,7 @@ export const useUpdateMetricChart = (props?: { metricId?: string }) => {
   const params = useParams<{ metricId?: string }>();
   const metricId = props?.metricId ?? params.metricId ?? '';
   const [isSaving, setIsSaving] = useState(false);
-  const { mutate: onUpdateMetricDebounced } = useUpdateMetric({
+  const { mutate: onUpdateMetric } = useUpdateMetric({
     updateVersion: false,
     updateOnSave: false,
     saveToServer: false
@@ -53,7 +53,7 @@ export const useUpdateMetricChart = (props?: { metricId?: string }) => {
         ...chartConfig
       };
 
-      onUpdateMetricDebounced({
+      onUpdateMetric({
         id: metricId,
         chart_config: newChartConfig
       });
@@ -112,7 +112,7 @@ export const useUpdateMetricChart = (props?: { metricId?: string }) => {
     setIsSaving(true);
     const currentMetric = getMetricMemoized(metricId);
     if (currentMetric) await saveMetricToServer(currentMetric);
-    await timeout(350);
+    await timeout(150);
     setIsSaving(false);
   });
 

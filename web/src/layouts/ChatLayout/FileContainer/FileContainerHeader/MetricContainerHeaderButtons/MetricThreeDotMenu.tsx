@@ -23,7 +23,8 @@ import {
   Star,
   ShareRight,
   FullScreen,
-  ArrowUpRight
+  ArrowUpRight,
+  Table
 } from '@/components/ui/icons';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -375,7 +376,7 @@ const useResultsViewSelectMenu = () => {
       label: 'Results view',
       value: 'results-view',
       onClick: onClickButton,
-      icon: <SquareChartPen />
+      icon: <Table />
     }),
     []
   );
