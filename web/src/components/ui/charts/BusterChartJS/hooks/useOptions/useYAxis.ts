@@ -109,7 +109,7 @@ export const useYAxis = ({
       return {
         type,
         grid,
-        max: lineGroupType === 'percentage-stack' ? 100 : undefined,
+        max: usePercentageModeAxis ? 100 : undefined,
         beginAtZero: yAxisStartAxisAtZero !== false,
         stacked,
         title: {
@@ -133,7 +133,7 @@ export const useYAxis = ({
       isSupportedType,
       yAxisStartAxisAtZero,
       yAxisShowAxisLabel,
-      lineGroupType
+      usePercentageModeAxis
     ]);
 
   return memoizedYAxisOptions;
