@@ -102,12 +102,6 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   );
 };
 
-export const BusterTableChart = React.memo(BusterTableChartBase, (prev, next) => {
-  return (
-    isEqual(prev.data, next.data) &&
-    isEqual(JSON.stringify(prev.columnLabelFormats), JSON.stringify(next.columnLabelFormats)) &&
-    isEqual(prev.tableColumnOrder, next.tableColumnOrder)
-  );
-});
+export const BusterTableChart = React.memo(BusterTableChartBase);
 
 export default BusterTableChart;
