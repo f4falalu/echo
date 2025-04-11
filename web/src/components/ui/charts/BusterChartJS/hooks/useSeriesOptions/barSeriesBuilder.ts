@@ -246,7 +246,13 @@ const getBarDimensions = (context: Context) => {
     context.dataIndex
   ] as BarElement;
 
-  const { width: barWidth, height: barHeight } = barElement.getProps(['width', 'height'], true);
+  const { width: barWidth, height: barHeight } = barElement?.getProps?.(
+    ['width', 'height'],
+    true
+  ) || {
+    width: 0,
+    height: 0
+  };
   return { barWidth, barHeight };
 };
 
@@ -286,8 +292,8 @@ const setGlobalRotation = (context: Context) => {
     });
 
   const labelNeedsToBeRotated = labels.some((label) => {
-    if (!label && !!context.chart.ctx.measureText) return false;
-    const { width: textWidth } = context.chart.ctx.measureText(label);
+    if (!label && !!context.chart.ctx?.measureText) return false;
+    const { width: textWidth } = context.chart.ctx?.measureText?.(label) || { width: 0 };
     const { barWidth, barHeight } = getBarDimensions(context);
     return textWidth > barWidth - TEXT_WIDTH_BUFFER;
   });

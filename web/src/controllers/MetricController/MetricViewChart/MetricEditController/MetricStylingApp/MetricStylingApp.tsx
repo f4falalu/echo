@@ -77,7 +77,8 @@ export const MetricStylingApp: React.FC<{
     yAxisShowAxisTitle,
     y2AxisShowAxisTitle,
     scatterDotSize,
-    disableTooltip
+    disableTooltip,
+    pieSortBy
   } = chartConfig;
 
   const selectedAxis: ChartEncodes | null = getSelectedAxis(
@@ -175,6 +176,7 @@ export const MetricStylingApp: React.FC<{
             columnLabelFormats={columnLabelFormats}
             barShowTotalAtTop={barShowTotalAtTop}
             rowCount={rowCount}
+            pieSortBy={pieSortBy}
           />
         )}
 

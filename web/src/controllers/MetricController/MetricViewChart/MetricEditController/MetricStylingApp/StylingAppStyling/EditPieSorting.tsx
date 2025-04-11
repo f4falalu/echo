@@ -8,14 +8,14 @@ import { useMemoizedFn } from '@/hooks';
 
 const options: SegmentedItem<NonNullable<PieSortBy> | 'none'>[] = [
   {
-    value: 'key',
-    tooltip: 'Sort by key',
-    icon: <SortAlphaAscending />
-  },
-  {
     icon: <SortNumAscending />,
     value: 'value',
     tooltip: 'Sort by value'
+  },
+  {
+    value: 'key',
+    tooltip: 'Sort by key',
+    icon: <SortAlphaAscending />
   },
   {
     icon: <Empty />,

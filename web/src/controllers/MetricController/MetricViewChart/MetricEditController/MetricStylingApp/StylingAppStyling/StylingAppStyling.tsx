@@ -39,11 +39,14 @@ const UNSUPPORTED_CHART_TYPES: ChartType[] = [ChartType.Table, ChartType.Metric]
 export const StylingAppStyling: React.FC<
   {
     className?: string;
-  } & Parameters<typeof StylingAppStylingNotSupported>[0] &
-    Parameters<typeof GlobalSettings>[0] &
-    Parameters<typeof ChartSpecificSettings>[0] &
-    Parameters<typeof EtcSettings>[0] &
-    Parameters<typeof PieSettings>[0]
+  } & Omit<
+    Parameters<typeof StylingAppStylingNotSupported>[0] &
+      Parameters<typeof GlobalSettings>[0] &
+      Parameters<typeof ChartSpecificSettings>[0] &
+      Parameters<typeof EtcSettings>[0] &
+      Parameters<typeof PieSettings>[0],
+    'onUpdateMetricChartConfig' | 'onUpdateYAxis' | 'onUpdateDataLabel' | 'onUpdateChartConfig'
+  >
 > = ({
   className = '',
   columnSettings,
