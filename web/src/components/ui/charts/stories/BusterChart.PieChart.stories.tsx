@@ -5,6 +5,7 @@ import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
 import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { generatePieChartData } from '../../../../mocks/chart/chartMocks';
 import { sharedMeta } from './BusterChartShared';
+import { faker } from '@faker-js/faker';
 
 type PieChartData = ReturnType<typeof generatePieChartData>;
 
@@ -168,5 +169,90 @@ export const ResizableContainer: Story = {
           'This story provides a resizable container. Drag the bottom-right corner to resize the chart.'
       }
     }
+  }
+};
+
+export const WithSortingByKey: Story = {
+  args: {
+    selectedChartType: ChartType.Pie,
+    data: Array.from({ length: 8 }, (_, index) => ({
+      segment: faker.word.adjective(),
+      value:
+        index === 1 || index === 5
+          ? faker.number.int({ min: 10, max: 25 })
+          : faker.number.int({ min: 50, max: 150 })
+    })),
+    pieChartAxis: {
+      x: ['segment'],
+      y: ['value']
+    },
+    pieSortBy: 'key',
+    columnMetadata: [
+      {
+        name: 'segment',
+        simple_type: 'text',
+        min_value: 0,
+        max_value: 100,
+        unique_values: 10,
+        type: 'text'
+      },
+      {
+        name: 'value',
+        simple_type: 'number',
+        min_value: 0,
+        max_value: 100,
+        unique_values: 10,
+        type: 'number'
+      }
+    ]
+  }
+};
+
+export const WithSortingByKeyWithDates: Story = {
+  args: {
+    selectedChartType: ChartType.Pie,
+    data: Array.from({ length: 8 }, (_, index) => ({
+      date: faker.date.recent({ days: 180 }).toISOString(),
+      value:
+        index === 1 || index === 5
+          ? faker.number.int({ min: 10, max: 25 })
+          : faker.number.int({ min: 50, max: 150 })
+    })),
+    pieChartAxis: {
+      x: ['date'],
+      y: ['value']
+    },
+    pieSortBy: 'key',
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date'
+      } satisfies IColumnLabelFormat
+    },
+    columnMetadata: [
+      {
+        name: 'date',
+        simple_type: 'date',
+        min_value: 0,
+        max_value: 100,
+        unique_values: 10,
+        type: 'date'
+      },
+      {
+        name: 'value',
+        simple_type: 'number',
+        min_value: 0,
+        max_value: 100,
+        unique_values: 10,
+        type: 'number'
+      }
+    ]
+  }
+};
+
+export const WithSortingByValue: Story = {
+  args: {
+    ...WithSortingByKey.args!,
+    pieSortBy: 'value'
   }
 };

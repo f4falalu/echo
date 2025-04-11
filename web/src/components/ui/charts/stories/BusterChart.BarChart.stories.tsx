@@ -422,3 +422,71 @@ export const LargeDatasetWithDualYAxis: Story = {
     );
   }
 };
+
+export const WithSorting: Story = {
+  args: {
+    ...Default.args,
+    barAndLineAxis: {
+      x: ['category'],
+      y: ['sales'],
+      category: []
+    },
+    barSortBy: ['asc']
+  }
+};
+
+export const WithDatesInXAxis: Story = {
+  args: {
+    ...Default.args,
+    data: Array.from({ length: 7 }, (_, index) => ({
+      date: faker.date.past({ years: 1 }).toISOString(),
+      sales: faker.number.int({ min: 1000, max: 10000 })
+    })),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['sales'],
+      category: []
+    },
+    //  barSortBy: ['asc'],
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'LL'
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const WithDatesInXAxisAndSorting: Story = {
+  args: {
+    ...Default.args,
+    data: Array.from({ length: 7 }, (_, index) => ({
+      date: faker.date.past({ years: 1 }).toISOString(),
+      sales: faker.number.int({ min: 1000, max: 10000 })
+    })),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['sales'],
+      category: []
+    },
+    barSortBy: ['asc'],
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'LL'
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};

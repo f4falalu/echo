@@ -3,40 +3,67 @@
 import {
   type BusterChartProps,
   type ChartType,
-  type BarSortBy
+  type BarSortBy,
+  PieSortBy
 } from '@/api/asset_interfaces/metric/charts';
 import { createDayjsDate } from '@/lib/date';
 import { extractFieldsFromChain, appendToKeyValueChain } from './groupingHelpers';
 import { DATASET_IDS, GROUPING_SEPARATOR } from './config';
 import { DatasetOption } from './interfaces';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
+import {
+  ColumnMetaData,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  SimplifiedColumnType
+} from '@/api/asset_interfaces/metric';
 
 type DataItem = NonNullable<BusterChartProps['data']>[number];
 
 export const sortLineBarData = (
   data: NonNullable<BusterChartProps['data']>,
+  columnMetadata: NonNullable<BusterChartProps['columnMetadata']>,
   xFieldSorts: string[],
   xFields: string[]
 ) => {
   if (xFieldSorts.length === 0) return data;
 
+  const columnMetadataRecord = columnMetadata.reduce<Record<string, ColumnMetaData>>(
+    (acc, curr) => {
+      acc[curr.name] = curr;
+      return acc;
+    },
+    {}
+  );
+
   const sortedData = [...data];
   if (xFieldSorts.length > 0) {
     sortedData.sort((a, b) => {
       for (let i = 0; i < xFieldSorts.length; i++) {
-        const dateField = xFields[i];
+        const field = xFields[i];
+        const fieldType: SimplifiedColumnType = columnMetadataRecord[field]?.simple_type || 'text';
+
         //NUMBER CASE
-        if (typeof a[dateField] === 'number' && typeof b[dateField] === 'number') {
-          if (a[dateField] !== b[dateField]) {
-            return (a[dateField] as number) - (b[dateField] as number);
+        if (
+          fieldType === 'number' ||
+          (typeof a[field] === 'number' && typeof b[field] === 'number')
+        ) {
+          if (a[field] !== b[field]) {
+            return (a[field] as number) - (b[field] as number);
           }
         }
+
         //DATE CASE
-        else {
-          const aDate = createDayjsDate(a[dateField] as string);
-          const bDate = createDayjsDate(b[dateField] as string);
+        else if (fieldType === 'date') {
+          const aDate = createDayjsDate(a[field] as string);
+          const bDate = createDayjsDate(b[field] as string);
           if (aDate.valueOf() !== bDate.valueOf()) {
             return aDate.valueOf() - bDate.valueOf();
+          }
+        }
+
+        //TEXT CASE
+        else {
+          if (a[field] !== b[field]) {
+            return String(a[field]).localeCompare(String(b[field]));
           }
         }
       }
@@ -197,6 +224,7 @@ export const getLineBarPieDatasetOptions = (
   selectedChartType: ChartType,
   pieMinimumSlicePercentage: number | undefined,
   barSortBy: BarSortBy | undefined,
+  pieSortBy: PieSortBy | undefined,
   yAxisKeys: string[], //only used this for pie charts
   xFieldDateSorts: string[],
   barGroupType: BusterChartProps['barGroupType'] | undefined,
@@ -278,6 +306,21 @@ export const getLineBarPieDatasetOptions = (
       id: DATASET_IDS.relativeStack,
       dimensions,
       source: relativeStackedData
+    });
+  }
+
+  if (selectedChartType === 'pie' && pieSortBy === 'value') {
+    const lastDataset = datasets[datasets.length - 1];
+    const lastSource = lastDataset.source as (string | number | Date | null)[][];
+    const sortedData = [...lastSource]
+      .sort((a, b) => {
+        return (Number(b[1]) || 0) - (Number(a[1]) || 0);
+      })
+      .reverse();
+    datasets.push({
+      id: DATASET_IDS.sortedByValue,
+      dimensions,
+      source: sortedData
     });
   }
 

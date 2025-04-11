@@ -41,6 +41,7 @@ export const DATASET_IDS = {
   raw: 'raw',
   relativeStack: 'relative-stack',
   sortedByBar: 'sorted-by-bar',
+  sortedByValue: 'sorted-by-value',
   rawWithDateNotDelimited: 'raw-with-date-not-delimited',
   pieMinimum: (yAxisKey: string) => `pie-minimum-${yAxisKey}`,
   //TRENDLINE IDS

@@ -19,7 +19,7 @@ export interface BusterChartTypeComponentProps
 export interface BusterChartComponentProps
   extends Omit<
       Required<BusterChartRenderComponentProps>,
-      'selectedAxis' | 'barSortBy' | 'trendlines' | 'data'
+      'selectedAxis' | 'barSortBy' | 'pieSortBy' | 'trendlines' | 'data'
     >,
     ReturnType<typeof useDatasetOptions> {
   selectedAxis: ChartEncodes;

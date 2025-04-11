@@ -9,12 +9,19 @@ import { useDatasetOptions } from './chartHooks';
 export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = ({
   data: dataProp,
   barSortBy,
+  pieSortBy,
   pieMinimumSlicePercentage,
   trendlines,
   ...props
 }) => {
-  const { barGroupType, lineGroupType, columnLabelFormats, selectedChartType, selectedAxis } =
-    props;
+  const {
+    barGroupType,
+    columnMetadata,
+    lineGroupType,
+    columnLabelFormats,
+    selectedChartType,
+    selectedAxis
+  } = props;
 
   const {
     datasetOptions,
@@ -32,7 +39,9 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     columnLabelFormats,
     barGroupType,
     lineGroupType,
-    trendlines
+    trendlines,
+    pieSortBy,
+    columnMetadata
   });
 
   const chartProps: BusterChartComponentProps = useMemo(

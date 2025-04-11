@@ -42,7 +42,8 @@ describe('useDatasetOptions - bar chart - all values are present', () => {
     pieMinimumSlicePercentage: undefined,
     barGroupType: undefined,
     lineGroupType: undefined,
-    trendlines: undefined
+    trendlines: undefined,
+    columnMetadata: []
   };
 
   it('should return the correct structure - has category', () => {
@@ -127,7 +128,8 @@ describe('useDatasetOptions - bar chart ', () => {
     pieMinimumSlicePercentage: undefined,
     barGroupType: undefined,
     lineGroupType: undefined,
-    trendlines: undefined
+    trendlines: undefined,
+    columnMetadata: []
   };
 
   it('should return the correct structure', () => {
@@ -201,7 +203,8 @@ describe('useDatasetOptions - bar chart - some numerical values are null', () =>
     pieMinimumSlicePercentage: undefined,
     barGroupType: undefined,
     lineGroupType: undefined,
-    trendlines: undefined
+    trendlines: undefined,
+    columnMetadata: []
   };
 
   it('should process bar chart data correctly', () => {
@@ -379,7 +382,8 @@ describe('useDatasetOptions - bar chart - some string values are null', () => {
     pieMinimumSlicePercentage: undefined,
     barGroupType: undefined,
     lineGroupType: undefined,
-    trendlines: undefined
+    trendlines: undefined,
+    columnMetadata: []
   };
 
   it('should process bar chart data correctly', () => {

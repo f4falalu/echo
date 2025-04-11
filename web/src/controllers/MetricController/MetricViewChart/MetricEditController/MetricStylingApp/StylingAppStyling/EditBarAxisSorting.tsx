@@ -8,21 +8,24 @@ import {
   ChartBarTrendDown,
   ChartBarTrendUp
 } from '@/components/ui/icons/NucleoIconFilled';
+import { BarChartSortAscIcon } from '@/components/ui/icons/customIcons/BarChartSortAscIcon';
+import { BarChartSortNoneIcon } from '@/components/ui/icons/customIcons/BarChart_NoSort';
+import { BarChartSortDescIcon } from '@/components/ui/icons/customIcons/BarChartSortDescIcon';
 import { useMemoizedFn } from '@/hooks';
 
 const options: SegmentedItem<BarSortBy[0]>[] = [
   {
     value: 'none',
     tooltip: 'No sorting',
-    icon: <ChartBarAxisX />
+    icon: <BarChartSortNoneIcon />
   },
   {
-    icon: <ChartBarTrendUp />,
+    icon: <BarChartSortAscIcon />,
     value: 'asc',
     tooltip: 'Sort ascending'
   },
   {
-    icon: <ChartBarTrendDown />,
+    icon: <BarChartSortDescIcon />,
     value: 'desc',
     tooltip: 'Sort descending'
   }

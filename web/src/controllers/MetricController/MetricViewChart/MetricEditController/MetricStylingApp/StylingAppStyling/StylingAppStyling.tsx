@@ -31,41 +31,20 @@ import {
 import { StylingAppStylingNotSupported } from './StylingAppStylingNotSupported';
 import { EditScatterDotSize } from './EditScatterDotSize';
 import { useUpdateMetricChart } from '@/context/Metrics';
+import { EditPieSorting } from './EditPieSorting';
 
 const sectionClass = 'flex w-full flex-col space-y-3 my-3';
 const UNSUPPORTED_CHART_TYPES: ChartType[] = [ChartType.Table, ChartType.Metric];
 
-export const StylingAppStyling: React.FC<{
-  className?: string;
-  columnSettings: IBusterMetricChartConfig['columnSettings'];
-  showLegend: IBusterMetricChartConfig['showLegend'];
-  gridLines: IBusterMetricChartConfig['gridLines'];
-  yAxisShowAxisLabel: IBusterMetricChartConfig['yAxisShowAxisLabel'];
-  yAxisShowAxisTitle: IBusterMetricChartConfig['yAxisShowAxisTitle'];
-  barSortBy: IBusterMetricChartConfig['barSortBy'];
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  pieChartAxis: IBusterMetricChartConfig['pieChartAxis'];
-  yAxisScaleType: IBusterMetricChartConfig['yAxisScaleType'];
-  y2AxisScaleType: IBusterMetricChartConfig['y2AxisScaleType'];
-  showLegendHeadline: IBusterMetricChartConfig['showLegendHeadline'];
-  goalLines: IBusterMetricChartConfig['goalLines'];
-  trendlines: IBusterMetricChartConfig['trendlines'];
-  pieDisplayLabelAs: IBusterMetricChartConfig['pieDisplayLabelAs'];
-  pieLabelPosition: IBusterMetricChartConfig['pieLabelPosition'];
-  pieDonutWidth: IBusterMetricChartConfig['pieDonutWidth'];
-  pieInnerLabelAggregate: IBusterMetricChartConfig['pieInnerLabelAggregate'];
-  pieInnerLabelTitle: IBusterMetricChartConfig['pieInnerLabelTitle'];
-  pieShowInnerLabel: IBusterMetricChartConfig['pieShowInnerLabel'];
-  pieMinimumSlicePercentage: IBusterMetricChartConfig['pieMinimumSlicePercentage'];
-  scatterDotSize: IBusterMetricChartConfig['scatterDotSize'];
-  selectedAxis: ChartEncodes;
-  columnMetadata: ColumnMetaData[];
-  rowCount: number;
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
-  barShowTotalAtTop: IBusterMetricChartConfig['barShowTotalAtTop'];
-}> = ({
+export const StylingAppStyling: React.FC<
+  {
+    className?: string;
+  } & Parameters<typeof StylingAppStylingNotSupported>[0] &
+    Parameters<typeof GlobalSettings>[0] &
+    Parameters<typeof ChartSpecificSettings>[0] &
+    Parameters<typeof EtcSettings>[0] &
+    Parameters<typeof PieSettings>[0]
+> = ({
   className = '',
   columnSettings,
   showLegend,
@@ -94,7 +73,8 @@ export const StylingAppStyling: React.FC<{
   columnLabelFormats,
   barShowTotalAtTop,
   yAxisShowAxisTitle,
-  rowCount
+  rowCount,
+  pieSortBy
 }) => {
   const { onUpdateMetricChartConfig } = useUpdateMetricChart();
 
@@ -167,6 +147,7 @@ export const StylingAppStyling: React.FC<{
         selectedAxis={selectedAxis}
         columnLabelFormats={columnLabelFormats}
         barShowTotalAtTop={barShowTotalAtTop}
+        pieSortBy={pieSortBy}
       />
 
       {selectedChartType === 'pie' && (
@@ -201,22 +182,19 @@ export const StylingAppStyling: React.FC<{
   );
 };
 
-const GlobalSettings: React.FC<{
-  className: string;
-  showLegend: IBusterMetricChartConfig['showLegend'];
-  gridLines: IBusterMetricChartConfig['gridLines'];
-  columnSettings: IBusterMetricChartConfig['columnSettings'];
-  yAxisShowAxisTitle: IBusterMetricChartConfig['yAxisShowAxisTitle'];
-  yAxisShowAxisLabel: IBusterMetricChartConfig['yAxisShowAxisLabel'];
-  pieDisplayLabelAs: IBusterMetricChartConfig['pieDisplayLabelAs'];
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  pieLabelPosition: IBusterMetricChartConfig['pieLabelPosition'];
-  selectedAxis: ChartEncodes;
-  rowCount: number;
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
-  onUpdateDataLabel: (v: boolean) => void;
-  onUpdateYAxis: (v: boolean) => void;
-}> = ({
+const GlobalSettings: React.FC<
+  {
+    className: string;
+    columnSettings: IBusterMetricChartConfig['columnSettings'];
+    yAxisShowAxisTitle: IBusterMetricChartConfig['yAxisShowAxisTitle'];
+    yAxisShowAxisLabel: IBusterMetricChartConfig['yAxisShowAxisLabel'];
+  } & Parameters<typeof EditShowLegend>[0] &
+    Parameters<typeof EditGridLines>[0] &
+    Omit<Parameters<typeof EditHideYAxis>[0], 'hideYAxis'> &
+    Parameters<typeof EditShowLabelPieAsPercentage>[0] &
+    Parameters<typeof EditPieLabelLocation>[0] &
+    Omit<Parameters<typeof EditShowDataLabels>[0], 'showDataLabels'>
+> = ({
   className = '',
   showLegend,
   selectedAxis,
@@ -267,7 +245,7 @@ const GlobalSettings: React.FC<{
       Component: (
         <EditShowDataLabels
           showDataLabels={mostPermissiveDataLabel}
-          onUpdateColumnSettingConfig={onUpdateDataLabel}
+          onUpdateDataLabel={onUpdateDataLabel}
           rowCount={rowCount}
         />
       )
@@ -313,24 +291,23 @@ const GlobalSettings: React.FC<{
   );
 };
 
-const ChartSpecificSettings: React.FC<{
-  className: string;
-  columnSettings: IBusterMetricChartConfig['columnSettings'];
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  barSortBy: IBusterMetricChartConfig['barSortBy'];
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  yAxisScaleType: IBusterMetricChartConfig['yAxisScaleType'];
-  y2AxisScaleType: IBusterMetricChartConfig['y2AxisScaleType'];
-  pieDonutWidth: IBusterMetricChartConfig['pieDonutWidth'];
-  pieMinimumSlicePercentage: IBusterMetricChartConfig['pieMinimumSlicePercentage'];
-  pieChartAxis: IBusterMetricChartConfig['pieChartAxis'];
-  scatterDotSize: IBusterMetricChartConfig['scatterDotSize'];
-  selectedAxis: ChartEncodes;
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
-  barShowTotalAtTop: IBusterMetricChartConfig['barShowTotalAtTop'];
-}> = ({
+const ChartSpecificSettings: React.FC<
+  {
+    className: string;
+    columnSettings: IBusterMetricChartConfig['columnSettings'];
+    selectedChartType: IBusterMetricChartConfig['selectedChartType'];
+    columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
+  } & Parameters<typeof EditBarRoundnessGlobal>[0] &
+    Parameters<typeof EditBarSorting>[0] &
+    Parameters<typeof EditPieSorting>[0] &
+    Parameters<typeof EditGrouping>[0] &
+    Parameters<typeof EditSmoothLinesGlobal>[0] &
+    Parameters<typeof EditDotsOnLineGlobal>[0] &
+    Parameters<typeof EditYAxisScaleGlobal>[0] &
+    Parameters<typeof EditPieMinimumSlicePercentage>[0] &
+    Parameters<typeof EditPieAppearance>[0] &
+    Parameters<typeof EditScatterDotSize>[0]
+> = ({
   className = '',
   barSortBy,
   onUpdateChartConfig,
@@ -346,7 +323,8 @@ const ChartSpecificSettings: React.FC<{
   scatterDotSize,
   selectedAxis,
   columnLabelFormats,
-  barShowTotalAtTop
+  barShowTotalAtTop,
+  pieSortBy
 }) => {
   const isBarChart = selectedChartType === 'bar';
   const isComboChart = selectedChartType === 'combo';
@@ -373,6 +351,11 @@ const ChartSpecificSettings: React.FC<{
       enabled: isBarChart,
       key: 'barSorting',
       Component: <EditBarSorting barSortBy={barSortBy} onUpdateChartConfig={onUpdateChartConfig} />
+    },
+    {
+      enabled: isPieChart,
+      key: 'pieSorting',
+      Component: <EditPieSorting pieSortBy={pieSortBy} onUpdateChartConfig={onUpdateChartConfig} />
     },
     {
       enabled:
@@ -457,7 +440,7 @@ const ChartSpecificSettings: React.FC<{
       Component: (
         <EditScatterDotSize
           scatterDotSize={scatterDotSize}
-          scatterAxis={selectedAxis as ScatterAxis}
+          selectedAxis={selectedAxis}
           onUpdateChartConfig={onUpdateChartConfig}
         />
       )
@@ -479,19 +462,13 @@ const ChartSpecificSettings: React.FC<{
   );
 };
 
-const EtcSettings: React.FC<{
-  className: string;
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  showLegendHeadline: IBusterMetricChartConfig['showLegendHeadline'];
-  goalLines: IBusterMetricChartConfig['goalLines'];
-  trendlines: IBusterMetricChartConfig['trendlines'];
-  selectedAxis: ChartEncodes;
-  columnMetadata: ColumnMetaData[];
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
-}> = ({
+const EtcSettings: React.FC<
+  {
+    className: string;
+  } & Parameters<typeof EditShowHeadline>[0] &
+    Parameters<typeof EditGoalLine>[0] &
+    Parameters<typeof EditTrendline>[0]
+> = ({
   className = '',
   onUpdateChartConfig,
   selectedChartType,
@@ -563,14 +540,13 @@ const EtcSettings: React.FC<{
   );
 };
 
-const PieSettings: React.FC<{
-  className: string;
-  pieInnerLabelAggregate: IBusterMetricChartConfig['pieInnerLabelAggregate'];
-  pieShowInnerLabel: IBusterMetricChartConfig['pieShowInnerLabel'];
-  pieInnerLabelTitle: IBusterMetricChartConfig['pieInnerLabelTitle'];
-  pieDonutWidth: IBusterMetricChartConfig['pieDonutWidth'];
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
-}> = React.memo(
+const PieSettings: React.FC<
+  {
+    className: string;
+    pieDonutWidth: IBusterMetricChartConfig['pieDonutWidth'];
+  } & Parameters<typeof EditPieShowInnerLabel>[0] &
+    Parameters<typeof EditPieInnerLabel>[0]
+> = React.memo(
   ({
     className,
     pieInnerLabelAggregate,

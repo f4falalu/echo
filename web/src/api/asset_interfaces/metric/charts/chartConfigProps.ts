@@ -6,7 +6,7 @@ import type {
   Y2AxisConfig,
   YAxisConfig
 } from './tickInterfaces';
-import type { ShowLegendHeadline, BarSortBy } from './etcInterfaces';
+import type { ShowLegendHeadline, BarSortBy, PieSortBy } from './etcInterfaces';
 import type { GoalLine, Trendline } from './annotationInterfaces';
 import type { ColumnSettings } from './columnInterfaces';
 import type { IColumnLabelFormat } from './columnLabelInterfaces';
@@ -54,6 +54,7 @@ type ScatterChartProps = {
 };
 
 type PieChartProps = {
+  pieSortBy?: PieSortBy; //OPTIONAL: default: value
   pieChartAxis: PieChartAxis; // Required for Pie
   pieDisplayLabelAs?: 'percent' | 'number'; //OPTIONAL: default: number
   pieShowInnerLabel?: boolean; //OPTIONAL: default true if donut width is set. If the data contains a percentage, set this as false.

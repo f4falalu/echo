@@ -10,7 +10,8 @@ import {
   ScatterAxis,
   Trendline,
   ComboChartAxis,
-  type IColumnLabelFormat
+  type IColumnLabelFormat,
+  PieSortBy
 } from '@/api/asset_interfaces/metric/charts';
 import uniq from 'lodash/uniq';
 import {
@@ -46,6 +47,7 @@ type DatasetHookResult = {
 type DatasetHookParams = {
   data: NonNullable<BusterChartProps['data']>;
   barSortBy?: BarSortBy;
+  pieSortBy?: PieSortBy;
   groupByMethod?: BusterChartProps['groupByMethod'];
   selectedAxis: ChartEncodes;
   selectedChartType: ChartType;
@@ -54,6 +56,7 @@ type DatasetHookParams = {
   barGroupType: BusterChartProps['barGroupType'] | undefined;
   lineGroupType: BusterChartProps['lineGroupType'];
   trendlines: Trendline[] | undefined;
+  columnMetadata: NonNullable<BusterChartProps['columnMetadata']>;
 };
 
 const defaultYAxis2 = [] as string[];
@@ -68,7 +71,9 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     pieMinimumSlicePercentage,
     barGroupType,
     lineGroupType,
-    trendlines
+    trendlines,
+    pieSortBy,
+    columnMetadata
   } = params;
   const {
     x: xFields,
@@ -100,13 +105,19 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     );
   }, [xFieldsString, columnLabelFormats]);
 
-  //WILL ONLY BE USED FOR BAR CHART
+  //WILL ONLY BE USED FOR BAR AND PIE CHART
   const xFieldSorts = useMemo(() => {
-    if (isScatter) return [];
-    if (isPieChart) return [];
-    if (isBarChart && barSortBy && barSortBy?.some((y) => y !== 'none')) return [];
+    if (isPieChart) {
+      if (pieSortBy === 'key') return xFieldColumnLabelFormatColumnTypes;
+      return [];
+    }
+
+    if (isBarChart) {
+      if (barSortBy && barSortBy?.some((y) => y !== 'none')) return [];
+    }
+
     return xFieldColumnLabelFormatColumnTypes.filter((columnType) => columnType === 'date');
-  }, [xFieldColumnLabelFormatColumnTypes, isPieChart, isBarChart, isScatter, barSortBy]);
+  }, [xFieldColumnLabelFormatColumnTypes, pieSortBy, isPieChart, isBarChart, isScatter, barSortBy]);
 
   const xFieldSortsString = useMemo(() => xFieldSorts.join(','), [xFieldSorts]);
 
@@ -116,7 +127,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
 
   const sortedAndLimitedData = useMemo(() => {
     if (isScatter) return downsampleScatterData(data);
-    return sortLineBarData(data, xFieldSorts, xFields);
+    return sortLineBarData(data, columnMetadata, xFieldSorts, xFields);
   }, [data, xFieldSortsString, xFieldsString, isScatter]);
 
   const { dataMap, xValuesSet, categoriesSet } = useMemo(() => {
@@ -218,6 +229,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
       selectedChartType,
       pieMinimumSlicePercentage,
       barSortBy,
+      pieSortBy,
       yAxisKeys,
       xFieldSorts,
       barGroupType,
@@ -230,6 +242,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     dimensions,
     yAxisKeys,
     barSortBy,
+    pieSortBy,
     pieMinimumSlicePercentage,
     measureFields,
     isScatter,

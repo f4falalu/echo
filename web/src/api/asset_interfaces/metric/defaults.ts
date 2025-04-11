@@ -72,6 +72,7 @@ export const DEFAULT_CHART_CONFIG: IBusterMetricChartConfig = {
   pieDonutWidth: 40,
   pieMinimumSlicePercentage: 0,
   pieDisplayLabelAs: 'number',
+  pieSortBy: 'value',
   //METRIC
   metricColumnId: '',
   metricValueAggregate: 'sum',
