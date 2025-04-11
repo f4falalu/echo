@@ -59,15 +59,13 @@ export const SelectAxis: React.FC<
   }
 
   return (
-    <div id="select-axis-container">
-      <SelectAxisProvider
-        {...props}
-        selectedAxis={selectedAxis}
-        selectedChartType={selectedChartType}
-        columnMetadata={columnMetadata}>
-        <SelectAxisDropzones items={items} dropZones={dropZones} onChange={onChange} />
-      </SelectAxisProvider>
-    </div>
+    <SelectAxisProvider
+      {...props}
+      selectedAxis={selectedAxis}
+      selectedChartType={selectedChartType}
+      columnMetadata={columnMetadata}>
+      <SelectAxisDropzones items={items} dropZones={dropZones} onChange={onChange} />
+    </SelectAxisProvider>
   );
 });
 SelectAxis.displayName = 'SelectAxis';

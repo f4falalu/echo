@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text } from '@/components/ui/typography';
+import { cn } from '@/lib/classMerge';
 
 interface StylingLabelProps {
   label: string;
@@ -12,7 +13,7 @@ interface StylingLabelProps {
 export const StylingLabel = React.forwardRef<HTMLDivElement, StylingLabelProps>(
   ({ label, labelExtra, children, className = '', id }, ref) => {
     return (
-      <div className={`flex flex-col space-y-2.5 ${className}`} ref={ref} id={id}>
+      <div className={cn('flex flex-col space-y-2.5', className)} ref={ref} id={id}>
         <div className="flex h-6 items-center justify-between">
           <Text size="sm" variant="secondary">
             {label}

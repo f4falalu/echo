@@ -96,8 +96,10 @@ export const MetricStylingApp: React.FC<{
         setSegment={setSegment}
         selectedChartType={selectedChartType}
       />
-
-      <ScrollArea className="">
+      {
+        //this crazy css selector is so that the available section has a large dropzone
+      }
+      <ScrollArea className="h-full [&>div>div]:h-full!">
         {segment === MetricStylingAppSegments.VISUALIZE && (
           <StylingAppVisualize
             className="px-4 pt-3"

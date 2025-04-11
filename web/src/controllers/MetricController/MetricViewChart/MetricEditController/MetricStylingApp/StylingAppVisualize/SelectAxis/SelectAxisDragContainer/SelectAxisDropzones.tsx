@@ -53,7 +53,7 @@ export const SelectAxisDropzones: React.FC<{
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}>
-      <div className="flex flex-col gap-4">
+      <div className="mb-2 flex h-full flex-col gap-4">
         {dropZones.map((zone) => (
           <SelectAxisDropZone
             key={zone.id}

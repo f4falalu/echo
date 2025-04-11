@@ -14,6 +14,7 @@ import {
 import { ISelectAxisContext } from './SelectAxis/useSelectAxisContext';
 import { StylingMetric } from './StylingMetric';
 import { useMount, useUnmount } from '@/hooks';
+import { cn } from '@/lib/classMerge';
 
 export const StylingAppVisualize: React.FC<
   {
@@ -47,7 +48,7 @@ export const StylingAppVisualize: React.FC<
   const isMetricChart = selectedChartType === ChartType.Metric;
 
   return (
-    <div className={`flex w-full flex-col space-y-3`}>
+    <div className={`flex h-full w-full flex-col space-y-3`}>
       <div className={className}>
         <StylingLabel label="Chart type">
           <SelectChartType
@@ -64,7 +65,7 @@ export const StylingAppVisualize: React.FC<
       </div>
 
       {!isMetricChart && (
-        <div className={className}>
+        <div className={cn(className, 'h-full')}>
           <SelectAxis {...props} />
         </div>
       )}

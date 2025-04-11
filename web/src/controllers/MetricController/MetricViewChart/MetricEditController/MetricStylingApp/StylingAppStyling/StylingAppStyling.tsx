@@ -32,7 +32,7 @@ import { StylingAppStylingNotSupported } from './StylingAppStylingNotSupported';
 import { EditScatterDotSize } from './EditScatterDotSize';
 import { useUpdateMetricChart } from '@/context/Metrics';
 
-const sectionClass = 'flex w-full flex-col space-y-3 my-3 ';
+const sectionClass = 'flex w-full flex-col space-y-3 my-3';
 const UNSUPPORTED_CHART_TYPES: ChartType[] = [ChartType.Table, ChartType.Metric];
 
 export const StylingAppStyling: React.FC<{
