@@ -89,7 +89,7 @@ export const MetricStylingApp: React.FC<{
   );
 
   return (
-    <div className="flex h-full w-full flex-col pt-3">
+    <div className="flex h-full w-full flex-col overflow-hidden pt-3">
       <MetricStylingAppSegment
         className="px-4"
         segment={segment}

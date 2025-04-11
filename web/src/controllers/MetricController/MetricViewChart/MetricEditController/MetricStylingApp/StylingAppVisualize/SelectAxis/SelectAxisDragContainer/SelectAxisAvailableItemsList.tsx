@@ -28,20 +28,22 @@ export const AvailableItemsList: React.FC<AvailableItemsListProps> = ({
     (isOver || isActive) && activeZone !== SelectAxisContainerId.Available;
 
   return (
-    <StylingLabel id="available-items-list" label="Available" ref={setNodeRef}>
-      <div
-        className={cn(
-          'mb-1',
-          showDeleteHoverState ? 'rounded bg-red-100 shadow-[0_0_3px_1px] shadow-red-300' : ''
-        )}>
-        {items.map((item) => (
-          <SelectAxisSortableItem
-            key={item.id}
-            item={item}
-            zoneId={SelectAxisContainerId.Available}
-          />
-        ))}
-      </div>
-    </StylingLabel>
+    <div ref={setNodeRef}>
+      <StylingLabel id="available-items-list" label="Available">
+        <div
+          className={cn(
+            'mb-1',
+            showDeleteHoverState ? 'rounded bg-red-100 shadow-[0_0_3px_1px] shadow-red-300' : ''
+          )}>
+          {items.map((item) => (
+            <SelectAxisSortableItem
+              key={item.id}
+              item={item}
+              zoneId={SelectAxisContainerId.Available}
+            />
+          ))}
+        </div>
+      </StylingLabel>
+    </div>
   );
 };
