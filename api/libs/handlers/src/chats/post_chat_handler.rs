@@ -1279,30 +1279,30 @@ pub async fn transform_message(
                         .map(|container| (container, ThreadEvent::GeneratingResponseMessage)),
                 );
 
-                // Add the "Finished reasoning" message if we're just starting
-                if initial {
-                    let reasoning_message = BusterReasoningMessage::Text(BusterReasoningText {
-                        id: Uuid::new_v4().to_string(),
-                        reasoning_type: "text".to_string(),
-                        title: "Finished reasoning".to_string(),
-                        // Use total duration from start for this initial message
-                        secondary_title: format!("{} seconds", start_time.elapsed().as_secs()),
-                        message: None,
-                        message_chunk: None,
-                        status: Some("completed".to_string()),
-                    });
-                    // Reset the completion time after showing the initial reasoning message
-                    *last_reasoning_completion_time = Instant::now();
+                // // Add the "Finished reasoning" message if we're just starting
+                // if initial {
+                //     let reasoning_message = BusterReasoningMessage::Text(BusterReasoningText {
+                //         id: Uuid::new_v4().to_string(),
+                //         reasoning_type: "text".to_string(),
+                //         title: "Finished reasoning".to_string(),
+                //         // Use total duration from start for this initial message
+                //         secondary_title: format!("{} seconds", start_time.elapsed().as_secs()),
+                //         message: None,
+                //         message_chunk: None,
+                //         status: Some("completed".to_string()),
+                //     });
+                //     // Reset the completion time after showing the initial reasoning message
+                //     *last_reasoning_completion_time = Instant::now();
 
-                    let reasoning_container =
-                        BusterContainer::ReasoningMessage(BusterReasoningMessageContainer {
-                            reasoning: reasoning_message,
-                            chat_id: *chat_id,
-                            message_id: *message_id,
-                        });
+                //     let reasoning_container =
+                //         BusterContainer::ReasoningMessage(BusterReasoningMessageContainer {
+                //             reasoning: reasoning_message,
+                //             chat_id: *chat_id,
+                //             message_id: *message_id,
+                //         });
 
-                    containers.push((reasoning_container, ThreadEvent::GeneratingResponseMessage));
-                }
+                //     containers.push((reasoning_container, ThreadEvent::GeneratingResponseMessage));
+                // }
 
                 Ok(containers)
             } else if let Some(tool_calls) = tool_calls {

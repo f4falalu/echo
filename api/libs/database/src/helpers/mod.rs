@@ -4,3 +4,4 @@ pub mod metric_files;
 pub mod chats;
 pub mod organization;
 pub mod test_utils;
+pub mod datasets;

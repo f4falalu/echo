@@ -1,4 +1,6 @@
 use anyhow::Result;
+use database::helpers::datasets::get_dataset_names_for_organization;
+use database::organization::get_user_organization_id;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -187,11 +189,19 @@ impl BusterMultiAgent {
         session_id: Uuid,
         is_follow_up: bool, // Add flag to determine initial prompt
     ) -> Result<Self> {
+        let organization_id = match get_user_organization_id(&user_id).await {
+            Ok(Some(org_id)) => org_id,
+            Ok(None) => return Err(anyhow::anyhow!("User does not belong to any organization")),
+            Err(e) => return Err(e),
+        };
+
+        let dataset_names = get_dataset_names_for_organization(organization_id).await?;
+
         // Select initial default prompt based on whether it's a follow-up
         let initial_default_prompt = if is_follow_up {
-            FOLLOW_UP_INTIALIZATION_PROMPT.to_string()
+            FOLLOW_UP_INTIALIZATION_PROMPT.replace("{DATASETS}", &dataset_names.join(", "))
         } else {
-            INTIALIZATION_PROMPT.to_string()
+            INTIALIZATION_PROMPT.replace("{DATASETS}", &dataset_names.join(", "))
         };
 
         // Create agent, passing the selected initialization prompt as default
@@ -199,7 +209,7 @@ impl BusterMultiAgent {
             "o3-mini".to_string(),
             user_id,
             session_id,
-            "buster_super_agent".to_string(),
+            "buster_multi_agent".to_string(),
             None,
             None,
             initial_default_prompt, // Use selected default prompt
@@ -212,8 +222,8 @@ impl BusterMultiAgent {
         }
 
         // Define prompt switching conditions
-        let needs_plan_condition = |state: &HashMap<String, Value>| -> bool {
-            state.contains_key("data_context") && !state.contains_key("plan_available")
+        let needs_plan_condition = move |state: &HashMap<String, Value>| -> bool {
+            state.contains_key("data_context") && !state.contains_key("plan_available") && !is_follow_up
         };
         let needs_analysis_condition = |state: &HashMap<String, Value>| -> bool {
             // Example: Trigger analysis prompt once plan is available and metrics/dashboards are not yet available
@@ -245,13 +255,11 @@ impl BusterMultiAgent {
         ));
 
         // Re-apply prompt rules for the new agent instance
-        let needs_plan_condition = |state: &HashMap<String, Value>| -> bool {
+        let needs_plan_condition = move |state: &HashMap<String, Value>| -> bool {
             state.contains_key("data_context") && !state.contains_key("plan_available")
         };
         let needs_analysis_condition = |state: &HashMap<String, Value>| -> bool {
-            state.contains_key("plan_available")
-                && !state.contains_key("metrics_available")
-                && !state.contains_key("dashboards_available")
+            state.contains_key("data_context") && state.contains_key("plan_available")
         };
         agent
             .add_dynamic_prompt_rule(needs_plan_condition, CREATE_PLAN_PROMPT.to_string())
@@ -721,6 +729,14 @@ Always use your best judgement when selecting visualization types, and be confid
 - Never ask the user to if they have additional data.
 - Use markdown for lists or emphasis (but do not use headers).
 - NEVER lie or make things up.
+
+---
+
+### Available Datasets
+Datasets include:
+{DATASETS}
+
+**Reminder**: Always use `search_data_catalog` to confirm specific data points or columns within these datasets — do not assume availability.
 
 ---
 

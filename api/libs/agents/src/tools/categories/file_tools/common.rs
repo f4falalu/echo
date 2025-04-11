@@ -189,7 +189,19 @@ properties:
   ###
   sql:
     type: string
-    description: SQL query using YAML pipe syntax (|)
+    description: |
+      SQL query using YAML pipe syntax (|)
+      
+      The SQL query should be formatted with proper indentation using the YAML pipe (|) syntax.
+      This ensures the multi-line SQL is properly parsed while preserving whitespace and newlines.
+      
+      Example:
+        sql: |
+          SELECT 
+            column1,
+            column2
+          FROM table
+          WHERE condition
 
   # CHART CONFIGURATION
   chartConfig:
@@ -540,7 +552,9 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 #     items:
 #       - id: metric-uuid-2
 #       - id: metric-uuid-3
-#     columnSizes: [6, 6] # Required - must sum to exactly 12
+#     columnSizes: 
+#       - 6
+#       - 6
 #
 # Rules:
 # 1. Each row can have up to 4 items
@@ -548,7 +562,9 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 # 3. columnSizes is required and must specify the width for each item
 # 4. Sum of columnSizes in a row must be exactly 12
 # 5. Each column size must be at least 3
-# 6. All arrays should follow the YML array syntax using `-` not `[` and `]`
+# 6. All arrays should follow the YML array syntax using `-`
+# 7. All arrays should NOT USE `[]` formatting.
+# 8. don't use comments. the ones in the example are just for explanation
 # ----------------------------------------
 
 type: object
