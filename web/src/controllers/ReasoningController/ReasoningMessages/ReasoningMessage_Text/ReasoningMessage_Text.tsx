@@ -13,6 +13,8 @@ export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo
 
     console.log('message', message);
 
+    if (!message) return null;
+
     return (
       <AppMarkdown
         markdown={message}
