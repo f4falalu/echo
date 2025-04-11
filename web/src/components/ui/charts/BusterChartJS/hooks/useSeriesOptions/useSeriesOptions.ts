@@ -5,7 +5,7 @@ import type {
   ChartType,
   ScatterAxis
 } from '@/api/asset_interfaces/metric/charts';
-import { DatasetOption } from '../../../chartHooks';
+import { DatasetOption, extractFieldsFromChain } from '../../../chartHooks';
 import { ChartProps } from '../../core';
 import type { ChartType as ChartJSChartType } from 'chart.js';
 import { useMemo } from 'react';
@@ -88,12 +88,23 @@ export const useSeriesOptions = ({
       return null;
     }
     const size = sizeKey[0];
-    const index = selectedDataset.dimensions.findIndex((dimension) => dimension === size);
+    const index = selectedDataset.dimensions.findIndex((dimension) => {
+      const chain = extractFieldsFromChain(dimension);
+      return chain.some((item) => item.key === size);
+    });
     if (index === -1) return null;
 
     const assosciatedColumnMetadata = columnMetadata.find((item) => item.name === size);
 
-    if (!assosciatedColumnMetadata) return null;
+    if (!assosciatedColumnMetadata) {
+      console.warn(`Column metadata not found for size key: ${size}`);
+      return {
+        name: size,
+        index,
+        minValue: 0,
+        maxValue: 10
+      };
+    }
 
     return {
       name: size,

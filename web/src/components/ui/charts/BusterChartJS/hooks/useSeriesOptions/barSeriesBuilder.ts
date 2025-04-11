@@ -286,7 +286,7 @@ const setGlobalRotation = (context: Context) => {
     });
 
   const labelNeedsToBeRotated = labels.some((label) => {
-    if (!label) return false;
+    if (!label && !!context.chart.ctx.measureText) return false;
     const { width: textWidth } = context.chart.ctx.measureText(label);
     const { barWidth, barHeight } = getBarDimensions(context);
     return textWidth > barWidth - TEXT_WIDTH_BUFFER;

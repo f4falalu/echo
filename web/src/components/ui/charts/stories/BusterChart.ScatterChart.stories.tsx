@@ -118,3 +118,30 @@ export const LargeDataset: Story = {
     );
   }
 };
+
+export const WithSize: Story = {
+  args: {
+    ...Default.args,
+    data: Array.from({ length: 5 }, (x, index) => ({
+      x: index,
+      y: index,
+      size: index,
+      category: 'Electronics'
+    })),
+    scatterAxis: {
+      x: ['x'],
+      y: ['y'],
+      size: ['size']
+    },
+    columnMetadata: [
+      {
+        name: 'size',
+        min_value: 0,
+        max_value: 5,
+        unique_values: 3,
+        simple_type: 'number',
+        type: 'number'
+      }
+    ]
+  }
+};

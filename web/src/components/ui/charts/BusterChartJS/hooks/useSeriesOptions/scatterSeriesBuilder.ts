@@ -71,6 +71,7 @@ const radiusMethod = (
 ) => {
   //@ts-ignore
   const originalR = context.raw?.originalR;
+
   if (typeof originalR === 'number' && sizeKeyIndex) {
     return computeSizeRatio(
       originalR,
