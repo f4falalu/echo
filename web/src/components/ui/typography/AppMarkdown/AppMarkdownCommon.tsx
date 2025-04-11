@@ -158,11 +158,7 @@ export const CustomListItem: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <li
-      className={cn(
-        'leading-1.3 list-inside space-y-1',
-        showLoader && 'animate-in fade-in duration-700'
-      )}>
+    <li className={cn('leading-1.3 space-y-1', showLoader && 'animate-in fade-in duration-700')}>
       {children}
     </li>
   );
