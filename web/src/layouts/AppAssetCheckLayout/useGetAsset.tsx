@@ -58,7 +58,11 @@ export const useGetAsset = (props: UseGetAssetProps): UseGetAssetReturn<typeof p
   );
 
   //dashboard
-  const { isFetched: isFetchedDashboard, error: errorDashboard } = useGetDashboard(
+  const {
+    isFetched: isFetchedDashboard,
+    error: errorDashboard,
+    isError: isErrorDashboard
+  } = useGetDashboard(
     {
       id: props.type === 'dashboard' ? props.assetId : undefined
     },
@@ -88,7 +92,7 @@ export const useGetAsset = (props: UseGetAssetProps): UseGetAssetReturn<typeof p
     hasAccess,
     passwordRequired,
     isPublic,
-    showLoader: isFetchedDashboard || !!errorDashboard
+    showLoader: !isFetchedDashboard || isErrorDashboard
   };
 };
 
