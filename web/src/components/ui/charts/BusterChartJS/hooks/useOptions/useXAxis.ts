@@ -116,18 +116,11 @@ export const useXAxis = ({
     isSupportedChartForAxisTitles: isSupportedType
   });
 
-  const useTickCallback = useMemo(() => {
-    if (type === 'time') {
-      const isSingleXAxis = selectedAxis.x.length === 1;
-      const columnLabelFormat = xAxisColumnFormats[selectedAxis.x[0]];
-      const isDate = columnLabelFormat?.columnType === 'date';
-      const isAutoDate = columnLabelFormat?.dateFormat === 'auto' || !columnLabelFormat?.dateFormat;
-      return !(isSingleXAxis && isDate && isAutoDate);
-    }
-    return true;
-  }, [type, selectedAxis.x, xAxisColumnFormats]);
-
-  const tickCallback = useMemoizedFn(function (this: Scale, value: string | number, index: number) {
+  const customTickCallback = useMemoizedFn(function (
+    this: Scale,
+    value: string | number,
+    index: number
+  ) {
     const rawValue = this.getLabelForValue(value as number);
 
     if (type === 'time' || isDate(rawValue)) {
@@ -139,6 +132,18 @@ export const useXAxis = ({
 
     return DEFAULT_X_AXIS_TICK_CALLBACK.call(this, value, index, this.getLabels() as any);
   });
+
+  const tickCallback = useMemo(() => {
+    if (type === 'time') {
+      const isSingleXAxis = selectedAxis.x.length === 1;
+      const columnLabelFormat = xAxisColumnFormats[selectedAxis.x[0]];
+      const isDate = columnLabelFormat?.columnType === 'date';
+      const isAutoDate = columnLabelFormat?.dateFormat === 'auto' || !columnLabelFormat?.dateFormat;
+      const useAutoDate = isSingleXAxis && isDate && isAutoDate;
+      if (useAutoDate) return null;
+    }
+    return customTickCallback;
+  }, [customTickCallback, type, selectedAxis.x, xAxisColumnFormats]);
 
   const rotation = useMemo(() => {
     if (xAxisLabelRotation === 'auto' || xAxisLabelRotation === undefined) return undefined;
@@ -181,7 +186,7 @@ export const useXAxis = ({
           ...rotation,
           sampleSize: type === 'time' ? 24 : undefined,
           display: xAxisShowAxisLabel,
-          callback: useTickCallback ? tickCallback : DEFAULT_X_AXIS_TICK_CALLBACK,
+          callback: tickCallback as any, //I need to use null for auto date
           //@ts-ignore
           time: {
             unit: timeUnit
@@ -194,7 +199,7 @@ export const useXAxis = ({
       title,
       isScatterChart,
       isPieChart,
-      useTickCallback,
+      tickCallback,
       xAxisShowAxisLabel,
       stacked,
       type,
