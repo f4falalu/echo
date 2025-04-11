@@ -183,6 +183,8 @@ pub async fn post_chat_handler(
     // Use start_time for total duration and last_reasoning_completion_time for deltas
     let start_time = Instant::now();
     let mut last_reasoning_completion_time = Instant::now();
+    // Add tracker for when reasoning (before final text generation) completes
+    let mut reasoning_complete_time: Option<Instant> = None;
     let (asset_id, asset_type) = normalize_asset_fields(&request);
     validate_context_request(
         request.chat_id,
@@ -536,6 +538,7 @@ pub async fn post_chat_handler(
                     &chunk_tracker,
                     &start_time, // Pass start_time for initial reasoning message
                     &mut last_reasoning_completion_time, // Pass mutable ref for delta calculation
+                    &mut reasoning_complete_time, // Pass mutable ref for capturing completion time
                 )
                 .await;
 
@@ -743,14 +746,20 @@ pub async fn post_chat_handler(
     }
 
     let title = title_handle.await??;
-    // Calculate total duration from the start
-    let total_duration = start_time.elapsed();
+    // Calculate final duration based on when reasoning completed
+    let final_duration = reasoning_complete_time
+        .map(|t| t.duration_since(start_time))
+        .unwrap_or_else(|| {
+            // Fallback if reasoning_complete_time was never set (shouldn't happen in normal flow)
+            tracing::warn!("Reasoning complete time not captured, using total elapsed time.");
+            start_time.elapsed()
+        });
 
-    // Format total duration
-    let formatted_total_duration = if total_duration.as_secs() < 60 {
-        format!("Completed in {} seconds", total_duration.as_secs())
+    // Format the final reasoning duration
+    let formatted_final_reasoning_duration = if final_duration.as_secs() < 60 {
+        format!("Completed in {} seconds", final_duration.as_secs())
     } else {
-        let minutes = total_duration.as_secs() / 60;
+        let minutes = final_duration.as_secs() / 60;
         if minutes == 1 {
             "Completed in 1 minute".to_string() // Singular minute
         } else {
@@ -779,7 +788,7 @@ pub async fn post_chat_handler(
         }),
         final_response_messages.clone(), // Use the reordered list
         reasoning_messages.clone(),
-        Some(formatted_total_duration.clone()), // Use formatted total duration
+        Some(formatted_final_reasoning_duration.clone()), // Use formatted reasoning duration
         Utc::now(),
     );
 
@@ -796,7 +805,7 @@ pub async fn post_chat_handler(
         deleted_at: None,
         response_messages: serde_json::to_value(&final_response_messages)?, // Use the reordered list
         reasoning: serde_json::to_value(&reasoning_messages)?,
-        final_reasoning_message: Some(formatted_total_duration), // Use formatted total duration
+        final_reasoning_message: Some(formatted_final_reasoning_duration), // Use formatted reasoning duration
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
         feedback: None,
@@ -826,6 +835,7 @@ pub async fn post_chat_handler(
             // Pass dummy start_time and mutable completion time, won't be used meaningfully here
             &Instant::now(), // Dummy start_time
             &mut Instant::now(), // Dummy mutable completion time
+            &mut None, // Dummy reasoning completion time tracker
         )
         .await?;
     }
@@ -956,6 +966,7 @@ async fn process_completed_files(
     chunk_tracker: &ChunkTracker, // Pass tracker if needed for transforming messages again
     start_time: &Instant, // Add start_time parameter
     last_reasoning_completion_time: &mut Instant, // Add last_reasoning_completion_time parameter
+    reasoning_complete_time: &mut Option<Instant>, // Add reasoning_complete_time parameter
 ) -> Result<()> {
     // Transform messages again specifically for DB processing if needed,
     // or directly use reasoning messages if they contain enough info.
@@ -970,6 +981,7 @@ async fn process_completed_files(
             chunk_tracker,
             start_time, // Pass start_time
             last_reasoning_completion_time, // Pass completion time ref
+            reasoning_complete_time, // Pass reasoning completion time
         )
         .await
         {
@@ -1223,6 +1235,7 @@ pub async fn transform_message(
     tracker: &ChunkTracker,
     start_time: &Instant, // Pass start_time for initial message
     last_reasoning_completion_time: &mut Instant, // Use mutable ref for delta calculation
+    reasoning_complete_time: &mut Option<Instant>, // Use mutable ref for capturing completion time
 ) -> Result<Vec<(BusterContainer, ThreadEvent)>> {
     match message {
         AgentMessage::Assistant {
@@ -1304,6 +1317,7 @@ pub async fn transform_message(
                     *message_id,
                     tracker, // Pass tracker here
                     last_reasoning_completion_time, // Pass completion time ref
+                    reasoning_complete_time, // Pass reasoning completion time
                 ) {
                     Ok(results) => {
                         // Process Vec<ToolTransformResult>
@@ -1887,6 +1901,7 @@ fn transform_assistant_tool_message(
     _message_id: Uuid,
     tracker: &ChunkTracker,
     last_reasoning_completion_time: &mut Instant, // Use mutable ref for delta calculation
+    reasoning_complete_time: &mut Option<Instant>, // Use mutable ref for capturing completion time
 ) -> Result<Vec<ToolTransformResult>> {
     let mut all_results = Vec::new();
     let mut parser = StreamingParser::new();
@@ -1898,25 +1913,31 @@ fn transform_assistant_tool_message(
         match tool_name.as_str() {
             // --- Handle Response Tools (Text) ---
             "done" => {
-                if let Some(full_text_value) = parser.process_response_tool_chunk(&tool_call.function.arguments, "final_response") {
-                    // --- START: Send "Finished reasoning" on first chunk ---
-                    let reasoning_message_id = format!("{}_reasoning_finished", tool_id);
-                    if tracker.get_complete_text(reasoning_message_id.clone()).is_none() {
-                         let finished_reasoning = BusterReasoningMessage::Text(BusterReasoningText {
-                             id: Uuid::new_v4().to_string(), // Use a unique ID for the message itself
-                             reasoning_type: "text".to_string(),
-                             title: "Generating final response...".to_string(), // Changed title
-                             secondary_title: format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()), // Use DELTA here
-                             message: None,
-                             message_chunk: None,
-                             status: Some("completed".to_string()),
-                         });
-                         all_results.push(ToolTransformResult::Reasoning(finished_reasoning));
-                         // Use tracker to mark that we've sent the message for this tool call
-                         tracker.add_chunk(reasoning_message_id.clone(), "sent".to_string());
-                    }
-                    // --- END: Send "Finished reasoning" on first chunk ---
+                // Capture reasoning completion time on the *first* chunk of the done tool
+                if reasoning_complete_time.is_none() {
+                    // Check if arguments exist to confirm it's the start
+                    if !tool_call.function.arguments.is_empty() {
+                        *reasoning_complete_time = Some(Instant::now());
+                        tracing::info!("Reasoning complete time captured.");
 
+                        // Send the "Generating final response..." message now that time is captured
+                        let generating_response_msg = BusterReasoningMessage::Text(BusterReasoningText {
+                            id: Uuid::new_v4().to_string(), // Unique ID for this message
+                            reasoning_type: "text".to_string(),
+                            title: "Generating final response...".to_string(),
+                            secondary_title: format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()), // Use Delta for *this* message
+                            message: None,
+                            message_chunk: None,
+                            status: Some("completed".to_string()),
+                        });
+                        all_results.push(ToolTransformResult::Reasoning(generating_response_msg));
+                        // Reset the timer for the next step (which is text generation)
+                        *last_reasoning_completion_time = Instant::now();
+                    }
+                }
+
+                // Process the text chunk for the final response
+                if let Some(full_text_value) = parser.process_response_tool_chunk(&tool_call.function.arguments, "final_response") {
                     let delta = tracker.add_chunk(tool_id.clone(), full_text_value.clone());
                     if !delta.is_empty() {
                         all_results.push(ToolTransformResult::Response(BusterChatMessage::Text {
