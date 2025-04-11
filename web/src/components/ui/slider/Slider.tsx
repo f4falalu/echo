@@ -73,7 +73,7 @@ const Slider = React.forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, S
               <SliderPrimitive.Thumb
                 onMouseEnter={() => setUseTooltip(true)}
                 onMouseLeave={() => setUseTooltip(false)}
-                className="border-primary bg-background block h-4 w-4 rounded-full border-2 shadow transition-all hover:scale-110 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
+                className="border-primary bg-background block h-4 w-4 cursor-pointer rounded-full border-2 shadow transition-all hover:scale-110 focus:outline-0 disabled:pointer-events-none disabled:opacity-50"
               />
             </TooltipTrigger>
             <TooltipContent side="top" sideOffset={5}>
