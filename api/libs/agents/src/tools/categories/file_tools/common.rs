@@ -120,7 +120,7 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 #   GROUP BY date
 # 
 # chartConfig:
-#   selectedChartType: "bar"  # One of: bar, line, scatter, pie, combo, metric, table
+#   selectedChartType: bar  # One of: bar, line, scatter, pie, combo, metric, table
 #   columnLabelFormats:      # REQUIRED - Must define formatting for all columns
 #     date:
 #       columnType: date
@@ -136,36 +136,39 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 #   pieChartAxis: {...}  # Required for pie charts OR
 #   comboChartAxis: {...}  # Required for combo charts OR
 #   metricColumnId: column_id  # Required for metric charts
+#
+# RULES:
+# 1. All arrays should follow the YML array syntax using `-` not `[` and `]`
 # -------------------------------------
 
 type: object
-name: "Metric Configuration Schema"
-description: "Metric definition with SQL query and visualization settings"
+name: Metric Configuration Schema
+description: Metric definition with SQL query and visualization settings
 
 properties:
   # NAME
   name:
     type: string
-    description: "Human-readable title (e.g., 'Total Sales')"
+    description: Human-readable title (e.g., Total Sales)
 
   # DESCRIPTION
   description:
     type: string
-    description: "A detailed description of what this metric measures and how it should be interpreted"
+    description: A detailed description of what this metric measures and how it should be interpreted
 
   # DATASET IDS
   datasetIds:
     type: array
-    description: "UUIDs of datasets this metric belongs to"
+    description: UUIDs of datasets this metric belongs to
     items:
       type: string
-      format: "uuid"
-      description: "UUID string of the dataset (not the dataset name)"
+      format: uuid
+      description: UUID string of the dataset (not the dataset name)
     
   # TIME FRAME
   timeFrame:
     type: string
-    description: "Human-readable time period covered by the query (e.g., 'Last 30 days', 'All time', 'August 1, 2024 - January 1, 2025', 'Comparison: August 2025 to August 2024')"
+    description: Human-readable time period covered by the query (e.g., Last 30 days, All time, August 1, 2024 - January 1, 2025, Comparison: August 2025 to August 2024)
 
   # SQL QUERY
   ### SQL Best Practices and Constraints** (when creating new metrics)  
@@ -186,18 +189,18 @@ properties:
   ###
   sql:
     type: string
-    description: "SQL query using YAML pipe syntax (|)"
+    description: SQL query using YAML pipe syntax (|)
 
   # CHART CONFIGURATION
   chartConfig:
-    description: "Visualization settings (must match one chart type)"
+    description: Visualization settings (must match one chart type)
     oneOf: # REQUIRED
-      - $ref: "#/definitions/bar_line_chart_config"
-      - $ref: "#/definitions/scatter_chart_config"
-      - $ref: "#/definitions/pie_chart_config"
-      - $ref: "#/definitions/combo_chart_config"
-      - $ref: "#/definitions/metric_chart_config"
-      - $ref: "#/definitions/table_chart_config"
+      - $ref: #/definitions/bar_line_chart_config
+      - $ref: #/definitions/scatter_chart_config
+      - $ref: #/definitions/pie_chart_config
+      - $ref: #/definitions/combo_chart_config
+      - $ref: #/definitions/metric_chart_config
+      - $ref: #/definitions/table_chart_config
 
 required:
   - name
@@ -213,17 +216,17 @@ definitions:
     properties:
       selectedChartType:
         type: string
-        description: "Chart type (bar, line, scatter, pie, combo, metric, table)"
+        description: Chart type (bar, line, scatter, pie, combo, metric, table)
       columnLabelFormats:
         type: object
         description: The formatting for each column.
         additionalProperties:
-          $ref: "#/definitions/column_label_format"
+          $ref: #/definitions/column_label_format
       columnSettings:
         type: object
-        description: "Visual settings {columnId: settingsObject}"
+        description: Visual settings {columnId: settingsObject}
         additionalProperties:
-          $ref: "#/definitions/column_settings"
+          $ref: #/definitions/column_settings
       colors:
         type: array
         items:
@@ -235,11 +238,11 @@ definitions:
       goalLines:
         type: array
         items:
-          $ref: "#/definitions/goal_line"
+          $ref: #/definitions/goal_line
       trendlines:
         type: array
         items:
-          $ref: "#/definitions/trendline"
+          $ref: #/definitions/trendline
     required:
       - selectedChartType
       - columnLabelFormats
@@ -250,51 +253,56 @@ definitions:
     properties:
       columnType:
         type: string
-        description: "number, string, date"
+        description: number, string, date
       style:
         type: string
-        enum: ["currency", "percent", "number", "date", "string"]
+        enum:
+          - currency
+          - percent
+          - number
+          - date
+          - string
       displayName:
         type: string
-        description: "Custom display name for the column"
+        description: Custom display name for the column
       numberSeparatorStyle:
         type: string
-        description: "Style for number separators"
+        description: Style for number separators
       minimumFractionDigits:
         type: integer
-        description: "Minimum number of fraction digits to display"
+        description: Minimum number of fraction digits to display
       maximumFractionDigits:
         type: integer
-        description: "Maximum number of fraction digits to display"
+        description: Maximum number of fraction digits to display
       multiplier:
         type: number
-        description: "Value to multiply the number by before display"
+        description: Value to multiply the number by before display
       prefix:
         type: string
-        description: "Text to display before the value"
+        description: Text to display before the value
       suffix:
         type: string
-        description: "Text to display after the value"
+        description: Text to display after the value
       replaceMissingDataWith:
-        description: "Value to display when data is missing"
+        description: Value to display when data is missing
       compactNumbers:
         type: boolean
-        description: "Whether to display numbers in compact form (e.g., 1K, 1M)"
+        description: Whether to display numbers in compact form (e.g., 1K, 1M)
       currency:
         type: string
-        description: "Currency code for currency formatting (e.g., USD, EUR)"
+        description: Currency code for currency formatting (e.g., USD, EUR)
       dateFormat:
         type: string
-        description: "Format string for date display"
+        description: Format string for date display
       useRelativeTime:
         type: boolean
-        description: "Whether to display dates as relative time (e.g., '2 days ago')"
+        description: Whether to display dates as relative time (e.g., 2 days ago)
       isUtc:
         type: boolean
-        description: "Whether to interpret dates as UTC"
+        description: Whether to interpret dates as UTC
       convertNumberTo:
         type: string
-        description: "Convert number to a different format"
+        description: Convert number to a different format
     required:
       - columnType
       - style
@@ -307,24 +315,34 @@ definitions:
         type: boolean
       columnVisualization:
         type: string
-        enum: ["bar", "line", "dot"]
+        enum:
+          - bar
+          - line
+          - dot
       lineWidth:
         type: number
       lineStyle:
         type: string
-        enum: ["area", "line"]
+        enum:
+          - area
+          - line
       lineType:
         type: string
-        enum: ["normal", "smooth", "step"]
+        enum:
+          - normal
+          - smooth
+          - step
 
   # CHART-SPECIFIC CONFIGURATIONS
   bar_line_chart_config:
     allOf:
-      - $ref: "#/definitions/base_chart_config"
+      - $ref: #/definitions/base_chart_config
       - type: object
         properties:
           selectedChartType:
-            enum: ["bar", "line"]
+            enum:
+              - bar
+              - line
           barAndLineAxis:
             type: object
             properties:
@@ -345,21 +363,27 @@ definitions:
               - y
           barLayout:
             type: string
-            enum: ["horizontal", "vertical"]
+            enum:
+              - horizontal
+              - vertical
           barGroupType:
             type: string
-            enum: ["stack", "group", "percentage-stack"]
+            enum:
+              - stack
+              - group
+              - percentage-stack
         required:
           - selectedChartType
           - barAndLineAxis
 
   scatter_chart_config:
     allOf:
-      - $ref: "#/definitions/base_chart_config"
+      - $ref: #/definitions/base_chart_config
       - type: object
         properties:
           selectedChartType:
-            enum: ["scatter"]
+            enum:
+              - scatter
           scatterAxis:
             type: object
             properties:
@@ -380,11 +404,12 @@ definitions:
 
   pie_chart_config:
     allOf:
-      - $ref: "#/definitions/base_chart_config"
+      - $ref: #/definitions/base_chart_config
       - type: object
         properties:
           selectedChartType:
-            enum: ["pie"]
+            enum:
+              - pie
           pieChartAxis:
             type: object
             properties:
@@ -405,11 +430,12 @@ definitions:
 
   combo_chart_config:
     allOf:
-      - $ref: "#/definitions/base_chart_config"
+      - $ref: #/definitions/base_chart_config
       - type: object
         properties:
           selectedChartType:
-            enum: ["combo"]
+            enum:
+              - combo
           comboChartAxis:
             type: object
             properties:
@@ -430,28 +456,37 @@ definitions:
 
   metric_chart_config:
     allOf:
-      - $ref: "#/definitions/base_chart_config"
+      - $ref: #/definitions/base_chart_config
       - type: object
         properties:
           selectedChartType:
-            enum: ["metric"]
+            enum:
+              - metric
           metricColumnId:
             type: string
           metricValueAggregate:
             type: string
-            enum: ["sum", "average", "median", "max", "min", "count", "first"]
-            description: "Optional - only used when the user specifically requests it, otherwise leave blank"
+            enum:
+              - sum
+              - average
+              - median
+              - max
+              - min
+              - count
+              - first
+            description: Optional - only used when the user specifically requests it, otherwise leave blank
         required:
           - selectedChartType
           - metricColumnId
 
   table_chart_config:
     allOf:
-      - $ref: "#/definitions/base_chart_config"
+      - $ref: #/definitions/base_chart_config
       - type: object
         properties:
           selectedChartType:
-            enum: ["table"]
+            enum:
+              - table
           tableColumnOrder:
             type: array
             items:
@@ -476,7 +511,12 @@ definitions:
     properties:
       type:
         type: string
-        enum: ["average", "linear_regression", "min", "max", "median"]
+        enum:
+          - average
+          - linear_regression
+          - min
+          - max
+          - median
       columnId:
         type: string
     required:
@@ -508,42 +548,43 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 # 3. columnSizes is required and must specify the width for each item
 # 4. Sum of columnSizes in a row must be exactly 12
 # 5. Each column size must be at least 3
+# 6. All arrays should follow the YML array syntax using `-` not `[` and `]`
 # ----------------------------------------
 
 type: object
-name: 'Dashboard Configuration Schema'
-description: 'Specifies the structure and constraints of a dashboard config file.'
+name: Dashboard Configuration Schema
+description: Specifies the structure and constraints of a dashboard config file.
 properties:
   name:
     type: string
-    description: "The title of the dashboard (e.g. 'Sales & Marketing Dashboard')"
+    description: The title of the dashboard (e.g. Sales & Marketing Dashboard)
   description:
     type: string
-    description: "A description of the dashboard, its metrics, and its purpose"
+    description: A description of the dashboard, its metrics, and its purpose
   rows:
     type: array
-    description: "Array of row objects, each containing metric items"
+    description: Array of row objects, each containing metric items
     items:
       type: object
       properties:
         id:
           type: integer
-          description: "This is just an integer representing the row number 1 -> n"
+          description: This is just an integer representing the row number 1 -> n
         items:
           type: array
-          description: "Array of metrics to display in this row (max 4 items)"
+          description: Array of metrics to display in this row (max 4 items)
           maxItems: 4
           items:
             type: object
             properties:
               id:
                 type: string
-                description: "UUIDv4 identifier of an existing metric"
+                description: UUIDv4 identifier of an existing metric
             required:
               - id
         columnSizes:
           type: array
-          description: "Required array of column sizes (must sum to exactly 12)"
+          description: Required array of column sizes (must sum to exactly 12)
           items:
             type: integer
             minimum: 3
@@ -1174,8 +1215,10 @@ mod tests {
         );
 
         // Test appending content when original content doesn't end with newline
-        let original_content_no_newline = "name: test_metric\ntype: counter\ndescription: A test metric";
-        let result = apply_modifications_to_content(original_content_no_newline, &mods, "test.yml").unwrap();
+        let original_content_no_newline =
+            "name: test_metric\ntype: counter\ndescription: A test metric";
+        let result =
+            apply_modifications_to_content(original_content_no_newline, &mods, "test.yml").unwrap();
         assert_eq!(
             result,
             "name: test_metric\ntype: counter\ndescription: A test metric\nadditional_field: true"

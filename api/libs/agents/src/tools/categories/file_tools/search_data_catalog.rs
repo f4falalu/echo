@@ -15,7 +15,7 @@ use diesel_async::RunQueryDsl;
 use futures::stream::{self, StreamExt};
 use litellm::{AgentMessage, ChatCompletionRequest, LiteLLMClient, Metadata, ResponseFormat};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::Value;
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
@@ -237,7 +237,12 @@ impl ToolExecutor for SearchDataCatalogTool {
                         }
                     };
 
-                    match filter_datasets_with_llm(&current_query, ranked, &user_id_clone, &session_id_clone).await {
+                    let user_prompt = match self.agent.get_state_value("user_prompt").await {
+                        Some(Value::String(prompt)) => prompt,
+                        _ => current_query.clone(),
+                    };
+
+                    match filter_datasets_with_llm(&current_query, &user_prompt, ranked, &user_id_clone, &session_id_clone).await {
                         Ok(filtered) => Ok(filtered),
                         Err(e) => {
                             error!(error = %e, query = current_query, "LLM filtering failed for query");
@@ -404,6 +409,7 @@ async fn rerank_datasets(
 
 async fn filter_datasets_with_llm(
     query: &str,
+    user_prompt: &str,
     ranked_datasets: Vec<RankedDataset>,
     user_id: &Uuid,
     session_id: &Uuid,
@@ -431,7 +437,7 @@ async fn filter_datasets_with_llm(
         .collect::<Vec<_>>();
 
     let prompt = LLM_FILTER_PROMPT
-        .replace("{user_request}", query)
+        .replace("{user_request}", user_prompt)
         .replace("{query}", query)
         .replace(
             "{datasets_json}",
@@ -456,7 +462,7 @@ async fn filter_datasets_with_llm(
             generation_name: "filter_data_catalog_agent".to_string(),
             user_id: user_id.to_string(),
             session_id: session_id.to_string(),
-            trace_id: session_id.to_string(),
+            trace_id: Uuid::new_v4().to_string(),
         }),
         max_completion_tokens: Some(8096),
         temperature: Some(0.0),
