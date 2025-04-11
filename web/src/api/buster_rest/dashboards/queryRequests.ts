@@ -53,6 +53,7 @@ export const useGetDashboardsList = (
 
 const useGetDashboardAndInitializeMetrics = () => {
   const queryClient = useQueryClient();
+  const setOriginalDashboards = useOriginalDashboardStore((x) => x.setOriginalDashboard);
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
 
   const initializeMetrics = useMemoizedFn((metrics: BusterDashboardResponse['metrics']) => {
@@ -69,6 +70,7 @@ const useGetDashboardAndInitializeMetrics = () => {
 
     return dashboardsGetDashboard({ id: id!, password, version_number }).then((data) => {
       initializeMetrics(data.metrics);
+      setOriginalDashboards(data.dashboard);
       return data;
     });
   });
@@ -104,6 +106,7 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
     queryFn: () => queryFn(id!, version_number),
     enabled: !!id, //it is false because we fetch the dashboard server side
     select: params?.select,
+
     ...params
   });
 };
