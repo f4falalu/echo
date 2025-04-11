@@ -133,23 +133,28 @@ export const lineBuilder = (
       formatter: (value, context) =>
         formatBarAndLineDataLabel(value, context, percentageMode, columnLabelFormat),
       ...getLabelPosition(isStackedArea),
-      ...defaultLabelOptionConfig
-    }
-  } as ChartProps<'line'>['data']['datasets'][number];
+      ...defaultLabelOptionConfig,
+      ...(percentageMode === 'data-label' && {
+        color: 'white'
+      })
+    } satisfies ChartProps<'line'>['data']['datasets'][number]['datalabels']
+  } as ChartProps<'line'>['data']['datasets'][number] & { xAxisKeys: string[] };
 };
 
-const getLabelPosition = (isStackedArea: boolean) => {
+const getLabelPosition = (
+  isStackedArea: boolean
+): ChartProps<'line'>['data']['datasets'][number]['datalabels'] => {
   if (isStackedArea) {
     return {
       anchor: 'start',
-      align: 'bottom',
-      yAdjust: -10
+      align: 'bottom'
+      //  offset: -10
     };
   }
   return {
     anchor: 'end',
-    align: 'top',
-    yAdjust: 17
+    align: 'top'
+    //  offset:0
   };
 };
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { isServer } from '@tanstack/react-query';
+import { ChartProps } from '../../core';
 
 const backgroundColor = isServer
   ? '#e6e6e6'
@@ -30,4 +31,4 @@ export const defaultLabelOptionConfig = {
     size: 10,
     weight: 'normal' as const
   }
-};
+} satisfies ChartProps<'line'>['data']['datasets'][number]['datalabels'];

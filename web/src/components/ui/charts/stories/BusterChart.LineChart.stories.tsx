@@ -384,10 +384,10 @@ export const PercentageStackedLineSingle: Story = {
     },
     className: 'w-[800px] h-[400px]',
     columnLabelFormats: {
-      month: {
+      date: {
         columnType: 'number',
         style: 'date',
-        dateFormat: 'MMM',
+        dateFormat: 'LLL',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
       } satisfies IColumnLabelFormat,
@@ -420,11 +420,185 @@ export const PercentageStackedLineMultiple: Story = {
       date: {
         columnType: 'number',
         style: 'date',
-        dateFormat: 'll',
+        dateFormat: 'lll',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
       } satisfies IColumnLabelFormat,
       sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      customers: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const PercentageStackedLineSingleWithDataLabels: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: generateLineChartData(),
+    lineGroupType: 'percentage-stack',
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    columnSettings: {
+      revenue: {
+        showDataLabels: true
+      }
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'number',
+        style: 'date',
+        dateFormat: 'auto',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat,
+      revenue: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'EUR'
+      } satisfies IColumnLabelFormat,
+      customers: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const StackedAreaLineMultipleWithDataLabels: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: generateLineChartData(),
+    lineGroupType: 'stack',
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue', 'profit', 'customers'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    columnSettings: {
+      revenue: {
+        showDataLabels: true
+      },
+      profit: {
+        showDataLabels: true
+      },
+      customers: {
+        showDataLabels: true
+      }
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'number',
+        style: 'date',
+        dateFormat: 'auto',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      profit: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      customers: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const StackedAreaLineSingleWithDataLabels: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: generateLineChartData(),
+    lineGroupType: 'stack',
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    columnSettings: {
+      revenue: {
+        showDataLabels: true
+      }
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'number',
+        style: 'date',
+        dateFormat: 'auto',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat,
+      revenue: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'EUR'
+      } satisfies IColumnLabelFormat,
+      customers: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const PercentageStackedLineMultipleWithDataLabels: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: generateLineChartData(),
+    lineGroupType: 'percentage-stack',
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue', 'profit', 'customers'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    columnSettings: {
+      revenue: {
+        showDataLabels: true
+      },
+      profit: {
+        showDataLabels: true
+      },
+      customers: {
+        showDataLabels: true
+      }
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'number',
+        style: 'date',
+        dateFormat: 'auto',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
