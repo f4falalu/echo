@@ -1,3 +1,5 @@
+'use client';
+
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { RustApiError } from '@/api/buster_rest/errors';

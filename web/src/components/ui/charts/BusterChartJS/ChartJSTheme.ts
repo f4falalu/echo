@@ -117,7 +117,7 @@ ChartJS.defaults.font = {
 });
 
 [ChartJS.defaults.scales.linear, ChartJS.defaults.scales.logarithmic].forEach((scale) => {
-  scale.ticks.z = 100;
+  scale.ticks.z = 0; //this used to be a 100, but I changed it for datalabels sake
   scale.ticks.backdropColor = backgroundColor;
   scale.ticks.showLabelBackdrop = true;
   scale.ticks.autoSkipPadding = 2;

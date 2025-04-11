@@ -611,3 +611,162 @@ export const PercentageStackedLineMultipleWithDataLabels: Story = {
     }
   }
 };
+
+export const HasMixedNullAndNumberValuesSingleLineWithMissingDataZero: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, 0, i + 1).toISOString(),
+      revenue: i === 5 ? null : i * 100
+    })),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    columnSettings: {
+      revenue: {
+        showDataLabels: true
+      }
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat,
+      revenue: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD',
+        replaceMissingDataWith: 0
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const HasMixedNullAndNumberValuesSingleLineWithMissingDataNull: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, 0, i + 1).toISOString(),
+      revenue: i === 5 ? null : i * 100
+    })),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    columnSettings: {
+      revenue: {
+        showDataLabels: true
+      }
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat,
+      revenue: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD',
+        replaceMissingDataWith: null
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const HasMixedNullAndNumberValuesSingleMultiLine: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, 0, i + 1).toISOString(),
+      revenue: i % 5 === 0 ? null : i * 100,
+      profit: i % 7 === 0 ? null : i * 200
+    })),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue', 'profit'],
+      category: []
+    },
+
+    className: 'w-[800px] h-[400px]',
+    columnSettings: {
+      revenue: {
+        showDataLabels: true
+      },
+      profit: {
+        showDataLabels: true
+      }
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat,
+      revenue: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      profit: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const HasNullValuesWithCategoryMultiLine: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: Array.from({ length: 3 }).flatMap((_, productIndex) => {
+      const category = ['Product A', 'Product B', 'Product C'][productIndex];
+      return Array.from({ length: 12 }, (_, i) => ({
+        date: new Date(2024, 0, i + 1).toISOString(),
+        revenue:
+          i % 5 === 0 || (productIndex === 0 && i % 7 === 0) ? null : i * 100 + productIndex * 1000,
+        category
+      }));
+    }),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: ['category']
+    },
+    columnSettings: {
+      revenue: {
+        showDataLabels: true
+      }
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
+      },
+      category: {
+        columnType: 'text',
+        style: 'string'
+      },
+      revenue: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD',
+        replaceMissingDataWith: 0
+      }
+    }
+  }
+};

@@ -63,7 +63,7 @@ export const ReasoningMessagePills: React.FC<{
         animate={pills.length > 0 ? 'visible' : 'hidden'}
         className={'flex w-full flex-wrap gap-1.5 overflow-hidden'}>
         {pills.map((pill) => (
-          <Link href={makeHref(pill)} key={pill.id}>
+          <Link href={makeHref(pill)} key={pill.id} prefetch={false}>
             <Pill useAnimation={useAnimation} {...pill} />
           </Link>
         ))}
