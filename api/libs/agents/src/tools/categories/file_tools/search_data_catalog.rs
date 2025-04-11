@@ -462,7 +462,7 @@ async fn filter_datasets_with_llm(
             generation_name: "filter_data_catalog_agent".to_string(),
             user_id: user_id.to_string(),
             session_id: session_id.to_string(),
-            trace_id: session_id.to_string(),
+            trace_id: Uuid::new_v4().to_string(),
         }),
         max_completion_tokens: Some(8096),
         temperature: Some(0.0),
