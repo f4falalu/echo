@@ -18,6 +18,35 @@ describe('formatLabel', () => {
       ).toBe('1,234.567');
     });
 
+    it('should format should pad the digits', () => {
+      expect(
+        formatLabel(1234, {
+          columnType: 'number',
+          style: 'number',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 3
+        })
+      ).toBe('1,234.00');
+
+      expect(
+        formatLabel(1234.49, {
+          columnType: 'number',
+          style: 'number',
+          minimumFractionDigits: 4,
+          maximumFractionDigits: 4
+        })
+      ).toBe('1,234.4900');
+
+      expect(
+        formatLabel(1234.49, {
+          columnType: 'number',
+          style: 'number',
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1
+        })
+      ).toBe('1,234.5');
+    });
+
     it('should format currency values', () => {
       expect(
         formatLabel(1234.56, {

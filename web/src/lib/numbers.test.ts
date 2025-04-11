@@ -57,4 +57,15 @@ describe('formatNumber', () => {
       '$3,363,690.40'
     );
   });
+
+  test('handles padding, should add zeros to the right', () => {
+    // formattedText = formatNumber(roundedNumber, {
+    //   minimumFractionDigits: Math.min(minimumFractionDigits, maximumFractionDigits),
+    //   maximumFractionDigits: Math.max(minimumFractionDigits, maximumFractionDigits),
+    //   useGrouping: numberSeparatorStyle !== null,
+    //   compact: compactNumbers
+    // });
+
+    expect(formatNumber(1234, { minDecimals: 2 })).toBe('1,234.00');
+  });
 });

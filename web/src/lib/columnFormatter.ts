@@ -72,6 +72,7 @@ export const formatLabel = (
   ) {
     const newNumber = Number(text) * multiplier;
     const roundedNumber = roundNumber(newNumber, minimumFractionDigits, maximumFractionDigits);
+
     if (style === 'currency') {
       formattedText = formatNumber(roundedNumber, {
         currency,
@@ -79,6 +80,7 @@ export const formatLabel = (
       });
     } else {
       formattedText = formatNumber(roundedNumber, {
+        minDecimals: minimumFractionDigits,
         minimumFractionDigits: Math.min(minimumFractionDigits, maximumFractionDigits),
         maximumFractionDigits: Math.max(minimumFractionDigits, maximumFractionDigits),
         useGrouping: numberSeparatorStyle !== null,
