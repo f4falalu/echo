@@ -34,7 +34,7 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
     const onLinkClick = useMemoizedFn(() => {
       if (isSelectedFile) onSetSelectedFile(null);
 
-      onSetSelectedFile({ id, type: file_type });
+      onSetSelectedFile({ id, type: file_type, versionNumber: responseMessage.version_number });
     });
 
     useMount(() => {

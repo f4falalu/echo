@@ -31,8 +31,7 @@ export const useSelectedFile = ({
    * @param file
    */
   const onSetSelectedFile = useMemoizedFn(async (file: SelectedFile | null) => {
-    const handleFileCollapse =
-      !file || (file?.id === selectedFile?.id && !appSplitterRef.current?.isSideClosed('right'));
+    const handleFileCollapse = shouldCloseSplitter(file, selectedFile, appSplitterRef);
 
     if (file && chatParams.chatId) {
       const link = createChatAssetRoute({
@@ -61,3 +60,18 @@ export const useSelectedFile = ({
 };
 
 export type SelectedFileParams = ReturnType<typeof useSelectedFile>;
+
+const shouldCloseSplitter = (
+  file: SelectedFile | null,
+  selectedFile: SelectedFile | null,
+  appSplitterRef: React.RefObject<AppSplitterRef | null>
+) => {
+  if (!file) return false;
+  if (file?.id === selectedFile?.id && !appSplitterRef.current?.isSideClosed('right')) {
+    if (!!file?.versionNumber && !!selectedFile?.versionNumber) {
+      return file.versionNumber === selectedFile.versionNumber;
+    }
+    return true;
+  }
+  return false;
+};

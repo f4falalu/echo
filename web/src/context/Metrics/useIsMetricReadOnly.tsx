@@ -23,7 +23,8 @@ export const useIsMetricReadOnly = ({
       enabled: false,
       select: (x) => ({
         permission: x.permission,
-        versions: x.versions
+        versions: x.versions,
+        version_number: x.version_number
       })
     }
   );

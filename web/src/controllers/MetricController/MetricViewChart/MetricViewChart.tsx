@@ -33,7 +33,9 @@ export const MetricViewChart: React.FC<{
           time_frame,
           permission,
           evaluation_score,
-          evaluation_summary
+          evaluation_summary,
+          version_number,
+          versions
         }) => ({
           name,
           description,
@@ -41,7 +43,9 @@ export const MetricViewChart: React.FC<{
           permission,
           evaluation_score,
           evaluation_summary,
-          chart_config
+          chart_config,
+          version_number,
+          versions
         })
       }
     );
@@ -49,7 +53,7 @@ export const MetricViewChart: React.FC<{
       data: metricData,
       isFetched: isFetchedMetricData,
       error: metricDataError
-    } = useGetMetricData({ id: metricId });
+    } = useGetMetricData({ id: metricId }, { enabled: false });
 
     const { mutate: updateMetric } = useUpdateMetric({
       saveToServer: false
@@ -57,7 +61,7 @@ export const MetricViewChart: React.FC<{
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
 
     const isTable = metric?.chart_config.selectedChartType === ChartType.Table;
-    const { isReadOnly, isVersionHistoryMode } = useIsMetricReadOnly({
+    const { isReadOnly, isVersionHistoryMode, isViewingOldVersion } = useIsMetricReadOnly({
       metricId,
       readOnly: readOnlyProp
     });
@@ -110,7 +114,9 @@ export const MetricViewChart: React.FC<{
           />
         </AnimatePresenceWrapper>
 
-        {!isVersionHistoryMode && <MetricSaveFilePopup metricId={metricId} />}
+        {!isVersionHistoryMode && !isViewingOldVersion && (
+          <MetricSaveFilePopup metricId={metricId} />
+        )}
       </div>
     );
   }

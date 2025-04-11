@@ -24,12 +24,11 @@ export const DashboardViewDashboardController: React.FC<{
   } = useGetDashboard({ id: dashboardId });
 
   const { mutateAsync: onUpdateDashboardConfig } = useUpdateDashboardConfig();
-  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
   const onOpenAddContentModal = useDashboardContentStore((x) => x.onOpenAddContentModal);
 
   const metrics = dashboardResponse?.metrics;
   const dashboard = dashboardResponse?.dashboard;
-  const { isReadOnly } = useIsDashboardReadOnly({
+  const { isReadOnly, isViewingOldVersion, isVersionHistoryMode } = useIsDashboardReadOnly({
     dashboardId,
     readOnly: readOnlyProp
   });
@@ -65,7 +64,9 @@ export const DashboardViewDashboardController: React.FC<{
           readOnly={isReadOnly}
         />
 
-        {!isVersionHistoryMode && <DashboardSavePopup dashboardId={dashboardId} />}
+        {!isVersionHistoryMode && !isViewingOldVersion && (
+          <DashboardSavePopup dashboardId={dashboardId} />
+        )}
       </div>
     </ScrollArea>
   );

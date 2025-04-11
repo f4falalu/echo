@@ -403,7 +403,7 @@ const useSQLEditorSelectMenu = () => {
 
 const useDownloadCSVSelectMenu = ({ metricId }: { metricId: string }) => {
   const [isDownloading, setIsDownloading] = useState(false);
-  const { data: metricData } = useGetMetricData({ id: metricId });
+  const { data: metricData } = useGetMetricData({ id: metricId }, { enabled: false });
   const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
 
   return useMemo(

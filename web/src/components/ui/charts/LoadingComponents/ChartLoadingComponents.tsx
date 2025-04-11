@@ -11,7 +11,8 @@ export const PreparingYourRequestLoader: React.FC<{
   useShimmer?: boolean;
 }> = ({ className = '', text = 'Processing your request...', error, useShimmer = true }) => {
   return (
-    <div className={`flex h-full w-full items-center justify-center space-x-1.5 ${className}`}>
+    <div
+      className={`flex h-full min-h-24 w-full items-center justify-center space-x-1.5 ${className}`}>
       {error || useShimmer === false ? (
         <span className="text-text-tertiary flex items-center text-center">{error || text}</span>
       ) : (

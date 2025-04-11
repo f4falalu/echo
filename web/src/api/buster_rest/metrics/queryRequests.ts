@@ -34,6 +34,31 @@ import {
 import { useParams, useSearchParams } from 'next/navigation';
 import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
 import { RustApiError } from '../../buster_rest/errors';
+import last from 'lodash/last';
+
+const useGetMetricVersionNumber = ({
+  versionNumber: versionNumberProp
+}: {
+  versionNumber?: number | null; //if null it will not use a params from the query params
+}) => {
+  const { versionNumber: versionNumberPathParam, metricId: metricIdPathParam } = useParams() as {
+    versionNumber: string | undefined;
+    metricId: string | undefined;
+  };
+  const versionNumberQueryParam = useSearchParams().get('metric_version_number');
+  const versionNumberFromParams = metricIdPathParam
+    ? versionNumberQueryParam || versionNumberPathParam
+    : undefined;
+
+  const versionNumber = useMemo(() => {
+    if (versionNumberProp === null) return undefined;
+    return versionNumberProp || versionNumberFromParams
+      ? parseInt(versionNumberFromParams!)
+      : undefined;
+  }, [versionNumberProp, versionNumberFromParams]);
+
+  return versionNumber;
+};
 
 /**
  * This is a hook that will use the version number from the URL params if it exists.
@@ -54,21 +79,7 @@ export const useGetMetric = <TData = IBusterMetric>(
   const setAssetPasswordError = useBusterAssetsContextSelector((x) => x.setAssetPasswordError);
   const { password } = getAssetPassword(id!);
 
-  const { versionNumber: versionNumberPathParam, metricId: metricIdPathParam } = useParams() as {
-    versionNumber: string | undefined;
-    metricId: string | undefined;
-  };
-  const versionNumberQueryParam = useSearchParams().get('versionNumber');
-  const versionNumberFromParams = metricIdPathParam
-    ? versionNumberQueryParam || versionNumberPathParam
-    : undefined;
-
-  const versionNumber = useMemo(() => {
-    if (versionNumberProp === null) return undefined;
-    return versionNumberProp || versionNumberFromParams
-      ? parseInt(versionNumberFromParams!)
-      : undefined;
-  }, [versionNumberProp, versionNumberFromParams]);
+  const versionNumber = useGetMetricVersionNumber({ versionNumber: versionNumberProp });
 
   const options = useMemo(() => {
     return metricsQueryKeys.metricsGetMetric(id!, versionNumber);
@@ -78,7 +89,10 @@ export const useGetMetric = <TData = IBusterMetric>(
     const result = await getMetric({ id: id!, password, version_number: versionNumber });
     const oldMetric = queryClient.getQueryData(options.queryKey);
     const updatedMetric = upgradeMetricToIMetric(result, oldMetric || null);
-    setOriginalMetric(updatedMetric);
+
+    const isLatestVersion =
+      updatedMetric.version_number === last(updatedMetric.versions)?.version_number;
+    if (isLatestVersion) setOriginalMetric(updatedMetric);
     return updatedMetric;
   });
 
@@ -128,28 +142,13 @@ export const useGetMetricData = <TData = IBusterMetricData>(
 ) => {
   const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
   const { password } = getAssetPassword(id!);
-
+  const versionNumber = useGetMetricVersionNumber({ versionNumber: versionNumberProp });
   const {
     isFetched: isFetchedMetric,
-    error: errorMetric,
+    isError: isErrorMetric,
+    dataUpdatedAt,
     data: fetchedMetricData
-  } = useGetMetric({ id }, { select: (x) => x.id });
-  const { versionNumber: versionNumberPathParam, metricId: metricIdPathParam } = useParams() as {
-    versionNumber: string | undefined;
-    metricId: string | undefined;
-  };
-  const versionNumberQueryParam = useSearchParams().get('versionNumber');
-  const versionNumberFromParams = metricIdPathParam
-    ? versionNumberQueryParam || versionNumberPathParam
-    : undefined;
-
-  const versionNumber = useMemo(() => {
-    if (versionNumberProp === null) return undefined;
-    return versionNumberProp || versionNumberFromParams
-      ? parseInt(versionNumberFromParams!)
-      : undefined;
-  }, [versionNumberProp, versionNumberFromParams]);
-
+  } = useGetMetric({ id, versionNumber }, { select: (x) => x.id });
   const queryFn = useMemoizedFn(() => {
     return getMetricData({ id: id!, version_number: versionNumber, password });
   });
@@ -158,7 +157,7 @@ export const useGetMetricData = <TData = IBusterMetricData>(
     ...metricsQueryKeys.metricsGetData(id!, versionNumber),
     queryFn,
     enabled: () => {
-      return !!id && isFetchedMetric && !errorMetric && !!fetchedMetricData;
+      return !!id && isFetchedMetric && !isErrorMetric && !!fetchedMetricData && !!dataUpdatedAt;
     },
     select: params?.select,
     ...params
@@ -166,7 +165,7 @@ export const useGetMetricData = <TData = IBusterMetricData>(
 };
 
 export const prefetchGetMetricDataClient = async (
-  { id, version_number }: { id: string; version_number?: number },
+  { id, version_number }: { id: string; version_number: number | undefined },
   queryClient: QueryClient
 ) => {
   const options = metricsQueryKeys.metricsGetData(id, version_number);

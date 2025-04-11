@@ -38,7 +38,10 @@ export const MetricViewResults: React.FC<{ metricId: string }> = React.memo(({ m
       })
     }
   );
-  const { data: metricData, isFetched: isFetchedInitialData } = useGetMetricData({ id: metricId });
+  const { data: metricData, isFetched: isFetchedInitialData } = useGetMetricData(
+    { id: metricId },
+    { enabled: false }
+  );
 
   const [sql, setSQL] = useState(metric?.sql || '');
 

@@ -83,7 +83,10 @@ export const BusterChart: React.FC<BusterChartProps> = React.memo(
     });
 
     const SwitchComponent = useMemoizedFn(() => {
-      if (loading || error || !isMounted) {
+      //chartjs need the parent to be mounted to render the chart. It is intermitent when it throws when the parent is not mounted.
+      if (!isMounted && selectedChartType !== ChartType.Table) return null;
+
+      if (loading || error) {
         return <PreparingYourRequestLoader error={error} />;
       }
 

@@ -61,7 +61,10 @@ const useGetDashboardAndInitializeMetrics = () => {
       const prevMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(metric.id).queryKey);
       const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
       queryClient.setQueryData(queryKeys.metricsGetMetric(metric.id).queryKey, upgradedMetric);
-      prefetchGetMetricDataClient({ id: metric.id }, queryClient);
+      prefetchGetMetricDataClient(
+        { id: metric.id, version_number: metric.version_number },
+        queryClient
+      );
     }
   });
 

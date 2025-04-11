@@ -3,6 +3,8 @@
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { RustApiError } from '@/api/buster_rest/errors';
+import { useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 
 interface BaseGetAssetProps {
   assetId: string;
@@ -15,6 +17,7 @@ interface MetricAssetProps extends BaseGetAssetProps {
 
 interface DashboardAssetProps extends BaseGetAssetProps {
   type: 'dashboard';
+  versionNumber?: number;
 }
 
 type UseGetAssetProps = MetricAssetProps | DashboardAssetProps;
@@ -29,47 +32,55 @@ type UseGetAssetReturn<T extends UseGetAssetProps> = {
 };
 
 export const useGetAsset = (props: UseGetAssetProps): UseGetAssetReturn<typeof props> => {
+  const searchParams = useSearchParams();
+  const metricVersionNumber = searchParams.get('metric_version_number');
+  const dashboardVersionNumber = searchParams.get('dashboard_version_number');
+
+  const queryParamVersionNumber: number | undefined = useMemo(() => {
+    if (props.type === 'metric' && metricVersionNumber) {
+      return parseInt(metricVersionNumber);
+    }
+    if (props.type === 'dashboard' && dashboardVersionNumber) {
+      return parseInt(dashboardVersionNumber);
+    }
+    return undefined;
+  }, [props.type, metricVersionNumber, dashboardVersionNumber]);
+
+  const versionNumber: number | undefined = useMemo(() => {
+    if (props.type === 'metric') {
+      if (props.versionNumber) return props.versionNumber;
+      if (queryParamVersionNumber) return queryParamVersionNumber;
+    }
+    if (props.type === 'dashboard') {
+      if (props.versionNumber) return props.versionNumber;
+      if (queryParamVersionNumber) return queryParamVersionNumber;
+    }
+    return undefined;
+  }, [props, queryParamVersionNumber]);
+
   //metric
-  const {
-    error: errorMetric,
-    isError: isErrorMetric,
-    dataUpdatedAt,
-    isFetched: isFetchedMetric
-  } = useGetMetric(
+  const { error: errorMetric, isFetched: isFetchedMetric } = useGetMetric(
     {
-      id: props.assetId,
-      versionNumber: props.type === 'metric' ? props.versionNumber : undefined
+      id: props.type === 'metric' ? props.assetId : undefined,
+      versionNumber
     },
-    {
-      enabled: props.type === 'metric' && !!props.assetId
-    }
+    { enabled: props.type === 'metric' && !!props.assetId }
   );
-  const { isFetched: isFetchedMetricData } = useGetMetricData(
-    {
-      id: props.assetId,
-      versionNumber: props.type === 'metric' ? props.versionNumber : undefined
-    },
-    {
-      enabled:
-        props.type === 'metric' &&
-        !!props.assetId &&
-        isFetchedMetric &&
-        !!dataUpdatedAt && //This is a hack to prevent the query from being run when the asset is not fetched.
-        !isErrorMetric
-    }
-  );
+
+  const { isFetched: isFetchedMetricData } = useGetMetricData({
+    id: props.assetId,
+    versionNumber
+  });
 
   //dashboard
   const {
     isFetched: isFetchedDashboard,
     error: errorDashboard,
     isError: isErrorDashboard
-  } = useGetDashboard(
-    {
-      id: props.type === 'dashboard' ? props.assetId : undefined
-    },
-    { enabled: props.type === 'dashboard' && !!props.assetId }
-  );
+  } = useGetDashboard({
+    id: props.type === 'dashboard' ? props.assetId : undefined,
+    versionNumber
+  });
 
   const { hasAccess, passwordRequired, isPublic } = getAssetAccess({
     error: props.type === 'metric' ? errorMetric : errorDashboard

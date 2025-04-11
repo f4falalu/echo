@@ -30,9 +30,14 @@ export const ChatContent: React.FC<{}> = React.memo(() => {
   return (
     <>
       <div className="mb-40 flex h-full w-full flex-col overflow-hidden">
-        {chatMessageIds?.map((messageId) => (
+        {chatMessageIds?.map((messageId, index) => (
           <div key={messageId} className={autoClass}>
-            <ChatMessageBlock key={messageId} messageId={messageId} chatId={chatId || ''} />
+            <ChatMessageBlock
+              key={messageId}
+              messageId={messageId}
+              chatId={chatId || ''}
+              messageIndex={index}
+            />
           </div>
         ))}
       </div>

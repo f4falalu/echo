@@ -2,11 +2,7 @@
 
 import type { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { create } from 'zustand';
-import { compareObjectsByKeys } from '@/lib/objects';
-import { useGetMetric } from '@/api/buster_rest/metrics/queryRequests';
-import { useMemoizedFn, useMount } from '@/hooks';
-import { useQueryClient } from '@tanstack/react-query';
-import { metricsQueryKeys } from '@/api/query_keys/metric';
+import { useMount } from '@/hooks';
 
 type OriginalMetricStore = {
   originalMetrics: Record<string, IBusterMetric>;

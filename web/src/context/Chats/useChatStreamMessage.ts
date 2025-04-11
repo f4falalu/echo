@@ -71,7 +71,10 @@ export const useChatStreamMessage = () => {
       if (lastMessage?.response_message_ids) {
         Object.values(lastMessage.response_messages).forEach((responseMessage) => {
           if (responseMessage.type === 'file' && responseMessage.file_type === 'metric') {
-            prefetchGetMetricDataClient({ id: responseMessage.id }, queryClient);
+            prefetchGetMetricDataClient(
+              { id: responseMessage.id, version_number: responseMessage.version_number },
+              queryClient
+            );
           }
         });
       }

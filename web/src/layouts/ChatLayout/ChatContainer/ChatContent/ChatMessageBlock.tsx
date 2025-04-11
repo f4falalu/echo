@@ -8,7 +8,8 @@ import { useGetChatMessage } from '@/api/buster_rest/chats';
 export const ChatMessageBlock: React.FC<{
   messageId: string;
   chatId: string;
-}> = React.memo(({ messageId, chatId }) => {
+  messageIndex: number;
+}> = React.memo(({ messageId, chatId, messageIndex }) => {
   const messageExists = useGetChatMessage(messageId, (message) => message?.id);
   const requestMessage = useGetChatMessage(messageId, (message) => message?.request_message);
   const isCompletedStream = useGetChatMessage(messageId, (x) => x?.isCompletedStream);
@@ -29,6 +30,7 @@ export const ChatMessageBlock: React.FC<{
         isCompletedStream={isCompletedStream!}
         messageId={messageId}
         chatId={chatId}
+        messageIndex={messageIndex}
       />
     </div>
   );
