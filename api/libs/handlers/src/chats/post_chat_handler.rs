@@ -143,7 +143,9 @@ impl ChunkTracker {
                         Some(pos) => new_chunk[pos + entry.last_seen_content.len()..].to_string(),
                         None => {
                             // If we can't find any overlap, this might be completely new content
-                            new_chunk.clone()
+                            // Return empty string in this case to avoid duplicating content
+                            // Let the next chunk handle the synchronization
+                            String::new()
                         }
                     }
                 };
@@ -178,7 +180,9 @@ pub async fn post_chat_handler(
     tx: Option<mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
 ) -> Result<ChatWithMessages> {
     let chunk_tracker = ChunkTracker::new();
-    let reasoning_duration = Instant::now(); // Keep overall duration tracking
+    // Use start_time for total duration and last_reasoning_completion_time for deltas
+    let start_time = Instant::now();
+    let mut last_reasoning_completion_time = Instant::now();
     let (asset_id, asset_type) = normalize_asset_fields(&request);
     validate_context_request(
         request.chat_id,
@@ -399,7 +403,7 @@ pub async fn post_chat_handler(
     let mut rx = agent.run(&mut chat).await?;
 
     // --- Add timestamp tracking ---
-    let mut last_event_timestamp = Instant::now();
+    // Remove last_event_timestamp, use last_reasoning_completion_time
     // --- End Add timestamp tracking ---
 
     // Collect all messages for final processing
@@ -447,14 +451,14 @@ pub async fn post_chat_handler(
     // Process all messages from the agent
     while let Ok(message_result) = rx.recv().await {
         // --- Calculate elapsed duration ---
-        let elapsed_duration = last_event_timestamp.elapsed();
+        // Delta calculation moved inside transform_message and its sub-functions
         // --- End Calculate elapsed duration ---
 
         match message_result {
             Ok(AgentMessage::Done) => {
                 // Agent has finished processing, break the loop
                 // --- Update timestamp before breaking ---
-                last_event_timestamp = Instant::now();
+                // No specific update needed here, handled by completion events
                 // --- End Update timestamp ---
                 break;
             }
@@ -530,7 +534,8 @@ pub async fn post_chat_handler(
                     msg.clone(),
                     tx.as_ref(),
                     &chunk_tracker,
-                    elapsed_duration, // Pass elapsed duration
+                    &start_time, // Pass start_time for initial reasoning message
+                    &mut last_reasoning_completion_time, // Pass mutable ref for delta calculation
                 )
                 .await;
 
@@ -729,8 +734,8 @@ pub async fn post_chat_handler(
 
                 tracing::error!("Error receiving message from agent: {}", e);
                  // --- Update timestamp before breaking ---
-                last_event_timestamp = Instant::now();
-                // --- End Update timestamp ---
+                 // No update needed here
+                 // --- End Update timestamp ---
                 // Don't return early, continue processing remaining messages
                 break;
             }
@@ -738,17 +743,18 @@ pub async fn post_chat_handler(
     }
 
     let title = title_handle.await??;
-    let total_reasoning_duration = reasoning_duration.elapsed(); // Use original name for total
+    // Calculate total duration from the start
+    let total_duration = start_time.elapsed();
 
-    // Format reasoning duration
-    let formatted_reasoning_duration = if total_reasoning_duration.as_secs() < 60 {
-        format!("Reasoned for {} seconds", total_reasoning_duration.as_secs())
+    // Format total duration
+    let formatted_total_duration = if total_duration.as_secs() < 60 {
+        format!("Completed in {} seconds", total_duration.as_secs())
     } else {
-        let minutes = total_reasoning_duration.as_secs() / 60;
+        let minutes = total_duration.as_secs() / 60;
         if minutes == 1 {
-            "Reasoned for 1 minute".to_string() // Singular minute
+            "Completed in 1 minute".to_string() // Singular minute
         } else {
-            format!("Reasoned for {} min", minutes) // Plural minutes (abbreviated)
+            format!("Completed in {} min", minutes) // Plural minutes (abbreviated)
         }
     };
 
@@ -773,7 +779,7 @@ pub async fn post_chat_handler(
         }),
         final_response_messages.clone(), // Use the reordered list
         reasoning_messages.clone(),
-        Some(formatted_reasoning_duration.clone()), // Use formatted reasoning duration for regular messages
+        Some(formatted_total_duration.clone()), // Use formatted total duration
         Utc::now(),
     );
 
@@ -790,7 +796,7 @@ pub async fn post_chat_handler(
         deleted_at: None,
         response_messages: serde_json::to_value(&final_response_messages)?, // Use the reordered list
         reasoning: serde_json::to_value(&reasoning_messages)?,
-        final_reasoning_message: Some(formatted_reasoning_duration), // Use formatted reasoning duration for regular messages
+        final_reasoning_message: Some(formatted_total_duration), // Use formatted total duration
         title: title.title.clone().unwrap_or_default(),
         raw_llm_messages: serde_json::to_value(&raw_llm_messages)?,
         feedback: None,
@@ -817,7 +823,9 @@ pub async fn post_chat_handler(
             // Pass a default duration here, as the concept of 'elapsed since last step'
             // doesn't directly apply during final processing. Or refactor transform_message usage.
             // For now, let's pass Zero.
-            Duration::ZERO,
+            // Pass dummy start_time and mutable completion time, won't be used meaningfully here
+            &Instant::now(), // Dummy start_time
+            &mut Instant::now(), // Dummy mutable completion time
         )
         .await?;
     }
@@ -946,7 +954,8 @@ async fn process_completed_files(
     _organization_id: &Uuid,
     _user_id: &Uuid,
     chunk_tracker: &ChunkTracker, // Pass tracker if needed for transforming messages again
-    default_duration: Duration, // Add duration parameter
+    start_time: &Instant, // Add start_time parameter
+    last_reasoning_completion_time: &mut Instant, // Add last_reasoning_completion_time parameter
 ) -> Result<()> {
     // Transform messages again specifically for DB processing if needed,
     // or directly use reasoning messages if they contain enough info.
@@ -959,7 +968,8 @@ async fn process_completed_files(
             msg.clone(),
             None,
             chunk_tracker,
-            default_duration, // Pass the default duration
+            start_time, // Pass start_time
+            last_reasoning_completion_time, // Pass completion time ref
         )
         .await
         {
@@ -1211,7 +1221,8 @@ pub async fn transform_message(
     message: AgentMessage,
     _tx: Option<&mpsc::Sender<Result<(BusterContainer, ThreadEvent)>>>,
     tracker: &ChunkTracker,
-    elapsed_duration: Duration, // Add elapsed_duration parameter
+    start_time: &Instant, // Pass start_time for initial message
+    last_reasoning_completion_time: &mut Instant, // Use mutable ref for delta calculation
 ) -> Result<Vec<(BusterContainer, ThreadEvent)>> {
     match message {
         AgentMessage::Assistant {
@@ -1261,11 +1272,14 @@ pub async fn transform_message(
                         id: Uuid::new_v4().to_string(),
                         reasoning_type: "text".to_string(),
                         title: "Finished reasoning".to_string(),
-                        secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+                        // Use total duration from start for this initial message
+                        secondary_title: format!("{} seconds", start_time.elapsed().as_secs()),
                         message: None,
                         message_chunk: None,
                         status: Some("completed".to_string()),
                     });
+                    // Reset the completion time after showing the initial reasoning message
+                    *last_reasoning_completion_time = Instant::now();
 
                     let reasoning_container =
                         BusterContainer::ReasoningMessage(BusterReasoningMessageContainer {
@@ -1289,7 +1303,7 @@ pub async fn transform_message(
                     *chat_id,
                     *message_id,
                     tracker, // Pass tracker here
-                    elapsed_duration, // Pass duration here
+                    last_reasoning_completion_time, // Pass completion time ref
                 ) {
                     Ok(results) => {
                         // Process Vec<ToolTransformResult>
@@ -1355,7 +1369,7 @@ pub async fn transform_message(
                     content.clone(),
                     *chat_id,
                     *message_id,
-                    elapsed_duration, // Pass duration here
+                    last_reasoning_completion_time, // Use mutable ref for delta calculation
                 ) {
                     Ok(messages) => {
                         for reasoning_container in messages {
@@ -1434,23 +1448,34 @@ fn transform_tool_message(
     content: String,
     _chat_id: Uuid,
     _message_id: Uuid,
-    elapsed_duration: Duration, // Add elapsed_duration parameter
+    last_reasoning_completion_time: &mut Instant, // Use mutable ref for delta calculation
 ) -> Result<Vec<BusterReasoningMessage>> {
     // Use required ID (tool call ID) for all function calls
+    // Calculate delta duration SINCE the last reasoning step completed
+    let delta_duration = last_reasoning_completion_time.elapsed();
+    let name_clone = name.clone(); // Clone name for potential later use
     let messages = match name.as_str() {
         // Response tools now handled earlier, return empty here
         "done" | "message_notify_user" | "message_user_clarifying_question" => vec![],
 
         // Existing tool result processing - pass duration
-        "search_data_catalog" => tool_data_catalog_search(id.clone(), content, elapsed_duration)?,
-        "create_metrics" => tool_create_metrics(id.clone(), content, elapsed_duration)?,
-        "update_metrics" => tool_modify_metrics(id.clone(), content, elapsed_duration)?,
-        "create_dashboards" => tool_create_dashboards(id.clone(), content, elapsed_duration)?,
-        "update_dashboards" => tool_modify_dashboards(id.clone(), content, elapsed_duration)?,
+        "search_data_catalog" => tool_data_catalog_search(id.clone(), content, delta_duration)?,
+        "create_metrics" => tool_create_metrics(id.clone(), content, delta_duration)?,
+        "update_metrics" => tool_modify_metrics(id.clone(), content, delta_duration)?,
+        "create_dashboards" => tool_create_dashboards(id.clone(), content, delta_duration)?,
+        "update_dashboards" => tool_modify_dashboards(id.clone(), content, delta_duration)?,
         // Handle both new plan tools here - pass duration
-        "create_plan_straightforward" | "create_plan_investigative" => tool_create_plan(id.clone(), content, elapsed_duration)?,
+        "create_plan_straightforward" | "create_plan_investigative" => vec![],
         _ => vec![],
     };
+
+    // If messages were generated (i.e., a tool result was processed), update the completion time
+    if !messages.is_empty() {
+        *last_reasoning_completion_time = Instant::now();
+    } else if name_clone == "create_plan_straightforward" || name_clone == "create_plan_investigative" {
+        // Also update time if it was a plan tool completion, even if it produced no *new* message here
+        *last_reasoning_completion_time = Instant::now();
+    }
 
     Ok(messages)
 }
@@ -1510,7 +1535,7 @@ fn tool_create_plan(id: String, content: String, elapsed_duration: Duration) -> 
 }
 
 // Update tool_create_metrics to require ID and accept duration
-fn tool_create_metrics(id: String, content: String, elapsed_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
+fn tool_create_metrics(id: String, content: String, delta_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
     // Parse the CreateMetricFilesOutput from content
     let create_metrics_result = match serde_json::from_str::<CreateMetricFilesOutput>(&content) {
         Ok(result) => result,
@@ -1521,7 +1546,7 @@ fn tool_create_metrics(id: String, content: String, elapsed_duration: Duration) 
                  id,
                  reasoning_type: "text".to_string(),
                  title: "Error Creating Metrics".to_string(),
-                 secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+                 secondary_title: format!("{} seconds", delta_duration.as_secs()),
                  message: Some(format!("Failed to parse tool output: {}", e)),
                  message_chunk: None,
                  status: Some("error".to_string()),
@@ -1564,7 +1589,7 @@ fn tool_create_metrics(id: String, content: String, elapsed_duration: Duration) 
         id,
         message_type: "files".to_string(),
         title: format!("Created {} metric files", files_count),
-        secondary_title: format!("{} seconds", elapsed_duration.as_secs()), // Use elapsed_duration
+        secondary_title: format!("{} seconds", delta_duration.as_secs()), // Use delta_duration
         status: "completed".to_string(),
         file_ids,
         files: files_map,
@@ -1574,7 +1599,7 @@ fn tool_create_metrics(id: String, content: String, elapsed_duration: Duration) 
 }
 
 // Update tool_modify_metrics to require ID and accept duration
-fn tool_modify_metrics(id: String, content: String, elapsed_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
+fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
     // Parse the ModifyFilesOutput from content
     let modify_metrics_result = match serde_json::from_str::<ModifyFilesOutput>(&content) {
         Ok(result) => result,
@@ -1585,7 +1610,7 @@ fn tool_modify_metrics(id: String, content: String, elapsed_duration: Duration) 
                  id,
                  reasoning_type: "text".to_string(),
                  title: "Error Modifying Metrics".to_string(),
-                 secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+                 secondary_title: format!("{} seconds", delta_duration.as_secs()),
                  message: Some(format!("Failed to parse tool output: {}", e)),
                  message_chunk: None,
                  status: Some("error".to_string()),
@@ -1628,7 +1653,7 @@ fn tool_modify_metrics(id: String, content: String, elapsed_duration: Duration) 
         id,
         message_type: "files".to_string(),
         title: format!("Modified {} metric files", files_count),
-        secondary_title: format!("{} seconds", elapsed_duration.as_secs()), // Use elapsed_duration
+        secondary_title: format!("{} seconds", delta_duration.as_secs()), // Use delta_duration
         status: "completed".to_string(),
         file_ids,
         files: files_map,
@@ -1638,7 +1663,7 @@ fn tool_modify_metrics(id: String, content: String, elapsed_duration: Duration) 
 }
 
 // Update tool_create_dashboards to require ID and accept duration
-fn tool_create_dashboards(id: String, content: String, elapsed_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
+fn tool_create_dashboards(id: String, content: String, delta_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
     // Parse the CreateDashboardFilesOutput from content
     let create_dashboards_result =
         match serde_json::from_str::<CreateDashboardFilesOutput>(&content) {
@@ -1650,7 +1675,7 @@ fn tool_create_dashboards(id: String, content: String, elapsed_duration: Duratio
                      id,
                      reasoning_type: "text".to_string(),
                      title: "Error Creating Dashboards".to_string(),
-                     secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+                     secondary_title: format!("{} seconds", delta_duration.as_secs()),
                      message: Some(format!("Failed to parse tool output: {}", e)),
                      message_chunk: None,
                      status: Some("error".to_string()),
@@ -1693,7 +1718,7 @@ fn tool_create_dashboards(id: String, content: String, elapsed_duration: Duratio
         id,
         message_type: "files".to_string(),
         title: format!("Created {} dashboard files", files_count),
-        secondary_title: format!("{} seconds", elapsed_duration.as_secs()), // Use elapsed_duration
+        secondary_title: format!("{} seconds", delta_duration.as_secs()), // Use delta_duration
         status: "completed".to_string(),
         file_ids,
         files: files_map,
@@ -1703,7 +1728,7 @@ fn tool_create_dashboards(id: String, content: String, elapsed_duration: Duratio
 }
 
 // Update tool_modify_dashboards to require ID and accept duration
-fn tool_modify_dashboards(id: String, content: String, elapsed_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
+fn tool_modify_dashboards(id: String, content: String, delta_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
     // Parse the ModifyFilesOutput from content
     let modify_dashboards_result = match serde_json::from_str::<ModifyFilesOutput>(&content) {
         Ok(result) => result,
@@ -1714,7 +1739,7 @@ fn tool_modify_dashboards(id: String, content: String, elapsed_duration: Duratio
                  id,
                  reasoning_type: "text".to_string(),
                  title: "Error Modifying Dashboards".to_string(),
-                 secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+                 secondary_title: format!("{} seconds", delta_duration.as_secs()),
                  message: Some(format!("Failed to parse tool output: {}", e)),
                  message_chunk: None,
                  status: Some("error".to_string()),
@@ -1757,7 +1782,7 @@ fn tool_modify_dashboards(id: String, content: String, elapsed_duration: Duratio
         id,
         message_type: "files".to_string(),
         title: format!("Modified {} dashboard files", files_count),
-        secondary_title: format!("{} seconds", elapsed_duration.as_secs()), // Use elapsed_duration
+        secondary_title: format!("{} seconds", delta_duration.as_secs()), // Use delta_duration
         status: "completed".to_string(),
         file_ids,
         files: files_map,
@@ -1767,7 +1792,7 @@ fn tool_modify_dashboards(id: String, content: String, elapsed_duration: Duratio
 }
 
 // Restore the original tool_data_catalog_search function
-fn tool_data_catalog_search(id: String, content: String, elapsed_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
+fn tool_data_catalog_search(id: String, content: String, delta_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
     let data_catalog_result = match serde_json::from_str::<SearchDataCatalogOutput>(&content) {
         Ok(result) => result,
         Err(e) => {
@@ -1777,7 +1802,7 @@ fn tool_data_catalog_search(id: String, content: String, elapsed_duration: Durat
                  id,
                  reasoning_type: "text".to_string(),
                  title: "Error Searching Data Catalog".to_string(),
-                 secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+                 secondary_title: format!("{} seconds", delta_duration.as_secs()),
                  message: Some(format!("Failed to parse tool output: {}", e)),
                  message_chunk: None,
                  status: Some("error".to_string()),
@@ -1803,7 +1828,7 @@ fn tool_data_catalog_search(id: String, content: String, elapsed_duration: Durat
             id: id.clone(),
             thought_type: "pills".to_string(),
             title: "Data Catalog Search Results".to_string(), // Updated title
-            secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+            secondary_title: format!("{} seconds", delta_duration.as_secs()),
             pill_containers: Some(thought_pill_containers),
             status: "completed".to_string(),
         })
@@ -1812,7 +1837,7 @@ fn tool_data_catalog_search(id: String, content: String, elapsed_duration: Durat
             id: id.clone(),
             thought_type: "pills".to_string(),
             title: "No data catalog items found".to_string(),
-            secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+            secondary_title: format!("{} seconds", delta_duration.as_secs()),
             pill_containers: Some(vec![BusterThoughtPillContainer {
                 title: "No results found".to_string(), // Title now indicates no results explicitly
                 pills: vec![],
@@ -1861,7 +1886,7 @@ fn transform_assistant_tool_message(
     _chat_id: Uuid,
     _message_id: Uuid,
     tracker: &ChunkTracker,
-    elapsed_duration: Duration, // Add elapsed_duration parameter
+    last_reasoning_completion_time: &mut Instant, // Use mutable ref for delta calculation
 ) -> Result<Vec<ToolTransformResult>> {
     let mut all_results = Vec::new();
     let mut parser = StreamingParser::new();
@@ -1880,8 +1905,8 @@ fn transform_assistant_tool_message(
                          let finished_reasoning = BusterReasoningMessage::Text(BusterReasoningText {
                              id: Uuid::new_v4().to_string(), // Use a unique ID for the message itself
                              reasoning_type: "text".to_string(),
-                             title: "Finished reasoning".to_string(),
-                             secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+                             title: "Generating final response...".to_string(), // Changed title
+                             secondary_title: format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()), // Use DELTA here
                              message: None,
                              message_chunk: None,
                              status: Some("completed".to_string()),
@@ -1958,7 +1983,7 @@ fn transform_assistant_tool_message(
                             id: tool_id.clone(),
                             reasoning_type: "text".to_string(),
                             title: "Creating Plan".to_string(),
-                            secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+                            secondary_title: format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()), // Use Delta
                             message: None,
                             message_chunk: Some(delta),
                             status: Some("loading".to_string()),
@@ -1974,7 +1999,7 @@ fn transform_assistant_tool_message(
                                 id: tool_id.clone(),
                                 reasoning_type: "text".to_string(),
                                 title: "Creating Plan".to_string(),
-                                secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+                                secondary_title: format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()), // Use Delta
                                 message: Some(final_text), // Final text
                                 message_chunk: None,
                                 status: Some("completed".to_string()), // Mark as completed
@@ -1995,7 +2020,7 @@ fn transform_assistant_tool_message(
                              id: tool_id.clone(),
                              reasoning_type: "text".to_string(),
                              title: "Searching your data catalog...".to_string(),
-                             secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+                             secondary_title: format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()), // Use Delta
                              message: None,
                              message_chunk: None,
                              status: Some("loading".to_string()),
@@ -2027,7 +2052,7 @@ fn transform_assistant_tool_message(
                 // If parser returns a reasoning message (File type expected)
                 if let Ok(Some(BusterReasoningMessage::File(mut file_reasoning))) = parse_result {
                     // Set the secondary title using elapsed_duration when creating the initial message
-                    file_reasoning.secondary_title = format!("{} seconds", elapsed_duration.as_secs());
+                    file_reasoning.secondary_title = format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()); // Use Delta
                     // Added missing variable initializations
                     let mut has_updates = false;
                     let mut updated_files_map = std::collections::HashMap::new();
@@ -2056,7 +2081,7 @@ fn transform_assistant_tool_message(
                         file_reasoning.files = updated_files_map;
                         file_reasoning.status = "loading".to_string(); // Ensure parent status is loading
                         // Make sure secondary title remains set
-                        file_reasoning.secondary_title = format!("{} seconds", elapsed_duration.as_secs());
+                        file_reasoning.secondary_title = format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()); // Use Delta
                         all_results.push(ToolTransformResult::Reasoning(BusterReasoningMessage::File(file_reasoning)));
                     }
 
