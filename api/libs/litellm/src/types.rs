@@ -282,14 +282,12 @@ pub struct Tool {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(untagged)]
+#[serde(rename_all = "lowercase")]
 pub enum ToolChoice {
-    #[serde(rename = "none")]
     None,
-    #[serde(rename = "auto")]
     Auto,
-    #[serde(rename = "required")]
     Required,
+    #[serde(untagged)]
     Function {
         #[serde(rename = "type")]
         type_: String,
