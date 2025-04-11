@@ -9,134 +9,101 @@ use crate::{
     tools::ToolExecutor
 };
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct FileModification {
-    content_to_replace: String,
-    new_content: String,
-}
-
 #[derive(Serialize, Deserialize, Debug)]
-pub struct EditFileContentParams {
+pub struct EditParams {
     file_path: String,
-    modifications: Vec<FileModification>,
+    old_string: String,
+    new_string: String,
+    expected_replacements: Option<usize>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct EditFileContentOutput {
-    success: bool,
-    message: String,
-}
-
-pub struct EditFileContentTool {
+pub struct EditTool {
     agent: Arc<Agent>,
 }
 
-impl EditFileContentTool {
+impl EditTool {
     pub fn new(agent: Arc<Agent>) -> Self {
         Self { agent }
-    }
-
-    // Helper function similar to the one in modify_metrics
-    fn apply_modifications(
-        &self,
-        initial_content: &str,
-        modifications: &[FileModification],
-        file_path: &str
-    ) -> Result<String, anyhow::Error> {
-        let mut current_content = initial_content.to_string();
-        for (i, modification) in modifications.iter().enumerate() {
-            let count = current_content.matches(&modification.content_to_replace).count();
-
-            if count == 0 {
-                return Err(anyhow::anyhow!(
-                    "Modification {} for file '{}' failed: Content to replace not found: \"{}\"",
-                    i + 1, file_path, modification.content_to_replace
-                ));
-            } else if count > 1 {
-                 return Err(anyhow::anyhow!(
-                    "Modification {} for file '{}' failed: Content to replace found multiple times ({}). Be more specific: \"{}\"",
-                    i + 1, file_path, count, modification.content_to_replace
-                ));
-            }
-
-            current_content = current_content.replace(&modification.content_to_replace, &modification.new_content);
-        }
-        Ok(current_content)
     }
 }
 
 #[async_trait]
-impl ToolExecutor for EditFileContentTool {
-    type Output = EditFileContentOutput;
-    type Params = EditFileContentParams;
+impl ToolExecutor for EditTool {
+    type Output = String;
+    type Params = EditParams;
 
     fn get_name(&self) -> String {
-        "edit_file_content".to_string()
+        "Edit".to_string()
     }
 
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output, anyhow::Error> {
         let file_path = Path::new(&params.file_path);
-        if !file_path.exists() {
+        if !file_path.exists() && !params.old_string.is_empty() {
             return Err(anyhow::anyhow!("File does not exist: {}", params.file_path));
         }
-        if !file_path.is_file() {
-            return Err(anyhow::anyhow!("Path is not a file: {}", params.file_path));
-        }
-
-        let initial_content = fs::read_to_string(file_path)
-            .map_err(|e| anyhow::anyhow!("Failed to read file '{}' for editing: {}", params.file_path, e))?;
-
-        match self.apply_modifications(&initial_content, &params.modifications, &params.file_path) {
-            Ok(modified_content) => {
-                match fs::write(file_path, modified_content) {
-                    Ok(_) => Ok(EditFileContentOutput {
-                        success: true,
-                        message: format!("Successfully edited file: {}", params.file_path),
-                    }),
-                    Err(e) => Err(anyhow::anyhow!("Failed to write edited content to file '{}': {}", params.file_path, e)),
-                }
+        
+        // If old_string is empty and file doesn't exist, create a new file
+        if params.old_string.is_empty() {
+            // Create parent directories if necessary
+            if let Some(parent) = file_path.parent() {
+                std::fs::create_dir_all(parent)?;
             }
-            Err(e) => {
-                // Error already contains details from apply_modifications
-                Ok(EditFileContentOutput {
-                     success: false,
-                     message: e.to_string(),
-                })
-            }
+            std::fs::write(file_path, &params.new_string)?;
+            return Ok(format!("Created new file: {}", params.file_path));
         }
+        
+        let content = std::fs::read_to_string(file_path)?;
+        let expected = params.expected_replacements.unwrap_or(1);
+        let matches = content.matches(&params.old_string).count();
+        
+        if matches == 0 {
+            return Err(anyhow::anyhow!(
+                "No matches found for replacement string in {}",
+                params.file_path
+            ));
+        } else if matches != expected && expected == 1 {
+            return Err(anyhow::anyhow!(
+                "Found {} matches when exactly 1 was expected. Provide more context in old_string or use expected_replacements parameter.",
+                matches
+            ));
+        } else if matches != expected {
+            return Err(anyhow::anyhow!(
+                "Found {} matches when {} were expected.",
+                matches, expected
+            ));
+        }
+        
+        let new_content = content.replace(&params.old_string, &params.new_string);
+        std::fs::write(file_path, new_content)?;
+        
+        Ok(format!("Successfully edited file: {}", params.file_path))
     }
 
     async fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Edits an existing file by applying a list of specific content replacements. Each 'content_to_replace' must match exactly once in the current file state for that step. WARNING: This overwrites the original file.",
+            "description": "This is a tool for editing files by replacing specific text strings.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "file_path": {
                         "type": "string",
-                        "description": "The path to the file to edit."
+                        "description": "The absolute path to the file to modify"
                     },
-                    "modifications": {
-                        "type": "array",
-                        "description": "List of modifications to apply sequentially.",
-                        "items": {
-                            "type": "object",
-                            "required": ["content_to_replace", "new_content"],
-                            "properties": {
-                                "content_to_replace": {
-                                    "type": "string",
-                                    "description": "The exact block of text to find and replace. Must be unique in the file at the time of replacement."
-                                },
-                                "new_content": {
-                                    "type": "string",
-                                    "description": "The new text to insert in place of 'content_to_replace'."
-                                }
-                            }
-                        }
+                    "old_string": {
+                        "type": "string",
+                        "description": "The text to replace"
+                    },
+                    "new_string": {
+                        "type": "string",
+                        "description": "The text to replace it with"
+                    },
+                    "expected_replacements": {
+                        "type": "number",
+                        "description": "The expected number of replacements to perform. Defaults to 1 if not specified."
                     }
                 },
-                "required": ["file_path", "modifications"]
+                "required": ["file_path", "old_string", "new_string"]
             }
         })
     }

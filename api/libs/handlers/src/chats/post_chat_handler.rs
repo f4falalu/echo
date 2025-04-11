@@ -1874,6 +1874,24 @@ fn transform_assistant_tool_message(
             // --- Handle Response Tools (Text) ---
             "done" => {
                 if let Some(full_text_value) = parser.process_response_tool_chunk(&tool_call.function.arguments, "final_response") {
+                    // --- START: Send "Finished reasoning" on first chunk ---
+                    let reasoning_message_id = format!("{}_reasoning_finished", tool_id);
+                    if tracker.get_complete_text(reasoning_message_id.clone()).is_none() {
+                         let finished_reasoning = BusterReasoningMessage::Text(BusterReasoningText {
+                             id: Uuid::new_v4().to_string(), // Use a unique ID for the message itself
+                             reasoning_type: "text".to_string(),
+                             title: "Finished reasoning".to_string(),
+                             secondary_title: format!("{} seconds", elapsed_duration.as_secs()),
+                             message: None,
+                             message_chunk: None,
+                             status: Some("completed".to_string()),
+                         });
+                         all_results.push(ToolTransformResult::Reasoning(finished_reasoning));
+                         // Use tracker to mark that we've sent the message for this tool call
+                         tracker.add_chunk(reasoning_message_id.clone(), "sent".to_string());
+                    }
+                    // --- END: Send "Finished reasoning" on first chunk ---
+
                     let delta = tracker.add_chunk(tool_id.clone(), full_text_value.clone());
                     if !delta.is_empty() {
                         all_results.push(ToolTransformResult::Response(BusterChatMessage::Text {
@@ -1896,6 +1914,9 @@ fn transform_assistant_tool_message(
                         }));
                         tracker.clear_chunk(tool_id.clone());
                     }
+                     // Clear the marker for the reasoning message as well
+                     let reasoning_message_id = format!("{}_reasoning_finished", tool_id);
+                     tracker.clear_chunk(reasoning_message_id);
                 }
             }
             "message_user_clarifying_question" => {

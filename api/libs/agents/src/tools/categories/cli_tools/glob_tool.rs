@@ -10,37 +10,32 @@ use crate::{
 };
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct FindFilesGlobParams {
+pub struct GlobToolParams {
     pattern: String,
-    base_directory: Option<String>,
+    path: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct FindFilesGlobOutput {
-    matched_files: Vec<String>,
-}
-
-pub struct FindFilesGlobTool {
+pub struct GlobTool {
     agent: Arc<Agent>,
 }
 
-impl FindFilesGlobTool {
+impl GlobTool {
     pub fn new(agent: Arc<Agent>) -> Self {
         Self { agent }
     }
 }
 
 #[async_trait]
-impl ToolExecutor for FindFilesGlobTool {
-    type Output = FindFilesGlobOutput;
-    type Params = FindFilesGlobParams;
+impl ToolExecutor for GlobTool {
+    type Output = String;
+    type Params = GlobToolParams;
 
     fn get_name(&self) -> String {
-        "find_files_glob".to_string()
+        "GlobTool".to_string()
     }
 
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output, anyhow::Error> {
-        let base_path = match params.base_directory {
+        let base_path = match params.path {
             Some(dir) => PathBuf::from(dir),
             None => std::env::current_dir().map_err(|e| anyhow::anyhow!("Failed to get current directory: {}", e))?,
         };
@@ -61,8 +56,29 @@ impl ToolExecutor for FindFilesGlobTool {
                         Err(e) => eprintln!("Error processing glob entry: {}", e), // Log error but continue
                     }
                 }
-                Ok(FindFilesGlobOutput { matched_files })
-            }
+                
+                // Sort by modification time
+                matched_files.sort_by(|a, b| {
+                    let a_meta = std::fs::metadata(a).ok();
+                    let b_meta = std::fs::metadata(b).ok();
+                    
+                    match (a_meta, b_meta) {
+                        (Some(a_meta), Some(b_meta)) => {
+                            let a_time = a_meta.modified().ok();
+                            let b_time = b_meta.modified().ok();
+                            match (a_time, b_time) {
+                                (Some(a), Some(b)) => b.cmp(&a), // Most recent first
+                                _ => std::cmp::Ordering::Equal,
+                            }
+                        }
+                        _ => std::cmp::Ordering::Equal,
+                    }
+                });
+                
+                // Format results as a simple list
+                let result = matched_files.join("\n");
+                Ok(result)
+            },
             Err(e) => Err(anyhow::anyhow!("Glob pattern error: {}", e)),
         }
     }
@@ -70,17 +86,17 @@ impl ToolExecutor for FindFilesGlobTool {
     async fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Finds files matching a glob pattern (e.g., '*.rs', 'src/**/*.toml'). Optionally specify a base directory to search from (defaults to current directory).",
+            "description": "Fast file pattern matching tool that works with any codebase size. Returns matching file paths sorted by modification time.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "pattern": {
                         "type": "string",
-                        "description": "The glob pattern to search for."
+                        "description": "The glob pattern to match files against"
                     },
-                    "base_directory": {
+                    "path": {
                         "type": "string",
-                        "description": "Optional path to the directory to start the search from."
+                        "description": "The directory to search in. If not specified, the current working directory will be used."
                     }
                 },
                 "required": ["pattern"]

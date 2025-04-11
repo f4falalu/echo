@@ -4,82 +4,35 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::fs;
 use std::path::{Path, PathBuf};
-use chrono::{DateTime, Utc};
 use crate::{
     agent::Agent,
     tools::ToolExecutor
 };
+use glob::Pattern;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ListDirectoryParams {
+pub struct LSParams {
     path: String,
-    recursive: Option<bool>,
-    show_hidden: Option<bool>,
+    ignore: Option<Vec<String>>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct DirectoryEntry {
-    name: String,
-    path: String,
-    is_dir: bool,
-    size: Option<u64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    modified_at: Option<String>, // ISO 8601 format
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ListDirectoryOutput {
-    entries: Vec<DirectoryEntry>,
-}
-
-pub struct ListDirectoryTool {
+pub struct LSTool {
     agent: Arc<Agent>,
 }
 
-impl ListDirectoryTool {
+impl LSTool {
     pub fn new(agent: Arc<Agent>) -> Self {
         Self { agent }
-    }
-
-    // Helper function to walk directory
-    fn walk_dir(&self, dir: &Path, recursive: bool, show_hidden: bool, entries: &mut Vec<DirectoryEntry>) -> Result<(), anyhow::Error> {
-        for entry_result in fs::read_dir(dir)? {
-            let entry = entry_result?;
-            let path = entry.path();
-            let file_name = entry.file_name().to_string_lossy().to_string();
-
-            if !show_hidden && file_name.starts_with('.') {
-                continue;
-            }
-
-            let metadata = entry.metadata()?;
-            let is_dir = metadata.is_dir();
-            let size = if is_dir { None } else { Some(metadata.len()) };
-            let modified_at: Option<DateTime<Utc>> = metadata.modified().ok().map(DateTime::from);
-
-            entries.push(DirectoryEntry {
-                name: file_name,
-                path: path.to_string_lossy().to_string(),
-                is_dir,
-                size,
-                modified_at: modified_at.map(|dt| dt.to_rfc3339()),
-            });
-
-            if recursive && is_dir {
-                self.walk_dir(&path, recursive, show_hidden, entries)?;
-            }
-        }
-        Ok(())
     }
 }
 
 #[async_trait]
-impl ToolExecutor for ListDirectoryTool {
-    type Output = ListDirectoryOutput;
-    type Params = ListDirectoryParams;
+impl ToolExecutor for LSTool {
+    type Output = String;
+    type Params = LSParams;
 
     fn get_name(&self) -> String {
-        "list_directory".to_string()
+        "LS".to_string()
     }
 
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output, anyhow::Error> {
@@ -91,34 +44,48 @@ impl ToolExecutor for ListDirectoryTool {
              return Err(anyhow::anyhow!("Path is not a directory: {}", params.path));
         }
 
-        let recursive = params.recursive.unwrap_or(false);
-        let show_hidden = params.show_hidden.unwrap_or(false);
-        let mut entries = Vec::new();
+        // Get ignore patterns
+        let ignore_patterns = params.ignore.unwrap_or_default();
 
-        match self.walk_dir(&path, recursive, show_hidden, &mut entries) {
-             Ok(_) => Ok(ListDirectoryOutput { entries }),
-             Err(e) => Err(anyhow::anyhow!("Failed to list directory '{}': {}", params.path, e))
+        // Simplified listing output
+        let mut results = String::new();
+        for entry_result in fs::read_dir(path)? {
+            if let Ok(entry) = entry_result {
+                let file_name = entry.file_name().to_string_lossy().to_string();
+                
+                // Check if file matches any ignore pattern
+                let should_ignore = ignore_patterns.iter().any(|pattern| {
+                    Pattern::new(pattern).map(|p| p.matches(&file_name)).unwrap_or(false)
+                });
+                
+                if !should_ignore {
+                    let path = entry.path();
+                    let file_type = if path.is_dir() { "dir" } else { "file" };
+                    results.push_str(&format!("{} {}\n", file_type, file_name));
+                }
+            }
         }
+
+        Ok(results)
     }
 
     async fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Lists the contents of a specified directory. Can optionally list recursively and show hidden files (starting with '.').",
+            "description": "Lists files and directories in a given path. The path parameter must be an absolute path, not a relative path.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "path": {
                         "type": "string",
-                        "description": "The path to the directory to list."
+                        "description": "The absolute path to the directory to list (must be absolute, not relative)"
                     },
-                    "recursive": {
-                        "type": "boolean",
-                        "description": "Set to true to list contents recursively. Defaults to false."
-                    },
-                    "show_hidden": {
-                        "type": "boolean",
-                        "description": "Set to true to include hidden files/directories. Defaults to false."
+                    "ignore": {
+                        "type": "array",
+                        "description": "List of glob patterns to ignore",
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 },
                 "required": ["path"]
