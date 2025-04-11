@@ -354,7 +354,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
 async fn get_modify_metrics_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Modifies existing metric configuration files by replacing specified content with new content. When modifying a metric's SQL, make sure to also update the name and/or time frame to reflect the changes.".to_string();
+        return "Modifies existing metric configuration files by replacing specified content with new content. Before using this tool, carefully review the metric YAML specification and thoughtfully plan your edits based on the visualization type and its specific configuration requirements. When modifying a metric's SQL, make sure to also update the name and/or time frame to reflect the changes. Each visualization has unique axis settings, formatting options, and data structure needs that must be considered when making modifications.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -362,7 +362,7 @@ async fn get_modify_metrics_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "Modifies existing metric configuration files by replacing specified content with new content. When modifying a metric's SQL, make sure to also update the name and/or time frame to reflect the changes.".to_string()
+            "Modifies existing metric configuration files by replacing specified content with new content. Before using this tool, carefully review the metric YAML specification and thoughtfully plan your edits based on the visualization type and its specific configuration requirements. When modifying a metric's SQL, make sure to also update the name and/or time frame to reflect the changes. Each visualization has unique axis settings, formatting options, and data structure needs that must be considered when making modifications.".to_string()
         }
     }
 }

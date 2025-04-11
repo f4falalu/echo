@@ -352,7 +352,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
 
 async fn get_dashboard_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Creates **new** dashboard files. Use this if no existing dashboard file can fulfill the user's needs. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed.".to_string();
+        return "Creates **new** dashboard files. Use this if no existing dashboard file can fulfill the user's needs. Before using this tool, carefully think through the dashboard format, specification, and structure to ensure it meets requirements. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed, and you have a clear understanding of the dashboard specification.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -360,7 +360,7 @@ async fn get_dashboard_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "Creates **new** dashboard files. Use this if no existing dashboard file can fulfill the user's needs. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed.".to_string()
+            "Creates **new** dashboard files. Use this if no existing dashboard file can fulfill the user's needs. Before using this tool, carefully think through the dashboard format, specification, and structure to ensure it meets requirements. Guard Rail: Do not execute any file creation or modifications until a thorough data catalog search has been completed and reviewed, and you have a clear understanding of the dashboard specification.".to_string()
         }
     }
 }

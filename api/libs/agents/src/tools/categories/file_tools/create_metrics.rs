@@ -287,7 +287,7 @@ impl ToolExecutor for CreateMetricFilesTool {
 
 async fn get_create_metrics_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Creates metric configuration files with YAML content following the metric schema specification".to_string();
+        return "Creates metric configuration files with YAML content following the metric schema specification. Before using this tool, carefully consider the appropriate visualization type (bar, line, scatter, pie, combo, metric, table) and its specific configuration requirements. Each visualization has unique axis settings, formatting options, and data structure needs that must be thoroughly planned to create effective metrics.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -295,7 +295,7 @@ async fn get_create_metrics_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "Creates metric configuration files with YAML content following the metric schema specification".to_string()
+            "Creates metric configuration files with YAML content following the metric schema specification. Before using this tool, carefully consider the appropriate visualization type (bar, line, scatter, pie, combo, metric, table) and its specific configuration requirements. Each visualization has unique axis settings, formatting options, and data structure needs that must be thoroughly planned to create effective metrics.".to_string()
         }
     }
 }

@@ -366,10 +366,12 @@ definitions:
                 type: array
                 items:
                   type: string
+                description: Multiple y-axis columns can be specified to create multi-line charts. Each column will be represented as a separate line on the chart.
               category:
                 type: array
                 items:
                   type: string
+                description: Used to create multi-line charts with different lines based on categorical values. Especially useful for time series data that combines numeric values with categorical fields, allowing visualization of trends across different categories over time. Alternative to using multiple y-axis columns.
             required:
               - x
               - y

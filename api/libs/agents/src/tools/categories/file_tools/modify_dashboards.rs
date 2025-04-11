@@ -272,7 +272,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
 
 async fn get_modify_dashboards_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Modifies existing dashboard configuration files by replacing specified content with new content. If the dashboard fundamentally changes, the name should be updated to reflect the changes. However, if the core dashboard topic remains the same, the name should stay unchanged.".to_string();
+        return "Modifies existing dashboard configuration files by replacing specified content with new content. Before using this tool, carefully think through the dashboard format, specification, and structure to ensure your edits maintain consistency and meet requirements. If the dashboard fundamentally changes, the name should be updated to reflect the changes. However, if the core dashboard topic remains the same, the name should stay unchanged.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -280,7 +280,7 @@ async fn get_modify_dashboards_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "Modifies existing dashboard configuration files by replacing specified content with new content. If the dashboard fundamentally changes, the name should be updated to reflect the changes. However, if the core dashboard topic remains the same, the name should stay unchanged.".to_string()
+            "Modifies existing dashboard configuration files by replacing specified content with new content. Before using this tool, carefully think through the dashboard format, specification, and structure to ensure your edits maintain consistency and meet requirements. If the dashboard fundamentally changes, the name should be updated to reflect the changes. However, if the core dashboard topic remains the same, the name should stay unchanged.".to_string()
         }
     }
 }
