@@ -17,7 +17,7 @@ use tracing::{debug, error, info};
 use super::{
     common::{
         process_dashboard_file_modification, ModificationResult, ModifyFilesOutput,
-        ModifyFilesParams,
+        ModifyFilesParams, FailedFileModification,
     },
     file_types::file::FileWithId,
     FileModificationTool,
@@ -178,14 +178,16 @@ impl ToolExecutor for ModifyDashboardFilesTool {
         let duration = start_time.elapsed().as_millis() as i64;
         let mut output = ModifyFilesOutput {
             message: format!(
-                "Modified {} dashboard files and created new versions",
-                batch.files.len()
+                "Modified {} dashboard files and created new versions. {} failures.",
+                batch.files.len(),
+                batch.failed_modifications.len()
             ),
             duration,
             files: Vec::new(),
+            failed_files: Vec::new(),
         };
 
-        // Add files to output
+        // Add successful files to output
         output
             .files
             .extend(batch.files.iter().enumerate().map(|(i, file)| {
@@ -202,6 +204,14 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                     version_number: file.version_history.get_version_number(),
                 }
             }));
+
+        // Add failed modifications to output
+        output.failed_files.extend(
+            batch
+                .failed_modifications
+                .into_iter()
+                .map(|(file_name, error)| FailedFileModification { file_name, error }),
+        );
 
         Ok(output)
     }
@@ -352,7 +362,7 @@ async fn get_modify_dashboards_new_content_description() -> String {
 
 async fn get_modify_dashboards_content_to_replace_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The exact content in the file that should be replaced. Must match exactly and be specific enough to only match once. Use an empty string to append the new content to the end of the file."
+        return "The exact content in the file that should be replaced. Precise matching is crucial: the provided content must match exactly and be specific enough to target only the intended section, avoiding unintended replacements. This should typically be a small, specific snippet; replacing the entire file content is usually not intended unless the entire dashboard definition needs a complete overhaul. Use an empty string to append the new content to the end of the file."
             .to_string();
     }
 
@@ -361,7 +371,7 @@ async fn get_modify_dashboards_content_to_replace_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "The exact content in the file that should be replaced. Must match exactly and be specific enough to only match once. Use an empty string to append the new content to the end of the file.".to_string()
+            "The exact content in the file that should be replaced. Precise matching is crucial: the provided content must match exactly and be specific enough to target only the intended section, avoiding unintended replacements. This should typically be a small, specific snippet; replacing the entire file content is usually not intended unless the entire dashboard definition needs a complete overhaul. Use an empty string to append the new content to the end of the file.".to_string()
         }
     }
 }

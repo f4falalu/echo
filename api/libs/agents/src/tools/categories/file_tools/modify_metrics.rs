@@ -21,6 +21,7 @@ use uuid::Uuid;
 use super::{
     common::{
         process_metric_file_modification, ModificationResult, ModifyFilesOutput, ModifyFilesParams,
+        FailedFileModification,
     },
     file_types::file::FileWithId,
     FileModificationTool,
@@ -91,6 +92,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                 return Ok(ModifyFilesOutput {
                     message: format!("Failed to connect to database: {}", e),
                     files: Vec::new(),
+                    failed_files: Vec::new(),
                     duration,
                 });
             }
@@ -211,6 +213,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                     return Ok(ModifyFilesOutput {
                         message: format!("Failed to fetch metric files: {}", e),
                         files: Vec::new(),
+                        failed_files: Vec::new(),
                         duration,
                     });
                 }
@@ -219,11 +222,6 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
         // Process results and generate output message
         let duration = start_time.elapsed().as_millis() as i64;
-        let _output = ModifyFilesOutput {
-            message: String::new(),
-            files: Vec::new(),
-            duration,
-        };
 
         // Update metric files in database with version history and metadata
         if !batch.files.is_empty() {
@@ -256,18 +254,19 @@ impl ToolExecutor for ModifyMetricFilesTool {
             }
         }
 
-        // Generate output
-        let duration = start_time.elapsed().as_millis() as i64;
+        // Construct final output
         let mut output = ModifyFilesOutput {
             message: format!(
-                "Modified {} metric files and created new versions",
-                batch.files.len()
+                "Modified {} metric files and created new versions. {} failures.",
+                batch.files.len(),
+                batch.failed_modifications.len()
             ),
             duration,
             files: Vec::new(),
+            failed_files: Vec::new(),
         };
 
-        // Add files to output
+        // Add successful files to output
         output
             .files
             .extend(batch.files.iter().enumerate().map(|(i, file)| {
@@ -284,6 +283,14 @@ impl ToolExecutor for ModifyMetricFilesTool {
                     version_number: file.version_history.get_version_number(),
                 }
             }));
+
+        // Add failed modifications to output
+        output.failed_files.extend(
+            batch
+                .failed_modifications
+                .into_iter()
+                .map(|(file_name, error)| FailedFileModification { file_name, error }),
+        );
 
         Ok(output)
     }

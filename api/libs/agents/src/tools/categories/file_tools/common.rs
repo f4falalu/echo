@@ -107,10 +107,11 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # -------------------------------------
 # Required top-level fields:
 #
-# name: "Your Metric Title"
-# description: "A detailed description of what this metric measures and how it should be interpreted"  # Optional
-# datasetIds: ["123e4567-e89b-12d3-a456-426614174000"]  # Dataset UUIDs (not names)
-# timeFrame: "Last 30 days"  # Human-readable time period covered by the query
+# name: Your Metric Title
+# description: A detailed description of what this metric measures and how it should be interpreted  # Optional
+# datasetIds: 
+#   - 123e4567-e89b-12d3-a456-426614174000  # Dataset UUIDs (not names)
+# timeFrame: Last 30 days  # Human-readable time period covered by the query
 # sql: |
 #   SELECT 
 #     date,
@@ -120,24 +121,21 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # 
 # chartConfig:
 #   selectedChartType: "bar"  # One of: bar, line, scatter, pie, combo, metric, table
-#   columnLabelFormats: {     # REQUIRED - Must define formatting for all columns
-#     "date": {
-#       "columnType": "date",
-#       "style": "date",
-#       "dateFormat": "MMM DD, YYYY"
-#     },
-#     "total": {
-#       "columnType": "number",
-#       "style": "currency",
-#       "currency": "USD",
-#       "minimumFractionDigits": 2
-#     }
-#   }
+#   columnLabelFormats:      # REQUIRED - Must define formatting for all columns
+#     date:
+#       columnType: date
+#       style: date
+#       dateFormat: MMM DD, YYYY
+#     total:
+#       columnType: number
+#       style: currency
+#       currency: USD
+#       minimumFractionDigits: 2
 #   barAndLineAxis: {...}  # Required for bar and line charts OR
 #   scatterAxis: {...}  # Required for scatter charts OR
 #   pieChartAxis: {...}  # Required for pie charts OR
 #   comboChartAxis: {...}  # Required for combo charts OR
-#   metricColumnId: "column_id"  # Required for metric charts
+#   metricColumnId: column_id  # Required for metric charts
 # -------------------------------------
 
 type: object
@@ -491,17 +489,17 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 # ----------------------------------------
 # Required fields:
 #
-# name: "Your Dashboard Title"
-# description: "A description of the dashboard, it's metrics, and its purpose."
+# name: Your Dashboard Title
+# description: A description of the dashboard, its metrics, and its purpose.
 # rows: 
 #   - id: 1               # Required row ID (integer)
 #     items:
-#       - id: "metric-uuid-1"  # UUIDv4 of an existing metric
+#       - id: metric-uuid-1  # UUIDv4 of an existing metric
 #     columnSizes: [12]   # Required - must sum to exactly 12
 #   - id: 2 # REQUIRED
 #     items:
-#       - id: "metric-uuid-2"
-#       - id: "metric-uuid-3"
+#       - id: metric-uuid-2
+#       - id: metric-uuid-3
 #     columnSizes: [6, 6] # Required - must sum to exactly 12
 #
 # Rules:

@@ -25,48 +25,28 @@ fn parse_input_for_completion<'a>(input: &'a str, cwd: &Path) -> Option<PathComp
     let token_start_index = input.rfind(' ').map_or(0, |i| i + 1);
     let potential_fragment = &input[token_start_index..];
 
-    if potential_fragment.is_empty() && !input.ends_with(' ') {
-        // If the whole input is empty, or the last non-empty part doesn't look like a path start
-        // Let's offer completions from the CWD if the *entire* input is empty OR ends with space
-         if input.is_empty() || input.ends_with(' '){
-             return Some(PathCompletionTarget {
+    // Handle empty input or input ending with space
+    if potential_fragment.is_empty() {
+        if input.is_empty() || input.ends_with(' ') {
+            // Offer completions from CWD for empty input or space-terminated input
+            return Some(PathCompletionTarget {
                 fragment: "",
                 base_dir_str: "",
                 prefix: "",
                 search_dir: cwd.to_path_buf(),
                 fragment_start_index: input.len(), // At the end
             });
-         } else {
+        } else {
             // Don't autocomplete mid-word *unless* it looks like a path
-             if !potential_fragment.contains('/') && !potential_fragment.starts_with('.'){
+            if !potential_fragment.contains('/') && !potential_fragment.starts_with('.') {
                 return None;
-             }
-             // If it looks like a path fragment even without spaces, continue parsing below.
+            }
         }
-    } else if potential_fragment.is_empty() && input.ends_with(' ') {
-         // Explicitly trigger completion from CWD if input ends with space
-         return Some(PathCompletionTarget {
-                fragment: "",
-                base_dir_str: "",
-                prefix: "",
-                search_dir: cwd.to_path_buf(),
-                fragment_start_index: input.len(), // At the end
-            });
     }
 
-
-    // Basic check: Does it look like a path at all? (./ ../ / or contains /)
-    // Or is it just a potential file/dir name in the CWD?
-    let is_path_like = potential_fragment.starts_with("./")
-        || potential_fragment.starts_with("../")
-        // || potential_fragment.starts_with('/') // Avoid absolute paths for now
-        || potential_fragment.contains('/');
-
-    // If it's not explicitly path-like, assume it's a potential file/dir in CWD
-     if !is_path_like && potential_fragment.contains(std::path::is_separator) {
-         return None; // Avoid completing things like "some command with/slashes"
-     }
-
+    // For any non-empty fragment, we'll try to offer completions
+    // Whether or not it contains path separators
+    
     // Find the last path separator to determine base directory and prefix
     let (fragment_base_dir_str, prefix) = match potential_fragment.rfind('/') {
         Some(sep_index) => {
@@ -75,7 +55,8 @@ fn parse_input_for_completion<'a>(input: &'a str, cwd: &Path) -> Option<PathComp
             (&potential_fragment[..=sep_index], &potential_fragment[sep_index + 1..])
         }
         None => {
-            // Example: "READ"       -> base="", prefix="READ"
+            // Example: "chat"       -> base="", prefix="chat"
+            // Treat any word as a potential filename or directory name
             ("", potential_fragment)
         }
     };
@@ -87,17 +68,33 @@ fn parse_input_for_completion<'a>(input: &'a str, cwd: &Path) -> Option<PathComp
     // Basic security/sanity check: prevent "escaping" the CWD with excessive "../"
     let canonical_search = match search_dir_abs.canonicalize() {
         Ok(p) => p,
-        Err(_) => return None, // Invalid base path derived from fragment
+        Err(_) => {
+            // If the base directory doesn't exist, default to CWD for searching
+            return Some(PathCompletionTarget {
+                fragment: potential_fragment,
+                base_dir_str: "",
+                prefix: potential_fragment, // Use the whole fragment as prefix
+                search_dir: cwd.to_path_buf(),
+                fragment_start_index: token_start_index,
+            });
+        }
     };
-    let canonical_cwd = match cwd.canonicalize() {
-         Ok(p) => p,
-         Err(_) => return None, // Should not happen normally
-    };
-    if !canonical_search.starts_with(&canonical_cwd) {
-        // eprintln!("Warning: Completion attempted outside of CWD.");
-        return None; // Don't allow completions outside the initial CWD
-    }
 
+    let canonical_cwd = match cwd.canonicalize() {
+        Ok(p) => p,
+        Err(_) => return None, // Should not happen normally
+    };
+    
+    if !canonical_search.starts_with(&canonical_cwd) {
+        // Fall back to CWD for security
+        return Some(PathCompletionTarget {
+            fragment: potential_fragment,
+            base_dir_str: "",
+            prefix: potential_fragment, // Use the whole fragment as prefix
+            search_dir: cwd.to_path_buf(),
+            fragment_start_index: token_start_index,
+        });
+    }
 
     Some(PathCompletionTarget {
         fragment: potential_fragment,
@@ -140,27 +137,25 @@ fn find_completions_recursive(
                 }
 
                 let entry_path_relative = relative_path.join(name);
+                let entry_path_str = entry_path_relative.to_string_lossy().to_lowercase();
+                let name_lower = name.to_lowercase();
 
-                // Case-insensitive check against the *full relative path*
-                if entry_path_relative.to_string_lossy().to_lowercase().starts_with(base_prefix_lower) {
-                    let mut completion_path = entry_path_relative.clone(); // Path relative to initial search
+                // Check if this entry should be included in completions:
+                // 1. Empty prefix means include everything from starting directory
+                // 2. Name starts with prefix (traditional completion)
+                // 3. Any part of path contains the prefix (fuzzy search)
+                let matches_path = entry_path_str.contains(base_prefix_lower);
+                let matches_name = name_lower.contains(base_prefix_lower);
+                let should_include = base_prefix_lower.is_empty() || matches_name || matches_path;
+
+                if should_include {
+                    let completion_path = entry_path_relative.clone(); // Path relative to initial search
 
                     match entry.file_type() {
                          Ok(ft) => {
                             if ft.is_dir() {
                                 // Add the directory itself to completions (with a slash)
-                                // Check if the match is the directory name itself or something inside it
-                                if name.to_lowercase().starts_with(base_prefix_lower) || base_prefix_lower.is_empty() || base_prefix_lower.starts_with(&name.to_lowercase()) {
-                                    completions.push(completion_path);
-                                    // Recurse into subdirectory
-                                    let _ = find_completions_recursive(
-                                        &entry.path(),
-                                        base_prefix_lower,
-                                        &entry_path_relative,
-                                        completions,
-                                        max_depth - 1,
-                                    );
-                                }
+                                completions.push(completion_path);
                             } else if ft.is_file() {
                                 // Add the file
                                 completions.push(completion_path);
@@ -168,6 +163,23 @@ fn find_completions_recursive(
                          }
                          Err(_) => { /* Ignore file type errors */ }
                     }
+                }
+                
+                // Always recurse into directories, even if they don't match,
+                // as they might contain matching files or subdirectories
+                match entry.file_type() {
+                    Ok(ft) => {
+                        if ft.is_dir() {
+                            let _ = find_completions_recursive(
+                                &entry.path(),
+                                base_prefix_lower,
+                                &entry_path_relative,
+                                completions,
+                                max_depth - 1,
+                            );
+                        }
+                    }
+                    Err(_) => { /* Ignore file type errors */ }
                 }
             }
         }
@@ -197,7 +209,7 @@ pub fn get_completions<'a>(input: &'a str, cwd_str: &str) -> (Vec<String>, Optio
 
     let mut raw_completions = Vec::new();
     let prefix_lower = target.prefix.to_lowercase();
-    let max_depth = 5; // Limit recursion depth
+    let max_depth = 10; // Increased recursion depth for better deep directory search
 
     // Start recursive search from the absolute search_dir identified by parse_input
     // Pass an empty initial relative path
@@ -225,14 +237,24 @@ pub fn get_completions<'a>(input: &'a str, cwd_str: &str) -> (Vec<String>, Optio
         final_completions.push(completion_str);
     }
 
+    // Deduplicate before sorting - some paths might show up multiple times
+    // due to the more aggressive recursive search
+    final_completions.sort();
+    final_completions.dedup();
 
+    // Now sort with directories first
     final_completions.sort_by(|a, b| {
         let a_is_dir = a.ends_with('/');
         let b_is_dir = b.ends_with('/');
         // Sort directories first, then files, then alphabetically
         b_is_dir.cmp(&a_is_dir).then_with(|| a.cmp(b))
     });
-    final_completions.dedup(); // Remove duplicates that might arise
+
+    // Limit results to a reasonable number to avoid overwhelming the UI
+    let max_completions = 100;
+    if final_completions.len() > max_completions {
+        final_completions.truncate(max_completions);
+    }
 
     (final_completions, Some(target))
 }
@@ -336,9 +358,17 @@ mod tests {
         let (completions, _) = get_completions("src/sub", cwd_str);
         assert_eq!(completions, vec!["src/subdir/", "src/subdir/deep_file.txt"]);
 
-         // Complete file in deep path
+        // Complete file in deep path
         let (completions, _) = get_completions("src/subdir/d", cwd_str);
         assert_eq!(completions, vec!["src/subdir/deep_file.txt"]);
+
+        // Test flexible search (no path structure)
+        // This is the key new functionality - finds matches anywhere in the directory tree
+        let (completions, _) = get_completions("deep", cwd_str);
+        assert_eq!(completions, vec!["src/subdir/deep_file.txt"]);
+        
+        let (completions, _) = get_completions("lib", cwd_str);
+        assert_eq!(completions, vec!["src/lib.rs"]);
 
         // Empty input -> complete from CWD
         let (completions, _) = get_completions("", cwd_str);
