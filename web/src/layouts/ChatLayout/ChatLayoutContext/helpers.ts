@@ -19,8 +19,8 @@ const chatRouteRecord: Record<
     }),
   dataset: (chatId, assetId) =>
     createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_DATASET_ID,
-      chatId,
+      route: BusterRoutes.APP_DATASETS_ID,
+      // chatId,
       datasetId: assetId
     }),
   metric: (chatId, assetId, versionNumber) => {
@@ -55,8 +55,8 @@ const chatRouteRecord: Record<
   },
   term: (chatId, assetId) =>
     createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_TERM_ID,
-      chatId,
+      route: BusterRoutes.APP_TERMS_ID,
+      //   chatId,
       termId: assetId
     }),
   value: (chatId, assetId) =>
