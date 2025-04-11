@@ -76,7 +76,7 @@ const AppMarkdownBase: React.FC<{
   }, []);
 
   return (
-    <div className={cn(styles.container, 'flex flex-col gap-1.5', className)}>
+    <div className={cn(styles.container, 'flex flex-col gap-1.5 leading-1.5', className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         skipHtml={true}
