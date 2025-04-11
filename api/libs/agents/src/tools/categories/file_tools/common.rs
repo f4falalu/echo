@@ -1047,6 +1047,13 @@ pub struct ModifyFilesOutput {
     pub message: String,
     pub duration: i64,
     pub files: Vec<FileWithId>,
+    pub failed_files: Vec<FailedFileModification>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FailedFileModification {
+    pub file_name: String,
+    pub error: String,
 }
 
 #[derive(Debug)]
