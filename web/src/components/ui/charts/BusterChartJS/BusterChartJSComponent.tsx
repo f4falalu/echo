@@ -95,7 +95,8 @@ export const BusterChartJSComponent = React.memo(
         scatterDotSize,
         lineGroupType,
         categoryKeys: (selectedAxis as ScatterAxis).category,
-        trendlineSeries
+        trendlineSeries,
+        barGroupType
       });
 
       const { chartPlugins, chartOptions } = useChartSpecificOptions({

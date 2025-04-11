@@ -9,7 +9,11 @@ import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOption
 import type { Options } from 'chartjs-plugin-datalabels/types/options';
 import { DEFAULT_CHART_LAYOUT } from '../../ChartJSTheme';
 import { extractFieldsFromChain } from '../../../chartHooks';
-import { DEFAULT_COLUMN_LABEL_FORMAT, IColumnLabelFormat } from '@/api/asset_interfaces/metric';
+import {
+  BusterChartProps,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  IColumnLabelFormat
+} from '@/api/asset_interfaces/metric';
 
 export const barSeriesBuilder = ({
   selectedDataset,
@@ -20,6 +24,7 @@ export const barSeriesBuilder = ({
   xAxisKeys,
   barShowTotalAtTop,
   allY2AxisKeysIndexes,
+  barGroupType,
   ...rest
 }: SeriesBuilderProps): ChartProps<'bar'>['data']['datasets'] => {
   const dataLabelOptions: Options['labels'] = {};
@@ -85,7 +90,8 @@ export const barSeriesBuilder = ({
         yAxisItem,
         index,
         xAxisKeys,
-        dataLabelOptions
+        dataLabelOptions,
+        barGroupType
       });
     }
   );
@@ -116,7 +122,8 @@ export const barBuilder = ({
   yAxisID,
   order,
   xAxisKeys,
-  dataLabelOptions
+  dataLabelOptions,
+  barGroupType
 }: Pick<
   SeriesBuilderProps,
   'selectedDataset' | 'colors' | 'columnSettings' | 'columnLabelFormats'
@@ -127,12 +134,19 @@ export const barBuilder = ({
   order?: number;
   xAxisKeys: string[];
   dataLabelOptions?: Options['labels'];
+  barGroupType: BusterChartProps['barGroupType'];
 }): ChartProps<'bar'>['data']['datasets'][number] => {
   const yKey = extractFieldsFromChain(yAxisItem.name).at(-1)?.key!;
   const columnSetting = columnSettings[yKey];
   const columnLabelFormat = columnLabelFormats[yKey];
-  const usePercentage = !!columnSetting?.showDataLabelsAsPercentage;
   const showLabels = !!columnSetting?.showDataLabels;
+  const isPercentageStackedBar = barGroupType === 'percentage-stack';
+
+  const percentageMode = isPercentageStackedBar
+    ? 'stacked'
+    : columnSetting?.showDataLabelsAsPercentage
+      ? 'data-label'
+      : false;
 
   return {
     type: 'bar',
@@ -170,7 +184,7 @@ export const barBuilder = ({
             if (barWidth < MAX_BAR_WIDTH) return false;
 
             const formattedValue = getFormattedValue(context, {
-              usePercentage,
+              percentageMode,
               columnLabelFormat: columnLabelFormat || DEFAULT_COLUMN_LABEL_FORMAT
             });
 
@@ -286,10 +300,10 @@ const setGlobalRotation = (context: Context) => {
 const getFormattedValue = (
   context: Context,
   {
-    usePercentage,
+    percentageMode,
     columnLabelFormat
   }: {
-    usePercentage: boolean;
+    percentageMode: false | 'stacked' | 'data-label';
     columnLabelFormat: IColumnLabelFormat;
   }
 ) => {
@@ -297,7 +311,7 @@ const getFormattedValue = (
   const currentValue =
     context.chart.$barDataLabels?.[context.datasetIndex]?.[context.dataIndex] || '';
   const formattedValue =
-    currentValue || formatBarAndLineDataLabel(rawValue, context, usePercentage, columnLabelFormat);
+    currentValue || formatBarAndLineDataLabel(rawValue, context, percentageMode, columnLabelFormat);
   // Store only the formatted value, rotation is handled globally
   setBarDataLabelsManager(context, formattedValue);
 

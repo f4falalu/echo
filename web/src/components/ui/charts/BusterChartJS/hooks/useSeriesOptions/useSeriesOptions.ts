@@ -33,6 +33,7 @@ export interface UseSeriesOptionsProps {
   scatterDotSize: BusterChartProps['scatterDotSize'];
   columnMetadata: ColumnMetaData[];
   lineGroupType: BusterChartProps['lineGroupType'];
+  barGroupType: BusterChartProps['barGroupType'];
   trendlineSeries: ChartProps<'line'>['data']['datasets'][number][];
   barShowTotalAtTop: BusterChartProps['barShowTotalAtTop'];
 }
@@ -53,7 +54,8 @@ export const useSeriesOptions = ({
   scatterDotSize,
   lineGroupType,
   categoryKeys,
-  barShowTotalAtTop
+  barShowTotalAtTop,
+  barGroupType
 }: UseSeriesOptionsProps): ChartProps<ChartJSChartType>['data'] => {
   const selectedDataset = useMemo(() => {
     return datasetOptions[datasetOptions.length - 1];
@@ -134,7 +136,8 @@ export const useSeriesOptions = ({
       scatterDotSize,
       lineGroupType,
       categoryKeys,
-      selectedChartType
+      selectedChartType,
+      barGroupType
     });
   }, [
     selectedDataset,

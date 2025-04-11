@@ -315,7 +315,7 @@ const LabelSettings: React.FC<{
     return formatLabel(id, columnLabelFormat, true);
   }, [displayName]);
 
-  //THIS IS HERE JUST TO PREFETCH THE CURRENCIES
+  //THIS IS HERE JUST TO PREFETCH THE CURRENCIES, I guess I could use prefetch...
   useGetCurrencies();
 
   const ComponentsLoop = [

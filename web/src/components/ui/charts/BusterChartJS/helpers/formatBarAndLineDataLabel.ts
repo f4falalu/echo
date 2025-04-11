@@ -5,10 +5,10 @@ import type { Context } from 'chartjs-plugin-datalabels';
 export const formatBarAndLineDataLabel = (
   value: number,
   context: Context,
-  usePercentage: boolean | undefined,
+  percentageMode: false | 'stacked' | 'data-label',
   columnLabelFormat: ColumnLabelFormat
 ) => {
-  if (!usePercentage) {
+  if (!percentageMode) {
     return formatLabel(value, columnLabelFormat);
   }
 
@@ -16,7 +16,10 @@ export const formatBarAndLineDataLabel = (
     (dataset) => !dataset.hidden && !dataset.isTrendline
   );
   const hasMultipleDatasets = shownDatasets.length > 1;
-  const total: number = hasMultipleDatasets
+
+  const useStackTotal = !hasMultipleDatasets || percentageMode === 'stacked';
+
+  const total: number = useStackTotal
     ? context.chart.$totalizer.stackTotals[context.dataIndex]
     : context.chart.$totalizer.seriesTotals[context.datasetIndex];
   const percentage = ((value as number) / total) * 100;

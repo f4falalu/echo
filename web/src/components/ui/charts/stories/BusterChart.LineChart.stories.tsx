@@ -371,3 +371,69 @@ export const NumericMonthX: Story = {
     }
   }
 };
+
+export const PercentageStackedLineSingle: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: generateLineChartData(),
+    lineGroupType: 'percentage-stack',
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    columnLabelFormats: {
+      month: {
+        columnType: 'number',
+        style: 'date',
+        dateFormat: 'MMM',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      customers: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const PercentageStackedLineMultiple: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: generateLineChartData(),
+    lineGroupType: 'percentage-stack',
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue', 'profit', 'customers'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    columnLabelFormats: {
+      date: {
+        columnType: 'number',
+        style: 'date',
+        dateFormat: 'll',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      customers: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    }
+  }
+};

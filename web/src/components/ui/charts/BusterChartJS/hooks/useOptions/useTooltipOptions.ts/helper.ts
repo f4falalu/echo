@@ -10,9 +10,10 @@ export const getPercentage = (
   datasetKey: string,
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>,
   chart: Chart,
-  hasMultipleShownDatasets: boolean
+  hasMultipleShownDatasets: boolean,
+  percentageMode: undefined | 'stacked'
 ) => {
-  if (hasMultipleShownDatasets) {
+  if (hasMultipleShownDatasets || percentageMode === 'stacked') {
     return getStackedPercentage(rawValue, dataIndex, datasetKey, columnLabelFormats, chart);
   }
 

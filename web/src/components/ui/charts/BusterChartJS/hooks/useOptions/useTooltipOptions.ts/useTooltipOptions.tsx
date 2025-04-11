@@ -131,7 +131,9 @@ export const useTooltipOptions = ({
       keyToUsePercentage,
       columnSettings,
       hasCategoryAxis,
-      hasMultipleMeasures
+      hasMultipleMeasures,
+      barGroupType,
+      lineGroupType
     );
 
     if (result) {
@@ -225,7 +227,9 @@ const externalTooltip = (
   keyToUsePercentage: string[],
   columnSettings: NonNullable<BusterChartProps['columnSettings']>,
   hasCategoryAxis: boolean,
-  hasMultipleMeasures: boolean
+  hasMultipleMeasures: boolean,
+  barGroupType: BusterChartProps['barGroupType'],
+  lineGroupType: BusterChartProps['lineGroupType']
 ) => {
   const { chart, tooltip } = context;
   const tooltipEl = getOrCreateInitialTooltipContainer(chart)!;
@@ -251,6 +255,8 @@ const externalTooltip = (
         chart={chart}
         hasCategoryAxis={hasCategoryAxis}
         hasMultipleMeasures={hasMultipleMeasures}
+        barGroupType={barGroupType}
+        lineGroupType={lineGroupType}
       />
     );
   }

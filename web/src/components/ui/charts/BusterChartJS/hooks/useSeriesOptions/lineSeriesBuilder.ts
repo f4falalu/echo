@@ -89,7 +89,11 @@ export const lineBuilder = (
   const isStackedArea = lineGroupType === 'percentage-stack';
   const isArea = lineStyle === 'area' || isStackedArea;
   const fill = isArea ? (index === 0 ? 'origin' : '-1') : false;
-  const usePercentage = isStackedArea;
+  const percentageMode = isStackedArea
+    ? 'stacked'
+    : columnSetting.showDataLabelsAsPercentage
+      ? 'data-label'
+      : false;
 
   return {
     type: 'line',
@@ -127,7 +131,7 @@ export const lineBuilder = (
           }
         : false,
       formatter: (value, context) =>
-        formatBarAndLineDataLabel(value, context, usePercentage, columnLabelFormat),
+        formatBarAndLineDataLabel(value, context, percentageMode, columnLabelFormat),
       ...getLabelPosition(isStackedArea),
       ...defaultLabelOptionConfig
     }

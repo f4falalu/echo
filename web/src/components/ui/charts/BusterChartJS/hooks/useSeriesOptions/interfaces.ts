@@ -30,4 +30,5 @@ export interface SeriesBuilderProps {
   lineGroupType: BusterChartProps['lineGroupType'];
   selectedChartType: BusterChartProps['selectedChartType'];
   barShowTotalAtTop: BusterChartProps['barShowTotalAtTop'];
+  barGroupType: BusterChartProps['barGroupType'];
 }

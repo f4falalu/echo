@@ -3,8 +3,6 @@ import { queryKeys } from '@/api/query_keys';
 import { useQuery } from '@tanstack/react-query';
 
 export const useGetCurrencies = () => {
-  nextApi;
-
   return useQuery({
     ...queryKeys.getCurrencies,
     queryFn: async () => {

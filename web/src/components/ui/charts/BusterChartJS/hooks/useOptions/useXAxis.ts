@@ -72,7 +72,7 @@ export const useXAxis = ({
     return {
       display: useGrid && gridLines,
       offset: true
-    };
+    } satisfies DeepPartial<GridLineOptions>;
   }, [gridLines, useGrid]);
 
   const type: DeepPartial<ScaleChartOptions<'bar'>['scales']['x']['type']> = useMemo(() => {
@@ -168,12 +168,18 @@ export const useXAxis = ({
     return false;
   }, [type, xAxisTimeInterval]);
 
+  const offset = useMemo(() => {
+    if (isScatterChart) return false;
+    if (isLineChart) return lineGroupType !== 'percentage-stack';
+    return true;
+  }, [isScatterChart, isLineChart, lineGroupType]);
+
   const memoizedXAxisOptions: DeepPartial<ScaleChartOptions<'bar'>['scales']['x']> | undefined =
     useMemo(() => {
       if (isPieChart) return undefined;
       return {
         type,
-        offset: !isScatterChart,
+        offset,
         title: {
           display: !!title,
           text: title
@@ -196,6 +202,7 @@ export const useXAxis = ({
       } satisfies DeepPartial<ScaleChartOptions<'bar'>['scales']['x']>;
     }, [
       timeUnit,
+      offset,
       title,
       isScatterChart,
       isPieChart,

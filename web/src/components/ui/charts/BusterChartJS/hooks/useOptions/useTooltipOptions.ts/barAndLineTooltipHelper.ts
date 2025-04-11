@@ -13,7 +13,8 @@ export const barAndLineTooltipHelper = (
   hasMultipleMeasures: boolean,
   keyToUsePercentage: string[],
   hasCategoryAxis: boolean,
-  hasMultipleShownDatasets: boolean
+  hasMultipleShownDatasets: boolean,
+  percentageMode: undefined | 'stacked'
 ): ITooltipItem[] => {
   const dataPoint = dataPoints[0];
   const dataPointDataset = dataPoint.dataset;
@@ -28,7 +29,8 @@ export const barAndLineTooltipHelper = (
   // }
 
   const tooltipItems = tooltipDatasets.map<ITooltipItem>((tooltipDataset) => {
-    const usePercentage = keyToUsePercentage.includes(tooltipDataset.label as string);
+    const usePercentage =
+      !!percentageMode || keyToUsePercentage.includes(tooltipDataset.label as string);
     const assosciatedData = datasets.find((dataset) => dataset.label === tooltipDataset.label);
     const colorItem = assosciatedData?.backgroundColor as string;
     const color = assosciatedData
@@ -47,7 +49,8 @@ export const barAndLineTooltipHelper = (
           tooltipDataset.label as string,
           columnLabelFormats,
           chart,
-          hasMultipleShownDatasets
+          hasMultipleShownDatasets,
+          percentageMode
         )
       : undefined;
 

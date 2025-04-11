@@ -16,6 +16,8 @@ export const BusterChartJSTooltip: React.FC<{
   hasCategoryAxis: boolean;
   hasMultipleMeasures: boolean;
   keyToUsePercentage: string[];
+  lineGroupType: BusterChartProps['lineGroupType'];
+  barGroupType: BusterChartProps['barGroupType'];
 }> = ({
   chart,
   dataPoints: dataPointsProp,
@@ -23,7 +25,9 @@ export const BusterChartJSTooltip: React.FC<{
   selectedChartType,
   hasCategoryAxis,
   keyToUsePercentage,
-  hasMultipleMeasures
+  hasMultipleMeasures,
+  lineGroupType,
+  barGroupType
 }) => {
   const isPieChart = selectedChartType === ChartType.Pie;
   const isScatter = selectedChartType === ChartType.Scatter;
@@ -33,6 +37,16 @@ export const BusterChartJSTooltip: React.FC<{
   const isComboChart = selectedChartType === ChartType.Combo;
   const datasets = chart.data.datasets;
   const dataPoints = dataPointsProp.filter((item) => !item.dataset.isTrendline);
+
+  const percentageMode: undefined | 'stacked' = useMemo(() => {
+    if (isBar) {
+      return barGroupType === 'percentage-stack' ? 'stacked' : undefined;
+    }
+    if (isLine) {
+      return lineGroupType === 'percentage-stack' ? 'stacked' : undefined;
+    }
+    return undefined;
+  }, [isBar, barGroupType, isLine, lineGroupType]);
 
   const tooltipItems: ITooltipItem[] = useMemo(() => {
     if (isBar || isLine || isComboChart) {
@@ -47,7 +61,8 @@ export const BusterChartJSTooltip: React.FC<{
         hasMultipleMeasures,
         keyToUsePercentage,
         hasCategoryAxis,
-        hasMultipleShownDatasets
+        hasMultipleShownDatasets,
+        percentageMode
       );
     }
 
