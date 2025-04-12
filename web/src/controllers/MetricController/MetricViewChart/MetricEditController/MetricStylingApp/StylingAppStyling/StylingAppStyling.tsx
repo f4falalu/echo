@@ -494,11 +494,9 @@ const EtcSettings: React.FC<
     if (isBarChart) {
       return barGroupType !== 'percentage-stack' && hasYAxisValues;
     }
-
     if (isLineChart) {
       return lineGroupType === 'percentage-stack' && hasYAxisValues;
     }
-
     return !isScatterChart && !isPieChart && hasYAxisValues;
   }, [isScatterChart, isPieChart, isLineChart, isBarChart, hasYAxisValues]);
 
@@ -506,11 +504,9 @@ const EtcSettings: React.FC<
     if (isBarChart) {
       return barGroupType !== 'percentage-stack' && hasYAxisValues;
     }
-
     if (isLineChart) {
       return lineGroupType === 'percentage-stack' && hasYAxisValues;
     }
-
     return !isPieChart && hasYAxisValues;
   }, [isScatterChart, isPieChart, isLineChart, isBarChart, hasYAxisValues]);
 

@@ -17,17 +17,22 @@ export const useGoalLines = ({
   selectedChartType,
   columnLabelFormats,
   yAxisKeys,
-  y2AxisKeys
+  y2AxisKeys,
+  lineGroupType
 }: {
   goalLines: GoalLine[];
   selectedChartType: ChartType;
   columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
   yAxisKeys: string[];
   y2AxisKeys: string[] | undefined;
+  lineGroupType: BusterChartConfigProps['lineGroupType'];
 }): AnnotationPluginOptions['annotations'] => {
   const canSupportGoalLines = useMemo(() => {
-    return selectedChartType === 'line' || selectedChartType === 'scatter';
-  }, [selectedChartType]);
+    if (selectedChartType === 'line') {
+      return lineGroupType !== 'percentage-stack';
+    }
+    return selectedChartType === 'scatter';
+  }, [selectedChartType, lineGroupType]);
 
   const trendlineLabelFormat: ColumnLabelFormat = useMemo(() => {
     const allKeys = [...yAxisKeys, ...(y2AxisKeys || [])];

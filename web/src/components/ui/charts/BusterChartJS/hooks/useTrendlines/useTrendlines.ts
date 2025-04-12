@@ -14,18 +14,23 @@ import { TypeToLabel } from './config';
 export const useTrendlines = ({
   trendlines,
   columnLabelFormats,
-  selectedChartType
+  selectedChartType,
+  lineGroupType
 }: {
   trendlines: TrendlineDataset[];
   selectedChartType: ChartType;
   columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
+  lineGroupType: BusterChartConfigProps['lineGroupType'];
 }): {
   trendlineAnnotations: AnnotationPluginOptions['annotations'];
   trendlineSeries: ChartProps<'line'>['data']['datasets'][number][];
 } => {
   const canSupportTrendlines = useMemo(() => {
-    return selectedChartType === 'line' || selectedChartType === 'scatter';
-  }, [selectedChartType]);
+    if (selectedChartType === 'line') {
+      return lineGroupType !== 'percentage-stack';
+    }
+    return selectedChartType === 'scatter';
+  }, [selectedChartType, lineGroupType]);
 
   const annotationTrendlines = useMemo(() => {
     if (!canSupportTrendlines) return [];
