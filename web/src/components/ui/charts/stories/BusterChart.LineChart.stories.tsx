@@ -770,3 +770,65 @@ export const HasNullValuesWithCategoryMultiLine: Story = {
     }
   }
 };
+
+export const WithTrendline_MaxMinAverageMedian: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, 0, i + 1).toISOString(),
+      revenue: Math.round(100 * Math.pow(1.5, i)) // Using exponential growth with base 1.5
+    })),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    trendlines: [
+      {
+        type: 'max',
+        show: true,
+        showTrendlineLabel: false,
+        trendlineLabel: 'Testing Max',
+        trendLineColor: 'red',
+        columnId: 'revenue'
+      },
+      {
+        type: 'min',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: 'Testing Min',
+        trendLineColor: 'blue',
+        columnId: 'revenue'
+      },
+      {
+        type: 'average',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: 'Testing Average',
+        trendLineColor: 'green',
+        columnId: 'revenue'
+      },
+      {
+        type: 'median',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: 'Testing Median',
+        trendLineColor: 'yellow',
+        columnId: 'revenue'
+      }
+    ],
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
+      },
+      revenue: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      }
+    }
+  }
+};
