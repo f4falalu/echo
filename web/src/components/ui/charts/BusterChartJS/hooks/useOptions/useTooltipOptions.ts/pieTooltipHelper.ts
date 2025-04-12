@@ -18,7 +18,6 @@ export const pieTooltipHelper = (
   const dataPointDatasetIndex = dataPoints[0]!.datasetIndex;
   const dataPointDataset = datasets[dataPointDatasetIndex!];
   const tooltipDatasets = datasets.filter((dataset) => dataset.hidden && !dataset.isTrendline);
-
   const dataPointIsInTooltip = tooltipDatasets.some(
     (dataset) => dataset.label === dataPointDataset.label
   );
@@ -50,7 +49,7 @@ export const pieTooltipHelper = (
     const formattedPercentage = usePercentage
       ? getPiePercentage(
           dataPointDataIndex,
-          datasets.findIndex((dataset) => dataset.label === tooltipDataset.label && dataset.hidden),
+          datasets.findIndex((dataset) => dataset.label === tooltipDataset.label),
           tooltipDataset.data,
           tooltipDataset.label as string,
           columnLabelFormats,
@@ -79,8 +78,6 @@ export const getPiePercentage = (
   chart: Chart
 ): string => {
   const totalizer = chart.$totalizer;
-  // const numberOfTotalizerSeries = totalizer.seriesTotals.length;
-  //  const index = numberOfTotalizerSeries - datasetIndex;
   const total = totalizer.seriesTotals[datasetIndex];
   const compareValue = datasetData[dataPointDataIndex] as number;
   const percentage = (compareValue / total) * 100;

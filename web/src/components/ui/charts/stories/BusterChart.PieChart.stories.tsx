@@ -70,8 +70,8 @@ export const MultipleValues: Story = {
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat
     },
-    pieDisplayLabelAs: 'percent',
-    pieDonutWidth: 0,
+    pieDisplayLabelAs: 'number',
+    pieDonutWidth: 50,
     className: 'w-[500px] h-[500px]'
   }
 };
@@ -96,7 +96,7 @@ export const Donut: Story = {
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
     pieDisplayLabelAs: 'percent',
-    pieDonutWidth: 0.6,
+    pieDonutWidth: 60,
     className: 'w-[500px] h-[500px]'
   }
 };
@@ -130,7 +130,7 @@ export const DonutMultipleValues: Story = {
       } satisfies IColumnLabelFormat
     },
     pieDisplayLabelAs: 'percent',
-    pieDonutWidth: 0.7,
+    pieDonutWidth: 10,
     className: 'w-[500px] h-[500px]'
   }
 };
@@ -144,7 +144,6 @@ export const ResizableContainer: Story = {
   args: {
     selectedChartType: ChartType.Pie,
     data: generatePieChartData(),
-
     pieChartAxis: {
       x: ['segment'],
       y: ['value']
@@ -160,8 +159,8 @@ export const ResizableContainer: Story = {
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
-    pieDisplayLabelAs: 'percent',
-    pieDonutWidth: 0.6,
+    pieDisplayLabelAs: 'number',
+    pieDonutWidth: 10,
     pieInnerLabelTitle: 'Total',
     pieInnerLabelAggregate: 'sum'
   },
@@ -257,5 +256,48 @@ export const WithSortingByValue: Story = {
   args: {
     ...WithSortingByKey.args!,
     pieSortBy: 'value'
+  }
+};
+
+export const ShowLabelAsPercent: Story = {
+  render: (args) => (
+    <div className="h-[500px] min-h-[200px] w-[500px] min-w-[200px] resize overflow-auto rounded-lg border border-gray-200 p-4">
+      <BusterChart {...args} className="h-full w-full" />
+    </div>
+  ),
+  args: {
+    selectedChartType: ChartType.Pie,
+    data: Array.from({ length: 5 }, () => ({
+      segment: faker.word.adjective(),
+      value: faker.number.int({ min: 10, max: 100 }),
+      value2: faker.number.int({ min: 10, max: 100 })
+    })),
+    pieChartAxis: {
+      x: ['segment'],
+      y: ['value', 'value2']
+    },
+    columnLabelFormats: {
+      segment: {
+        columnType: 'text',
+        style: 'string'
+      } satisfies IColumnLabelFormat,
+      value: {
+        columnType: 'number',
+        style: 'number',
+
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat,
+      value2: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
+    pieDisplayLabelAs: 'percent',
+    pieDonutWidth: 5,
+    pieInnerLabelTitle: 'Total',
+    pieShowInnerLabel: false,
+    pieLabelPosition: 'inside',
+    pieInnerLabelAggregate: 'sum'
   }
 };
