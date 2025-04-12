@@ -17,6 +17,7 @@ import {
 } from '@/api/asset_interfaces/metric/charts';
 import { determineFontColorContrast } from '@/lib/colors';
 import { Context } from 'chartjs-plugin-datalabels';
+import clamp from 'lodash/clamp';
 
 type PieOptions = ChartProps<'pie'>['options'] | ChartProps<'doughnut'>['options'];
 
@@ -70,13 +71,10 @@ export const piePluginsHandler = ({
               )
             ];
           },
-          font: ({ chart }) => {
-            const minDimension = Math.min(chart.width, chart.height);
-            return [
-              { size: Math.max(20, minDimension * 0.02) }, // title font
-              { size: Math.max(42, minDimension * 0.042) } // value font
-            ];
-          },
+          font: [
+            { size: 16 }, // title font
+            { size: 28 } // value font
+          ],
           color: [titleColor, valueColor]
         }
       }

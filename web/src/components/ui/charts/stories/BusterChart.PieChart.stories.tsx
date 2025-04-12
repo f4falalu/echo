@@ -144,6 +144,7 @@ export const ResizableContainer: Story = {
   args: {
     selectedChartType: ChartType.Pie,
     data: generatePieChartData(),
+
     pieChartAxis: {
       x: ['segment'],
       y: ['value']
@@ -160,7 +161,9 @@ export const ResizableContainer: Story = {
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
     pieDisplayLabelAs: 'percent',
-    pieDonutWidth: 0
+    pieDonutWidth: 0.6,
+    pieInnerLabelTitle: 'Total',
+    pieInnerLabelAggregate: 'sum'
   },
   parameters: {
     docs: {
