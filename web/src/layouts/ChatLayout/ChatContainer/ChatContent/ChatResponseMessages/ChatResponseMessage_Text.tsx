@@ -2,7 +2,10 @@ import React from 'react';
 import { ChatResponseMessageProps } from './ChatResponseMessageSelector';
 import { BusterChatResponseMessage_text } from '@/api/asset_interfaces';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
-import { AppMarkdownDynamic as AppMarkdown } from '@/components/ui/typography/AppMarkdown/AppMarkdownDynamic';
+import { AppMarkdown } from '@/components/ui/typography/AppMarkdown/AppMarkdown';
+
+//IF I use dynamic import it will decrease the bundle size by 200kb. The problem is with the AppCodeBlock
+// import { AppMarkdownDynamic as AppMarkdown } from '@/components/ui/typography/AppMarkdown/AppMarkdownDynamic';
 
 export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = React.memo(
   ({ responseMessageId, messageId, isCompletedStream }) => {
@@ -11,6 +14,8 @@ export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = Reac
       (x) => x?.response_messages?.[responseMessageId]
     ) as BusterChatResponseMessage_text;
     const { message } = responseMessage;
+
+    if (!message) return null;
 
     return (
       <AppMarkdown

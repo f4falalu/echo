@@ -1,8 +1,8 @@
 import React from 'react';
-import { ExtraProps } from 'react-markdown';
+import { type ExtraProps } from 'react-markdown';
 import { AppCodeBlock } from '../AppCodeBlock/AppCodeBlock';
 import { cva } from 'class-variance-authority';
-import { cn } from '@/lib/classMerge';
+import { cn } from '../../../../lib/classMerge';
 
 export interface ExtraPropsExtra extends ExtraProps {
   numberOfLineMarkdown: number;

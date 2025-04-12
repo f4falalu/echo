@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardFooter } from './CardBase';
 import { cn } from '@/lib/classMerge';
-import { Text } from '../typography';
+import { Text } from '../typography/Text';
 
 interface FileCardProps {
   fileName?: string | React.ReactNode;

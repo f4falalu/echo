@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
-import ReactMarkdown, { Components } from 'react-markdown';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw'; // For rendering HTML
+//import rehypeRaw from 'rehype-raw'; // For rendering HTML
 import {
   CustomCode,
   CustomHeading,
@@ -12,9 +12,13 @@ import {
   CustomOrderedList,
   CustomUnorderedList
 } from './AppMarkdownCommon';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import styles from './AppMarkdown.module.css';
-import { cn } from '@/lib/classMerge';
+import { cn } from '../../../../lib/classMerge';
+
+// remarkGfm plugin adds GitHub Flavored Markdown support
+// including tables, strikethrough, tasklists, and literal URLs
+const remarkPlugins = [remarkGfm];
 
 const AppMarkdownBase: React.FC<{
   markdown: string | null;
@@ -78,11 +82,12 @@ const AppMarkdownBase: React.FC<{
   return (
     <div className={cn(styles.container, 'flex flex-col gap-1.5 leading-1.5', className)}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={remarkPlugins}
         skipHtml={true}
         components={memoizedComponents}
-        rehypePlugins={[rehypeRaw]}>
-        {currentMarkdown}
+        //  rehypePlugins={rehypePlugins}
+      >
+        {markdown}
       </ReactMarkdown>
     </div>
   );

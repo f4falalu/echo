@@ -1,4 +1,5 @@
 .container {
+  @apply block;
 }
 
 .container table {

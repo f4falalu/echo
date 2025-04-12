@@ -1,14 +1,20 @@
 'use client';
 
 import React from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import lightTheme from './light';
-import { cn } from '@/lib/classMerge';
-import { useMemoizedFn } from '@/hooks';
+import { cn } from '../../../../lib/classMerge';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { FileCard } from '../../card/FileCard';
-import { Button } from '../../buttons';
-import { Copy } from '../../icons';
+import { Button } from '../../buttons/Button';
+import { Copy } from '../../icons/NucleoIconOutlined';
+
+import dynamic from 'next/dynamic';
+
+const SyntaxHighlighter = dynamic(
+  () => import('react-syntax-highlighter').then((mod) => mod.Prism),
+  { ssr: false }
+);
 
 export const AppCodeBlock: React.FC<{
   language?: string;
@@ -48,13 +54,15 @@ export const AppCodeBlock: React.FC<{
     <FileCard
       fileName={title || language}
       className={wrapperClassName}
-      headerButtons={
-        showCopyButton && (
-          <Button variant="ghost" onClick={copyCode} prefix={<Copy />}>
-            Copy
-          </Button>
-        )
-      }>
+      headerButtons={React.useMemo(() => {
+        return (
+          showCopyButton && (
+            <Button variant="ghost" onClick={copyCode} prefix={<Copy />}>
+              Copy
+            </Button>
+          )
+        );
+      }, [showCopyButton, copyCode])}>
       <div className="w-full overflow-x-auto">
         <div className="code-wrapper">
           {language ? (
