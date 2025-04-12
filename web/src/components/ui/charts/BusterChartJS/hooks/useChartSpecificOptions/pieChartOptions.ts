@@ -17,7 +17,8 @@ import {
 } from '@/api/asset_interfaces/metric/charts';
 import { determineFontColorContrast } from '@/lib/colors';
 import { Context } from 'chartjs-plugin-datalabels';
-import clamp from 'lodash/clamp';
+import { defaultLabelOptionConfig } from './labelOptionConfig';
+import { isServer } from '@tanstack/react-query';
 
 type PieOptions = ChartProps<'pie'>['options'] | ChartProps<'doughnut'>['options'];
 
@@ -31,6 +32,14 @@ export const pieOptionsHandler = ({
   return result as ChartProps<ChartJSChartType>['options'];
 };
 
+const titleColor = isServer
+  ? '#575859'
+  : getComputedStyle(document.documentElement).getPropertyValue('--color-text-secondary');
+
+const valueColor = isServer
+  ? '#575859'
+  : getComputedStyle(document.documentElement).getPropertyValue('--color-text-default');
+
 export const piePluginsHandler = ({
   pieInnerLabelTitle,
   pieInnerLabelAggregate = 'sum',
@@ -42,13 +51,6 @@ export const piePluginsHandler = ({
   pieDonutWidth
 }: ChartSpecificOptionsProps): DeepPartial<PluginChartOptions<ChartJSChartType>>['plugins'] => {
   let returnValue: DeepPartial<PluginChartOptions<ChartJSChartType>>['plugins'] = {};
-
-  const titleColor = getComputedStyle(document.documentElement).getPropertyValue(
-    '--color-text-secondary'
-  );
-  const valueColor = getComputedStyle(document.documentElement).getPropertyValue(
-    '--color-text-default'
-  );
 
   if (pieShowInnerLabel && pieDonutWidth !== 0) {
     const annotation: AnnotationPluginOptions = {
@@ -98,20 +100,20 @@ export const piePluginsHandler = ({
           }
         : false,
     datalabels: {
-      display: pieLabelPosition === 'inside',
+      display: pieLabelPosition === 'inside' ? 'auto' : false,
       anchor: 'center',
+      borderWidth: 0,
+      borderRadius: defaultLabelOptionConfig.borderRadius,
+      padding: 2,
       backgroundColor: ({ dataIndex, chart }) => {
         const backgroundColor = chart.options.backgroundColor as string[];
         return backgroundColor[dataIndex];
       },
-      borderWidth: 0,
-      borderRadius: 4,
       color: ({ dataIndex, chart }) => {
         const backgroundColor = chart.options.backgroundColor as string[];
         const color = backgroundColor[dataIndex];
         return determineFontColorContrast(color);
       },
-      padding: 2,
       formatter: (value: number, context) => {
         return labelFormatter(
           usePercent ? percentFormatter(context, value) : value,

@@ -96,7 +96,7 @@ export const Donut: Story = {
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
     pieDisplayLabelAs: 'percent',
-    pieDonutWidth: 60,
+    pieDonutWidth: 20,
     className: 'w-[500px] h-[500px]'
   }
 };
@@ -299,5 +299,34 @@ export const ShowLabelAsPercent: Story = {
     pieShowInnerLabel: false,
     pieLabelPosition: 'inside',
     pieInnerLabelAggregate: 'sum'
+  }
+};
+
+export const ManyValuesWithDataLabels: Story = {
+  args: {
+    selectedChartType: ChartType.Pie,
+    columnSettings: {
+      value: {
+        showDataLabels: true
+      }
+    },
+    columnLabelFormats: {
+      value: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    },
+    data: Array.from({ length: 50 }, () => ({
+      segment: faker.word.adjective(),
+      value: faker.number.int({ min: 10, max: 100 })
+    })),
+    pieChartAxis: {
+      x: ['segment'],
+      y: ['value']
+    },
+    pieDisplayLabelAs: 'number',
+    pieLabelPosition: 'inside',
+    pieDonutWidth: 0
   }
 };
