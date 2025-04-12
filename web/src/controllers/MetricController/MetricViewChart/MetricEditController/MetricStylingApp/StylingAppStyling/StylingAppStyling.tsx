@@ -486,7 +486,33 @@ const EtcSettings: React.FC<
 }) => {
   const isScatterChart = selectedChartType === 'scatter';
   const isPieChart = selectedChartType === 'pie';
+  const isLineChart = selectedChartType === 'line';
+  const isBarChart = selectedChartType === 'bar';
   const hasYAxisValues = selectedAxis.y.length > 0;
+
+  const showGoalLine = useMemo(() => {
+    if (isBarChart) {
+      return barGroupType !== 'percentage-stack' && hasYAxisValues;
+    }
+
+    if (isLineChart) {
+      return lineGroupType === 'percentage-stack' && hasYAxisValues;
+    }
+
+    return !isScatterChart && !isPieChart && hasYAxisValues;
+  }, [isScatterChart, isPieChart, isLineChart, isBarChart, hasYAxisValues]);
+
+  const showTrendline = useMemo(() => {
+    if (isBarChart) {
+      return barGroupType !== 'percentage-stack' && hasYAxisValues;
+    }
+
+    if (isLineChart) {
+      return lineGroupType === 'percentage-stack' && hasYAxisValues;
+    }
+
+    return !isPieChart && hasYAxisValues;
+  }, [isScatterChart, isPieChart, isLineChart, isBarChart, hasYAxisValues]);
 
   const ComponentsLoop: {
     enabled: boolean;
@@ -507,7 +533,7 @@ const EtcSettings: React.FC<
       )
     },
     {
-      enabled: !isScatterChart && !isPieChart && hasYAxisValues,
+      enabled: showGoalLine,
       key: 'goalLine',
       Component: (
         <EditGoalLine
@@ -519,7 +545,7 @@ const EtcSettings: React.FC<
       )
     },
     {
-      enabled: !isPieChart && hasYAxisValues,
+      enabled: showTrendline,
       key: 'trendline',
       Component: (
         <EditTrendline
