@@ -4,16 +4,16 @@ import {
   type BusterChartProps,
   type ChartType,
   type BarSortBy,
-  PieSortBy
+  type PieSortBy
 } from '@/api/asset_interfaces/metric/charts';
 import { createDayjsDate } from '@/lib/date';
 import { extractFieldsFromChain, appendToKeyValueChain } from './groupingHelpers';
 import { DATASET_IDS, GROUPING_SEPARATOR } from './config';
-import { DatasetOption } from './interfaces';
+import type { DatasetOption } from './interfaces';
 import {
-  ColumnMetaData,
+  type ColumnMetaData,
   DEFAULT_COLUMN_LABEL_FORMAT,
-  SimplifiedColumnType
+  type SimplifiedColumnType
 } from '@/api/asset_interfaces/metric';
 
 type DataItem = NonNullable<BusterChartProps['data']>[number];

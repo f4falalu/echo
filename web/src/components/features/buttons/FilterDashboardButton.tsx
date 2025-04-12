@@ -4,18 +4,12 @@ import { ArrowUpRight, BarsFilter } from '@/components/ui/icons';
 import { Dropdown } from '@/components/ui/dropdown';
 import { MagnifierSparkle } from '@/components/ui/icons';
 import { Text } from '@/components/ui/typography';
-import { faker } from '@faker-js/faker';
 import { cn } from '@/lib/classMerge';
 import { DropdownMenuHeaderSearch } from '@/components/ui/dropdown/DropdownMenuHeaderSearch';
 import { useDebounceSearch, useMemoizedFn } from '@/hooks';
 
 const items = Array.from({ length: 100 }, (_, index) => {
-  const randomWord =
-    faker.commerce.productAdjective() +
-    ' ' +
-    faker.commerce.productMaterial() +
-    ' ' +
-    faker.airline.airline().name;
+  const randomWord = 'Filter ' + index;
   return {
     label: randomWord,
     value: randomWord + index

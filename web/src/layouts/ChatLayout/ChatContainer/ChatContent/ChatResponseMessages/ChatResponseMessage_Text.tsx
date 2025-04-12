@@ -2,7 +2,7 @@ import React from 'react';
 import { ChatResponseMessageProps } from './ChatResponseMessageSelector';
 import { BusterChatResponseMessage_text } from '@/api/asset_interfaces';
 import { useGetChatMessage } from '@/api/buster_rest/chats';
-import { AppMarkdown } from '@/components/ui/typography/AppMarkdown';
+import { AppMarkdownDynamic as AppMarkdown } from '@/components/ui/typography/AppMarkdown/AppMarkdownDynamic';
 
 export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = React.memo(
   ({ responseMessageId, messageId, isCompletedStream }) => {

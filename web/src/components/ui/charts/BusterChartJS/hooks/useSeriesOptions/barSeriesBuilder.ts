@@ -1,18 +1,18 @@
 import type { ChartProps } from '../../core';
-import { SeriesBuilderProps } from './interfaces';
-import { LabelBuilderProps } from './useSeriesOptions';
+import type { SeriesBuilderProps } from './interfaces';
+import type { LabelBuilderProps } from './useSeriesOptions';
 import { formatChartLabelDelimiter, formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
 import { dataLabelFontColorContrast, formatBarAndLineDataLabel } from '../../helpers';
-import { BarElement } from 'chart.js';
-import { Context } from 'chartjs-plugin-datalabels';
+import type { BarElement } from 'chart.js';
+import type { Context } from 'chartjs-plugin-datalabels';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
 import type { Options } from 'chartjs-plugin-datalabels/types/options';
 import { DEFAULT_CHART_LAYOUT } from '../../ChartJSTheme';
 import { extractFieldsFromChain } from '../../../chartHooks';
 import {
-  BusterChartProps,
+  type BusterChartProps,
   DEFAULT_COLUMN_LABEL_FORMAT,
-  IColumnLabelFormat
+  type IColumnLabelFormat
 } from '@/api/asset_interfaces/metric';
 
 export const barSeriesBuilder = ({

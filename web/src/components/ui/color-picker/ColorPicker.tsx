@@ -2,9 +2,7 @@
 
 import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { cn } from '@/lib/utils';
-import { Button, ButtonProps } from '@/components/ui/buttons';
-import { Popover, PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/inputs';
 import { useDebounceFn } from '@/hooks';
 import { cva } from 'class-variance-authority';

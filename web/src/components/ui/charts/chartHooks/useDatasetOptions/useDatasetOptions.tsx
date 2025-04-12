@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import {
+import type {
   BusterChartConfigProps,
   BusterChartProps,
   ChartType,
@@ -10,7 +10,7 @@ import {
   ScatterAxis,
   Trendline,
   ComboChartAxis,
-  type IColumnLabelFormat,
+  IColumnLabelFormat,
   PieSortBy
 } from '@/api/asset_interfaces/metric/charts';
 import uniq from 'lodash/uniq';
@@ -31,8 +31,8 @@ import {
   mapScatterData,
   processScatterData
 } from './datasetHelpers_Scatter';
-import { TrendlineDataset, useDataTrendlineOptions } from './useDataTrendlineOptions';
-import { DatasetOption } from './interfaces';
+import { type TrendlineDataset, useDataTrendlineOptions } from './useDataTrendlineOptions';
+import type { DatasetOption } from './interfaces';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 
 type DatasetHookResult = {
