@@ -330,3 +330,35 @@ export const ManyValuesWithDataLabels: Story = {
     pieDonutWidth: 0
   }
 };
+
+export const DataLabelsOutside: Story = {
+  args: {
+    selectedChartType: ChartType.Pie,
+    data: Array.from({ length: 5 }, () => ({
+      segment: faker.word.adjective(),
+      value: faker.number.int({ min: 10, max: 100 })
+    })),
+    pieChartAxis: {
+      x: ['segment'],
+      y: ['value']
+    },
+    columnLabelFormats: {
+      segment: {
+        columnType: 'text',
+        style: 'string'
+      } satisfies IColumnLabelFormat,
+      value: {
+        columnType: 'number',
+        style: 'number',
+
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat,
+      value2: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    } satisfies Record<keyof PieChartData, IColumnLabelFormat>,
+    pieLabelPosition: 'outside'
+  }
+};

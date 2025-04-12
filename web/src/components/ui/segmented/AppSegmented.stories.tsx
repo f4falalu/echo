@@ -2,31 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { AppSegmented } from './AppSegmented';
 import { BottleChampagne, Grid, HouseModern, PaintRoller } from '../icons';
 import { PreventNavigation } from '../layouts/PreventNavigation';
-import { useRouter } from 'next/navigation';
-import { usePathname, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Checkbox } from '../checkbox';
-
-// Mock the Next.js router
-const MockNextRouter = ({ children }: { children: React.ReactNode }) => {
-  const mockRouter = {
-    back: () => {},
-    forward: () => {},
-    push: () => {},
-    replace: () => {},
-    refresh: () => {},
-    prefetch: () => Promise.resolve()
-  };
-
-  // @ts-ignore - we're mocking the router
-  useRouter.mockImplementation(() => mockRouter);
-  // @ts-ignore - we're mocking the pathname
-  usePathname.mockImplementation(() => '/');
-  // @ts-ignore - we're mocking the search params
-  useSearchParams.mockImplementation(() => new URLSearchParams());
-
-  return <>{children}</>;
-};
 
 const meta: Meta<typeof AppSegmented> = {
   title: 'UI/Segmented/AppSegmented',
@@ -37,9 +14,9 @@ const meta: Meta<typeof AppSegmented> = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <MockNextRouter>
+      <>
         <Story />
-      </MockNextRouter>
+      </>
     )
   ],
   argTypes: {

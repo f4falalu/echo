@@ -3,7 +3,8 @@ import { PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/pop
 import { cva } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/buttons';
-import { ChromePicker } from 'react-color';
+import { ChromePicker, ColorResult } from 'react-color';
+import { useMemoizedFn } from '@/hooks';
 
 const colorPickerVariants = cva(
   'rounded border bg-background transition-colors hover:bg-item-hover hover:text-text-default',
@@ -17,9 +18,9 @@ const colorPickerVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline'
       },
       size: {
-        default: 'h-6 min-h-6 max-h-6 px-4',
-        tall: 'h-7 min-h-7 max-h-7 px-4',
-        small: 'h-5 min-h-5 max-h-5 px-3 text-xs'
+        default: 'h-6 min-h-6 max-h-6 px-1',
+        tall: 'h-7 min-h-7 max-h-7 px-0.5',
+        small: 'h-5 min-h-5 max-h-5 px-0.5 text-xs'
       }
     },
     defaultVariants: {
@@ -50,13 +51,17 @@ const ColorPicker = React.forwardRef<HTMLButtonElement, ColorPickerProps>(
     },
     ref
   ) => {
-    const handleChange = (color: any) => {
-      onChange?.(color.hex);
-    };
+    const handleChange = useMemoizedFn(
+      (color: ColorResult, event: React.ChangeEvent<HTMLInputElement>) => {
+        onChange?.(color.hex);
+      }
+    );
 
-    const handleChangeComplete = (color: any) => {
-      onChangeComplete?.(color.hex);
-    };
+    const handleChangeComplete = useMemoizedFn(
+      (color: ColorResult, event: React.ChangeEvent<HTMLInputElement>) => {
+        onChangeComplete?.(color.hex);
+      }
+    );
 
     return (
       <PopoverRoot>
