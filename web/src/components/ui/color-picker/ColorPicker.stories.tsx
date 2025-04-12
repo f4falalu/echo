@@ -7,8 +7,7 @@ const meta: Meta<typeof ColorPicker> = {
   tags: ['autodocs'],
   args: {
     value: '#000000',
-    size: 'default',
-    variant: 'default'
+    size: 'default'
   },
   argTypes: {
     value: {
@@ -26,11 +25,7 @@ const meta: Meta<typeof ColorPicker> = {
       options: ['small', 'default', 'tall'],
       description: 'The size of the color picker button'
     },
-    variant: {
-      control: 'select',
-      options: ['default', 'outline', 'secondary', 'ghost', 'link'],
-      description: 'The variant style of the color picker button'
-    },
+
     className: {
       control: 'text',
       description: 'Additional CSS classes to apply'
@@ -58,33 +53,5 @@ export const Tall: Story = {
   args: {
     value: '#0000FF',
     size: 'tall'
-  }
-};
-
-export const OutlineVariant: Story = {
-  args: {
-    value: '#800080',
-    variant: 'outline'
-  }
-};
-
-export const SecondaryVariant: Story = {
-  args: {
-    value: '#FFA500',
-    variant: 'secondary'
-  }
-};
-
-export const GhostVariant: Story = {
-  args: {
-    value: '#008080',
-    variant: 'ghost'
-  }
-};
-
-export const LinkVariant: Story = {
-  args: {
-    value: '#4B0082',
-    variant: 'link'
   }
 };

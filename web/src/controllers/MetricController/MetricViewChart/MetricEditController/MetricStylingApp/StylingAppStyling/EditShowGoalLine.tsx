@@ -185,7 +185,6 @@ const GoalLineItemContent: React.FC<{
         <LabelAndInput label="Goal line color">
           <div className="flex w-full items-center justify-end">
             <ColorPicker
-              size="small"
               value={goalLineColor}
               onChangeComplete={(color) => {
                 const hexColor = color;

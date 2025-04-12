@@ -1,100 +1,104 @@
-import React from 'react';
-import { PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/popover/PopoverBase';
-import { cva } from 'class-variance-authority';
+'use client';
+
+import { forwardRef, useCallback, useMemo, useState } from 'react';
+import { HexColorPicker } from 'react-colorful';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/buttons';
-import { ChromePicker, ColorResult } from 'react-color';
-import { useMemoizedFn } from '@/hooks';
+import { Button, ButtonProps } from '@/components/ui/buttons';
+import { Popover, PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Input } from '@/components/ui/inputs';
+import { useDebounceFn } from '@/hooks';
+import { cva } from 'class-variance-authority';
 
-const colorPickerVariants = cva(
-  'rounded border bg-background transition-colors hover:bg-item-hover hover:text-text-default',
-  {
-    variants: {
-      variant: {
-        default: 'border-input',
-        outline: 'border-input',
-        secondary: 'border-secondary bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline'
-      },
-      size: {
-        default: 'h-6 min-h-6 max-h-6 px-1',
-        tall: 'h-7 min-h-7 max-h-7 px-0.5',
-        small: 'h-5 min-h-5 max-h-5 px-0.5 text-xs'
-      }
-    },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default'
-    }
-  }
-);
-
-export interface ColorPickerProps {
-  value?: string | null;
-  onChange?: (color: string) => void;
-  onChangeComplete?: (color: string) => void;
-  size?: 'small' | 'default' | 'tall';
-  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link';
+interface ColorPickerProps {
+  value: string | null | undefined;
+  onChange?: (value: string) => void;
+  onChangeComplete?: (value: string) => void;
+  onBlur?: () => void;
+  disabled?: boolean;
+  size?: 'default' | 'small' | 'tall';
+  name?: string;
   className?: string;
 }
 
-const ColorPicker = React.forwardRef<HTMLButtonElement, ColorPickerProps>(
+const colorPickerWrapperVariants = cva('border p-1 rounded cursor-pointer shadow', {
+  variants: {
+    size: {
+      default: 'w-6 min-w-6 max-w-6 h-6 min-h-6 max-h-6',
+      small: 'w-5 min-w-5 max-w-5 h-5 min-h-5 max-h-5',
+      tall: 'w-7 min-w-7 max-w-7 h-7 min-h-7 max-h-7'
+    },
+    disabled: {
+      true: 'cursor-not-allowed opacity-60',
+      false: 'cursor-pointer'
+    }
+  }
+});
+
+const ColorPicker = forwardRef<HTMLInputElement, ColorPickerProps>(
   (
     {
-      className,
-      value = '#000000',
-      onChange,
+      disabled,
       onChangeComplete,
       size = 'default',
-      variant = 'default'
+      value: valueProp = '#000000',
+      onChange,
+      name,
+      className = '',
+      ...props
     },
-    ref
+    forwardedRef
   ) => {
-    const handleChange = useMemoizedFn(
-      (color: ColorResult, event: React.ChangeEvent<HTMLInputElement>) => {
-        onChange?.(color.hex);
-      }
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState(valueProp);
+
+    const parsedValue = useMemo(() => {
+      return value || '#000000';
+    }, [value]);
+
+    const { run: debouncedOnChangeComplete } = useDebounceFn(
+      (value: string) => {
+        onChangeComplete?.(value);
+      },
+      { wait: 150 }
     );
 
-    const handleChangeComplete = useMemoizedFn(
-      (color: ColorResult, event: React.ChangeEvent<HTMLInputElement>) => {
-        onChangeComplete?.(color.hex);
-      }
+    const handleInputChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setValue(e?.currentTarget?.value);
+        onChange?.(e?.currentTarget?.value);
+        debouncedOnChangeComplete?.(e?.currentTarget?.value);
+      },
+      [onChange, debouncedOnChangeComplete]
     );
 
+    const handleHexColorPickerChange = useCallback(
+      (color: string) => {
+        setValue(color);
+        onChange?.(color);
+        debouncedOnChangeComplete?.(color);
+      },
+      [onChange, debouncedOnChangeComplete]
+    );
     return (
-      <PopoverRoot>
-        <PopoverTrigger asChild>
-          <Button ref={ref} className={cn(colorPickerVariants({ size, variant }), className)}>
-            <div
-              className="border-border h-4 w-4 rounded-sm border"
-              style={{ backgroundColor: value || '#000000' }}
-            />
-          </Button>
+      <PopoverRoot onOpenChange={setOpen} open={open}>
+        <PopoverTrigger asChild disabled={disabled}>
+          <div className={colorPickerWrapperVariants({ size, disabled })}>
+            <div className="h-full w-full rounded-sm" style={{ backgroundColor: parsedValue }} />
+          </div>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <ChromePicker
-            color={value || '#000000'}
-            onChange={handleChange}
-            onChangeComplete={handleChangeComplete}
-            disableAlpha
-            styles={{
-              default: {
-                picker: {
-                  background: 'var(--background)',
-                  border: '1px solid var(--border)',
-                  boxShadow: 'var(--shadow)'
-                }
-              }
-            }}
+        <PopoverContent className="w-full" align="end" side="bottom">
+          <HexColorPicker color={parsedValue} onChange={handleHexColorPickerChange} />
+          <Input
+            className="mt-2.5"
+            maxLength={7}
+            onChange={handleInputChange}
+            value={parsedValue}
           />
         </PopoverContent>
       </PopoverRoot>
     );
   }
 );
-
 ColorPicker.displayName = 'ColorPicker';
 
 export { ColorPicker };

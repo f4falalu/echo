@@ -11,8 +11,6 @@ export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo
       (x) => (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_text)?.message
     )!;
 
-    console.log('message', message);
-
     if (!message) return null;
 
     return (
