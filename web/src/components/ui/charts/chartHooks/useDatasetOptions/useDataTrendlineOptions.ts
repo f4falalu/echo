@@ -122,7 +122,7 @@ const trendlineDatasetCreator: Record<
     const { equation, slopeData } = calculateLogarithmicRegression(mappedData);
     const mappedSource = [...source].map((item, index) => {
       const newItem = [...item];
-      newItem[indexOfTrendlineColumn] = slopeData[index];
+      newItem[indexOfTrendlineColumn] = slopeData[index].y;
       return newItem;
     });
     return [
@@ -143,7 +143,6 @@ const trendlineDatasetCreator: Record<
       rawDataset,
       columnLabelFormats
     );
-
     if (indexOfTrendlineColumn === undefined || indexOfTrendlineColumn === -1) return [];
     const { equation, slopeData } = calculateExponentialRegression(mappedData);
     const mappedSource = [...source].map((item, index) => {

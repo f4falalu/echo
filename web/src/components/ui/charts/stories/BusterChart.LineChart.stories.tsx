@@ -4,6 +4,8 @@ import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
 import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { generateLineChartData } from '../../../../mocks/chart/chartMocks';
 import { sharedMeta } from './BusterChartShared';
+import dayjs from 'dayjs';
+import { faker } from '@faker-js/faker';
 
 type LineChartData = ReturnType<typeof generateLineChartData>;
 
@@ -829,6 +831,229 @@ export const WithTrendline_MaxMinAverageMedian: Story = {
         style: 'currency',
         currency: 'USD'
       }
+    }
+  }
+};
+
+export const WithTrendline_LinearRegression: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, 0, i + 1).toISOString(),
+      revenue: Math.round(100 * Math.pow(1.5, i)) // Using exponential growth with base 1.5
+    })),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    trendlines: [
+      {
+        type: 'linear_regression',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: 'Testing Linear Regression',
+        trendLineColor: 'red',
+        columnId: 'revenue'
+      }
+    ],
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
+      },
+      revenue: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      }
+    }
+  }
+};
+
+export const WithTrendline_LogarithmicRegression: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: Array.from({ length: 30 }, (_, i) => {
+      // Add random noise between -200 and 200
+      const noise = Math.round((Math.random() - 0.5) * 400);
+      // Less steep logarithmic curve with linear component and noise
+      const value = Math.round(
+        800 * Math.log(i + 1) + // logarithmic component
+          i * 30 + // linear component
+          500 + // base value
+          noise // random variation
+      );
+      return {
+        date: dayjs().add(i, 'day').toISOString(),
+        revenue: value
+      };
+    }),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    trendlines: [
+      {
+        type: 'logarithmic_regression',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: 'Logarithmic Growth Pattern',
+        trendLineColor: 'red',
+        columnId: 'revenue'
+      }
+    ],
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
+      },
+      revenue: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      }
+    }
+  }
+};
+
+export const WithTrendline_ExponentialRegression: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: Array.from({ length: 12 }, (_, i) => {
+      // Add percentage-based noise (more noise for larger values)
+      const baseValue = 100 * Math.pow(1.4, i);
+      const noisePercentage = (Math.random() - 0.5) * 0.5; // ±25% noise (increased from ±15%)
+      const noise = baseValue * noisePercentage;
+
+      // Add additional fixed noise component
+      const fixedNoise = (Math.random() - 0.5) * 200; // Additional ±100 fixed noise
+
+      // Combine exponential growth with linear trend and both noise types
+      const value = Math.round(
+        baseValue + // exponential base
+          i * 75 + // linear component
+          noise + // random variation that scales with value
+          fixedNoise // additional fixed noise
+      );
+
+      return {
+        date: new Date(2024, 0, i + 1).toISOString(),
+        revenue: value
+      };
+    }),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    trendlines: [
+      {
+        type: 'exponential_regression',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: 'Exponential Growth Pattern',
+        trendLineColor: 'red',
+        columnId: 'revenue'
+      }
+    ],
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
+      },
+      revenue: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      }
+    }
+  }
+};
+
+export const WithTrendline_PolynomialRegression: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: new Date(2024, 0, i + 1).toISOString(),
+      revenue: Math.round(100 * Math.pow(1.5, i)) // Using exponential growth with base 1.5
+    })),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    trendlines: [
+      {
+        type: 'polynomial_regression',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: 'Testing Polynomial Regression',
+        trendLineColor: 'red',
+        columnId: 'revenue'
+      }
+    ],
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
+      },
+      revenue: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      }
+    }
+  }
+};
+
+export const WithTrendline_PolynomialRegression_Scatter: Story = {
+  args: {
+    selectedChartType: ChartType.Scatter,
+    data: Array.from({ length: 3 }).flatMap((_, productIndex) =>
+      Array.from({ length: 12 }, (_, i) => ({
+        expenses: i,
+        revenue: faker.number.int({ min: 150 + i, max: 150 * (i + 1.2) })
+      }))
+    ),
+    scatterAxis: {
+      x: ['expenses'],
+      y: ['revenue'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px]',
+    trendlines: [
+      {
+        type: 'polynomial_regression',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: 'Testing Polynomial Regression',
+        trendLineColor: 'red',
+        columnId: 'revenue'
+      }
+    ],
+    columnLabelFormats: {
+      expenses: {
+        columnType: 'number',
+        style: 'number',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat,
+      revenue: {
+        columnType: 'number',
+        style: 'number',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat
     }
   }
 };
