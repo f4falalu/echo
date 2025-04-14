@@ -12,9 +12,11 @@ import { Text } from '@/components/ui/typography';
 export const DashboardContainerHeaderSegment: React.FC<FileContainerSegmentProps> = React.memo(
   (props) => {
     const { selectedFileId } = props;
-    const { isViewingOldVersion } = useIsDashboardReadOnly({
+    const { isViewingOldVersion, isFetched } = useIsDashboardReadOnly({
       dashboardId: selectedFileId || ''
     });
+
+    if (!isFetched) return null;
 
     if (isViewingOldVersion) {
       return <DashboardOldVersion />;
@@ -61,7 +63,7 @@ const DashboardSegments: React.FC<FileContainerSegmentProps> = ({
           label: 'File',
           value: 'file',
           link: createBusterRoute({
-            route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
+            route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE,
             dashboardId: selectedFileId || '',
             chatId
           })

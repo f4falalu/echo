@@ -53,6 +53,7 @@ export const useIsMetricReadOnly = ({
   ]);
 
   return {
+    isFetched,
     isVersionHistoryMode,
     isReadOnly,
     isViewingOldVersion

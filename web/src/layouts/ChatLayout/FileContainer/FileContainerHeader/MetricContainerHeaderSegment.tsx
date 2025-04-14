@@ -13,9 +13,11 @@ import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 export const MetricContainerHeaderSegment: React.FC<FileContainerSegmentProps> = React.memo(
   (props) => {
     const { selectedFileId } = props;
-    const { isViewingOldVersion } = useIsMetricReadOnly({
+    const { isViewingOldVersion, isFetched } = useIsMetricReadOnly({
       metricId: selectedFileId || ''
     });
+
+    if (!isFetched) return null;
 
     if (isViewingOldVersion) {
       return <MetricOldVersion />;
@@ -26,14 +28,6 @@ export const MetricContainerHeaderSegment: React.FC<FileContainerSegmentProps> =
 );
 
 MetricContainerHeaderSegment.displayName = 'MetricContainerHeaderSegment';
-
-const MetricOldVersion: React.FC = () => {
-  return (
-    <Text truncate variant={'secondary'}>
-      You are viewing an old version of this metric
-    </Text>
-  );
-};
 
 const MetricSegments: React.FC<FileContainerSegmentProps> = ({ selectedFileView, chatId }) => {
   const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
@@ -103,5 +97,13 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = ({ selectedFileView,
       value={selectedFileView}
       onChange={onChange}
     />
+  );
+};
+
+const MetricOldVersion: React.FC = () => {
+  return (
+    <Text truncate variant={'secondary'}>
+      You are viewing an old version of this metric
+    </Text>
   );
 };

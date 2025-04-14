@@ -124,14 +124,11 @@ export const useAutoChangeLayout = ({
 
       //dashboard_mode
       if (dashboardId) {
-        console.log('dashboardId', dashboardId);
         if (!dashboardVersionNumber) {
           const lastMatchingDashboardInChat = chat?.message_ids.reduce<
             BusterChatResponseMessage_file | undefined
           >((acc, chatMessageId) => {
             const chatMessage = getChatMessageMemoized(chatMessageId);
-
-            console.log('chatMessage', chatMessage);
 
             chatMessage?.response_message_ids.forEach((responseMessageId) => {
               const message = chatMessage?.response_messages[responseMessageId]!;

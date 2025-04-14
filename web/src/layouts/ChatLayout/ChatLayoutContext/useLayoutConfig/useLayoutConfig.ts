@@ -3,7 +3,7 @@
 import { FileType } from '@/api/asset_interfaces/chat';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './interfaces';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useUpdateEffect } from '@/hooks';
 import { create } from 'mutative';
 import { ChatLayoutView } from '../../interfaces';
 import type { SelectedFile } from '../../interfaces';
@@ -164,6 +164,19 @@ export const useLayoutConfig = ({
     }
     return 'file';
   }, [selectedFileId, chatId]);
+
+  //we need to use for when the user clicks the back or forward in the browser
+  useUpdateEffect(() => {
+    const newInitialFileViews = initializeFileViews({ metricId, dashboardId, currentRoute });
+    const fileId = Object.keys(newInitialFileViews)[0];
+    const fileView = newInitialFileViews[fileId]?.selectedFileView;
+    const secondaryView = newInitialFileViews[fileId]?.fileViewConfig?.[fileView]?.secondaryView;
+    onSetFileView({
+      fileId,
+      fileView,
+      secondaryView
+    });
+  }, [metricId, dashboardId, currentRoute]);
 
   useEffect(() => {
     if (

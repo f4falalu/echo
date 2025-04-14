@@ -12,7 +12,7 @@ const getCanvasContext = () => {
 };
 
 export const measureTextWidth = memoize(
-  (text: string, font: any = {}) => {
+  (text: string | number, font: any = {}) => {
     if (!isServer) {
       const { fontSize, fontFamily = 'sans-serif', fontWeight, fontStyle, fontVariant } = font;
       const ctx = getCanvasContext();
@@ -20,7 +20,9 @@ export const measureTextWidth = memoize(
       ctx.font = [fontStyle, fontWeight, fontVariant, `${fontSize || 13.6}px`, fontFamily].join(
         ' '
       );
-      const metrics = ctx.measureText(typeof text === 'string' ? text : '');
+      const metrics = ctx.measureText(
+        typeof text === 'string' || typeof text === 'number' ? String(text) : ''
+      );
 
       return {
         width: metrics.width,
@@ -32,5 +34,5 @@ export const measureTextWidth = memoize(
       height: 0
     };
   },
-  (text: string, font = {}) => [text, ...Object.values(font)].join('')
+  (text: string | number, font = {}) => [text, ...Object.values(font)].join('')
 );
