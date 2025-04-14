@@ -3,7 +3,7 @@ import type { FileType } from '@/api/asset_interfaces';
 export type SelectedFile = {
   id: string;
   type: FileType;
-  versionNumber?: number;
+  versionNumber: number | undefined; // will be undefined for reasoning files
 };
 
 export type ChatLayoutView = 'chat' | 'file' | 'both';

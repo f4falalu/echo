@@ -8,6 +8,7 @@ export const useGetFileLink = () => {
   const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
   const metricId = useChatLayoutContextSelector((x) => x.metricId);
   const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
+  const messageId = useChatLayoutContextSelector((x) => x.messageId);
 
   const getFileLink = useMemoizedFn(
     ({
@@ -114,12 +115,18 @@ export const useGetFileLink = () => {
       versionNumber?: number;
       fileType: FileType;
       fileId: string;
-    }) => {
+    }): boolean => {
       if (fileType === 'metric') {
         return versionNumber === metricVersionNumber && fileId === metricId;
       } else if (fileType === 'dashboard') {
         return versionNumber === dashboardVersionNumber && fileId === dashboardId;
       }
+
+      if (fileType === 'reasoning') {
+        return fileId === messageId;
+      }
+
+      return false;
     }
   );
 
@@ -136,7 +143,11 @@ export const useGetFileLink = () => {
       chatId?: string;
       versionNumber?: number;
       useVersionHistoryMode?: boolean;
-    }) => {
+    }): {
+      link: string | undefined;
+      isSelected: boolean;
+      selectedVersionNumber: number | undefined;
+    } => {
       const link = getFileLink({ fileId, fileType, chatId, versionNumber, useVersionHistoryMode });
       const isSelected = getFileIsSelected({ versionNumber, fileType, fileId });
 

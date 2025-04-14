@@ -4,7 +4,6 @@ import React from 'react';
 import { ShareAssetType, ShareRole } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
-import { R } from 'node_modules/@tanstack/react-query-devtools/build/modern/ReactQueryDevtools-Cn7cKi7o';
 
 export const IndividualSharePerson: React.FC<{
   name?: string;
@@ -19,8 +18,6 @@ export const IndividualSharePerson: React.FC<{
   const onChangeShareLevel = useMemoizedFn((v: ShareRole | null) => {
     onUpdateShareRole(email, v);
   });
-
-  console.log(role, assetType);
 
   return (
     <div className="flex h-8 items-center justify-between space-x-2 overflow-hidden">
