@@ -6,7 +6,7 @@ import { AppPageLayout, AppSplitter, AppSplitterRef } from '@/components/ui/layo
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
 import { createAutoSaveId } from '@/components/ui/layouts/AppSplitter/helper';
 import Cookies from 'js-cookie';
-import { useDebounce, useMemoizedFn } from '@/hooks';
+import { useDebounce, useMemoizedFn, useUpdateLayoutEffect } from '@/hooks';
 import { FileContainerSecondary } from './FileContainerSecondary';
 
 interface FileContainerProps {
@@ -75,8 +75,9 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
     );
   }, [debouncedSelectedFileViewSecondary, selectedFile?.id, selectedFile?.type]);
 
-  useLayoutEffect(() => {
+  useUpdateLayoutEffect(() => {
     setTimeout(() => {
+      //TODO revaluate this?
       animateOpenSplitter(isOpenSecondary ? 'open' : 'closed');
     }, 20);
   }, [isOpenSecondary]);

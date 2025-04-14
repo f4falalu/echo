@@ -24,11 +24,11 @@ export const FilterDashboardButton: React.FC = React.memo(() => {
   });
 
   const onSelectItem = useMemoizedFn((value: (typeof filteredItems)[number]['value']) => {
-    console.log(value);
+    //
   });
 
   const onPressEnter = useMemoizedFn(() => {
-    console.log('onPressEnter', searchText);
+    //
   });
 
   const menuHeader = useMemo(() => {

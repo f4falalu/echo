@@ -14,6 +14,7 @@ import { SelectedFileSecondaryRenderRecord } from '../../FileContainer/FileConta
 import { ChatParams } from '../useGetChatParams';
 import { initializeFileViews } from './helpers';
 import { DEFAULT_FILE_VIEW } from '../helpers';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 export const useLayoutConfig = ({
   selectedFile,
@@ -32,6 +33,7 @@ export const useLayoutConfig = ({
   onSetSelectedFile: (file: SelectedFile | null) => void;
 } & ChatParams) => {
   const router = useRouter();
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const [fileViews, setFileViews] = useState<Record<string, FileConfig>>(
     initializeFileViews({ metricId, dashboardId, currentRoute })
   );
@@ -84,7 +86,10 @@ export const useLayoutConfig = ({
       secondaryView?: FileViewSecondary;
     }) => {
       const fileId = fileIdProp ?? selectedFileId;
-      if (!fileId) return;
+      if (!fileId) {
+        onCollapseFileClick();
+        return;
+      }
 
       if (secondaryView) {
         animateOpenSplitter('right');
@@ -126,7 +131,7 @@ export const useLayoutConfig = ({
     }
   );
 
-  const closeSecondaryView = useMemoizedFn(() => {
+  const closeSecondaryView = useMemoizedFn(async () => {
     if (!selectedFileId || !selectedFileViewConfig || !selectedFileView) return;
     setFileViews((prev) => {
       return create(prev, (draft) => {
@@ -134,11 +139,14 @@ export const useLayoutConfig = ({
         draft[selectedFileId].fileViewConfig[selectedFileView].secondaryView = null;
       });
     });
+    await timeout(250);
   });
 
-  const onCollapseFileClick = useMemoizedFn((navigateToChat: boolean = true) => {
+  const onCollapseFileClick = useMemoizedFn(async (navigateToChat: boolean = true) => {
     onSetSelectedFile(null);
-    closeSecondaryView();
+    if (selectedFileViewSecondary) {
+      await closeSecondaryView();
+    }
     if (navigateToChat && chatId) {
       router.prefetch(
         createBusterRoute({
@@ -146,14 +154,11 @@ export const useLayoutConfig = ({
           chatId
         })
       );
-      setTimeout(() => {
-        router.push(
-          createBusterRoute({
-            route: BusterRoutes.APP_CHAT_ID,
-            chatId
-          })
-        );
-      }, 250); //wait for the panel to close before navigating
+
+      onChangePage({
+        route: BusterRoutes.APP_CHAT_ID,
+        chatId
+      });
     }
   });
 
