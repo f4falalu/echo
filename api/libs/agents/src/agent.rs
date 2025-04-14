@@ -607,7 +607,7 @@ impl Agent {
             }),
             // temperature: Some(0.0),
             // max_completion_tokens: Some(15000),
-            // reasoning_effort: Some("low".to_string()),
+            reasoning_effort: Some("low".to_string()),
             ..Default::default()
         };
 
