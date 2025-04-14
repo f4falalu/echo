@@ -18,6 +18,7 @@ import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/lis
 import { CollectionIndividualSelectedPopup } from './CollectionsIndividualPopup';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { AddToCollectionModal } from '@/components/features/modal/AddToCollectionModal';
+import { canEdit } from '@/lib/share';
 
 export const CollectionIndividualContent: React.FC<{
   collection: BusterCollection | undefined;
@@ -25,6 +26,7 @@ export const CollectionIndividualContent: React.FC<{
   setOpenAddTypeModal: (open: boolean) => void;
 }> = React.memo(({ collection, openAddTypeModal, setOpenAddTypeModal }) => {
   const loadedAsset = collection?.id;
+  const isEditor = canEdit(collection?.permission);
 
   const onCloseModal = useMemoizedFn(() => {
     setOpenAddTypeModal(false);
@@ -46,11 +48,13 @@ export const CollectionIndividualContent: React.FC<{
         loadedAsset={loadedAsset}
       />
 
-      <AddToCollectionModal
-        open={openAddTypeModal}
-        onClose={onCloseModal}
-        collectionId={collection.id}
-      />
+      {isEditor && (
+        <AddToCollectionModal
+          open={openAddTypeModal}
+          onClose={onCloseModal}
+          collectionId={collection.id}
+        />
+      )}
     </>
   );
 });

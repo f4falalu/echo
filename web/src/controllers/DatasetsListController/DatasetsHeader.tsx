@@ -54,10 +54,10 @@ export const DatasetHeader: React.FC<{
       <>
         <div className="flex space-x-3">
           <Breadcrumb items={breadcrumbItems} />
-          <DatasetFilters datasetFilter={datasetFilter} setDatasetFilter={setDatasetFilter} />
+          {/* <DatasetFilters datasetFilter={datasetFilter} setDatasetFilter={setDatasetFilter} /> */}
         </div>
 
-        <div className="flex items-center">
+        {/* <div className="flex items-center">
           {isAdmin && (
             <AppTooltip title={'Create new dashboard'} shortcuts={['D']}>
               <Button prefix={<Plus />} onClick={onOpenNewDatasetModal}>
@@ -67,7 +67,7 @@ export const DatasetHeader: React.FC<{
           )}
         </div>
 
-        {isAdmin && <NewDatasetModal open={openNewDatasetModal} onClose={onCloseNewDatasetModal} />}
+        {isAdmin && <NewDatasetModal open={openNewDatasetModal} onClose={onCloseNewDatasetModal} />} */}
       </>
     );
   }

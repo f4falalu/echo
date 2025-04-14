@@ -12,7 +12,7 @@ import { useMemoizedFn } from '@/hooks';
 import { type BreadcrumbItem, Breadcrumb } from '@/components/ui/breadcrumb';
 import { Dots, Pencil, Plus, ShareAllRight, ShareRight, Trash } from '@/components/ui/icons';
 import { useDeleteCollection, useUpdateCollection } from '@/api/buster_rest/collections';
-import { canEdit } from '@/lib/share';
+import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { ShareCollectionButton } from '@/components/features/buttons/ShareMenuCollectionButton';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { Star } from '@/components/ui/icons';
@@ -41,7 +41,11 @@ export const CollectionsIndividualHeader: React.FC<{
 
         {collection && (
           <div className="flex items-center space-x-3">
-            <ThreeDotDropdown collection={collection} />
+            <ThreeDotDropdown
+              id={collection.id}
+              name={collectionTitle}
+              permission={collection.permission}
+            />
             <FavoriteStar
               id={collection.id}
               type={ShareAssetType.COLLECTION}
@@ -84,54 +88,63 @@ const ContentRight: React.FC<{
 ContentRight.displayName = 'ContentRight';
 
 const ThreeDotDropdown: React.FC<{
-  collection: BusterCollection;
-}> = React.memo(({ collection }) => {
+  id: string;
+  name: string;
+  permission: BusterCollection['permission'];
+}> = React.memo(({ id, name, permission }) => {
   const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
   const { mutateAsync: deleteCollection, isPending: isDeletingCollection } = useDeleteCollection();
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
-    id: collection.id,
+    id,
     type: ShareAssetType.COLLECTION,
-    name: collection.name || ''
+    name: name || ''
   });
+  const isEditor = canEdit(permission);
+  const isEffectiveOwner = getIsEffectiveOwner(permission);
 
   const items: DropdownItems = useMemo(
-    () => [
-      {
-        value: 'delete',
-        label: 'Delete collection',
-        icon: <Trash />,
-        onClick: async () => {
-          try {
-            await deleteCollection({ id: collection.id });
-            onChangePage({ route: BusterRoutes.APP_COLLECTIONS });
-          } catch (error) {
-            //
-          }
+    () =>
+      [
+        {
+          value: 'delete',
+          label: 'Delete collection',
+          icon: <Trash />,
+          onClick: async () => {
+            try {
+              await deleteCollection({ id });
+              onChangePage({ route: BusterRoutes.APP_COLLECTIONS });
+            } catch (error) {
+              //
+            }
+          },
+          disabled: isDeletingCollection,
+          hidden: !isEffectiveOwner
         },
-        disabled: isDeletingCollection
-      },
-      {
-        value: 'rename',
-        label: 'Rename collection',
-        icon: <Pencil />,
-        onClick: () => {
-          //
+        {
+          value: 'rename',
+          label: 'Rename collection',
+          icon: <Pencil />,
+          onClick: () => {
+            //
+          },
+          hidden: !isEditor
+        },
+        {
+          value: 'favorite',
+          label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
+          icon: isFavorited ? <StarFilled /> : <Star />,
+          onClick: onFavoriteClick
         }
-      },
-      {
-        value: 'favorite',
-        label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
-        icon: isFavorited ? <StarFilled /> : <Star />,
-        onClick: onFavoriteClick
-      }
-    ],
-    [collection.id, deleteCollection, onChangePage, isFavorited, onFavoriteClick]
+      ].filter((x) => !x.hidden),
+    [id, deleteCollection, onChangePage, isFavorited, onFavoriteClick]
   );
 
   return (
-    <Dropdown items={items}>
-      <Button variant="ghost" prefix={<Dots />}></Button>
-    </Dropdown>
+    <>
+      <Dropdown items={items}>
+        <Button variant="ghost" prefix={<Dots />}></Button>
+      </Dropdown>
+    </>
   );
 });
 ThreeDotDropdown.displayName = 'ThreeDotDropdown';
