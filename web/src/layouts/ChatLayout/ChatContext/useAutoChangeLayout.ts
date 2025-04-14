@@ -1,6 +1,10 @@
 'use client';
 
-import { useGetChatMessageMemoized, useGetChatMessage } from '@/api/buster_rest/chats';
+import {
+  useGetChatMessageMemoized,
+  useGetChatMessage,
+  useGetChatMemoized
+} from '@/api/buster_rest/chats';
 import type { SelectedFile } from '../interfaces';
 import { MutableRefObject, useEffect, useRef } from 'react';
 import findLast from 'lodash/findLast';
@@ -20,6 +24,8 @@ export const useAutoChangeLayout = ({
   selectedFileId: string | undefined;
   chatId: string | undefined;
 }) => {
+  const getChatMemoized = useGetChatMemoized();
+  const getChatMessageMemoized = useGetChatMessageMemoized();
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const messageId = useChatLayoutContextSelector((x) => x.messageId);
   const metricId = useChatLayoutContextSelector((x) => x.metricId);
@@ -35,7 +41,6 @@ export const useAutoChangeLayout = ({
     lastMessageId,
     (x) => x?.reasoning_message_ids?.length || 0
   );
-  const getChatMessageMemoized = useGetChatMessageMemoized();
   const { getFileLinkMeta } = useGetFileLink();
 
   const previousIsCompletedStream = usePrevious(isCompletedStream);
@@ -100,11 +105,11 @@ export const useAutoChangeLayout = ({
         return;
       }
 
-      const chatMessage = getChatMessageMemoized(lastMessageId);
+      const chat = getChatMemoized(chatId);
 
       //reasoning_message_mode
       if (messageId) {
-        const messageExists = !!chatMessage?.reasoning_message_ids.find((id) => id === messageId);
+        const messageExists = !!chat?.message_ids.some((id) => id === messageId);
         if (messageExists) {
           return;
         } else {
@@ -119,16 +124,26 @@ export const useAutoChangeLayout = ({
 
       //dashboard_mode
       if (dashboardId) {
+        console.log('dashboardId', dashboardId);
         if (!dashboardVersionNumber) {
-          const lastMatchingDashboardInChat = chatMessage?.response_message_ids.reduce<
+          const lastMatchingDashboardInChat = chat?.message_ids.reduce<
             BusterChatResponseMessage_file | undefined
-          >((acc, messageId) => {
-            const message = chatMessage?.response_messages[messageId]!;
-            const isFile =
-              message.type === 'file' &&
-              message.file_type === 'dashboard' &&
-              message.id === dashboardId;
-            if (isFile) return message;
+          >((acc, chatMessageId) => {
+            const chatMessage = getChatMessageMemoized(chatMessageId);
+
+            console.log('chatMessage', chatMessage);
+
+            chatMessage?.response_message_ids.forEach((responseMessageId) => {
+              const message = chatMessage?.response_messages[responseMessageId]!;
+              const isFile =
+                message.type === 'file' &&
+                message.file_type === 'dashboard' &&
+                message.id === dashboardId;
+
+              if (isFile) {
+                acc = message;
+              }
+            });
 
             return acc;
           }, undefined);
@@ -151,13 +166,22 @@ export const useAutoChangeLayout = ({
       //metric_mode
       if (metricId) {
         if (!metricVersionNumber) {
-          const lastMatchingMetricInChat = chatMessage?.response_message_ids.reduce<
+          const lastMatchingMetricInChat = chat?.message_ids.reduce<
             BusterChatResponseMessage_file | undefined
-          >((acc, messageId) => {
-            const message = chatMessage?.response_messages[messageId]!;
-            const isFile =
-              message.type === 'file' && message.file_type === 'metric' && message.id === metricId;
-            if (isFile) return message;
+          >((acc, chatMessageId) => {
+            const chatMessage = getChatMessageMemoized(chatMessageId);
+
+            chatMessage?.response_message_ids.forEach((responseMessageId) => {
+              const message = chatMessage?.response_messages[responseMessageId]!;
+              const isFile =
+                message.type === 'file' &&
+                message.file_type === 'metric' &&
+                message.id === metricId;
+
+              if (isFile) {
+                acc = message;
+              }
+            });
 
             return acc;
           }, undefined);

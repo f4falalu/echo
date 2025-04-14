@@ -93,6 +93,14 @@ export const useGetMetric = <TData = IBusterMetric>(
     const isLatestVersion =
       updatedMetric.version_number === last(updatedMetric.versions)?.version_number;
     if (isLatestVersion) setOriginalMetric(updatedMetric);
+
+    if (!versionNumber && result?.version_number) {
+      queryClient.setQueryData(
+        metricsQueryKeys.metricsGetMetric(result.id, result.version_number).queryKey,
+        updatedMetric
+      );
+    }
+
     return updatedMetric;
   });
 

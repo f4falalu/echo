@@ -94,8 +94,6 @@ export const ChatContextProvider = React.memo(({ children }: PropsWithChildren<{
     onSetSelectedFile
   });
 
-  console.log(selectedFile);
-
   return (
     <IndividualChatContext.Provider value={useChatContextValue}>
       {children}
