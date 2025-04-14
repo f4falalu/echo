@@ -605,8 +605,8 @@ impl Agent {
                 session_id: thread.id.to_string(),
                 trace_id: Uuid::new_v4().to_string(),
             }),
-            temperature: Some(0.0),
-            max_completion_tokens: Some(15000),
+            // temperature: Some(0.0),
+            // max_completion_tokens: Some(15000),
             // reasoning_effort: Some("low".to_string()),
             ..Default::default()
         };
