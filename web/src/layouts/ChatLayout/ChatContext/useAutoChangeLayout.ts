@@ -128,9 +128,8 @@ export const useAutoChangeLayout = ({
               message.type === 'file' &&
               message.file_type === 'dashboard' &&
               message.id === dashboardId;
-            if (isFile) {
-              return message;
-            }
+            if (isFile) return message;
+
             return acc;
           }, undefined);
 
@@ -158,9 +157,8 @@ export const useAutoChangeLayout = ({
             const message = chatMessage?.response_messages[messageId]!;
             const isFile =
               message.type === 'file' && message.file_type === 'metric' && message.id === metricId;
-            if (isFile) {
-              return message;
-            }
+            if (isFile) return message;
+
             return acc;
           }, undefined);
 
