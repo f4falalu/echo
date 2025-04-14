@@ -30,7 +30,7 @@ export const ShareMenuContentBody: React.FC<{
   shareAssetConfig: BusterShare;
   assetId: string;
   assetType: ShareAssetType;
-  isOwner: boolean;
+  canEditPermissions: boolean;
   className?: string;
 }> = React.memo(
   ({
@@ -38,7 +38,7 @@ export const ShareMenuContentBody: React.FC<{
     shareAssetConfig,
     selectedOptions,
     assetId,
-    isOwner,
+    canEditPermissions,
     assetType,
     className = ''
   }) => {
@@ -58,7 +58,7 @@ export const ShareMenuContentBody: React.FC<{
         password={password}
         assetId={assetId}
         assetType={assetType}
-        isOwner={isOwner}
+        canEditPermissions={canEditPermissions}
         className={className}
       />
     );
@@ -67,7 +67,7 @@ export const ShareMenuContentBody: React.FC<{
 ShareMenuContentBody.displayName = 'ShareMenuContentBody';
 
 const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
-  ({ isOwner, assetType, individual_permissions, assetId, className }) => {
+  ({ canEditPermissions, assetType, individual_permissions, assetId, className }) => {
     const { mutateAsync: onShareMetric, isPending: isInvitingMetric } = useShareMetric();
     const { mutateAsync: onShareDashboard, isPending: isInvitingDashboard } = useShareDashboard();
     const { mutateAsync: onShareCollection, isPending: isInvitingCollection } =
@@ -171,7 +171,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
 
     return (
       <div className={cn('flex flex-col space-y-2.5', className)}>
-        {isOwner && (
+        {canEditPermissions && (
           <div className="flex h-full items-center space-x-2">
             <div className="relative flex w-full items-center">
               <Input
@@ -190,6 +190,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
                   shareLevel={defaultPermissionLevel}
                   onChangeShareLevel={onChangeAccessDropdown}
                   assetType={assetType}
+                  disabled={!canEditPermissions}
                 />
               )}
             </div>
@@ -211,6 +212,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
                 {...permission}
                 onUpdateShareRole={onUpdateShareRole}
                 assetType={assetType}
+                disabled={!canEditPermissions}
               />
             ))}
           </div>
@@ -229,7 +231,7 @@ export interface ShareMenuContentBodyProps {
   password: string | null | undefined;
   assetId: string;
   assetType: ShareAssetType;
-  isOwner: boolean;
+  canEditPermissions: boolean;
   className: string;
 }
 

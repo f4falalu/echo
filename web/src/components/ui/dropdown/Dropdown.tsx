@@ -117,7 +117,7 @@ export const DropdownBase = <T,>({
         <span className="dropdown-trigger">{children}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className={cn('max-w-72 min-w-48', className)}
+        className={cn('max-w-60 min-w-60', className)}
         align={align}
         side={side}
         sideOffset={sideOffset}>

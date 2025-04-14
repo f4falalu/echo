@@ -20,7 +20,7 @@ export const ShareMenuContent: React.FC<{
 
   const permission = shareAssetConfig?.permission;
   const publicly_accessible = shareAssetConfig?.publicly_accessible;
-  const isOwner = getIsEffectiveOwner(permission);
+  const canEditPermissions = getIsEffectiveOwner(permission);
 
   const onCopyLink = useMemoizedFn(() => {
     let url = '';
@@ -44,13 +44,13 @@ export const ShareMenuContent: React.FC<{
 
   return (
     <div className="max-w-[340px] min-w-[340px]">
-      {isOwner && (
+      {canEditPermissions && (
         <ShareMenuContentHeader
           assetType={assetType}
           selectedOptions={selectedOptions}
           setSelectedOptions={setSelectedOptions}
           onCopyLink={onCopyLink}
-          isOwner={isOwner}
+          canEditPermissions={canEditPermissions}
         />
       )}
 
@@ -60,7 +60,7 @@ export const ShareMenuContent: React.FC<{
         assetId={assetId}
         selectedOptions={selectedOptions}
         onCopyLink={onCopyLink}
-        isOwner={isOwner}
+        canEditPermissions={canEditPermissions}
         className="px-3 py-2.5"
       />
 
@@ -80,8 +80,8 @@ const ShareMenuContentHeader = React.memo<{
   selectedOptions: ShareMenuTopBarOptions;
   setSelectedOptions: (options: ShareMenuTopBarOptions) => void;
   onCopyLink: () => void;
-  isOwner: boolean;
-}>(({ assetType, selectedOptions, setSelectedOptions, onCopyLink, isOwner }) => {
+  canEditPermissions: boolean;
+}>(({ assetType, selectedOptions, setSelectedOptions, onCopyLink, canEditPermissions }) => {
   return (
     <div className="border-b px-3 py-2">
       <ShareMenuTopBar
@@ -89,7 +89,7 @@ const ShareMenuContentHeader = React.memo<{
         selectedOptions={selectedOptions}
         onChangeSelectedOption={setSelectedOptions}
         onCopyLink={onCopyLink}
-        isOwner={isOwner}
+        canEditPermissions={canEditPermissions}
       />
     </div>
   );

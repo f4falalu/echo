@@ -1,11 +1,10 @@
 import React, { useMemo } from 'react';
 import { ShareAssetType, ShareRole } from '@/api/asset_interfaces';
-import { DropdownItem, DropdownLabel } from '@/components/ui/dropdown';
+import { DropdownItem } from '@/components/ui/dropdown';
 import { Paragraph, Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { Dropdown } from '@/components/ui/dropdown';
 import { ChevronDown } from '@/components/ui/icons/NucleoIconFilled';
-import { canEdit } from '@/lib/share';
 import { cn } from '@/lib/classMerge';
 
 type DropdownValue = ShareRole | 'remove' | 'notShared';
@@ -16,9 +15,15 @@ export const AccessDropdown: React.FC<{
   shareLevel?: ShareRole | null;
   onChangeShareLevel?: (level: ShareRole | null) => void;
   assetType: ShareAssetType;
-}> = ({ shareLevel, showRemove = true, className = '', onChangeShareLevel, assetType }) => {
-  const disabled = useMemo(() => canEdit(shareLevel), [shareLevel]);
-
+  disabled: boolean;
+}> = ({
+  shareLevel,
+  showRemove = true,
+  disabled,
+  className = '',
+  onChangeShareLevel,
+  assetType
+}) => {
   const items = useMemo(() => {
     const baseItems: DropdownItem<DropdownValue>[] = [...(itemsRecord[assetType] || [])];
 

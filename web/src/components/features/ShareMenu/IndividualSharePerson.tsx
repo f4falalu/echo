@@ -4,6 +4,7 @@ import React from 'react';
 import { ShareAssetType, ShareRole } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
+import { R } from 'node_modules/@tanstack/react-query-devtools/build/modern/ReactQueryDevtools-Cn7cKi7o';
 
 export const IndividualSharePerson: React.FC<{
   name?: string;
@@ -11,12 +12,15 @@ export const IndividualSharePerson: React.FC<{
   role: ShareRole;
   onUpdateShareRole: (email: string, role: ShareRole | null) => void;
   assetType: ShareAssetType;
-}> = React.memo(({ name, onUpdateShareRole, email, role, assetType }) => {
+  disabled: boolean;
+}> = React.memo(({ name, onUpdateShareRole, email, role, assetType, disabled }) => {
   const isSameEmailName = name === email;
 
   const onChangeShareLevel = useMemoizedFn((v: ShareRole | null) => {
     onUpdateShareRole(email, v);
   });
+
+  console.log(role, assetType);
 
   return (
     <div className="flex h-8 items-center justify-between space-x-2 overflow-hidden">
@@ -40,6 +44,7 @@ export const IndividualSharePerson: React.FC<{
       <AccessDropdown
         shareLevel={role}
         showRemove={true}
+        disabled={disabled}
         onChangeShareLevel={onChangeShareLevel}
         assetType={assetType}
       />

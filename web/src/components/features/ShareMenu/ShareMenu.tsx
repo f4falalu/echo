@@ -31,6 +31,8 @@ export const ShareMenu: React.FC<
     <Popover
       size={'none'}
       onOpenChange={onOpenChange}
+      align={'end'}
+      side={'bottom'}
       content={
         shareAssetConfig ? (
           <ShareMenuContent
