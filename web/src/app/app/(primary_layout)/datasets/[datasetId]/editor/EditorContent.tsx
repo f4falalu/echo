@@ -76,11 +76,12 @@ export const EditorContent: React.FC<{
             data={shownData}
             fetchingData={fetchingInitialData || fetchingTempData}
             defaultLayout={defaultLayout}
+            readOnly={true}
           />
         )}
 
         {selectedApp === EditorApps.METADATA && (
-          <MetadataContainer ymlFile={ymlFile} setYmlFile={setYmlFile} />
+          <MetadataContainer ymlFile={ymlFile} setYmlFile={setYmlFile} readOnly={true} />
         )}
       </div>
     </div>

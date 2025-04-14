@@ -4,16 +4,17 @@ import React from 'react';
 
 export const MetadataContainer: React.FC<{
   ymlFile: string;
+  readOnly?: boolean;
   setYmlFile: (ymlFile: string) => void;
-}> = React.memo(({ ymlFile, setYmlFile }) => {
+}> = React.memo(({ ymlFile, setYmlFile, readOnly = false }) => {
   return (
-    <div
-      className={cn('bg-background rounded border', 'flex h-full w-full flex-col overflow-hidden')}>
+    <div className={cn('bg-background flex h-full w-full flex-col overflow-hidden rounded border')}>
       <AppCodeEditor
         language="yaml"
-        className="overflow-hidden"
+        className="border-none"
         value={ymlFile}
         onChange={setYmlFile}
+        readOnly={readOnly}
       />
     </div>
   );

@@ -18,6 +18,7 @@ export interface AppVerticalCodeSplitterProps {
   disabledSave?: boolean;
   gapAmount?: number;
   className?: string;
+  readOnly?: boolean;
 }
 
 export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCodeSplitterProps>(
@@ -29,6 +30,7 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
       onRunQuery,
       onSaveSQL,
       data,
+      readOnly = false,
       fetchingData,
       defaultLayout,
       autoSaveId,
@@ -55,6 +57,7 @@ export const AppVerticalCodeSplitter = forwardRef<AppSplitterRef, AppVerticalCod
             onRunQuery={onRunQuery}
             onSaveSQL={onSaveSQL}
             disabledSave={disabledSave}
+            readOnly={readOnly}
           />
         }
         rightChildren={

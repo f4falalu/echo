@@ -18,8 +18,18 @@ export const SQLContainer: React.FC<{
   onSaveSQL: AppVerticalCodeSplitterProps['onSaveSQL'];
   disabledSave?: AppVerticalCodeSplitterProps['disabledSave'];
   error?: string | null;
+  readOnly?: boolean;
 }> = React.memo(
-  ({ disabledSave, className = '', sql, setDatasetSQL, onRunQuery, onSaveSQL, error }) => {
+  ({
+    disabledSave,
+    className = '',
+    readOnly = false,
+    sql,
+    setDatasetSQL,
+    onRunQuery,
+    onSaveSQL,
+    error
+  }) => {
     const [isRunning, setIsRunning] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const { openInfoMessage } = useBusterNotifications();
@@ -57,20 +67,22 @@ export const SQLContainer: React.FC<{
               </Button>
             )}
 
-            <Button
-              variant="default"
-              loading={isRunning}
-              disabled={!sql}
-              className="flex items-center space-x-0"
-              onClick={onRunQueryPreflight}
-              suffix={
-                <div className="flex items-center gap-x-1 text-sm">
-                  <Command />
-                  <ReturnKey />
-                </div>
-              }>
-              Run
-            </Button>
+            {!readOnly && (
+              <Button
+                variant="default"
+                loading={isRunning}
+                disabled={!sql}
+                className="flex items-center space-x-0"
+                onClick={onRunQueryPreflight}
+                suffix={
+                  <div className="flex items-center gap-x-1 text-sm">
+                    <Command />
+                    <ReturnKey />
+                  </div>
+                }>
+                Run
+              </Button>
+            )}
           </div>
         </>
       );
@@ -87,6 +99,7 @@ export const SQLContainer: React.FC<{
           onChange={setDatasetSQL}
           onMetaEnter={onRunQueryPreflight}
           variant={null}
+          readOnly={readOnly}
         />
 
         {error && <ErrorClosableContainer error={error} />}
