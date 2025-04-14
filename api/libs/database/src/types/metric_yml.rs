@@ -362,7 +362,6 @@ pub struct ColumnLabelFormat {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "suffix")]
     pub suffix: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "replace_missing_data_with")]
     pub replace_missing_data_with: Option<serde_json::Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
