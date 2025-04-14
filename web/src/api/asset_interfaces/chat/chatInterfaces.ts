@@ -29,4 +29,5 @@ export interface BusterChatListItem {
   last_edited: string;
   latest_file_id: string | null;
   latest_file_type: 'metric' | 'dashboard';
+  latest_version_number?: number;
 }

@@ -46,6 +46,7 @@ export const CollectionsIndividualHeader: React.FC<{
               id={collection.id}
               type={ShareAssetType.COLLECTION}
               title={collectionTitle}
+              className="opacity-0 group-hover:opacity-100"
             />
           </div>
         )}

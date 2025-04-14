@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  ShareAssetType,
-  VerificationStatus,
-  type BusterChatListItem
-} from '@/api/asset_interfaces';
+import { ShareAssetType, type BusterChatListItem } from '@/api/asset_interfaces';
 import { makeHumanReadble, formatDate } from '@/lib';
 import React, { memo, useMemo, useRef, useState } from 'react';
 import { FavoriteStar } from '@/components/features/list';
@@ -38,18 +34,42 @@ export const ChatItemsContainer: React.FC<{
   const getLink = useMemoizedFn((chat: BusterChatListItem) => {
     if (chat.latest_file_id) {
       switch (chat.latest_file_type) {
-        case 'metric':
+        case 'metric': {
+          const latestVersionNumber = chat.latest_version_number;
+
+          if (latestVersionNumber) {
+            return createBusterRoute({
+              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
+              chatId: chat.id,
+              metricId: chat.latest_file_id,
+              versionNumber: latestVersionNumber
+            });
+          }
+
           return createBusterRoute({
             route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
             chatId: chat.id,
             metricId: chat.latest_file_id
           });
-        case 'dashboard':
+        }
+        case 'dashboard': {
+          const latestVersionNumber = chat.latest_version_number;
+
+          if (latestVersionNumber) {
+            return createBusterRoute({
+              route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+              chatId: chat.id,
+              dashboardId: chat.latest_file_id,
+              versionNumber: latestVersionNumber
+            });
+          }
+
           return createBusterRoute({
             route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
             chatId: chat.id,
             dashboardId: chat.latest_file_id
           });
+        }
         default:
           const _exhaustiveCheck: never = chat.latest_file_type;
       }
@@ -194,7 +214,7 @@ const TitleCell = React.memo<{ name: string; chatId: string }>(({ name, chatId }
           type={ShareAssetType.CHAT}
           iconStyle="tertiary"
           title={name}
-          className="hidden! group-hover:flex!"
+          className="opacity-0 group-hover:opacity-100"
         />
       </div>
     </div>
