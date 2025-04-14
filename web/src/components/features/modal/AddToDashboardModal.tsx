@@ -16,7 +16,7 @@ export const AddToDashboardModal: React.FC<{
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
-  const debouncedSearchTerm = useDebounce(searchTerm, { wait: 100 });
+  const debouncedSearchTerm = useDebounce(searchTerm, { wait: 175 });
 
   const { data: searchResults } = useSearch(
     {
