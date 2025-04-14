@@ -1,55 +1,69 @@
 import { IDataResult } from '@/api/asset_interfaces/metric/interfaces';
-import { faker } from '@faker-js/faker';
+import dayjs from 'dayjs';
 
 // Helper to generate dates for time series
 const generateDates = (count: number) => {
   const dates: Date[] = [];
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - count);
+  const startDate = dayjs('April 1, 2025').toDate();
 
   for (let i = 0; i < count; i++) {
-    const date = new Date(startDate);
-    date.setDate(date.getDate() + i);
+    const date = dayjs(startDate).add(i, 'day').toDate();
     dates.push(date);
   }
   return dates;
 };
 
-// Line chart mock data
+// Helper to add controlled noise to values
+const addNoise = (value: number, variabilityPercent: number = 10): number => {
+  const maxNoise = value * (variabilityPercent / 100);
+  const noise = Math.sin(value) * maxNoise; // Using sin for pseudo-random but predictable noise
+  return Math.round(value + noise);
+};
+
+// Line chart mock data with predictable growth patterns and controlled variability
 export const generateLineChartData = (pointCount = 10): IDataResult => {
   const dates = generateDates(pointCount);
-  return dates.map((date) => ({
-    date: date.toISOString(),
-    revenue: faker.number.int({ min: 1000, max: 10000 }),
-    profit: faker.number.int({ min: 100, max: 5000 }),
-    customers: faker.number.int({ min: 50, max: 500 })
-  }));
+  return dates.map((date, index) => {
+    const baseRevenue = 1000 + index * 500;
+    const baseProfit = 100 + index * 200;
+    const baseCustomers = 50 + index * 25;
+
+    return {
+      date: date.toISOString(),
+      revenue: addNoise(baseRevenue, 15), // 15% variability
+      profit: addNoise(baseProfit, 20), // 20% variability
+      customers: addNoise(baseCustomers, 10) // 10% variability
+    };
+  });
 };
 
-// Bar chart mock data
+// Bar chart mock data with consistent categories
 export const generateBarChartData = (categoryCount = 6): IDataResult => {
-  return Array.from({ length: categoryCount }, () => ({
-    category: faker.commerce.department(),
-    sales: faker.number.int({ min: 1000, max: 10000 }),
-    units: faker.number.int({ min: 50, max: 500 }),
-    returns: faker.number.int({ min: 100, max: 500 })
+  const categories = ['Electronics', 'Clothing', 'Food', 'Books', 'Sports', 'Home', 'Beauty'];
+  return Array.from({ length: categoryCount }, (_, index) => ({
+    category: categories[index % categories.length],
+    sales: 1000 + index * 1000, // Increases by 1000 each category
+    units: 50 + index * 50, // Increases by 50 each category
+    returns: 100 + index * 25 // Increases by 25 each category
   }));
 };
 
-// Pie chart mock data
+// Pie chart mock data with fixed segments
 export const generatePieChartData = (segmentCount = 5): IDataResult => {
-  return Array.from({ length: segmentCount }, () => ({
-    segment: faker.commerce.product(),
-    value: faker.number.int({ min: 100, max: 1000 })
+  const segments = ['Product A', 'Product B', 'Product C', 'Product D', 'Product E'];
+  return Array.from({ length: segmentCount }, (_, index) => ({
+    segment: segments[index % segments.length],
+    value: 100 + index * 200 // Increases by 200 each segment
   }));
 };
 
-// Scatter chart mock data
+// Scatter chart mock data with predictable patterns
 export const generateScatterChartData = (pointCount = 30): IDataResult => {
-  return Array.from({ length: pointCount }, () => ({
-    x: faker.number.float({ min: 0, max: 100, fractionDigits: 1 }),
-    y: faker.number.float({ min: 0, max: 100, fractionDigits: 1 }),
-    size: faker.number.int({ min: 10, max: 50 }),
-    category: faker.helpers.arrayElement(['Electronics', 'Clothing', 'Home Goods'])
+  const categories = ['Electronics', 'Clothing', 'Home Goods'];
+  return Array.from({ length: pointCount }, (_, index) => ({
+    x: (index % 10) * 10, // Values from 0-90 in steps of 10
+    y: Math.floor(index / 10) * 10, // Creates a grid pattern
+    size: 10 + (index % 5) * 10, // Sizes cycle between 10-50 in steps of 10
+    category: categories[index % categories.length]
   }));
 };

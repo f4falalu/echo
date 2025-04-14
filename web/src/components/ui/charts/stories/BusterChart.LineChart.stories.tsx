@@ -26,7 +26,7 @@ export const Default: Story = {
       y: ['revenue', 'profit', 'customers'],
       category: []
     },
-    className: 'w-[800px] h-[400px]',
+    className: 'resize overflow-auto min-w-[250px] h-[400px]',
     columnLabelFormats: {
       date: {
         columnType: 'date',
@@ -128,12 +128,12 @@ export const MultiYearDate: Story = {
       y: ['value'],
       category: []
     },
-    className: 'w-[800px] h-[400px]',
+    className: 'w-[800px] h-[400px] resize overflow-auto',
     columnLabelFormats: {
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'YYYY' // Show only year for multi-year view
+        dateFormat: 'auto' // Show only year for multi-year view
       } satisfies IColumnLabelFormat,
       value: {
         columnType: 'number',
@@ -177,7 +177,7 @@ export const MultipleYAxes: Story = {
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'MMM YYYY'
+        dateFormat: 'auto'
       } satisfies IColumnLabelFormat,
       revenue: {
         columnType: 'number',
@@ -203,30 +203,74 @@ export const UnevenlySpacedDates: Story = {
   args: {
     selectedChartType: ChartType.Line,
     data: [
-      { date: new Date('2024-01-05'), value: 120 },
-      { date: new Date('2024-01-28'), value: 145 },
-      { date: new Date('2024-02-15'), value: 160 },
-      { date: new Date('2024-03-02'), value: 155 },
-      { date: new Date('2024-04-18'), value: 180 },
-      { date: new Date('2024-05-30'), value: 210 },
-      { date: new Date('2024-07-12'), value: 195 },
-      { date: new Date('2024-08-03'), value: 225 },
-      { date: new Date('2024-09-22'), value: 240 },
-      { date: new Date('2024-11-15'), value: 260 },
-      { date: new Date('2024-12-28'), value: 280 },
-      { date: new Date('2025-04-08'), value: 310 }
+      { date: new Date('2024-01-05').toISOString(), value: 120 },
+      { date: new Date('2024-01-28').toISOString(), value: 145 },
+      { date: new Date('2024-02-15').toISOString(), value: 160 },
+      { date: new Date('2024-03-02').toISOString(), value: 155 },
+      { date: new Date('2024-04-18').toISOString(), value: 180 },
+      { date: new Date('2024-05-30').toISOString(), value: 210 },
+      { date: new Date('2024-07-12').toISOString(), value: 195 },
+      { date: new Date('2024-08-03').toISOString(), value: 225 },
+      { date: new Date('2024-09-22').toISOString(), value: 240 },
+      { date: new Date('2024-11-15').toISOString(), value: 260 },
+      { date: new Date('2024-12-28').toISOString(), value: 280 },
+      { date: new Date('2025-04-08').toISOString(), value: 310 }
     ],
     barAndLineAxis: {
       x: ['date'],
       y: ['value'],
       category: []
     },
-    className: 'w-[800px] h-[400px]',
+    className: 'w-[800px]  h-[400px]',
+
+    columnSettings: {
+      value: {
+        lineSymbolSize: 5
+      }
+    },
     columnLabelFormats: {
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'll' // Full date format to show uneven spacing clearly
+        dateFormat: 'auto' // Full date format to show uneven spacing clearly
+      } satisfies IColumnLabelFormat,
+      value: {
+        columnType: 'number',
+        style: 'number',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+// Closely spaced dates
+export const CloselySpacedDates: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: [
+      { date: new Date('2024-01-01').toISOString(), value: 120 },
+      { date: new Date('2024-01-03').toISOString(), value: 145 },
+      { date: new Date('2024-01-05').toISOString(), value: 160 },
+      { date: new Date('2024-01-07').toISOString(), value: 155 },
+      { date: new Date('2024-01-12').toISOString(), value: 180 }
+    ],
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['value'],
+      category: []
+    },
+    className: 'w-[800px] h-[400px] resize overflow-auto',
+    columnSettings: {
+      value: {
+        lineSymbolSize: 5
+      }
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'll' // Full date format to show spacing clearly
       } satisfies IColumnLabelFormat,
       value: {
         columnType: 'number',
@@ -243,18 +287,18 @@ export const WithCategory: Story = {
   args: {
     selectedChartType: ChartType.Line,
     data: [
-      { month: new Date('2024-01-01'), sales: 1200, region: 'North' },
-      { month: new Date('2024-02-01'), sales: 1400, region: 'North' },
-      { month: new Date('2024-03-01'), sales: 1600, region: 'North' },
-      { month: new Date('2024-01-01'), sales: 800, region: 'South' },
-      { month: new Date('2024-02-01'), sales: 900, region: 'South' },
-      { month: new Date('2024-03-01'), sales: 1100, region: 'South' },
-      { month: new Date('2024-01-01'), sales: 1500, region: 'East' },
-      { month: new Date('2024-02-01'), sales: 1700, region: 'East' },
-      { month: new Date('2024-03-01'), sales: 1900, region: 'East' },
-      { month: new Date('2024-01-01'), sales: 1000, region: 'West' },
-      { month: new Date('2024-02-01'), sales: 1300, region: 'West' },
-      { month: new Date('2024-03-01'), sales: 1500, region: 'West' }
+      { month: new Date('2024-01-01').toISOString(), sales: 1200, region: 'North' },
+      { month: new Date('2024-02-01').toISOString(), sales: 1400, region: 'North' },
+      { month: new Date('2024-03-01').toISOString(), sales: 1600, region: 'North' },
+      { month: new Date('2024-01-01').toISOString(), sales: 800, region: 'South' },
+      { month: new Date('2024-02-01').toISOString(), sales: 900, region: 'South' },
+      { month: new Date('2024-03-01').toISOString(), sales: 1100, region: 'South' },
+      { month: new Date('2024-01-01').toISOString(), sales: 1500, region: 'East' },
+      { month: new Date('2024-02-01').toISOString(), sales: 1700, region: 'East' },
+      { month: new Date('2024-03-01').toISOString(), sales: 1900, region: 'East' },
+      { month: new Date('2024-01-01').toISOString(), sales: 1000, region: 'West' },
+      { month: new Date('2024-02-01').toISOString(), sales: 1300, region: 'West' },
+      { month: new Date('2024-03-01').toISOString(), sales: 1500, region: 'West' }
     ],
     barAndLineAxis: {
       x: ['month'],
@@ -266,7 +310,7 @@ export const WithCategory: Story = {
       month: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'MMM YYYY'
+        dateFormat: 'auto'
       } satisfies IColumnLabelFormat,
       sales: {
         columnType: 'number',
@@ -286,15 +330,60 @@ export const MultipleYAxesWithCategory: Story = {
   args: {
     selectedChartType: ChartType.Line,
     data: [
-      { date: new Date('2024-01-01'), revenue: 1200, satisfaction: 4.2, product: 'Hardware' },
-      { date: new Date('2024-02-01'), revenue: 1400, satisfaction: 4.3, product: 'Hardware' },
-      { date: new Date('2024-03-01'), revenue: 1600, satisfaction: 4.4, product: 'Hardware' },
-      { date: new Date('2024-01-01'), revenue: 800, satisfaction: 4.7, product: 'Software' },
-      { date: new Date('2024-02-01'), revenue: 1000, satisfaction: 4.8, product: 'Software' },
-      { date: new Date('2024-03-01'), revenue: 1200, satisfaction: 4.9, product: 'Software' },
-      { date: new Date('2024-01-01'), revenue: 2000, satisfaction: 4.0, product: 'Services' },
-      { date: new Date('2024-02-01'), revenue: 2200, satisfaction: 4.1, product: 'Services' },
-      { date: new Date('2024-03-01'), revenue: 2400, satisfaction: 4.2, product: 'Services' }
+      {
+        date: new Date('2024-01-01').toISOString(),
+        revenue: 1200,
+        satisfaction: 4.2,
+        product: 'Hardware'
+      },
+      {
+        date: new Date('2024-02-01').toISOString(),
+        revenue: 1400,
+        satisfaction: 4.3,
+        product: 'Hardware'
+      },
+      {
+        date: new Date('2024-03-01').toISOString(),
+        revenue: 1600,
+        satisfaction: 4.4,
+        product: 'Hardware'
+      },
+      {
+        date: new Date('2024-01-01').toISOString(),
+        revenue: 800,
+        satisfaction: 4.7,
+        product: 'Software'
+      },
+      {
+        date: new Date('2024-02-01').toISOString(),
+        revenue: 1000,
+        satisfaction: 4.8,
+        product: 'Software'
+      },
+      {
+        date: new Date('2024-03-01').toISOString(),
+        revenue: 1200,
+        satisfaction: 4.9,
+        product: 'Software'
+      },
+      {
+        date: new Date('2024-01-01').toISOString(),
+        revenue: 2000,
+        satisfaction: 4.0,
+        product: 'Services'
+      },
+      {
+        date: new Date('2024-02-01').toISOString(),
+        revenue: 2200,
+        satisfaction: 4.1,
+        product: 'Services'
+      },
+      {
+        date: new Date('2024-03-01').toISOString(),
+        revenue: 2400,
+        satisfaction: 4.2,
+        product: 'Services'
+      }
     ],
     barAndLineAxis: {
       x: ['date'],
@@ -306,7 +395,7 @@ export const MultipleYAxesWithCategory: Story = {
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'MMM YYYY'
+        dateFormat: 'auto'
       } satisfies IColumnLabelFormat,
       revenue: {
         columnType: 'number',
@@ -356,7 +445,7 @@ export const NumericMonthX: Story = {
       month: {
         columnType: 'number',
         style: 'date',
-        dateFormat: 'MMM',
+        dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
       } satisfies IColumnLabelFormat,
@@ -389,7 +478,7 @@ export const PercentageStackedLineSingle: Story = {
       date: {
         columnType: 'number',
         style: 'date',
-        dateFormat: 'LLL',
+        dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
       } satisfies IColumnLabelFormat,

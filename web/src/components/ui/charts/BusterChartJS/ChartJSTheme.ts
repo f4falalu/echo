@@ -20,8 +20,7 @@ import {
   BubbleController,
   PieController,
   ScatterController,
-  DoughnutController,
-  scales
+  DoughnutController
 } from 'chart.js';
 import { ChartMountedPlugin } from './core/plugins';
 import ChartDeferred from 'chartjs-plugin-deferred';
