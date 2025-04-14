@@ -28,7 +28,7 @@ import ChartJsAnnotationPlugin from 'chartjs-plugin-annotation';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { DEFAULT_CHART_THEME } from '@/api/asset_interfaces/metric/charts/configColors';
 import { isServer } from '@tanstack/react-query';
-import 'chartjs-adapter-dayjs-4';
+import './core/plugins/chartjs-plugin-dayjs';
 import { truncateText } from '@/lib/text';
 
 const fontFamily = isServer

@@ -4,3 +4,4 @@ export * from './chartjs-plugin-hover-line';
 export * from './chartjs-plugin-pie-outlabels';
 export * from './chartjs-plugin-totalizer';
 export * from './chartjs-plugin-hover-scatter';
+export * from './chartjs-plugin-dayjs';

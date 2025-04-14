@@ -20,6 +20,19 @@ import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 
 const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category.ticks.callback;
 
+const DATE_FORMATS = {
+  datetime: 'MMM D, YYYY, h:mm:ss a',
+  millisecond: 'h:mm:ss.SSS a',
+  second: 'h:mm:ss a',
+  minute: 'h:mm a',
+  hour: 'MMM D, hA',
+  day: 'MMM D',
+  week: 'll',
+  month: 'MMM YYYY',
+  quarter: '[Q]Q - YYYY',
+  year: 'YYYY'
+};
+
 export const useXAxis = ({
   columnLabelFormats,
   selectedAxis,
@@ -126,8 +139,24 @@ export const useXAxis = ({
     if (type === 'time' || isDate(rawValue)) {
       const xKey = selectedAxis.x[0];
       const xColumnLabelFormat = xAxisColumnFormats[xKey];
+      const isAutoFormat = xColumnLabelFormat.dateFormat === 'auto';
+      if (isAutoFormat) {
+        //@ts-ignore
+        const unit = this.chart.scales['x']._unit as
+          | 'millisecond'
+          | 'second'
+          | 'minute'
+          | 'hour'
+          | 'day'
+          | 'week'
+          | 'month'
+          | 'quarter'
+          | 'year';
+        const format = DATE_FORMATS[unit];
+        return formatLabel(rawValue, { ...xColumnLabelFormat, dateFormat: format });
+      }
       const res = formatLabel(rawValue, xColumnLabelFormat);
-      return truncateText(res, 20);
+      return truncateText(res, 24);
     }
 
     return DEFAULT_X_AXIS_TICK_CALLBACK.call(this, value, index, this.getLabels() as any);
@@ -140,7 +169,7 @@ export const useXAxis = ({
       const isDate = columnLabelFormat?.columnType === 'date';
       const isAutoDate = columnLabelFormat?.dateFormat === 'auto' || !columnLabelFormat?.dateFormat;
       const useAutoDate = isSingleXAxis && isDate && isAutoDate;
-      if (useAutoDate) return null;
+      if (useAutoDate) return customTickCallback;
     }
     return customTickCallback;
   }, [customTickCallback, type, selectedAxis.x, xAxisColumnFormats]);
@@ -186,10 +215,12 @@ export const useXAxis = ({
         },
         stacked,
         time: {
+          //consider writing a helper to FORCE a unit. Hours seems to be triggering more often than I would like...
           unit: xAxisTimeInterval ? xAxisTimeInterval : false
         },
         ticks: {
           ...rotation,
+          maxTicksLimit: type === 'time' ? 18 : undefined,
           sampleSize: type === 'time' ? 24 : undefined,
           display: xAxisShowAxisLabel,
           callback: tickCallback as any, //I need to use null for auto date

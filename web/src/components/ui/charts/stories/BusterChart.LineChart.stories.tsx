@@ -253,7 +253,7 @@ export const CloselySpacedDates: Story = {
       { date: new Date('2024-01-03').toISOString(), value: 145 },
       { date: new Date('2024-01-05').toISOString(), value: 160 },
       { date: new Date('2024-01-07').toISOString(), value: 155 },
-      { date: new Date('2024-01-12').toISOString(), value: 180 }
+      { date: new Date('2024-01-08').toISOString(), value: 180 }
     ],
     barAndLineAxis: {
       x: ['date'],
@@ -270,7 +270,7 @@ export const CloselySpacedDates: Story = {
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'll' // Full date format to show spacing clearly
+        dateFormat: 'auto' // Full date format to show spacing clearly
       } satisfies IColumnLabelFormat,
       value: {
         columnType: 'number',
