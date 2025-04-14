@@ -1055,7 +1055,7 @@ async fn process_completed_files(
                                 .set((
                                     chats::most_recent_file_id.eq(Some(file_uuid)),
                                     chats::most_recent_file_type.eq(file_type_for_chat),
-                                    // chats::most_recent_version_number implicitly handled by file version
+                                    chats::most_recent_version_number.eq(file_content.version_number),
                                     chats::updated_at.eq(Utc::now()),
                                 ))
                                 .execute(conn)
