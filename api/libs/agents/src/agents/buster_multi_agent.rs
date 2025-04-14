@@ -206,7 +206,7 @@ impl BusterMultiAgent {
 
         // Create agent, passing the selected initialization prompt as default
         let agent = Arc::new(Agent::new(
-            "o3-mini".to_string(),
+            "gpt-4.1".to_string(),
             user_id,
             session_id,
             "buster_multi_agent".to_string(),

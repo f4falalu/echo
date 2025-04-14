@@ -328,6 +328,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                           "content_to_replace",
                           "new_content"
                         ],
+                        "strict": true,
                         "properties": {
                           "content_to_replace": {
                             "type": "string",
