@@ -328,6 +328,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
                         "items": {
                             "type": "object",
                             "required": ["name", "yml_content"],
+                            "strict": true,
                             "properties": {
                                 "name": {
                                     "type": "string",

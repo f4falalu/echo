@@ -16,8 +16,8 @@ use tracing::{debug, error, info};
 
 use super::{
     common::{
-        process_dashboard_file_modification, ModificationResult, ModifyFilesOutput,
-        ModifyFilesParams, FailedFileModification,
+        process_dashboard_file_modification, FailedFileModification, ModificationResult,
+        ModifyFilesOutput, ModifyFilesParams,
     },
     file_types::file::FileWithId,
     FileModificationTool,
@@ -230,15 +230,12 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                         "description": get_modify_dashboards_yml_description().await,
                         "items": {
                             "type": "object",
-                            "required": ["id", "file_name", "modifications"],
+                            "required": ["id", "modifications"],
+                            "strict": true,
                             "properties": {
                                 "id": {
                                     "type": "string",
                                     "description": get_dashboard_modification_id_description().await
-                                },
-                                "file_name": {
-                                    "type": "string",
-                                    "description": get_modify_dashboards_file_name_description().await
                                 },
                                 "modifications": {
                                     "type": "array",
@@ -490,7 +487,8 @@ mod tests {
 
     #[test]
     fn test_apply_modifications_append() {
-        let original_content = "name: test_dashboard\ntype: dashboard\ndescription: A test dashboard";
+        let original_content =
+            "name: test_dashboard\ntype: dashboard\ndescription: A test dashboard";
 
         // Test appending content with empty content_to_replace
         let mods = vec![Modification {
