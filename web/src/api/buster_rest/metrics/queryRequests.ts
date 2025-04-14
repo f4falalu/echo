@@ -142,22 +142,43 @@ export const useGetMetricData = <TData = IBusterMetricData>(
 ) => {
   const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
   const { password } = getAssetPassword(id!);
-  const versionNumber = useGetMetricVersionNumber({ versionNumber: versionNumberProp });
+  const versionNumberFromParams = useGetMetricVersionNumber({ versionNumber: versionNumberProp });
   const {
     isFetched: isFetchedMetric,
     isError: isErrorMetric,
     dataUpdatedAt,
-    data: fetchedMetricData
-  } = useGetMetric({ id, versionNumber }, { select: (x) => x.id });
-  const queryFn = useMemoizedFn(() => {
-    return getMetricData({ id: id!, version_number: versionNumber, password });
+    data: metric
+  } = useGetMetric(
+    { id, versionNumber: versionNumberFromParams },
+    { select: (x) => ({ id: x.id, version_number: x.version_number }) }
+  );
+  const versionNumber = useMemo(() => {
+    if (versionNumberFromParams) return versionNumberFromParams;
+    return metric?.version_number;
+  }, [versionNumberFromParams, metric]);
+
+  const queryFn = useMemoizedFn(async () => {
+    const result = await getMetricData({
+      id: id!,
+      version_number: versionNumber,
+      password
+    });
+
+    return result;
   });
 
   return useQuery({
     ...metricsQueryKeys.metricsGetData(id!, versionNumber),
     queryFn,
     enabled: () => {
-      return !!id && isFetchedMetric && !isErrorMetric && !!fetchedMetricData && !!dataUpdatedAt;
+      return (
+        !!id &&
+        isFetchedMetric &&
+        !isErrorMetric &&
+        !!metric?.id &&
+        !!dataUpdatedAt &&
+        !!versionNumber
+      );
     },
     select: params?.select,
     ...params
