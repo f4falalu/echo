@@ -265,7 +265,7 @@ const DropdownMenuLink: React.FC<{
 
   return (
     <span className={className} onClick={(e) => e.stopPropagation()}>
-      <Link href={link} target={isExternal ? '_blank' : '_self'}>
+      <Link href={link} target={isExternal ? '_blank' : '_self'} className="">
         {content}
       </Link>
     </span>

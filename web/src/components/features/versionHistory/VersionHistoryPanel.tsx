@@ -17,7 +17,6 @@ import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 export const VersionHistoryPanel = React.memo(
   ({ assetId, type }: { assetId: string; type: 'metric' | 'dashboard' }) => {
     const chatId = useChatLayoutContextSelector((x) => x.chatId);
-    const onCloseVersionHistory = useCloseVersionHistory();
     const { listItems, currentVersionNumber, selectedQueryVersion, onClickRestoreVersion } =
       useListVersionHistories({
         assetId,
@@ -41,11 +40,9 @@ export const VersionHistoryPanel = React.memo(
       <AppPageLayout
         header={useMemo(
           () => (
-            <PanelHeader
-              onCloseVersionHistory={() => onCloseVersionHistory({ assetId, type, chatId })}
-            />
+            <PanelHeader />
           ),
-          [onCloseVersionHistory, assetId, type, chatId]
+          [assetId, type, chatId]
         )}
         scrollable
         headerBorderVariant="ghost">
@@ -132,16 +129,18 @@ const ListItem = React.memo(
 );
 ListItem.displayName = 'ListItem';
 
-const PanelHeader = React.memo(
-  ({ onCloseVersionHistory }: { onCloseVersionHistory: () => void }) => {
-    return (
-      <div className="flex w-full items-center justify-between">
-        <Text>Version History</Text>
-        <Button variant="ghost" prefix={<Xmark />} onClick={onCloseVersionHistory} />
-      </div>
-    );
-  }
-);
+const PanelHeader = React.memo(({}: {}) => {
+  const { href } = useCloseVersionHistory();
+
+  return (
+    <div className="flex w-full items-center justify-between">
+      <Text>Version history</Text>
+      <Link href={href} prefetch className="-mr-1.5">
+        <Button variant="ghost" prefix={<Xmark />} />
+      </Link>
+    </div>
+  );
+});
 PanelHeader.displayName = 'PanelHeader';
 
 VersionHistoryPanel.displayName = 'VersionHistoryPanel';

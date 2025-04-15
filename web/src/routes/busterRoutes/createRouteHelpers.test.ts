@@ -3,7 +3,7 @@ import { BusterAuthRoutes } from './busterAuthRoutes';
 import { BusterAppRoutes } from './busterAppRoutes';
 import { BusterSettingsRoutes } from './busterSettingsRoutes';
 import { BusterRoutes } from './busterRoutes';
-import { MetricFileViewSecondary } from '@/layouts/ChatLayout';
+import { DashboardFileViewSecondary, MetricFileViewSecondary } from '@/layouts/ChatLayout';
 
 describe('createBusterRoute', () => {
   test('should return route as is when no parameters are provided', () => {
@@ -93,6 +93,32 @@ describe('createBusterRoute', () => {
     } as const;
     const result4 = createBusterRoute(input4);
     expect(result4).toBe('/app/metrics/metric456/chart?secondary_view=chart-edit');
+  });
+
+  it('createBusterRoute should handle version history secondary view', () => {
+    const input = {
+      route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+      chatId: 'chat123',
+      dashboardId: 'dashboard456',
+      versionNumber: 1,
+      secondaryView: 'version-history' as DashboardFileViewSecondary
+    } as const;
+    const result = createBusterRoute(input);
+    expect(result).toBe(
+      '/app/chats/chat123/dashboards/dashboard456?dashboard_version_number=1&secondary_view=version-history'
+    );
+
+    const input2 = {
+      route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+      dashboardId: 'dashboard456',
+      versionNumber: 1,
+      chatId: 'chat123',
+      secondaryView: 'version-history'
+    } as const;
+    const result2 = createBusterRoute(input2);
+    expect(result2).toBe(
+      '/app/chats/chat123/dashboards/dashboard456?dashboard_version_number=1&secondary_view=version-history'
+    );
   });
 });
 

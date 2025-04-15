@@ -44,18 +44,10 @@ export const useGetChatParams = () => {
     return undefined;
   }, [versionNumberPath, dashboardId, queryDashboardVersionNumber]);
 
-  const isVersionHistoryMode: boolean = useMemo(() => {
-    if (!chatId && (metricVersionNumber || dashboardVersionNumber)) return true;
-
-    return !!chatId && segments.some((segment) => segment.startsWith('version'));
-  }, [
-    segments,
-    !!chatId,
-    !!metricVersionNumber,
-    !!dashboardVersionNumber,
-    !!queryMetricVersionNumber,
-    !!queryDashboardVersionNumber
-  ]);
+  const isVersionHistoryMode = useMemo(() => {
+    if (secondaryView === 'version-history') return true;
+    return false;
+  }, [secondaryView]);
 
   return useMemo(
     () => ({

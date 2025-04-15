@@ -1,7 +1,6 @@
 import { FileType } from '@/api/asset_interfaces/chat';
 import { useMemoizedFn } from '@/hooks';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
-import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
+import { assetParamsToRoute, useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 
 export const useGetFileLink = () => {
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
@@ -24,85 +23,13 @@ export const useGetFileLink = () => {
       versionNumber?: number;
       useVersionHistoryMode?: boolean;
     }) => {
-      if (fileType === 'metric') {
-        if (chatId) {
-          if (versionNumber) {
-            if (useVersionHistoryMode) {
-              return createBusterRoute({
-                route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_HISTORY_NUMBER,
-                chatId,
-                metricId: fileId,
-                versionNumber
-              });
-            } else {
-              return createBusterRoute({
-                route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
-                chatId,
-                metricId: fileId,
-                versionNumber
-              });
-            }
-          } else {
-            return createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_METRIC_ID,
-              chatId,
-              metricId: fileId
-            });
-          }
-        } else {
-          if (versionNumber) {
-            return createBusterRoute({
-              route: BusterRoutes.APP_METRIC_ID_VERSION_HISTORY_NUMBER,
-              metricId: fileId,
-              versionNumber
-            });
-          } else {
-            return createBusterRoute({
-              route: BusterRoutes.APP_METRIC_ID_CHART,
-              metricId: fileId
-            });
-          }
-        }
-      } else if (fileType === 'dashboard') {
-        if (chatId) {
-          if (versionNumber) {
-            if (useVersionHistoryMode) {
-              return createBusterRoute({
-                route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_HISTORY_NUMBER,
-                chatId,
-                dashboardId: fileId,
-                versionNumber
-              });
-            } else {
-              return createBusterRoute({
-                route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
-                chatId,
-                dashboardId: fileId,
-                versionNumber
-              });
-            }
-          } else {
-            return createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
-              chatId,
-              dashboardId: fileId
-            });
-          }
-        } else {
-          if (versionNumber) {
-            return createBusterRoute({
-              route: BusterRoutes.APP_DASHBOARD_ID_VERSION_HISTORY_NUMBER,
-              dashboardId: fileId,
-              versionNumber
-            });
-          } else {
-            return createBusterRoute({
-              route: BusterRoutes.APP_DASHBOARD_ID,
-              dashboardId: fileId
-            });
-          }
-        }
-      }
+      return assetParamsToRoute({
+        chatId,
+        assetId: fileId,
+        type: fileType,
+        versionNumber,
+        secondaryView: useVersionHistoryMode ? 'version-history' : undefined
+      });
     }
   );
 

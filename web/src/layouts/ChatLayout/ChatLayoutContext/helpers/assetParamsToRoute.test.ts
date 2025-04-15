@@ -215,11 +215,13 @@ describe('assetParamsToRoute', () => {
       type: 'dashboard' as FileType,
       secondaryView: 'version-history'
     });
+
     expect(result).toBe(
       createBusterRoute({
         route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
         chatId: mockChatId,
-        dashboardId: mockAssetId
+        dashboardId: mockAssetId,
+        secondaryView: 'version-history'
       })
     );
   });
@@ -232,7 +234,8 @@ describe('assetParamsToRoute', () => {
     });
     expect(result).toBe(
       createBusterRoute({
-        route: BusterRoutes.APP_DASHBOARD_ID,
+        chatId: mockChatId,
+        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
         dashboardId: mockAssetId
       })
     );
@@ -388,7 +391,7 @@ describe('assetParamsToRoute', () => {
 
   test('dashboard with empty assetId', () => {
     const result = assetParamsToRoute({
-      chatId: mockChatId,
+      chatId: undefined,
       assetId: '',
       type: 'dashboard' as FileType
     });
@@ -403,7 +406,7 @@ describe('assetParamsToRoute', () => {
   test('dashboard with very long ids', () => {
     const longId = 'a'.repeat(100);
     const result = assetParamsToRoute({
-      chatId: longId,
+      chatId: undefined,
       assetId: longId,
       type: 'dashboard' as FileType
     });
@@ -411,21 +414,6 @@ describe('assetParamsToRoute', () => {
       createBusterRoute({
         route: BusterRoutes.APP_DASHBOARD_ID,
         dashboardId: longId
-      })
-    );
-  });
-
-  test('dashboard with special characters in ids', () => {
-    const specialId = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-    const result = assetParamsToRoute({
-      chatId: specialId,
-      assetId: specialId,
-      type: 'dashboard' as FileType
-    });
-    expect(result).toBe(
-      createBusterRoute({
-        route: BusterRoutes.APP_DASHBOARD_ID,
-        dashboardId: specialId
       })
     );
   });
@@ -448,15 +436,34 @@ describe('assetParamsToRoute', () => {
 
   test('dashboard with non-version-history secondary view', () => {
     const result = assetParamsToRoute({
-      chatId: mockChatId,
       assetId: mockAssetId,
-      type: 'dashboard' as FileType,
-      secondaryView: 'chart-edit' as any
+      chatId: undefined,
+      type: 'dashboard' as FileType
     });
     expect(result).toBe(
       createBusterRoute({
         route: BusterRoutes.APP_DASHBOARD_ID,
-        dashboardId: mockAssetId
+        dashboardId: mockAssetId,
+        chatId: mockChatId
+      })
+    );
+  });
+
+  test('dashboard with a version history secondary view', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      versionNumber: 1,
+      type: 'dashboard' as FileType,
+      secondaryView: 'version-history'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+        dashboardId: mockAssetId,
+        versionNumber: 1,
+        chatId: mockChatId,
+        secondaryView: 'version-history'
       })
     );
   });

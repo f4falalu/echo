@@ -23,8 +23,6 @@ export const pathNameToRoute = (pathName: string, params: any): BusterRoutes => 
     [BusterRoutes.APP_TERMS_ID]: BusterRoutes.APP_TERMS,
     [BusterRoutes.APP_METRIC_ID_VERSION_HISTORY_NUMBER]:
       BusterRoutes.APP_METRIC_ID_VERSION_HISTORY_NUMBER,
-    [BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_HISTORY_NUMBER]:
-      BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_HISTORY_NUMBER,
     [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_HISTORY_NUMBER]:
       BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_HISTORY_NUMBER
   };

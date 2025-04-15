@@ -49,8 +49,7 @@ export const useAppLayout = () => {
     }
   );
 
-  //TODO: make this typesafe...
-  const onChangeQueryParams = useMemoizedFn((params: Record<string, string | null>) => {
+  const createQueryParams = useMemoizedFn((params: Record<string, string | null>) => {
     const searchParams = window.location.search;
     const newSearchParams = new URLSearchParams(searchParams);
     Object.entries(params).forEach(([key, value]) => {
@@ -61,14 +60,20 @@ export const useAppLayout = () => {
       }
     });
     const newPath = `${pathname}?${newSearchParams.toString()}`;
-    push(newPath);
+    return newPath;
+  });
+
+  //TODO: make this typesafe...
+  const onChangeQueryParams = useMemoizedFn((params: Record<string, string | null>) => {
+    push(createQueryParams(params));
   });
 
   return {
     currentRoute,
     onChangePage,
     currentParentRoute,
-    onChangeQueryParams
+    onChangeQueryParams,
+    createQueryParams
   };
 };
 

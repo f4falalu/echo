@@ -15,6 +15,7 @@ import { useChatLayoutContextSelector } from '../ChatLayoutContext';
 import { usePrevious } from '@/hooks';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { assetParamsToRoute } from '../ChatLayoutContext/helpers';
+import { useGetInitialChatFile } from './useGetInitialChatFile';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
@@ -36,6 +37,8 @@ export const useAutoChangeLayout = ({
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
   const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
   const isCompletedStream = useGetChatMessage(lastMessageId, (x) => x?.isCompletedStream);
+
+  const getInitialChatFileHref = useGetInitialChatFile();
 
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const previousLastMessageId = useRef<string | null>(null);
@@ -107,105 +110,18 @@ export const useAutoChangeLayout = ({
         return;
       }
 
-      const chat = getChatMemoized(chatId);
+      const href = getInitialChatFileHref({
+        metricId,
+        dashboardId,
+        messageId,
+        chatId,
+        secondaryView,
+        dashboardVersionNumber,
+        metricVersionNumber
+      });
 
-      //reasoning_message_mode
-      if (messageId) {
-        const messageExists = !!chat?.message_ids.some((id) => id === messageId);
-        if (messageExists) {
-          return;
-        } else {
-          onChangePage(
-            createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID,
-              chatId
-            })
-          );
-        }
-      }
-
-      //dashboard_mode
-      if (dashboardId) {
-        if (!dashboardVersionNumber) {
-          const lastMatchingDashboardInChat = chat?.message_ids.reduce<
-            BusterChatResponseMessage_file | undefined
-          >((acc, chatMessageId) => {
-            const chatMessage = getChatMessageMemoized(chatMessageId);
-
-            chatMessage?.response_message_ids.forEach((responseMessageId) => {
-              const message = chatMessage?.response_messages[responseMessageId]!;
-              const isFile =
-                message.type === 'file' &&
-                message.file_type === 'dashboard' &&
-                message.id === dashboardId;
-
-              if (isFile) {
-                acc = message;
-              }
-            });
-
-            return acc;
-          }, undefined);
-
-          if (lastMatchingDashboardInChat) {
-            onChangePage(
-              createBusterRoute({
-                route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
-                dashboardId: lastMatchingDashboardInChat.id,
-                versionNumber: lastMatchingDashboardInChat.version_number,
-                chatId
-              })
-            );
-          }
-        } else {
-          return;
-        }
-      }
-
-      //metric_mode
-      if (metricId) {
-        if (!metricVersionNumber) {
-          const lastMatchingMetricInChat = chat?.message_ids.reduce<
-            BusterChatResponseMessage_file | undefined
-          >((acc, chatMessageId) => {
-            const chatMessage = getChatMessageMemoized(chatMessageId);
-
-            chatMessage?.response_message_ids.forEach((responseMessageId) => {
-              const message = chatMessage?.response_messages[responseMessageId]!;
-              const isFile =
-                message.type === 'file' &&
-                message.file_type === 'metric' &&
-                message.id === metricId;
-
-              if (isFile) {
-                acc = message;
-              }
-            });
-
-            return acc;
-          }, undefined);
-
-          if (lastMatchingMetricInChat) {
-            const route = assetParamsToRoute({
-              chatId,
-              assetId: metricId,
-              type: 'metric',
-              secondaryView,
-              versionNumber: lastMatchingMetricInChat.version_number
-            });
-
-            onChangePage(
-              createBusterRoute({
-                route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
-                metricId,
-                versionNumber: lastMatchingMetricInChat.version_number,
-                chatId
-              })
-            );
-          }
-        } else {
-          return;
-        }
+      if (href) {
+        onChangePage(href);
       }
     }
   }, [isCompletedStream, hasReasoning, lastMessageId]);

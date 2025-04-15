@@ -193,7 +193,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
 
 const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
-  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
+
   const { data } = useGetMetric(
     { id: metricId },
     {
@@ -204,23 +204,6 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
     }
   );
   const { versions = [], version_number } = data || {};
-
-  const createRoute = useMemoizedFn((versionNumber: number) => {
-    if (chatId) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_HISTORY_NUMBER,
-        chatId,
-        metricId,
-        versionNumber
-      });
-    }
-
-    return createBusterRoute({
-      route: BusterRoutes.APP_METRIC_ID_VERSION_HISTORY_NUMBER,
-      metricId,
-      versionNumber
-    });
-  });
 
   const versionHistoryItems: DropdownItems = useListVersionDropdownItems({
     versions,

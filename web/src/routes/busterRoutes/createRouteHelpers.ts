@@ -18,7 +18,7 @@ export const createBusterRoute = ({ route, ...args }: BusterRoutesWithArgsRoute)
   // Handle query parameters
   const queryParams = queryTemplate
     .split('&')
-    .map((param) => {
+    .map((param: string) => {
       const [key, value] = param.split('=');
       return value.startsWith(':')
         ? (args as Record<string, string | undefined>)[value.slice(1)]

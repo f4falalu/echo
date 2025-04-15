@@ -189,22 +189,6 @@ export const useLayoutConfig = ({
     });
   }, [metricId, secondaryView, dashboardId, currentRoute]);
 
-  useEffect(() => {
-    if (
-      isVersionHistoryMode &&
-      selectedFileId &&
-      (selectedFileType === 'metric' || selectedFileType === 'dashboard')
-    ) {
-      alert('TODO!');
-      // const fileView = selectedFileType === 'metric' ? 'chart' : 'dashboard';
-      // onSetFileView({
-      //   fileId: selectedFileId,
-      //   fileView,
-      //   secondaryView: 'version-history'
-      // });
-    }
-  }, [isVersionHistoryMode, selectedFileId]);
-
   return useMemo(
     () => ({
       selectedLayout,

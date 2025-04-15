@@ -94,25 +94,29 @@ const createMetricRoute = ({
 const createDashboardRoute = ({
   dashboardId,
   chatId,
-  secondaryView
+  secondaryView,
+  versionNumber
 }: {
   dashboardId: string;
   chatId?: string;
   secondaryView?: DashboardFileViewSecondary;
+  versionNumber?: number;
 }) => {
   if (chatId) {
-    if (secondaryView === 'version-history') {
-      return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
-        chatId,
-        dashboardId
-      });
-    }
+    return createBusterRoute({
+      route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+      chatId,
+      dashboardId,
+      versionNumber,
+      secondaryView
+    });
   }
 
   return createBusterRoute({
     route: BusterRoutes.APP_DASHBOARD_ID,
-    dashboardId
+    dashboardId,
+    versionNumber,
+    secondaryView
   });
 };
 
@@ -136,6 +140,7 @@ export const assetParamsToRoute = ({
     return createDashboardRoute({
       dashboardId: assetId,
       chatId,
+      versionNumber,
       secondaryView: secondaryView as DashboardFileViewSecondary
     });
   }

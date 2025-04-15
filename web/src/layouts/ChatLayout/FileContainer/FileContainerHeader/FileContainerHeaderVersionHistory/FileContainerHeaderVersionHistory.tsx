@@ -5,7 +5,7 @@ import { ArrowLeft } from '@/components/ui/icons';
 import React from 'react';
 import { useCloseVersionHistory } from './useCloseVersionHistory';
 import { VersionHistoryHeaderButtons } from './VersionHistoryHeaderButtons';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
+import Link from 'next/link';
 
 export const FileContainerHeaderVersionHistory = React.memo(() => {
   return (
@@ -19,24 +19,15 @@ export const FileContainerHeaderVersionHistory = React.memo(() => {
 FileContainerHeaderVersionHistory.displayName = 'FileContainerHeaderVersionHistory';
 
 const ExitVersionHistoryButton = React.memo(({}: {}) => {
-  const onCloseVersionHistory = useCloseVersionHistory();
-  const { selectedFile } = useChatLayoutContextSelector((x) => x);
-  const chatId = useChatLayoutContextSelector((x) => x.chatId);
+  const { href } = useCloseVersionHistory();
 
   return (
-    <Button
-      variant="link"
-      prefix={<ArrowLeft />}
-      onClick={() =>
-        selectedFile?.type &&
-        onCloseVersionHistory({
-          assetId: selectedFile?.id,
-          type: selectedFile?.type as 'metric' | 'dashboard',
-          chatId
-        })
-      }>
-      Exit version history
-    </Button>
+    <Link href={href} prefetch>
+      <Button variant="link" prefix={<ArrowLeft />}>
+        Exit version history
+      </Button>
+    </Link>
   );
 });
+
 ExitVersionHistoryButton.displayName = 'ExitVersionHistoryButton';

@@ -17,8 +17,7 @@ export const useListVersionHistories = ({
   assetId: string;
   type: 'metric' | 'dashboard';
 }) => {
-  const chatId = useChatLayoutContextSelector((x) => x.chatId);
-  const onCloseVersionHistory = useCloseVersionHistory();
+  const { onCloseVersionHistory } = useCloseVersionHistory();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const {
     dashboardVersions,
@@ -43,7 +42,7 @@ export const useListVersionHistories = ({
 
   const listItems = useMemo(() => {
     const items = type === 'metric' ? metricVersions : dashboardVersions;
-    return items ? [...items].reverse() : undefined;
+    return items ? [...items].reverse() : [];
   }, [type, dashboardVersions, metricVersions]);
 
   const currentVersionNumber = useMemo(() => {
@@ -79,7 +78,7 @@ export const useListVersionHistories = ({
         }
       }
 
-      onCloseVersionHistory({ assetId, type, chatId });
+      onCloseVersionHistory();
     }
   );
 
@@ -171,10 +170,9 @@ const useListMetricVersions = ({
 
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
 
-  const { data: metricData } = useGetMetric(
+  const { data: metric, isFetched } = useGetMetric(
     {
-      id: type === 'metric' ? assetId : undefined,
-      versionNumber: null
+      id: type === 'metric' ? assetId : undefined
     },
     {
       select: (x) => ({
@@ -183,8 +181,8 @@ const useListMetricVersions = ({
       })
     }
   );
-  const metricVersions = metricData?.versions;
-  const currentVersionNumber = metricVersionNumber || metricData?.version_number;
+  const metricVersions = metric?.versions;
+  const currentVersionNumber = metricVersionNumber || metric?.version_number;
 
   const onRestoreVersion = useMemoizedFn(async (versionNumber: number) => {
     await updateMetric({

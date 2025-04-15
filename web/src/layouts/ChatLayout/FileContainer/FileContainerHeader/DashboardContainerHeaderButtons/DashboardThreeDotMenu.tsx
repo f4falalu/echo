@@ -38,6 +38,8 @@ import { useDashboardContentStore } from '@/context/Dashboards';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
+import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
+import { D } from 'node_modules/@tanstack/react-query-devtools/build/modern/ReactQueryDevtools-Cn7cKi7o';
 
 export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });
@@ -88,7 +90,13 @@ export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId:
   );
 
   return (
-    <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
+    <Dropdown
+      items={items}
+      selectType="single"
+      side="bottom"
+      align="end"
+      contentClassName="max-h-fit"
+      modal>
       <Button prefix={<Dots />} variant="ghost" />
     </Dropdown>
   );
@@ -96,44 +104,27 @@ export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId:
 DashboardThreeDotMenu.displayName = 'ThreeDotMenuButton';
 
 const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) => {
+  const chatId = useChatLayoutContextSelector((x) => x.chatId);
+
   const { data } = useGetDashboard(
     { id: dashboardId },
     {
       select: (x) => ({
-        versions: x?.versions || [],
-        version_number: x?.dashboard?.version_number
+        versions: x.versions,
+        version_number: x.dashboard?.version_number
       })
     }
   );
-  const { versions, version_number } = data || {};
-  const chatId = useChatLayoutContextSelector((x) => x.chatId);
-  const onChangePage = useAppLayoutContextSelector((s) => s.onChangePage);
+  const { versions = [], version_number } = data || {};
 
-  const createRouteWithQueryParams = useMemoizedFn((versionNumber: number) => {
-    if (chatId) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_HISTORY_NUMBER,
-        chatId,
-        dashboardId,
-        versionNumber
-      });
-    }
-
-    return createBusterRoute({
-      route: BusterRoutes.APP_DASHBOARD_ID_VERSION_HISTORY_NUMBER,
-      dashboardId,
-      versionNumber
-    });
+  const versionHistoryItems: DropdownItems = useListVersionDropdownItems({
+    versions,
+    selectedVersion: version_number,
+    chatId,
+    fileId: dashboardId,
+    fileType: 'dashboard',
+    useVersionHistoryMode: true
   });
-  const versionHistoryItems: DropdownItems = useMemo(() => {
-    return [...(versions || [])].reverse().map((x) => ({
-      label: `Version ${x.version_number}`,
-      secondaryLabel: timeFromNow(x.updated_at, false),
-      value: x.version_number.toString(),
-      selected: x.version_number === version_number,
-      onClick: () => onChangePage(createRouteWithQueryParams(x.version_number))
-    }));
-  }, [versions, version_number, createRouteWithQueryParams, onChangePage]);
 
   return useMemo(
     () => ({

@@ -1,37 +1,34 @@
-import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from '@/hooks';
+import { useGetInitialChatFile } from '@/layouts/ChatLayout/ChatContext/useGetInitialChatFile';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
-import { timeout } from '@/lib';
-import { useTransition } from 'react';
+import { useMemo } from 'react';
 
 export const useCloseVersionHistory = () => {
-  const [isPending, startTransition] = useTransition();
-  const { getFileLink } = useGetFileLink();
-  const closeSecondaryView = useChatLayoutContextSelector((x) => x.closeSecondaryView);
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const onCloseVersionHistory = useMemoizedFn(
-    async ({
-      assetId,
-      type,
-      chatId
-    }: {
-      assetId: string;
-      type: 'metric' | 'dashboard';
-      chatId: string | undefined;
-    }) => {
-      closeSecondaryView();
-      await timeout(chatId ? 250 : 0); //wait for the secondary view to close
-      startTransition(() => {
-        const link = getFileLink({
-          fileId: assetId,
-          fileType: type,
-          chatId
-        });
-        if (link) onChangePage(link);
-      });
-    }
-  );
+  const chatId = useChatLayoutContextSelector((x) => x.chatId);
+  const metricId = useChatLayoutContextSelector((x) => x.metricId);
+  const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
+  const messageId = useChatLayoutContextSelector((x) => x.messageId);
+  const getInitialChatFileHref = useGetInitialChatFile();
 
-  return onCloseVersionHistory;
+  const href = useMemo(() => {
+    return (
+      getInitialChatFileHref({
+        metricId,
+        dashboardId,
+        chatId: chatId!,
+        secondaryView: null,
+        dashboardVersionNumber: undefined,
+        metricVersionNumber: undefined,
+        messageId
+      }) || ''
+    );
+  }, [chatId, messageId, metricId, dashboardId]);
+
+  const onCloseVersionHistory = useMemoizedFn(() => {
+    onChangePage(href);
+  });
+
+  return { href, onCloseVersionHistory };
 };
