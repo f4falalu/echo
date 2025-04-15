@@ -5,6 +5,7 @@ import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { RustApiError } from '@/api/buster_rest/errors';
 import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
+import { useGetCollection } from '@/api/buster_rest/collections';
 
 interface BaseGetAssetProps {
   assetId: string;
@@ -20,7 +21,11 @@ interface DashboardAssetProps extends BaseGetAssetProps {
   versionNumber?: number;
 }
 
-type UseGetAssetProps = MetricAssetProps | DashboardAssetProps;
+interface CollectionAssetProps extends BaseGetAssetProps {
+  type: 'collection';
+}
+
+type UseGetAssetProps = MetricAssetProps | DashboardAssetProps | CollectionAssetProps;
 
 type UseGetAssetReturn<T extends UseGetAssetProps> = {
   isFetched: boolean;
@@ -82,8 +87,23 @@ export const useGetAsset = (props: UseGetAssetProps): UseGetAssetReturn<typeof p
     versionNumber
   });
 
+  //collection
+  const {
+    isFetched: isFetchedCollection,
+    error: errorCollection,
+    isError: isErrorCollection
+  } = useGetCollection(props.type === 'collection' ? props.assetId : undefined);
+
+  const error = useMemo(() => {
+    if (props.type === 'metric') return errorMetric;
+    if (props.type === 'dashboard') return errorDashboard;
+    if (props.type === 'collection') return errorCollection;
+
+    return null;
+  }, [props.type, errorMetric, errorDashboard, errorCollection]);
+
   const { hasAccess, passwordRequired, isPublic } = getAssetAccess({
-    error: props.type === 'metric' ? errorMetric : errorDashboard
+    error
   });
 
   if (props.type === 'metric') {
@@ -94,6 +114,17 @@ export const useGetAsset = (props: UseGetAssetProps): UseGetAssetReturn<typeof p
       passwordRequired,
       isPublic,
       showLoader: !isFetchedMetricData && !errorMetric && !isFetchedMetric
+    };
+  }
+
+  if (props.type === 'collection') {
+    return {
+      isFetched: isFetchedCollection,
+      error: errorCollection,
+      hasAccess,
+      passwordRequired,
+      isPublic,
+      showLoader: !isFetchedCollection && !errorCollection
     };
   }
 

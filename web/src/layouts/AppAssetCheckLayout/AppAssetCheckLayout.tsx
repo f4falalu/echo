@@ -18,7 +18,7 @@ export const AppAssetCheckLayout: React.FC<
     children: React.ReactNode;
   } & AppAssetCheckLayoutProps
 > = React.memo(({ children, type, assetId, versionNumber }) => {
-  const { hasAccess, passwordRequired, isPublic, isFetched, showLoader, error } = useGetAsset({
+  const { hasAccess, passwordRequired, isPublic, isFetched, showLoader } = useGetAsset({
     assetId,
     type,
     versionNumber
