@@ -7,169 +7,146 @@ import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useGetCollection } from '@/api/buster_rest/collections';
 
+type AssetType = 'metric' | 'dashboard' | 'collection';
+
 interface BaseGetAssetProps {
   assetId: string;
-}
-
-interface MetricAssetProps extends BaseGetAssetProps {
-  type: 'metric';
+  type: AssetType;
   versionNumber?: number;
 }
 
-interface DashboardAssetProps extends BaseGetAssetProps {
-  type: 'dashboard';
-  versionNumber?: number;
-}
+type UseGetAssetProps = BaseGetAssetProps;
 
-interface CollectionAssetProps extends BaseGetAssetProps {
-  type: 'collection';
-}
-
-type UseGetAssetProps = MetricAssetProps | DashboardAssetProps | CollectionAssetProps;
-
-type UseGetAssetReturn<T extends UseGetAssetProps> = {
-  isFetched: boolean;
-  error: RustApiError | null;
+interface AssetAccess {
   hasAccess: boolean;
   passwordRequired: boolean;
   isPublic: boolean;
-  showLoader: boolean;
+}
+
+interface AssetQueryResult {
+  isFetched: boolean;
+  error: RustApiError | null;
+  isError?: boolean;
+  showLoader?: boolean;
+}
+
+const getAssetAccess = (error: RustApiError | null): AssetAccess => {
+  if (!error) {
+    return { hasAccess: true, passwordRequired: false, isPublic: false };
+  }
+
+  if (error.status === 418) {
+    return { hasAccess: false, passwordRequired: true, isPublic: true };
+  }
+
+  return { hasAccess: false, passwordRequired: false, isPublic: false };
 };
 
-export const useGetAsset = (props: UseGetAssetProps): UseGetAssetReturn<typeof props> => {
+const useVersionNumber = (props: UseGetAssetProps) => {
   const searchParams = useSearchParams();
   const metricVersionNumber = searchParams.get('metric_version_number');
   const dashboardVersionNumber = searchParams.get('dashboard_version_number');
 
-  const queryParamVersionNumber: number | undefined = useMemo(() => {
-    if (props.type === 'metric' && metricVersionNumber) {
-      return parseInt(metricVersionNumber);
-    }
-    if (props.type === 'dashboard' && dashboardVersionNumber) {
-      return parseInt(dashboardVersionNumber);
-    }
-    return undefined;
-  }, [props.type, metricVersionNumber, dashboardVersionNumber]);
+  return useMemo(() => {
+    if (props.versionNumber) return props.versionNumber;
 
-  const versionNumber: number | undefined = useMemo(() => {
-    if (props.type === 'metric') {
-      if (props.versionNumber) return props.versionNumber;
-      if (queryParamVersionNumber) return queryParamVersionNumber;
-    }
-    if (props.type === 'dashboard') {
-      if (props.versionNumber) return props.versionNumber;
-      if (queryParamVersionNumber) return queryParamVersionNumber;
-    }
-    return undefined;
-  }, [props, queryParamVersionNumber]);
+    const queryVersion =
+      props.type === 'metric'
+        ? metricVersionNumber
+        : props.type === 'dashboard'
+          ? dashboardVersionNumber
+          : null;
 
-  //metric
-  const { error: errorMetric, isFetched: isFetchedMetric } = useGetMetric(
+    return queryVersion ? parseInt(queryVersion) : undefined;
+  }, [props.type, props.versionNumber, metricVersionNumber, dashboardVersionNumber]);
+};
+
+export const useGetAsset = (props: UseGetAssetProps) => {
+  const versionNumber = useVersionNumber(props);
+  const isMetric = props.type === 'metric';
+  const isDashboard = props.type === 'dashboard';
+  const isCollection = props.type === 'collection';
+
+  // Always call hooks at the top level with appropriate enabled flags
+  const { error: metricError, isFetched: metricIsFetched } = useGetMetric(
     {
-      id: props.type === 'metric' ? props.assetId : undefined,
+      id: isMetric ? props.assetId : undefined,
       versionNumber
     },
-    { enabled: props.type === 'metric' && !!props.assetId }
+    { enabled: isMetric }
   );
 
-  const { isFetched: isFetchedMetricData } = useGetMetricData({
-    id: props.assetId,
+  const { isFetched: metricDataIsFetched } = useGetMetricData({
+    id: isMetric ? props.assetId : undefined,
     versionNumber
   });
 
-  //dashboard
   const {
-    isFetched: isFetchedDashboard,
-    error: errorDashboard,
-    isError: isErrorDashboard
-  } = useGetDashboard({
-    id: props.type === 'dashboard' ? props.assetId : undefined,
-    versionNumber
-  });
+    isFetched: dashboardIsFetched,
+    error: dashboardError,
+    isError: dashboardIsError
+  } = useGetDashboard(
+    {
+      id: isDashboard ? props.assetId : undefined,
+      versionNumber
+    },
+    { enabled: isDashboard }
+  );
 
-  //collection
   const {
-    isFetched: isFetchedCollection,
-    error: errorCollection,
-    isError: isErrorCollection
-  } = useGetCollection(props.type === 'collection' ? props.assetId : undefined);
+    isFetched: collectionIsFetched,
+    error: collectionError,
+    isError: collectionIsError
+  } = useGetCollection(isCollection ? props.assetId : undefined);
 
-  const error = useMemo(() => {
-    if (props.type === 'metric') return errorMetric;
-    if (props.type === 'dashboard') return errorDashboard;
-    if (props.type === 'collection') return errorCollection;
+  const currentQuery = useMemo((): AssetQueryResult => {
+    switch (props.type) {
+      case 'metric':
+        return {
+          isFetched: metricIsFetched,
+          error: metricError,
+          isError: !!metricError,
+          showLoader: !metricDataIsFetched && !metricError && !metricIsFetched
+        };
+      case 'dashboard':
+        return {
+          isFetched: dashboardIsFetched,
+          error: dashboardError,
+          isError: dashboardIsError,
+          showLoader: !dashboardIsFetched && !dashboardIsError
+        };
+      case 'collection':
+        return {
+          isFetched: collectionIsFetched,
+          error: collectionError,
+          isError: collectionIsError,
+          showLoader: !collectionIsFetched && !collectionIsError
+        };
+      default:
+        const exhaustiveCheck: never = props.type;
+        return { isFetched: false, error: null, isError: false, showLoader: false };
+    }
+  }, [
+    props.type,
+    metricIsFetched,
+    metricError,
+    metricDataIsFetched,
+    dashboardIsFetched,
+    dashboardError,
+    dashboardIsError,
+    collectionIsFetched,
+    collectionError,
+    collectionIsError
+  ]);
 
-    return null;
-  }, [props.type, errorMetric, errorDashboard, errorCollection]);
-
-  const { hasAccess, passwordRequired, isPublic } = getAssetAccess({
-    error
-  });
-
-  if (props.type === 'metric') {
-    return {
-      isFetched: isFetchedMetric,
-      error: errorMetric,
-      hasAccess,
-      passwordRequired,
-      isPublic,
-      showLoader: !isFetchedMetricData && !errorMetric && !isFetchedMetric
-    };
-  }
-
-  if (props.type === 'collection') {
-    return {
-      isFetched: isFetchedCollection,
-      error: errorCollection,
-      hasAccess,
-      passwordRequired,
-      isPublic,
-      showLoader: !isFetchedCollection && !errorCollection
-    };
-  }
-
-  const exhaustiveCheck: 'dashboard' = props.type;
+  const { hasAccess, passwordRequired, isPublic } = getAssetAccess(currentQuery.error);
 
   return {
-    isFetched: isFetchedDashboard,
-    error: errorDashboard,
+    isFetched: currentQuery.isFetched,
+    error: currentQuery.error,
     hasAccess,
     passwordRequired,
     isPublic,
-    showLoader: !isFetchedDashboard && !isErrorDashboard
-  };
-};
-
-const getAssetAccess = ({
-  error
-}: {
-  error: RustApiError | null;
-}): {
-  hasAccess: boolean;
-  passwordRequired: boolean;
-  isPublic: boolean;
-} => {
-  if (!error) {
-    return {
-      hasAccess: true,
-      passwordRequired: false,
-      isPublic: false
-    };
-  }
-
-  const status = error?.status;
-
-  if (status === 418) {
-    return {
-      hasAccess: false,
-      passwordRequired: true,
-      isPublic: true
-    };
-  }
-
-  return {
-    hasAccess: false,
-    passwordRequired: false,
-    isPublic: false
+    showLoader: currentQuery.showLoader
   };
 };

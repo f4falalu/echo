@@ -1,4 +1,5 @@
 import { CollectionIndividualController } from '@/controllers/CollectionIndividualController';
+import { AppAssetCheckLayout } from '@/layouts/AppAssetCheckLayout';
 
 export default async function CollectionIdPage(props: {
   params: Promise<{ collectionId: string }>;
@@ -6,5 +7,9 @@ export default async function CollectionIdPage(props: {
   const params = await props.params;
   const { collectionId } = params;
 
-  return <CollectionIndividualController collectionId={collectionId} />;
+  return (
+    <AppAssetCheckLayout assetId={collectionId} type="collection">
+      <CollectionIndividualController collectionId={collectionId} />
+    </AppAssetCheckLayout>
+  );
 }

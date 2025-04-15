@@ -9,7 +9,7 @@ import { FileIndeterminateLoader } from '@/components/features/FileIndeterminate
 
 export type AppAssetCheckLayoutProps = {
   assetId: string;
-  type: 'metric' | 'dashboard';
+  type: 'metric' | 'dashboard' | 'collection';
   versionNumber?: number;
 };
 
