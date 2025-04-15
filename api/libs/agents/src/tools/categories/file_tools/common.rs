@@ -246,6 +246,7 @@ definitions:
         type: array
         items:
           type: string
+        description: Default color palette for the chart. Use this parameter when the user asks about customizing chart colors, unless specified otherwise.
       showLegend:
         type: boolean
       gridLines:
