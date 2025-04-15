@@ -139,9 +139,11 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 #
 # RULES:
 # 1. All arrays should follow the YML array syntax using `-` not `[` and `]`
-# 2. Do not use quotes for ANY string fields, including names, descriptions, UUIDs, etc.
-# 3. Avoid special characters in all string fields except within the SQL query
-# 4. All fields must use standard YAML syntax - strings without quotes, arrays with `-`
+# 2. String values generally should NOT use quotes unless they contain special characters (like :, {, }, [, ], ,, &, *, #, ?, |, -, <, >, =, !, %, @, `) or start/end with whitespace.
+# 3. If a string contains special characters or needs to preserve leading/trailing whitespace, enclose it in double quotes (`"`). Example: `name: "My: Special Metric"`
+# 4. Avoid special characters in names and descriptions where possible, but if needed, use quotes as described in rule 3. UUIDs should NEVER be quoted.
+# 5. All fields must use standard YAML syntax. Arrays use `-`, strings follow quoting rules above.
+# 6. The SQL query MUST use the pipe `|` block scalar style to preserve formatting and newlines.
 # -------------------------------------
 
 type: object
@@ -568,11 +570,11 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 # 3. columnSizes is required and must specify the width for each item
 # 4. Sum of columnSizes in a row must be exactly 12
 # 5. Each column size must be at least 3
-# 6. All arrays should follow the YML array syntax using `-`
-# 7. All arrays should NOT USE `[]` formatting.
-# 8. Don't use comments. The ones in the example are just for explanation
-# 9. Do NOT use quotes for ANY string values, including names, descriptions and UUIDs
-# 10. Avoid special characters in all fields
+# 6. All arrays should follow the YML array syntax using `-` and should NOT USE `[]` formatting.
+# 7. Don't use comments. The ones in the example are just for explanation
+# 8. String values generally should NOT use quotes unless they contain special characters (like :, {, }, [, ], ,, &, *, #, ?, |, -, <, >, =, !, %, @, `) or start/end with whitespace.
+# 9. If a string contains special characters or needs to preserve leading/trailing whitespace, enclose it in double quotes (`"`). Example: `name: "Sales & Marketing Dashboard"`
+# 10. Avoid special characters in names and descriptions where possible, but if needed, use quotes as described in rule 9. UUIDs should NEVER be quoted.
 # ----------------------------------------
 
 type: object
