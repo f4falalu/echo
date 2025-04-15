@@ -49,6 +49,7 @@ export const useAppLayout = () => {
     }
   );
 
+  //TODO: make this typesafe...
   const onChangeQueryParams = useMemoizedFn((params: Record<string, string | null>) => {
     const searchParams = window.location.search;
     const newSearchParams = new URLSearchParams(searchParams);

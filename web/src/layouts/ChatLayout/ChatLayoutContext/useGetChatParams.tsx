@@ -1,13 +1,9 @@
 'use client';
 
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import {
-  useParams,
-  usePathname,
-  useSearchParams,
-  useSelectedLayoutSegments
-} from 'next/navigation';
+import { useParams, useSearchParams, useSelectedLayoutSegments } from 'next/navigation';
 import { useMemo } from 'react';
+import { FileViewSecondary } from './useLayoutConfig';
 
 export const useGetChatParams = () => {
   const {
@@ -31,6 +27,7 @@ export const useGetChatParams = () => {
   const segments = useSelectedLayoutSegments();
   const queryMetricVersionNumber = searchParams.get('metric_version_number');
   const queryDashboardVersionNumber = searchParams.get('dashboard_version_number');
+  const secondaryView = searchParams.get('secondary_view') as FileViewSecondary | undefined;
   const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
 
   const metricVersionNumber = useMemo(() => {
@@ -71,11 +68,13 @@ export const useGetChatParams = () => {
       messageId,
       metricVersionNumber,
       dashboardVersionNumber,
-      currentRoute
+      currentRoute,
+      secondaryView
     }),
     [
       chatId,
       metricId,
+      secondaryView,
       dashboardId,
       collectionId,
       datasetId,

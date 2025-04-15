@@ -5,7 +5,7 @@ import { useMemoizedFn } from '@/hooks';
 import { Popover } from '@/components/ui/popover/Popover';
 import { cn } from '@/lib/classMerge';
 import Link from 'next/link';
-import { createChatAssetRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
+import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 
 const duration = 0.25;
 
@@ -46,8 +46,8 @@ export const ReasoningMessagePills: React.FC<{
   const useAnimation = !isCompletedStream;
 
   const makeHref = useMemoizedFn((pill: Pick<BusterChatMessageReasoning_pill, 'id' | 'type'>) => {
-    const link = createChatAssetRoute({
-      chatId: chatId,
+    const link = assetParamsToRoute({
+      chatId,
       assetId: pill.id,
       type: pill.type as FileType
     });

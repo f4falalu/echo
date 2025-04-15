@@ -32,7 +32,7 @@ const FileContainerHeaderStandard: React.FC<{
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView);
   const onCollapseFileClick = useChatLayoutContextSelector((state) => state.onCollapseFileClick);
   const selectedLayout = useChatLayoutContextSelector((x) => x.selectedLayout);
-  const showCollapseButton = selectedLayout === 'both';
+  const showCollapseButton = selectedLayout === 'both' || selectedLayout === 'chat-hidden';
 
   const SelectedFileSegment = React.useMemo(
     () =>

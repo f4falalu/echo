@@ -12,8 +12,9 @@ import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
-import { useMemoizedFn, usePrevious } from '@/hooks';
+import { usePrevious } from '@/hooks';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { assetParamsToRoute } from '../ChatLayoutContext/helpers';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
@@ -30,6 +31,7 @@ export const useAutoChangeLayout = ({
   const messageId = useChatLayoutContextSelector((x) => x.messageId);
   const metricId = useChatLayoutContextSelector((x) => x.metricId);
   const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
+  const secondaryView = useChatLayoutContextSelector((x) => x.secondaryView);
   const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
   const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
@@ -184,6 +186,14 @@ export const useAutoChangeLayout = ({
           }, undefined);
 
           if (lastMatchingMetricInChat) {
+            const route = assetParamsToRoute({
+              chatId,
+              assetId: metricId,
+              type: 'metric',
+              secondaryView,
+              versionNumber: lastMatchingMetricInChat.version_number
+            });
+
             onChangePage(
               createBusterRoute({
                 route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,

@@ -54,6 +54,7 @@ export const useIsMetricReadOnly = ({
 
   return {
     isFetched,
+    isError,
     isVersionHistoryMode,
     isReadOnly,
     isViewingOldVersion

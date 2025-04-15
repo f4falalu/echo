@@ -3,6 +3,7 @@ import { BusterAuthRoutes } from './busterAuthRoutes';
 import { BusterAppRoutes } from './busterAppRoutes';
 import { BusterSettingsRoutes } from './busterSettingsRoutes';
 import { BusterRoutes } from './busterRoutes';
+import { MetricFileViewSecondary } from '@/layouts/ChatLayout';
 
 describe('createBusterRoute', () => {
   test('should return route as is when no parameters are provided', () => {
@@ -57,6 +58,42 @@ describe('createBusterRoute', () => {
     const result = createBusterRoute(input);
     expect(result).toBe('/app/datasets/dataset123/permissions/overview');
   });
+
+  test('should handle routes with query parameters', () => {
+    const input = {
+      route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+      chatId: 'chat123',
+      metricId: 'metric456',
+      secondaryView: 'chart-edit' as MetricFileViewSecondary
+    } as const;
+    const result = createBusterRoute(input);
+    expect(result).toBe('/app/chats/chat123/metrics/metric456/chart?secondary_view=chart-edit');
+
+    const input2 = {
+      route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+      chatId: 'chat123',
+      metricId: 'metric456',
+      secondaryView: 'sql-edit' as MetricFileViewSecondary
+    } as const;
+    const result2 = createBusterRoute(input2);
+    expect(result2).toBe('/app/chats/chat123/metrics/metric456/chart?secondary_view=sql-edit');
+
+    const input3 = {
+      route: BusterAppRoutes.APP_METRIC_ID_CHART,
+      metricId: 'metric456',
+      secondaryView: undefined
+    } as const;
+    const result3 = createBusterRoute(input3);
+    expect(result3).toBe('/app/metrics/metric456/chart');
+
+    const input4 = {
+      route: BusterAppRoutes.APP_METRIC_ID_CHART,
+      metricId: 'metric456',
+      secondaryView: 'chart-edit' as MetricFileViewSecondary
+    } as const;
+    const result4 = createBusterRoute(input4);
+    expect(result4).toBe('/app/metrics/metric456/chart?secondary_view=chart-edit');
+  });
 });
 
 describe('createPathnameToBusterRoute', () => {
@@ -100,5 +137,11 @@ describe('createPathnameToBusterRoute', () => {
     const pathname = '/invalid/route/path';
     const result = createPathnameToBusterRoute(pathname);
     expect(result).toEqual(BusterRoutes.ROOT);
+  });
+
+  test('should handle routes with query parameters', () => {
+    const pathname = '/app/chats/123/metrics/metric456/chart?side_panel=chart-edit';
+    const result = createPathnameToBusterRoute(pathname);
+    expect(result).toEqual(BusterAppRoutes.APP_CHAT_ID_METRIC_ID_CHART);
   });
 });

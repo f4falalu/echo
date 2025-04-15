@@ -48,6 +48,7 @@ export const useIsDashboardReadOnly = ({
     isVersionHistoryMode,
     isReadOnly,
     isViewingOldVersion,
-    isFetched
+    isFetched,
+    isError
   };
 };

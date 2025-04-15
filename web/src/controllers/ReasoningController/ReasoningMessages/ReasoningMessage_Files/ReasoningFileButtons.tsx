@@ -4,7 +4,7 @@ import { ArrowUpRight } from '@/components/ui/icons';
 import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { createChatAssetRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
+import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
 
 export const ReasoningFileButtons = React.memo(
   ({
@@ -21,11 +21,11 @@ export const ReasoningFileButtons = React.memo(
     versionNumber?: number;
   }) => {
     const href = useMemo(() => {
-      return createChatAssetRoute({
-        chatId: chatId,
-        versionNumber,
+      return assetParamsToRoute({
+        chatId,
         assetId: fileId,
-        type: fileType
+        type: fileType,
+        versionNumber
       });
     }, [chatId, fileId, fileType]);
 

@@ -12,11 +12,11 @@ import { Text } from '@/components/ui/typography';
 export const DashboardContainerHeaderSegment: React.FC<FileContainerSegmentProps> = React.memo(
   (props) => {
     const { selectedFileId } = props;
-    const { isViewingOldVersion, isFetched } = useIsDashboardReadOnly({
+    const { isViewingOldVersion, isFetched, isError } = useIsDashboardReadOnly({
       dashboardId: selectedFileId || ''
     });
 
-    if (!isFetched) return null;
+    if (!isFetched || isError) return null;
 
     if (isViewingOldVersion) {
       return <DashboardOldVersion />;

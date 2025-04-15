@@ -349,8 +349,8 @@ const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 
 const useEditChartSelectMenu = () => {
   const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
-  const editableSecondaryView: MetricFileViewSecondary = 'chart-edit';
   const onClickButton = useMemoizedFn(() => {
+    const editableSecondaryView: MetricFileViewSecondary = 'chart-edit';
     onSetFileView({ secondaryView: editableSecondaryView, fileView: 'chart' });
   });
   return useMemo(

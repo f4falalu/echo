@@ -1,7 +1,7 @@
 'use client';
 
 import { FileType } from '@/api/asset_interfaces/chat';
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './interfaces';
 import { useMemoizedFn, useUpdateEffect } from '@/hooks';
 import { create } from 'mutative';
@@ -9,7 +9,7 @@ import { ChatLayoutView } from '../../interfaces';
 import type { SelectedFile } from '../../interfaces';
 import { timeout } from '@/lib';
 import { useRouter } from 'next/navigation';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { BusterRoutes } from '@/routes';
 import { SelectedFileSecondaryRenderRecord } from '../../FileContainer/FileContainerSecondary';
 import { ChatParams } from '../useGetChatParams';
 import { initializeFileViews } from './helpers';
@@ -24,7 +24,8 @@ export const useLayoutConfig = ({
   animateOpenSplitter,
   metricId,
   dashboardId,
-  currentRoute
+  currentRoute,
+  secondaryView
 }: {
   selectedFile: SelectedFile | null;
   isVersionHistoryMode: boolean;
@@ -32,10 +33,10 @@ export const useLayoutConfig = ({
   animateOpenSplitter: (side: 'left' | 'right' | 'both') => void;
   onSetSelectedFile: (file: SelectedFile | null) => void;
 } & ChatParams) => {
-  const router = useRouter();
+  const onChangeQueryParams = useAppLayoutContextSelector((x) => x.onChangeQueryParams);
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const [fileViews, setFileViews] = useState<Record<string, FileConfig>>(
-    initializeFileViews({ metricId, dashboardId, currentRoute })
+  const [fileViews, setFileViews] = useState<Record<string, FileConfig>>(() =>
+    initializeFileViews({ secondaryView, metricId, dashboardId, currentRoute })
   );
 
   const selectedFileId = selectedFile?.id;
@@ -139,22 +140,19 @@ export const useLayoutConfig = ({
         draft[selectedFileId].fileViewConfig[selectedFileView].secondaryView = null;
       });
     });
-    await timeout(250);
+    onChangeQueryParams({
+      secondary_view: null
+    });
+    await timeout(250); //wait for the panel to close
   });
 
   const onCollapseFileClick = useMemoizedFn(async (navigateToChat: boolean = true) => {
     onSetSelectedFile(null);
+
     if (selectedFileViewSecondary) {
       await closeSecondaryView();
     }
     if (navigateToChat && chatId) {
-      router.prefetch(
-        createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID,
-          chatId
-        })
-      );
-
       onChangePage({
         route: BusterRoutes.APP_CHAT_ID,
         chatId
@@ -164,24 +162,32 @@ export const useLayoutConfig = ({
 
   const selectedLayout: ChatLayoutView = useMemo(() => {
     if (chatId) {
+      if (selectedFileViewSecondary) return 'chat-hidden';
       if (selectedFileId) return 'both';
-      return 'chat';
+      return 'chat-only';
     }
-    return 'file';
-  }, [selectedFileId, chatId]);
+    return 'file-only';
+  }, [selectedFileId, chatId, selectedFileViewSecondary]);
 
   //we need to use for when the user clicks the back or forward in the browser
   useUpdateEffect(() => {
-    const newInitialFileViews = initializeFileViews({ metricId, dashboardId, currentRoute });
+    const newInitialFileViews = initializeFileViews({
+      secondaryView,
+      metricId,
+      dashboardId,
+      currentRoute
+    });
     const fileId = Object.keys(newInitialFileViews)[0];
     const fileView = newInitialFileViews[fileId]?.selectedFileView;
-    const secondaryView = newInitialFileViews[fileId]?.fileViewConfig?.[fileView]?.secondaryView;
+    const secondaryViewFromSelected =
+      newInitialFileViews[fileId]?.fileViewConfig?.[fileView]?.secondaryView;
+
     onSetFileView({
       fileId,
       fileView,
-      secondaryView
+      secondaryView: secondaryViewFromSelected
     });
-  }, [metricId, dashboardId, currentRoute]);
+  }, [metricId, secondaryView, dashboardId, currentRoute]);
 
   useEffect(() => {
     if (
@@ -189,12 +195,13 @@ export const useLayoutConfig = ({
       selectedFileId &&
       (selectedFileType === 'metric' || selectedFileType === 'dashboard')
     ) {
-      const fileView = selectedFileType === 'metric' ? 'chart' : 'dashboard';
-      onSetFileView({
-        fileId: selectedFileId,
-        fileView,
-        secondaryView: 'version-history'
-      });
+      alert('TODO!');
+      // const fileView = selectedFileType === 'metric' ? 'chart' : 'dashboard';
+      // onSetFileView({
+      //   fileId: selectedFileId,
+      //   fileView,
+      //   secondaryView: 'version-history'
+      // });
     }
   }, [isVersionHistoryMode, selectedFileId]);
 

@@ -6,7 +6,6 @@ import { AppPasswordAccess } from '@/controllers/AppPasswordAccess';
 import { AppNoPageAccess } from '@/controllers/AppNoPageAccess';
 import { useGetAsset } from './useGetAsset';
 import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
-import { useParams, useSearchParams } from 'next/navigation';
 
 export type AppAssetCheckLayoutProps = {
   assetId: string;

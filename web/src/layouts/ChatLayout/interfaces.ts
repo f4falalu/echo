@@ -6,4 +6,4 @@ export type SelectedFile = {
   versionNumber: number | undefined; // will be undefined for reasoning files
 };
 
-export type ChatLayoutView = 'chat' | 'file' | 'both';
+export type ChatLayoutView = 'chat-only' | 'chat-hidden' | 'file-only' | 'both';

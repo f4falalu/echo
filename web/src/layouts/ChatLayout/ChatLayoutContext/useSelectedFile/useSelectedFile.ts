@@ -7,7 +7,7 @@ import { createSelectedFile } from './createSelectedFile';
 import type { useGetChatParams } from '../useGetChatParams';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { createChatAssetRoute } from '../helpers';
+import { assetParamsToRoute } from '../helpers';
 
 export const useSelectedFile = ({
   animateOpenSplitter,
@@ -34,11 +34,12 @@ export const useSelectedFile = ({
     const handleFileCollapse = shouldCloseSplitter(file, selectedFile, appSplitterRef);
 
     if (file && chatParams.chatId) {
-      const link = createChatAssetRoute({
+      const link = assetParamsToRoute({
         chatId: chatParams.chatId,
         assetId: file?.id,
         type: file?.type
       });
+
       if (link) onChangePage(link);
     }
 

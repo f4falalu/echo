@@ -20,9 +20,11 @@ export const createBusterRoute = ({ route, ...args }: BusterRoutesWithArgsRoute)
     .split('&')
     .map((param) => {
       const [key, value] = param.split('=');
-      const paramName = value.replace(':', '');
-      const paramValue = (args as Record<string, string | undefined>)[paramName];
-      return paramValue != null ? `${key}=${paramValue}` : null;
+      return value.startsWith(':')
+        ? (args as Record<string, string | undefined>)[value.slice(1)]
+          ? `${key}=${(args as Record<string, string | undefined>)[value.slice(1)]}`
+          : null
+        : `${key}=${value}`;
     })
     .filter(Boolean);
 

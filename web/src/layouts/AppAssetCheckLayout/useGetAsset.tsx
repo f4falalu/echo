@@ -93,7 +93,7 @@ export const useGetAsset = (props: UseGetAssetProps): UseGetAssetReturn<typeof p
       hasAccess,
       passwordRequired,
       isPublic,
-      showLoader: (!isFetchedMetricData || !!errorMetric) && !isFetchedMetric
+      showLoader: !isFetchedMetricData && !errorMetric && !isFetchedMetric
     };
   }
 
@@ -105,7 +105,7 @@ export const useGetAsset = (props: UseGetAssetProps): UseGetAssetReturn<typeof p
     hasAccess,
     passwordRequired,
     isPublic,
-    showLoader: !isFetchedDashboard || isErrorDashboard
+    showLoader: !isFetchedDashboard && !isErrorDashboard
   };
 };
 

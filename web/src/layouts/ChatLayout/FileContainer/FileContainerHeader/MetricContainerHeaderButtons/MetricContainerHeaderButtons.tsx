@@ -40,7 +40,7 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
       <SaveToDashboardButton metricId={metricId} />
       {isEffectiveOwner && <ShareMetricButton metricId={metricId} />}
       <ThreeDotMenuButton metricId={metricId} />
-      <HideButtonContainer show={selectedLayout === 'file'}>
+      <HideButtonContainer show={selectedLayout === 'file-only'}>
         <CreateChatButton assetId={metricId} assetType="metric" />
       </HideButtonContainer>
     </FileButtonContainer>
@@ -59,13 +59,22 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
   const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
 
   const href = useMemo(() => {
+    if (isSelectedView) {
+      return assetParamsToRoute({
+        chatId,
+        assetId: metricId,
+        type: 'metric',
+        secondaryView: null
+      });
+    }
+
     return assetParamsToRoute({
       chatId,
       assetId: metricId,
       type: 'metric',
       secondaryView: 'chart-edit'
     });
-  }, [chatId, metricId]);
+  }, [chatId, metricId, isSelectedView]);
 
   const onClickButton = useMemoizedFn(() => {
     const secondaryView = isSelectedView ? null : editableSecondaryView;
