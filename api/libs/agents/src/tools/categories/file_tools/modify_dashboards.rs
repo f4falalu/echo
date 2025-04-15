@@ -400,7 +400,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
 
 async fn get_modify_dashboards_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Updates existing dashboard configuration files with new YAML content. Provide the complete YAML content for the dashboard, replacing the entire existing file. The system will preserve version history and perform all necessary validations on the new content.".to_string();
+        return "Updates existing dashboard configuration files with new YAML content. Provide the complete YAML content for each dashboard, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple dashboards simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each dashboard, you need its UUID and the complete updated YAML content.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -408,14 +408,14 @@ async fn get_modify_dashboards_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "Updates existing dashboard configuration files with new YAML content. Provide the complete YAML content for the dashboard, replacing the entire existing file. The system will preserve version history and perform all necessary validations on the new content.".to_string()
+            "Updates existing dashboard configuration files with new YAML content. Provide the complete YAML content for each dashboard, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple dashboards simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each dashboard, you need its UUID and the complete updated YAML content.".to_string()
         }
     }
 }
 
 async fn get_modify_dashboards_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return format!("{}. When making significant changes to a dashboard, update the name to reflect these changes. If the dashboard's core topic remains the same, keep the original name.", DASHBOARD_YML_SCHEMA);
+        return format!("Array of dashboards to update. Each item requires an 'id' (UUID of the existing dashboard) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple dashboards in a single operation, making this ideal for bulk updates.\n\n{}", DASHBOARD_YML_SCHEMA);
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -423,14 +423,14 @@ async fn get_modify_dashboards_yml_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            format!("{}. When making significant changes to a dashboard, update the name to reflect these changes. If the dashboard's core topic remains the same, keep the original name.", DASHBOARD_YML_SCHEMA)
+            format!("Array of dashboards to update. Each item requires an 'id' (UUID of the existing dashboard) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple dashboards in a single operation, making this ideal for bulk updates.\n\n{}", DASHBOARD_YML_SCHEMA)
         }
     }
 }
 
 async fn get_dashboard_modification_id_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "UUID of the file to modify".to_string();
+        return "UUID of the dashboard file to update. This is a required identifier to locate the specific dashboard that needs to be modified.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -438,14 +438,14 @@ async fn get_dashboard_modification_id_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "UUID of the file to modify".to_string()
+            "UUID of the dashboard file to update. This is a required identifier to locate the specific dashboard that needs to be modified.".to_string()
         }
     }
 }
 
 async fn get_dashboard_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The complete new YAML content for the dashboard, following the dashboard schema specification. This will replace the entire existing content of the file.".to_string();
+        return "The complete new YAML content for the dashboard, following the dashboard schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema. When making significant changes to a dashboard, update the name to reflect these changes. If the dashboard's core topic remains the same, keep the original name.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -453,7 +453,7 @@ async fn get_dashboard_yml_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "The complete new YAML content for the dashboard, following the dashboard schema specification. This will replace the entire existing content of the file.".to_string()
+            "The complete new YAML content for the dashboard, following the dashboard schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema. When making significant changes to a dashboard, update the name to reflect these changes. If the dashboard's core topic remains the same, keep the original name.".to_string()
         }
     }
 }

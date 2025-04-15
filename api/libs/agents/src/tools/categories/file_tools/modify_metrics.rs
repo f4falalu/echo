@@ -407,7 +407,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
 async fn get_modify_metrics_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Updates existing metric configuration files with new YAML content. Provide the complete YAML content for the metric, replacing the entire existing file. The system will preserve version history and perform all necessary validations on the new content.".to_string();
+        return "Updates existing metric configuration files with new YAML content. Provide the complete YAML content for each metric, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple metrics simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each metric, you need its UUID and the complete updated YAML content.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -415,14 +415,14 @@ async fn get_modify_metrics_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "Updates existing metric configuration files with new YAML content. Provide the complete YAML content for the metric, replacing the entire existing file. The system will preserve version history and perform all necessary validations on the new content.".to_string()
+            "Updates existing metric configuration files with new YAML content. Provide the complete YAML content for each metric, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple metrics simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each metric, you need its UUID and the complete updated YAML content.".to_string()
         }
     }
 }
 
 async fn get_modify_metrics_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return format!("{}. Remember to update the metric name and/or time frame properties when modifying SQL to ensure they reflect the changes.", METRIC_YML_SCHEMA);
+        return format!("Array of metrics to update. Each item requires an 'id' (UUID of the existing metric) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple metrics in a single operation, making this ideal for bulk updates.\n\n{}", METRIC_YML_SCHEMA);
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -430,14 +430,14 @@ async fn get_modify_metrics_yml_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            format!("{}. Remember to update the metric name and/or time frame properties when modifying SQL to ensure they reflect the changes.", METRIC_YML_SCHEMA)
+            format!("Array of metrics to update. Each item requires an 'id' (UUID of the existing metric) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple metrics in a single operation, making this ideal for bulk updates.\n\n{}", METRIC_YML_SCHEMA)
         }
     }
 }
 
 async fn get_metric_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file.".to_string();
+        return "The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -445,14 +445,14 @@ async fn get_metric_yml_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file.".to_string()
+            "The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema.".to_string()
         }
     }
 }
 
 async fn get_metric_id_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "UUID of the file to modify".to_string();
+        return "UUID of the metric file to update. This is a required identifier to locate the specific metric that needs to be modified.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -460,7 +460,7 @@ async fn get_metric_id_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "UUID of the file to modify".to_string()
+            "UUID of the metric file to update. This is a required identifier to locate the specific metric that needs to be modified.".to_string()
         }
     }
 }
