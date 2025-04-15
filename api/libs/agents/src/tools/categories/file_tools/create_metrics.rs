@@ -218,7 +218,7 @@ impl ToolExecutor for CreateMetricFilesTool {
 
             let failures: Vec<String> = failed_files
                 .iter()
-                .map(|(name, error)| format!("Failed to create '{}': {}", name, error))
+                .map(|(name, error)| format!("Failed to create '{}': {}. Please recreate the metric from scratch rather than attempting to modify.", name, error))
                 .collect();
 
             if failures.len() == 1 {
