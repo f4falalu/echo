@@ -103,9 +103,27 @@ const createDashboardRoute = ({
   versionNumber?: number;
 }) => {
   if (chatId) {
+    if (versionNumber) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+        chatId,
+        dashboardId,
+        versionNumber,
+        secondaryView
+      });
+    }
+
     return createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+      route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
       chatId,
+      dashboardId,
+      secondaryView
+    });
+  }
+
+  if (versionNumber) {
+    return createBusterRoute({
+      route: BusterRoutes.APP_DASHBOARD_ID_VERSION_NUMBER,
       dashboardId,
       versionNumber,
       secondaryView
@@ -115,7 +133,6 @@ const createDashboardRoute = ({
   return createBusterRoute({
     route: BusterRoutes.APP_DASHBOARD_ID,
     dashboardId,
-    versionNumber,
     secondaryView
   });
 };

@@ -10,7 +10,8 @@ export enum BusterAppRoutes {
   APP_METRIC_ID_FILE = '/app/metrics/:metricId/file',
   APP_METRIC_ID_RESULTS = '/app/metrics/:metricId/results?secondary_view=:secondaryView',
   APP_DASHBOARDS = '/app/dashboards',
-  APP_DASHBOARD_ID = '/app/dashboards/:dashboardId',
+  APP_DASHBOARD_ID = '/app/dashboards/:dashboardId?secondary_view=:secondaryView',
+  APP_DASHBOARD_ID_VERSION_NUMBER = '/app/dashboards/:dashboardId?dashboard_version_number=:versionNumber&secondary_view=:secondaryView',
   APP_DASHBOARD_ID_FILE = '/app/dashboards/:dashboardId/file',
   APP_LOGS = '/app/logs',
   APP_DATASETS = '/app/datasets',
@@ -77,6 +78,7 @@ export type BusterAppRoutesWithArgs = {
   [BusterAppRoutes.APP_DASHBOARD_ID]: {
     route: BusterAppRoutes.APP_DASHBOARD_ID;
     dashboardId: string;
+    secondaryView?: DashboardFileViewSecondary;
   };
   [BusterAppRoutes.APP_DASHBOARD_ID_FILE]: {
     route: BusterAppRoutes.APP_DASHBOARD_ID_FILE;
@@ -158,6 +160,13 @@ export type BusterAppRoutesWithArgs = {
     route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID;
     chatId: string;
     dashboardId: string;
+    secondaryView?: DashboardFileViewSecondary;
+  };
+  [BusterAppRoutes.APP_DASHBOARD_ID_VERSION_NUMBER]: {
+    route: BusterAppRoutes.APP_DASHBOARD_ID_VERSION_NUMBER;
+    dashboardId: string;
+    versionNumber: number;
+    secondaryView?: DashboardFileViewSecondary;
   };
   [BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER]: {
     route: BusterAppRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER;

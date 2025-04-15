@@ -384,7 +384,8 @@ describe('assetParamsToRoute', () => {
     expect(result).toBe(
       createBusterRoute({
         route: BusterRoutes.APP_DASHBOARD_ID,
-        dashboardId: mockAssetId
+        dashboardId: mockAssetId,
+        secondaryView: 'version-history'
       })
     );
   });
@@ -443,8 +444,7 @@ describe('assetParamsToRoute', () => {
     expect(result).toBe(
       createBusterRoute({
         route: BusterRoutes.APP_DASHBOARD_ID,
-        dashboardId: mockAssetId,
-        chatId: mockChatId
+        dashboardId: mockAssetId
       })
     );
   });
