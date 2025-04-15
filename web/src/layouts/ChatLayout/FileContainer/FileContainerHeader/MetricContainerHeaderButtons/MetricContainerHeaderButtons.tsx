@@ -16,6 +16,7 @@ import { ThreeDotMenuButton } from './MetricThreeDotMenu';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import Link from 'next/link';
 import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const selectedLayout = useChatLayoutContextSelector((x) => x.selectedLayout);
@@ -53,8 +54,9 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
   const selectedFileViewSecondary = useChatLayoutContextSelector(
     (x) => x.selectedFileViewSecondary
   );
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
+  const onChangeQueryParams = useAppLayoutContextSelector((x) => x.onChangeQueryParams);
   const chatId = useChatIndividualContextSelector((x) => x.chatId);
-  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
   const editableSecondaryView: MetricFileViewSecondary = 'chart-edit';
   const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
 
@@ -77,12 +79,18 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
   }, [chatId, metricId, isSelectedView]);
 
   const onClickButton = useMemoizedFn(() => {
-    const secondaryView = isSelectedView ? null : editableSecondaryView;
-    onSetFileView({ secondaryView, fileView: 'chart' });
+    onChangePage(href, { shallow: true });
   });
 
   return (
-    <Link href={href}>
+    <Link
+      href={href}
+      shallow={true}
+      prefetch={true}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}>
       <SelectableButton
         tooltipText="Edit chart"
         icon={<SquareChartPen />}

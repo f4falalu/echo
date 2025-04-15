@@ -37,7 +37,8 @@ export const useSelectedFile = ({
       const link = assetParamsToRoute({
         chatId: chatParams.chatId,
         assetId: file?.id,
-        type: file?.type
+        type: file?.type,
+        versionNumber: file?.versionNumber
       });
 
       if (link) onChangePage(link);

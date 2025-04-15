@@ -6,7 +6,7 @@ import React, { useRef, useState } from 'react';
 import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_METADATA } from '@/api/asset_interfaces/metric';
 import { BusterChartJSLegendWrapper } from './BusterChartJSLegendWrapper';
 import { ChartJSOrUndefined } from './core/types';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { BusterChartJSComponent } from './BusterChartJSComponent';
 import type { BusterChartComponentProps } from '../interfaces';
 

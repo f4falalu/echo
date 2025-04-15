@@ -55,7 +55,8 @@ export const useChatLayoutContext = ({ appSplitterRef }: UseLayoutConfigProps) =
     ...chatParams,
     selectedFile,
     animateOpenSplitter,
-    onSetSelectedFile
+    onSetSelectedFile,
+    appSplitterRef
   });
 
   return {

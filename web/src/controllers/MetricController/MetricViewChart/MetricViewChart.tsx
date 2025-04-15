@@ -4,15 +4,12 @@ import React, { useMemo } from 'react';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
 import { useGetMetric, useGetMetricData, useUpdateMetric } from '@/api/buster_rest/metrics';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
-import { SaveResetFilePopup } from '@/components/features/popups/SaveResetFilePopup';
-import { useIsMetricChanged } from '@/context/Metrics/useIsMetricChanged';
-import { useUpdateMetricChart } from '@/context/Metrics';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 import { MetricSaveFilePopup } from './MetricSaveFilePopup';
 

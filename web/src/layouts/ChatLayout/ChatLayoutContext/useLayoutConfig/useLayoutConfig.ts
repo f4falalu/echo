@@ -1,37 +1,37 @@
 'use client';
 
 import { FileType } from '@/api/asset_interfaces/chat';
-import { useEffect, useMemo, useState } from 'react';
+import { RefObject, useMemo, useState } from 'react';
 import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './interfaces';
 import { useMemoizedFn, useUpdateEffect } from '@/hooks';
 import { create } from 'mutative';
 import { ChatLayoutView } from '../../interfaces';
 import type { SelectedFile } from '../../interfaces';
 import { timeout } from '@/lib';
-import { useRouter } from 'next/navigation';
 import { BusterRoutes } from '@/routes';
 import { SelectedFileSecondaryRenderRecord } from '../../FileContainer/FileContainerSecondary';
 import { ChatParams } from '../useGetChatParams';
 import { initializeFileViews } from './helpers';
 import { DEFAULT_FILE_VIEW } from '../helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 
 export const useLayoutConfig = ({
   selectedFile,
-  isVersionHistoryMode,
   chatId,
   onSetSelectedFile,
   animateOpenSplitter,
   metricId,
   dashboardId,
   currentRoute,
-  secondaryView
+  secondaryView,
+  appSplitterRef
 }: {
   selectedFile: SelectedFile | null;
-  isVersionHistoryMode: boolean;
   chatId: string | undefined;
   animateOpenSplitter: (side: 'left' | 'right' | 'both') => void;
   onSetSelectedFile: (file: SelectedFile | null) => void;
+  appSplitterRef: RefObject<AppSplitterRef | null>;
 } & ChatParams) => {
   const onChangeQueryParams = useAppLayoutContextSelector((x) => x.onChangeQueryParams);
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
@@ -94,7 +94,10 @@ export const useLayoutConfig = ({
 
       if (secondaryView) {
         animateOpenSplitter('right');
-        await timeout(chatId ? 250 : 0); //wait for splitter to close before opening secondary view
+
+        //if the chat is open, we need to wait for the splitter to close before opening the secondary view
+        const waitToOpen = !appSplitterRef.current?.isSideClosed('left') && chatId ? 250 : 0;
+        await timeout(waitToOpen);
       } else if (chatId) {
         animateOpenSplitter('both');
       }
@@ -140,17 +143,19 @@ export const useLayoutConfig = ({
         draft[selectedFileId].fileViewConfig[selectedFileView].secondaryView = null;
       });
     });
-    onChangeQueryParams({
-      secondary_view: null
-    });
+    onChangeQueryParams(
+      {
+        secondary_view: null
+      },
+      true
+    );
     await timeout(250); //wait for the panel to close
   });
 
   const onCollapseFileClick = useMemoizedFn(async (navigateToChat: boolean = true) => {
     onSetSelectedFile(null);
-
     if (selectedFileViewSecondary) {
-      await closeSecondaryView();
+      closeSecondaryView();
     }
     if (navigateToChat && chatId) {
       onChangePage({

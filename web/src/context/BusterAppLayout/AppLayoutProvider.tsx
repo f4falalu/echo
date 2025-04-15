@@ -15,9 +15,27 @@ export const useAppLayout = () => {
   const currentParentRoute = pathNameToParentRoute(pathname, params);
 
   const onChangePage = useMemoizedFn(
-    (params: BusterRoutesWithArgsRoute | string): Promise<void> => {
+    (
+      params: BusterRoutesWithArgsRoute | string,
+      options?: { shallow?: boolean }
+    ): Promise<void> => {
+      const targetPath = typeof params === 'string' ? params : createBusterRoute(params);
+
+      if (options?.shallow) {
+        const isSameMinusQueryParams =
+          new URL(targetPath, window.location.origin).pathname ===
+          new URL(window.location.href).pathname;
+
+        if (isSameMinusQueryParams) {
+          return new Promise((resolve) => {
+            const params = getQueryParamsFromPath(targetPath);
+            onChangeQueryParams(params, false);
+            resolve();
+          });
+        }
+      }
+
       return new Promise((resolve) => {
-        const targetPath = typeof params === 'string' ? params : createBusterRoute(params);
         const currentPath = window.location.pathname;
 
         // If we're already on the target path, resolve immediately
@@ -49,24 +67,37 @@ export const useAppLayout = () => {
     }
   );
 
-  const createQueryParams = useMemoizedFn((params: Record<string, string | null>) => {
-    const searchParams = window.location.search;
-    const newSearchParams = new URLSearchParams(searchParams);
-    Object.entries(params).forEach(([key, value]) => {
-      if (value) {
-        newSearchParams.set(key, value);
-      } else {
-        newSearchParams.delete(key);
+  const createQueryParams = useMemoizedFn(
+    (params: Record<string, string | null>, preserveExisting: boolean) => {
+      const url = new URL(window.location.href);
+      const searchParams = url.searchParams;
+
+      if (!preserveExisting) {
+        searchParams.forEach((value, key) => {
+          searchParams.delete(key);
+        });
       }
-    });
-    const newPath = `${pathname}?${newSearchParams.toString()}`;
-    return newPath;
-  });
+
+      Object.entries(params).forEach(([key, value]) => {
+        if (value) {
+          searchParams.set(key, value);
+        } else {
+          searchParams.delete(key);
+        }
+      });
+
+      url.search = searchParams.toString();
+      return url;
+    }
+  );
 
   //TODO: make this typesafe...
-  const onChangeQueryParams = useMemoizedFn((params: Record<string, string | null>) => {
-    push(createQueryParams(params));
-  });
+  const onChangeQueryParams = useMemoizedFn(
+    (params: Record<string, string | null>, preserveExisting: boolean) => {
+      const url = createQueryParams(params, preserveExisting);
+      window.history.pushState({}, '', url); //we used window.history instead of replace for true shallow routing
+    }
+  );
 
   return {
     currentRoute,
@@ -75,6 +106,15 @@ export const useAppLayout = () => {
     onChangeQueryParams,
     createQueryParams
   };
+};
+
+const getQueryParamsFromPath = (path: string): Record<string, string> => {
+  const url = new URL(path, window.location.origin);
+  const params: Record<string, string> = {};
+  url.searchParams.forEach((value, key) => {
+    params[key] = value;
+  });
+  return params;
 };
 
 const AppLayoutContext = createContext<ReturnType<typeof useAppLayout>>(

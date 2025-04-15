@@ -6,13 +6,14 @@ import React, { useMemo } from 'react';
 import { DatasetApps, DataSetAppText } from '../config';
 import { createBusterRoute, BusterRoutes } from '@/routes';
 import { useMemoizedFn } from '@/hooks';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 export const DatasetsHeaderOptions: React.FC<{
   selectedApp: DatasetApps;
   isAdmin: boolean;
   datasetId: string | undefined;
 }> = React.memo(({ datasetId, isAdmin, selectedApp }) => {
-  const { push } = useRouter();
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const optionsItems = useMemo(
     () =>
       isAdmin
@@ -32,7 +33,7 @@ export const DatasetsHeaderOptions: React.FC<{
   );
 
   const onChangeSegment = useMemoizedFn((value: SegmentedItem<DatasetApps>) => {
-    if (datasetId) push(keyToRoute(datasetId, value.value));
+    if (datasetId) onChangePage(keyToRoute(datasetId, value.value));
   });
 
   return (
