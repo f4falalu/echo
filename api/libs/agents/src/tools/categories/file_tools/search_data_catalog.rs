@@ -56,14 +56,7 @@ struct RankedDataset {
 
 #[derive(Debug, Deserialize)]
 struct LLMFilterResponse {
-    results: Vec<FilteredDataset>,
-}
-
-#[derive(Debug, Deserialize)]
-struct FilteredDataset {
-    id: String,
-    #[allow(dead_code)]
-    reason: String,
+    results: Vec<String>,
 }
 
 const LLM_FILTER_PROMPT: &str = r#"
@@ -79,15 +72,13 @@ Include datasets that have even a reasonable possibility of containing relevant 
 DATASETS:
 {datasets_json}
 
-Return a JSON response with the following structure:
+Return a JSON response containing ONLY a list of the UUIDs for the relevant datasets. The response should have the following structure:
 ```json
 {
   "results": [
-    {
-      "id": "dataset-uuid-here",
-      "reason": "Brief explanation of why this dataset's structure might be relevant"
-    },
-    // ... more potentially relevant datasets
+    "dataset-uuid-here-1",
+    "dataset-uuid-here-2"
+    // ... more potentially relevant dataset UUIDs
   ]
 }
 ```
@@ -101,7 +92,7 @@ IMPORTANT GUIDELINES:
 4. Evaluate based on whether the dataset's schema, fields, or description MIGHT contain or relate to the relevant information
 5. Include datasets that could provide contextual or supporting information
 6. When in doubt about relevance, lean towards including the dataset
-7. **CRITICAL:** The "id" field in your JSON response MUST contain ONLY the dataset's UUID string (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38"). Do NOT include the dataset name or any other information in the "id" field.
+7. **CRITICAL:** Each string in the "results" array MUST contain ONLY the dataset's UUID string (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38"). Do NOT include the dataset name or any other information.
 8. Use both the USER REQUEST and SEARCH QUERY to understand the user's information needs broadly
 9. Consider these elements in the dataset metadata:
    - Column names and their data types
@@ -509,9 +500,9 @@ async fn filter_datasets_with_llm(
     let filtered_datasets: Vec<DatasetResult> = filter_response
         .results
         .into_iter()
-        .filter_map(|result| {
-            debug!(llm_result_id = %result.id, "Processing LLM filter result");
-            let parsed_uuid_result = Uuid::parse_str(&result.id);
+        .filter_map(|dataset_id_str| {
+            debug!(llm_result_id_str = %dataset_id_str, "Processing LLM filter result ID string");
+            let parsed_uuid_result = Uuid::parse_str(&dataset_id_str);
             match &parsed_uuid_result {
                 Ok(parsed_id) => {
                     debug!(parsed_id = %parsed_id, "Successfully parsed UUID from LLM result");
@@ -532,7 +523,7 @@ async fn filter_datasets_with_llm(
                     }
                 }
                 Err(e) => {
-                    error!(llm_result_id = %result.id, error = %e, "Failed to parse UUID from LLM result");
+                    error!(llm_result_id_str = %dataset_id_str, error = %e, "Failed to parse UUID from LLM result string");
                     None
                 }
             }
