@@ -50,7 +50,11 @@ export const ChatResponseReasoning: React.FC<{
   }, [lastMessageTitle, finalReasoningMessage, blackBoxMessage]);
 
   const onClickReasoningFile = useMemoizedFn(() => {
-    onSetSelectedFile(isReasonginFileSelected ? null : { id: messageId, type: 'reasoning' });
+    onSetSelectedFile(
+      isReasonginFileSelected
+        ? null
+        : { id: messageId, type: 'reasoning', versionNumber: undefined }
+    );
   });
 
   const href = useMemo(() => {

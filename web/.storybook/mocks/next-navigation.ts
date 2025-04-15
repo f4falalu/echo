@@ -3,7 +3,8 @@ export const useRouter = () => ({
   push: () => {},
   replace: () => {},
   refresh: () => {},
-  back: () => {}
+  back: () => {},
+  prefetch: () => {}
 });
 
 export const usePathname = () => '/';

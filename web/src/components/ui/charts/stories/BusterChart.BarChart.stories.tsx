@@ -50,7 +50,7 @@ export const Default: Story = {
   },
   render: (args) => {
     return (
-      <div className="h-[90vh] w-[80vw]">
+      <div className="h-[800px] w-[400px]">
         <BusterChart {...args} />
       </div>
     );
@@ -93,7 +93,7 @@ export const MultipleYAxis: Story = {
   },
   render: (args) => {
     return (
-      <div className="h-[90vh] w-[80vw]">
+      <div className="h-[400px] w-[800px]">
         <BusterChart {...args} />
       </div>
     );
@@ -137,7 +137,7 @@ export const WithCategory: Story = {
   },
   render: (args) => {
     return (
-      <div className="h-[90vh] w-[80vw]">
+      <div className="h-[400px] w-[800px]">
         <BusterChart {...args} />
       </div>
     );
@@ -182,7 +182,7 @@ export const DateXAxis: Story = {
   },
   render: (args) => {
     return (
-      <div className="h-[90vh] w-[80vw]">
+      <div className="h-[400px] w-[800px]">
         <BusterChart {...args} />
       </div>
     );
@@ -223,7 +223,7 @@ export const HorizontalBar: Story = {
   },
   render: (args) => {
     return (
-      <div className="h-[90vh] w-[80vw]">
+      <div className="h-[400px] w-[800px]">
         <BusterChart {...args} />
       </div>
     );
@@ -273,7 +273,7 @@ export const WithDataLabels: Story = {
   },
   render: (args) => {
     return (
-      <div className="h-[90vh] w-[80vw]">
+      <div className="h-[400px] w-[800px]">
         <BusterChart {...args} />
       </div>
     );
@@ -325,7 +325,7 @@ export const WithDataLabelsAndStackTotal: Story = {
   },
   render: (args) => {
     return (
-      <div className="h-[90vh] w-[80vw]">
+      <div className="h-[400px] w-[800px]">
         <BusterChart {...args} />
       </div>
     );
@@ -370,7 +370,7 @@ export const LargeDataset: Story = {
   },
   render: (args) => {
     return (
-      <div className="h-[90vh] w-[80vw]">
+      <div className="h-[400px] w-[800px]">
         <BusterChart {...args} />
       </div>
     );
@@ -416,7 +416,7 @@ export const LargeDatasetWithDualYAxis: Story = {
   },
   render: (args) => {
     return (
-      <div className="h-[90vh] w-[80vw]">
+      <div className="h-[400px] w-[800px]">
         <BusterChart {...args} />
       </div>
     );

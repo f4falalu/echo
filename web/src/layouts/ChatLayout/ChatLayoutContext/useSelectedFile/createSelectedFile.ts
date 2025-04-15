@@ -34,7 +34,8 @@ export const createSelectedFile = (
   if (messageId) {
     return {
       id: messageId,
-      type: 'reasoning'
+      type: 'reasoning',
+      versionNumber: undefined
     };
   }
 
