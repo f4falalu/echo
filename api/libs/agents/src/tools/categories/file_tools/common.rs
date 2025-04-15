@@ -107,11 +107,11 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # -------------------------------------
 # Required top-level fields:
 #
-# name: Your Metric Title
-# description: A detailed description of what this metric measures and how it should be interpreted  # Optional
+# name: Your Metric Title  # Do NOT use quotes for string values
+# description: A detailed description of what this metric measures and how it should be interpreted  # Optional, NO quotes
 # datasetIds: 
-#   - 123e4567-e89b-12d3-a456-426614174000  # Dataset UUIDs (not names)
-# timeFrame: Last 30 days  # Human-readable time period covered by the query
+#   - 123e4567-e89b-12d3-a456-426614174000  # Dataset UUIDs (not names) do not escape with quotes
+# timeFrame: Last 30 days  # Human-readable time period covered by the query, NO quotes
 # sql: |
 #   SELECT 
 #     date,
@@ -139,6 +139,9 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 #
 # RULES:
 # 1. All arrays should follow the YML array syntax using `-` not `[` and `]`
+# 2. Do not use quotes for ANY string fields, including names, descriptions, UUIDs, etc.
+# 3. Avoid special characters in all string fields except within the SQL query
+# 4. All fields must use standard YAML syntax - strings without quotes, arrays with `-`
 # -------------------------------------
 
 type: object
@@ -149,7 +152,7 @@ properties:
   # NAME
   name:
     type: string
-    description: Human-readable title (e.g., Total Sales)
+    description: Human-readable title (e.g., Total Sales) - do NOT use quotes
 
   # DESCRIPTION
   description:
@@ -163,7 +166,7 @@ properties:
     items:
       type: string
       format: uuid
-      description: UUID string of the dataset (not the dataset name)
+      description: UUID of the dataset (not the dataset name) do not escape with quotes
     
   # TIME FRAME
   timeFrame:
@@ -543,12 +546,12 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 # ----------------------------------------
 # Required fields:
 #
-# name: Your Dashboard Title
-# description: A description of the dashboard, its metrics, and its purpose.
+# name: Your Dashboard Title  # Do NOT use quotes for string values
+# description: A description of the dashboard, its metrics, and its purpose.  # NO quotes
 # rows: 
 #   - id: 1               # Required row ID (integer)
 #     items:
-#       - id: metric-uuid-1  # UUIDv4 of an existing metric
+#       - id: metric-uuid-1  # UUIDv4 of an existing metric, NO quotes
 #     columnSizes: [12]   # Required - must sum to exactly 12
 #   - id: 2 # REQUIRED
 #     items:
@@ -566,7 +569,9 @@ pub const DASHBOARD_YML_SCHEMA: &str = r##"
 # 5. Each column size must be at least 3
 # 6. All arrays should follow the YML array syntax using `-`
 # 7. All arrays should NOT USE `[]` formatting.
-# 8. don't use comments. the ones in the example are just for explanation
+# 8. Don't use comments. The ones in the example are just for explanation
+# 9. Do NOT use quotes for ANY string values, including names, descriptions and UUIDs
+# 10. Avoid special characters in all fields
 # ----------------------------------------
 
 type: object
@@ -575,7 +580,7 @@ description: Specifies the structure and constraints of a dashboard config file.
 properties:
   name:
     type: string
-    description: The title of the dashboard (e.g. Sales & Marketing Dashboard)
+    description: The title of the dashboard (e.g. Sales & Marketing Dashboard) - do NOT use quotes
   description:
     type: string
     description: A description of the dashboard, its metrics, and its purpose

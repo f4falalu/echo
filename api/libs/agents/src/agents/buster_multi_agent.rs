@@ -303,11 +303,11 @@ impl BusterMultiAgent {
             )
             .await;
 
-        // Add dynamic model rule: Use gpt-4.1-mini when searching the data catalog
+        // Add dynamic model rule: Use gpt-4.1 when searching the data catalog
         agent
             .add_dynamic_model_rule(
                 needs_data_catalog_search_condition, // Reuse the same condition
-                "gpt-4.1-mini".to_string(),
+                "gpt-4.1".to_string(),
             )
             .await;
 
@@ -1304,6 +1304,11 @@ You are a Search Agent, an AI assistant designed to analyze the conversation his
    - Determine the data requirements for the *current* user request.  
 
 2. **Decision Logic**:  
+   - **If the request is ONLY about visualization/charting aspects**: Use `no_search_needed` tool. These requests typically don't require new data assets:
+     - Changing chart colors or styles (e.g., "make the charts blue")
+     - Adding existing data to dashboards (e.g., "put these on a dashboard")
+     - Adjusting visualization parameters (e.g., "make this a bar chart instead of a line chart")
+     - Formatting or layout changes (e.g., "resize these charts")
    - **If NO dataset context (detailed models) exists from previous searches**: Use `search_data_catalog` by default to gather initial context.  
    - **If existing dataset context (detailed models) IS available**: Evaluate if this context provides sufficient information (relevant datasets, columns, documentation) to formulate a plan or perform analysis for the *current* user request.  
      - **If sufficient**: Use the `no_search_needed` tool. Provide a reason indicating that the necessary data context (models) is already available from previous steps.  
@@ -1317,6 +1322,7 @@ You are a Search Agent, an AI assistant designed to analyze the conversation his
    - For `no_search_needed`, provide a concise explanation referencing the existing sufficient context (e.g., "Necessary dataset models identified in previous turn cover the current request").  
 
 **Rules**  
+- **Skip search for pure visualization requests**: If the user is ONLY asking about charting, visualization, or dashboard layout aspects (not requesting new data), use `no_search_needed` with a reason indicating the request is about visualization only.
 - **Default to search if no context**: If no detailed dataset models are available from previous turns, always use `search_data_catalog` first.  
 - **Leverage existing context**: Before searching (if context exists), exhaustively evaluate if previously identified dataset models are sufficient to address the current user request's data needs for planning or analysis. Use `no_search_needed` only if the existing models suffice.  
 - **Search only for missing information**: If existing context is insufficient, use `search_data_catalog` strategically only to fill the specific gaps in the agent's context (missing datasets, columns, details), not to re-discover information already known.  
@@ -1340,6 +1346,12 @@ You are a Search Agent, an AI assistant designed to analyze the conversation his
   - User asks in Turn 2: "Show me the lifetime value and recent orders for our top customer by revenue."  
   - Tool: `no_search_needed`  
   - Reason: "The necessary dataset models (`customers`, `orders`) identified previously contain the required columns (`ltv`, `order_date`, `total_amount`) to fulfill this request."  
+- **Visualization-Only Request (No Search Needed)**: User asks, "Make all the charts blue and add them to a dashboard."
+  - Tool: `no_search_needed`
+  - Reason: "The request is only about chart styling and dashboard placement, not requiring any new data assets."
+- **Data Discovery with Visualization (Needs Search)**: User asks, "Find other interesting metrics related to customer engagement and add those to the dashboard." 
+  - Tool: `search_data_catalog`
+  - Query: "I need datasets containing customer engagement metrics that might be relevant for dashboard visualization."
 - **Satisfied Request (Existing Context Sufficient -> No Search Needed)**: Context includes models for revenue datasets for Q1 2024, and user asks, "Can you confirm the Q1 revenue data?"  
   - Tool: `no_search_needed`  
   - Reason: "The request pertains to Q1 2024 revenue data, for which detailed models were located in the prior search results."  
@@ -1352,8 +1364,10 @@ You are a Search Agent, an AI assistant designed to analyze the conversation his
 - Implied data needs from analytical questions.  
 - Vague or exploratory requests requiring initial data discovery.  
 - Follow-up requests building on established context.  
+- Visualization-only requests (no search needed).
 
 **Request Interpretation**  
+- Evaluate if the request is ONLY about visualization, charting or dashboard layout (no search needed).
 - Derive data needs from the user request *and* the current context (existing detailed dataset models).  
 - If no models exist, search.  
 - If models exist, evaluate their sufficiency for the current request. If sufficient, use `no_search_needed`.  

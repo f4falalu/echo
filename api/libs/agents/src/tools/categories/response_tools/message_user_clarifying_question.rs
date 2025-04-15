@@ -42,7 +42,7 @@ impl ToolExecutor for MessageUserClarifyingQuestion {
     async fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Use if you need to send a clarifying question to the user. You should only use this is the user request is so vague or ambiguous that you cannot determine what data to search for.",
+            "description": "Use if you need to send a clarifying question to the user. You should only use this if the user request is so vague or ambiguous that you cannot determine what data to search for.",
             "parameters": {
                 "type": "object",
                 "required": [
@@ -51,7 +51,7 @@ impl ToolExecutor for MessageUserClarifyingQuestion {
                 "properties": {
                 "text": {
                     "type": "string",
-                    "description": "Message text to display to user."
+                    "description": "Message text to display to user. **Supports markdown formatting**."
                 }
                 },
                 "additionalProperties": false

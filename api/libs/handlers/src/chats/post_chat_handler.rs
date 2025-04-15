@@ -775,6 +775,36 @@ pub async fn post_chat_handler(
     // Create the final response message list: Start with filtered files, then add text/other messages
     // Use the file messages that were generated and sent early
     let mut final_response_messages = early_sent_file_messages; // Use early sent files
+
+    // Check if any file messages were sent during streaming - if not, generate them now
+    if final_response_messages.is_empty() {
+        // Collect completed files from reasoning messages
+        let completed_files = collect_completed_files(&all_transformed_containers);
+        
+        // Only proceed if there are files to process
+        if !completed_files.is_empty() {
+            // Apply filtering rules to determine which files to show
+            match apply_file_filtering_rules(
+                &completed_files,
+                context_dashboard_id,
+                &get_pg_pool(),
+            ).await {
+                Ok(filtered_files) => {
+                    // Generate file response values and add them to final_response_messages
+                    final_response_messages = generate_file_response_values(&filtered_files);
+                    tracing::info!(
+                        "Added {} file responses to final state because no files were sent during streaming",
+                        final_response_messages.len()
+                    );
+                }
+                Err(e) => {
+                    tracing::error!("Error applying file filtering rules for final state: {}", e);
+                    // Continue with empty file messages list if filtering fails
+                }
+            }
+        }
+    }
+
     final_response_messages.append(&mut text_and_other_response_messages);
 
     // Update chat_with_messages with final state (now including filtered files first)
@@ -1621,7 +1651,7 @@ fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) ->
     let modify_metrics_result = match serde_json::from_str::<ModifyFilesOutput>(&content) {
         Ok(result) => result,
         Err(e) => {
-            println!("Failed to parse ModifyFilesOutput: {:?}", e);
+            tracing::error!("Failed to parse ModifyFilesOutput: {:?}", e);
              // Return an error reasoning message
              return Ok(vec![BusterReasoningMessage::Text(BusterReasoningText {
                  id,
@@ -1635,8 +1665,6 @@ fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) ->
         }
     };
 
-    // Remove internal duration calculation
-    // let duration = (modify_metrics_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
     let files_count = modify_metrics_result.files.len();
 
     // Create a map of files
@@ -1651,7 +1679,7 @@ fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) ->
         let buster_file = BusterFile {
             id: file_id.clone(),
             file_type: "metric".to_string(),
-            file_name: file.name.clone(), // Use the updated name from the file
+            file_name: file.name.clone(), 
             version_number: file.version_number,
             status: "completed".to_string(),
             file: BusterFileContent {
@@ -1669,8 +1697,8 @@ fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) ->
     let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
         id,
         message_type: "files".to_string(),
-        title: if files_count == 1 { "Modified 1 metric file".to_string() } else { format!("Modified {} metric files", files_count) },
-        secondary_title: format!("{} seconds", delta_duration.as_secs()), // Use delta_duration
+        title: format!("Modified {} metric file{}", files_count, if files_count == 1 { "" } else { "s" }),
+        secondary_title: format!("{} seconds", delta_duration.as_secs()),
         status: "completed".to_string(),
         file_ids,
         files: files_map,
@@ -1750,7 +1778,7 @@ fn tool_modify_dashboards(id: String, content: String, delta_duration: Duration)
     let modify_dashboards_result = match serde_json::from_str::<ModifyFilesOutput>(&content) {
         Ok(result) => result,
         Err(e) => {
-            println!("Failed to parse ModifyFilesOutput: {:?}", e);
+            tracing::error!("Failed to parse ModifyFilesOutput: {:?}", e);
              // Return an error reasoning message
              return Ok(vec![BusterReasoningMessage::Text(BusterReasoningText {
                  id,
@@ -1764,8 +1792,6 @@ fn tool_modify_dashboards(id: String, content: String, delta_duration: Duration)
         }
     };
 
-    // Remove internal duration calculation
-    // let duration = (modify_dashboards_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
     let files_count = modify_dashboards_result.files.len();
 
     // Create a map of files
@@ -1799,7 +1825,7 @@ fn tool_modify_dashboards(id: String, content: String, delta_duration: Duration)
         id,
         message_type: "files".to_string(),
         title: format!("Modified {} dashboard file{}", files_count, if files_count == 1 { "" } else { "s" }),
-        secondary_title: format!("{} seconds", delta_duration.as_secs()), // Use delta_duration
+        secondary_title: format!("{} seconds", delta_duration.as_secs()),
         status: "completed".to_string(),
         file_ids,
         files: files_map,
