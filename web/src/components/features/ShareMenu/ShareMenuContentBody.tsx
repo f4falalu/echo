@@ -190,7 +190,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
                   shareLevel={defaultPermissionLevel}
                   onChangeShareLevel={onChangeAccessDropdown}
                   assetType={assetType}
-                  disabled={!canEditPermissions}
+                  disabled={false}
                 />
               )}
             </div>
@@ -212,7 +212,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
                 {...permission}
                 onUpdateShareRole={onUpdateShareRole}
                 assetType={assetType}
-                disabled={!canEditPermissions}
+                disabled={!canEditPermissions || permission.role === ShareRole.OWNER}
               />
             ))}
           </div>
