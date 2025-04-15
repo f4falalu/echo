@@ -101,7 +101,7 @@ IMPORTANT GUIDELINES:
 4. Evaluate based on whether the dataset's schema, fields, or description MIGHT contain or relate to the relevant information
 5. Include datasets that could provide contextual or supporting information
 6. When in doubt about relevance, lean towards including the dataset
-7. Ensure the "id" field exactly matches the dataset's UUID
+7. **CRITICAL:** The "id" field in your JSON response MUST contain ONLY the dataset's UUID string (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38"). Do NOT include the dataset name or any other information in the "id" field.
 8. Use both the USER REQUEST and SEARCH QUERY to understand the user's information needs broadly
 9. Consider these elements in the dataset metadata:
    - Column names and their data types
@@ -296,6 +296,10 @@ impl ToolExecutor for SearchDataCatalogTool {
             )
             .await;
 
+        self.agent
+            .set_state_value(String::from("searched_data_catalog"), Value::Bool(true))
+            .await;
+
         let duration = start_time.elapsed().as_millis();
 
         Ok(SearchDataCatalogOutput {
@@ -322,11 +326,12 @@ impl ToolExecutor for SearchDataCatalogTool {
             "properties": {
               "queries": {
                 "type": "array",
-                "description": "A list of entity-focused search queries—typically one for the primary entity and its properties in specific requests, plus complementary queries for context, or multiple queries inferring entities for vague or multi-faceted goals. Each query aligns with the ontology's core classes and user intent.",
+                "description": "A list of high-intent search queries targeting data assets, based only on conversation context/history. Queries are concise, conversational sentences that articulate the analyst's search intent. Specific requests use one query (e.g., 'I'm looking for datasets related to revenue with a monthly time property'), while broad requests use multiple queries to cover all relevant assets implied by the context (e.g., datasets, models, metrics, documentation), starting with context-implied topics and refining as needed. Queries run concurrently to maximize relevance and coverage.",
                 "items": {
                   "type": "string",
-                  "description": "A concise, human-like query targeting an entity and its properties or related assets, e.g., 'Find customer data where shipping address differs from billing address' or 'Search for metrics tracking revenue growth over time.'"
-                }
+                  "description": "A concise, full-sentence, natural language query describing the search intent for a specific data asset or topic, e.g., 'I'm looking for datasets related to revenue with a monthly time property,' 'I'm looking for product datasets with sales metrics,' 'I need customer datasets linked to product purchases, including customer names,' or 'I want product inventory documentation.'"
+                },
+                "minItems": 1
               }
             },
             "additionalProperties": false
@@ -337,7 +342,7 @@ impl ToolExecutor for SearchDataCatalogTool {
 
 async fn get_search_data_catalog_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Search the data catalog with natural language queries that target entities like 'customers,' 'products,' or 'events' when mentioned, or infer relevant entities from your intent for vague requests. For specific asks like 'Pull a list of customers whose shipping address differs from their billing address,' it generates 'Find customer data where shipping address differs from billing address' plus complementary details like names. For broader goals like 'Analyze growth,' it maps to entities (e.g., revenue, customers) with queries like 'Find datasets tracking growth trends' and adds metrics or documentation. The tool searches objects, metrics, events, and documentation in the ontology, respecting entity-property relationships. Results are ranked by relevance, include assets for digestibility (e.g., identifiers, breakdowns), and offer suggestions for ambiguous or unmatched queries.".to_string();
+        return "Searches the data catalog for relevant data assets (e.g., datasets, models, metrics, filters, properties, documentation) based on high-intent queries derived solely from the user's request and conversation history, with no assumptions about data availability. Queries are concise, full-sentence, natural language expressions of search intent. Specific requests generate a single, focused query, while broad requests produce multiple queries to cover all context-implied assets (datasets, models, metrics, properties, documentation), starting with topics mentioned in the context (e.g., sales, customers, products) and refining with filters, metrics, or relationships. Supports multiple concurrent queries for comprehensive coverage.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -348,7 +353,7 @@ async fn get_search_data_catalog_description() -> String {
                 "Failed to get prompt system message for tool description: {}",
                 e
             );
-            "Search the data catalog with natural language queries that target entities like 'customers,' 'products,' or 'events' when mentioned, or infer relevant entities from your intent for vague requests. For specific asks like 'Pull a list of customers whose shipping address differs from their billing address,' it generates 'Find customer data where shipping address differs from billing address' plus complementary details like names. For broader goals like 'Analyze growth,' it maps to entities (e.g., revenue, customers) with queries like 'Find datasets tracking growth trends' and adds metrics or documentation. The tool searches objects, metrics, events, and documentation in the ontology, respecting entity-property relationships. Results are ranked by relevance, include assets for digestibility (e.g., identifiers, breakdowns), and offer suggestions for ambiguous or unmatched queries.".to_string()
+            "Searches the data catalog for relevant data assets (e.g., datasets, models, metrics, filters, properties, documentation) based on high-intent queries derived solely from the user's request and conversation history, with no assumptions about data availability. Queries are concise, full-sentence, natural language expressions of search intent. Specific requests generate a single, focused query, while broad requests produce multiple queries to cover all context-implied assets (datasets, models, metrics, properties, documentation), starting with topics mentioned in the context (e.g., sales, customers, products) and refining with filters, metrics, or relationships. Supports multiple concurrent queries for comprehensive coverage.".to_string()
         }
     }
 }
@@ -505,13 +510,32 @@ async fn filter_datasets_with_llm(
         .results
         .into_iter()
         .filter_map(|result| {
-            Uuid::parse_str(&result.id).ok().and_then(|id| {
-                dataset_map.get(&id).map(|dataset| DatasetResult {
-                    id: dataset.id,
-                    name: Some(dataset.name.clone()),
-                    yml_content: dataset.yml_content.clone(),
-                })
-            })
+            debug!(llm_result_id = %result.id, "Processing LLM filter result");
+            let parsed_uuid_result = Uuid::parse_str(&result.id);
+            match &parsed_uuid_result {
+                Ok(parsed_id) => {
+                    debug!(parsed_id = %parsed_id, "Successfully parsed UUID from LLM result");
+                    let dataset_option = dataset_map.get(parsed_id);
+                    match dataset_option {
+                        Some(dataset) => {
+                            debug!(dataset_id = %dataset.id, dataset_name = %dataset.name, "Found matching dataset in map");
+                            Some(DatasetResult {
+                                id: dataset.id,
+                                name: Some(dataset.name.clone()),
+                                yml_content: dataset.yml_content.clone(),
+                            })
+                        }
+                        None => {
+                            warn!(parsed_id = %parsed_id, "Parsed UUID not found in dataset_map");
+                            None
+                        }
+                    }
+                }
+                Err(e) => {
+                    error!(llm_result_id = %result.id, error = %e, "Failed to parse UUID from LLM result");
+                    None
+                }
+            }
         })
         .collect();
 

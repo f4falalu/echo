@@ -127,7 +127,7 @@ pub async fn run_chat(args: ChatArgs) -> Result<()> {
     // --- Agent Initialization ---
     let user_id = Uuid::new_v4();
     let session_id = Uuid::new_v4();
-    let cli_agent = BusterCliAgent::new(user_id, session_id, api_key, base_url).await
+    let cli_agent = BusterCliAgent::new(user_id, session_id, api_key, base_url, Some(cwd.clone())).await
         .map_err(|e| ChatError::InitializationError(format!("Failed to create agent: {}", e)))?;
 
     // --- Terminal Setup ---
@@ -359,7 +359,7 @@ pub async fn run_chat(args: ChatArgs) -> Result<()> {
                                          // Original behavior: submit to agent
                                          app_state.submit_message(); // This uses the original app_state.input
                                          // Fetch agent RX immediately after submit
-                                         match cli_agent.run(&mut app_state.agent_thread, &cwd).await {
+                                         match cli_agent.run(&mut app_state.agent_thread, None).await {
                                              Ok(rx) => {
                                                  agent_rx = Some(rx); // Start polling this receiver
                                              }

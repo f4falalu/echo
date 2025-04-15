@@ -221,12 +221,12 @@ pub async fn get_data_source_credentials(
             }
         }
         DataSourceType::Redshift => {
-            match serde_json::from_str::<PostgresCredentials>(&secret_string) {
+            match serde_json::from_str::<RedshiftCredentials>(&secret_string) {
                 Ok(mut credential) => {
                     if redact_secret {
                         credential.password = "[REDACTED]".to_string();
                     }
-                    Credential::Postgres(credential)
+                    Credential::Redshift(credential)
                 }
                 Err(e) => return Err(anyhow!("Error deserializing Redshift secret: {:?}", e)),
             }

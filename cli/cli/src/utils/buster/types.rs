@@ -17,51 +17,8 @@ pub struct ValidateApiKeyRequest {
 #[derive(Debug, Serialize)]
 pub struct PostDataSourcesRequest {
     pub name: String,
-    pub env: String,
-    #[serde(rename = "type")]
-    pub type_: String,
-    // Use a manual flatten pattern to ensure correct field names
-    // Postgres fields
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub host: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub port: Option<u16>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub username: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub password: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub default_database: Option<String>,  // This is what the API expects, not default_database
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub default_schema: Option<String>,  // This is what the API expects, not default_schema
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub jump_host: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ssh_username: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ssh_private_key: Option<String>,
-    
-    // BigQuery fields
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub credentials_json: Option<serde_json::Value>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub project_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub dataset_id: Option<String>,
-    
-    // Snowflake fields
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub account_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub warehouse_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub role: Option<String>,
-    
-    // Databricks fields
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub api_key: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub default_catalog: Option<String>,
+    #[serde(flatten)]
+    pub credential: Credential,
 }
 
 #[derive(Debug, Serialize)]

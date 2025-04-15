@@ -296,7 +296,7 @@ definitions:
         type: string
         description: Text to display after the value
       replaceMissingDataWith:
-        description: Value to display when data is missing
+        description: Value to display when data is missing, this should be set to null as default.
       compactNumbers:
         type: boolean
         description: Whether to display numbers in compact form (e.g., 1K, 1M)

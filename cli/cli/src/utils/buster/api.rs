@@ -136,15 +136,21 @@ impl BusterClient {
         {
             Ok(res) => {
                 if !res.status().is_success() {
+                    let status = res.status();
+                    let body = res.text().await?;
                     return Err(anyhow::anyhow!(
-                        "POST /api/v1/datasets/deploy failed: {}",
-                        res.text().await?
+                        "POST /api/v1/datasets/deploy failed with status {}: {}",
+                        status,
+                        body
                     ));
                 }
-                Ok(res.json().await?)
+                match res.json().await {
+                    Ok(json_response) => Ok(json_response),
+                    Err(e) => Err(anyhow::anyhow!("Failed to parse successful deploy response: {}", e)),
+                }
             }
             Err(e) => Err(anyhow::anyhow!(
-                "POST /api/v1/datasets/deploy failed: {}",
+                "POST /api/v1/datasets/deploy request failed: {}",
                 e
             )),
         }
