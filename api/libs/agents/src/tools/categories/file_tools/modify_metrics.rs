@@ -491,6 +491,7 @@ async fn get_modify_metrics_yml_description() -> String {
 
 async fn get_metric_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        // Revert to just returning the schema string plus basic instruction
         return format!("The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema.\n\n{}", METRIC_YML_SCHEMA);
     }
 
@@ -499,6 +500,7 @@ async fn get_metric_yml_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
+            // Revert to just returning the schema string plus basic instruction on error
             format!("The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema.\n\n{}", METRIC_YML_SCHEMA)
         }
     }

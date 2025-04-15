@@ -318,14 +318,16 @@ async fn get_metric_name_description() -> String {
 
 async fn get_metric_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
+        // Revert to just returning the schema string
         return METRIC_YML_SCHEMA.to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
     match get_prompt_system_message(&client, "54d01b7c-07c9-4c80-8ec7-8026ab8242a9").await {
-        Ok(message) => message,
+        Ok(message) => message, 
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
+            // Revert to just returning the schema string on error
             METRIC_YML_SCHEMA.to_string()
         }
     }

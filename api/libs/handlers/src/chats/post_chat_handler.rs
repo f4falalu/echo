@@ -1588,16 +1588,16 @@ fn tool_create_metrics(id: String, content: String, delta_duration: Duration) ->
         Ok(result) => result,
         Err(e) => {
             println!("Failed to parse CreateMetricFilesOutput: {:?}", e);
-            // Return an error reasoning message
-             return Ok(vec![BusterReasoningMessage::Text(BusterReasoningText {
-                 id,
-                 reasoning_type: "text".to_string(),
-                 title: "Error Creating Metrics".to_string(),
-                 secondary_title: format!("{} seconds", delta_duration.as_secs()),
-                 message: Some(format!("Failed to parse tool output: {}", e)),
-                 message_chunk: None,
-                 status: Some("error".to_string()),
-             })]);
+            // Return an error reasoning message as a File type
+            return Ok(vec![BusterReasoningMessage::File(BusterReasoningFile {
+                id,
+                message_type: "files".to_string(),
+                title: "Failed to Create Metrics".to_string(),
+                secondary_title: format!("Error: {}", e),
+                status: "failed".to_string(), // Set status to failed
+                file_ids: vec![],
+                files: HashMap::new(),
+            })]);
         }
     };
 
@@ -1652,16 +1652,16 @@ fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) ->
         Ok(result) => result,
         Err(e) => {
             tracing::error!("Failed to parse ModifyFilesOutput: {:?}", e);
-             // Return an error reasoning message
-             return Ok(vec![BusterReasoningMessage::Text(BusterReasoningText {
-                 id,
-                 reasoning_type: "text".to_string(),
-                 title: "Error Modifying Metrics".to_string(),
-                 secondary_title: format!("{} seconds", delta_duration.as_secs()),
-                 message: Some(format!("Failed to parse tool output: {}", e)),
-                 message_chunk: None,
-                 status: Some("error".to_string()),
-             })]);
+            // Return an error reasoning message as a File type
+            return Ok(vec![BusterReasoningMessage::File(BusterReasoningFile {
+                id,
+                message_type: "files".to_string(),
+                title: "Failed to Modify Metrics".to_string(),
+                secondary_title: format!("Error: {}", e),
+                status: "failed".to_string(), // Set status to failed
+                file_ids: vec![],
+                files: HashMap::new(),
+            })]);
         }
     };
 
@@ -1715,15 +1715,15 @@ fn tool_create_dashboards(id: String, content: String, delta_duration: Duration)
             Ok(result) => result,
             Err(e) => {
                 println!("Failed to parse CreateDashboardFilesOutput: {:?}", e);
-                 // Return an error reasoning message
-                 return Ok(vec![BusterReasoningMessage::Text(BusterReasoningText {
+                 // Return an error reasoning message as a File type
+                 return Ok(vec![BusterReasoningMessage::File(BusterReasoningFile {
                      id,
-                     reasoning_type: "text".to_string(),
-                     title: "Error Creating Dashboards".to_string(),
-                     secondary_title: format!("{} seconds", delta_duration.as_secs()),
-                     message: Some(format!("Failed to parse tool output: {}", e)),
-                     message_chunk: None,
-                     status: Some("error".to_string()),
+                     message_type: "files".to_string(),
+                     title: "Failed to Create Dashboards".to_string(),
+                     secondary_title: format!("Error: {}", e),
+                     status: "failed".to_string(), // Set status to failed
+                     file_ids: vec![],
+                     files: HashMap::new(),
                  })]);
             }
         };
@@ -1779,15 +1779,15 @@ fn tool_modify_dashboards(id: String, content: String, delta_duration: Duration)
         Ok(result) => result,
         Err(e) => {
             tracing::error!("Failed to parse ModifyFilesOutput: {:?}", e);
-             // Return an error reasoning message
-             return Ok(vec![BusterReasoningMessage::Text(BusterReasoningText {
+             // Return an error reasoning message as a File type
+             return Ok(vec![BusterReasoningMessage::File(BusterReasoningFile {
                  id,
-                 reasoning_type: "text".to_string(),
-                 title: "Error Modifying Dashboards".to_string(),
-                 secondary_title: format!("{} seconds", delta_duration.as_secs()),
-                 message: Some(format!("Failed to parse tool output: {}", e)),
-                 message_chunk: None,
-                 status: Some("error".to_string()),
+                 message_type: "files".to_string(),
+                 title: "Failed to Modify Dashboards".to_string(),
+                 secondary_title: format!("Error: {}", e),
+                 status: "failed".to_string(), // Set status to failed
+                 file_ids: vec![],
+                 files: HashMap::new(),
              })]);
         }
     };
@@ -1840,15 +1840,14 @@ fn tool_data_catalog_search(id: String, content: String, delta_duration: Duratio
         Ok(result) => result,
         Err(e) => {
             println!("Failed to parse SearchDataCatalogOutput: {}. Content: {}", e, content);
-            // Return an error reasoning message
-             return Ok(vec![BusterReasoningMessage::Text(BusterReasoningText {
+            // Return an error reasoning message - keep as Text for this tool? Or Pill? Let's use Pill for consistency
+             return Ok(vec![BusterReasoningMessage::Pill(BusterReasoningPill {
                  id,
-                 reasoning_type: "text".to_string(),
+                 thought_type: "pills".to_string(), // Changed from "text"
                  title: "Error Searching Data Catalog".to_string(),
-                 secondary_title: format!("{} seconds", delta_duration.as_secs()),
-                 message: Some(format!("Failed to parse tool output: {}", e)),
-                 message_chunk: None,
-                 status: Some("error".to_string()),
+                 secondary_title: format!("Error: {}", e), // Changed message to secondary title
+                 pill_containers: None, // No pills for error state
+                 status: "failed".to_string(), // Set status to failed
              })]);
         }
     };

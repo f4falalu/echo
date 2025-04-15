@@ -105,47 +105,44 @@ pub async fn validate_metric_ids(ids: &[Uuid]) -> Result<Vec<Uuid>> {
 pub const METRIC_YML_SCHEMA: &str = r##"
 # METRIC CONFIGURATION - YML STRUCTURE
 # -------------------------------------
-# Required top-level fields:
+# REQUIRED Top-Level Fields: `name`, `description`, `datasetIds`, `timeFrame`, `sql`, `chartConfig`
 #
-# name: Your Metric Title  # Do NOT use quotes for string values
-# description: A detailed description of what this metric measures and how it should be interpreted  # Optional, NO quotes
-# datasetIds: 
-#   - 123e4567-e89b-12d3-a456-426614174000  # Dataset UUIDs (not names) do not escape with quotes
-# timeFrame: Last 30 days  # Human-readable time period covered by the query, NO quotes
-# sql: |
-#   SELECT 
-#     date,
-#     SUM(amount) AS total
-#   FROM sales
-#   GROUP BY date
-# 
-# chartConfig:
-#   selectedChartType: bar  # One of: bar, line, scatter, pie, combo, metric, table
-#   columnLabelFormats:      # REQUIRED - Must define formatting for all columns
-#     date:
-#       columnType: date
-#       style: date
-#       dateFormat: MMM DD, YYYY
-#     total:
-#       columnType: number
-#       style: currency
-#       currency: USD
-#       minimumFractionDigits: 2
-#   barAndLineAxis: {...}  # Required for bar and line charts OR
-#   scatterAxis: {...}  # Required for scatter charts OR
-#   pieChartAxis: {...}  # Required for pie charts OR
-#   comboChartAxis: {...}  # Required for combo charts OR
-#   metricColumnId: column_id  # Required for metric charts
+# --- FIELD DETAILS & RULES --- 
+# `name`: Human-readable title (e.g., Total Sales). 
+#   - RULE: Should NOT contain underscores (`_`). Use spaces instead.
+#   - RULE: If using colons (`:`) or other special YAML chars, enclose the *entire* string in double quotes (`\"...\"`). Avoid if possible.
+# `description`: Detailed explanation of the metric. 
+#   - RULE: If using colons (`:`) or other special YAML chars, enclose the *entire* string in double quotes (`\"...\"`).
+# `datasetIds`: Array of Dataset UUIDs this metric uses. 
+#   - RULE: Use standard YAML array syntax (`- uuid`). 
+#   - RULE: UUIDs should NEVER be quoted.
+#   - Example: 
+#     datasetIds:
+#       - 123e4567-e89b-12d3-a456-426614174000
+# `timeFrame`: Human-readable time period covered by the query (e.g., Last 30 days). 
+#   - RULE: If using colons (`:`) or other special YAML chars, enclose the *entire* string in double quotes (`\"...\"`).
+# `sql`: The SQL query for the metric.
+#   - RULE: MUST use the pipe `|` block scalar style to preserve formatting and newlines.
+#   - Example:
+#     sql: |
+#       SELECT ... 
+# `chartConfig`: Visualization settings.
+#   - RULE: Must contain `selectedChartType` (bar, line, scatter, pie, combo, metric, table).
+#   - RULE: Must contain `columnLabelFormats` defining format for ALL columns in the SQL result.
+#   - RULE: Must contain ONE chart-specific config block based on `selectedChartType`:
+#     - `barAndLineAxis` (for type: bar, line)
+#     - `scatterAxis` (for type: scatter)
+#     - `pieChartAxis` (for type: pie)
+#     - `comboChartAxis` (for type: combo)
+#     - `metricColumnId` (for type: metric)
+#     - `tableConfig` (for type: table) - [Optional, if needed beyond basic columns]
 #
-# RULES:
-# 1. All arrays should follow the YML array syntax using `-` not `[` and `]`
-# 2. String values generally should NOT use quotes unless they contain special characters (like :, {, }, [, ], ,, &, *, #, ?, |, -, <, >, =, !, %, @, `) or start/end with whitespace.
-# 3. If a string contains special characters or needs to preserve leading/trailing whitespace, enclose it in double quotes (`"`). Example: `name: "My: Special Metric"`
-# 4. Avoid special characters in names and descriptions where possible, but if needed, use quotes as described in rule 3. UUIDs should NEVER be quoted.
-# 5. All fields must use standard YAML syntax. Arrays use `-`, strings follow quoting rules above.
-# 6. The SQL query MUST use the pipe `|` block scalar style to preserve formatting and newlines.
+# --- GENERAL YAML RULES ---
+# 1. Use standard YAML syntax (indentation, colons for key-value, `-` for arrays).
+# 2. Quoting: Generally avoid quotes for simple strings. Use double quotes (`"...") ONLY if a string contains special characters (like :, {, }, [, ], ,, &, *, #, ?, |, -, <, >, =, !, %, @, `) or needs to preserve leading/trailing whitespace. 
 # -------------------------------------
 
+# --- FORMAL SCHEMA --- (Used for validation, reflects rules above)
 type: object
 name: Metric Configuration Schema
 description: Metric definition with SQL query and visualization settings
@@ -154,26 +151,26 @@ properties:
   # NAME
   name:
     type: string
-    description: Human-readable title (e.g., Total Sales) - do NOT use quotes
+    description: Human-readable title (e.g., Total Sales). NO underscores. Follow quoting rules.
 
   # DESCRIPTION
   description:
     type: string
-    description: A detailed description of what this metric measures and how it should be interpreted
+    description: Detailed description. Follow quoting rules.
 
   # DATASET IDS
   datasetIds:
     type: array
-    description: UUIDs of datasets this metric belongs to
+    description: UUIDs of datasets this metric belongs to (NEVER quoted).
     items:
       type: string
       format: uuid
-      description: UUID of the dataset (not the dataset name) do not escape with quotes
+      description: Dataset UUID (unquoted)
     
   # TIME FRAME
   timeFrame:
     type: string
-    description: Human-readable time period covered by the query (e.g., Last 30 days, All time, August 1, 2024 - January 1, 2025, Comparison: August 2025 to August 2024)
+    description: Human-readable time period covered by the query. Follow quoting rules.
 
   # SQL QUERY
   ### SQL Best Practices and Constraints** (when creating new metrics)  
@@ -196,22 +193,15 @@ properties:
     type: string
     description: |
       SQL query using YAML pipe syntax (|)
-      
       The SQL query should be formatted with proper indentation using the YAML pipe (|) syntax.
       This ensures the multi-line SQL is properly parsed while preserving whitespace and newlines.
-      
-      Example:
-        sql: |
-          SELECT 
-            column1,
-            column2
-          FROM table
-          WHERE condition
 
   # CHART CONFIGURATION
   chartConfig:
-    description: Visualization settings (must match one chart type)
-    oneOf: # REQUIRED
+    description: Visualization settings (must include selectedChartType, columnLabelFormats, and ONE chart-specific block)
+    allOf: # Base requirements for ALL chart types
+      - $ref: '#/definitions/base_chart_config'
+    oneOf: # Specific block required based on type
       - $ref: #/definitions/bar_line_chart_config
       - $ref: #/definitions/scatter_chart_config
       - $ref: #/definitions/pie_chart_config
@@ -227,18 +217,20 @@ required:
   - chartConfig
 
 definitions:
-  # BASE CHART CONFIG (common to all chart types)
+  # BASE CHART CONFIG (common parts required by ALL chart types)
   base_chart_config:
     type: object
     properties:
       selectedChartType:
         type: string
         description: Chart type (bar, line, scatter, pie, combo, metric, table)
+        enum: [bar, line, scatter, pie, combo, metric, table]
       columnLabelFormats:
         type: object
-        description: The formatting for each column.
+        description: REQUIRED formatting for ALL columns returned by the SQL query.
         additionalProperties:
           $ref: #/definitions/column_label_format
+      # Optional base properties below
       columnSettings:
         type: object
         description: Visual settings {columnId: settingsObject}
@@ -248,7 +240,10 @@ definitions:
         type: array
         items:
           type: string
-        description: Default color palette for the chart. Use this parameter when the user asks about customizing chart colors, unless specified otherwise.
+        description: |
+          Default color palette. 
+          RULE: Hex color codes (e.g., #FF0000) MUST be enclosed in quotes (e.g., "#FF0000" or '#FF0000') because '#' signifies a comment otherwise. Double quotes are preferred for consistency.
+          Use this parameter when the user asks about customizing chart colors, unless specified otherwise.
       showLegend:
         type: boolean
       gridLines:
@@ -272,6 +267,7 @@ definitions:
       columnType:
         type: string
         description: number, string, date
+        enum: [number, string, date]
       style:
         type: string
         enum:
@@ -297,10 +293,8 @@ definitions:
         description: Value to multiply the number by before display
       prefix:
         type: string
-        description: Text to display before the value
       suffix:
         type: string
-        description: Text to display after the value
       replaceMissingDataWith:
         description: Value to display when data is missing, this should be set to null as default.
       compactNumbers:
@@ -1207,7 +1201,9 @@ mod tests {
     #[test]
     fn test_apply_modifications_multiple_matches() {
         // Content with repeated text
-        let content = "name: Test Dashboard\ndescription: Test description\nTest Dashboard is a dashboard for testing";
+        let content = "name: Test Dashboard
+description: Test description
+Test Dashboard is a dashboard for testing";
 
         // Modification that would affect two places
         let modifications = vec![Modification {
@@ -1227,7 +1223,9 @@ mod tests {
 
     #[test]
     fn test_apply_modifications_empty_content_to_replace() {
-        let original_content = "name: test_metric\ntype: counter\ndescription: A test metric";
+        let original_content = "name: test_metric
+type: counter
+description: A test metric";
 
         // Test appending content when content_to_replace is empty
         let mods = vec![Modification {
@@ -1237,17 +1235,25 @@ mod tests {
         let result = apply_modifications_to_content(original_content, &mods, "test.yml").unwrap();
         assert_eq!(
             result,
-            "name: test_metric\ntype: counter\ndescription: A test metric\nadditional_field: true"
+            "name: test_metric
+type: counter
+description: A test metric
+additional_field: true"
         );
 
         // Test appending content when original content doesn't end with newline
         let original_content_no_newline =
-            "name: test_metric\ntype: counter\ndescription: A test metric";
+            "name: test_metric
+type: counter
+description: A test metric";
         let result =
             apply_modifications_to_content(original_content_no_newline, &mods, "test.yml").unwrap();
         assert_eq!(
             result,
-            "name: test_metric\ntype: counter\ndescription: A test metric\nadditional_field: true"
+            "name: test_metric
+type: counter
+description: A test metric
+additional_field: true"
         );
     }
 
