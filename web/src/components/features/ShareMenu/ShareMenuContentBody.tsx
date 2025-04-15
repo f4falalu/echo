@@ -43,7 +43,6 @@ export const ShareMenuContentBody: React.FC<{
     className = ''
   }) => {
     const Component = ContentRecord[selectedOptions];
-
     const individual_permissions = shareAssetConfig.individual_permissions;
     const publicly_accessible = shareAssetConfig.publicly_accessible;
     const publicExpirationDate = shareAssetConfig.public_expiry_date;

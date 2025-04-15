@@ -34,14 +34,7 @@ export const ShareMenuContentEmbed: React.FC<ShareMenuContentBodyProps> = React.
         });
       }
 
-      if (assetType === ShareAssetType.COLLECTION) {
-        url = createBusterRoute({
-          route: BusterRoutes.APP_COLLECTIONS_ID,
-          collectionId: assetId
-        });
-      }
-
-      return url + '?embed=true';
+      return url;
     }, [assetType, assetId]);
 
     const onCopyLink = useMemoizedFn(() => {

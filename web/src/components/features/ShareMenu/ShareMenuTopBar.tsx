@@ -34,7 +34,7 @@ export const ShareMenuTopBar: React.FC<{
         {
           value: ShareMenuTopBarOptions.Embed,
           label: 'Embed',
-          show: assetType === ShareAssetType.METRIC && canEditPermissions
+          show: assetType !== ShareAssetType.COLLECTION && canEditPermissions
         }
       ]
         .filter((o) => o.show)
