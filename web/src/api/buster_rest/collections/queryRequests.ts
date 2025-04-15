@@ -84,6 +84,12 @@ export const useUpdateCollection = () => {
           name: variables.name || v?.name!
         };
       });
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(
+        collectionQueryKeys.collectionsGetCollection(data.id).queryKey,
+        data
+      );
     }
   });
 };

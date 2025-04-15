@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
@@ -16,6 +16,7 @@ import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import { ShareCollectionButton } from '@/components/features/buttons/ShareMenuCollectionButton';
 import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
 import { Star } from '@/components/ui/icons';
+import { RenameCollectionModal } from './RenameCollectionModal';
 
 export const CollectionsIndividualHeader: React.FC<{
   openAddTypeModal: boolean;
@@ -101,6 +102,7 @@ const ThreeDotDropdown: React.FC<{
   });
   const isEditor = canEdit(permission);
   const isEffectiveOwner = getIsEffectiveOwner(permission);
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
 
   const items: DropdownItems = useMemo(
     () =>
@@ -125,7 +127,7 @@ const ThreeDotDropdown: React.FC<{
           label: 'Rename collection',
           icon: <Pencil />,
           onClick: () => {
-            //
+            setIsRenameModalOpen(true);
           },
           hidden: !isEditor
         },
@@ -136,7 +138,7 @@ const ThreeDotDropdown: React.FC<{
           onClick: onFavoriteClick
         }
       ].filter((x) => !x.hidden),
-    [id, deleteCollection, onChangePage, isFavorited, onFavoriteClick]
+    [id, deleteCollection, onChangePage, isFavorited, onFavoriteClick, setIsRenameModalOpen]
   );
 
   return (
@@ -144,6 +146,12 @@ const ThreeDotDropdown: React.FC<{
       <Dropdown items={items}>
         <Button variant="ghost" prefix={<Dots />}></Button>
       </Dropdown>
+      <RenameCollectionModal
+        collectionId={id}
+        currentName={name}
+        open={isRenameModalOpen}
+        onClose={() => setIsRenameModalOpen(false)}
+      />
     </>
   );
 });
