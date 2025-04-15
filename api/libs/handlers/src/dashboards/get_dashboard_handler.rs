@@ -12,12 +12,14 @@ use tokio::task::JoinHandle;
 use uuid::Uuid;
 
 use crate::dashboards::types::{BusterShareIndividual, DashboardCollection};
-use crate::metrics::{get_metric_handler, BusterMetric, Version};
+use crate::metrics::{get_metric_handler, BusterMetric, Dataset, Version};
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
 use database::helpers::dashboard_files::fetch_dashboard_file_with_permission;
 use database::pool::get_pg_pool;
-use database::schema::{asset_permissions, collections, collections_to_assets, dashboard_files, users};
-use database::types::VersionHistory;
+use database::schema::{
+    asset_permissions, collections, collections_to_assets, dashboard_files, metric_files, users,
+};
+use database::types::{MetricYml, VersionHistory};
 use sharing::check_permission_access;
 
 use super::{
@@ -52,9 +54,11 @@ struct AssetPermissionInfo {
 }
 
 /// Fetches collections that the dashboard belongs to
-async fn fetch_associated_collections_for_dashboard(dashboard_id: Uuid) -> Result<Vec<DashboardCollection>> {
+async fn fetch_associated_collections_for_dashboard(
+    dashboard_id: Uuid,
+) -> Result<Vec<DashboardCollection>> {
     let mut conn = get_pg_pool().get().await?;
-    
+
     let associated_collections = collections_to_assets::table
         .inner_join(collections::table.on(collections::id.eq(collections_to_assets::collection_id)))
         .filter(collections_to_assets::asset_id.eq(dashboard_id))
@@ -64,13 +68,119 @@ async fn fetch_associated_collections_for_dashboard(dashboard_id: Uuid) -> Resul
         .load::<(Uuid, String)>(&mut conn)
         .await?
         .into_iter()
-        .map(|(id, name)| DashboardCollection { 
-            id: id.to_string(), 
-            name 
+        .map(|(id, name)| DashboardCollection {
+            id: id.to_string(),
+            name,
         })
         .collect();
-    
+
     Ok(associated_collections)
+}
+
+/// Fetches minimal metric data for display on a dashboard, enforcing a specific permission level.
+async fn get_metrics_for_dashboard(
+    metric_ids: &[Uuid],
+    dashboard_permission: AssetPermissionRole,
+    // user: &AuthenticatedUser, // We might not need the user if we aren't doing fine-grained checks here
+) -> Result<HashMap<Uuid, BusterMetric>> {
+    if metric_ids.is_empty() {
+        return Ok(HashMap::new());
+    }
+
+    let mut conn = get_pg_pool().get().await?;
+
+    // Fetch all required MetricFile records in one query
+    let metric_files_data = metric_files::table
+        .filter(metric_files::id.eq_any(metric_ids))
+        .filter(metric_files::deleted_at.is_null()) // Ensure metrics aren't deleted
+        .load::<database::models::MetricFile>(&mut conn)
+        .await?;
+
+    let mut metrics_map = HashMap::new();
+
+    // Process each fetched metric file
+    for metric_file in metric_files_data {
+        // Use latest content directly from the MetricFile record
+        let metric_content: MetricYml = metric_file.content;
+        let version_num = metric_file.version_history.get_version_number();
+
+        // Convert content to YAML string for the 'file' field
+        let file_yaml = match serde_yaml::to_string(&metric_content) {
+            Ok(yaml) => yaml,
+            Err(e) => {
+                tracing::error!(metric_id = %metric_file.id, error = %e, "Failed to serialize metric content to YAML for dashboard view");
+                // Skip this metric or handle error appropriately
+                continue;
+            }
+        };
+
+        // Simplified dataset fetching (if needed, adapt from get_metric_handler if complex logic required)
+        let mut datasets = Vec::new();
+        let mut first_data_source_id = None;
+        // Placeholder: Fetching actual dataset names might require another query or joining.
+        // For now, create dummy datasets based on IDs if necessary for the type.
+        if !metric_content.dataset_ids.is_empty() {
+            first_data_source_id = Some(Uuid::nil()); // Placeholder - needs actual lookup if required
+            datasets = metric_content
+                .dataset_ids
+                .iter()
+                .map(|id| Dataset {
+                    id: id.to_string(),
+                    name: format!("Dataset {}", id), // Placeholder name
+                })
+                .collect();
+        }
+
+        // Construct the BusterMetric, forcing the dashboard's permission level
+        let buster_metric = BusterMetric {
+            id: metric_file.id,
+            metric_type: "metric".to_string(), // Assuming standard type
+            name: metric_file.name,
+            version_number: version_num,
+            description: metric_content.description,
+            file_name: metric_file.file_name,
+            time_frame: metric_content.time_frame,
+            datasets, // Using simplified dataset info
+            data_source_id: first_data_source_id.map_or("".to_string(), |id| id.to_string()),
+            error: None, // Assuming no error fetching this basic view
+            chart_config: Some(metric_content.chart_config),
+            data_metadata: metric_file.data_metadata,
+            status: metric_file.verification,
+            evaluation_score: metric_file.evaluation_score.map(|score| {
+                // Simple mapping
+                if score >= 0.8 {
+                    "High".to_string()
+                } else if score >= 0.5 {
+                    "Moderate".to_string()
+                } else {
+                    "Low".to_string()
+                }
+            }),
+            evaluation_summary: metric_file.evaluation_summary.unwrap_or_default(),
+            file: file_yaml,
+            created_at: metric_file.created_at,
+            updated_at: metric_file.updated_at,
+            sent_by_id: metric_file.created_by,
+            sent_by_name: "".to_string(), // Placeholder - requires user lookup
+            sent_by_avatar_url: None,     // Placeholder - requires user lookup
+            code: None,                   // Assuming not needed for dashboard view
+            dashboards: vec![],           // Omit associated dashboards/collections for simplicity
+            collections: vec![],          // Omit associated dashboards/collections for simplicity
+            versions: vec![],             // Omit detailed versions for simplicity
+            permission: dashboard_permission, // <<< Force the permission level here
+            sql: metric_content.sql,
+            // Omit detailed sharing info for simplicity in this view
+            individual_permissions: None,
+            publicly_accessible: metric_file.publicly_accessible,
+            public_expiry_date: metric_file.public_expiry_date,
+            public_enabled_by: None, // Placeholder - requires user lookup
+            public_password: metric_file.public_password,
+        };
+
+        metrics_map.insert(buster_metric.id, buster_metric);
+    }
+
+    Ok(metrics_map)
 }
 
 pub async fn get_dashboard_handler(
@@ -88,13 +198,13 @@ pub async fn get_dashboard_handler(
         Some(dwp) => dwp,
         None => {
             tracing::warn!(dashboard_id = %dashboard_id, "Dashboard file not found during fetch");
-            return Err(anyhow!("Dashboard not found"))
-        },
+            return Err(anyhow!("Dashboard not found"));
+        }
     };
 
     let dashboard_file = dashboard_with_permission.dashboard_file;
     let direct_permission_level = dashboard_with_permission.permission;
-    
+
     // Check if user has proper permission to view the dashboard
     let permission: AssetPermissionRole;
     tracing::debug!(dashboard_id = %dashboard_id, user_id = %user.id, "Checking permissions for dashboard");
@@ -108,6 +218,7 @@ pub async fn get_dashboard_handler(
             AssetPermissionRole::CanEdit,
             AssetPermissionRole::FullAccess,
             AssetPermissionRole::Owner,
+            AssetPermissionRole::CanFilter,
         ],
         dashboard_file.organization_id,
         &user.organizations,
@@ -126,7 +237,7 @@ pub async fn get_dashboard_handler(
             return Err(anyhow!("You don't have permission to view this dashboard"));
         }
         tracing::debug!(dashboard_id = %dashboard_id, "Dashboard is publicly accessible.");
-        
+
         // Check if the public access has expired
         if let Some(expiry_date) = dashboard_file.public_expiry_date {
             tracing::debug!(dashboard_id = %dashboard_id, ?expiry_date, "Checking expiry date");
@@ -135,7 +246,7 @@ pub async fn get_dashboard_handler(
                 return Err(anyhow!("Public access to this dashboard has expired"));
             }
         }
-        
+
         // Check if a password is required
         tracing::debug!(dashboard_id = %dashboard_id, has_password = dashboard_file.public_password.is_some(), "Checking password requirement");
         if let Some(required_password) = &dashboard_file.public_password {
@@ -225,18 +336,8 @@ pub async fn get_dashboard_handler(
         })
         .collect();
 
-    // Fetch all metrics concurrently (latest versions)
-    let metric_futures: Vec<_> = metric_ids
-        .iter()
-        .map(|metric_id| get_metric_handler(metric_id, &user, None, None))
-        .collect();
-
-    let metric_results = join_all(metric_futures).await;
-    let metrics: HashMap<Uuid, BusterMetric> = metric_results
-        .into_iter()
-        .filter_map(|result| result.ok())
-        .map(|metric| (metric.id, metric))
-        .collect();
+    // Fetch metrics using the specialized function, enforcing dashboard permission
+    let metrics = get_metrics_for_dashboard(&metric_ids, permission).await?;
 
     // Query individual permissions for this dashboard
     let individual_permissions_query = asset_permissions::table
@@ -323,16 +424,25 @@ pub async fn get_dashboard_handler(
 
     // Await collections result
     let collections_result = collections_handle.await;
-    
+
     // Handle collections result
     let collections = match collections_result {
         Ok(Ok(c)) => c,
         Ok(Err(e)) => {
-            tracing::error!("Failed to fetch associated collections for dashboard {}: {}", dashboard_id, e);
+            tracing::error!(
+                "Failed to fetch associated collections for dashboard {}: {}",
+                dashboard_id,
+                e
+            );
             vec![]
         }
-        Err(e) => { // JoinError
-            tracing::error!("Task join error fetching collections for dashboard {}: {}", dashboard_id, e);
+        Err(e) => {
+            // JoinError
+            tracing::error!(
+                "Task join error fetching collections for dashboard {}: {}",
+                dashboard_id,
+                e
+            );
             vec![]
         }
     };
