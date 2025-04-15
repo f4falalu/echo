@@ -6,140 +6,140 @@ import {
 } from '../useLayoutConfig';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 
-export const assetParamsToRoute = ({
-  chatId,
-  assetId,
-  type,
-  versionNumber,
-  secondaryView: secondaryViewProp
-}: {
+type BaseParams = {
   chatId: string | undefined;
   assetId: string;
   type: FileType;
   secondaryView?: FileViewSecondary;
   versionNumber?: number;
-}) => {
-  if (type === 'metric') {
-    const secondaryView = secondaryViewProp as MetricFileViewSecondary | undefined;
-    if (chatId) {
-      switch (secondaryView) {
-        case 'chart-edit': {
-          if (versionNumber) {
-            return createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
-              chatId,
-              metricId: assetId,
-              versionNumber,
-              secondaryView
-            });
-          }
-          return createBusterRoute({
-            route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
-            chatId,
-            metricId: assetId,
-            secondaryView
-          });
-        }
+};
 
-        case 'sql-edit': {
-          if (versionNumber) {
-            return createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
-              chatId,
-              metricId: assetId,
-              versionNumber,
-              secondaryView
-            });
-          }
-          return createBusterRoute({
-            route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
-            chatId,
-            metricId: assetId,
-            secondaryView
-          });
-        }
-        case 'version-history': {
-          if (versionNumber) {
-            return createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_HISTORY_NUMBER,
-              chatId,
-              metricId: assetId,
-              versionNumber
-            });
-          }
-          return createBusterRoute({
-            route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
-            chatId,
-            metricId: assetId,
-            secondaryView
-          });
-        }
-        default:
-          const test: never | undefined = secondaryView;
+type MetricRouteParams = {
+  metricId: string;
+  chatId?: string;
+  secondaryView?: MetricFileViewSecondary;
+  versionNumber?: number;
+};
 
-          if (versionNumber) {
-            return createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
-              chatId,
-              metricId: assetId,
-              versionNumber
-            });
-          }
-          return createBusterRoute({
-            route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
-            chatId,
-            metricId: assetId
-          });
-      }
+const createMetricRoute = ({
+  metricId,
+  chatId,
+  secondaryView,
+  versionNumber
+}: MetricRouteParams) => {
+  const baseParams = { metricId, secondaryView };
+
+  if (chatId) {
+    if (versionNumber) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
+        chatId,
+        ...baseParams,
+        versionNumber
+      });
     }
 
     switch (secondaryView) {
       case 'chart-edit':
         return createBusterRoute({
-          route: BusterRoutes.APP_METRIC_ID_CHART,
-          metricId: assetId,
-          secondaryView: secondaryView
+          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+          chatId,
+          ...baseParams
         });
       case 'sql-edit':
         return createBusterRoute({
-          route: BusterRoutes.APP_METRIC_ID_RESULTS,
-          metricId: assetId,
-          secondaryView: secondaryView
+          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
+          chatId,
+          ...baseParams
         });
       case 'version-history':
         return createBusterRoute({
-          route: BusterRoutes.APP_METRIC_ID_CHART,
-          metricId: assetId
+          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+          chatId,
+          ...baseParams
         });
       default:
         const test: never | undefined = secondaryView;
         return createBusterRoute({
-          route: BusterRoutes.APP_METRIC_ID_CHART,
-          metricId: assetId
+          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+          chatId,
+          metricId
         });
     }
   }
 
-  if (type === 'dashboard') {
-    const secondaryView = secondaryViewProp as DashboardFileViewSecondary | undefined;
-    if (chatId) {
-      switch (secondaryView) {
-        case 'version-history':
-          return createBusterRoute({
-            route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
-            chatId,
-            dashboardId: assetId
-          });
-      }
-    }
+  // Non-chat metric routes
+  switch (secondaryView) {
+    case 'chart-edit':
+      return createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_CHART,
+        ...baseParams
+      });
+    case 'sql-edit':
+      return createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_RESULTS,
+        ...baseParams
+      });
+    case 'version-history':
+    default:
+      const test: never | undefined =
+        secondaryView === 'version-history' ? undefined : secondaryView;
+      return createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_CHART,
+        metricId
+      });
+  }
+};
 
-    return createBusterRoute({
-      route: BusterRoutes.APP_DASHBOARD_ID,
-      dashboardId: assetId
+const createDashboardRoute = ({
+  dashboardId,
+  chatId,
+  secondaryView
+}: {
+  dashboardId: string;
+  chatId?: string;
+  secondaryView?: DashboardFileViewSecondary;
+}) => {
+  if (chatId) {
+    if (secondaryView === 'version-history') {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
+        chatId,
+        dashboardId
+      });
+    }
+  }
+
+  return createBusterRoute({
+    route: BusterRoutes.APP_DASHBOARD_ID,
+    dashboardId
+  });
+};
+
+export const assetParamsToRoute = ({
+  chatId,
+  assetId,
+  type,
+  versionNumber,
+  secondaryView
+}: BaseParams) => {
+  if (type === 'metric') {
+    return createMetricRoute({
+      metricId: assetId,
+      chatId,
+      secondaryView: secondaryView as MetricFileViewSecondary,
+      versionNumber
+    });
+  }
+
+  if (type === 'dashboard') {
+    return createDashboardRoute({
+      dashboardId: assetId,
+      chatId,
+      secondaryView: secondaryView as DashboardFileViewSecondary
     });
   }
 
   console.warn('Asset params to route has not been implemented for this file type', type);
-
   return '';
 };

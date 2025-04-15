@@ -1,0 +1,463 @@
+import { assetParamsToRoute } from './assetParamsToRoute';
+import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
+import { FileType } from '@/api/asset_interfaces/chat';
+
+describe('assetParamsToRoute', () => {
+  const mockChatId = 'chat123';
+  const mockAssetId = 'asset123';
+
+  // Metric tests with chatId
+  test('metric with chatId and chart-edit secondary view and version number', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      secondaryView: 'chart-edit',
+      versionNumber: 1
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
+        chatId: mockChatId,
+        metricId: mockAssetId,
+        versionNumber: 1,
+        secondaryView: 'chart-edit'
+      })
+    );
+  });
+
+  test('metric with chatId and chart-edit secondary view without version number', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      secondaryView: 'chart-edit'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+        chatId: mockChatId,
+        metricId: mockAssetId,
+        secondaryView: 'chart-edit'
+      })
+    );
+  });
+
+  test('metric with chatId and sql-edit secondary view and version number', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      secondaryView: 'sql-edit',
+      versionNumber: 1
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
+        chatId: mockChatId,
+        metricId: mockAssetId,
+        versionNumber: 1,
+        secondaryView: 'sql-edit'
+      })
+    );
+  });
+
+  test('metric with chatId and sql-edit secondary view without version number', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      secondaryView: 'sql-edit'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
+        chatId: mockChatId,
+        metricId: mockAssetId,
+        secondaryView: 'sql-edit'
+      })
+    );
+  });
+
+  test('metric with chatId and version-history secondary view and version number', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      versionNumber: 1
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
+        chatId: mockChatId,
+        metricId: mockAssetId,
+        versionNumber: 1
+      })
+    );
+  });
+
+  test('metric with chatId and version-history secondary view without version number', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      secondaryView: 'version-history'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+        chatId: mockChatId,
+        metricId: mockAssetId,
+        secondaryView: 'version-history'
+      })
+    );
+  });
+
+  test('metric with chatId without secondary view and with version number', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      versionNumber: 1
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
+        chatId: mockChatId,
+        metricId: mockAssetId,
+        versionNumber: 1
+      })
+    );
+  });
+
+  test('metric with chatId without secondary view or version number', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'metric' as FileType
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+        chatId: mockChatId,
+        metricId: mockAssetId
+      })
+    );
+  });
+
+  // Metric tests without chatId
+  test('metric without chatId and chart-edit secondary view', () => {
+    const result = assetParamsToRoute({
+      chatId: undefined,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      secondaryView: 'chart-edit'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_CHART,
+        metricId: mockAssetId,
+        secondaryView: 'chart-edit'
+      })
+    );
+  });
+
+  test('metric without chatId and sql-edit secondary view', () => {
+    const result = assetParamsToRoute({
+      chatId: undefined,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      secondaryView: 'sql-edit'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_RESULTS,
+        metricId: mockAssetId,
+        secondaryView: 'sql-edit'
+      })
+    );
+  });
+
+  test('metric without chatId and version-history secondary view', () => {
+    const result = assetParamsToRoute({
+      chatId: undefined,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      secondaryView: 'version-history'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_CHART,
+        metricId: mockAssetId
+      })
+    );
+  });
+
+  test('metric without chatId or secondary view', () => {
+    const result = assetParamsToRoute({
+      chatId: undefined,
+      assetId: mockAssetId,
+      type: 'metric' as FileType
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_CHART,
+        metricId: mockAssetId
+      })
+    );
+  });
+
+  // Dashboard tests
+  test('dashboard with chatId and version-history secondary view', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'dashboard' as FileType,
+      secondaryView: 'version-history'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
+        chatId: mockChatId,
+        dashboardId: mockAssetId
+      })
+    );
+  });
+
+  test('dashboard with chatId without secondary view', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'dashboard' as FileType
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_DASHBOARD_ID,
+        dashboardId: mockAssetId
+      })
+    );
+  });
+
+  test('dashboard without chatId', () => {
+    const result = assetParamsToRoute({
+      chatId: undefined,
+      assetId: mockAssetId,
+      type: 'dashboard' as FileType
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_DASHBOARD_ID,
+        dashboardId: mockAssetId
+      })
+    );
+  });
+
+  test('unsupported file type', () => {
+    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'unknown' as FileType
+    });
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Asset params to route has not been implemented for this file type',
+      'unknown'
+    );
+    expect(result).toBe('');
+    consoleSpy.mockRestore();
+  });
+
+  // Additional edge cases and combinations
+  test('metric with empty chatId should behave like undefined chatId', () => {
+    const result = assetParamsToRoute({
+      chatId: '',
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      secondaryView: 'chart-edit'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_CHART,
+        metricId: mockAssetId,
+        secondaryView: 'chart-edit'
+      })
+    );
+  });
+
+  test('metric with empty assetId should still construct route', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: '',
+      type: 'metric' as FileType,
+      secondaryView: 'chart-edit'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+        chatId: mockChatId,
+        metricId: '',
+        secondaryView: 'chart-edit'
+      })
+    );
+  });
+
+  test('metric with very long chatId and assetId', () => {
+    const longId = 'a'.repeat(100);
+    const result = assetParamsToRoute({
+      chatId: longId,
+      assetId: longId,
+      type: 'metric' as FileType,
+      secondaryView: 'chart-edit'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+        chatId: longId,
+        metricId: longId,
+        secondaryView: 'chart-edit'
+      })
+    );
+  });
+
+  test('metric with special characters in chatId and assetId', () => {
+    const specialId = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const result = assetParamsToRoute({
+      chatId: specialId,
+      assetId: specialId,
+      type: 'metric' as FileType,
+      secondaryView: 'chart-edit'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+        chatId: specialId,
+        metricId: specialId,
+        secondaryView: 'chart-edit'
+      })
+    );
+  });
+
+  test('metric with version number 0', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      versionNumber: 0
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
+        chatId: mockChatId,
+        metricId: mockAssetId,
+        versionNumber: 0
+      })
+    );
+  });
+
+  test('metric with negative version number', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      versionNumber: -1
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
+        chatId: mockChatId,
+        metricId: mockAssetId,
+        versionNumber: -1
+      })
+    );
+  });
+
+  test('dashboard with empty chatId should behave like undefined chatId', () => {
+    const result = assetParamsToRoute({
+      chatId: '',
+      assetId: mockAssetId,
+      type: 'dashboard' as FileType,
+      secondaryView: 'version-history'
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_DASHBOARD_ID,
+        dashboardId: mockAssetId
+      })
+    );
+  });
+
+  test('dashboard with empty assetId', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: '',
+      type: 'dashboard' as FileType
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_DASHBOARD_ID,
+        dashboardId: ''
+      })
+    );
+  });
+
+  test('dashboard with very long ids', () => {
+    const longId = 'a'.repeat(100);
+    const result = assetParamsToRoute({
+      chatId: longId,
+      assetId: longId,
+      type: 'dashboard' as FileType
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_DASHBOARD_ID,
+        dashboardId: longId
+      })
+    );
+  });
+
+  test('dashboard with special characters in ids', () => {
+    const specialId = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const result = assetParamsToRoute({
+      chatId: specialId,
+      assetId: specialId,
+      type: 'dashboard' as FileType
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_DASHBOARD_ID,
+        dashboardId: specialId
+      })
+    );
+  });
+
+  test('metric with invalid secondary view', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'metric' as FileType,
+      secondaryView: 'invalid-view' as any
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+        chatId: mockChatId,
+        metricId: mockAssetId
+      })
+    );
+  });
+
+  test('dashboard with non-version-history secondary view', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'dashboard' as FileType,
+      secondaryView: 'chart-edit' as any
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_DASHBOARD_ID,
+        dashboardId: mockAssetId
+      })
+    );
+  });
+});
