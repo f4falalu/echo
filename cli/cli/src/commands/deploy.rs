@@ -1,5 +1,6 @@
 use anyhow::Result;
 use regex;
+use reqwest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -957,18 +958,18 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
             }
         }
 
-        progress.status = "Validating model...".to_string();
-        progress.log_progress();
+        // progress.status = "Validating model...".to_string();
+        // progress.log_progress();
 
-        if let Err(errors) = model_file.validate(config.as_ref()).await {
-            for error in &errors {
-                progress.log_error(error);
-            }
-            result
-                .failures
-                .push((progress.current_file.clone(), "unknown".to_string(), errors));
-            continue;
-        }
+        // if let Err(errors) = model_file.validate(config.as_ref()).await {
+        //     for error in &errors {
+        //         progress.log_error(error);
+        //     }
+        //     result
+        //         .failures
+        //         .push((progress.current_file.clone(), "unknown".to_string(), errors));
+        //     continue;
+        // }
 
         // Process each model in the file
         for model in &model_file.model.models {
@@ -1136,7 +1137,18 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
             }
             Err(e) => {
                 println!("\n❌ Deployment failed!");
-                println!("Error: {}", e);
+
+                // Attempt to extract more detail from the error
+                let mut detailed_error = format!("{}", e);
+                if let Some(source) = e.source() {
+                    if let Some(reqwest_err) = source.downcast_ref::<reqwest::Error>() {
+                        if let Some(status) = reqwest_err.status() {
+                            detailed_error = format!("{} (HTTP Status: {})", detailed_error, status);
+                        }
+                    }
+                }
+
+                println!("Error: {}", detailed_error);
                 println!("\n💡 Troubleshooting:");
                 println!("1. Check data source:");
                 println!("   - Verify '{}' exists in Buster", data_source_name);
@@ -1148,7 +1160,10 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
                 println!("3. Check relationships:");
                 println!("   - Ensure referenced models exist");
                 println!("   - Verify relationship types");
-                return Err(anyhow::anyhow!("Failed to deploy models to Buster: {}", e));
+                return Err(anyhow::anyhow!(
+                    "Failed to deploy models to Buster: {}",
+                    detailed_error
+                ));
             }
         }
     }

@@ -101,7 +101,7 @@ IMPORTANT GUIDELINES:
 4. Evaluate based on whether the dataset's schema, fields, or description MIGHT contain or relate to the relevant information
 5. Include datasets that could provide contextual or supporting information
 6. When in doubt about relevance, lean towards including the dataset
-7. Ensure the "id" field exactly matches the dataset's UUID
+7. **CRITICAL:** The "id" field in your JSON response MUST contain ONLY the dataset's UUID string (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38"). Do NOT include the dataset name or any other information in the "id" field.
 8. Use both the USER REQUEST and SEARCH QUERY to understand the user's information needs broadly
 9. Consider these elements in the dataset metadata:
    - Column names and their data types
@@ -452,7 +452,7 @@ async fn filter_datasets_with_llm(
     let llm_client = LiteLLMClient::new(None, None);
 
     let request = ChatCompletionRequest {
-        model: "gpt-4.1-mini".to_string(),
+        model: "gemini-2.0-flash-001".to_string(),
         messages: vec![AgentMessage::User {
             id: None,
             content: prompt,
@@ -510,13 +510,32 @@ async fn filter_datasets_with_llm(
         .results
         .into_iter()
         .filter_map(|result| {
-            Uuid::parse_str(&result.id).ok().and_then(|id| {
-                dataset_map.get(&id).map(|dataset| DatasetResult {
-                    id: dataset.id,
-                    name: Some(dataset.name.clone()),
-                    yml_content: dataset.yml_content.clone(),
-                })
-            })
+            debug!(llm_result_id = %result.id, "Processing LLM filter result");
+            let parsed_uuid_result = Uuid::parse_str(&result.id);
+            match &parsed_uuid_result {
+                Ok(parsed_id) => {
+                    debug!(parsed_id = %parsed_id, "Successfully parsed UUID from LLM result");
+                    let dataset_option = dataset_map.get(parsed_id);
+                    match dataset_option {
+                        Some(dataset) => {
+                            debug!(dataset_id = %dataset.id, dataset_name = %dataset.name, "Found matching dataset in map");
+                            Some(DatasetResult {
+                                id: dataset.id,
+                                name: Some(dataset.name.clone()),
+                                yml_content: dataset.yml_content.clone(),
+                            })
+                        }
+                        None => {
+                            warn!(parsed_id = %parsed_id, "Parsed UUID not found in dataset_map");
+                            None
+                        }
+                    }
+                }
+                Err(e) => {
+                    error!(llm_result_id = %result.id, error = %e, "Failed to parse UUID from LLM result");
+                    None
+                }
+            }
         })
         .collect();
 

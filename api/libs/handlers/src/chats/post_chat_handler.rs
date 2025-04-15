@@ -2133,23 +2133,6 @@ fn transform_assistant_tool_message(
                 }
             }
             "no_search_needed" => {
-                // Handle the 'no_search_needed' tool call by creating a simple reasoning message
-                let reasoning = BusterReasoningMessage::Text(BusterReasoningText {
-                    id: tool_id.clone(),
-                    reasoning_type: "text".to_string(),
-                    title: "Skipped Data Catalog Search".to_string(),
-                    secondary_title: format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()), // Use Delta
-                    message: Some("Sufficient data context already available.".to_string()),
-                    message_chunk: None,
-                    status: Some("Complete".to_string()),
-                });
-                all_results.push(ToolTransformResult::Reasoning(reasoning)); // Corrected: all_results
-
-                // Mark reasoning as complete for timing calculations
-                if reasoning_complete_time.is_none() {
-                     *reasoning_complete_time = Some(Instant::now());
-                     *last_reasoning_completion_time = Instant::now(); // Update last completion time
-                }
                  // Clear tracker since this tool doesn't use chunking for its reasoning output
                 tracker.clear_chunk(tool_id.clone());
             }
