@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/middleware/supabaseMiddleware';
-import { isPublicPage, BusterRoutes, createBusterRoute } from './routes';
 import { pathnameMiddleware } from './middleware/pathnameMiddleware';
+import { assetReroutes } from './middleware/assetReroutes';
 
 export async function middleware(request: NextRequest) {
   try {
@@ -9,11 +9,7 @@ export async function middleware(request: NextRequest) {
 
     response = await pathnameMiddleware(request, response);
 
-    if ((!user || !user.id) && !isPublicPage(request)) {
-      return NextResponse.redirect(
-        new URL(createBusterRoute({ route: BusterRoutes.AUTH_LOGIN }), request.url)
-      );
-    }
+    response = await assetReroutes(request, response, user);
 
     return response;
   } catch (error) {

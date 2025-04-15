@@ -488,7 +488,6 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
       label: 'Share metric',
       value: 'share-metric',
       icon: <ShareRight />,
-
       items: (
         <ShareMenuContent
           key={metricId}

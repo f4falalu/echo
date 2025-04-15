@@ -58,9 +58,14 @@ const useGetDashboardAndInitializeMetrics = () => {
 
   const initializeMetrics = useMemoizedFn((metrics: BusterDashboardResponse['metrics']) => {
     for (const metric of Object.values(metrics)) {
-      const prevMetric = queryClient.getQueryData(queryKeys.metricsGetMetric(metric.id).queryKey);
+      const prevMetric = queryClient.getQueryData(
+        queryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey
+      );
       const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
-      queryClient.setQueryData(queryKeys.metricsGetMetric(metric.id).queryKey, upgradedMetric);
+      queryClient.setQueryData(
+        queryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey,
+        upgradedMetric
+      );
       prefetchGetMetricDataClient(
         { id: metric.id, version_number: metric.version_number },
         queryClient

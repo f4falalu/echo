@@ -50,6 +50,7 @@ describe('useLayoutConfig', () => {
     chatId: 'chat-123',
     onSetSelectedFile: mockOnSetSelectedFile,
     animateOpenSplitter: mockAnimateOpenSplitter,
+    appSplitterRef: { current: null },
     // ChatParams properties
     metricId: undefined,
     dashboardId: undefined,

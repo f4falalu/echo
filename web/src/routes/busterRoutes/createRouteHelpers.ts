@@ -72,3 +72,58 @@ export const createPathnameToBusterRoute = (pathname: string): BusterRoutes => {
     BusterRoutes.ROOT
   );
 };
+
+export const extractPathParamsFromRoute = (route: string): Record<string, string> => {
+  const params: Record<string, string> = {};
+  const [basePath, queryString] = route.split('?');
+
+  // Find matching route template from BusterRoutes
+  const routeTemplate = Object.values(BusterRoutes).find((template) => {
+    const [templateBase] = template.split('?');
+    const templateParts = templateBase.split('/');
+    const routeParts = basePath.split('/');
+
+    if (templateParts.length !== routeParts.length) return false;
+
+    return templateParts.every((part, i) => {
+      if (part.includes('?')) {
+        part = part.split('?')[0];
+      }
+      return part.startsWith(':') || part.startsWith('[') || part === routeParts[i];
+    });
+  });
+
+  if (!routeTemplate) return params;
+
+  // Extract path parameters
+  const [templateBase] = routeTemplate.split('?');
+  const templateParts = templateBase.split('/');
+  const routeParts = basePath.split('/');
+
+  templateParts.forEach((part, index) => {
+    if (part.startsWith(':')) {
+      const paramName = part.slice(1);
+      params[paramName] = routeParts[index];
+    } else if (part.startsWith('[') && part.endsWith(']')) {
+      const paramName = part.slice(1, -1);
+      params[paramName] = routeParts[index];
+    }
+  });
+
+  // Handle query parameters if they exist
+  if (queryString && routeTemplate.includes('?')) {
+    const queryParams = new URLSearchParams(queryString);
+    const templateQueryParams = routeTemplate.split('?')[1].split('&');
+
+    templateQueryParams.forEach((param) => {
+      const [key, template] = param.split('=');
+      if (template.startsWith(':')) {
+        const paramName = template.slice(1);
+        const value = queryParams.get(key);
+        if (value) params[paramName] = value;
+      }
+    });
+  }
+
+  return params;
+};

@@ -1,4 +1,8 @@
-import { createBusterRoute, createPathnameToBusterRoute } from './createRouteHelpers';
+import {
+  createBusterRoute,
+  createPathnameToBusterRoute,
+  extractPathParamsFromRoute
+} from './createRouteHelpers';
 import { BusterAuthRoutes } from './busterAuthRoutes';
 import { BusterAppRoutes } from './busterAppRoutes';
 import { BusterSettingsRoutes } from './busterSettingsRoutes';
@@ -169,5 +173,67 @@ describe('createPathnameToBusterRoute', () => {
     const pathname = '/app/chats/123/metrics/metric456/chart?side_panel=chart-edit';
     const result = createPathnameToBusterRoute(pathname);
     expect(result).toEqual(BusterAppRoutes.APP_CHAT_ID_METRIC_ID_CHART);
+  });
+});
+
+describe('extractPathParamsFromRoute', () => {
+  test('should extract single parameter from route', () => {
+    const route = '/app/collections/123';
+    const result = extractPathParamsFromRoute(route);
+    expect(result).toEqual({
+      collectionId: '123'
+    });
+  });
+
+  test('should extract multiple parameters from route', () => {
+    const route = '/app/chats/chat123/metrics/metric456/chart';
+    const result = extractPathParamsFromRoute(route);
+    expect(result).toEqual({
+      chatId: 'chat123',
+      metricId: 'metric456'
+    });
+  });
+
+  test('should handle query parameters', () => {
+    const route = '/app/metrics/metric123/chart?secondary_view=chart-edit';
+    const result = extractPathParamsFromRoute(route);
+    expect(result).toEqual({
+      metricId: 'metric123',
+      secondaryView: 'chart-edit'
+    });
+  });
+
+  test('should handle multiple query parameters', () => {
+    const route =
+      '/app/chats/chat123/dashboards/dash456?dashboard_version_number=1&secondary_view=version-history';
+    const result = extractPathParamsFromRoute(route);
+    expect(result).toEqual({
+      chatId: 'chat123',
+      dashboardId: 'dash456',
+      secondaryView: 'version-history',
+      versionNumber: '1'
+    });
+  });
+
+  test('should return empty object for non-matching routes', () => {
+    const route = '/invalid/route/path';
+    const result = extractPathParamsFromRoute(route);
+    expect(result).toEqual({});
+  });
+
+  test('should handle settings routes with nested parameters', () => {
+    const route = '/app/settings/permission-groups/group123/datasets';
+    const result = extractPathParamsFromRoute(route);
+    expect(result).toEqual({
+      permissionGroupId: 'group123'
+    });
+  });
+
+  test('should handle dataset routes with permissions', () => {
+    const route = '/app/datasets/dataset123/permissions/overview';
+    const result = extractPathParamsFromRoute(route);
+    expect(result).toEqual({
+      datasetId: 'dataset123'
+    });
   });
 });

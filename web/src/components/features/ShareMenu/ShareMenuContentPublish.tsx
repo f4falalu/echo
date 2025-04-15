@@ -292,6 +292,8 @@ const SetAPassword: React.FC<{
                   onChange={onChangePassword}
                   placeholder="Password"
                   type={visibilityToggle ? 'text' : 'password'}
+                  autoComplete="off"
+                  autoCorrect="off"
                 />
 
                 <Button
