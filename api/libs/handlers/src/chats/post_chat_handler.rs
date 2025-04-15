@@ -1472,6 +1472,9 @@ fn transform_tool_message(
         // Response tools now handled earlier, return empty here
         "done" | "message_notify_user" | "message_user_clarifying_question" => vec![],
 
+        // Add specific handling for no_search_needed to return nothing
+        "no_search_needed" => vec![],
+
         // Existing tool result processing - pass duration
         "search_data_catalog" => tool_data_catalog_search(id.clone(), content, delta_duration)?,
         "create_metrics" => tool_create_metrics(id.clone(), content, delta_duration)?,
@@ -2090,32 +2093,132 @@ fn transform_assistant_tool_message(
                                 // Update file detail with delta
                                 file_detail.file.text_chunk = Some(delta);
                                 file_detail.file.text = None; // Ensure full text is cleared when chunking
-                                file_detail.status = "loading".to_string();
-                                updated_files_map.insert(file_map_id.clone(), file_detail.clone()); // Clone needed
+                                file_detail.status = "In Progress".to_string(); // Set status to in progress
                                 has_updates = true;
+                                updated_files_map.insert(file_map_id.clone(), file_detail.clone()); // Clone file_detail
+                            } else {
+                                // If delta is empty, it means this chunk is identical to the last seen content
+                                // We might still want to include it in the update map if its status needs setting,
+                                // but primarily we track changes.
+                                // Consider if we need to update status even without content change.
+                                // For now, we only add to updated_files_map if there's a delta.
                             }
-                         }
+                        }
                     }
-                     // If there were actual deltas, send an update
+
+                    // Update only the files that had changes
                     if has_updates {
-                        file_reasoning.files = updated_files_map;
-                        file_reasoning.status = "loading".to_string(); // Ensure parent status is loading
-                        // Make sure secondary title remains set
-                        file_reasoning.secondary_title = format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()); // Use Delta
-                        all_results.push(ToolTransformResult::Reasoning(BusterReasoningMessage::File(file_reasoning)));
+                        file_reasoning.files = updated_files_map; // Replace with updated files
+                        all_results.push(ToolTransformResult::Reasoning(
+                            BusterReasoningMessage::File(file_reasoning),
+                        ));
                     }
-
-                } else if let Err(e) = parse_result {
-                    tracing::error!("Error parsing file chunk for {}: {}", tool_name, e);
+                } else if let Ok(Some(BusterReasoningMessage::Text(text_reasoning))) = parse_result {
+                     all_results.push(ToolTransformResult::Reasoning(
+                            BusterReasoningMessage::Text(text_reasoning),
+                        ));
                 }
-                // Completion is handled by transform_tool_message
+                // Handle complete progress for file tools if needed
+                if progress == MessageProgress::Complete {
+                    // Removed finalize_file_processing call as it caused a linter error
+                    // if let Ok(parsed_content) = serde_json::from_str::<Value>(&tool_call.function.arguments) {
+                    //      // Optionally use parsed_content for final processing if needed
+                    //      if let Ok(Some(reasoning_messages)) = parser.finalize_file_processing(tool_id.clone(), file_type, parsed_content, last_reasoning_completion_time.elapsed()) {
+                    //          all_results.extend(reasoning_messages.into_iter().map(ToolTransformResult::Reasoning));
+                    //      }
+                    // }
+                    tracker.clear_chunk(tool_id.clone()); // Clear tracker for the main tool ID
+                    // Consider clearing file-specific chunk IDs too if necessary
+                    // parser.clear_related_chunks(tool_id.clone()); // Example hypothetical parser method
+                }
             }
+            "no_search_needed" => {
+                // Handle the 'no_search_needed' tool call by creating a simple reasoning message
+                let reasoning = BusterReasoningMessage::Text(BusterReasoningText {
+                    id: tool_id.clone(),
+                    reasoning_type: "text".to_string(),
+                    title: "Skipped Data Catalog Search".to_string(),
+                    secondary_title: format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()), // Use Delta
+                    message: Some("Sufficient data context already available.".to_string()),
+                    message_chunk: None,
+                    status: Some("Complete".to_string()),
+                });
+                all_results.push(ToolTransformResult::Reasoning(reasoning)); // Corrected: all_results
 
-            // --- Default for Unknown Tools ---
-            _ => {
-                tracing::warn!("Unhandled tool in transform_assistant_tool_message: {}", tool_name);
+                // Mark reasoning as complete for timing calculations
+                if reasoning_complete_time.is_none() {
+                     *reasoning_complete_time = Some(Instant::now());
+                     *last_reasoning_completion_time = Instant::now(); // Update last completion time
+                }
+                 // Clear tracker since this tool doesn't use chunking for its reasoning output
+                tracker.clear_chunk(tool_id.clone());
             }
-        };
+            "message_user_clarifying_question" => {
+                 // This tool generates a direct response message, not reasoning.
+                 // Parse the arguments to get the message content.
+                #[derive(Deserialize)]
+                struct ClarifyingQuestionArgs {
+                    message: String,
+                }
+
+                if let Ok(args) = serde_json::from_str::<ClarifyingQuestionArgs>(&tool_call.function.arguments) {
+                    // Create a final text response message
+                    let response_message = BusterChatMessage::Text {
+                        id: tool_id.clone(),
+                        message: Some(args.message),
+                        message_chunk: None,
+                        is_final_message: Some(true), // This tool implies a final message for this turn
+                         originating_tool_name: Some(tool_name.clone()), // Add originating tool name
+                    };
+                     all_results.push(ToolTransformResult::Response(response_message)); // Corrected: all_results
+
+                     // Mark reasoning as complete (even though it's a response tool, it concludes reasoning phase)
+                    if reasoning_complete_time.is_none() {
+                        *reasoning_complete_time = Some(Instant::now());
+                        *last_reasoning_completion_time = Instant::now();
+                    }
+                } else {
+                    tracing::warn!("Failed to parse arguments for message_user_clarifying_question");
+                }
+                 tracker.clear_chunk(tool_id.clone());
+            }
+             "done" => {
+                 // This tool generates a direct response message, not reasoning.
+                 // Parse the arguments to get the message content.
+                #[derive(Deserialize)]
+                struct DoneArgs {
+                    message: String,
+                }
+
+                if let Ok(args) = serde_json::from_str::<DoneArgs>(&tool_call.function.arguments) {
+                    // Create a final text response message
+                    let response_message = BusterChatMessage::Text {
+                        id: tool_id.clone(),
+                        message: Some(args.message),
+                        message_chunk: None,
+                        is_final_message: Some(true), // This tool implies a final message for this turn
+                        originating_tool_name: Some(tool_name.clone()), // Add originating tool name
+                    };
+                    all_results.push(ToolTransformResult::Response(response_message)); // Corrected: all_results
+
+                     // Mark reasoning as complete (even though it's a response tool, it concludes reasoning phase)
+                     if reasoning_complete_time.is_none() {
+                        *reasoning_complete_time = Some(Instant::now());
+                        *last_reasoning_completion_time = Instant::now();
+                    }
+                } else {
+                    tracing::warn!("Failed to parse arguments for done tool");
+                }
+                 tracker.clear_chunk(tool_id.clone());
+            }
+            _ => {
+                // Log unhandled tools
+                tracing::warn!(
+                    "Unhandled tool in transform_assistant_tool_message: {}",
+                    tool_name
+                );
+            }
+        }
     }
 
     Ok(all_results)

@@ -69,79 +69,15 @@ pub async fn upload_dbt_profiles_to_buster(
 ) -> Result<()> {
     let buster = BusterClient::new(buster_creds.url, buster_creds.api_key)?;
 
-    for (name, env, cred) in credentials {
-        let type_str = match &cred {
-            Credential::Postgres(_) => "postgres",
-            Credential::MySql(_) => "mysql",
-            Credential::Bigquery(_) => "bigquery",
-            Credential::SqlServer(_) => "sqlserver",
-            Credential::Redshift(_) => "redshift",
-            Credential::Databricks(_) => "databricks",
-            Credential::Snowflake(_) => "snowflake",
-        };
-
-        // Create a request with the appropriate fields based on credential type
-        let mut request = PostDataSourcesRequest {
+    for (name, _env, cred) in credentials {
+        let request = PostDataSourcesRequest {
             name,
-            env,
-            type_: type_str.to_string(),
-            host: None,
-            port: None,
-            username: None,
-            password: None,
-            default_database: None,
-            default_schema: None,
-            jump_host: None,
-            ssh_username: None,
-            ssh_private_key: None,
-            credentials_json: None,
-            project_id: None,
-            dataset_id: None,
-            account_id: None,
-            warehouse_id: None,
-            role: None,
-            api_key: None,
-            default_catalog: None,
+            credential: cred,
         };
-
-        // Fill in fields based on credential type
-        match cred {
-            Credential::Postgres(postgres) => {
-                request.host = Some(postgres.host);
-                request.port = Some(postgres.port);
-                request.username = Some(postgres.username);
-                request.password = Some(postgres.password);
-                request.default_database = Some(postgres.default_database);
-                request.default_schema = postgres.default_schema;
-                request.jump_host = postgres.jump_host;
-                request.ssh_username = postgres.ssh_username;
-                request.ssh_private_key = postgres.ssh_private_key;
-            },
-            Credential::Redshift(redshift) => {
-                request.host = Some(redshift.host);
-                request.port = Some(redshift.port);
-                request.username = Some(redshift.username);
-                request.password = Some(redshift.password);
-                request.default_database = Some(redshift.default_database);
-                request.default_schema = redshift.default_schema;
-            },
-            Credential::Bigquery(bigquery) => {
-                request.credentials_json = Some(bigquery.credentials_json);
-                request.project_id = Some(bigquery.default_project_id);
-                request.dataset_id = Some(bigquery.default_dataset_id);
-            },
-            // Add other credential types as needed
-            _ => {
-                // For unsupported types, we can't properly fill in the fields
-                // This would need to be extended for other database types
-            }
-        }
+        let profile_name = request.name.clone();
 
         if let Err(e) = buster.post_data_sources(request).await {
-            return Err(anyhow::anyhow!(
-                "Failed to upload dbt profile to Buster: {}",
-                e
-            ));
+            eprintln!("Failed to upload profile '{}': {}", profile_name, e);
         }
     }
 

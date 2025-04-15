@@ -141,6 +141,12 @@ struct DynamicPromptRule {
     prompt: String,
 }
 
+// Helper struct for dynamic model rules
+struct DynamicModelRule {
+    condition: Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>,
+    model: String,
+}
+
 // Update the ToolRegistry type alias is no longer needed, but we need the new type for the map
 type ToolsMap = Arc<RwLock<HashMap<String, RegisteredTool>>>;
 
@@ -173,6 +179,8 @@ pub struct Agent {
     default_prompt: String,
     /// Ordered rules for dynamically selecting system prompts
     dynamic_prompt_rules: Arc<RwLock<Vec<DynamicPromptRule>>>,
+    /// Ordered rules for dynamically selecting the LLM model
+    dynamic_model_rules: Arc<RwLock<Vec<DynamicModelRule>>>,
     /// List of tool names that should terminate the agent loop upon successful execution.
     terminating_tool_names: Arc<RwLock<Vec<String>>>,
 }
@@ -208,6 +216,7 @@ impl Agent {
             name,
             default_prompt,
             dynamic_prompt_rules: Arc::new(RwLock::new(Vec::new())),
+            dynamic_model_rules: Arc::new(RwLock::new(Vec::new())), // Initialize empty model rules
             terminating_tool_names: Arc::new(RwLock::new(Vec::new())), // Initialize empty list
         }
     }
@@ -232,6 +241,7 @@ impl Agent {
             name,
             default_prompt,
             dynamic_prompt_rules: Arc::new(RwLock::new(Vec::new())),
+            dynamic_model_rules: Arc::clone(&existing_agent.dynamic_model_rules), // Share model rules with parent
             terminating_tool_names: Arc::clone(&existing_agent.terminating_tool_names), // Share the list with parent
         }
     }
@@ -585,6 +595,9 @@ impl Agent {
         // Collect all enabled tools and their schemas
         let tools = self.get_enabled_tools().await; // Now uses the new logic
 
+        // --- Dynamic Model Selection ---
+        let current_model = self.get_current_model().await;
+
         // Get the most recent user message for logging (used only in error logging)
         let _user_message = thread
             .messages
@@ -594,7 +607,7 @@ impl Agent {
 
         // Create the tool-enabled request
         let request = ChatCompletionRequest {
-            model: self.model.clone(),
+            model: current_model, // Use the dynamically selected model
             messages: llm_messages, // Use the dynamically prepared messages list
             tools: if tools.is_empty() { None } else { Some(tools) },
             tool_choice: Some(ToolChoice::Required),
@@ -605,8 +618,6 @@ impl Agent {
                 session_id: thread.id.to_string(),
                 trace_id: Uuid::new_v4().to_string(),
             }),
-            // temperature: Some(0.0),
-            // max_completion_tokens: Some(15000),
             reasoning_effort: Some("low".to_string()),
             ..Default::default()
         };
@@ -1115,6 +1126,38 @@ impl Agent {
         }
 
         self.default_prompt.clone() // Fallback to default prompt if no rules match
+    }
+
+    /// Add a new rule for dynamically selecting the LLM model based on agent state.
+    /// Rules are evaluated in the order they are added. The first matching rule's model is used.
+    ///
+    /// # Arguments
+    /// * `condition` - A closure that takes the current agent state and returns `true` if this rule should apply.
+    /// * `model` - The model identifier (e.g., "gpt-4o") to use if the condition is met.
+    pub async fn add_dynamic_model_rule<F>(&self, condition: F, model: String)
+    where
+        F: Fn(&HashMap<String, Value>) -> bool + Send + Sync + 'static,
+    {
+        let rule = DynamicModelRule {
+            condition: Box::new(condition),
+            model,
+        };
+        self.dynamic_model_rules.write().await.push(rule);
+    }
+
+    /// Gets the model name based on the current agent state and dynamic model rules.
+    /// If no rules match, returns the agent's default model.
+    async fn get_current_model(&self) -> String {
+        let rules = self.dynamic_model_rules.read().await;
+        let state = self.state.read().await;
+
+        for rule in rules.iter() {
+            if (rule.condition)(&state) {
+                return rule.model.clone(); // Return the first matching rule's model
+            }
+        }
+
+        self.model.clone() // Fallback to the agent's default model
     }
 
     /// Register a tool name that should terminate the agent loop upon successful execution.

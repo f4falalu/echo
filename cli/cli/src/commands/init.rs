@@ -200,25 +200,25 @@ async fn setup_redshift(
         .without_confirmation()
         .prompt()?;
 
-    // Collect database (optional)
-    let database = Text::new("Enter the Redshift database (optional):")
-        .with_help_message("Leave blank to access all available databases")
+    // Collect database (required)
+    let database = Text::new("Enter the Redshift database:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() {
+                return Ok(Validation::Invalid("Database cannot be empty".into()));
+            }
+            Ok(Validation::Valid)
+        })
         .prompt()?;
-    let database = if database.trim().is_empty() {
-        None
-    } else {
-        Some(database)
-    };
 
-    // Collect schema (optional)
-    let schema = Text::new("Enter the Redshift schema (optional):")
-        .with_help_message("Leave blank to access all available schemas")
+    // Collect schema (required)
+    let schema = Text::new("Enter the Redshift schema:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() {
+                return Ok(Validation::Invalid("Schema cannot be empty".into()));
+            }
+            Ok(Validation::Valid)
+        })
         .prompt()?;
-    let schema = if schema.trim().is_empty() {
-        None
-    } else {
-        Some(schema)
-    };
 
     // Show summary and confirm
     println!("\n{}", "Connection Summary:".bold());
@@ -227,19 +227,8 @@ async fn setup_redshift(
     println!("Port: {}", port.to_string().cyan());
     println!("Username: {}", username.cyan());
     println!("Password: {}", "********".cyan());
-
-    // Display database and schema with clear indication if they're empty
-    if let Some(db) = &database {
-        println!("Database: {}", db.cyan());
-    } else {
-        println!("Database: {}", "All databases (null)".cyan());
-    }
-
-    if let Some(sch) = &schema {
-        println!("Schema: {}", sch.cyan());
-    } else {
-        println!("Schema: {}", "All schemas (null)".cyan());
-    }
+    println!("Database: {}", database.cyan()); // Now required
+    println!("Schema: {}", schema.cyan()); // Now required
 
     let confirm = Confirm::new("Do you want to create this data source?")
         .with_default(true)
@@ -251,27 +240,19 @@ async fn setup_redshift(
     }
 
     // Create API request
+    // Note: Linter previously indicated these expect Option<String> despite being required now.
+    let redshift_creds = RedshiftCredentials {
+        host,
+        port,
+        username,
+        password,
+        default_database: database.clone(), // Pass as Option<String>
+        default_schema: Some(schema.clone()), // Pass as Option<String>
+    };
+    let credential = Credential::Redshift(redshift_creds);
     let request = PostDataSourcesRequest {
         name: name.clone(),
-        env: "dev".to_string(), // Default to dev environment
-        type_: "redshift".to_string(),
-        host: Some(host),
-        port: Some(port),
-        username: Some(username),
-        password: Some(password),
-        default_database: database.clone(),
-        default_schema: schema.clone(),
-        jump_host: None,
-        ssh_username: None,
-        ssh_private_key: None,
-        credentials_json: None,
-        project_id: None,
-        dataset_id: None,
-        account_id: None,
-        warehouse_id: None,
-        role: None,
-        api_key: None,
-        default_catalog: None,
+        credential,
     };
 
     // Send to API with progress indicator
@@ -300,16 +281,12 @@ async fn setup_redshift(
                 name.cyan()
             );
 
-            // Create a copy of the values we need for the config file
-            let db_copy = database.clone();
-            let schema_copy = schema.clone();
-
             // Create buster.yml file
             create_buster_config_file(
                 config_path,
                 &name,
-                db_copy.as_deref(),
-                schema_copy.as_deref(),
+                &database, // Pass required string ref
+                &schema,   // Pass required string ref
             )?;
 
             println!("You can now use this data source with other Buster commands.");
@@ -395,26 +372,25 @@ async fn setup_postgres(
         .without_confirmation()
         .prompt()?;
 
-    // Collect database (optional)
-    let database = Text::new("Enter the PostgreSQL database name (optional):")
-        .with_help_message("Leave blank to access all available databases")
+    // Collect database (required)
+    let database = Text::new("Enter the PostgreSQL database name:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() {
+                return Ok(Validation::Invalid("Database cannot be empty".into()));
+            }
+            Ok(Validation::Valid)
+        })
         .prompt()?;
-    let database = if database.trim().is_empty() {
-        None
-    } else {
-        Some(database)
-    };
 
-    // Collect schema (optional)
-    let schema = Text::new("Enter the PostgreSQL schema (optional):")
-        .with_help_message("Leave blank to access all available schemas")
-        .with_default("public") // Default Postgres schema is usually 'public'
+    // Collect schema (required)
+    let schema = Text::new("Enter the PostgreSQL schema:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() {
+                return Ok(Validation::Invalid("Schema cannot be empty".into()));
+            }
+            Ok(Validation::Valid)
+        })
         .prompt()?;
-    let schema = if schema.trim().is_empty() {
-        None
-    } else {
-        Some(schema)
-    };
 
     // Show summary and confirm
     println!("\n{}", "Connection Summary:".bold());
@@ -423,19 +399,8 @@ async fn setup_postgres(
     println!("Port: {}", port.to_string().cyan());
     println!("Username: {}", username.cyan());
     println!("Password: {}", "********".cyan());
-
-    // Display database and schema with clear indication if they're empty
-    if let Some(db) = &database {
-        println!("Database: {}", db.cyan());
-    } else {
-        println!("Database: {}", "All databases (null)".cyan());
-    }
-
-    if let Some(sch) = &schema {
-        println!("Schema: {}", sch.cyan());
-    } else {
-        println!("Schema: {}", "All schemas (null)".cyan());
-    }
+    println!("Database: {}", database.cyan()); // Now required
+    println!("Schema: {}", schema.cyan()); // Now required
 
     let confirm = Confirm::new("Do you want to create this data source?")
         .with_default(true)
@@ -447,27 +412,22 @@ async fn setup_postgres(
     }
 
     // Create API request
-    let request = PostDataSourcesRequest {
-        name: name.clone(),
-        env: "dev".to_string(), // Default to dev environment
-        type_: "postgres".to_string(),
-        host: Some(host),
-        port: Some(port),
-        username: Some(username),
-        password: Some(password),
-        default_database: database.clone(),
-        default_schema: schema.clone(),
+    // Assuming these expect Option<String> based on typical patterns, adjust if linter disagrees
+    let postgres_creds = PostgresCredentials {
+        host,
+        port,
+        username,
+        password,
+        default_database: database.clone(), // Pass as Option<String>
+        default_schema: Some(schema.clone()), // Pass as Option<String>
         jump_host: None,
         ssh_username: None,
         ssh_private_key: None,
-        credentials_json: None,
-        project_id: None,
-        dataset_id: None,
-        account_id: None,
-        warehouse_id: None,
-        role: None,
-        api_key: None,
-        default_catalog: None,
+    };
+    let credential = Credential::Postgres(postgres_creds);
+    let request = PostDataSourcesRequest {
+        name: name.clone(),
+        credential,
     };
 
     // Send to API with progress indicator
@@ -496,16 +456,12 @@ async fn setup_postgres(
                 name.cyan()
             );
 
-            // Create a copy of the values we need for the config file
-            let db_copy = database.clone();
-            let schema_copy = schema.clone();
-
             // Create buster.yml file
             create_buster_config_file(
                 config_path,
                 &name,
-                db_copy.as_deref(),
-                schema_copy.as_deref(),
+                &database, // Pass required string ref
+                &schema,   // Pass required string ref
             )?;
 
             println!("You can now use this data source with other Buster commands.");
@@ -557,15 +513,15 @@ async fn setup_bigquery(
         })
         .prompt()?;
 
-    // Collect dataset ID (optional)
-    let dataset_id = Text::new("Enter the BigQuery dataset ID (optional):")
-        .with_help_message("Leave blank to access all available datasets")
+    // Collect dataset ID (required)
+    let dataset_id = Text::new("Enter the BigQuery dataset ID:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() {
+                return Ok(Validation::Invalid("Dataset ID cannot be empty".into()));
+            }
+            Ok(Validation::Valid)
+        })
         .prompt()?;
-    let dataset_id = if dataset_id.trim().is_empty() {
-        None
-    } else {
-        Some(dataset_id)
-    };
 
     // Collect credentials JSON
     println!(
@@ -610,14 +566,7 @@ async fn setup_bigquery(
     println!("\n{}", "Connection Summary:".bold());
     println!("Name: {}", name.cyan());
     println!("Project ID: {}", project_id.cyan());
-
-    // Display dataset ID with clear indication if it's empty
-    if let Some(ds) = &dataset_id {
-        println!("Dataset ID: {}", ds.cyan());
-    } else {
-        println!("Dataset ID: {}", "All datasets (null)".cyan());
-    }
-
+    println!("Dataset ID: {}", dataset_id.cyan()); // Now required
     println!("Credentials: {}", credentials_path.cyan());
 
     let confirm = Confirm::new("Do you want to create this data source?")
@@ -630,27 +579,15 @@ async fn setup_bigquery(
     }
 
     // Create API request
+    let bigquery_creds = BigqueryCredentials {
+        default_project_id: project_id.clone(),       // Expects String
+        default_dataset_id: dataset_id.clone(), // Expects Option<String>
+        credentials_json: credentials_json,           // Expects serde_json::Value
+    };
+    let credential = Credential::Bigquery(bigquery_creds);
     let request = PostDataSourcesRequest {
         name: name.clone(),
-        env: "dev".to_string(), // Default to dev environment
-        type_: "bigquery".to_string(),
-        host: None,
-        port: None,
-        username: None,
-        password: None,
-        default_database: None,
-        default_schema: None,
-        jump_host: None,
-        ssh_username: None,
-        ssh_private_key: None,
-        credentials_json: Some(credentials_json),
-        project_id: Some(project_id.clone()),
-        dataset_id: dataset_id.clone(),
-        account_id: None,
-        warehouse_id: None,
-        role: None,
-        api_key: None,
-        default_catalog: None,
+        credential,
     };
 
     // Send to API with progress indicator
@@ -683,8 +620,8 @@ async fn setup_bigquery(
             create_buster_config_file(
                 config_path,
                 &name,
-                Some(&project_id),     // Project ID maps to database
-                dataset_id.as_deref(), // Dataset ID maps to schema
+                &project_id, // Project ID maps to database
+                &dataset_id, // Dataset ID maps to schema
             )?;
 
             println!("You can now use this data source with other Buster commands.");
@@ -703,8 +640,8 @@ async fn setup_bigquery(
 fn create_buster_config_file(
     path: &Path,
     data_source_name: &str,
-    database: Option<&str>,
-    schema: Option<&str>,
+    database: &str, // Now required
+    schema: &str,   // Now required
 ) -> Result<()> {
     // Prompt for model paths (optional)
     let model_paths_input = Text::new(
@@ -730,8 +667,8 @@ fn create_buster_config_file(
 
     let config = BusterConfig {
         data_source_name: Some(data_source_name.to_string()),
-        schema: schema.map(String::from),
-        database: database.map(String::from),
+        schema: Some(schema.to_string()),     // Use required schema
+        database: Some(database.to_string()), // Use required database
         exclude_files: None,
         exclude_tags: None,
         model_paths,
