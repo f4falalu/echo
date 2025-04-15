@@ -16,6 +16,7 @@ import { type DropdownProps, Dropdown } from '@/components/ui/dropdown/Dropdown'
 import { AvatarUserButton } from '@/components/ui/avatar/AvatarUserButton';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { signOut as signOutServer } from '@/lib/supabase/signOut';
+import { useContactSupportModalStore } from '@/context/BusterAppLayout';
 
 export const SidebarUserFooter: React.FC<{}> = () => {
   const user = useUserConfigContextSelector((x) => x.user);
@@ -65,6 +66,8 @@ const SidebarUserDropdown: React.FC<{
   children: React.ReactNode;
   signOut: () => void;
 }> = React.memo(({ children, signOut }) => {
+  const onOpenContactSupportModal = useContactSupportModalStore((s) => s.onOpenContactSupportModal);
+
   const allItems: DropdownProps['items'] = useMemo(() => {
     return [
       ...topItems,
@@ -78,12 +81,14 @@ const SidebarUserDropdown: React.FC<{
       {
         label: 'Contact support',
         value: 'contact-support',
-        icon: <Message />
+        icon: <Message />,
+        onClick: () => onOpenContactSupportModal('help')
       },
       {
         label: 'Leave feedback',
         value: 'leave-feedback',
-        icon: <Flag />
+        icon: <Flag />,
+        onClick: () => onOpenContactSupportModal('feedback')
       },
       { type: 'divider' },
       {

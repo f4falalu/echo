@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { Text } from '@/components/ui/typography';
 import { Input } from '@/components/ui/inputs';
 import { useMemoizedFn } from '@/hooks';
@@ -9,12 +9,13 @@ import { AppModal } from '@/components/ui/modal';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 
 export const SupportModal: React.FC<{
-  open: boolean;
   onClose: () => void;
-}> = React.memo(({ open, onClose }) => {
+  formType?: 'feedback' | 'help' | false;
+}> = React.memo(({ onClose, formType = 'feedback' }) => {
+  const open = formType !== false;
   const user = useUserConfigContextSelector((state) => state.user);
   const userOrganizations = useUserConfigContextSelector((state) => state.userOrganizations);
-  const [selectedForm, setSelectedForm] = useState<'feedback' | 'help'>('feedback');
+  const [selectedForm, setSelectedForm] = useState<'feedback' | 'help'>(formType || 'feedback');
   const [loading, setLoading] = useState(false);
   const { openSuccessMessage, openErrorNotification } = useBusterNotifications();
   const [subject, setSubject] = useState('');
@@ -53,13 +54,11 @@ export const SupportModal: React.FC<{
     return {
       left:
         selectedForm === 'feedback' ? (
-          <div className="flex items-center space-x-1">
-            <Text size="md" variant="secondary">
-              Looking for help?
-            </Text>
+          <div className="flex items-center space-x-1.5">
+            <Text variant="secondary">Looking for help?</Text>
             <Text
-              size="md"
               variant="link"
+              className="cursor-pointer"
               onClick={() => {
                 setSelectedForm('help');
               }}>
@@ -90,12 +89,18 @@ export const SupportModal: React.FC<{
     };
   }, [selectedForm]);
 
+  useEffect(() => {
+    if (formType) {
+      setSelectedForm(formType);
+    }
+  }, [formType]);
+
   useLayoutEffect(() => {
     if (open) {
       setSubject('');
       setHelpRequest('');
       setFeedback('');
-      setSelectedForm('feedback');
+      setSelectedForm(formType);
     }
   }, [open]);
 

@@ -13,7 +13,10 @@ import { Button } from '@/components/ui/buttons';
 import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import Link from 'next/link';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import {
+  useAppLayoutContextSelector,
+  useContactSupportModalStore
+} from '@/context/BusterAppLayout';
 import { SupportModal } from '../modal/SupportModal';
 import { InvitePeopleModal } from '../modal/InvitePeopleModal';
 import { useMemoizedFn } from '@/hooks';
@@ -124,7 +127,7 @@ export const SidebarPrimary = React.memo(() => {
   const { data: favorites } = useGetUserFavorites();
   const currentParentRoute = useAppLayoutContextSelector((x) => x.currentParentRoute);
   const onToggleInviteModal = useInviteModalStore((s) => s.onToggleInviteModal);
-  const [openSupportModal, setOpenSupportModal] = useState(false);
+  const onOpenContactSupportModal = useContactSupportModalStore((s) => s.onOpenContactSupportModal);
   const { mutateAsync: updateUserFavorites } = useUpdateUserFavorites();
   const { mutateAsync: deleteUserFavorite } = useDeleteUserFavorite();
 
@@ -147,12 +150,12 @@ export const SidebarPrimary = React.memo(() => {
       items.push(favoritesDropdown(favorites, { deleteUserFavorite, onFavoritesReorder }));
     }
 
-    items.push(tryGroup(onToggleInviteModal, () => setOpenSupportModal(true)));
+    items.push(tryGroup(onToggleInviteModal, () => onOpenContactSupportModal('feedback')));
 
     return items;
   }, [isAdmin, isUserRegistered, favorites, currentParentRoute, onFavoritesReorder]);
 
-  const onCloseSupportModal = useMemoizedFn(() => setOpenSupportModal(false));
+  const onCloseSupportModal = useMemoizedFn(() => onOpenContactSupportModal(false));
 
   const HeaderMemoized = useMemo(
     () => <SidebarPrimaryHeader hideActions={!isUserRegistered} />,
@@ -169,7 +172,7 @@ export const SidebarPrimary = React.memo(() => {
         footer={FooterMemoized}
       />
 
-      <GlobalModals openSupportModal={openSupportModal} onCloseSupportModal={onCloseSupportModal} />
+      <GlobalModals onCloseSupportModal={onCloseSupportModal} />
     </>
   );
 });
@@ -211,24 +214,19 @@ const SidebarPrimaryHeader: React.FC<{ hideActions?: boolean }> = ({ hideActions
   );
 };
 
-const GlobalModals = ({
-  openSupportModal,
-  onCloseSupportModal
-}: {
-  openSupportModal: boolean;
-  onCloseSupportModal: () => void;
-}) => {
+const GlobalModals = ({ onCloseSupportModal }: { onCloseSupportModal: () => void }) => {
   const onToggleInviteModal = useInviteModalStore((s) => s.onToggleInviteModal);
   const openInviteModal = useInviteModalStore((s) => s.openInviteModal);
   const onCloseInviteModal = useMemoizedFn(() => onToggleInviteModal(false));
   const isAnonymousUser = useUserConfigContextSelector((state) => state.isAnonymousUser);
+  const formType = useContactSupportModalStore((s) => s.formType);
 
   if (isAnonymousUser) return null;
 
   return (
     <>
       <InvitePeopleModal open={openInviteModal} onClose={onCloseInviteModal} />
-      <SupportModal open={openSupportModal} onClose={onCloseSupportModal} />
+      <SupportModal formType={formType} onClose={onCloseSupportModal} />
     </>
   );
 };
