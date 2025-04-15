@@ -14,6 +14,7 @@ export const CollectionIndividualController: React.FC<{
 
   return (
     <AppPageLayout
+      headerSizeVariant="list"
       header={
         <CollectionsIndividualHeader
           openAddTypeModal={openAddTypeModal}
