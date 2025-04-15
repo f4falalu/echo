@@ -14,14 +14,15 @@ use diesel_async::RunQueryDsl;
 use futures::future::join_all;
 use indexmap::IndexMap;
 use query_engine::{data_source_query_routes::query_engine::query_engine, data_types::DataType};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tracing::{debug, error, info};
 use uuid::Uuid;
+use chrono::Utc;
 
 use super::{
     common::{
-        process_metric_file_modification, ModificationResult, ModifyFilesOutput, ModifyFilesParams,
-        FailedFileModification,
+        validate_sql, ModificationResult, ModifyFilesOutput, FailedFileModification,
     },
     file_types::file::FileWithId,
     FileModificationTool,
@@ -32,13 +33,24 @@ use crate::{
 };
 
 #[derive(Debug)]
-struct MetricModificationBatch {
+struct MetricUpdateBatch {
     pub files: Vec<MetricFile>,
     pub ymls: Vec<MetricYml>,
-    pub failed_modifications: Vec<(String, String)>,
-    pub modification_results: Vec<ModificationResult>,
+    pub failed_updates: Vec<(String, String)>,
+    pub update_results: Vec<ModificationResult>,
     pub validation_messages: Vec<String>,
     pub validation_results: Vec<Vec<IndexMap<String, DataType>>>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FileUpdate {
+    pub id: Uuid,
+    pub yml_content: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateFilesParams {
+    pub files: Vec<FileUpdate>,
 }
 
 pub struct ModifyMetricFilesTool {
@@ -53,10 +65,120 @@ impl ModifyMetricFilesTool {
 
 impl FileModificationTool for ModifyMetricFilesTool {}
 
+/// Process a metric file update with complete new YAML content
+/// Returns updated file, YAML, validation results and messages if successful
+async fn process_metric_file_update(
+    mut file: MetricFile,
+    yml_content: String,
+    duration: i64,
+) -> Result<(
+    MetricFile,
+    MetricYml,
+    Vec<ModificationResult>,
+    String,
+    Vec<IndexMap<String, DataType>>,
+)> {
+    debug!(
+        file_id = %file.id,
+        file_name = %file.name,
+        "Processing metric file update"
+    );
+
+    let mut results = Vec::new();
+
+    // Create and validate new YML object
+    match MetricYml::new(yml_content) {
+        Ok(new_yml) => {
+            debug!(
+                file_id = %file.id,
+                file_name = %file.name,
+                "Successfully parsed and validated new metric content"
+            );
+
+            // Validate SQL and get dataset_id from the first dataset
+            if new_yml.dataset_ids.is_empty() {
+                let error = "Missing required field 'dataset_ids'".to_string();
+                results.push(ModificationResult {
+                    file_id: file.id,
+                    file_name: file.name.clone(),
+                    success: false,
+                    error: Some(error.clone()),
+                    modification_type: "validation".to_string(),
+                    timestamp: Utc::now(),
+                    duration,
+                });
+                return Err(anyhow::anyhow!(error));
+            }
+
+            let dataset_id = new_yml.dataset_ids[0];
+            match validate_sql(&new_yml.sql, &dataset_id).await {
+                Ok((message, validation_results, metadata)) => {
+                    // Update file record
+                    file.content = new_yml.clone();
+                    file.name = new_yml.name.clone();
+                    file.updated_at = Utc::now();
+                    file.data_metadata = metadata;
+
+                    // Track successful update
+                    results.push(ModificationResult {
+                        file_id: file.id,
+                        file_name: file.name.clone(),
+                        success: true,
+                        error: None,
+                        modification_type: "content".to_string(),
+                        timestamp: Utc::now(),
+                        duration,
+                    });
+
+                    Ok((file, new_yml.clone(), results, message, validation_results))
+                }
+                Err(e) => {
+                    let error = format!("SQL validation failed: {}", e);
+                    error!(
+                        file_id = %file.id,
+                        file_name = %file.name,
+                        error = %error,
+                        "SQL validation error"
+                    );
+                    results.push(ModificationResult {
+                        file_id: file.id,
+                        file_name: file.name.clone(),
+                        success: false,
+                        error: Some(error.clone()),
+                        modification_type: "sql_validation".to_string(),
+                        timestamp: Utc::now(),
+                        duration,
+                    });
+                    Err(anyhow::anyhow!(error))
+                }
+            }
+        }
+        Err(e) => {
+            let error = format!("Failed to validate YAML: {}", e);
+            error!(
+                file_id = %file.id,
+                file_name = %file.name,
+                error = %error,
+                "YAML validation error"
+            );
+            results.push(ModificationResult {
+                file_id: file.id,
+                file_name: file.name.clone(),
+                success: false,
+                error: Some(error.clone()),
+                modification_type: "validation".to_string(),
+                timestamp: Utc::now(),
+                duration,
+            });
+            Err(anyhow::anyhow!(error))
+        }
+    }
+}
+
 #[async_trait]
 impl ToolExecutor for ModifyMetricFilesTool {
     type Output = ModifyFilesOutput;
-    type Params = ModifyFilesParams;
+    type Params = UpdateFilesParams;
 
     fn get_name(&self) -> String {
         "update_metrics".to_string()
@@ -65,16 +187,16 @@ impl ToolExecutor for ModifyMetricFilesTool {
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 
-        debug!("Starting file modification execution");
+        debug!("Starting file update execution");
 
-        info!("Processing {} files for modification", params.files.len());
+        info!("Processing {} files for update", params.files.len());
 
         // Initialize batch processing structures
-        let mut batch = MetricModificationBatch {
+        let mut batch = MetricUpdateBatch {
             files: Vec::new(),
             ymls: Vec::new(),
-            failed_modifications: Vec::new(),
-            modification_results: Vec::new(),
+            failed_updates: Vec::new(),
+            update_results: Vec::new(),
             validation_messages: Vec::new(),
             validation_results: Vec::new(),
         };
@@ -107,17 +229,17 @@ impl ToolExecutor for ModifyMetricFilesTool {
                 .await
             {
                 Ok(files) => {
-                    // Create futures for concurrent processing of file modifications
-                    let modification_futures = files
+                    // Create futures for concurrent processing of file updates
+                    let update_futures = files
                         .into_iter()
                         .filter_map(|file| {
-                            let modifications = file_map.get(&file.id)?;
+                            let file_update = file_map.get(&file.id)?;
                             let start_time_elapsed = start_time.elapsed().as_millis() as i64;
                             
                             Some(async move {
-                                let result = process_metric_file_modification(
+                                let result = process_metric_file_update(
                                     file.clone(),
-                                    modifications,
+                                    file_update.yml_content.clone(),
                                     start_time_elapsed,
                                 ).await;
                                 
@@ -125,14 +247,14 @@ impl ToolExecutor for ModifyMetricFilesTool {
                                     Ok((metric_file, metric_yml, results, validation_message, validation_results)) => {
                                         Ok((metric_file, metric_yml, results, validation_message, validation_results))
                                     }
-                                    Err(e) => Err((modifications.file_name.clone(), e.to_string())),
+                                    Err(e) => Err((file.name.clone(), e.to_string())),
                                 }
                             })
                         })
                         .collect::<Vec<_>>();
                     
                     // Wait for all futures to complete
-                    let results = join_all(modification_futures).await;
+                    let results = join_all(update_futures).await;
                     
                     // Process results
                     for result in results {
@@ -149,61 +271,14 @@ impl ToolExecutor for ModifyMetricFilesTool {
                                     .version_history
                                     .add_version(next_version, metric_yml.clone());
 
-                                // Update metadata if SQL has changed
-                                // The SQL is already validated by process_metric_file_modification
-                                if results.iter().any(|r| r.modification_type == "content") {
-                                    // Update the name field from the metric_yml
-                                    // This is redundant but ensures the name is set correctly
-                                    metric_file.name = metric_yml.name.clone();
-
-                                    // Check if we have a dataset to work with
-                                    if !metric_yml.dataset_ids.is_empty() {
-                                        let dataset_id = metric_yml.dataset_ids[0];
-
-                                        // Get data source for the dataset
-                                        match datasets::table
-                                            .filter(datasets::id.eq(dataset_id))
-                                            .select(datasets::data_source_id)
-                                            .first::<Uuid>(&mut conn)
-                                            .await
-                                        {
-                                            Ok(data_source_id) => {
-                                                // Execute query to get metadata
-                                                match query_engine(
-                                                    &data_source_id,
-                                                    &metric_yml.sql,
-                                                    Some(100),
-                                                )
-                                                .await
-                                                {
-                                                    Ok(query_result) => {
-                                                        // Update metadata
-                                                        metric_file.data_metadata =
-                                                            Some(query_result.metadata);
-                                                        debug!("Updated metadata for metric file {}", metric_file.id);
-                                                    }
-                                                    Err(e) => {
-                                                        debug!("Failed to execute SQL for metadata: {}", e);
-                                                        // Continue with the update even if metadata refresh fails
-                                                    }
-                                                }
-                                            }
-                                            Err(e) => {
-                                                debug!("Failed to get data source ID: {}", e);
-                                                // Continue with the update even if we can't get data source
-                                            }
-                                        }
-                                    }
-                                }
-
                                 batch.files.push(metric_file);
                                 batch.ymls.push(metric_yml);
-                                batch.modification_results.extend(results);
+                                batch.update_results.extend(results);
                                 batch.validation_messages.push(validation_message);
                                 batch.validation_results.push(validation_results);
                             }
                             Err((file_name, error)) => {
-                                batch.failed_modifications.push((file_name, error));
+                                batch.failed_updates.push((file_name, error));
                             }
                         }
                     }
@@ -259,7 +334,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
             message: format!(
                 "Modified {} metric files and created new versions. {} failures.",
                 batch.files.len(),
-                batch.failed_modifications.len()
+                batch.failed_updates.len()
             ),
             duration,
             files: Vec::new(),
@@ -287,7 +362,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
         // Add failed modifications to output
         output.failed_files.extend(
             batch
-                .failed_modifications
+                .failed_updates
                 .into_iter()
                 .map(|(file_name, error)| FailedFileModification { file_name, error }),
         );
@@ -309,38 +384,15 @@ impl ToolExecutor for ModifyMetricFilesTool {
                 "description": get_modify_metrics_yml_description().await,
                 "items": {
                   "type": "object",
-                  "required": ["id", "file_name", "modifications"],
+                  "required": ["id", "yml_content"],
                   "properties": {
                     "id": {
                       "type": "string",
                       "description": get_metric_id_description().await
                     },
-                    "file_name": {
+                    "yml_content": {
                       "type": "string",
-                      "description": get_modify_metrics_file_name_description().await
-                    },
-                    "modifications": {
-                      "type": "array",
-                      "description": get_modify_metrics_modifications_description().await,
-                      "items": {
-                        "type": "object",
-                        "required": [
-                          "content_to_replace",
-                          "new_content"
-                        ],
-                        "strict": true,
-                        "properties": {
-                          "content_to_replace": {
-                            "type": "string",
-                            "description": get_modify_metrics_content_to_replace_description().await
-                          },
-                          "new_content": {
-                            "type": "string",
-                            "description": get_modify_metrics_new_content_description().await
-                          }
-                        },
-                        "additionalProperties": false
-                      }
+                      "description": get_metric_yml_description().await
                     }
                   },
                   "additionalProperties": false
@@ -355,7 +407,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
 async fn get_modify_metrics_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Modifies existing metric configuration files by replacing specified content with new content. Before using this tool, carefully review the metric YAML specification and thoughtfully plan your edits based on the visualization type and its specific configuration requirements. When modifying a metric's SQL, make sure to also update the name and/or time frame to reflect the changes. Each visualization has unique axis settings, formatting options, and data structure needs that must be considered when making modifications.".to_string();
+        return "Updates existing metric configuration files with new YAML content. Provide the complete YAML content for the metric, replacing the entire existing file. The system will preserve version history and perform all necessary validations on the new content.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -363,7 +415,7 @@ async fn get_modify_metrics_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "Modifies existing metric configuration files by replacing specified content with new content. Before using this tool, carefully review the metric YAML specification and thoughtfully plan your edits based on the visualization type and its specific configuration requirements. When modifying a metric's SQL, make sure to also update the name and/or time frame to reflect the changes. Each visualization has unique axis settings, formatting options, and data structure needs that must be considered when making modifications.".to_string()
+            "Updates existing metric configuration files with new YAML content. Provide the complete YAML content for the metric, replacing the entire existing file. The system will preserve version history and perform all necessary validations on the new content.".to_string()
         }
     }
 }
@@ -383,39 +435,9 @@ async fn get_modify_metrics_yml_description() -> String {
     }
 }
 
-async fn get_modify_metrics_file_name_description() -> String {
+async fn get_metric_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Name of the metric file to modify".to_string();
-    }
-
-    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
-    match get_prompt_system_message(&client, "5e9e0a31-760a-483f-8876-41f2027bf731").await {
-        Ok(message) => message,
-        Err(e) => {
-            eprintln!("Failed to get prompt system message: {}", e);
-            "Name of the metric file to modify".to_string()
-        }
-    }
-}
-
-async fn get_modify_metrics_modifications_description() -> String {
-    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "List of content modifications to make to the metric file".to_string();
-    }
-
-    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
-    match get_prompt_system_message(&client, "c56d3034-e527-45b6-aa2e-18fb5e3240de").await {
-        Ok(message) => message,
-        Err(e) => {
-            eprintln!("Failed to get prompt system message: {}", e);
-            "List of content modifications to make to the metric file".to_string()
-        }
-    }
-}
-
-async fn get_modify_metrics_new_content_description() -> String {
-    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The new content to replace the existing content with. If modifying SQL, ensure name and time frame properties are also updated to reflect the changes.".to_string();
+        return "The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -423,23 +445,7 @@ async fn get_modify_metrics_new_content_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "The new content to replace the existing content with. If modifying SQL, ensure name and time frame properties are also updated to reflect the changes.".to_string()
-        }
-    }
-}
-
-async fn get_modify_metrics_content_to_replace_description() -> String {
-    if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The exact content in the file that should be replaced. Must match exactly and be specific enough to only match once. Use an empty string to append the new content to the end of the file."
-            .to_string();
-    }
-
-    let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
-    match get_prompt_system_message(&client, "ad7e79f0-dd3a-4239-9548-ee7f4ef3be5a").await {
-        Ok(message) => message,
-        Err(e) => {
-            eprintln!("Failed to get prompt system message: {}", e);
-            "The exact content in the file that should be replaced. Must match exactly and be specific enough to only match once. Use an empty string to append the new content to the end of the file.".to_string()
+            "The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file.".to_string()
         }
     }
 }
@@ -461,57 +467,9 @@ async fn get_metric_id_description() -> String {
 
 #[cfg(test)]
 mod tests {
-
-    use crate::tools::file_tools::common::{apply_modifications_to_content, Modification};
-
     use super::*;
     use chrono::Utc;
     use serde_json::json;
-
-    #[test]
-    fn test_apply_modifications_to_content() {
-        let original_content = "name: test_metric\ntype: counter\ndescription: A test metric";
-
-        // Test single modification
-        let mods1 = vec![Modification {
-            content_to_replace: "type: counter".to_string(),
-            new_content: "type: gauge".to_string(),
-        }];
-        let result1 = apply_modifications_to_content(original_content, &mods1, "test.yml").unwrap();
-        assert_eq!(
-            result1,
-            "name: test_metric\ntype: gauge\ndescription: A test metric"
-        );
-
-        // Test multiple non-overlapping modifications
-        let mods2 = vec![
-            Modification {
-                content_to_replace: "test_metric".to_string(),
-                new_content: "new_metric".to_string(),
-            },
-            Modification {
-                content_to_replace: "A test metric".to_string(),
-                new_content: "An updated metric".to_string(),
-            },
-        ];
-        let result2 = apply_modifications_to_content(original_content, &mods2, "test.yml").unwrap();
-        assert_eq!(
-            result2,
-            "name: new_metric\ntype: counter\ndescription: An updated metric"
-        );
-
-        // Test content not found
-        let mods3 = vec![Modification {
-            content_to_replace: "nonexistent content".to_string(),
-            new_content: "new content".to_string(),
-        }];
-        let result3 = apply_modifications_to_content(original_content, &mods3, "test.yml");
-        assert!(result3.is_err());
-        assert!(result3
-            .unwrap_err()
-            .to_string()
-            .contains("Content to replace not found"));
-    }
 
     #[test]
     fn test_modification_result_tracking() {
@@ -544,27 +502,22 @@ mod tests {
         let valid_params = json!({
             "files": [{
                 "id": Uuid::new_v4().to_string(),
-                "file_name": "test.yml",
-                "modifications": [{
-                    "new_content": "new content",
-                    "line_numbers": [1, 2]
-                }]
+                "yml_content": "name: Test Metric\ndescription: A test metric"
             }]
         });
         let valid_args = serde_json::to_string(&valid_params).unwrap();
-        let result = serde_json::from_str::<ModifyFilesParams>(&valid_args);
+        let result = serde_json::from_str::<UpdateFilesParams>(&valid_args);
         assert!(result.is_ok());
 
         // Test missing required fields
         let missing_fields_params = json!({
             "files": [{
-                "id": Uuid::new_v4().to_string(),
-                "file_name": "test.yml"
-                // missing modifications
+                "id": Uuid::new_v4().to_string()
+                // missing yml_content
             }]
         });
         let missing_args = serde_json::to_string(&missing_fields_params).unwrap();
-        let result = serde_json::from_str::<ModifyFilesParams>(&missing_args);
+        let result = serde_json::from_str::<UpdateFilesParams>(&missing_args);
         assert!(result.is_err());
     }
 }
