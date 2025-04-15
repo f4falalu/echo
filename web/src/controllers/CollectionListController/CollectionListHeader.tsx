@@ -54,9 +54,13 @@ export const CollectionListHeader: React.FC<{
       [collectionId, collectionTitle]
     );
 
-    useHotkeys('n', () => {
-      setOpenNewCollectionModal(true);
-    });
+    useHotkeys(
+      'n',
+      () => {
+        setOpenNewCollectionModal(true);
+      },
+      { preventDefault: true }
+    );
 
     return (
       <>
