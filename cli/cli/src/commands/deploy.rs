@@ -1138,17 +1138,52 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
             Err(e) => {
                 println!("\n❌ Deployment failed!");
 
+                // DEBUG: Print the raw error received from api.rs
+                println!("DEBUG: Raw error received: {:?}", e);
+
                 // Attempt to extract more detail from the error
                 let mut detailed_error = format!("{}", e);
+                println!("DEBUG: Initial formatted error: {}", detailed_error);
+
                 if let Some(source) = e.source() {
+                    println!("DEBUG: Found error source: {:?}", source);
                     if let Some(reqwest_err) = source.downcast_ref::<reqwest::Error>() {
+                        println!("DEBUG: Source is reqwest::Error");
                         if let Some(status) = reqwest_err.status() {
-                            detailed_error = format!("{} (HTTP Status: {})", detailed_error, status);
+                            println!("DEBUG: Extracted status from source: {}", status);
+                            // Avoid appending status if it's already likely in the message from api.rs
+                            // detailed_error = format!("{} (HTTP Status: {})", detailed_error, status);
+                        } else {
+                            println!("DEBUG: reqwest::Error has no status code");
+                        }
+                    } else {
+                        println!(
+                            "DEBUG: Source is not reqwest::Error: {:?}",
+                            source // Print the source error directly
+                        );
+                        // Try digging deeper for reqwest::Error
+                        let mut current_source = source;
+                        while let Some(next_source) = current_source.source() {
+                            println!("DEBUG: Deeper source: {:?}", next_source);
+                            if let Some(reqwest_err) = next_source.downcast_ref::<reqwest::Error>()
+                            {
+                                println!("DEBUG: Found reqwest::Error deeper");
+                                if let Some(status) = reqwest_err.status() {
+                                    println!(
+                                        "DEBUG: Extracted status from deeper source: {}",
+                                        status
+                                    );
+                                }
+                                break; // Found it
+                            }
+                            current_source = next_source;
                         }
                     }
+                } else {
+                    println!("DEBUG: No error source found");
                 }
 
-                println!("Error: {}", detailed_error);
+                println!("Error: {}", detailed_error); // Final formatted error before troubleshooting tips
                 println!("\n💡 Troubleshooting:");
                 println!("1. Check data source:");
                 println!("   - Verify '{}' exists in Buster", data_source_name);
