@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { useMemoizedFn } from '@/hooks';
 import { inputVariants } from './Input';
@@ -37,20 +37,29 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
     const containerRef = React.useRef<HTMLDivElement>(null);
     const scrollRef = React.useRef<HTMLDivElement>(null);
 
+    const addTag = useMemoizedFn((value: string) => {
+      const newTag = value.trim();
+      if (newTag !== '' && !tags.includes(newTag)) {
+        if (maxTags && tags.length >= maxTags) return;
+        onTagAdd?.(newTag);
+        setInputValue('');
+        // Scroll to the end after adding a new tag
+        if (scrollRef.current) {
+          scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+        }
+      }
+    });
+
+    const handleBlur = useMemoizedFn(() => {
+      if (inputValue.trim() !== '') {
+        addTag(inputValue);
+      }
+    });
+
     const handleKeyDown = useMemoizedFn((e: React.KeyboardEvent<HTMLInputElement>) => {
       if ((e.key === 'Tab' || e.key === 'Enter' || e.key === ',') && inputValue.trim() !== '') {
         e.preventDefault();
-        const newTag = inputValue.trim();
-        if (maxTags && tags.length >= maxTags) return;
-
-        if (!tags.includes(newTag)) {
-          onTagAdd?.(newTag);
-          setInputValue('');
-          // Scroll to the end after adding a new tag
-          if (scrollRef.current) {
-            scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
-          }
-        }
+        addTag(inputValue);
       } else if (e.key === 'Backspace' && inputValue === '' && tags.length > 0 && !disabled) {
         onTagRemove?.(tags.length - 1);
       }
@@ -59,16 +68,7 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
     const handleInputChange = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       if (value.endsWith(',')) {
-        const newTag = value.slice(0, -1).trim();
-        if (newTag !== '' && !tags.includes(newTag)) {
-          if (maxTags && tags.length >= maxTags) return;
-          onTagAdd?.(newTag);
-          setInputValue('');
-          // Scroll to the end after adding a new tag
-          if (scrollRef.current) {
-            scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
-          }
-        }
+        addTag(value.slice(0, -1));
       } else {
         setInputValue(value);
       }
@@ -120,6 +120,7 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
             value={inputValue}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
             className="placeholder:text-gray-light min-w-[120px] flex-1 bg-transparent outline-none disabled:cursor-not-allowed disabled:opacity-50"
             placeholder={tags.length === 0 ? placeholder : undefined}
             disabled={isDisabledInput}
