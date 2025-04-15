@@ -110,7 +110,61 @@ async fn process_metric_file_update(
                 return Err(anyhow::anyhow!(error));
             }
 
+            // Check if SQL has changed to avoid unnecessary validation
+            let sql_changed = file.content.sql != new_yml.sql;
+            
+            // If SQL hasn't changed, we can use existing metadata and skip validation
+            if !sql_changed && file.data_metadata.is_some() {
+                debug!(
+                    file_id = %file.id,
+                    file_name = %file.name,
+                    "SQL unchanged, skipping validation"
+                );
+                
+                // Update file record
+                file.content = new_yml.clone();
+                file.name = new_yml.name.clone();
+                file.updated_at = Utc::now();
+                // Keep existing metadata since SQL hasn't changed
+
+                // Track successful update
+                results.push(ModificationResult {
+                    file_id: file.id,
+                    file_name: file.name.clone(),
+                    success: true,
+                    error: None,
+                    modification_type: "content".to_string(),
+                    timestamp: Utc::now(),
+                    duration,
+                });
+
+                // Return with a message indicating SQL validation was skipped
+                return Ok((
+                    file, 
+                    new_yml.clone(), 
+                    results,
+                    "SQL unchanged, validation skipped".to_string(),
+                    Vec::new() // Empty results since validation was skipped
+                ));
+            }
+            
+            // If SQL has changed or metadata is missing, perform validation
             let dataset_id = new_yml.dataset_ids[0];
+            
+            if sql_changed {
+                debug!(
+                    file_id = %file.id,
+                    file_name = %file.name,
+                    "SQL has changed, performing validation"
+                );
+            } else {
+                debug!(
+                    file_id = %file.id,
+                    file_name = %file.name,
+                    "Metadata missing, performing validation"
+                );
+            }
+            
             match validate_sql(&new_yml.sql, &dataset_id).await {
                 Ok((message, validation_results, metadata)) => {
                     // Update file record
@@ -422,7 +476,7 @@ async fn get_modify_metrics_description() -> String {
 
 async fn get_modify_metrics_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return format!("Array of metrics to update. Each item requires an 'id' (UUID of the existing metric) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple metrics in a single operation, making this ideal for bulk updates.\n\n{}", METRIC_YML_SCHEMA);
+        return "Array of metrics to update. Each item requires an 'id' (UUID of the existing metric) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple metrics in a single operation, making this ideal for bulk updates.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -430,14 +484,14 @@ async fn get_modify_metrics_yml_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            format!("Array of metrics to update. Each item requires an 'id' (UUID of the existing metric) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple metrics in a single operation, making this ideal for bulk updates.\n\n{}", METRIC_YML_SCHEMA)
+            "Array of metrics to update. Each item requires an 'id' (UUID of the existing metric) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple metrics in a single operation, making this ideal for bulk updates.".to_string()
         }
     }
 }
 
 async fn get_metric_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema.".to_string();
+        return format!("The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema.\n\n{}", METRIC_YML_SCHEMA);
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -445,7 +499,7 @@ async fn get_metric_yml_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema.".to_string()
+            format!("The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema.\n\n{}", METRIC_YML_SCHEMA)
         }
     }
 }
