@@ -503,4 +503,21 @@ describe('assetParamsToRoute', () => {
       })
     );
   });
+
+  test('reasoning messaged with chatid', () => {
+    const test = {
+      assetId: '06d9d8b7-eb96-59af-9a03-0436205b60a9',
+      type: 'reasoning',
+      chatId: 'chat-123'
+    } as const;
+
+    const result = assetParamsToRoute(test);
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_REASONING_ID,
+        chatId: test.chatId,
+        messageId: test.assetId
+      })
+    );
+  });
 });

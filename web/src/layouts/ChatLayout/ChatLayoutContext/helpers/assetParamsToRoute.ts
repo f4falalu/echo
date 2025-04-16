@@ -144,6 +144,24 @@ const createDashboardRoute = ({
   });
 };
 
+const createReasoningRoute = ({
+  messageId,
+  chatId
+}: {
+  messageId: string;
+  chatId: string | undefined;
+}) => {
+  if (!chatId) {
+    return undefined;
+  }
+
+  return createBusterRoute({
+    route: BusterRoutes.APP_CHAT_ID_REASONING_ID,
+    chatId,
+    messageId
+  });
+};
+
 export const assetParamsToRoute = ({
   chatId,
   assetId,
@@ -166,6 +184,13 @@ export const assetParamsToRoute = ({
       chatId,
       versionNumber,
       secondaryView: secondaryView as DashboardFileViewSecondary
+    });
+  }
+
+  if (type === 'reasoning') {
+    return createReasoningRoute({
+      messageId: assetId,
+      chatId
     });
   }
 
