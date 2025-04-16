@@ -9,31 +9,31 @@ use std::sync::Arc;
 use tokio::sync::broadcast;
 use uuid::Uuid;
 
-use crate::{
-    tools::{
-        categories::{
-            file_tools::{
-                CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
-                ModifyMetricFilesTool, SearchDataCatalogTool,
-            },
-            planning_tools::{CreatePlanInvestigative, CreatePlanStraightforward},
-            response_tools::{Done, MessageUserClarifyingQuestion},
-            utility_tools::no_search_needed::NoSearchNeededTool, // <-- Fixed import path
-        },
-        planning_tools::ReviewPlan,
-        IntoToolCallExecutor, ToolExecutor,
-    },
-    Agent, AgentError, AgentExt, AgentThread,
+// Import the modes and necessary types
+use crate::agents::modes::{ // Assuming modes/mod.rs is one level up
+    self, // Import the module itself for functions like determine_agent_state
+    AgentState,
+    ModeAgentData,
+    ModeConfiguration,
+    determine_agent_state,
 };
+
+// Import Agent related types
+use crate::{agent::ModeProvider, Agent, AgentError, AgentExt, AgentThread}; // Added ModeProvider and corrected path
 
 use litellm::AgentMessage;
 
-use super::{
-    analysis_prompt::ANALYSIS_PROMPT, create_plan_prompt::CREATE_PLAN_PROMPT,
-    data_catalog_search_prompt::DATA_CATALOG_SEARCH_PROMPT,
-    initialization_follow_up_prompt::FOLLOW_UP_INTIALIZATION_PROMPT,
-    initialization_prompt::INTIALIZATION_PROMPT, review_prompt::REVIEW_PROMPT,
-};
+// Remove direct prompt imports if they are moved to modes
+// use super::{ ... };
+
+// Add imports for Hook types
+use std::future::Future;
+use std::pin::Pin;
+
+// Import AgentState and determine_agent_state (assuming they are pub in modes/mod.rs or similar)
+// If not, they might need to be moved or re-exported.
+// For now, let's assume they are accessible via crate::agents::modes::{AgentState, determine_agent_state}
+// If this path is wrong, adjust it based on where these are defined.
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BusterSuperAgentOutput {
@@ -50,209 +50,59 @@ pub struct BusterSuperAgentInput {
     pub message_id: Option<Uuid>,
 }
 
+// --- REMOVE State Management (Moved to modes/mod.rs) --- 
+// #[derive(Debug, PartialEq, Eq, Clone, Copy)]
+// enum AgentState { ... }
+// fn determine_agent_state(state: &HashMap<String, Value>) -> AgentState { ... }
+
+
+// --- Mode Provider Implementation ---
+
+// Create a struct to hold the data needed by the provider
+#[derive(Clone)]
+struct BusterModeProvider {
+    agent_data: ModeAgentData,
+}
+
+#[async_trait::async_trait]
+impl ModeProvider for BusterModeProvider {
+    async fn get_configuration_for_state(&self, state: &HashMap<String, Value>) -> Result<ModeConfiguration> {
+        let current_mode = determine_agent_state(state);
+        
+        // Call the appropriate get_configuration function based on the mode
+        let mode_config = match current_mode {
+            AgentState::Initializing => modes::initialization::get_configuration(&self.agent_data),
+            AgentState::FollowUpInitialization => modes::follow_up_initialization::get_configuration(&self.agent_data),
+            AgentState::DataCatalogSearch => modes::data_catalog_search::get_configuration(&self.agent_data),
+            AgentState::Planning => modes::planning::get_configuration(&self.agent_data),
+            AgentState::AnalysisExecution => modes::analysis::get_configuration(&self.agent_data),
+            AgentState::Review => modes::review::get_configuration(&self.agent_data),
+        };
+        
+        Ok(mode_config)
+    }
+}
+
+// --- BusterMultiAgent --- 
+
 pub struct BusterMultiAgent {
     agent: Arc<Agent>,
+    // REMOVED dataset_names: Vec<String>,
+    // REMOVED todays_date: String,
 }
 
 impl AgentExt for BusterMultiAgent {
-    fn get_agent(&self) -> &Arc<Agent> {
+    // Update AgentExt implementation to return the Arc
+    fn get_agent_arc(&self) -> &Arc<Agent> {
         &self.agent
     }
 }
 
 impl BusterMultiAgent {
-    async fn load_tools(&self) -> Result<()> {
-        // Create tools using the shared Arc
-        let search_data_catalog_tool = SearchDataCatalogTool::new(Arc::clone(&self.agent));
-        let create_plan_straightforward_tool =
-            CreatePlanStraightforward::new(Arc::clone(&self.agent));
-        let create_plan_investigative_tool = CreatePlanInvestigative::new(Arc::clone(&self.agent));
-        let create_metric_files_tool = CreateMetricFilesTool::new(Arc::clone(&self.agent));
-        let modify_metric_files_tool = ModifyMetricFilesTool::new(Arc::clone(&self.agent));
-        let create_dashboard_files_tool = CreateDashboardFilesTool::new(Arc::clone(&self.agent));
-        let modify_dashboard_files_tool = ModifyDashboardFilesTool::new(Arc::clone(&self.agent));
-        let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new();
-        let done_tool = Done::new(Arc::clone(&self.agent));
-        let no_search_needed_tool = NoSearchNeededTool::new(Arc::clone(&self.agent));
-        let review_tool = ReviewPlan::new(Arc::clone(&self.agent));
-
-        // Get names before moving tools
-        let done_tool_name = done_tool.get_name();
-        let msg_clarifying_q_tool_name = message_user_clarifying_question_tool.get_name();
-
-        // Define conditions
-        let data_catalog_search_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            // Enabled when the agent hasn't searched the catalog yet.
-            // The LLM decides whether to actually search or use no_search_needed.
-            !state
-                .get("searched_data_catalog")
-                .and_then(Value::as_bool)
-                .unwrap_or(false)
-        });
-
-        // New condition: Enable tools only AFTER the data catalog has been searched (or skipped).
-        let after_search_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            state
-                .get("searched_data_catalog")
-                .and_then(Value::as_bool)
-                .unwrap_or(false)
-        });
-
-        let review_condition =
-            Some(|state: &HashMap<String, Value>| -> bool {
-                state.get("review_needed")
-                    .and_then(|value| value.as_bool())
-                    .unwrap_or(false)
-            });
-
-        let planning_tools_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            let searched_catalog = state
-                .get("searched_data_catalog")
-                .and_then(Value::as_bool)
-                .unwrap_or(false);
-            let has_data_context = state.contains_key("data_context");
-            let has_plan = state.contains_key("plan_available");
-
-            // Enable planning only after catalog search/skip, with data context, and no existing plan.
-            searched_catalog && has_data_context && !has_plan
-        });
-
-        let create_metric_files_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            state.contains_key("data_context") && state.contains_key("plan_available")
-        });
-
-        let modify_metric_files_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            state.contains_key("metrics_available")
-                && state.contains_key("plan_available")
-                && state.contains_key("data_context")
-        });
-
-        let create_dashboard_files_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            state.contains_key("metrics_available")
-                && state.contains_key("plan_available")
-                && state.contains_key("data_context")
-        });
-
-        let modify_dashboard_files_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            state.contains_key("dashboards_available")
-                && state.contains_key("plan_available")
-                && state.contains_key("data_context")
-        });
-
-        // Define the new condition for the Done tool
-        let done_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            let review_needed = state.get("review_needed")
-                .and_then(Value::as_bool)
-                .unwrap_or(false);
-
-            // Check if all todos are marked as complete
-            // Assumes 'todos' is an array of objects, each with a 'completed' boolean field
-            let all_todos_complete = state.get("todos")
-                .and_then(Value::as_array)
-                .map(|todos| {
-                    todos.iter().all(|todo| {
-                        todo.get("completed")
-                            .and_then(Value::as_bool)
-                            .unwrap_or(false) // Treat missing 'completed' as false
-                    })
-                })
-                .unwrap_or(false); // If 'todos' doesn't exist or isn't an array, assume not all complete
-
-            review_needed || all_todos_complete
-        });
-
-        // Add tools to the agent with their conditions
-        self.agent
-            .add_tool(
-                search_data_catalog_tool.get_name(),
-                search_data_catalog_tool.into_tool_call_executor(),
-                data_catalog_search_condition.clone(),
-            )
-            .await;
-        self.agent
-            .add_tool(
-                no_search_needed_tool.get_name(),
-                no_search_needed_tool.into_tool_call_executor(),
-                data_catalog_search_condition.clone(),
-            )
-            .await;
-        self.agent
-            .add_tool(
-                create_metric_files_tool.get_name(),
-                create_metric_files_tool.into_tool_call_executor(),
-                create_metric_files_condition,
-            )
-            .await;
-        self.agent
-            .add_tool(
-                modify_metric_files_tool.get_name(),
-                modify_metric_files_tool.into_tool_call_executor(),
-                modify_metric_files_condition,
-            )
-            .await;
-        self.agent
-            .add_tool(
-                create_dashboard_files_tool.get_name(),
-                create_dashboard_files_tool.into_tool_call_executor(),
-                create_dashboard_files_condition,
-            )
-            .await;
-        self.agent
-            .add_tool(
-                modify_dashboard_files_tool.get_name(),
-                modify_dashboard_files_tool.into_tool_call_executor(),
-                modify_dashboard_files_condition,
-            )
-            .await;
-        self.agent
-            .add_tool(
-                create_plan_straightforward_tool.get_name(),
-                create_plan_straightforward_tool.into_tool_call_executor(),
-                planning_tools_condition.clone(),
-            )
-            .await;
-        self.agent
-            .add_tool(
-                create_plan_investigative_tool.get_name(),
-                create_plan_investigative_tool.into_tool_call_executor(),
-                planning_tools_condition,
-            )
-            .await;
-        self.agent
-            .add_tool(
-                message_user_clarifying_question_tool.get_name(),
-                message_user_clarifying_question_tool.into_tool_call_executor(),
-                after_search_condition.clone(), // Use after_search_condition
-            )
-            .await;
-        self.agent
-            .add_tool(
-                done_tool.get_name(),
-                done_tool.into_tool_call_executor(),
-                done_condition, // Use the new done_condition
-            )
-            .await;
-        self.agent
-            .add_tool(
-                review_tool.get_name(),
-                review_tool.into_tool_call_executor(),
-                review_condition.clone(),
-            )
-            .await;
-
-        // Register terminating tools by name using the stored names
-        self.agent.register_terminating_tool(done_tool_name).await;
-        self.agent
-            .register_terminating_tool(msg_clarifying_q_tool_name)
-            .await;
-
-        Ok(())
-    }
-
     pub async fn new(
         user_id: Uuid,
         session_id: Uuid,
-        is_follow_up: bool, // Add flag to determine initial prompt
+        is_follow_up: bool,
     ) -> Result<Self> {
         let organization_id = match get_user_organization_id(&user_id).await {
             Ok(Some(org_id)) => org_id,
@@ -260,149 +110,75 @@ impl BusterMultiAgent {
             Err(e) => return Err(e),
         };
 
-        let todays_date = Local::now().format("%Y-%m-%d").to_string();
-
-        let dataset_names = get_dataset_names_for_organization(organization_id).await?;
-
-        // Select initial default prompt based on whether it's a follow-up
-        let initial_default_prompt = if is_follow_up {
-            FOLLOW_UP_INTIALIZATION_PROMPT
-                .replace("{DATASETS}", &dataset_names.join(", "))
-                .replace("{TODAYS_DATE}", &todays_date)
-        } else {
-            INTIALIZATION_PROMPT
-                .replace("{DATASETS}", &dataset_names.join(", "))
-                .replace("{TODAYS_DATE}", &todays_date)
+        // Prepare data for modes
+        let todays_date = Arc::new(Local::now().format("%Y-%m-%d").to_string());
+        let dataset_names = Arc::new(get_dataset_names_for_organization(organization_id).await?);
+        
+        let agent_data = ModeAgentData {
+            dataset_names,
+            todays_date,
         };
 
-        // Create agent, passing the selected initialization prompt as default
+        // Create the mode provider
+        let mode_provider = Arc::new(BusterModeProvider { agent_data });
+
+        // REMOVE old hook logic
+        // let agent_arc_for_hook = self.agent.clone(); // This was the error source
+        // let hook_generator = || -> ... { ... };
+
+        // Create agent, passing the provider
         let agent = Arc::new(Agent::new(
-            "o3-mini".to_string(),
+            "o3-mini".to_string(), // Initial model (can be overridden by first mode)
             user_id,
             session_id,
             "buster_multi_agent".to_string(),
-            None,
-            None,
-            initial_default_prompt, // Use selected default prompt
+            None, // api_key 
+            None, // base_url
+            mode_provider, // Pass the provider
+            // REMOVED initial_default_prompt
+            // REMOVED hook_generator()
         ));
 
-        if is_follow_up {
-            agent
-                .set_state_value("is_follow_up".to_string(), Value::Bool(true))
-                .await;
-        }
+        // Set the initial is_follow_up flag in state
+        agent
+            .set_state_value("is_follow_up".to_string(), Value::Bool(is_follow_up))
+            .await;
 
-        // Define prompt switching conditions
-        let needs_plan_condition = move |state: &HashMap<String, Value>| -> bool {
-            state.contains_key("data_context")
-                && !state.contains_key("plan_available")
-                && !is_follow_up
-        };
-        let needs_analysis_condition = |state: &HashMap<String, Value>| -> bool {
-            // Example: Trigger analysis prompt once plan is available and metrics/dashboards are not yet available
-            state.contains_key("plan_available") && state.contains_key("data_context")
-        };
-        let needs_data_catalog_search_condition = |state: &HashMap<String, Value>| -> bool {
-            !state.contains_key("searched_data_catalog")
+        let buster_agent = Self {
+            agent,
+            // REMOVED dataset_names,
+            // REMOVED todays_date,
         };
 
-        let needs_review_condition =
-            |state: &HashMap<String, Value>| -> bool { 
-                state.get("review_needed")
-                    .and_then(|value| value.as_bool())
-                    .unwrap_or(false)
-            };
+        // REMOVE dynamic rules registration
+        // buster_agent.register_dynamic_rules().await?; 
 
-        // Add prompt rules (order matters)
-        // The agent will use the prompt associated with the first condition that evaluates to true.
-        // If none match, it uses the default (INITIALIZATION_PROMPT).
-        agent
-            .add_dynamic_prompt_rule(needs_review_condition, REVIEW_PROMPT.to_string())
-            .await;
-        agent
-            .add_dynamic_prompt_rule(
-                needs_data_catalog_search_condition,
-                DATA_CATALOG_SEARCH_PROMPT
-                    .replace("{DATASETS}", &dataset_names.join(", "))
-                    .to_string(),
-            )
-            .await;
-        agent
-            .add_dynamic_prompt_rule(
-                needs_plan_condition,
-                CREATE_PLAN_PROMPT
-                    .replace("{TODAYS_DATE}", &todays_date)
-                    .to_string(),
-            )
-            .await;
-        agent
-            .add_dynamic_prompt_rule(
-                needs_analysis_condition,
-                ANALYSIS_PROMPT
-                    .replace("{TODAYS_DATE}", &todays_date)
-                    .to_string(),
-            )
-            .await;
-
-        // Add dynamic model rule: Use gpt-4.1 when searching the data catalog
-        agent
-            .add_dynamic_model_rule(
-                needs_review_condition, // Reuse the same condition
-                "gemini-2.0-flash-001".to_string(),
-            )
-            .await;
-        agent
-            .add_dynamic_model_rule(
-                needs_data_catalog_search_condition, // Reuse the same condition
-                "gpt-4.1".to_string(),
-            )
-            .await;
-
-        let manager = Self { agent };
-        manager.load_tools().await?; // Load tools with conditions
-        Ok(manager)
+        Ok(buster_agent)
     }
 
-    pub async fn from_existing(existing_agent: &Arc<Agent>) -> Result<Self> {
-        // Create a new agent instance using Agent::from_existing,
-        // specifically setting the default prompt to the follow-up version.
-        let agent = Arc::new(Agent::from_existing(
-            existing_agent,
-            "buster_super_agent".to_string(),
-            FOLLOW_UP_INTIALIZATION_PROMPT.to_string(), // Explicitly use follow-up prompt
-        ));
-
-        // Re-apply prompt rules for the new agent instance
-        let needs_plan_condition = move |state: &HashMap<String, Value>| -> bool {
-            state.contains_key("data_context") && !state.contains_key("plan_available")
-        };
-        let needs_analysis_condition = |state: &HashMap<String, Value>| -> bool {
-            state.contains_key("data_context") && state.contains_key("plan_available")
-        };
-        agent
-            .add_dynamic_prompt_rule(needs_plan_condition, CREATE_PLAN_PROMPT.to_string())
-            .await;
-        agent
-            .add_dynamic_prompt_rule(needs_analysis_condition, ANALYSIS_PROMPT.to_string())
-            .await;
-
-        let manager = Self { agent };
-        manager.load_tools().await?; // Load tools with conditions for the new agent instance
-        Ok(manager)
-    }
+    // REMOVE register_dynamic_rules function
+    // async fn register_dynamic_rules(&self) -> Result<()> { ... }
 
     pub async fn run(
-        &self,
+        self: &Arc<Self>, // Take Arc<Self> if AgentExt requires it for process_thread
         thread: &mut AgentThread,
     ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
-        self.get_agent()
-            .set_state_value(
-                "user_prompt".to_string(),
-                Value::String(self.get_latest_user_message(thread).unwrap_or_default()),
-            )
-            .await;
+        
+        // Ensure the initial user prompt is in the state if available
+        // This is important for the first call to determine_agent_state
+        if let Some(user_prompt) = self.get_latest_user_message(thread) {
+            self.agent // Use self.agent directly
+                .set_state_value("user_prompt".to_string(), Value::String(user_prompt))
+                .await;
+        } else {
+            // Handle case where there might not be a user message yet (e.g., agent starts convo?)
+             self.agent.set_state_value("user_prompt".to_string(), Value::Null).await;
+        }
 
-        // Start processing (prompt is handled dynamically within process_thread_with_depth)
+        // Mode configuration now happens inside Agent::process_thread_with_depth via the provider
+
+        // Start processing using the configured agent
+        // Call stream_process_thread using the AgentExt trait method on self
         let rx = self.stream_process_thread(thread).await?;
 
         Ok(rx)
@@ -410,13 +186,10 @@ impl BusterMultiAgent {
 
     /// Shutdown the manager agent and all its tools
     pub async fn shutdown(&self) -> Result<()> {
-        self.get_agent().shutdown().await
+        self.agent.shutdown().await // Use self.agent directly
     }
 
     /// Gets the most recent user message from the agent thread
-    ///
-    /// This function extracts the latest message with role "user" from the thread's messages.
-    /// Returns None if no user messages are found.
     pub fn get_latest_user_message(&self, thread: &AgentThread) -> Option<String> {
         // Iterate through messages in reverse order to find the most recent user message
         for message in thread.messages.iter().rev() {
@@ -427,3 +200,6 @@ impl BusterMultiAgent {
         None
     }
 }
+
+// Make sure the imports for tools are correct, potentially needing adjustment
+// if tools were moved or their paths changed relative to this file.

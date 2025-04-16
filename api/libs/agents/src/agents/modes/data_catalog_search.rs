@@ -1,4 +1,82 @@
-pub const DATA_CATALOG_SEARCH_PROMPT: &str = r##"**Role & Task**  
+use anyhow::Result;
+use serde_json::Value;
+use std::collections::HashMap;
+use std::sync::Arc;
+use std::pin::Pin;
+use std::future::Future;
+
+use crate::tools::ToolExecutor;
+use crate::Agent; // For get_name()
+
+// Import necessary types from the parent module (modes/mod.rs)
+use super::{ModeAgentData, ModeConfiguration};
+
+// Import necessary tools for this mode
+use crate::tools::{
+    categories::{
+        file_tools::SearchDataCatalogTool,
+        utility_tools::no_search_needed::NoSearchNeededTool,
+    },
+    IntoToolCallExecutor,
+};
+
+// Function to get the configuration for the DataCatalogSearch mode
+pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
+    // 1. Get the prompt, formatted with current data
+    let prompt = DATA_CATALOG_SEARCH_PROMPT
+        .replace("{DATASETS}", &agent_data.dataset_names.join(", "));
+        // Note: This prompt doesn't use {TODAYS_DATE}
+
+    // 2. Define the model for this mode (From original MODEL const)
+    let model = "gpt-4.1".to_string();
+
+    // 3. Define the tool loader closure
+    let tool_loader: Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync> = 
+        Box::new(|agent_arc: &Arc<Agent>| {
+            let agent_clone = Arc::clone(agent_arc); // Clone Arc for the async block
+            Box::pin(async move {
+                // Clear existing tools before loading mode-specific ones
+                agent_clone.clear_tools().await;
+
+                // Instantiate tools for this mode
+                let search_data_catalog_tool = SearchDataCatalogTool::new(agent_clone.clone());
+                let no_search_needed_tool = NoSearchNeededTool::new(agent_clone.clone());
+
+                // Condition (always true for this mode's tools)
+                let condition = Some(|_state: &HashMap<String, Value>| -> bool { true });
+
+                // Add tools to the agent
+                agent_clone.add_tool(
+                    search_data_catalog_tool.get_name(),
+                    search_data_catalog_tool.into_tool_call_executor(),
+                    condition.clone(),
+                ).await;
+
+                agent_clone.add_tool(
+                    no_search_needed_tool.get_name(),
+                    no_search_needed_tool.into_tool_call_executor(),
+                    condition.clone(),
+                ).await;
+
+                Ok(())
+            })
+        });
+
+    // 4. Define terminating tools for this mode
+    //    (Original load_tools had no terminating tools registered for this mode)
+    let terminating_tools = vec![];
+
+    // 5. Construct and return the ModeConfiguration
+    ModeConfiguration {
+        prompt,
+        model,
+        tool_loader,
+        terminating_tools,
+    }
+}
+
+// Keep the prompt constant, but it's no longer pub
+const DATA_CATALOG_SEARCH_PROMPT: &str = r##"**Role & Task**  
 You are a Search Agent, an AI assistant designed to analyze the conversation history and the most recent user message to generate high-intent, asset-focused search queries or determine if a search is unnecessary. Your sole purpose is to:  
 - Evaluate the user's request in the `"content"` field of messages with `"role": "user"`, along with all relevant conversation history and the agent's current context (e.g., previously identified datasets and their detailed **models including names, documentation, columns, etc.**), to identify data needs.  
 - Decide whether the request requires searching for specific data assets (e.g., datasets, models, metrics, properties, documentation) or if the **currently available dataset context (the detailed models retrieved from previous searches)** is sufficient to proceed to the next step (like planning or analysis).  
