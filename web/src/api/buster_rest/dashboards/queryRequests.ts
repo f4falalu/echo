@@ -34,23 +34,6 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { RustApiError } from '../errors';
 import { useOriginalDashboardStore } from '@/context/Dashboards';
 
-export const useGetDashboardsList = (
-  params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
-) => {
-  const filters = useMemo(() => {
-    return {
-      ...params,
-      page_token: 0,
-      page_size: 3000
-    };
-  }, [params]);
-
-  return useQuery({
-    ...dashboardQueryKeys.dashboardGetList(params),
-    queryFn: () => dashboardsGetList(filters)
-  });
-};
-
 const useGetDashboardAndInitializeMetrics = (prefetchData: boolean = true) => {
   const queryClient = useQueryClient();
   const setOriginalDashboards = useOriginalDashboardStore((x) => x.setOriginalDashboard);
@@ -80,7 +63,6 @@ const useGetDashboardAndInitializeMetrics = (prefetchData: boolean = true) => {
 
     return dashboardsGetDashboard({ id: id!, password, version_number }).then((data) => {
       initializeMetrics(data.metrics);
-
       setOriginalDashboards(data.dashboard);
 
       if (!version_number && data.dashboard.version_number) {
@@ -99,12 +81,13 @@ const useGetDashboardVersionNumber = (props?: {
   versionNumber?: number | null; //if null it will not use a params from the query params
 }) => {
   const { versionNumber: versionNumberProp } = props || {};
-  const { versionNumber: versionNumberPathParam, metricId: metricIdPathParam } = useParams() as {
-    versionNumber: string | undefined;
-    metricId: string | undefined;
-  };
+  const { versionNumber: versionNumberPathParam, dashboardId: dashboardIdPathParam } =
+    useParams() as {
+      versionNumber: string | undefined;
+      dashboardId: string | undefined;
+    };
   const versionNumberQueryParam = useSearchParams().get('dashboard_version_number');
-  const versionNumberFromParams = metricIdPathParam
+  const versionNumberFromParams = dashboardIdPathParam
     ? versionNumberQueryParam || versionNumberPathParam
     : undefined;
 
@@ -135,23 +118,20 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
   return useQuery({
     ...dashboardQueryKeys.dashboardGetDashboard(id!, versionNumber),
     queryFn: () => queryFn(id!, versionNumber),
-    enabled: !!id, //it is false because we fetch the dashboard server side
+    enabled: false, //we made this false because we want to be explicit about the fact that we fetch the dashboard server side
     select: params?.select,
     ...params
   });
 };
 
-export const useCreateDashboard = () => {
+export const usePrefetchGetDashboardClient = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: dashboardsCreateDashboard,
-    onSuccess: () => {
-      setTimeout(() => {
-        queryClient.invalidateQueries({
-          queryKey: dashboardQueryKeys.dashboardGetList({}).queryKey
-        });
-      }, 350);
-    }
+  const queryFn = useGetDashboardAndInitializeMetrics(false);
+  return useMemoizedFn((id: string, versionNumber: number) => {
+    return queryClient.prefetchQuery({
+      ...dashboardQueryKeys.dashboardGetDashboard(id, versionNumber),
+      queryFn: () => queryFn(id, versionNumber)
+    });
   });
 };
 
@@ -183,7 +163,6 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
             data
           );
         }
-        console.log('setting original dashboard', data.dashboard);
         setOriginalDashboard(data.dashboard);
       }
     }
@@ -209,31 +188,25 @@ export const useUpdateDashboard = (params?: {
           update_version: updateVersion
         });
       }
-
-      const newDashboard = create(getOriginalDashboard(variables.id), (draft) => {
-        Object.assign(draft!, variables);
-      });
-
-      return newDashboard;
     }
   );
 
   return useMutation({
     mutationFn,
     onMutate: (variables) => {
+      const originalDashboard = getOriginalDashboard(variables.id);
+      const updatedDashboard = create(originalDashboard!, (draft) => {
+        Object.assign(draft, variables);
+      });
       const queryKey = dashboardQueryKeys.dashboardGetDashboard(
         variables.id,
-        versionNumber
+        updatedDashboard.version_number
       ).queryKey;
 
       queryClient.setQueryData(queryKey, (previousData) => {
-        const newDashboardState: BusterDashboardResponse = create(previousData!, (draft) => {
-          draft.dashboard = create(draft.dashboard, (draft) => {
-            Object.assign(draft, variables);
-          });
+        return create(previousData!, (draft) => {
+          draft.dashboard = updatedDashboard;
         });
-        console.log('newDashboardState', newDashboardState.dashboard.config.rows?.[0]);
-        return newDashboardState!;
       });
     }
   });
@@ -258,11 +231,9 @@ export const useUpdateDashboardConfig = () => {
       const previousDashboard = queryClient.getQueryData(options.queryKey);
       const previousConfig = previousDashboard?.dashboard?.config;
       if (previousConfig) {
-        console.log('previousConfig', previousConfig.rows?.[0]);
         const newConfig = create(previousConfig!, (draft) => {
           Object.assign(draft, newDashboard);
         });
-        console.log('newConfig', newConfig.rows?.[0]);
         return mutateAsync({
           id: dashboardId,
           config: newConfig
@@ -273,6 +244,20 @@ export const useUpdateDashboardConfig = () => {
 
   return useMutation({
     mutationFn: method
+  });
+};
+
+export const useCreateDashboard = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: dashboardsCreateDashboard,
+    onSuccess: () => {
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: dashboardQueryKeys.dashboardGetList({}).queryKey
+        });
+      }, 350);
+    }
   });
 };
 
@@ -653,5 +638,22 @@ export const useRemoveMetricsFromDashboard = () => {
         );
       }
     }
+  });
+};
+
+export const useGetDashboardsList = (
+  params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
+) => {
+  const filters = useMemo(() => {
+    return {
+      ...params,
+      page_token: 0,
+      page_size: 3000
+    };
+  }, [params]);
+
+  return useQuery({
+    ...dashboardQueryKeys.dashboardGetList(params),
+    queryFn: () => dashboardsGetList(filters)
   });
 };

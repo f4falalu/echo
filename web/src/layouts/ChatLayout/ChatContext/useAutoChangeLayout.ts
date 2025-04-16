@@ -51,7 +51,6 @@ export const useAutoChangeLayout = ({
       previousLastMessageId.current !== lastMessageId &&
       chatId
     ) {
-      console.log('trigger reasoning page!', previousLastMessageId.current, lastMessageId);
       previousLastMessageId.current = lastMessageId;
       onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
     }

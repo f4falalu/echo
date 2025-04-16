@@ -14,6 +14,7 @@ export const DashboardSavePopup: React.FC<{ dashboardId: string }> = React.memo(
     });
     const { mutateAsync: onSaveDashboard, isPending: isSaving } = useUpdateDashboard({
       saveToServer: true,
+      updateOnSave: true,
       updateVersion: !chatId
     });
 

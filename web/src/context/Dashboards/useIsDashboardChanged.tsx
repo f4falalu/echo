@@ -57,14 +57,6 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) 
     );
   }, [originalDashboard, currentDashboard]);
 
-  console.log(
-    'originalDashboard',
-    isDashboardChanged,
-    latestVersionNumber,
-    currentDashboard?.config.rows?.[0],
-    originalDashboard?.config.rows?.[0]
-  );
-
   return {
     onResetDashboardToOriginal,
     isDashboardChanged

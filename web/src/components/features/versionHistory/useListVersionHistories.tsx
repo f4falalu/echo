@@ -1,6 +1,10 @@
 'use client';
 
-import { useGetDashboard, useUpdateDashboard } from '@/api/buster_rest/dashboards';
+import {
+  useGetDashboard,
+  usePrefetchGetDashboardClient,
+  useSaveDashboard
+} from '@/api/buster_rest/dashboards';
 import {
   useGetMetric,
   usePrefetchGetMetricDataClient,
@@ -142,15 +146,14 @@ const useListDashboardVersions = ({
   assetId: string;
   type: 'metric' | 'dashboard';
 }): UseListVersionReturn => {
+  const prefetchGetDashboard = usePrefetchGetDashboardClient();
   const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
-  const { mutateAsync: updateDashboard, isPending: isSaving } = useUpdateDashboard({
-    saveToServer: true,
-    updateVersion: true
+  const { mutateAsync: updateDashboard, isPending: isSaving } = useSaveDashboard({
+    updateOnSave: true
   });
-  const { data: dashboardData } = useGetDashboard(
+  const { data: dashboardData, isFetched } = useGetDashboard(
     {
-      id: type === 'dashboard' ? assetId : undefined,
-      versionNumber: null
+      id: type === 'dashboard' ? assetId : undefined
     },
     {
       select: (x) => ({
@@ -161,7 +164,7 @@ const useListDashboardVersions = ({
   );
 
   const versions = dashboardData?.versions;
-  const currentVersionNumber = dashboardData?.version_number;
+  const currentVersionNumber = last(versions)?.version_number;
 
   const selectedQueryVersion = useMemo(() => {
     if (dashboardVersionNumber) return dashboardVersionNumber;
@@ -176,7 +179,7 @@ const useListDashboardVersions = ({
   });
 
   const onPrefetchAsset = useMemoizedFn(async (versionNumber: number) => {
-    //
+    prefetchGetDashboard(assetId, versionNumber);
   });
 
   return useMemo(() => {
@@ -210,7 +213,6 @@ const useListMetricVersions = ({
   });
   const prefetchGetMetric = usePrefetchGetMetricClient();
   const prefetchGetMetricData = usePrefetchGetMetricDataClient();
-
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
 
   const { data: metric } = useGetMetric(
@@ -225,7 +227,7 @@ const useListMetricVersions = ({
     }
   );
   const versions = metric?.versions;
-  const currentVersionNumber = metricVersionNumber || metric?.version_number;
+  const currentVersionNumber = last(versions)?.version_number;
 
   const selectedQueryVersion = useMemo(() => {
     if (metricVersionNumber) return metricVersionNumber;
