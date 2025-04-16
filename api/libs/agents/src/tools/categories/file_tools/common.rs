@@ -110,9 +110,7 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # --- FIELD DETAILS & RULES --- 
 # `name`: Human-readable title (e.g., Total Sales). 
 #   - RULE: Should NOT contain underscores (`_`). Use spaces instead.
-#   - RULE: If using colons (`:`) or other special YAML chars, enclose the *entire* string in double quotes (`\"...\"`). Avoid if possible.
 # `description`: Detailed explanation of the metric. 
-#   - RULE: If using colons (`:`) or other special YAML chars, enclose the *entire* string in double quotes (`\"...\"`).
 # `datasetIds`: Array of Dataset UUIDs this metric uses. 
 #   - RULE: Use standard YAML array syntax (`- uuid`). 
 #   - RULE: UUIDs should NEVER be quoted.
@@ -120,7 +118,6 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 #     datasetIds:
 #       - 123e4567-e89b-12d3-a456-426614174000
 # `timeFrame`: Human-readable time period covered by the query (e.g., Last 30 days). 
-#   - RULE: If using colons (`:`) or other special YAML chars, enclose the *entire* string in double quotes (`\"...\"`).
 # `sql`: The SQL query for the metric.
 #   - RULE: MUST use the pipe `|` block scalar style to preserve formatting and newlines.
 #   - Example:
@@ -140,6 +137,7 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # --- GENERAL YAML RULES ---
 # 1. Use standard YAML syntax (indentation, colons for key-value, `-` for arrays).
 # 2. Quoting: Generally avoid quotes for simple strings. Use double quotes (`"...") ONLY if a string contains special characters (like :, {, }, [, ], ,, &, *, #, ?, |, -, <, >, =, !, %, @, `) or needs to preserve leading/trailing whitespace. 
+# 3. Metric name should not contain `:`
 # -------------------------------------
 
 # --- FORMAL SCHEMA --- (Used for validation, reflects rules above)
@@ -150,16 +148,19 @@ description: Metric definition with SQL query and visualization settings
 properties:
   # NAME
   name:
+    required: true
     type: string
-    description: Human-readable title (e.g., Total Sales). NO underscores. Follow quoting rules.
+    description: Human-readable title (e.g., Total Sales). NO underscores. Follow quoting rules. Should not contain `:`
 
   # DESCRIPTION
   description:
+    required: true
     type: string
-    description: Detailed description. Follow quoting rules.
+    description: Detailed description. Follow quoting rules. Should not contain `:`
 
   # DATASET IDS
   datasetIds:
+    required: true
     type: array
     description: UUIDs of datasets this metric belongs to (NEVER quoted).
     items:
@@ -169,8 +170,9 @@ properties:
     
   # TIME FRAME
   timeFrame:
+    required: true
     type: string
-    description: Human-readable time period covered by the query. Follow quoting rules.
+    description: Human-readable time period covered by the query. Follow quoting rules. Should not contain `:`
 
   # SQL QUERY
   ### SQL Best Practices and Constraints** (when creating new metrics)  
@@ -188,8 +190,10 @@ properties:
   #    - Maintain a consistent data structure across requests unless changes are required.  
   #    - Use explicit ordering for custom buckets or categories.
   #    - When grouping metrics by dates, default to monthly granularity for spans over 2 months, yearly for over 3 years, weekly for under 2 months, and daily for under a week, unless the user specifies a different granularity.
+  #    - Avoid division by zero errors by using NULLIF() or CASE statements (e.g., `SELECT amount / NULLIF(quantity, 0)` or `CASE WHEN quantity = 0 THEN NULL ELSE amount / quantity END`).
   ###
   sql:
+    required: true
     type: string
     description: |
       SQL query using YAML pipe syntax (|)
@@ -198,6 +202,7 @@ properties:
 
   # CHART CONFIGURATION
   chartConfig:
+    required: true
     description: Visualization settings (must include selectedChartType, columnLabelFormats, and ONE chart-specific block)
     allOf: # Base requirements for ALL chart types
       - $ref: '#/definitions/base_chart_config'
