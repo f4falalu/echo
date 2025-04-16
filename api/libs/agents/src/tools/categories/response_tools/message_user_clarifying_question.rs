@@ -22,6 +22,10 @@ impl MessageUserClarifyingQuestion {
     pub fn new() -> Self {
         Self
     }
+
+    pub fn get_name() -> String {
+        "message_user_clarifying_question".to_string()
+    }
 }
 
 #[async_trait]

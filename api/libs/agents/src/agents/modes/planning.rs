@@ -1,12 +1,12 @@
 use anyhow::Result;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::sync::Arc;
-use std::pin::Pin;
 use std::future::Future;
+use std::pin::Pin;
+use std::sync::Arc;
 
-use crate::Agent;
-use crate::tools::ToolExecutor; // For get_name()
+use crate::tools::ToolExecutor;
+use crate::Agent; // For get_name()
 
 // Import necessary types from the parent module (modes/mod.rs)
 use super::{ModeAgentData, ModeConfiguration};
@@ -20,7 +20,6 @@ use crate::tools::{
     IntoToolCallExecutor,
 };
 
-
 // Function to get the configuration for the Planning mode
 pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
     // 1. Get the prompt, formatted with current data
@@ -29,69 +28,63 @@ pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
         .replace("{DATASETS}", &agent_data.dataset_names.join(", "));
 
     // 2. Define the model for this mode (Using default based on original MODEL = None)
-    let model = "o3-mini".to_string();
+    let model = "o4-mini".to_string();
 
     // 3. Define the tool loader closure
-    let tool_loader: Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync> = 
-        Box::new(|agent_arc: &Arc<Agent>| {
-            let agent_clone = Arc::clone(agent_arc); // Clone Arc for the async block
-            Box::pin(async move {
-                // Clear existing tools before loading mode-specific ones
-                agent_clone.clear_tools().await;
+    let tool_loader: Box<
+        dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync,
+    > = Box::new(|agent_arc: &Arc<Agent>| {
+        let agent_clone = Arc::clone(agent_arc); // Clone Arc for the async block
+        Box::pin(async move {
+            // Clear existing tools before loading mode-specific ones
+            agent_clone.clear_tools().await;
 
-                // Instantiate tools for this mode
-                let create_plan_straightforward_tool = CreatePlanStraightforward::new(agent_clone.clone());
-                let create_plan_investigative_tool = CreatePlanInvestigative::new(agent_clone.clone());
-                let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new();
-                let done_tool = Done::new(agent_clone.clone());
+            // Instantiate tools for this mode
+            let create_plan_straightforward_tool =
+                CreatePlanStraightforward::new(agent_clone.clone());
+            let create_plan_investigative_tool = CreatePlanInvestigative::new(agent_clone.clone());
+            let done_tool = Done::new(agent_clone.clone());
 
-                // Condition (always true for this mode's tools)
-                let condition = Some(|_state: &HashMap<String, Value>| -> bool { true });
+            // Condition (always true for this mode's tools)
+            let condition = Some(|_state: &HashMap<String, Value>| -> bool { true });
 
-                // Add tools to the agent
-                agent_clone.add_tool(
+            // Add tools to the agent
+            agent_clone
+                .add_tool(
                     create_plan_straightforward_tool.get_name(),
                     create_plan_straightforward_tool.into_tool_call_executor(),
                     condition.clone(),
-                ).await;
+                )
+                .await;
 
-                agent_clone.add_tool(
+            agent_clone
+                .add_tool(
                     create_plan_investigative_tool.get_name(),
                     create_plan_investigative_tool.into_tool_call_executor(),
                     condition.clone(),
-                ).await;
+                )
+                .await;
 
-                agent_clone.add_tool(
-                    message_user_clarifying_question_tool.get_name(),
-                    message_user_clarifying_question_tool.into_tool_call_executor(),
-                    condition.clone(),
-                ).await;
-
-                agent_clone.add_tool(
+            agent_clone
+                .add_tool(
                     done_tool.get_name(),
                     done_tool.into_tool_call_executor(),
                     condition.clone(),
-                ).await;
+                )
+                .await;
 
-                Ok(())
-            })
-        });
-
-    // 4. Define terminating tools for this mode (From original load_tools)
-    let terminating_tools = vec![
-        "message_user_clarifying_question".to_string(), // Hardcoded name
-        "finish_and_respond".to_string(), // Hardcoded name for Done tool
-    ];
+            Ok(())
+        })
+    });
 
     // 5. Construct and return the ModeConfiguration
     ModeConfiguration {
         prompt,
         model,
         tool_loader,
-        terminating_tools,
+        terminating_tools: vec![Done::get_name()],
     }
 }
-
 
 // Keep the prompt constant, but it's no longer pub
 const PLANNING_PROMPT: &str = r##"## Overview
@@ -394,4 +387,3 @@ By following these guidelines, you can ensure that the visualizations you create
 ##Available Datasets:
 {DATASETS}
   "##;
-

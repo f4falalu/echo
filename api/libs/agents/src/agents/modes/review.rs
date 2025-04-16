@@ -1,9 +1,9 @@
 use anyhow::Result;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::sync::Arc;
-use std::pin::Pin;
 use std::future::Future;
+use std::pin::Pin;
+use std::sync::Arc;
 
 use crate::tools::ToolExecutor;
 use crate::Agent; // For get_name()
@@ -27,49 +27,44 @@ pub fn get_configuration(_agent_data: &ModeAgentData) -> ModeConfiguration {
     let model = "gemini-2.0-flash-001".to_string();
 
     // 3. Define the tool loader closure
-    let tool_loader: Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync> = 
-        Box::new(|agent_arc: &Arc<Agent>| {
-            let agent_clone = Arc::clone(agent_arc); // Clone Arc for the async block
-            Box::pin(async move {
-                // Clear existing tools before loading mode-specific ones
-                agent_clone.clear_tools().await;
+    let tool_loader: Box<
+        dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync,
+    > = Box::new(|agent_arc: &Arc<Agent>| {
+        let agent_clone = Arc::clone(agent_arc); // Clone Arc for the async block
+        Box::pin(async move {
+            // Clear existing tools before loading mode-specific ones
+            agent_clone.clear_tools().await;
 
-                // Instantiate tools for this mode
-                let review_tool = ReviewPlan::new(agent_clone.clone());
-                let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new();
-                let done_tool = Done::new(agent_clone.clone());
+            // Instantiate tools for this mode
+            let review_tool = ReviewPlan::new(agent_clone.clone());
+            let done_tool = Done::new(agent_clone.clone());
 
-                // Condition (always true for this mode's tools)
-                let condition = Some(|_state: &HashMap<String, Value>| -> bool { true });
+            // Condition (always true for this mode's tools)
+            let condition = Some(|_state: &HashMap<String, Value>| -> bool { true });
 
-                // Add tools to the agent
-                agent_clone.add_tool(
+            // Add tools to the agent
+            agent_clone
+                .add_tool(
                     review_tool.get_name(),
                     review_tool.into_tool_call_executor(),
                     condition.clone(),
-                ).await;
+                )
+                .await;
 
-                agent_clone.add_tool(
-                    message_user_clarifying_question_tool.get_name(),
-                    message_user_clarifying_question_tool.into_tool_call_executor(),
-                    condition.clone(),
-                ).await;
-
-                agent_clone.add_tool(
+            agent_clone
+                .add_tool(
                     done_tool.get_name(),
                     done_tool.into_tool_call_executor(),
                     condition.clone(),
-                ).await;
+                )
+                .await;
 
-                Ok(())
-            })
-        });
+            Ok(())
+        })
+    });
 
     // 4. Define terminating tools for this mode (From original load_tools)
-    let terminating_tools = vec![
-        "message_user_clarifying_question".to_string(), // Hardcoded name
-        "finish_and_respond".to_string(), // Hardcoded name for Done tool
-    ];
+    let terminating_tools = vec![Done::get_name()];
 
     // 5. Construct and return the ModeConfiguration
     ModeConfiguration {

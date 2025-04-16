@@ -1,9 +1,9 @@
 use anyhow::Result;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::sync::Arc;
-use std::pin::Pin;
 use std::future::Future;
+use std::pin::Pin;
+use std::sync::Arc;
 
 use crate::tools::ToolExecutor;
 use crate::Agent; // For get_name()
@@ -15,15 +15,10 @@ use super::{ModeAgentData, ModeConfiguration};
 use crate::tools::{
     categories::{
         file_tools::{
-            CreateDashboardFilesTool,
-            CreateMetricFilesTool,
-            ModifyDashboardFilesTool,
+            CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
             ModifyMetricFilesTool,
         },
-        response_tools::{
-            Done,
-            MessageUserClarifyingQuestion,
-        },
+        response_tools::{Done, MessageUserClarifyingQuestion},
     },
     IntoToolCallExecutor,
 };
@@ -31,77 +26,111 @@ use crate::tools::{
 // Function to get the configuration for the AnalysisExecution mode
 pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
     // 1. Get the prompt, formatted with current data
-    let prompt = PROMPT
-        .replace("{TODAYS_DATE}", &agent_data.todays_date);
-        // Note: This prompt doesn't use {DATASETS}
+    let prompt = PROMPT.replace("{TODAYS_DATE}", &agent_data.todays_date);
+    // Note: This prompt doesn't use {DATASETS}
 
     // 2. Define the model for this mode (Using default based on original MODEL = None)
-    let model = "o3-mini".to_string();
+    let model = "o4-mini".to_string();
 
     // 3. Define the tool loader closure
-    let tool_loader: Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync> = 
-        Box::new(|agent_arc: &Arc<Agent>| {
-            let agent_clone = Arc::clone(agent_arc); // Clone Arc for the async block
-            Box::pin(async move {
-                // Clear existing tools before loading mode-specific ones
-                agent_clone.clear_tools().await;
+    let tool_loader: Box<
+        dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync,
+    > = Box::new(|agent_arc: &Arc<Agent>| {
+        let agent_clone = Arc::clone(agent_arc); // Clone Arc for the async block
+        Box::pin(async move {
+            // Clear existing tools before loading mode-specific ones
+            agent_clone.clear_tools().await;
 
-                // Instantiate tools for this mode
-                let create_metric_files_tool = CreateMetricFilesTool::new(agent_clone.clone());
-                let modify_metric_files_tool = ModifyMetricFilesTool::new(agent_clone.clone());
-                let create_dashboard_files_tool = CreateDashboardFilesTool::new(agent_clone.clone());
-                let modify_dashboard_files_tool = ModifyDashboardFilesTool::new(agent_clone.clone());
-                let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new();
-                let done_tool = Done::new(agent_clone.clone());
+            // Instantiate tools for this mode
+            let create_metric_files_tool = CreateMetricFilesTool::new(agent_clone.clone());
+            let modify_metric_files_tool = ModifyMetricFilesTool::new(agent_clone.clone());
+            let create_dashboard_files_tool = CreateDashboardFilesTool::new(agent_clone.clone());
+            let modify_dashboard_files_tool = ModifyDashboardFilesTool::new(agent_clone.clone());
+            let done_tool = Done::new(agent_clone.clone());
 
-                // --- Define Conditions based on Agent State (as per original load_tools) ---
-                // Base condition: Plan and context must exist (implicitly true if we are in this mode)
-                let base_condition = Some(|state: &HashMap<String, Value>| -> bool {
-                    state.contains_key("data_context") && state.contains_key("plan_available")
-                });
-                let modify_metric_condition = Some(|state: &HashMap<String, Value>| -> bool {
-                    state.contains_key("data_context") && state.contains_key("plan_available") && state.contains_key("metrics_available") 
-                });
-                let create_dashboard_condition = Some(|state: &HashMap<String, Value>| -> bool {
-                    state.contains_key("data_context") && state.contains_key("plan_available") && state.contains_key("metrics_available") 
-                });
-                let modify_dashboard_condition = Some(|state: &HashMap<String, Value>| -> bool {
-                    state.contains_key("data_context") && state.contains_key("plan_available") && state.contains_key("dashboards_available")
-                });
-                 let done_condition = Some(|state: &HashMap<String, Value>| -> bool {
-                    let review_needed = state.get("review_needed").and_then(Value::as_bool).unwrap_or(false);
-                    let all_todos_complete = state
-                        .get("todos") // Assuming plan execution updates 'todos'
-                        .and_then(Value::as_array)
-                        .map(|todos| {
-                            todos.iter().all(|todo| {
-                                todo.get("completed")
-                                    .and_then(Value::as_bool)
-                                    .unwrap_or(false)
-                            })
+            // --- Define Conditions based on Agent State (as per original load_tools) ---
+            // Base condition: Plan and context must exist (implicitly true if we are in this mode)
+            let base_condition = Some(|state: &HashMap<String, Value>| -> bool {
+                state.contains_key("data_context") && state.contains_key("plan_available")
+            });
+            let modify_metric_condition = Some(|state: &HashMap<String, Value>| -> bool {
+                state.contains_key("data_context")
+                    && state.contains_key("plan_available")
+                    && state.contains_key("metrics_available")
+            });
+            let create_dashboard_condition = Some(|state: &HashMap<String, Value>| -> bool {
+                state.contains_key("data_context")
+                    && state.contains_key("plan_available")
+                    && state.contains_key("metrics_available")
+            });
+            let modify_dashboard_condition = Some(|state: &HashMap<String, Value>| -> bool {
+                state.contains_key("data_context")
+                    && state.contains_key("plan_available")
+                    && state.contains_key("dashboards_available")
+            });
+            let done_condition = Some(|state: &HashMap<String, Value>| -> bool {
+                let review_needed = state
+                    .get("review_needed")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false);
+                let all_todos_complete = state
+                    .get("todos") // Assuming plan execution updates 'todos'
+                    .and_then(Value::as_array)
+                    .map(|todos| {
+                        todos.iter().all(|todo| {
+                            todo.get("completed")
+                                .and_then(Value::as_bool)
+                                .unwrap_or(false)
                         })
-                        .unwrap_or(false);
-                    review_needed || all_todos_complete
-                 });
-                let always_available = Some(|_state: &HashMap<String, Value>| -> bool { true });
+                    })
+                    .unwrap_or(false);
+                review_needed || all_todos_complete
+            });
+            let always_available = Some(|_state: &HashMap<String, Value>| -> bool { true });
 
-                // Add tools to the agent with conditions
-                agent_clone.add_tool(create_metric_files_tool.get_name(), create_metric_files_tool.into_tool_call_executor(), base_condition.clone()).await;
-                agent_clone.add_tool(modify_metric_files_tool.get_name(), modify_metric_files_tool.into_tool_call_executor(), modify_metric_condition).await;
-                agent_clone.add_tool(create_dashboard_files_tool.get_name(), create_dashboard_files_tool.into_tool_call_executor(), create_dashboard_condition).await;
-                agent_clone.add_tool(modify_dashboard_files_tool.get_name(), modify_dashboard_files_tool.into_tool_call_executor(), modify_dashboard_condition).await;
-                agent_clone.add_tool(message_user_clarifying_question_tool.get_name(), message_user_clarifying_question_tool.into_tool_call_executor(), always_available).await;
-                agent_clone.add_tool(done_tool.get_name(), done_tool.into_tool_call_executor(), done_condition).await;
+            // Add tools to the agent with conditions
+            agent_clone
+                .add_tool(
+                    create_metric_files_tool.get_name(),
+                    create_metric_files_tool.into_tool_call_executor(),
+                    base_condition.clone(),
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    modify_metric_files_tool.get_name(),
+                    modify_metric_files_tool.into_tool_call_executor(),
+                    modify_metric_condition,
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    create_dashboard_files_tool.get_name(),
+                    create_dashboard_files_tool.into_tool_call_executor(),
+                    create_dashboard_condition,
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    modify_dashboard_files_tool.get_name(),
+                    modify_dashboard_files_tool.into_tool_call_executor(),
+                    modify_dashboard_condition,
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    done_tool.get_name(),
+                    done_tool.into_tool_call_executor(),
+                    done_condition,
+                )
+                .await;
 
-                Ok(())
-            })
-        });
+            Ok(())
+        })
+    });
 
     // 4. Define terminating tools for this mode (From original load_tools)
-    let terminating_tools = vec![
-        "message_user_clarifying_question".to_string(), // Hardcoded name
-        "finish_and_respond".to_string(), // Hardcoded name for Done tool
-    ];
+    let terminating_tools = vec![Done::get_name()];
 
     // 5. Construct and return the ModeConfiguration
     ModeConfiguration {
