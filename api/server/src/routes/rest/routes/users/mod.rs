@@ -1,13 +1,13 @@
 use axum::{
-    routing::{get, put},
+    routing::{get, post, put},
     Router,
 };
-
 
 mod assets;
 mod favorites;
 mod get_user;
 mod get_user_by_id;
+mod invite_users;
 mod update_user;
 
 pub fn router() -> Router {
@@ -16,6 +16,7 @@ pub fn router() -> Router {
             .route("/:user_id", put(update_user::update_user))
             .route("/:user_id", get(get_user_by_id::get_user_by_id))
             .nest("/:user_id", assets::router())
-            .nest("/favorites", favorites::router()),
+            .nest("/favorites", favorites::router())
+            .route("/invite", post(invite_users::invite_users)),
     )
 }
