@@ -139,6 +139,28 @@ impl BusterMultiAgent {
                 && state.contains_key("data_context")
         });
 
+        // Define the new condition for the Done tool
+        let done_condition = Some(|state: &HashMap<String, Value>| -> bool {
+            let review_needed = state.get("review_needed")
+                .and_then(Value::as_bool)
+                .unwrap_or(false);
+
+            // Check if all todos are marked as complete
+            // Assumes 'todos' is an array of objects, each with a 'completed' boolean field
+            let all_todos_complete = state.get("todos")
+                .and_then(Value::as_array)
+                .map(|todos| {
+                    todos.iter().all(|todo| {
+                        todo.get("completed")
+                            .and_then(Value::as_bool)
+                            .unwrap_or(false) // Treat missing 'completed' as false
+                    })
+                })
+                .unwrap_or(false); // If 'todos' doesn't exist or isn't an array, assume not all complete
+
+            review_needed || all_todos_complete
+        });
+
         // Add tools to the agent with their conditions
         self.agent
             .add_tool(
@@ -207,7 +229,7 @@ impl BusterMultiAgent {
             .add_tool(
                 done_tool.get_name(),
                 done_tool.into_tool_call_executor(),
-                after_search_condition.clone(), // Use after_search_condition instead of None
+                done_condition, // Use the new done_condition
             )
             .await;
         self.agent
