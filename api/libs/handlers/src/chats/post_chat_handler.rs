@@ -2408,7 +2408,11 @@ async fn initialize_chat(
     user: &AuthenticatedUser,
     user_org_id: Uuid,
 ) -> Result<(Uuid, Uuid, ChatWithMessages)> {
-    let message_id = request.message_id.unwrap_or_else(Uuid::new_v4);
+    // Determine the ID for the new message being created.
+    // If request.message_id is Some, it signifies a branch point, so the NEW message needs a NEW ID.
+    // If request.message_id is None, we might be starting a new chat or adding to the end,
+    // in which case we can use a new ID as well.
+    let new_message_id = Uuid::new_v4();
 
     // Get a default title for chats
     let default_title = {
@@ -2428,12 +2432,67 @@ async fn initialize_chat(
     let prompt_text = request.prompt.clone().unwrap_or_default();
 
     if let Some(existing_chat_id) = request.chat_id {
+        // --- START: Added logic for message_id presence ---
+        if let Some(target_message_id) = request.message_id {
+            // Use target_message_id (from the request) for deletion logic
+            let mut conn = get_pg_pool().get().await?;
+
+            // Fetch the created_at timestamp of the target message
+            let target_message_created_at = messages::table
+                .filter(messages::id.eq(target_message_id))
+                .select(messages::created_at)
+                .first::<chrono::NaiveDateTime>(&mut conn)
+                .await
+                .optional()?; // Use optional in case the message doesn't exist
+
+            if let Some(created_at_ts) = target_message_created_at {
+                // Mark subsequent messages as deleted
+                let update_result = diesel::update(messages::table)
+                    .filter(messages::chat_id.eq(existing_chat_id))
+                    .filter(messages::created_at.ge(created_at_ts))
+                    .set(messages::deleted_at.eq(Some(Utc::now().naive_utc()))) // Use naive_utc() for NaiveDateTime
+                    .execute(&mut conn)
+                    .await;
+
+                match update_result {
+                    Ok(num_updated) => {
+                        tracing::info!(
+                            "Marked {} messages as deleted for chat {} starting from message {}",
+                            num_updated,
+                            existing_chat_id,
+                            target_message_id
+                        );
+                    }
+                    Err(e) => {
+                        tracing::error!(
+                            "Failed to mark messages as deleted for chat {}: {}",
+                            existing_chat_id,
+                            e
+                        );
+                        // Propagate the error or handle appropriately
+                        return Err(anyhow!("Failed to update messages: {}", e));
+                    }
+                }
+            } else {
+                // Handle case where the target_message_id doesn't exist
+                tracing::warn!(
+                    "Target message_id {} not found for chat {}, proceeding without deleting messages.",
+                    target_message_id,
+                    existing_chat_id
+                );
+                // Potentially return an error or proceed based on desired behavior
+            }
+        }
+        // --- END: Added logic for message_id presence ---
+
+
         // Get existing chat - no need to create new chat in DB
+        // This now fetches the chat *after* potential deletions
         let mut existing_chat = get_chat_handler(&existing_chat_id, &user, true).await?;
 
-        // Create new message
+        // Create new message using the *new* message ID
         let message = ChatMessage::new_with_messages(
-            message_id,
+            new_message_id, // Use the newly generated ID here
             Some(ChatUserMessage {
                 request: Some(prompt_text),
                 sender_id: user.id,
@@ -2450,7 +2509,7 @@ async fn initialize_chat(
         // Add message to existing chat
         existing_chat.add_message(message);
 
-        Ok((existing_chat_id, message_id, existing_chat))
+        Ok((existing_chat_id, new_message_id, existing_chat)) // Return the new_message_id
     } else {
         // Create new chat since we don't have an existing one
         let chat_id = Uuid::new_v4();
@@ -2471,9 +2530,9 @@ async fn initialize_chat(
             most_recent_version_number: None,
         };
 
-        // Create initial message
+        // Create initial message using the *new* message ID
         let message = ChatMessage::new_with_messages(
-            message_id,
+            new_message_id, // Use the newly generated ID here
             Some(ChatUserMessage {
                 request: Some(prompt_text),
                 sender_id: user.id,
@@ -2519,7 +2578,7 @@ async fn initialize_chat(
             .execute(&mut conn)
             .await?;
 
-        Ok((chat_id, message_id, chat_with_messages))
+        Ok((chat_id, new_message_id, chat_with_messages)) // Return the new_message_id
     }
 }
 
