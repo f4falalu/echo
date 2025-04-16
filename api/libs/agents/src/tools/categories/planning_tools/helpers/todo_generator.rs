@@ -25,15 +25,17 @@ pub async fn generate_todos_from_plan(
 
     let prompt = format!(
         r#"
-Given the following plan, extract the main actionable steps and return them as a JSON list of concise todo strings. Focus on the core actions described in each step. Do not include any introductory text, summary, or review steps. Only include the main tasks to be performed.
+Given the following plan, extract the actionable steps and return them as a JSON list of descriptive todo strings. Each todo item should clearly describe the task to be performed, providing enough detail to understand its purpose within the overall plan. Avoid overly simple descriptions. 
+
+**IMPORTANT**: Do not include any steps related to reviewing, verifying, summarizing, or responding to the user. Only include the core creation or modification tasks.
 
 Plan:
 """
 {}
 """
 
-Return ONLY a valid JSON array of strings, where each string is a short todo item corresponding to a main step in the plan.
-Example format: `["Create 11 visualizations", "Create dashboard"]`
+Return ONLY a valid JSON array of strings, where each string is a descriptive todo item corresponding to a main creation/modification step in the plan.
+Example format: `["Create a number card visualization titled 'Top Customer by Lifetime Revenue' using specified datasets"]`
 "#,
         plan
     );
