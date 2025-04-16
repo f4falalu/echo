@@ -166,8 +166,11 @@ pub async fn search(
         };
 
         // Compare highlights count (descending), then score (descending)
-        highlights_b.cmp(&highlights_a)
-            .then_with(|| score_b.partial_cmp(&score_a).unwrap_or(std::cmp::Ordering::Equal))
+        highlights_b.cmp(&highlights_a).then_with(|| {
+            score_b
+                .partial_cmp(&score_a)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
     });
 
     // Only filter when we have a query
@@ -242,7 +245,7 @@ pub async fn list_recent_assets(
     );
     info!("Generated SQL for list_recent_assets: {}", sql_query);
 
-    let mut results = sqlx::query(&sql_query).fetch(&mut *conn);
+    let mut results = sqlx::raw_sql(&sql_query).fetch(&mut *conn);
     let mut results_vec = Vec::new();
 
     while let Some(row) = results.try_next().await? {

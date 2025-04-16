@@ -20,6 +20,7 @@ use crate::{
             response_tools::{Done, MessageUserClarifyingQuestion},
             utility_tools::no_search_needed::NoSearchNeededTool, // <-- Fixed import path
         },
+        planning_tools::ReviewPlan,
         IntoToolCallExecutor, ToolExecutor,
     },
     Agent, AgentError, AgentExt, AgentThread,
@@ -27,7 +28,12 @@ use crate::{
 
 use litellm::AgentMessage;
 
-use super::{analysis_prompt::ANALYSIS_PROMPT, create_plan_prompt::CREATE_PLAN_PROMPT, data_catalog_search_prompt::DATA_CATALOG_SEARCH_PROMPT, initialization_follow_up_prompt::FOLLOW_UP_INTIALIZATION_PROMPT, initialization_prompt::INTIALIZATION_PROMPT};
+use super::{
+    analysis_prompt::ANALYSIS_PROMPT, create_plan_prompt::CREATE_PLAN_PROMPT,
+    data_catalog_search_prompt::DATA_CATALOG_SEARCH_PROMPT,
+    initialization_follow_up_prompt::FOLLOW_UP_INTIALIZATION_PROMPT,
+    initialization_prompt::INTIALIZATION_PROMPT, review_prompt::REVIEW_PROMPT,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BusterSuperAgentOutput {
@@ -68,6 +74,7 @@ impl BusterMultiAgent {
         let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new();
         let done_tool = Done::new();
         let no_search_needed_tool = NoSearchNeededTool::new(Arc::clone(&self.agent));
+        let review_tool = ReviewPlan::new(Arc::clone(&self.agent));
 
         // Get names before moving tools
         let done_tool_name = done_tool.get_name();
@@ -91,21 +98,8 @@ impl BusterMultiAgent {
                 .unwrap_or(false)
         });
 
-        let response_tools_condition = Some(|state: &HashMap<String, Value>| -> bool {
-            // Check the state map for the follow-up indicator
-            let is_follow_up = state
-                .get("is_follow_up")
-                .and_then(Value::as_bool)
-                .unwrap_or(false);
-
-            if is_follow_up {
-                // For follow-ups, enable if neither data context nor plan is available
-                !state.contains_key("data_context") && !state.contains_key("plan_available")
-            } else {
-                // For initial requests, enable only if data context is not yet available
-                !state.contains_key("data_context")
-            }
-        });
+        let review_condition =
+            Some(|state: &HashMap<String, Value>| -> bool { state.contains_key("review_needed") });
 
         let planning_tools_condition = Some(|state: &HashMap<String, Value>| -> bool {
             let searched_catalog = state
@@ -200,16 +194,23 @@ impl BusterMultiAgent {
             .await;
         self.agent
             .add_tool(
-                msg_clarifying_q_tool_name.clone(),
+                message_user_clarifying_question_tool.get_name(),
                 message_user_clarifying_question_tool.into_tool_call_executor(),
                 after_search_condition.clone(), // Use after_search_condition
             )
             .await;
         self.agent
             .add_tool(
-                done_tool_name.clone(),
+                done_tool.get_name(),
                 done_tool.into_tool_call_executor(),
                 after_search_condition.clone(), // Use after_search_condition instead of None
+            )
+            .await;
+        self.agent
+            .add_tool(
+                review_tool.get_name(),
+                review_tool.into_tool_call_executor(),
+                review_condition.clone(),
             )
             .await;
 
@@ -239,10 +240,12 @@ impl BusterMultiAgent {
 
         // Select initial default prompt based on whether it's a follow-up
         let initial_default_prompt = if is_follow_up {
-            FOLLOW_UP_INTIALIZATION_PROMPT.replace("{DATASETS}", &dataset_names.join(", "))
+            FOLLOW_UP_INTIALIZATION_PROMPT
+                .replace("{DATASETS}", &dataset_names.join(", "))
                 .replace("{TODAYS_DATE}", &todays_date)
         } else {
-            INTIALIZATION_PROMPT.replace("{DATASETS}", &dataset_names.join(", "))
+            INTIALIZATION_PROMPT
+                .replace("{DATASETS}", &dataset_names.join(", "))
                 .replace("{TODAYS_DATE}", &todays_date)
         };
 
@@ -277,9 +280,15 @@ impl BusterMultiAgent {
             !state.contains_key("searched_data_catalog")
         };
 
+        let needs_review_condition =
+            |state: &HashMap<String, Value>| -> bool { state.contains_key("review_needed") };
+
         // Add prompt rules (order matters)
         // The agent will use the prompt associated with the first condition that evaluates to true.
         // If none match, it uses the default (INITIALIZATION_PROMPT).
+        agent
+            .add_dynamic_prompt_rule(needs_review_condition, REVIEW_PROMPT.to_string())
+            .await;
         agent
             .add_dynamic_prompt_rule(
                 needs_data_catalog_search_condition,
@@ -306,6 +315,12 @@ impl BusterMultiAgent {
             .await;
 
         // Add dynamic model rule: Use gpt-4.1 when searching the data catalog
+        agent
+            .add_dynamic_model_rule(
+                needs_review_condition, // Reuse the same condition
+                "gemini-2.0-flash-001".to_string(),
+            )
+            .await;
         agent
             .add_dynamic_model_rule(
                 needs_data_catalog_search_condition, // Reuse the same condition
@@ -382,8 +397,3 @@ impl BusterMultiAgent {
         None
     }
 }
-
-
-
-
-
