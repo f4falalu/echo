@@ -228,8 +228,6 @@ pub async fn post_chat_handler(
 
         let messages = generate_asset_messages(asset_id_value, asset_type_value, &user).await?;
 
-        println!("messages: {:?}", messages);
-
         // Add messages to chat and associate with chat_id
         let mut updated_messages = Vec::new();
         for mut message in messages {
