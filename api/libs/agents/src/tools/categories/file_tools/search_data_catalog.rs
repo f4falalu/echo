@@ -363,7 +363,7 @@ async fn rerank_datasets(
         query,
         documents,
         model: ReRankModel::EnglishV3,
-        top_n: Some(30),
+        top_n: Some(50),
         ..Default::default()
     };
 

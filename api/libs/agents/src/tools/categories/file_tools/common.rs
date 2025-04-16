@@ -478,6 +478,7 @@ definitions:
               - metric
           metricColumnId:
             type: string
+            description: The column ID to use for the metric value
           metricValueAggregate:
             type: string
             enum:
@@ -488,7 +489,65 @@ definitions:
               - min
               - count
               - first
-            description: Optional - only used when the user specifically requests it, otherwise leave blank
+            description: Optional aggregation method for the metric value, defaults to sum if not specified
+          metricHeader:
+            oneOf:
+              - type: string
+                description: Simple string title for the metric header
+              - type: object
+                properties:
+                  columnId:
+                    type: string
+                    description: Which column to use for the header
+                  useValue:
+                    type: boolean
+                    description: Whether to display the key or the value in the chart
+                  aggregate:
+                    type: string
+                    enum:
+                      - sum
+                      - average
+                      - median
+                      - max
+                      - min
+                      - count
+                      - first
+                    description: Optional aggregation method, defaults to sum
+                required:
+                  - columnId
+                  - useValue
+                description: Configuration for a derived metric header
+          metricSubHeader:
+            oneOf:
+              - type: string
+                description: Simple string title for the metric sub-header
+              - type: object
+                properties:
+                  columnId:
+                    type: string
+                    description: Which column to use for the sub-header
+                  useValue:
+                    type: boolean
+                    description: Whether to display the key or the value in the chart
+                  aggregate:
+                    type: string
+                    enum:
+                      - sum
+                      - average
+                      - median
+                      - max
+                      - min
+                      - count
+                      - first
+                    description: Optional aggregation method, defaults to sum
+                required:
+                  - columnId
+                  - useValue
+                description: Configuration for a derived metric sub-header
+          metricValueLabel:
+            oneOf:
+              - type: string
+                description: Custom label to display with the metric value
         required:
           - selectedChartType
           - metricColumnId
