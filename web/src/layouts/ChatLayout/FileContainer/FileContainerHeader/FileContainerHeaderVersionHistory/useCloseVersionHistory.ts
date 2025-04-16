@@ -1,7 +1,10 @@
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from '@/hooks';
 import { useGetInitialChatFile } from '@/layouts/ChatLayout/ChatContext/useGetInitialChatFile';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
+import {
+  assetParamsToRoute,
+  useChatLayoutContextSelector
+} from '@/layouts/ChatLayout/ChatLayoutContext';
 import { useMemo } from 'react';
 
 export const useCloseVersionHistory = () => {
@@ -13,16 +16,24 @@ export const useCloseVersionHistory = () => {
   const getInitialChatFileHref = useGetInitialChatFile();
 
   const href = useMemo(() => {
+    if (!chatId) {
+      return assetParamsToRoute({
+        assetId: metricId!,
+        type: 'metric',
+        chatId
+      });
+    }
+
     return (
       getInitialChatFileHref({
         metricId,
         dashboardId,
-        chatId: chatId!,
+        chatId,
         secondaryView: null,
         dashboardVersionNumber: undefined,
         metricVersionNumber: undefined,
         messageId
-      }) || ''
+      }) || 'error'
     );
   }, [chatId, messageId, metricId, dashboardId]);
 

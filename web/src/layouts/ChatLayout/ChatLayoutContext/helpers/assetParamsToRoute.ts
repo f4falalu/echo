@@ -27,7 +27,7 @@ const createMetricRoute = ({
   secondaryView,
   versionNumber
 }: MetricRouteParams) => {
-  const baseParams = { metricId, secondaryView };
+  const baseParams = { versionNumber, metricId, secondaryView };
 
   if (chatId) {
     if (versionNumber) {
@@ -69,6 +69,14 @@ const createMetricRoute = ({
   }
 
   // Non-chat metric routes
+
+  if (versionNumber) {
+    return createBusterRoute({
+      route: BusterRoutes.APP_METRIC_ID_VERSION_NUMBER,
+      ...baseParams
+    });
+  }
+
   switch (secondaryView) {
     case 'chart-edit':
       return createBusterRoute({
@@ -81,9 +89,8 @@ const createMetricRoute = ({
         ...baseParams
       });
     case 'version-history':
+    //
     default:
-      const test: never | undefined =
-        secondaryView === 'version-history' ? undefined : secondaryView;
       return createBusterRoute({
         route: BusterRoutes.APP_METRIC_ID_CHART,
         metricId

@@ -57,12 +57,13 @@ export type BusterAppRoutesWithArgs = {
   [BusterAppRoutes.APP_METRIC_ID_CHART]: {
     route: BusterAppRoutes.APP_METRIC_ID_CHART;
     metricId: string;
+    versionNumber?: number;
     secondaryView?: MetricFileViewSecondary;
   };
   [BusterAppRoutes.APP_METRIC_ID_VERSION_NUMBER]: {
     route: BusterAppRoutes.APP_METRIC_ID_VERSION_NUMBER;
     metricId: string;
-    versionNumber: number;
+    versionNumber?: number;
     secondaryView?: MetricFileViewSecondary;
   };
   [BusterAppRoutes.APP_METRIC_ID_FILE]: {
