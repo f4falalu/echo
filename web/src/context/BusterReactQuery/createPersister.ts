@@ -17,7 +17,10 @@ export const PERSISTED_QUERIES = [
   queryKeys.metricsGetList().queryKey,
   queryKeys.collectionsGetList().queryKey,
   queryKeys.termsGetList.queryKey,
-  queryKeys.datasetsListQueryOptions().queryKey
+  queryKeys.datasetsListQueryOptions().queryKey,
+  queryKeys.permissionGroupList.queryKey,
+  queryKeys.datasourceGetList.queryKey,
+  queryKeys.datasetGroupsList.queryKey
 ].map(hashKey);
 
 export const PERMANENT_QUERIES = [queryKeys.getCurrencies.queryKey].map(hashKey);

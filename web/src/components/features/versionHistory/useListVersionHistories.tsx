@@ -170,7 +170,7 @@ const useListMetricVersions = ({
 
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
 
-  const { data: metric, isFetched } = useGetMetric(
+  const { data: metric } = useGetMetric(
     {
       id: type === 'metric' ? assetId : undefined
     },

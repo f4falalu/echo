@@ -20,7 +20,6 @@ export const useIsMetricReadOnly = ({
   } = useGetMetric(
     { id: metricId },
     {
-      enabled: false,
       select: (x) => ({
         permission: x.permission,
         versions: x.versions,

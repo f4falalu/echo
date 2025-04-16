@@ -50,14 +50,15 @@ export const useGetMetricVersionNumber = ({
     ? versionNumberQueryParam || versionNumberPathParam
     : undefined;
 
-  const versionNumber = useMemo(() => {
+  const versionNumberX = useMemo(() => {
     if (versionNumberProp === null) return undefined;
-    return versionNumberProp || versionNumberFromParams
-      ? parseInt(versionNumberFromParams!)
-      : undefined;
+    return (
+      versionNumberProp ??
+      (versionNumberFromParams ? parseInt(versionNumberFromParams!) : undefined)
+    );
   }, [versionNumberProp, versionNumberFromParams]);
 
-  return versionNumber;
+  return versionNumberX;
 };
 
 /**
@@ -81,9 +82,7 @@ export const useGetMetric = <TData = IBusterMetric>(
 
   const versionNumber = useGetMetricVersionNumber({ versionNumber: versionNumberProp });
 
-  const options = useMemo(() => {
-    return metricsQueryKeys.metricsGetMetric(id!, versionNumber);
-  }, [id, versionNumber]);
+  const options = metricsQueryKeys.metricsGetMetric(id!, versionNumber);
 
   const queryFn = useMemoizedFn(async () => {
     const result = await getMetric({ id: id!, password, version_number: versionNumber });
@@ -92,6 +91,7 @@ export const useGetMetric = <TData = IBusterMetric>(
 
     const isLatestVersion =
       updatedMetric.version_number === last(updatedMetric.versions)?.version_number;
+
     if (isLatestVersion) setOriginalMetric(updatedMetric);
 
     if (!versionNumber && result?.version_number) {
@@ -247,6 +247,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
       );
       const newMetric = upgradeMetricToIMetric(data, oldMetric || null);
       if (updateOnSave && data) {
+        //We need to update BOTH the versioned and the non-versioned metric
         queryClient.setQueryData(
           metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey,
           newMetric
@@ -375,6 +376,7 @@ export const useShareMetric = () => {
         metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey
       );
       const upgradedMetric = upgradeMetricToIMetric(data, oldMetric || null);
+
       queryClient.setQueryData(
         metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey,
         upgradedMetric

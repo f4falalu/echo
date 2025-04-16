@@ -33,7 +33,6 @@ export const getChangedTopLevelMessageValues = (
     'sql',
     'file'
   ]);
-
   return changes;
 };
 
