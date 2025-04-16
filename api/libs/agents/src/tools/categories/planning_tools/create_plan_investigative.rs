@@ -3,7 +3,9 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
+use tracing::warn;
 
+use super::helpers::generate_todos_from_plan;
 use crate::{agent::Agent, tools::ToolExecutor};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -14,9 +16,7 @@ pub struct CreatePlanInvestigativeOutput {
 
 #[derive(Debug, Deserialize)]
 pub struct CreatePlanInvestigativeInput {
-    #[serde(rename = "plan")]
-    _plan: String,
-    todos: Vec<String>,
+    plan: String,
 }
 
 pub struct CreatePlanInvestigative {
@@ -43,22 +43,39 @@ impl ToolExecutor for CreatePlanInvestigative {
             .set_state_value(String::from("plan_available"), Value::Bool(true))
             .await;
 
-        let todos_state_objects: Vec<Value> = params
-            .todos
-            .iter()
-            .map(|item| {
-                let mut map = serde_json::Map::new();
-                map.insert("completed".to_string(), Value::Bool(false));
-                map.insert("todo".to_string(), Value::String(item.clone()));
-                Value::Object(map)
-            })
-            .collect();
+        let mut todos_string = String::new();
 
-        self.agent
-            .set_state_value(String::from("todos"), Value::Array(todos_state_objects))
-            .await;
+        match generate_todos_from_plan(
+            &params.plan,
+            self.agent.get_user_id(),
+            self.agent.get_session_id(),
+        )
+        .await
+        {
+            Ok(todos_state_objects) => {
+                let formatted_todos: Vec<String> = todos_state_objects
+                    .iter()
+                    .filter_map(|val| val.as_object())
+                    .filter_map(|obj| obj.get("todo"))
+                    .filter_map(|todo_val| todo_val.as_str())
+                    .map(|todo_str| format!("[ ] {}", todo_str))
+                    .collect();
+                todos_string = formatted_todos.join("\n");
 
-        let todos_string = params.todos.iter().map(|item| format!("[ ] {}", item)).collect::<Vec<_>>().join("\n");
+                self.agent
+                    .set_state_value(String::from("todos"), Value::Array(todos_state_objects))
+                    .await;
+            }
+            Err(e) => {
+                warn!(
+                    "Failed to generate todos from plan using LLM: {}. Proceeding without todos.",
+                    e
+                );
+                self.agent
+                    .set_state_value(String::from("todos"), Value::Array(vec![]))
+                    .await;
+            }
+        }
 
         Ok(CreatePlanInvestigativeOutput { success: true, todos: todos_string })
     }
@@ -71,19 +88,13 @@ impl ToolExecutor for CreatePlanInvestigative {
             "parameters": {
                 "type": "object",
                 "required": [
-                    "plan",
-                    "todos"
+                    "plan"
                 ],
                 "properties": {
                     "plan": {
                         "type": "string",
                         "description": get_plan_investigative_description().await
-                    },
-                    "todos": {
-                        "type": "array",
-                        "description": "Ordered todo points summarizing the steps of the plan. There should be max one todo for each step in the plan, in order. For example, if the plan has two steps, plan_todos should have two items, each summarizing a step. Do not include review or response steps—these will be handled by a separate agent.",
-                        "items": { "type": "string" },
-                    },
+                    }
                 },
                 "additionalProperties": false
             }
