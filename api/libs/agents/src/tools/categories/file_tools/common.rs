@@ -206,7 +206,7 @@ properties:
     description: Visualization settings (must include selectedChartType, columnLabelFormats, and ONE chart-specific block)
     allOf: # Base requirements for ALL chart types
       - $ref: '#/definitions/base_chart_config'
-    oneOf: # Specific block required based on type
+    oneOf: # Specific block required based on type 
       - $ref: #/definitions/bar_line_chart_config
       - $ref: #/definitions/scatter_chart_config
       - $ref: #/definitions/pie_chart_config
