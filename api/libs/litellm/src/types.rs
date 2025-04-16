@@ -15,7 +15,7 @@ pub struct ChatCompletionRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub logit_bias: Option<HashMap<String, i32>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub log_probs: Option<bool>,
+    pub logprobs: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub top_logprobs: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -71,7 +71,7 @@ impl Default for ChatCompletionRequest {
             reasoning_effort: None,
             frequency_penalty: None,
             logit_bias: None,
-            log_probs: None,
+            logprobs: None,
             top_logprobs: None,
             max_completion_tokens: None,
             n: None,
