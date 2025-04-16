@@ -117,6 +117,10 @@ export const DashboardMetricItem = React.memo(DashboardMetricItemBase, (prev, ne
   return (
     prev.metricId === next.metricId &&
     prev.dashboardId === next.dashboardId &&
-    prev.versionNumber === next.versionNumber
+    prev.versionNumber === next.versionNumber &&
+    prev.chatId === next.chatId &&
+    prev.readOnly === next.readOnly &&
+    prev.isDragOverlay === next.isDragOverlay &&
+    prev.numberOfMetrics === next.numberOfMetrics
   );
 });

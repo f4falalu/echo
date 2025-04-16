@@ -63,10 +63,7 @@ export const DashboardContentController: React.FC<{
             ...row,
             items: row.items.map((item) => {
               const selectedMetric = metrics[item.id];
-              const versionNumber =
-                last(selectedMetric.versions)?.version_number === selectedMetric.version_number
-                  ? undefined
-                  : selectedMetric.version_number;
+              const versionNumber = selectedMetric.version_number;
 
               return {
                 ...item,

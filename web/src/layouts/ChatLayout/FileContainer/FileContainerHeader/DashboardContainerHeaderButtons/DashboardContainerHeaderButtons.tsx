@@ -39,8 +39,11 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
       <FileButtonContainer>
         <SaveToCollectionButton />
         {isEffectiveOwner && <ShareDashboardButton dashboardId={dashboardId} />}
-        {isEditor && <AddContentToDashboardButton />}
-        <DashboardThreeDotMenu dashboardId={dashboardId} />
+        {isEditor && !isViewingOldVersion && <AddContentToDashboardButton />}
+        <DashboardThreeDotMenu
+          dashboardId={dashboardId}
+          isViewingOldVersion={isViewingOldVersion}
+        />
         <HideButtonContainer show={selectedLayout === 'file-only'}>
           <CreateChatButton assetId={dashboardId} assetType="dashboard" />
         </HideButtonContainer>

@@ -39,60 +39,62 @@ import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
 
-export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
-  const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });
-  const chatId = useChatIndividualContextSelector((x) => x.chatId);
-  const collectionSelectMenu = useCollectionSelectMenu({ dashboardId });
-  const openFullScreenDashboard = useOpenFullScreenDashboard({ dashboardId });
-  const favoriteDashboard = useFavoriteDashboardSelectMenu({ dashboardId });
-  const deleteDashboardMenu = useDeleteDashboardSelectMenu({ dashboardId });
-  const renameDashboardMenu = useRenameDashboardSelectMenu({ dashboardId });
-  const shareMenu = useShareMenuSelectMenu({ dashboardId });
-  const addContentToDashboardMenu = useAddContentToDashboardSelectMenu();
-  const filterDashboardMenu = useFilterDashboardSelectMenu();
-  const { data: permission } = useGetDashboard(
-    { id: dashboardId },
-    { select: (x) => x.permission }
-  );
-  const isEffectiveOwner = getIsEffectiveOwner(permission);
-  const isFilter = canFilter(permission);
-  const isEditor = canEdit(permission);
+export const DashboardThreeDotMenu = React.memo(
+  ({ dashboardId, isViewingOldVersion }: { dashboardId: string; isViewingOldVersion: boolean }) => {
+    const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });
+    const chatId = useChatIndividualContextSelector((x) => x.chatId);
+    const collectionSelectMenu = useCollectionSelectMenu({ dashboardId });
+    const openFullScreenDashboard = useOpenFullScreenDashboard({ dashboardId });
+    const favoriteDashboard = useFavoriteDashboardSelectMenu({ dashboardId });
+    const deleteDashboardMenu = useDeleteDashboardSelectMenu({ dashboardId });
+    const renameDashboardMenu = useRenameDashboardSelectMenu({ dashboardId });
+    const shareMenu = useShareMenuSelectMenu({ dashboardId });
+    const addContentToDashboardMenu = useAddContentToDashboardSelectMenu();
+    const filterDashboardMenu = useFilterDashboardSelectMenu();
+    const { data: permission } = useGetDashboard(
+      { id: dashboardId },
+      { select: (x) => x.permission }
+    );
+    const isEffectiveOwner = getIsEffectiveOwner(permission);
+    const isFilter = canFilter(permission);
+    const isEditor = canEdit(permission);
 
-  const items: DropdownItems = useMemo(
-    () =>
+    const items: DropdownItems = useMemo(
+      () =>
+        [
+          chatId && openFullScreenDashboard,
+          isFilter && !isViewingOldVersion && filterDashboardMenu,
+          isEditor && !isViewingOldVersion && addContentToDashboardMenu,
+          { type: 'divider' },
+          isEffectiveOwner && !isViewingOldVersion && shareMenu,
+          collectionSelectMenu,
+          favoriteDashboard,
+          versionHistoryItems,
+          { type: 'divider' },
+          isEditor && !isViewingOldVersion && renameDashboardMenu,
+          isEffectiveOwner && !isViewingOldVersion && deleteDashboardMenu
+        ].filter(Boolean) as DropdownItems,
       [
-        chatId && openFullScreenDashboard,
-        isFilter && filterDashboardMenu,
-        isEditor && addContentToDashboardMenu,
-        { type: 'divider' },
-        isEffectiveOwner && shareMenu,
+        chatId,
+        openFullScreenDashboard,
+        filterDashboardMenu,
+        addContentToDashboardMenu,
+        shareMenu,
         collectionSelectMenu,
         favoriteDashboard,
         versionHistoryItems,
-        { type: 'divider' },
-        isEditor && renameDashboardMenu,
-        isEffectiveOwner && deleteDashboardMenu
-      ].filter(Boolean) as DropdownItems,
-    [
-      chatId,
-      openFullScreenDashboard,
-      filterDashboardMenu,
-      addContentToDashboardMenu,
-      shareMenu,
-      collectionSelectMenu,
-      favoriteDashboard,
-      versionHistoryItems,
-      renameDashboardMenu,
-      deleteDashboardMenu
-    ]
-  );
+        renameDashboardMenu,
+        deleteDashboardMenu
+      ]
+    );
 
-  return (
-    <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
-      <Button prefix={<Dots />} variant="ghost" />
-    </Dropdown>
-  );
-});
+    return (
+      <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
+        <Button prefix={<Dots />} variant="ghost" />
+      </Dropdown>
+    );
+  }
+);
 DashboardThreeDotMenu.displayName = 'ThreeDotMenuButton';
 
 const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) => {
