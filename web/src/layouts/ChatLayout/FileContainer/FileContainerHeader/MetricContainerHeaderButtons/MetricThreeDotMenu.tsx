@@ -56,82 +56,92 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 
-export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }) => {
-  const chatId = useChatIndividualContextSelector((x) => x.chatId);
-  const { openSuccessMessage } = useBusterNotifications();
-  const { data: permission } = useGetMetric({ id: metricId }, { select: (x) => x.permission });
-  const openFullScreenMetric = useOpenFullScreenMetric({ metricId });
-  const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
-  const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
-  const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
-  const collectionSelectMenu = useCollectionSelectMenu({ metricId });
-  const statusSelectMenu = useStatusSelectMenu({ metricId });
-  const favoriteMetric = useFavoriteMetricSelectMenu({ metricId });
-  const editChartMenu = useEditChartSelectMenu();
-  const resultsViewMenu = useResultsViewSelectMenu();
-  const sqlEditorMenu = useSQLEditorSelectMenu();
-  const downloadCSVMenu = useDownloadCSVSelectMenu({ metricId });
-  const downloadPNGMenu = useDownloadPNGSelectMenu({ metricId });
-  const deleteMetricMenu = useDeleteMetricSelectMenu({ metricId });
-  const renameMetricMenu = useRenameMetricSelectMenu({ metricId });
-  const shareMenu = useShareMenuSelectMenu({ metricId });
+export const ThreeDotMenuButton = React.memo(
+  ({
+    metricId,
+    isViewingOldVersion,
+    versionNumber
+  }: {
+    metricId: string;
+    isViewingOldVersion: boolean;
+    versionNumber: number | undefined;
+  }) => {
+    const chatId = useChatIndividualContextSelector((x) => x.chatId);
+    const { openSuccessMessage } = useBusterNotifications();
+    const { data: permission } = useGetMetric({ id: metricId }, { select: (x) => x.permission });
+    const openFullScreenMetric = useOpenFullScreenMetric({ metricId, versionNumber });
+    const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
+    const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
+    const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
+    const collectionSelectMenu = useCollectionSelectMenu({ metricId });
+    const statusSelectMenu = useStatusSelectMenu({ metricId });
+    const favoriteMetric = useFavoriteMetricSelectMenu({ metricId });
+    const editChartMenu = useEditChartSelectMenu();
+    const resultsViewMenu = useResultsViewSelectMenu();
+    const sqlEditorMenu = useSQLEditorSelectMenu();
+    const downloadCSVMenu = useDownloadCSVSelectMenu({ metricId });
+    const downloadPNGMenu = useDownloadPNGSelectMenu({ metricId });
+    const deleteMetricMenu = useDeleteMetricSelectMenu({ metricId });
+    const renameMetricMenu = useRenameMetricSelectMenu({ metricId });
+    const shareMenu = useShareMenuSelectMenu({ metricId });
 
-  const isEditor = canEdit(permission);
-  const isOwnerEffective = getIsEffectiveOwner(permission);
-  const isOwner = getIsOwner(permission);
+    const isEditor = canEdit(permission);
+    const isOwnerEffective = getIsEffectiveOwner(permission);
+    const isOwner = getIsOwner(permission);
 
-  const items: DropdownItems = useMemo(
-    () =>
+    const items: DropdownItems = useMemo(
+      () =>
+        [
+          chatId && openFullScreenMetric,
+          isOwnerEffective && !isViewingOldVersion && shareMenu,
+          isEditor && !isViewingOldVersion && statusSelectMenu,
+          { type: 'divider' },
+          !isViewingOldVersion && dashboardSelectMenu,
+          !isViewingOldVersion && collectionSelectMenu,
+          !isViewingOldVersion && favoriteMetric,
+          { type: 'divider' },
+          isEditor && !isViewingOldVersion && editChartMenu,
+          !isViewingOldVersion && resultsViewMenu,
+          !isViewingOldVersion && sqlEditorMenu,
+          isEditor && versionHistoryItems,
+          { type: 'divider' },
+          downloadCSVMenu,
+          downloadPNGMenu,
+          { type: 'divider' },
+          isEditor && !isViewingOldVersion && renameMetricMenu,
+          isOwner && !isViewingOldVersion && deleteMetricMenu
+        ].filter(Boolean) as DropdownItems,
       [
-        chatId && openFullScreenMetric,
-        isOwnerEffective && shareMenu,
-        isEditor && statusSelectMenu,
-        { type: 'divider' },
+        chatId,
+        openFullScreenMetric,
+        isEditor,
+        isOwner,
+        isOwnerEffective,
+        renameMetricMenu,
         dashboardSelectMenu,
-        collectionSelectMenu,
-        favoriteMetric,
-        { type: 'divider' },
-        isEditor && editChartMenu,
-        resultsViewMenu,
-        sqlEditorMenu,
-        isEditor && versionHistoryItems,
-        { type: 'divider' },
+        deleteMetricMenu,
         downloadCSVMenu,
         downloadPNGMenu,
-        { type: 'divider' },
-        isEditor && renameMetricMenu,
-        isOwner && deleteMetricMenu
-      ].filter(Boolean) as DropdownItems,
-    [
-      chatId,
-      openFullScreenMetric,
-      isEditor,
-      isOwner,
-      isOwnerEffective,
-      renameMetricMenu,
-      dashboardSelectMenu,
-      deleteMetricMenu,
-      downloadCSVMenu,
-      downloadPNGMenu,
-      openSuccessMessage,
-      onSetSelectedFile,
-      versionHistoryItems,
-      favoriteMetric,
-      statusSelectMenu,
-      collectionSelectMenu,
-      editChartMenu,
-      resultsViewMenu,
-      sqlEditorMenu,
-      shareMenu
-    ]
-  );
+        openSuccessMessage,
+        onSetSelectedFile,
+        versionHistoryItems,
+        favoriteMetric,
+        statusSelectMenu,
+        collectionSelectMenu,
+        editChartMenu,
+        resultsViewMenu,
+        sqlEditorMenu,
+        shareMenu
+      ]
+    );
 
-  return (
-    <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
-      <Button prefix={<Dots />} variant="ghost" />
-    </Dropdown>
-  );
-});
+    return (
+      <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
+        <Button prefix={<Dots />} variant="ghost" />
+      </Dropdown>
+    );
+  }
+);
 ThreeDotMenuButton.displayName = 'ThreeDotMenuButton';
 
 const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
@@ -499,17 +509,29 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
   );
 };
 
-const useOpenFullScreenMetric = ({ metricId }: { metricId: string }) => {
+const useOpenFullScreenMetric = ({
+  metricId,
+  versionNumber
+}: {
+  metricId: string;
+  versionNumber: number | undefined;
+}) => {
   return useMemo(
     () => ({
       label: 'Open in metric page',
       value: 'open-in-full-screen',
       icon: <ArrowUpRight />,
-      link: createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID_CHART,
-        metricId
-      })
+      link: versionNumber
+        ? createBusterRoute({
+            route: BusterRoutes.APP_METRIC_ID_VERSION_NUMBER,
+            metricId,
+            versionNumber
+          })
+        : createBusterRoute({
+            route: BusterRoutes.APP_METRIC_ID_CHART,
+            metricId
+          })
     }),
-    [metricId]
+    [metricId, versionNumber]
   );
 };

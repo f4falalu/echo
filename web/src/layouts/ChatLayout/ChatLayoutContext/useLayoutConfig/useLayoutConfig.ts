@@ -92,7 +92,9 @@ export const useLayoutConfig = ({
         return;
       }
 
-      if (secondaryView) {
+      if (!chatId) {
+        animateOpenSplitter('right');
+      } else if (secondaryView) {
         animateOpenSplitter('right');
 
         //if the chat is open, we need to wait for the splitter to close before opening the secondary view
@@ -192,7 +194,7 @@ export const useLayoutConfig = ({
       fileView,
       secondaryView: secondaryViewFromSelected
     });
-  }, [metricId, secondaryView, dashboardId, currentRoute]);
+  }, [metricId, secondaryView, chatId, dashboardId, currentRoute]);
 
   return {
     selectedLayout,

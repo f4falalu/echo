@@ -242,7 +242,7 @@ export const DropdownContent = <T,>({
         }}>
         {hasShownItem ? (
           <>
-            {selectedItems.map((item) => {
+            {selectedItems.map((item, index) => {
               // Only increment index for selectable items
               if ((item as DropdownItem).value && !(item as DropdownItem).items) {
                 hotkeyIndex++;
@@ -250,7 +250,7 @@ export const DropdownContent = <T,>({
 
               return (
                 <DropdownItemSelector
-                  key={dropdownItemKey(item, hotkeyIndex)}
+                  key={dropdownItemKey(item, index)}
                   item={item}
                   index={hotkeyIndex}
                   selectType={selectType}
@@ -264,7 +264,7 @@ export const DropdownContent = <T,>({
 
             {selectedItems.length > 0 && <DropdownMenuSeparator />}
 
-            {dropdownItems.map((item) => {
+            {dropdownItems.map((item, index) => {
               // Only increment index for selectable items
               if ((item as DropdownItem).value && !(item as DropdownItem).items) {
                 hotkeyIndex++;
@@ -272,7 +272,7 @@ export const DropdownContent = <T,>({
 
               return (
                 <DropdownItemSelector
-                  key={dropdownItemKey(item, hotkeyIndex)}
+                  key={dropdownItemKey(item, index)}
                   item={item}
                   index={hotkeyIndex}
                   selectType={selectType}

@@ -57,7 +57,6 @@ export type BusterAppRoutesWithArgs = {
   [BusterAppRoutes.APP_METRIC_ID_CHART]: {
     route: BusterAppRoutes.APP_METRIC_ID_CHART;
     metricId: string;
-    versionNumber?: number;
     secondaryView?: MetricFileViewSecondary;
   };
   [BusterAppRoutes.APP_METRIC_ID_VERSION_NUMBER]: {
@@ -132,6 +131,7 @@ export type BusterAppRoutesWithArgs = {
     route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_CHART;
     chatId: string;
     metricId: string;
+    versionNumber?: number;
     secondaryView?: MetricFileViewSecondary;
   };
   [BusterAppRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER]: {

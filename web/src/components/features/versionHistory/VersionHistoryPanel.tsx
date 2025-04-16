@@ -13,7 +13,6 @@ import { AppTooltip } from '@/components/ui/tooltip';
 import Link from 'next/link';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
-import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 
 export const VersionHistoryPanel = React.memo(

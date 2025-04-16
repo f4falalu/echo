@@ -27,7 +27,6 @@ export const useAutoChangeLayout = ({
   const secondaryView = useChatLayoutContextSelector((x) => x.secondaryView);
   const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
-  const isVersionHistoryMode = useChatLayoutContextSelector((x) => x.isVersionHistoryMode);
   const isCompletedStream = useGetChatMessage(lastMessageId, (x) => x?.isCompletedStream);
 
   const getInitialChatFileHref = useGetInitialChatFile();

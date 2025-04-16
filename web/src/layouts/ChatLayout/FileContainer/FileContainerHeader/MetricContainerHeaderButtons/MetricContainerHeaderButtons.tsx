@@ -17,11 +17,15 @@ import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import Link from 'next/link';
 import { assetParamsToRoute } from '@/lib/assets';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
   const selectedLayout = useChatLayoutContextSelector((x) => x.selectedLayout);
-  const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
-  const metricId = selectedFileId;
+  const metricId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
+  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
+  const { isViewingOldVersion } = useIsMetricReadOnly({
+    metricId: metricId || ''
+  });
   const { error: metricError, data: permission } = useGetMetric(
     { id: metricId },
     { select: (x) => x.permission }
@@ -35,12 +39,16 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
 
   return (
     <FileButtonContainer>
-      {isEditor && <EditChartButton metricId={metricId} />}
-      {isEffectiveOwner && <EditSQLButton metricId={metricId} />}
+      {isEditor && !isViewingOldVersion && <EditChartButton metricId={metricId} />}
+      {isEffectiveOwner && !isViewingOldVersion && <EditSQLButton metricId={metricId} />}
       <SaveToCollectionButton metricId={metricId} />
       <SaveToDashboardButton metricId={metricId} />
-      {isEffectiveOwner && <ShareMetricButton metricId={metricId} />}
-      <ThreeDotMenuButton metricId={metricId} />
+      {isEffectiveOwner && !isViewingOldVersion && <ShareMetricButton metricId={metricId} />}
+      <ThreeDotMenuButton
+        metricId={metricId}
+        isViewingOldVersion={isViewingOldVersion}
+        versionNumber={metricVersionNumber}
+      />
       <HideButtonContainer show={selectedLayout === 'file-only'}>
         <CreateChatButton assetId={metricId} assetType="metric" />
       </HideButtonContainer>
@@ -55,8 +63,8 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
     (x) => x.selectedFileViewSecondary
   );
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const onChangeQueryParams = useAppLayoutContextSelector((x) => x.onChangeQueryParams);
   const chatId = useChatIndividualContextSelector((x) => x.chatId);
+  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
   const editableSecondaryView: MetricFileViewSecondary = 'chart-edit';
   const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
 
@@ -66,7 +74,8 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
         chatId,
         assetId: metricId,
         type: 'metric',
-        secondaryView: null
+        secondaryView: null,
+        versionNumber: metricVersionNumber
       });
     }
 
@@ -74,9 +83,10 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
       chatId,
       assetId: metricId,
       type: 'metric',
-      secondaryView: 'chart-edit'
+      secondaryView: 'chart-edit',
+      versionNumber: metricVersionNumber
     });
-  }, [chatId, metricId, isSelectedView]);
+  }, [chatId, metricId, isSelectedView, metricVersionNumber]);
 
   const onClickButton = useMemoizedFn(() => {
     onChangePage(href, { shallow: true });
@@ -108,6 +118,7 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
   );
   const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
   const chatId = useChatIndividualContextSelector((x) => x.chatId);
+  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
   const editableSecondaryView: MetricFileViewSecondary = 'sql-edit';
   const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
 
@@ -116,9 +127,10 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
       chatId,
       assetId: metricId,
       type: 'metric',
-      secondaryView: 'sql-edit'
+      secondaryView: 'sql-edit',
+      versionNumber: metricVersionNumber
     });
-  }, [chatId, metricId]);
+  }, [chatId, metricId, metricVersionNumber]);
 
   const onClickButton = useMemoizedFn(() => {
     const secondaryView = isSelectedView ? null : editableSecondaryView;
@@ -147,8 +159,3 @@ const SaveToDashboardButton = React.memo(({ metricId }: { metricId: string }) =>
   return <SaveMetricToDashboardButton metricIds={[metricId]} />;
 });
 SaveToDashboardButton.displayName = 'SaveToDashboardButton';
-
-const ShareMetricButtonLocal = React.memo(({ metricId }: { metricId: string }) => {
-  return <ShareMetricButton metricId={metricId} />;
-});
-ShareMetricButtonLocal.displayName = 'ShareMetricButtonLocal';
