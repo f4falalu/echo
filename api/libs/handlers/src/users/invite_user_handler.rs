@@ -2,11 +2,11 @@ use anyhow::{Context, Result};
 use chrono::Utc;
 use database::{
     self,
-    enums::{UserOrganizationRole, UserOrganizationStatus, SharingSetting},
+    enums::{SharingSetting, UserOrganizationRole, UserOrganizationStatus},
     models::{User, UserToOrganization},
+    pool::get_pg_pool,
     schema::{users, users_to_organizations},
 };
-use diesel::prelude::*;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use middleware::AuthenticatedUser;
 use serde_json::json;
@@ -17,7 +17,6 @@ use uuid::Uuid;
 pub async fn invite_user_handler(
     inviting_user: &AuthenticatedUser,
     emails: Vec<String>,
-    conn: &mut AsyncPgConnection, // Accept the connection directly
 ) -> Result<()> {
     let organization_id = inviting_user
         .organizations
@@ -42,7 +41,7 @@ pub async fn invite_user_handler(
 
         // 2. Create User struct instance using the generated ID and attributes
         let user_to_insert = User {
-            id: new_user_id, // Use the generated ID
+            id: new_user_id,      // Use the generated ID
             email: email.clone(), // Use the original email variable again or the cloned one
             name: None,
             config: json!({}),
@@ -52,23 +51,35 @@ pub async fn invite_user_handler(
             avatar_url: None,
         };
 
+        let mut conn = match get_pg_pool().get().await {
+            Ok(mut conn) => conn,
+            Err(e) => {
+                return Err(e.into());
+            }
+        };
+
         // 3. Insert user
-        diesel::insert_into(users::table)
+        match diesel::insert_into(users::table)
             .values(&user_to_insert)
-            .execute(conn)
+            .execute(&mut conn)
             .await
-            .context("Failed to insert new user")?;
+        {
+            Ok(_) => (),
+            Err(e) => {
+                return Err(e.into());
+            }
+        };
 
         // 4. Create UserToOrganization struct instance
         let user_org_to_insert = UserToOrganization {
             user_id: new_user_id, // Use the generated ID
             organization_id,
-            role: assigned_role, // Use the role variable
+            role: assigned_role,                   // Use the role variable
             sharing_setting: SharingSetting::None, // Default setting
-            edit_sql: false, // Default permission
-            upload_csv: false, // Default permission
-            export_assets: false, // Default permission
-            email_slack_enabled: false, // Default setting
+            edit_sql: false,                       // Default permission
+            upload_csv: false,                     // Default permission
+            export_assets: false,                  // Default permission
+            email_slack_enabled: false,            // Default setting
             created_at: now,
             updated_at: now,
             deleted_at: None,
@@ -79,11 +90,16 @@ pub async fn invite_user_handler(
         };
 
         // 5. Insert user organization mapping
-        diesel::insert_into(users_to_organizations::table)
+        match diesel::insert_into(users_to_organizations::table)
             .values(&user_org_to_insert)
-            .execute(conn)
+            .execute(&mut conn)
             .await
-            .context("Failed to map user to organization")?;
+        {
+            Ok(_) => (),
+            Err(e) => {
+                return Err(e.into());
+            }
+        };
     }
 
     Ok(())
