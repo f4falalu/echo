@@ -158,6 +158,13 @@ const SaveToCollectionButton = React.memo(({ metricId }: { metricId: string }) =
 SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 
 const SaveToDashboardButton = React.memo(({ metricId }: { metricId: string }) => {
-  return <SaveMetricToDashboardButton metricIds={[metricId]} />;
+  const { data: dashboardIds } = useGetMetric(
+    { id: metricId },
+    { select: (x) => x.dashboards?.map((x) => x.id) }
+  );
+
+  return (
+    <SaveMetricToDashboardButton metricIds={[metricId]} selectedDashboards={dashboardIds || []} />
+  );
 });
 SaveToDashboardButton.displayName = 'SaveToDashboardButton';

@@ -33,74 +33,14 @@ import { addAndRemoveMetricsToDashboard } from './helpers/addAndRemoveMetricsToD
 import { useParams, useSearchParams } from 'next/navigation';
 import { RustApiError } from '../errors';
 import { useOriginalDashboardStore } from '@/context/Dashboards';
-
-const useGetDashboardAndInitializeMetrics = (prefetchData: boolean = true) => {
-  const queryClient = useQueryClient();
-  const setOriginalDashboards = useOriginalDashboardStore((x) => x.setOriginalDashboard);
-  const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
-
-  const initializeMetrics = useMemoizedFn((metrics: BusterDashboardResponse['metrics']) => {
-    for (const metric of Object.values(metrics)) {
-      const prevMetric = queryClient.getQueryData(
-        queryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey
-      );
-      const upgradedMetric = upgradeMetricToIMetric(metric, prevMetric);
-      queryClient.setQueryData(
-        queryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey,
-        upgradedMetric
-      );
-      if (prefetchData) {
-        prefetchGetMetricDataClient(
-          { id: metric.id, version_number: metric.version_number },
-          queryClient
-        );
-      }
-    }
-  });
-
-  return useMemoizedFn(async (id: string, version_number?: number) => {
-    const { password } = getAssetPassword?.(id) || {};
-
-    return dashboardsGetDashboard({ id: id!, password, version_number }).then((data) => {
-      initializeMetrics(data.metrics);
-      setOriginalDashboards(data.dashboard);
-
-      if (!version_number && data.dashboard.version_number) {
-        queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(id, data.dashboard.version_number).queryKey,
-          data
-        );
-      }
-
-      return data;
-    });
-  });
-};
-
-const useGetDashboardVersionNumber = (props?: {
-  versionNumber?: number | null; //if null it will not use a params from the query params
-}) => {
-  const { versionNumber: versionNumberProp } = props || {};
-  const { versionNumber: versionNumberPathParam, dashboardId: dashboardIdPathParam } =
-    useParams() as {
-      versionNumber: string | undefined;
-      dashboardId: string | undefined;
-    };
-  const versionNumberQueryParam = useSearchParams().get('dashboard_version_number');
-  const versionNumberFromParams = dashboardIdPathParam
-    ? versionNumberQueryParam || versionNumberPathParam
-    : undefined;
-
-  const versionNumber = useMemo(() => {
-    if (versionNumberProp === null) return undefined;
-    return (
-      versionNumberProp ??
-      (versionNumberFromParams ? parseInt(versionNumberFromParams!) : undefined)
-    );
-  }, [versionNumberProp, versionNumberFromParams]);
-
-  return versionNumber;
-};
+import { metricsQueryKeys } from '@/api/query_keys/metric';
+import { IBusterMetric } from '@/api/asset_interfaces';
+import { useGetHighestVersionMetric } from './queryHelpers';
+import {
+  useGetDashboardAndInitializeMetrics,
+  useGetDashboardVersionNumber,
+  useEnsureDashboardConfig
+} from './queryHelpers';
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
   {
@@ -454,32 +394,6 @@ export const useUpdateDashboardShare = () => {
   });
 };
 
-const useEnsureDashboardConfig = (prefetchData: boolean = true) => {
-  const queryClient = useQueryClient();
-  const versionNumber = useGetDashboardVersionNumber();
-  const prefetchDashboard = useGetDashboardAndInitializeMetrics(prefetchData);
-  const { openErrorMessage } = useBusterNotifications();
-
-  const method = useMemoizedFn(async (dashboardId: string) => {
-    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, versionNumber);
-    let dashboardResponse = queryClient.getQueryData(options.queryKey);
-    if (!dashboardResponse) {
-      const res = await prefetchDashboard(dashboardId).catch((e) => {
-        openErrorMessage('Failed to save metrics to dashboard. Dashboard not found');
-        return null;
-      });
-      if (res) {
-        queryClient.setQueryData(options.queryKey, res);
-        dashboardResponse = res;
-      }
-    }
-
-    return dashboardResponse;
-  });
-
-  return method;
-};
-
 export const useAddAndRemoveMetricsFromDashboard = () => {
   const queryClient = useQueryClient();
   const { openErrorMessage } = useBusterNotifications();
@@ -542,6 +456,7 @@ export const useAddMetricsToDashboard = () => {
   const { openErrorMessage } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
+  const getHighestVersionMetric = useGetHighestVersionMetric();
 
   const addMetricToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
@@ -561,7 +476,22 @@ export const useAddMetricsToDashboard = () => {
 
   return useMutation({
     mutationFn: addMetricToDashboard,
-    onSuccess: (data, variables) => {
+    onMutate: ({ metricIds, dashboardId }) => {
+      metricIds.forEach((metricId) => {
+        const highestVersion = getHighestVersionMetric(metricId);
+
+        // Update the dashboards array for the highest version metric
+        if (highestVersion) {
+          const options = metricsQueryKeys.metricsGetMetric(metricId, highestVersion);
+          queryClient.setQueryData(options.queryKey, (old) => {
+            return create(old!, (draft) => {
+              draft.dashboards = [...(draft.dashboards || []), { id: dashboardId, name: '' }];
+            });
+          });
+        }
+      });
+    },
+    onSuccess: (data) => {
       if (data) {
         queryClient.setQueryData(
           dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
@@ -572,6 +502,21 @@ export const useAddMetricsToDashboard = () => {
             .queryKey,
           data
         );
+
+        Object.values(data.metrics).forEach((metric) => {
+          const dashboardId = data.dashboard.id;
+          const dashboardName = data.dashboard.name;
+          const options = metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number);
+          queryClient.setQueryData(options.queryKey, (old) => {
+            return create(old!, (draft) => {
+              draft.dashboards = [
+                ...(draft.dashboards || []),
+                { id: dashboardId, name: dashboardName }
+              ];
+            });
+          });
+        });
+
         setOriginalDashboard(data.dashboard);
       }
     }
@@ -583,6 +528,7 @@ export const useRemoveMetricsFromDashboard = () => {
   const queryClient = useQueryClient();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
+  const getHighestVersionMetric = useGetHighestVersionMetric();
 
   const removeMetricFromDashboard = useMemoizedFn(
     async ({
@@ -595,6 +541,22 @@ export const useRemoveMetricsFromDashboard = () => {
       useConfirmModal?: boolean;
     }) => {
       const method = async () => {
+        metricIds.forEach((metricId) => {
+          const highestVersion = getHighestVersionMetric(metricId);
+          // Update the dashboards array for the highest version metric
+          if (highestVersion) {
+            const options = metricsQueryKeys.metricsGetMetric(metricId, highestVersion);
+            queryClient.setQueryData(options.queryKey, (old) => {
+              const result = create(old!, (draft) => {
+                draft.dashboards = old?.dashboards?.filter((d) => d.id !== dashboardId) || [];
+                console.log(draft.dashboards);
+              });
+              console.log(result);
+              return result;
+            });
+          }
+        });
+
         const dashboardResponse = await ensureDashboardConfig(dashboardId);
 
         if (dashboardResponse) {
@@ -611,13 +573,7 @@ export const useRemoveMetricsFromDashboard = () => {
               draft.dashboard.config = newConfig;
             });
           });
-        }
 
-        if (dashboardResponse) {
-          const newConfig = removeMetricFromDashboardConfig(
-            metricIds,
-            dashboardResponse.dashboard.config
-          );
           return await dashboardsUpdateDashboard({
             id: dashboardId,
             config: newConfig

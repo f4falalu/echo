@@ -190,7 +190,6 @@ export const useUpdateChatMessageFeedback = () => {
     mutationFn: updateChatMessageFeedback,
     onMutate: ({ message_id, feedback }) => {
       const options = queryKeys.chatsMessages(message_id);
-      console.log(message_id, feedback);
       queryClient.setQueryData(options.queryKey, (old) => {
         return {
           ...old!,
