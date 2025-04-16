@@ -8,7 +8,7 @@ import { useStartChatFromAsset } from '@/api/buster_rest/chats/queryRequests';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
 import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
-import { timeout } from '@/lib';
+import { timeout } from '@/lib/timeout';
 
 export const CreateChatButton = React.memo(
   ({ assetId, assetType }: { assetId: string; assetType: 'metric' | 'dashboard' }) => {

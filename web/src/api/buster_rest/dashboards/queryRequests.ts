@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import {
   dashboardsGetList,
-  dashboardsGetDashboard,
   dashboardsCreateDashboard,
   dashboardsUpdateDashboard,
   dashboardsDeleteDashboard,
@@ -19,10 +18,6 @@ import { useMemo } from 'react';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { create } from 'mutative';
-import { upgradeMetricToIMetric } from '@/lib/metrics';
-import { queryKeys } from '@/api/query_keys';
-import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
-import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import {
   useAddAssetToCollection,
   useRemoveAssetFromCollection
@@ -30,11 +25,9 @@ import {
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { addMetricToDashboardConfig, removeMetricFromDashboardConfig } from './helpers';
 import { addAndRemoveMetricsToDashboard } from './helpers/addAndRemoveMetricsToDashboard';
-import { useParams, useSearchParams } from 'next/navigation';
 import { RustApiError } from '../errors';
 import { useOriginalDashboardStore } from '@/context/Dashboards';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import { IBusterMetric } from '@/api/asset_interfaces';
 import { useGetHighestVersionMetric } from './queryHelpers';
 import {
   useGetDashboardAndInitializeMetrics,
@@ -560,24 +553,50 @@ export const useRemoveMetricsFromDashboard = () => {
         const dashboardResponse = await ensureDashboardConfig(dashboardId);
 
         if (dashboardResponse) {
-          const options = dashboardQueryKeys.dashboardGetDashboard(
+          const versionedOptions = dashboardQueryKeys.dashboardGetDashboard(
             dashboardResponse.dashboard.id,
             dashboardResponse.dashboard.version_number
+          );
+          const nonVersionedOptions = dashboardQueryKeys.dashboardGetDashboard(
+            dashboardResponse.dashboard.id,
+            undefined
           );
           const newConfig = removeMetricFromDashboardConfig(
             metricIds,
             dashboardResponse.dashboard.config
           );
-          queryClient.setQueryData(options.queryKey, (currentDashboard) => {
+          console.log('options', dashboardResponse.dashboard.version_number);
+          console.log('newConfig', newConfig);
+          queryClient.setQueryData(versionedOptions.queryKey, (currentDashboard) => {
+            return create(currentDashboard!, (draft) => {
+              draft.dashboard.config = newConfig;
+            });
+          });
+          queryClient.setQueryData(nonVersionedOptions.queryKey, (currentDashboard) => {
             return create(currentDashboard!, (draft) => {
               draft.dashboard.config = newConfig;
             });
           });
 
-          return await dashboardsUpdateDashboard({
+          const data = await dashboardsUpdateDashboard({
             id: dashboardId,
             config: newConfig
           });
+
+          queryClient.setQueryData(
+            dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
+            data
+          );
+          queryClient.setQueryData(
+            dashboardQueryKeys.dashboardGetDashboard(
+              data.dashboard.id,
+              data.dashboard.version_number
+            ).queryKey,
+            data
+          );
+          setOriginalDashboard(data.dashboard);
+
+          return data;
         }
 
         openErrorMessage('Failed to remove metrics from dashboard');
@@ -597,21 +616,7 @@ export const useRemoveMetricsFromDashboard = () => {
   );
 
   return useMutation({
-    mutationFn: removeMetricFromDashboard,
-    onSuccess: (data) => {
-      if (data) {
-        queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
-          data
-        );
-        queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
-            .queryKey,
-          data
-        );
-        setOriginalDashboard(data.dashboard);
-      }
-    }
+    mutationFn: removeMetricFromDashboard
   });
 };
 

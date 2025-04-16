@@ -96,6 +96,8 @@ export const useBusterNewChat = () => {
         }),
         reasoning_message_ids: [],
         response_message_ids: [],
+        reasoning_messages: {},
+        final_reasoning_message: null,
         isCompletedStream: false
       });
 
@@ -103,8 +105,12 @@ export const useBusterNewChat = () => {
         (messageId) => messageId === messageId
       );
 
+      console.log('messageIndex', messageIndex);
+
       if (messageIndex && messageIndex !== -1) {
+        console.log('oldMessageIds', currentChat?.message_ids);
         const updatedMessageIds = currentChat?.message_ids.slice(0, messageIndex + 1);
+        console.log('stripping message ids', updatedMessageIds);
         onUpdateChat({
           id: chatId,
           message_ids: updatedMessageIds
