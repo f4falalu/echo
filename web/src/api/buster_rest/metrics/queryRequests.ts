@@ -447,29 +447,22 @@ export const useUpdateMetricShare = () => {
 };
 
 export const useUpdateMetric = (params: {
-  wait?: number;
   updateOnSave?: boolean;
   updateVersion?: boolean;
   saveToServer?: boolean;
 }) => {
-  const {
-    wait = 0,
-    updateOnSave = false,
-    updateVersion = false,
-    saveToServer = false
-  } = params || {};
+  const { updateOnSave = false, updateVersion = false, saveToServer = false } = params || {};
   const queryClient = useQueryClient();
   const { mutateAsync: saveMetric } = useSaveMetric({ updateOnSave });
   const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
   const versionNumber = useGetMetricVersionNumber({});
-  const { run: saveMetricToServerDebounced } = useDebounceFn(
-    useMemoizedFn(async (newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
+  const saveMetricToServer = useMemoizedFn(
+    async (newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
       const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
       if (changedValues) {
         await saveMetric({ ...changedValues, update_version: updateVersion });
       }
-    }),
-    { wait, leading: false }
+    }
   );
 
   const combineAndSaveMetric = useMemoizedFn(
@@ -496,7 +489,7 @@ export const useUpdateMetric = (params: {
       const { newMetric, prevMetric } = combineAndSaveMetric(newMetricPartial);
 
       if (newMetric && prevMetric && saveToServer) {
-        return await saveMetricToServerDebounced(newMetric, prevMetric);
+        return await saveMetricToServer(newMetric, prevMetric);
       }
 
       return newMetric;
