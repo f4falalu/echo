@@ -8,6 +8,7 @@ import {
   useRemoveMetricsFromDashboard,
   useAddMetricsToDashboard
 } from '@/api/buster_rest/dashboards';
+import { AppTooltip } from '@/components/ui/tooltip';
 
 const EMPTY_SELECTED_DASHBOARDS: BusterMetric['dashboards'] = [];
 
@@ -32,12 +33,16 @@ export const SaveMetricToDashboardButton: React.FC<{
       );
     });
 
+    const selectedDashboardIds = selectedDashboards.map((dashboard) => dashboard.id);
+
     return (
       <SaveToDashboardDropdown
-        selectedDashboards={selectedDashboards}
+        selectedDashboards={selectedDashboardIds}
         onSaveToDashboard={onSaveToDashboard}
         onRemoveFromDashboard={onRemoveFromDashboard}>
-        <Button variant="ghost" disabled={disabled} prefix={<ASSET_ICONS.dashboardAdd />} />
+        <AppTooltip title={'Save to dashboard'}>
+          <Button variant="ghost" disabled={disabled} prefix={<ASSET_ICONS.dashboardAdd />} />
+        </AppTooltip>
       </SaveToDashboardDropdown>
     );
   }

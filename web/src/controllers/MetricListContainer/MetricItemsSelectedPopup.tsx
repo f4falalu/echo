@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces';
 import { useUserConfigContextSelector } from '@/context/Users';
-import { useMemoizedFn } from '@/hooks';
+import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import { SaveToCollectionsDropdown } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { Button } from '@/components/ui/buttons';
@@ -10,6 +10,7 @@ import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { Dropdown } from '@/components/ui/dropdown';
 import { StatusBadgeButton } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Dots, Trash } from '@/components/ui/icons';
+import uniq from 'lodash/uniq';
 import {
   useBulkUpdateMetricVerificationStatus,
   useDeleteMetric,
@@ -17,6 +18,12 @@ import {
   useSaveMetricToCollections
 } from '@/api/buster_rest/metrics';
 import { useThreeDotFavoritesOptions } from '@/components/features/dropdowns/useThreeDotFavoritesOptions';
+import { SaveToDashboardDropdown } from '@/components/features/dropdowns/SaveToDashboardDropdown';
+import {
+  useAddAndRemoveMetricsFromDashboard,
+  useAddMetricsToDashboard,
+  useRemoveMetricsFromDashboard
+} from '@/api/buster_rest/dashboards';
 
 export const MetricSelectedOptionPopup: React.FC<{
   selectedRowKeys: string[];
@@ -96,7 +103,7 @@ const CollectionsButton: React.FC<{
       onSaveToCollection={onSaveToCollection}
       onRemoveFromCollection={onRemoveFromCollection}
       selectedCollections={selectedCollections}>
-      <Button prefix={<ASSET_ICONS.collections />}>Collections</Button>
+      <Button prefix={<ASSET_ICONS.collectionAdd />}>Collections</Button>
     </SaveToCollectionsDropdown>
   );
 };
@@ -105,12 +112,83 @@ const DashboardButton: React.FC<{
   selectedRowKeys: string[];
   onSelectChange: (selectedRowKeys: string[]) => void;
 }> = ({ selectedRowKeys, onSelectChange }) => {
+  const { mutateAsync: removeMetricsFromDashboard } = useRemoveMetricsFromDashboard();
+  const { mutateAsync: addMetricsToDashboard } = useAddMetricsToDashboard();
+  const [selectedDashboards, setSelectedDashboards] = useState<string[]>([]);
+  const { openWarningNotification, openConfirmModal } = useBusterNotifications();
+
+  const warningNotification = useMemoizedFn((): boolean => {
+    if (selectedRowKeys.length > 15) {
+      openWarningNotification({
+        title: 'You can edit up to 15 metrics at a time from this menu',
+        message: 'Please remove some metrics'
+      });
+      return true;
+    }
+    return false;
+  });
+
+  const onRemoveFromDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
+    if (warningNotification()) return;
+
+    const newDashboards = selectedDashboards.filter((id) => dashboardIds.includes(id));
+
+    openConfirmModal({
+      title: 'Remove from dashboard',
+      content: 'Are you sure you want to remove these metrics from the dashboard?',
+      onOk: async () => {
+        await Promise.all(
+          newDashboards.map((dashboardId) =>
+            removeMetricsFromDashboard({
+              dashboardId,
+              metricIds: selectedRowKeys,
+              useConfirmModal: false
+            })
+          )
+        );
+        setSelectedDashboards((prev) => prev.filter((id) => !dashboardIds.includes(id)));
+      }
+    });
+  });
+
+  const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
+    if (warningNotification()) return;
+
+    const newDashboards = uniq([...selectedDashboards, ...dashboardIds]);
+
+    setSelectedDashboards(newDashboards);
+
+    await Promise.all(
+      newDashboards.map((dashboardId) =>
+        addMetricsToDashboard({
+          dashboardId,
+          metricIds: selectedRowKeys
+        })
+      )
+    );
+  });
+
+  const { run: debouncedClearSavedDashboards } = useDebounceFn(
+    (v: boolean) => {
+      if (v === false) {
+        setSelectedDashboards([]);
+      }
+    },
+    { wait: 18000 }
+  );
+
   return (
-    <Dropdown items={[{ label: 'Dashboard', value: 'dashboard' }]}>
-      <Button prefix={<ASSET_ICONS.dashboards />} type="button">
+    <SaveToDashboardDropdown
+      side="top"
+      align="center"
+      onOpenChange={debouncedClearSavedDashboards}
+      selectedDashboards={selectedDashboards}
+      onRemoveFromDashboard={onRemoveFromDashboard}
+      onSaveToDashboard={onSaveToDashboard}>
+      <Button prefix={<ASSET_ICONS.dashboardAdd />} type="button">
         Dashboard
       </Button>
-    </Dropdown>
+    </SaveToDashboardDropdown>
   );
 };
 

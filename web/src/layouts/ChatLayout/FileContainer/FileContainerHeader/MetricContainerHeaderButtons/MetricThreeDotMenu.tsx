@@ -164,7 +164,7 @@ const useDashboardSelectMenu = ({ metricId }: { metricId: string }) => {
   const { items, footerContent, selectType, menuHeader } = useSaveToDashboardDropdownContent({
     onSaveToDashboard,
     onRemoveFromDashboard,
-    selectedDashboards: dashboards || []
+    selectedDashboards: dashboards?.map((x) => x.id) || []
   });
 
   const dashboardSubMenu = useMemo(() => {

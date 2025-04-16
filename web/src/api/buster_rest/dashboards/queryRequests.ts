@@ -51,7 +51,7 @@ export const useGetDashboardsList = (
   });
 };
 
-const useGetDashboardAndInitializeMetrics = () => {
+const useGetDashboardAndInitializeMetrics = (prefetchData: boolean = true) => {
   const queryClient = useQueryClient();
   const setOriginalDashboards = useOriginalDashboardStore((x) => x.setOriginalDashboard);
   const getAssetPassword = useBusterAssetsContextSelector((state) => state.getAssetPassword);
@@ -66,10 +66,12 @@ const useGetDashboardAndInitializeMetrics = () => {
         queryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey,
         upgradedMetric
       );
-      prefetchGetMetricDataClient(
-        { id: metric.id, version_number: metric.version_number },
-        queryClient
-      );
+      if (prefetchData) {
+        prefetchGetMetricDataClient(
+          { id: metric.id, version_number: metric.version_number },
+          queryClient
+        );
+      }
     }
   });
 
@@ -399,9 +401,9 @@ export const useUpdateDashboardShare = () => {
   });
 };
 
-const useEnsureDashboardConfig = () => {
+const useEnsureDashboardConfig = (prefetchData: boolean = true) => {
   const queryClient = useQueryClient();
-  const prefetchDashboard = useGetDashboardAndInitializeMetrics();
+  const prefetchDashboard = useGetDashboardAndInitializeMetrics(prefetchData);
   const { openErrorMessage } = useBusterNotifications();
 
   const method = useMemoizedFn(async (dashboardId: string) => {
@@ -427,7 +429,7 @@ const useEnsureDashboardConfig = () => {
 export const useAddAndRemoveMetricsFromDashboard = () => {
   const queryClient = useQueryClient();
   const { openErrorMessage } = useBusterNotifications();
-  const ensureDashboardConfig = useEnsureDashboardConfig();
+  const ensureDashboardConfig = useEnsureDashboardConfig(false);
 
   const addAndRemoveMetrics = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
@@ -477,7 +479,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
 export const useAddMetricsToDashboard = () => {
   const queryClient = useQueryClient();
   const { openErrorMessage } = useBusterNotifications();
-  const ensureDashboardConfig = useEnsureDashboardConfig();
+  const ensureDashboardConfig = useEnsureDashboardConfig(false);
 
   const addMetricToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
@@ -511,7 +513,7 @@ export const useAddMetricsToDashboard = () => {
 export const useRemoveMetricsFromDashboard = () => {
   const { openConfirmModal, openErrorMessage } = useBusterNotifications();
   const queryClient = useQueryClient();
-  const ensureDashboardConfig = useEnsureDashboardConfig();
+  const ensureDashboardConfig = useEnsureDashboardConfig(false);
 
   const removeMetricFromDashboard = useMemoizedFn(
     async ({
@@ -557,7 +559,10 @@ export const useRemoveMetricsFromDashboard = () => {
 
       return await openConfirmModal({
         title: 'Remove from dashboard',
-        content: 'Are you sure you want to remove this metric from this dashboard?',
+        content:
+          metricIds.length > 1
+            ? 'Are you sure you want to remove these metrics from the dashboard?'
+            : 'Are you sure you want to remove this metric from the dashboard?',
         onOk: method
       });
     }
