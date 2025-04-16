@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
+use database::enums::MessageFeedback;
 use diesel::prelude::Queryable;
 use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
@@ -41,6 +42,7 @@ pub struct MessageWithUser {
     pub user_id: Uuid,
     pub user_name: Option<String>,
     pub user_attributes: Value,
+    pub feedback: Option<String>,
 }
 
 #[derive(Queryable)]
@@ -122,6 +124,7 @@ pub async fn get_chat_handler(
                     users::id,
                     users::name.nullable(),
                     users::attributes,
+                    messages::feedback.nullable(),
                 ))
                 .load::<MessageWithUser>(&mut conn)
                 .await
@@ -275,6 +278,7 @@ pub async fn get_chat_handler(
                 reasoning,
                 msg.final_reasoning_message,
                 msg.created_at,
+                msg.feedback,
             )
         })
         .collect();

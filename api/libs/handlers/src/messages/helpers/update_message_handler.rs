@@ -4,10 +4,7 @@ use database::{pool::get_pg_pool, schema::messages};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
-use std::str::FromStr;
 use uuid::Uuid;
-
-use crate::messages::types::MessageFeedback;
 
 /// Update a message with new properties
 ///
@@ -47,15 +44,11 @@ pub async fn update_message_handler(
 
     // Add feedback if provided
     if let Some(fb_str) = feedback {
-        // Validate feedback value
-        let feedback = MessageFeedback::from_str(&fb_str)
-            .map_err(|e| anyhow!(e))?;
-        
         // Update the feedback column directly
         update_statement
             .set((
                 messages::updated_at.eq(Utc::now()),
-                messages::feedback.eq(feedback.to_string())
+                messages::feedback.eq(fb_str)
             ))
             .execute(&mut conn)
             .await?;
