@@ -153,7 +153,14 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
 EditSQLButton.displayName = 'EditSQLButton';
 
 const SaveToCollectionButton = React.memo(({ metricId }: { metricId: string }) => {
-  return <SaveMetricToCollectionButton metricIds={[metricId]} />;
+  const { data: collections } = useGetMetric(
+    { id: metricId },
+    { select: (x) => x.collections?.map((x) => x.id) }
+  );
+
+  return (
+    <SaveMetricToCollectionButton metricIds={[metricId]} selectedCollections={collections || []} />
+  );
 });
 SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 

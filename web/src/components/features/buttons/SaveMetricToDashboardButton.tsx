@@ -1,5 +1,5 @@
 import { useMemoizedFn } from '@/hooks';
-import React from 'react';
+import React, { useState } from 'react';
 import { SaveToDashboardDropdown } from '../dropdowns/SaveToDashboardDropdown';
 import { Button } from '@/components/ui/buttons';
 import { ASSET_ICONS } from '../config/assetIcons';
@@ -8,25 +8,43 @@ import {
   useAddMetricsToDashboard
 } from '@/api/buster_rest/dashboards';
 import { AppTooltip } from '@/components/ui/tooltip';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const SaveMetricToDashboardButton: React.FC<{
   metricIds: string[];
   disabled?: boolean;
   selectedDashboards: string[];
-}> = React.memo(({ metricIds, disabled = false, selectedDashboards }) => {
+}> = React.memo(({ metricIds, disabled = false, selectedDashboards: selectedDashboardsProp }) => {
   const { mutateAsync: saveMetricsToDashboard } = useAddMetricsToDashboard();
   const { mutateAsync: removeMetricsFromDashboard } = useRemoveMetricsFromDashboard();
+  const { openConfirmModal } = useBusterNotifications();
+
+  const [selectedDashboards, setSelectedDashboards] =
+    useState<Parameters<typeof SaveToDashboardDropdown>[0]['selectedDashboards']>(
+      selectedDashboardsProp
+    );
 
   const onSaveToDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
+    setSelectedDashboards((prev) => [...prev, ...dashboardIds]);
     await Promise.all(
       dashboardIds.map((dashboardId) => saveMetricsToDashboard({ metricIds, dashboardId }))
     );
   });
 
   const onRemoveFromDashboard = useMemoizedFn(async (dashboardIds: string[]) => {
-    await Promise.all(
-      dashboardIds.map((dashboardId) => removeMetricsFromDashboard({ metricIds, dashboardId }))
-    );
+    const method = async () => {
+      setSelectedDashboards((prev) => prev.filter((x) => !dashboardIds.includes(x)));
+      await Promise.all(
+        dashboardIds.map((dashboardId) =>
+          removeMetricsFromDashboard({ useConfirmModal: false, metricIds, dashboardId })
+        )
+      );
+    };
+    return await openConfirmModal({
+      title: 'Remove from dashboard',
+      content: 'Are you sure you want to remove this from the dashboard?',
+      onOk: method
+    });
   });
 
   return (

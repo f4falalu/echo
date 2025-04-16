@@ -10,16 +10,23 @@ import {
 
 export const SaveMetricToCollectionButton: React.FC<{
   metricIds: string[];
+  selectedCollections: string[];
   buttonType?: 'ghost' | 'default';
   useText?: boolean;
-}> = ({ metricIds, buttonType = 'ghost', useText = false }) => {
+}> = ({
+  metricIds,
+  selectedCollections: selectedCollectionsProp,
+  buttonType = 'ghost',
+  useText = false
+}) => {
   const { openInfoMessage } = useBusterNotifications();
   const { mutateAsync: saveMetricToCollection } = useSaveMetricToCollections();
   const { mutateAsync: removeMetricFromCollection } = useRemoveMetricFromCollection();
 
-  const [selectedCollections, setSelectedCollections] = useState<
-    Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']
-  >([]);
+  const [selectedCollections, setSelectedCollections] =
+    useState<Parameters<typeof SaveToCollectionsDropdown>[0]['selectedCollections']>(
+      selectedCollectionsProp
+    );
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
     setSelectedCollections(collectionIds);
@@ -31,6 +38,7 @@ export const SaveMetricToCollectionButton: React.FC<{
   });
 
   const onRemoveFromCollection = useMemoizedFn(async (collectionId: string) => {
+    setSelectedCollections((prev) => prev.filter((x) => x !== collectionId));
     await removeMetricFromCollection({
       metricIds,
       collectionIds: [collectionId]
