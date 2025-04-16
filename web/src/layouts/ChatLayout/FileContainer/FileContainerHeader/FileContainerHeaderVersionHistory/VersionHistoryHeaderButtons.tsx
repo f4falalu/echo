@@ -3,20 +3,25 @@ import { Button } from '@/components/ui/buttons';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import first from 'lodash/first';
 import { History } from '@/components/ui/icons';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import React from 'react';
 import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
 import { FileType } from '@/api/asset_interfaces/chat';
 import { Dropdown } from '@/components/ui/dropdown';
 
-export const VersionHistoryHeaderButtons: React.FC<{}> = ({}) => {
+export const VersionHistoryHeaderButtons: React.FC<{}> = React.memo(({}) => {
   const selectedFile = useChatLayoutContextSelector((x) => x.selectedFile);
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
-  const { listItems, isRestoringVersion, selectedQueryVersion, onClickRestoreVersion } =
-    useListVersionHistories({
-      assetId: selectedFile?.id || '',
-      type: selectedFile?.type as 'metric' | 'dashboard'
-    });
+  const {
+    listItems,
+    restoringVersion,
+    isRestoringVersion,
+    selectedQueryVersion,
+    onClickRestoreVersion
+  } = useListVersionHistories({
+    assetId: selectedFile?.id || '',
+    type: selectedFile?.type as 'metric' | 'dashboard'
+  });
 
   const currentVersion = first(listItems)?.version_number;
   const isSelectedVersionCurrent = selectedQueryVersion === currentVersion;
@@ -41,11 +46,13 @@ export const VersionHistoryHeaderButtons: React.FC<{}> = ({}) => {
         disabled={isSelectedVersionCurrent || !currentVersion}
         onClick={onClickRestoreVersionPreflight}
         loading={isRestoringVersion}>
-        Restore version
+        Restore version {restoringVersion}
       </Button>
     </div>
   );
-};
+});
+
+VersionHistoryHeaderButtons.displayName = 'VersionHistoryHeaderButtons';
 
 const VersionSelectButton = React.memo(
   ({

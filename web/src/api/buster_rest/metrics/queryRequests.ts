@@ -264,12 +264,19 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
           metricsQueryKeys.metricsGetData(id, restore_to_version).queryKey
         );
         if (oldMetric && newMetric && newMetricData) {
-          console.log('TODO. look into this because I do not think this is correct');
+          const latestVersionNumber = queryClient.getQueryData(
+            metricsQueryKeys.metricsGetMetric(id, undefined).queryKey
+          )?.version_number;
+          const newVersionNumber = (latestVersionNumber || 0) + 1;
+
           queryClient.setQueryData(
-            metricsQueryKeys.metricsGetMetric(id, versionNumber).queryKey,
+            metricsQueryKeys.metricsGetMetric(id, newVersionNumber).queryKey,
             oldMetric
           );
-          queryClient.setQueryData(metricsQueryKeys.metricsGetData(id).queryKey, newMetricData);
+          queryClient.setQueryData(
+            metricsQueryKeys.metricsGetData(id, newVersionNumber).queryKey,
+            newMetricData
+          );
         }
       }
 
@@ -302,7 +309,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
           newMetric
         );
         //We need to update BOTH the versioned and the non-versioned metric for version updates to keep the latest up to date
-        if (variables.update_version) {
+        if (variables.update_version || variables.restore_to_version) {
           queryClient.setQueryData(
             metricsQueryKeys.metricsGetMetric(data.id, undefined).queryKey,
             newMetric

@@ -21,12 +21,14 @@ export const useAppLayout = () => {
     ): Promise<void> => {
       const targetPath = typeof params === 'string' ? params : createBusterRoute(params);
 
-      if (options?.shallow) {
-        const isSameMinusQueryParams =
-          new URL(targetPath, window.location.origin).pathname ===
-          new URL(window.location.href).pathname;
+      // Extract the pathname without query parameters
+      const targetPathname = new URL(targetPath, window.location.origin).pathname;
+      const currentPathname = new URL(window.location.href).pathname;
 
-        if (isSameMinusQueryParams) {
+      if (options?.shallow) {
+        const isSamePathname = targetPathname === currentPathname;
+
+        if (isSamePathname) {
           return new Promise((resolve) => {
             const params = getQueryParamsFromPath(targetPath);
             onChangeQueryParams(params, false);
@@ -36,33 +38,45 @@ export const useAppLayout = () => {
       }
 
       return new Promise((resolve) => {
-        const currentPath = window.location.pathname;
-
-        // If we're already on the target path, resolve immediately
-        if (currentPath === targetPath) {
+        // If we're already on the target pathname, but query params might differ
+        if (currentPathname === targetPathname && targetPath.indexOf('?') === -1) {
+          // Clear query params by using the pathname only
+          window.history.pushState({}, '', targetPathname);
           resolve();
           return;
         }
 
-        // Set up an effect to watch for pathname changes
+        // If target and current pathnames are the same but target includes query params
+        if (currentPathname === targetPathname && targetPath.indexOf('?') !== -1) {
+          push(targetPath);
+          // Set up an effect to watch for pathname changes
+          const checkPathChange = (waitTime: number = 25, iteration: number = 0) => {
+            if (window.location.href.includes(targetPath)) {
+              resolve();
+            } else if (iteration >= 10) {
+              resolve();
+            } else {
+              const newWaitTime = waitTime * 1.25;
+              setTimeout(() => checkPathChange(newWaitTime, iteration + 1), newWaitTime);
+            }
+          };
+          checkPathChange();
+          return;
+        }
+
+        // Default case - different pathnames
         const checkPathChange = (waitTime: number = 25, iteration: number = 0) => {
-          if (window.location.pathname !== currentPath) {
+          if (window.location.pathname !== currentPathname) {
             resolve();
           } else if (iteration >= 10) {
-            // Resolve after 10 attempts to prevent infinite loops
             resolve();
           } else {
-            // Check again in a short while if the path hasn't changed yet
             const newWaitTime = waitTime * 1.25;
             setTimeout(() => checkPathChange(newWaitTime, iteration + 1), newWaitTime);
           }
         };
 
-        // Start the navigation
         push(targetPath);
-        console.log('pushed', targetPath);
-
-        // Start checking for path changes
         checkPathChange();
       });
     }

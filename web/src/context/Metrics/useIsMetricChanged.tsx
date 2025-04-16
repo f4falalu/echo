@@ -23,7 +23,8 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
         name: x.name,
         description: x.description,
         chart_config: x.chart_config,
-        file: x.file
+        file: x.file,
+        version_number: x.version_number
       })
     }
   );
@@ -44,7 +45,8 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
         'name',
         'description',
         'chart_config',
-        'file'
+        'file',
+        'version_number'
       ]),
     [originalMetric, currentMetric]
   );

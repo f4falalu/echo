@@ -7,7 +7,6 @@ import { useMemo } from 'react';
 
 export const useCloseVersionHistory = () => {
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const closeSecondaryView = useChatLayoutContextSelector((x) => x.closeSecondaryView);
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const metricId = useChatLayoutContextSelector((x) => x.metricId);
   const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
@@ -37,7 +36,6 @@ export const useCloseVersionHistory = () => {
 
   const onCloseVersionHistory = useMemoizedFn(() => {
     onChangePage(href);
-    closeSecondaryView();
   });
 
   return { href, onCloseVersionHistory };

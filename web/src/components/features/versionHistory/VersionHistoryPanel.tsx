@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { useCallback } from 'react';
+import { CircleSpinnerLoader } from '@/components/ui/loaders';
 
 export const VersionHistoryPanel = React.memo(
   ({ assetId, type }: { assetId: string; type: 'metric' | 'dashboard' }) => {
@@ -21,6 +22,7 @@ export const VersionHistoryPanel = React.memo(
     const {
       listItems,
       onPrefetchAsset,
+      restoringVersion,
       currentVersionNumber,
       selectedQueryVersion,
       onClickRestoreVersion
@@ -61,6 +63,7 @@ export const VersionHistoryPanel = React.memo(
               selected={item.version_number === selectedQueryVersion}
               showRestoreButton={item.version_number !== currentVersionNumber}
               onClickRestoreVersion={onClickRestoreVersion}
+              restoringVersion={restoringVersion}
               link={
                 getFileLink({
                   fileId: assetId,
@@ -85,6 +88,7 @@ const ListItem = React.memo(
     selected,
     showRestoreButton,
     link,
+    restoringVersion,
     onClickRestoreVersion,
     onPrefetchAsset
   }: {
@@ -92,6 +96,7 @@ const ListItem = React.memo(
     updated_at: string;
     selected: boolean;
     showRestoreButton: boolean;
+    restoringVersion: number | null;
     onClickRestoreVersion: (versionNumber: number) => void;
     onPrefetchAsset: (versionNumber: number, link: string) => Promise<void>;
     link: string;
@@ -111,6 +116,8 @@ const ListItem = React.memo(
       }
     }, []);
 
+    const isRestoringVersion = restoringVersion === version_number;
+
     return (
       <Link prefetch={false} href={link}>
         <div
@@ -129,15 +136,20 @@ const ListItem = React.memo(
 
           <div className="text-icon-color animate-in fade-in-0 flex items-center space-x-2 duration-200">
             {showRestoreButton && (
-              <AppTooltip title="Restore version">
+              <AppTooltip title={restoringVersion ? 'Restoring...' : 'Restore version'}>
                 <div
                   onClick={(e) => {
+                    if (restoringVersion) return;
+
                     e.stopPropagation();
                     e.preventDefault();
                     onClickRestoreVersion(version_number);
                   }}
-                  className="hover:bg-gray-light/20 hover:text-foreground -mr-1 rounded p-1 opacity-0 group-hover:block group-hover:opacity-100">
-                  <History />
+                  className={cn(
+                    'hover:bg-gray-light/20 hover:text-foreground -mr-1 rounded p-1 opacity-0 group-hover:block group-hover:opacity-100',
+                    isRestoringVersion && 'cursor-not-allowed opacity-100!'
+                  )}>
+                  {isRestoringVersion ? <CircleSpinnerLoader size={12} /> : <History />}
                 </div>
               </AppTooltip>
             )}

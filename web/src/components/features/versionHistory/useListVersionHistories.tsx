@@ -16,9 +16,10 @@ import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { useCloseVersionHistory } from '@/layouts/ChatLayout/FileContainer/FileContainerHeader/FileContainerHeaderVersionHistory';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import last from 'lodash/last';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { usePrefetchGetMetricClient } from '@/api/buster_rest/metrics';
 import { useRouter } from 'next/navigation';
+import { timeout } from '@/lib/timeout';
 
 export const useListVersionHistories = ({
   assetId,
@@ -29,6 +30,7 @@ export const useListVersionHistories = ({
 }) => {
   const router = useRouter();
   const { onCloseVersionHistory } = useCloseVersionHistory();
+  const [restoringVersion, setRestoringVersion] = useState<number | null>(null);
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const {
     versions: dashboardVersions,
@@ -68,6 +70,8 @@ export const useListVersionHistories = ({
 
   const onClickRestoreVersion = useMemoizedFn(
     async (versionNumber: number, rereouteToAsset: boolean = true) => {
+      setRestoringVersion(versionNumber);
+
       if (type === 'metric') {
         await onRestoreMetricVersion(versionNumber);
         if (rereouteToAsset) {
@@ -92,8 +96,9 @@ export const useListVersionHistories = ({
           onCloseVersionHistory();
         }
       }
-
       onCloseVersionHistory();
+      await timeout(500);
+      setRestoringVersion(null);
     }
   );
 
@@ -107,24 +112,19 @@ export const useListVersionHistories = ({
     }
   });
 
-  return useMemo(() => {
-    return {
-      listItems,
-      currentVersionNumber,
-      selectedQueryVersion,
-      onClickRestoreVersion,
-      isRestoringVersion: isSavingDashboard || isSavingMetric,
-      onPrefetchAsset
-    };
-  }, [
+  const isRestoringVersion = useMemo(() => {
+    return isSavingDashboard || isSavingMetric || restoringVersion !== null;
+  }, [isSavingDashboard, isSavingMetric, restoringVersion]);
+
+  return {
     listItems,
     currentVersionNumber,
     selectedQueryVersion,
     onClickRestoreVersion,
-    isSavingDashboard,
-    isSavingMetric,
+    isRestoringVersion,
+    restoringVersion,
     onPrefetchAsset
-  ]);
+  };
 };
 
 type UseListVersionReturn = {
@@ -219,9 +219,11 @@ const useListMetricVersions = ({
 
   const { data: metric } = useGetMetric(
     {
-      id: type === 'metric' ? assetId : undefined
+      id: type === 'metric' ? assetId : undefined,
+      versionNumber: null
     },
     {
+      enabled: !!assetId, //we do not want to have undefined versions when
       select: (x) => ({
         versions: x.versions,
         version_number: x.version_number
