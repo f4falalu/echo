@@ -3,6 +3,8 @@ use sqlx::Row;
 use tokio_stream::StreamExt;
 use uuid::Uuid;
 
+use tracing::info;
+
 use database::pool::get_sqlx_pool;
 
 use crate::types::{GenericSearchResult, SearchObject, SearchObjectType, SearchOptions};
@@ -13,6 +15,13 @@ pub async fn search(
     query: String,
     options: SearchOptions,
 ) -> Result<Vec<SearchObject>> {
+    info!(
+        user_id = %user_id,
+        organization_id = %organization_id,
+        query = %query,
+        asset_types = ?options.asset_types,
+        "search() called"
+    );
     if query.is_empty() {
         return list_recent_assets(user_id, options).await;
     }
@@ -24,7 +33,7 @@ pub async fn search(
         .map(|term| sanitize_search_term(term.to_lowercase()))
         .collect();
 
-    let query = format!(
+    let sql_query = format!(
         r#"
         SELECT DISTINCT ON (asset_search.content, asset_search.asset_type)
             asset_search.asset_id,
@@ -57,8 +66,9 @@ pub async fn search(
         organization_id,
         options.num_results
     );
+    info!("Generated SQL for search: {}", sql_query);
 
-    let mut results = sqlx::raw_sql(&query).fetch(&mut *conn);
+    let mut results = sqlx::raw_sql(&sql_query).fetch(&mut *conn);
     let mut results_vec = Vec::new();
 
     while let Some(row) = results.try_next().await? {
@@ -187,6 +197,11 @@ pub async fn list_recent_assets(
     user_id: Uuid,
     options: SearchOptions,
 ) -> Result<Vec<SearchObject>> {
+    info!(
+        user_id = %user_id,
+        asset_types = ?options.asset_types,
+        "list_recent_assets() called"
+    );
     let mut conn = get_sqlx_pool().acquire().await?;
 
     // Default to 50 results if not specified for empty query listing
@@ -196,7 +211,7 @@ pub async fn list_recent_assets(
         options.num_results
     };
 
-    let query = format!(
+    let sql_query = format!(
         r#"
         WITH distinct_assets AS (
             SELECT DISTINCT ON (content, asset_type)
@@ -225,8 +240,9 @@ pub async fn list_recent_assets(
         user_id,
         num_results
     );
+    info!("Generated SQL for list_recent_assets: {}", sql_query);
 
-    let mut results = sqlx::query(&query).fetch(&mut *conn);
+    let mut results = sqlx::query(&sql_query).fetch(&mut *conn);
     let mut results_vec = Vec::new();
 
     while let Some(row) = results.try_next().await? {

@@ -15,6 +15,7 @@ pub struct CreatePlanStraightforwardOutput {
 #[derive(Debug, Deserialize)]
 pub struct CreatePlanStraightforwardInput {
     plan: String,
+    plan_todos: Vec<String>,
 }
 
 pub struct CreatePlanStraightforward {
@@ -53,12 +54,18 @@ impl ToolExecutor for CreatePlanStraightforward {
             "parameters": {
                 "type": "object",
                 "required": [
-                    "plan"
+                    "plan",
+                    "plan_todos"
                 ],
                 "properties": {
                     "plan": {
                         "type": "string",
                         "description": get_plan_straightforward_description().await
+                    },
+                    "plan_todos": {
+                        "type": "array",
+                        "description": "Ordered todo points summarizing the plan. There should be one todo for each step in the plan, in order. For example, if the plan has two steps, plan_todos should have two items, each summarizing a step.",
+                        "items": { "type": "string" },
                     },
                 },
                 "additionalProperties": false
