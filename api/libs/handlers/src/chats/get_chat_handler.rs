@@ -259,7 +259,7 @@ pub async fn get_chat_handler(
 
             let request_message = if let Some(request_message) = msg.request_message {
                 Some(ChatUserMessage {
-                    request: request_message,
+                    request: Some(request_message),
                     sender_id: msg.user_id,
                     sender_name: msg.user_name.unwrap_or_else(|| "Unknown".to_string()),
                     sender_avatar,

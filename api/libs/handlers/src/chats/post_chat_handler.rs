@@ -292,12 +292,7 @@ pub async fn post_chat_handler(
         for message in updated_messages {
             let chat_message = ChatMessage::new_with_messages(
                 message.id,
-                Some(ChatUserMessage {
-                    request: "".to_string(),
-                    sender_id: user.id,
-                    sender_name: user.name.clone().unwrap_or_default(),
-                    sender_avatar: None,
-                }),
+                None,
                 // Use the response_messages from the DB
                 serde_json::from_value(message.response_messages).unwrap_or_default(),
                 vec![],
@@ -813,7 +808,7 @@ pub async fn post_chat_handler(
     let final_message = ChatMessage::new_with_messages(
         message_id,
         Some(ChatUserMessage {
-            request: request.prompt.clone().unwrap_or_default(),
+            request: request.prompt.clone(),
             sender_id: user.id,
             sender_name: user.name.clone().unwrap_or_default(),
             sender_avatar: None,
@@ -2440,7 +2435,7 @@ async fn initialize_chat(
         let message = ChatMessage::new_with_messages(
             message_id,
             Some(ChatUserMessage {
-                request: prompt_text,
+                request: Some(prompt_text),
                 sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
                 sender_avatar: None,
@@ -2479,7 +2474,7 @@ async fn initialize_chat(
         let message = ChatMessage::new_with_messages(
             message_id,
             Some(ChatUserMessage {
-                request: prompt_text,
+                request: Some(prompt_text),
                 sender_id: user.id,
                 sender_name: user.name.clone().unwrap_or_default(),
                 sender_avatar: None,

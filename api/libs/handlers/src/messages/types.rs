@@ -24,7 +24,7 @@ pub struct ChatMessage {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChatUserMessage {
-    pub request: String,
+    pub request: Option<String>,
     pub sender_id: Uuid,
     pub sender_name: String,
     pub sender_avatar: Option<String>,
@@ -32,7 +32,7 @@ pub struct ChatUserMessage {
 
 impl ChatMessage {
     pub fn new(
-        request: String,
+        request: Option<String>,
         sender_id: Uuid,
         sender_name: String,
         sender_avatar: Option<String>,
