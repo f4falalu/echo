@@ -1,10 +1,7 @@
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from '@/hooks';
 import { useGetInitialChatFile } from '@/layouts/ChatLayout/ChatContext/useGetInitialChatFile';
-import {
-  assetParamsToRoute,
-  useChatLayoutContextSelector
-} from '@/layouts/ChatLayout/ChatLayoutContext';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useMemo } from 'react';
 

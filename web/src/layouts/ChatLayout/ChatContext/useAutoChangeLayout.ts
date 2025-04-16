@@ -1,20 +1,13 @@
 'use client';
 
-import {
-  useGetChatMessageMemoized,
-  useGetChatMessage,
-  useGetChatMemoized
-} from '@/api/buster_rest/chats';
-import type { SelectedFile } from '../interfaces';
-import { MutableRefObject, useEffect, useRef } from 'react';
+import { useGetChatMessageMemoized, useGetChatMessage } from '@/api/buster_rest/chats';
+import { useEffect, useRef } from 'react';
 import findLast from 'lodash/findLast';
 import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
 import { usePrevious } from '@/hooks';
-import { BusterRoutes, createBusterRoute } from '@/routes';
-import { assetParamsToRoute } from '../ChatLayoutContext/helpers';
 import { useGetInitialChatFile } from './useGetInitialChatFile';
 
 export const useAutoChangeLayout = ({

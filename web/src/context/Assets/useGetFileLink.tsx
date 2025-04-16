@@ -1,6 +1,7 @@
 import { FileType } from '@/api/asset_interfaces/chat';
 import { useMemoizedFn } from '@/hooks';
-import { assetParamsToRoute, useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+import { assetParamsToRoute } from '@/lib/assets';
 
 export const useGetFileLink = () => {
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);

@@ -520,4 +520,32 @@ describe('assetParamsToRoute', () => {
       })
     );
   });
+
+  test('dataset route without chatId', () => {
+    const result = assetParamsToRoute({
+      chatId: undefined,
+      assetId: mockAssetId,
+      type: 'dataset' as FileType
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_DATASETS_ID,
+        datasetId: mockAssetId
+      })
+    );
+  });
+
+  test('dataset route with chatId (should ignore chatId)', () => {
+    const result = assetParamsToRoute({
+      chatId: mockChatId,
+      assetId: mockAssetId,
+      type: 'dataset' as FileType
+    });
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_DATASETS_ID,
+        datasetId: mockAssetId
+      })
+    );
+  });
 });

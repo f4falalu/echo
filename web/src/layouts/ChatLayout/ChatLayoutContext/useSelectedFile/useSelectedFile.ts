@@ -7,7 +7,7 @@ import { createSelectedFile } from './createSelectedFile';
 import type { useGetChatParams } from '../useGetChatParams';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { assetParamsToRoute } from '../helpers';
+import { assetParamsToRoute } from '@/lib/assets';
 
 export const useSelectedFile = ({
   animateOpenSplitter,
@@ -67,7 +67,7 @@ const shouldCloseSplitter = (
   file: SelectedFile | null,
   selectedFile: SelectedFile | null,
   appSplitterRef: React.RefObject<AppSplitterRef | null>
-) => {
+): boolean => {
   if (!file) return true;
   if (file?.id === selectedFile?.id && !appSplitterRef.current?.isSideClosed('right')) {
     if (!!file?.versionNumber && !!selectedFile?.versionNumber) {

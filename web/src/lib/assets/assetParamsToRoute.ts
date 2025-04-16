@@ -3,7 +3,7 @@ import {
   DashboardFileViewSecondary,
   FileViewSecondary,
   MetricFileViewSecondary
-} from '../useLayoutConfig';
+} from '../../layouts/ChatLayout/ChatLayoutContext/useLayoutConfig';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 
 type BaseParams = {
@@ -19,6 +19,51 @@ type MetricRouteParams = {
   chatId?: string;
   secondaryView?: MetricFileViewSecondary;
   versionNumber?: number;
+};
+
+export const assetParamsToRoute = ({
+  chatId,
+  assetId,
+  type,
+  versionNumber,
+  secondaryView
+}: BaseParams): string => {
+  if (type === 'metric') {
+    return createMetricRoute({
+      metricId: assetId,
+      chatId,
+      secondaryView: secondaryView as MetricFileViewSecondary,
+      versionNumber
+    });
+  }
+
+  if (type === 'dashboard') {
+    return createDashboardRoute({
+      dashboardId: assetId,
+      chatId,
+      versionNumber,
+      secondaryView: secondaryView as DashboardFileViewSecondary
+    });
+  }
+
+  if (type === 'reasoning') {
+    return createReasoningRoute({
+      messageId: assetId,
+      chatId
+    });
+  }
+
+  if (type === 'dataset') {
+    return createDatasetRoute({
+      datasetId: assetId,
+      chatId
+    });
+  }
+
+  const exhaustiveCheck: never | undefined = type;
+
+  console.warn('Asset params to route has not been implemented for this file type', type);
+  return '';
 };
 
 const createMetricRoute = ({
@@ -152,7 +197,7 @@ const createReasoningRoute = ({
   chatId: string | undefined;
 }) => {
   if (!chatId) {
-    return undefined;
+    return '';
   }
 
   return createBusterRoute({
@@ -162,38 +207,15 @@ const createReasoningRoute = ({
   });
 };
 
-export const assetParamsToRoute = ({
-  chatId,
-  assetId,
-  type,
-  versionNumber,
-  secondaryView
-}: BaseParams) => {
-  if (type === 'metric') {
-    return createMetricRoute({
-      metricId: assetId,
-      chatId,
-      secondaryView: secondaryView as MetricFileViewSecondary,
-      versionNumber
-    });
-  }
-
-  if (type === 'dashboard') {
-    return createDashboardRoute({
-      dashboardId: assetId,
-      chatId,
-      versionNumber,
-      secondaryView: secondaryView as DashboardFileViewSecondary
-    });
-  }
-
-  if (type === 'reasoning') {
-    return createReasoningRoute({
-      messageId: assetId,
-      chatId
-    });
-  }
-
-  console.warn('Asset params to route has not been implemented for this file type', type);
-  return '';
+const createDatasetRoute = ({
+  datasetId,
+  chatId
+}: {
+  datasetId: string;
+  chatId: string | undefined;
+}) => {
+  return createBusterRoute({
+    route: BusterRoutes.APP_DATASETS_ID,
+    datasetId
+  });
 };

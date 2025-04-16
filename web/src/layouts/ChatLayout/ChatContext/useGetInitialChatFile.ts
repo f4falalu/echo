@@ -1,5 +1,5 @@
 import { useMemoizedFn } from '@/hooks';
-import { assetParamsToRoute, FileViewSecondary } from '../ChatLayoutContext';
+import { FileViewSecondary } from '../ChatLayoutContext';
 import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';

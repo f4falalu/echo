@@ -5,7 +5,7 @@ import { useMemoizedFn } from '@/hooks';
 import { Popover } from '@/components/ui/popover/Popover';
 import { cn } from '@/lib/classMerge';
 import Link from 'next/link';
-import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
+import { assetParamsToRoute } from '@/lib/assets';
 
 const duration = 0.25;
 

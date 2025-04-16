@@ -4,7 +4,7 @@ import { ArrowUpRight } from '@/components/ui/icons';
 import { Button } from '@/components/ui/buttons';
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
+import { assetParamsToRoute } from '@/lib/assets';
 
 export const ReasoningFileButtons = React.memo(
   ({

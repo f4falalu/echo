@@ -39,5 +39,7 @@ export const createSelectedFile = (
     };
   }
 
+  console.warn('No file selected', params);
+
   return null;
 };

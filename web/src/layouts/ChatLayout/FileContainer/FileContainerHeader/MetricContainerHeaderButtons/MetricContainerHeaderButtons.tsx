@@ -15,7 +15,7 @@ import { useGetMetric } from '@/api/buster_rest/metrics';
 import { ThreeDotMenuButton } from './MetricThreeDotMenu';
 import { canEdit, getIsEffectiveOwner } from '@/lib/share';
 import Link from 'next/link';
-import { assetParamsToRoute } from '@/layouts/ChatLayout/ChatLayoutContext/helpers';
+import { assetParamsToRoute } from '@/lib/assets';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {

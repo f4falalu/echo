@@ -1,7 +1,6 @@
 import { FileType } from '@/api/asset_interfaces/chat';
 import { FileView } from '../useLayoutConfig';
 
-export * from './assetParamsToRoute';
 export * from './getFileViewFromRoute';
 
 export const DEFAULT_FILE_VIEW: Record<FileType, FileView> = {
