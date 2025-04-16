@@ -1,7 +1,11 @@
 'use client';
 
 import { useGetDashboard, useUpdateDashboard } from '@/api/buster_rest/dashboards';
-import { useGetMetric, useSaveMetric } from '@/api/buster_rest/metrics';
+import {
+  useGetMetric,
+  usePrefetchGetMetricDataClient,
+  useSaveMetric
+} from '@/api/buster_rest/metrics';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useMemoizedFn } from '@/hooks';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
@@ -9,6 +13,8 @@ import { useCloseVersionHistory } from '@/layouts/ChatLayout/FileContainer/FileC
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import last from 'lodash/last';
 import { useMemo } from 'react';
+import { usePrefetchGetMetricClient } from '@/api/buster_rest/metrics';
+import { useRouter } from 'next/navigation';
 
 export const useListVersionHistories = ({
   assetId,
@@ -17,24 +23,27 @@ export const useListVersionHistories = ({
   assetId: string;
   type: 'metric' | 'dashboard';
 }) => {
+  const router = useRouter();
   const { onCloseVersionHistory } = useCloseVersionHistory();
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const {
-    dashboardVersions,
+    versions: dashboardVersions,
     selectedQueryVersion: dashboardSelectedQueryVersion,
     currentVersionNumber: dashboardCurrentVersionNumber,
     onRestoreVersion: onRestoreDashboardVersion,
-    isSavingDashboard
+    isSaving: isSavingDashboard,
+    onPrefetchAsset: onPrefetchDashboardAsset
   } = useListDashboardVersions({
     assetId,
     type
   });
   const {
-    metricVersions,
+    versions: metricVersions,
     selectedQueryVersion: metricSelectedQueryVersion,
     currentVersionNumber: metricCurrentVersionNumber,
     onRestoreVersion: onRestoreMetricVersion,
-    isSavingMetric
+    isSaving: isSavingMetric,
+    onPrefetchAsset: onPrefetchMetricAsset
   } = useListMetricVersions({
     assetId,
     type
@@ -82,13 +91,24 @@ export const useListVersionHistories = ({
     }
   );
 
+  const onPrefetchAsset = useMemoizedFn(async (versionNumber: number, link: string) => {
+    router.prefetch(link);
+
+    if (type === 'metric') {
+      await onPrefetchMetricAsset(versionNumber);
+    } else {
+      await onPrefetchDashboardAsset(versionNumber);
+    }
+  });
+
   return useMemo(() => {
     return {
       listItems,
       currentVersionNumber,
       selectedQueryVersion,
       onClickRestoreVersion,
-      isRestoringVersion: isSavingDashboard || isSavingMetric
+      isRestoringVersion: isSavingDashboard || isSavingMetric,
+      onPrefetchAsset
     };
   }, [
     listItems,
@@ -96,8 +116,23 @@ export const useListVersionHistories = ({
     selectedQueryVersion,
     onClickRestoreVersion,
     isSavingDashboard,
-    isSavingMetric
+    isSavingMetric,
+    onPrefetchAsset
   ]);
+};
+
+type UseListVersionReturn = {
+  versions:
+    | {
+        version_number: number;
+        updated_at: string;
+      }[]
+    | undefined;
+  selectedQueryVersion: number | undefined;
+  onRestoreVersion: (versionNumber: number) => Promise<unknown>;
+  currentVersionNumber: number | undefined;
+  isSaving: boolean;
+  onPrefetchAsset: (versionNumber: number) => Promise<void>;
 };
 
 const useListDashboardVersions = ({
@@ -106,9 +141,9 @@ const useListDashboardVersions = ({
 }: {
   assetId: string;
   type: 'metric' | 'dashboard';
-}) => {
+}): UseListVersionReturn => {
   const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
-  const { mutateAsync: updateDashboard, isPending: isSavingDashboard } = useUpdateDashboard({
+  const { mutateAsync: updateDashboard, isPending: isSaving } = useUpdateDashboard({
     saveToServer: true,
     updateVersion: true
   });
@@ -125,13 +160,13 @@ const useListDashboardVersions = ({
     }
   );
 
-  const dashboardVersions = dashboardData?.versions;
+  const versions = dashboardData?.versions;
   const currentVersionNumber = dashboardData?.version_number;
 
   const selectedQueryVersion = useMemo(() => {
     if (dashboardVersionNumber) return dashboardVersionNumber;
-    return last(dashboardVersions)?.version_number;
-  }, [dashboardVersions, dashboardVersionNumber]);
+    return last(versions)?.version_number;
+  }, [versions, dashboardVersionNumber]);
 
   const onRestoreVersion = useMemoizedFn(async (versionNumber: number) => {
     await updateDashboard({
@@ -140,20 +175,26 @@ const useListDashboardVersions = ({
     });
   });
 
+  const onPrefetchAsset = useMemoizedFn(async (versionNumber: number) => {
+    //
+  });
+
   return useMemo(() => {
     return {
-      dashboardVersions,
+      versions,
       selectedQueryVersion,
       onRestoreVersion,
       currentVersionNumber,
-      isSavingDashboard
+      isSaving,
+      onPrefetchAsset
     };
   }, [
-    dashboardVersions,
+    versions,
     currentVersionNumber,
     onRestoreVersion,
     selectedQueryVersion,
-    isSavingDashboard
+    isSaving,
+    onPrefetchAsset
   ]);
 };
 
@@ -163,10 +204,12 @@ const useListMetricVersions = ({
 }: {
   assetId: string;
   type: 'metric' | 'dashboard';
-}) => {
-  const { mutateAsync: updateMetric, isPending: isSavingMetric } = useSaveMetric({
+}): UseListVersionReturn => {
+  const { mutateAsync: updateMetric, isPending: isSaving } = useSaveMetric({
     updateOnSave: true
   });
+  const prefetchGetMetric = usePrefetchGetMetricClient();
+  const prefetchGetMetricData = usePrefetchGetMetricDataClient();
 
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
 
@@ -181,8 +224,13 @@ const useListMetricVersions = ({
       })
     }
   );
-  const metricVersions = metric?.versions;
+  const versions = metric?.versions;
   const currentVersionNumber = metricVersionNumber || metric?.version_number;
+
+  const selectedQueryVersion = useMemo(() => {
+    if (metricVersionNumber) return metricVersionNumber;
+    return last(versions)?.version_number;
+  }, [versions, metricVersionNumber]);
 
   const onRestoreVersion = useMemoizedFn(async (versionNumber: number) => {
     await updateMetric({
@@ -191,24 +239,28 @@ const useListMetricVersions = ({
     });
   });
 
-  const selectedQueryVersion = useMemo(() => {
-    if (metricVersionNumber) return metricVersionNumber;
-    return last(metricVersions)?.version_number;
-  }, [metricVersions, metricVersionNumber]);
+  const onPrefetchAsset = useMemoizedFn(async (versionNumber: number) => {
+    await Promise.all([
+      prefetchGetMetric({ id: assetId, versionNumber }),
+      prefetchGetMetricData({ id: assetId, versionNumber })
+    ]);
+  });
 
   return useMemo(() => {
     return {
-      metricVersions,
+      versions,
       selectedQueryVersion,
       onRestoreVersion,
       currentVersionNumber,
-      isSavingMetric
+      isSaving,
+      onPrefetchAsset
     };
   }, [
-    metricVersions,
+    versions,
+    currentVersionNumber,
     onRestoreVersion,
     selectedQueryVersion,
-    currentVersionNumber,
-    isSavingMetric
+    isSaving,
+    onPrefetchAsset
   ]);
 };

@@ -8,20 +8,27 @@ import { cn } from '@/lib/classMerge';
 import { timeFromNow, timeout } from '@/lib';
 import { AppPageLayout } from '@/components/ui/layouts';
 import { useListVersionHistories } from './useListVersionHistories';
-import { useMount } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { AppTooltip } from '@/components/ui/tooltip';
 import Link from 'next/link';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+import { useRouter } from 'next/navigation';
+import { useCallback } from 'react';
 
 export const VersionHistoryPanel = React.memo(
   ({ assetId, type }: { assetId: string; type: 'metric' | 'dashboard' }) => {
     const chatId = useChatLayoutContextSelector((x) => x.chatId);
-    const { listItems, currentVersionNumber, selectedQueryVersion, onClickRestoreVersion } =
-      useListVersionHistories({
-        assetId,
-        type
-      });
+    const {
+      listItems,
+      onPrefetchAsset,
+      currentVersionNumber,
+      selectedQueryVersion,
+      onClickRestoreVersion
+    } = useListVersionHistories({
+      assetId,
+      type
+    });
     const { getFileLink } = useGetFileLink();
 
     const bodyRef = useRef<HTMLDivElement>(null);
@@ -51,6 +58,7 @@ export const VersionHistoryPanel = React.memo(
             <ListItem
               key={item.version_number}
               {...item}
+              onPrefetchAsset={onPrefetchAsset}
               selected={item.version_number === selectedQueryVersion}
               showRestoreButton={item.version_number !== currentVersionNumber}
               onClickRestoreVersion={onClickRestoreVersion}
@@ -78,18 +86,37 @@ const ListItem = React.memo(
     selected,
     showRestoreButton,
     link,
-    onClickRestoreVersion
+    onClickRestoreVersion,
+    onPrefetchAsset
   }: {
     version_number: number;
     updated_at: string;
     selected: boolean;
     showRestoreButton: boolean;
     onClickRestoreVersion: (versionNumber: number) => void;
+    onPrefetchAsset: (versionNumber: number, link: string) => Promise<void>;
     link: string;
   }) => {
+    const routePrefetchTimeoutRef = useRef<NodeJS.Timeout>();
+
+    const onHoverLink = useMemoizedFn(() => {
+      // Prefetch route after 50ms
+      routePrefetchTimeoutRef.current = setTimeout(() => {
+        onPrefetchAsset(version_number, link);
+      }, 125);
+    });
+
+    const onHoverEnd = useCallback(() => {
+      if (routePrefetchTimeoutRef.current) {
+        clearTimeout(routePrefetchTimeoutRef.current);
+      }
+    }, []);
+
     return (
       <Link prefetch={false} href={link}>
         <div
+          onMouseEnter={onHoverLink}
+          onMouseLeave={onHoverEnd}
           className={cn(
             'group hover:bg-item-hover flex cursor-pointer items-center justify-between space-x-2 rounded px-2.5 py-1.5',
             selected && 'bg-item-select hover:bg-item-select selected-version'

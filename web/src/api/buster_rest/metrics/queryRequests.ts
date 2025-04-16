@@ -118,6 +118,30 @@ export const useGetMetric = <TData = IBusterMetric>(
   });
 };
 
+export const prefetchGetMetricClient = async (
+  { id, versionNumber }: { id: string; versionNumber: number | undefined },
+  queryClient: QueryClient
+) => {
+  const options = metricsQueryKeys.metricsGetMetric(id, versionNumber);
+  const existingData = queryClient.getQueryData(options.queryKey);
+  if (!existingData) {
+    await queryClient.prefetchQuery({
+      ...options,
+      queryFn: async () => {
+        const result = await getMetric({ id, version_number: versionNumber });
+        return upgradeMetricToIMetric(result, null);
+      }
+    });
+  }
+};
+
+export const usePrefetchGetMetricClient = () => {
+  const queryClient = useQueryClient();
+  return useMemoizedFn(({ id, versionNumber }: { id: string; versionNumber: number | undefined }) =>
+    prefetchGetMetricClient({ id, versionNumber }, queryClient)
+  );
+};
+
 export const useGetMetricsList = (
   params: Omit<Parameters<typeof listMetrics>[0], 'page_token' | 'page_size'>
 ) => {
@@ -204,6 +228,13 @@ export const prefetchGetMetricDataClient = async (
       queryFn: () => getMetricData({ id, version_number })
     });
   }
+};
+
+export const usePrefetchGetMetricDataClient = () => {
+  const queryClient = useQueryClient();
+  return useMemoizedFn(({ id, versionNumber }: { id: string; versionNumber: number | undefined }) =>
+    prefetchGetMetricDataClient({ id, version_number: versionNumber }, queryClient)
+  );
 };
 
 /**
