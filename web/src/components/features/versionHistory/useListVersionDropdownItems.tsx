@@ -40,14 +40,14 @@ export const useListVersionDropdownItems = ({
   });
 
   const versionHistoryItems: DropdownItems = useMemo(() => {
-    return versions.map((x) => ({
-      label: `Version ${x.version_number}`,
-      secondaryLabel: timeFromNow(x.updated_at, false),
-      value: x.version_number.toString(),
-      selected: x.version_number === selectedVersion,
-      onClick: () => onClickLink(x.version_number)
+    return [...versions].reverse().map(({ version_number, updated_at }) => ({
+      label: `Version ${version_number}`,
+      secondaryLabel: timeFromNow(updated_at, false),
+      value: version_number.toString(),
+      selected: version_number === selectedVersion,
+      onClick: () => onClickLink(version_number)
     }));
-  }, [versions, selectedVersion, chatId, fileId, fileType, getFileLink, onChangePage]);
+  }, [versions, selectedVersion]);
 
   return versionHistoryItems;
 };

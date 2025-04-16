@@ -10,12 +10,13 @@ import { useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { useGetMetricMemoized } from './useGetMetricMemoized';
 import { useParams } from 'next/navigation';
-import { timeout } from '@/lib';
+import { timeout } from '@/lib/timeout';
 import { useState } from 'react';
 
-export const useUpdateMetricChart = (props?: { metricId?: string }) => {
-  const params = useParams<{ metricId?: string }>();
+export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: string }) => {
+  const params = useParams<{ metricId?: string; chatId?: string }>();
   const metricId = props?.metricId ?? params.metricId ?? '';
+  const chatId = props?.chatId ?? params.chatId ?? '';
   const [isSaving, setIsSaving] = useState(false);
   const { mutate: onUpdateMetric } = useUpdateMetric({
     updateVersion: false,
@@ -24,7 +25,8 @@ export const useUpdateMetricChart = (props?: { metricId?: string }) => {
   });
   const { mutateAsync: saveMetricToServer } = useUpdateMetric({
     updateOnSave: true,
-    saveToServer: true
+    saveToServer: true,
+    updateVersion: !chatId
   });
 
   const getMetricMemoized = useGetMetricMemoized();
@@ -108,6 +110,13 @@ export const useUpdateMetricChart = (props?: { metricId?: string }) => {
     }
   );
 
+  const onUpdateMetricName = useMemoizedFn(({ name }: { name?: string }) => {
+    onUpdateMetric({
+      id: metricId,
+      name
+    });
+  });
+
   const onSaveMetricToServer = useMemoizedFn(async () => {
     setIsSaving(true);
     const currentMetric = getMetricMemoized(metricId);
@@ -121,6 +130,7 @@ export const useUpdateMetricChart = (props?: { metricId?: string }) => {
     onUpdateMetricChartConfig,
     onUpdateColumnLabelFormat,
     onUpdateColumnSetting,
+    onUpdateMetricName,
     isSaving
   };
 };

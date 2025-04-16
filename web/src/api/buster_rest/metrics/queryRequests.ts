@@ -36,11 +36,10 @@ import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore
 import { RustApiError } from '../../buster_rest/errors';
 import last from 'lodash/last';
 
-export const useGetMetricVersionNumber = ({
-  versionNumber: versionNumberProp
-}: {
+export const useGetMetricVersionNumber = (props?: {
   versionNumber?: number | null; //if null it will not use a params from the query params
 }) => {
+  const { versionNumber: versionNumberProp } = props || {};
   const { versionNumber: versionNumberPathParam, metricId: metricIdPathParam } = useParams() as {
     versionNumber: string | undefined;
     metricId: string | undefined;
@@ -50,7 +49,7 @@ export const useGetMetricVersionNumber = ({
     ? versionNumberQueryParam || versionNumberPathParam
     : undefined;
 
-  const versionNumberX = useMemo(() => {
+  const versionNumber = useMemo(() => {
     if (versionNumberProp === null) return undefined;
     return (
       versionNumberProp ??
@@ -58,7 +57,7 @@ export const useGetMetricVersionNumber = ({
     );
   }, [versionNumberProp, versionNumberFromParams]);
 
-  return versionNumberX;
+  return versionNumber;
 };
 
 /**
@@ -215,12 +214,13 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
   const queryClient = useQueryClient();
   const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
-  const versionNumber = useGetMetricVersionNumber({});
+  const versionNumber = useGetMetricVersionNumber();
 
   return useMutation({
     mutationFn: updateMetric,
-    onMutate: async ({ id, restore_to_version }) => {
+    onMutate: async ({ id, update_version, restore_to_version }) => {
       const isRestoringVersion = restore_to_version !== undefined;
+      const isUpdatingVersion = update_version === true;
       //set the current metric to the previous it is being restored to
       if (isRestoringVersion) {
         const oldMetric = queryClient.getQueryData(
@@ -240,18 +240,42 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
           queryClient.setQueryData(metricsQueryKeys.metricsGetData(id).queryKey, newMetricData);
         }
       }
+
+      if (isUpdatingVersion) {
+        const metric = queryClient.getQueryData(
+          metricsQueryKeys.metricsGetMetric(id, versionNumber).queryKey
+        );
+        const metricVersionNumber = metric?.version_number;
+        const metricData = queryClient.getQueryData(
+          metricsQueryKeys.metricsGetData(id, metricVersionNumber).queryKey
+        );
+        const newVersionNumber = (metricVersionNumber ?? 0) + 1;
+
+        if (metric && metricData) {
+          queryClient.setQueryData(
+            metricsQueryKeys.metricsGetData(id, newVersionNumber).queryKey,
+            metricData
+          );
+        }
+      }
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       const oldMetric = queryClient.getQueryData(
         metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey
       );
       const newMetric = upgradeMetricToIMetric(data, oldMetric || null);
       if (updateOnSave && data) {
-        //We need to update BOTH the versioned and the non-versioned metric
         queryClient.setQueryData(
           metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey,
           newMetric
         );
+        //We need to update BOTH the versioned and the non-versioned metric for version updates to keep the latest up to date
+        if (variables.update_version) {
+          queryClient.setQueryData(
+            metricsQueryKeys.metricsGetMetric(data.id, undefined).queryKey,
+            newMetric
+          );
+        }
       }
       setOriginalMetric(newMetric);
     }
@@ -260,7 +284,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
 
 export const useDeleteMetric = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetMetricVersionNumber({});
+  const versionNumber = useGetMetricVersionNumber();
   return useMutation({
     mutationFn: deleteMetrics,
     onMutate: async (variables) => {
@@ -357,7 +381,7 @@ export const useDuplicateMetric = () => {
 //add a user to a metric
 export const useShareMetric = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetMetricVersionNumber({});
+  const versionNumber = useGetMetricVersionNumber();
   return useMutation({
     mutationFn: shareMetric,
     onMutate: (variables) => {
@@ -388,7 +412,7 @@ export const useShareMetric = () => {
 //remove a user from a metric
 export const useUnshareMetric = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetMetricVersionNumber({});
+  const versionNumber = useGetMetricVersionNumber();
   return useMutation({
     mutationFn: unshareMetric,
     onMutate: (variables) => {
@@ -416,7 +440,7 @@ export const useUnshareMetric = () => {
 //update the share settings for a metric
 export const useUpdateMetricShare = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetMetricVersionNumber({});
+  const versionNumber = useGetMetricVersionNumber();
 
   return useMutation({
     mutationFn: updateMetricShare,
@@ -455,7 +479,7 @@ export const useUpdateMetric = (params: {
   const queryClient = useQueryClient();
   const { mutateAsync: saveMetric } = useSaveMetric({ updateOnSave });
   const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
-  const versionNumber = useGetMetricVersionNumber({});
+  const versionNumber = useGetMetricVersionNumber();
   const saveMetricToServer = useMemoizedFn(
     async (newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
       const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
@@ -496,7 +520,7 @@ export const useUpdateMetric = (params: {
     }
   );
 
-  const mutationRes = useMutation({
+  return useMutation({
     mutationFn,
     onSuccess: (data) => {
       if (data) {
@@ -508,8 +532,6 @@ export const useUpdateMetric = (params: {
       }
     }
   });
-
-  return mutationRes;
 };
 
 export const useBulkUpdateMetricVerificationStatus = () => {

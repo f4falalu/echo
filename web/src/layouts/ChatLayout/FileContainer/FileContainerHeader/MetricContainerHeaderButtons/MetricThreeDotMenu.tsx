@@ -127,13 +127,7 @@ export const ThreeDotMenuButton = React.memo(({ metricId }: { metricId: string }
   );
 
   return (
-    <Dropdown
-      items={items}
-      selectType="single"
-      side="bottom"
-      align="end"
-      contentClassName="max-h-fit"
-      modal>
+    <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
       <Button prefix={<Dots />} variant="ghost" />
     </Dropdown>
   );
@@ -219,7 +213,11 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
       label: 'Version history',
       value: 'version-history',
       icon: <History />,
-      items: versionHistoryItems
+      items: [
+        <React.Fragment key="version-history-sub-menu">
+          <DropdownContent items={versionHistoryItems} selectType="single" />
+        </React.Fragment>
+      ]
     }),
     [versionHistoryItems]
   );

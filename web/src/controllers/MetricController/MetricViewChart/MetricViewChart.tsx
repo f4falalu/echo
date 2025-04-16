@@ -12,6 +12,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 import { MetricSaveFilePopup } from './MetricSaveFilePopup';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
+import { useUpdateMetricChart } from '@/context/Metrics';
 
 export const MetricViewChart: React.FC<{
   metricId: string;
@@ -52,9 +54,7 @@ export const MetricViewChart: React.FC<{
       error: metricDataError
     } = useGetMetricData({ id: metricId }, { enabled: false });
 
-    const { mutate: updateMetric } = useUpdateMetric({
-      saveToServer: false
-    });
+    const { onUpdateMetricName } = useUpdateMetricChart({ metricId });
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
 
     const isTable = metric?.chart_config.selectedChartType === ChartType.Table;
@@ -68,8 +68,7 @@ export const MetricViewChart: React.FC<{
 
     const onSetTitle = useMemoizedFn((title: string) => {
       if (inputHasText(title)) {
-        updateMetric({
-          id: metricId,
+        onUpdateMetricName({
           name: title
         });
       }
@@ -127,7 +126,7 @@ const MetricViewChartCard: React.FC<{
   errorData: boolean;
   isTable: boolean;
   className?: string;
-}> = ({ children, loadingData, errorData, isTable, className }) => {
+}> = React.memo(({ children, loadingData, errorData, isTable, className }) => {
   const cardClass = useMemo(() => {
     if (loadingData || errorData) return 'h-full max-h-[600px]';
     if (isTable) return '';
@@ -144,7 +143,9 @@ const MetricViewChartCard: React.FC<{
       {children}
     </div>
   );
-};
+});
+
+MetricViewChartCard.displayName = 'MetricViewChartCard';
 
 const animation = {
   initial: { opacity: 0 },

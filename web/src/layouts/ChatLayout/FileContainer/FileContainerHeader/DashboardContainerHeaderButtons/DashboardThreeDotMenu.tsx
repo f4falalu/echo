@@ -23,7 +23,6 @@ import { useMemo } from 'react';
 import { Dropdown } from '@/components/ui/dropdown';
 import { Button } from '@/components/ui/buttons';
 import React from 'react';
-import { timeFromNow } from '@/lib/date';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { useMemoizedFn } from '@/hooks';
 import { useSaveToCollectionsDropdownContent } from '@/components/features/dropdowns/SaveToCollectionsDropdown';
@@ -39,7 +38,6 @@ import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
-import { D } from 'node_modules/@tanstack/react-query-devtools/build/modern/ReactQueryDevtools-Cn7cKi7o';
 
 export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId: string }) => {
   const versionHistoryItems = useVersionHistorySelectMenu({ dashboardId });
@@ -90,13 +88,7 @@ export const DashboardThreeDotMenu = React.memo(({ dashboardId }: { dashboardId:
   );
 
   return (
-    <Dropdown
-      items={items}
-      selectType="single"
-      side="bottom"
-      align="end"
-      contentClassName="max-h-fit"
-      modal>
+    <Dropdown items={items} side="bottom" align="end" contentClassName="max-h-fit" modal>
       <Button prefix={<Dots />} variant="ghost" />
     </Dropdown>
   );
@@ -131,7 +123,11 @@ const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) =
       label: 'Version history',
       value: 'version-history',
       icon: <History />,
-      items: versionHistoryItems
+      items: [
+        <React.Fragment key="version-history-sub-menu">
+          <DropdownContent items={versionHistoryItems} selectType="single" />
+        </React.Fragment>
+      ]
     }),
     [versionHistoryItems]
   );
@@ -253,31 +249,6 @@ const useRenameDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }) 
   );
 };
 
-export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
-  const { data: dashboard } = useGetDashboard({ id: dashboardId }, { select: getShareAssetConfig });
-  const isOwner = getIsEffectiveOwner(dashboard?.permission);
-
-  return useMemo(
-    () => ({
-      label: 'Share',
-      value: 'share-dashboard',
-      icon: <ShareRight />,
-      disabled: !isOwner,
-      items: isOwner
-        ? [
-            <ShareMenuContent
-              key={dashboardId}
-              shareAssetConfig={dashboard!}
-              assetId={dashboardId}
-              assetType={ShareAssetType.DASHBOARD}
-            />
-          ]
-        : undefined
-    }),
-    [dashboardId]
-  );
-};
-
 const useAddContentToDashboardSelectMenu = () => {
   const onOpenAddContentModal = useDashboardContentStore((x) => x.onOpenAddContentModal);
 
@@ -299,7 +270,7 @@ const useFilterDashboardSelectMenu = () => {
       value: 'filter-dashboard',
       icon: <Filter />,
       items: [
-        <div className="p-2" key="coming-soon">
+        <div className="p-2.5" key="coming-soon">
           Coming soon 🤙...
         </div>
       ]
@@ -318,6 +289,31 @@ const useOpenFullScreenDashboard = ({ dashboardId }: { dashboardId: string }) =>
         route: BusterRoutes.APP_DASHBOARD_ID,
         dashboardId
       })
+    }),
+    [dashboardId]
+  );
+};
+
+export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string }) => {
+  const { data: dashboard } = useGetDashboard({ id: dashboardId }, { select: getShareAssetConfig });
+  const isOwner = getIsEffectiveOwner(dashboard?.permission);
+
+  return useMemo(
+    () => ({
+      label: 'Share',
+      value: 'share-dashboard',
+      icon: <ShareRight />,
+      disabled: !isOwner,
+      items: isOwner
+        ? [
+            <ShareMenuContent
+              key={dashboardId}
+              shareAssetConfig={dashboard!}
+              assetId={dashboardId}
+              assetType={ShareAssetType.DASHBOARD}
+            />
+          ]
+        : undefined
     }),
     [dashboardId]
   );

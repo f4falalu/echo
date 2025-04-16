@@ -22,12 +22,9 @@ import {
 import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
-import { Input } from '../inputs/Input';
 import { useDebounceSearch } from '@/hooks';
 import Link from 'next/link';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useRadixDropdownSearch } from './useRadixDropdownSearch';
-import { Magnifier } from '../icons';
 import { DropdownMenuHeaderSearch } from './DropdownMenuHeaderSearch';
 
 export interface DropdownItem<T = string> {
