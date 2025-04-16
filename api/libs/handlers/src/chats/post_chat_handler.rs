@@ -2096,8 +2096,6 @@ fn transform_assistant_tool_message(
 
                 // If parser returns a reasoning message (File type expected)
                 if let Ok(Some(BusterReasoningMessage::File(mut file_reasoning))) = parse_result {
-                    // Set the secondary title using elapsed_duration when creating the initial message
-                    file_reasoning.secondary_title = format!("{} seconds", last_reasoning_completion_time.elapsed().as_secs()); // Use Delta
                     // Added missing variable initializations
                     let mut has_updates = false;
                     let mut updated_files_map = std::collections::HashMap::new();
