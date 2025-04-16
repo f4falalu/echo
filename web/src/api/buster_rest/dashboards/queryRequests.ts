@@ -482,9 +482,9 @@ const useEnsureDashboardConfig = (prefetchData: boolean = true) => {
 
 export const useAddAndRemoveMetricsFromDashboard = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetDashboardVersionNumber();
   const { openErrorMessage } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
+  const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
 
   const addAndRemoveMetrics = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
@@ -523,10 +523,15 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
     onSuccess: (data, variables) => {
       if (data) {
         queryClient.setQueryData(
+          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
+          data
+        );
+        queryClient.setQueryData(
           dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
             .queryKey,
           data
         );
+        setOriginalDashboard(data.dashboard);
       }
     }
   });
@@ -536,6 +541,7 @@ export const useAddMetricsToDashboard = () => {
   const queryClient = useQueryClient();
   const { openErrorMessage } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
+  const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
 
   const addMetricToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
@@ -558,10 +564,15 @@ export const useAddMetricsToDashboard = () => {
     onSuccess: (data, variables) => {
       if (data) {
         queryClient.setQueryData(
+          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
+          data
+        );
+        queryClient.setQueryData(
           dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
             .queryKey,
           data
         );
+        setOriginalDashboard(data.dashboard);
       }
     }
   });
@@ -571,6 +582,7 @@ export const useRemoveMetricsFromDashboard = () => {
   const { openConfirmModal, openErrorMessage } = useBusterNotifications();
   const queryClient = useQueryClient();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
+  const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
 
   const removeMetricFromDashboard = useMemoizedFn(
     async ({
@@ -633,10 +645,15 @@ export const useRemoveMetricsFromDashboard = () => {
     onSuccess: (data) => {
       if (data) {
         queryClient.setQueryData(
+          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
+          data
+        );
+        queryClient.setQueryData(
           dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
             .queryKey,
           data
         );
+        setOriginalDashboard(data.dashboard);
       }
     }
   });

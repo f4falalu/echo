@@ -17,6 +17,7 @@ export const useDashboardMetric = ({
   } = useGetMetric(
     { id: metricId, versionNumber },
     {
+      enabled: !!metricId,
       select: ({
         name,
         description,
