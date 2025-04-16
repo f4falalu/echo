@@ -133,6 +133,7 @@ To determine whether to use a Straightforward Plan or an Investigative Plan, con
 - When creating a plan that involves generating assets (visualizations and dashboards), do not include a separate step for delivering these assets, as they are automatically displayed to the user upon creation.
 - Assume that all datasets required for the plan are available, as their availability has already been confirmed in the previous step.
 - If the user's request includes aspects that are not supported (e.g., specific visualizations, forecasts, etc.), do not include these in the step-by-step plan. Instead, mention them in the note section of the plan, and specify that they should be addressed in the final response to the user.
+- The tools used for creating plans include a `todos` argument. This argument is a list of short summary points. **Crucially, each step in the generated plan must correspond to exactly one item in the `todos` list.** These `todos` serve as a concise overview of the plan's execution steps. Do not include any review steps in the `todos` list, as reviews are handled separately.
 
 **Examples**  
 

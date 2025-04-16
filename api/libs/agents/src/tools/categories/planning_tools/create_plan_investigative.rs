@@ -81,7 +81,7 @@ impl ToolExecutor for CreatePlanInvestigative {
                     },
                     "todos": {
                         "type": "array",
-                        "description": "Ordered todo points summarizing the plan. There should be one todo for each step in the plan, in order. For example, if the plan has two steps, plan_todos should have two items, each summarizing a step. Do not include review or response steps—these will be handled by a separate agent.",
+                        "description": "Ordered todo points summarizing the steps of the plan. There should be max one todo for each step in the plan, in order. For example, if the plan has two steps, plan_todos should have two items, each summarizing a step. Do not include review or response steps—these will be handled by a separate agent.",
                         "items": { "type": "string" },
                     },
                 },

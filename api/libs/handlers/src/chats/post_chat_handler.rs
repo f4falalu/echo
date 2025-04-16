@@ -1503,7 +1503,7 @@ fn transform_tool_message(
         "done" | "message_notify_user" | "message_user_clarifying_question" => vec![],
 
         // Add specific handling for no_search_needed to return nothing
-        "no_search_needed" => vec![],
+        "no_search_needed" | "review_plan" => vec![],
 
         // Existing tool result processing - pass duration
         "search_data_catalog" => tool_data_catalog_search(id.clone(), content, delta_duration)?,
@@ -2157,7 +2157,7 @@ fn transform_assistant_tool_message(
                     // parser.clear_related_chunks(tool_id.clone()); // Example hypothetical parser method
                 }
             }
-            "no_search_needed" => {
+            "no_search_needed" | "review_plan" => {
                  // Clear tracker since this tool doesn't use chunking for its reasoning output
                 tracker.clear_chunk(tool_id.clone());
             }
