@@ -80,10 +80,43 @@ const useGetDashboardAndInitializeMetrics = (prefetchData: boolean = true) => {
 
     return dashboardsGetDashboard({ id: id!, password, version_number }).then((data) => {
       initializeMetrics(data.metrics);
+
       setOriginalDashboards(data.dashboard);
+
+      if (!version_number && data.dashboard.version_number) {
+        queryClient.setQueryData(
+          dashboardQueryKeys.dashboardGetDashboard(id, data.dashboard.version_number).queryKey,
+          data
+        );
+      }
+
       return data;
     });
   });
+};
+
+const useGetDashboardVersionNumber = (props?: {
+  versionNumber?: number | null; //if null it will not use a params from the query params
+}) => {
+  const { versionNumber: versionNumberProp } = props || {};
+  const { versionNumber: versionNumberPathParam, metricId: metricIdPathParam } = useParams() as {
+    versionNumber: string | undefined;
+    metricId: string | undefined;
+  };
+  const versionNumberQueryParam = useSearchParams().get('dashboard_version_number');
+  const versionNumberFromParams = metricIdPathParam
+    ? versionNumberQueryParam || versionNumberPathParam
+    : undefined;
+
+  const versionNumber = useMemo(() => {
+    if (versionNumberProp === null) return undefined;
+    return (
+      versionNumberProp ??
+      (versionNumberFromParams ? parseInt(versionNumberFromParams!) : undefined)
+    );
+  }, [versionNumberProp, versionNumberFromParams]);
+
+  return versionNumber;
 };
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
@@ -97,26 +130,13 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
   >
 ) => {
   const queryFn = useGetDashboardAndInitializeMetrics();
-  const { versionNumber: verionNumberPathParam } = useParams() as {
-    versionNumber: string | undefined;
-  };
-  const versionNumberQueryParam = useSearchParams().get('versionNumber');
-
-  const versionNumberFromParams = versionNumberQueryParam || verionNumberPathParam;
-
-  const version_number = useMemo(() => {
-    if (versionNumberProp === null) return undefined;
-    return versionNumberProp || versionNumberFromParams
-      ? parseInt(versionNumberFromParams!)
-      : undefined;
-  }, [versionNumberProp, versionNumberFromParams]);
+  const versionNumber = useGetDashboardVersionNumber({ versionNumber: versionNumberProp });
 
   return useQuery({
-    ...dashboardQueryKeys.dashboardGetDashboard(id!, version_number),
-    queryFn: () => queryFn(id!, version_number),
+    ...dashboardQueryKeys.dashboardGetDashboard(id!, versionNumber),
+    queryFn: () => queryFn(id!, versionNumber),
     enabled: !!id, //it is false because we fetch the dashboard server side
     select: params?.select,
-
     ...params
   });
 };
@@ -135,47 +155,86 @@ export const useCreateDashboard = () => {
   });
 };
 
+export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
+  const updateOnSave = params?.updateOnSave || false;
+  const queryClient = useQueryClient();
+  const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
+  const versionNumber = useGetDashboardVersionNumber();
+
+  return useMutation({
+    mutationFn: dashboardsUpdateDashboard,
+    onMutate: ({ id, update_version, restore_to_version }) => {
+      const isRestoringVersion = restore_to_version !== undefined;
+      const isUpdatingVersion = update_version === true;
+
+      //
+    },
+    onSuccess: (data, variables) => {
+      if (updateOnSave && data) {
+        queryClient.setQueryData(
+          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
+            .queryKey,
+          data
+        );
+        //We need to update BOTH the versioned and the non-versioned metric for version updates to keep the latest up to date
+        if (variables.update_version) {
+          queryClient.setQueryData(
+            dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
+            data
+          );
+        }
+        console.log('setting original dashboard', data.dashboard);
+        setOriginalDashboard(data.dashboard);
+      }
+    }
+  });
+};
+
 export const useUpdateDashboard = (params?: {
+  updateOnSave?: boolean;
   updateVersion?: boolean;
   saveToServer?: boolean;
 }) => {
-  const setOriginalDashboards = useOriginalDashboardStore((x) => x.setOriginalDashboard);
-  const { updateVersion = false, saveToServer = false } = params || {};
-
+  const { updateOnSave = false, updateVersion = false, saveToServer = false } = params || {};
   const queryClient = useQueryClient();
+  const { mutateAsync: saveDashboard } = useSaveDashboard({ updateOnSave });
+  const getOriginalDashboard = useOriginalDashboardStore((x) => x.getOriginalDashboard);
+  const versionNumber = useGetDashboardVersionNumber();
 
   const mutationFn = useMemoizedFn(
     async (variables: Parameters<typeof dashboardsUpdateDashboard>[0]) => {
       if (saveToServer) {
-        return await dashboardsUpdateDashboard({
+        return await saveDashboard({
           ...variables,
           update_version: updateVersion
         });
       }
+
+      const newDashboard = create(getOriginalDashboard(variables.id), (draft) => {
+        Object.assign(draft!, variables);
+      });
+
+      return newDashboard;
     }
   );
 
   return useMutation({
     mutationFn,
     onMutate: (variables) => {
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey;
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(
+        variables.id,
+        versionNumber
+      ).queryKey;
+
       queryClient.setQueryData(queryKey, (previousData) => {
         const newDashboardState: BusterDashboardResponse = create(previousData!, (draft) => {
           draft.dashboard = create(draft.dashboard, (draft) => {
             Object.assign(draft, variables);
           });
         });
+        console.log('newDashboardState', newDashboardState.dashboard.config.rows?.[0]);
         return newDashboardState!;
       });
-    },
-    onSuccess: (data, variables) => {
-      if (data) {
-        queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey,
-          data
-        );
-        setOriginalDashboards(data.dashboard);
-      }
     }
   });
 };
@@ -186,6 +245,7 @@ export const useUpdateDashboardConfig = () => {
     updateVersion: false
   });
   const queryClient = useQueryClient();
+  const versionNumber = useGetDashboardVersionNumber();
 
   const method = useMemoizedFn(
     async ({
@@ -194,13 +254,15 @@ export const useUpdateDashboardConfig = () => {
     }: Partial<BusterDashboard['config']> & {
       dashboardId: string;
     }) => {
-      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
+      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, versionNumber);
       const previousDashboard = queryClient.getQueryData(options.queryKey);
       const previousConfig = previousDashboard?.dashboard?.config;
       if (previousConfig) {
+        console.log('previousConfig', previousConfig.rows?.[0]);
         const newConfig = create(previousConfig!, (draft) => {
           Object.assign(draft, newDashboard);
         });
+        console.log('newConfig', newConfig.rows?.[0]);
         return mutateAsync({
           id: dashboardId,
           config: newConfig
@@ -323,10 +385,14 @@ export const useRemoveDashboardFromCollection = () => {
 
 export const useShareDashboard = () => {
   const queryClient = useQueryClient();
+  const versionNumber = useGetDashboardVersionNumber();
   return useMutation({
     mutationFn: shareDashboard,
     onMutate: (variables) => {
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey;
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(
+        variables.id,
+        versionNumber
+      ).queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         return create(previousData!, (draft) => {
           draft.individual_permissions = [
@@ -338,7 +404,7 @@ export const useShareDashboard = () => {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(
-        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id).queryKey,
+        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, versionNumber).queryKey,
         data
       );
     }
@@ -347,10 +413,14 @@ export const useShareDashboard = () => {
 
 export const useUnshareDashboard = () => {
   const queryClient = useQueryClient();
+  const versionNumber = useGetDashboardVersionNumber();
   return useMutation({
     mutationFn: unshareDashboard,
     onMutate: (variables) => {
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(variables.id).queryKey;
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(
+        variables.id,
+        versionNumber
+      ).queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         return create(previousData!, (draft) => {
           draft.individual_permissions =
@@ -360,7 +430,7 @@ export const useUnshareDashboard = () => {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(
-        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id).queryKey,
+        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, versionNumber).queryKey,
         data
       );
     }
@@ -369,10 +439,11 @@ export const useUnshareDashboard = () => {
 
 export const useUpdateDashboardShare = () => {
   const queryClient = useQueryClient();
+  const versionNumber = useGetDashboardVersionNumber();
   return useMutation({
     mutationFn: updateDashboardShare,
     onMutate: ({ id, params }) => {
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(id).queryKey;
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, versionNumber).queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         return create(previousData!, (draft) => {
           draft.individual_permissions =
@@ -399,11 +470,12 @@ export const useUpdateDashboardShare = () => {
 
 const useEnsureDashboardConfig = (prefetchData: boolean = true) => {
   const queryClient = useQueryClient();
+  const versionNumber = useGetDashboardVersionNumber();
   const prefetchDashboard = useGetDashboardAndInitializeMetrics(prefetchData);
   const { openErrorMessage } = useBusterNotifications();
 
   const method = useMemoizedFn(async (dashboardId: string) => {
-    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
+    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, versionNumber);
     let dashboardResponse = queryClient.getQueryData(options.queryKey);
     if (!dashboardResponse) {
       const res = await prefetchDashboard(dashboardId).catch((e) => {
@@ -424,6 +496,7 @@ const useEnsureDashboardConfig = (prefetchData: boolean = true) => {
 
 export const useAddAndRemoveMetricsFromDashboard = () => {
   const queryClient = useQueryClient();
+  const versionNumber = useGetDashboardVersionNumber();
   const { openErrorMessage } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
 
@@ -464,7 +537,8 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
     onSuccess: (data, variables) => {
       if (data) {
         queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey,
+          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
+            .queryKey,
           data
         );
       }
@@ -498,7 +572,8 @@ export const useAddMetricsToDashboard = () => {
     onSuccess: (data, variables) => {
       if (data) {
         queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey,
+          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
+            .queryKey,
           data
         );
       }
@@ -525,7 +600,10 @@ export const useRemoveMetricsFromDashboard = () => {
         const dashboardResponse = await ensureDashboardConfig(dashboardId);
 
         if (dashboardResponse) {
-          const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
+          const options = dashboardQueryKeys.dashboardGetDashboard(
+            dashboardResponse.dashboard.id,
+            dashboardResponse.dashboard.version_number
+          );
           const newConfig = removeMetricFromDashboardConfig(
             metricIds,
             dashboardResponse.dashboard.config
@@ -566,11 +644,11 @@ export const useRemoveMetricsFromDashboard = () => {
 
   return useMutation({
     mutationFn: removeMetricFromDashboard,
-
-    onSuccess: (data, variables) => {
+    onSuccess: (data) => {
       if (data) {
         queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(variables.dashboardId).queryKey,
+          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
+            .queryKey,
           data
         );
       }

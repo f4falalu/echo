@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { QueryClient } from '@tanstack/react-query';
-import { useDebounceFn, useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks';
 import {
   deleteMetrics,
   duplicateMetric,
@@ -264,6 +264,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
           metricsQueryKeys.metricsGetData(id, restore_to_version).queryKey
         );
         if (oldMetric && newMetric && newMetricData) {
+          console.log('TODO. look into this because I do not think this is correct');
           queryClient.setQueryData(
             metricsQueryKeys.metricsGetMetric(id, versionNumber).queryKey,
             oldMetric
@@ -511,6 +512,7 @@ export const useUpdateMetric = (params: {
   const { mutateAsync: saveMetric } = useSaveMetric({ updateOnSave });
   const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
   const versionNumber = useGetMetricVersionNumber();
+
   const saveMetricToServer = useMemoizedFn(
     async (newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
       const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
@@ -547,21 +549,19 @@ export const useUpdateMetric = (params: {
         return await saveMetricToServer(newMetric, prevMetric);
       }
 
+      if (newMetric) {
+        queryClient.setQueryData(
+          metricsQueryKeys.metricsGetMetric(newMetric.id, newMetric.version_number).queryKey,
+          newMetric
+        );
+      }
+
       return newMetric;
     }
   );
 
   return useMutation({
-    mutationFn,
-    onSuccess: (data) => {
-      if (data) {
-        //THIS CAN BE SERVER DATA, but not always. This is from the mutationFn
-        queryClient.setQueryData(
-          metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey,
-          data
-        );
-      }
-    }
+    mutationFn
   });
 };
 

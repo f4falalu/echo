@@ -7,13 +7,18 @@ import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { compareObjectsByKeys } from '@/lib/objects';
 import { useMemo } from 'react';
 import { create } from 'mutative';
-
+import last from 'lodash/last';
 export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) => {
   const queryClient = useQueryClient();
   const originalDashboard = useOriginalDashboardStore((x) => x.getOriginalDashboard(dashboardId));
 
-  const { data: currentDashboard, refetch: refetchCurrentDashboard } = useGetDashboard(
+  const { data: latestVersionNumber } = useGetDashboard(
     { id: dashboardId },
+    { select: (x) => last(x.versions)?.version_number }
+  );
+
+  const { data: currentDashboard, refetch: refetchCurrentDashboard } = useGetDashboard(
+    { id: dashboardId, versionNumber: latestVersionNumber },
     {
       select: (x) => ({
         name: x.dashboard.name,
@@ -25,7 +30,10 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) 
   );
 
   const onResetDashboardToOriginal = useMemoizedFn(() => {
-    const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId);
+    const options = dashboardQueryKeys.dashboardGetDashboard(
+      dashboardId,
+      originalDashboard?.version_number
+    );
     const currentDashboard = queryClient.getQueryData<BusterDashboardResponse>(options.queryKey);
     if (originalDashboard && currentDashboard) {
       const resetDashboard = create(currentDashboard, (draft) => {
@@ -48,6 +56,14 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) 
       ])
     );
   }, [originalDashboard, currentDashboard]);
+
+  console.log(
+    'originalDashboard',
+    isDashboardChanged,
+    latestVersionNumber,
+    currentDashboard?.config.rows?.[0],
+    originalDashboard?.config.rows?.[0]
+  );
 
   return {
     onResetDashboardToOriginal,

@@ -151,7 +151,7 @@ export const BusterMetricChart: React.FC<BusterMetricChartProps> = React.memo(
           className={`flex h-full w-full flex-col items-center justify-center ${className}`}
           {...memoizedAnimation}>
           <AnimatedTitleWrapper title={formattedHeader} type="header" />
-          <div className="py-1.5">
+          <div className="w-full overflow-hidden p-2 text-center">
             <Title truncate>{formattedValue}</Title>
           </div>
           <AnimatedTitleWrapper title={formattedSubHeader} type="subHeader" />
