@@ -26,7 +26,6 @@ export const useAutoChangeLayout = ({
   selectedFileId: string | undefined;
   chatId: string | undefined;
 }) => {
-  const getChatMemoized = useGetChatMemoized();
   const getChatMessageMemoized = useGetChatMessageMemoized();
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const messageId = useChatLayoutContextSelector((x) => x.messageId);
@@ -60,7 +59,9 @@ export const useAutoChangeLayout = ({
       previousLastMessageId.current !== lastMessageId &&
       chatId
     ) {
-      handle_isStreaming({ previousLastMessageId, onSetSelectedFile, lastMessageId });
+      console.log('trigger reasoning page!', previousLastMessageId.current, lastMessageId);
+      previousLastMessageId.current = lastMessageId;
+      onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
     }
 
     //this will when the chat is completed and it WAS streaming
@@ -125,17 +126,4 @@ export const useAutoChangeLayout = ({
       }
     }
   }, [isCompletedStream, hasReasoning, lastMessageId]);
-};
-
-const handle_isStreaming = ({
-  previousLastMessageId,
-  onSetSelectedFile,
-  lastMessageId
-}: {
-  previousLastMessageId: MutableRefObject<string | null>;
-  onSetSelectedFile: (file: SelectedFile) => void;
-  lastMessageId: string;
-}) => {
-  previousLastMessageId.current = lastMessageId;
-  onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
 };
