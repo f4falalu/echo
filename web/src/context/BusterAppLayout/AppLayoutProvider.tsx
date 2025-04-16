@@ -60,6 +60,7 @@ export const useAppLayout = () => {
 
         // Start the navigation
         push(targetPath);
+        console.log('pushed', targetPath);
 
         // Start checking for path changes
         checkPathChange();

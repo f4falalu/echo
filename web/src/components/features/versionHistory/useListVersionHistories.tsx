@@ -77,6 +77,7 @@ export const useListVersionHistories = ({
               metricId: assetId
             })
           );
+          onCloseVersionHistory();
         }
       }
       if (type === 'dashboard') {
@@ -88,6 +89,7 @@ export const useListVersionHistories = ({
               dashboardId: assetId
             })
           );
+          onCloseVersionHistory();
         }
       }
 

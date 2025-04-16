@@ -23,7 +23,7 @@ export const VersionHistoryHeaderButtons: React.FC<{}> = ({}) => {
 
   const onClickRestoreVersionPreflight = useMemoizedFn(async () => {
     if (selectedQueryVersion) {
-      await onClickRestoreVersion(selectedQueryVersion, true);
+      await onClickRestoreVersion(selectedQueryVersion);
     }
   });
 
