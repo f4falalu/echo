@@ -60,49 +60,42 @@ struct LLMFilterResponse {
 }
 
 const LLM_FILTER_PROMPT: &str = r#"
-You are a dataset relevance evaluator. Your task is to determine which datasets might contain information relevant to the user's query based on their structure and metadata. Be inclusive in your evaluation - if there's a reasonable chance the dataset could be useful, include it.
+You are a dataset relevance evaluator, acting like a semantic search engine. Your task is to determine which datasets are **semantically relevant** to the user's query based on their structure and metadata, focusing on the core **Business Objects, Properties, Events, Metrics, and Filters** implied by the request.
 
 USER REQUEST: {user_request}
-SEARCH QUERY: {query}
+SEARCH QUERY: {query} (This query is framed around key semantic concepts identified from the user request)
 
-Below is a list of datasets that were identified as potentially relevant by an initial semantic ranking system.
-For each dataset, review its description in the YAML format and determine if its structure could potentially be suitable for the user's query.
-Include datasets that have even a reasonable possibility of containing relevant information.
+Below is a list of datasets that were identified as potentially relevant by an initial ranking system.
+For each dataset, review its description in the YAML format. Evaluate how well the dataset's described contents (columns, metrics, entities, documentation) **semantically align** with the key **Objects, Properties, Events, Metrics, and Filters** required by the USER REQUEST and SEARCH QUERY.
+
+Include datasets where the YAML description suggests a reasonable semantic match or overlap with the needed concepts. Prioritize datasets that appear to contain the core Objects or Events, even if all specific Properties or Metrics aren't explicitly listed.
 
 DATASETS:
 {datasets_json}
 
-Return a JSON response containing ONLY a list of the UUIDs for the relevant datasets. The response should have the following structure:
+Return a JSON response containing ONLY a list of the UUIDs for the semantically relevant datasets. The response should have the following structure:
 ```json
 {
   "results": [
     "dataset-uuid-here-1",
     "dataset-uuid-here-2"
-    // ... more potentially relevant dataset UUIDs
+    // ... semantically relevant dataset UUIDs
   ]
 }
 ```
 
 IMPORTANT GUIDELINES:
-1. Be inclusive - if there's a reasonable possibility the dataset could be useful, include it
-2. Consider both direct and indirect relationships to the query
-3. For example, if a user asks about "red bull sales", consider datasets about:
-   - Direct relevance: products, sales, inventory
-   - Indirect relevance: marketing campaigns, customer demographics, store locations
-4. Evaluate based on whether the dataset's schema, fields, or description MIGHT contain or relate to the relevant information
-5. Include datasets that could provide contextual or supporting information
-6. When in doubt about relevance, lean towards including the dataset
+1. **Focus on Semantic Relevance**: Include datasets whose content, as described in the YAML, is semantically related to the required Objects, Properties, Events, Metrics, or Filters. Direct keyword matches are not required.
+2. **Consider the Core Concepts**: Does the dataset seem to be about the primary Business Object(s) or Event(s)? Does it contain relevant Properties or Metrics, even if named differently (synonyms)?
+3. **Allow Reasonable Inference**: If a dataset describes the correct Object (e.g., 'Customers') and the query asks for a common Property (e.g., 'Email Address'), you can reasonably infer potential relevance even if 'Email Address' isn't explicitly listed in the snippet, provided the dataset description is relevant.
+4. **Evaluate based on Semantic Fit**: Does the dataset's purpose and structure, based on its YAML, align well with the user's information need? Consider relationships between entities described in the YAML.
+5. **Contextual Information is Relevant**: Datasets providing important contextual Properties for the core Objects or Events should be considered relevant.
+6. **When in doubt, lean towards inclusion if semantically plausible**: If the dataset seems semantically related to the core concepts, even if imperfectly described in the YAML snippet, it's better to include it for further inspection.
 7. **CRITICAL:** Each string in the "results" array MUST contain ONLY the dataset's UUID string (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38"). Do NOT include the dataset name or any other information.
-8. Use both the USER REQUEST and SEARCH QUERY to understand the user's information needs broadly
-9. Consider these elements in the dataset metadata:
-   - Column names and their data types
-   - Entity relationships
-   - Predefined metrics
-   - Table schemas
-   - Dimension hierarchies
-   - Related or connected data structures
-10. While you shouldn't assume specific data exists, you can be optimistic about the potential usefulness of related data structures
-11. A dataset is relevant if its structure could reasonably support or contribute to answering the query, either directly or indirectly
+8. **Use both USER REQUEST and SEARCH QUERY**: Understand the underlying need (user request) and the specific concepts being targeted (search query).
+9. **Prioritize Semantic Overlap**: Look for datasets that cover the key Objects, Events, or Metrics, even if the exact Filters or secondary Properties aren't perfectly matched in the description.
+10. **Assume potential utility based on semantic clues**: If the YAML indicates the dataset is about the right topic (Object/Event), assume it might contain relevant Properties/Metrics unless the YAML explicitly contradicts this.
+11. A dataset is relevant if its described structure and purpose **semantically align** with the information needed to answer the query.
 "#;
 
 pub struct SearchDataCatalogTool {
@@ -363,7 +356,7 @@ async fn rerank_datasets(
         query,
         documents,
         model: ReRankModel::EnglishV3,
-        top_n: Some(50),
+        top_n: Some(35),
         ..Default::default()
     };
 
