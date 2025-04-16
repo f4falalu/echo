@@ -81,7 +81,6 @@ export const useListVersionHistories = ({
               metricId: assetId
             })
           );
-          onCloseVersionHistory();
         }
       }
       if (type === 'dashboard') {
@@ -93,7 +92,6 @@ export const useListVersionHistories = ({
               dashboardId: assetId
             })
           );
-          onCloseVersionHistory();
         }
       }
       onCloseVersionHistory();
@@ -153,11 +151,13 @@ const useListDashboardVersions = ({
   const { mutateAsync: updateDashboard, isPending: isSaving } = useSaveDashboard({
     updateOnSave: true
   });
-  const { data: dashboardData, isFetched } = useGetDashboard(
+  const { data: dashboardData } = useGetDashboard(
     {
-      id: type === 'dashboard' ? assetId : undefined
+      id: type === 'dashboard' ? assetId : undefined,
+      versionNumber: null
     },
     {
+      enabled: !!assetId && type === 'dashboard', //we used version null so that we can get the latest version and all versions
       select: (x) => ({
         versions: x.versions,
         version_number: x.dashboard.version_number
@@ -223,7 +223,7 @@ const useListMetricVersions = ({
       versionNumber: null
     },
     {
-      enabled: !!assetId, //we do not want to have undefined versions when
+      enabled: !!assetId && type === 'metric', //we do not want to have undefined versions when
       select: (x) => ({
         versions: x.versions,
         version_number: x.version_number

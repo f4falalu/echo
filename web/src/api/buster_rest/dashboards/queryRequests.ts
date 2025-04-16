@@ -157,7 +157,7 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
           data
         );
         //We need to update BOTH the versioned and the non-versioned metric for version updates to keep the latest up to date
-        if (variables.update_version) {
+        if (variables.update_version || variables.restore_to_version) {
           queryClient.setQueryData(
             dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
             data

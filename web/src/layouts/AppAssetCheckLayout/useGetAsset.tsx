@@ -73,7 +73,7 @@ export const useGetAsset = (props: UseGetAssetProps) => {
       id: isMetric ? props.assetId : undefined,
       versionNumber
     },
-    { enabled: isMetric }
+    { enabled: isMetric && props.assetId !== undefined }
   );
 
   const { isFetched: metricDataIsFetched } = useGetMetricData({

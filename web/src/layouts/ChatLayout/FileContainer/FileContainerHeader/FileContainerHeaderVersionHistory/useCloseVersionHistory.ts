@@ -15,10 +15,21 @@ export const useCloseVersionHistory = () => {
 
   const href = useMemo(() => {
     if (!chatId) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID_CHART,
-        metricId: metricId!
-      });
+      if (metricId) {
+        return createBusterRoute({
+          route: BusterRoutes.APP_METRIC_ID_CHART,
+          metricId: metricId!
+        });
+      }
+
+      if (dashboardId) {
+        return createBusterRoute({
+          route: BusterRoutes.APP_DASHBOARD_ID,
+          dashboardId: dashboardId!
+        });
+      }
+
+      return '';
     }
 
     return (
