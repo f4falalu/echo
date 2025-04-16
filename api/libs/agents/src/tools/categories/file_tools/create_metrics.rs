@@ -235,14 +235,16 @@ impl ToolExecutor for CreateMetricFilesTool {
 
         let duration = start_time.elapsed().as_millis() as i64;
 
-        self.agent
-            .set_state_value(String::from("metrics_available"), Value::Bool(true))
-            .await;
+        if !created_files.is_empty() {
+            self.agent
+                .set_state_value(String::from("metrics_available"), Value::Bool(true))
+                .await;
 
-        self.agent
-            .set_state_value(String::from("files_available"), Value::Bool(true))
-            .await;
-        
+            self.agent
+                .set_state_value(String::from("files_available"), Value::Bool(true))
+                .await;
+        }
+
         // Set review_needed flag if execution was successful
         if failed_files.is_empty() {
             self.agent

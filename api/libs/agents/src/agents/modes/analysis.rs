@@ -86,7 +86,6 @@ pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
                     .unwrap_or(false);
                 review_needed || all_todos_complete
             });
-            let always_available = Some(|_state: &HashMap<String, Value>| -> bool { true });
 
             // Add tools to the agent with conditions
             agent_clone
