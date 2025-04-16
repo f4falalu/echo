@@ -64,7 +64,6 @@ export const updateChat = async ({
   return mainApi.put<BusterChat>(`${CHATS_BASE}/${id}`, data).then((res) => res.data);
 };
 
-export const deleteChat = async (data: string[]): Promise<void> => {
 export const updateChatMessageFeedback = async ({
   message_id,
   ...params
