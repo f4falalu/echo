@@ -6,10 +6,10 @@ import { AppMarkdown } from '@/components/ui/typography/AppMarkdown';
 
 export const ReasoningMessage_Text: React.FC<ReasoningMessageProps> = React.memo(
   ({ reasoningMessageId, messageId, isCompletedStream }) => {
-    const message = useGetChatMessage(
-      messageId,
-      (x) => (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_text)?.message
-    )!;
+    const { data: message } = useGetChatMessage(messageId, {
+      select: (x) =>
+        (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_text)?.message
+    });
 
     if (!message) return null;
 

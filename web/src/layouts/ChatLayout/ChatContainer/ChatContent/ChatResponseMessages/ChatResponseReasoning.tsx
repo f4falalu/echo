@@ -27,11 +27,12 @@ export const ChatResponseReasoning: React.FC<{
   messageId: string;
   chatId: string;
 }> = React.memo(({ reasoningMessageId, isCompletedStream, messageId, chatId }) => {
-  const lastMessageTitle = useGetChatMessage(
-    messageId,
-    (x) => x?.reasoning_messages?.[reasoningMessageId ?? '']?.title
-  );
-  const finalReasoningMessage = useGetChatMessage(messageId, (x) => x?.final_reasoning_message);
+  const { data: lastMessageTitle } = useGetChatMessage(messageId, {
+    select: (x) => x?.reasoning_messages?.[reasoningMessageId ?? '']?.title
+  });
+  const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
+    select: (x) => x?.final_reasoning_message
+  });
   const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
   const isReasonginFileSelected = selectedFileType === 'reasoning';

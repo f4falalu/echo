@@ -154,7 +154,6 @@ export const createMockMetric = (id: string): IBusterMetric => {
     LIMIT 100
   )
   SELECT * FROM records;`,
-    feedback: null,
     collections: [],
     dashboards: [],
     individual_permissions: [],

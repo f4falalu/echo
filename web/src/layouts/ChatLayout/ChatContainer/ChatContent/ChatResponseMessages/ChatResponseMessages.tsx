@@ -14,12 +14,15 @@ interface ChatResponseMessagesProps {
 
 export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.memo(
   ({ chatId, isCompletedStream, messageId, messageIndex }) => {
-    const responseMessageIds = useGetChatMessage(messageId, (x) => x?.response_message_ids || [])!;
-    const lastReasoningMessageId = useGetChatMessage(
-      messageId,
-      (x) => x?.reasoning_message_ids?.[x.reasoning_message_ids.length - 1]
-    );
-    const finalReasoningMessage = useGetChatMessage(messageId, (x) => x?.final_reasoning_message);
+    const { data: responseMessageIds } = useGetChatMessage(messageId, {
+      select: (x) => x?.response_message_ids || []
+    });
+    const { data: lastReasoningMessageId } = useGetChatMessage(messageId, {
+      select: (x) => x?.reasoning_message_ids?.[x.reasoning_message_ids.length - 1]
+    });
+    const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
+      select: (x) => x?.final_reasoning_message
+    });
     const showReasoningMessage =
       messageIndex === 0 ? !!lastReasoningMessageId || !isCompletedStream : true;
 
@@ -35,7 +38,7 @@ export const ChatResponseMessages: React.FC<ChatResponseMessagesProps> = React.m
           />
         )}
 
-        {responseMessageIds.map((responseMessageId, index) => (
+        {responseMessageIds?.map((responseMessageId, index) => (
           <React.Fragment key={responseMessageId}>
             <ChatResponseMessageSelector
               responseMessageId={responseMessageId}

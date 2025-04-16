@@ -10,6 +10,7 @@ export type BusterChatMessage = {
   reasoning_messages: Record<string, BusterChatMessageReasoning>;
   created_at: string;
   final_reasoning_message: string | null;
+  feedback: 'negative' | null;
 } & BusterShare;
 
 export type BusterChatMessageRequest = null | {

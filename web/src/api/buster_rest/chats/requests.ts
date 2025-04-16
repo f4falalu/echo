@@ -48,6 +48,11 @@ export const getChat_server = async ({ id }: { id: string }): Promise<BusterChat
   return await serverFetch<BusterChat>(`${CHATS_BASE}/${id}`);
 };
 
+export const deleteChat = async (data: string[]): Promise<void> => {
+  const stringifiedData = JSON.stringify(data);
+  return mainApi.delete(`${CHATS_BASE}`, { data: stringifiedData }).then((res) => res.data);
+};
+
 export const updateChat = async ({
   id,
   ...data
@@ -55,14 +60,19 @@ export const updateChat = async ({
   id: string;
   title?: string;
   is_favorited?: boolean;
-  feedback?: 'negative' | null;
 }): Promise<BusterChat> => {
   return mainApi.put<BusterChat>(`${CHATS_BASE}/${id}`, data).then((res) => res.data);
 };
 
 export const deleteChat = async (data: string[]): Promise<void> => {
-  const stringifiedData = JSON.stringify(data);
-  return mainApi.delete(`${CHATS_BASE}`, { data: stringifiedData }).then((res) => res.data);
+export const updateChatMessageFeedback = async ({
+  message_id,
+  ...params
+}: {
+  message_id: string;
+  feedback: 'negative' | null;
+}): Promise<BusterChat> => {
+  return mainApi.put(`/messages/${message_id}`, params).then((res) => res.data);
 };
 
 export const duplicateChat = async ({

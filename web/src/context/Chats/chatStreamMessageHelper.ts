@@ -33,7 +33,8 @@ const createInitialMessage = (messageId: string): IBusterChatMessage => ({
   public_expiry_date: null,
   public_enabled_by: null,
   publicly_accessible: false,
-  public_password: null
+  public_password: null,
+  feedback: null
 });
 
 export const initializeOrUpdateMessage = (

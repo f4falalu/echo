@@ -3,15 +3,21 @@ import { Button } from '@/components/ui/buttons';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { Copy, ThumbsDown } from '@/components/ui/icons';
 import { ThumbsDown as ThumbsDownFilled } from '@/components/ui/icons/NucleoIconFilled';
-import { useDuplicateChat, useGetChat, useUpdateChat } from '@/api/buster_rest/chats';
+import {
+  useDuplicateChat,
+  useGetChatMessage,
+  useUpdateChatMessageFeedback
+} from '@/api/buster_rest/chats';
 
 export const ChatMessageOptions: React.FC<{
   messageId: string;
   chatId: string;
 }> = React.memo(({ messageId, chatId }) => {
   const { mutateAsync: duplicateChat, isPending: isCopying } = useDuplicateChat();
-  const { mutateAsync: updateChat } = useUpdateChat();
-  const { data: feedback } = useGetChat({ id: chatId }, (data) => data.feedback);
+  const { mutateAsync: updateChatMessageFeedback } = useUpdateChatMessageFeedback();
+  const { data: feedback } = useGetChatMessage(messageId, {
+    select: ({ feedback }) => feedback
+  });
 
   return (
     <div className="flex items-center gap-1">
@@ -33,8 +39,8 @@ export const ChatMessageOptions: React.FC<{
           variant="ghost"
           prefix={feedback === 'negative' ? <ThumbsDownFilled /> : <ThumbsDown />}
           onClick={() =>
-            updateChat({
-              id: chatId,
+            updateChatMessageFeedback({
+              message_id: messageId,
               feedback: feedback === 'negative' ? null : 'negative'
             })
           }

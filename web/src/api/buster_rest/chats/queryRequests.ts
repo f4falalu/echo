@@ -1,5 +1,11 @@
 import { useMemoizedFn } from '@/hooks';
-import { QueryClient, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  QueryClient,
+  useQuery,
+  useMutation,
+  useQueryClient,
+  UseQueryOptions
+} from '@tanstack/react-query';
 import {
   getListChats,
   getListChats_server,
@@ -9,7 +15,8 @@ import {
   deleteChat,
   getListLogs,
   duplicateChat,
-  startChatFromAsset
+  startChatFromAsset,
+  updateChatMessageFeedback
 } from './requests';
 import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import { queryKeys } from '@/api/query_keys';
@@ -24,6 +31,7 @@ import {
   useRemoveAssetFromCollection
 } from '../collections/queryRequests';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
+import { RustApiError } from '../errors';
 
 export const useGetListChats = (
   filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
@@ -73,7 +81,7 @@ export const useGetListLogs = (
 
 export const useGetChat = <TData = IBusterChat>(
   params: Parameters<typeof getChat>[0],
-  select?: (chat: IBusterChat) => TData
+  options?: Omit<UseQueryOptions<IBusterChat, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   const queryClient = useQueryClient();
   const queryFn = useMemoizedFn(() => {
@@ -107,7 +115,8 @@ export const useGetChat = <TData = IBusterChat>(
     ...queryKeys.chatsGetChat(params.id),
     enabled: !!params.id,
     queryFn,
-    select
+    select: options?.select,
+    ...options
   });
 };
 
@@ -161,9 +170,8 @@ export const useUpdateChat = () => {
     mutationFn: updateChat,
     onMutate: (data) => {
       //this is actually handled in @useChatUpdate file
-
       //except for the chat title and feedback
-      if (data.title || data.feedback !== undefined) {
+      if (data.title) {
         const options = queryKeys.chatsGetChat(data.id);
         queryClient.setQueryData(options.queryKey, (old) => {
           return {
@@ -172,6 +180,26 @@ export const useUpdateChat = () => {
           };
         });
       }
+    }
+  });
+};
+
+export const useUpdateChatMessageFeedback = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateChatMessageFeedback,
+    onMutate: ({ message_id, feedback }) => {
+      const options = queryKeys.chatsMessages(message_id);
+      console.log(message_id, feedback);
+      queryClient.setQueryData(options.queryKey, (old) => {
+        return {
+          ...old!,
+          feedback
+        };
+      });
+    },
+    onSuccess: (data) => {
+      //
     }
   });
 };
@@ -236,14 +264,14 @@ export const useGetChatMemoized = () => {
 
 export const useGetChatMessage = <TData = IBusterChatMessage>(
   messageId: string,
-  selector?: (message: IBusterChatMessage) => TData
+  options?: Omit<UseQueryOptions<IBusterChatMessage, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
-  const { data } = useQuery({
+  return useQuery({
     ...queryKeys.chatsMessages(messageId),
     enabled: false, //this will come from the chat
-    select: selector
+    select: options?.select,
+    ...options
   });
-  return data;
 };
 
 export const useDuplicateChat = () => {

@@ -27,16 +27,17 @@ export const useAutoChangeLayout = ({
   const secondaryView = useChatLayoutContextSelector((x) => x.secondaryView);
   const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
-  const isCompletedStream = useGetChatMessage(lastMessageId, (x) => x?.isCompletedStream);
+  const { data: isCompletedStream } = useGetChatMessage(lastMessageId, {
+    select: (x) => x?.isCompletedStream
+  });
 
   const getInitialChatFileHref = useGetInitialChatFile();
 
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const previousLastMessageId = useRef<string | null>(null);
-  const reasoningMessagesLength = useGetChatMessage(
-    lastMessageId,
-    (x) => x?.reasoning_message_ids?.length || 0
-  );
+  const { data: reasoningMessagesLength } = useGetChatMessage(lastMessageId, {
+    select: (x) => x?.reasoning_message_ids?.length || 0
+  });
   const { getFileLinkMeta } = useGetFileLink();
 
   const previousIsCompletedStream = usePrevious(isCompletedStream);

@@ -19,12 +19,12 @@ import { useGetFileHref } from './useGetFileHref';
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
   ({ isCompletedStream, chatId, responseMessageId, messageId }) => {
     const router = useRouter();
-    const responseMessage = useGetChatMessage(
-      messageId,
-      (x) => x?.response_messages?.[responseMessageId]
-    ) as BusterChatResponseMessage_file;
+    const { data } = useGetChatMessage(messageId, {
+      select: (x) => x?.response_messages?.[responseMessageId]
+    });
+    const responseMessage = data as BusterChatResponseMessage_file;
 
-    const { file_type, id } = responseMessage;
+    const { file_type, id } = responseMessage as BusterChatResponseMessage_file;
 
     const { isSelectedFile } = useGetIsSelectedFile({ responseMessage });
     const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);

@@ -16,9 +16,13 @@ interface ReasoningControllerProps {
 }
 
 export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId, messageId }) => {
-  const { data: hasChat } = useGetChat({ id: chatId || '' }, (x) => !!x.id);
-  const reasoningMessageIds = useGetChatMessage(messageId, (x) => x?.reasoning_message_ids);
-  const isCompletedStream = useGetChatMessage(messageId, (x) => x?.isCompletedStream);
+  const { data: hasChat } = useGetChat({ id: chatId || '' }, { select: (x) => !!x.id });
+  const { data: reasoningMessageIds } = useGetChatMessage(messageId, {
+    select: ({ reasoning_message_ids }) => reasoning_message_ids
+  });
+  const { data: isCompletedStream } = useGetChatMessage(messageId, {
+    select: ({ isCompletedStream }) => isCompletedStream
+  });
   const viewportRef = useRef<HTMLDivElement>(null);
 
   const { isAutoScrollEnabled, scrollToBottom, enableAutoScroll } = useAutoScroll(viewportRef, {

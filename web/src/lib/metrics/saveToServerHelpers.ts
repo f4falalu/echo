@@ -26,13 +26,7 @@ export const getChangedTopLevelMessageValues = (
   newMetric: IBusterMetric,
   oldMetric: IBusterMetric
 ) => {
-  const changes = getChangedValues(oldMetric, newMetric, [
-    'name',
-    'feedback',
-    'status',
-    'sql',
-    'file'
-  ]);
+  const changes = getChangedValues(oldMetric, newMetric, ['name', 'status', 'sql', 'file']);
   return changes;
 };
 

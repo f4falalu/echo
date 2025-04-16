@@ -6,10 +6,9 @@ import { ReasoningMessagePillsContainer } from './ReasoningMessagePillsContainer
 
 export const ReasoningMessage_PillsContainer: React.FC<ReasoningMessageProps> = React.memo(
   ({ reasoningMessageId, messageId, isCompletedStream, chatId }) => {
-    const reasoningMessage = useGetChatMessage(
-      messageId,
-      (x) => x?.reasoning_messages[reasoningMessageId]
-    )!;
+    const { data: reasoningMessage } = useGetChatMessage(messageId, {
+      select: (x) => x?.reasoning_messages[reasoningMessageId]
+    });
 
     const reasoningMessagePills = reasoningMessage as BusterChatMessageReasoning_pills;
     const { status } = reasoningMessagePills;

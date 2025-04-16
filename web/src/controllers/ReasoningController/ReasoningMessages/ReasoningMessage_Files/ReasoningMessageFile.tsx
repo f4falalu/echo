@@ -22,13 +22,12 @@ export type ReasoningMessageFileProps = {
 
 export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.memo(
   ({ isCompletedStream, fileId, chatId, messageId, reasoningMessageId }) => {
-    const file: BusterChatMessageReasoning_file | undefined = useGetChatMessage(
-      messageId,
-      (x) =>
+    const { data: file } = useGetChatMessage(messageId, {
+      select: (x) =>
         (x?.reasoning_messages[reasoningMessageId] as BusterChatMessageReasoning_files)?.files?.[
           fileId
         ]
-    );
+    });
 
     if (isEmpty(file)) return null;
 

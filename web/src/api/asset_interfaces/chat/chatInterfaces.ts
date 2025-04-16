@@ -12,7 +12,6 @@ export interface BusterChat {
   created_by_id: string;
   created_by_name: string;
   created_by_avatar: string | null;
-  feedback: 'negative' | null;
   // pinned_message_id: string | null; MAYBE WE NEED THIS?
 }
 

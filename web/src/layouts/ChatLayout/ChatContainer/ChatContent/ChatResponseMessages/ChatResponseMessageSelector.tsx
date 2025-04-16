@@ -28,11 +28,11 @@ export interface ChatResponseMessageSelectorProps {
 
 export const ChatResponseMessageSelector: React.FC<ChatResponseMessageSelectorProps> = React.memo(
   ({ responseMessageId, messageId, chatId, isCompletedStream }) => {
-    const messageType = useGetChatMessage(
-      messageId,
-      (x) => x?.response_messages?.[responseMessageId]?.type || 'text'
-    )!;
-    const ChatResponseMessage = ChatResponseMessageRecord[messageType];
+    const { data: messageType } = useGetChatMessage(messageId, {
+      select: (x) => x?.response_messages?.[responseMessageId]?.type || 'text'
+    });
+    const ChatResponseMessage =
+      ChatResponseMessageRecord[messageType as BusterChatMessageResponse['type']];
 
     return (
       <ChatResponseMessage

@@ -11,7 +11,6 @@ const createMockMetric = (overrides?: Partial<IBusterMetric>): IBusterMetric =>
   ({
     id: '123',
     name: 'Test Metric',
-    feedback: null,
     status: VerificationStatus.NOT_REQUESTED,
     sql: 'SELECT * FROM test',
     file: 'test.yaml',
@@ -57,15 +56,6 @@ describe('getChangedTopLevelMessageValues', () => {
     const result = getChangedTopLevelMessageValues(newMetric, oldMetric);
 
     expect(result).toEqual({ name: 'Updated Metric Name' });
-  });
-
-  it('should detect changes in feedback property', () => {
-    const oldMetric = createMockMetric();
-    const newMetric = createMockMetric({ feedback: 'negative' });
-
-    const result = getChangedTopLevelMessageValues(newMetric, oldMetric);
-
-    expect(result).toEqual({ feedback: 'negative' });
   });
 
   it('should detect changes in status property', () => {

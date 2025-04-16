@@ -9,11 +9,10 @@ import { AppMarkdown } from '@/components/ui/typography/AppMarkdown/AppMarkdown'
 
 export const ChatResponseMessage_Text: React.FC<ChatResponseMessageProps> = React.memo(
   ({ responseMessageId, messageId, isCompletedStream }) => {
-    const responseMessage = useGetChatMessage(
-      messageId,
-      (x) => x?.response_messages?.[responseMessageId]
-    ) as BusterChatResponseMessage_text;
-    const { message } = responseMessage;
+    const { data: responseMessage } = useGetChatMessage(messageId, {
+      select: (x) => x?.response_messages?.[responseMessageId]
+    });
+    const { message } = responseMessage as BusterChatResponseMessage_text;
 
     if (!message) return null;
 
