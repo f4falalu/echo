@@ -3,18 +3,20 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
-use std::time::Instant;
 
 use crate::{agent::Agent, tools::ToolExecutor};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreatePlanStraightforwardOutput {
     pub success: bool,
+    pub todos: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct CreatePlanStraightforwardInput {
-    plan: String,
+    #[serde(rename = "plan")]
+    _plan: String,
+    todos: Vec<String>,
 }
 
 pub struct CreatePlanStraightforward {
@@ -37,12 +39,28 @@ impl ToolExecutor for CreatePlanStraightforward {
     }
 
     async fn execute(&self, params: Self::Params, _tool_call_id: String) -> Result<Self::Output> {
-        let start_time = Instant::now();
         self.agent
             .set_state_value(String::from("plan_available"), Value::Bool(true))
             .await;
 
-        Ok(CreatePlanStraightforwardOutput { success: true })
+        let todos_state_objects: Vec<Value> = params
+            .todos
+            .iter()
+            .map(|item| {
+                let mut map = serde_json::Map::new();
+                map.insert("completed".to_string(), Value::Bool(false));
+                map.insert("todo".to_string(), Value::String(item.clone()));
+                Value::Object(map)
+            })
+            .collect();
+
+        self.agent
+            .set_state_value(String::from("todos"), Value::Array(todos_state_objects))
+            .await;
+
+        let todos_string = params.todos.iter().map(|item| format!("[ ] {}", item)).collect::<Vec<_>>().join("\n");
+
+        Ok(CreatePlanStraightforwardOutput { success: true, todos: todos_string })
     }
 
     async fn get_schema(&self) -> Value {
@@ -53,12 +71,18 @@ impl ToolExecutor for CreatePlanStraightforward {
             "parameters": {
                 "type": "object",
                 "required": [
-                    "plan"
+                    "plan",
+                    "todos"
                 ],
                 "properties": {
                     "plan": {
                         "type": "string",
                         "description": get_plan_straightforward_description().await
+                    },
+                    "todos": {
+                        "type": "array",
+                        "description": "Ordered todo points summarizing the plan. There should be one todo for each step in the plan, in order. For example, if the plan has two steps, plan_todos should have two items, each summarizing a step. Do not include review or response steps—these will be handled by a separate agent.",
+                        "items": { "type": "string" },
                     },
                 },
                 "additionalProperties": false
