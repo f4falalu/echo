@@ -6,6 +6,7 @@ use database::{
     pool::get_pg_pool,
     schema::{
         asset_permissions, collections_to_assets, dashboard_files, metric_files, users,
+        chats,
     },
 };
 use diesel::{ExpressionMethods, JoinOnDsl, NullableExpressionMethods, QueryDsl, Queryable};
@@ -165,70 +166,141 @@ pub async fn get_collection_handler(
         Err(_) => (false, None, None),
     };
 
-    // Query for metric assets in the collection
-    let metric_assets_result = collections_to_assets::table
-        .inner_join(metric_files::table.on(metric_files::id.eq(collections_to_assets::asset_id)))
-        .left_join(users::table.on(users::id.eq(metric_files::created_by)))
-        .filter(collections_to_assets::collection_id.eq(req.id))
-        .filter(collections_to_assets::asset_type.eq(AssetType::MetricFile))
-        .filter(collections_to_assets::deleted_at.is_null())
-        .filter(metric_files::deleted_at.is_null())
-        .select((
-            metric_files::id,
-            metric_files::name,
-            users::name.nullable(),
-            users::email.nullable(),
-            metric_files::created_at,
-            metric_files::updated_at,
-            collections_to_assets::asset_type,
-        ))
-        .load::<AssetQueryResult>(&mut conn)
-        .await;
+    // Get the pool once
+    let pool = get_pg_pool();
 
-    // Query for dashboard assets in the collection
-    let dashboard_assets_result = collections_to_assets::table
-        .inner_join(
-            dashboard_files::table.on(dashboard_files::id.eq(collections_to_assets::asset_id)),
-        )
-        .left_join(users::table.on(users::id.eq(dashboard_files::created_by)))
-        .filter(collections_to_assets::collection_id.eq(req.id))
-        .filter(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
-        .filter(collections_to_assets::deleted_at.is_null())
-        .filter(dashboard_files::deleted_at.is_null())
-        .select((
-            dashboard_files::id,
-            dashboard_files::name,
-            users::name.nullable(),
-            users::email.nullable(),
-            dashboard_files::created_at,
-            dashboard_files::updated_at,
-            collections_to_assets::asset_type,
-        ))
-        .load::<AssetQueryResult>(&mut conn)
-        .await;
+    // Spawn tasks for fetching assets concurrently
+    let metric_assets_handle = tokio::spawn({
+        let pool = pool.clone();
+        let req_id = req.id;
+        async move {
+            let mut conn = pool.get().await.map_err(anyhow::Error::from)?;
+            collections_to_assets::table
+                .inner_join(metric_files::table.on(metric_files::id.eq(collections_to_assets::asset_id)))
+                .left_join(users::table.on(users::id.eq(metric_files::created_by)))
+                .filter(collections_to_assets::collection_id.eq(req_id))
+                .filter(collections_to_assets::asset_type.eq(AssetType::MetricFile))
+                .filter(collections_to_assets::deleted_at.is_null())
+                .filter(metric_files::deleted_at.is_null())
+                .select((
+                    metric_files::id,
+                    metric_files::name,
+                    users::name.nullable(),
+                    users::email.nullable(),
+                    metric_files::created_at,
+                    metric_files::updated_at,
+                    collections_to_assets::asset_type,
+                ))
+                .load::<AssetQueryResult>(&mut conn)
+                .await
+                .map_err(anyhow::Error::from)
+        }
+    });
+
+    let dashboard_assets_handle = tokio::spawn({
+        let pool = pool.clone();
+        let req_id = req.id;
+        async move {
+            let mut conn = pool.get().await.map_err(anyhow::Error::from)?;
+            collections_to_assets::table
+                .inner_join(dashboard_files::table.on(dashboard_files::id.eq(collections_to_assets::asset_id)))
+                .left_join(users::table.on(users::id.eq(dashboard_files::created_by)))
+                .filter(collections_to_assets::collection_id.eq(req_id))
+                .filter(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
+                .filter(collections_to_assets::deleted_at.is_null())
+                .filter(dashboard_files::deleted_at.is_null())
+                .select((
+                    dashboard_files::id,
+                    dashboard_files::name,
+                    users::name.nullable(),
+                    users::email.nullable(),
+                    dashboard_files::created_at,
+                    dashboard_files::updated_at,
+                    collections_to_assets::asset_type,
+                ))
+                .load::<AssetQueryResult>(&mut conn)
+                .await
+                .map_err(anyhow::Error::from)
+        }
+    });
+
+    let chat_assets_handle = tokio::spawn({
+        let pool = pool.clone();
+        let req_id = req.id;
+        async move {
+            let mut conn = pool.get().await.map_err(anyhow::Error::from)?;
+            collections_to_assets::table
+                .inner_join(chats::table.on(chats::id.eq(collections_to_assets::asset_id)))
+                .left_join(users::table.on(users::id.eq(chats::created_by)))
+                .filter(collections_to_assets::collection_id.eq(req_id))
+                .filter(collections_to_assets::asset_type.eq(AssetType::Chat))
+                .filter(collections_to_assets::deleted_at.is_null())
+                .filter(chats::deleted_at.is_null())
+                .select((
+                    chats::id,
+                    chats::title, // Use title as name for chats
+                    users::name.nullable(),
+                    users::email.nullable(),
+                    chats::created_at,
+                    chats::updated_at,
+                    collections_to_assets::asset_type,
+                ))
+                .load::<AssetQueryResult>(&mut conn)
+                .await
+                .map_err(anyhow::Error::from)
+        }
+    });
+
+    // Await all tasks and handle results
+    let (metric_assets_result, dashboard_assets_result, chat_assets_result) = tokio::join!(
+        metric_assets_handle,
+        dashboard_assets_handle,
+        chat_assets_handle
+    );
 
     // Process metric assets
     let metric_assets = match metric_assets_result {
-        Ok(assets) => assets,
-        Err(e) => {
+        Ok(Ok(assets)) => assets,
+        Ok(Err(e)) => {
             tracing::error!("Failed to fetch metric assets: {}", e);
+            vec![]
+        }
+        Err(e) => {
+            tracing::error!("Metric asset task failed: {}", e);
             vec![]
         }
     };
 
     // Process dashboard assets
     let dashboard_assets = match dashboard_assets_result {
-        Ok(assets) => assets,
-        Err(e) => {
+        Ok(Ok(assets)) => assets,
+        Ok(Err(e)) => {
             tracing::error!("Failed to fetch dashboard assets: {}", e);
+            vec![]
+        }
+        Err(e) => {
+            tracing::error!("Dashboard asset task failed: {}", e);
             vec![]
         }
     };
 
-    println!("dashboard_assets: {:?}", dashboard_assets);
+    // Process chat assets
+    let chat_assets = match chat_assets_result {
+        Ok(Ok(assets)) => assets,
+        Ok(Err(e)) => {
+            tracing::error!("Failed to fetch chat assets: {}", e);
+            vec![]
+        }
+        Err(e) => {
+            tracing::error!("Chat asset task failed: {}", e);
+            vec![]
+        }
+    };
+
+    // println!("dashboard_assets: {:?}", dashboard_assets); // Keep or remove debug print?
 
     // Combine all assets
-    let all_assets = [metric_assets, dashboard_assets].concat();
+    let all_assets = [metric_assets, dashboard_assets, chat_assets].concat(); // Add chat_assets
     let formatted_assets = format_assets(all_assets);
 
     // Create collection state

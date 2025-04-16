@@ -4,9 +4,10 @@ use database::{
     enums::{AssetPermissionRole, AssetType},
     helpers::collections::fetch_collection_with_permission,
     metric_files::fetch_metric_file_with_permissions,
+    chats::fetch_chat_with_permission,
     models::CollectionToAsset,
     pool::get_pg_pool,
-    schema::collections_to_assets,
+    schema::{collections_to_assets, chats},
 };
 use diesel::{ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
@@ -113,11 +114,13 @@ pub async fn add_assets_to_collection_handler(
     // 3. Group assets by type for efficient processing
     let mut dashboard_ids = Vec::new();
     let mut metric_ids = Vec::new();
+    let mut chat_ids = Vec::new();
 
     for asset in &assets {
         match asset.asset_type {
             AssetType::DashboardFile => dashboard_ids.push(asset.id),
             AssetType::MetricFile => metric_ids.push(asset.id),
+            AssetType::Chat => chat_ids.push(asset.id),
             _ => {
                 error!(
                     asset_id = %asset.id,
@@ -441,6 +444,119 @@ pub async fn add_assets_to_collection_handler(
                             AssetType::MetricFile,
                             format!("Database error: {}", e),
                         ));
+                    }
+                }
+            }
+        }
+    }
+
+    // Process chats
+    if !chat_ids.is_empty() {
+        for chat_id in &chat_ids {
+            // Check if chat exists and user has permission
+            let chat_permission = fetch_chat_with_permission(&chat_id, &user.id).await?;
+
+            let chat_permission = if let Some(cp) = chat_permission {
+                cp
+            } else {
+                error!(chat_id = %chat_id, user_id = %user.id, "Chat not found");
+                result.failed_count += 1;
+                result.failed_assets.push(( *chat_id, AssetType::Chat, "Chat not found".to_string()));
+                continue;
+            };
+
+            // Check if user has at least CanView access to the chat
+            let has_chat_permission = check_permission_access(
+                chat_permission.permission,
+                &[
+                    AssetPermissionRole::CanView,
+                    AssetPermissionRole::CanEdit,
+                    AssetPermissionRole::FullAccess,
+                    AssetPermissionRole::Owner,
+                ],
+                chat_permission.chat.organization_id,
+                &user.organizations,
+            );
+
+            if !has_chat_permission {
+                error!(chat_id = %chat_id, user_id = %user.id, "User does not have permission to access this chat");
+                result.failed_count += 1;
+                result.failed_assets.push(( *chat_id, AssetType::Chat, "Insufficient permissions".to_string()));
+                continue;
+            }
+
+            // Check if the chat is already in the collection
+            let existing = match collections_to_assets::table
+                .filter(collections_to_assets::collection_id.eq(collection_id))
+                .filter(collections_to_assets::asset_id.eq(chat_id))
+                .filter(collections_to_assets::asset_type.eq(AssetType::Chat))
+                .first::<CollectionToAsset>(&mut conn)
+                .await
+            {
+                Ok(record) => Some(record),
+                Err(diesel::NotFound) => None,
+                Err(e) => {
+                    error!("Error checking if chat is already in collection: {}", e);
+                    result.failed_count += 1;
+                    result.failed_assets.push(( *chat_id, AssetType::Chat, format!("Database error: {}", e)));
+                    continue;
+                }
+            };
+
+            if let Some(existing_record) = existing {
+                if existing_record.deleted_at.is_some() {
+                    // If it was previously deleted, update it
+                    match diesel::update(collections_to_assets::table)
+                        .filter(collections_to_assets::collection_id.eq(collection_id))
+                        .filter(collections_to_assets::asset_id.eq(chat_id))
+                        .filter(collections_to_assets::asset_type.eq(AssetType::Chat))
+                        .set((
+                            collections_to_assets::deleted_at.eq::<Option<chrono::DateTime<chrono::Utc>>>(None),
+                            collections_to_assets::updated_at.eq(chrono::Utc::now()),
+                            collections_to_assets::updated_by.eq(user.id),
+                        ))
+                        .execute(&mut conn)
+                        .await
+                    {
+                        Ok(_) => {
+                            result.added_count += 1;
+                        }
+                        Err(e) => {
+                            error!(collection_id = %collection_id, chat_id = %chat_id, "Error updating chat in collection: {}", e);
+                            result.failed_count += 1;
+                            result.failed_assets.push(( *chat_id, AssetType::Chat, format!("Database error: {}", e)));
+                        }
+                    }
+                } else {
+                    // Already in the collection
+                    info!(collection_id = %collection_id, chat_id = %chat_id, "Chat already in collection");
+                    result.added_count += 1;
+                }
+            } else {
+                // Add to collection
+                let new_record = CollectionToAsset {
+                    collection_id: *collection_id,
+                    asset_id: *chat_id,
+                    asset_type: AssetType::Chat,
+                    created_at: chrono::Utc::now(),
+                    created_by: user.id,
+                    updated_at: chrono::Utc::now(),
+                    updated_by: user.id,
+                    deleted_at: None,
+                };
+
+                match diesel::insert_into(collections_to_assets::table)
+                    .values(&new_record)
+                    .execute(&mut conn)
+                    .await
+                {
+                    Ok(_) => {
+                        result.added_count += 1;
+                    }
+                    Err(e) => {
+                        error!(collection_id = %collection_id, chat_id = %chat_id, "Error adding chat to collection: {}", e);
+                        result.failed_count += 1;
+                        result.failed_assets.push(( *chat_id, AssetType::Chat, format!("Database error: {}", e)));
                     }
                 }
             }

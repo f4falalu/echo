@@ -12,7 +12,8 @@ use tokio::task::JoinHandle;
 use uuid::Uuid;
 
 use crate::dashboards::types::{BusterShareIndividual, DashboardCollection};
-use crate::metrics::{get_metric_handler, BusterMetric, Dataset, Version};
+use crate::metrics::get_metric_handler;
+use crate::metrics::{BusterMetric, Dataset, Version};
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
 use database::helpers::dashboard_files::fetch_dashboard_file_with_permission;
 use database::pool::get_pg_pool;
@@ -84,112 +85,6 @@ async fn fetch_associated_collections_for_dashboard(
         .collect();
 
     Ok(associated_collections)
-}
-
-/// Fetches minimal metric data for display on a dashboard, enforcing a specific permission level.
-async fn get_metrics_for_dashboard(
-    metric_ids: &[Uuid],
-    dashboard_permission: AssetPermissionRole,
-    // user: &AuthenticatedUser, // We might not need the user if we aren't doing fine-grained checks here
-) -> Result<HashMap<Uuid, BusterMetric>> {
-    if metric_ids.is_empty() {
-        return Ok(HashMap::new());
-    }
-
-    let mut conn = get_pg_pool().get().await?;
-
-    // Fetch all required MetricFile records in one query
-    let metric_files_data = metric_files::table
-        .filter(metric_files::id.eq_any(metric_ids))
-        .filter(metric_files::deleted_at.is_null()) // Ensure metrics aren't deleted
-        .load::<database::models::MetricFile>(&mut conn)
-        .await?;
-
-    let mut metrics_map = HashMap::new();
-
-    // Process each fetched metric file
-    for metric_file in metric_files_data {
-        // Use latest content directly from the MetricFile record
-        let metric_content: MetricYml = metric_file.content;
-        let version_num = metric_file.version_history.get_version_number();
-
-        // Convert content to YAML string for the 'file' field
-        let file_yaml = match serde_yaml::to_string(&metric_content) {
-            Ok(yaml) => yaml,
-            Err(e) => {
-                tracing::error!(metric_id = %metric_file.id, error = %e, "Failed to serialize metric content to YAML for dashboard view");
-                // Skip this metric or handle error appropriately
-                continue;
-            }
-        };
-
-        // Simplified dataset fetching (if needed, adapt from get_metric_handler if complex logic required)
-        let mut datasets = Vec::new();
-        let mut first_data_source_id = None;
-        // Placeholder: Fetching actual dataset names might require another query or joining.
-        // For now, create dummy datasets based on IDs if necessary for the type.
-        if !metric_content.dataset_ids.is_empty() {
-            first_data_source_id = Some(Uuid::nil()); // Placeholder - needs actual lookup if required
-            datasets = metric_content
-                .dataset_ids
-                .iter()
-                .map(|id| Dataset {
-                    id: id.to_string(),
-                    name: format!("Dataset {}", id), // Placeholder name
-                })
-                .collect();
-        }
-
-        // Construct the BusterMetric, forcing the dashboard's permission level
-        let buster_metric = BusterMetric {
-            id: metric_file.id,
-            metric_type: "metric".to_string(), // Assuming standard type
-            name: metric_file.name,
-            version_number: version_num,
-            description: metric_content.description,
-            file_name: metric_file.file_name,
-            time_frame: metric_content.time_frame,
-            datasets, // Using simplified dataset info
-            data_source_id: first_data_source_id.map_or("".to_string(), |id| id.to_string()),
-            error: None, // Assuming no error fetching this basic view
-            chart_config: Some(metric_content.chart_config),
-            data_metadata: metric_file.data_metadata,
-            status: metric_file.verification,
-            evaluation_score: metric_file.evaluation_score.map(|score| {
-                // Simple mapping
-                if score >= 0.8 {
-                    "High".to_string()
-                } else if score >= 0.5 {
-                    "Moderate".to_string()
-                } else {
-                    "Low".to_string()
-                }
-            }),
-            evaluation_summary: metric_file.evaluation_summary.unwrap_or_default(),
-            file: file_yaml,
-            created_at: metric_file.created_at,
-            updated_at: metric_file.updated_at,
-            sent_by_id: metric_file.created_by,
-            sent_by_name: "".to_string(), // Placeholder - requires user lookup
-            sent_by_avatar_url: None,     // Placeholder - requires user lookup
-            code: None,                   // Assuming not needed for dashboard view
-            dashboards: vec![],           // Omit associated dashboards/collections for simplicity
-            collections: vec![],          // Omit associated dashboards/collections for simplicity
-            versions: vec![],             // Omit detailed versions for simplicity
-            permission: dashboard_permission, // <<< Force the permission level here
-            sql: metric_content.sql,
-            // Omit detailed sharing info for simplicity in this view
-            individual_permissions: None,
-            publicly_accessible: metric_file.publicly_accessible,
-            public_expiry_date: metric_file.public_expiry_date,
-            public_enabled_by: None, // Placeholder - requires user lookup
-            public_password: metric_file.public_password,
-        };
-
-        metrics_map.insert(buster_metric.id, buster_metric);
-    }
-
-    Ok(metrics_map)
 }
 
 pub async fn get_dashboard_handler(
@@ -351,8 +246,55 @@ pub async fn get_dashboard_handler(
         })
         .collect();
 
-    // Fetch metrics using the specialized function, enforcing dashboard permission
-    let metrics = get_metrics_for_dashboard(&metric_ids, permission).await?;
+    // Fetch metrics concurrently using get_metric_handler
+    let mut metric_fetch_handles = Vec::new();
+    for metric_id in metric_ids {
+        let user_clone = user.clone(); // Clone user for the spawned task
+                                       // Spawn a task for each metric fetch.
+                                       // Pass None for version_number and password as the dashboard view uses the latest metric
+                                       // and access is primarily determined by dashboard permissions.
+        let handle = tokio::spawn(async move {
+            get_metric_handler(&metric_id, &user_clone, None, None).await
+        });
+        metric_fetch_handles.push((metric_id, handle));
+    }
+
+    // Await all metric fetch tasks and collect results
+    let metric_results = join_all(
+        metric_fetch_handles
+            .into_iter()
+            .map(|(_, handle)| handle),
+    )
+    .await;
+
+    // Process results and build the metrics map
+    let mut metrics = HashMap::new();
+    for result in metric_results {
+        match result {
+            Ok(Ok(metric)) => {
+                // Successfully fetched metric
+                metrics.insert(metric.id, metric);
+            }
+            Ok(Err(e)) => {
+                // get_metric_handler returned an error
+                // Log the error, but don't fail the entire dashboard load
+                tracing::error!(
+                    "Failed to fetch metric for dashboard {}: {}",
+                    dashboard_id,
+                    e
+                );
+                // Optionally, insert a placeholder or error metric into the map
+            }
+            Err(e) => {
+                // Task join error (panic)
+                tracing::error!(
+                    "Task join error fetching metric for dashboard {}: {}",
+                    dashboard_id,
+                    e
+                );
+            }
+        }
+    }
 
     // Query individual permissions for this dashboard
     let individual_permissions_query = asset_permissions::table
