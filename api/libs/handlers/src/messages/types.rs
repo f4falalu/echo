@@ -6,7 +6,6 @@ use serde_json::Value;
 use uuid::Uuid;
 
 pub mod message_feedback;
-pub use message_feedback::MessageFeedback;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChatMessage {
@@ -20,6 +19,7 @@ pub struct ChatMessage {
     pub reasoning_messages: HashMap<String, Value>,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub final_reasoning_message: Option<String>,
+    pub feedback: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -51,6 +51,7 @@ impl ChatMessage {
             reasoning_messages: HashMap::new(),
             created_at: Utc::now(),
             final_reasoning_message: None,
+            feedback: None,
         }
     }
 
@@ -61,6 +62,7 @@ impl ChatMessage {
         reasoning_messages: Vec<Value>,
         final_reasoning_message: Option<String>,
         created_at: chrono::DateTime<chrono::Utc>,
+        feedback: Option<String>,
     ) -> Self {
         let response_message_ids: Vec<String> = response_messages
             .iter()
@@ -97,6 +99,7 @@ impl ChatMessage {
             reasoning_messages: reasoning_messages_map,
             created_at,
             final_reasoning_message,
+            feedback,
         }
     }
 }
