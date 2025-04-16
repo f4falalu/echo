@@ -180,14 +180,10 @@ export const useUpdateDashboard = (params?: {
   });
 };
 
-export const useUpdateDashboardConfig = (params?: {
-  saveToServer?: boolean;
-  updateVersion?: boolean;
-}) => {
-  const { saveToServer = false, updateVersion = false } = params || {};
+export const useUpdateDashboardConfig = () => {
   const { mutateAsync } = useUpdateDashboard({
-    saveToServer,
-    updateVersion
+    saveToServer: false,
+    updateVersion: false
   });
   const queryClient = useQueryClient();
 

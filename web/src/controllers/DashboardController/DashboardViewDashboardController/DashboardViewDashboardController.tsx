@@ -8,7 +8,6 @@ import { useDashboardContentStore } from '@/context/Dashboards';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { DashboardSavePopup } from './DashboardSavePopup';
 
 export const DashboardViewDashboardController: React.FC<{

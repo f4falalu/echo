@@ -21,7 +21,8 @@ export const DashboardViewFileController: React.FC<{
     isPending: isUpdatingDashboard,
     error: updateDashboardError
   } = useUpdateDashboard({
-    saveToServer: true
+    saveToServer: true,
+    updateVersion: false
   });
 
   const { isReadOnly } = useIsDashboardReadOnly({

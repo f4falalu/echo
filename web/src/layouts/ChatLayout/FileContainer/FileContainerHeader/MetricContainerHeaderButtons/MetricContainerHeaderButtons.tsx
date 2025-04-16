@@ -19,42 +19,44 @@ import { assetParamsToRoute } from '@/lib/assets';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 
-export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(() => {
-  const selectedLayout = useChatLayoutContextSelector((x) => x.selectedLayout);
-  const metricId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
-  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
-  const { isViewingOldVersion } = useIsMetricReadOnly({
-    metricId: metricId || ''
-  });
-  const { error: metricError, data: permission } = useGetMetric(
-    { id: metricId },
-    { select: (x) => x.permission }
-  );
+export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
+  ({ selectedFileId }) => {
+    const selectedLayout = useChatLayoutContextSelector((x) => x.selectedLayout);
+    const metricId = selectedFileId || '';
+    const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
+    const { isViewingOldVersion } = useIsMetricReadOnly({
+      metricId: metricId || ''
+    });
+    const { error: metricError, data: permission } = useGetMetric(
+      { id: metricId },
+      { select: (x) => x.permission }
+    );
 
-  //we assume it is fetched until it is not
-  if (metricError || !permission) return null;
+    //we assume it is fetched until it is not
+    if (metricError || !permission) return null;
 
-  const isEditor = canEdit(permission);
-  const isEffectiveOwner = getIsEffectiveOwner(permission);
+    const isEditor = canEdit(permission);
+    const isEffectiveOwner = getIsEffectiveOwner(permission);
 
-  return (
-    <FileButtonContainer>
-      {isEditor && !isViewingOldVersion && <EditChartButton metricId={metricId} />}
-      {isEffectiveOwner && !isViewingOldVersion && <EditSQLButton metricId={metricId} />}
-      <SaveToCollectionButton metricId={metricId} />
-      <SaveToDashboardButton metricId={metricId} />
-      {isEffectiveOwner && !isViewingOldVersion && <ShareMetricButton metricId={metricId} />}
-      <ThreeDotMenuButton
-        metricId={metricId}
-        isViewingOldVersion={isViewingOldVersion}
-        versionNumber={metricVersionNumber}
-      />
-      <HideButtonContainer show={selectedLayout === 'file-only'}>
-        <CreateChatButton assetId={metricId} assetType="metric" />
-      </HideButtonContainer>
-    </FileButtonContainer>
-  );
-});
+    return (
+      <FileButtonContainer>
+        {isEditor && !isViewingOldVersion && <EditChartButton metricId={metricId} />}
+        {isEffectiveOwner && !isViewingOldVersion && <EditSQLButton metricId={metricId} />}
+        <SaveToCollectionButton metricId={metricId} />
+        <SaveToDashboardButton metricId={metricId} />
+        {isEffectiveOwner && !isViewingOldVersion && <ShareMetricButton metricId={metricId} />}
+        <ThreeDotMenuButton
+          metricId={metricId}
+          isViewingOldVersion={isViewingOldVersion}
+          versionNumber={metricVersionNumber}
+        />
+        <HideButtonContainer show={selectedLayout === 'file-only'}>
+          <CreateChatButton assetId={metricId} assetType="metric" />
+        </HideButtonContainer>
+      </FileButtonContainer>
+    );
+  }
+);
 
 MetricContainerHeaderButtons.displayName = 'MetricContainerHeaderButtons';
 
