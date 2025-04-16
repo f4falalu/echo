@@ -1,7 +1,7 @@
 'use client';
 
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useParams, useSearchParams, useSelectedLayoutSegments } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { FileViewSecondary } from './useLayoutConfig';
 
@@ -24,7 +24,6 @@ export const useGetChatParams = () => {
     messageId: string | undefined;
   };
   const searchParams = useSearchParams();
-  const segments = useSelectedLayoutSegments();
   const queryMetricVersionNumber = searchParams.get('metric_version_number');
   const queryDashboardVersionNumber = searchParams.get('dashboard_version_number');
   const secondaryView = searchParams.get('secondary_view') as FileViewSecondary | undefined;

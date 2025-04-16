@@ -63,7 +63,7 @@ export const ReasoningMessagePills: React.FC<{
         animate={pills.length > 0 ? 'visible' : 'hidden'}
         className={'flex w-full flex-wrap gap-1.5 overflow-hidden'}>
         {pills.map((pill) => (
-          <Link href={makeHref(pill)} key={pill.id} prefetch={false}>
+          <Link href={makeHref(pill)} key={pill.id} prefetch={true}>
             <Pill useAnimation={useAnimation} {...pill} />
           </Link>
         ))}
@@ -88,10 +88,9 @@ const Pill: React.FC<{
         onClick={() => !!id && !!type && onClick?.({ id, type })}
         variants={pillVariants}
         className={cn(
-          'text-text-secondary bg-item-active border-border hover:bg-item-hover-active h-[18px] min-h-[18px] rounded-sm border px-1 text-xs',
-          className,
+          'text-text-secondary bg-item-active border-border hover:bg-item-hover-active flex h-[18px] min-h-[18px] items-center justify-center rounded-sm border px-1 text-xs whitespace-nowrap transition-all',
           !!onClick && 'cursor-pointer',
-          'flex items-center justify-center whitespace-nowrap'
+          className
         )}>
         {text}
       </motion.div>

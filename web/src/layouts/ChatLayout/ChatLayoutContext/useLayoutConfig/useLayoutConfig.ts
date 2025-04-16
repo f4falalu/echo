@@ -7,8 +7,8 @@ import { useMemoizedFn, useUpdateEffect } from '@/hooks';
 import { create } from 'mutative';
 import { ChatLayoutView } from '../../interfaces';
 import type { SelectedFile } from '../../interfaces';
-import { timeout } from '@/lib';
-import { BusterRoutes } from '@/routes';
+import { timeout } from '@/lib/timeout';
+import { BusterRoutes } from '@/routes/busterRoutes';
 import { SelectedFileSecondaryRenderRecord } from '../../FileContainer/FileContainerSecondary';
 import { ChatParams } from '../useGetChatParams';
 import { initializeFileViews } from './helpers';
@@ -194,24 +194,13 @@ export const useLayoutConfig = ({
     });
   }, [metricId, secondaryView, dashboardId, currentRoute]);
 
-  return useMemo(
-    () => ({
-      selectedLayout,
-      selectedFileView,
-      selectedFileViewSecondary,
-      selectedFileViewRenderSecondary,
-      onSetFileView,
-      closeSecondaryView,
-      onCollapseFileClick
-    }),
-    [
-      selectedLayout,
-      selectedFileView,
-      selectedFileViewSecondary,
-      selectedFileViewRenderSecondary,
-      onSetFileView,
-      closeSecondaryView,
-      onCollapseFileClick
-    ]
-  );
+  return {
+    selectedLayout,
+    selectedFileView,
+    selectedFileViewSecondary,
+    selectedFileViewRenderSecondary,
+    onSetFileView,
+    closeSecondaryView,
+    onCollapseFileClick
+  };
 };

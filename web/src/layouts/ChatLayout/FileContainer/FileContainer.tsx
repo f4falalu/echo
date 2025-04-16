@@ -77,7 +77,7 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
 
   useUpdateLayoutEffect(() => {
     setTimeout(() => {
-      //TODO revaluate this?
+      //TODO revaluate this? What is this for?
       animateOpenSplitter(isOpenSecondary ? 'open' : 'closed');
     }, 20);
   }, [isOpenSecondary]);
