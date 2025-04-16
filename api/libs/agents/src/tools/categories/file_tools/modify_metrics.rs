@@ -418,7 +418,13 @@ impl ToolExecutor for ModifyMetricFilesTool {
             batch
                 .failed_updates
                 .into_iter()
-                .map(|(file_name, error)| FailedFileModification { file_name, error }),
+                .map(|(file_name, error)| {
+                    let error_message = format!("Failed to modify '{}': {}.\\n\\nPlease attempt to modify the metric again. This error could be due to:\\n- Using a dataset that doesn't exist (please reevaluate the available datasets in the chat conversation)\\n- Invalid configuration in the metric file\\n- Special characters in the metric name or SQL query\\n- Syntax errors in the SQL query", file_name, error);
+                    FailedFileModification { 
+                        file_name, 
+                        error: error_message,
+                    }
+                }),
         );
 
         // Set review_needed flag if execution was successful

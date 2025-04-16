@@ -456,10 +456,10 @@ pub struct MetricChartConfig {
     pub metric_value_aggregate: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "metric_header")]
-    pub metric_header: Option<String>,
+    pub metric_header: Option<serde_json::Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "metric_sub_header")]
-    pub metric_sub_header: Option<String>,
+    pub metric_sub_header: Option<serde_json::Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "metric_value_label")]
     pub metric_value_label: Option<String>,

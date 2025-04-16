@@ -218,7 +218,7 @@ impl ToolExecutor for CreateMetricFilesTool {
 
             let failures: Vec<String> = failed_files
                 .iter()
-                .map(|(name, error)| format!("Failed to create '{}': {}. Please recreate the metric from scratch rather than attempting to modify.", name, error))
+                .map(|(name, error)| format!("Failed to create '{}': {}.\n\nPlease recreate the metric from scratch rather than attempting to modify. This error could be due to:\n- Using a dataset that doesn't exist (please reevaluate the available datasets in the chat conversation)\n- Invalid configuration in the metric file\n- Special characters in the metric name or SQL query\n- Syntax errors in the SQL query", name, error))
                 .collect();
 
             if failures.len() == 1 {
