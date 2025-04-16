@@ -242,6 +242,13 @@ impl ToolExecutor for CreateMetricFilesTool {
         self.agent
             .set_state_value(String::from("files_available"), Value::Bool(true))
             .await;
+        
+        // Set review_needed flag if execution was successful
+        if failed_files.is_empty() {
+            self.agent
+                .set_state_value(String::from("review_needed"), Value::Bool(true))
+                .await;
+        }
 
         Ok(CreateMetricFilesOutput {
             message,

@@ -421,6 +421,13 @@ impl ToolExecutor for ModifyMetricFilesTool {
                 .map(|(file_name, error)| FailedFileModification { file_name, error }),
         );
 
+        // Set review_needed flag if execution was successful
+        if output.failed_files.is_empty() {
+            self.agent
+                .set_state_value(String::from("review_needed"), Value::Bool(true))
+                .await;
+        }
+
         Ok(output)
     }
 

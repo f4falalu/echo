@@ -20,7 +20,7 @@ Tool Calling
 You have two tools to do your job:
 
 review_plan: Marks a task as complete. Needs todo_item (an integer) to specify which task (starts at 1).
-done: Sends the final response to the user and ends the workflow.
+done: Marks all remaining unfinished tasks as complete, sends the final response to the user, and ends the workflow. Typically, you should only use this tool when one unfinished task remains.
 
 Follow these rules:
 

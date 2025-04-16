@@ -14,7 +14,7 @@ pub struct ReviewPlanOutput {
 
 #[derive(Debug, Deserialize)]
 pub struct ReviewPlanInput {
-    pub todo_item: usize, // 0-based index
+    pub todo_items: Vec<usize>, // 1-based index
 }
 
 pub struct ReviewPlan {
@@ -45,16 +45,32 @@ impl ToolExecutor for ReviewPlan {
             }
         };
 
-        let idx = params.todo_item;
-        if idx >= todos.len() {
-            return Err(anyhow::anyhow!("todo_item index {} out of range ({} todos)", idx, todos.len()));
-        }
+        let total_todos = todos.len();
 
-        // Mark the todo at the given index as complete
-        if let Some(Value::Object(map)) = todos.get_mut(idx) {
-            map.insert("completed".to_string(), Value::Bool(true));
-        } else {
-            return Err(anyhow::anyhow!("Todo item at index {} is not a valid object.", idx));
+        for idx_one_based in &params.todo_items {
+            // Convert 1-based index to 0-based index
+            if *idx_one_based == 0 {
+                return Err(anyhow::anyhow!("todo_item index cannot be 0, indexing starts from 1."));
+            }
+            let idx_zero_based = *idx_one_based - 1;
+
+            if idx_zero_based >= total_todos {
+                return Err(anyhow::anyhow!(
+                    "todo_item index {} out of range ({} todos, 1-based)",
+                    idx_one_based,
+                    total_todos
+                ));
+            }
+
+            // Mark the todo at the given index as complete
+            if let Some(Value::Object(map)) = todos.get_mut(idx_zero_based) {
+                map.insert("completed".to_string(), Value::Bool(true));
+            } else {
+                return Err(anyhow::anyhow!(
+                    "Todo item at index {} (1-based) is not a valid object.",
+                    idx_one_based
+                ));
+            }
         }
 
         // Save the updated todos back to state
@@ -74,23 +90,31 @@ impl ToolExecutor for ReviewPlan {
             .collect::<Vec<_>>()
             .join("\n");
 
+        // Set review_needed to false after review
+        self.agent
+            .set_state_value(String::from("review_needed"), Value::Bool(false))
+            .await;
+
         Ok(ReviewPlanOutput { success: true, todos: todos_string })
     }
 
     async fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "description": "Marks a task as complete by its index in the to-do list.",
+            "description": "Marks one or more tasks as complete by their 1-based indices in the to-do list.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "todo_item": {
-                        "type": "integer",
-                        "description": "The 0-based index of the task to mark as complete (0 is the first item).",
-                        "minimum": 0
+                    "todo_items": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "description": "A list of 1-based indices of the tasks to mark as complete (1 is the first item)."
                     }
                 },
-                "required": ["todo_item"]
+                "required": ["todo_items"]
             }
         })
     }

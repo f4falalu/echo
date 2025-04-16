@@ -72,7 +72,7 @@ impl BusterMultiAgent {
         let create_dashboard_files_tool = CreateDashboardFilesTool::new(Arc::clone(&self.agent));
         let modify_dashboard_files_tool = ModifyDashboardFilesTool::new(Arc::clone(&self.agent));
         let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new();
-        let done_tool = Done::new();
+        let done_tool = Done::new(Arc::clone(&self.agent));
         let no_search_needed_tool = NoSearchNeededTool::new(Arc::clone(&self.agent));
         let review_tool = ReviewPlan::new(Arc::clone(&self.agent));
 
@@ -99,7 +99,11 @@ impl BusterMultiAgent {
         });
 
         let review_condition =
-            Some(|state: &HashMap<String, Value>| -> bool { state.contains_key("review_needed") });
+            Some(|state: &HashMap<String, Value>| -> bool {
+                state.get("review_needed")
+                    .and_then(|value| value.as_bool())
+                    .unwrap_or(false)
+            });
 
         let planning_tools_condition = Some(|state: &HashMap<String, Value>| -> bool {
             let searched_catalog = state
@@ -281,7 +285,11 @@ impl BusterMultiAgent {
         };
 
         let needs_review_condition =
-            |state: &HashMap<String, Value>| -> bool { state.contains_key("review_needed") };
+            |state: &HashMap<String, Value>| -> bool { 
+                state.get("review_needed")
+                    .and_then(|value| value.as_bool())
+                    .unwrap_or(false)
+            };
 
         // Add prompt rules (order matters)
         // The agent will use the prompt associated with the first condition that evaluates to true.
