@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
-use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable};
+use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl, Queryable, Selectable};
 use diesel_async::RunQueryDsl;
 use futures::future::join_all;
 use middleware::AuthenticatedUser;
@@ -53,17 +53,26 @@ struct AssetPermissionInfo {
     name: Option<String>,
 }
 
-/// Fetches collections that the dashboard belongs to
+/// Fetches collections that the dashboard belongs to, filtered by user permissions
 async fn fetch_associated_collections_for_dashboard(
     dashboard_id: Uuid,
+    user_id: &Uuid,
 ) -> Result<Vec<DashboardCollection>> {
     let mut conn = get_pg_pool().get().await?;
 
     let associated_collections = collections_to_assets::table
         .inner_join(collections::table.on(collections::id.eq(collections_to_assets::collection_id)))
+        .inner_join(
+            asset_permissions::table.on(asset_permissions::asset_id
+                .eq(collections::id)
+                .and(asset_permissions::asset_type.eq(AssetType::Collection))),
+        )
         .filter(collections_to_assets::asset_id.eq(dashboard_id))
         .filter(collections_to_assets::asset_type.eq(AssetType::DashboardFile))
         .filter(collections::deleted_at.is_null()) // Ensure collection isn't deleted
+        .filter(asset_permissions::identity_id.eq(user_id))
+        .filter(asset_permissions::identity_type.eq(IdentityType::User))
+        .filter(asset_permissions::deleted_at.is_null())
         .select((collections::id, collections::name))
         .load::<(Uuid, String)>(&mut conn)
         .await?
@@ -280,14 +289,32 @@ pub async fn get_dashboard_handler(
         Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
     };
 
-    // Determine which version to use based on version_number parameter
-    let (content, version_num) = if let Some(version) = version_number {
+    // Declare variables for potentially versioned data
+    let resolved_name: String;
+    let resolved_description: Option<String>;
+    let resolved_content: Value;
+    let resolved_version_num: i32;
+    let resolved_updated_at: DateTime<Utc>;
+
+    // Determine which version's data to use
+    if let Some(version) = version_number {
         // Get the specific version if it exists
         if let Some(v) = dashboard_file.version_history.get_version(version) {
             match &v.content {
                 database::types::VersionContent::DashboardYml(content) => {
-                    let content_value = content.to_value()?;
-                    (content_value, v.version_number)
+                    resolved_content = content.to_value()?;
+                    resolved_version_num = v.version_number;
+                    resolved_updated_at = v.updated_at;
+                    // Extract name and description from the version's content
+                    resolved_name = resolved_content
+                        .get("name")
+                        .and_then(Value::as_str)
+                        .map(String::from)
+                        .unwrap_or_else(|| dashboard_file.name.clone()); // Fallback to main record name
+                    resolved_description = resolved_content
+                        .get("description")
+                        .and_then(Value::as_str)
+                        .map(String::from);
                 }
                 _ => return Err(anyhow!("Invalid version content type")),
             }
@@ -295,35 +322,23 @@ pub async fn get_dashboard_handler(
             return Err(anyhow!("Version {} not found", version));
         }
     } else {
-        // Use current content but convert it to serde_json::Value
-        let content_value = dashboard_file.content.to_value()?;
-        (
-            content_value,
-            dashboard_file
-                .version_history
-                .get_latest_version()
-                .map(|v| v.version_number)
-                .unwrap_or(1),
-        )
+        // Use current content from the main dashboard file record
+        resolved_content = dashboard_file.content.to_value()?;
+        resolved_version_num = dashboard_file
+            .version_history
+            .get_latest_version()
+            .map(|v| v.version_number)
+            .unwrap_or(1);
+        resolved_updated_at = dashboard_file.updated_at; // Use main record's updated_at
+        resolved_name = dashboard_file.name.clone(); // Use main record's name
+        resolved_description = resolved_content
+            .get("description")
+            .and_then(Value::as_str)
+            .map(String::from);
     };
 
-    // Parse the content to get metric IDs and other dashboard info
-    let config = parse_dashboard_config(&content)?;
-
-    // Get updated_at from content if available, otherwise use the database value
-    let updated_at = content
-        .get("updated_at")
-        .and_then(Value::as_str)
-        .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
-        .map(|dt| dt.with_timezone(&Utc))
-        .unwrap_or(dashboard_file.updated_at);
-
-    // Get name from content if available, otherwise use the database value
-    let name = content
-        .get("name")
-        .and_then(Value::as_str)
-        .unwrap_or(&dashboard_file.name)
-        .to_string();
+    // Parse the config from the resolved content
+    let config = parse_dashboard_config(&resolved_content)?;
 
     // Collect all metric IDs from the rows
     let metric_ids: Vec<Uuid> = config
@@ -397,28 +412,28 @@ pub async fn get_dashboard_handler(
         Err(_) => None,
     };
 
-    // Clone dashboard_id for use in spawned task
+    // Clone dashboard_id and user_id for use in spawned task
     let d_id = *dashboard_id;
+    let u_id = user.id;
 
     // Spawn task to fetch collections concurrently
-    let collections_handle: JoinHandle<Result<Vec<DashboardCollection>>> =
-        tokio::spawn(async move { fetch_associated_collections_for_dashboard(d_id).await });
+    let collections_handle: JoinHandle<Result<Vec<DashboardCollection>>> = tokio::spawn(
+        async move { fetch_associated_collections_for_dashboard(d_id, &u_id).await },
+    );
 
-    // Construct the dashboard using content values where available
+    // Construct the dashboard using resolved values
     let dashboard = BusterDashboard {
         config,
         created_at: dashboard_file.created_at,
         created_by: dashboard_file.created_by,
-        description: content
-            .get("description")
-            .and_then(|v| v.as_str().map(String::from)),
+        description: resolved_description, // Use resolved description
         id: dashboard_file.id,
-        name,
-        updated_at: Some(updated_at),
+        name: resolved_name, // Use resolved name
+        updated_at: Some(resolved_updated_at), // Use resolved updated_at
         updated_by: dashboard_file.created_by,
         status: Verification::Verified,
-        version_number: version_num,
-        file: serde_yaml::to_string(&content)?,
+        version_number: resolved_version_num, // Use resolved version number
+        file: serde_yaml::to_string(&resolved_content)?, // Generate YAML from resolved content
         file_name: dashboard_file.file_name,
     };
 

@@ -44,20 +44,16 @@ pub async fn list_dashboard_handler(
     // This is similar to how collections are queried
     let mut dashboard_statement = dashboard_files::table
         .inner_join(
-            asset_permissions::table.on(
-                dashboard_files::id
-                    .eq(asset_permissions::asset_id)
-                    .and(asset_permissions::asset_type.eq(AssetType::DashboardFile))
-                    .and(asset_permissions::deleted_at.is_null()),
-            ),
+            asset_permissions::table.on(dashboard_files::id
+                .eq(asset_permissions::asset_id)
+                .and(asset_permissions::asset_type.eq(AssetType::DashboardFile))
+                .and(asset_permissions::deleted_at.is_null())),
         )
         .left_join(
-            teams_to_users::table.on(
-                asset_permissions::identity_id
-                    .eq(teams_to_users::team_id)
-                    .and(asset_permissions::identity_type.eq(IdentityType::Team))
-                    .and(teams_to_users::deleted_at.is_null()),
-            ),
+            teams_to_users::table.on(asset_permissions::identity_id
+                .eq(teams_to_users::team_id)
+                .and(asset_permissions::identity_type.eq(IdentityType::Team))
+                .and(teams_to_users::deleted_at.is_null())),
         )
         .inner_join(users::table.on(users::id.eq(dashboard_files::created_by)))
         .select((
@@ -88,15 +84,15 @@ pub async fn list_dashboard_handler(
     // Add additional filters if specified
     if let Some(shared_with_me) = request.shared_with_me {
         if shared_with_me {
-            dashboard_statement = dashboard_statement
-                .filter(asset_permissions::role.ne(AssetPermissionRole::Owner));
+            dashboard_statement =
+                dashboard_statement.filter(asset_permissions::role.ne(AssetPermissionRole::Owner));
         }
     }
 
     if let Some(only_my_dashboards) = request.only_my_dashboards {
         if only_my_dashboards {
-            dashboard_statement = dashboard_statement
-                .filter(asset_permissions::role.eq(AssetPermissionRole::Owner));
+            dashboard_statement =
+                dashboard_statement.filter(asset_permissions::role.eq(AssetPermissionRole::Owner));
         }
     }
 
@@ -122,7 +118,9 @@ pub async fn list_dashboard_handler(
     // We'll include dashboards where the user has at least CanView permission
     let mut dashboards = Vec::new();
 
-    for (id, name, created_by, created_at, updated_at, role, creator_name, org_id) in dashboard_results {
+    for (id, name, created_by, created_at, updated_at, role, creator_name, org_id) in
+        dashboard_results
+    {
         // Check if user has at least CanView permission
         let has_permission = check_permission_access(
             Some(role),
@@ -154,7 +152,7 @@ pub async fn list_dashboard_handler(
             owner,
             members: vec![],
             status: Verification::Verified, // Default status, can be updated if needed
-            is_shared: role != AssetPermissionRole::Owner,
+            is_shared: created_by != user.id, // Mark as shared if the user is not the creator
         };
 
         dashboards.push(dashboard_item);

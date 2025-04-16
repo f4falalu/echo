@@ -34,6 +34,7 @@ pub struct ChatListItem {
     pub latest_file_id: Option<String>,
     pub latest_file_type: Option<String>,
     pub latest_version_number: Option<i32>,
+    pub is_shared: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -162,6 +163,7 @@ pub async fn list_chats_handler(
                 latest_file_id: chat.most_recent_file_id.map(|id| id.to_string()),
                 latest_file_type: chat.most_recent_file_type,
                 latest_version_number: chat.most_recent_version_number,
+                is_shared: chat.created_by != user.id, // Mark as shared if the user is not the creator
             }
         })
         .collect();

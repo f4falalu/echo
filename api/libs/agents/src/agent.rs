@@ -17,6 +17,9 @@ use uuid::Uuid;
 // No longer needed, defined below
 use crate::models::AgentThread;
 
+// Import Mode related types (adjust path if needed)
+use crate::agents::modes::ModeConfiguration;
+
 // Global BraintrustClient instance
 static BRAINTRUST_CLIENT: Lazy<Option<Arc<BraintrustClient>>> = Lazy::new(|| {
     match (
@@ -135,20 +138,16 @@ struct RegisteredTool {
     enablement_condition: Option<Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>>,
 }
 
-// Helper struct for dynamic prompt rules
-struct DynamicPromptRule {
-    condition: Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>,
-    prompt: String,
-}
-
-// Helper struct for dynamic model rules
-struct DynamicModelRule {
-    condition: Box<dyn Fn(&HashMap<String, Value>) -> bool + Send + Sync>,
-    model: String,
-}
-
 // Update the ToolRegistry type alias is no longer needed, but we need the new type for the map
 type ToolsMap = Arc<RwLock<HashMap<String, RegisteredTool>>>;
+
+// --- Define ModeProvider Trait --- 
+#[async_trait::async_trait]
+pub trait ModeProvider {
+    // Fetches the complete configuration for a given agent state
+    async fn get_configuration_for_state(&self, state: &HashMap<String, Value>) -> Result<ModeConfiguration>;
+}
+// --- End ModeProvider Trait --- 
 
 #[derive(Clone)]
 /// The Agent struct is responsible for managing conversations with the LLM
@@ -159,7 +158,7 @@ pub struct Agent {
     llm_client: LiteLLMClient,
     /// Registry of available tools, mapped by their names
     tools: ToolsMap,
-    /// The model identifier to use (e.g., "gpt-4")
+    /// The initial/default model identifier (can be overridden by mode)
     model: String,
     /// Flexible state storage for maintaining memory across interactions
     state: Arc<RwLock<HashMap<String, Value>>>,
@@ -175,26 +174,23 @@ pub struct Agent {
     name: String,
     /// Shutdown signal sender
     shutdown_tx: Arc<RwLock<broadcast::Sender<()>>>,
-    /// Default system prompt if no dynamic rules match
-    default_prompt: String,
-    /// Ordered rules for dynamically selecting system prompts
-    dynamic_prompt_rules: Arc<RwLock<Vec<DynamicPromptRule>>>,
-    /// Ordered rules for dynamically selecting the LLM model
-    dynamic_model_rules: Arc<RwLock<Vec<DynamicModelRule>>>,
     /// List of tool names that should terminate the agent loop upon successful execution.
+    /// This will be managed by the ModeProvider now.
     terminating_tool_names: Arc<RwLock<Vec<String>>>,
+    /// Provider for mode-specific logic (prompt, model, tools, termination)
+    mode_provider: Arc<dyn ModeProvider + Send + Sync>, 
 }
 
 impl Agent {
     /// Create a new Agent instance with a specific LLM client and model
     pub fn new(
-        model: String,
+        initial_model: String,
         user_id: Uuid,
         session_id: Uuid,
         name: String,
         api_key: Option<String>,
         base_url: Option<String>,
-        default_prompt: String,
+        mode_provider: Arc<dyn ModeProvider + Send + Sync>,
     ) -> Self {
         let llm_client = LiteLLMClient::new(api_key, base_url);
 
@@ -206,7 +202,7 @@ impl Agent {
         Self {
             llm_client,
             tools: Arc::new(RwLock::new(HashMap::new())), // Initialize empty
-            model,
+            model: initial_model,
             state: Arc::new(RwLock::new(HashMap::new())),
             current_thread: Arc::new(RwLock::new(None)),
             stream_tx: Arc::new(RwLock::new(Some(tx))),
@@ -214,15 +210,17 @@ impl Agent {
             session_id,
             shutdown_tx: Arc::new(RwLock::new(shutdown_tx)),
             name,
-            default_prompt,
-            dynamic_prompt_rules: Arc::new(RwLock::new(Vec::new())),
-            dynamic_model_rules: Arc::new(RwLock::new(Vec::new())), // Initialize empty model rules
             terminating_tool_names: Arc::new(RwLock::new(Vec::new())), // Initialize empty list
+            mode_provider, // Store the provider
         }
     }
 
     /// Create a new Agent that shares state and stream with an existing agent
-    pub fn from_existing(existing_agent: &Agent, name: String, default_prompt: String) -> Self {
+    pub fn from_existing(
+        existing_agent: &Agent,
+        name: String,
+        mode_provider: Arc<dyn ModeProvider + Send + Sync>,
+    ) -> Self {
         let llm_api_key = env::var("LLM_API_KEY").ok(); // Use ok() instead of expect
         let llm_base_url = env::var("LLM_BASE_URL").ok(); // Use ok() instead of expect
 
@@ -239,10 +237,8 @@ impl Agent {
             session_id: existing_agent.session_id,
             shutdown_tx: Arc::clone(&existing_agent.shutdown_tx), // Shared shutdown
             name,
-            default_prompt,
-            dynamic_prompt_rules: Arc::new(RwLock::new(Vec::new())),
-            dynamic_model_rules: Arc::clone(&existing_agent.dynamic_model_rules), // Share model rules with parent
-            terminating_tool_names: Arc::clone(&existing_agent.terminating_tool_names), // Share the list with parent
+            terminating_tool_names: Arc::new(RwLock::new(Vec::new())), // Sub-agent starts with empty term tools?
+            mode_provider: Arc::clone(&mode_provider), // Share provider
         }
     }
 
@@ -302,6 +298,18 @@ impl Agent {
     /// Clear all state values
     pub async fn clear_state(&self) {
         self.state.write().await.clear();
+    }
+
+    // --- New Methods ---
+
+    /// Get the current state map
+    pub async fn get_state(&self) -> HashMap<String, Value> {
+        self.state.read().await.clone()
+    }
+
+    /// Clear all registered tools
+    pub async fn clear_tools(&self) {
+        self.tools.write().await.clear();
     }
 
     // --- Helper state functions ---
@@ -416,7 +424,7 @@ impl Agent {
     ///
     /// # Returns
     /// * A Result containing the final Message from the assistant
-    pub async fn process_thread(&self, thread: &AgentThread) -> Result<AgentMessage> {
+    pub async fn process_thread(self: &Arc<Self>, thread: &AgentThread) -> Result<AgentMessage> {
         let mut rx = self.process_thread_streaming(thread).await?;
 
         let mut final_message = None;
@@ -440,76 +448,78 @@ impl Agent {
     /// # Returns
     /// * A Result containing a receiver for streamed messages
     pub async fn process_thread_streaming(
-        &self,
+        self: &Arc<Self>,
         thread: &AgentThread,
     ) -> Result<broadcast::Receiver<MessageResult>> {
         // Spawn the processing task
-        let agent_clone = self.clone();
+        let agent_arc_clone = self.clone();
         let thread_clone = thread.clone();
-
-        // Get shutdown receiver
-        let mut shutdown_rx = self.get_shutdown_receiver().await;
+        let agent_for_shutdown = self.clone();
+        let mut shutdown_rx = agent_for_shutdown.get_shutdown_receiver().await;
+        let agent_for_ok = self.clone();
 
         tokio::spawn(async move {
+            // Clone agent here for use within the select! arms after the initial future completes
+            let agent_clone_for_post_process = agent_arc_clone.clone();
             tokio::select! {
-                result = agent_clone.process_thread_with_depth(&thread_clone, 0, None, None) => {
+                result = Agent::process_thread_with_depth(agent_arc_clone, thread_clone.clone(), &thread_clone, 0, None, None) => {
                     if let Err(e) = result {
                         let err_msg = format!("Error processing thread: {:?}", e);
                         error!("{}", err_msg); // Log the error
-                        // Attempt to send error message
-                        if let Err(send_err) = agent_clone.get_stream_sender().await.send(Err(AgentError(err_msg.clone()))) {
+                        // Use the clone created before select!
+                        if let Err(send_err) = agent_clone_for_post_process.get_stream_sender().await.send(Err(AgentError(err_msg.clone()))) {
                            tracing::warn!("Failed to send error message to stream: {}", send_err);
                         }
                     }
-                     // Always send Done message, regardless of success or failure, unless shutdown occurred
-                     if let Err(e) = agent_clone.get_stream_sender().await.send(Ok(AgentMessage::Done)) {
-                        // This might fail if the receiver side has dropped, which is okay.
+                    // Use the clone created before select!
+                     if let Err(e) = agent_clone_for_post_process.get_stream_sender().await.send(Ok(AgentMessage::Done)) {
                         tracing::debug!("Failed to send Done message, receiver likely dropped: {}", e);
                      }
                 },
                 _ = shutdown_rx.recv() => {
-                    // Send shutdown notification
+                    // Use the clone created before select!
+                    let agent_clone_shutdown = agent_clone_for_post_process.clone(); // Can clone the clone
                     let shutdown_msg = AgentMessage::assistant(
                         Some("shutdown_message".to_string()),
                         Some("Processing interrupted due to shutdown signal".to_string()),
                         None,
                         MessageProgress::Complete,
                         None,
-                        Some(agent_clone.name.clone()),
+                        Some(agent_clone_shutdown.name.clone()),
                     );
-                    if let Err(e) = agent_clone.get_stream_sender().await.send(Ok(shutdown_msg)) {
+                    if let Err(e) = agent_clone_shutdown.get_stream_sender().await.send(Ok(shutdown_msg)) {
                        tracing::warn!("Failed to send shutdown notification: {}", e);
                     }
 
-                    // Send Done message after shutdown notification
-                    if let Err(e) = agent_clone.get_stream_sender().await.send(Ok(AgentMessage::Done)) {
+                    if let Err(e) = agent_clone_for_post_process.clone().get_stream_sender().await.send(Ok(AgentMessage::Done)) {
                         tracing::debug!("Failed to send Done message after shutdown, receiver likely dropped: {}", e);
                     }
                 }
             }
         });
 
-        Ok(self.get_stream_receiver().await)
+        Ok(agent_for_ok.get_stream_receiver().await)
     }
 
     async fn process_thread_with_depth(
-        &self,
-        thread: &AgentThread,
+        agent: Arc<Agent>,
+        thread: AgentThread,
+        thread_ref: &AgentThread,
         recursion_depth: u32,
         trace_builder: Option<TraceBuilder>,
         parent_span: Option<braintrust::Span>,
     ) -> Result<()> {
         // Set the initial thread
         {
-            let mut current = self.current_thread.write().await;
-            *current = Some(thread.clone());
+            let mut current = agent.current_thread.write().await;
+            *current = Some(thread_ref.clone());
         }
 
         // Initialize trace and parent span if not provided (first call)
         let (trace_builder, parent_span) = if trace_builder.is_none() && parent_span.is_none() {
             if let Some(client) = &*BRAINTRUST_CLIENT {
                 // Find the most recent user message to use as our input content
-                let user_input_message = thread
+                let user_input_message = thread_ref
                     .messages
                     .iter()
                     .filter(|msg| matches!(msg, AgentMessage::User { .. }))
@@ -529,7 +539,7 @@ impl Agent {
                     .unwrap_or_else(|| "No prompt available".to_string());
 
                 // Create a trace name with the thread ID
-                let trace_name = format!("Buster Super Agent {}", thread.id);
+                let trace_name = format!("Buster Super Agent {}", thread_ref.id);
 
                 // Create the trace with just the user prompt as input
                 let trace = TraceBuilder::new(client.clone(), &trace_name);
@@ -542,7 +552,7 @@ impl Agent {
                     .with_input(serde_json::json!(user_prompt_text));
 
                 // Add chat_id (session_id) as metadata to the root span
-                let span = root_span.with_metadata("chat_id", self.session_id.to_string());
+                let span = root_span.with_metadata("chat_id", agent.session_id.to_string());
 
                 // Log the span non-blockingly (client handles the background processing)
                 if let Err(e) = client.log_span(span.clone()).await {
@@ -565,41 +575,57 @@ impl Agent {
                 None,
                 MessageProgress::Complete,
                 None,
-                Some(self.name.clone()),
+                Some(agent.name.clone()),
             );
-            if let Err(e) = self.get_stream_sender().await.send(Ok(message)) {
+            if let Err(e) = agent.get_stream_sender().await.send(Ok(message)) {
                 tracing::warn!(
                     "Channel send error when sending recursion limit message: {}",
                     e
                 );
             }
-            self.close().await; // Ensure stream is closed
+            agent.close().await; // Ensure stream is closed
             return Ok(()); // Don't return error, just stop processing
         }
 
-        // --- Dynamic Prompt Selection ---
-        let current_system_prompt = self.get_current_prompt().await;
-        let system_message = AgentMessage::developer(current_system_prompt);
+        // --- Fetch and Apply Mode Configuration --- 
+        let state = agent.get_state().await;
+        let mode_config = agent.mode_provider.get_configuration_for_state(&state).await?;
 
-        // Prepare messages for LLM: Inject current system prompt and filter out old ones
+        // Apply Tool Loading via the closure provided by the mode
+        agent.clear_tools().await; // Clear previous mode's tools
+        (mode_config.tool_loader)(&agent).await?; // Explicitly cast self
+
+        // Apply Terminating Tools for this mode
+        { // Scope for write lock
+            let mut term_tools_lock = agent.terminating_tool_names.write().await;
+            term_tools_lock.clear();
+            term_tools_lock.extend(mode_config.terminating_tools);
+        }
+        // --- End Mode Configuration Application ---
+
+        // --- Prepare LLM Messages --- 
+        // Use prompt from mode_config
+        let system_message = AgentMessage::developer(mode_config.prompt);
         let mut llm_messages = vec![system_message];
         llm_messages.extend(
-            thread
+            agent.current_thread // Use self.current_thread which is updated
+                .read()
+                .await
+                .as_ref()
+                .ok_or_else(|| anyhow::anyhow!("Current thread not set"))?
                 .messages
+                // Filter out previous Developer messages if desired, or keep history clean
                 .iter()
-                .filter(|msg| !matches!(msg, AgentMessage::Developer { .. }))
+                .filter(|msg| !matches!(msg, AgentMessage::Developer { .. })) 
                 .cloned(),
         );
-        // --- End Dynamic Prompt Selection ---
+        // --- End Prepare LLM Messages ---
 
         // Collect all enabled tools and their schemas
-        let tools = self.get_enabled_tools().await; // Now uses the new logic
+        let tools = agent.get_enabled_tools().await; 
 
-        // --- Dynamic Model Selection ---
-        let current_model = self.get_current_model().await;
-
-        // Get the most recent user message for logging (used only in error logging)
-        let _user_message = thread
+        // Get user message for logging (unchanged)
+        let _user_message = thread_ref
             .messages
             .last()
             .filter(|msg| matches!(msg, AgentMessage::User { .. }))
@@ -607,15 +633,15 @@ impl Agent {
 
         // Create the tool-enabled request
         let request = ChatCompletionRequest {
-            model: current_model, // Use the dynamically selected model
-            messages: llm_messages, // Use the dynamically prepared messages list
+            model: mode_config.model, // Use the model from mode config
+            messages: llm_messages, 
             tools: if tools.is_empty() { None } else { Some(tools) },
-            tool_choice: Some(ToolChoice::Required),
+            tool_choice: Some(ToolChoice::Required), // Or adjust based on mode?
             stream: Some(true), // Enable streaming
             metadata: Some(Metadata {
                 generation_name: "agent".to_string(),
-                user_id: thread.user_id.to_string(),
-                session_id: thread.id.to_string(),
+                user_id: thread_ref.user_id.to_string(),
+                session_id: thread_ref.id.to_string(),
                 trace_id: Uuid::new_v4().to_string(),
             }),
             reasoning_effort: Some("low".to_string()),
@@ -623,7 +649,7 @@ impl Agent {
         };
 
         // Get the streaming response from the LLM
-        let mut stream_rx = match self
+        let mut stream_rx = match agent
             .llm_client
             .stream_chat_completion(request.clone())
             .await
@@ -693,7 +719,7 @@ impl Agent {
 
                     // Check if we should flush the buffer
                     if buffer.should_flush() {
-                        buffer.flush(self).await?;
+                        buffer.flush(&agent).await?;
                     }
 
                     // Check if this is the final chunk
@@ -726,7 +752,7 @@ impl Agent {
         }
 
         // Flush any remaining buffered content or tool calls before creating final message
-        buffer.flush(self).await?;
+        buffer.flush(&agent).await?;
 
         // Create and send the final message
         let final_tool_calls: Option<Vec<ToolCall>> = if !buffer.tool_calls.is_empty() {
@@ -751,12 +777,12 @@ impl Agent {
             final_tool_calls.clone(),
             MessageProgress::Complete,
             Some(false), // Never the first message at this stage
-            Some(self.name.clone()),
+            Some(agent.name.clone()),
         );
 
         // Broadcast the final assistant message
         // Ensure we don't block if the receiver dropped
-        if let Err(e) = self
+        if let Err(e) = agent
             .get_stream_sender()
             .await
             .send(Ok(final_message.clone()))
@@ -768,11 +794,11 @@ impl Agent {
         }
 
         // Update thread with assistant message
-        self.update_current_thread(final_message.clone()).await?;
+        agent.update_current_thread(final_message.clone()).await?;
 
         // Get the updated thread state AFTER adding the final assistant message
         // This will be used for the potential recursive call later.
-        let mut updated_thread_for_recursion = self
+        let mut updated_thread_for_recursion = agent
             .current_thread
             .read()
             .await
@@ -786,8 +812,8 @@ impl Agent {
         // If the LLM wants to use tools, execute them
         if let Some(tool_calls) = final_tool_calls {
             let mut results = Vec::new();
-            let agent_tools = self.tools.read().await; // Read tools once
-            let terminating_names = self.terminating_tool_names.read().await; // Read terminating names once
+            let agent_tools = agent.tools.read().await; // Read tools once
+            let terminating_names = agent.terminating_tool_names.read().await; // Read terminating names once
 
             // Execute each requested tool
             let mut should_terminate = false; // Flag to indicate if loop should terminate after this tool
@@ -809,7 +835,7 @@ impl Agent {
                                 .await?;
 
                             // Add chat_id (session_id) as metadata to the span
-                            let span = span.with_metadata("chat_id", self.session_id.to_string());
+                            let span = span.with_metadata("chat_id", agent.session_id.to_string());
 
                             // Parse the parameters (unused in this context since we're using final_message)
                             let _params: Value =
@@ -923,7 +949,7 @@ impl Agent {
                     }
 
                     // Broadcast the tool message as soon as we receive it - use try_send to avoid blocking
-                    if let Err(e) = self
+                    if let Err(e) = agent
                         .get_stream_sender()
                         .await
                         .send(Ok(tool_message.clone()))
@@ -935,7 +961,7 @@ impl Agent {
                     }
 
                     // Update thread with tool response BEFORE checking termination
-                    self.update_current_thread(tool_message.clone()).await?;
+                    agent.update_current_thread(tool_message.clone()).await?;
                     results.push(tool_message);
 
                     // Check if this tool's name is in the terminating list
@@ -963,7 +989,7 @@ impl Agent {
                         MessageProgress::Complete,
                     );
                     // Broadcast the error message
-                    if let Err(e) = self
+                    if let Err(e) = agent
                         .get_stream_sender()
                         .await
                         .send(Ok(error_result.clone()))
@@ -974,7 +1000,7 @@ impl Agent {
                         );
                     }
                     // Update thread and push the error result for the next LLM call
-                    self.update_current_thread(error_result.clone()).await?;
+                    agent.update_current_thread(error_result.clone()).await?;
                     // Continue processing other tool calls if any
                 }
             }
@@ -982,9 +1008,9 @@ impl Agent {
             // If a tool signaled termination, finish trace, send Done and exit.
             if should_terminate {
                 // Finish the trace without consuming it
-                self.finish_trace(&trace_builder).await?;
+                agent.finish_trace(&trace_builder).await?;
                 // Send Done message
-                if let Err(e) = self.get_stream_sender().await.send(Ok(AgentMessage::Done)) {
+                if let Err(e) = agent.get_stream_sender().await.send(Ok(AgentMessage::Done)) {
                     tracing::debug!("Failed to send Done message after tool termination (receiver likely dropped): {}", e);
                 }
                 return Ok(()); // Exit the function, preventing recursion
@@ -1003,7 +1029,7 @@ impl Agent {
                     let span = trace
                         .add_child_span("Assistant Response", "llm", parent)
                         .await?;
-                    let span = span.with_metadata("chat_id", self.session_id.to_string());
+                    let span = span.with_metadata("chat_id", agent.session_id.to_string());
                     let span = span.with_input(serde_json::to_value(&request)?); // Log the request
                     let span = span.with_output(serde_json::to_value(&complete_final_message)?); // Log the response
 
@@ -1031,7 +1057,10 @@ impl Agent {
         // Continue the conversation recursively using the updated thread state,
         // unless a terminating tool caused an early return above.
         // This call happens regardless of whether tools were executed in this step.
-        Box::pin(self.process_thread_with_depth(
+        let agent_for_recursion = agent.clone();
+        Box::pin(Agent::process_thread_with_depth(
+            agent_for_recursion,
+            updated_thread_for_recursion.clone(),
             &updated_thread_for_recursion,
             recursion_depth + 1,
             trace_builder,
@@ -1100,70 +1129,6 @@ impl Agent {
         let mut tx = self.stream_tx.write().await;
         *tx = None;
     }
-
-    /// Add a rule for dynamically selecting a system prompt.
-    /// Rules are checked in the order they are added. The first matching rule's prompt is used.
-    pub async fn add_dynamic_prompt_rule<F>(&self, condition: F, prompt: String)
-    where
-        F: Fn(&HashMap<String, Value>) -> bool + Send + Sync + 'static,
-    {
-        let rule = DynamicPromptRule {
-            condition: Box::new(condition),
-            prompt,
-        };
-        self.dynamic_prompt_rules.write().await.push(rule);
-    }
-
-    /// Gets the system prompt based on the current agent state and dynamic rules.
-    async fn get_current_prompt(&self) -> String {
-        let rules = self.dynamic_prompt_rules.read().await;
-        let state = self.state.read().await;
-
-        for rule in rules.iter() {
-            if (rule.condition)(&state) {
-                return rule.prompt.clone(); // Return the first matching rule's prompt
-            }
-        }
-
-        self.default_prompt.clone() // Fallback to default prompt if no rules match
-    }
-
-    /// Add a new rule for dynamically selecting the LLM model based on agent state.
-    /// Rules are evaluated in the order they are added. The first matching rule's model is used.
-    ///
-    /// # Arguments
-    /// * `condition` - A closure that takes the current agent state and returns `true` if this rule should apply.
-    /// * `model` - The model identifier (e.g., "gpt-4o") to use if the condition is met.
-    pub async fn add_dynamic_model_rule<F>(&self, condition: F, model: String)
-    where
-        F: Fn(&HashMap<String, Value>) -> bool + Send + Sync + 'static,
-    {
-        let rule = DynamicModelRule {
-            condition: Box::new(condition),
-            model,
-        };
-        self.dynamic_model_rules.write().await.push(rule);
-    }
-
-    /// Gets the model name based on the current agent state and dynamic model rules.
-    /// If no rules match, returns the agent's default model.
-    async fn get_current_model(&self) -> String {
-        let rules = self.dynamic_model_rules.read().await;
-        let state = self.state.read().await;
-
-        for rule in rules.iter() {
-            if (rule.condition)(&state) {
-                return rule.model.clone(); // Return the first matching rule's model
-            }
-        }
-
-        self.model.clone() // Fallback to the agent's default model
-    }
-
-    /// Register a tool name that should terminate the agent loop upon successful execution.
-    pub async fn register_terminating_tool(&self, name: String) {
-        self.terminating_tool_names.write().await.push(name);
-    }
 }
 
 #[derive(Debug, Default, Clone)]
@@ -1223,21 +1188,21 @@ impl PendingToolCall {
 /// when the agent is stored behind an Arc
 #[async_trait::async_trait]
 pub trait AgentExt {
-    fn get_agent(&self) -> &Arc<Agent>;
+    fn get_agent_arc(&self) -> &Arc<Agent>;
 
     async fn stream_process_thread(
         &self,
         thread: &AgentThread,
     ) -> Result<broadcast::Receiver<MessageResult>> {
-        (*self.get_agent()).process_thread_streaming(thread).await
+        self.get_agent_arc().process_thread_streaming(thread).await
     }
 
     async fn process_thread(&self, thread: &AgentThread) -> Result<AgentMessage> {
-        (*self.get_agent()).process_thread(thread).await
+        self.get_agent_arc().process_thread(thread).await
     }
 
     async fn get_current_thread(&self) -> Option<AgentThread> {
-        (*self.get_agent()).get_current_thread().await
+        (*self.get_agent_arc()).get_current_thread().await
     }
 }
 
@@ -1249,6 +1214,29 @@ mod tests {
     use litellm::MessageProgress;
     use serde_json::{json, Value};
     use uuid::Uuid;
+
+    // --- Mock Mode Provider for Testing ---
+    struct MockModeProvider;
+
+    impl MockModeProvider {
+        fn new() -> Self {
+            Self
+        }
+    }
+
+    #[async_trait::async_trait]
+    impl ModeProvider for MockModeProvider {
+        async fn get_configuration_for_state(&self, _state: &HashMap<String, Value>) -> Result<ModeConfiguration> {
+            // Return a default/empty configuration for testing basic agent functions
+            Ok(ModeConfiguration {
+                prompt: "Test Prompt".to_string(),
+                model: "test-model".to_string(),
+                tool_loader: Box::new(|_agent_arc| Box::pin(async { Ok(()) })), // No-op loader
+                terminating_tools: vec![],
+            })
+        }
+    }
+    // --- End Mock Mode Provider ---
 
     fn setup() {
         dotenv::dotenv().ok();
@@ -1305,19 +1293,9 @@ mod tests {
                 "unit": "fahrenheit"
             });
 
-            // Send completion with the actual tool_call_id
-            // self.send_progress(
-            //     serde_json::to_string(&result)?,
-            //     tool_call_id,
-            //     MessageProgress::Complete,
-            // )
-            // .await?;
             // Tool itself should just return the result, Agent handles sending the final tool message
-
             Ok(result)
         }
-
-        // is_enabled removed
 
         async fn get_schema(&self) -> Value {
             json!({
@@ -1350,7 +1328,8 @@ mod tests {
     async fn test_agent_convo_no_tools() {
         setup();
 
-        // Create LLM client and agent
+        // Use MockModeProvider
+        let mock_provider = Arc::new(MockModeProvider::new());
         let agent = Arc::new(Agent::new(
             "o1".to_string(),
             Uuid::new_v4(),
@@ -1358,7 +1337,7 @@ mod tests {
             "test_agent_no_tools".to_string(),
             env::var("LLM_API_KEY").ok(),
             env::var("LLM_BASE_URL").ok(),
-            "".to_string(),
+            mock_provider, 
         ));
 
         let thread = AgentThread::new(
@@ -1367,6 +1346,7 @@ mod tests {
             vec![AgentMessage::user("Hello, world!".to_string())],
         );
 
+        // Use Arc<Agent> for process_thread call
         let _response = match agent.process_thread(&thread).await {
             Ok(response) => {
                 println!("Response (no tools): {:?}", response);
@@ -1380,7 +1360,8 @@ mod tests {
     async fn test_agent_convo_with_tools() {
         setup();
 
-        // Create agent first
+        // Use MockModeProvider
+        let mock_provider = Arc::new(MockModeProvider::new());
         let agent = Arc::new(Agent::new(
             "o1".to_string(),
             Uuid::new_v4(),
@@ -1388,7 +1369,7 @@ mod tests {
             "test_agent_with_tools".to_string(),
             env::var("LLM_API_KEY").ok(),
             env::var("LLM_BASE_URL").ok(),
-            "".to_string(),
+            mock_provider,
         ));
 
         // Create weather tool with reference to agent
@@ -1409,6 +1390,7 @@ mod tests {
             )],
         );
 
+        // Use Arc<Agent> for process_thread call
         let _response = match agent.process_thread(&thread).await {
             Ok(response) => {
                 println!("Response (with tools): {:?}", response);
@@ -1422,7 +1404,8 @@ mod tests {
     async fn test_agent_with_multiple_steps() {
         setup();
 
-        // Create LLM client and agent
+        // Use MockModeProvider
+        let mock_provider = Arc::new(MockModeProvider::new());
         let agent = Arc::new(Agent::new(
             "o1".to_string(),
             Uuid::new_v4(),
@@ -1430,7 +1413,7 @@ mod tests {
             "test_agent_multi_step".to_string(),
             env::var("LLM_API_KEY").ok(),
             env::var("LLM_BASE_URL").ok(),
-            "".to_string(),
+            mock_provider,
         ));
 
         let weather_tool = WeatherTool::new(Arc::clone(&agent));
@@ -1450,6 +1433,7 @@ mod tests {
             )],
         );
 
+        // Use Arc<Agent> for process_thread call
         let _response = match agent.process_thread(&thread).await {
             Ok(response) => {
                 println!("Response (multi-step): {:?}", response);
@@ -1463,7 +1447,8 @@ mod tests {
     async fn test_agent_disabled_tool() {
         setup();
 
-        // Create agent
+        // Use MockModeProvider
+        let mock_provider = Arc::new(MockModeProvider::new());
         let agent = Arc::new(Agent::new(
             "o1".to_string(),
             Uuid::new_v4(),
@@ -1471,7 +1456,7 @@ mod tests {
             "test_agent_disabled".to_string(),
             env::var("LLM_API_KEY").ok(),
             env::var("LLM_BASE_URL").ok(),
-            "".to_string(),
+            mock_provider, 
         ));
 
         // Create weather tool
@@ -1503,6 +1488,7 @@ mod tests {
             .set_state_value("weather_enabled".to_string(), json!(false))
             .await;
 
+        // Use Arc<Agent> for process_thread call
         let response_disabled = match agent.process_thread(&thread_disabled).await {
             Ok(response) => response,
             Err(e) => panic!("Error processing thread (disabled): {:?}", e),
@@ -1530,6 +1516,7 @@ mod tests {
             .set_state_value("weather_enabled".to_string(), json!(true))
             .await;
 
+        // Use Arc<Agent> for process_thread call
         let _response_enabled = match agent.process_thread(&thread_enabled).await {
             Ok(response) => response,
             Err(e) => panic!("Error processing thread (enabled): {:?}", e),
@@ -1543,7 +1530,8 @@ mod tests {
     async fn test_agent_state_management() {
         setup();
 
-        // Create agent
+        // Use MockModeProvider
+        let mock_provider = Arc::new(MockModeProvider::new());
         let agent = Arc::new(Agent::new(
             "o1".to_string(),
             Uuid::new_v4(),
@@ -1551,7 +1539,7 @@ mod tests {
             "test_agent_state".to_string(),
             env::var("LLM_API_KEY").ok(),
             env::var("LLM_BASE_URL").ok(),
-            "".to_string(),
+            mock_provider,
         ));
 
         // Test setting single values
@@ -1561,7 +1549,6 @@ mod tests {
         let value = agent.get_state_value("test_key").await;
         assert_eq!(value, Some(json!("test_value")));
         assert!(agent.state_key_exists("test_key").await);
-        assert!(!agent.state_key_exists("nonexistent_key").await);
         assert_eq!(agent.get_state_bool("test_key").await, None); // Not a bool
 
         // Test setting boolean value

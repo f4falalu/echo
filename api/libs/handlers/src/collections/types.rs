@@ -44,6 +44,7 @@ pub struct ListCollectionsCollection {
     pub last_edited: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
     pub owner: ListCollectionsUser,
+    pub is_shared: bool,
     // TODO implement member
 }
 

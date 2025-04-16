@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use diesel::{ExpressionMethods, JoinOnDsl, QueryDsl, Queryable};
+use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl, Queryable};
 use diesel_async::RunQueryDsl;
 use futures::future::join;
 use middleware::AuthenticatedUser;
@@ -32,9 +32,10 @@ struct AssetPermissionInfo {
     name: Option<String>,
 }
 
-/// Fetch the dashboards associated with the given metric id
+/// Fetch the dashboards associated with the given metric id, filtered by user permissions
 async fn fetch_associated_dashboards_for_metric(
     metric_id: Uuid,
+    user_id: &Uuid,
 ) -> Result<Vec<AssociatedDashboard>> {
     let mut conn = get_pg_pool().get().await?;
     let associated_dashboards = metric_files_to_dashboard_files::table
@@ -42,9 +43,17 @@ async fn fetch_associated_dashboards_for_metric(
             dashboard_files::table
                 .on(dashboard_files::id.eq(metric_files_to_dashboard_files::dashboard_file_id)),
         )
+        .inner_join(
+            asset_permissions::table.on(asset_permissions::asset_id
+                .eq(dashboard_files::id)
+                .and(asset_permissions::asset_type.eq(AssetType::DashboardFile))),
+        )
         .filter(metric_files_to_dashboard_files::metric_file_id.eq(metric_id))
         .filter(dashboard_files::deleted_at.is_null())
         .filter(metric_files_to_dashboard_files::deleted_at.is_null())
+        .filter(asset_permissions::identity_id.eq(user_id))
+        .filter(asset_permissions::identity_type.eq(IdentityType::User))
+        .filter(asset_permissions::deleted_at.is_null())
         .select((dashboard_files::id, dashboard_files::name))
         .load::<(Uuid, String)>(&mut conn)
         .await?
@@ -54,17 +63,26 @@ async fn fetch_associated_dashboards_for_metric(
     Ok(associated_dashboards)
 }
 
-/// Fetch the collections associated with the given metric id
+/// Fetch the collections associated with the given metric id, filtered by user permissions
 async fn fetch_associated_collections_for_metric(
     metric_id: Uuid,
+    user_id: &Uuid,
 ) -> Result<Vec<AssociatedCollection>> {
     let mut conn = get_pg_pool().get().await?;
     let associated_collections = collections_to_assets::table
         .inner_join(collections::table.on(collections::id.eq(collections_to_assets::collection_id)))
+        .inner_join(
+            asset_permissions::table.on(asset_permissions::asset_id
+                .eq(collections::id)
+                .and(asset_permissions::asset_type.eq(AssetType::Collection))),
+        )
         .filter(collections_to_assets::asset_id.eq(metric_id))
         .filter(collections_to_assets::asset_type.eq(AssetType::MetricFile))
         .filter(collections::deleted_at.is_null())
         .filter(collections_to_assets::deleted_at.is_null())
+        .filter(asset_permissions::identity_id.eq(user_id))
+        .filter(asset_permissions::identity_type.eq(IdentityType::User))
+        .filter(asset_permissions::deleted_at.is_null())
         .select((collections::id, collections::name))
         .load::<(Uuid, String)>(&mut conn)
         .await?
@@ -169,21 +187,19 @@ pub async fn get_metric_handler(
         }
     }
 
-    // Map evaluation score to High/Moderate/Low
-    let evaluation_score = metric_file.evaluation_score.map(|score| {
-        if score >= 0.8 {
-            "High".to_string()
-        } else if score >= 0.5 {
-            "Moderate".to_string()
-        } else {
-            "Low".to_string()
-        }
-    });
+    // Declare variables to hold potentially versioned data
+    let resolved_name: String;
+    let resolved_description: Option<String>;
+    let resolved_time_frame: String;
+    let resolved_dataset_ids: Vec<Uuid>;
+    let resolved_chart_config: database::types::ChartConfig;
+    let resolved_sql: String;
+    let resolved_updated_at: chrono::DateTime<chrono::Utc>;
+    let resolved_version_num: i32;
+    let resolved_content_for_yaml: database::types::MetricYml;
 
-    // Determine which content and version number to use
-    let metric_content: database::types::MetricYml;
-    let version_num: i32;
-    let current_data_metadata: Option<database::types::DataMetadata> = metric_file.data_metadata;
+    // Data metadata always comes from the main table record (current state)
+    let data_metadata: Option<database::types::DataMetadata> = metric_file.data_metadata;
 
     if let Some(requested_version) = version_number {
         // --- Specific version requested ---
@@ -191,8 +207,17 @@ pub async fn get_metric_handler(
         if let Some(v) = metric_file.version_history.get_version(requested_version) {
             match &v.content {
                 database::types::VersionContent::MetricYml(content) => {
-                    metric_content = (**content).clone(); // Deref the Box and clone
-                    version_num = v.version_number;
+                    let version_content = (**content).clone(); // Deref the Box and clone
+                    resolved_name = version_content.name.clone();
+                    resolved_description = version_content.description.clone(); // Assume this is already Option<String>
+                    resolved_time_frame = version_content.time_frame.clone();
+                    resolved_dataset_ids = version_content.dataset_ids.clone();
+                    resolved_chart_config = version_content.chart_config.clone();
+                    resolved_sql = version_content.sql.clone();
+                    resolved_updated_at = v.updated_at;
+                    resolved_version_num = v.version_number;
+                    resolved_content_for_yaml = version_content; // Use this content for YAML
+
                     tracing::debug!(metric_id = %metric_id, version = requested_version, "Successfully retrieved specific version content");
                 }
                 _ => {
@@ -210,14 +235,23 @@ pub async fn get_metric_handler(
     } else {
         // --- No specific version requested - use current state from the main table row ---
         tracing::debug!(metric_id = %metric_id, "No specific version requested, using current metric file content");
-        metric_content = metric_file.content; // Use the content directly from the fetched MetricFile
-                                              // Determine the latest version number from history, defaulting to 1 if none
-        version_num = metric_file.version_history.get_version_number();
-        tracing::debug!(metric_id = %metric_id, latest_version = version_num, "Determined latest version number");
+        let current_content = metric_file.content.clone(); // Use the content directly from the fetched MetricFile
+        resolved_name = metric_file.name.clone(); // Use main record name
+        resolved_description = current_content.description.clone(); // Assume this is already Option<String>
+        resolved_time_frame = current_content.time_frame.clone();
+        resolved_dataset_ids = current_content.dataset_ids.clone();
+        resolved_chart_config = current_content.chart_config.clone();
+        resolved_sql = current_content.sql.clone();
+        resolved_updated_at = metric_file.updated_at; // Use main record updated_at
+                                                      // Determine the latest version number from history, defaulting to 1 if none exist in history
+        resolved_version_num = metric_file.version_history.get_version_number();
+        resolved_content_for_yaml = current_content; // Use this content for YAML
+
+        tracing::debug!(metric_id = %metric_id, latest_version = resolved_version_num, "Determined latest version number");
     }
 
     // Convert the selected content to pretty YAML for the 'file' field
-    let file = match serde_yaml::to_string(&metric_content) {
+    let file = match serde_yaml::to_string(&resolved_content_for_yaml) {
         Ok(yaml) => yaml,
         Err(e) => {
             tracing::error!(metric_id = %metric_id, error = %e, "Failed to serialize selected metric content to YAML");
@@ -225,15 +259,23 @@ pub async fn get_metric_handler(
         }
     };
 
-    // Data metadata always comes from the main table record (current state)
-    let data_metadata = current_data_metadata;
+    // Map evaluation score - this is not versioned
+    let evaluation_score = metric_file.evaluation_score.map(|score| {
+        if score >= 0.8 {
+            "High".to_string()
+        } else if score >= 0.5 {
+            "Moderate".to_string()
+        } else {
+            "Low".to_string()
+        }
+    });
 
     let mut conn = get_pg_pool().get().await?;
 
-    // Get dataset information for all dataset IDs
+    // Get dataset information for the resolved dataset IDs
     let mut datasets = Vec::new();
     let mut first_data_source_id = None;
-    for dataset_id in &metric_content.dataset_ids {
+    for dataset_id in &resolved_dataset_ids {
         if let Ok(dataset_info) = datasets::table
             .filter(datasets::id.eq(dataset_id))
             .filter(datasets::deleted_at.is_null())
@@ -295,8 +337,10 @@ pub async fn get_metric_handler(
 
     // Concurrently fetch associated dashboards and collections
     let metrics_id_clone = *metric_id;
-    let dashboards_future = fetch_associated_dashboards_for_metric(metrics_id_clone);
-    let collections_future = fetch_associated_collections_for_metric(metrics_id_clone);
+    let user_id_clone = user.id; // Clone user ID for use in async blocks
+    let dashboards_future = fetch_associated_dashboards_for_metric(metrics_id_clone, &user_id_clone);
+    let collections_future =
+        fetch_associated_collections_for_metric(metrics_id_clone, &user_id_clone);
 
     // Await both futures concurrently
     let (dashboards_result, collections_result) = join(dashboards_future, collections_future).await;
@@ -347,39 +391,39 @@ pub async fn get_metric_handler(
         Err(_) => None,
     };
 
-    // Construct BusterMetric
+    // Construct BusterMetric using resolved values
     Ok(BusterMetric {
         id: metric_file.id,
         metric_type: "metric".to_string(),
-        name: metric_file.name,
-        version_number: version_num,
-        description: metric_content.description,
-        file_name: metric_file.file_name,
-        time_frame: metric_content.time_frame,
-        datasets,
-        data_source_id: first_data_source_id.map_or("".to_string(), |id| id.to_string()),
-        error: None,
-        chart_config: Some(metric_content.chart_config),
-        data_metadata,
-        status: metric_file.verification,
-        evaluation_score,
-        evaluation_summary: metric_file.evaluation_summary.unwrap_or_default(),
-        file,
-        created_at: metric_file.created_at,
-        updated_at: metric_file.updated_at,
-        sent_by_id: metric_file.created_by,
-        sent_by_name: "".to_string(),
-        sent_by_avatar_url: None,
-        code: None,
-        dashboards,
-        collections,
-        versions,
-        permission,
-        sql: metric_content.sql,
-        individual_permissions,
-        publicly_accessible: metric_file.publicly_accessible,
-        public_expiry_date: metric_file.public_expiry_date,
-        public_enabled_by: public_enabled_by_user,
-        public_password: metric_file.public_password,
+        name: resolved_name, // Use resolved name
+        version_number: resolved_version_num, // Use resolved version number
+        description: resolved_description, // Use resolved description
+        file_name: metric_file.file_name, // Not versioned
+        time_frame: resolved_time_frame, // Use resolved time frame
+        datasets, // Fetched based on resolved_dataset_ids
+        data_source_id: first_data_source_id.map_or("".to_string(), |id| id.to_string()), // Based on resolved datasets
+        error: None, // Assume ok
+        chart_config: Some(resolved_chart_config), // Use resolved chart config
+        data_metadata, // Not versioned
+        status: metric_file.verification, // Not versioned
+        evaluation_score, // Not versioned
+        evaluation_summary: metric_file.evaluation_summary.unwrap_or_default(), // Not versioned
+        file, // YAML based on resolved content
+        created_at: metric_file.created_at, // Not versioned
+        updated_at: resolved_updated_at, // Use resolved updated_at (version or main record)
+        sent_by_id: metric_file.created_by, // Not versioned
+        sent_by_name: "".to_string(), // Placeholder
+        sent_by_avatar_url: None, // Placeholder
+        code: None, // Placeholder
+        dashboards, // Fetched association, not versioned content
+        collections, // Fetched association, not versioned content
+        versions, // Full version history list
+        permission, // Calculated access level
+        sql: resolved_sql, // Use resolved SQL
+        individual_permissions, // Not versioned
+        publicly_accessible: metric_file.publicly_accessible, // Not versioned
+        public_expiry_date: metric_file.public_expiry_date, // Not versioned
+        public_enabled_by: public_enabled_by_user, // Not versioned
+        public_password: metric_file.public_password, // Not versioned
     })
 }

@@ -167,6 +167,7 @@ async fn get_permissioned_collections(
             created_at,
             owner,
             description: "".to_string(),
+            is_shared: creator_id != user.id, // Mark as shared if the user is not the creator
         };
 
         collections.push(collection);

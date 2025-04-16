@@ -2,6 +2,7 @@ use dashmap::DashMap;
 use middleware::AuthenticatedUser;
 use std::collections::HashSet;
 use std::{collections::HashMap, time::{Instant, Duration}};
+use std::sync::Arc;
 
 use agents::{
     tools::{
@@ -346,13 +347,14 @@ pub async fn post_chat_handler(
     let mut initial_messages = vec![];
     // Determine if this is a follow-up message based on chat_id presence
     let is_follow_up = request.chat_id.is_some();
-    let agent = BusterMultiAgent::new(user.id, chat_id, is_follow_up).await?;
+    // Create the agent and wrap it in Arc
+    let agent = Arc::new(BusterMultiAgent::new(user.id, chat_id, is_follow_up).await?);
 
     // Load context if provided (combines both legacy and new asset references)
     if let Some(existing_chat_id) = request.chat_id {
         let context_loader = ChatContextLoader::new(existing_chat_id);
         let context_messages = context_loader
-            .load_context(&user, agent.get_agent())
+            .load_context(&user, agent.get_agent_arc()) // Use get_agent_arc()
             .await?;
         initial_messages.extend(context_messages);
     } else if let Some(id) = asset_id {
@@ -360,7 +362,7 @@ pub async fn post_chat_handler(
             // Use the generic context loader with factory
             let context_loader = create_asset_context_loader(id, asset_type_val);
             let context_messages = context_loader
-                .load_context(&user, agent.get_agent())
+                .load_context(&user, agent.get_agent_arc()) // Use get_agent_arc()
                 .await?;
             initial_messages.extend(context_messages);
         }
@@ -368,14 +370,14 @@ pub async fn post_chat_handler(
         // Legacy metric loading
         let context_loader = MetricContextLoader::new(metric_id);
         let context_messages = context_loader
-            .load_context(&user, agent.get_agent())
+            .load_context(&user, agent.get_agent_arc()) // Use get_agent_arc()
             .await?;
         initial_messages.extend(context_messages);
     } else if let Some(dashboard_id) = request.dashboard_id {
         // Legacy dashboard loading
         let context_loader = DashboardContextLoader::new(dashboard_id);
         let context_messages = context_loader
-            .load_context(&user, agent.get_agent())
+            .load_context(&user, agent.get_agent_arc()) // Use get_agent_arc()
             .await?;
         initial_messages.extend(context_messages);
     }
