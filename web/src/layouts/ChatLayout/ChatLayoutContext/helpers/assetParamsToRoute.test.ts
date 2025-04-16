@@ -487,4 +487,20 @@ describe('assetParamsToRoute', () => {
       })
     );
   });
+
+  test('no chat id, metric without version number', () => {
+    const test = {
+      assetId: '06d9d8b7-eb96-59af-9a03-0436205b60a9',
+      type: 'metric',
+      chatId: undefined
+    } as any;
+
+    const result = assetParamsToRoute(test);
+    expect(result).toBe(
+      createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_CHART,
+        metricId: test.assetId
+      })
+    );
+  });
 });

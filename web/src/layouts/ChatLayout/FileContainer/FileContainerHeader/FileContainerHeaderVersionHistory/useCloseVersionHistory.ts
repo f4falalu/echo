@@ -5,6 +5,7 @@ import {
   assetParamsToRoute,
   useChatLayoutContextSelector
 } from '@/layouts/ChatLayout/ChatLayoutContext';
+import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useMemo } from 'react';
 
 export const useCloseVersionHistory = () => {
@@ -17,10 +18,9 @@ export const useCloseVersionHistory = () => {
 
   const href = useMemo(() => {
     if (!chatId) {
-      return assetParamsToRoute({
-        assetId: metricId!,
-        type: 'metric',
-        chatId
+      return createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_CHART,
+        metricId: metricId!
       });
     }
 

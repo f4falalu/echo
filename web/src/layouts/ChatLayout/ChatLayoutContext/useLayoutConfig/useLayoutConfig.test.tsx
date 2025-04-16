@@ -131,17 +131,6 @@ describe('useLayoutConfig', () => {
     });
   });
 
-  it.skip('should handle version history mode', () => {
-    const props = {
-      ...defaultProps,
-      isVersionHistoryMode: true
-    };
-
-    renderHook(() => useLayoutConfig(props));
-
-    expect(mockAnimateOpenSplitter).toHaveBeenCalledWith('right');
-  });
-
   it('should return correct layout based on props', () => {
     // With file and chat
     const { result: resultWithBoth } = renderHook(() => useLayoutConfig(defaultProps));
