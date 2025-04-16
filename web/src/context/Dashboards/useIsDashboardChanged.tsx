@@ -12,13 +12,13 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) 
   const queryClient = useQueryClient();
   const originalDashboard = useOriginalDashboardStore((x) => x.getOriginalDashboard(dashboardId));
 
-  const { data: latestVersionNumber } = useGetDashboard(
-    { id: dashboardId },
-    { select: (x) => last(x.versions)?.version_number }
-  );
+  // const { data: latestVersionNumber } = useGetDashboard(
+  //   { id: dashboardId },
+  //   { select: (x) => last(x.versions)?.version_number }
+  // );
 
   const { data: currentDashboard, refetch: refetchCurrentDashboard } = useGetDashboard(
-    { id: dashboardId, versionNumber: latestVersionNumber },
+    { id: dashboardId, versionNumber: undefined },
     {
       select: (x) => ({
         name: x.dashboard.name,

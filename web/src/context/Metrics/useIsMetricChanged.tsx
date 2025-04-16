@@ -11,13 +11,13 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
   const queryClient = useQueryClient();
   const originalMetric = useOriginalMetricStore((x) => x.getOriginalMetric(metricId));
 
-  const { data: latestVersionNumber } = useGetMetric(
-    { id: metricId },
-    { select: (x) => last(x.versions)?.version_number }
-  );
+  // const { data: latestVersionNumber } = useGetMetric(
+  //   { id: metricId },
+  //   { select: (x) => last(x.versions)?.version_number }
+  // );
 
   const { data: currentMetric, refetch: refetchCurrentMetric } = useGetMetric(
-    { id: metricId, versionNumber: latestVersionNumber },
+    { id: metricId, versionNumber: undefined },
     {
       select: (x) => ({
         name: x.name,

@@ -33,7 +33,9 @@ const DashboardMetricItemBase: React.FC<{
     metricData,
     initialAnimationEnded,
     setInitialAnimationEnded,
-    isFetchedMetricData
+    isFetchedMetricData,
+    metricError,
+    metricDataError
   } = useDashboardMetric({ metricId, versionNumber });
 
   const loadingMetricData = !!metric && !isFetchedMetricData;
@@ -45,13 +47,10 @@ const DashboardMetricItemBase: React.FC<{
     !initialAnimationEnded && !isDragOverlay && dataLength < 125 && numberOfMetrics <= 30;
   const isTable = metric?.chart_config.selectedChartType === 'table';
 
-  const error = useMemo(() => {
-    if (metric?.error) {
-      return metric.error;
-    }
-
-    return undefined;
-  }, [metric?.error]);
+  const error: string | undefined = useMemo(
+    () => metric?.error || metricDataError?.message || metricError?.message || undefined,
+    [metric?.error, metricDataError, metricError]
+  );
 
   const metricLink = useMemo(() => {
     if (chatId) {

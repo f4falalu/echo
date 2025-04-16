@@ -177,8 +177,8 @@ export const useUpdateDashboard = (params?: {
   const { updateOnSave = false, updateVersion = false, saveToServer = false } = params || {};
   const queryClient = useQueryClient();
   const { mutateAsync: saveDashboard } = useSaveDashboard({ updateOnSave });
-  const getOriginalDashboard = useOriginalDashboardStore((x) => x.getOriginalDashboard);
   const versionNumber = useGetDashboardVersionNumber();
+  const getOriginalDashboard = useOriginalDashboardStore((x) => x.getOriginalDashboard);
 
   const mutationFn = useMemoizedFn(
     async (variables: Parameters<typeof dashboardsUpdateDashboard>[0]) => {
@@ -200,7 +200,8 @@ export const useUpdateDashboard = (params?: {
       });
       const queryKey = dashboardQueryKeys.dashboardGetDashboard(
         variables.id,
-        updatedDashboard.version_number
+        versionNumber
+        //  updatedDashboard.version_number
       ).queryKey;
 
       queryClient.setQueryData(queryKey, (previousData) => {

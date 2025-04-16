@@ -10,7 +10,11 @@ export const useDashboardMetric = ({
   metricId: string;
   versionNumber: number | undefined;
 }) => {
-  const { data: metric, isFetched: isMetricFetched } = useGetMetric(
+  const {
+    data: metric,
+    isFetched: isMetricFetched,
+    error: metricError
+  } = useGetMetric(
     { id: metricId, versionNumber },
     {
       select: ({
@@ -37,7 +41,8 @@ export const useDashboardMetric = ({
   const {
     data: metricData,
     isFetched: isFetchedMetricData,
-    dataUpdatedAt: metricDataUpdatedAt
+    dataUpdatedAt: metricDataUpdatedAt,
+    error: metricDataError
   } = useGetMetricData({ id: metricId, versionNumber });
   const dashboard = useDashboardContentControllerContextSelector(({ dashboard }) => dashboard);
   const metricMetadata = useDashboardContentControllerContextSelector(
@@ -77,13 +82,17 @@ export const useDashboardMetric = ({
       metric,
       conatinerRef,
       metricData,
+      metricDataError,
       initialAnimationEnded,
       setInitialAnimationEnded,
       metricDataUpdatedAt,
       isFetchedMetricData,
-      isMetricFetched
+      isMetricFetched,
+      metricError
     }),
     [
+      metricError,
+      metricDataError,
       renderChart,
       metric,
       conatinerRef,

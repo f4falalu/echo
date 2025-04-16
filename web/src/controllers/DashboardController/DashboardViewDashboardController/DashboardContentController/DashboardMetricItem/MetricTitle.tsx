@@ -127,7 +127,7 @@ const ThreeDotMenu: React.FC<{
       onClick={onClick}
       className={cn(`hidden w-8.5 rounded group-hover:block`, className, isOpen && 'block')}>
       <div className="absolute right-1.5">
-        <Dropdown items={dropdownItems} side="bottom" onOpenChange={setIsOpen}>
+        <Dropdown items={dropdownItems} side="top" align="end" onOpenChange={setIsOpen}>
           <Button variant="ghost" className="bg-item-hover!" prefix={<DotsVertical />} />
         </Dropdown>
       </div>

@@ -70,7 +70,6 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
       );
     });
     const [colOrder, setColOrder] = useState<string[]>(serverColumnOrder || fields);
-
     // Build columns from fields.
     const columns = useMemo<
       ColumnDef<Record<string, string | number | Date | null>, string | number | Date | null>[]
@@ -129,6 +128,14 @@ export const TanStackDataGrid: React.FC<TanStackDataGridProps> = React.memo(
         }
       }
     }, [columnSizing, onResizeColumns]);
+
+    useEffect(() => {
+      if (columnWidthsProp) {
+        setColumnSizing(
+          createDefaultTableColumnWidths(fields, rows, columnWidthsProp, cellFormat, headerFormat)
+        );
+      }
+    }, [columnWidthsProp]);
 
     // Call onReady when the table is first set up.
     useEffect(() => {
