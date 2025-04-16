@@ -21,12 +21,24 @@ static REDIS_POOL: OnceCell<RedisPool> = OnceCell::new();
 
 pub async fn init_pools() -> Result<()> {
     let diesel_pool = match establish_diesel_connection().await {
-        Ok(pool) => pool,
+        Ok(pool) => {
+            // Warm up Diesel pool by acquiring min_idle connections
+            for _ in 0..5 {
+                let _ = pool.get().await;
+            }
+            pool
+        },
         Err(e) => return Err(anyhow!("Failed to establish diesel connection: {}", e)),
     };
 
     let sqlx_pool = match establish_sqlx_connection().await {
-        Ok(pool) => pool,
+        Ok(pool) => {
+            // Warm up SQLx pool by acquiring min_connections connections
+            for _ in 0..5 {
+                let _ = pool.acquire().await;
+            }
+            pool
+        },
         Err(e) => return Err(anyhow!("Failed to establish sqlx connection: {}", e)),
     };
 
