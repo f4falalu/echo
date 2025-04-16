@@ -1,9 +1,9 @@
 use anyhow::Result;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::sync::Arc;
-use std::pin::Pin;
 use std::future::Future;
+use std::pin::Pin;
+use std::sync::Arc;
 
 // Import necessary types from the parent module (modes/mod.rs)
 use super::{ModeAgentData, ModeConfiguration};
@@ -12,13 +12,10 @@ use crate::{Agent, ToolExecutor};
 // Import necessary tools for this mode
 use crate::tools::{
     categories::{
-        file_tools::SearchDataCatalogTool,
-        response_tools::MessageUserClarifyingQuestion,
-        utility_tools::no_search_needed::NoSearchNeededTool,
+        file_tools::SearchDataCatalogTool, response_tools::MessageUserClarifyingQuestion,
     },
     IntoToolCallExecutor,
 };
-
 
 // Function to get the configuration for the Initialization mode
 pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
@@ -29,54 +26,48 @@ pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
 
     // 2. Define the model for this mode (Using a default, adjust if needed)
     //    Since the original MODEL was None, we might use the agent's default
-    //    or specify a standard one like "o3-mini". Let's use "o3-mini".
-    let model = "o3-mini".to_string();
+    //    or specify a standard one like "o4-mini". Let's use "o4-mini".
+    let model = "o4-mini".to_string();
 
     // 3. Define the tool loader closure
-    let tool_loader: Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync> = 
-        Box::new(|agent_arc: &Arc<Agent>| {
-            let agent_clone = Arc::clone(agent_arc); // Clone Arc for the async block
-            Box::pin(async move {
-                // Clear existing tools before loading mode-specific ones
-                agent_clone.clear_tools().await;
+    let tool_loader: Box<
+        dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync,
+    > = Box::new(|agent_arc: &Arc<Agent>| {
+        let agent_clone = Arc::clone(agent_arc); // Clone Arc for the async block
+        Box::pin(async move {
+            // Clear existing tools before loading mode-specific ones
+            agent_clone.clear_tools().await;
 
-                // Instantiate tools for this mode
-                let search_data_catalog_tool = SearchDataCatalogTool::new(agent_clone.clone());
-                let no_search_needed_tool = NoSearchNeededTool::new(agent_clone.clone());
-                let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new(); // No agent state needed
+            // Instantiate tools for this mode
+            let search_data_catalog_tool = SearchDataCatalogTool::new(agent_clone.clone());
+            let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new(); // No agent state needed
 
-                // Condition (always true for this mode's tools)
-                let condition = Some(|_state: &HashMap<String, Value>| -> bool { true });
+            // Condition (always true for this mode's tools)
+            let condition = Some(|_state: &HashMap<String, Value>| -> bool { true });
 
-                // Add tools to the agent
-                agent_clone.add_tool(
+            // Add tools to the agent
+            agent_clone
+                .add_tool(
                     search_data_catalog_tool.get_name(),
                     search_data_catalog_tool.into_tool_call_executor(),
                     condition.clone(),
-                ).await;
+                )
+                .await;
 
-                agent_clone.add_tool(
-                    no_search_needed_tool.get_name(),
-                    no_search_needed_tool.into_tool_call_executor(),
-                    condition.clone(),
-                ).await;
-
-                agent_clone.add_tool(
+            agent_clone
+                .add_tool(
                     message_user_clarifying_question_tool.get_name(),
                     message_user_clarifying_question_tool.into_tool_call_executor(),
                     condition.clone(),
-                ).await;
+                )
+                .await;
 
-                Ok(())
-            })
-        });
+            Ok(())
+        })
+    });
 
     // 4. Define terminating tools for this mode
-    let terminating_tools = vec![
-        // From original load_tools: only MessageUserClarifyingQuestion was registered
-        MessageUserClarifyingQuestion::new().get_name(),
-        // Add other terminating tools if needed for this mode
-    ];
+    let terminating_tools = vec![MessageUserClarifyingQuestion::get_name()];
 
     // 5. Construct and return the ModeConfiguration
     ModeConfiguration {
@@ -86,7 +77,6 @@ pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
         terminating_tools,
     }
 }
-
 
 // Keep the prompt constant, but it's no longer pub
 const INTIALIZATION_PROMPT: &str = r##"### Role & Task

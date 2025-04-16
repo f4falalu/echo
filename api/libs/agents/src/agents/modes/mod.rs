@@ -31,7 +31,7 @@ pub struct ModeAgentData {
 pub struct ModeConfiguration {
     /// The system prompt to use for the LLM call in this mode.
     pub prompt: String,
-    /// The specific LLM model identifier (e.g., "o3-mini") to use for this mode.
+    /// The specific LLM model identifier (e.g., "o4-mini") to use for this mode.
     pub model: String,
     /// An async function/closure responsible for clearing existing tools
     /// and loading the specific tools required for this mode onto the agent.
@@ -77,31 +77,47 @@ pub fn determine_agent_state(state: &HashMap<String, Value>) -> AgentState {
     let has_user_prompt = state.contains_key("user_prompt"); // Check if latest user prompt is stored
 
 
-    // Initial state determination is tricky - depends when this is called relative to receiving the first user message.
-    // Assuming this is called *after* the first user message is added to the state.
-    if is_follow_up {
-        // Follow-up specific flow
-        if !has_user_prompt { // If this is the very start of a follow-up *before* user speaks
-             return AgentState::FollowUpInitialization;
-        }
-        // Now assume user has spoken in this follow-up turn
-        if needs_review { AgentState::Review }
-        else if !searched_catalog && !has_data_context { AgentState::DataCatalogSearch } // Need to search if no context yet
-        else if has_data_context && !has_plan { AgentState::Planning }
-        else if has_data_context && has_plan { AgentState::AnalysisExecution }
-        else { AgentState::FollowUpInitialization } // Fallback for follow-up if state is unclear
+    // 1. Handle states before the user provides their first prompt in this turn/session
+    if !has_user_prompt {
+        return if is_follow_up {
+            AgentState::FollowUpInitialization
+        } else {
+            AgentState::Initializing
+        };
+    }
 
+    // 2. Review always takes precedence after user speaks
+    if needs_review {
+        return AgentState::Review;
+    }
+
+    // 3. If we haven't searched the catalog yet, do that now (initial or follow-up)
+    //    This is the key change: check this condition before others like has_data_context
+    if !searched_catalog {
+        return AgentState::DataCatalogSearch;
+    }
+
+    // 4. If we have context but no plan, plan
+    if has_data_context && !has_plan {
+        return AgentState::Planning;
+    }
+
+    // 5. If we have context and a plan, execute analysis
+    if has_data_context && has_plan {
+        return AgentState::AnalysisExecution;
+    }
+
+    // 6. Fallback: If the state is ambiguous after searching and without needing review
+    //    (e.g., search happened but no context was added, or no plan needed).
+    //    Revert to an earlier appropriate state.
+    if is_follow_up {
+        // If it was a follow-up, perhaps return to follow-up init or planning?
+        // Let's choose FollowUpInitialization as a safe default if planning/analysis aren't ready.
+        AgentState::FollowUpInitialization
     } else {
-        // Initial conversation flow
-        if !has_user_prompt { // If this is the very start *before* user speaks
-            return AgentState::Initializing;
-        }
-        // Now assume user has spoken
-        if needs_review { AgentState::Review }
-        else if !searched_catalog { AgentState::DataCatalogSearch }
-        else if has_data_context && !has_plan { AgentState::Planning }
-        else if has_data_context && has_plan { AgentState::AnalysisExecution }
-         else { AgentState::Initializing } // Fallback for initial if state is unclear
+         // If it was initial, perhaps return to init or planning?
+         // Let's choose Initializing as a safe default if planning/analysis aren't ready.
+        AgentState::Initializing
     }
 
     // Original logic kept for reference:

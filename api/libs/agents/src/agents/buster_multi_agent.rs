@@ -10,12 +10,13 @@ use tokio::sync::broadcast;
 use uuid::Uuid;
 
 // Import the modes and necessary types
-use crate::agents::modes::{ // Assuming modes/mod.rs is one level up
+use crate::agents::modes::{
+    // Assuming modes/mod.rs is one level up
     self, // Import the module itself for functions like determine_agent_state
+    determine_agent_state,
     AgentState,
     ModeAgentData,
     ModeConfiguration,
-    determine_agent_state,
 };
 
 // Import Agent related types
@@ -50,14 +51,6 @@ pub struct BusterSuperAgentInput {
     pub message_id: Option<Uuid>,
 }
 
-// --- REMOVE State Management (Moved to modes/mod.rs) --- 
-// #[derive(Debug, PartialEq, Eq, Clone, Copy)]
-// enum AgentState { ... }
-// fn determine_agent_state(state: &HashMap<String, Value>) -> AgentState { ... }
-
-
-// --- Mode Provider Implementation ---
-
 // Create a struct to hold the data needed by the provider
 #[derive(Clone)]
 struct BusterModeProvider {
@@ -66,29 +59,34 @@ struct BusterModeProvider {
 
 #[async_trait::async_trait]
 impl ModeProvider for BusterModeProvider {
-    async fn get_configuration_for_state(&self, state: &HashMap<String, Value>) -> Result<ModeConfiguration> {
+    async fn get_configuration_for_state(
+        &self,
+        state: &HashMap<String, Value>,
+    ) -> Result<ModeConfiguration> {
         let current_mode = determine_agent_state(state);
-        
+
         // Call the appropriate get_configuration function based on the mode
         let mode_config = match current_mode {
             AgentState::Initializing => modes::initialization::get_configuration(&self.agent_data),
-            AgentState::FollowUpInitialization => modes::follow_up_initialization::get_configuration(&self.agent_data),
-            AgentState::DataCatalogSearch => modes::data_catalog_search::get_configuration(&self.agent_data),
+            AgentState::FollowUpInitialization => {
+                modes::follow_up_initialization::get_configuration(&self.agent_data)
+            }
+            AgentState::DataCatalogSearch => {
+                modes::data_catalog_search::get_configuration(&self.agent_data)
+            }
             AgentState::Planning => modes::planning::get_configuration(&self.agent_data),
             AgentState::AnalysisExecution => modes::analysis::get_configuration(&self.agent_data),
             AgentState::Review => modes::review::get_configuration(&self.agent_data),
         };
-        
+
         Ok(mode_config)
     }
 }
 
-// --- BusterMultiAgent --- 
+// --- BusterMultiAgent ---
 
 pub struct BusterMultiAgent {
     agent: Arc<Agent>,
-    // REMOVED dataset_names: Vec<String>,
-    // REMOVED todays_date: String,
 }
 
 impl AgentExt for BusterMultiAgent {
@@ -99,11 +97,7 @@ impl AgentExt for BusterMultiAgent {
 }
 
 impl BusterMultiAgent {
-    pub async fn new(
-        user_id: Uuid,
-        session_id: Uuid,
-        is_follow_up: bool,
-    ) -> Result<Self> {
+    pub async fn new(user_id: Uuid, session_id: Uuid, is_follow_up: bool) -> Result<Self> {
         let organization_id = match get_user_organization_id(&user_id).await {
             Ok(Some(org_id)) => org_id,
             Ok(None) => return Err(anyhow::anyhow!("User does not belong to any organization")),
@@ -113,7 +107,7 @@ impl BusterMultiAgent {
         // Prepare data for modes
         let todays_date = Arc::new(Local::now().format("%Y-%m-%d").to_string());
         let dataset_names = Arc::new(get_dataset_names_for_organization(organization_id).await?);
-        
+
         let agent_data = ModeAgentData {
             dataset_names,
             todays_date,
@@ -122,21 +116,15 @@ impl BusterMultiAgent {
         // Create the mode provider
         let mode_provider = Arc::new(BusterModeProvider { agent_data });
 
-        // REMOVE old hook logic
-        // let agent_arc_for_hook = self.agent.clone(); // This was the error source
-        // let hook_generator = || -> ... { ... };
-
         // Create agent, passing the provider
         let agent = Arc::new(Agent::new(
-            "o3-mini".to_string(), // Initial model (can be overridden by first mode)
+            "o4-mini".to_string(), // Initial model (can be overridden by first mode)
             user_id,
             session_id,
             "buster_multi_agent".to_string(),
-            None, // api_key 
+            None, // api_key
             None, // base_url
             mode_provider, // Pass the provider
-            // REMOVED initial_default_prompt
-            // REMOVED hook_generator()
         ));
 
         // Set the initial is_follow_up flag in state
@@ -146,33 +134,25 @@ impl BusterMultiAgent {
 
         let buster_agent = Self {
             agent,
-            // REMOVED dataset_names,
-            // REMOVED todays_date,
         };
-
-        // REMOVE dynamic rules registration
-        // buster_agent.register_dynamic_rules().await?; 
 
         Ok(buster_agent)
     }
 
-    // REMOVE register_dynamic_rules function
-    // async fn register_dynamic_rules(&self) -> Result<()> { ... }
 
     pub async fn run(
-        self: &Arc<Self>, // Take Arc<Self> if AgentExt requires it for process_thread
+        self: &Arc<Self>, 
         thread: &mut AgentThread,
     ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
-        
-        // Ensure the initial user prompt is in the state if available
-        // This is important for the first call to determine_agent_state
         if let Some(user_prompt) = self.get_latest_user_message(thread) {
             self.agent // Use self.agent directly
                 .set_state_value("user_prompt".to_string(), Value::String(user_prompt))
                 .await;
         } else {
             // Handle case where there might not be a user message yet (e.g., agent starts convo?)
-             self.agent.set_state_value("user_prompt".to_string(), Value::Null).await;
+            self.agent
+                .set_state_value("user_prompt".to_string(), Value::Null)
+                .await;
         }
 
         // Mode configuration now happens inside Agent::process_thread_with_depth via the provider

@@ -25,15 +25,38 @@ pub async fn generate_todos_from_plan(
 
     let prompt = format!(
         r#"
-Given the following plan, extract the main actionable steps and return them as a JSON list of concise todo strings. Focus on the core actions described in each step. Do not include any introductory text, summary, or review steps. Only include the main tasks to be performed.
+Given the following plan, identify the main high-level objects (e.g., dashboards, visualizations) being created or modified. Return these as a JSON list of descriptive todo strings. Each todo item should summarize the primary creation or modification goal for one object.
+
+**IMPORTANT**: Do not include granular implementation steps (like adding specific filters or fields), review steps, verification steps, summarization steps, or steps about responding to the user. Focus solely on the final artifact being built or changed.
 
 Plan:
 """
 {}
 """
 
-Return ONLY a valid JSON array of strings, where each string is a short todo item corresponding to a main step in the plan.
-Example format: `["Create 11 visualizations", "Create dashboard"]`
+Return ONLY a valid JSON array of strings, where each string is a descriptive todo item corresponding to a main object being created or modified in the plan.
+
+Example Plan:
+**Thought**
+The user wants to see the daily transaction volume trend over the past month.
+I'll sum the transaction amounts per day from the `transactions` dataset, filtering for the last 30 days.
+I will present this as a line chart.
+
+**Step-by-Step Plan**
+1. **Create 1 Visualization**:
+- **Title**: "Daily Transaction Volume (Last 30 Days)"
+- **Type**: Line Chart
+- **Datasets**: transactions
+- **X-Axis**: Day (from transaction timestamp)
+- **Y-Axis**: Sum of transaction amount
+- **Filter**: Transaction timestamp within the last 30 days.
+- **Expected Output**: A line chart showing the total transaction volume for each day over the past 30 days.
+
+2. **Review & Finish**:
+- Verify the date filter correctly captures the last 30 days.
+- Ensure the axes are labeled clearly.
+
+Example Output for the above plan: `["Create line chart visualization 'Daily Transaction Volume (Last 30 Days)'"]`
 "#,
         plan
     );
