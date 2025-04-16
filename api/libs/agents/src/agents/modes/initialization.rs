@@ -13,7 +13,6 @@ use crate::{Agent, ToolExecutor};
 use crate::tools::{
     categories::{
         file_tools::SearchDataCatalogTool, response_tools::MessageUserClarifyingQuestion,
-        utility_tools::no_search_needed::NoSearchNeededTool,
     },
     IntoToolCallExecutor,
 };
