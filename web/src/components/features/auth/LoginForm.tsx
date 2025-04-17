@@ -218,6 +218,7 @@ const LoginOptions: React.FC<{
         }}>
         <Button
           prefix={<Google />}
+          size={'tall'}
           onClick={() => {
             clearAllCookies();
             onSignInWithGoogle();
@@ -228,6 +229,7 @@ const LoginOptions: React.FC<{
         </Button>
         <Button
           prefix={<Github />}
+          size={'tall'}
           onClick={() => {
             clearAllCookies();
             onSignInWithGithub();
@@ -238,6 +240,7 @@ const LoginOptions: React.FC<{
         </Button>
         <Button
           prefix={<Microsoft />}
+          size={'tall'}
           onClick={() => {
             clearAllCookies();
             onSignInWithAzure();
@@ -307,6 +310,7 @@ const LoginOptions: React.FC<{
           show={signUpFlow && disableSubmitButton && !!password}
           placement="top">
           <Button
+            size={'tall'}
             block={true}
             type="submit"
             loading={loading === 'email'}
@@ -343,6 +347,7 @@ const SignUpSuccess: React.FC<{
         <Button
           key="login"
           variant="black"
+          size={'tall'}
           onClick={() => {
             setSignUpSuccess(false);
             setSignUpFlow(true);
