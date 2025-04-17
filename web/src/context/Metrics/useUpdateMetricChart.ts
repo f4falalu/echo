@@ -6,18 +6,21 @@ import {
   IColumnLabelFormat,
   type IBusterMetricChartConfig
 } from '@/api/asset_interfaces/metric';
-import { useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useSaveMetric, useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { useGetMetricMemoized } from './useGetMetricMemoized';
 import { useParams } from 'next/navigation';
 import { timeout } from '@/lib/timeout';
 import { useState } from 'react';
+import { useOriginalMetricStore } from './useOriginalMetricStore';
 
 export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: string }) => {
   const params = useParams<{ metricId?: string; chatId?: string }>();
   const metricId = props?.metricId ?? params.metricId ?? '';
   const chatId = props?.chatId ?? params.chatId ?? '';
   const [isSaving, setIsSaving] = useState(false);
+  const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
+  const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
   const { mutate: onUpdateMetric } = useUpdateMetric({
     updateVersion: false,
     updateOnSave: false,
@@ -27,6 +30,9 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
     updateOnSave: true,
     saveToServer: true,
     updateVersion: !chatId
+  });
+  const { mutateAsync: saveMetricToServerWithoutSideEffects } = useSaveMetric({
+    updateOnSave: false
   });
 
   const getMetricMemoized = useGetMetricMemoized();
@@ -125,12 +131,39 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
     setIsSaving(false);
   });
 
+  const onInitializeTableColumnWidths = useMemoizedFn(
+    (tableColumnWidths: IBusterMetricChartConfig['tableColumnWidths']) => {
+      const originalMetric = getOriginalMetric(metricId);
+      if (originalMetric) {
+        const newChartConfig: IBusterMetricChartConfig = {
+          ...DEFAULT_CHART_CONFIG,
+          ...originalMetric.chart_config,
+          tableColumnWidths
+        };
+
+        console.log('newChartConfig', newChartConfig.tableColumnWidths);
+
+        saveMetricToServerWithoutSideEffects({
+          id: metricId,
+          chart_config: newChartConfig,
+          update_version: false
+        });
+
+        setOriginalMetric({
+          ...originalMetric,
+          chart_config: newChartConfig
+        });
+      }
+    }
+  );
+
   return {
     onSaveMetricToServer,
     onUpdateMetricChartConfig,
     onUpdateColumnLabelFormat,
     onUpdateColumnSetting,
     onUpdateMetricName,
+    onInitializeTableColumnWidths,
     isSaving
   };
 };

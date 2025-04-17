@@ -71,7 +71,7 @@ export const AppCodeEditor = forwardRef<AppCodeEditorHandle, AppCodeEditorProps>
       return {
         language,
         readOnly,
-        folding: false,
+        folding: true,
         lineDecorationsWidth: 15,
         lineNumbersMinChars: 3,
         tabSize: 7,

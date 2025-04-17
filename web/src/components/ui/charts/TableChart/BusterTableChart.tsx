@@ -12,6 +12,8 @@ import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import './TableChart.css';
 import { cn } from '@/lib/classMerge';
 import { useUpdateMetricChart } from '@/context/Metrics';
+import { useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
 
 export interface BusterTableChartProps extends BusterTableChartConfig, BusterChartPropsBase {}
 
@@ -29,15 +31,15 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   tableHeaderFontColor,
   tableColumnFontColor
 }) => {
-  const { onUpdateMetricChartConfig, onSaveMetricToServer } = useUpdateMetricChart();
+  const { onUpdateMetricChartConfig, onSaveMetricToServer, onInitializeTableColumnWidths } =
+    useUpdateMetricChart();
 
   const onChangeConfig = useMemoizedFn((config: Partial<IBusterMetricChartConfig>) => {
     if (readOnly) return;
     onUpdateMetricChartConfig({ chartConfig: config });
 
-    if (tableColumnWidths === null) {
-      //if the tableColumnWidths is null, we need to save the metric to the server just to initialize the tableColumnWidths
-      setTimeout(() => onSaveMetricToServer(), 0);
+    if (tableColumnWidths === null && !!config.tableColumnWidths) {
+      onInitializeTableColumnWidths(config.tableColumnWidths);
     }
   });
 

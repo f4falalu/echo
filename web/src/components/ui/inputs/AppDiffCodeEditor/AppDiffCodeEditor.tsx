@@ -61,7 +61,7 @@ export const AppDiffCodeEditor = forwardRef<AppDiffCodeEditorHandle, AppDiffCode
           automaticLayout: true,
           readOnly: readOnly || disabled,
           renderSideBySide: viewMode === 'side-by-side',
-          folding: false,
+          folding: true,
           lineDecorationsWidth: 15,
           lineNumbersMinChars: 3,
           renderOverviewRuler: false,

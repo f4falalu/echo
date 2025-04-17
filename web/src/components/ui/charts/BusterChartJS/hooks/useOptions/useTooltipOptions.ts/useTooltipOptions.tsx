@@ -173,9 +173,9 @@ const createTooltipCacheKey = (
   const parts = [
     //@ts-ignore
     chart.config.type,
-    chart.tooltip.title.join(''),
+    chart.tooltip.title?.join(''),
     chart.tooltip.body?.map((b) => b.lines.join('')).join(''),
-    keyToUsePercentage.join(''),
+    keyToUsePercentage?.join(''),
     columnLabelFormatsString,
     colorsStringCache
   ];
