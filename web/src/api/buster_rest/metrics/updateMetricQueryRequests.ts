@@ -62,6 +62,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
         const metric = queryClient.getQueryData(
           metricsQueryKeys.metricsGetMetric(id, selectedVersionNumber).queryKey
         );
+        if (!metric) return;
         const metricVersionNumber = metric?.version_number;
         const metricData = queryClient.getQueryData(
           metricsQueryKeys.metricsGetData(id, metricVersionNumber).queryKey

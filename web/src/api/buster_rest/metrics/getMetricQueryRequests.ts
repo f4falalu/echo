@@ -31,13 +31,13 @@ export const useGetMetric = <TData = IBusterMetric>(
       versionNumber: versionNumberProp
     });
 
-  const initialOptions = metricsQueryKeys.metricsGetMetric(id!, paramVersionNumber || 'INITIAL');
+  const initialOptions = metricsQueryKeys.metricsGetMetric(id!, paramVersionNumber || null);
 
-  const initialQueryFn = useMemoizedFn(async (version?: number) => {
+  const initialQueryFn = useMemoizedFn(async (version?: number | null) => {
     const result = await getMetric({
       id: id!,
       password,
-      version_number: version
+      version_number: version === null ? undefined : version
     });
     const updatedMetric = upgradeMetricToIMetric(result, null);
     const isLatestVersion =
@@ -67,10 +67,9 @@ export const useGetMetric = <TData = IBusterMetric>(
   });
 
   return useQuery({
-    queryKey: metricsQueryKeys.metricsGetMetric(id!, selectedVersionNumber!).queryKey,
-    enabled:
-      !!latestVersionNumber && !!selectedVersionNumber && isFetchedInitial && !isErrorInitial,
-    queryFn: () => initialQueryFn(selectedVersionNumber!),
+    queryKey: metricsQueryKeys.metricsGetMetric(id!, selectedVersionNumber).queryKey,
+    enabled: !!latestVersionNumber && isFetchedInitial && !isErrorInitial,
+    queryFn: () => initialQueryFn(selectedVersionNumber),
     select: params?.select
   });
 };
@@ -122,7 +121,7 @@ export const useGetMetricData = <TData = IBusterMetricData>(
   const queryFn = useMemoizedFn(async () => {
     const result = await getMetricData({
       id: id!,
-      version_number: selectedVersionNumber,
+      version_number: selectedVersionNumber || undefined,
       password
     });
 
@@ -130,7 +129,7 @@ export const useGetMetricData = <TData = IBusterMetricData>(
   });
 
   return useQuery({
-    ...metricsQueryKeys.metricsGetData(id!, selectedVersionNumber),
+    ...metricsQueryKeys.metricsGetData(id!, selectedVersionNumber!),
     queryFn,
     enabled: () => {
       return (
@@ -148,7 +147,7 @@ export const useGetMetricData = <TData = IBusterMetricData>(
 };
 
 export const prefetchGetMetricDataClient = async (
-  { id, version_number }: { id: string; version_number: number | undefined },
+  { id, version_number }: { id: string; version_number: number },
   queryClient: QueryClient
 ) => {
   const options = metricsQueryKeys.metricsGetData(id, version_number);
@@ -163,7 +162,7 @@ export const prefetchGetMetricDataClient = async (
 
 export const usePrefetchGetMetricDataClient = () => {
   const queryClient = useQueryClient();
-  return useMemoizedFn(({ id, versionNumber }: { id: string; versionNumber: number | undefined }) =>
+  return useMemoizedFn(({ id, versionNumber }: { id: string; versionNumber: number }) =>
     prefetchGetMetricDataClient({ id, version_number: versionNumber }, queryClient)
   );
 };

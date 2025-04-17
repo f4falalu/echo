@@ -1,6 +1,6 @@
 import { useParams, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
-import { hashKey, Query, QueryFilters, useQueryClient } from '@tanstack/react-query';
+import { Query, useQueryClient } from '@tanstack/react-query';
 import { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import last from 'lodash/last';
@@ -25,7 +25,8 @@ export const useGetMetricVersionNumber = (props?: { versionNumber?: number | nul
 
   const latestVersionNumber = useGetLatestMetricVersion({ metricId: metricIdPathParam! });
 
-  const selectedVersionNumber: number = useMemo(() => {
+  const selectedVersionNumber: number | null = useMemo(() => {
+    if (versionNumberProp === null) return null;
     return paramVersionNumber || latestVersionNumber || 0;
   }, [paramVersionNumber, latestVersionNumber]);
 
@@ -51,7 +52,7 @@ const useGetLatestMetricVersion = ({ metricId }: { metricId: string }) => {
   const queryClient = useQueryClient();
 
   const memoizedKey = useMemo(() => {
-    return metricsQueryKeys.metricsGetMetric(metricId, 'INITIAL').queryKey.slice(0, -1);
+    return metricsQueryKeys.metricsGetMetric(metricId, null).queryKey.slice(0, -1);
   }, [metricId]);
 
   const queries = queryClient.getQueriesData<IBusterMetric, any>({
@@ -83,7 +84,7 @@ export const useGetLatestMetricVersionNumber = () => {
 
   const method = useMemoizedFn((metricId: string) => {
     const queries = queryClient.getQueriesData<IBusterMetric, any>({
-      queryKey: metricsQueryKeys.metricsGetMetric(metricId, 'INITIAL').queryKey.slice(0, -1),
+      queryKey: metricsQueryKeys.metricsGetMetric(metricId, null).queryKey.slice(0, -1),
       predicate: filterMetricPredicate
     });
 
