@@ -323,3 +323,10 @@ The goal is to build a comprehensive dashboard on product sales YTD. The dashboa
 This plan should provide a clear and comprehensive dashboard covering overall sales trends, key players in both sales and buying, and categorical breakdown for the top and bottom 10 products.`
   }
 };
+
+export const WithHiddenNewlines: Story = {
+  args: {
+    markdown: 'This is line one.\nThis is line two.\nThis is line three.',
+    className: 'whitespace-pre-wrap'
+  }
+};

@@ -257,8 +257,6 @@ export const useAddDashboardToCollection = () => {
   const mutationFn = useMemoizedFn(
     async (variables: { dashboardIds: string[]; collectionIds: string[] }) => {
       const { dashboardIds, collectionIds } = variables;
-      console.log('dashboardIds', dashboardIds);
-      console.log('collectionIds', collectionIds);
       return await Promise.all(
         collectionIds.map((collectionId) =>
           addAssetToCollection({

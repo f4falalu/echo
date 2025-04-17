@@ -59,12 +59,13 @@ export const NewPermissionGroupModal: React.FC<NewPermissionGroupModalProps> = R
     return (
       <AppModal open={isOpen} onClose={onClose} header={header} footer={footer}>
         <div className="flex flex-col gap-2.5">
-          <SelectedDatasetInput onSetDatasetId={setDatasetsIdsToAssign} />
           <Input
             ref={inputRef}
+            autoFocus
             placeholder="Name of permission group"
             onPressEnter={onCreateNewPermissionGroup}
           />
+          <SelectedDatasetInput onSetDatasetId={setDatasetsIdsToAssign} />
         </div>
       </AppModal>
     );

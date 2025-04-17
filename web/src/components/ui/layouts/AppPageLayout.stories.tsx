@@ -67,3 +67,34 @@ export const LongContent: Story = {
     )
   }
 };
+
+/*
+    <AppPageLayout
+      contentContainerId={CHAT_CONTENT_CONTAINER_ID}
+      header={<ChatHeader />}
+      headerBorderVariant="ghost"
+      scrollable
+      className="flex h-full w-full min-w-[295px] flex-col">
+      <ChatContent />
+    </AppPageLayout>
+*/
+
+export const LongContentGhostHeader: Story = {
+  args: {
+    contentContainerId: 'chat-container-content',
+    header: <div className="">Header Content</div>,
+    scrollable: true,
+    //  className: 'flex h-full w-full min-w-[295px] flex-col',
+    headerBorderVariant: 'ghost',
+    children: (
+      <div className="">
+        {Array.from({ length: 100 }, (_, i) => (
+          <p key={i} className="mb-4">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+            incididunt ut labore et dolore magna aliqua.
+          </p>
+        ))}
+      </div>
+    )
+  }
+};

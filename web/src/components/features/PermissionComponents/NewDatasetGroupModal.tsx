@@ -64,8 +64,8 @@ export const NewDatasetGroupModal: React.FC<NewDatasetGroupModalProps> = React.m
     return (
       <AppModal open={isOpen} onClose={onClose} header={header} footer={footer}>
         <div className="flex flex-col gap-2.5">
+          <Input ref={inputRef} autoFocus placeholder="Name of dataset group" />
           <SelectedDatasetInput onSetDatasetId={onSetDatasetId} />
-          <Input ref={inputRef} placeholder="Name of dataset group" />
         </div>
       </AppModal>
     );
