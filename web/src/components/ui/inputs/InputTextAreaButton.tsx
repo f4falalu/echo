@@ -1,4 +1,4 @@
-import React, { useMemo, forwardRef, useRef } from 'react';
+import React, { useMemo, forwardRef } from 'react';
 import { InputTextArea, InputTextAreaProps } from './InputTextArea';
 import { cn } from '@/lib/classMerge';
 import { cva } from 'class-variance-authority';

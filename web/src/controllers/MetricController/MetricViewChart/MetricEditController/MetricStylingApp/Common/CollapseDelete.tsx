@@ -143,7 +143,7 @@ const DropdownIcon: React.FC<{
     };
   }, [open]);
 
-  const onClickToggleDropdown = useMemoizedFn((e: React.MouseEvent<HTMLDivElement>) => {
+  const onClickToggleDropdown = useMemoizedFn((e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     onToggleDropdown();
   });
@@ -182,11 +182,11 @@ const DropdownIcon: React.FC<{
         size="small"
         className="flex"
         variant="ghost"
+        onClick={onClickToggleDropdown}
         prefix={
           <motion.div
             className={cn('flex items-center justify-center', isDragging && 'hidden!')}
-            {...memoizedAnimation}
-            onClick={onClickToggleDropdown}>
+            {...memoizedAnimation}>
             <ChevronRight />
           </motion.div>
         }></Button>
