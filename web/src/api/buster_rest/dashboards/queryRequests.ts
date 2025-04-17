@@ -615,7 +615,11 @@ export const useRemoveMetricsFromDashboard = () => {
 };
 
 export const useGetDashboardsList = (
-  params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
+  params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>,
+  options?: Omit<
+    UseQueryOptions<Awaited<ReturnType<typeof dashboardsGetList>>, RustApiError>,
+    'queryKey' | 'queryFn'
+  >
 ) => {
   const filters = useMemo(() => {
     return {
@@ -627,6 +631,7 @@ export const useGetDashboardsList = (
 
   return useQuery({
     ...dashboardQueryKeys.dashboardGetList(params),
-    queryFn: () => dashboardsGetList(filters)
+    queryFn: () => dashboardsGetList(filters),
+    ...options
   });
 };

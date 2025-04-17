@@ -1,4 +1,7 @@
 import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { useGetCollectionsList } from '@/api/buster_rest/collections';
+import { useGetDashboardsList } from '@/api/buster_rest/dashboards';
+import { useGetMetricsList } from '@/api/buster_rest/metrics';
 import {
   useAddUserFavorite,
   useDeleteUserFavorite,
@@ -20,6 +23,34 @@ export const useThreeDotFavoritesOptions = ({
   const { mutateAsync: addUserFavorite } = useAddUserFavorite();
   const { mutateAsync: removeUserFavorite } = useDeleteUserFavorite();
   const { data: userFavorites } = useGetUserFavorites();
+  const { data: metricList } = useGetMetricsList({}, { enabled: false });
+  const { data: dashboardList } = useGetDashboardsList({}, { enabled: false });
+  const { data: collectionList } = useGetCollectionsList({}, { enabled: false });
+
+  const nameSearchArray = useMemo(() => {
+    if (assetType === 'metric' && metricList) {
+      return metricList?.map((m) => ({
+        id: m.id,
+        name: m.name
+      }));
+    }
+
+    if (assetType === 'dashboard' && dashboardList) {
+      return dashboardList?.map((d) => ({
+        id: d.id,
+        name: d.name
+      }));
+    }
+
+    if (assetType === 'collection' && collectionList) {
+      return collectionList?.map((c) => ({
+        id: c.id,
+        name: c.name
+      }));
+    }
+
+    return [];
+  }, [assetType, metricList, dashboardList, collectionList]);
 
   const dropdownOptions: DropdownItems = useMemo(
     () => [
@@ -32,7 +63,7 @@ export const useThreeDotFavoritesOptions = ({
             ...itemIds.map((id) => ({
               id,
               asset_type: assetType,
-              name: userFavorites?.find((f) => f.id === id)?.name || ''
+              name: nameSearchArray.find((n) => n.id === id)?.name || ''
             }))
           ]);
           onFinish(itemIds);

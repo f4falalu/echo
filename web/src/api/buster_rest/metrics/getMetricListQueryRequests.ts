@@ -1,11 +1,16 @@
 import { useMemo } from 'react';
 import { listMetrics } from './requests';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { useMemoizedFn } from '@/hooks';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
+import { RustApiError } from '../errors';
 
 export const useGetMetricsList = (
-  params: Omit<Parameters<typeof listMetrics>[0], 'page_token' | 'page_size'>
+  params: Omit<Parameters<typeof listMetrics>[0], 'page_token' | 'page_size'>,
+  options?: Omit<
+    UseQueryOptions<Awaited<ReturnType<typeof listMetrics>>, RustApiError>,
+    'queryKey' | 'queryFn'
+  >
 ) => {
   const compiledParams: Parameters<typeof listMetrics>[0] = useMemo(
     () => ({ ...params, page_token: 0, page_size: 3000 }),
@@ -16,6 +21,8 @@ export const useGetMetricsList = (
 
   return useQuery({
     ...metricsQueryKeys.metricsGetList(params),
-    queryFn
+    queryFn,
+    select: options?.select,
+    ...options
   });
 };

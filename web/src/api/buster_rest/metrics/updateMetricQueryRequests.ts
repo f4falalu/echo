@@ -1,6 +1,6 @@
 import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useGetMetricVersionNumber } from './metricQueryHelpers';
+import { useGetLatestMetricVersionNumber, useGetMetricVersionNumber } from './metricQueryHelpers';
 import {
   bulkUpdateMetricVerificationStatus,
   deleteMetrics,
@@ -355,8 +355,25 @@ export const useUpdateMetric = (params: {
 
 export const useBulkUpdateMetricVerificationStatus = () => {
   const queryClient = useQueryClient();
+  const getLatestVersionNumber = useGetLatestMetricVersionNumber();
   return useMutation({
     mutationFn: bulkUpdateMetricVerificationStatus,
+    onMutate: (variables) => {
+      variables.forEach((metric) => {
+        const latestVersionNumber = getLatestVersionNumber(metric.id);
+        const foundMetric = queryClient.getQueryData(
+          metricsQueryKeys.metricsGetMetric(metric.id, latestVersionNumber).queryKey
+        );
+        if (foundMetric) {
+          queryClient.setQueryData(
+            metricsQueryKeys.metricsGetMetric(metric.id, latestVersionNumber).queryKey,
+            create(foundMetric!, (draft: IBusterMetric) => {
+              draft.status = metric.status;
+            })
+          );
+        }
+      });
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: metricsQueryKeys.metricsGetList({}).queryKey });
       data.updated_metrics.forEach((metric) => {
