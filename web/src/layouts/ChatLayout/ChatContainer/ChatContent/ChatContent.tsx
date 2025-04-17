@@ -59,7 +59,7 @@ const ChatInputWrapper: React.FC<{
   children?: React.ReactNode;
 }> = React.memo(({ children }) => {
   return (
-    <div className="bg-page-background absolute bottom-0 w-full">
+    <div className="bg-page-background absolute bottom-0 w-full overflow-hidden">
       <div className="from-page-background pointer-events-none absolute -top-16 h-16 w-full bg-gradient-to-t to-transparent" />
       <div className={autoClass}>
         <ChatInput />
