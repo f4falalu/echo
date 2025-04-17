@@ -35,8 +35,7 @@ export const ChatMessageOptions: React.FC<{
         'You are about to duplicate this chat from this message. This will create a new chat with the same messages. Do you want to continue?',
       onOk: async () => {
         const res = await duplicateChat({
-          id: chatId,
-          message_id: messageId
+          id: chatId
         });
         await timeout(100);
         await onChangePage({

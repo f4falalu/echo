@@ -125,7 +125,10 @@ export const useSaveToCollectionsDropdownContent = ({
       onRemoveFromCollection(collection.id);
     } else {
       const allCollectionsAndSelected = selectedCollections.map((id) => id).concat(collection.id);
-      onSaveToCollection(allCollectionsAndSelected);
+      const differenceFromSelectedCollections = allCollectionsAndSelected.filter(
+        (id) => !selectedCollections.some((selectedId) => selectedId === id)
+      );
+      onSaveToCollection(differenceFromSelectedCollections);
     }
   });
 

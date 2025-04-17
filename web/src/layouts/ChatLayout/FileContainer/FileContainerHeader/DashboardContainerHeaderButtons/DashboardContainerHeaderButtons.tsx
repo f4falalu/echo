@@ -37,7 +37,7 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
 
     return (
       <FileButtonContainer>
-        <SaveToCollectionButton />
+        <SaveToCollectionButton dashboardId={dashboardId} />
         {isEffectiveOwner && <ShareDashboardButton dashboardId={dashboardId} />}
         {isEditor && !isViewingOldVersion && <AddContentToDashboardButton />}
         <DashboardThreeDotMenu
@@ -54,9 +54,18 @@ export const DashboardContainerHeaderButtons: React.FC<FileContainerButtonsProps
 
 DashboardContainerHeaderButtons.displayName = 'DashboardContainerHeaderButtons';
 
-const SaveToCollectionButton = React.memo(() => {
-  const selectedFileId = useChatIndividualContextSelector((x) => x.selectedFileId)!;
-  return <SaveDashboardToCollectionButton dashboardIds={[selectedFileId]} />;
+const SaveToCollectionButton = React.memo(({ dashboardId }: { dashboardId: string }) => {
+  const { data: collections } = useGetDashboard(
+    { id: dashboardId },
+    { select: (x) => x.collections?.map((x) => x.id) }
+  );
+
+  return (
+    <SaveDashboardToCollectionButton
+      dashboardIds={[dashboardId]}
+      selectedCollections={collections || []}
+    />
+  );
 });
 SaveToCollectionButton.displayName = 'SaveToCollectionButton';
 
