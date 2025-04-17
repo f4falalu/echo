@@ -137,7 +137,7 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # --- GENERAL YAML RULES ---
 # 1. Use standard YAML syntax (indentation, colons for key-value, `-` for arrays).
 # 2. Quoting: Generally avoid quotes for simple strings. Use double quotes (`"...") ONLY if a string contains special characters (like :, {, }, [, ], ,, &, *, #, ?, |, -, <, >, =, !, %, @, `) or needs to preserve leading/trailing whitespace. 
-# 3. Metric name should not contain `:`
+# 3. Metric name or description should not contain `:`
 # -------------------------------------
 
 # --- FORMAL SCHEMA --- (Used for validation, reflects rules above)
