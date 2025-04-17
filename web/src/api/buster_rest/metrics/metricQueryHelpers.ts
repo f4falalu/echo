@@ -57,7 +57,7 @@ const getLatestVersionNumber = (queries: [readonly unknown[], IBusterMetric | un
       const lastVersion = last(data.versions);
       const version = Number(lastVersion?.version_number);
       if (!isNaN(version)) {
-        latestVersion = Math.max(latestVersion, version, data.version_number);
+        latestVersion = Math.max(latestVersion, version);
       }
     }
   }
@@ -67,34 +67,38 @@ const getLatestVersionNumber = (queries: [readonly unknown[], IBusterMetric | un
 
 const useGetLatestMetricVersion = ({ metricId }: { metricId: string }) => {
   const queryClient = useQueryClient();
-  const [cacheVersion, setCacheVersion] = useState(0); // To force re-renders on relevant cache changes
+  const [latestVersion, setLatestVersion] = useState<number | null>(null);
 
   const memoizedKey = useMemo(() => {
     return metricsQueryKeys.metricsGetMetric(metricId, null).queryKey.slice(0, -1);
   }, [metricId]);
 
-  const subscribeMethod = useMemoizedFn((event: QueryCacheNotifyEvent) => {
-    if (
-      event.type === 'updated' &&
-      event.query.queryKey[2] === last(memoizedKey) &&
-      event.query.queryKey[1] === memoizedKey[1]
-    ) {
-      setCacheVersion((prev) => prev + 1);
-    }
-  });
-
-  useEffect(() => {
-    const unsubscribe = queryClient.getQueryCache().subscribe(subscribeMethod);
-    return () => unsubscribe();
-  }, [memoizedKey]);
-
-  const latestVersion = useMemo(() => {
+  const updateLatestVersion = useMemoizedFn(() => {
     const queries = queryClient.getQueriesData<IBusterMetric, any>({
       queryKey: memoizedKey,
       predicate: filterMetricPredicate
     });
-    return getLatestVersionNumber(queries);
-  }, [memoizedKey, cacheVersion]);
+    const newVersion = getLatestVersionNumber(queries);
+    setLatestVersion(newVersion);
+  });
+
+  useEffect(() => {
+    // Initial computation
+    updateLatestVersion();
+
+    // Subscribe to cache updates
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (
+        event.type === 'updated' &&
+        event.query.queryKey[2] === last(memoizedKey) &&
+        event.query.queryKey[1] === memoizedKey[1]
+      ) {
+        updateLatestVersion();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [memoizedKey, updateLatestVersion]);
 
   return latestVersion;
 };
