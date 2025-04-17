@@ -1,0 +1,21 @@
+import { useMemo } from 'react';
+import { listMetrics } from './requests';
+import { useQuery } from '@tanstack/react-query';
+import { useMemoizedFn } from '@/hooks';
+import { metricsQueryKeys } from '@/api/query_keys/metric';
+
+export const useGetMetricsList = (
+  params: Omit<Parameters<typeof listMetrics>[0], 'page_token' | 'page_size'>
+) => {
+  const compiledParams: Parameters<typeof listMetrics>[0] = useMemo(
+    () => ({ ...params, page_token: 0, page_size: 3000 }),
+    [params]
+  );
+
+  const queryFn = useMemoizedFn(() => listMetrics(compiledParams));
+
+  return useQuery({
+    ...metricsQueryKeys.metricsGetList(params),
+    queryFn
+  });
+};

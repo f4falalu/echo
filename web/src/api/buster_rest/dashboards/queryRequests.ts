@@ -28,7 +28,7 @@ import { addAndRemoveMetricsToDashboard } from './helpers/addAndRemoveMetricsToD
 import { RustApiError } from '../errors';
 import { useOriginalDashboardStore } from '@/context/Dashboards';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import { useGetHighestVersionMetric } from './queryHelpers';
+import { useGetHighestVersionMetric } from '../metrics/metricQueryHelpers';
 import {
   useGetDashboardAndInitializeMetrics,
   useGetDashboardVersionNumber,
@@ -540,12 +540,9 @@ export const useRemoveMetricsFromDashboard = () => {
           if (highestVersion) {
             const options = metricsQueryKeys.metricsGetMetric(metricId, highestVersion);
             queryClient.setQueryData(options.queryKey, (old) => {
-              const result = create(old!, (draft) => {
+              return create(old!, (draft) => {
                 draft.dashboards = old?.dashboards?.filter((d) => d.id !== dashboardId) || [];
-                console.log(draft.dashboards);
               });
-              console.log(result);
-              return result;
             });
           }
         });

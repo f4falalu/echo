@@ -14,33 +14,6 @@ import { dashboardsGetDashboard } from './requests';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 
-export const useGetHighestVersionMetric = () => {
-  const queryClient = useQueryClient();
-  const method = useMemoizedFn((metricId: string) => {
-    // Get all queries related to this metric
-    const metricQueries = queryClient.getQueriesData<IBusterMetric>({
-      queryKey: metricsQueryKeys.metricsGetMetric(metricId, undefined).queryKey.slice(0, -1)
-    });
-
-    // Find the metric with the highest version number
-
-    let highestVersion = -1;
-
-    for (const [queryKey, data] of metricQueries) {
-      if (!data) continue;
-
-      const versionNumber = data.version_number;
-      if (versionNumber !== undefined && versionNumber > highestVersion) {
-        highestVersion = versionNumber;
-      }
-    }
-
-    return highestVersion === -1 ? undefined : highestVersion;
-  });
-
-  return method;
-};
-
 export const useEnsureDashboardConfig = (prefetchData: boolean = true) => {
   const queryClient = useQueryClient();
   const versionNumber = useGetDashboardVersionNumber();
