@@ -30,7 +30,7 @@ const useBusterAssets = () => {
       });
     } else if (type === 'dashboard') {
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.dashboardGetDashboard(assetId, undefined).queryKey
+        queryKey: queryKeys.dashboardGetDashboard(assetId, null).queryKey
       });
     } else if (type === 'collection') {
       await queryClient.invalidateQueries({

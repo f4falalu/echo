@@ -17,7 +17,7 @@ import type {
   BusterDashboardResponse,
   DashboardConfig
 } from '@/api/asset_interfaces';
-import { DashboardEmptyState } from './DashboardEmptyState';
+import { DashboardEmptyState, DashboardNoContentReadOnly } from './DashboardEmptyState';
 import { type useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
 import last from 'lodash/last';
 
@@ -136,7 +136,9 @@ export const DashboardContentController: React.FC<{
           </DashboardContentControllerProvider>
         ) : !readOnly ? (
           <DashboardEmptyState onOpenAddContentModal={onOpenAddContentModal} />
-        ) : null}
+        ) : (
+          <DashboardNoContentReadOnly />
+        )}
       </div>
     );
   }

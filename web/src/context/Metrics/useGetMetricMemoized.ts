@@ -1,4 +1,4 @@
-import type { IBusterMetric } from '@/api/asset_interfaces/metric';
+import type { IBusterMetric, IBusterMetricData } from '@/api/asset_interfaces/metric';
 import { useGetMetricVersionNumber } from '@/api/buster_rest/metrics';
 import { queryKeys } from '@/api/query_keys';
 import { useMemoizedFn } from '@/hooks';
@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export const useGetMetricMemoized = () => {
   const queryClient = useQueryClient();
-  const { selectedVersionNumber } = useGetMetricVersionNumber({});
+  const { selectedVersionNumber } = useGetMetricVersionNumber();
   const getMetricMemoized = useMemoizedFn(
     (metricId: string, versionNumberProp?: number): IBusterMetric => {
       const options = queryKeys.metricsGetMetric(
@@ -19,4 +19,20 @@ export const useGetMetricMemoized = () => {
     }
   );
   return getMetricMemoized;
+};
+
+export const useGetMetricDataMemoized = () => {
+  const queryClient = useQueryClient();
+  const { selectedVersionNumber, latestVersionNumber } = useGetMetricVersionNumber();
+  const getMetricDataMemoized = useMemoizedFn(
+    (metricId: string, versionNumberProp?: number): IBusterMetricData | undefined => {
+      const options = queryKeys.metricsGetData(
+        metricId,
+        versionNumberProp || selectedVersionNumber || latestVersionNumber!
+      );
+      const data = queryClient.getQueryData(options.queryKey);
+      return data;
+    }
+  );
+  return getMetricDataMemoized;
 };

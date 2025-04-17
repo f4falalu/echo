@@ -21,6 +21,7 @@ interface AssetAccess {
   hasAccess: boolean;
   passwordRequired: boolean;
   isPublic: boolean;
+  isDeleted: boolean;
 }
 
 interface AssetQueryResult {
@@ -32,14 +33,18 @@ interface AssetQueryResult {
 
 const getAssetAccess = (error: RustApiError | null): AssetAccess => {
   if (!error) {
-    return { hasAccess: true, passwordRequired: false, isPublic: false };
+    return { hasAccess: true, passwordRequired: false, isPublic: false, isDeleted: false };
   }
 
   if (error.status === 418) {
-    return { hasAccess: false, passwordRequired: true, isPublic: true };
+    return { hasAccess: false, passwordRequired: true, isPublic: true, isDeleted: false };
   }
 
-  return { hasAccess: false, passwordRequired: false, isPublic: false };
+  if (error.status === 410) {
+    return { hasAccess: false, passwordRequired: false, isPublic: false, isDeleted: true };
+  }
+
+  return { hasAccess: false, passwordRequired: false, isPublic: false, isDeleted: false };
 };
 
 const useVersionNumber = (props: UseGetAssetProps) => {

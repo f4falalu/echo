@@ -27,7 +27,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
   const queryClient = useQueryClient();
   const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
-  const { latestVersionNumber, selectedVersionNumber } = useGetMetricVersionNumber();
+  const { latestVersionNumber } = useGetMetricVersionNumber();
 
   return useMutation({
     mutationFn: updateMetric,
@@ -37,7 +37,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
       //set the current metric to the previous it is being restored to
       if (isRestoringVersion) {
         const oldMetric = queryClient.getQueryData(
-          metricsQueryKeys.metricsGetMetric(id, selectedVersionNumber).queryKey
+          metricsQueryKeys.metricsGetMetric(id, latestVersionNumber).queryKey
         );
         const newMetric = queryClient.getQueryData(
           metricsQueryKeys.metricsGetMetric(id, restore_to_version).queryKey
@@ -60,7 +60,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
 
       if (isUpdatingVersion) {
         const metric = queryClient.getQueryData(
-          metricsQueryKeys.metricsGetMetric(id, selectedVersionNumber).queryKey
+          metricsQueryKeys.metricsGetMetric(id, latestVersionNumber).queryKey
         );
         if (!metric) return;
         const metricVersionNumber = metric?.version_number;

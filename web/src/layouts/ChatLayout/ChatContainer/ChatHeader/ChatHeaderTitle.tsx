@@ -31,6 +31,7 @@ export const ChatHeaderTitle: React.FC<{
         className="flex w-full items-center overflow-hidden">
         <EditableTitle
           className="w-full"
+          placeholder="New chat"
           level={5}
           id={CHAT_HEADER_TITLE_ID}
           onChange={(value) =>

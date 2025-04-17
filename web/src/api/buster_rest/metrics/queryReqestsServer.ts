@@ -13,7 +13,7 @@ export const prefetchGetMetric = async (
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...metricsQueryKeys.metricsGetMetric(params.id, params.version_number),
+    ...metricsQueryKeys.metricsGetMetric(params.id, params.version_number || null),
     queryFn: async () => {
       const result = await getMetric_server(params);
       return upgradeMetricToIMetric(result, null);

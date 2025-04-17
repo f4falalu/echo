@@ -4,7 +4,6 @@ import { Query, useQueryClient } from '@tanstack/react-query';
 import { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import last from 'lodash/last';
-import { INFINITY } from 'chart.js/helpers';
 import { useMemoizedFn } from '@/hooks';
 import { RustApiError } from '../errors';
 
@@ -48,6 +47,22 @@ const filterMetricPredicate = <PredicateType>((query) => {
   );
 });
 
+const getLatestVersionNumber = (queries: [readonly unknown[], IBusterMetric | undefined][]) => {
+  let latestVersion = -Infinity;
+
+  for (const [queryKey, data] of queries) {
+    if (data && typeof data === 'object' && 'versions' in data) {
+      const lastVersion = last(data.versions);
+      const version = Number(lastVersion?.version_number);
+      if (!isNaN(version)) {
+        latestVersion = Math.max(latestVersion, version, data.version_number);
+      }
+    }
+  }
+
+  return latestVersion;
+};
+
 const useGetLatestMetricVersion = ({ metricId }: { metricId: string }) => {
   const queryClient = useQueryClient();
 
@@ -61,18 +76,7 @@ const useGetLatestMetricVersion = ({ metricId }: { metricId: string }) => {
   });
 
   const latestVersion = useMemo(() => {
-    let maxVersion = -Infinity;
-
-    // Single pass: filter and find max version
-    for (const [queryKey, data] of queries) {
-      if (data && typeof data === 'object' && 'versions' in data) {
-        const lastVersion = last(data.versions);
-        const version = Number(lastVersion?.version_number);
-        maxVersion = Math.max(maxVersion, version, data.version_number);
-      }
-    }
-
-    return maxVersion === -Infinity ? null : maxVersion;
+    return getLatestVersionNumber(queries);
   }, [queries.length]);
 
   return latestVersion;
@@ -88,19 +92,7 @@ export const useGetLatestMetricVersionNumber = () => {
       predicate: filterMetricPredicate
     });
 
-    let latestVersion = -INFINITY;
-
-    for (const [queryKey, data] of queries) {
-      if (data && typeof data === 'object' && 'versions' in data) {
-        const lastVersion = last(data.versions);
-        const version = Number(lastVersion?.version_number);
-        if (!isNaN(version)) {
-          latestVersion = Math.max(latestVersion, version, data.version_number);
-        }
-      }
-    }
-
-    return latestVersion;
+    return getLatestVersionNumber(queries);
   });
 
   return method;
