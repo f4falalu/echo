@@ -1,8 +1,8 @@
 'use client';
 
 import { useParams, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Query, QueryCacheNotifyEvent, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useState } from 'react';
+import { Query, useQueryClient } from '@tanstack/react-query';
 import { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import last from 'lodash/last';
