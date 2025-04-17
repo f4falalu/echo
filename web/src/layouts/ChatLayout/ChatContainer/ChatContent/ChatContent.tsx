@@ -6,6 +6,7 @@ import { ChatMessageBlock } from './ChatMessageBlock';
 import { ChatInput } from './ChatInput';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
 import { ChatScrollToBottom } from './ChatScrollToBottom';
+import { cn } from '@/lib/utils';
 
 const autoClass = 'mx-auto max-w-[600px] w-full';
 
@@ -61,11 +62,10 @@ const ChatInputWrapper: React.FC<{
   return (
     <div className="bg-page-background absolute bottom-0 w-full overflow-hidden">
       <div className="from-page-background pointer-events-none absolute -top-16 h-16 w-full bg-gradient-to-t to-transparent" />
-      <div className={autoClass}>
+      <div className={cn(autoClass, 'relative')}>
         <ChatInput />
+        {children}
       </div>
-
-      {children}
     </div>
   );
 });
