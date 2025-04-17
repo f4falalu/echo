@@ -54,7 +54,11 @@ const DraggableHeader: React.FC<DraggableHeaderProps> = ({
       style={style}
       className={cn(
         'group bg-background relative border-r select-none last:border-r-0',
-        header.column.getIsResizing() ? 'bg-primary/10' : 'hover:bg-item-hover',
+        sortable || resizable
+          ? header.column.getIsResizing()
+            ? 'bg-primary/10'
+            : 'hover:bg-item-hover'
+          : '',
         isOverTarget && 'bg-primary/10 border-primary inset border border-r! border-dashed'
       )}
       // onClick toggles sorting if enabled

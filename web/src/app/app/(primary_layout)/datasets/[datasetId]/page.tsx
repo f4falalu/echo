@@ -1,9 +1,8 @@
-'use client';
 import React from 'react';
 import { permanentRedirect } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 
-export default async function DashboardPage(props: { params: Promise<{ datasetId: string }> }) {
+export default async function DatasetPage(props: { params: Promise<{ datasetId: string }> }) {
   const params = await props.params;
 
   const { datasetId } = params;

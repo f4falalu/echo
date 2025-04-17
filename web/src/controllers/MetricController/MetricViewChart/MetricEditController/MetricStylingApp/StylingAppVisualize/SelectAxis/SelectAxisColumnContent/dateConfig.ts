@@ -146,6 +146,11 @@ export const getDefaultDateOptions = (now: Date) => {
 export const getDefaultDayOfWeekOptions = (now: Date) => {
   return [
     {
+      label: 'Auto Format',
+      value: 'auto'
+    },
+    NO_FORMATTING_ITEM,
+    {
       label: formatDate({
         date: now,
         format: 'dddd'
@@ -172,6 +177,11 @@ export const getDefaultDayOfWeekOptions = (now: Date) => {
 export const getDefaultMonthOptions = (now: Date) => {
   return [
     {
+      label: 'Auto Format',
+      value: 'auto'
+    },
+    NO_FORMATTING_ITEM,
+    {
       label: formatDate({
         date: now,
         format: 'MMMM'
@@ -197,6 +207,11 @@ export const getDefaultMonthOptions = (now: Date) => {
 
 export const getDefaultQuarterOptions = (now: Date) => {
   return [
+    {
+      label: 'Auto Format',
+      value: 'auto'
+    },
+    NO_FORMATTING_ITEM,
     { label: formatDate({ date: now, format: 'YYYY [Q]Q' }), value: 'YYYY [Q]Q' },
     { label: formatDate({ date: now, format: 'Q' }), value: 'Q' }
   ];
