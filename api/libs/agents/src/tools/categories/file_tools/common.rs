@@ -276,8 +276,10 @@ definitions:
       style:
         type: string
         enum:
-          - currency
-          - percent
+          -
+            currency # Note: The "$" sign is automatically prepended.
+          -
+            percent # Note: The value is automatically multiplied by 100 and the "%" sign is appended.
           - number
           - date
           - string
@@ -310,7 +312,7 @@ definitions:
         description: Currency code for currency formatting (e.g., USD, EUR)
       dateFormat:
         type: string
-        description: Format string for date display
+        description: Format string for date display (must be compatible with Day.js format strings). Should be set based on user request and context.
       useRelativeTime:
         type: boolean
         description: Whether to display dates as relative time (e.g., 2 days ago)
