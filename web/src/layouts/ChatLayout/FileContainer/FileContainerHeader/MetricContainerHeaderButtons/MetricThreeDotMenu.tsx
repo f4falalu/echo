@@ -488,8 +488,11 @@ const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
 };
 
 export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
-  const { data: metric } = useGetMetric({ id: metricId }, { select: getShareAssetConfig });
-  const isOwner = getIsOwner(metric?.permission);
+  const { data: shareAssetConfig } = useGetMetric(
+    { id: metricId },
+    { select: getShareAssetConfig }
+  );
+  const isOwner = getIsOwner(shareAssetConfig?.permission);
 
   return useMemo(
     () => ({
@@ -501,7 +504,7 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
         ? [
             <ShareMenuContent
               key={metricId}
-              shareAssetConfig={metric!}
+              shareAssetConfig={shareAssetConfig!}
               assetId={metricId}
               assetType={ShareAssetType.METRIC}
             />
