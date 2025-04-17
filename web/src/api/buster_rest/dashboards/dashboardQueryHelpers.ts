@@ -10,7 +10,7 @@ import { Query, useQueryClient } from '@tanstack/react-query';
 import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
 import { dashboardsGetDashboard } from './requests';
 import { useParams, useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { RustApiError } from '../errors';
 import last from 'lodash/last';
 
@@ -149,19 +149,38 @@ const getLatestVersionNumber = (
 
 const useGetLatestDashboardVersion = ({ dashboardId }: { dashboardId: string }) => {
   const queryClient = useQueryClient();
+  const [latestVersion, setLatestVersion] = useState<number | null>(null);
 
   const memoizedKey = useMemo(() => {
     return dashboardQueryKeys.dashboardGetDashboard(dashboardId, null).queryKey.slice(0, -1);
   }, [dashboardId]);
 
-  const queries = queryClient.getQueriesData<BusterDashboardResponse, any>({
-    queryKey: memoizedKey,
-    predicate: filterMetricPredicate
+  const updateLatestVersion = useMemoizedFn(() => {
+    const queries = queryClient.getQueriesData<BusterDashboardResponse, any>({
+      queryKey: memoizedKey,
+      predicate: filterMetricPredicate
+    });
+    const newVersion = getLatestVersionNumber(queries);
+    setLatestVersion(newVersion);
   });
 
-  const latestVersion = useMemo(() => {
-    return getLatestVersionNumber(queries);
-  }, [queries.length]);
+  useEffect(() => {
+    // Initial computation
+    updateLatestVersion();
+
+    // Subscribe to cache updates
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (
+        event.type === 'updated' &&
+        event.query.queryKey[2] === last(memoizedKey) &&
+        event.query.queryKey[1] === memoizedKey[1]
+      ) {
+        updateLatestVersion();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [memoizedKey, updateLatestVersion]);
 
   return latestVersion;
 };
