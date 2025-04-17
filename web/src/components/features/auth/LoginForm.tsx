@@ -67,7 +67,7 @@ export const LoginForm: React.FC<{}> = ({}) => {
     } catch (error: any) {
       errorFallback(error);
     }
-    setLoading('google');
+    setLoading(null);
   });
 
   const onSignInWithGithub = useMemoizedFn(async () => {
@@ -78,7 +78,7 @@ export const LoginForm: React.FC<{}> = ({}) => {
     } catch (error: any) {
       errorFallback(error);
     }
-    setLoading('github');
+    setLoading(null);
   });
 
   const onSignInWithAzure = useMemoizedFn(async () => {
@@ -182,6 +182,10 @@ const LoginOptions: React.FC<{
     Object.keys(Cookies.get()).forEach((cookieName) => {
       Cookies.remove(cookieName);
     });
+
+    //also clear local storage
+    localStorage.clear();
+    sessionStorage.clear();
   });
 
   const onSubmitClickPreflight = useMemoizedFn(async (d: { email: string; password: string }) => {
