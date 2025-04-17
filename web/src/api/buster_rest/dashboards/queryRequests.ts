@@ -28,12 +28,13 @@ import { addAndRemoveMetricsToDashboard } from './helpers/addAndRemoveMetricsToD
 import { RustApiError } from '../errors';
 import { useOriginalDashboardStore } from '@/context/Dashboards';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import { useGetHighestVersionMetric } from '../metrics/metricQueryHelpers';
 import {
   useGetDashboardAndInitializeMetrics,
   useGetDashboardVersionNumber,
   useEnsureDashboardConfig
-} from './queryHelpers';
+} from './dashboardQueryHelpers';
+import { useGetLatestMetricVersionMemoized } from '../metrics';
+import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
   {
@@ -46,14 +47,29 @@ export const useGetDashboard = <TData = BusterDashboardResponse>(
   >
 ) => {
   const queryFn = useGetDashboardAndInitializeMetrics();
-  const versionNumber = useGetDashboardVersionNumber({ versionNumber: versionNumberProp });
+  const setAssetPasswordError = useBusterAssetsContextSelector((x) => x.setAssetPasswordError);
+  const { selectedVersionNumber, latestVersionNumber, paramVersionNumber } =
+    useGetDashboardVersionNumber({ versionNumber: versionNumberProp });
+
+  const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
+    ...dashboardQueryKeys.dashboardGetDashboard(id!, null),
+    queryFn: () => queryFn(id!, paramVersionNumber),
+    enabled: false, //we made this false because we want to be explicit about the fact that we fetch the dashboard server side
+    retry(failureCount, error) {
+      if (error?.message !== undefined) {
+        setAssetPasswordError(id!, error.message || 'An error occurred');
+      }
+      return false;
+    },
+    select: undefined,
+    ...params
+  });
 
   return useQuery({
-    ...dashboardQueryKeys.dashboardGetDashboard(id!, versionNumber),
-    queryFn: () => queryFn(id!, versionNumber),
-    enabled: false, //we made this false because we want to be explicit about the fact that we fetch the dashboard server side
-    select: params?.select,
-    ...params
+    ...dashboardQueryKeys.dashboardGetDashboard(id!, selectedVersionNumber),
+    queryFn: () => queryFn(id!, selectedVersionNumber),
+    enabled: !!latestVersionNumber && isFetchedInitial && !isErrorInitial,
+    select: params?.select
   });
 };
 
@@ -72,7 +88,6 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
   const queryClient = useQueryClient();
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
-  const versionNumber = useGetDashboardVersionNumber();
 
   return useMutation({
     mutationFn: dashboardsUpdateDashboard,
@@ -89,13 +104,6 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
             .queryKey,
           data
         );
-        //We need to update BOTH the versioned and the non-versioned metric for version updates to keep the latest up to date
-        if (variables.update_version || variables.restore_to_version) {
-          queryClient.setQueryData(
-            dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
-            data
-          );
-        }
         setOriginalDashboard(data.dashboard);
       }
     }
@@ -110,7 +118,7 @@ export const useUpdateDashboard = (params?: {
   const { updateOnSave = false, updateVersion = false, saveToServer = false } = params || {};
   const queryClient = useQueryClient();
   const { mutateAsync: saveDashboard } = useSaveDashboard({ updateOnSave });
-  const versionNumber = useGetDashboardVersionNumber();
+  const { latestVersionNumber } = useGetDashboardVersionNumber();
   const getOriginalDashboard = useOriginalDashboardStore((x) => x.getOriginalDashboard);
 
   const mutationFn = useMemoizedFn(
@@ -133,8 +141,7 @@ export const useUpdateDashboard = (params?: {
       });
       const queryKey = dashboardQueryKeys.dashboardGetDashboard(
         variables.id,
-        versionNumber
-        //  updatedDashboard.version_number
+        latestVersionNumber
       ).queryKey;
 
       queryClient.setQueryData(queryKey, (previousData) => {
@@ -152,7 +159,7 @@ export const useUpdateDashboardConfig = () => {
     updateVersion: false
   });
   const queryClient = useQueryClient();
-  const versionNumber = useGetDashboardVersionNumber();
+  const { latestVersionNumber } = useGetDashboardVersionNumber();
 
   const method = useMemoizedFn(
     async ({
@@ -161,7 +168,7 @@ export const useUpdateDashboardConfig = () => {
     }: Partial<BusterDashboard['config']> & {
       dashboardId: string;
     }) => {
-      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, versionNumber);
+      const options = dashboardQueryKeys.dashboardGetDashboard(dashboardId, latestVersionNumber);
       const previousDashboard = queryClient.getQueryData(options.queryKey);
       const previousConfig = previousDashboard?.dashboard?.config;
       if (previousConfig) {
@@ -304,13 +311,13 @@ export const useRemoveDashboardFromCollection = () => {
 
 export const useShareDashboard = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetDashboardVersionNumber();
+  const { latestVersionNumber } = useGetDashboardVersionNumber();
   return useMutation({
     mutationFn: shareDashboard,
     onMutate: (variables) => {
       const queryKey = dashboardQueryKeys.dashboardGetDashboard(
         variables.id,
-        versionNumber
+        latestVersionNumber
       ).queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         return create(previousData!, (draft) => {
@@ -323,7 +330,8 @@ export const useShareDashboard = () => {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(
-        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, versionNumber).queryKey,
+        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
+          .queryKey,
         data
       );
     }
@@ -332,13 +340,13 @@ export const useShareDashboard = () => {
 
 export const useUnshareDashboard = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetDashboardVersionNumber();
+  const { latestVersionNumber } = useGetDashboardVersionNumber();
   return useMutation({
     mutationFn: unshareDashboard,
     onMutate: (variables) => {
       const queryKey = dashboardQueryKeys.dashboardGetDashboard(
         variables.id,
-        versionNumber
+        latestVersionNumber
       ).queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         return create(previousData!, (draft) => {
@@ -349,7 +357,8 @@ export const useUnshareDashboard = () => {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(
-        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, versionNumber).queryKey,
+        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
+          .queryKey,
         data
       );
     }
@@ -358,11 +367,11 @@ export const useUnshareDashboard = () => {
 
 export const useUpdateDashboardShare = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetDashboardVersionNumber();
+  const { latestVersionNumber } = useGetDashboardVersionNumber();
   return useMutation({
     mutationFn: updateDashboardShare,
     onMutate: ({ id, params }) => {
-      const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, versionNumber).queryKey;
+      const queryKey = dashboardQueryKeys.dashboardGetDashboard(id, latestVersionNumber).queryKey;
       queryClient.setQueryData(queryKey, (previousData) => {
         return create(previousData!, (draft) => {
           draft.individual_permissions =
@@ -430,10 +439,6 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
     onSuccess: (data, variables) => {
       if (data) {
         queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
-          data
-        );
-        queryClient.setQueryData(
           dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
             .queryKey,
           data
@@ -449,7 +454,7 @@ export const useAddMetricsToDashboard = () => {
   const { openErrorMessage } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
-  const getHighestVersionMetric = useGetHighestVersionMetric();
+  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
 
   const addMetricToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
@@ -471,7 +476,7 @@ export const useAddMetricsToDashboard = () => {
     mutationFn: addMetricToDashboard,
     onMutate: ({ metricIds, dashboardId }) => {
       metricIds.forEach((metricId) => {
-        const highestVersion = getHighestVersionMetric(metricId);
+        const highestVersion = getLatestMetricVersion(metricId);
 
         // Update the dashboards array for the highest version metric
         if (highestVersion) {
@@ -486,10 +491,6 @@ export const useAddMetricsToDashboard = () => {
     },
     onSuccess: (data) => {
       if (data) {
-        queryClient.setQueryData(
-          dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
-          data
-        );
         queryClient.setQueryData(
           dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
             .queryKey,
@@ -521,7 +522,7 @@ export const useRemoveMetricsFromDashboard = () => {
   const queryClient = useQueryClient();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
-  const getHighestVersionMetric = useGetHighestVersionMetric();
+  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
 
   const removeMetricFromDashboard = useMemoizedFn(
     async ({
@@ -535,7 +536,7 @@ export const useRemoveMetricsFromDashboard = () => {
     }) => {
       const method = async () => {
         metricIds.forEach((metricId) => {
-          const highestVersion = getHighestVersionMetric(metricId);
+          const highestVersion = getLatestMetricVersion(metricId);
           // Update the dashboards array for the highest version metric
           if (highestVersion) {
             const options = metricsQueryKeys.metricsGetMetric(metricId, highestVersion);
@@ -554,22 +555,13 @@ export const useRemoveMetricsFromDashboard = () => {
             dashboardResponse.dashboard.id,
             dashboardResponse.dashboard.version_number
           );
-          const nonVersionedOptions = dashboardQueryKeys.dashboardGetDashboard(
-            dashboardResponse.dashboard.id,
-            undefined
-          );
+
           const newConfig = removeMetricFromDashboardConfig(
             metricIds,
             dashboardResponse.dashboard.config
           );
-          console.log('options', dashboardResponse.dashboard.version_number);
-          console.log('newConfig', newConfig);
+
           queryClient.setQueryData(versionedOptions.queryKey, (currentDashboard) => {
-            return create(currentDashboard!, (draft) => {
-              draft.dashboard.config = newConfig;
-            });
-          });
-          queryClient.setQueryData(nonVersionedOptions.queryKey, (currentDashboard) => {
             return create(currentDashboard!, (draft) => {
               draft.dashboard.config = newConfig;
             });
@@ -581,7 +573,10 @@ export const useRemoveMetricsFromDashboard = () => {
           });
 
           queryClient.setQueryData(
-            dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, undefined).queryKey,
+            dashboardQueryKeys.dashboardGetDashboard(
+              data.dashboard.id,
+              data.dashboard.version_number
+            ).queryKey,
             data
           );
           queryClient.setQueryData(
@@ -618,7 +613,11 @@ export const useRemoveMetricsFromDashboard = () => {
 };
 
 export const useGetDashboardsList = (
-  params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
+  params: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>,
+  options?: Omit<
+    UseQueryOptions<Awaited<ReturnType<typeof dashboardsGetList>>, RustApiError>,
+    'queryKey' | 'queryFn' | 'initialData'
+  >
 ) => {
   const filters = useMemo(() => {
     return {
@@ -630,6 +629,7 @@ export const useGetDashboardsList = (
 
   return useQuery({
     ...dashboardQueryKeys.dashboardGetList(params),
-    queryFn: () => dashboardsGetList(filters)
+    queryFn: () => dashboardsGetList(filters),
+    ...options
   });
 };

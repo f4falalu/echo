@@ -8,6 +8,7 @@ import { timeout } from '@/lib';
 import { BusterRoutes } from '@/routes';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useBusterNotifications } from '@/context/BusterNotifications';
+import { assetParamsToRoute } from '@/lib/assets';
 
 export const ChatContainerHeaderDropdown: React.FC<{
   children: React.ReactNode;
@@ -18,6 +19,8 @@ export const ChatContainerHeaderDropdown: React.FC<{
   const { mutate: deleteChat, isPending: isDeleting } = useDeleteChat();
   const { mutateAsync: duplicateChat, isPending: isDuplicating } = useDuplicateChat();
   const currentMessageId = useChatIndividualContextSelector((state) => state.currentMessageId);
+  const selectedFileId = useChatIndividualContextSelector((state) => state.selectedFileId);
+  const selectedFileType = useChatIndividualContextSelector((state) => state.selectedFileType);
 
   const menuItem: DropdownItems = useMemo(() => {
     return [
@@ -45,15 +48,21 @@ export const ChatContainerHeaderDropdown: React.FC<{
         loading: isDuplicating,
         onClick: async () => {
           if (chatId) {
-            duplicateChat(
-              { id: chatId, message_id: currentMessageId },
-              {
-                onSuccess: (chat) => {
-                  onChangePage({ route: BusterRoutes.APP_CHAT_ID, chatId: chat.id });
-                  openSuccessMessage('Chat duplicated');
-                }
-              }
-            );
+            const res = await duplicateChat({ id: chatId });
+            await timeout(100);
+            if (selectedFileType && selectedFileId) {
+              const route = assetParamsToRoute({
+                assetId: selectedFileId,
+                chatId: res.id,
+                type: selectedFileType
+              });
+
+              if (route) await onChangePage(route);
+            } else {
+              await onChangePage({ route: BusterRoutes.APP_CHAT_ID, chatId: res.id });
+            }
+
+            openSuccessMessage('Chat duplicated');
           }
         }
       },

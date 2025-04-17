@@ -82,12 +82,12 @@ const adminTools: ISidebarGroup = {
       route: BusterRoutes.APP_LOGS,
       id: BusterRoutes.APP_LOGS
     },
-    {
-      label: 'Terms & Definitions',
-      icon: <BookOpen4 />,
-      route: BusterRoutes.APP_TERMS,
-      id: BusterRoutes.APP_TERMS
-    },
+    // {
+    //   label: 'Terms & Definitions',
+    //   icon: <BookOpen4 />,
+    //   route: BusterRoutes.APP_TERMS,
+    //   id: BusterRoutes.APP_TERMS
+    // },
     {
       label: 'Datasets',
       icon: <Table />,

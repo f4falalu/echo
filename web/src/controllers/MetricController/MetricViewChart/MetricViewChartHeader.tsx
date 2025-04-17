@@ -28,6 +28,7 @@ export const MetricViewChartHeader: React.FC<{
             level={4}
             readOnly={readOnly}
             inputClassName="h-auto!"
+            placeholder="New chart"
             onChange={onSetTitle}>
             {name}
           </EditableTitle>

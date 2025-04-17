@@ -7,6 +7,7 @@ import {
   useRemoveMetricFromCollection,
   useSaveMetricToCollections
 } from '@/api/buster_rest/metrics';
+import uniq from 'lodash/uniq';
 
 export const SaveMetricToCollectionButton: React.FC<{
   metricIds: string[];
@@ -29,7 +30,7 @@ export const SaveMetricToCollectionButton: React.FC<{
     );
 
   const onSaveToCollection = useMemoizedFn(async (collectionIds: string[]) => {
-    setSelectedCollections(collectionIds);
+    setSelectedCollections((prev) => uniq([...prev, ...collectionIds]));
     await saveMetricToCollection({
       metricIds,
       collectionIds

@@ -1,6 +1,6 @@
 import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useGetHighestVersionMetric, useGetMetricVersionNumber } from './metricQueryHelpers';
+import { useGetLatestMetricVersionMemoized, useGetMetricVersionNumber } from './metricQueryHelpers';
 import {
   bulkUpdateMetricVerificationStatus,
   deleteMetrics,
@@ -27,8 +27,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
   const queryClient = useQueryClient();
   const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
-  const versionNumber = useGetMetricVersionNumber();
-  const getHighestVersionMetric = useGetHighestVersionMetric();
+  const { latestVersionNumber } = useGetMetricVersionNumber();
 
   return useMutation({
     mutationFn: updateMetric,
@@ -38,7 +37,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
       //set the current metric to the previous it is being restored to
       if (isRestoringVersion) {
         const oldMetric = queryClient.getQueryData(
-          metricsQueryKeys.metricsGetMetric(id, versionNumber).queryKey
+          metricsQueryKeys.metricsGetMetric(id, latestVersionNumber).queryKey
         );
         const newMetric = queryClient.getQueryData(
           metricsQueryKeys.metricsGetMetric(id, restore_to_version).queryKey
@@ -47,7 +46,6 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
           metricsQueryKeys.metricsGetData(id, restore_to_version).queryKey
         );
         if (oldMetric && newMetric && newMetricData) {
-          const latestVersionNumber = getHighestVersionMetric(id);
           const newVersionNumber = (latestVersionNumber || 0) + 1;
           queryClient.setQueryData(
             metricsQueryKeys.metricsGetMetric(id, newVersionNumber).queryKey,
@@ -62,8 +60,9 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
 
       if (isUpdatingVersion) {
         const metric = queryClient.getQueryData(
-          metricsQueryKeys.metricsGetMetric(id, versionNumber).queryKey
+          metricsQueryKeys.metricsGetMetric(id, latestVersionNumber).queryKey
         );
+        if (!metric) return;
         const metricVersionNumber = metric?.version_number;
         const metricData = queryClient.getQueryData(
           metricsQueryKeys.metricsGetData(id, metricVersionNumber).queryKey
@@ -89,12 +88,12 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
           newMetric
         );
         //We need to update BOTH the versioned and the non-versioned metric for version updates to keep the latest up to date
-        if (variables.update_version || variables.restore_to_version) {
-          queryClient.setQueryData(
-            metricsQueryKeys.metricsGetMetric(data.id, undefined).queryKey,
-            newMetric
-          );
-        }
+        // if (variables.update_version || variables.restore_to_version) {
+        //   queryClient.setQueryData(
+        //     metricsQueryKeys.metricsGetMetric(data.id, selectedVersionNumber).queryKey,
+        //     newMetric
+        //   );
+        // }
       }
       setOriginalMetric(newMetric);
     }
@@ -103,7 +102,6 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
 
 export const useDeleteMetric = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetMetricVersionNumber();
   return useMutation({
     mutationFn: deleteMetrics,
     onMutate: async (variables) => {
@@ -112,12 +110,6 @@ export const useDeleteMetric = () => {
       queryClient.setQueryData(options.queryKey, (oldData) => {
         return oldData?.filter((metric) => !metricIds.includes(metric.id));
       });
-      for (const metricId of metricIds) {
-        queryClient.removeQueries({
-          queryKey: metricsQueryKeys.metricsGetMetric(metricId, versionNumber).queryKey,
-          exact: true
-        });
-      }
     }
   });
 };
@@ -200,11 +192,14 @@ export const useDuplicateMetric = () => {
 //add a user to a metric
 export const useShareMetric = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetMetricVersionNumber();
+  const { selectedVersionNumber } = useGetMetricVersionNumber();
   return useMutation({
     mutationFn: shareMetric,
     onMutate: (variables) => {
-      const queryKey = metricsQueryKeys.metricsGetMetric(variables.id, versionNumber).queryKey;
+      const queryKey = metricsQueryKeys.metricsGetMetric(
+        variables.id,
+        selectedVersionNumber
+      ).queryKey;
       queryClient.setQueryData(queryKey, (previousData: IBusterMetric | undefined) => {
         return create(previousData!, (draft: IBusterMetric) => {
           draft.individual_permissions = [
@@ -231,11 +226,14 @@ export const useShareMetric = () => {
 //remove a user from a metric
 export const useUnshareMetric = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetMetricVersionNumber();
+  const { selectedVersionNumber } = useGetMetricVersionNumber();
   return useMutation({
     mutationFn: unshareMetric,
     onMutate: (variables) => {
-      const queryKey = metricsQueryKeys.metricsGetMetric(variables.id, versionNumber).queryKey;
+      const queryKey = metricsQueryKeys.metricsGetMetric(
+        variables.id,
+        selectedVersionNumber
+      ).queryKey;
       queryClient.setQueryData(queryKey, (previousData: IBusterMetric | undefined) => {
         return create(previousData!, (draft: IBusterMetric) => {
           draft.individual_permissions =
@@ -259,12 +257,15 @@ export const useUnshareMetric = () => {
 //update the share settings for a metric
 export const useUpdateMetricShare = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetMetricVersionNumber();
+  const { selectedVersionNumber } = useGetMetricVersionNumber();
 
   return useMutation({
     mutationFn: updateMetricShare,
     onMutate: (variables) => {
-      const queryKey = metricsQueryKeys.metricsGetMetric(variables.id, versionNumber).queryKey;
+      const queryKey = metricsQueryKeys.metricsGetMetric(
+        variables.id,
+        selectedVersionNumber
+      ).queryKey;
       queryClient.setQueryData(queryKey, (previousData: IBusterMetric | undefined) => {
         return create(previousData!, (draft: IBusterMetric) => {
           draft.individual_permissions =
@@ -298,7 +299,7 @@ export const useUpdateMetric = (params: {
   const queryClient = useQueryClient();
   const { mutateAsync: saveMetric } = useSaveMetric({ updateOnSave });
   const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
-  const versionNumber = useGetMetricVersionNumber();
+  const { selectedVersionNumber } = useGetMetricVersionNumber();
 
   const saveMetricToServer = useMemoizedFn(
     async (newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
@@ -314,7 +315,7 @@ export const useUpdateMetric = (params: {
       id: metricId,
       ...newMetricPartial
     }: Omit<Partial<IBusterMetric>, 'status'> & { id: string }) => {
-      const options = metricsQueryKeys.metricsGetMetric(metricId, versionNumber);
+      const options = metricsQueryKeys.metricsGetMetric(metricId, selectedVersionNumber);
       const prevMetric = getOriginalMetric(metricId);
       const newMetric = create(prevMetric, (draft) => {
         Object.assign(draft || {}, newMetricPartial);
@@ -354,8 +355,25 @@ export const useUpdateMetric = (params: {
 
 export const useBulkUpdateMetricVerificationStatus = () => {
   const queryClient = useQueryClient();
+  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
   return useMutation({
     mutationFn: bulkUpdateMetricVerificationStatus,
+    onMutate: (variables) => {
+      variables.forEach((metric) => {
+        const latestVersionNumber = getLatestMetricVersion(metric.id);
+        const foundMetric = queryClient.getQueryData(
+          metricsQueryKeys.metricsGetMetric(metric.id, latestVersionNumber).queryKey
+        );
+        if (foundMetric) {
+          queryClient.setQueryData(
+            metricsQueryKeys.metricsGetMetric(metric.id, latestVersionNumber).queryKey,
+            create(foundMetric!, (draft: IBusterMetric) => {
+              draft.status = metric.status;
+            })
+          );
+        }
+      });
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: metricsQueryKeys.metricsGetList({}).queryKey });
       data.updated_metrics.forEach((metric) => {

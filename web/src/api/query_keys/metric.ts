@@ -6,9 +6,9 @@ import type {
 } from '@/api/asset_interfaces/metric';
 import { type listMetrics } from '../buster_rest/metrics';
 
-export const metricsGetMetric = (metricId: string, version_number: number | undefined) => {
+export const metricsGetMetric = (metricId: string, version_number: number | null) => {
   return queryOptions<IBusterMetric>({
-    queryKey: ['metrics', 'get', metricId, version_number || 'latest'] as const,
+    queryKey: ['metrics', 'get', metricId, version_number || 'INITIAL'] as const,
     staleTime: 30 * 60 * 1000
   });
 };
@@ -22,9 +22,9 @@ export const metricsGetList = (
     initialDataUpdatedAt: 0
   });
 
-export const metricsGetData = (id: string, version_number?: number | undefined) =>
+export const metricsGetData = (id: string, version_number: number) =>
   queryOptions<IBusterMetricData>({
-    queryKey: ['metrics', 'data', id, version_number || 'latest'] as const,
+    queryKey: ['metrics', 'data', id, version_number || 'INITIAL'] as const,
     staleTime: 3 * 60 * 60 * 1000 // 3 hours,
   });
 

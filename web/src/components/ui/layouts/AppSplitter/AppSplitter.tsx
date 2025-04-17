@@ -272,14 +272,14 @@ export const AppSplitter = React.memo(
               className="left-pane flex h-full flex-col"
               minSize={leftPanelMinSize}
               maxSize={leftPanelMaxSize}>
-              {leftHidden || size?.width === 0 ? null : leftChildren}
+              {leftHidden || size?.width === 0 || size?.width === undefined ? null : leftChildren}
             </Pane>
             <Pane
               className="right-pane flex h-full flex-col"
               style={memoizedRightPaneStyle}
               minSize={rightPanelMinSize}
               maxSize={rightPanelMaxSize}>
-              {rightHidden || size?.width === 0 ? null : rightChildren}
+              {rightHidden || size?.width === 0 || size?.width === undefined ? null : rightChildren}
             </Pane>
           </SplitPane>
         </div>

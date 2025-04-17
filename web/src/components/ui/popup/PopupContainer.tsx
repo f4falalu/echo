@@ -11,7 +11,10 @@ export const PopupContainer: React.FC<{
     <AnimatePresence mode="wait">
       {show && (
         <motion.div
-          className={cn('absolute bottom-10 z-50 flex w-full justify-center', className)}
+          className={cn(
+            'absolute right-0 bottom-10 left-0 z-50 flex w-full justify-center',
+            className
+          )}
           initial={{ opacity: 0, y: -3 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -3 }}

@@ -35,7 +35,7 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
       <ChatContextProvider>
         <AppSplitter
           ref={appSplitterRef}
-          leftChildren={useMemo(() => mounted && <ChatContainer />, [mounted])}
+          leftChildren={useMemo(() => mounted && <ChatContainer mounted={mounted} />, [mounted])}
           rightChildren={useMemo(
             () => mounted && <FileContainer>{children}</FileContainer>,
             [children, mounted]

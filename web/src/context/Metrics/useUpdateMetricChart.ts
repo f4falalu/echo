@@ -141,8 +141,6 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
           tableColumnWidths
         };
 
-        console.log('newChartConfig', newChartConfig.tableColumnWidths);
-
         saveMetricToServerWithoutSideEffects({
           id: metricId,
           chart_config: newChartConfig,

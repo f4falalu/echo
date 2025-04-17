@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import {
   collectionsGetList,
@@ -18,9 +18,14 @@ import { useMemoizedFn } from '@/hooks';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import { create } from 'mutative';
 import type { BusterCollection } from '@/api/asset_interfaces/collection';
+import { RustApiError } from '../errors';
 
 export const useGetCollectionsList = (
-  filters: Omit<Parameters<typeof collectionsGetList>[0], 'page' | 'page_size'>
+  filters: Omit<Parameters<typeof collectionsGetList>[0], 'page' | 'page_size'>,
+  options?: Omit<
+    UseQueryOptions<Awaited<ReturnType<typeof collectionsGetList>>, RustApiError>,
+    'queryKey' | 'queryFn' | 'initialData'
+  >
 ) => {
   const payload = useMemo(() => {
     return { page: 0, page_size: 3000, ...filters };
@@ -28,7 +33,8 @@ export const useGetCollectionsList = (
 
   return useQuery({
     ...collectionQueryKeys.collectionsGetList(filters),
-    queryFn: () => collectionsGetList(payload)
+    queryFn: () => collectionsGetList(payload),
+    ...options
   });
 };
 
