@@ -1,6 +1,8 @@
+'use client';
+
 import { useParams, useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
-import { Query, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Query, QueryCacheNotifyEvent, useQueryClient } from '@tanstack/react-query';
 import { IBusterMetric } from '@/api/asset_interfaces/metric';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import last from 'lodash/last';
@@ -60,30 +62,45 @@ const getLatestVersionNumber = (queries: [readonly unknown[], IBusterMetric | un
     }
   }
 
-  return latestVersion;
+  return latestVersion === -Infinity ? null : latestVersion;
 };
 
 const useGetLatestMetricVersion = ({ metricId }: { metricId: string }) => {
   const queryClient = useQueryClient();
+  const [cacheVersion, setCacheVersion] = useState(0); // To force re-renders on relevant cache changes
 
   const memoizedKey = useMemo(() => {
     return metricsQueryKeys.metricsGetMetric(metricId, null).queryKey.slice(0, -1);
   }, [metricId]);
 
-  const queries = queryClient.getQueriesData<IBusterMetric, any>({
-    queryKey: memoizedKey,
-    predicate: filterMetricPredicate
+  const subscribeMethod = useMemoizedFn((event: QueryCacheNotifyEvent) => {
+    if (
+      event.type === 'updated' &&
+      event.query.queryKey[2] === last(memoizedKey) &&
+      event.query.queryKey[1] === memoizedKey[1]
+    ) {
+      setCacheVersion((prev) => prev + 1);
+    }
   });
 
+  useEffect(() => {
+    const unsubscribe = queryClient.getQueryCache().subscribe(subscribeMethod);
+    return () => unsubscribe();
+  }, [memoizedKey]);
+
   const latestVersion = useMemo(() => {
+    const queries = queryClient.getQueriesData<IBusterMetric, any>({
+      queryKey: memoizedKey,
+      predicate: filterMetricPredicate
+    });
     return getLatestVersionNumber(queries);
-  }, [queries.length]);
+  }, [memoizedKey, cacheVersion]);
 
   return latestVersion;
 };
 
 //This is a helper function that returns the latest version number for a metric
-export const useGetLatestMetricVersionNumber = () => {
+export const useGetLatestMetricVersionMemoized = () => {
   const queryClient = useQueryClient();
 
   const method = useMemoizedFn((metricId: string) => {

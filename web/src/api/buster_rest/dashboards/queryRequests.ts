@@ -33,7 +33,7 @@ import {
   useGetDashboardVersionNumber,
   useEnsureDashboardConfig
 } from './dashboardQueryHelpers';
-import { useGetLatestMetricVersionNumber } from '../metrics';
+import { useGetLatestMetricVersionMemoized } from '../metrics';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
@@ -454,7 +454,7 @@ export const useAddMetricsToDashboard = () => {
   const { openErrorMessage } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
-  const getHighestVersionMetric = useGetLatestMetricVersionNumber();
+  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
 
   const addMetricToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
@@ -476,7 +476,7 @@ export const useAddMetricsToDashboard = () => {
     mutationFn: addMetricToDashboard,
     onMutate: ({ metricIds, dashboardId }) => {
       metricIds.forEach((metricId) => {
-        const highestVersion = getHighestVersionMetric(metricId);
+        const highestVersion = getLatestMetricVersion(metricId);
 
         // Update the dashboards array for the highest version metric
         if (highestVersion) {
@@ -522,7 +522,7 @@ export const useRemoveMetricsFromDashboard = () => {
   const queryClient = useQueryClient();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
-  const getHighestVersionMetric = useGetLatestMetricVersionNumber();
+  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
 
   const removeMetricFromDashboard = useMemoizedFn(
     async ({
@@ -536,7 +536,7 @@ export const useRemoveMetricsFromDashboard = () => {
     }) => {
       const method = async () => {
         metricIds.forEach((metricId) => {
-          const highestVersion = getHighestVersionMetric(metricId);
+          const highestVersion = getLatestMetricVersion(metricId);
           // Update the dashboards array for the highest version metric
           if (highestVersion) {
             const options = metricsQueryKeys.metricsGetMetric(metricId, highestVersion);

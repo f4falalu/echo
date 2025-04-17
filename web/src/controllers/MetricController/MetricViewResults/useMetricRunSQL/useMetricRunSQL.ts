@@ -1,8 +1,4 @@
-import type {
-  BusterMetricData,
-  IBusterMetricChartConfig,
-  IBusterMetricData
-} from '@/api/asset_interfaces/metric';
+import type { BusterMetricData, IBusterMetricChartConfig } from '@/api/asset_interfaces/metric';
 import { RunSQLResponse } from '@/api/asset_interfaces/sql';
 import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';
@@ -11,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
 import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest';
-import { useGetLatestMetricVersionNumber, useUpdateMetric } from '@/api/buster_rest/metrics';
+import { useGetLatestMetricVersionMemoized, useUpdateMetric } from '@/api/buster_rest/metrics';
 import { useGetMetricDataMemoized, useGetMetricMemoized } from '@/context/Metrics';
 import { timeout } from '@/lib';
 
@@ -39,7 +35,7 @@ export const useMetricRunSQL = () => {
     isPending: isRunningSQL
   } = useRunSQLQuery();
   const { openSuccessNotification } = useBusterNotifications();
-  const getLatestMetricVersion = useGetLatestMetricVersionNumber();
+  const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
 
   const originalConfigs = useRef<{
     chartConfig: IBusterMetricChartConfig;
