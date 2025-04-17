@@ -26,7 +26,7 @@ const useBusterAssets = () => {
   const invalidateAssetData = useMemoizedFn(async (assetId: string, type: ShareAssetType) => {
     if (type === 'metric') {
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.metricsGetMetric(assetId, undefined).queryKey
+        queryKey: queryKeys.metricsGetMetric(assetId, 'INITIAL').queryKey
       });
     } else if (type === 'dashboard') {
       await queryClient.invalidateQueries({

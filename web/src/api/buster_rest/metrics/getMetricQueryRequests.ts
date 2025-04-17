@@ -9,7 +9,6 @@ import { useMemoizedFn } from '@/hooks';
 import { getMetric, getMetricData } from './requests';
 import { upgradeMetricToIMetric } from '@/lib/metrics';
 import last from 'lodash/last';
-import { useMemo } from 'react';
 
 export const useGetMetric = <TData = IBusterMetric>(
   {
@@ -27,33 +26,35 @@ export const useGetMetric = <TData = IBusterMetric>(
   const setAssetPasswordError = useBusterAssetsContextSelector((x) => x.setAssetPasswordError);
   const { password } = getAssetPassword(id!);
 
-  const versionNumber = useGetMetricVersionNumber({ versionNumber: versionNumberProp });
+  const { selectedVersionNumber, paramVersionNumber, latestVersionNumber } =
+    useGetMetricVersionNumber({
+      versionNumber: versionNumberProp
+    });
 
-  const options = metricsQueryKeys.metricsGetMetric(id!, versionNumber);
+  const initialOptions = metricsQueryKeys.metricsGetMetric(id!, paramVersionNumber || 'INITIAL');
 
-  const queryFn = useMemoizedFn(async () => {
-    const result = await getMetric({ id: id!, password, version_number: versionNumber });
-    const oldMetric = queryClient.getQueryData(options.queryKey);
-    const updatedMetric = upgradeMetricToIMetric(result, oldMetric || null);
-
+  const initialQueryFn = useMemoizedFn(async (version?: number) => {
+    const result = await getMetric({
+      id: id!,
+      password,
+      version_number: version
+    });
+    const updatedMetric = upgradeMetricToIMetric(result, null);
     const isLatestVersion =
       updatedMetric.version_number === last(updatedMetric.versions)?.version_number;
-
     if (isLatestVersion) setOriginalMetric(updatedMetric);
-
-    if (!versionNumber && result?.version_number) {
+    if (!paramVersionNumber && result?.version_number) {
       queryClient.setQueryData(
         metricsQueryKeys.metricsGetMetric(result.id, result.version_number).queryKey,
         updatedMetric
       );
     }
-
     return updatedMetric;
   });
 
-  return useQuery({
-    ...options,
-    queryFn,
+  const { isFetched: isFetchedInitial, isError: isErrorInitial } = useQuery({
+    ...initialOptions,
+    queryFn: () => initialQueryFn(paramVersionNumber),
     enabled: false, //In the year of our lord 2025, April 10, I, Nate Kelley, decided to disable this query in favor of explicityly fetching the data. May god have mercy on our souls.
     retry(failureCount, error) {
       if (error?.message !== undefined) {
@@ -61,16 +62,25 @@ export const useGetMetric = <TData = IBusterMetric>(
       }
       return false;
     },
-    select: params?.select,
+    select: undefined,
     ...params
+  });
+
+  return useQuery({
+    queryKey: metricsQueryKeys.metricsGetMetric(id!, selectedVersionNumber!).queryKey,
+    enabled:
+      !!latestVersionNumber && !!selectedVersionNumber && isFetchedInitial && !isErrorInitial,
+    queryFn: () => initialQueryFn(selectedVersionNumber!),
+    select: params?.select
   });
 };
 
 export const usePrefetchGetMetricClient = () => {
   const queryClient = useQueryClient();
+  const { selectedVersionNumber } = useGetMetricVersionNumber();
   return useMemoizedFn(
     async ({ id, versionNumber }: { id: string; versionNumber: number | undefined }) => {
-      const options = metricsQueryKeys.metricsGetMetric(id, versionNumber);
+      const options = metricsQueryKeys.metricsGetMetric(id, selectedVersionNumber);
       const existingData = queryClient.getQueryData(options.queryKey);
       if (!existingData) {
         await queryClient.prefetchQuery({
@@ -97,25 +107,22 @@ export const useGetMetricData = <TData = IBusterMetricData>(
 ) => {
   const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
   const { password } = getAssetPassword(id!);
-  const versionNumberFromParams = useGetMetricVersionNumber({ versionNumber: versionNumberProp });
+  const { selectedVersionNumber } = useGetMetricVersionNumber({ versionNumber: versionNumberProp });
+
   const {
     isFetched: isFetchedMetric,
     isError: isErrorMetric,
     dataUpdatedAt,
     data: metric
   } = useGetMetric(
-    { id, versionNumber: versionNumberFromParams },
+    { id, versionNumber: selectedVersionNumber },
     { select: (x) => ({ id: x.id, version_number: x.version_number }) }
   );
-  const versionNumber = useMemo(() => {
-    if (versionNumberFromParams) return versionNumberFromParams;
-    return metric?.version_number;
-  }, [versionNumberFromParams, metric]);
 
   const queryFn = useMemoizedFn(async () => {
     const result = await getMetricData({
       id: id!,
-      version_number: versionNumber,
+      version_number: selectedVersionNumber,
       password
     });
 
@@ -123,7 +130,7 @@ export const useGetMetricData = <TData = IBusterMetricData>(
   });
 
   return useQuery({
-    ...metricsQueryKeys.metricsGetData(id!, versionNumber),
+    ...metricsQueryKeys.metricsGetData(id!, selectedVersionNumber),
     queryFn,
     enabled: () => {
       return (
@@ -132,7 +139,7 @@ export const useGetMetricData = <TData = IBusterMetricData>(
         !isErrorMetric &&
         !!metric?.id &&
         !!dataUpdatedAt &&
-        !!versionNumber
+        !!selectedVersionNumber
       );
     },
     select: params?.select,

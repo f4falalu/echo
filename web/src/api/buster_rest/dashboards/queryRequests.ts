@@ -28,12 +28,12 @@ import { addAndRemoveMetricsToDashboard } from './helpers/addAndRemoveMetricsToD
 import { RustApiError } from '../errors';
 import { useOriginalDashboardStore } from '@/context/Dashboards';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import { useGetHighestVersionMetric } from '../metrics/metricQueryHelpers';
 import {
   useGetDashboardAndInitializeMetrics,
   useGetDashboardVersionNumber,
   useEnsureDashboardConfig
 } from './queryHelpers';
+import { useGetLatestMetricVersionNumber } from '../metrics';
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
   {
@@ -449,7 +449,7 @@ export const useAddMetricsToDashboard = () => {
   const { openErrorMessage } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
-  const getHighestVersionMetric = useGetHighestVersionMetric();
+  const getHighestVersionMetric = useGetLatestMetricVersionNumber();
 
   const addMetricToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
@@ -521,7 +521,7 @@ export const useRemoveMetricsFromDashboard = () => {
   const queryClient = useQueryClient();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
-  const getHighestVersionMetric = useGetHighestVersionMetric();
+  const getHighestVersionMetric = useGetLatestMetricVersionNumber();
 
   const removeMetricFromDashboard = useMemoizedFn(
     async ({
@@ -562,8 +562,7 @@ export const useRemoveMetricsFromDashboard = () => {
             metricIds,
             dashboardResponse.dashboard.config
           );
-          console.log('options', dashboardResponse.dashboard.version_number);
-          console.log('newConfig', newConfig);
+
           queryClient.setQueryData(versionedOptions.queryKey, (currentDashboard) => {
             return create(currentDashboard!, (draft) => {
               draft.dashboard.config = newConfig;

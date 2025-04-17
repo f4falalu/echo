@@ -7,10 +7,13 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export const useGetMetricMemoized = () => {
   const queryClient = useQueryClient();
-  const versionNumber = useGetMetricVersionNumber({});
+  const { selectedVersionNumber } = useGetMetricVersionNumber({});
   const getMetricMemoized = useMemoizedFn(
     (metricId: string, versionNumberProp?: number): IBusterMetric => {
-      const options = queryKeys.metricsGetMetric(metricId, versionNumberProp || versionNumber);
+      const options = queryKeys.metricsGetMetric(
+        metricId,
+        versionNumberProp || selectedVersionNumber
+      );
       const data = queryClient.getQueryData(options.queryKey);
       return resolveEmptyMetric(data, metricId);
     }
