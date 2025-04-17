@@ -312,7 +312,7 @@ definitions:
         description: Currency code for currency formatting (e.g., USD, EUR)
       dateFormat:
         type: string
-        description: Format string for date display (must be compatible with Day.js format strings). Should be set based on user request and context.
+        description: Format string for date display (must be compatible with Day.js format strings).
       useRelativeTime:
         type: boolean
         description: Whether to display dates as relative time (e.g., 2 days ago)
