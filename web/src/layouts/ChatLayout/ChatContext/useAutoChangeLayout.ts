@@ -89,18 +89,6 @@ export const useAutoChangeLayout = ({
           useVersionHistoryMode: !chatId
         });
 
-        // if (
-        //   !isSelected &&
-        //   selectedVersionNumber !== lastFile.version_number &&
-        //   selectedFileId !== lastFileId
-        // ) {
-        //   onSetSelectedFile({
-        //     id: lastFileId,
-        //     type: lastFile.file_type,
-        //     versionNumber: selectedVersionNumber
-        //   });
-        // }
-
         if (link) {
           onChangePage(link);
         }
