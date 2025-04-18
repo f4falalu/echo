@@ -312,7 +312,7 @@ async fn get_create_metrics_description() -> String {
 
 async fn get_metric_name_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "This is a natural language name/title for the metric. It will be used to identify the metric in the UI.".to_string();
+        return "The natural language name/title for the metric, exactly matching the 'name' field within the YML content. This name will identify the metric in the UI. Do not include file extensions or use file path characters.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -320,7 +320,7 @@ async fn get_metric_name_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "This is a natural language name/title for the metric. It will be used to identify the metric in the UI.".to_string()
+            "The natural language name/title for the metric, exactly matching the 'name' field within the YML content. This name will identify the metric in the UI. Do not include file extensions or use file path characters.".to_string()
         }
     }
 }

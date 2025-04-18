@@ -396,7 +396,7 @@ async fn get_dashboard_yml_description() -> String {
 
 async fn get_dashboard_name_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "The name of the dashboard file to be created. Do not include the file extension.".to_string();
+        return "The natural language name/title for the dashboard, exactly matching the 'name' field within the YML content. This name will identify the dashboard in the UI. Do not include file extensions or use file path characters.".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -404,7 +404,7 @@ async fn get_dashboard_name_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "The name of the dashboard file to be created. Do not include the file extension.".to_string()
+            "The natural language name/title for the dashboard, exactly matching the 'name' field within the YML content. This name will identify the dashboard in the UI. Do not include file extensions or use file path characters.".to_string()
         }
     }
 }

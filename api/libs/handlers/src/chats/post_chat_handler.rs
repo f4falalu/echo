@@ -2280,21 +2280,22 @@ pub fn normalize_asset_fields(request: &ChatCreateNewChat) -> (Option<Uuid>, Opt
 
 // Constants for title generation
 const TITLE_GENERATION_PROMPT: &str = r#"
-You are a conversation title generator. Your task is to generate a clear, concise, and descriptive title for a conversation based on the user messages and assistant responses provided.
+You are a conversation title generator. Your task is to generate a clear, concise title (3-10 words) that summarizes the **core subject matter** of the conversation, primarily based on the **most recent user message**.
 
 Guidelines:
-1. The title should be 3-10 words and should capture the core topic or intent of the conversation
-2. Focus on key topics, questions, or themes from the conversation
-3. Be specific rather than generic when possible
-4. Avoid phrases like "Conversation about..." or "Discussion on..."
-5. Don't include mentions of yourself in the title
-6. The title should make sense out of context
-7. Pay attention to the most recent messages to guide topic changes, etc.
+1.  **Focus on the Topic:** Identify the key nouns, concepts, or goals mentioned by the user, especially in their latest message. What is the conversation *about*?
+2.  **Prioritize Recent Request:** The title should strongly reflect the subject of the most recent user input.
+3.  **Be Specific & Concise:** Capture the essence in 3-10 words.
+4.  **AVOID Action Verbs/File Types:** Do NOT use words like "creating", "modifying", "updating", "dashboard", "metric", "file", "chart", "visualization" unless the user's core request was *specifically* about the process of creation/modification itself (rare). Instead, focus on *what* is being created or modified (e.g., "Monthly Sales Goals", not "Creating Metric for Monthly Sales Goals").
+5.  **Natural Language:** Phrase the title naturally.
+6.  **No Self-Reference:** Do not mention yourself (the assistant).
+7.  **Context Independent:** The title should make sense on its own.
+8.  **Example:** If the last user message is "Show me total revenue for Q3 as a line chart", a good title would be "Q3 Total Revenue" or "Quarter 3 Revenue Analysis". A bad title would be "Creating Q3 Revenue Line Chart".
 
-Conversation:
+Conversation History (Most recent messages are most important):
 {conversation_messages}
 
-Return only the title text with no additional formatting, explanation, quotes, new lines, special characters, etc.
+Return ONLY the generated title text. Do not include quotes, explanations, or any other text.
 "#;
 
 /// Generates a title for a conversation by processing user and assistant messages.

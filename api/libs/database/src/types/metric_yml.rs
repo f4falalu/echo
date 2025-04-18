@@ -7,12 +7,12 @@ use diesel::{
     sql_types::Jsonb,
 };
 use indexmap::IndexMap;
+use lazy_static::lazy_static;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::json;
 use std::io::Write;
 use uuid::Uuid;
-use regex::Regex;
-use lazy_static::lazy_static;
 
 // Helper function to sanitize string values for YAML
 fn sanitize_yaml_string(value: &str) -> String {
@@ -75,7 +75,6 @@ pub enum ChartConfig {
     #[serde(rename = "table")]
     Table(TableChartConfig),
 }
-
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -201,7 +200,7 @@ impl ColumnLabelFormat {
             multiplier: None,
             prefix: None,
             suffix: None,
-            replace_missing_data_with: None,
+            replace_missing_data_with: Some(json!(0)),
             compact_numbers: None,
             currency: None,
             date_format: None,
@@ -528,22 +527,23 @@ impl MetricYml {
         for (index, line) in yml_content.lines().enumerate() {
             // Store SQL line info for potential timeFrame insertion
             if sql_line_index.is_none() {
-                 if let Some(caps) = SQL_KEY_RE.captures(line) {
+                if let Some(caps) = SQL_KEY_RE.captures(line) {
                     sql_line_index = Some(index);
                     sql_line_indent = Some(caps.get(1).map_or("", |m| m.as_str()).to_string());
                 }
             }
 
-            let current_indent = INDENT_RE.captures(line).map_or(0, |caps| {
-                caps.get(1).map_or(0, |m| m.as_str().len())
-            });
+            let current_indent = INDENT_RE
+                .captures(line)
+                .map_or(0, |caps| caps.get(1).map_or(0, |m| m.as_str().len()));
 
             // --- Colors Block Logic ---
             if in_colors_block && colors_indent.map_or(false, |indent| current_indent <= indent) {
                 in_colors_block = false;
                 colors_indent = None;
             }
-            if !in_colors_block { // Only check for start if not already in block
+            if !in_colors_block {
+                // Only check for start if not already in block
                 if let Some(caps) = COLORS_START_RE.captures(line) {
                     in_colors_block = true;
                     colors_indent = Some(caps.get(1).map_or(0, |m| m.as_str().len()));
@@ -558,14 +558,14 @@ impl MetricYml {
                     processed_lines.push(format!("{}'{}'", marker_part, color_part));
                     continue;
                 } else {
-                     processed_lines.push(line.to_string()); // Add line within color block as is if not a hex item
-                     continue;
+                    processed_lines.push(line.to_string()); // Add line within color block as is if not a hex item
+                    continue;
                 }
             }
             // --- End Colors Block Logic ---
 
             // --- String Sanitization & timeFrame Check ---
-             if let Some(caps) = SANITIZE_KEYS_RE.captures(line) {
+            if let Some(caps) = SANITIZE_KEYS_RE.captures(line) {
                 let indent = caps.name("indent").map_or("", |m| m.as_str());
                 let key = caps.name("key").map_or("", |m| m.as_str());
                 let value = caps.name("value").map_or("", |m| m.as_str());
@@ -589,15 +589,15 @@ impl MetricYml {
         // Insert default timeFrame if not found
         if !time_frame_found {
             if let Some(index) = sql_line_index {
-                 // Use the indent captured from the sql line
+                // Use the indent captured from the sql line
                 let indent = sql_line_indent.unwrap_or_else(|| "  ".to_string()); // Default indent if sql indent capture failed
                 processed_lines.insert(index, format!("{}timeFrame: 'all_time'", indent));
             } else {
                 // Fallback: append if sql key wasn't found (shouldn't happen for valid metric)
                 // Or maybe error out?
-                 eprintln!("Warning: sql key not found in metric YAML, cannot insert default timeFrame correctly.");
-                 // Append at end with default indent - might break YAML structure
-                 processed_lines.push("  timeFrame: 'all_time'".to_string()); 
+                eprintln!("Warning: sql key not found in metric YAML, cannot insert default timeFrame correctly.");
+                // Append at end with default indent - might break YAML structure
+                processed_lines.push("  timeFrame: 'all_time'".to_string());
             }
         }
 

@@ -156,7 +156,12 @@ properties:
   description:
     required: true
     type: string
-    description: Detailed description. Follow quoting rules. Should not contain `:`
+    description: |
+      A natural language description of the metric, essentially rephrasing the 'name' field as a question or statement. 
+      Example: If name is "Total Sales", description could be "What are the total sales?".
+      RULE: Should NOT describe the chart type, axes, or any visualization aspects.
+      RULE: Follow general quoting rules. 
+      RULE: Should not contain ':'.
 
   # DATASET IDS
   datasetIds:
@@ -172,7 +177,16 @@ properties:
   timeFrame:
     required: true
     type: string
-    description: Human-readable time period covered by the query. Follow quoting rules. Should not contain `:`
+    description: |
+      Human-readable time period covered by the SQL query. 
+      RULE: Must accurately reflect the date/time filter used in the `sql` field. Do not misrepresent the time range.
+      - If the SQL uses fixed dates (e.g., `BETWEEN '2025-06-01' AND '2025-06-03'`), use specific dates: "June 1, 2025 - June 3, 2025".
+      - If the SQL uses dynamic relative dates (e.g., `created_at >= NOW() - INTERVAL '3 days'`), use relative terms: "Last 3 days".
+      - For comparisons between two periods, use the format "Comparison - [Period 1] vs [Period 2]". Examples:
+        - "Comparison - This Week vs Last Week"
+        - "Comparison - Q3 2024 vs Q3 2023"
+        - "Comparison - June 1, 2025 vs August 1, 2025"
+      RULE: Follow general quoting rules. Should not contain ':'.
 
   # SQL QUERY
   ### SQL Best Practices and Constraints** (when creating new metrics)  
@@ -279,7 +293,7 @@ definitions:
           -
             currency # Note: The "$" sign is automatically prepended.
           -
-            percent # Note: The value is automatically multiplied by 100 and the "%" sign is appended.
+            percent # Note: "%" sign is appended. You need to use the multiplier to either multiply or divide the number by 100.
           - number
           - date
           - string
@@ -297,13 +311,13 @@ definitions:
         description: Maximum number of fraction digits to display
       multiplier:
         type: number
-        description: Value to multiply the number by before display
+        description: Value to multiply the number by before display. This is useful for percentages.
       prefix:
         type: string
       suffix:
         type: string
       replaceMissingDataWith:
-        description: Value to display when data is missing, this should be set to null as default.
+        description: Value to display when data is missing, needs to be set to 0.
       compactNumbers:
         type: boolean
         description: Whether to display numbers in compact form (e.g., 1K, 1M)
@@ -321,7 +335,12 @@ definitions:
         description: Whether to interpret dates as UTC
       convertNumberTo:
         type: string
-        description:  this is useful for converting numberic 1-12 into month names
+        description: Optional. Convert numeric values to time units or date parts.  This is a necessity for time series data when numbers are passed instead of the date.
+        enum:
+          - day_of_week
+          - month_of_year
+          - quarter
+
     required:
       - columnType
       - style
