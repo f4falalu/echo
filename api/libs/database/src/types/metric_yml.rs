@@ -22,6 +22,7 @@ fn sanitize_yaml_string(value: &str) -> String {
         .replace('\"', "") // Remove double quotes
         .replace('\n', " ") // Replace newlines with spaces
         .replace('\t', " ") // Replace tabs with spaces
+        .replace('%', "Percent") // Replace % with Percent
         .trim() // Trim leading/trailing whitespace
         .to_string()
 }
@@ -575,13 +576,9 @@ impl MetricYml {
                 }
 
                 let sanitized_value = sanitize_yaml_string(value);
-                // Reconstruct line, potentially quoting if value was empty after sanitizing?
-                // For now, just place the sanitized value. YAML might handle empty strings okay.
-                // If the value needs quotes (e.g., contains special chars AFTER sanitization, though unlikely now)
-                // we might need more complex logic. Let's assume simple value placement is fine.
                 processed_lines.push(format!("{}{}: {}", indent, key, sanitized_value));
             } else {
-                // Add lines that don't match any processing rules
+                // Add lines that don't match any processing rules (like the sql block)
                 processed_lines.push(line.to_string());
             }
         }

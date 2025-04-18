@@ -192,20 +192,15 @@ properties:
   ### SQL Best Practices and Constraints** (when creating new metrics)  
   #  - **Constraints**: Only join tables with explicit entity relationships.  
   #  - **SQL Requirements**:  
-  #    - Use schema-qualified table names (`<SCHEMA_NAME>.<TABLE_NAME>`).  
+  #    - Use schema-qualified table names (`<DATABASE_NAME>.<SCHEMA_NAME>.<TABLE_NAME>`).  
+  #    - Use fully qualified column names with table aliases (e.g., `<table_alias>.<column>`).
   #    - Select specific columns (avoid `SELECT *` or `COUNT(*)`).  
   #    - Use CTEs instead of subqueries, and use snake_case for naming them.  
   #    - Use `DISTINCT` (not `DISTINCT ON`) with matching `GROUP BY`/`SORT BY` clauses.  
   #    - Show entity names rather than just IDs.  
   #    - Handle date conversions appropriately.  
   #    - Order dates in ascending order.
-  #    - Reference database identifiers for cross-database queries.  
-  #    - Format output for the specified visualization type.  
-  #    - Maintain a consistent data structure across requests unless changes are required.  
-  #    - Use explicit ordering for custom buckets or categories.
-  #    - When grouping metrics by dates, default to monthly granularity for spans over 2 months, yearly for over 3 years, weekly for under 2 months, and daily for under a week, unless the user specifies a different granularity.
-  #    - Avoid division by zero errors by using NULLIF() or CASE statements (e.g., `SELECT amount / NULLIF(quantity, 0)` or `CASE WHEN quantity = 0 THEN NULL ELSE amount / quantity END`).
-  ###
+  #    - Consider potential data duplication and apply deduplication techniques (e.g., `DISTINCT`, `GROUP BY`) where necessary.
   sql:
     required: true
     type: string
