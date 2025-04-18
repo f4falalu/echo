@@ -37,6 +37,7 @@ export const useAppLayout = () => {
 
       // Handle shallow routing (only updating query params)
       if (options?.shallow && targetPathname === currentPathname) {
+        console.log('shallow routing', targetPathname, currentPathname);
         return new Promise((resolve) => {
           const params = getQueryParamsFromPath(targetPath);
           onChangeQueryParams(params, false);
@@ -76,36 +77,15 @@ export const useAppLayout = () => {
     }
   );
 
-  const createQueryParams = useMemoizedFn(
-    (params: Record<string, string | null>, preserveExisting: boolean) => {
-      const url = new URL(window.location.href);
-
-      if (!preserveExisting) {
-        // Clear all existing search parameters
-        url.search = '';
-      }
-
-      // Add new parameters
-      Object.entries(params).forEach(([key, value]) => {
-        if (value) {
-          url.searchParams.set(key, value);
-        } else {
-          url.searchParams.delete(key);
-        }
-      });
-
-      return url;
-    }
-  );
-
   //TODO: make this typesafe...
   const onChangeQueryParams = useMemoizedFn(
     (params: Record<string, string | null>, preserveExisting: boolean) => {
-      const isRemovingANonExistentParam = Object.keys(params).every(
-        (key) => !window.location.href.includes(key)
-      );
+      const isRemovingANonExistentParam = Object.entries(params).every(([key, value]) => {
+        return !value ? !window.location.href.includes(key) : false;
+      });
       if (isRemovingANonExistentParam) return; //we don't need to do anything if we're removing a non-existent param
       const url = createQueryParams(params, preserveExisting);
+
       if (url) window.history.pushState({}, '', url); //we used window.history instead of replace for true shallow routing
     }
   );
@@ -114,9 +94,28 @@ export const useAppLayout = () => {
     currentRoute,
     onChangePage,
     currentParentRoute,
-    onChangeQueryParams,
-    createQueryParams
+    onChangeQueryParams
   };
+};
+
+const createQueryParams = (params: Record<string, string | null>, preserveExisting: boolean) => {
+  const url = new URL(window.location.href);
+
+  if (!preserveExisting) {
+    // Clear all existing search parameters
+    url.search = '';
+  }
+
+  // Add new parameters
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    } else {
+      url.searchParams.delete(key);
+    }
+  });
+
+  return url;
 };
 
 const getQueryParamsFromPath = (path: string): Record<string, string> => {
