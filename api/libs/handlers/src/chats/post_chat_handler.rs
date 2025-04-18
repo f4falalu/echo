@@ -2236,6 +2236,15 @@ fn transform_assistant_tool_message(
                         parser.process_dashboard_chunk(tool_id.clone(), &tool_call.function.arguments)
                     };
 
+                    // +++ Add Debug Logging +++
+                    tracing::debug!(
+                        tool_name = %tool_name,
+                        arguments = %tool_call.function.arguments,
+                        parse_result = ?parse_result,
+                        "Processing InProgress chunk for file tool"
+                    );
+                    // +++ End Debug Logging +++
+
                     // If parser returns a reasoning message (File type expected)
                     if let Ok(Some(BusterReasoningMessage::File(mut file_reasoning))) = parse_result {
                         // Added missing variable initializations
@@ -2255,7 +2264,15 @@ fn transform_assistant_tool_message(
                                     // Update file detail with delta
                                     file_detail.file.text_chunk = Some(delta);
                                     file_detail.file.text = None; // Ensure full text is cleared when chunking
-                                    file_detail.status = "In Progress".to_string(); // Set status to in progress
+                                    // Determine the correct status based on the tool name
+                                    let status_text = if tool_name.starts_with("create_") {
+                                        "Creating".to_string()
+                                    } else if tool_name.starts_with("update_") {
+                                        "Modifying".to_string()
+                                    } else {
+                                        "In Progress".to_string() // Fallback
+                                    };
+                                    file_detail.status = status_text; // Set status dynamically
                                     has_updates = true;
                                     updated_files_map.insert(file_map_id.clone(), file_detail.clone()); // Clone file_detail
                                 } else {
@@ -2270,6 +2287,15 @@ fn transform_assistant_tool_message(
 
                         // Update only the files that had changes
                         if has_updates {
+                            // Update the title based on the tool type
+                            let title_text = if tool_name.starts_with("create_") {
+                                format!("Creating {} files...", file_type)
+                            } else if tool_name.starts_with("update_") {
+                                format!("Modifying {} files...", file_type)
+                            } else {
+                                format!("Processing {} files...", file_type) // Fallback
+                            };
+                            file_reasoning.title = title_text; // Set title dynamically
                             file_reasoning.files = updated_files_map; // Replace with updated files
                             all_results.push(ToolTransformResult::Reasoning(
                                 BusterReasoningMessage::File(file_reasoning),

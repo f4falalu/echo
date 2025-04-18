@@ -235,27 +235,40 @@ impl StreamingParser {
         if let Some(files) = value.get("files").and_then(Value::as_array) {
             let mut files_map = std::collections::HashMap::new();
             let mut file_ids = Vec::new();
+            let mut is_update_operation = false; // Flag to track if we found an 'id'
 
             for file in files {
                 if let Some(file_obj) = file.as_object() {
-                    let has_name = file_obj.get("name").and_then(Value::as_str).is_some();
-                    let has_yml_content = file_obj.get("yml_content").is_some();
+                    let yml_content_opt = file_obj.get("yml_content").and_then(Value::as_str);
+                    let id_opt = file_obj.get("id").and_then(Value::as_str);
+                    let name_opt = file_obj.get("name").and_then(Value::as_str);
 
-                    if has_name && has_yml_content {
-                        let name = file_obj.get("name").and_then(Value::as_str).unwrap_or("");
-                        let yml_content = file_obj
-                            .get("yml_content")
-                            .and_then(Value::as_str)
-                            .unwrap_or("");
+                    if let Some(yml_content) = yml_content_opt {
+                        let file_id_str: String;
+                        let file_name_str: String;
 
-                        // Generate deterministic UUID based on tool call ID, file name, and type
-                        let file_id = generate_deterministic_uuid(&id, name, &file_type)?;
+                        if let Some(provided_id_str) = id_opt {
+                            // --- Update Operation --- 
+                            is_update_operation = true; // Mark as update
+                            file_id_str = provided_id_str.to_string();
+                            // Name is not available during streaming for updates, use ID as placeholder
+                            file_name_str = format!("{}...", provided_id_str.chars().take(8).collect::<String>());
+                        } else if let Some(provided_name) = name_opt {
+                            // --- Create Operation ---
+                            // Generate deterministic UUID based on tool call ID, file name, and type
+                            let generated_id = generate_deterministic_uuid(&id, provided_name, &file_type)?;
+                            file_id_str = generated_id.to_string();
+                            file_name_str = provided_name.to_string();
+                        } else {
+                            // Neither id nor name found, skip this file object
+                            continue;
+                        }
 
                         let buster_file = BusterFile {
-                            id: file_id.to_string(),
+                            id: file_id_str.clone(),
                             file_type: file_type.clone(),
-                            file_name: name.to_string(),
-                            version_number: 1,
+                            file_name: file_name_str, // Use determined name (actual or placeholder)
+                            version_number: 1, // Initial version for streaming, final message will have correct one
                             status: "loading".to_string(),
                             file: BusterFileContent {
                                 text: None,
@@ -265,17 +278,24 @@ impl StreamingParser {
                             metadata: None,
                         };
 
-                        file_ids.push(file_id.to_string());
-                        files_map.insert(file_id.to_string(), buster_file);
+                        file_ids.push(file_id_str.clone());
+                        files_map.insert(file_id_str, buster_file);
                     }
                 }
             }
 
             if !files_map.is_empty() {
+                // Determine title based on whether it was a create or update operation
+                let title = if is_update_operation {
+                    format!("Modifying {} files...", file_type)
+                } else {
+                    format!("Creating {} files...", file_type)
+                };
+
                 return Ok(Some(BusterReasoningMessage::File(BusterReasoningFile {
-                    id,
+                    id, // Use the overall tool call ID
                     message_type: "files".to_string(),
-                    title: format!("Creating {} files...", file_type),
+                    title, // Use dynamic title
                     secondary_title: String::new(),
                     status: "loading".to_string(),
                     file_ids,
