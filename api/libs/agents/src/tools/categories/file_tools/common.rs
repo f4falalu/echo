@@ -313,7 +313,7 @@ definitions:
         type: string
       replaceMissingDataWith:
         type: number
-        description: Value to display when data is missing, needs to be set to 0.
+        description: Value to display when data is missing, needs to be set to 0. Should only be set on number columns. All others should be set to null.
       compactNumbers:
         type: boolean
         description: Whether to display numbers in compact form (e.g., 1K, 1M)
@@ -341,7 +341,6 @@ definitions:
       - columnType
       - style
       - replaceMissingDataWith
-      - multiplier
   # COLUMN VISUAL SETTINGS
   column_settings:
     type: object
