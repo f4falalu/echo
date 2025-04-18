@@ -3,7 +3,7 @@ import { SelectAxisContainerId } from '../config';
 import { useMemoizedFn } from '@/hooks';
 import { DropZoneInternal } from './interfaces';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
-import { ChartType, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import { ChartEncodes, ChartType, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { Active } from '@dnd-kit/core';
 import { isNumericColumnStyle, isNumericColumnType } from '@/lib';
 
@@ -16,6 +16,7 @@ interface ZoneError {
 export const useErrorZones = () => {
   const selectedChartType = useSelectAxisContextSelector((x) => x.selectedChartType);
   const columnLabelFormats = useSelectAxisContextSelector((x) => x.columnLabelFormats);
+  const selectedAxis = useSelectAxisContextSelector((x) => x.selectedAxis);
   const [errorZone, setErrorZone] = useState<ZoneError | null>(null);
 
   const onDragOverCheckErrorZone = useMemoizedFn(
@@ -32,7 +33,8 @@ export const useErrorZones = () => {
             targetZone,
             originalItemId,
             columnLabelFormat,
-            selectedChartType
+            selectedChartType,
+            selectedAxis
           );
           if (zoneError) {
             setErrorZone(zoneError);
@@ -60,7 +62,8 @@ const zoneErrorRecord: Record<
   (
     targetZone: DropZoneInternal,
     columnLabelFormat: Required<IColumnLabelFormat>,
-    selectedChartType: ChartType
+    selectedChartType: ChartType,
+    axis: Parameters<typeof checkForError>[4]
   ) => {
     error: boolean;
     reason: string;
@@ -68,7 +71,9 @@ const zoneErrorRecord: Record<
 > = {
   [SelectAxisContainerId.Available]: () => null,
   [SelectAxisContainerId.Metric]: () => null,
-  [SelectAxisContainerId.XAxis]: (targetZone, columnLabelFormat, selectedChartType) => {
+  [SelectAxisContainerId.XAxis]: (targetZone, columnLabelFormat, selectedChartType, axis) => {
+    console.log(targetZone, axis);
+
     return null;
   },
   [SelectAxisContainerId.YAxis]: (targetZone, columnLabelFormat) => {
@@ -130,7 +135,8 @@ const checkForError = (
   targetZone: DropZoneInternal,
   activeItemOriginalId: string,
   columnLabelFormat: Required<IColumnLabelFormat>,
-  selectedChartType: ChartType
+  selectedChartType: ChartType,
+  axis: ChartEncodes | null
 ): ZoneError | null => {
   const hasDuplicate = checkDuplicates(targetZone, activeItemOriginalId);
 
@@ -143,7 +149,12 @@ const checkForError = (
   }
 
   const targetZoneId = targetZone.id;
-  const zoneError = zoneErrorRecord[targetZoneId](targetZone, columnLabelFormat, selectedChartType);
+  const zoneError = zoneErrorRecord[targetZoneId](
+    targetZone,
+    columnLabelFormat,
+    selectedChartType,
+    axis
+  );
 
   if (!zoneError) return null;
 
