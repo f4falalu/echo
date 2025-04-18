@@ -259,74 +259,68 @@ export const WithLoader: Story = {
   render: () => <InteractiveMarkdown />
 };
 
-export const WithProblematicReasoningMarkdown: Story = {
+export const WithProblematicReasoningMarkdown2: Story = {
   args: {
     markdown: `**Thought**:
-The goal is to build a comprehensive dashboard on product sales YTD. The dashboard will provide insights into overall sales trends, which products contribute most (top 10) and least (bottom 10), who the top salespeople and customers are, and some categorical breakdown based on product categories. We will focus on data from product sales (using sales orders, transaction history, and product information) and restrict visualizations to top and bottom 10 products wherever applicable.
+The user wants to save the existing "Monthly Sales by Sales Rep" chart into a dashboard and add a selection of key sales visualizations to give a comprehensive view of performance. I'll assemble about nine additional metrics covering overall trends, order metrics, product and territory breakdowns, growth rates, and quota comparisons, all over the last 12 months. Then I'll create a dashboard titled "Sales Performance Dashboard" and add all visualizations.
 
 **Step-by-Step Plan**:
-1. **Create 8 Visualizations**:
-   - **Title**: 'YTD Sales Trend'
-     - **Type**: Line Chart
-     - **Datasets**: entity_sales_order (or entity_transaction_history)
-     - **Expected Output**: A line chart showing total sales amounts aggregated over time from the beginning of the year to date, with dates on the x-axis and total revenue on the y-axis.
-   
-   - **Title**: 'Total Sales YTD'
-     - **Type**: Number Card
-     - **Datasets**: entity_sales_order (or entity_transaction_history)
-     - **Expected Output**: A number card displaying the cumulative sales revenue from the beginning of the year until now.
-   
-   - **Title**: 'Top 10 Products by Revenue'
-     - **Type**: Bar Chart
-     - **Datasets**: entity_sales_order, entity_product
-     - **Expected Output**: A bar chart showing the top 10 products (by product name) with the highest total revenue; x-axis as product names, y-axis as sales revenue.
-   
-   - **Title**: 'Bottom 10 Products by Revenue'
-     - **Type**: Bar Chart
-     - **Datasets**: entity_sales_order, entity_product
-     - **Expected Output**: A bar chart showing the bottom 10 products (by product name) with the lowest sales revenue; x-axis as product names, y-axis as sales revenue. Only include products in the top and bottom groups.
-   
-   - **Title**: 'Top Salespeople YTD'
-     - **Type**: Bar Chart
-     - **Datasets**: entity_sales_order, entity_sales_person
-     - **Expected Output**: A bar chart displaying sales by each salesperson (using first and last name combined) ranked by total sales revenue for the year-to-date.
-   
-   - **Title**: 'Top Customers YTD'
-     - **Type**: Bar Chart
-     - **Datasets**: entity_sales_order, entity_customer
-     - **Expected Output**: A bar chart showing the top customers based on the amount they spent, with customer full names on the x-axis and revenue on the y-axis.
-   
-   - **Title**: 'Sales by Product Category'
-     - **Type**: Bar Chart
-     - **Datasets**: entity_sales_order, entity_product
-     - **Expected Output**: A bar chart that groups sales revenue by product category, with categories on the x-axis and total revenue on the y-axis. This visualization is filtered to include only products from the top 10 and bottom 10 groups.
-   
-   - **Title**: 'Monthly Sales Trend for Top/Bottom Products'
-     - **Type**: Line Chart
-     - **Datasets**: entity_sales_order, entity_product
-     - **Expected Output**: A line chart with monthly breakdown (months on the x-axis) showing sales trends for the products in the top 10 and bottom 10 groups, with separate lines representing each product (displaying product names).
+1. **Create 9 Visualizations**:
+- **Title:** Total Sales (Last 12 Months)
+  - **Type:** Number Card
+  - **Datasets:** sales_order_header, sales_order_detail
+  - **Expected Output:** A single-value card showing the sum of all sales amounts over the past 12 months, formatted as currency.
+
+- **Title:** Monthly Total Sales Trend (Last 12 Months)
+  - **Type:** Line Chart
+  - **Datasets:** sales_order_header, sales_order_detail
+  - **Expected Output:** A line chart with the last 12 months on the x-axis and total sales amount on the y-axis.
+
+- **Title:** Monthly Number of Orders (Last 12 Months)
+  - **Type:** Line Chart
+  - **Datasets:** sales_order_header
+  - **Expected Output:** A line chart with months on the x-axis and count of orders on the y-axis.
+
+- **Title:** Average Order Value (Last 12 Months)
+  - **Type:** Line Chart
+  - **Datasets:** sales_order_header, sales_order_detail
+  - **Expected Output:** A line chart showing month on the x-axis and average order value (sales amount divided by number of orders) on the y-axis.
+
+- **Title:** Top 10 Products by Revenue (Last 12 Months)
+  - **Type:** Bar Chart
+  - **Datasets:** sales_order_header, sales_order_detail, product
+  - **Expected Output:** A bar chart listing the top 10 products by total revenue, with product names on the x-axis and revenue on the y-axis.
+
+- **Title:** Sales by Region (Last 12 Months)
+  - **Type:** Bar Chart
+  - **Datasets:** sales_order_header, sales_territory
+  - **Expected Output:** A bar chart with regions on the x-axis and total sales amount on the y-axis.
+
+- **Title:** Month-over-Month Sales Growth Rate (Last 12 Months)
+  - **Type:** Line Chart
+  - **Datasets:** monthly_sales_growth_rate
+  - **Expected Output:** A line chart with months on the x-axis and month-over-month percentage growth on the y-axis.
+
+- **Title:** Sales vs Quota by Sales Rep (Last 12 Months)
+  - **Type:** Combo Chart
+  - **Datasets:** sales_order_header, sales_order_detail, sales_person_quota_history, sales_person, person
+  - **Expected Output:** A chart with sales reps on the x-axis showing two series: total sales (bars) vs quota (line) for each rep over the last 12 months.
+
+- **Title:** Sales by Product Category (Last 12 Months)
+  - **Type:** Stacked Bar Chart
+  - **Datasets:** sales_order_header, sales_order_detail, product, product_subcategory
+  - **Expected Output:** A stacked bar chart with product categories on the x-axis and total sales on the y-axis, segmented by subcategory.
 
 2. **Create Dashboard**:
-   - Title the dashboard "Product Sales Overview - YTD (Top & Bottom 10)"
-   - Add and arrange all eight visualizations on the dashboard to provide a comprehensive view of overall product sales, important sellers and buyers, and categorical insights focused on the top and bottom 10 products.
+- **Title:** Sales Performance Dashboard
+- Add the existing "Monthly Sales by Sales Rep (Last 12 Months)" metric plus the nine newly created visualizations.
 
 3. **Review & Finish**:
-   - Verify that each visualization returns relevant and non-empty data, and that filters restrict views to the top 10 and bottom 10 products where applicable.
-   - Confirm that names are displayed instead of IDs in all visualizations.
+- Confirm all charts show data for the last 12 months, use names instead of IDs, and display correctly without empty results.
 
 **Notes**:
-- Assumption: YTD refers to data from January 1st up to the current date.
-- The top 10 and bottom 10 products are determined based on total sales revenue.
-- Sales orders schema is used for sales figures while product details provide categorical info.
-- The dataset relationships have been confirmed in the data catalog.
-
-This plan should provide a clear and comprehensive dashboard covering overall sales trends, key players in both sales and buying, and categorical breakdown for the top and bottom 10 products.`
-  }
-};
-
-export const WithHiddenNewlines: Story = {
-  args: {
-    markdown: 'This is line one.\nThis is line two.\nThis is line three.',
-    className: 'whitespace-pre-wrap'
+- Timeframe defaults to the last 12 months for all metrics.
+- Product and region names will be displayed instead of IDs.
+- Top-product chart limits to the top 10 by revenue.`
   }
 };

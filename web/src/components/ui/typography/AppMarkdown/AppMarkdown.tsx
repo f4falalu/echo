@@ -58,6 +58,7 @@ const AppMarkdownBase: React.FC<{
   const h6 = useMemoizedFn((props) => <CustomHeading level={6} {...props} {...commonProps} />);
 
   const memoizedComponents: Partial<Components> = useMemo(() => {
+    // return undefined;
     return {
       //common components,
       text,
@@ -85,7 +86,7 @@ const AppMarkdownBase: React.FC<{
         remarkPlugins={remarkPlugins}
         skipHtml={true}
         components={memoizedComponents}
-        //  rehypePlugins={rehypePlugins}
+        //   rehypePlugins={rehypePlugins}
       >
         {markdown}
       </ReactMarkdown>

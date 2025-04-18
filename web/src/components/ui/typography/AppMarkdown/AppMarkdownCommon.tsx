@@ -126,7 +126,8 @@ export const CustomOrderedList: React.FC<
       className={cn(
         'list-decimal space-y-1',
         showLoader && 'animate-in fade-in transition-none duration-700'
-      )}>
+      )}
+      {...rest}>
       {children}
     </ol>
   );
@@ -144,7 +145,8 @@ export const CustomUnorderedList: React.FC<
       className={cn(
         'mt-1 list-inside list-disc space-y-1',
         showLoader && 'animate-in fade-in transition-none duration-700'
-      )}>
+      )}
+      {...rest}>
       {children}
     </ul>
   );
