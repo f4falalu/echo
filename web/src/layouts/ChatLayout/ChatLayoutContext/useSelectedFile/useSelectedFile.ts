@@ -44,6 +44,8 @@ export const useSelectedFile = ({
       if (link) onChangePage(link);
     }
 
+    console.log('handleFileCollapse', handleFileCollapse);
+
     if (handleFileCollapse) {
       animateOpenSplitter('left');
       return;

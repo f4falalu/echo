@@ -39,8 +39,7 @@ export const CustomParagraph: React.FC<
         className={cn(
           'text-size-inherit!',
           showLoader && 'animate-in fade-in transition-none duration-700'
-        )}
-        {...rest}>
+        )}>
         {children}
       </p>
     );
@@ -57,8 +56,7 @@ export const CustomParagraph: React.FC<
       className={cn(
         'text-size-inherit!',
         showLoader && 'animate-in fade-in transition-none duration-700'
-      )}
-      {...rest}>
+      )}>
       {children}
     </p>
   );
@@ -94,8 +92,7 @@ export const CustomHeading: React.FC<
       className={cn(
         headingVariants({ level: stripFormatting ? 'base' : level }),
         showLoader && 'animate-in fade-in transition-none duration-700'
-      )}
-      {...rest}>
+      )}>
       {children}
     </HeadingTag>
   );
@@ -192,9 +189,7 @@ export const CustomTable: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <table
-      className={cn('', showLoader && 'animate-in fade-in transition-none duration-700')}
-      {...rest}>
+    <table className={cn('', showLoader && 'animate-in fade-in transition-none duration-700')}>
       {children}
     </table>
   );
@@ -208,9 +203,7 @@ export const CustomSpan: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <span
-      className={cn('', showLoader && 'animate-in fade-in transition-none duration-700')}
-      {...rest}>
+    <span className={cn('', showLoader && 'animate-in fade-in transition-none duration-700')}>
       {children}
     </span>
   );
