@@ -292,6 +292,9 @@ definitions:
           - number
           - date
           - string
+      multiplier:
+        type: number
+        description: Value to multiply the number by before display. Default value is 1, so no multiplication is done. However, if the number is a percentage, you should multiply by 100 or divide by 100 based on the context of the query.
       displayName:
         type: string
         description: Custom display name for the column
@@ -304,9 +307,6 @@ definitions:
       maximumFractionDigits:
         type: integer
         description: Maximum number of fraction digits to display
-      multiplier:
-        type: number
-        description: Value to multiply the number by before display. This is usually required for percentages.
       prefix:
         type: string
       suffix:
@@ -341,7 +341,7 @@ definitions:
       - columnType
       - style
       - replaceMissingDataWith
-
+      - multiplier
   # COLUMN VISUAL SETTINGS
   column_settings:
     type: object
