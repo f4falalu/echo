@@ -257,21 +257,28 @@ where
 pub async fn has_dataset_access(user_id: &Uuid, dataset_id: &Uuid) -> Result<bool> {
     let mut conn = get_pg_pool().get().await.context("DB Error")?; // Get initial connection
 
-    // --- Check if Dataset exists and get Organization ID ---
-    let dataset_org = datasets::table
+    // --- Check if Dataset exists and get Organization ID and deleted status ---
+    let dataset_info = datasets::table
         .filter(datasets::id.eq(dataset_id))
-        .filter(datasets::deleted_at.is_null())
-        .select(datasets::organization_id)
-        .first::<Uuid>(&mut conn)
+        // Remove the deleted_at filter here to check status later
+        .select((datasets::organization_id, datasets::deleted_at))
+        .first::<(Uuid, Option<DateTime<Utc>>)>(&mut conn)
         .await;
 
-    let organization_id = match dataset_org {
-        Ok(org_id) => org_id,
-        Err(diesel::NotFound) => return Ok(false), // Dataset doesn't exist or is deleted
-        Err(e) => return Err(e).context("Failed to check dataset existence"),
+    let (organization_id, deleted_at_status) = match dataset_info {
+        Ok((org_id, deleted_at)) => (org_id, deleted_at),
+        Err(diesel::NotFound) => return Ok(false), // Dataset doesn't exist
+        Err(e) => return Err(e).context("Failed to fetch dataset info"),
     };
 
-    // --- Check Admin/Querier Access ---
+    // --- Universal Check: If dataset is deleted, NO ONE has access ---
+    if deleted_at_status.is_some() {
+        return Ok(false);
+    }
+
+    // --- Dataset is NOT deleted, proceed with access checks ---
+
+    // Check Admin/Querier Access
     let admin_access = users_to_organizations::table
         .filter(users_to_organizations::user_id.eq(user_id))
         .filter(users_to_organizations::organization_id.eq(organization_id))
@@ -287,14 +294,17 @@ pub async fn has_dataset_access(user_id: &Uuid, dataset_id: &Uuid) -> Result<boo
                 | UserOrganizationRole::DataAdmin
                 | UserOrganizationRole::Querier
         ) {
+            // Admins/Queriers have access to non-deleted datasets in their org
             return Ok(true);
         }
     } else if !matches!(admin_access, Err(diesel::NotFound)) {
-        // Propagate unexpected errors
-        // Explicitly convert diesel::Error to anyhow::Error
+        // Propagate unexpected errors from role check
         return Err(anyhow::Error::from(admin_access.err().unwrap()))
             .context("Error checking admin access");
     }
+
+    // --- If not Admin/Querier, proceed with detailed permission checks ---
+    // (No need to check deleted_at again here)
 
     // Drop initial connection before spawning tasks
     drop(conn);

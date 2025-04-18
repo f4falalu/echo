@@ -1197,6 +1197,7 @@ pub struct ModifyFilesParams {
     pub files: Vec<FileModification>,
 }
 
+/// Represents the output of a file modification tool call
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ModifyFilesOutput {
     pub message: String,

@@ -1,3 +1,4 @@
+use agents::tools::file_tools::common::ModifyFilesOutput;
 use dashmap::DashMap;
 use middleware::AuthenticatedUser;
 use std::collections::HashSet;
@@ -7,8 +8,9 @@ use std::sync::Arc;
 use agents::{
     tools::{
         file_tools::{
-            common::ModifyFilesOutput, create_dashboards::CreateDashboardFilesOutput,
-            create_metrics::CreateMetricFilesOutput, search_data_catalog::SearchDataCatalogOutput,
+             create_dashboards::CreateDashboardFilesOutput,
+            create_metrics::{CreateMetricFilesOutput}, // Alias to avoid name clash
+            search_data_catalog::SearchDataCatalogOutput,
         },
         // Remove the old import
         // planning_tools::CreatePlanOutput,
@@ -1580,33 +1582,48 @@ fn tool_create_plan(id: String, content: String, elapsed_duration: Duration) -> 
 
 // Update tool_create_metrics to require ID and accept duration
 fn tool_create_metrics(id: String, content: String, delta_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
-    // Parse the CreateMetricFilesOutput from content
+    // Parse the actual CreateMetricFilesOutput from content
     let create_metrics_result = match serde_json::from_str::<CreateMetricFilesOutput>(&content) {
         Ok(result) => result,
         Err(e) => {
             println!("Failed to parse CreateMetricFilesOutput: {:?}", e);
-            // Return an error reasoning message as a File type
+            // Return a generic failure message if parsing the whole result fails
             return Ok(vec![BusterReasoningMessage::File(BusterReasoningFile {
                 id,
                 message_type: "files".to_string(),
-                title: "Failed to Create Metrics".to_string(),
+                title: "Failed to process metric creation results".to_string(),
                 secondary_title: format!("Error: {}", e),
-                status: "failed".to_string(), // Set status to failed
+                status: "failed".to_string(),
                 file_ids: vec![],
                 files: HashMap::new(),
             })]);
         }
     };
 
-    // Remove internal duration calculation
-    // let duration = (create_metrics_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
-    let files_count = create_metrics_result.files.len();
+    // Use the lengths of the actual fields from the parsed output
+    let successes_count = create_metrics_result.files.len();
+    let failures_count = create_metrics_result.failed_files.len();
 
-    // Create a map of files
+    let title = match (successes_count, failures_count) {
+        (s, 0) if s > 0 => format!("Created {} metric{}", s, if s == 1 { "" } else { "s" }),
+        (0, f) if f > 0 => format!("{} metric{} failed", f, if f == 1 { "" } else { "s" }),
+        (s, f) if s > 0 && f > 0 => format!("Created {} metric{}, {} failed", s, if s == 1 { "" } else { "s" }, f),
+        // Should not happen if parsing succeeded, but handle gracefully
+        _ => "Processed metric creation".to_string(),
+    };
+
+    let status = if successes_count == 0 && failures_count > 0 {
+        "failed".to_string()
+    } else {
+        "completed".to_string() // Mark completed even if some failed
+    };
+
+
+    // Create a map of successfully created files
     let mut files_map = std::collections::HashMap::new();
     let mut file_ids = Vec::new();
 
-    // Process each file
+    // Process each successful file from the actual output
     for file in create_metrics_result.files {
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
@@ -1615,8 +1632,8 @@ fn tool_create_metrics(id: String, content: String, delta_duration: Duration) ->
             id: file_id.clone(),
             file_type: "metric".to_string(),
             file_name: file.name.clone(),
-            version_number: 1,
-            status: "completed".to_string(),
+            version_number: 1, // Assuming version 1 for new files
+            status: "completed".to_string(), // Status for this specific file
             file: BusterFileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
@@ -1628,47 +1645,63 @@ fn tool_create_metrics(id: String, content: String, delta_duration: Duration) ->
         files_map.insert(file_id, buster_file);
     }
 
-    // Create the BusterReasoningFile using elapsed_duration
-    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+    // Create the BusterReasoningFile using delta_duration and the new title/status
+    let buster_file_message = BusterReasoningMessage::File(BusterReasoningFile {
         id,
         message_type: "files".to_string(),
-        title: format!("Created {} metric files", files_count),
+        title,
         secondary_title: format!("{} seconds", delta_duration.as_secs()), // Use delta_duration
-        status: "completed".to_string(),
-        file_ids,
-        files: files_map,
+        status, // Use calculated status
+        file_ids, // Only IDs of successful files
+        files: files_map, // Only details of successful files
     });
 
-    Ok(vec![buster_file])
+    Ok(vec![buster_file_message])
 }
 
 // Update tool_modify_metrics to require ID and accept duration
 fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
-    // Parse the ModifyFilesOutput from content
+    // Parse the actual ModifyMetricsFilesOutput from content
     let modify_metrics_result = match serde_json::from_str::<ModifyFilesOutput>(&content) {
         Ok(result) => result,
         Err(e) => {
-            tracing::error!("Failed to parse ModifyFilesOutput: {:?}", e);
-            // Return an error reasoning message as a File type
+            tracing::error!("Failed to parse ModifyMetricsFilesOutput: {:?}", e);
+            // Return a generic failure message if parsing the whole result fails
             return Ok(vec![BusterReasoningMessage::File(BusterReasoningFile {
                 id,
                 message_type: "files".to_string(),
-                title: "Failed to Modify Metrics".to_string(),
+                title: "Failed to process metric modification results".to_string(),
                 secondary_title: format!("Error: {}", e),
-                status: "failed".to_string(), // Set status to failed
+                status: "failed".to_string(),
                 file_ids: vec![],
                 files: HashMap::new(),
             })]);
         }
     };
 
-    let files_count = modify_metrics_result.files.len();
+    // Use the lengths of the actual fields from the parsed output
+    let successes_count = modify_metrics_result.files.len();
+    let failures_count = modify_metrics_result.failed_files.len();
 
-    // Create a map of files
+    let title = match (successes_count, failures_count) {
+        (s, 0) if s > 0 => format!("Modified {} metric{}", s, if s == 1 { "" } else { "s" }),
+        (0, f) if f > 0 => format!("{} metric modification{} failed", f, if f == 1 { "" } else { "s" }),
+        (s, f) if s > 0 && f > 0 => format!("Modified {} metric{}, {} failed", s, if s == 1 { "" } else { "s" }, f),
+        _ => "Processed metric modification".to_string(),
+    };
+
+     let status = if successes_count == 0 && failures_count > 0 {
+        "failed".to_string()
+    } else {
+        "completed".to_string() // Mark completed even if some failed
+    };
+
+
+    // Create a map of successfully modified files
     let mut files_map = std::collections::HashMap::new();
     let mut file_ids = Vec::new();
 
-    // Process each file
+    // Process each successful file from the actual output
     for file in modify_metrics_result.files {
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
@@ -1676,9 +1709,9 @@ fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) ->
         let buster_file = BusterFile {
             id: file_id.clone(),
             file_type: "metric".to_string(),
-            file_name: file.name.clone(), 
-            version_number: file.version_number,
-            status: "completed".to_string(),
+            file_name: file.name.clone(),
+            version_number: file.version_number, // Use version from result
+            status: "completed".to_string(), // Status for this specific file
             file: BusterFileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
@@ -1690,50 +1723,63 @@ fn tool_modify_metrics(id: String, content: String, delta_duration: Duration) ->
         files_map.insert(file_id, buster_file);
     }
 
-    // Create the BusterReasoningFile using elapsed_duration
-    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+    // Create the BusterReasoningFile using delta_duration and the new title/status
+    let buster_file_message = BusterReasoningMessage::File(BusterReasoningFile {
         id,
         message_type: "files".to_string(),
-        title: format!("Modified {} metric file{}", files_count, if files_count == 1 { "" } else { "s" }),
+        title,
         secondary_title: format!("{} seconds", delta_duration.as_secs()),
-        status: "completed".to_string(),
-        file_ids,
-        files: files_map,
+        status, // Use calculated status
+        file_ids, // Only IDs of successful files
+        files: files_map, // Only details of successful files
     });
 
-    Ok(vec![buster_file])
+    Ok(vec![buster_file_message])
 }
 
 // Update tool_create_dashboards to require ID and accept duration
 fn tool_create_dashboards(id: String, content: String, delta_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
-    // Parse the CreateDashboardFilesOutput from content
+    // Parse the actual CreateDashboardFilesOutput from content
     let create_dashboards_result =
         match serde_json::from_str::<CreateDashboardFilesOutput>(&content) {
             Ok(result) => result,
             Err(e) => {
                 println!("Failed to parse CreateDashboardFilesOutput: {:?}", e);
-                 // Return an error reasoning message as a File type
+                 // Return a generic failure message if parsing the whole result fails
                  return Ok(vec![BusterReasoningMessage::File(BusterReasoningFile {
                      id,
                      message_type: "files".to_string(),
-                     title: "Failed to Create Dashboards".to_string(),
+                     title: "Failed to process dashboard creation results".to_string(),
                      secondary_title: format!("Error: {}", e),
-                     status: "failed".to_string(), // Set status to failed
+                     status: "failed".to_string(),
                      file_ids: vec![],
                      files: HashMap::new(),
                  })]);
             }
         };
 
-    // Remove internal duration calculation
-    // let duration = (create_dashboards_result.duration as f64 / 1000.0 * 10.0).round() / 10.0;
-    let files_count = create_dashboards_result.files.len();
+    // Use the lengths of the actual fields from the parsed output
+    let successes_count = create_dashboards_result.files.len();
+    let failures_count = create_dashboards_result.failed_files.len();
 
-    // Create a map of files
+    let title = match (successes_count, failures_count) {
+        (s, 0) if s > 0 => format!("Created {} dashboard{}", s, if s == 1 { "" } else { "s" }),
+        (0, f) if f > 0 => format!("{} dashboard{} failed", f, if f == 1 { "" } else { "s" }),
+        (s, f) if s > 0 && f > 0 => format!("Created {} dashboard{}, {} failed", s, if s == 1 { "" } else { "s" }, f),
+        _ => "Processed dashboard creation".to_string(),
+    };
+
+    let status = if successes_count == 0 && failures_count > 0 {
+        "failed".to_string()
+    } else {
+        "completed".to_string() // Mark completed even if some failed
+    };
+
+    // Create a map of successfully created files
     let mut files_map = std::collections::HashMap::new();
     let mut file_ids = Vec::new();
 
-    // Process each file
+    // Process each successful file from the actual output
     for file in create_dashboards_result.files {
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
@@ -1742,8 +1788,8 @@ fn tool_create_dashboards(id: String, content: String, delta_duration: Duration)
             id: file_id.clone(),
             file_type: "dashboard".to_string(),
             file_name: file.name.clone(),
-            version_number: 1,
-            status: "completed".to_string(),
+            version_number: 1, // Assuming version 1 for new files
+            status: "completed".to_string(), // Status for this specific file
             file: BusterFileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
@@ -1755,47 +1801,62 @@ fn tool_create_dashboards(id: String, content: String, delta_duration: Duration)
         files_map.insert(file_id, buster_file);
     }
 
-    // Create the BusterReasoningFile using elapsed_duration
-    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+    // Create the BusterReasoningFile using delta_duration and the new title/status
+    let buster_file_message = BusterReasoningMessage::File(BusterReasoningFile {
         id,
         message_type: "files".to_string(),
-        title: format!("Created {} dashboard files", files_count),
+        title,
         secondary_title: format!("{} seconds", delta_duration.as_secs()), // Use delta_duration
-        status: "completed".to_string(),
-        file_ids,
-        files: files_map,
+        status, // Use calculated status
+        file_ids, // Only IDs of successful files
+        files: files_map, // Only details of successful files
     });
 
-    Ok(vec![buster_file])
+    Ok(vec![buster_file_message])
 }
 
 // Update tool_modify_dashboards to require ID and accept duration
 fn tool_modify_dashboards(id: String, content: String, delta_duration: Duration) -> Result<Vec<BusterReasoningMessage>> {
-    // Parse the ModifyFilesOutput from content
+    // Parse the actual ModifyDashboardsFilesOutput from content
     let modify_dashboards_result = match serde_json::from_str::<ModifyFilesOutput>(&content) {
         Ok(result) => result,
         Err(e) => {
-            tracing::error!("Failed to parse ModifyFilesOutput: {:?}", e);
-             // Return an error reasoning message as a File type
+            tracing::error!("Failed to parse ModifyDashboardsFilesOutput: {:?}", e);
+             // Return a generic failure message if parsing the whole result fails
              return Ok(vec![BusterReasoningMessage::File(BusterReasoningFile {
                  id,
                  message_type: "files".to_string(),
-                 title: "Failed to Modify Dashboards".to_string(),
+                 title: "Failed to process dashboard modification results".to_string(),
                  secondary_title: format!("Error: {}", e),
-                 status: "failed".to_string(), // Set status to failed
+                 status: "failed".to_string(),
                  file_ids: vec![],
                  files: HashMap::new(),
              })]);
         }
     };
 
-    let files_count = modify_dashboards_result.files.len();
+    // Use the lengths of the actual fields from the parsed output
+    let successes_count = modify_dashboards_result.files.len();
+    let failures_count = modify_dashboards_result.failed_files.len();
 
-    // Create a map of files
+     let title = match (successes_count, failures_count) {
+        (s, 0) if s > 0 => format!("Modified {} dashboard{}", s, if s == 1 { "" } else { "s" }),
+        (0, f) if f > 0 => format!("{} dashboard modification{} failed", f, if f == 1 { "" } else { "s" }),
+        (s, f) if s > 0 && f > 0 => format!("Modified {} dashboard{}, {} failed", s, if s == 1 { "" } else { "s" }, f),
+        _ => "Processed dashboard modification".to_string(),
+    };
+
+     let status = if successes_count == 0 && failures_count > 0 {
+        "failed".to_string()
+    } else {
+        "completed".to_string() // Mark completed even if some failed
+    };
+
+    // Create a map of successfully modified files
     let mut files_map = std::collections::HashMap::new();
     let mut file_ids = Vec::new();
 
-    // Process each file
+    // Process each successful file from the actual output
     for file in modify_dashboards_result.files {
         let file_id = file.id.to_string();
         file_ids.push(file_id.clone());
@@ -1804,8 +1865,8 @@ fn tool_modify_dashboards(id: String, content: String, delta_duration: Duration)
             id: file_id.clone(),
             file_type: "dashboard".to_string(),
             file_name: file.name.clone(),
-            version_number: file.version_number,
-            status: "completed".to_string(),
+            version_number: file.version_number, // Use version from result
+            status: "completed".to_string(), // Status for this specific file
             file: BusterFileContent {
                 text: Some(file.yml_content),
                 text_chunk: None,
@@ -1817,18 +1878,18 @@ fn tool_modify_dashboards(id: String, content: String, delta_duration: Duration)
         files_map.insert(file_id, buster_file);
     }
 
-    // Create the BusterReasoningFile using elapsed_duration
-    let buster_file = BusterReasoningMessage::File(BusterReasoningFile {
+    // Create the BusterReasoningFile using delta_duration and the new title/status
+    let buster_file_message = BusterReasoningMessage::File(BusterReasoningFile {
         id,
         message_type: "files".to_string(),
-        title: format!("Modified {} dashboard file{}", files_count, if files_count == 1 { "" } else { "s" }),
+        title,
         secondary_title: format!("{} seconds", delta_duration.as_secs()),
-        status: "completed".to_string(),
-        file_ids,
-        files: files_map,
+        status, // Use calculated status
+        file_ids, // Only IDs of successful files
+        files: files_map, // Only details of successful files
     });
 
-    Ok(vec![buster_file])
+    Ok(vec![buster_file_message])
 }
 
 // Restore the original tool_data_catalog_search function
