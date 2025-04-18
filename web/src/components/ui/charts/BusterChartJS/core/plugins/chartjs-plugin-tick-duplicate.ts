@@ -7,6 +7,7 @@ declare module 'chart.js' {
 export const ChartJSTickDuplicatePlugin: Plugin<ChartType> = {
   id: 'chartjs-plugin-tick-duplicate',
   afterBuildTicks(chart) {
+    console.log('afterBuildTicks');
     const scale = chart.scales['x'];
     if (!scale || scale.type !== 'time') return;
 
@@ -14,7 +15,7 @@ export const ChartJSTickDuplicatePlugin: Plugin<ChartType> = {
     const displayFormat = scale.options.time.displayFormats?.month || 'MMM';
     const tickCallback = scale.options.ticks?.callback;
 
-    const allTicks = scale._generate(); // raw ticks
+    const allTicks = scale._generate(); // raw generated ticks
     const values = allTicks.map((t) => t.value ?? t);
 
     const seenLabels = new Set();
@@ -26,7 +27,6 @@ export const ChartJSTickDuplicatePlugin: Plugin<ChartType> = {
       let label;
       try {
         if (typeof tickCallback === 'function') {
-          // ✅ this is the KEY FIX: preserve `this` as the scale
           label = tickCallback.call(scale, value, i, values);
         } else {
           label = adapter.format(value, displayFormat);
@@ -49,23 +49,57 @@ export const ChartJSTickDuplicatePlugin: Plugin<ChartType> = {
     const max = scale.max ?? Math.max(...values);
     const spacing = (max - min) / (unique.length - 1);
 
-    scale._customTicks = unique.map((u, i) => ({
-      value: min + spacing * i,
+    scale.ticks = unique.map((u, i) => ({
+      value: min + i * spacing,
       label: u.label
-    }));
-
-    scale.ticks = scale._customTicks;
-  },
-
-  beforeDraw(chart) {
-    const scale = chart.scales['x'];
-    if (!scale?._customTicks) return;
-
-    scale.ticks = scale._customTicks.map((t) => ({
-      ...t,
-      label: t.label
     }));
   }
 };
 
 export default ChartJSTickDuplicatePlugin;
+
+import { TimeScale } from 'chart.js';
+
+export class DeduplicatedTimeScale extends TimeScale {
+  static id = 'time';
+  static defaults = {
+    ...TimeScale.defaults
+  };
+  generateTicks() {
+    const baseTicks = super.generateTicks(); // Chart.js handles spacing, maxTicksLimit, etc.
+    const tickCallback = this.options.ticks?.callback;
+    const format = this._adapter.format;
+    const displayFormat = this.options.time?.displayFormats?.month || 'MMM';
+
+    const seenLabels = new Set();
+    const dedupedTicks = [];
+
+    const values = baseTicks.map((t) => t.value);
+
+    for (let i = 0; i < baseTicks.length; i++) {
+      const tick = baseTicks[i];
+
+      let label;
+      try {
+        if (typeof tickCallback === 'function') {
+          // Call with same context Chart.js uses
+          label = tickCallback.call(this, tick.value, i, values);
+        } else {
+          label = format(tick.value, displayFormat);
+        }
+      } catch (err) {
+        label = '???';
+        console.warn('Tick callback error at index', i, err);
+      }
+
+      const stringLabel = String(label);
+
+      if (!seenLabels.has(stringLabel)) {
+        seenLabels.add(stringLabel);
+        dedupedTicks.push(tick); // original tick object (value + major flag)
+      }
+    }
+
+    return dedupedTicks;
+  }
+}

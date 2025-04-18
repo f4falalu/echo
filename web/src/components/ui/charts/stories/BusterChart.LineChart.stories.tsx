@@ -332,13 +332,17 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_BUSTED: Story
 export const FixedDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
   args: {
     ...AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit.args,
+    data: Array.from({ length: 131 }, (_, i) => ({
+      date: dayjs('2024-01-01').add(i, 'day').toISOString(),
+      sales: addNoise(i * 15 + 55, 10)
+    })),
     xAxisTimeInterval: 'day',
     columnLabelFormats: {
       ...AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit.args!.columnLabelFormats,
       date: {
         columnType: 'date',
         style: 'date',
-        dateFormat: 'MMM DD'
+        dateFormat: 'MMM DD, YYYY'
       } satisfies IColumnLabelFormat
     }
   }
