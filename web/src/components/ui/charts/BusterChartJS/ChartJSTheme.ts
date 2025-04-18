@@ -20,7 +20,8 @@ import {
   BubbleController,
   PieController,
   ScatterController,
-  DoughnutController
+  DoughnutController,
+  registry
 } from 'chart.js';
 import { ChartMountedPlugin } from './core/plugins';
 import ChartDeferred from 'chartjs-plugin-deferred';
@@ -30,6 +31,11 @@ import { DEFAULT_CHART_THEME } from '@/api/asset_interfaces/metric/charts/config
 import { isServer } from '@tanstack/react-query';
 import './core/plugins/chartjs-plugin-dayjs';
 import { truncateText } from '@/lib/text';
+
+import { DeduplicatedTimeScale } from './core/plugins/chartjs-plugin-tick-duplicate';
+
+// Register the scale properly
+registry.addScales(DeduplicatedTimeScale);
 
 const fontFamily = isServer
   ? 'Roobert_Pro'

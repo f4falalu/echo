@@ -10,7 +10,7 @@ import {
 import { useMemoizedFn } from '@/hooks';
 import { useMemo } from 'react';
 import { DeepPartial } from 'utility-types';
-import type { ScaleChartOptions, Scale, GridLineOptions } from 'chart.js';
+import type { ScaleChartOptions, Scale, GridLineOptions, TimeScale } from 'chart.js';
 import { useXAxisTitle } from '../../../../commonHelpers/useXAxisTitle';
 import { useIsStacked } from '../useIsStacked';
 import { formatLabel, isNumericColumnType, truncateText } from '@/lib';
@@ -145,8 +145,7 @@ export const useXAxis = ({
       const xColumnLabelFormat = xAxisColumnFormats[xKey];
       const isAutoFormat = xColumnLabelFormat.dateFormat === 'auto';
       if (isAutoFormat) {
-        //@ts-ignore
-        const unit = this.chart.scales['x']._unit as
+        const unit = (this.chart.scales['x'] as TimeScale)._unit as
           | 'millisecond'
           | 'second'
           | 'minute'
