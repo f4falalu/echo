@@ -156,7 +156,6 @@ export const useXAxis = ({
           | 'quarter'
           | 'year';
         const format = DATE_FORMATS[unit];
-        console.log('auto unit?', { unit, format });
         return formatLabel(rawValue, { ...xColumnLabelFormat, dateFormat: format });
       }
       const res = formatLabel(rawValue, xColumnLabelFormat);
@@ -210,7 +209,6 @@ export const useXAxis = ({
   const memoizedXAxisOptions: DeepPartial<ScaleChartOptions<'bar'>['scales']['x']> | undefined =
     useMemo(() => {
       if (isPieChart) return undefined;
-      console.log('type', { type, timeUnit, derivedTimeUnit });
       return {
         type,
         offset,

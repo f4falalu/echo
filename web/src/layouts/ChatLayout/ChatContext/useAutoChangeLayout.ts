@@ -66,12 +66,9 @@ export const useAutoChangeLayout = ({
       chatId
     ) {
       previousLastMessageId.current = lastMessageId;
-      //  onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
-      onChangePage({
-        route: BusterRoutes.APP_CHAT_ID_REASONING_ID,
-        chatId,
-        messageId: lastMessageId
-      });
+
+      onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
+
       console.log('FLIP TO REASONING!', lastMessageId);
     }
 

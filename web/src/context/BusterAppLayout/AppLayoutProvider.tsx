@@ -37,7 +37,6 @@ export const useAppLayout = () => {
 
       // Handle shallow routing (only updating query params)
       if (options?.shallow && targetPathname === currentPathname) {
-        console.log('shallow routing', targetPathname, currentPathname);
         return new Promise((resolve) => {
           const params = getQueryParamsFromPath(targetPath);
           onChangeQueryParams(params, false);
