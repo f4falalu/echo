@@ -187,7 +187,7 @@ fn compute_column_metadata(data: &[IndexMap<String, DataType>]) -> Vec<ColumnMet
         };
 
         ColumnMetaData {
-            name: column_name.clone(),
+            name: column_name.to_lowercase(),
             min_value,
             max_value,
             unique_values: value_map.len() as i32,
@@ -511,7 +511,7 @@ async fn route_to_query(
 
             
 
-            match snowflake_query(snowflake_client, sql.to_owned(), limit).await {
+            match snowflake_query(snowflake_client, sql.to_owned()).await {
                 Ok(results) => results,
                 Err(e) => {
                     tracing::error!("There was an issue while fetching the tables: {}", e);

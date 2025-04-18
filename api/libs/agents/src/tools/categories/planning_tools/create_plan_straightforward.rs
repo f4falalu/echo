@@ -131,27 +131,32 @@ Use this template to create a clear and actionable plan tailored to the user's r
 Ensure the final plan output is well-formatted with markdown for readability.
 
 **Thought**  
-Analyze the user's request and outline your approach. Keep it simple. Use a clear, direct style to communicate your thoughts in a simple and natural tone. Consider the goal, the types of visualizations needed, the specific datasets that will be used, etc. For broad or summary requests (e.g., "summarize sales"), plan to create lots of visualizations (8-12 total) to provide a comprehensive view of the data.
+Analyze the user's request **and the conversation history**. Outline your approach. Keep it simple. Use a clear, direct style to communicate your thoughts in a simple and natural tone. Consider the goal, the types of visualizations needed, the specific datasets that will be used, **and how this relates to previous interactions**. For broad or summary requests (e.g., "summarize sales"), plan to create lots of visualizations (8-12 total) to provide a comprehensive view of the data. **If this is a follow-up, explain how you are incorporating previous context or modifying the prior plan/results.**
 
 **Step-by-Step Plan**  
-Outline actionable steps to fulfill the request. Your plan should mirror the exact template below:
-1. **Create [number] visualization(s)**:
+*Outline actionable steps. If modifying a previous plan, clearly indicate which steps are being changed or added.* 
+1. **Create [number] visualization(s)** (or **Modify existing visualization(s)** or **Add [number] visualization(s)**):
    - **Title**: [Simple title for the visualization]
    - **Type**: [e.g., Bar Chart, Line Chart, Number Card, Grouped Bar Chart, Stacked Bar Chart, Multi-Line Chart, etc.]
    - **Datasets**: [Relevant datasets]
    - **Expected Output**: [Describe the visualization, e.g., axes and key elements. For grouped/stacked bars or multi-line charts, explicitly state the grouping/stacking/splitting method and the field used. See guidelines below.]
    - [Repeat for each visualization if multiple]
-2. **[(Optional) Create dashboard]**:  
-   If creating multiple visualizations, specify how they should be organized into a dashboard (e.g., title, layout).
+2. **[(Optional) Create dashboard]** (or **[(Optional) Update dashboard]**):  
+   If creating multiple visualizations, specify how they should be organized into a dashboard (e.g., title, layout) or how an existing one should be updated.
 3. **Review & Finish**:  
-   Verify that visualizations display data correctly (e.g., no empty results, correct timeframes) and meet the user's request. Adjust the plan if needed.
+   Verify that visualizations display data correctly (e.g., no empty results, correct timeframes) and meet the user's request, **considering the full conversation context**. Adjust the plan if needed.
 
 **Notes** (Optional)  
-Add context like assumptions, limitations, or acknowledge unsupported aspects of the user request.
+Add context like assumptions, limitations, or acknowledge unsupported aspects of the user request. **Reference any necessary context from previous turns.**
 
 ---
 
 #### Guidelines
+- **Handling Follow-ups**: When the user asks a follow-up question:
+    - **Modify Existing Assets**: If the request is to change an existing visualization (e.g., change timeframe, add filter), the step should be "**Modify existing visualization(s)**" and describe the changes.
+    - **Add to Existing Assets**: If the request adds related analysis, use "**Add [number] visualization(s)**" and potentially "**Update dashboard**".
+    - **Leverage Context**: Use the existing data context and plan structure where possible.
+    - **Acknowledge**: Briefly note in the `Thought` section how the follow-up is being handled.
 - **Visualizations**: Describe what the visualization should show (e.g., "a bar chart with months on the x-axis and sales on the y-axis"). Avoid SQL or technical details. Do not define names for axes labels, just state what data should go on each axis.
    - **For Grouped/Stacked Bars**: Explicitly state if it's a `grouped bar chart` or `stacked bar chart` (or `100% stacked`). Clearly name the field used for splitting/stacking (e.g., "grouped bars side-by-side split by `[field_name]`", "bars stacked by `[field_name]`").
    - **For Multi-Line Charts**: Explicitly state it's a `multi-line chart`. Describe *how* the multiple lines are generated: either by splitting a single metric using a category field (e.g., "split into separate lines by `[field_name]`") OR by plotting multiple distinct metrics (e.g., "plotting separate lines for `[metric1]` and `[metric2]`").
