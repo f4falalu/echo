@@ -474,7 +474,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
 async fn get_modify_metrics_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Updates existing metric configuration files with new YAML content. Provide the complete YAML content for each metric, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple metrics simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each metric, you need its UUID and the complete updated YAML content.".to_string();
+        return "Updates existing metric configuration files with new YAML content. Provide the complete YAML content for each metric, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple metrics simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each metric, you need its UUID and the complete updated YAML content. **Prefer modifying metrics in bulk using this tool rather than one by one.**".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -482,14 +482,14 @@ async fn get_modify_metrics_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "Updates existing metric configuration files with new YAML content. Provide the complete YAML content for each metric, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple metrics simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each metric, you need its UUID and the complete updated YAML content.".to_string()
+            "Updates existing metric configuration files with new YAML content. Provide the complete YAML content for each metric, replacing the entire existing file. This tool is ideal for bulk modifications when you need to update multiple metrics simultaneously. The system will preserve version history and perform all necessary validations on the new content. For each metric, you need its UUID and the complete updated YAML content. **Prefer modifying metrics in bulk using this tool rather than one by one.**".to_string()
         }
     }
 }
 
 async fn get_modify_metrics_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        return "Array of metrics to update. Each item requires an 'id' (UUID of the existing metric) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple metrics in a single operation, making this ideal for bulk updates.".to_string();
+        return "Array of metrics to update. Each item requires an 'id' (UUID of the existing metric) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple metrics in a single operation, making this ideal for bulk updates. **Prefer using this for bulk updates rather than modifying metrics individually.**".to_string();
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -497,7 +497,7 @@ async fn get_modify_metrics_yml_description() -> String {
         Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            "Array of metrics to update. Each item requires an 'id' (UUID of the existing metric) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple metrics in a single operation, making this ideal for bulk updates.".to_string()
+            "Array of metrics to update. Each item requires an 'id' (UUID of the existing metric) and 'yml_content' (complete new YAML content that follows the specification below). You can update multiple metrics in a single operation, making this ideal for bulk updates. **Prefer using this for bulk updates rather than modifying metrics individually.**".to_string()
         }
     }
 }
@@ -505,7 +505,7 @@ async fn get_modify_metrics_yml_description() -> String {
 async fn get_metric_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
         // Revert to just returning the schema string plus basic instruction
-        return format!("The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema.\n\n{}", METRIC_YML_SCHEMA);
+        return format!("The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema. When modifying multiple metrics, provide each in the 'files' array. **Prefer bulk modifications.**\n\n{}", METRIC_YML_SCHEMA);
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
@@ -514,7 +514,7 @@ async fn get_metric_yml_description() -> String {
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
             // Revert to just returning the schema string plus basic instruction on error
-            format!("The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema.\n\n{}", METRIC_YML_SCHEMA)
+            format!("The complete new YAML content for the metric, following the metric schema specification. This will replace the entire existing content of the file. Ensure all required fields are present and properly formatted according to the schema. When modifying multiple metrics, provide each in the 'files' array. **Prefer bulk modifications.**\n\n{}", METRIC_YML_SCHEMA)
         }
     }
 }
