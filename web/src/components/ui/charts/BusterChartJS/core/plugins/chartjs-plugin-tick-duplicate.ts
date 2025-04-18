@@ -4,6 +4,17 @@ declare module 'chart.js' {
   interface PluginOptionsByType<TType extends ChartType> {}
 }
 
+const safeFormat = (adapter, value, formatStr) => {
+  try {
+    return adapter.format(value, formatStr);
+  } catch {
+    console.log('safeFormat', value, formatStr);
+    // fallback to toISOString + slicing or your own logic
+    const date = new Date(value);
+    return date.toLocaleString('default', { month: 'short' }); // e.g., 'Jan'
+  }
+};
+
 export const ChartJSTickDuplicatePlugin: Plugin<ChartType> = {
   id: 'chartjs-plugin-tick-duplicate',
   afterBuildTicks(chart) {
@@ -11,40 +22,60 @@ export const ChartJSTickDuplicatePlugin: Plugin<ChartType> = {
     if (!scale || scale.type !== 'time') return;
 
     const adapter = scale._adapter;
-    const format = (v) => adapter.format(v, scale.options.time.displayFormats?.month || 'MMM');
+    const displayFormat = scale.options.time.displayFormats?.month || 'MMM';
+    const tickCallback = scale.options.ticks?.callback;
 
-    const allTicks = scale._generate(); // Chart.js's default generated ticks (raw values)
+    const allTicks = scale._generate(); // raw ticks
+    const values = allTicks.map((t) => t.value ?? t);
+
     const seenLabels = new Set();
     const unique = [];
 
-    for (const tick of allTicks) {
-      const label = format(tick.value ?? tick);
-      if (!seenLabels.has(label)) {
-        seenLabels.add(label);
-        unique.push({ value: tick.value ?? tick, label });
+    for (let i = 0; i < values.length; i++) {
+      const value = values[i];
+
+      let label;
+      try {
+        if (typeof tickCallback === 'function') {
+          // ✅ this is the KEY FIX: preserve `this` as the scale
+          label = tickCallback.call(scale, value, i, values);
+        } else {
+          label = adapter.format(value, displayFormat);
+        }
+      } catch (err) {
+        console.warn('Tick callback error at index', i, err);
+        label = '???';
+      }
+
+      const stringLabel = String(label);
+      if (!seenLabels.has(stringLabel)) {
+        seenLabels.add(stringLabel);
+        unique.push({ value, label: stringLabel });
       }
     }
 
     if (unique.length < 2) return;
 
-    const min = scale.min ?? Math.min(...allTicks.map((t) => t.value ?? t));
-    const max = scale.max ?? Math.max(...allTicks.map((t) => t.value ?? t));
+    const min = scale.min ?? Math.min(...values);
+    const max = scale.max ?? Math.max(...values);
     const spacing = (max - min) / (unique.length - 1);
 
-    const evenlySpaced = unique.map((tick, i) => ({
-      value: min + i * spacing,
-      label: tick.label
+    scale._customTicks = unique.map((u, i) => ({
+      value: min + spacing * i,
+      label: u.label
     }));
 
-    scale.ticks = evenlySpaced;
+    scale.ticks = scale._customTicks;
   },
+
   beforeDraw(chart) {
-    // Prevent Chart.js from auto-reformatting tick labels
     const scale = chart.scales['x'];
-    if (!scale || !scale.ticks) return;
-    scale.ticks.forEach((tick) => {
-      tick.label = tick.label;
-    });
+    if (!scale?._customTicks) return;
+
+    scale.ticks = scale._customTicks.map((t) => ({
+      ...t,
+      label: t.label
+    }));
   }
 };
 
