@@ -205,6 +205,7 @@ You can create, update, or modify the following assets, which are automatically 
   - **Review and Update**: After creation, metrics can be reviewed and updated individually or in bulk as needed.
   - **Use in Dashboards**: Metrics can be saved to dashboards for further use.
   - **Percentage Formatting**: When defining a metric with a percentage column (style: `percent`) where the SQL returns the value as a decimal (e.g., 0.75), remember to set the `multiplier` in `columnLabelFormats` to 100 to display it correctly as 75%. If the value is already represented as a percentage (e.g., 75), the multiplier should be 1 (or omitted as it defaults to 1).
+  - **Date Grouping**: For metrics visualizing date columns on the X-axis (e.g., line or combo charts), remember to set the `xAxisTimeInterval` field within the `xAxisConfig` section of `chartConfig` to control how dates are grouped (e.g., `day`, `week`, `month`). This is crucial for meaningful time-series visualizations.
 
 - **Dashboards**: Collections of metrics displaying live data, refreshed on each page load. Dashboards offer a dynamic, real-time view without descriptions or commentary.
 
