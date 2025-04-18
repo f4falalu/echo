@@ -228,7 +228,8 @@ const LoginOptions: React.FC<{
             onSignInWithGoogle();
           }}
           block={true}
-          loading={loading === 'google'}>
+          loading={loading === 'google'}
+          tabIndex={1}>
           {!signUpFlow ? `Continue with Google` : `Sign up with Google`}
         </Button>
         <Button
@@ -239,7 +240,8 @@ const LoginOptions: React.FC<{
             onSignInWithGithub();
           }}
           block={true}
-          loading={loading === 'github'}>
+          loading={loading === 'github'}
+          tabIndex={2}>
           {!signUpFlow ? `Continue with Github` : `Sign up with Github`}
         </Button>
         <Button
@@ -250,7 +252,8 @@ const LoginOptions: React.FC<{
             onSignInWithAzure();
           }}
           block={true}
-          loading={loading === 'azure'}>
+          loading={loading === 'azure'}
+          tabIndex={3}>
           {!signUpFlow ? `Continue with Azure` : `Sign up with Azure`}
         </Button>
 
@@ -267,6 +270,7 @@ const LoginOptions: React.FC<{
           }}
           disabled={!!loading}
           autoComplete="email"
+          tabIndex={4}
         />
 
         <div className="relative">
@@ -281,6 +285,7 @@ const LoginOptions: React.FC<{
             name="password"
             placeholder="Password"
             autoComplete="new-password"
+            tabIndex={5}
           />
           {signUpFlow && (
             <div className="absolute top-0 right-1.5 flex h-full items-center">
@@ -300,6 +305,7 @@ const LoginOptions: React.FC<{
             name="password2"
             placeholder="Confirm password"
             autoComplete="new-password"
+            tabIndex={6}
           />
         )}
 
@@ -319,7 +325,8 @@ const LoginOptions: React.FC<{
             type="submit"
             loading={loading === 'email'}
             variant="black"
-            disabled={!signUpFlow ? false : disableSubmitButton}>
+            disabled={!signUpFlow ? false : disableSubmitButton}
+            tabIndex={7}>
             {!signUpFlow ? `Sign in` : `Sign up`}
           </Button>
         </PolicyCheck>
@@ -333,7 +340,7 @@ const LoginOptions: React.FC<{
           signUpFlow={signUpFlow}
         />
 
-        {!signUpFlow && <ResetPasswordLink email={email} />}
+        {!signUpFlow && <ResetPasswordLink email={email} tabIndex={8} />}
       </div>
     </>
   );
@@ -394,7 +401,7 @@ const AlreadyHaveAccount: React.FC<{
   return (
     <div className="flex items-center justify-center gap-0.5">
       <Text className="" variant="secondary" size="xs">
-        {signUpFlow ? `Already have an account? ` : `Don’t already have an account? `}
+        {signUpFlow ? `Already have an account? ` : `Don't already have an account? `}
       </Text>
 
       <Text
@@ -413,7 +420,7 @@ const AlreadyHaveAccount: React.FC<{
 });
 AlreadyHaveAccount.displayName = 'AlreadyHaveAccount';
 
-const ResetPasswordLink: React.FC<{ email: string }> = ({ email }) => {
+const ResetPasswordLink: React.FC<{ email: string; tabIndex?: number }> = ({ email, tabIndex }) => {
   const scrubbedEmail = useMemo(() => {
     if (!email || !isValidEmail(email)) return '';
     try {
@@ -431,7 +438,8 @@ const ResetPasswordLink: React.FC<{ email: string }> = ({ email }) => {
         createBusterRoute({
           route: BusterRoutes.AUTH_RESET_PASSWORD_EMAIL
         }) + `?email=${scrubbedEmail}`
-      }>
+      }
+      tabIndex={tabIndex}>
       <Text variant="primary" size="xs">
         Reset password
       </Text>
