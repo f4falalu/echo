@@ -20,8 +20,13 @@ export async function GET(request: NextRequest) {
     if (!error) {
       // redirect user to specified redirect URL or root of app
       redirect(next);
+      return;
     }
+
+    console.error(error);
   }
+
+  console.error('NO TOKEN HASH OR TYPE', { token_hash, type });
 
   // redirect the user to an error page with some instructions
   redirect('/auth/auth-code-error');

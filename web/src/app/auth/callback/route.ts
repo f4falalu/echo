@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const code = searchParams.get('code_challenge') || searchParams.get('code'); //we were not seeing code, just code_challenge?
   // if "next" is in param, use it as the redirect URL
   const next = searchParams.get('next') ?? '/';
+
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
@@ -23,6 +24,8 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}/app`);
       }
     }
+
+    console.error('ERROR EXCHANGING CODE FOR SESSION', { error });
   }
 
   // return the user to an error page with instructions
