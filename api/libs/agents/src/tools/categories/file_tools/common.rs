@@ -291,7 +291,7 @@ definitions:
         type: boolean
       # Axis Configurations
       xAxisConfig:
-        description: Optional X-axis configuration. Primarily used to set the `xAxisTimeInterval` for date axes (day, week, month, etc.). Other properties control label visibility, title, rotation, and zoom.
+        description: REQUIRED for charts with a date/time column on the X-axis. MUST contain `xAxisTimeInterval` to specify the grouping (day, week, month, quarter, year). Other properties control label visibility, title, rotation, and zoom.
         $ref: '#/definitions/x_axis_config'
       yAxisConfig:
         description: Optional Y-axis configuration. Primarily used to set the `yAxisShowAxisLabel` and `yAxisShowAxisTitle` properties. Other properties control label visibility, title, rotation, and zoom.
@@ -313,7 +313,7 @@ definitions:
       xAxisTimeInterval:
         type: string
         enum: [day, week, month, quarter, year, 'null']
-        description: Time interval for X-axis (combo/line charts). Default: null.
+        description: REQUIRED time interval for grouping date/time values on the X-axis (e.g., for line/combo charts). MUST be set if the X-axis represents time. Default: null.
       xAxisShowAxisLabel:
         type: boolean
         description: Show X-axis labels. Default: true.
@@ -436,7 +436,13 @@ definitions:
         description: Currency code for currency formatting (e.g., USD, EUR)
       dateFormat:
         type: string
-        description: Format string for date display (must be compatible with Day.js format strings).
+        description: |
+          Format string for date display (must be compatible with Day.js format strings). 
+          RULE: Choose format based on xAxisTimeInterval:
+            - year: 'YYYY' (e.g., 2025)
+            - quarter: '[Q]Q YYYY' (e.g., Q1 2025)
+            - month: 'MMM YYYY' (e.g., Jan 2025) or 'MMMM' (e.g., January) if context is clear.
+            - week/day: 'MMM D, YYYY' (e.g., Jan 25, 2025) or 'MMM D' (e.g., Jan 25) if context is clear.
       useRelativeTime:
         type: boolean
         description: Whether to display dates as relative time (e.g., 2 days ago)
