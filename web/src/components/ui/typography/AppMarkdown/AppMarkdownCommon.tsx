@@ -35,7 +35,11 @@ export const CustomParagraph: React.FC<
 > = ({ children, markdown, showLoader, ...rest }) => {
   if (Array.isArray(children)) {
     return (
-      <p className={cn('text-size-inherit!', showLoader && 'animate-in fade-in duration-700')}>
+      <p
+        className={cn(
+          'text-size-inherit!',
+          showLoader && 'animate-in fade-in transition-none duration-700'
+        )}>
         {children}
       </p>
     );
@@ -48,7 +52,11 @@ export const CustomParagraph: React.FC<
   }
 
   return (
-    <p className={cn('text-size-inherit!', showLoader && 'animate-in fade-in duration-700')}>
+    <p
+      className={cn(
+        'text-size-inherit!',
+        showLoader && 'animate-in fade-in transition-none duration-700'
+      )}>
       {children}
     </p>
   );
@@ -83,7 +91,7 @@ export const CustomHeading: React.FC<
     <HeadingTag
       className={cn(
         headingVariants({ level: stripFormatting ? 'base' : level }),
-        showLoader && 'animate-in fade-in duration-700'
+        showLoader && 'animate-in fade-in transition-none duration-700'
       )}>
       {children}
     </HeadingTag>
@@ -100,7 +108,7 @@ export const CustomList: React.FC<
 > = ({ ordered, children, markdown, showLoader, ...rest }) => {
   const ListTag = ordered ? 'ol' : 'ul';
   return (
-    <ListTag className={cn('', showLoader && 'animate-in fade-in duration-700')}>
+    <ListTag className={cn('', showLoader && 'animate-in fade-in transition-none duration-700')}>
       {children}
     </ListTag>
   );
@@ -114,7 +122,11 @@ export const CustomOrderedList: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <ol className={cn('list-decimal space-y-1', showLoader && 'animate-in fade-in duration-700')}>
+    <ol
+      className={cn(
+        'list-decimal space-y-1',
+        showLoader && 'animate-in fade-in transition-none duration-700'
+      )}>
       {children}
     </ol>
   );
@@ -131,7 +143,7 @@ export const CustomUnorderedList: React.FC<
     <ul
       className={cn(
         'mt-1 list-inside list-disc space-y-1',
-        showLoader && 'animate-in fade-in duration-700'
+        showLoader && 'animate-in fade-in transition-none duration-700'
       )}>
       {children}
     </ul>
@@ -146,7 +158,10 @@ export const CustomListItem: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <li className={cn('space-y-1', showLoader && 'animate-in fade-in duration-700')}>{children}</li>
+    <li
+      className={cn('space-y-1', showLoader && 'animate-in fade-in transition-none duration-700')}>
+      {children}
+    </li>
   );
 };
 
@@ -158,7 +173,7 @@ export const CustomBlockquote: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <blockquote className={cn('', showLoader && 'animate-in fade-in duration-700')}>
+    <blockquote className={cn('', showLoader && 'animate-in fade-in transition-none duration-700')}>
       {children}
     </blockquote>
   );
@@ -172,7 +187,9 @@ export const CustomTable: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <table className={cn('', showLoader && 'animate-in fade-in duration-700')}>{children}</table>
+    <table className={cn('', showLoader && 'animate-in fade-in transition-none duration-700')}>
+      {children}
+    </table>
   );
 };
 
@@ -184,6 +201,8 @@ export const CustomSpan: React.FC<
   } & ExtraPropsExtra
 > = ({ children, markdown, showLoader, ...rest }) => {
   return (
-    <span className={cn('', showLoader && 'animate-in fade-in duration-700')}>{children}</span>
+    <span className={cn('', showLoader && 'animate-in fade-in transition-none duration-700')}>
+      {children}
+    </span>
   );
 };

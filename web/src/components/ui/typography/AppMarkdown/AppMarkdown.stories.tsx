@@ -226,7 +226,7 @@ const randomMarkdownContent = [
   '#### Tiny Heading\n\n> This is a blockquote with some important information.',
   '##### Micro Heading\n\n1. Numbered item 1\n2. Numbered item 2',
   '###### Nano Heading\n\n`code example` and more text here.',
-  '## Table Example\n\n| Header 1 | Header 2 |\n|----------|----------|\n| Cell 1   | Cell 2   |',
+  // '## Table Example\n\n| Header 1 | Header 2 |\n|----------|----------|\n| Cell 1   | Cell 2   |',
   '### Mixed Content\n\nHere is some text with [a link](https://example.com) and `inline code`.'
 ];
 
