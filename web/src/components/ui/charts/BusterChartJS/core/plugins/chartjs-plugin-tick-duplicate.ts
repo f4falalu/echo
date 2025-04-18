@@ -4,17 +4,6 @@ declare module 'chart.js' {
   interface PluginOptionsByType<TType extends ChartType> {}
 }
 
-const safeFormat = (adapter, value, formatStr) => {
-  try {
-    return adapter.format(value, formatStr);
-  } catch {
-    console.log('safeFormat', value, formatStr);
-    // fallback to toISOString + slicing or your own logic
-    const date = new Date(value);
-    return date.toLocaleString('default', { month: 'short' }); // e.g., 'Jan'
-  }
-};
-
 export const ChartJSTickDuplicatePlugin: Plugin<ChartType> = {
   id: 'chartjs-plugin-tick-duplicate',
   afterBuildTicks(chart) {
