@@ -128,6 +128,7 @@ async fn get_plan_straightforward_description() -> String {
 
 const PLAN_STRAIGHTFORWARD_TEMPLATE: &str = r##"
 Use this template to create a clear and actionable plan tailored to the user's request.
+Ensure the final plan output is well-formatted with markdown for readability.
 
 **Thought**  
 Analyze the user's request and outline your approach. Keep it simple. Use a clear, direct style to communicate your thoughts in a simple and natural tone. Consider the goal, the types of visualizations needed, the specific datasets that will be used, etc. For broad or summary requests (e.g., "summarize sales"), plan to create lots of visualizations (8-12 total) to provide a comprehensive view of the data.
@@ -173,12 +174,12 @@ The user wants a bar chart showing total new customers per month over the last y
 
 **Step-by-Step Plan**:  
 1. **Create 1 Visualization**:  
-   - **Title**: "Monthly New Customers (Last 12 Months)"  
-   - **Type**: Bar Chart  
-   - **Datasets**: `sem.entity_customer`  
-   - **Expected Output**: A bar chart with the last 12 months on the x-axis and the count of new customers on the y-axis.
+    - **Title**: "Monthly New Customers (Last 12 Months)"  
+    - **Type**: Bar Chart  
+    - **Datasets**: `sem.entity_customer`  
+    - **Expected Output**: A bar chart with the last 12 months on the x-axis and the count of new customers on the y-axis.
 2. **Review & Finish**:  
-   - Confirm non-empty results and accurate counts. Respond to the user.
+    - Confirm non-empty results and accurate counts. Respond to the user.
 ```
 
 ---

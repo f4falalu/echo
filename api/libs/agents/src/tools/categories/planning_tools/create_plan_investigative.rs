@@ -128,6 +128,7 @@ async fn get_plan_investigative_description() -> String {
 
 const PLAN_INVESTIGATIVE_TEMPLATE: &str = r##"
 Use this template to create a clear and actionable plan for investigative data requests using SQL.
+Ensure the final plan output is well-formatted with markdown for readability.
 
 **Thought**
 Analyze the user's request and outline your approach. Keep it simple. Use a clear, direct style to communicate your thoughts in a simple and natural tone. Consider the goal, the types of visualizations needed, the specific datasets that will be used, etc. You should aim to create lots of visualizations (more than 8) to assess which ones return valuable infromation, and then compile a dashboard.
