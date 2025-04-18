@@ -128,10 +128,7 @@ export const CustomOrderedList: React.FC<
 > = ({ children, markdown, showLoader, ...rest }) => {
   return (
     <ol
-      className={cn(
-        'list-decimal space-y-1',
-        showLoader && 'animate-in fade-in transition-none duration-700'
-      )}
+      className={cn('space-y-1', showLoader && 'animate-in fade-in transition-none duration-700')}
       {...rest}>
       {children}
     </ol>
@@ -148,7 +145,7 @@ export const CustomUnorderedList: React.FC<
   return (
     <ul
       className={cn(
-        'mt-1 list-inside list-disc space-y-1',
+        'mt-1 space-y-1',
         showLoader && 'animate-in fade-in transition-none duration-700'
       )}
       {...rest}>

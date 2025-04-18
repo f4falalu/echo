@@ -44,8 +44,15 @@
 .container ul,
 .container ol,
 .container dl {
-  list-style-position: revert;
-  margin-left: calc(var(--spacing) * 4);
+  list-style-position: outside;
+}
+
+.container ol {
+  padding-inline-start: 1em;
+}
+
+.container ul {
+  padding-inline-start: 2.5em;
 }
 
 .container ol {
