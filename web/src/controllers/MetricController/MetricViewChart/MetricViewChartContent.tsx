@@ -36,10 +36,6 @@ export const MetricViewChartContent: React.FC<MetricViewChartContentProps> = Rea
       return 'p-4';
     }, [isTable, fetchedData]);
 
-    useMount(() => {
-      console.log('metricData');
-    });
-
     return (
       <div className={cn('flex h-full flex-col overflow-hidden', cardClassName, className)}>
         <BusterChart

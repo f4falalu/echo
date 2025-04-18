@@ -25,7 +25,8 @@ export const useLayoutConfig = ({
   dashboardId,
   currentRoute,
   secondaryView,
-  appSplitterRef
+  appSplitterRef,
+  messageId
 }: {
   selectedFile: SelectedFile | null;
   chatId: string | undefined;
@@ -189,7 +190,7 @@ export const useLayoutConfig = ({
       fileView,
       secondaryView: secondaryViewFromSelected
     });
-  }, [metricId, secondaryView, chatId, dashboardId, currentRoute]);
+  }, [metricId, secondaryView, chatId, dashboardId, messageId, currentRoute]);
 
   return {
     selectedLayout,

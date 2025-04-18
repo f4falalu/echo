@@ -33,7 +33,6 @@ export const ChatResponseReasoning: React.FC<{
   const { data: finalReasoningMessage } = useGetChatMessage(messageId, {
     select: (x) => x?.final_reasoning_message
   });
-  const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFileType);
   const isReasonginFileSelected = selectedFileType === 'reasoning';
   const showShimmerText = isReasonginFileSelected ? false : !isCompletedStream;
@@ -49,14 +48,6 @@ export const ChatResponseReasoning: React.FC<{
     if (lastMessageTitle) return lastMessageTitle;
     return lastMessageTitle || 'Thinking...';
   }, [lastMessageTitle, finalReasoningMessage, blackBoxMessage]);
-
-  const onClickReasoningFile = useMemoizedFn(() => {
-    onSetSelectedFile(
-      isReasonginFileSelected
-        ? null
-        : { id: messageId, type: 'reasoning', versionNumber: undefined }
-    );
-  });
 
   const href = useMemo(() => {
     if (isReasonginFileSelected) {
@@ -74,7 +65,7 @@ export const ChatResponseReasoning: React.FC<{
   }, [isReasonginFileSelected, messageId, chatId]);
 
   return (
-    <Link href={href} onClick={onClickReasoningFile}>
+    <Link href={href}>
       <AnimatePresence initial={!isCompletedStream} mode="wait">
         <motion.div
           {...animations}

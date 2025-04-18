@@ -45,10 +45,6 @@ export const useAutoChangeLayout = ({
 
   const hasReasoning = !!reasoningMessagesLength;
 
-  useMount(() => {
-    console.log('MOUNTED?');
-  });
-
   useEffect(() => {
     console.log({
       isCompletedStream,

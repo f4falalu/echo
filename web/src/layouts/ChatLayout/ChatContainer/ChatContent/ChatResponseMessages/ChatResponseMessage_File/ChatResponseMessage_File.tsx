@@ -24,20 +24,9 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
     });
     const responseMessage = data as BusterChatResponseMessage_file;
 
-    const { file_type, id } = responseMessage as BusterChatResponseMessage_file;
-
     const { isSelectedFile } = useGetIsSelectedFile({ responseMessage });
-    const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
 
     const href = useGetFileHref({ responseMessage, isSelectedFile, chatId });
-
-    const onLinkClick = useMemoizedFn(() => {
-      if (isSelectedFile) {
-        return onSetSelectedFile(null);
-      }
-
-      onSetSelectedFile({ id, type: file_type, versionNumber: responseMessage.version_number });
-    });
 
     useMount(() => {
       if (href) {
@@ -46,7 +35,7 @@ export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = Reac
     });
 
     return (
-      <Link href={href} prefetch onClick={onLinkClick}>
+      <Link href={href} prefetch>
         <StreamingMessage_File
           isCompletedStream={isCompletedStream}
           responseMessage={responseMessage}
