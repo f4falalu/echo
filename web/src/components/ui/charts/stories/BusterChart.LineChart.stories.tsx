@@ -377,6 +377,44 @@ export const FixedDateFormat_TimeIntervalTest_Days_WithAutoUnit_UnevenDays: Stor
   }
 };
 
+export const XAxisTimeIntervalWithMismatchingData_Days: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths.args,
+    xAxisTimeInterval: 'day',
+    data: Array.from({ length: 31 }, (_, i) => ({
+      date: dayjs('2024-01-01').add(i, 'day').toISOString(),
+      sales: addNoise(i * 15 + 55, 10)
+    })),
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM DD'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const XAxisTimeIntervalWithMismatchingData_Months: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths.args,
+    xAxisTimeInterval: 'month',
+    data: Array.from({ length: 14 }, (_, i) => ({
+      date: dayjs('2024-01-01').add(i, 'month').toISOString(),
+      sales: addNoise(i * 15 + 55, 10)
+    })),
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM DD'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
 // Simple X and Y axis with numeric values
 export const NumericXY: Story = {
   args: {

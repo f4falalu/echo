@@ -155,8 +155,8 @@ export const useXAxis = ({
           | 'month'
           | 'quarter'
           | 'year';
-        console.log('selected unit', unit);
         const format = DATE_FORMATS[unit];
+        console.log('auto unit?', { unit, format });
         return formatLabel(rawValue, { ...xColumnLabelFormat, dateFormat: format });
       }
       const res = formatLabel(rawValue, xColumnLabelFormat);
@@ -201,8 +201,6 @@ export const useXAxis = ({
     return derivedTimeUnit;
   }, [type, derivedTimeUnit, xAxisTimeInterval]);
 
-  console.log('timeUnit', { timeUnit, derivedTimeUnit });
-
   const offset = useMemo(() => {
     if (isScatterChart) return false;
     if (isLineChart) return lineGroupType !== 'percentage-stack';
@@ -212,7 +210,7 @@ export const useXAxis = ({
   const memoizedXAxisOptions: DeepPartial<ScaleChartOptions<'bar'>['scales']['x']> | undefined =
     useMemo(() => {
       if (isPieChart) return undefined;
-      console.log('type', { type, timeUnit });
+      console.log('type', { type, timeUnit, derivedTimeUnit });
       return {
         type,
         offset,
@@ -231,7 +229,7 @@ export const useXAxis = ({
             enabled: false //test
           },
           autoSkip: false,
-          maxTicksLimit: type === 'time' ? (timeUnit === 'month' ? 11 : 18) : undefined,
+          maxTicksLimit: type === 'time' ? (timeUnit === 'month' ? 12 : 18) : undefined,
           sampleSize: type === 'time' ? 24 : undefined,
           display: xAxisShowAxisLabel,
           callback: tickCallback as any, //I need to use null for auto date
