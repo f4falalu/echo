@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use chrono::Utc;
 use database::{
     enums::Verification,
@@ -22,6 +22,9 @@ use serde::{Deserialize, Serialize};
 
 use super::file_types::file::FileWithId;
 
+// Import dataset_security for permission check
+use dataset_security::has_dataset_access;
+
 // Import the types needed for the modification function
 
 /// Validates SQL query using existing query engine by attempting to run it
@@ -29,6 +32,7 @@ use super::file_types::file::FileWithId;
 pub async fn validate_sql(
     sql: &str,
     dataset_id: &Uuid,
+    user_id: &Uuid,
 ) -> Result<(
     String,
     Vec<IndexMap<String, DataType>>,
@@ -38,6 +42,15 @@ pub async fn validate_sql(
 
     if sql.trim().is_empty() {
         return Err(anyhow!("SQL query cannot be empty"));
+    }
+
+    // Check dataset access before proceeding
+    if !has_dataset_access(user_id, dataset_id).await? {
+        bail!(
+            "Permission denied: User {} does not have access to dataset {}",
+            user_id,
+            dataset_id
+        );
     }
 
     let mut conn = get_pg_pool().get().await?;
@@ -288,19 +301,21 @@ definitions:
           -
             currency # Note: The "$" sign is automatically prepended.
           -
-            percent # Note: "%" sign is appended. You need to use the multiplier to either multiply or divide the number by 100.
+            percent # Note: "%" sign is appended. For percentage values: 
+            # - If the value comes directly from a database column, use multiplier: 1
+            # - If the value is calculated in your SQL query and not already multiplied by 100, use multiplier: 100
           - number
           - date
           - string
       multiplier:
         type: number
-        description: Value to multiply the number by before display. Default value is 1, so no multiplication is done. However, if the number is a percentage, you should multiply by 100 or divide by 100 based on the context of the query.
+        description: Value to multiply the number by before display. Default value is 1. For percentages, the multiplier depends on how the data is sourced: if the value comes directly from a database column, use multiplier: 1; if the value is calculated in your SQL query and not already multiplied by 100, use multiplier: 100.
       displayName:
         type: string
         description: Custom display name for the column
       numberSeparatorStyle:
         type: string
-        description: Style for number separators
+        description: Style for number separators. Your option is ',' or null.  Null results in no separator.
       minimumFractionDigits:
         type: integer
         description: Minimum number of fraction digits to display
@@ -341,6 +356,8 @@ definitions:
       - columnType
       - style
       - replaceMissingDataWith
+      - numberSeparatorStyle
+
   # COLUMN VISUAL SETTINGS
   column_settings:
     type: object
@@ -738,7 +755,7 @@ pub async fn process_metric_file(
     let dataset_id = dataset_ids[0];
 
     // Validate SQL with the selected dataset_id and get results
-    let (message, results, metadata) = match validate_sql(&metric_yml.sql, &dataset_id).await {
+    let (message, results, metadata) = match validate_sql(&metric_yml.sql, &dataset_id, user_id).await {
         Ok(results) => results,
         Err(e) => return Err(format!("Invalid SQL query: {}", e)),
     };
@@ -860,7 +877,7 @@ pub async fn process_metric_file_modification(
                     }
 
                     let dataset_id = new_yml.dataset_ids[0];
-                    match validate_sql(&new_yml.sql, &dataset_id).await {
+                    match validate_sql(&new_yml.sql, &dataset_id, &file.created_by).await {
                         Ok((message, validation_results, _metadata)) => {
                             // Update file record
                             file.content = new_yml.clone();
@@ -1182,6 +1199,7 @@ pub struct ModifyFilesParams {
     pub files: Vec<FileModification>,
 }
 
+/// Represents the output of a file modification tool call
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ModifyFilesOutput {
     pub message: String,
@@ -1274,7 +1292,7 @@ mod tests {
     #[tokio::test]
     async fn test_validate_sql_empty() {
         let dataset_id = Uuid::new_v4();
-        let result = validate_sql("", &dataset_id).await;
+        let result = validate_sql("", &dataset_id, &Uuid::new_v4()).await;
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("cannot be empty"));
     }

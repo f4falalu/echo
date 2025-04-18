@@ -18,6 +18,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
+use dataset_security::{get_permissioned_datasets, PermissionedDataset};
 
 use crate::{agent::Agent, tools::ToolExecutor};
 
@@ -41,7 +42,7 @@ pub struct DatasetSearchResult {
     pub yml_content: Option<String>,
 }
 
-#[derive(Debug, Serialize, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 struct DatasetResult {
     id: Uuid,
     name: Option<String>,
@@ -50,7 +51,7 @@ struct DatasetResult {
 
 #[derive(Debug, Clone)]
 struct RankedDataset {
-    dataset: Dataset,
+    dataset: PermissionedDataset,
     relevance_score: f64,
 }
 
@@ -112,35 +113,27 @@ impl SearchDataCatalogTool {
         true
     }
 
-    async fn get_datasets() -> Result<Vec<Dataset>> {
-        debug!("Fetching datasets for agent tool");
-        let mut conn = get_pg_pool().get().await?;
-
-        let datasets_result = datasets::table
-            .select((
-                datasets::id,
-                datasets::name,
-                datasets::yml_file,
-                datasets::created_at,
-                datasets::updated_at,
-                datasets::deleted_at,
-            ))
-            .filter(datasets::deleted_at.is_null())
-            .filter(datasets::yml_file.is_not_null())
-            .load::<Dataset>(&mut conn)
-            .await;
+    async fn get_datasets(user_id: &Uuid) -> Result<Vec<PermissionedDataset>> {
+        debug!("Fetching permissioned datasets for agent tool for user {}", user_id);
+        let datasets_result = get_permissioned_datasets(user_id, 0, 10000).await;
 
         match datasets_result {
             Ok(datasets) => {
+                let filtered_datasets: Vec<PermissionedDataset> = datasets
+                    .into_iter()
+                    .filter(|d| d.yml_content.is_some())
+                    .collect();
+
                 debug!(
-                    count = datasets.len(),
-                    "Successfully loaded datasets for agent tool"
+                    count = filtered_datasets.len(),
+                    user_id = %user_id,
+                    "Successfully loaded and filtered permissioned datasets for agent tool"
                 );
-                Ok(datasets)
+                Ok(filtered_datasets)
             }
             Err(e) => {
-                error!("Failed to load datasets for agent tool: {}", e);
-                Err(anyhow::anyhow!("Database error fetching datasets: {}", e))
+                error!(user_id = %user_id, "Failed to load permissioned datasets for agent tool: {}", e);
+                Err(anyhow::anyhow!("Error fetching permissioned datasets: {}", e))
             }
         }
     }
@@ -166,10 +159,10 @@ impl ToolExecutor for SearchDataCatalogTool {
             });
         }
 
-        let all_datasets = match Self::get_datasets().await {
+        let all_datasets = match Self::get_datasets(&user_id).await {
             Ok(datasets) => datasets,
             Err(e) => {
-                error!("Failed to retrieve datasets for tool execution: {}", e);
+                error!(user_id=%user_id, "Failed to retrieve permissioned datasets for tool execution: {}", e);
                 return Ok(SearchDataCatalogOutput {
                     message: format!("Error fetching datasets: {}", e),
                     queries: params.queries,
@@ -344,7 +337,7 @@ async fn get_search_data_catalog_description() -> String {
 
 async fn rerank_datasets(
     query: &str,
-    all_datasets: &[Dataset],
+    all_datasets: &[PermissionedDataset],
     documents: &[String],
 ) -> Result<Vec<RankedDataset>, anyhow::Error> {
     if documents.is_empty() || all_datasets.is_empty() {
@@ -485,7 +478,7 @@ async fn filter_datasets_with_llm(
         }
     };
 
-    let dataset_map: HashMap<Uuid, &Dataset> = ranked_datasets
+    let dataset_map: HashMap<Uuid, &PermissionedDataset> = ranked_datasets
         .iter()
         .map(|ranked| (ranked.dataset.id, &ranked.dataset))
         .collect();
@@ -529,20 +522,4 @@ async fn filter_datasets_with_llm(
         filtered_datasets.len()
     );
     Ok(filtered_datasets)
-}
-
-#[derive(Queryable, Selectable, Clone, Debug)]
-#[diesel(table_name = datasets)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-struct Dataset {
-    id: Uuid,
-    name: String,
-    #[diesel(column_name = "yml_file")]
-    yml_content: Option<String>,
-    #[allow(dead_code)]
-    created_at: DateTime<Utc>,
-    #[allow(dead_code)]
-    updated_at: DateTime<Utc>,
-    #[allow(dead_code)]
-    deleted_at: Option<DateTime<Utc>>,
 }

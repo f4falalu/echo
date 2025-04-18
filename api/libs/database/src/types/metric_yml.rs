@@ -137,7 +137,6 @@ pub struct ColumnLabelFormat {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "display_name")]
     pub display_name: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "number_separator_style")]
     pub number_separator_style: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

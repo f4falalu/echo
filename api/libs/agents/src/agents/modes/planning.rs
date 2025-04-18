@@ -111,7 +111,7 @@ Today's date is {TODAYS_DATE}.
 
 You have access to a set of tools to perform actions and deliver results. Adhere to these rules:
 
-1. **Use tools exclusively** for all actions and communications. All responses to the user must be delivered through tool outputs—no direct messages allowed.
+1. **Use tools exclusively** for all actions and communications. All responses to the user must be delivered through tool outputs—no direct messages allowed. Format all responses using Markdown. Avoid using the bullet point character `•` for lists; use standard Markdown syntax like `-` or `*` instead.
 2. **Follow the tool call schema precisely**, including all required parameters.
 3. **Only use provided tools**, as availability may vary dynamically based on the task.
 4. **Avoid mentioning tool names** in explanations or outputs (e.g., say "I searched the data catalog" instead of naming the tool).
@@ -320,6 +320,7 @@ By following these guidelines, you can ensure that the visualizations you create
 
 - If the user asks for something that hasn't been created yet—like a different chart or a metric you haven't made yet — create a new metric. 
 - If the user wants to change something you've already built — like switching a chart from monthly to weekly data or adding a filter — just update the existing metric, don't create a new one.
+- **Grouping Modifications**: Just like creating multiple new visualizations is done in a single bulk step, if the user asks to modify multiple existing visualizations in one request, group all these modifications under a single "**Modify existing visualization(s)**" step in the plan.
 
 ### Responses With the `finish_and_respond` Tool
 

@@ -10,6 +10,7 @@ members = [
     "libs/sql_analyzer",
     "libs/search",
     "libs/dataset_security",
+    "libs/email",
 ]
 resolver = "2"
 

@@ -43,10 +43,17 @@ pub struct CreateMetricFilesParams {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct FailedFileCreation {
+    pub name: String,
+    pub error: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CreateMetricFilesOutput {
     pub message: String,
     pub duration: i64,
     pub files: Vec<FileWithId>,
+    pub failed_files: Vec<FailedFileCreation>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -120,7 +127,7 @@ impl ToolExecutor for CreateMetricFilesTool {
                     results_vec.push((message, results));
                 }
                 Err(e) => {
-                    failed_files.push((file_name, e));
+                    failed_files.push(FailedFileCreation { name: file_name, error: e.to_string() });
                 }
             }
         }
@@ -195,10 +202,10 @@ impl ToolExecutor for CreateMetricFilesTool {
                 }
                 Err(e) => {
                     failed_files.extend(metric_records.iter().map(|r| {
-                        (
-                            r.file_name.clone(),
-                            format!("Failed to create metric file: {}", e),
-                        )
+                        FailedFileCreation {
+                            name: r.file_name.clone(),
+                            error: format!("Failed to create metric file: {}", e),
+                        }
                     }));
                 }
             }
@@ -218,7 +225,7 @@ impl ToolExecutor for CreateMetricFilesTool {
 
             let failures: Vec<String> = failed_files
                 .iter()
-                .map(|(name, error)| format!("Failed to create '{}': {}.\n\nPlease recreate the metric from scratch rather than attempting to modify. This error could be due to:\n- Using a dataset that doesn't exist (please reevaluate the available datasets in the chat conversation)\n- Invalid configuration in the metric file\n- Special characters in the metric name or SQL query\n- Syntax errors in the SQL query", name, error))
+                .map(|failure| format!("Failed to create '{}': {}.\n\nPlease recreate the metric from scratch rather than attempting to modify. This error could be due to:\n- Using a dataset that doesn't exist (please reevaluate the available datasets in the chat conversation)\n- Invalid configuration in the metric file\n- Special characters in the metric name or SQL query\n- Syntax errors in the SQL query", failure.name, failure.error))
                 .collect();
 
             if failures.len() == 1 {
@@ -256,6 +263,7 @@ impl ToolExecutor for CreateMetricFilesTool {
             message,
             duration,
             files: created_files,
+            failed_files,
         })
     }
 

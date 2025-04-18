@@ -322,12 +322,21 @@ impl ToolExecutor for ModifyDashboardFilesTool {
 
         // Generate output
         let duration = start_time.elapsed().as_millis() as i64;
+
+        // Construct message based on success/failure counts
+        let successes_count = batch.files.len();
+        let failures_count = batch.failed_updates.len();
+
+        let message = match (successes_count, failures_count) {
+            (s, 0) if s > 0 => format!("Successfully modified {} dashboard file{}.", s, if s == 1 { "" } else { "s" }),
+            (0, f) if f > 0 => format!("Failed to modify {} dashboard file{}.", f, if f == 1 { "" } else { "s" }),
+            (s, f) if s > 0 && f > 0 => format!("Successfully modified {} dashboard file{}, {} failed.", s, if s == 1 { "" } else { "s" }, f),
+            _ => "No dashboard files were processed.".to_string(),
+        };
+
         let mut output = ModifyFilesOutput {
-            message: format!(
-                "Modified {} dashboard files and created new versions. {} failures.",
-                batch.files.len(),
-                batch.failed_updates.len()
-            ),
+            // Use the dynamically generated message
+            message,
             duration,
             files: Vec::new(),
             failed_files: Vec::new(),

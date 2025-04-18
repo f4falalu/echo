@@ -1,4 +1,3 @@
-pub mod clients;
 pub mod security;
 
 pub use agents::*;

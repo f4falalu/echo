@@ -28,6 +28,7 @@ use super::{
     common::{generate_deterministic_uuid, validate_metric_ids},
     file_types::file::FileWithId,
     FileModificationTool,
+    create_metrics::FailedFileCreation,
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -46,6 +47,7 @@ pub struct CreateDashboardFilesOutput {
     pub message: String,
     pub duration: i64,
     pub files: Vec<FileWithId>,
+    pub failed_files: Vec<FailedFileCreation>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -150,7 +152,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
                     dashboard_ymls.push(dashboard_yml);
                 }
                 Err(e) => {
-                    failed_files.push((file.name, e));
+                    failed_files.push(FailedFileCreation { name: file.name, error: e });
                 }
             }
         }
@@ -261,10 +263,10 @@ impl ToolExecutor for CreateDashboardFilesTool {
                 }
                 Err(e) => {
                     failed_files.extend(dashboard_records.iter().map(|r| {
-                        (
-                            r.file_name.clone(),
-                            format!("Failed to create dashboard file: {}", e),
-                        )
+                        FailedFileCreation {
+                            name: r.file_name.clone(),
+                            error: format!("Failed to create dashboard file: {}", e),
+                        }
                     }));
                 }
             }
@@ -287,7 +289,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
 
             let failures: Vec<String> = failed_files
                 .iter()
-                .map(|(name, error)| format!("Failed to create '{}': {}", name, error))
+                .map(|failure| format!("Failed to create '{}': {}", failure.name, failure.error))
                 .collect();
 
             if failures.len() == 1 {
@@ -325,6 +327,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
             message,
             duration,
             files: created_files,
+            failed_files,
         })
     }
 

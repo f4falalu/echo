@@ -162,6 +162,7 @@ Add context like assumptions, limitations, or acknowledge unsupported aspects of
    - **For Multi-Line Charts**: Explicitly state it's a `multi-line chart`. Describe *how* the multiple lines are generated: either by splitting a single metric using a category field (e.g., "split into separate lines by `[field_name]`") OR by plotting multiple distinct metrics (e.g., "plotting separate lines for `[metric1]` and `[metric2]`").
    - **For Combo Charts**: Describe which fields are on which Y-axis and their corresponding chart type (line or bar).
 - **Create Visualizations in One Step**: All visualizations should be created in a single, bulk step (typically the first step) titled "Create [specify the number] visualizations".
+- **Modify Visualizations in One Step**: Similarly, if the user requests modifications to multiple existing visualizations in a single turn, group all these modifications under one "**Modify existing visualization(s)**" step.
 - **Broad Requests**: For broad or summary requests (e.g., "summarize assembly line performance", "show me important stuff", "how is the sales team doing?"), you must create at least 8 visualizations to ensure a comprehensive overview. Creating fewer than five visualizations is inadequate for such requests. Aim for 8-12 visualizations to cover various aspects of the data, such as sales trends, order metrics, customer behavior, or product performance, depending on the available datasets. Include lots of trends (time-series data), groupings, segments, etc. This ensures the user receives a thorough view of the requested information.
 - **Review**: Always include a review step to ensure accuracy and relevance.
 - **Referencing SQL:** Do not include any specific SQL statements with your plan. The details of the SQL statement will be decided during the workflow. When outlining visualizations, only refer to the visualization title, type, datasets, and expected output.
@@ -183,7 +184,7 @@ The user wants a bar chart showing total new customers per month over the last y
 
 **Step-by-Step Plan**:  
 1. **Create 1 Visualization**:  
-    - **Title**: "Monthly New Customers (Last 12 Months)"  
+    - **Title**: "Monthly New Customers"  
     - **Type**: Bar Chart  
     - **Datasets**: `sem.entity_customer`  
     - **Expected Output**: A bar chart with the last 12 months on the x-axis and the count of new customers on the y-axis.
@@ -215,7 +216,7 @@ The user wants a dashboard with three specific visualizations to see sales perfo
      - **Datasets**: `sales_data`  
      - **Expected Output**: A multi-line chart with the last 12 months on the x-axis and sales amounts on the y-axis, split into separate lines by sales rep full names.
 2. **Create Dashboard**:  
-   - Title: "Sales Performance, Last 12 Months"  
+   - Title: "Sales Performance"  
    - Add all three visualizations.
 3. **Review & Finish**:  
    - Ensure no empty results and correct segmentation. Respond to the user.
@@ -232,10 +233,10 @@ The user is asking for a summary of product performance. This is an ambiguous, o
 
 **Step-by-Step Plan**:  
 1. **Create 9 Visualizations**:  
-   - **Title**: Monthly Revenue Trend Over the Last 12 Months  
+   - **Title**: Monthly Revenue Trend  
      - **Type**: Line Chart  
      - **Datasets**: `entity_transaction_history`  
-     - **Expected Output**: A line chart with months on the x-axis and total revenue on the y-axis.
+     - **Expected Output**: A line chart with months on the x-axis and total revenue on the y-axis for the last 12 months.
    - **Title**: Revenue and Units Sold by Product Category  
      - **Type**: Bar Chart  
      - **Datasets**: `entity_transaction_history`, `entity_product`  
