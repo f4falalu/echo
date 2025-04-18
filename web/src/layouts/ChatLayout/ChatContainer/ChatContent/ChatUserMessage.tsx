@@ -59,7 +59,7 @@ export const ChatUserMessage: React.FC<{
       ) : (
         <>
           <div>
-            <Paragraph className="break-words whitespace-normal" onCopy={handleCopy}>
+            <Paragraph className="break-words whitespace-pre-wrap" onCopy={handleCopy}>
               {request}
             </Paragraph>
           </div>

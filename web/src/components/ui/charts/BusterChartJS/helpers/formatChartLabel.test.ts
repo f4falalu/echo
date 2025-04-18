@@ -67,10 +67,10 @@ describe('formatChartLabel', () => {
     let result = formatChartLabel('recent_total__🔑__', columnLabelFormats, true, false);
     expect(result).toBe('Recent Total');
 
-    // result = formatChartLabel('recent_total__🔑__', columnLabelFormats, false, false);
-    // expect(result).toBe('Recent Total');
+    result = formatChartLabel('recent_total__🔑__', columnLabelFormats, false, false);
+    expect(result).toBe('Recent Total');
 
-    // result = formatChartLabel('recent_total__🔑__', columnLabelFormats, false, true);
-    // expect(result).toBe('Recent Total');
+    result = formatChartLabel('recent_total__🔑__', columnLabelFormats, false, true);
+    expect(result).toBe('Recent Total');
   });
 });

@@ -5,19 +5,26 @@ import { useRouter } from 'next/navigation';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
 import { useAsyncEffect } from '@/hooks';
+import { timeout } from '@/lib';
 
 const PRIORITY_ROUTES = [
-  BusterRoutes.APP_COLLECTIONS,
-  BusterRoutes.APP_DASHBOARDS,
+  BusterRoutes.APP_HOME,
   BusterRoutes.APP_CHAT,
   BusterRoutes.APP_CHAT_ID,
-  BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
-  BusterRoutes.APP_HOME,
+  BusterRoutes.APP_METRIC_ID_CHART
+];
+
+const LOW_PRIORITY_ROUTES = [
   BusterRoutes.APP_LOGS,
   BusterRoutes.APP_DATASETS,
   BusterRoutes.SETTINGS,
   BusterRoutes.APP_DASHBOARD_ID,
-  BusterRoutes.APP_METRIC_ID_CHART
+  BusterRoutes.APP_METRIC_ID_CHART,
+  BusterRoutes.APP_COLLECTIONS,
+  BusterRoutes.APP_DASHBOARDS,
+  BusterRoutes.APP_CHAT,
+  BusterRoutes.APP_CHAT_ID,
+  BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART
 ];
 
 export const RoutePrefetcher: React.FC<{}> = React.memo(() => {
@@ -26,23 +33,28 @@ export const RoutePrefetcher: React.FC<{}> = React.memo(() => {
   const isPreFetchedRef = useRef(false);
 
   useAsyncEffect(async () => {
-    // Wait for page load
-    if (document.readyState !== 'complete') {
-      await new Promise((resolve) => {
-        window.addEventListener('load', resolve, { once: true });
-      });
-    }
-
-    const prefetchRoutes = () => {
+    const prefetchRoutes = (routes: BusterRoutes[]) => {
       if (isPreFetchedRef.current) return;
 
       isPreFetchedRef.current = true;
 
-      PRIORITY_ROUTES.forEach((route) => {
+      routes.forEach((route) => {
         const path = createBusterRoute({ route: route as BusterAppRoutes.APP_COLLECTIONS });
         router.prefetch(path);
       });
     };
+
+    prefetchRoutes(PRIORITY_ROUTES);
+
+    // Wait for page load
+    if (document.readyState !== 'complete') {
+      await Promise.race([
+        new Promise((resolve) => {
+          window.addEventListener('load', resolve, { once: true });
+        }),
+        timeout(5000)
+      ]);
+    }
 
     // Setup network activity monitoring
     const observer = new PerformanceObserver((list) => {
@@ -53,7 +65,7 @@ export const RoutePrefetcher: React.FC<{}> = React.memo(() => {
 
       // Set a new debounce timer - will trigger if no network activity for 1500ms
       debounceTimerRef.current = setTimeout(() => {
-        prefetchRoutes();
+        prefetchRoutes(LOW_PRIORITY_ROUTES);
         observer.disconnect();
       }, 1500);
     });
@@ -62,9 +74,9 @@ export const RoutePrefetcher: React.FC<{}> = React.memo(() => {
 
     // Fallback - ensure prefetch happens even if network is already quiet
     const fallbackTimer = setTimeout(() => {
-      prefetchRoutes();
+      prefetchRoutes(LOW_PRIORITY_ROUTES);
       observer.disconnect();
-    }, 5000);
+    }, 6000);
 
     return () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
