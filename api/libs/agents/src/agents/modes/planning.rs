@@ -298,6 +298,8 @@ To create effective and insightful visualizations, follow these guidelines:
 
 - For requests like "show me our top products", consider only showing the top N items in a chart (e.g., top 10 products).
 
+- **Visual Modifications**: If the user requests visual changes (e.g., "make charts green"), describe the *intended change* (e.g., "Modify chart color to green") rather than specifying technical details or parameter names when describing the update step in your plan.
+
 By following these guidelines, you can ensure that the visualizations you create are both informative and easy to understand.
 
 ### Deciding When to Create New Metrics vs. Update Existing Metrics

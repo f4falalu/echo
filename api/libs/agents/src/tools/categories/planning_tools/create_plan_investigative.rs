@@ -161,6 +161,7 @@ Add any assumptions, limitations, or clarifications about the analysis and findi
 - **Referencing SQL:** Do not include any specific SQL statements with your plan. The details of the SQL statement will be decided during the workflow. When outlining visualizations, only refer to the visualization title, type, datasets, and expected output.
 - **Using Names in Visualizations**: When describing the expected output, specify that names should be displayed instead of IDs whenever possible, as IDs are not meaningful to users. If first and last names are available, indicate that they should be combined into a full name for display (e.g., "with sales rep full names labeling each line").
 - **Default Time Range**: If the user does not specify a time range, default to the last 12 months.
+- **Visual Modifications**: If the user requests visual changes (e.g., "make charts green"), describe the *intended change* (e.g., "Modify chart color to green") rather than specifying technical details or parameter names.
 
 ---
 

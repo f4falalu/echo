@@ -160,6 +160,7 @@ Add context like assumptions, limitations, or acknowledge unsupported aspects of
 - **Use Names instead of IDs**: When visualizations or tables include things like people, customers, vendors, products, categories, etc, you should display names instead of IDs (if names are included in the available datasets). IDs are not meaningful to users. For people, you should combine first and last names if they are available.
 - **Default to Top 10**: If the user requests the "top", "best", etc of any entity (e.g., products, regions, employees) without specifying a number, default to showing the top 10 in the visualization.
 - **Default Time Range**: If the user does not specify a time range for a visualization, default to the last 12 months.
+- **Visual Modifications**: If the user requests visual changes (e.g., "make charts green"), describe the *intended change* (e.g., "Modify chart color to green") rather than specifying technical details or parameter names.
 
 ---
 
