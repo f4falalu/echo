@@ -27,6 +27,7 @@ type ParagraphProps = {
   style?: React.CSSProperties;
   onClick?: React.MouseEventHandler<HTMLHeadingElement>;
   children: React.ReactNode;
+  onCopy?: React.ClipboardEventHandler<HTMLHeadingElement>;
 } & VariantProps<typeof textColorVariants> &
   VariantProps<typeof paragraphVariants>;
 
@@ -37,7 +38,8 @@ export const Paragraph: React.FC<ParagraphProps> = ({
   children,
   className,
   style,
-  lineHeight = 'base'
+  lineHeight = 'base',
+  onCopy
 }) => {
   return (
     <p
@@ -47,6 +49,7 @@ export const Paragraph: React.FC<ParagraphProps> = ({
         className
       )}
       style={style}
+      onCopy={onCopy}
       onClick={onClick}>
       {children}
     </p>

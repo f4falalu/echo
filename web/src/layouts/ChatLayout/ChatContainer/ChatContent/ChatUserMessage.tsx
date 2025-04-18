@@ -6,7 +6,7 @@ import { Paragraph } from '@/components/ui/typography';
 import { MessageContainer } from './MessageContainer';
 import { Tooltip } from '@/components/ui/tooltip';
 import { cn } from '@/lib/classMerge';
-import { PenWriting, Copy, Check } from '@/components/ui/icons';
+import { PenWriting, Copy } from '@/components/ui/icons';
 import { Button } from '@/components/ui/buttons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
@@ -19,6 +19,7 @@ export const ChatUserMessage: React.FC<{
   isCompletedStream: boolean;
   requestMessage: NonNullable<BusterChatMessageRequest>;
 }> = React.memo(({ messageId, chatId, isCompletedStream, requestMessage }) => {
+  const { openSuccessMessage } = useBusterNotifications();
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -27,6 +28,18 @@ export const ChatUserMessage: React.FC<{
   const onSetIsEditing = useMemoizedFn((isEditing: boolean) => {
     setIsEditing(isEditing);
     setIsTooltipOpen(false);
+  });
+
+  const handleCopy = useMemoizedFn((e?: React.ClipboardEvent) => {
+    // Prevent default copy behavior
+    //I do not know why this is needed, but it is...
+    if (e) {
+      e.preventDefault();
+      e.clipboardData.setData('text/plain', request);
+    } else {
+      navigator.clipboard.writeText(request);
+    }
+    openSuccessMessage('Copied to clipboard');
   });
 
   return (
@@ -45,12 +58,17 @@ export const ChatUserMessage: React.FC<{
         />
       ) : (
         <>
-          <Paragraph className="whitespace-pre-wrap">{request}</Paragraph>
+          <div>
+            <Paragraph className="break-words whitespace-normal" onCopy={handleCopy}>
+              {request}
+            </Paragraph>
+          </div>
           {isCompletedStream && (
             <RequestMessageTooltip
               isTooltipOpen={isTooltipOpen}
               requestMessage={requestMessage}
               setIsEditing={setIsEditing}
+              onCopy={handleCopy}
             />
           )}
         </>
@@ -65,13 +83,9 @@ const RequestMessageTooltip: React.FC<{
   isTooltipOpen: boolean;
   requestMessage: NonNullable<BusterChatMessageRequest>;
   setIsEditing: (isEditing: boolean) => void;
-}> = React.memo(({ isTooltipOpen, requestMessage, setIsEditing }) => {
+  onCopy: () => void;
+}> = React.memo(({ isTooltipOpen, requestMessage, setIsEditing, onCopy }) => {
   const { openSuccessMessage } = useBusterNotifications();
-
-  const onCopy = useMemoizedFn(() => {
-    navigator.clipboard.writeText(requestMessage.request);
-    openSuccessMessage('Copied to clipboard');
-  });
 
   const onEdit = useMemoizedFn(() => {
     setIsEditing(true);
@@ -80,7 +94,7 @@ const RequestMessageTooltip: React.FC<{
   return (
     <div
       className={cn(
-        'absolute right-1 -bottom-0 translate-y-full transform',
+        'absolute top-0 right-1 -translate-y-1 transform',
         'bg-background z-50 rounded border shadow',
         'transition-all duration-200',
         isTooltipOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'

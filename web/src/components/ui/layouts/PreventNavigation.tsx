@@ -187,7 +187,7 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
       window.history.pushState(null, document.title, window.location.href);
     });
 
-    if (!isDirty) return <div className="bg-green-500 p-10" />;
+    if (!isDirty) return null;
 
     return (
       <LeavingDialog
@@ -256,7 +256,6 @@ const LeavingDialog: React.FC<{
 
     return (
       <>
-        <div className="bg-red-500 p-10" />
         <AppModal open={isOpen} onClose={onClose} header={memoizedHeader} footer={memoizedFooter} />
       </>
     );

@@ -7,8 +7,9 @@ import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
-import { usePrevious } from '@/hooks';
+import { useMount, usePrevious } from '@/hooks';
 import { useGetInitialChatFile } from './useGetInitialChatFile';
+import { BusterRoutes } from '@/routes';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
@@ -44,7 +45,19 @@ export const useAutoChangeLayout = ({
 
   const hasReasoning = !!reasoningMessagesLength;
 
+  useMount(() => {
+    console.log('MOUNTED?');
+  });
+
   useEffect(() => {
+    console.log({
+      isCompletedStream,
+      hasReasoning,
+      chatId,
+      previousLastMessageId: previousLastMessageId.current,
+      lastMessageId,
+      previousIsCompletedStream
+    });
     //this will trigger when the chat is streaming and is has not completed yet (new chat)
     if (
       !isCompletedStream &&
@@ -53,12 +66,18 @@ export const useAutoChangeLayout = ({
       chatId
     ) {
       previousLastMessageId.current = lastMessageId;
-      onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
+      //  onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
+      onChangePage({
+        route: BusterRoutes.APP_CHAT_ID_REASONING_ID,
+        chatId,
+        messageId: lastMessageId
+      });
+      console.log('FLIP TO REASONING!', lastMessageId);
     }
 
     //this will when the chat is completed and it WAS streaming
     else if (isCompletedStream && previousIsCompletedStream === false) {
-      //
+      console.log('SELECT STREAMING FILE');
       const chatMessage = getChatMessageMemoized(lastMessageId);
       const lastFileId = findLast(chatMessage?.response_message_ids, (id) => {
         const responseMessage = chatMessage?.response_messages[id];
@@ -68,7 +87,6 @@ export const useAutoChangeLayout = ({
         | BusterChatResponseMessage_file
         | undefined;
 
-      //this will trigger when the chat was streaming (new chat)
       if (lastFileId && lastFile) {
         const { link, isSelected, selectedVersionNumber } = getFileLinkMeta({
           fileId: lastFileId,
@@ -78,17 +96,17 @@ export const useAutoChangeLayout = ({
           useVersionHistoryMode: !chatId
         });
 
-        if (
-          !isSelected &&
-          selectedVersionNumber !== lastFile.version_number &&
-          selectedFileId !== lastFileId
-        ) {
-          onSetSelectedFile({
-            id: lastFileId,
-            type: lastFile.file_type,
-            versionNumber: selectedVersionNumber
-          });
-        }
+        // if (
+        //   !isSelected &&
+        //   selectedVersionNumber !== lastFile.version_number &&
+        //   selectedFileId !== lastFileId
+        // ) {
+        //   onSetSelectedFile({
+        //     id: lastFileId,
+        //     type: lastFile.file_type,
+        //     versionNumber: selectedVersionNumber
+        //   });
+        // }
 
         if (link) {
           onChangePage(link);
@@ -98,6 +116,7 @@ export const useAutoChangeLayout = ({
     }
     //this will trigger on a page refresh and the chat is completed
     else if (isCompletedStream && chatId) {
+      console.log('SELECT INITIAL CHAT FILE - PAGE LOAD');
       const isChatOnlyMode = !metricId && !dashboardId && !messageId;
       if (isChatOnlyMode) {
         return;
@@ -117,5 +136,5 @@ export const useAutoChangeLayout = ({
         onChangePage(href);
       }
     }
-  }, [isCompletedStream, hasReasoning, lastMessageId]);
+  }, [isCompletedStream, hasReasoning, chatId, lastMessageId]);
 };
