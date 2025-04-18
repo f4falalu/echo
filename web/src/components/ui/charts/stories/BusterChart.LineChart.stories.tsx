@@ -211,16 +211,146 @@ export const AutoDateFormat_TimeIntervalTest_Days_WithAutoUnit_UnevenDays: Story
   }
 };
 
-export const FixedDateFormat_TimeIntervalTest_MonthWithForcedUnit: Story = {
+export const FixedDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths: Story = {
   args: {
-    ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit.args,
+    ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths.args,
     xAxisTimeInterval: 'month',
     columnLabelFormats: {
-      ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit.args!.columnLabelFormats,
+      ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths.args!.columnLabelFormats,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const FixedDateFormat_TimeIntervalTest_MonthWithAutoUnit_ManyMonths: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_MonthWithAutoUnit_ManyMonths.args,
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_MonthWithAutoUnit_ManyMonths.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const FixedDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit_ManyMonths: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit_ManyMonths.args,
+    xAxisTimeInterval: 'month',
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit_ManyMonths.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_ManyMonths: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_ManyMonths.args,
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_ManyMonths.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const FixedDateFormat_TimeIntervalTest_MonthWithAutoUnit_BUSTED: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_MonthWithAutoUnit.args,
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_MonthWithAutoUnit.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const FixedDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit.args,
+    xAxisTimeInterval: 'month',
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_BUSTED: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit.args,
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const FixedDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit.args,
+    xAxisTimeInterval: 'day',
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM DD'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const FixedDateFormat_TimeIntervalTest_Days_WithForcedUnit_UnevenDays: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit_UnevenDays.args,
+    xAxisTimeInterval: 'day',
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit_UnevenDays.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM DD'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const FixedDateFormat_TimeIntervalTest_Days_WithAutoUnit_UnevenDays: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_Days_WithAutoUnit_UnevenDays.args,
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_Days_WithAutoUnit_UnevenDays.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM DD'
       } satisfies IColumnLabelFormat
     }
   }
