@@ -55,6 +55,10 @@
   padding-inline-start: 2.5em;
 }
 
+.container ul li::marker {
+  color: var(--color-text-secondary);
+}
+
 .container ol {
   list-style-type: decimal;
 }
