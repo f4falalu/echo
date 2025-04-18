@@ -24,6 +24,8 @@ export const useAppLayout = () => {
       // Check if the target URL is exactly the same as current URL (including search params)
       const targetUrl = new URL(targetPath, window.location.origin);
       const currentUrl = new URL(window.location.href);
+
+      // Early return if URLs are identical
       if (targetUrl.toString() === currentUrl.toString()) {
         return Promise.resolve();
       }
@@ -31,74 +33,45 @@ export const useAppLayout = () => {
       // Extract the pathname without query parameters
       const targetPathname = targetUrl.pathname;
       const currentPathname = currentUrl.pathname;
+      const hasQueryParams = targetPath.indexOf('?') !== -1;
 
-      if (options?.shallow) {
-        const isSamePathname = targetPathname === currentPathname;
-
-        if (isSamePathname) {
-          return new Promise((resolve) => {
-            const params = getQueryParamsFromPath(targetPath);
-            onChangeQueryParams(params, false);
-            resolve();
-          });
-        }
+      // Handle shallow routing (only updating query params)
+      if (options?.shallow && targetPathname === currentPathname) {
+        return new Promise((resolve) => {
+          const params = getQueryParamsFromPath(targetPath);
+          onChangeQueryParams(params, false);
+          resolve();
+        });
       }
 
       return new Promise((resolve) => {
-        // If we're already on the target pathname, but query params might differ
-        if (currentPathname === targetPathname && targetPath.indexOf('?') === -1) {
-          // Clear query params by using the pathname only
-          window.history.pushState({}, '', targetPathname);
-          resolve();
-          return;
-        }
+        // Same pathname cases
+        if (targetPathname === currentPathname) {
+          // Case 1: Remove all query parameters
+          if (!hasQueryParams) {
+            window.history.pushState({}, '', targetPathname);
+            resolve();
+            return;
+          }
 
-        // If target and current pathnames are the same but target includes query params
-        if (currentPathname === targetPathname && targetPath.indexOf('?') !== -1) {
-          // Compare current and target query parameters
-          const currentUrl = new URL(window.location.href);
-          const targetUrl = new URL(targetPath, window.location.origin);
+          // Case 2: Update query parameters
           const currentParams = Object.fromEntries(currentUrl.searchParams.entries());
           const targetParams = Object.fromEntries(targetUrl.searchParams.entries());
 
-          // Check if the params are actually different
-          const paramsAreDifferent = JSON.stringify(currentParams) !== JSON.stringify(targetParams);
-
-          if (!paramsAreDifferent) {
+          // Skip if params are identical
+          if (JSON.stringify(currentParams) === JSON.stringify(targetParams)) {
             resolve();
             return;
           }
 
           push(targetPath);
-          // Set up an effect to watch for pathname changes
-          const checkPathChange = (waitTime: number = 25, iteration: number = 0) => {
-            if (window.location.href.includes(targetPath)) {
-              resolve();
-            } else if (iteration >= 10) {
-              resolve();
-            } else {
-              const newWaitTime = waitTime * 1.25;
-              setTimeout(() => checkPathChange(newWaitTime, iteration + 1), newWaitTime);
-            }
-          };
-          checkPathChange();
+          waitForUrlChange(() => window.location.href.includes(targetPath), resolve);
           return;
         }
 
-        // Default case - different pathnames
-        const checkPathChange = (waitTime: number = 25, iteration: number = 0) => {
-          if (window.location.pathname !== currentPathname) {
-            resolve();
-          } else if (iteration >= 10) {
-            resolve();
-          } else {
-            const newWaitTime = waitTime * 1.25;
-            setTimeout(() => checkPathChange(newWaitTime, iteration + 1), newWaitTime);
-          }
-        };
-
+        // Case 3: Different pathname - navigate to new route
         push(targetPath);
-        checkPathChange();
+        waitForUrlChange(() => window.location.pathname !== currentPathname, resolve);
       });
     }
   );
@@ -153,6 +126,26 @@ const getQueryParamsFromPath = (path: string): Record<string, string> => {
     params[key] = value;
   });
   return params;
+};
+
+// Helper function to wait for URL changes
+const waitForUrlChange = (
+  condition: () => boolean,
+  callback: () => void,
+  waitTime: number = 25,
+  iteration: number = 0
+) => {
+  if (condition()) {
+    callback();
+  } else if (iteration >= 10) {
+    callback(); // Resolve anyway after max attempts
+  } else {
+    const newWaitTime = waitTime * 1.25;
+    setTimeout(
+      () => waitForUrlChange(condition, callback, newWaitTime, iteration + 1),
+      newWaitTime
+    );
+  }
 };
 
 const AppLayoutContext = createContext<ReturnType<typeof useAppLayout>>(
