@@ -21,9 +21,16 @@ export const useAppLayout = () => {
     ): Promise<void> => {
       const targetPath = typeof params === 'string' ? params : createBusterRoute(params);
 
+      // Check if the target URL is exactly the same as current URL (including search params)
+      const targetUrl = new URL(targetPath, window.location.origin);
+      const currentUrl = new URL(window.location.href);
+      if (targetUrl.toString() === currentUrl.toString()) {
+        return Promise.resolve();
+      }
+
       // Extract the pathname without query parameters
-      const targetPathname = new URL(targetPath, window.location.origin).pathname;
-      const currentPathname = new URL(window.location.href).pathname;
+      const targetPathname = targetUrl.pathname;
+      const currentPathname = currentUrl.pathname;
 
       if (options?.shallow) {
         const isSamePathname = targetPathname === currentPathname;
@@ -48,6 +55,20 @@ export const useAppLayout = () => {
 
         // If target and current pathnames are the same but target includes query params
         if (currentPathname === targetPathname && targetPath.indexOf('?') !== -1) {
+          // Compare current and target query parameters
+          const currentUrl = new URL(window.location.href);
+          const targetUrl = new URL(targetPath, window.location.origin);
+          const currentParams = Object.fromEntries(currentUrl.searchParams.entries());
+          const targetParams = Object.fromEntries(targetUrl.searchParams.entries());
+
+          // Check if the params are actually different
+          const paramsAreDifferent = JSON.stringify(currentParams) !== JSON.stringify(targetParams);
+
+          if (!paramsAreDifferent) {
+            resolve();
+            return;
+          }
+
           push(targetPath);
           // Set up an effect to watch for pathname changes
           const checkPathChange = (waitTime: number = 25, iteration: number = 0) => {
@@ -85,23 +106,21 @@ export const useAppLayout = () => {
   const createQueryParams = useMemoizedFn(
     (params: Record<string, string | null>, preserveExisting: boolean) => {
       const url = new URL(window.location.href);
-      const searchParams = url.searchParams;
 
       if (!preserveExisting) {
-        searchParams.forEach((value, key) => {
-          searchParams.delete(key);
-        });
+        // Clear all existing search parameters
+        url.search = '';
       }
 
+      // Add new parameters
       Object.entries(params).forEach(([key, value]) => {
         if (value) {
-          searchParams.set(key, value);
+          url.searchParams.set(key, value);
         } else {
-          searchParams.delete(key);
+          url.searchParams.delete(key);
         }
       });
 
-      url.search = searchParams.toString();
       return url;
     }
   );
@@ -109,8 +128,12 @@ export const useAppLayout = () => {
   //TODO: make this typesafe...
   const onChangeQueryParams = useMemoizedFn(
     (params: Record<string, string | null>, preserveExisting: boolean) => {
+      const isRemovingANonExistentParam = Object.keys(params).every(
+        (key) => !window.location.href.includes(key)
+      );
+      if (isRemovingANonExistentParam) return; //we don't need to do anything if we're removing a non-existent param
       const url = createQueryParams(params, preserveExisting);
-      window.history.pushState({}, '', url); //we used window.history instead of replace for true shallow routing
+      if (url) window.history.pushState({}, '', url); //we used window.history instead of replace for true shallow routing
     }
   );
 
