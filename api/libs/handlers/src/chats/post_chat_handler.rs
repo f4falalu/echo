@@ -2336,7 +2336,7 @@ fn transform_assistant_tool_message(
                              let review_msg = BusterReasoningMessage::Text(BusterReasoningText {
                                  id: tool_id.clone(),
                                  reasoning_type: "text".to_string(),
-                                 title: "Reviewing Plan...".to_string(),
+                                 title: "Reviewing my work...".to_string(),
                                  secondary_title: "".to_string(),
                                  message: None,
                                  message_chunk: None,
@@ -2351,7 +2351,7 @@ fn transform_assistant_tool_message(
                         let reviewed_msg = BusterReasoningMessage::Text(BusterReasoningText {
                             id: tool_id.clone(),
                             reasoning_type: "text".to_string(),
-                            title: "Reviewed plan".to_string(),
+                            title: "Reviewed my work".to_string(),
                             secondary_title: format!("{:.2} seconds", elapsed_duration.as_secs_f32()),
                             message: None,
                             message_chunk: None,

@@ -290,14 +290,18 @@ definitions:
       disableTooltip:
         type: boolean
       # Axis Configurations
+      # RULE: By default, only add `xAxisConfig` and ONLY set its `xAxisTimeInterval` property 
+      #       when visualizing date/time data on the X-axis (e.g., line, bar, combo charts). 
+      #       Do NOT add other `xAxisConfig` properties, `yAxisConfig`, or `y2AxisConfig` 
+      #       unless the user explicitly asks for specific axis modifications.
       xAxisConfig:
-        description: REQUIRED for charts with a date/time column on the X-axis. MUST contain `xAxisTimeInterval` to specify the grouping (day, week, month, quarter, year). Other properties control label visibility, title, rotation, and zoom.
+        description: Controls X-axis properties. For date/time axes, MUST contain `xAxisTimeInterval` (day, week, month, quarter, year). Other properties control label visibility, title, rotation, and zoom. Only add when needed (dates) or requested by user.
         $ref: '#/definitions/x_axis_config'
       yAxisConfig:
-        description: Optional Y-axis configuration. Primarily used to set the `yAxisShowAxisLabel` and `yAxisShowAxisTitle` properties. Other properties control label visibility, title, rotation, and zoom.
+        description: Controls Y-axis properties. Only add if the user explicitly requests Y-axis modifications (e.g., hiding labels, changing title). Properties control label visibility, title, rotation, and zoom.
         $ref: '#/definitions/y_axis_config'
       y2AxisConfig:
-        description: Optional secondary Y-axis configuration. Used for combo charts.
+        description: Controls secondary Y-axis (Y2) properties, primarily for combo charts. Only add if the user explicitly requests Y2-axis modifications. Properties control label visibility, title, rotation, and zoom.
         $ref: '#/definitions/y2_axis_config'
       categoryAxisStyleConfig:
         description: Optional style configuration for the category axis (color/grouping).
