@@ -59,7 +59,7 @@ pub struct Message {
     pub feedback: Option<String>,
 }
 
-#[derive(Queryable, Insertable, Debug)]
+#[derive(Queryable, Insertable, Debug, Clone)]
 #[diesel(table_name = messages_to_files)]
 pub struct MessageToFile {
     pub id: Uuid,
