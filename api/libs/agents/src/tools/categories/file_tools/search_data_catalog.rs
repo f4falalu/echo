@@ -67,9 +67,9 @@ USER REQUEST: {user_request}
 SEARCH QUERY: {query} (This query is framed around key semantic concepts identified from the user request)
 
 Below is a list of datasets that were identified as potentially relevant by an initial ranking system.
-For each dataset, review its description in the YAML format. Evaluate how well the dataset's described contents (columns, metrics, entities, documentation) **semantically align** with the key **Objects, Properties, Events, Metrics, and Filters** required by the USER REQUEST and SEARCH QUERY.
+For each dataset, review its description in the YAML format. Evaluate how well the dataset's described contents (columns, metrics, entities, documentation) **semantically align** with the key **Objects, Properties, Events, Metrics, and Filters** required by the USER REQUEST and SEARCH QUERY. Pay close attention to whether the dataset contains specific attributes like **names, IDs, emails, or other identifying information** if implied by the request.
 
-Include datasets where the YAML description suggests a reasonable semantic match or overlap with the needed concepts. Prioritize datasets that appear to contain the core Objects or Events, even if all specific Properties or Metrics aren't explicitly listed.
+Include datasets where the YAML description suggests a reasonable semantic match or overlap with the needed concepts. Prioritize datasets that appear to contain the core Objects or Events, especially if they also contain key identifying attributes relevant to the request.
 
 DATASETS:
 {datasets_json}
@@ -88,15 +88,15 @@ Return a JSON response containing ONLY a list of the UUIDs for the semantically 
 IMPORTANT GUIDELINES:
 1. **Focus on Semantic Relevance**: Include datasets whose content, as described in the YAML, is semantically related to the required Objects, Properties, Events, Metrics, or Filters. Direct keyword matches are not required.
 2. **Consider the Core Concepts**: Does the dataset seem to be about the primary Business Object(s) or Event(s)? Does it contain relevant Properties or Metrics, even if named differently (synonyms)?
-3. **Allow Reasonable Inference**: If a dataset describes the correct Object (e.g., 'Customers') and the query asks for a common Property (e.g., 'Email Address'), you can reasonably infer potential relevance even if 'Email Address' isn't explicitly listed in the snippet, provided the dataset description is relevant.
+3. **Anticipate Attribute Needs & Allow Inference**: If a dataset describes the correct Object (e.g., 'Customers') and the query implies a need for identifying information (e.g., analyzing individual customer behavior), infer the relevance of Properties like 'Customer Name' or 'Customer ID', even if not explicitly listed in the query but present in the YAML. Prioritize datasets containing these likely necessary attributes.
 4. **Evaluate based on Semantic Fit**: Does the dataset's purpose and structure, based on its YAML, align well with the user's information need? Consider relationships between entities described in the YAML.
-5. **Contextual Information is Relevant**: Datasets providing important contextual Properties for the core Objects or Events should be considered relevant.
+5. **Contextual Information is Relevant**: Datasets providing important contextual Properties (like dimensions, timestamps, or related identifiers) for the core Objects or Events should be considered relevant.
 6. **When in doubt, lean towards inclusion if semantically plausible**: If the dataset seems semantically related to the core concepts, even if imperfectly described in the YAML snippet, it's better to include it for further inspection.
 7. **CRITICAL:** Each string in the "results" array MUST contain ONLY the dataset's UUID string (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38"). Do NOT include the dataset name or any other information.
-8. **Use both USER REQUEST and SEARCH QUERY**: Understand the underlying need (user request) and the specific concepts being targeted (search query).
-9. **Prioritize Semantic Overlap**: Look for datasets that cover the key Objects, Events, or Metrics, even if the exact Filters or secondary Properties aren't perfectly matched in the description.
-10. **Assume potential utility based on semantic clues**: If the YAML indicates the dataset is about the right topic (Object/Event), assume it might contain relevant Properties/Metrics unless the YAML explicitly contradicts this.
-11. A dataset is relevant if its described structure and purpose **semantically align** with the information needed to answer the query.
+8. **Use both USER REQUEST and SEARCH QUERY**: Understand the underlying need (user request) and the specific concepts being targeted (search query), including implicit needs for specific attributes.
+9. **Prioritize Semantic Overlap & Key Attributes**: Look for datasets that cover the key Objects, Events, or Metrics, *especially* if they contain relevant identifying attributes (names, IDs, etc.) suggested by the context.
+10. **Assume potential utility based on semantic clues**: If the YAML indicates the dataset is about the right topic (Object/Event), assume it might contain relevant Properties/Metrics (including identifiers) unless the YAML explicitly contradicts this.
+11. A dataset is relevant if its described structure and purpose **semantically align** with the information needed to answer the query, including anticipated attribute requirements.
 "#;
 
 pub struct SearchDataCatalogTool {
