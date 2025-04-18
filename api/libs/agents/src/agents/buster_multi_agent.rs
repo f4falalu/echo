@@ -68,9 +68,6 @@ impl ModeProvider for BusterModeProvider {
         // Call the appropriate get_configuration function based on the mode
         let mode_config = match current_mode {
             AgentState::Initializing => modes::initialization::get_configuration(&self.agent_data),
-            AgentState::FollowUpInitialization => {
-                modes::follow_up_initialization::get_configuration(&self.agent_data)
-            }
             AgentState::DataCatalogSearch => {
                 modes::data_catalog_search::get_configuration(&self.agent_data)
             }

@@ -49,7 +49,6 @@ pub struct ModeConfiguration {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum AgentState {
     Initializing,
-    FollowUpInitialization,
     DataCatalogSearch,
     Planning,
     AnalysisExecution,
@@ -77,86 +76,90 @@ pub fn determine_agent_state(state: &HashMap<String, Value>) -> AgentState {
     let has_user_prompt = state.contains_key("user_prompt"); // Check if latest user prompt is stored
 
 
-    // 1. Handle states before the user provides their first prompt in this turn/session
-    if !has_user_prompt {
-        return if is_follow_up {
-            AgentState::FollowUpInitialization
-        } else {
-            AgentState::Initializing
-        };
+    // 1. Handle the state before the user provides their first prompt in this turn
+    //    If it's not a follow-up and there's no prompt, it's the initial state.
+    //    If it IS a follow-up, we proceed to the next checks even without a new prompt,
+    //    as the follow-up flag indicates we should continue the existing flow.
+    if !has_user_prompt && !is_follow_up {
+        return AgentState::Initializing;
     }
 
-    // 2. Review always takes precedence after user speaks
+    // 2. Review always takes precedence after user speaks (or if flagged from previous turn)
     if needs_review {
         return AgentState::Review;
     }
 
-    // 3. If we haven't searched the catalog yet, do that now (initial or follow-up)
-    //    This is the key change: check this condition before others like has_data_context
+    // 3. If we haven't searched the catalog yet (or need to search again for follow-up), do that now.
+    //    This applies to both initial requests and follow-ups that might require new data.
     if !searched_catalog {
         return AgentState::DataCatalogSearch;
     }
 
-    // 4. If we have context but no plan, plan
+    // 4. If we have context but no plan, plan.
+    //    This covers initial runs after search and follow-ups needing planning.
     if has_data_context && !has_plan {
         return AgentState::Planning;
     }
 
-    // 5. If we have context and a plan, execute analysis
+    // 5. If we have context and a plan, execute analysis.
+    //    This covers initial runs and follow-ups continuing analysis.
     if has_data_context && has_plan {
         return AgentState::AnalysisExecution;
     }
 
-    // 6. Fallback: If the state is ambiguous after searching and without needing review
-    //    (e.g., search happened but no context was added, or no plan needed).
-    //    Revert to an earlier appropriate state.
-    if is_follow_up {
-        // If it was a follow-up, perhaps return to follow-up init or planning?
-        // Let's choose FollowUpInitialization as a safe default if planning/analysis aren't ready.
-        AgentState::FollowUpInitialization
-    } else {
-         // If it was initial, perhaps return to init or planning?
-         // Let's choose Initializing as a safe default if planning/analysis aren't ready.
-        AgentState::Initializing
+    // 6. Fallback: If state is ambiguous (e.g., search done, no context added, no review needed).
+    //    Maybe the search found nothing relevant. In this case, Planning is the next logical step
+    //    to decide how to respond (e.g., using Done tool).
+    //    This covers both initial and follow-up scenarios where planning is needed after an inconclusive search.
+    if searched_catalog && !has_data_context && !has_plan {
+        return AgentState::Planning;
     }
 
-    // Original logic kept for reference:
-    // // Initial state checks should happen first
-    // if !has_user_prompt && !is_follow_up {
-    //     return AgentState::Initializing; // Haven't even received the first real prompt
-    // }
-    // if !has_user_prompt && is_follow_up {
-    //     return AgentState::FollowUpInitialization; // Follow up state before first turn
-    // }
+    // 7. Default fallback if no other state fits. Revert to Initializing.
+    //    This handles unexpected state combinations.
+    AgentState::Initializing
 
-    // // Subsequent state logic
-    // if needs_review {
-    //     AgentState::Review
-    // } else if !searched_catalog {
-    //     // If we haven't searched the catalog, we're in the initial search phase
-    //     // unless it's a follow-up, where we might skip straight to planning/analysis
-    //     // if context already exists from the previous run.
-    //     if is_follow_up && has_data_context {
-    //         if has_plan {
-    //             AgentState::AnalysisExecution // Follow-up with context and plan -> Analysis
-    //         } else {
-    //             AgentState::Planning // Follow-up with context but no plan -> Planning
-    //         }
+    // Old logic:
+    // // 1. Handle states before the user provides their first prompt in this turn/session
+    // if !has_user_prompt {
+    //     return if is_follow_up {
+    //         AgentState::FollowUpInitialization // Removed
     //     } else {
-    //         AgentState::DataCatalogSearch
-    //     }
-    // } else if has_data_context && !has_plan {
-    //     // After search, if we have context but no plan, we plan.
-    //     // This covers both initial runs and follow-ups that gain context but need a plan.
-    //     AgentState::Planning
-    // } else if has_data_context && has_plan {
-    //     // With context and a plan, we execute analysis/actions.
-    //     AgentState::AnalysisExecution
-    // } else if is_follow_up {
-    //     // Default follow-up state if other conditions aren't met yet (e.g., post-search, no context yet)
-    //     AgentState::FollowUpInitialization
+    //         AgentState::Initializing
+    //     };
+    // }
+    //
+    // // 2. Review always takes precedence after user speaks
+    // if needs_review {
+    //     return AgentState::Review;
+    // }
+    //
+    // // 3. If we haven't searched the catalog yet, do that now (initial or follow-up)
+    // //    This is the key change: check this condition before others like has_data_context
+    // if !searched_catalog {
+    //     return AgentState::DataCatalogSearch;
+    // }
+    //
+    // // 4. If we have context but no plan, plan
+    // if has_data_context && !has_plan {
+    //     return AgentState::Planning;
+    // }
+    //
+    // // 5. If we have context and a plan, execute analysis
+    // if has_data_context && has_plan {
+    //     return AgentState::AnalysisExecution;
+    // }
+    //
+    // // 6. Fallback: If the state is ambiguous after searching and without needing review
+    // //    (e.g., search happened but no context was added, or no plan needed).
+    // //    Revert to an earlier appropriate state.
+    // if is_follow_up {
+    //     // If it was a follow-up, perhaps return to follow-up init or planning?
+    //     // Let's choose FollowUpInitialization as a safe default if planning/analysis aren't ready.
+    //     AgentState::FollowUpInitialization // Removed
     // } else {
-    //     // Default initial state if other conditions aren't met (e.g., post-search, no context yet)
+    //      // If it was initial, perhaps return to init or planning?
+    //      // Let's choose Initializing as a safe default if planning/analysis aren't ready.
     //     AgentState::Initializing
     // }
 }
