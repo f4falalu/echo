@@ -2364,22 +2364,8 @@ fn transform_assistant_tool_message(
                          // Update completion time
                         *last_reasoning_completion_time = Instant::now();
                     }
-                } else if tool_name == "no_search_needed" && progress == MessageProgress::Complete {
-                     // Send final "Skipped searching" message
-                    let elapsed_duration = last_reasoning_completion_time.elapsed();
-                    let skipped_msg = BusterReasoningMessage::Text(BusterReasoningText {
-                        id: tool_id.clone(),
-                        reasoning_type: "text".to_string(),
-                        title: "Skipped searching the data catalog".to_string(),
-                        secondary_title: format!("{:.2} seconds", elapsed_duration.as_secs_f32()), // Show duration it took to decide to skip
-                        message: None,
-                        message_chunk: None,
-                        status: Some("completed".to_string()),
-                    });
-                    all_results.push(ToolTransformResult::Reasoning(skipped_msg));
-                    // Update completion time
-                    *last_reasoning_completion_time = Instant::now();
                 }
+                // no_search_needed tool doesn't send any messages anymore
             }
             "message_user_clarifying_question" => {
                  // This tool generates a direct response message, not reasoning.
