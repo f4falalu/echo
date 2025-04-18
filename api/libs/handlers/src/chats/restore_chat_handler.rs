@@ -4,9 +4,9 @@ use database::{
     enums::AssetType,
     models::{Message, MessageToFile},
     pool::get_pg_pool,
-    schema::{chats, messages, messages_to_files},
+    schema::{chats, dashboard_files, messages, messages_to_files, metric_files},
 };
-use diesel::{insert_into, update, ExpressionMethods, QueryDsl};
+use diesel::{update, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use futures::future::try_join_all;
 use middleware::AuthenticatedUser;
@@ -132,12 +132,44 @@ pub async fn restore_chat_handler(
     let (file_type, file_name, file_id, version_number) = restore_result??;
     let last_message = last_message_result??;
 
+    // --- START: Fetch restored content from main table ---
+    let file_content: String = {
+        let mut conn = get_pg_pool().get().await?;
+        match request.asset_type {
+            AssetType::MetricFile => {
+                let content_json = metric_files::table
+                    .filter(metric_files::id.eq(&file_id))
+                    .select(metric_files::content)
+                    .first::<serde_json::Value>(&mut conn)
+                    .await?;
+                // Convert JSON Value to String
+                content_json.to_string()
+            }
+            AssetType::DashboardFile => {
+                let content_json = dashboard_files::table
+                    .filter(dashboard_files::id.eq(&file_id))
+                    .select(dashboard_files::content)
+                    .first::<serde_json::Value>(&mut conn)
+                    .await?;
+                // Convert JSON Value to String for the message
+                content_json.to_string()
+            }
+            // This case should be unreachable due to the check in the restore_task
+            _ => {
+                return Err(anyhow!(
+                    "Unexpected asset type after successful restoration: {:?}",
+                    request.asset_type
+                ))
+            }
+        }
+    };
+    // --- END: Fetch restored content from main table ---
+
     // Step 3: Construct message details
     let tool_call_id = format!("call_{}", Uuid::new_v4().to_string().replace("-", ""));
     let mut raw_llm_messages = if let Some(last_msg) = &last_message {
         // Use clone here if last_message is Some(Message)
-        if let Ok(msgs) = serde_json::from_value::<Vec<Value>>(last_msg.raw_llm_messages.clone())
-        {
+        if let Ok(msgs) = serde_json::from_value::<Vec<Value>>(last_msg.raw_llm_messages.clone()) {
             msgs
         } else {
             Vec::new()
@@ -167,7 +199,7 @@ pub async fn restore_chat_handler(
         "role": "tool",
         "content": json!({
             "message": format!("Successfully restored 1 {} files.", file_type),
-            "file_contents": file_name
+            "file_contents": file_content
         }).to_string(),
         "tool_call_id": tool_call_id
     }));
@@ -235,7 +267,6 @@ pub async fn restore_chat_handler(
     let chat_id_clone2 = *chat_id;
     let request_asset_type_clone = request.asset_type; // AssetType is likely Copy
     let file_id_clone = file_id; // file_id is Uuid (Copy)
-
 
     let insert_message_task = tokio::spawn(async move {
         let mut conn = get_pg_pool().get().await?;
