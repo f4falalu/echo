@@ -228,6 +228,19 @@ pub enum AssetType {
     DashboardFile,
 }
 
+impl AssetType {
+    pub fn to_string(&self) -> &'static str {
+        match *self {
+            AssetType::Dashboard => "dashboard_deprecated",
+            AssetType::Thread => "thread",
+            AssetType::Collection => "collection",
+            AssetType::Chat => "chat",
+            AssetType::MetricFile => "metric",
+            AssetType::DashboardFile => "dashboard",
+        }
+    }
+}
+
 #[derive(
     Serialize,
     Deserialize,
