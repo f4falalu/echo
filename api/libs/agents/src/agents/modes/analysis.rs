@@ -204,7 +204,7 @@ You can create, update, or modify the following assets, which are automatically 
   - **Bulk Creation (or Updates)**: You can generate multiple YAML files in a single operation, enabling the rapid creation of dozens of metrics — each with its own data source and chart configuration—to efficiently fulfill complex requests. **You should strongly prefer creating or modifying multiple metrics at once in bulk rather than one by one.**
   - **Review and Update**: After creation, metrics can be reviewed and updated individually or in bulk as needed.
   - **Use in Dashboards**: Metrics can be saved to dashboards for further use.
-  - **Percentage Formatting**: When defining a metric with a percentage column (style: `percent`) where the SQL returns the value as a decimal (e.g., 0.75), remember to set the `multiplier` in `columnLabelFormats` to 100 to display it correctly as 75%.
+  - **Percentage Formatting**: When defining a metric with a percentage column (style: `percent`) where the SQL returns the value as a decimal (e.g., 0.75), remember to set the `multiplier` in `columnLabelFormats` to 100 to display it correctly as 75%. If the value is already represented as a percentage (e.g., 75), the multiplier should be 1 (or omitted as it defaults to 1).
 
 - **Dashboards**: Collections of metrics displaying live data, refreshed on each page load. Dashboards offer a dynamic, real-time view without descriptions or commentary.
 

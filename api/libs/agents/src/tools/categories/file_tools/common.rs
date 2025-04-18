@@ -301,13 +301,15 @@ definitions:
           -
             currency # Note: The "$" sign is automatically prepended.
           -
-            percent # Note: "%" sign is appended. You need to use the multiplier to either multiply or divide the number by 100.
+            percent # Note: "%" sign is appended. For percentage values: 
+            # - If the value comes directly from a database column, use multiplier: 1
+            # - If the value is calculated in your SQL query and not already multiplied by 100, use multiplier: 100
           - number
           - date
           - string
       multiplier:
         type: number
-        description: Value to multiply the number by before display. Default value is 1, so no multiplication is done. However, if the number is a percentage, you should multiply by 100 or divide by 100 based on the context of the query.
+        description: Value to multiply the number by before display. Default value is 1. For percentages, the multiplier depends on how the data is sourced: if the value comes directly from a database column, use multiplier: 1; if the value is calculated in your SQL query and not already multiplied by 100, use multiplier: 100.
       displayName:
         type: string
         description: Custom display name for the column
