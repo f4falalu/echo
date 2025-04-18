@@ -108,6 +108,22 @@ export const useXAxis = ({
     return 'category';
   }, [isScatterChart, isComboChart, isLineChart, columnSettings, xAxisColumnFormats]);
 
+  const derivedTimeUnit = useMemo(() => {
+    if (type !== 'time') return false;
+
+    const fmt = xAxisColumnFormats[selectedAxis.x[0]].dateFormat;
+    if (!fmt || fmt === 'auto') return false;
+
+    // look for patterns in your DATE_FORMATS keys
+    if (/Y{2,4}/.test(fmt)) return 'year';
+    if (/Q{1,4}/.test(fmt)) return 'quarter';
+    if (/M{3,4}/.test(fmt)) return 'month';
+    if (/D{1,2}/.test(fmt)) return 'day';
+    if (/H{1,2}/.test(fmt)) return 'hour';
+    // fall back
+    return false;
+  }, [xAxisColumnFormats, selectedAxis.x]);
+
   const title = useXAxisTitle({
     xAxis: selectedAxis.x,
     columnLabelFormats,
@@ -183,8 +199,10 @@ export const useXAxis = ({
       const isValidTimeUnit = arrayOfValidTimeUnits.includes(xAxisTimeInterval);
       return isValidTimeUnit ? xAxisTimeInterval : false;
     }
-    return false;
-  }, [type, xAxisTimeInterval]);
+    return derivedTimeUnit;
+  }, [type, derivedTimeUnit, xAxisTimeInterval]);
+
+  console.log('timeUnit', { timeUnit, derivedTimeUnit });
 
   const offset = useMemo(() => {
     if (isScatterChart) return false;
@@ -214,7 +232,7 @@ export const useXAxis = ({
             enabled: false //test
           },
           autoSkip: false,
-          maxTicksLimit: type === 'time' ? 18 : undefined,
+          maxTicksLimit: type === 'time' ? (timeUnit === 'month' ? 11 : 18) : undefined,
           sampleSize: type === 'time' ? 24 : undefined,
           display: xAxisShowAxisLabel,
           callback: tickCallback as any, //I need to use null for auto date

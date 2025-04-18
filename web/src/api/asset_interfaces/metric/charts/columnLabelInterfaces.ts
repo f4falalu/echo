@@ -4,7 +4,7 @@ type ColumnLabelFormatBase = {
   style?: 'currency' | 'percent' | 'number' | 'date' | 'string';
   columnType?: SimplifiedColumnType;
   displayName?: string; //OPTIONAL: if this is not specifically requested by the user, then you should ignore this and the columnId will be used and formatted
-  numberSeparatorStyle?: ',' | null; //OPTIONAL: default is null. You should add this style if the column type requires a unique separator style. This will only apply if the format is set to 'number'.
+  numberSeparatorStyle?: ',' | null; //OPTIONAL: default is ','. You should add this style if the column type requires a unique separator style. This will only apply if the format is set to 'number'.
   minimumFractionDigits?: number; //OPTIONAL: default is 0. This is essentially used to set a minimum number of decimal places. This will only apply if the format is set to 'number'.
   maximumFractionDigits?: number; //OPTIONAL: default is 2. This is essentially used to set a maximum number of decimal places. This will only apply if the format is set to 'number'.
   multiplier?: number; //OPTIONAL: default is 1. This will only apply if the format is set to 'number', 'currency', or 'percent'.

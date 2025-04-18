@@ -192,6 +192,23 @@ export const AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
   }
 };
 
+export const AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit_ManyDays: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit.args,
+    data: Array.from({ length: 366 }, (_, i) => ({
+      date: dayjs('2024-01-01').add(i, 'day').toISOString(),
+      sales: addNoise(i * 15 + 55, 10)
+    }))
+  }
+};
+
+export const AutoDateFormat_TimeIntervalTest_Days_WithAutoUnit_ManyDays: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit_ManyDays.args,
+    xAxisTimeInterval: undefined
+  }
+};
+
 export const AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit_UnevenDays: Story = {
   args: {
     ...AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit.args,
