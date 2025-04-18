@@ -208,7 +208,10 @@ pub async fn post_chat_handler(
 
     tracing::info!(
         "Starting post_chat_handler for chat_id: {}, message_id: {}, organization_id: {}, user_id: {}",
-        chat_id, message_id, user_org_id, user.id
+        chat_id,
+        message_id,
+        user_org_id,
+        user.id
     );
 
     if let Some(tx) = tx.clone() {
@@ -2323,6 +2326,60 @@ fn transform_assistant_tool_message(
             "no_search_needed" | "review_plan" => {
                  // Clear tracker since this tool doesn't use chunking for its reasoning output
                 tracker.clear_chunk(tool_id.clone());
+
+                // Add reasoning for review_plan
+                if tool_name == "review_plan" {
+                    if progress == MessageProgress::InProgress {
+                        // Send initial "Reviewing Plan..." only once
+                        let tracker_key = format!("{}_reviewing", tool_id);
+                        if tracker.get_complete_text(tracker_key.clone()).is_none() {
+                             let review_msg = BusterReasoningMessage::Text(BusterReasoningText {
+                                 id: tool_id.clone(),
+                                 reasoning_type: "text".to_string(),
+                                 title: "Reviewing Plan...".to_string(),
+                                 secondary_title: "".to_string(),
+                                 message: None,
+                                 message_chunk: None,
+                                 status: Some("loading".to_string()),
+                             });
+                            all_results.push(ToolTransformResult::Reasoning(review_msg));
+                            tracker.add_chunk(tracker_key, "reviewing_sent".to_string());
+                        }
+                    } else if progress == MessageProgress::Complete {
+                         // Send final "Reviewed Plan" message
+                        let elapsed_duration = last_reasoning_completion_time.elapsed();
+                        let reviewed_msg = BusterReasoningMessage::Text(BusterReasoningText {
+                            id: tool_id.clone(),
+                            reasoning_type: "text".to_string(),
+                            title: "Reviewed plan".to_string(),
+                            secondary_title: format!("{:.2} seconds", elapsed_duration.as_secs_f32()),
+                            message: None,
+                            message_chunk: None,
+                            status: Some("completed".to_string()),
+                        });
+                        all_results.push(ToolTransformResult::Reasoning(reviewed_msg));
+                        // Clear the tracker key used for the initial message
+                        let tracker_key = format!("{}_reviewing", tool_id);
+                        tracker.clear_chunk(tracker_key);
+                         // Update completion time
+                        *last_reasoning_completion_time = Instant::now();
+                    }
+                } else if tool_name == "no_search_needed" && progress == MessageProgress::Complete {
+                     // Send final "Skipped searching" message
+                    let elapsed_duration = last_reasoning_completion_time.elapsed();
+                    let skipped_msg = BusterReasoningMessage::Text(BusterReasoningText {
+                        id: tool_id.clone(),
+                        reasoning_type: "text".to_string(),
+                        title: "Skipped searching the data catalog".to_string(),
+                        secondary_title: format!("{:.2} seconds", elapsed_duration.as_secs_f32()), // Show duration it took to decide to skip
+                        message: None,
+                        message_chunk: None,
+                        status: Some("completed".to_string()),
+                    });
+                    all_results.push(ToolTransformResult::Reasoning(skipped_msg));
+                    // Update completion time
+                    *last_reasoning_completion_time = Instant::now();
+                }
             }
             "message_user_clarifying_question" => {
                  // This tool generates a direct response message, not reasoning.

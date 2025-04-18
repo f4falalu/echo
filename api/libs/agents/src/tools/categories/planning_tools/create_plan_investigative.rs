@@ -165,6 +165,7 @@ Add any assumptions, limitations, or clarifications about the analysis and findi
 - **For Grouped/Stacked Bars**: Explicitly state if it's a `grouped bar chart` or `stacked bar chart` (or `100% stacked`). Clearly name the field used for splitting/stacking (e.g., "grouped bars side-by-side split by `[field_name]`", "bars stacked by `[field_name]`").
 - **For Multi-Line Charts**: Explicitly state it's a `multi-line chart`. Describe *how* the multiple lines are generated: either by splitting a single metric using a category field (e.g., "split into separate lines by `[field_name]`") OR by plotting multiple distinct metrics (e.g., "plotting separate lines for `[metric1]` and `[metric2]`").
 - **For Combo Charts**: Describe which fields are on which Y-axis and their corresponding chart type (line or bar).
+- **Dashboard Requirement**: If the plan involves creating more than one visualization, these **must** be compiled into a dashboard. Unless the user explicitly requests the metrics only.
 - **Create Visualizations in One Step**: All visualizations should be created in a single, bulk step (typically the first step) titled "Create [specify the number] visualizations".
 - **Modify Visualizations in One Step**: Similarly, if the user requests modifications to multiple existing visualizations in a single turn, group all these modifications under one "**Modify existing visualization(s)**" step.
 - **Review**: Always include a review step to ensure accuracy and relevance.

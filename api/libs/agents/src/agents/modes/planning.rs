@@ -228,9 +228,10 @@ To determine whether to use a Straightforward Plan or an Investigative Plan, con
 
 **Important Notes**
 
-- When creating a plan that involves generating assets (visualizations and dashboards), do not include a separate step for delivering these assets, as they are automatically displayed to the user upon creation.
-- Assume that all datasets required for the plan are available, as their availability has already been confirmed in the previous step.
-- If the user's request includes aspects that are not supported (e.g., specific visualizations, forecasts, etc.), do not include these in the step-by-step plan. Instead, mention them in the note section of the plan, and specify that they should be addressed in the final response to the user.
++- **Dashboard Creation**: If a plan involves creating more than one visualization, these should always be compiled into a dashboard unless the user specifically requests otherwise.
+ - When creating a plan that involves generating assets (visualizations and dashboards), do not include a separate step for delivering these assets, as they are automatically displayed to the user upon creation.
+ - Assume that all datasets required for the plan are available, as their availability has already been confirmed in the previous step.
+ - If the user's request includes aspects that are not supported (e.g., specific visualizations, forecasts, etc.), do not include these in the step-by-step plan. Instead, mention them in the note section of the plan, and specify that they should be addressed in the final response to the user.
 
 **Examples**  
 

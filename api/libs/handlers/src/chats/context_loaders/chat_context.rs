@@ -1,20 +1,43 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use agents::{Agent, AgentMessage};
 use anyhow::Result;
 use async_trait::async_trait;
+use database::schema::metric_files;
 use database::{
+    models::{DashboardFile, MetricFile},
     pool::get_pg_pool,
-    schema::{chats, messages},
+    schema::{chats, dashboard_files, messages},
 };
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
+use litellm::{FunctionCall, ToolCall, MessageProgress};
 use middleware::AuthenticatedUser;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
 use super::ContextLoader;
+
+// --- Structs for Simulated Tool Call (handling multiple files) ---
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct UserManuallyModifiedFileParams {
+    asset_ids: Vec<Uuid>, // Changed to Vec
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct ModifiedFileInfo {
+    asset_id: Uuid,
+    version_number: i32,
+    yml_content: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct UserManuallyModifiedFileOutput {
+    updated_files: Vec<ModifiedFileInfo>, // Contains details for all updated files
+}
+// --- End Structs ---
 
 pub struct ChatContextLoader {
     pub chat_id: Uuid,
@@ -181,6 +204,186 @@ impl ChatContextLoader {
             }
         }
     }
+
+    // Helper function to check if assets modified by tools in history were updated externally
+    // Returns a list of simulated AgentMessages representing the updates.
+    async fn check_external_asset_updates(
+        agent: &Arc<Agent>,
+        messages: &[AgentMessage],
+    ) -> Result<Vec<AgentMessage>> {
+        let mut tool_history_versions: HashMap<Uuid, i32> = HashMap::new(); // asset_id -> latest version seen in tool history
+
+        // First pass: Find the latest version mentioned for each asset in tool history
+        for message in messages {
+            if let AgentMessage::Tool {
+                name: Some(tool_name),
+                content,
+                ..
+            } = message
+            {
+                if tool_name == "update_metrics"
+                    || tool_name == "update_dashboards"
+                    || tool_name == "create_metrics"
+                    || tool_name == "create_dashboards"
+                {
+                    // ASSUMPTION: Content is JSON with "files": [{ "id": "...", "version_number": ... }] or similar
+                    // We need to handle both single object responses and array responses
+                    if let Ok(response_val) = serde_json::from_str::<Value>(content) {
+                        let files_to_process = if let Some(files_array) =
+                            response_val.get("files").and_then(|f| f.as_array())
+                        {
+                            // Handle array of files (like create/update tools)
+                            files_array.clone()
+                        } else if response_val.get("id").is_some()
+                            && response_val.get("version_number").is_some()
+                        {
+                            // Handle single file object (potential alternative response format?)
+                            vec![response_val]
+                        } else {
+                            // No recognizable file data
+                            vec![]
+                        };
+
+                        for file_data in files_to_process {
+                            if let (Some(id_val), Some(version_val)) =
+                                (file_data.get("id"), file_data.get("version_number"))
+                            // Look for version_number
+                            {
+                                if let (Some(id_str), Some(version_num)) =
+                                    (id_val.as_str(), version_val.as_i64())
+                                {
+                                    if let Ok(asset_id) = Uuid::parse_str(id_str) {
+                                        let entry =
+                                            tool_history_versions.entry(asset_id).or_insert(0);
+                                        *entry = (*entry).max(version_num as i32);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if tool_history_versions.is_empty() {
+            return Ok(vec![]); // No assets modified by tools in history, nothing to check
+        }
+
+        let mut simulated_messages = Vec::new();
+        let pool = get_pg_pool();
+        let mut conn = pool.get().await?;
+
+        let asset_ids: Vec<Uuid> = tool_history_versions.keys().cloned().collect();
+
+        // Query current full records from DB to get version and content
+        let current_metrics = metric_files::table
+            .filter(metric_files::id.eq_any(&asset_ids))
+            .load::<MetricFile>(&mut conn) // Load full MetricFile
+            .await?;
+
+        let current_dashboards = dashboard_files::table
+            .filter(dashboard_files::id.eq_any(&asset_ids))
+            .load::<DashboardFile>(&mut conn) // Load full DashboardFile
+            .await?;
+
+        // Combine results for easier iteration
+        let all_current_assets: HashMap<Uuid, (i32, String)> = current_metrics
+            .into_iter()
+            .map(|mf| {
+                let version = mf.version_history.get_version_number();
+                let yml = serde_yaml::to_string(&mf.content).unwrap_or_default();
+                (mf.id, (version, yml))
+            })
+            .chain(current_dashboards.into_iter().map(|df| {
+                let version = df.version_history.get_version_number();
+                let yml = serde_yaml::to_string(&df.content).unwrap_or_default();
+                (df.id, (version, yml))
+            }))
+            .collect();
+
+        // --- Refactored Logic: Collect all modified assets first ---
+        let mut modified_assets_info: Vec<ModifiedFileInfo> = Vec::new();
+
+        for (asset_id, tool_version) in &tool_history_versions {
+            if let Some((db_version, db_yml_content)) = all_current_assets.get(asset_id) {
+                 // Compare DB version with the latest version seen in tool history
+                if *db_version > *tool_version {
+                    tracing::warn!(
+                        asset_id = %asset_id,
+                        db_version = %db_version,
+                        tool_version = %tool_version,
+                        "Asset updated externally since last tool call in chat history. Adding to simulated update."
+                    );
+                    modified_assets_info.push(ModifiedFileInfo {
+                        asset_id: *asset_id,
+                        version_number: *db_version,
+                        yml_content: db_yml_content.clone(),
+                    });
+                }
+            }
+        }
+
+        // --- If any assets were modified, create ONE simulated call/response pair --- 
+        if !modified_assets_info.is_empty() {
+            let tool_name = "user_manually_modified_file".to_string();
+            let modified_ids: Vec<Uuid> = modified_assets_info.iter().map(|i| i.asset_id).collect();
+
+            // --- Generate Deterministic, LLM-like IDs --- 
+            // Create a namespace UUID (can be any constant UUID)
+            let namespace_uuid = Uuid::parse_str("6ba7b810-9dad-11d1-80b4-00c04fd430c8").unwrap(); 
+            
+            // Generate UUID v5 based on asset ID and version for determinism
+            let call_seed = format!("{}-{}", modified_assets_info[0].asset_id, modified_assets_info[0].version_number);
+            let deterministic_uuid = Uuid::new_v5(&namespace_uuid, call_seed.as_bytes());
+            
+            // Use the first part of the UUID for the ID string
+            let id_suffix = deterministic_uuid.simple().to_string()[..27].to_string(); // Adjust length as needed
+            
+            // 1. ID for the ToolCall (and Assistant message)
+            let tool_call_id = format!("call_{}", id_suffix);
+            // 2. ID for the Tool response message itself (make it slightly different)
+            let tool_response_msg_id = format!("tool_{}", id_suffix); 
+            // --- End ID Generation ---
+
+            // --- Create Simulated Tool Call (Params) --- 
+            let params = UserManuallyModifiedFileParams { asset_ids: modified_ids };
+            let params_json = serde_json::to_string(&params)?;
+
+            let assistant_message = AgentMessage::Assistant {
+                id: Some(tool_call_id.clone()), // Use ToolCall ID for Assistant Message ID
+                content: None,
+                tool_calls: Some(vec![ToolCall {
+                    id: tool_call_id.clone(), // Use ID #1 for the ToolCall's ID
+                    call_type: "function".to_string(),
+                    function: FunctionCall { 
+                        name: tool_name.clone(),
+                        arguments: params_json,
+                    },
+                    code_interpreter: None,
+                    retrieval: None,
+                }]),
+                name: None,
+                progress: MessageProgress::Complete, 
+                initial: false, 
+            };
+            simulated_messages.push(assistant_message);
+
+            // --- Create Simulated Tool Response (Output) --- 
+            let output = UserManuallyModifiedFileOutput { updated_files: modified_assets_info };
+            let output_json = serde_json::to_string(&output)?;
+
+            let tool_message = AgentMessage::Tool {
+                tool_call_id: tool_call_id, // Use ID #1 for the ToolCall
+                name: Some(tool_name),
+                content: output_json,
+                id: Some(tool_response_msg_id), // Use ID #2 for the Tool message's ID
+                progress: MessageProgress::Complete, 
+            };
+            simulated_messages.push(tool_message);
+        }
+
+        Ok(simulated_messages)
+    }
 }
 
 #[async_trait]
@@ -213,28 +416,56 @@ impl ContextLoader for ChatContextLoader {
             Err(e) => return Err(anyhow::anyhow!("Failed to get message: {}", e)),
         };
 
-        // Track seen message IDs
-        let mut seen_ids = HashSet::new();
-        // Convert messages to AgentMessages
+        // Convert the single message's history
         let mut agent_messages = Vec::new();
+        let raw_messages =
+            match serde_json::from_value::<Vec<AgentMessage>>(message.raw_llm_messages) {
+                Ok(messages) => messages,
+                Err(e) => {
+                    tracing::error!(
+                        "Failed to parse raw LLM messages for chat {}: {}",
+                        chat.id,
+                        e
+                    );
+                    Vec::new() // Return empty if parsing fails
+                }
+            };
 
-        // Process only the most recent message's raw LLM messages
-        if let Ok(raw_messages) =
-            serde_json::from_value::<Vec<AgentMessage>>(message.raw_llm_messages)
-        {
-            // Check each message for tool calls and update context
-            for agent_message in &raw_messages {
-                Self::update_context_from_tool_calls(agent, agent_message).await;
+        // Track seen message IDs to avoid duplicates from potential re-parsing/saving issues
+        let mut seen_ids: HashSet<String> = HashSet::new();
 
-                // Only add messages with new IDs
-                if let Some(id) = agent_message.get_id() {
-                    if seen_ids.insert(id.to_string()) {
-                        agent_messages.push(agent_message.clone());
-                    }
-                } else {
-                    // Messages without IDs are always included
+        // Process messages to update context flags and collect unique messages
+        for agent_message in &raw_messages {
+            Self::update_context_from_tool_calls(agent, agent_message).await;
+
+            if let Some(id) = agent_message.get_id() {
+                if seen_ids.insert(id.to_string()) {
                     agent_messages.push(agent_message.clone());
                 }
+            } else {
+                agent_messages.push(agent_message.clone());
+            }
+        }
+
+        // Check for external updates and get simulated messages
+        let simulated_update_messages =
+            match Self::check_external_asset_updates(agent, &raw_messages).await {
+                Ok(sim_messages) => sim_messages,
+                Err(e) => {
+                    tracing::error!("Failed to check for external asset updates: {}", e);
+                    Vec::new() // Don't fail, just log and return no simulated messages
+                }
+            };
+
+        // Append simulated messages, ensuring they haven't been seen before
+        for sim_message in simulated_update_messages {
+            if let Some(id) = sim_message.get_id() {
+                if seen_ids.insert(id.to_string()) {
+                    agent_messages.push(sim_message);
+                }
+            } else {
+                // Should not happen for our simulated messages, but handle defensively
+                agent_messages.push(sim_message);
             }
         }
 
