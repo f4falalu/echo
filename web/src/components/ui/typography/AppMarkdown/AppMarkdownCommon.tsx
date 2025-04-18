@@ -121,12 +121,14 @@ export const CustomOrderedList: React.FC<
     children?: React.ReactNode;
     markdown: string;
     showLoader: boolean;
+    start?: string;
   } & ExtraPropsExtra
-> = ({ children, markdown, showLoader, ...rest }) => {
+> = ({ children, start, markdown, showLoader }) => {
   return (
     <ol
-      className={cn('space-y-1', showLoader && 'animate-in fade-in transition-none duration-700')}
-      {...rest}>
+      //@ts-ignore
+      start={start}
+      className={cn('space-y-1', showLoader && 'animate-in fade-in transition-none duration-700')}>
       {children}
     </ol>
   );
@@ -137,15 +139,17 @@ export const CustomUnorderedList: React.FC<
     children?: React.ReactNode;
     markdown: string;
     showLoader: boolean;
+    start?: string;
   } & ExtraPropsExtra
-> = ({ children, markdown, showLoader, ...rest }) => {
+> = ({ start, children, markdown, showLoader, ...rest }) => {
   return (
     <ul
       className={cn(
         'mt-1 space-y-1',
         showLoader && 'animate-in fade-in transition-none duration-700'
       )}
-      {...rest}>
+      //@ts-ignore
+      start={start}>
       {children}
     </ul>
   );
@@ -157,11 +161,10 @@ export const CustomListItem: React.FC<
     markdown: string;
     showLoader: boolean;
   } & ExtraPropsExtra
-> = ({ children, markdown, showLoader, ...rest }) => {
+> = ({ children, showLoader }) => {
   return (
     <li
-      className={cn('space-y-1', showLoader && 'animate-in fade-in transition-none duration-700')}
-      {...rest}>
+      className={cn('space-y-1', showLoader && 'animate-in fade-in transition-none duration-700')}>
       {children}
     </li>
   );

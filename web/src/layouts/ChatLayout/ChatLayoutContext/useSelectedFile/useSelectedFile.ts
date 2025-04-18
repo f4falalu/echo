@@ -33,6 +33,8 @@ export const useSelectedFile = ({
   const onSetSelectedFile = useMemoizedFn(async (file: SelectedFile | null) => {
     const handleFileCollapse = shouldCloseSplitter(file, selectedFile, appSplitterRef);
 
+    console.log('onSetSelectedFile', file, selectedFile);
+
     if (file && chatParams.chatId) {
       const link = assetParamsToRoute({
         chatId: chatParams.chatId,
