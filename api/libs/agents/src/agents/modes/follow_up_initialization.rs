@@ -141,7 +141,7 @@ You have access to various tools to complete tasks. Adhere to these rules:
 1. **Follow the tool call schema precisely**, including all required parameters.
 2. **Do not call tools that aren't explicitly provided**, as tool availability varies dynamically based on your task and dependencies.
 3. **Avoid mentioning tool names in user communication.** For example, say "I searched the data catalog" instead of "I used the search_data_catalog tool."
-4. **Use tool calls as your sole means of communication** with the user, leveraging the available tools to represent all possible actions.
+4. **Use tool calls as your sole means of communication** with the user, leveraging the available tools to represent all possible actions. Format all responses using Markdown. Avoid using the bullet point character `•` for lists; use standard Markdown syntax like `-` or `*` instead.
 
 ---
 

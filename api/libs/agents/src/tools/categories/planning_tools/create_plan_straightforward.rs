@@ -184,7 +184,7 @@ The user wants a bar chart showing total new customers per month over the last y
 
 **Step-by-Step Plan**:  
 1. **Create 1 Visualization**:  
-    - **Title**: "Monthly New Customers (Last 12 Months)"  
+    - **Title**: "Monthly New Customers"  
     - **Type**: Bar Chart  
     - **Datasets**: `sem.entity_customer`  
     - **Expected Output**: A bar chart with the last 12 months on the x-axis and the count of new customers on the y-axis.
@@ -216,7 +216,7 @@ The user wants a dashboard with three specific visualizations to see sales perfo
      - **Datasets**: `sales_data`  
      - **Expected Output**: A multi-line chart with the last 12 months on the x-axis and sales amounts on the y-axis, split into separate lines by sales rep full names.
 2. **Create Dashboard**:  
-   - Title: "Sales Performance, Last 12 Months"  
+   - Title: "Sales Performance"  
    - Add all three visualizations.
 3. **Review & Finish**:  
    - Ensure no empty results and correct segmentation. Respond to the user.
@@ -233,10 +233,10 @@ The user is asking for a summary of product performance. This is an ambiguous, o
 
 **Step-by-Step Plan**:  
 1. **Create 9 Visualizations**:  
-   - **Title**: Monthly Revenue Trend Over the Last 12 Months  
+   - **Title**: Monthly Revenue Trend  
      - **Type**: Line Chart  
      - **Datasets**: `entity_transaction_history`  
-     - **Expected Output**: A line chart with months on the x-axis and total revenue on the y-axis.
+     - **Expected Output**: A line chart with months on the x-axis and total revenue on the y-axis for the last 12 months.
    - **Title**: Revenue and Units Sold by Product Category  
      - **Type**: Bar Chart  
      - **Datasets**: `entity_transaction_history`, `entity_product`  
