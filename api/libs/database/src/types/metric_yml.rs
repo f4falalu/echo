@@ -205,15 +205,19 @@ pub struct BaseChartConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "disable_tooltip")]
     pub disable_tooltip: Option<bool>,
-    // Updated Axis Configs using defined structs
-    #[serde(flatten, default)] // Flatten includes fields directly, default handles Option
-    pub y_axis_config: YAxisConfig,
-    #[serde(flatten, default)]
-    pub x_axis_config: XAxisConfig,
-    #[serde(flatten, default)]
-    pub category_axis_style_config: CategoryAxisStyleConfig,
-    #[serde(flatten, default)]
-    pub y2_axis_config: Y2AxisConfig,
+    // Updated Axis Configs using defined structs (now optional)
+    #[serde(skip_serializing_if = "Option::is_none")] 
+    #[serde(alias = "y_axis_config")]   
+    pub y_axis_config: Option<YAxisConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")] 
+    #[serde(alias = "x_axis_config")]
+    pub x_axis_config: Option<XAxisConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")] 
+    #[serde(alias = "category_axis_style_config")]
+    pub category_axis_style_config: Option<CategoryAxisStyleConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")] 
+    #[serde(alias = "y2_axis_config")]
+    pub y2_axis_config: Option<Y2AxisConfig>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

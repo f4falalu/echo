@@ -244,7 +244,7 @@ required:
   - chartConfig
 
 definitions:
-  # BASE CHART CONFIG (common parts required by ALL chart types)
+  # BASE CHART CONFIG (common parts used by ALL chart types)
   base_chart_config:
     type: object
     properties:
@@ -275,6 +275,10 @@ definitions:
         type: boolean
       gridLines:
         type: boolean
+      showLegendHeadline:
+        oneOf:
+          - type: boolean
+          - type: string
       goalLines:
         type: array
         items:
@@ -283,9 +287,104 @@ definitions:
         type: array
         items:
           $ref: #/definitions/trendline
+      disableTooltip:
+        type: boolean
+      # Axis Configurations
+      xAxisConfig:
+        description: Optional X-axis configuration. Primarily used to set the `xAxisTimeInterval` for date axes (day, week, month, etc.). Other properties control label visibility, title, rotation, and zoom.
+        $ref: '#/definitions/x_axis_config'
+      yAxisConfig:
+        description: Optional Y-axis configuration. Primarily used to set the `yAxisShowAxisLabel` and `yAxisShowAxisTitle` properties. Other properties control label visibility, title, rotation, and zoom.
+        $ref: '#/definitions/y_axis_config'
+      y2AxisConfig:
+        description: Optional secondary Y-axis configuration. Used for combo charts.
+        $ref: '#/definitions/y2_axis_config'
+      categoryAxisStyleConfig:
+        description: Optional style configuration for the category axis (color/grouping).
+        $ref: '#/definitions/category_axis_style_config'
     required:
       - selectedChartType
       - columnLabelFormats
+
+  # AXIS CONFIGURATIONS
+  x_axis_config:
+    type: object
+    properties:
+      xAxisTimeInterval:
+        type: string
+        enum: [day, week, month, quarter, year, 'null']
+        description: Time interval for X-axis (combo/line charts). Default: null.
+      xAxisShowAxisLabel:
+        type: boolean
+        description: Show X-axis labels. Default: true.
+      xAxisShowAxisTitle:
+        type: boolean
+        description: Show X-axis title. Default: true.
+      xAxisAxisTitle:
+        type: [string, 'null']
+        description: X-axis title. Default: null (auto-generates from column names).
+      xAxisLabelRotation:
+        type: string # Representing numbers or 'auto'
+        enum: ["0", "45", "90", auto]
+        description: Label rotation. Default: auto.
+      xAxisDataZoom:
+        type: boolean
+        description: Enable data zoom on X-axis. Default: false (User only).
+    additionalProperties: false
+    required:
+      - xAxisTimeInterval
+
+  y_axis_config:
+    type: object
+    properties:
+      yAxisShowAxisLabel:
+        type: boolean
+        description: Show Y-axis labels. Default: true.
+      yAxisShowAxisTitle:
+        type: boolean
+        description: Show Y-axis title. Default: true.
+      yAxisAxisTitle:
+        type: [string, 'null']
+        description: Y-axis title. Default: null (uses first plotted column name).
+      yAxisStartAxisAtZero:
+        type: [boolean, 'null']
+        description: Start Y-axis at zero. Default: true.
+      yAxisScaleType:
+        type: string
+        enum: [log, linear]
+        description: Scale type for Y-axis. Default: linear.
+    additionalProperties: false
+
+  y2_axis_config:
+    type: object
+    description: Secondary Y-axis configuration (for combo charts).
+    properties:
+      y2AxisShowAxisLabel:
+        type: boolean
+        description: Show Y2-axis labels. Default: true.
+      y2AxisShowAxisTitle:
+        type: boolean
+        description: Show Y2-axis title. Default: true.
+      y2AxisAxisTitle:
+        type: [string, 'null']
+        description: Y2-axis title. Default: null (uses first plotted column name).
+      y2AxisStartAxisAtZero:
+        type: [boolean, 'null']
+        description: Start Y2-axis at zero. Default: true.
+      y2AxisScaleType:
+        type: string
+        enum: [log, linear]
+        description: Scale type for Y2-axis. Default: linear.
+    additionalProperties: false
+
+  category_axis_style_config:
+    type: object
+    description: Style configuration for the category axis (color/grouping).
+    properties:
+      categoryAxisTitle:
+        type: [string, 'null']
+        description: Title for the category axis.
+    additionalProperties: false
 
   # COLUMN FORMATTING
   columnLabelFormat:
@@ -305,7 +404,7 @@ definitions:
             # - If the value comes directly from a database column, use multiplier: 1
             # - If the value is calculated in your SQL query and not already multiplied by 100, use multiplier: 100
           - number
-          - date
+          - date # Note: For date columns, consider setting xAxisTimeInterval in xAxisConfig to control date grouping (day, week, month, quarter, year)
           - string
       multiplier:
         type: number
