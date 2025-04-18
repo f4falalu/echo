@@ -306,12 +306,13 @@ definitions:
         description: Maximum number of fraction digits to display
       multiplier:
         type: number
-        description: Value to multiply the number by before display. This is useful for percentages.
+        description: Value to multiply the number by before display. This is usually required for percentages.
       prefix:
         type: string
       suffix:
         type: string
       replaceMissingDataWith:
+        type: number
         description: Value to display when data is missing, needs to be set to 0.
       compactNumbers:
         type: boolean
@@ -339,6 +340,7 @@ definitions:
     required:
       - columnType
       - style
+      - replaceMissingDataWith
 
   # COLUMN VISUAL SETTINGS
   column_settings:
