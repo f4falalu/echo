@@ -32,7 +32,7 @@ import { isServer } from '@tanstack/react-query';
 import './core/plugins/chartjs-plugin-dayjs';
 import { truncateText } from '@/lib/text';
 
-import { DeduplicatedTimeScale } from './core/plugins/chartjs-plugin-tick-duplicate';
+import { DeduplicatedTimeScale } from './core/plugins/chartjs-scale-tick-duplicate';
 
 // Register the scale properly
 registry.addScales(DeduplicatedTimeScale);
