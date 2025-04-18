@@ -51,7 +51,63 @@ export const Default: Story = {
   }
 };
 
-export const TimeIntervalTest_MonthWithForcedUnit: Story = {
+export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    xAxisTimeInterval: 'month',
+    data: Array.from({ length: 99 }, (_, i) => ({
+      date: dayjs('2024-01-01').add(i, 'month').toISOString(),
+      sales: addNoise(i * 15 + 55, 10)
+    })),
+    className: 'resize overflow-auto min-w-[250px] h-[400px]',
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['sales'],
+      category: []
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const AutoDateFormat_TimeIntervalTest_MonthWithAutoUnit_ManyMonths: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths.args,
+    xAxisTimeInterval: undefined
+  }
+};
+
+export const AutoDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit_ManyMonths: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths.args,
+    data: Array.from({ length: 99 })
+      .map((_, i) => ({
+        index: i,
+        date: dayjs('2024-01-01').add(i, 'month').toISOString(),
+        sales: addNoise(i * 15 + 55, 10)
+      }))
+      .filter(({ index }) => index !== 3 && index !== 5)
+  }
+};
+
+export const AutoDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_ManyMonths: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit_ManyMonths.args,
+    xAxisTimeInterval: undefined
+  }
+};
+
+export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit: Story = {
   args: {
     selectedChartType: ChartType.Line,
     xAxisTimeInterval: 'month',
@@ -80,14 +136,34 @@ export const TimeIntervalTest_MonthWithForcedUnit: Story = {
   }
 };
 
-export const TimeIntervalTest_MonthWithAutoUnit: Story = {
+export const AutoDateFormat_TimeIntervalTest_MonthWithAutoUnit: Story = {
   args: {
-    ...TimeIntervalTest_MonthWithForcedUnit.args,
+    ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit.args,
     xAxisTimeInterval: undefined
   }
 };
 
-export const TimeIntervalTest_Days_WithForcedUnit: Story = {
+export const AutoDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit.args,
+    data: Array.from({ length: 12 })
+      .map((_, i) => ({
+        index: i,
+        date: dayjs('2024-01-01').add(i, 'month').toISOString(),
+        sales: addNoise(i * 15 + 55, 10)
+      }))
+      .filter(({ index }) => index !== 3 && index !== 5)
+  }
+};
+
+export const AutoDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit.args,
+    xAxisTimeInterval: undefined
+  }
+};
+
+export const AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
   args: {
     selectedChartType: ChartType.Line,
     xAxisTimeInterval: 'day',
@@ -116,10 +192,37 @@ export const TimeIntervalTest_Days_WithForcedUnit: Story = {
   }
 };
 
-export const TimeIntervalTest_Days_WithAutoUnit: Story = {
+export const AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit_UnevenDays: Story = {
   args: {
-    ...TimeIntervalTest_Days_WithForcedUnit.args,
+    ...AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit.args,
+    data: Array.from({ length: 31 })
+      .filter((_, i) => i !== 1 && i !== 15 && i !== 16)
+      .map((_, i) => ({
+        date: dayjs('2024-01-01').add(i, 'day').toISOString(),
+        sales: addNoise(i * 15 + 55, 10)
+      }))
+  }
+};
+
+export const AutoDateFormat_TimeIntervalTest_Days_WithAutoUnit_UnevenDays: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit_UnevenDays.args,
     xAxisTimeInterval: undefined
+  }
+};
+
+export const FixedDateFormat_TimeIntervalTest_MonthWithForcedUnit: Story = {
+  args: {
+    ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit.args,
+    xAxisTimeInterval: 'month',
+    columnLabelFormats: {
+      ...AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit.args!.columnLabelFormats,
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'MMM'
+      } satisfies IColumnLabelFormat
+    }
   }
 };
 

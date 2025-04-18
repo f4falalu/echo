@@ -211,7 +211,7 @@ export const useXAxis = ({
         ticks: {
           ...rotation,
           major: {
-            enabled: true //test
+            enabled: false //test
           },
           autoSkip: false,
           maxTicksLimit: type === 'time' ? 18 : undefined,
