@@ -139,20 +139,20 @@ export const formatDate = ({
         if (!validDayFormats.includes(format)) {
           format = DEFAULT_DAY_OF_WEEK_FORMAT;
         }
-      }
-
-      if (convertNumberTo === 'month_of_year') {
+      } else if (convertNumberTo === 'month_of_year') {
         const validMonthFormats = ['MMMM', 'MMM', 'MM', 'M'];
         if (!validMonthFormats.includes(format)) {
           format = DEFAULT_DATE_FORMAT_MONTH_OF_YEAR;
         }
-      }
-
-      if (convertNumberTo === 'quarter') {
+      } else if (convertNumberTo === 'quarter') {
         const validQuarterFormats = ['YYYY [Q]Q', 'Q'];
         if (!validQuarterFormats.includes(format)) {
           format = DEFAULT_DATE_FORMAT_QUARTER;
         }
+      } else if (convertNumberTo === 'number') {
+        return String(date);
+      } else {
+        const exhaustiveCheck: never = convertNumberTo;
       }
     }
 

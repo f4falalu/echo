@@ -445,6 +445,31 @@ export const NumericXY: Story = {
   }
 };
 
+export const NumericXYThatCorrespondToAMonth: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: Array.from({ length: 12 }, (_, i) => ({
+      month: i,
+      sales: addNoise(i * 15 + 55, 10)
+    })),
+    barAndLineAxis: {
+      x: ['month'],
+      y: ['sales'],
+      category: []
+    },
+    xAxisTimeInterval: 'month',
+    className: 'w-[800px] h-[400px]',
+    columnLabelFormats: {
+      month: {
+        columnType: 'number',
+        style: 'date',
+        dateFormat: 'MMM',
+        convertNumberTo: 'month_of_year'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
 // X axis with categorical data and Y axis with numeric values
 export const CategoricalXNumericY: Story = {
   args: {

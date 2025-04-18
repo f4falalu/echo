@@ -38,8 +38,13 @@ export const formatLabel = (
     compactNumbers = DEFAULT_COLUMN_LABEL_FORMAT.compactNumbers
   } = props;
 
+  const textIsNotNullOrUndefined = textProp !== null && textProp !== undefined;
+
   const text =
-    columnType === 'number' && !useKeyFormatter && replaceMissingDataWith === 0
+    textIsNotNullOrUndefined &&
+    columnType === 'number' &&
+    !useKeyFormatter &&
+    replaceMissingDataWith === 0
       ? Number(textProp)
       : textProp;
   let formattedText = text;
@@ -57,6 +62,8 @@ export const formatLabel = (
       formattedText = String(replaceMissingDataWith);
     } else formattedText = String('null');
   } else if (style === 'date' && !useKeyFormatter) {
+    console.log(text, typeof text, columnType);
+
     formattedText = formatLabelDate(text, {
       dateFormat,
       convertNumberTo,
