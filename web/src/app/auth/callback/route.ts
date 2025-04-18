@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       }
     }
 
-    console.error('ERROR EXCHANGING CODE FOR SESSION', { error });
+    console.error('ERROR EXCHANGING CODE FOR SESSION :(', { error });
   }
 
   // return the user to an error page with instructions
