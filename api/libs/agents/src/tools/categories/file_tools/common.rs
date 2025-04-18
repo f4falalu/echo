@@ -313,7 +313,7 @@ definitions:
         description: Custom display name for the column
       numberSeparatorStyle:
         type: string
-        description: Style for number separators
+        description: Style for number separators. Your option is ',' or null.  Null results in no separator.
       minimumFractionDigits:
         type: integer
         description: Minimum number of fraction digits to display
@@ -354,6 +354,8 @@ definitions:
       - columnType
       - style
       - replaceMissingDataWith
+      - numberSeparatorStyle
+
   # COLUMN VISUAL SETTINGS
   column_settings:
     type: object
