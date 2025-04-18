@@ -4,102 +4,66 @@ declare module 'chart.js' {
   interface PluginOptionsByType<TType extends ChartType> {}
 }
 
-export const ChartJSTickDuplicatePlugin: Plugin<ChartType> = {
-  id: 'chartjs-plugin-tick-duplicate',
-  afterBuildTicks(chart) {
-    console.log('afterBuildTicks');
-    const scale = chart.scales['x'];
-    if (!scale || scale.type !== 'time') return;
-
-    const adapter = scale._adapter;
-    const displayFormat = scale.options.time.displayFormats?.month || 'MMM';
-    const tickCallback = scale.options.ticks?.callback;
-
-    const allTicks = scale._generate(); // raw generated ticks
-    const values = allTicks.map((t) => t.value ?? t);
-
-    const seenLabels = new Set();
-    const unique = [];
-
-    for (let i = 0; i < values.length; i++) {
-      const value = values[i];
-
-      let label;
-      try {
-        if (typeof tickCallback === 'function') {
-          label = tickCallback.call(scale, value, i, values);
-        } else {
-          label = adapter.format(value, displayFormat);
-        }
-      } catch (err) {
-        console.warn('Tick callback error at index', i, err);
-        label = '???';
-      }
-
-      const stringLabel = String(label);
-      if (!seenLabels.has(stringLabel)) {
-        seenLabels.add(stringLabel);
-        unique.push({ value, label: stringLabel });
-      }
-    }
-
-    if (unique.length < 2) return;
-
-    const min = scale.min ?? Math.min(...values);
-    const max = scale.max ?? Math.max(...values);
-    const spacing = (max - min) / (unique.length - 1);
-
-    scale.ticks = unique.map((u, i) => ({
-      value: min + i * spacing,
-      label: u.label
-    }));
-  }
-};
-
-export default ChartJSTickDuplicatePlugin;
-
 import { TimeScale } from 'chart.js';
 
+//GROK
 export class DeduplicatedTimeScale extends TimeScale {
-  static id = 'time';
-  static defaults = {
-    ...TimeScale.defaults
-  };
-  generateTicks() {
-    const baseTicks = super.generateTicks(); // Chart.js handles spacing, maxTicksLimit, etc.
+  static id = 'deduplicated-time';
+  static defaults = TimeScale.defaults;
+
+  /**
+   * Override buildTicks to eliminate duplicate ticks based on formatted values.
+   * @returns {Array} Array of unique tick objects
+   */
+  buildTicks() {
+    console.log('buildTicks');
+    // Step 1: Get default ticks from parent TimeScale
+    const defaultTicks = super.buildTicks();
+
+    // Step 2: Access tick callback and display format
     const tickCallback = this.options.ticks?.callback;
-    const format = this._adapter.format;
-    const displayFormat = this.options.time?.displayFormats?.month || 'MMM';
+    const displayFormat =
+      this.options.time?.displayFormats?.[this._unit] ||
+      this.options.time?.displayFormats?.month ||
+      'MMM';
+    const format = this._adapter.format.bind(this._adapter);
 
-    const seenLabels = new Set();
-    const dedupedTicks = [];
+    // Step 3: Track seen labels and collect unique ticks
+    const seen = new Set();
+    const uniqueTicks = [];
 
-    const values = baseTicks.map((t) => t.value);
+    for (let i = 0; i < defaultTicks.length; i++) {
+      const tick = defaultTicks[i];
 
-    for (let i = 0; i < baseTicks.length; i++) {
-      const tick = baseTicks[i];
-
+      // Step 4: Generate tick label
       let label;
       try {
         if (typeof tickCallback === 'function') {
-          // Call with same context Chart.js uses
-          label = tickCallback.call(this, tick.value, i, values);
+          // Pass tick value, index, and ticks array to callback
+          label = tickCallback.call(this, tick.value, i, defaultTicks);
         } else {
+          // Format using the adapter with the appropriate display format
           label = format(tick.value, displayFormat);
         }
-      } catch (err) {
+      } catch (e) {
+        console.error('Tick callback error at index', i, e);
         label = '???';
-        console.warn('Tick callback error at index', i, err);
       }
 
-      const stringLabel = String(label);
+      // Ensure label is a string for consistent comparison
+      const stringLabel = String(label ?? '');
 
-      if (!seenLabels.has(stringLabel)) {
-        seenLabels.add(stringLabel);
-        dedupedTicks.push(tick); // original tick object (value + major flag)
+      // Step 5: Only include tick if label is unique
+      if (!seen.has(stringLabel)) {
+        seen.add(stringLabel);
+        uniqueTicks.push({
+          ...tick,
+          label: stringLabel // Ensure the tick object has the correct label
+        });
       }
     }
 
-    return dedupedTicks;
+    // Step 6: Return the filtered ticks
+    return uniqueTicks;
   }
 }
