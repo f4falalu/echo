@@ -142,8 +142,9 @@ pub async fn restore_chat_handler(
                     .select(metric_files::content)
                     .first::<serde_json::Value>(&mut conn)
                     .await?;
-                // Convert JSON Value to String
-                content_json.to_string()
+                // Convert JSON Value to pretty YAML String
+                serde_yaml::to_string(&content_json)
+                    .map_err(|e| anyhow!("Failed to convert metric content to YAML: {}", e))?
             }
             AssetType::DashboardFile => {
                 let content_json = dashboard_files::table
@@ -151,8 +152,9 @@ pub async fn restore_chat_handler(
                     .select(dashboard_files::content)
                     .first::<serde_json::Value>(&mut conn)
                     .await?;
-                // Convert JSON Value to String for the message
-                content_json.to_string()
+                // Convert JSON Value to pretty YAML String for the message
+                serde_yaml::to_string(&content_json)
+                    .map_err(|e| anyhow!("Failed to convert dashboard content to YAML: {}", e))?
             }
             // This case should be unreachable due to the check in the restore_task
             _ => {
