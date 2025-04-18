@@ -14,7 +14,7 @@ const generateDates = (count: number) => {
 };
 
 // Helper to add controlled noise to values
-const addNoise = (value: number, variabilityPercent: number = 10): number => {
+export const addNoise = (value: number, variabilityPercent: number = 10): number => {
   const maxNoise = value * (variabilityPercent / 100);
   const noise = Math.sin(value) * maxNoise; // Using sin for pseudo-random but predictable noise
   return Math.round(value + noise);

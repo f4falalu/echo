@@ -2,10 +2,9 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { BusterChart } from '../BusterChart';
 import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
 import { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
-import { generateLineChartData } from '../../../../mocks/chart/chartMocks';
+import { addNoise, generateLineChartData } from '../../../../mocks/chart/chartMocks';
 import { sharedMeta } from './BusterChartShared';
 import dayjs from 'dayjs';
-import { faker } from '@faker-js/faker';
 
 type LineChartData = ReturnType<typeof generateLineChartData>;
 
@@ -49,6 +48,78 @@ export const Default: Story = {
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof LineChartData, IColumnLabelFormat>
+  }
+};
+
+export const TimeIntervalTest_MonthWithForcedUnit: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    xAxisTimeInterval: 'month',
+    data: Array.from({ length: 12 }, (_, i) => ({
+      date: dayjs('2024-01-01').add(i, 'month').toISOString(),
+      sales: addNoise(i * 15 + 55, 10)
+    })),
+    className: 'resize overflow-auto min-w-[250px] h-[400px]',
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['sales'],
+      category: []
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const TimeIntervalTest_MonthWithAutoUnit: Story = {
+  args: {
+    ...TimeIntervalTest_MonthWithForcedUnit.args,
+    xAxisTimeInterval: undefined
+  }
+};
+
+export const TimeIntervalTest_Days_WithForcedUnit: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    xAxisTimeInterval: 'day',
+    data: Array.from({ length: 31 }, (_, i) => ({
+      date: dayjs('2024-01-01').add(i, 'day').toISOString(),
+      sales: addNoise(i * 15 + 55, 10)
+    })),
+    className: 'resize overflow-auto min-w-[250px] h-[400px]',
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['sales'],
+      category: []
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat
+    }
+  }
+};
+
+export const TimeIntervalTest_Days_WithAutoUnit: Story = {
+  args: {
+    ...TimeIntervalTest_Days_WithForcedUnit.args,
+    xAxisTimeInterval: undefined
   }
 };
 

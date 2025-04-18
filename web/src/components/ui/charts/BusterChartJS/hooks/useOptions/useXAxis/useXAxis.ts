@@ -11,27 +11,15 @@ import { useMemoizedFn } from '@/hooks';
 import { useMemo } from 'react';
 import { DeepPartial } from 'utility-types';
 import type { ScaleChartOptions, Scale, GridLineOptions } from 'chart.js';
-import { useXAxisTitle } from '../../../commonHelpers/useXAxisTitle';
-import { useIsStacked } from './useIsStacked';
+import { useXAxisTitle } from '../../../../commonHelpers/useXAxisTitle';
+import { useIsStacked } from '../useIsStacked';
 import { formatLabel, isNumericColumnType, truncateText } from '@/lib';
 import isDate from 'lodash/isDate';
 import { Chart as ChartJS } from 'chart.js';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
+import { DATE_FORMATS } from './config';
 
 const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category.ticks.callback;
-
-const DATE_FORMATS = {
-  datetime: 'MMM D, YYYY, h:mm:ss a',
-  millisecond: 'h:mm:ss.SSS a',
-  second: 'h:mm:ss a',
-  minute: 'h:mm a',
-  hour: 'MMM D, hA',
-  day: 'MMM D',
-  week: 'll',
-  month: 'MMM YYYY',
-  quarter: '[Q]Q - YYYY',
-  year: 'YYYY'
-};
 
 export const useXAxis = ({
   columnLabelFormats,
@@ -152,6 +140,7 @@ export const useXAxis = ({
           | 'month'
           | 'quarter'
           | 'year';
+        console.log('selected unit', unit);
         const format = DATE_FORMATS[unit];
         return formatLabel(rawValue, { ...xColumnLabelFormat, dateFormat: format });
       }
@@ -206,6 +195,7 @@ export const useXAxis = ({
   const memoizedXAxisOptions: DeepPartial<ScaleChartOptions<'bar'>['scales']['x']> | undefined =
     useMemo(() => {
       if (isPieChart) return undefined;
+      console.log('type', { type, timeUnit });
       return {
         type,
         offset,
@@ -220,6 +210,10 @@ export const useXAxis = ({
         },
         ticks: {
           ...rotation,
+          major: {
+            enabled: true //test
+          },
+          autoSkip: false,
           maxTicksLimit: type === 'time' ? 18 : undefined,
           sampleSize: type === 'time' ? 24 : undefined,
           display: xAxisShowAxisLabel,
