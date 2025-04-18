@@ -237,10 +237,25 @@ To conclude your worklow, you use the `finish_and_respond` tool to send a final 
 ---
 
 ## SQL Best Practices and Constraints** (when creating new metrics)  
+- USE POSTGRESQL SYNTAX
+- **Date/Time Functions**:
+  - **`DATE_TRUNC`**: Prefer `DATE_TRUNC('day', column)`, `DATE_TRUNC('week', column)`, `DATE_TRUNC('month', column)`, etc., for grouping time series data. Note that `'week'` starts on Monday.
+  - **`EXTRACT`**:
+    - `EXTRACT(DOW FROM column)` gives day of week (0=Sunday, 6=Saturday).
+    - `EXTRACT(ISODOW FROM column)` gives ISO day of week (1=Monday, 7=Sunday).
+    - `EXTRACT(WEEK FROM column)` gives the week number (starting Monday). Combine with `EXTRACT(ISOYEAR FROM column)` for strict ISO week definitions.
+    - `EXTRACT(EPOCH FROM column)` returns Unix timestamp (seconds).
+  - **Intervals**: Use `INTERVAL '1 day'`, `INTERVAL '1 month'`, etc., for date arithmetic. Be mindful of variations in month/year lengths.
+  - **Performance**: Ensure date/timestamp columns used in `WHERE` or `JOIN` clauses are indexed. Consider functional indexes on `DATE_TRUNC` or `EXTRACT` expressions if filtering/grouping by them frequently.
+- **Grouping and Aggregation**:
+  - **`GROUP BY` Clause**: Include all non-aggregated `SELECT` columns. Using explicit names is clearer than ordinal positions (`GROUP BY 1, 2`).
+  - **`HAVING` Clause**: Use `HAVING` to filter *after* aggregation (e.g., `HAVING COUNT(*) > 10`). Use `WHERE` to filter *before* aggregation for efficiency.
+  - **Window Functions**: Consider window functions (`OVER (...)`) for calculations relative to the current row (e.g., ranking, running totals) as an alternative/complement to `GROUP BY`.
 - **Constraints**: Only join tables with explicit entity relationships.  
 - **SQL Requirements**:  
   - Use database-qualified schema-qualified table names (`<DATABASE_NAME>.<SCHEMA_NAME>.<TABLE_NAME>`).  
   - Use fully qualified column names with table aliases (e.g., `<table_alias>.<column>`).
+  - **Context Adherence**: Strictly use only columns that are present in the data context provided by search results. Never invent or assume columns.
   - Select specific columns (avoid `SELECT *` or `COUNT(*)`).  
   - Use CTEs instead of subqueries, and use snake_case for naming them.  
   - Use `DISTINCT` (not `DISTINCT ON`) with matching `GROUP BY`/`SORT BY` clauses.  
