@@ -85,6 +85,98 @@ pub enum ShowLegendHeadline {
     String(String),
 }
 
+// --- Axis Configuration Enums ---
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum YAxisScaleType {
+    Log,
+    Linear,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum XAxisTimeInterval {
+    Day,
+    Week,
+    Month,
+    Quarter,
+    Year,
+}
+
+// Use strings to represent numbers and 'auto' for compatibility with TS/JSON
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub enum XAxisLabelRotation {
+    #[serde(rename = "0")]
+    Rotate0,
+    #[serde(rename = "45")]
+    Rotate45,
+    #[serde(rename = "90")]
+    Rotate90,
+    #[serde(rename = "auto")]
+    Auto,
+}
+
+
+// --- Axis Configuration Structs ---
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct YAxisConfig {
+    #[serde(skip_serializing_if = "Option::is_none", alias = "y_axis_show_axis_label")]
+    pub y_axis_show_axis_label: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "y_axis_show_axis_title")]
+    pub y_axis_show_axis_title: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "y_axis_axis_title")]
+    pub y_axis_axis_title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "y_axis_start_axis_at_zero")]
+    pub y_axis_start_axis_at_zero: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "y_axis_scale_type")]
+    pub y_axis_scale_type: Option<YAxisScaleType>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct Y2AxisConfig {
+     #[serde(skip_serializing_if = "Option::is_none", alias = "y2_axis_show_axis_label")]
+    pub y2_axis_show_axis_label: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "y2_axis_show_axis_title")]
+    pub y2_axis_show_axis_title: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "y2_axis_axis_title")]
+    pub y2_axis_axis_title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "y2_axis_start_axis_at_zero")]
+    pub y2_axis_start_axis_at_zero: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "y2_axis_scale_type")]
+    pub y2_axis_scale_type: Option<YAxisScaleType>, // Reuses YAxisScaleType enum
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct XAxisConfig {
+    #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_time_interval")]
+    pub x_axis_time_interval: Option<XAxisTimeInterval>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_show_axis_label")]
+    pub x_axis_show_axis_label: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_show_axis_title")]
+    pub x_axis_show_axis_title: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_axis_title")]
+    pub x_axis_axis_title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_label_rotation")]
+    pub x_axis_label_rotation: Option<XAxisLabelRotation>,
+    #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_data_zoom")]
+    pub x_axis_data_zoom: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct CategoryAxisStyleConfig {
+    #[serde(skip_serializing_if = "Option::is_none", alias = "category_axis_title")]
+    pub category_axis_title: Option<String>,
+}
+
+
+// --- Base Chart Config ---
+
 // Base chart config shared by all chart types
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -113,18 +205,15 @@ pub struct BaseChartConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "disable_tooltip")]
     pub disable_tooltip: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(alias = "y_axis_config")]
-    pub y_axis_config: Option<serde_json::Value>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(alias = "x_axis_config")]
-    pub x_axis_config: Option<serde_json::Value>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(alias = "category_axis_style_config")]
-    pub category_axis_style_config: Option<serde_json::Value>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(alias = "y2_axis_config")]
-    pub y2_axis_config: Option<serde_json::Value>,
+    // Updated Axis Configs using defined structs
+    #[serde(flatten, default)] // Flatten includes fields directly, default handles Option
+    pub y_axis_config: YAxisConfig,
+    #[serde(flatten, default)]
+    pub x_axis_config: XAxisConfig,
+    #[serde(flatten, default)]
+    pub category_axis_style_config: CategoryAxisStyleConfig,
+    #[serde(flatten, default)]
+    pub y2_axis_config: Y2AxisConfig,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

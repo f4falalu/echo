@@ -4,9 +4,9 @@ use database::{
     enums::AssetType,
     models::{Message, MessageToFile},
     pool::get_pg_pool,
-    schema::{messages, messages_to_files},
+    schema::{chats, messages, messages_to_files},
 };
-use diesel::{insert_into, ExpressionMethods, QueryDsl};
+use diesel::{insert_into, update, ExpressionMethods, QueryDsl};
 use diesel_async::RunQueryDsl;
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
@@ -44,7 +44,8 @@ pub struct ChatRestoreRequest {
 /// 1. Restores the specified asset version using the appropriate handler
 /// 2. Creates a text message in the chat documenting the restoration
 /// 3. Creates a file message linking to the restored asset
-/// 4. Returns the updated chat with all messages
+/// 4. Updates the chat record with the latest file info
+/// 5. Returns the updated chat with all messages
 pub async fn restore_chat_handler(
     chat_id: &Uuid,
     user: &AuthenticatedUser,
@@ -161,32 +162,15 @@ pub async fn restore_chat_handler(
     let now = Utc::now();
     let timestamp = now.timestamp();
 
-    // Create restoration message text response
-    let restoration_text = format!(
-        "Version {} was created by restoring version {}",
-        version_number, request.version_number
-    );
-
-    // Create file response message for the restored asset
-
     // Create response messages array with both text and file response
     let response_messages = json!([
-        // Text response message
-        {
-            "id": format!("chatcmpl-{}", Uuid::new_v4().to_string().replace("-", "")),
-            "type": "text",
-            "message": restoration_text,
-            "message_chunk": null,
-            "is_final_message": true
-        },
-        // File response message
         {
             "id": file_id.to_string(),
             "type": "file",
             "metadata": [
                 {
                     "status": "completed",
-                    "message": format!("File {} completed", file_name),
+                    "message": format!("Restored from version {}", request.version_number),
                     "timestamp": timestamp
                 }
             ],
@@ -205,7 +189,10 @@ pub async fn restore_chat_handler(
         reasoning: json!([]),
         title: "Version Restoration".to_string(),
         raw_llm_messages: Value::Array(raw_llm_messages.clone()),
-        final_reasoning_message: None,
+        final_reasoning_message: Some(format!(
+            "v{} was created by restoring v{}",
+            version_number, request.version_number
+        )),
         chat_id: *chat_id,
         created_at: now,
         updated_at: now,
@@ -233,8 +220,20 @@ pub async fn restore_chat_handler(
     };
 
     // Insert the message-to-file association into the database
-    insert_into(messages_to_files::table)
+    diesel::insert_into(messages_to_files::table)
         .values(&message_to_file)
+        .execute(&mut conn)
+        .await?;
+
+    // Step 4: Update the chat record with the latest file info
+    update(chats::table)
+        .filter(chats::id.eq(chat_id))
+        .set((
+            chats::most_recent_file_id.eq(Some(file_id)),
+            chats::most_recent_version_number.eq(Some(version_number)),
+            chats::most_recent_file_type.eq(Some(request.asset_type.to_string())),
+            chats::updated_at.eq(now),
+        ))
         .execute(&mut conn)
         .await?;
 
