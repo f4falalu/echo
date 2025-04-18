@@ -41,12 +41,12 @@ export const useY2Axis = ({
   const canUseSameY2Formatter = useMemo(() => {
     if (!isSupportedType) return false;
 
-    const hasMultipleY = selectedAxis.y2!.length > 1;
-    return hasMultipleY ? yAxisSimilar(selectedAxis.y2!, columnLabelFormats) : true;
+    const hasMultipleY = (selectedAxis.y2?.length || 0) > 1;
+    return hasMultipleY ? yAxisSimilar(selectedAxis.y2 || [], columnLabelFormats) : true;
   }, [selectedAxis.y2, columnLabelFormats, isSupportedType]);
 
   const title = useY2AxisTitle({
-    y2Axis: selectedAxis.y2 || DEFAULT_CHART_CONFIG.comboChartAxis.y2!,
+    y2Axis: selectedAxis.y2 || DEFAULT_CHART_CONFIG.comboChartAxis.y2 || [],
     columnLabelFormats,
     y2AxisAxisTitle,
     y2AxisShowAxisTitle,
@@ -62,7 +62,7 @@ export const useY2Axis = ({
     const labelValue = this.getLabelForValue(index);
     return formatYAxisLabel(
       labelValue,
-      selectedAxis.y2!,
+      selectedAxis.y2 || [],
       canUseSameY2Formatter,
       columnLabelFormats,
       false
