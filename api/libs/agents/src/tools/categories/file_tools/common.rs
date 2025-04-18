@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use chrono::Utc;
 use database::{
     enums::Verification,
@@ -22,6 +22,9 @@ use serde::{Deserialize, Serialize};
 
 use super::file_types::file::FileWithId;
 
+// Import dataset_security for permission check
+use dataset_security::has_dataset_access;
+
 // Import the types needed for the modification function
 
 /// Validates SQL query using existing query engine by attempting to run it
@@ -29,6 +32,7 @@ use super::file_types::file::FileWithId;
 pub async fn validate_sql(
     sql: &str,
     dataset_id: &Uuid,
+    user_id: &Uuid,
 ) -> Result<(
     String,
     Vec<IndexMap<String, DataType>>,
@@ -38,6 +42,15 @@ pub async fn validate_sql(
 
     if sql.trim().is_empty() {
         return Err(anyhow!("SQL query cannot be empty"));
+    }
+
+    // Check dataset access before proceeding
+    if !has_dataset_access(user_id, dataset_id).await? {
+        bail!(
+            "Permission denied: User {} does not have access to dataset {}",
+            user_id,
+            dataset_id
+        );
     }
 
     let mut conn = get_pg_pool().get().await?;
@@ -738,7 +751,7 @@ pub async fn process_metric_file(
     let dataset_id = dataset_ids[0];
 
     // Validate SQL with the selected dataset_id and get results
-    let (message, results, metadata) = match validate_sql(&metric_yml.sql, &dataset_id).await {
+    let (message, results, metadata) = match validate_sql(&metric_yml.sql, &dataset_id, user_id).await {
         Ok(results) => results,
         Err(e) => return Err(format!("Invalid SQL query: {}", e)),
     };
@@ -860,7 +873,7 @@ pub async fn process_metric_file_modification(
                     }
 
                     let dataset_id = new_yml.dataset_ids[0];
-                    match validate_sql(&new_yml.sql, &dataset_id).await {
+                    match validate_sql(&new_yml.sql, &dataset_id, &file.created_by).await {
                         Ok((message, validation_results, _metadata)) => {
                             // Update file record
                             file.content = new_yml.clone();
@@ -1274,7 +1287,7 @@ mod tests {
     #[tokio::test]
     async fn test_validate_sql_empty() {
         let dataset_id = Uuid::new_v4();
-        let result = validate_sql("", &dataset_id).await;
+        let result = validate_sql("", &dataset_id, &Uuid::new_v4()).await;
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("cannot be empty"));
     }

@@ -10,11 +10,14 @@ diesel = { workspace = true }
 diesel-async = { workspace = true }
 uuid = { workspace = true }
 tracing = { workspace = true }
+serde = { workspace = true }
+tokio = { workspace = true }
+chrono = { workspace = true }
 
 # Internal workspace dependencies
 database = { path = "../database" }
 
 # Development dependencies
 [dev-dependencies]
-tokio = { workspace = true }
+dotenv = { workspace = true }
 # Add other workspace dev dependencies as needed 

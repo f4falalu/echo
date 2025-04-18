@@ -71,6 +71,7 @@ async fn process_metric_file_update(
     mut file: MetricFile,
     yml_content: String,
     duration: i64,
+    user_id: &Uuid,
 ) -> Result<(
     MetricFile,
     MetricYml,
@@ -164,8 +165,8 @@ async fn process_metric_file_update(
                     "Metadata missing, performing validation"
                 );
             }
-            
-            match validate_sql(&new_yml.sql, &dataset_id).await {
+
+            match validate_sql(&new_yml.sql, &dataset_id, user_id).await {
                 Ok((message, validation_results, metadata)) => {
                     // Update file record
                     file.content = new_yml.clone();
@@ -295,6 +296,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                                     file.clone(),
                                     file_update.yml_content.clone(),
                                     start_time_elapsed,
+                                    &self.agent.get_user_id(),
                                 ).await;
                                 
                                 match result {

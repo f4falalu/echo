@@ -2,6 +2,8 @@ use anyhow::Result;
 use chrono::Local;
 use database::helpers::datasets::get_dataset_names_for_organization;
 use database::organization::get_user_organization_id;
+use database::pool::get_pg_pool;
+use dataset_security::get_permissioned_datasets;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -95,15 +97,16 @@ impl AgentExt for BusterMultiAgent {
 
 impl BusterMultiAgent {
     pub async fn new(user_id: Uuid, session_id: Uuid, is_follow_up: bool) -> Result<Self> {
-        let organization_id = match get_user_organization_id(&user_id).await {
-            Ok(Some(org_id)) => org_id,
-            Ok(None) => return Err(anyhow::anyhow!("User does not belong to any organization")),
-            Err(e) => return Err(e),
-        };
-
         // Prepare data for modes
         let todays_date = Arc::new(Local::now().format("%Y-%m-%d").to_string());
-        let dataset_names = Arc::new(get_dataset_names_for_organization(organization_id).await?);
+
+        // Get permissioned datasets and extract names
+        let permissioned_datasets = get_permissioned_datasets(&user_id, 0, 10000).await?;
+        let dataset_names: Vec<String> = permissioned_datasets
+            .into_iter()
+            .map(|ds| ds.name)
+            .collect();
+        let dataset_names = Arc::new(dataset_names);
 
         let agent_data = ModeAgentData {
             dataset_names,
@@ -119,8 +122,8 @@ impl BusterMultiAgent {
             user_id,
             session_id,
             "buster_multi_agent".to_string(),
-            None, // api_key
-            None, // base_url
+            None,          // api_key
+            None,          // base_url
             mode_provider, // Pass the provider
         ));
 
@@ -129,16 +132,13 @@ impl BusterMultiAgent {
             .set_state_value("is_follow_up".to_string(), Value::Bool(is_follow_up))
             .await;
 
-        let buster_agent = Self {
-            agent,
-        };
+        let buster_agent = Self { agent };
 
         Ok(buster_agent)
     }
 
-
     pub async fn run(
-        self: &Arc<Self>, 
+        self: &Arc<Self>,
         thread: &mut AgentThread,
     ) -> Result<broadcast::Receiver<Result<AgentMessage, AgentError>>> {
         if let Some(user_prompt) = self.get_latest_user_message(thread) {

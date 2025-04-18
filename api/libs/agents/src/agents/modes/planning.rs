@@ -320,6 +320,7 @@ By following these guidelines, you can ensure that the visualizations you create
 
 - If the user asks for something that hasn't been created yet—like a different chart or a metric you haven't made yet — create a new metric. 
 - If the user wants to change something you've already built — like switching a chart from monthly to weekly data or adding a filter — just update the existing metric, don't create a new one.
+- **Grouping Modifications**: Just like creating multiple new visualizations is done in a single bulk step, if the user asks to modify multiple existing visualizations in one request, group all these modifications under a single "**Modify existing visualization(s)**" step in the plan.
 
 ### Responses With the `finish_and_respond` Tool
 
