@@ -19,7 +19,6 @@ import type {
 } from '@/api/asset_interfaces';
 import { DashboardEmptyState, DashboardNoContentReadOnly } from './DashboardEmptyState';
 import { type useUpdateDashboardConfig } from '@/api/buster_rest/dashboards';
-import last from 'lodash/last';
 
 const DEFAULT_EMPTY_ROWS: DashboardConfig['rows'] = [];
 const DEFAULT_EMPTY_METRICS: Record<string, BusterMetric> = {};
