@@ -95,7 +95,7 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
 
     const adjustHeight = useMemoizedFn(() => {
       const textarea = textareaRef.current;
-      if (!textarea || !autoResize || textarea.value === '') return;
+      if (!textarea || !autoResize) return;
 
       const minHeight = calculateMinHeight();
       if (!minHeight) return;

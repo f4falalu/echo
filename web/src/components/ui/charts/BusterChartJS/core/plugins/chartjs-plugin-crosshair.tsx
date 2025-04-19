@@ -34,11 +34,13 @@ const crosshairPlugin: Plugin<'line'> = {
 
   // Initialize the crosshair state
   beforeInit(chart: Chart) {
+    if (!chart) return;
     chart.$crosshair = { x: null, y: null };
   },
 
   // Capture mouse events to update the crosshair coordinates
   afterEvent(chart: Chart, args: { event: ChartEvent }) {
+    if (!chart) return;
     const event = args.event;
     if (event.type === 'mousemove') {
       chart.$crosshair = chart.$crosshair || { x: null, y: null };
@@ -54,12 +56,13 @@ const crosshairPlugin: Plugin<'line'> = {
 
   // Draw the crosshair lines and labels after the chart is rendered
   afterDraw(chart: Chart, args, options: CrosshairPluginOptions) {
+    if (!chart) return;
     const {
       ctx,
       chartArea: { top, bottom, left, right }
     } = chart;
     const crosshair = chart.$crosshair;
-    if (!crosshair) return;
+    if (!crosshair || !ctx) return;
     const { x, y } = crosshair;
 
     // Only draw if the pointer is within the chart area

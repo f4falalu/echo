@@ -88,6 +88,9 @@ export const useChatStreamMessage = () => {
     onUpdateChat(iChat);
     removeBlackBoxMessage({ messageId: iChat.message_ids[iChat.message_ids.length - 1] });
     prefetchLastMessageMetricData(iChat, iChatMessages);
+    queryClient.invalidateQueries({
+      queryKey: [queryKeys.chatsGetList().queryKey, queryKeys.metricsGetList().queryKey]
+    });
   });
 
   const stopChatCallback = useMemoizedFn((chatId: string) => {
