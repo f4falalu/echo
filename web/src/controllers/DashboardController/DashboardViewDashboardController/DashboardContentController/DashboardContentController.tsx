@@ -55,6 +55,23 @@ export const DashboardContentController: React.FC<{
       return remapMetrics ? normalizeNewMetricsIntoGrid(metrics, configRows) : configRows;
     }, [remapMetrics, metrics, configRows]);
 
+    const memoizedOverlayComponent = useMemo(() => {
+      return (
+        dashboard &&
+        draggingId && (
+          <DashboardMetricItem
+            metricId={draggingId}
+            readOnly={true}
+            dashboardId={dashboard?.id}
+            isDragOverlay
+            numberOfMetrics={numberOfMetrics}
+            chatId={undefined}
+            versionNumber={metrics[draggingId]?.version_number}
+          />
+        )
+      );
+    }, [draggingId, dashboard?.id, numberOfMetrics, metrics]);
+
     const dashboardRows = useMemo(() => {
       console.log('dashboardRows! rerender', rows);
       return rows
@@ -90,9 +107,12 @@ export const DashboardContentController: React.FC<{
       { wait: 650, leading: true }
     );
 
-    const onRowLayoutChange = useMemoizedFn((rows: BusterResizeableGridRow[]) => {
+    const onRowLayoutChange = useMemoizedFn((layoutRows: BusterResizeableGridRow[]) => {
       if (dashboard) {
-        onUpdateDashboardConfig({ rows: removeChildrenFromItems(rows), dashboardId: dashboard.id });
+        onUpdateDashboardConfig({
+          rows: removeChildrenFromItems(layoutRows),
+          dashboardId: dashboard.id
+        });
       }
     });
 
@@ -132,19 +152,7 @@ export const DashboardContentController: React.FC<{
               onRowLayoutChange={onRowLayoutChange}
               onStartDrag={onStartDrag}
               onEndDrag={onDragEnd}
-              overlayComponent={
-                draggingId && (
-                  <DashboardMetricItem
-                    metricId={draggingId}
-                    readOnly={true}
-                    dashboardId={dashboard.id}
-                    isDragOverlay
-                    numberOfMetrics={numberOfMetrics}
-                    chatId={undefined}
-                    versionNumber={metrics[draggingId]?.version_number}
-                  />
-                )
-              }
+              overlayComponent={memoizedOverlayComponent}
             />
           </DashboardContentControllerProvider>
         ) : !readOnly ? (
