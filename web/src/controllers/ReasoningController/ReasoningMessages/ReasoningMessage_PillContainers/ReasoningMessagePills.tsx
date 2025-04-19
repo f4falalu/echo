@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { assetParamsToRoute } from '@/lib/assets';
 
 const duration = 0.25;
+const maxStaggerDuration = 0.12; // 800ms max total duration
 
 const containerVariants = {
   hidden: {
@@ -20,7 +21,10 @@ const containerVariants = {
     opacity: 1,
     transition: {
       opacity: { duration: duration * 0.5, ease: 'easeIn' },
-      staggerChildren: 0.08
+      staggerChildren: maxStaggerDuration / 20, // Adjust stagger based on max duration
+      delayChildren: 0,
+      staggerDirection: 1,
+      when: 'beforeChildren'
     }
   }
 };

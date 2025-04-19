@@ -127,3 +127,20 @@ export const SingleContainer: Story = {
     isCompletedStream: true
   }
 };
+
+export const ManyPills: Story = {
+  args: {
+    ...mockReasoningMessage,
+    pill_containers: [
+      {
+        title: 'Container with Many Pills',
+        pills: Array.from({ length: 40 }, (_, index) => ({
+          text: `Term ${index + 1}`,
+          type: 'term' as ThoughtFileType,
+          id: `many-${index + 1}`
+        }))
+      }
+    ],
+    isCompletedStream: false
+  }
+};
