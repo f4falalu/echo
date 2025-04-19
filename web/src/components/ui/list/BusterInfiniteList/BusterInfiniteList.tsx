@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { useMemoizedFn, useWhyDidYouUpdate } from '@/hooks';
+import { useMemoizedFn } from '@/hooks';
 import { BusterListProps } from '../BusterList';
 import { getAllIdsInSection } from '../BusterList/helpers';
 import { useEffect, useMemo } from 'react';

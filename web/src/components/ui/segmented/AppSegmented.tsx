@@ -6,14 +6,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { useEffect, useState, useLayoutEffect, useTransition } from 'react';
 import { cva } from 'class-variance-authority';
-import {
-  useMemoizedFn,
-  useMergedRefs,
-  useMount,
-  useSize,
-  useThrottleFn,
-  useWhyDidYouUpdate
-} from '@/hooks';
+import { useMemoizedFn, useMount, useSize } from '@/hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

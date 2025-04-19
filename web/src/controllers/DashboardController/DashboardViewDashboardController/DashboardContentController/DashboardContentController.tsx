@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { BusterResizeableGrid, BusterResizeableGridRow } from '@/components/ui/grid';
-import { useDebounceFn, useMemoizedFn, useWhyDidYouUpdate } from '@/hooks';
+import { useDebounceFn, useMemoizedFn } from '@/hooks';
 import {
   hasRemovedMetrics,
   hasUnmappedMetrics,
@@ -73,7 +73,6 @@ export const DashboardContentController: React.FC<{
     }, [draggingId, dashboard?.id, numberOfMetrics, metrics]);
 
     const dashboardRows = useMemo(() => {
-      console.log('dashboardRows! rerender', rows);
       return rows
         .filter((row) => row.items.length > 0)
         .map((row) => {
@@ -129,18 +128,6 @@ export const DashboardContentController: React.FC<{
         debouncedForInitialRenderOnUpdateDashboardConfig({ rows, dashboardId: dashboard.id });
       }
     }, [dashboard?.id, remapMetrics]);
-
-    useWhyDidYouUpdate('DashboardContentController', {
-      remapMetrics,
-      dashboard,
-      metrics,
-      readOnly,
-      numberOfMetrics,
-      rows,
-      chatId,
-      dashboardConfig,
-      configRows
-    });
 
     return (
       <div className="dashboard-content-controller">

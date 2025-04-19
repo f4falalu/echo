@@ -165,18 +165,6 @@ export const useXAxis = ({
     return DEFAULT_X_AXIS_TICK_CALLBACK.call(this, value, index, this.getLabels() as any);
   });
 
-  const tickCallback = useMemo(() => {
-    if (type === 'time') {
-      const isSingleXAxis = selectedAxis.x.length === 1;
-      const columnLabelFormat = xAxisColumnFormats[selectedAxis.x[0]];
-      const isDate = columnLabelFormat?.columnType === 'date';
-      const isAutoDate = columnLabelFormat?.dateFormat === 'auto' || !columnLabelFormat?.dateFormat;
-      const useAutoDate = isSingleXAxis && isDate && isAutoDate;
-      if (useAutoDate) return customTickCallback;
-    }
-    return customTickCallback;
-  }, [customTickCallback, type, selectedAxis.x, xAxisColumnFormats]);
-
   const rotation = useMemo(() => {
     if (xAxisLabelRotation === 'auto' || xAxisLabelRotation === undefined) return undefined;
     return {
@@ -230,7 +218,7 @@ export const useXAxis = ({
           maxTicksLimit: type === 'time' ? (timeUnit === 'month' ? 12 : 18) : undefined,
           sampleSize: type === 'time' ? 24 : undefined,
           display: xAxisShowAxisLabel,
-          callback: tickCallback as any, //I need to use null for auto date
+          callback: customTickCallback as any, //I need to use null for auto date
           //@ts-ignore
           time: {
             unit: timeUnit
@@ -244,14 +232,13 @@ export const useXAxis = ({
       title,
       isScatterChart,
       isPieChart,
-      tickCallback,
+      customTickCallback,
       xAxisShowAxisLabel,
       stacked,
       type,
       grid,
       timeUnit,
-      rotation,
-      tickCallback
+      rotation
     ]);
 
   return memoizedXAxisOptions;

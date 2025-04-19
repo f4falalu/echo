@@ -2,7 +2,7 @@
 
 import './ChartJSTheme';
 
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_METADATA } from '@/api/asset_interfaces/metric';
 import { BusterChartJSLegendWrapper } from './BusterChartJSLegendWrapper';
 import { ChartJSOrUndefined } from './core/types';
@@ -37,9 +37,9 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
     onChartMounted?.();
   });
 
-  const onInitialAnimationEndPreflight = useMemoizedFn(() => {
-    onInitialAnimationEnd?.();
-  });
+  const onInitialAnimationEndPreflight = useCallback(() => {
+    if (chartRef.current?.attached) onInitialAnimationEnd?.();
+  }, [onInitialAnimationEnd]);
 
   return (
     <BusterChartJSLegendWrapper

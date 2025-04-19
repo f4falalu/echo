@@ -1,4 +1,6 @@
-import React, { useMemo } from 'react';
+'use client';
+
+import React, { useMemo, useState } from 'react';
 import {
   Chart,
   ChartHoverBarPlugin,
@@ -183,10 +185,6 @@ export const BusterChartJSComponent = React.memo(
         if (selectedChartType === 'combo') return [ChartHoverBarPlugin, ChartTotalizerPlugin];
         return [];
       }, [selectedChartType]);
-
-      useMount(() => {
-        console.log('chartOptions', options);
-      });
 
       return (
         <Chart

@@ -9,20 +9,27 @@ declare module 'chart.js' {
   interface PluginOptionsByType<TType extends ChartType> {
     chartMounted?: ChartMountedPluginOptions;
   }
+
+  interface Chart {
+    $mountedPlugin: boolean;
+  }
 }
 
 export const ChartMountedPlugin: Plugin<ChartType, ChartMountedPluginOptions> = {
   id: 'chartMounted',
   afterInit: (chart, args, options) => {
+    if (!chart || !options) return;
     options?.onMounted?.(chart);
+    chart.$mountedPlugin = true;
   },
   afterRender: (chart, args, options) => {
+    if (chart.$mountedPlugin || !chart || !options) return;
     const hasLabels = !!chart.data?.labels?.length;
-    if (hasLabels) {
+    if (hasLabels && options?.onInitialAnimationEnd) {
       options?.onInitialAnimationEnd?.(chart);
+      chart.$mountedPlugin = true;
     }
   },
-
   defaults: {
     onMounted: () => {},
     onInitialAnimationEnd: () => {}

@@ -21,43 +21,43 @@ declare module 'chart.js' {
   }
 }
 
-// const originalBuildTicks = TimeScale.prototype.buildTicks;
+const originalBuildTicks = TimeScale.prototype.buildTicks;
 
 // // // Override buildTicks
-// TimeScale.prototype.buildTicks = function () {
-//   // Generate default ticks
-//   const defaultTicks = originalBuildTicks.call(this);
+TimeScale.prototype.buildTicks = function () {
+  // Generate default ticks
+  const defaultTicks = originalBuildTicks.call(this);
 
-//   // Access tick callback and display format
-//   const tickCallback = this.options.ticks?.callback;
-//   const displayFormat =
-//     this.options.time?.displayFormats?.[this._unit] ||
-//     this.options.time?.displayFormats?.month ||
-//     'MMM';
-//   const format = this._adapter.format.bind(this._adapter);
+  // Access tick callback and display format
+  const tickCallback = this.options.ticks?.callback;
+  const displayFormat =
+    this.options.time?.displayFormats?.[this._unit] ||
+    this.options.time?.displayFormats?.month ||
+    'MMM';
+  const format = this._adapter.format.bind(this._adapter);
 
-//   // Deduplicate ticks
-//   const seen = new Set();
-//   const uniqueTicks = [];
+  // Deduplicate ticks
+  const seen = new Set();
+  const uniqueTicks = [];
 
-//   for (let i = 0; i < defaultTicks.length; i++) {
-//     const tick = defaultTicks[i];
-//     let label = tickCallback
-//       ? tickCallback.call(this, tick.value, i, defaultTicks)
-//       : format(tick.value, displayFormat);
-//     const stringLabel = String(label ?? '');
+  for (let i = 0; i < defaultTicks.length; i++) {
+    const tick = defaultTicks[i];
+    let label = tickCallback
+      ? tickCallback.call(this, tick.value, i, defaultTicks)
+      : format(tick.value, displayFormat);
+    const stringLabel = String(label ?? '');
 
-//     if (!seen.has(stringLabel)) {
-//       seen.add(stringLabel);
-//       uniqueTicks.push({
-//         ...tick,
-//         label: stringLabel
-//       });
-//     }
-//   }
+    if (!seen.has(stringLabel)) {
+      seen.add(stringLabel);
+      uniqueTicks.push({
+        ...tick,
+        label: stringLabel
+      });
+    }
+  }
 
-//   // Set the filtered ticks on the axis instance
-//   this.ticks = uniqueTicks;
+  // Set the filtered ticks on the axis instance
+  this.ticks = uniqueTicks;
 
-//   return uniqueTicks;
-// };
+  return uniqueTicks;
+};

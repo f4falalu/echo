@@ -388,7 +388,7 @@ const newRowPreflight = (newRows: BusterResizeableGridRow[]) => {
   newRowsCopy = newRowsCopy.map((row, index) => {
     const numberOfColumns = row.columnSizes?.length || 0;
     const numberOfItems = row.items.length;
-    // row.id = `${index + 1}`; //we use this instead of uuid because the api likes it better this way
+    row.id = `${index + 1}`; //we use this instead of uuid because the api likes it better this way
     if (
       numberOfItems !== numberOfColumns ||
       row.columnSizes?.reduce((a, b) => a + b, 0) !== NUMBER_OF_COLUMNS

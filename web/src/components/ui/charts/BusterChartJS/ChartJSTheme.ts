@@ -20,8 +20,7 @@ import {
   BubbleController,
   PieController,
   ScatterController,
-  DoughnutController,
-  registry
+  DoughnutController
 } from 'chart.js';
 import { ChartMountedPlugin } from './core/plugins';
 import ChartDeferred from 'chartjs-plugin-deferred';
@@ -33,8 +32,6 @@ import './core/plugins/chartjs-plugin-dayjs';
 import { truncateText } from '@/lib/text';
 
 import './core/plugins/chartjs-scale-tick-duplicate';
-
-// Register the scale properly
 
 const fontFamily = isServer
   ? 'Roobert_Pro'

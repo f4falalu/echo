@@ -160,7 +160,7 @@ export const useOptions = ({
   const chartMounted = useMemo(() => {
     return {
       onMounted: onChartReady,
-      onInitialAnimationEnd: onInitialAnimationEnd
+      onInitialAnimationEnd
     };
   }, [onChartReady, onInitialAnimationEnd]);
 
