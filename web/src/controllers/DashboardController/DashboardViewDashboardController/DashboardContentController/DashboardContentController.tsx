@@ -83,7 +83,7 @@ export const DashboardContentController: React.FC<{
             })
           };
         });
-    }, [rows, readOnly, dashboard?.id, numberOfMetrics]);
+    }, [JSON.stringify(rows), readOnly, dashboard?.id, numberOfMetrics]);
 
     const { run: debouncedForInitialRenderOnUpdateDashboardConfig } = useDebounceFn(
       onUpdateDashboardConfig,
@@ -114,7 +114,6 @@ export const DashboardContentController: React.FC<{
       remapMetrics,
       dashboard,
       metrics,
-      dashboardRows,
       readOnly,
       numberOfMetrics,
       rows,
