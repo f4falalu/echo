@@ -51,7 +51,7 @@
     "@types/react-color": "^3.0.13",
     "axios": "^1.8.4",
     "canvas-confetti": "^1.9.3",
-    "chart.js": "4.4.9",
+    "chart.js": "4.4.7",
     "chartjs-adapter-dayjs-4": "^1.0.4",
     "chartjs-plugin-annotation": "^3.1.0",
     "chartjs-plugin-datalabels": "^2.2.0",

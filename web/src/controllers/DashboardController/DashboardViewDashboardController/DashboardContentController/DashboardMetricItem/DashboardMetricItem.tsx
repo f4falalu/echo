@@ -70,16 +70,6 @@ const DashboardMetricItemBase: React.FC<{
     setInitialAnimationEnded(metricId);
   });
 
-  useMount(() => {
-    console.log('metricItem', {
-      metricLink,
-      isDragOverlay,
-      metricId,
-      dashboardId,
-      versionNumber
-    });
-  });
-
   return (
     <Card
       ref={conatinerRef}
