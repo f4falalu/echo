@@ -2,7 +2,7 @@ import { formatDate } from '@/lib';
 
 const NO_FORMATTING_ID = 'NO_FORMATTING_👻';
 export const NO_FORMATTING_ITEM = {
-  label: 'No Formatting',
+  label: 'No formatting',
   value: NO_FORMATTING_ID
 };
 

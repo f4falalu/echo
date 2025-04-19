@@ -44,7 +44,7 @@ export const EditDateFormat: React.FC<{
         }),
         value: dateFormat
       }
-    ].filter(({ value }) => value && value !== 'auto');
+    ].filter(({ value }) => value);
   }, [dateFormat, defaultOptions, useAlternateFormats]);
 
   const selectedOption = useMemo(() => {
