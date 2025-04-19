@@ -3,7 +3,7 @@ import { Card, CardHeader } from '@/components/ui/card/CardBase';
 import { useDashboardMetric } from './useDashboardMetric';
 import { MetricTitle } from './MetricTitle';
 import { createBusterRoute, BusterRoutes } from '@/routes';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { BusterChart } from '@/components/ui/charts/BusterChart';
 
@@ -68,6 +68,16 @@ const DashboardMetricItemBase: React.FC<{
 
   const onInitialAnimationEndPreflight = useMemoizedFn(() => {
     setInitialAnimationEnded(metricId);
+  });
+
+  useMount(() => {
+    console.log('metricItem', {
+      metricLink,
+      isDragOverlay,
+      metricId,
+      dashboardId,
+      versionNumber
+    });
   });
 
   return (
