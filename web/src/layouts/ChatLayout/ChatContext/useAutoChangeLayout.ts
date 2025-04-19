@@ -46,14 +46,6 @@ export const useAutoChangeLayout = ({
   const hasReasoning = !!reasoningMessagesLength;
 
   useEffect(() => {
-    console.log({
-      isCompletedStream,
-      hasReasoning,
-      chatId,
-      previousLastMessageId: previousLastMessageId.current,
-      lastMessageId,
-      previousIsCompletedStream
-    });
     //this will trigger when the chat is streaming and is has not completed yet (new chat)
     if (
       !isCompletedStream &&

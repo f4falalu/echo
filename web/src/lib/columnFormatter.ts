@@ -62,8 +62,6 @@ export const formatLabel = (
       formattedText = String(replaceMissingDataWith);
     } else formattedText = String('null');
   } else if (style === 'date' && !useKeyFormatter) {
-    console.log(text, typeof text, columnType);
-
     formattedText = formatLabelDate(text, {
       dateFormat,
       convertNumberTo,
