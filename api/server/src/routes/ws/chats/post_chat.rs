@@ -1,4 +1,3 @@
-
 use anyhow::Result;
 use handlers::chats::post_chat_handler::ChatCreateNewChat;
 use handlers::chats::post_chat_handler::{self, ThreadEvent};
@@ -104,17 +103,10 @@ pub async fn post_thread(
     // Call shared handler with channel for streaming messages
     match post_chat_handler::post_chat_handler(request, user.clone(), Some(tx)).await {
         Ok(chat_with_messages) => {
-            // For prompt-less flows, the handler might already be done, so explicitly send the completed event
-            // This ensures the client knows the process is complete
-            let response = WsResponseMessage::new_no_user(
-                WsRoutes::Chats(ChatsRoute::Post),
-                WsEvent::Threads(WSThreadEvent::Complete),
-                &post_chat_handler::BusterContainer::Chat(chat_with_messages),
-                None,
-                WsSendMethod::All,
-            );
-            
-            send_ws_message(&user.id.to_string(), &response).await?;
+            // The spawned task above already handles forwarding the 'Complete' event
+            // received from the handler. Sending it again here is redundant.
+            // The final chat state is implicitly sent when the handler sends
+            // its BusterContainer::Chat with the Completed event.
             Ok(())
         }
         Err(e) => {
