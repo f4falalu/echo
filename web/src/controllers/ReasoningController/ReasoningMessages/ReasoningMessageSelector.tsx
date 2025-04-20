@@ -10,13 +10,6 @@ import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BarContainer } from './BarContainer';
 
-export interface ReasoningMessageProps {
-  reasoningMessageId: string;
-  messageId: string;
-  isCompletedStream: boolean;
-  chatId: string;
-}
-
 const itemAnimationConfig = {
   initial: { opacity: 0, height: 0 },
   animate: {
@@ -45,6 +38,13 @@ const itemAnimationConfig = {
   }
 };
 
+export interface ReasoningMessageProps {
+  reasoningMessageId: string;
+  messageId: string;
+  isCompletedStream: boolean;
+  chatId: string;
+}
+
 const ReasoningMessageRecord: Record<
   BusterChatMessageReasoning['type'],
   React.FC<ReasoningMessageProps>
@@ -59,13 +59,15 @@ export interface ReasoningMessageSelectorProps {
   messageId: string;
   isCompletedStream: boolean;
   chatId: string;
+  isLastMessage: boolean;
 }
 
 export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> = ({
   reasoningMessageId,
   isCompletedStream,
   chatId,
-  messageId
+  messageId,
+  isLastMessage
 }) => {
   const { data: messageStuff } = useGetChatMessage(messageId, {
     select: (x) => ({
@@ -80,9 +82,9 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
   const { title, secondary_title, type, status, hasMessage } = messageStuff || {};
 
   const showBar = useMemo(() => {
-    if (type === 'text') return !!hasMessage;
+    if (type === 'text') return !!hasMessage || !isLastMessage;
     return true;
-  }, [type, hasMessage]);
+  }, [type, hasMessage, isLastMessage]);
 
   if (!type || !status) return null;
 
@@ -114,13 +116,4 @@ export const ReasoningMessageSelector: React.FC<ReasoningMessageSelectorProps> =
       </AnimatePresence>
     </BarContainer>
   );
-};
-
-const showBarHelper = (
-  type: BusterChatMessageReasoning['type'],
-  status: BusterChatMessageReasoning['status']
-) => {
-  if (type === 'pills') return false;
-  if (status === 'loading') return false;
-  return true;
 };

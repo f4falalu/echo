@@ -76,7 +76,8 @@ export const TextEmptyReasoning: Story = {
     reasoningMessageId: 'reasoning-1',
     messageId: 'empty-message',
     isCompletedStream: false,
-    chatId: 'chat-1'
+    chatId: 'chat-1',
+    isLastMessage: false
   }
 };
 

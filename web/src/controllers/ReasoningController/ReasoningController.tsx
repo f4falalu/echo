@@ -42,13 +42,14 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
     <>
       <ScrollArea viewportRef={viewportRef}>
         <div className="h-full flex-col space-y-2 overflow-y-auto p-5">
-          {reasoningMessageIds?.map((reasoningMessageId) => (
+          {reasoningMessageIds?.map((reasoningMessageId, messageIndex) => (
             <ReasoningMessageSelector
               key={reasoningMessageId}
               reasoningMessageId={reasoningMessageId}
               isCompletedStream={isCompletedStream ?? true}
               chatId={chatId}
               messageId={messageId}
+              isLastMessage={messageIndex === reasoningMessageIds.length - 1}
             />
           ))}
 
