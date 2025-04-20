@@ -729,19 +729,49 @@ pub async fn post_chat_handler(
                 }
             }
             Err(e) => {
-                // If we have a tx channel, send the error
-                if let Some(tx) = &tx {
-                    let _ = tx
-                        .send(Err(anyhow!("Error receiving message from agent: {}", e)))
-                        .await;
-                }
+                // --- Modified Error Handling ---
+                // Log the original error for debugging
+                tracing::error!(
+                    chat_id = %chat_id,
+                    message_id = %message_id,
+                    "Error received from agent stream: {}",
+                    e
+                );
 
-                tracing::error!("Error receiving message from agent: {}", e);
-                 // --- Update timestamp before breaking ---
-                 // No update needed here
-                 // --- End Update timestamp ---
-                // Don't return early, continue processing remaining messages
-                break;
+                // If we have a tx channel, send a user-friendly apology message
+                if let Some(tx) = &tx {
+                    let apology_text = "I apologize, but I encountered an issue while processing your request. Please try again or rephrase your message.".to_string();
+                    let apology_message = BusterChatMessage::Text {
+                        id: Uuid::new_v4().to_string(), // Unique ID for this apology message
+                        message: Some(apology_text),
+                        message_chunk: None,
+                        is_final_message: Some(true),
+                        originating_tool_name: None,
+                    };
+
+                    let apology_container = BusterContainer::ChatMessage(BusterChatMessageContainer {
+                        response_message: apology_message,
+                        chat_id,
+                        message_id,
+                    });
+
+                    // Send the apology, log if sending fails
+                    if let Err(send_err) = tx
+                        .send(Ok((
+                            apology_container,
+                            ThreadEvent::GeneratingResponseMessage,
+                        )))
+                        .await
+                    {
+                        tracing::warn!(
+                            "Failed to send apology message to client (channel closed?): {}",
+                            send_err
+                        );
+                    }
+                }
+                // Do not break the loop here. Let the agent send Done or the channel close naturally.
+                // The error in agent.rs should have already stopped its processing.
+                // --- End Modified Error Handling ---
             }
         }
     }

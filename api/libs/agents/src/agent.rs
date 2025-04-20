@@ -695,6 +695,9 @@ impl Agent {
         {
             Ok(rx) => rx,
             Err(e) => {
+                // --- Added Error Handling ---
+                let error_message = format!("Error starting LLM stream: {:?}", e);
+                tracing::error!(agent_name = %agent.name, chat_id = %agent.session_id, user_id = %agent.user_id, "{}", error_message);
                 // Log error in span
                 if let Some(parent_span) = parent_span.clone() {
                     if let Some(client) = &*BRAINTRUST_CLIENT {
@@ -708,8 +711,8 @@ impl Agent {
                         }
                     }
                 }
-                let error_message = format!("Error starting stream: {:?}", e);
-                return Err(anyhow::anyhow!(error_message));
+                // --- End Added Error Handling ---
+                return Err(anyhow::anyhow!(error_message)); // Return immediately
             }
         };
 
@@ -767,6 +770,9 @@ impl Agent {
                     }
                 }
                 Err(e) => {
+                    // --- Added Error Handling ---
+                    let error_message = format!("Error receiving chunk from LLM stream: {:?}", e);
+                    tracing::error!(agent_name = %agent.name, chat_id = %agent.session_id, user_id = %agent.user_id, "{}", error_message);
                     // Log error in parent span
                     if let Some(parent) = &parent_for_tool_spans {
                         if let Some(client) = &*BRAINTRUST_CLIENT {
@@ -784,8 +790,8 @@ impl Agent {
                             }
                         }
                     }
-                    let error_message = format!("Error in stream: {:?}", e);
-                    return Err(anyhow::anyhow!(error_message));
+                    // --- End Added Error Handling ---
+                    return Err(anyhow::anyhow!(error_message)); // Return immediately
                 }
             }
         }
@@ -926,6 +932,12 @@ impl Agent {
                     {
                         Ok(r) => r,
                         Err(e) => {
+                            // --- Added Error Handling ---
+                            let error_message = format!(
+                                "Tool execution error for {}: {:?}",
+                                tool_call.function.name, e
+                            );
+                            tracing::error!(agent_name = %agent.name, chat_id = %agent.session_id, user_id = %agent.user_id, tool_name = %tool_call.function.name, "{}", error_message);
                             // Log error in tool span
                             if let Some(tool_span) = &tool_span {
                                 if let Some(client) = &*BRAINTRUST_CLIENT {
@@ -945,12 +957,13 @@ impl Agent {
                                     }
                                 }
                             }
+                            // --- End Added Error Handling ---
                             let error_message = format!(
                                 "Tool execution error for {}: {:?}",
                                 tool_call.function.name, e
                             );
                             error!("{}", error_message); // Log locally
-                            return Err(anyhow::anyhow!(error_message));
+                            return Err(anyhow::anyhow!(error_message)); // Return immediately
                         }
                     };
 
@@ -1044,6 +1057,9 @@ impl Agent {
                     // Update thread and push the error result for the next LLM call
                     agent.update_current_thread(error_result.clone()).await?;
                     // Continue processing other tool calls if any
+                    // --- Added: Consider returning error here if hallucinated tool is fatal ---
+                    // return Err(anyhow::anyhow!(err_msg)); // Uncomment if hallucinated tools should stop processing
+                    // --- End Added ---
                 }
             }
 
