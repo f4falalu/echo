@@ -75,6 +75,11 @@ export const useChatStreamMessage = () => {
               { id: responseMessage.id, version_number: responseMessage.version_number },
               queryClient
             );
+            const options = queryKeys.metricsGetMetric(
+              responseMessage.id,
+              responseMessage.version_number
+            );
+            queryClient.invalidateQueries({ queryKey: options.queryKey });
           }
         });
       }
@@ -88,6 +93,7 @@ export const useChatStreamMessage = () => {
     normalizeChatMessage(iChatMessages);
     onUpdateChat(iChat);
     prefetchLastMessageMetricData(iChat, iChatMessages);
+
     queryClient.invalidateQueries({
       queryKey: [queryKeys.chatsGetList().queryKey, queryKeys.metricsGetList().queryKey]
     });

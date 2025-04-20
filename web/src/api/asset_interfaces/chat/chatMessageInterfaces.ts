@@ -46,7 +46,6 @@ export type BusterChatResponseMessage_file = {
   file_type: FileType;
   file_name: string;
   version_number: number;
-  version_id: string;
   filter_version_id: string | null;
   metadata?: BusterChatResponseMessage_fileMetadata[];
 };
