@@ -3,7 +3,7 @@ import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatConte
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { timeout } from '@/lib';
+import { timeout } from '@/lib/timeout';
 
 type FlowType = 'followup-chat' | 'followup-metric' | 'followup-dashboard' | 'new';
 
@@ -100,11 +100,13 @@ export const useChatInputFlow = ({
       },
       onOk: async () => {
         onResetToOriginal();
-
-        return await method();
+        await timeout(25);
+        method();
+        return;
       },
       onCancel: async () => {
-        return await method();
+        method();
+        return;
       }
     });
   });

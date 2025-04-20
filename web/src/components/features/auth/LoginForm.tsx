@@ -54,8 +54,8 @@ export const LoginForm: React.FC<{}> = ({}) => {
         if (res?.error) throw res.error;
       } catch (error: any) {
         errorFallback(error);
+        setLoading(null);
       }
-      setLoading(null);
     }
   );
 
@@ -66,8 +66,8 @@ export const LoginForm: React.FC<{}> = ({}) => {
       if (res?.error) throw res.error;
     } catch (error: any) {
       errorFallback(error);
+      setLoading(null);
     }
-    setLoading(null);
   });
 
   const onSignInWithGithub = useMemoizedFn(async () => {
@@ -77,8 +77,8 @@ export const LoginForm: React.FC<{}> = ({}) => {
       if (res?.error) throw res.error;
     } catch (error: any) {
       errorFallback(error);
+      setLoading(null);
     }
-    setLoading(null);
   });
 
   const onSignInWithAzure = useMemoizedFn(async () => {
@@ -101,8 +101,8 @@ export const LoginForm: React.FC<{}> = ({}) => {
       setSignUpSuccess(true);
     } catch (error: any) {
       errorFallback(error);
+      setLoading(null);
     }
-    setLoading(null);
   });
 
   const onSubmitClick = useMemoizedFn((d: { email: string; password: string }) => {

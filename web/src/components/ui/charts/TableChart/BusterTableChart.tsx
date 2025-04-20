@@ -31,8 +31,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   tableHeaderFontColor,
   tableColumnFontColor
 }) => {
-  const { onUpdateMetricChartConfig, onSaveMetricToServer, onInitializeTableColumnWidths } =
-    useUpdateMetricChart();
+  const { onUpdateMetricChartConfig, onInitializeTableColumnWidths } = useUpdateMetricChart();
 
   const onChangeConfig = useMemoizedFn((config: Partial<IBusterMetricChartConfig>) => {
     if (readOnly) return;
