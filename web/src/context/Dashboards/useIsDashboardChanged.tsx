@@ -8,7 +8,7 @@ import { compareObjectsByKeys } from '@/lib/objects';
 import { useMemo } from 'react';
 import { create } from 'mutative';
 
-export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) => {
+export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | undefined }) => {
   const queryClient = useQueryClient();
   const originalDashboard = useOriginalDashboardStore((x) => x.getOriginalDashboard(dashboardId));
 
@@ -26,7 +26,7 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string }) 
 
   const onResetDashboardToOriginal = useMemoizedFn(() => {
     const options = dashboardQueryKeys.dashboardGetDashboard(
-      dashboardId,
+      dashboardId || '',
       originalDashboard?.version_number || null
     );
     const currentDashboard = queryClient.getQueryData<BusterDashboardResponse>(options.queryKey);

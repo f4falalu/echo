@@ -8,7 +8,7 @@ type OriginalMetricStore = {
   originalMetrics: Record<string, IBusterMetric>;
   bulkAddOriginalMetrics: (metrics: Record<string, IBusterMetric>) => void;
   setOriginalMetric: (metric: IBusterMetric) => void;
-  getOriginalMetric: (metricId: string) => IBusterMetric | undefined;
+  getOriginalMetric: (metricId: string | undefined) => IBusterMetric | undefined;
   removeOriginalMetric: (metricId: string) => void;
 };
 
@@ -28,7 +28,8 @@ export const useOriginalMetricStore = create<OriginalMetricStore>((set, get) => 
         [metric.id]: metric
       }
     })),
-  getOriginalMetric: (metricId: string) => get().originalMetrics[metricId],
+  getOriginalMetric: (metricId: string | undefined) =>
+    metricId ? get().originalMetrics[metricId] : undefined,
   removeOriginalMetric: (metricId: string) =>
     set((state) => {
       const { [metricId]: removed, ...rest } = state.originalMetrics;

@@ -7,15 +7,14 @@ import { useQueries } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
 import { IBusterChatMessage } from '@/api/asset_interfaces/chat';
 import { useChatLayoutContextSelector } from '..';
+import { useIsFileChanged } from './useIsFileChanged';
 
 const useChatIndividualContext = ({
   chatId,
-  selectedFile,
-  onSetSelectedFile
+  selectedFile
 }: {
   chatId?: string;
   selectedFile: SelectedFile | null;
-  onSetSelectedFile: (file: SelectedFile) => void;
 }) => {
   const selectedFileId = selectedFile?.id;
   const selectedFileType = selectedFile?.type;
@@ -53,6 +52,11 @@ const useChatIndividualContext = ({
     chatId
   });
 
+  const { isFileChanged, onResetToOriginal } = useIsFileChanged({
+    selectedFileId,
+    selectedFileType
+  });
+
   return React.useMemo(
     () => ({
       hasChat,
@@ -63,7 +67,9 @@ const useChatIndividualContext = ({
       selectedFileType,
       chatMessageIds,
       chatId,
-      isStreamingMessage
+      isStreamingMessage,
+      isFileChanged,
+      onResetToOriginal
     }),
     [
       hasChat,
@@ -74,7 +80,9 @@ const useChatIndividualContext = ({
       chatTitle,
       selectedFileType,
       chatMessageIds,
-      chatId
+      chatId,
+      isFileChanged,
+      onResetToOriginal
     ]
   );
 };
@@ -86,11 +94,9 @@ const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualC
 export const ChatContextProvider = React.memo(({ children }: PropsWithChildren<{}>) => {
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const selectedFile = useChatLayoutContextSelector((x) => x.selectedFile);
-  const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
   const useChatContextValue = useChatIndividualContext({
     chatId,
-    selectedFile,
-    onSetSelectedFile
+    selectedFile
   });
 
   return (

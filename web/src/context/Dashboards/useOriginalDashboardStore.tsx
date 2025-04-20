@@ -8,7 +8,7 @@ type OriginalDashboardStore = {
   originalDashboards: Record<string, BusterDashboard>;
   bulkAddOriginalDashboards: (dashboards: Record<string, BusterDashboard>) => void;
   setOriginalDashboard: (dashboard: BusterDashboard) => void;
-  getOriginalDashboard: (dashboardId: string) => BusterDashboard | undefined;
+  getOriginalDashboard: (dashboardId: string | undefined) => BusterDashboard | undefined;
   removeOriginalDashboard: (dashboardId: string) => void;
 };
 
@@ -28,7 +28,8 @@ export const useOriginalDashboardStore = create<OriginalDashboardStore>((set, ge
         [dashboard.id]: dashboard
       }
     })),
-  getOriginalDashboard: (dashboardId: string) => get().originalDashboards[dashboardId],
+  getOriginalDashboard: (dashboardId: string | undefined) =>
+    dashboardId ? get().originalDashboards[dashboardId] : undefined,
   removeOriginalDashboard: (dashboardId: string) =>
     set((state) => {
       const { [dashboardId]: removed, ...rest } = state.originalDashboards;

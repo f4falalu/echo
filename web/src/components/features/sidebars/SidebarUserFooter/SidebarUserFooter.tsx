@@ -20,13 +20,12 @@ import { useSignOut } from '@/components/features/auth/SignOutHandler';
 
 export const SidebarUserFooter: React.FC<{}> = () => {
   const user = useUserConfigContextSelector((x) => x.user);
+  const handleSignOut = useSignOut();
   if (!user) return null;
 
   const { name, email } = user;
 
   if (!name || !email) return null;
-
-  const handleSignOut = useSignOut();
 
   return (
     <SidebarUserDropdown signOut={handleSignOut}>

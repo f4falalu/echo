@@ -3,8 +3,8 @@
 import React, { useMemo } from 'react';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
-import { useGetMetric, useGetMetricData, useUpdateMetric } from '@/api/buster_rest/metrics';
-import { useMemoizedFn, useMount } from '@/hooks';
+import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
+import { useMemoizedFn } from '@/hooks';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';
@@ -12,7 +12,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/classMerge';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 import { MetricSaveFilePopup } from './MetricSaveFilePopup';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { useUpdateMetricChart } from '@/context/Metrics';
 
 export const MetricViewChart: React.FC<{

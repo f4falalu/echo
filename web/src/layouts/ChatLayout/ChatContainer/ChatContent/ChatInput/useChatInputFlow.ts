@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
 import { useMemoizedFn } from '@/hooks';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
+import { useBusterNotifications } from '@/context/BusterNotifications';
+import { timeout } from '@/lib';
 
 type FlowType = 'followup-chat' | 'followup-metric' | 'followup-dashboard' | 'new';
 
@@ -27,6 +29,9 @@ export const useChatInputFlow = ({
   const onStartChatFromFile = useBusterNewChatContextSelector((state) => state.onStartChatFromFile);
   const onStopChatContext = useBusterNewChatContextSelector((state) => state.onStopChat);
   const currentMessageId = useChatIndividualContextSelector((x) => x.currentMessageId);
+  const isFileChanged = useChatIndividualContextSelector((x) => x.isFileChanged);
+  const onResetToOriginal = useChatIndividualContextSelector((x) => x.onResetToOriginal);
+  const { openConfirmModal } = useBusterNotifications();
 
   const flow: FlowType = useMemo(() => {
     if (hasChat) return 'followup-chat';
@@ -43,40 +48,65 @@ export const useChatInputFlow = ({
       return;
     }
 
-    switch (flow) {
-      case 'followup-chat':
-        await onFollowUpChat({ prompt: inputValue, chatId });
-        break;
+    const method = async () => {
+      switch (flow) {
+        case 'followup-chat':
+          await onFollowUpChat({ prompt: inputValue, chatId });
+          break;
 
-      case 'followup-metric':
-        await onStartChatFromFile({
-          prompt: inputValue,
-          fileId: selectedFileId!,
-          fileType: 'metric'
-        });
-        break;
-      case 'followup-dashboard':
-        await onStartChatFromFile({
-          prompt: inputValue,
-          fileId: selectedFileId!,
-          fileType: 'dashboard'
-        });
-        break;
+        case 'followup-metric':
+          await onStartChatFromFile({
+            prompt: inputValue,
+            fileId: selectedFileId!,
+            fileType: 'metric'
+          });
+          break;
+        case 'followup-dashboard':
+          await onStartChatFromFile({
+            prompt: inputValue,
+            fileId: selectedFileId!,
+            fileType: 'dashboard'
+          });
+          break;
 
-      case 'new':
-        await onStartNewChat({ prompt: inputValue });
-        break;
+        case 'new':
+          await onStartNewChat({ prompt: inputValue });
+          break;
 
-      default:
-        const _exhaustiveCheck: never = flow;
-        return _exhaustiveCheck;
+        default:
+          const _exhaustiveCheck: never = flow;
+          return _exhaustiveCheck;
+      }
+
+      setInputValue('');
+
+      setTimeout(() => {
+        textAreaRef.current?.focus();
+      }, 50);
+    };
+
+    if (!isFileChanged) {
+      return method();
     }
 
-    setInputValue('');
+    await openConfirmModal({
+      title: 'Unsaved changes',
+      content: 'Looks like you have unsaved changes. Do you want to save them before continuing?',
+      primaryButtonProps: {
+        text: 'Reset to original'
+      },
+      cancelButtonProps: {
+        text: 'Continue'
+      },
+      onOk: async () => {
+        onResetToOriginal();
 
-    setTimeout(() => {
-      textAreaRef.current?.focus();
-    }, 50);
+        return await method();
+      },
+      onCancel: async () => {
+        return await method();
+      }
+    });
   });
 
   const onStopChat = useMemoizedFn(() => {

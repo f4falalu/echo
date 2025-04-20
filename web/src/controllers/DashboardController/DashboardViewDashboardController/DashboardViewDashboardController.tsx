@@ -8,7 +8,7 @@ import { useDashboardContentStore } from '@/context/Dashboards';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { StatusCard } from '@/components/ui/card/StatusCard';
 import { useIsDashboardReadOnly } from '@/context/Dashboards/useIsDashboardReadOnly';
-import { DashboardSavePopup } from './DashboardSavePopup';
+import { DashboardSaveFilePopup } from './DashboardSaveFilePopup';
 
 export const DashboardViewDashboardController: React.FC<{
   dashboardId: string;
@@ -64,7 +64,7 @@ export const DashboardViewDashboardController: React.FC<{
         />
 
         {!isVersionHistoryMode && !isViewingOldVersion && (
-          <DashboardSavePopup dashboardId={dashboardId} />
+          <DashboardSaveFilePopup dashboardId={dashboardId} />
         )}
       </div>
     </ScrollArea>

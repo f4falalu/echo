@@ -1,13 +1,12 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useOriginalMetricStore } from './useOriginalMetricStore';
 import { useMemoizedFn } from '@/hooks';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { useGetMetric } from '@/api/buster_rest/metrics';
 import { compareObjectsByKeys } from '@/lib/objects';
 import { useMemo } from 'react';
-import last from 'lodash/last';
 
-export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
+export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined }) => {
   const queryClient = useQueryClient();
   const originalMetric = useOriginalMetricStore((x) => x.getOriginalMetric(metricId));
 
@@ -31,7 +30,7 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string }) => {
 
   const onResetMetricToOriginal = useMemoizedFn(() => {
     const options = metricsQueryKeys.metricsGetMetric(
-      metricId,
+      metricId || '',
       originalMetric?.version_number || null
     );
     if (originalMetric) {
