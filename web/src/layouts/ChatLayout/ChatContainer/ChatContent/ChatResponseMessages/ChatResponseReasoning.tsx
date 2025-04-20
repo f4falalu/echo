@@ -65,7 +65,7 @@ export const ChatResponseReasoning: React.FC<{
   }, [isReasonginFileSelected, messageId, chatId]);
 
   return (
-    <Link href={href}>
+    <Link href={href} prefetch>
       <AnimatePresence initial={!isCompletedStream} mode="wait">
         <motion.div
           {...animations}

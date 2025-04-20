@@ -6,6 +6,9 @@ import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { FileContainerHeaderVersionHistory } from './FileContainerHeaderVersionHistory';
 import { SelectedFileButtonsRecord, SelectedFileSegmentRecord } from './config';
 import { FileType } from '@/api/asset_interfaces/chat';
+import { useRouter } from 'next/router';
+import { useMount } from '@/hooks';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export const FileContainerHeader: React.FC = React.memo(() => {
   const selectedFileType = useChatLayoutContextSelector((x) => x.selectedFile?.type);
@@ -28,6 +31,7 @@ const FileContainerHeaderStandard: React.FC<{
   selectedFileId: string | undefined;
   selectedFileType: FileType | undefined;
 }> = ({ selectedFileId, selectedFileType }) => {
+  const router = useRouter();
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const selectedFileView = useChatLayoutContextSelector((x) => x.selectedFileView);
   const onCollapseFileClick = useChatLayoutContextSelector((state) => state.onCollapseFileClick);
@@ -49,6 +53,17 @@ const FileContainerHeaderStandard: React.FC<{
         : () => null,
     [selectedFileType]
   );
+
+  useMount(() => {
+    if (chatId) {
+      router.prefetch(
+        createBusterRoute({
+          route: BusterRoutes.APP_CHAT_ID,
+          chatId
+        })
+      );
+    }
+  });
 
   return (
     <>
