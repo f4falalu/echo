@@ -33,7 +33,8 @@ const createBaseMessage = (
   response_messages: {},
   reasoning_messages: reasoningMessages,
   created_at: new Date().toISOString(),
-  final_reasoning_message: null
+  final_reasoning_message: null,
+  feedback: null
 });
 
 describe('initializeOrUpdateMessage', () => {
@@ -170,7 +171,8 @@ describe('updateResponseMessage', () => {
         id: 'response-1',
         type: 'text',
         message: 'Hello',
-        message_chunk: undefined
+        message_chunk: undefined,
+        is_final_message: false
       }
     };
 
@@ -211,12 +213,14 @@ describe('updateResponseMessage', () => {
           id: 'response-1',
           type: 'text',
           message: 'Initial message',
-          message_chunk: undefined
+          message_chunk: undefined,
+          is_final_message: false
         }
       },
       reasoning_messages: {},
       created_at: new Date().toISOString(),
-      final_reasoning_message: null
+      final_reasoning_message: null,
+      feedback: null
     };
 
     const largeChunk =
@@ -250,7 +254,6 @@ describe('updateResponseMessage', () => {
       file_name: 'initial.txt',
       file_type: 'metric',
       version_number: 1,
-      version_id: '1',
       filter_version_id: '1'
     };
 
@@ -270,7 +273,8 @@ describe('updateResponseMessage', () => {
       },
       reasoning_messages: {},
       created_at: new Date().toISOString(),
-      final_reasoning_message: null
+      final_reasoning_message: null,
+      feedback: null
     };
 
     const mockEvent: ChatEvent_GeneratingResponseMessage = {
@@ -345,7 +349,6 @@ describe('updateReasoningMessage', () => {
       file_type: 'metric',
       file_name: 'test.txt',
       version_number: 1,
-      version_id: 'v1',
       status: 'loading',
       file: {
         text: 'Initial file content',
@@ -454,7 +457,6 @@ describe('updateReasoningMessage', () => {
       file_type: 'metric',
       file_name: 'test1.txt',
       version_number: 1,
-      version_id: 'v1',
       status: 'loading',
       file: {
         text: 'Initial content',
@@ -467,7 +469,6 @@ describe('updateReasoningMessage', () => {
       file_type: 'metric',
       file_name: 'test2.txt',
       version_number: 1,
-      version_id: 'v1',
       status: 'loading',
       file: {
         text: 'New file content',

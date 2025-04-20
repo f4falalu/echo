@@ -1,4 +1,4 @@
-import { ShareRole, type IBusterChatMessage } from '@/api/asset_interfaces';
+import { type IBusterChatMessage } from '@/api/asset_interfaces';
 
 export const mockBusterChatMessage: IBusterChatMessage = {
   id: 'message-1',
@@ -120,11 +120,5 @@ hunchback_of_notre_dame:
       }
     }
   },
-  individual_permissions: [],
-  permission: ShareRole.CAN_VIEW,
-  public_expiry_date: null,
-  public_enabled_by: null,
-  publicly_accessible: false,
-  public_password: null,
   feedback: null
 };

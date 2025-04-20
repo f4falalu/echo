@@ -1,4 +1,3 @@
-import { BusterShare } from '../share';
 import type { FileType, ThoughtFileType } from './config';
 
 export type BusterChatMessage = {
@@ -11,7 +10,7 @@ export type BusterChatMessage = {
   created_at: string;
   final_reasoning_message: string | null;
   feedback: 'negative' | null;
-} & BusterShare;
+};
 
 export type BusterChatMessageRequest = null | {
   request: string;

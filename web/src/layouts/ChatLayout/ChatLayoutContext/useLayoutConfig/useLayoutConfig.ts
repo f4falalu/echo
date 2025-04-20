@@ -153,8 +153,6 @@ export const useLayoutConfig = ({
   const onCollapseFileClick = useMemoizedFn(async () => {
     const isSecondaryViewOpen = !!selectedFileViewSecondary;
 
-    console.log('isSecondaryViewOpen', isSecondaryViewOpen);
-
     if (isSecondaryViewOpen) {
       closeSecondaryView();
     } else {

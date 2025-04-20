@@ -1,9 +1,4 @@
-import {
-  NUMBER_OF_COLUMNS,
-  calculateColumnSpan,
-  columnSpanToPercent,
-  columnSpansToPercent
-} from './helpers';
+import { calculateColumnSpan, columnSpanToPercent, columnSpansToPercent } from './helpers';
 
 describe('Grid Helpers', () => {
   describe('calculateColumnSpan', () => {

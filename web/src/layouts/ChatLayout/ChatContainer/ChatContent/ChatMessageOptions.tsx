@@ -13,7 +13,6 @@ import { useMemoizedFn } from '@/hooks';
 import { timeout } from '@/lib';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { useGetInitialChatFile } from '../../ChatContext/useGetInitialChatFile';
 
 export const ChatMessageOptions: React.FC<{
   messageId: string;
@@ -35,7 +34,8 @@ export const ChatMessageOptions: React.FC<{
         'You are about to duplicate this chat from this message. This will create a new chat with the same messages. Do you want to continue?',
       onOk: async () => {
         const res = await duplicateChat({
-          id: chatId
+          id: chatId,
+          message_id: messageId
         });
         await timeout(100);
         await onChangePage({

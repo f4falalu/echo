@@ -28,7 +28,6 @@ const mockResponseMessage: BusterChatResponseMessage_file = {
   file_type: 'metric',
   file_name: 'example.txt',
   version_number: 1,
-  version_id: 'v1',
   filter_version_id: null,
   metadata: [
     {

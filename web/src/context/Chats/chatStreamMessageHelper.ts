@@ -9,9 +9,8 @@ import {
   type BusterChatResponseMessage_text,
   type BusterChatMessageReasoning_text,
   type BusterChatMessageReasoning_files,
-  type BusterChatMessageReasoning_file,
-  ShareRole
-} from '@/api/asset_interfaces';
+  type BusterChatMessageReasoning_file
+} from '@/api/asset_interfaces/chat';
 
 const createInitialMessage = (messageId: string): IBusterChatMessage => ({
   id: messageId,
@@ -28,12 +27,6 @@ const createInitialMessage = (messageId: string): IBusterChatMessage => ({
   reasoning_messages: {},
   created_at: new Date().toISOString(),
   final_reasoning_message: null,
-  individual_permissions: [],
-  permission: ShareRole.CAN_VIEW,
-  public_expiry_date: null,
-  public_enabled_by: null,
-  publicly_accessible: false,
-  public_password: null,
   feedback: null
 });
 

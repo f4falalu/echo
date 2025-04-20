@@ -74,8 +74,14 @@ export const updateChatMessageFeedback = async ({
   return mainApi.put(`/messages/${message_id}`, params).then((res) => res.data);
 };
 
-export const duplicateChat = async ({ id }: { id: string }): Promise<BusterChat> => {
-  return mainApi.post(`${CHATS_BASE}/duplicate`, { id }).then((res) => res.data);
+export const duplicateChat = async ({
+  id,
+  message_id
+}: {
+  id: string;
+  message_id?: string;
+}): Promise<BusterChat> => {
+  return mainApi.post(`${CHATS_BASE}/duplicate`, { id, message_id }).then((res) => res.data);
 };
 
 export const startChatFromAsset = async ({

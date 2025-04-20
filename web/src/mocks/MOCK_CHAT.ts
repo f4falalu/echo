@@ -26,7 +26,6 @@ const MOCK_MESSAGE_RESPONSE = (typeProp?: 'text' | 'file'): BusterChatMessageRes
     file_type: faker.helpers.arrayElement(['metric', 'dashboard']),
     file_name: faker.system.fileName(),
     version_number: faker.number.int({ min: 1, max: 10 }),
-    version_id: faker.string.uuid(),
     filter_version_id: faker.string.uuid(),
     metadata: [
       {
@@ -143,13 +142,7 @@ const MOCK_MESSAGE = (): BusterChatMessage => {
       {}
     ),
     feedback: null,
-    reasoning_message_ids: reasoningMessage.map((m) => m.id),
-    individual_permissions: [],
-    permission: ShareRole.CAN_VIEW,
-    public_expiry_date: null,
-    public_enabled_by: null,
-    publicly_accessible: false,
-    public_password: null
+    reasoning_message_ids: reasoningMessage.map((m) => m.id)
   };
 };
 
