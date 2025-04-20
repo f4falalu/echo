@@ -150,16 +150,21 @@ export const useLayoutConfig = ({
     await timeout(250); //wait for the panel to close
   });
 
-  const onCollapseFileClick = useMemoizedFn(async (navigateToChat: boolean = true) => {
-    onSetSelectedFile(null);
-    if (selectedFileViewSecondary) {
+  const onCollapseFileClick = useMemoizedFn(async () => {
+    const isSecondaryViewOpen = !!selectedFileViewSecondary;
+
+    console.log('isSecondaryViewOpen', isSecondaryViewOpen);
+
+    if (isSecondaryViewOpen) {
       closeSecondaryView();
-    }
-    if (navigateToChat && chatId) {
-      onChangePage({
-        route: BusterRoutes.APP_CHAT_ID,
-        chatId
-      });
+    } else {
+      onSetSelectedFile(null);
+      if (chatId) {
+        onChangePage({
+          route: BusterRoutes.APP_CHAT_ID,
+          chatId
+        });
+      }
     }
   });
 

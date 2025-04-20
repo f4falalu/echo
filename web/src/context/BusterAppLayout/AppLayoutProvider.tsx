@@ -92,6 +92,7 @@ export const useAppLayout = () => {
   return {
     currentRoute,
     onChangePage,
+    createQueryParams,
     currentParentRoute,
     onChangeQueryParams
   };
