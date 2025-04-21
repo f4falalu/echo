@@ -91,7 +91,7 @@ export const SQLContainer: React.FC<{
     return (
       <FileCard
         className={className}
-        footerClassName="flex justify-between space-x-4"
+        footerClassName="flex justify-between file-card space-x-4"
         footer={memoizedFooter}>
         <AppCodeEditor
           className="overflow-hidden border-x-0 border-t-0"

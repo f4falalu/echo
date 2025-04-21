@@ -22,15 +22,17 @@ export const useErrorZones = () => {
   const onDragOverCheckErrorZone = useMemoizedFn(
     (
       targetZone: DropZoneInternal | null,
-      sourceZoneId: SelectAxisContainerId | null,
+      sourceZone: DropZoneInternal | null,
       activeItem: Active
     ) => {
+      const sourceZoneId = sourceZone?.id;
       if (targetZone && sourceZoneId) {
         if (sourceZoneId !== targetZone.id) {
           const originalItemId = activeItem.data?.current?.item.originalId;
           const columnLabelFormat = columnLabelFormats[originalItemId];
           const zoneError = checkForError(
             targetZone,
+            sourceZone,
             originalItemId,
             columnLabelFormat,
             selectedChartType,
@@ -61,9 +63,11 @@ const zoneErrorRecord: Record<
   SelectAxisContainerId,
   (
     targetZone: DropZoneInternal,
+    sourceZone: DropZoneInternal,
     columnLabelFormat: Required<IColumnLabelFormat>,
     selectedChartType: ChartType,
-    axis: Parameters<typeof checkForError>[4]
+    axis: Parameters<typeof checkForError>[5],
+    activeItemOriginalId: string
   ) => {
     error: boolean;
     reason: string;
@@ -71,12 +75,32 @@ const zoneErrorRecord: Record<
 > = {
   [SelectAxisContainerId.Available]: () => null,
   [SelectAxisContainerId.Metric]: () => null,
-  [SelectAxisContainerId.XAxis]: (targetZone, columnLabelFormat, selectedChartType, axis) => {
-    console.log(targetZone, axis);
+  [SelectAxisContainerId.XAxis]: (
+    targetZone,
+    sourceZone,
+    columnLabelFormat,
+    selectedChartType,
+    axis,
+    activeItemOriginalId
+  ) => {
+    console.log(targetZone, sourceZone, axis);
+    const isInCategoryAxis =
+      axis !== null &&
+      'category' in axis &&
+      axis.category?.includes(activeItemOriginalId) &&
+      !sourceZone?.items.some((item) => item.originalId === activeItemOriginalId);
+
+    if (isInCategoryAxis) {
+      return {
+        error: true,
+        reason: 'Cannot add a column that is already in the category',
+        zoneId: targetZone.id
+      };
+    }
 
     return null;
   },
-  [SelectAxisContainerId.YAxis]: (targetZone, columnLabelFormat) => {
+  [SelectAxisContainerId.YAxis]: (targetZone, sourceZone, columnLabelFormat) => {
     const isNumericType = isNumericColumnType(columnLabelFormat.columnType);
     if (!isNumericType) {
       return {
@@ -97,7 +121,7 @@ const zoneErrorRecord: Record<
 
     return null;
   },
-  [SelectAxisContainerId.Y2Axis]: (targetZone, columnLabelFormat) => {
+  [SelectAxisContainerId.Y2Axis]: (targetZone, sourceZone, columnLabelFormat) => {
     const isNumericType = isNumericColumnType(columnLabelFormat.columnType);
     if (!isNumericType) {
       return {
@@ -118,7 +142,30 @@ const zoneErrorRecord: Record<
 
     return null;
   },
-  [SelectAxisContainerId.CategoryAxis]: () => null,
+  [SelectAxisContainerId.CategoryAxis]: (
+    targetZone,
+    sourceZone,
+    columnLabelFormat,
+    selectedChartType,
+    axis,
+    activeItemOriginalId
+  ) => {
+    const isInCategoryAxis =
+      axis !== null &&
+      'category' in axis &&
+      axis.category?.includes(activeItemOriginalId) &&
+      !sourceZone?.items.some((item) => item.originalId === activeItemOriginalId);
+
+    if (isInCategoryAxis) {
+      return {
+        error: true,
+        reason: 'Cannot add a column that is already in the x-axis',
+        zoneId: targetZone.id
+      };
+    }
+
+    return null;
+  },
   [SelectAxisContainerId.SizeAxis]: (targetZone) => {
     if (targetZone.items.length >= 1) {
       return {
@@ -133,6 +180,7 @@ const zoneErrorRecord: Record<
 
 const checkForError = (
   targetZone: DropZoneInternal,
+  sourceZone: DropZoneInternal,
   activeItemOriginalId: string,
   columnLabelFormat: Required<IColumnLabelFormat>,
   selectedChartType: ChartType,
@@ -151,9 +199,11 @@ const checkForError = (
   const targetZoneId = targetZone.id;
   const zoneError = zoneErrorRecord[targetZoneId](
     targetZone,
+    sourceZone,
     columnLabelFormat,
     selectedChartType,
-    axis
+    axis,
+    activeItemOriginalId
   );
 
   if (!zoneError) return null;

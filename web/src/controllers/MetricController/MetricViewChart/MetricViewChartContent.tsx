@@ -4,7 +4,6 @@ import { BusterChart } from '@/components/ui/charts';
 import { cn } from '@/lib/classMerge';
 import React, { useMemo } from 'react';
 import { METRIC_CHART_CONTAINER_ID } from './config';
-import { useMount } from '@/hooks';
 
 interface MetricViewChartContentProps {
   className?: string;

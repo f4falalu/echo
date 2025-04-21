@@ -73,7 +73,7 @@ const EmptyDropZone: React.FC<{
         'rounded transition-all duration-100 ease-in-out',
         className ? className : 'border-border border border-dashed bg-transparent'
       )}>
-      <span className="text-text-tertiary text-sm select-none">Drag column here</span>
+      <span className="text-sm select-none">Drag column here</span>
     </div>
   );
 });

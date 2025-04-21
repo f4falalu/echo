@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/buttons';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { Copy, ThumbsDown } from '@/components/ui/icons';
+import { Copy, DuplicatePlus, ThumbsDown } from '@/components/ui/icons';
 import { ThumbsDown as ThumbsDownFilled } from '@/components/ui/icons/NucleoIconFilled';
 import {
   useDuplicateChat,
@@ -51,7 +51,7 @@ export const ChatMessageOptions: React.FC<{
       <AppTooltip title="Duplicate chat from this message">
         <Button
           variant="ghost"
-          prefix={<Copy />}
+          prefix={<DuplicatePlus />}
           loading={isCopying}
           onClick={warnBeforeDuplicate}
         />

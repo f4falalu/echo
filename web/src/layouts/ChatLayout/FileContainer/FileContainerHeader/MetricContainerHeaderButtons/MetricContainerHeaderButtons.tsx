@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { assetParamsToRoute } from '@/lib/assets';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   ({ selectedFileId }) => {
@@ -102,6 +103,7 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        //SHALLOW PAGE CHANGED! DO NOT REMOVE
       }}>
       <SelectableButton
         tooltipText="Edit chart"
@@ -118,40 +120,56 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
   const selectedFileViewSecondary = useChatLayoutContextSelector(
     (x) => x.selectedFileViewSecondary
   );
-  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const chatId = useChatIndividualContextSelector((x) => x.chatId);
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
   const editableSecondaryView: MetricFileViewSecondary = 'sql-edit';
   const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
 
   const href = useMemo(() => {
-    if (isSelectedView) {
-      return assetParamsToRoute({
-        chatId,
-        assetId: metricId,
-        type: 'metric',
-        secondaryView: null,
-        versionNumber: metricVersionNumber
+    if (!isSelectedView) {
+      if (chatId) {
+        return createBusterRoute({
+          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
+          versionNumber: metricVersionNumber,
+          metricId,
+          secondaryView: 'sql-edit',
+          chatId
+        });
+      }
+
+      return createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_RESULTS,
+        versionNumber: metricVersionNumber,
+        metricId,
+        secondaryView: 'sql-edit'
       });
     }
 
-    return assetParamsToRoute({
-      chatId,
-      assetId: metricId,
-      type: 'metric',
-      secondaryView: 'sql-edit',
-      versionNumber: metricVersionNumber
+    if (chatId) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
+        versionNumber: metricVersionNumber,
+        metricId,
+        chatId
+      });
+    }
+
+    return createBusterRoute({
+      route: BusterRoutes.APP_METRIC_ID_RESULTS,
+      versionNumber: metricVersionNumber,
+      metricId
     });
-  }, [chatId, metricId, metricVersionNumber]);
+  }, [chatId, metricId, metricVersionNumber, isSelectedView]);
 
   const onClickButton = useMemoizedFn(() => {
-    const secondaryView = isSelectedView ? null : editableSecondaryView;
-    onSetFileView({ secondaryView, fileView: 'results' });
+    onChangePage(href, { shallow: true });
   });
 
   return (
     <Link
       href={href}
+      prefetch={true}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();

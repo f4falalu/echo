@@ -129,8 +129,9 @@ export const useDropzonesInternal = ({
 
     const targetZone = findZoneById(targetZoneId as string);
     const sourceZoneId = findZoneContainingItem(active);
+    const sourceZone = findZoneById(sourceZoneId as string);
 
-    onDragOverCheckErrorZone(targetZone, sourceZoneId, active);
+    onDragOverCheckErrorZone(targetZone, sourceZone, active);
   });
 
   const cleanupDraggingItem = useMemoizedFn(() => {

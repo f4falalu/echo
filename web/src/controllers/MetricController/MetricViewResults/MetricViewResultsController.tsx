@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { useMemoizedFn, useUnmount } from '@/hooks';
+import { useMemoizedFn, useMount, useUnmount } from '@/hooks';
 import { IDataResult } from '@/api/asset_interfaces';
 import { useMetricResultsLayout } from './useMetricResultsLayout';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
@@ -12,111 +12,109 @@ import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 
 const autoSaveId = 'metric-view-results';
 
-export const MetricViewResults: React.FC<{ metricId: string }> = React.memo(({ metricId }) => {
-  const appSplitterRef = React.useRef<AppSplitterRef>(null);
-  const selectedFileViewSecondary = useChatLayoutContextSelector(
-    (x) => x.selectedFileViewSecondary
-  );
-  const containerRef = React.useRef<HTMLDivElement>(null);
+export const MetricViewResultsController: React.FC<{ metricId: string }> = React.memo(
+  ({ metricId }) => {
+    const appSplitterRef = React.useRef<AppSplitterRef>(null);
+    const selectedFileViewSecondary = useChatLayoutContextSelector(
+      (x) => x.selectedFileViewSecondary
+    );
+    const containerRef = React.useRef<HTMLDivElement>(null);
 
-  const {
-    runSQL,
-    resetRunSQLData,
-    saveSQL,
-    saveMetricError,
-    runSQLError,
-    isSavingMetric,
-    isRunningSQL
-  } = useMetricRunSQL();
+    const {
+      runSQL,
+      resetRunSQLData,
+      saveSQL,
+      saveMetricError,
+      runSQLError,
+      isSavingMetric,
+      isRunningSQL
+    } = useMetricRunSQL();
 
-  const { data: metric } = useGetMetric(
-    { id: metricId },
-    {
-      select: ({ sql, data_source_id }) => ({
-        sql,
-        data_source_id
-      })
-    }
-  );
-  const { data: metricData, isFetched: isFetchedInitialData } = useGetMetricData(
-    { id: metricId },
-    { enabled: false }
-  );
-
-  const [sql, setSQL] = useState(metric?.sql || '');
-
-  const dataSourceId = metric?.data_source_id || '';
-  const data: IDataResult = metricData?.dataFromRerun || metricData?.data || null;
-
-  const disableSave = useMemo(() => {
-    return !sql || isRunningSQL || sql === metric?.sql;
-  }, [sql, isRunningSQL, metric?.sql]);
-
-  const onRunQuery = useMemoizedFn(async () => {
-    try {
-      const res = await runSQL({
-        dataSourceId,
-        sql,
-        metricId
-      });
-
-      if (res && res.data && res.data.length > 0) {
-        const data = res.data;
-        const headerHeight = 28.1;
-        const heightOfRow = 28.1;
-        const heightOfDataContainer = headerHeight + heightOfRow * (data.length || 0);
-        const containerHeight = containerRef.current?.clientHeight || 0;
-        const maxHeight = Math.floor(containerHeight * 0.6);
-        const finalHeight = Math.min(heightOfDataContainer, maxHeight) + 12;
-        appSplitterRef.current?.setSplitSizes(['auto', `${finalHeight}px`]);
+    const { data: metric } = useGetMetric(
+      { id: metricId },
+      {
+        select: ({ sql, data_source_id }) => ({
+          sql,
+          data_source_id
+        })
       }
-    } catch (error) {
-      //
-    }
-  });
+    );
+    const { data: metricData, isFetched: isFetchedInitialData } = useGetMetricData(
+      { id: metricId },
+      { enabled: false }
+    );
 
-  const onSaveSQL = useMemoizedFn(async () => {
-    await saveSQL({
-      metricId,
-      sql,
-      dataSourceId
+    const [sql, setSQL] = useState(metric?.sql || '');
+
+    const dataSourceId = metric?.data_source_id || '';
+    const data: IDataResult = metricData?.dataFromRerun || metricData?.data || null;
+
+    const disableSave = useMemo(() => {
+      return !sql || isRunningSQL || sql === metric?.sql;
+    }, [sql, isRunningSQL, metric?.sql]);
+
+    const onRunQuery = useMemoizedFn(async () => {
+      try {
+        const res = await runSQL({
+          dataSourceId,
+          sql,
+          metricId
+        });
+
+        if (res && res.data && res.data.length > 0) {
+          const data = res.data;
+          const headerHeight = 28.1;
+          const heightOfRow = 28.1;
+          const heightOfDataContainer = headerHeight + heightOfRow * (data.length || 0);
+          const containerHeight = containerRef.current?.clientHeight || 0;
+          const maxHeight = Math.floor(containerHeight * 0.6);
+          const finalHeight = Math.min(heightOfDataContainer, maxHeight) + 12;
+          appSplitterRef.current?.setSplitSizes(['auto', `${finalHeight}px`]);
+        }
+      } catch (error) {
+        //
+      }
     });
-  });
 
-  const { defaultLayout, renderSecondary } = useMetricResultsLayout({
-    selectedFileViewSecondary,
-    appSplitterRef,
-    autoSaveId
-  });
+    const onSaveSQL = useMemoizedFn(async () => {
+      await saveSQL({
+        metricId,
+        sql,
+        dataSourceId
+      });
+    });
 
-  useEffect(() => {
-    if (metric?.sql) {
-      setSQL(metric.sql);
-    }
-  }, [metric?.sql]);
+    const { defaultLayout, renderSecondary } = useMetricResultsLayout({
+      selectedFileViewSecondary,
+      appSplitterRef,
+      autoSaveId
+    });
 
-  useUnmount(() => {
-    resetRunSQLData({ metricId });
-  });
+    useEffect(() => {
+      if (metric?.sql) {
+        setSQL(metric.sql);
+      }
+    }, [metric?.sql]);
 
-  return (
-    <div ref={containerRef} className="h-full w-full p-5">
-      <AppVerticalCodeSplitter
-        ref={appSplitterRef}
-        autoSaveId={autoSaveId}
-        sql={sql}
-        setSQL={setSQL}
-        runSQLError={runSQLError || saveMetricError}
-        topHidden={!renderSecondary}
-        onRunQuery={onRunQuery}
-        onSaveSQL={onSaveSQL}
-        data={data}
-        disabledSave={disableSave}
-        fetchingData={isRunningSQL || isSavingMetric || !isFetchedInitialData}
-        defaultLayout={defaultLayout}
-      />
-    </div>
-  );
-});
+    return (
+      <div ref={containerRef} className="h-full w-full p-5">
+        <AppVerticalCodeSplitter
+          ref={appSplitterRef}
+          autoSaveId={autoSaveId}
+          sql={sql}
+          setSQL={setSQL}
+          runSQLError={runSQLError || saveMetricError}
+          topHidden={!renderSecondary}
+          onRunQuery={onRunQuery}
+          onSaveSQL={onSaveSQL}
+          data={data}
+          disabledSave={disableSave}
+          fetchingData={isRunningSQL || isSavingMetric || !isFetchedInitialData}
+          defaultLayout={defaultLayout}
+        />
+      </div>
+    );
+  }
+);
 
-MetricViewResults.displayName = 'MetricViewResults';
+MetricViewResultsController.displayName = 'MetricViewResultsController';
