@@ -12,6 +12,7 @@ export interface TagInputProps extends VariantProps<typeof inputVariants> {
   onTagAdd?: (tag: string | string[]) => void;
   onTagRemove?: (index: number) => void;
   onChangeText?: (text: string) => void;
+  onPressEnter?: () => void;
   placeholder?: string;
   disabled?: boolean;
   maxTags?: number;
@@ -29,6 +30,7 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
       onTagAdd,
       onTagRemove,
       onChangeText,
+      onPressEnter,
       placeholder,
       disabled = false,
       maxTags,
@@ -79,6 +81,10 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
         addMultipleTags(inputValue);
       } else if (e.key === 'Backspace' && inputValue === '' && tags.length > 0 && !disabled) {
         onTagRemove?.(tags.length - 1);
+      }
+
+      if (e.key === 'Enter' && inputValue.trim() === '') {
+        onPressEnter?.();
       }
     });
 

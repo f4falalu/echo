@@ -59,6 +59,7 @@ export const InvitePeopleModal: React.FC<{
         <InputTagInput
           tags={emails}
           onChangeText={setInputText}
+          onPressEnter={handleInvite}
           onTagAdd={(v) => {
             const arrayedTags = Array.isArray(v) ? v : [v];
             const hadMultipleTags = arrayedTags.length > 1;
