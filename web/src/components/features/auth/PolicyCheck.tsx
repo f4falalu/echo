@@ -3,14 +3,34 @@ import React, { useEffect, useMemo } from 'react';
 import { Text } from '@/components/ui/typography';
 import { Popover, PopoverProps } from '@/components/ui/popover/Popover';
 import { Button } from '@/components/ui/buttons/Button';
+import { validate } from 'email-validator';
+
+const PasswordCheckItem: React.FC<{
+  passwordGood: boolean;
+  text: string;
+}> = ({ passwordGood, text }) => {
+  return (
+    <div className="flex items-center space-x-1">
+      {passwordGood ? (
+        <div className="text-success-foreground">
+          <CircleCheck />
+        </div>
+      ) : (
+        <div className="text-danger-foreground">
+          <CircleXmark />
+        </div>
+      )}
+      <Text size="sm">{text}</Text>
+    </div>
+  );
+};
 
 export const PolicyCheck: React.FC<{
+  email: string;
   password: string;
-  show: boolean;
-  onCheckChange?: (value: boolean) => void;
-  children?: React.ReactNode;
-  placement?: 'top' | 'right' | 'bottom' | 'left';
-}> = ({ password, show, onCheckChange, children, placement = 'left' }) => {
+  password2: string | undefined;
+  onChangePolicyCheck: (passed: boolean) => void;
+}> = ({ email, password, password2, onChangePolicyCheck }) => {
   const items = useMemo(() => {
     const containsNumber = /\d/;
     const containsSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
@@ -33,6 +53,10 @@ export const PolicyCheck: React.FC<{
 
     const items = [
       {
+        text: 'Email is valid',
+        check: validate(email)
+      },
+      {
         text: 'Contains a number',
         check: passwordGood.numberCheck
       },
@@ -51,90 +75,39 @@ export const PolicyCheck: React.FC<{
       {
         text: 'Is at least 8 characters long',
         check: passwordGood.passwordLengthCheck
+      },
+      {
+        text: 'Passwords match',
+        check: password === password2 || password2 === undefined
       }
     ];
 
     return items;
-  }, [password]);
+  }, [password, email, password2]);
 
-  const allCompleted = useMemo(() => {
-    return items.every((item) => item.check);
+  const percentageCompleted = useMemo(() => {
+    const numberOfChecks = items.length;
+    const numberOfChecksCompleted = items.filter((item) => item.check).length;
+    return (numberOfChecksCompleted / numberOfChecks) * 100;
   }, [items]);
 
   useEffect(() => {
-    if (show && onCheckChange) {
-      onCheckChange(allCompleted);
-    }
-  }, [show, allCompleted, onCheckChange]);
-
-  const PasswordCheck: React.FC<{
-    passwordGood: boolean;
-    text: string;
-  }> = ({ passwordGood, text }) => {
-    return (
-      <div className="flex items-center space-x-1">
-        {passwordGood ? (
-          <div className="text-success-foreground">
-            <CircleCheck />
-          </div>
-        ) : (
-          <div className="text-danger-foreground">
-            <CircleXmark />
-          </div>
-        )}
-        <Text size="sm">{text}</Text>
-      </div>
-    );
-  };
-
-  const sideMemo: PopoverProps['side'] = useMemo(() => {
-    switch (placement) {
-      case 'top':
-        return 'top';
-      case 'right':
-        return 'right';
-      case 'bottom':
-        return 'bottom';
-      case 'left':
-        return 'left';
-    }
-  }, [placement]);
-
-  const alignMemo: PopoverProps['align'] = useMemo(() => {
-    switch (placement) {
-      case 'top':
-        return 'start';
-      case 'right':
-        return 'end';
-      case 'bottom':
-        return 'start';
-      case 'left':
-        return 'end';
-    }
-  }, [placement]);
-
-  if (!show) return children;
+    onChangePolicyCheck(percentageCompleted === 100);
+  }, [percentageCompleted, onChangePolicyCheck]);
 
   return (
-    <Popover
-      side={sideMemo}
-      align={alignMemo}
-      content={
-        <div className="flex flex-col gap-y-1 p-1.5">
-          {items.map((item, index) => (
-            <PasswordCheck key={index} passwordGood={item.check} text={item.text} />
-          ))}
-        </div>
-      }>
-      {!children ? (
-        <Button
-          variant={'ghost'}
-          type="button"
-          size={'small'}
-          prefix={allCompleted ? <CircleCheck /> : <CircleInfo />}></Button>
-      ) : (
-        children
-      )}
-    </Popover>
+    <div className="animate-in fade-in-0 flex flex-col gap-y-1 duration-300">
+      <div className="mx-1.5 h-1 rounded-full bg-gray-200">
+        <div
+          className="bg-primary h-1 rounded-full transition-all duration-300"
+          style={{ width: `${percentageCompleted}%` }}
+        />
+      </div>
+      <div className="flex flex-col gap-y-1 p-1.5">
+        {items.map((item, index) => (
+          <PasswordCheckItem key={index} passwordGood={item.check} text={item.text} />
+        ))}
+      </div>
+    </div>
   );
 };

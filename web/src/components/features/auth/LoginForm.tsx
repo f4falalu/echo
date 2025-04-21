@@ -287,26 +287,32 @@ const LoginOptions: React.FC<{
             autoComplete="new-password"
             tabIndex={5}
           />
-          {signUpFlow && (
-            <div className="absolute top-0 right-1.5 flex h-full items-center">
-              <PolicyCheck password={password} show={signUpFlow} onCheckChange={setPasswordCheck} />
-            </div>
-          )}
         </div>
         {signUpFlow && (
-          <Input
-            value={password2}
-            onChange={(v) => {
-              setPassword2(v.target.value);
-            }}
-            disabled={!!loading}
-            id="password2"
-            type="password"
-            name="password2"
-            placeholder="Confirm password"
-            autoComplete="new-password"
-            tabIndex={6}
-          />
+          <>
+            <Input
+              value={password2}
+              onChange={(v) => {
+                setPassword2(v.target.value);
+              }}
+              disabled={!!loading}
+              id="password2"
+              type="password"
+              name="password2"
+              placeholder="Confirm password"
+              autoComplete="new-password"
+              tabIndex={6}
+            />
+
+            {password && (
+              <PolicyCheck
+                email={email}
+                password={password}
+                password2={password2}
+                onChangePolicyCheck={setPasswordCheck}
+              />
+            )}
+          </>
         )}
 
         <div className="flex flex-col space-y-0.5">
@@ -315,21 +321,16 @@ const LoginOptions: React.FC<{
           ))}
         </div>
 
-        <PolicyCheck
-          password={password}
-          show={signUpFlow && disableSubmitButton && !!password}
-          placement="top">
-          <Button
-            size={'tall'}
-            block={true}
-            type="submit"
-            loading={loading === 'email'}
-            variant="black"
-            disabled={!signUpFlow ? false : disableSubmitButton}
-            tabIndex={7}>
-            {!signUpFlow ? `Sign in` : `Sign up`}
-          </Button>
-        </PolicyCheck>
+        <Button
+          size={'tall'}
+          block={true}
+          type="submit"
+          loading={loading === 'email'}
+          variant="black"
+          disabled={!signUpFlow ? false : disableSubmitButton}
+          tabIndex={7}>
+          {!signUpFlow ? `Sign in` : `Sign up`}
+        </Button>
       </form>
 
       <div className="flex flex-col gap-y-2 pt-0">
