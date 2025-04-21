@@ -17,17 +17,13 @@ const VersionHistoryPanel = dynamic(
     ),
   { loading }
 );
-const MetricViewResults = dynamic(
-  () => import('@/controllers/MetricController/MetricViewResults').then((x) => x.MetricViewResults),
-  { loading }
-);
 
 export const MetricSecondaryRecord: Record<
   MetricFileViewSecondary,
   React.FC<FileContainerSecondaryProps>
 > = {
   'chart-edit': ({ selectedFile }) => <MetricEditController metricId={selectedFile?.id || ''} />,
-  'sql-edit': ({ selectedFile }) => <MetricViewResults metricId={selectedFile?.id || ''} />,
+  'sql-edit': ({ selectedFile }) => <></>, //because this is a vertical splitter, we don't want to render the sql edit view in the secondary view because it is vertical
   'version-history': ({ selectedFile }) => (
     <VersionHistoryPanel assetId={selectedFile?.id || ''} type="metric" />
   )

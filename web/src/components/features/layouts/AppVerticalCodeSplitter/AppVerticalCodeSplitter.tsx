@@ -3,6 +3,7 @@ import { AppSplitter, type AppSplitterRef } from '@/components/ui/layouts/AppSpl
 import { SQLContainer } from './SQLContainer';
 import { DataContainer } from './DataContainer';
 import type { IDataResult } from '@/api/asset_interfaces';
+import { useMount } from '@/hooks';
 
 export interface AppVerticalCodeSplitterProps {
   sql: string;

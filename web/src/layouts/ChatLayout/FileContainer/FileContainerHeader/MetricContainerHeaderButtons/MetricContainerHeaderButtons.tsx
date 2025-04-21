@@ -120,7 +120,7 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
   const selectedFileViewSecondary = useChatLayoutContextSelector(
     (x) => x.selectedFileViewSecondary
   );
-  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
+  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const chatId = useChatIndividualContextSelector((x) => x.chatId);
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
   const editableSecondaryView: MetricFileViewSecondary = 'sql-edit';
@@ -148,14 +148,21 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
   //   onSetFileView({ secondaryView, fileView: 'results' });
   // });
 
-  console.log('href', href);
+  const onClickButton = useMemoizedFn(() => {
+    onChangePage(href, { shallow: true });
+  });
 
   return (
-    <Link href={href}>
+    <Link
+      href={href}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}>
       <SelectableButton
         tooltipText="SQL editor"
         icon={<SquareCode />}
-        onClick={() => {}}
+        onClick={onClickButton}
         selected={isSelectedView}
       />
     </Link>

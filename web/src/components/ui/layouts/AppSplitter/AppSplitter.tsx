@@ -91,9 +91,11 @@ export const AppSplitter = React.memo(
       }, [hasHidden, leftHidden, sizes]);
 
       const memoizedLeftPaneStyle = useMemo(() => {
-        const isHidden = leftHidden || _sizes[0] === '0%'; //leftHidden || _sizes[0] === '0px' || _sizes[0] === 0 || _sizes[0] === '0%';
+        const isHidden = leftHidden;
+        const isEffectivelyHidden = _sizes[0] === '0px' || _sizes[0] === '0%';
         return {
-          display: isHidden ? 'none' : undefined
+          display: isHidden ? 'none' : undefined,
+          overflow: isEffectivelyHidden ? 'hidden' : undefined
         };
       }, [leftHidden, _sizes[0]]);
 
