@@ -40,7 +40,7 @@ export const useListVersionDropdownItems = ({
   });
 
   const versionHistoryItems: DropdownItems = useMemo(() => {
-    return [...versions].reverse().map(({ version_number, updated_at }) => ({
+    return versions.map(({ version_number, updated_at }) => ({
       label: `Version ${version_number}`,
       secondaryLabel: timeFromNow(updated_at, false),
       value: version_number.toString(),

@@ -83,7 +83,6 @@ const zoneErrorRecord: Record<
     axis,
     activeItemOriginalId
   ) => {
-    console.log(targetZone, sourceZone, axis);
     const isInCategoryAxis =
       axis !== null &&
       'category' in axis &&

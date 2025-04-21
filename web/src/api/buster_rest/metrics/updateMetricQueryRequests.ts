@@ -27,6 +27,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
   const queryClient = useQueryClient();
   const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
+  const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
   const { latestVersionNumber } = useGetMetricVersionNumber();
 
   return useMutation({
@@ -69,7 +70,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
         );
         const newVersionNumber = (metricVersionNumber ?? 0) + 1;
 
-        if (metric && metricData) {
+        if (metricData) {
           queryClient.setQueryData(
             metricsQueryKeys.metricsGetData(id, newVersionNumber).queryKey,
             metricData
@@ -79,7 +80,7 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
     },
     onSuccess: (data, variables) => {
       const oldMetric = queryClient.getQueryData(
-        metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey
+        metricsQueryKeys.metricsGetMetric(data.id, latestVersionNumber).queryKey
       );
       const newMetric = upgradeMetricToIMetric(data, oldMetric || null);
       if (updateOnSave && data) {
@@ -87,14 +88,29 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
           metricsQueryKeys.metricsGetMetric(data.id, data.version_number).queryKey,
           newMetric
         );
-        //We need to update BOTH the versioned and the non-versioned metric for version updates to keep the latest up to date
-        // if (variables.update_version || variables.restore_to_version) {
-        //   queryClient.setQueryData(
-        //     metricsQueryKeys.metricsGetMetric(data.id, selectedVersionNumber).queryKey,
-        //     newMetric
-        //   );
-        // }
       }
+
+      if (variables.update_version || variables.restore_to_version) {
+        const initialOptions = metricsQueryKeys.metricsGetMetric(data.id, null);
+        const initialMetric = queryClient.getQueryData(initialOptions.queryKey);
+        if (initialMetric) {
+          queryClient.setQueryData(
+            initialOptions.queryKey,
+            create(initialMetric, (draft) => {
+              draft.versions = data.versions;
+            })
+          );
+        }
+
+        const originalMetric = getOriginalMetric(data.id);
+        if (originalMetric) {
+          queryClient.setQueryData(
+            metricsQueryKeys.metricsGetMetric(data.id, oldMetric?.version_number || null).queryKey,
+            originalMetric
+          );
+        }
+      }
+
       setOriginalMetric(newMetric);
     }
   });

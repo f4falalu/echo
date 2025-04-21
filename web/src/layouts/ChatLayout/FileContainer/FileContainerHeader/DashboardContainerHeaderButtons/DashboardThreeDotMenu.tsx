@@ -120,6 +120,10 @@ const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) =
     useVersionHistoryMode: true
   });
 
+  const reverseVersionHistoryItems = useMemo(() => {
+    return [...versionHistoryItems].reverse();
+  }, [versionHistoryItems]);
+
   return useMemo(
     () => ({
       label: 'Version history',
@@ -127,7 +131,7 @@ const useVersionHistorySelectMenu = ({ dashboardId }: { dashboardId: string }) =
       icon: <History />,
       items: [
         <React.Fragment key="version-history-sub-menu">
-          <DropdownContent items={versionHistoryItems} selectType="single" />
+          <DropdownContent items={reverseVersionHistoryItems} selectType="single" />
         </React.Fragment>
       ]
     }),
