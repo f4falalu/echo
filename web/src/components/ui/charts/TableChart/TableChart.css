@@ -1,8 +1,0 @@
-.buster-table-chart {
-  .rdg-row:not(:has(+ .rdg-row)) {
-    @apply border-b-0;
-    .rdg-cell {
-      @apply border-b-0;
-    }
-  }
-}

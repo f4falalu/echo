@@ -8,7 +8,6 @@ import {
 } from '@/api/asset_interfaces/metric';
 import { useMemoizedFn } from '@/hooks';
 import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
-import './TableChart.css';
 import { cn } from '@/lib/classMerge';
 import isEmpty from 'lodash/isEmpty';
 import { useUpdateMetricChart } from '@/context/Metrics';

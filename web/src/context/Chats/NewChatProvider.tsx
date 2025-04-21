@@ -115,6 +115,8 @@ export const useBusterNewChat = () => {
         });
       }
 
+      return;
+
       await busterSocket.emitAndOnce({
         emitEvent: {
           route: '/chats/post',

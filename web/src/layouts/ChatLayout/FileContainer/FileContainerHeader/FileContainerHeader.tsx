@@ -6,7 +6,7 @@ import { useChatLayoutContextSelector } from '../../ChatLayoutContext';
 import { FileContainerHeaderVersionHistory } from './FileContainerHeaderVersionHistory';
 import { SelectedFileButtonsRecord, SelectedFileSegmentRecord } from './config';
 import { FileType } from '@/api/asset_interfaces/chat';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useMount } from '@/hooks';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 
