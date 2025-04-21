@@ -125,7 +125,7 @@ impl ToolExecutor for Done {
                 "properties": {
                 "final_response": {
                     "type": "string",
-                    "description": "The final response message to the user. **MUST** be formatted in Markdown. Use bullet points or other appropriate Markdown formatting. Do not include headers. Do not use the '•' bullet character."
+                    "description": "The final response message to the user. **MUST** be formatted in Markdown. Use bullet points or other appropriate Markdown formatting. Do not include headers. Do not use the '•' bullet character. Do not include markdown tables."
                 }
                 },
                 "additionalProperties": false
