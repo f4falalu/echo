@@ -1,7 +1,7 @@
 'use client';
 
 import type { BusterChatMessageRequest } from '@/api/asset_interfaces';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Paragraph } from '@/components/ui/typography';
 import { MessageContainer } from './MessageContainer';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -9,7 +9,7 @@ import { cn } from '@/lib/classMerge';
 import { PenWriting, Copy } from '@/components/ui/icons';
 import { Button } from '@/components/ui/buttons';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
 
@@ -128,9 +128,10 @@ const EditMessage: React.FC<{
   chatId: string;
 }> = React.memo(({ requestMessage, onSetIsEditing, messageId, chatId }) => {
   const [prompt, setPrompt] = useState(requestMessage.request);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const onReplaceMessageInChat = useBusterNewChatContextSelector((x) => x.onReplaceMessageInChat);
 
-  const onSave = useMemoizedFn((text: string) => {
+  const onSave = useMemoizedFn(() => {
     onReplaceMessageInChat({
       chatId,
       messageId,
@@ -139,18 +140,30 @@ const EditMessage: React.FC<{
     onSetIsEditing(false);
   });
 
+  useMount(() => {
+    // Using requestAnimationFrame to ensure the DOM is ready
+    requestAnimationFrame(() => {
+      if (textAreaRef.current) {
+        textAreaRef.current.focus();
+        textAreaRef.current.select();
+      }
+    });
+  });
+
   return (
     <div className="-mt-1 flex flex-col space-y-2">
       <InputTextArea
+        ref={textAreaRef}
         autoResize={{ minRows: 3, maxRows: 10 }}
         value={prompt}
+        onPressEnter={onSave}
         onChange={(e) => setPrompt(e.target.value)}
       />
       <div className="flex justify-end space-x-2">
         <Button variant={'ghost'} onClick={() => onSetIsEditing(false)}>
           Cancel
         </Button>
-        <Button variant={'black'} onClick={() => onSave(prompt)}>
+        <Button variant={'black'} onClick={onSave}>
           Submit
         </Button>
       </div>

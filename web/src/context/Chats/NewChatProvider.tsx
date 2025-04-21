@@ -105,17 +105,13 @@ export const useBusterNewChat = () => {
         (messageId) => messageId === messageId
       );
 
-      if (messageIndex && messageIndex !== -1) {
-        console.log('oldMessageIds', currentChat?.message_ids);
+      if (messageIndex !== -1 && typeof messageIndex === 'number') {
         const updatedMessageIds = currentChat?.message_ids.slice(0, messageIndex + 1);
-        console.log('stripping message ids', updatedMessageIds);
         onUpdateChat({
           id: chatId,
           message_ids: updatedMessageIds
         });
       }
-
-      return;
 
       await busterSocket.emitAndOnce({
         emitEvent: {
