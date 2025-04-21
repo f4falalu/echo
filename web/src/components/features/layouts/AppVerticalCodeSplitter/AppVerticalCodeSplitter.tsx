@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, MutableRefObject } from 'react';
 import { AppSplitter, type AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { SQLContainer } from './SQLContainer';
 import { DataContainer } from './DataContainer';

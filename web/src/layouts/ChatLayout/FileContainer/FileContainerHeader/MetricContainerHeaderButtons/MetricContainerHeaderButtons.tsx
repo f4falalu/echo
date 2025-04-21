@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { assetParamsToRoute } from '@/lib/assets';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
 export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> = React.memo(
   ({ selectedFileId }) => {
@@ -102,6 +103,7 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        //SHALLOW PAGE CHANGED! DO NOT REMOVE
       }}>
       <SelectableButton
         tooltipText="Edit chart"
@@ -125,41 +127,35 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
   const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
 
   const href = useMemo(() => {
-    if (isSelectedView) {
-      return assetParamsToRoute({
-        chatId,
-        assetId: metricId,
-        type: 'metric',
-        secondaryView: null,
-        versionNumber: metricVersionNumber
+    if (!isSelectedView) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_RESULTS,
+        versionNumber: metricVersionNumber,
+        metricId,
+        secondaryView: 'sql-edit'
       });
     }
 
-    return assetParamsToRoute({
-      chatId,
-      assetId: metricId,
-      type: 'metric',
-      secondaryView: 'sql-edit',
-      versionNumber: metricVersionNumber
+    return createBusterRoute({
+      route: BusterRoutes.APP_METRIC_ID_RESULTS,
+      versionNumber: metricVersionNumber,
+      metricId
     });
-  }, [chatId, metricId, metricVersionNumber]);
+  }, [chatId, metricId, metricVersionNumber, isSelectedView]);
 
-  const onClickButton = useMemoizedFn(() => {
-    const secondaryView = isSelectedView ? null : editableSecondaryView;
-    onSetFileView({ secondaryView, fileView: 'results' });
-  });
+  // const onClickButton = useMemoizedFn(() => {
+  //   const secondaryView = isSelectedView ? null : editableSecondaryView;
+  //   onSetFileView({ secondaryView, fileView: 'results' });
+  // });
+
+  console.log('href', href);
 
   return (
-    <Link
-      href={href}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}>
+    <Link href={href}>
       <SelectableButton
         tooltipText="SQL editor"
         icon={<SquareCode />}
-        onClick={onClickButton}
+        onClick={() => {}}
         selected={isSelectedView}
       />
     </Link>

@@ -91,10 +91,11 @@ export const AppSplitter = React.memo(
       }, [hasHidden, leftHidden, sizes]);
 
       const memoizedLeftPaneStyle = useMemo(() => {
+        const isHidden = leftHidden || _sizes[0] === '0%'; //leftHidden || _sizes[0] === '0px' || _sizes[0] === 0 || _sizes[0] === '0%';
         return {
-          display: leftHidden ? 'none' : undefined
+          display: isHidden ? 'none' : undefined
         };
-      }, [leftHidden]);
+      }, [leftHidden, _sizes[0]]);
 
       const memoizedRightPaneStyle = useMemo(() => {
         return {
@@ -269,7 +270,7 @@ export const AppSplitter = React.memo(
             sashRender={sashRender}>
             <Pane
               style={memoizedLeftPaneStyle}
-              className="left-pane flex h-full flex-col"
+              className={'left-pane flex h-full flex-col'}
               minSize={leftPanelMinSize}
               maxSize={leftPanelMaxSize}>
               {leftHidden || size?.width === 0 || size?.width === undefined ? null : leftChildren}
