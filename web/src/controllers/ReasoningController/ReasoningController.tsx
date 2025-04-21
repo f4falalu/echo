@@ -9,6 +9,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAutoScroll } from '@/hooks/useAutoScroll';
 import isEmpty from 'lodash/isEmpty';
 import { ReasoningScrollToBottom } from './ReasoningScrollToBottom';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/api/query_keys';
 
 interface ReasoningControllerProps {
   chatId: string;
@@ -23,6 +25,11 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
   const { data: isCompletedStream } = useGetChatMessage(messageId, {
     select: ({ isCompletedStream }) => isCompletedStream
   });
+  const blackBoxMessage = useQuery({
+    ...queryKeys.chatsBlackBoxMessages(messageId),
+    notifyOnChangeProps: ['data']
+  }).data;
+
   const viewportRef = useRef<HTMLDivElement>(null);
 
   const { isAutoScrollEnabled, scrollToBottom, enableAutoScroll } = useAutoScroll(viewportRef, {
@@ -49,11 +56,11 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
               isCompletedStream={isCompletedStream ?? true}
               chatId={chatId}
               messageId={messageId}
-              isLastMessage={messageIndex === reasoningMessageIds.length - 1}
+              isLastMessage={messageIndex === reasoningMessageIds.length - 1 && !blackBoxMessage}
             />
           ))}
 
-          <BlackBoxMessage messageId={messageId} />
+          <BlackBoxMessage blackBoxMessage={blackBoxMessage} />
         </div>
       </ScrollArea>
 

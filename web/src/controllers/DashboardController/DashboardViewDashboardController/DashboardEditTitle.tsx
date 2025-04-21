@@ -1,4 +1,4 @@
-import { useDebounceFn, useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import React from 'react';
 import { useUpdateDashboard } from '@/api/buster_rest/dashboards';
@@ -50,7 +50,7 @@ export const DashboardEditTitles: React.FC<{
           className={'py-0! pl-0!'}
           readOnly={readOnly}
           onChange={onChangeDashboardDescription}
-          defaultValue={description}
+          value={description}
           autoResize={descriptionAutoResize}
           placeholder="Add description..."
         />

@@ -39,7 +39,7 @@ export const prefetchGetMyUserInfo = async (
     queryFn: () => initialData!,
     initialData
   });
-  return { queryClient, initialData };
+  return queryClient;
 };
 
 export const useGetUser = (params: Parameters<typeof getUser>[0]) => {

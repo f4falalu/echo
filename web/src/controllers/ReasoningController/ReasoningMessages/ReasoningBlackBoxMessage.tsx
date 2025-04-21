@@ -5,25 +5,22 @@ import React from 'react';
 import { queryKeys } from '@/api/query_keys';
 import { BarContainer } from './BarContainer';
 
-export const BlackBoxMessage: React.FC<{ messageId: string }> = React.memo(({ messageId }) => {
-  const blackBoxMessage = useQuery({
-    ...queryKeys.chatsBlackBoxMessages(messageId),
-    notifyOnChangeProps: ['data']
-  }).data;
+export const BlackBoxMessage: React.FC<{ blackBoxMessage: string | undefined | null }> = React.memo(
+  ({ blackBoxMessage }) => {
+    if (blackBoxMessage) {
+      return (
+        <BarContainer
+          showBar={false}
+          status={'loading'}
+          isCompletedStream={false}
+          title={blackBoxMessage}
+          secondaryTitle={''}
+        />
+      );
+    }
 
-  if (blackBoxMessage) {
-    return (
-      <BarContainer
-        showBar={false}
-        status={'loading'}
-        isCompletedStream={false}
-        title={blackBoxMessage}
-        secondaryTitle={''}
-      />
-    );
+    return null;
   }
-
-  return null;
-});
+);
 
 BlackBoxMessage.displayName = 'BlackBoxMessage';

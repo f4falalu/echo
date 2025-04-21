@@ -1,6 +1,7 @@
 import { BusterAppRoutes, BusterAppRoutesWithArgs } from './busterAppRoutes';
 import { BusterAuthRoutes, BusterAuthRoutesWithArgs } from './busterAuthRoutes';
 import { BusterEmbedRoutes, BusterEmbedRoutesWithArgs } from './busterEmbedRoutes';
+import { BusterInfoRoutes, BusterInfoRoutesWithArgs } from './busterInfoRoutes';
 import { BusterSettingsRoutes, BusterSettingsRoutesWithArgs } from './busterSettingsRoutes';
 
 export enum BusterRootRoutes {
@@ -16,6 +17,7 @@ export const BusterRoutes = {
   ...BusterAuthRoutes,
   ...BusterSettingsRoutes,
   ...BusterEmbedRoutes,
+  ...BusterInfoRoutes,
   ...BusterRootRoutes
 };
 
@@ -24,12 +26,14 @@ export type BusterRoutes =
   | BusterAuthRoutes
   | BusterSettingsRoutes
   | BusterEmbedRoutes
+  | BusterInfoRoutes
   | BusterRootRoutes;
 
 export type BusterRoutesWithArgs = BusterRootRoutesWithArgs &
   BusterAuthRoutesWithArgs &
   BusterAppRoutesWithArgs &
   BusterEmbedRoutesWithArgs &
-  BusterSettingsRoutesWithArgs;
+  BusterSettingsRoutesWithArgs &
+  BusterInfoRoutesWithArgs;
 
 export type BusterRoutesWithArgsRoute = BusterRoutesWithArgs[BusterRoutes];
