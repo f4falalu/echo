@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import type { BusterTableChartConfig } from './interfaces';
 import { formatLabel } from '@/lib/columnFormatter';
-import isEqual from 'lodash/isEqual';
 import {
   type IBusterMetricChartConfig,
   type BusterChartPropsBase,
@@ -11,9 +10,8 @@ import { useMemoizedFn } from '@/hooks';
 import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import './TableChart.css';
 import { cn } from '@/lib/classMerge';
+import isEmpty from 'lodash/isEmpty';
 import { useUpdateMetricChart } from '@/context/Metrics';
-import { useUpdateMetric } from '@/api/buster_rest/metrics';
-import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
 
 export interface BusterTableChartProps extends BusterTableChartConfig, BusterChartPropsBase {}
 
@@ -37,7 +35,10 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
     if (readOnly) return;
     onUpdateMetricChartConfig({ chartConfig: config });
 
-    if (tableColumnWidths === null && !!config.tableColumnWidths) {
+    if (
+      (tableColumnWidths === null || isEmpty(tableColumnWidths)) &&
+      !isEmpty(config.tableColumnWidths)
+    ) {
       onInitializeTableColumnWidths(config.tableColumnWidths);
     }
   });

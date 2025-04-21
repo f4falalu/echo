@@ -31,9 +31,6 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
     saveToServer: true,
     updateVersion: !chatId
   });
-  const { mutateAsync: saveMetricToServerWithoutSideEffects } = useSaveMetric({
-    updateOnSave: true
-  });
 
   const getMetricMemoized = useGetMetricMemoized();
 
@@ -144,12 +141,6 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
         setOriginalMetric({
           ...originalMetric,
           chart_config: newChartConfig
-        });
-
-        saveMetricToServerWithoutSideEffects({
-          id: metricId,
-          chart_config: newChartConfig,
-          update_version: false
         });
       }
     }
