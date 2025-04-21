@@ -51,10 +51,14 @@ export const InvitePeopleModal: React.FC<{
           tags={emails}
           onChangeText={setInputText}
           onTagAdd={(v) => {
-            if (validate(v)) {
-              setEmails([...emails, v]);
-            } else {
-              openErrorMessage(`Invalid email - ${v}`);
+            const arrayedTags = Array.isArray(v) ? v : [v];
+            const hadMultipleTags = arrayedTags.length > 1;
+            const validTags = arrayedTags.filter((tag) => validate(tag));
+
+            setEmails([...emails, ...validTags]);
+
+            if (validTags.length !== arrayedTags.length) {
+              openErrorMessage(hadMultipleTags ? 'List contained invalid emails' : 'Invalid email');
             }
           }}
           onTagRemove={(index) => {
