@@ -128,11 +128,30 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
 
   const href = useMemo(() => {
     if (!isSelectedView) {
+      if (chatId) {
+        return createBusterRoute({
+          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
+          versionNumber: metricVersionNumber,
+          metricId,
+          secondaryView: 'sql-edit',
+          chatId
+        });
+      }
+
       return createBusterRoute({
         route: BusterRoutes.APP_METRIC_ID_RESULTS,
         versionNumber: metricVersionNumber,
         metricId,
         secondaryView: 'sql-edit'
+      });
+    }
+
+    if (chatId) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
+        versionNumber: metricVersionNumber,
+        metricId,
+        chatId
       });
     }
 
@@ -143,11 +162,6 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
     });
   }, [chatId, metricId, metricVersionNumber, isSelectedView]);
 
-  // const onClickButton = useMemoizedFn(() => {
-  //   const secondaryView = isSelectedView ? null : editableSecondaryView;
-  //   onSetFileView({ secondaryView, fileView: 'results' });
-  // });
-
   const onClickButton = useMemoizedFn(() => {
     onChangePage(href, { shallow: true });
   });
@@ -155,6 +169,7 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
   return (
     <Link
       href={href}
+      prefetch={true}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
