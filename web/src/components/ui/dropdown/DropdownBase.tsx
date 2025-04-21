@@ -237,7 +237,8 @@ const DropdownMenuLink: React.FC<{
   className?: string;
   link: string | null;
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
-}> = ({ className, link, linkIcon = 'arrow-external', ...props }) => {
+  linkTarget?: '_blank' | '_self';
+}> = ({ className, link, linkTarget, linkIcon = 'arrow-right', ...props }) => {
   const icon = React.useMemo(() => {
     if (linkIcon === 'arrow-right') return <ArrowRight />;
     if (linkIcon === 'arrow-external') return <ArrowUpRight />;
@@ -263,9 +264,11 @@ const DropdownMenuLink: React.FC<{
       </div>
     );
 
+  console.log(link, isExternal, linkTarget);
+
   return (
     <span className={className} onClick={(e) => e.stopPropagation()}>
-      <Link href={link} target={isExternal ? '_blank' : '_self'} className="">
+      <Link href={link} target={linkTarget || isExternal ? '_blank' : '_self'} className="">
         {content}
       </Link>
     </span>

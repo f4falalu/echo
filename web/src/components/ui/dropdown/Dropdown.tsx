@@ -41,6 +41,7 @@ export interface DropdownItem<T = string> {
   selected?: boolean;
   items?: DropdownItems<T>;
   link?: string;
+  linkTarget?: '_blank' | '_self';
   linkIcon?: 'arrow-right' | 'arrow-external' | 'caret-right';
 }
 
@@ -408,8 +409,13 @@ const DropdownItem = <T,>({
 
     // Wrap with Link if needed
     if (!isSelectable && link) {
+      const isExternal = link.startsWith('http');
+
       return (
-        <Link className="flex w-full items-center gap-x-2" href={link}>
+        <Link
+          className="flex w-full items-center gap-x-2"
+          href={link}
+          target={isExternal ? '_blank' : '_self'}>
           {content}
         </Link>
       );
