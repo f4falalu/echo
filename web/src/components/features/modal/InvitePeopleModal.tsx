@@ -6,6 +6,7 @@ import { useInviteUser } from '@/api/buster_rest/users';
 import { validate } from 'email-validator';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import uniq from 'lodash/uniq';
+import { timeout } from '@/lib';
 
 export const InvitePeopleModal: React.FC<{
   open: boolean;
@@ -14,12 +15,20 @@ export const InvitePeopleModal: React.FC<{
   const [emails, setEmails] = React.useState<string[]>([]);
   const { mutateAsync: inviteUsers, isPending: inviting } = useInviteUser();
   const [inputText, setInputText] = React.useState<string>('');
-  const { openErrorMessage } = useBusterNotifications();
+  const { openErrorMessage, openSuccessMessage } = useBusterNotifications();
 
   const handleInvite = useMemoizedFn(async () => {
     const allEmails = uniq([...emails, inputText].filter((email) => !!email && validate(email)));
-    await inviteUsers({ emails: allEmails });
-    onClose();
+    try {
+      await inviteUsers({ emails: allEmails });
+      onClose();
+      openSuccessMessage('Invites sent');
+      await timeout(330);
+      setEmails([]);
+      setInputText('');
+    } catch (error) {
+      openErrorMessage('Failed to invite users');
+    }
   });
 
   const memoizedHeader = useMemo(() => {
@@ -51,10 +60,14 @@ export const InvitePeopleModal: React.FC<{
           tags={emails}
           onChangeText={setInputText}
           onTagAdd={(v) => {
-            if (validate(v)) {
-              setEmails([...emails, v]);
-            } else {
-              openErrorMessage(`Invalid email - ${v}`);
+            const arrayedTags = Array.isArray(v) ? v : [v];
+            const hadMultipleTags = arrayedTags.length > 1;
+            const validTags = arrayedTags.filter((tag) => validate(tag));
+
+            setEmails([...emails, ...validTags]);
+
+            if (validTags.length !== arrayedTags.length) {
+              openErrorMessage(hadMultipleTags ? 'List contained invalid emails' : 'Invalid email');
             }
           }}
           onTagRemove={(index) => {

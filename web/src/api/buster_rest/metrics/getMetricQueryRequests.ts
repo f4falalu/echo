@@ -79,7 +79,7 @@ export const usePrefetchGetMetricClient = () => {
   const { selectedVersionNumber } = useGetMetricVersionNumber();
   return useMemoizedFn(
     async ({ id, versionNumber }: { id: string; versionNumber: number | undefined }) => {
-      const options = metricsQueryKeys.metricsGetMetric(id, selectedVersionNumber);
+      const options = metricsQueryKeys.metricsGetMetric(id, versionNumber || selectedVersionNumber);
       const existingData = queryClient.getQueryData(options.queryKey);
       if (!existingData) {
         await queryClient.prefetchQuery({

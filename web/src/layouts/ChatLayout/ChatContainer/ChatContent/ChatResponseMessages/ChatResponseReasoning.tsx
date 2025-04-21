@@ -50,6 +50,8 @@ export const ChatResponseReasoning: React.FC<{
   }, [lastMessageTitle, finalReasoningMessage, blackBoxMessage]);
 
   const href = useMemo(() => {
+    if (!messageId) return '';
+
     if (isReasonginFileSelected) {
       return createBusterRoute({
         route: BusterRoutes.APP_CHAT_ID,
