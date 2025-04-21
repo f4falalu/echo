@@ -3060,11 +3060,35 @@ async fn apply_file_filtering_rules(
                 // Process current turn files
                 let new_filtered_assets =
                     process_current_turn_files(&metrics_this_turn, &dashboards_this_turn)?;
-                // Return context dashboard first, then the processed new assets
-                Ok(vec![context_dashboard_info]
-                    .into_iter()
-                    .chain(new_filtered_assets.into_iter())
-                    .collect())
+
+                // --- START REFACTOR ---
+                // Check if the context dashboard ID is already present in the assets processed this turn
+                let context_dashboard_modified_this_turn = new_filtered_assets
+                    .iter()
+                    .any(|asset| asset.id == context_dashboard_info.id);
+
+                if context_dashboard_modified_this_turn {
+                    // If the context dashboard was modified THIS turn, return only the processed assets for this turn
+                    // (which already includes the updated dashboard)
+                    tracing::debug!("Context dashboard {} was modified this turn. Returning processed assets directly.", ctx_id);
+                    Ok(new_filtered_assets)
+                } else {
+                    // If the context dashboard was NOT modified this turn (only its metrics were),
+                    // return the context dashboard (unmodified info) followed by the other processed assets.
+                    tracing::debug!("Context dashboard {} was NOT modified this turn (only metrics). Prepending context info.", ctx_id);
+                    Ok(vec![context_dashboard_info] // Use the fetched (unmodified) context info
+                        .into_iter()
+                        .chain(new_filtered_assets.into_iter())
+                        .collect())
+                }
+                // --- END REFACTOR ---
+
+                // OLD CODE - REMOVED:
+                // // Return context dashboard first, then the processed new assets
+                // Ok(vec![context_dashboard_info]
+                //     .into_iter()
+                //     .chain(new_filtered_assets.into_iter())
+                //     .collect())
             } else {
                 // No context metric modified, or context parsing failed. Process current turn only.
                 tracing::debug!("No context metric modified (or context parse failed). Processing current turn files only.");

@@ -8,6 +8,7 @@ import { prefetchGetMyUserInfo } from '@/api/buster_rest';
 import { getSupabaseUserContext } from '@/lib/supabase';
 import { AppProviders } from '@/context/AppProviders';
 import { headers } from 'next/headers';
+import { queryKeys } from '@/api/query_keys';
 
 export default async function Layout({
   children
@@ -18,10 +19,19 @@ export default async function Layout({
   const pathname = headersList.get('x-pathname');
   const supabaseContext = await getSupabaseUserContext();
   const { accessToken } = supabaseContext;
-  const { initialData: userInfo, queryClient } = await prefetchGetMyUserInfo({
+  const queryClient = await prefetchGetMyUserInfo({
     jwtToken: accessToken
   });
 
+  const userInfoState = queryClient.getQueryState(queryKeys.userGetUserMyself.queryKey);
+
+  const is402Error = userInfoState?.status === 'error' && userInfoState?.error?.status === 402;
+
+  if (is402Error) {
+    return <ClientRedirect to={createBusterRoute({ route: BusterRoutes.INFO_GETTING_STARTED })} />;
+  }
+
+  const userInfo = queryClient.getQueryData(queryKeys.userGetUserMyself.queryKey);
   const newUserRoute = createBusterRoute({ route: BusterRoutes.NEW_USER });
 
   if (
