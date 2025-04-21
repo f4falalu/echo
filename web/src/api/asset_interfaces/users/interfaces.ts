@@ -1,4 +1,4 @@
-import type { BusterOrganization } from '../organizations';
+import type { BusterOrganization, BusterOrganizationRole } from '../organizations';
 import type { BusterPermissionUser } from '../permission';
 import type { ShareAssetType } from '../share';
 
@@ -70,7 +70,7 @@ export interface OrganizationUser {
   email: string;
   name: string;
   status: 'active' | 'inactive';
-  role: 'dataAdmin' | 'workspaceAdmin' | 'querier' | 'restrictedQuerier' | 'viewer';
+  role: BusterOrganizationRole;
   datasets: OrganizationUserDataset[];
 }
 
