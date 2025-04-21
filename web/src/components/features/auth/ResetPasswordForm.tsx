@@ -106,21 +106,22 @@ export const ResetPasswordForm: React.FC<{
             />
 
             <PolicyCheck
-              placement="top"
               password={password}
-              show={!!password}
-              onCheckChange={(v) => {
+              password2={password2}
+              email={email || ''}
+              onChangePolicyCheck={(v) => {
                 setGoodPassword(v);
-              }}>
-              <Button
-                block
-                variant="black"
-                disabled={disabled}
-                loading={loading}
-                onClick={handleResetPassword}>
-                Reset Password
-              </Button>
-            </PolicyCheck>
+              }}
+            />
+
+            <Button
+              block
+              variant="black"
+              disabled={disabled}
+              loading={loading}
+              onClick={handleResetPassword}>
+              Reset Password
+            </Button>
           </div>
         </>
       )}

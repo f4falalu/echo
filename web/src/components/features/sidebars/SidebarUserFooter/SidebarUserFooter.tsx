@@ -77,6 +77,7 @@ const SidebarUserDropdown: React.FC<{
         label: 'Docs',
         value: 'docs',
         link: BUSTER_DOCS_URL,
+        linkIcon: 'arrow-external',
         icon: <Book2 />
       },
       {
