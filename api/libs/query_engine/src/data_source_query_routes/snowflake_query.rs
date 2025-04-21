@@ -1493,12 +1493,7 @@ fn convert_array_to_datatype(column: &arrow::array::ArrayRef, field: &Field, row
 fn prepare_query(query: &str) -> String {
     const MAX_ROWS: usize = 1_000;
 
-    let query_no_semicolon = query.trim_end_matches(';');
-    if !query_no_semicolon.to_lowercase().contains("limit") {
-        format!("{} FETCH FIRST {} ROWS ONLY", query_no_semicolon, MAX_ROWS)
-    } else {
-        query_no_semicolon.to_string()
-    }
+    query.to_string()
 }
 
 fn process_record_batch(batch: &RecordBatch) -> Vec<IndexMap<String, DataType>> {
