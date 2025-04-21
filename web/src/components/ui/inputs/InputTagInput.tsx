@@ -9,13 +9,14 @@ import { InputTag } from './InputTag';
 
 export interface TagInputProps extends VariantProps<typeof inputVariants> {
   tags: string[];
-  onTagAdd?: (tag: string) => void;
+  onTagAdd?: (tag: string | string[]) => void;
   onTagRemove?: (index: number) => void;
   onChangeText?: (text: string) => void;
   placeholder?: string;
   disabled?: boolean;
   maxTags?: number;
   className?: string;
+  delimiter?: string;
 }
 
 const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
@@ -31,6 +32,7 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
       placeholder,
       disabled = false,
       maxTags,
+      delimiter = ',',
       ...props
     },
     ref
@@ -39,29 +41,42 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
     const containerRef = React.useRef<HTMLDivElement>(null);
     const scrollRef = React.useRef<HTMLDivElement>(null);
 
-    const addTag = useMemoizedFn((value: string) => {
-      const newTag = value.trim();
-      if (newTag !== '' && !tags.includes(newTag)) {
-        if (maxTags && tags.length >= maxTags) return;
-        onTagAdd?.(newTag);
-        setInputValue('');
-        // Scroll to the end after adding a new tag
+    const addMultipleTags = useMemoizedFn((value: string) => {
+      const newTags = value
+        .split(delimiter)
+        .map((tag) => tag.trim())
+        .filter((tag) => tag !== '' && !tags.includes(tag));
+
+      if (maxTags) {
+        const availableSlots = maxTags - tags.length;
+        const validTags = newTags.slice(0, availableSlots);
+        onTagAdd?.(validTags);
+      } else {
+        onTagAdd?.(newTags);
+      }
+
+      setInputValue('');
+
+      requestAnimationFrame(() => {
         if (scrollRef.current) {
           scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
         }
-      }
+      });
     });
 
     const handleBlur = useMemoizedFn(() => {
       if (inputValue.trim() !== '') {
-        addTag(inputValue);
+        addMultipleTags(inputValue);
       }
     });
 
     const handleKeyDown = useMemoizedFn((e: React.KeyboardEvent<HTMLInputElement>) => {
-      if ((e.key === 'Tab' || e.key === 'Enter' || e.key === ',') && inputValue.trim() !== '') {
+      if (
+        (e.key === 'Tab' || e.key === 'Enter' || e.key === delimiter) &&
+        inputValue.trim() !== ''
+      ) {
         e.preventDefault();
-        addTag(inputValue);
+        addMultipleTags(inputValue);
       } else if (e.key === 'Backspace' && inputValue === '' && tags.length > 0 && !disabled) {
         onTagRemove?.(tags.length - 1);
       }
@@ -69,12 +84,21 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
 
     const handleInputChange = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
-      if (value.endsWith(',')) {
-        addTag(value.slice(0, -1));
+      if (value.includes(delimiter)) {
+        addMultipleTags(value);
       } else {
         setInputValue(value);
+        onChangeText?.(value);
       }
-      onChangeText?.(value);
+    });
+
+    const handlePaste = useMemoizedFn((e: React.ClipboardEvent<HTMLInputElement>) => {
+      const pastedText = e.clipboardData.getData('text');
+      if (pastedText.includes(delimiter)) {
+        e.preventDefault();
+        addMultipleTags(pastedText);
+      }
+      // If no delimiter is found, let the default paste behavior handle it
     });
 
     // Focus the container when clicked
@@ -124,6 +148,7 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
+            onPaste={handlePaste}
             className="placeholder:text-gray-light min-w-[120px] flex-1 bg-transparent outline-none disabled:cursor-not-allowed disabled:opacity-50"
             placeholder={tags.length === 0 ? placeholder : undefined}
             disabled={isDisabledInput}

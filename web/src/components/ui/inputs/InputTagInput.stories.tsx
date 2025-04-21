@@ -26,6 +26,13 @@ const meta: Meta<typeof InputTagInput> = {
     },
     maxTags: {
       control: 'number'
+    },
+    delimiter: {
+      control: 'text',
+      description: 'Character used to separate tags (default is comma)',
+      table: {
+        defaultValue: { summary: ',' }
+      }
     }
   }
 };
@@ -37,8 +44,13 @@ type Story = StoryObj<typeof InputTagInput>;
 const InteractiveTagInput = (args: React.ComponentProps<typeof InputTagInput>) => {
   const [tags, setTags] = useState<string[]>(args.tags || []);
 
-  const handleTagAdd = (tag: string) => {
-    setTags([...tags, tag]);
+  const handleTagAdd = (tag: string | string[]) => {
+    console.log('tag', tag);
+    if (Array.isArray(tag)) {
+      setTags([...tags, ...tag]);
+    } else {
+      setTags([...tags, tag]);
+    }
   };
 
   const handleTagRemove = (index: number) => {
@@ -110,5 +122,41 @@ export const Empty: Story = {
   args: {
     placeholder: 'Start typing to add tags...',
     tags: []
+  }
+};
+
+export const CustomDelimiter: Story = {
+  render: (args) => <InteractiveTagInput {...args} />,
+  args: {
+    placeholder: 'Type or paste "tag1;tag2;tag3"...',
+    delimiter: ';',
+    tags: []
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Use a custom delimiter (semicolon in this example) to separate tags. You can:\n' +
+          '1. Type text and press the delimiter to create a tag\n' +
+          '2. Paste a delimited list (e.g., "tag1;tag2;tag3")\n' +
+          '3. Type or paste text with delimiters for automatic tag creation'
+      }
+    }
+  }
+};
+
+export const SpaceDelimiter: Story = {
+  render: (args) => <InteractiveTagInput {...args} />,
+  args: {
+    placeholder: 'Type or paste space-separated tags...',
+    delimiter: ' ',
+    tags: []
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Using space as a delimiter. Perfect for handling space-separated lists of tags.'
+      }
+    }
   }
 };

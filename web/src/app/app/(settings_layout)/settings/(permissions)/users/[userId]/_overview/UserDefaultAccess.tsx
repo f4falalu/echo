@@ -1,4 +1,8 @@
-import { type BusterUser, type OrganizationUser } from '@/api/asset_interfaces';
+import {
+  BusterOrganizationRole,
+  type BusterUser,
+  type OrganizationUser
+} from '@/api/asset_interfaces';
 import React from 'react';
 import { Title, Text } from '@/components/ui/typography';
 import {
@@ -41,10 +45,11 @@ export const UserDefaultAccess: React.FC<{
 };
 
 const accessOptions: SelectItem<OrganizationUser['role']>[] = [
-  { label: 'Data Admin', value: 'dataAdmin' },
-  { label: 'Workspace Admin', value: 'workspaceAdmin' },
-  { label: 'Querier', value: 'querier' },
-  { label: 'Restricted Querier', value: 'restrictedQuerier' }
+  { label: 'Data Admin', value: BusterOrganizationRole.DATA_ADMIN },
+  { label: 'Workspace Admin', value: BusterOrganizationRole.WORKSPACE_ADMIN },
+  { label: 'Querier', value: BusterOrganizationRole.QUERIER },
+  { label: 'Restricted Querier', value: BusterOrganizationRole.RESTRICTED_QUERIER },
+  { label: 'Viewer', value: BusterOrganizationRole.VIEWER }
 ];
 
 const DefaultAccessCard = React.memo(
@@ -74,21 +79,23 @@ const DefaultAccessCard = React.memo(
         <CardContent className="!pt-0">
           <div className="flex items-center justify-between">
             <Text variant="secondary">Access level</Text>
-            <AppTooltip
-              title={
-                isDisabled
-                  ? userIsMe
-                    ? 'You cannot change your own access'
-                    : 'Only admins can change access'
-                  : undefined
-              }>
-              <Select
-                items={accessOptions}
-                value={role}
-                onChange={onChange}
-                disabled={isDisabled}
-              />
-            </AppTooltip>
+            <div className="min-w-44">
+              <AppTooltip
+                title={
+                  isDisabled
+                    ? userIsMe
+                      ? 'You cannot change your own access'
+                      : 'Only admins can change access'
+                    : undefined
+                }>
+                <Select
+                  items={accessOptions}
+                  value={role}
+                  onChange={onChange}
+                  disabled={isDisabled}
+                />
+              </AppTooltip>
+            </div>
           </div>
         </CardContent>
       </Card>

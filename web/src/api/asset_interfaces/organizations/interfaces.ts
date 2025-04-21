@@ -12,5 +12,6 @@ export enum BusterOrganizationRole {
   WORKSPACE_ADMIN = 'workspaceAdmin',
   DATA_ADMIN = 'dataAdmin',
   QUERIER = 'querier',
-  RESTRICTED_QUERIER = 'restrictedQuerier'
+  RESTRICTED_QUERIER = 'restrictedQuerier',
+  VIEWER = 'viewer'
 }
