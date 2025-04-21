@@ -117,5 +117,8 @@ export const useChatInputFlow = ({
     textAreaRef.current?.select();
   });
 
-  return { onSubmitPreflight, onStopChat };
+  return useMemo(
+    () => ({ onSubmitPreflight, onStopChat, isFileChanged }),
+    [onSubmitPreflight, onStopChat, isFileChanged]
+  );
 };

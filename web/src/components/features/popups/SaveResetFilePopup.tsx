@@ -25,15 +25,15 @@ export const SaveResetFilePopup: React.FC<{
             open={open}
             showHotsKeys={showHotsKeys}
           />
-
-          <PreventNavigation
-            title="Unsaved changes"
-            isDirty={open}
-            description="Are you sure you want to leave this page?"
-            onOk={onSave}
-            onCancel={onReset}
-          />
         </PopupContainer>
+
+        <PreventNavigation
+          title="Unsaved changes"
+          isDirty={open}
+          description="Are you sure you want to leave this page?"
+          onOk={onSave}
+          onCancel={onReset}
+        />
       </>
     );
   }
