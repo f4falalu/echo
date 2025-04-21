@@ -155,6 +155,10 @@ export const InputTextArea = React.forwardRef<HTMLTextAreaElement, InputTextArea
       };
     }, [autoResize]);
 
+    useEffect(() => {
+      if (!props.value) adjustHeight();
+    }, [props.value]);
+
     return (
       <textarea
         ref={combinedRef}

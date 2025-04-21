@@ -67,7 +67,7 @@ export const useGetMetric = <TData = IBusterMetric>(
   });
 
   return useQuery({
-    queryKey: metricsQueryKeys.metricsGetMetric(id!, selectedVersionNumber).queryKey,
+    ...metricsQueryKeys.metricsGetMetric(id!, selectedVersionNumber),
     enabled: !!latestVersionNumber && isFetchedInitial && !isErrorInitial,
     queryFn: () => initialQueryFn(selectedVersionNumber),
     select: params?.select
