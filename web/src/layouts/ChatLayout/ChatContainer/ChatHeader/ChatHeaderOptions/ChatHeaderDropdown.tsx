@@ -1,7 +1,7 @@
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import React, { useMemo } from 'react';
 import { useChatIndividualContextSelector } from '../../../ChatContext';
-import { Copy, Trash, Pencil } from '@/components/ui/icons';
+import { Copy, Trash, Pencil, DuplicatePlus } from '@/components/ui/icons';
 import { useDeleteChat, useDuplicateChat } from '@/api/buster_rest/chats';
 import { CHAT_HEADER_TITLE_ID } from '../ChatHeaderTitle';
 import { timeout } from '@/lib';
@@ -44,7 +44,7 @@ export const ChatContainerHeaderDropdown: React.FC<{
       {
         label: 'Duplicate chat',
         value: 'duplicate',
-        icon: <Copy />,
+        icon: <DuplicatePlus />,
         loading: isDuplicating,
         onClick: async () => {
           if (chatId) {
