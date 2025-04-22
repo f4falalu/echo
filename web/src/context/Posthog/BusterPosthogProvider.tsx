@@ -24,6 +24,9 @@ const options: Partial<PostHogConfig> = {
   person_profiles: 'always',
   session_recording: {
     recordBody: true
+  },
+  loaded: (x) => {
+    console.log('Posthog loaded', x);
   }
 };
 
@@ -34,6 +37,12 @@ const PosthogWrapper: React.FC<PropsWithChildren<{}>> = ({ children }) => {
   const team = userTeams[0];
 
   useEffect(() => {
+    console.log('user', user);
+    console.log('team', team);
+    console.log(POSTHOG_KEY);
+    console.log(isServer);
+    console.log(posthog);
+
     if (POSTHOG_KEY && !isServer && user && posthog && team) {
       posthog.init(POSTHOG_KEY, options);
 
