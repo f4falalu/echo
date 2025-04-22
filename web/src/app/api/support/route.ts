@@ -2,10 +2,14 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { AppSupportRequest } from '@/api/buster_rest/nextjs/support';
+import { createClient } from '@/lib/supabase/server';
 
-const slackHookURL = process.env.NEXT_SLACK_APP_SUPPORT_URL!;
+const slackHookURL = process.env.NEXT_PUBLIC_SLACK_APP_SUPPORT_URL!;
+const STORAGE_BUCKET = 'support-screenshots'; // Using the default public bucket that usually exists
 
 export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+
   // Parse and validate the request body
   const body = (await request.json()) as AppSupportRequest;
 
@@ -23,6 +27,53 @@ export async function POST(request: NextRequest) {
   // Additional validation for help requests
   if (body.type === 'help' && !body.subject) {
     return NextResponse.json({ error: 'Help requests require a subject' }, { status: 400 });
+  }
+
+  // Handle screenshot upload if present
+  let screenshotUrl: string | undefined;
+  if (body.screenshot) {
+    try {
+      // Remove the data:image/png;base64, prefix if it exists
+      const base64Data = body.screenshot.replace(/^data:image\/\w+;base64,/, '');
+
+      // Convert base64 to Buffer
+      const buffer = Buffer.from(base64Data, 'base64');
+
+      // Generate a unique filename
+      const timestamp = new Date().getTime();
+      const filename = `${body.organizationId}/${timestamp}.png`;
+
+      // Check if bucket exists
+      const { data: buckets, error: errorBuckets } = await supabase.storage.listBuckets();
+      const bucketExists = buckets?.some((bucket) => bucket.name === STORAGE_BUCKET);
+      const bucket = await supabase.storage.getBucket(STORAGE_BUCKET);
+
+      if (!bucketExists) {
+        console.error('Storage bucket does not exist:', STORAGE_BUCKET);
+        throw new Error('Storage bucket does not exist');
+      }
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(filename, buffer, {
+          contentType: 'image/png',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Error uploading screenshot:', uploadError);
+      } else {
+        // Get the public URL
+        const {
+          data: { publicUrl }
+        } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(filename);
+
+        screenshotUrl = publicUrl;
+      }
+    } catch (error) {
+      console.error('Error processing screenshot:', error);
+    }
   }
 
   const slackMessage = {
@@ -82,17 +133,32 @@ export async function POST(request: NextRequest) {
           text: `*Additional Information:*\n• URL: ${body.currentURL}\n• Timestamp: ${body.currentTimestamp}`
         }
       },
-      ...(body.screenshot
+      ...(screenshotUrl
         ? [
             {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `*Screenshot (base64):*\n\`\`\`${body.screenshot}\`\`\``
+                text: '*Screenshot:*'
               }
+            },
+            {
+              type: 'image',
+              image_url: screenshotUrl,
+              alt_text: 'Support request screenshot'
             }
           ]
-        : [])
+        : body.screenshot
+          ? [
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: '*Screenshot:* Failed to upload screenshot to storage. Screenshot was provided but could not be processed. Storage bucket does not exist: public'
+                }
+              }
+            ]
+          : [])
     ]
   };
 
@@ -106,7 +172,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (!response.ok) {
-    return NextResponse.json({ error: 'Failed to send message to Slack' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });
