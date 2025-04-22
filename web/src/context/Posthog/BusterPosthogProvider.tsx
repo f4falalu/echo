@@ -25,11 +25,10 @@ const options: Partial<PostHogConfig> = {
   session_recording: {
     recordBody: true
   },
-  loaded: (x) => {
+  loaded: () => {
     console.log(
-      '%c🎉 Posthog loaded! 🚀',
-      'background: linear-gradient(to right, #ff6b6b, #4ecdc4); color: white; font-size: 20px; font-weight: bold; padding: 10px; border-radius: 5px;',
-      x
+      '%c🚀 Buster loaded! 🦖',
+      'background: linear-gradient(to right, #a21caf, #8b1cb1, #6b21a8); color: white; font-size: 16px; font-weight: bold; padding: 10px; border-radius: 5px;'
     );
   }
 };
