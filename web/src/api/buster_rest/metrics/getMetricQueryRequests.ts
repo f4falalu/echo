@@ -44,9 +44,9 @@ export const useGetMetric = <TData = IBusterMetric>(
     const isLatestVersion =
       updatedMetric.version_number === last(updatedMetric.versions)?.version_number;
     if (isLatestVersion) {
-      onSetLatestMetricVersion(id!, updatedMetric.version_number);
       setOriginalMetric(updatedMetric);
     }
+    onSetLatestMetricVersion(id!, last(updatedMetric.versions)?.version_number || 0);
     if (result?.version_number) {
       queryClient.setQueryData(
         metricsQueryKeys.metricsGetMetric(result.id, result.version_number).queryKey,

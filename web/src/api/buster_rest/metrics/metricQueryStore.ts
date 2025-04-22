@@ -31,14 +31,13 @@ export const useGetMetricVersionNumber = (props?: {
 
   const versionNumberQueryParam = useChatLayoutContextSelector((x) => x.metricVersionNumber);
   const metricIdPathParam = useChatLayoutContextSelector((x) => x.metricId);
-  const versionNumberFromParams = metricId ? versionNumberQueryParam : undefined;
   const latestVersionNumber = useMetricQueryStore(
     (x) => x.latestMetricVersions[metricId || metricIdPathParam || '']
   );
 
   const paramVersionNumber = useMemo(() => {
-    return versionNumberFromParams ? versionNumberFromParams : undefined;
-  }, [versionNumberFromParams]);
+    return versionNumberQueryParam ? versionNumberQueryParam : undefined;
+  }, [versionNumberQueryParam]);
 
   const effectiveVersionNumber = useMemo(() => {
     if (versionNumber === null) return null;
