@@ -7,6 +7,25 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { AppModal } from '@/components/ui/modal';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
+import { exportElementToImage, downloadImageData } from '@/lib/exportUtils';
+
+const hideDialogElements = () => {
+  const dialogElements = document.querySelectorAll('.dialog-content, .dialog-overlay');
+  dialogElements.forEach((element) => {
+    if (element instanceof HTMLElement) {
+      element.style.display = 'none';
+    }
+  });
+};
+
+const showDialogElements = () => {
+  const dialogElements = document.querySelectorAll('.dialog-content, .dialog-overlay');
+  dialogElements.forEach((element) => {
+    if (element instanceof HTMLElement) {
+      element.style.display = '';
+    }
+  });
+};
 
 export const SupportModal: React.FC<{
   onClose: () => void;
@@ -25,6 +44,20 @@ export const SupportModal: React.FC<{
   const handleSubmitHelpRequest = useMemoizedFn(async () => {
     setLoading(true);
     try {
+      // Get the main app element (assuming it's the first child of body)
+      const mainBody = document.body as HTMLElement;
+
+      // Hide dialog elements before taking screenshot
+      hideDialogElements();
+
+      const screenshot = await exportElementToImage(mainBody);
+
+      // Restore dialog elements after taking screenshot
+      showDialogElements();
+
+      // Download the screenshot
+      await downloadImageData(screenshot, `buster_support_${new Date().toISOString()}.png`);
+
       const res = await submitAppSupportRequest({
         userName: user?.name!,
         userEmail: user?.email!,
@@ -36,7 +69,7 @@ export const SupportModal: React.FC<{
         organizationName: userOrganizations?.name || '',
         currentURL: window.location.href,
         currentTimestamp: new Date().toISOString(),
-        screenshot: ''
+        screenshot
       });
       setLoading(false);
       openSuccessMessage('Help request submitted successfully');
@@ -89,7 +122,7 @@ export const SupportModal: React.FC<{
 
     return {
       title: 'Contact support',
-      description: `Contact support to report issues or ask questions. With your request, we’ll be able to see the page that you’re currently on.`
+      description: `Contact support to report issues or ask questions. With your request, we'll be able to see the page that you're currently on.`
     };
   }, [selectedForm]);
 
