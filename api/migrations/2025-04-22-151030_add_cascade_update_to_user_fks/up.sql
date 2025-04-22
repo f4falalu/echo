@@ -50,6 +50,14 @@ SELECT alter_fk_on_update('collections', 'created_by', 'users', 'id', 'CASCADE')
 SELECT alter_fk_on_update('collections', 'updated_by', 'users', 'id', 'CASCADE');
 SELECT alter_fk_on_update('collections_to_assets', 'created_by', 'users', 'id', 'CASCADE');
 SELECT alter_fk_on_update('collections_to_assets', 'updated_by', 'users', 'id', 'CASCADE');
+
+-- Clean up orphan dashboard_files before altering the FK
+DELETE FROM dashboard_files
+WHERE created_by IS NOT NULL
+AND NOT EXISTS (
+    SELECT 1 FROM users WHERE users.id = dashboard_files.created_by
+);
+
 SELECT alter_fk_on_update('dashboard_files', 'created_by', 'users', 'id', 'CASCADE');
 SELECT alter_fk_on_update('dashboard_files', 'publicly_enabled_by', 'users', 'id', 'CASCADE');
 SELECT alter_fk_on_update('dashboards', 'created_by', 'users', 'id', 'CASCADE');
