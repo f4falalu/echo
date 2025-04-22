@@ -99,7 +99,8 @@ const adminTools: ISidebarGroup = {
 
 const tryGroup = (
   onClickInvitePeople: () => void,
-  onClickLeaveFeedback: () => void
+  onClickLeaveFeedback: () => void,
+  isAdmin: boolean
 ): ISidebarGroup => ({
   label: 'Try',
   id: 'try',
@@ -109,7 +110,8 @@ const tryGroup = (
       icon: <Plus />,
       route: null,
       id: 'invite-people',
-      onClick: onClickInvitePeople
+      onClick: onClickInvitePeople,
+      show: isAdmin
     },
     {
       label: 'Leave feedback',
@@ -118,7 +120,7 @@ const tryGroup = (
       id: 'leave-feedback',
       onClick: onClickLeaveFeedback
     }
-  ]
+  ].filter((x) => x.show !== false)
 });
 
 export const SidebarPrimary = React.memo(() => {
@@ -150,7 +152,7 @@ export const SidebarPrimary = React.memo(() => {
       items.push(favoritesDropdown(favorites, { deleteUserFavorite, onFavoritesReorder }));
     }
 
-    items.push(tryGroup(onToggleInviteModal, () => onOpenContactSupportModal('feedback')));
+    items.push(tryGroup(onToggleInviteModal, () => onOpenContactSupportModal('feedback'), isAdmin));
 
     return items;
   }, [isAdmin, isUserRegistered, favorites, currentParentRoute, onFavoritesReorder]);

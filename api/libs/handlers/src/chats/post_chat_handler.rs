@@ -3180,7 +3180,38 @@ fn process_current_turn_files(
 // Helper function to generate response message JSON values
 fn generate_file_response_values(filtered_files: &[CompletedFileInfo]) -> Vec<Value> {
     let mut file_response_values = Vec::new();
+    // --- START MODIFICATION ---
+    // Use a HashMap to store the latest version of each file ID seen
+    let mut latest_files: HashMap<String, CompletedFileInfo> = HashMap::new();
+
     for file_info in filtered_files {
+        // Check if this file ID is already in the map, or if the current file has a higher version
+        let should_insert = latest_files
+            .get(&file_info.id)
+            .map_or(true, |existing_file| file_info.version_number > existing_file.version_number);
+
+        if should_insert {
+             latest_files.insert(file_info.id.clone(), file_info.clone());
+        } else {
+             // Log if we skipped a file because a newer version was already present (or the same version)
+             if latest_files.contains_key(&file_info.id) {
+                 tracing::debug!(
+                     "Skipping file ID {} (version {}) because a newer or same version is already selected.",
+                     file_info.id,
+                     file_info.version_number
+                 );
+             }
+        }
+    }
+
+    // Convert the values (latest versions) from the map into a Vec
+    // Note: HashMap iteration order is not guaranteed. If order matters, sort here.
+    // For now, we'll use the order provided by the HashMap's values iterator.
+    let unique_latest_files: Vec<&CompletedFileInfo> = latest_files.values().collect();
+    // --- END MODIFICATION ---
+
+    // Generate response values from the unique, latest list
+    for file_info in unique_latest_files { // Use the deduplicated list with latest versions
         let response_message = BusterChatMessage::File {
             id: file_info.id.clone(),
             file_type: file_info.file_type.clone(),
@@ -3189,7 +3220,7 @@ fn generate_file_response_values(filtered_files: &[CompletedFileInfo]) -> Vec<Va
             filter_version_id: None,
             metadata: Some(vec![BusterChatResponseFileMetadata {
                 status: "completed".to_string(),
-                message: format!("Created new {} file", file_info.file_type),
+                message: format!("Created new {} file", file_info.file_type), // Message might need adjustment if file was modified?
                 timestamp: Some(Utc::now().timestamp()),
             }]),
         };

@@ -7,6 +7,8 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { AppModal } from '@/components/ui/modal';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
+import { capturePageScreenshot } from '@/lib/exportUtils';
+import { timeout } from '@/lib';
 
 export const SupportModal: React.FC<{
   onClose: () => void;
@@ -25,6 +27,13 @@ export const SupportModal: React.FC<{
   const handleSubmitHelpRequest = useMemoizedFn(async () => {
     setLoading(true);
     try {
+      const mainBody = document.body as HTMLElement;
+      await timeout(100);
+      const screenshot = await capturePageScreenshot(mainBody, [
+        '.dialog-content',
+        '.dialog-overlay'
+      ]);
+
       const res = await submitAppSupportRequest({
         userName: user?.name!,
         userEmail: user?.email!,
@@ -32,12 +41,17 @@ export const SupportModal: React.FC<{
         subject,
         message: selectedForm === 'feedback' ? feedback : helpRequest,
         type: selectedForm === 'feedback' ? 'feedback' : 'help',
-        organizationId: userOrganizations?.id!
+        organizationId: userOrganizations?.id || '',
+        organizationName: userOrganizations?.name || '',
+        currentURL: window.location.href,
+        currentTimestamp: new Date().toISOString(),
+        screenshot
       });
       setLoading(false);
       openSuccessMessage('Help request submitted successfully');
       onClose();
     } catch (error) {
+      console.error(error);
       openErrorNotification({ title: 'Failed to submit help request' });
       setLoading(false);
     }
@@ -85,7 +99,7 @@ export const SupportModal: React.FC<{
 
     return {
       title: 'Contact support',
-      description: `Contact support to report issues or ask questions. With your request, we’ll be able to see the page that you’re currently on.`
+      description: `Contact support to report issues or ask questions. With your request, we'll be able to see the page that you're currently on.`
     };
   }, [selectedForm]);
 

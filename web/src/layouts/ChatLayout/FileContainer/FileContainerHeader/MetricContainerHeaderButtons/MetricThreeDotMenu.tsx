@@ -54,6 +54,7 @@ import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { useListVersionDropdownItems } from '@/components/features/versionHistory/useListVersionDropdownItems';
 import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
+import { useUserConfigContextSelector, useUserConfigProvider } from '@/context/Users';
 
 export const ThreeDotMenuButton = React.memo(
   ({
@@ -292,13 +293,14 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
 const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
   const { data: metricStatus } = useGetMetric({ id: metricId }, { select: (x) => x.status });
   const { mutate: updateStatus } = useBulkUpdateMetricVerificationStatus();
+  const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
 
   const onChangeStatus = useMemoizedFn(async (status: VerificationStatus) => {
     return updateStatus([{ id: metricId, status }]);
   });
 
   const dropdownProps = useStatusDropdownContent({
-    isAdmin: true,
+    isAdmin,
     selectedStatus: metricStatus || VerificationStatus.NOT_REQUESTED,
     onChangeStatus
   });

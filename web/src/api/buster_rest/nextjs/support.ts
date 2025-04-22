@@ -8,6 +8,10 @@ export interface AppSupportRequest {
   subject?: string;
   type: 'feedback' | 'help';
   organizationId: string;
+  organizationName: string;
+  currentURL: string;
+  currentTimestamp: string;
+  screenshot: string; //base64 encoded image
 }
 
 export const submitAppSupportRequest = async (data: AppSupportRequest) => {

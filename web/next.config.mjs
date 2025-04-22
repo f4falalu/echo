@@ -45,7 +45,11 @@ const createCspHeader = (isEmbed = false) => {
     // Base URI
     "base-uri 'self'",
     // Manifest
-    "manifest-src 'self'"
+    "manifest-src 'self'",
+    // Worker sources
+    "worker-src 'self' blob: data:",
+    // Child sources
+    "child-src 'self' blob: data:"
   ].join('; ');
 };
 
