@@ -8,6 +8,10 @@ const slackHookURL = process.env.NEXT_PUBLIC_SLACK_APP_SUPPORT_URL!;
 const STORAGE_BUCKET = 'support-screenshots'; // Using the default public bucket that usually exists
 
 export async function POST(request: NextRequest) {
+  if (!slackHookURL) {
+    return NextResponse.json({ error: 'Slack hook URL is not set' }, { status: 500 });
+  }
+
   const supabase = await createClient();
 
   // Parse and validate the request body
@@ -167,6 +171,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error stringifying message:', error);
   }
+
+  console.log('slackHookURL', slackHookURL);
 
   // Send the formatted message to Slack
   try {
