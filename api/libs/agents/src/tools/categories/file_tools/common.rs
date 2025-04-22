@@ -524,11 +524,6 @@ definitions:
                 items:
                   type: string
                 description: LOWERCASE column name from SQL for category grouping.
-              tooltip:
-                type: array
-                items:
-                  type: string
-                description: LOWERCASE column names from SQL to show in tooltip.
             required:
               - x
               - y
@@ -574,10 +569,6 @@ definitions:
                 type: array
                 items:
                   type: string
-              tooltip:
-                type: array
-                items:
-                  type: string
             required:
               - x
               - y
@@ -604,10 +595,6 @@ definitions:
                 type: array
                 items:
                   type: string
-              tooltip:
-                type: array
-                items:
-                  type: string
             required:
               - x
               - y
@@ -631,10 +618,6 @@ definitions:
                 items:
                   type: string
               y:
-                type: array
-                items:
-                  type: string
-              tooltip:
                 type: array
                 items:
                   type: string

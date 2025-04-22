@@ -26,7 +26,11 @@ const options: Partial<PostHogConfig> = {
     recordBody: true
   },
   loaded: (x) => {
-    console.log('Posthog loaded', x);
+    console.log(
+      '%c🎉 Posthog loaded! 🚀',
+      'background: linear-gradient(to right, #ff6b6b, #4ecdc4); color: white; font-size: 20px; font-weight: bold; padding: 10px; border-radius: 5px;',
+      x
+    );
   }
 };
 
@@ -37,12 +41,6 @@ const PosthogWrapper: React.FC<PropsWithChildren<{}>> = ({ children }) => {
   const team = userTeams[0];
 
   useEffect(() => {
-    console.log('user', user);
-    console.log('team', team);
-    console.log(POSTHOG_KEY);
-    console.log(isServer);
-    console.log(posthog);
-
     if (POSTHOG_KEY && !isServer && user && posthog && team) {
       posthog.init(POSTHOG_KEY, options);
 
