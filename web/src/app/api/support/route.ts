@@ -4,11 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AppSupportRequest } from '@/api/buster_rest/nextjs/support';
 import { createClient } from '@/lib/supabase/server';
 
-const slackHookURL = process.env.NEXT_PUBLIC_SLACK_APP_SUPPORT_URL!;
+const slackHookURL = process.env.NEXT_SLACK_APP_SUPPORT_URL!;
 const STORAGE_BUCKET = 'support-screenshots'; // Using the default public bucket that usually exists
 
 export async function POST(request: NextRequest) {
   if (!slackHookURL) {
+    console.error('Slack hook URL is not set');
     return NextResponse.json({ error: 'Slack hook URL is not set' }, { status: 500 });
   }
 
@@ -118,7 +119,11 @@ export async function POST(request: NextRequest) {
           },
           {
             type: 'mrkdwn',
-            text: `*Organization:* ${body.organizationName} (${body.organizationId})`
+            text: `*Organization Name:* ${body.organizationName}`
+          },
+          {
+            type: 'mrkdwn',
+            text: `*Organization ID:* ${body.organizationId}`
           }
         ]
       },
@@ -165,17 +170,20 @@ export async function POST(request: NextRequest) {
     ]
   };
 
-  try {
-    const stringifiedMessage = JSON.stringify(slackMessage);
-    console.log(stringifiedMessage);
-  } catch (error) {
-    console.error('Error stringifying message:', error);
-  }
-
-  console.log('slackHookURL', slackHookURL);
-
   // Send the formatted message to Slack
   try {
+    // Remove screenshot block if URL is localhost/127.0.0.1
+    if (
+      screenshotUrl &&
+      (screenshotUrl.includes('localhost') || screenshotUrl.includes('127.0.0.1'))
+    ) {
+      slackMessage.blocks = slackMessage.blocks.filter(
+        (block) =>
+          block.type !== 'image' &&
+          !(block.type === 'section' && block.text?.text === '*Screenshot:*')
+      );
+    }
+
     const response = await fetch(slackHookURL, {
       method: 'POST',
       headers: {
@@ -183,18 +191,30 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify(slackMessage)
     });
-    if (!response.ok) {
-      console.error('Failed to send message to Slack:', response);
-      console.error('Slack error message 1:', response.statusText);
-      const slackErrorMessage = await response.json();
-      console.error('Slack error message 2:', slackErrorMessage);
 
-      return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Failed to send message to Slack. Status:', response.status);
+      console.error('Response:', errorText);
+
+      return NextResponse.json(
+        {
+          error: 'Failed to send message to Slack',
+          details: `Status ${response.status}: ${errorText}`
+        },
+        { status: 500 }
+      );
     }
+
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error sending message to Slack:', error);
-    return NextResponse.json({ error: 'Failed to send message to Slack' }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Failed to send message to Slack',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json({ success: true });
 }
