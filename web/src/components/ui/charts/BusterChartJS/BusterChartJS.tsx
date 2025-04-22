@@ -6,7 +6,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_METADATA } from '@/api/asset_interfaces/metric';
 import { BusterChartJSLegendWrapper } from './BusterChartJSLegendWrapper';
 import { ChartJSOrUndefined } from './core/types';
-import { useMemoizedFn, useMount } from '@/hooks';
+import { useMemoizedFn } from '@/hooks';
 import { BusterChartJSComponent } from './BusterChartJSComponent';
 import type { BusterChartComponentProps } from '../interfaces';
 
@@ -59,6 +59,7 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
       colors={colors}
       chartRef={chartRef}
       datasetOptions={datasetOptions}
+      isDownsampled={props.isDownsampled}
       pieMinimumSlicePercentage={pieMinimumSlicePercentage}>
       <BusterChartJSComponent
         ref={chartRef}

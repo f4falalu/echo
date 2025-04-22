@@ -12,7 +12,7 @@ export interface TooltipProps
   extends Pick<React.ComponentProps<typeof TooltipContentBase>, 'align' | 'side' | 'sideOffset'>,
     Pick<React.ComponentProps<typeof TooltipProvider>, 'delayDuration' | 'skipDelayDuration'> {
   children: React.ReactNode;
-  title: string | undefined;
+  title: string | React.ReactNode | undefined;
   shortcuts?: string[];
   open?: boolean;
 }
@@ -55,7 +55,7 @@ export const Tooltip = React.memo(
 );
 
 const TooltipContent: React.FC<{
-  title: string;
+  title: string | React.ReactNode;
   shortcut?: string[];
 }> = ({ title, shortcut }) => {
   return (

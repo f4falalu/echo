@@ -34,6 +34,7 @@ import {
 import { type TrendlineDataset, useDataTrendlineOptions } from './useDataTrendlineOptions';
 import type { DatasetOption } from './interfaces';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
+import { DOWNSIZE_SAMPLE_THRESHOLD } from '../../config';
 
 type DatasetHookResult = {
   datasetOptions: DatasetOption[];
@@ -42,6 +43,7 @@ type DatasetHookResult = {
   y2AxisKeys: string[];
   tooltipKeys: string[];
   hasMismatchedTooltipsAndMeasures: boolean;
+  isDownsampled: boolean;
 };
 
 type DatasetHookParams = {
@@ -125,6 +127,10 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     return uniq([...yAxisFields, ...y2AxisFields, ...tooltipFields]);
   }, [yAxisFieldsString, y2AxisFieldsString, tooltipFieldsString]);
 
+  const isDownsampled = useMemo(() => {
+    return data.length > DOWNSIZE_SAMPLE_THRESHOLD;
+  }, [data]);
+
   const sortedAndLimitedData = useMemo(() => {
     if (isScatter) return downsampleScatterData(data);
     return sortLineBarData(data, columnMetadata, xFieldSorts, xFields);
@@ -139,18 +145,25 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     return measureFields
       .map((field) => {
         const value = columnLabelFormats[field]?.replaceMissingDataWith;
-        if (value === undefined) return 0;
-        if (value === null) return null;
-        if (value === '') return '';
+        if (value === undefined) return 'undefined';
+        if (value === null) return 'null';
+        if (value === '') return 'empty';
         return value;
       })
       .join(',');
   }, [measureFields.join(''), columnLabelFormats]);
 
+  const dimensions: string[] = useMemo(() => {
+    if (isScatter) {
+      return getScatterDimensions(categoriesSet, xAxisField, measureFields, sizeField);
+    }
+    return getLineBarPieDimensions(categoriesSet, measureFields, xFields);
+  }, [categoriesSet, measureFields, xFieldsString, sizeFieldString, isScatter]);
+
   const processedData = useMemo(() => {
     if (isScatter) {
       return processScatterData(
-        data,
+        sortedAndLimitedData,
         xAxisField,
         measureFields,
         categoryFields,
@@ -168,7 +181,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
       columnLabelFormats
     );
   }, [
-    data,
+    sortedAndLimitedData,
     xFieldSortsString,
     xFieldsString,
     isScatter,
@@ -177,15 +190,9 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     dataMap,
     measureFields,
     sizeFieldString,
+    dimensions,
     measureFieldsReplaceDataWithKey //use this instead of columnLabelFormats
   ]);
-
-  const dimensions: string[] = useMemo(() => {
-    if (isScatter) {
-      return getScatterDimensions(categoriesSet, xAxisField, measureFields, sizeField);
-    }
-    return getLineBarPieDimensions(categoriesSet, measureFields, xFields);
-  }, [categoriesSet, measureFields, xFieldsString, sizeFieldString, isScatter]);
 
   const yAxisKeys = useMemo(() => {
     if (isScatter) return getLineBarPieYAxisKeys(categoriesSet, yAxisFields); //not a typo. I want to use the same function for both scatter and bar/line/pie
@@ -258,11 +265,12 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   });
 
   return {
-    datasetOptions,
+    datasetOptions, //this is a matrix of dimensions x measures
     dataTrendlineOptions,
     yAxisKeys,
     y2AxisKeys,
     tooltipKeys,
-    hasMismatchedTooltipsAndMeasures
+    hasMismatchedTooltipsAndMeasures,
+    isDownsampled
   };
 };

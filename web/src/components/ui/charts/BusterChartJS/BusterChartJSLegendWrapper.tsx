@@ -24,6 +24,7 @@ interface BusterChartJSLegendWrapperProps {
   chartRef: React.RefObject<ChartJSOrUndefined | null>;
   datasetOptions: DatasetOption[];
   pieMinimumSlicePercentage: NonNullable<BusterChartProps['pieMinimumSlicePercentage']>;
+  isDownsampled: boolean;
 }
 
 export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperProps>(
@@ -45,7 +46,8 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
     barGroupType,
     colors,
     datasetOptions,
-    pieMinimumSlicePercentage
+    pieMinimumSlicePercentage,
+    isDownsampled
   }) => {
     const {
       renderLegend,
@@ -81,6 +83,7 @@ export const BusterChartJSLegendWrapper = React.memo<BusterChartJSLegendWrapperP
         renderLegend={renderLegend}
         legendItems={legendItems}
         showLegend={showLegend}
+        isDownsampled={isDownsampled}
         showLegendHeadline={showLegendHeadline}
         inactiveDatasets={inactiveDatasets}
         onHoverItem={onHoverItem}

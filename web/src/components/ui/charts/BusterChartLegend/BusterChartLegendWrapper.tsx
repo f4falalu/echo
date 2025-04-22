@@ -7,6 +7,7 @@ import {
 } from '../chartHooks/useChartWrapperProvider';
 import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoader } from '../../loaders';
+import { DownsampleAlert } from './DownsampleAlert';
 
 export type BusterChartLegendWrapper = {
   children: React.ReactNode;
@@ -18,6 +19,7 @@ export type BusterChartLegendWrapper = {
   className: string | undefined;
   animateLegend: boolean;
   isUpdatingChart?: boolean;
+  isDownsampled: boolean;
   onHoverItem: (item: BusterChartLegendItem, isHover: boolean) => void;
   onLegendItemClick: (item: BusterChartLegendItem) => void;
   onLegendItemFocus: ((item: BusterChartLegendItem) => void) | undefined;
@@ -34,6 +36,7 @@ export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> = Reac
     animateLegend,
     className,
     isUpdatingChart,
+    isDownsampled,
     onHoverItem,
     onLegendItemClick,
     onLegendItemFocus
@@ -42,7 +45,8 @@ export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> = Reac
 
     return (
       <ChartLegendWrapperProvider inactiveDatasets={inactiveDatasets}>
-        <div className={cn(className, 'flex h-full w-full flex-col overflow-hidden')}>
+        <div
+          className={cn('legend-wrapper flex h-full w-full flex-col overflow-hidden', className)}>
           {renderLegend && (
             <BusterChartLegend
               show={showLegend}
@@ -56,9 +60,10 @@ export const BusterChartLegendWrapper: React.FC<BusterChartLegendWrapper> = Reac
             />
           )}
 
-          <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
+          <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
             {isUpdatingChart && <LoadingOverlay />}
             {children}
+            {isDownsampled && <DownsampleAlert isDownsampled={isDownsampled} />}
           </div>
         </div>
       </ChartLegendWrapperProvider>
