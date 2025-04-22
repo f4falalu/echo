@@ -179,6 +179,10 @@ export async function POST(request: NextRequest) {
     });
     if (!response.ok) {
       console.error('Failed to send message to Slack:', response);
+      console.error('Slack error message 1:', response.statusText);
+      const slackErrorMessage = await response.json();
+      console.error('Slack error message 2:', slackErrorMessage);
+
       return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
     }
   } catch (error) {
