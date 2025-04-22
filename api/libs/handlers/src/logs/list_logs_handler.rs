@@ -24,9 +24,9 @@ pub struct LogListItem {
     pub created_by_name: String,
     pub created_by_avatar: Option<String>,
     pub last_edited: String,
-    pub most_recent_file_id: Option<String>,
-    pub most_recent_file_type: Option<String>,
-    pub most_recent_version_number: Option<i32>,
+    pub latest_file_id: Option<String>,
+    pub latest_file_type: Option<String>,
+    pub latest_version_number: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -129,9 +129,9 @@ pub async fn list_logs_handler(
                 created_by_name: chat.user_name.unwrap_or_else(|| "Unknown".to_string()),
                 created_by_avatar,
                 last_edited: chat.updated_at.to_rfc3339(),
-                most_recent_file_id: chat.most_recent_file_id.map(|id| id.to_string()),
-                most_recent_file_type: chat.most_recent_file_type,
-                most_recent_version_number: chat.most_recent_version_number,
+                latest_file_id: chat.most_recent_file_id.map(|id| id.to_string()),
+                latest_file_type: chat.most_recent_file_type,
+                latest_version_number: chat.most_recent_version_number,
             }
         })
         .collect();
