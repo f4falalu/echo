@@ -46,6 +46,7 @@ export const useAutoChangeLayout = ({
   const hasReasoning = !!reasoningMessagesLength;
 
   useEffect(() => {
+    console.log('REASONING: useEffect', isCompletedStream, hasReasoning, chatId, lastMessageId);
     //this will trigger when the chat is streaming and is has not completed yet (new chat)
     if (
       !isCompletedStream &&
@@ -57,12 +58,12 @@ export const useAutoChangeLayout = ({
 
       onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
 
-      console.log('FLIP TO REASONING!', lastMessageId);
+      console.log('REASONING: FLIP TO REASONING!', lastMessageId);
     }
 
     //this will when the chat is completed and it WAS streaming
     else if (isCompletedStream && previousIsCompletedStream === false) {
-      console.log('SELECT STREAMING FILE');
+      console.log('REASONING: SELECT STREAMING FILE');
       const chatMessage = getChatMessageMemoized(lastMessageId);
       const lastFileId = findLast(chatMessage?.response_message_ids, (id) => {
         const responseMessage = chatMessage?.response_messages[id];
@@ -89,7 +90,7 @@ export const useAutoChangeLayout = ({
     }
     //this will trigger on a page refresh and the chat is completed
     else if (isCompletedStream && chatId) {
-      console.log('SELECT INITIAL CHAT FILE - PAGE LOAD');
+      console.log('REASONING: SELECT INITIAL CHAT FILE - PAGE LOAD');
       const isChatOnlyMode = !metricId && !dashboardId && !messageId;
       if (isChatOnlyMode) {
         return;
