@@ -57,10 +57,12 @@ export const MetricViewChart: React.FC<{
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
 
     const isTable = metric?.chart_config.selectedChartType === ChartType.Table;
-    const { isReadOnly, isVersionHistoryMode, isViewingOldVersion } = useIsMetricReadOnly({
-      metricId,
-      readOnly: readOnlyProp
-    });
+    const { isReadOnly, isEditor, isVersionHistoryMode, isViewingOldVersion } = useIsMetricReadOnly(
+      {
+        metricId,
+        readOnly: readOnlyProp
+      }
+    );
     const loadingData = !isFetchedMetricData;
     const errorData = !!metricDataError;
     const showEvaluation = !!evaluation_score && !!evaluation_summary;
@@ -109,7 +111,7 @@ export const MetricViewChart: React.FC<{
           />
         </AnimatePresenceWrapper>
 
-        {!isVersionHistoryMode && !isViewingOldVersion && (
+        {!isReadOnly && !isVersionHistoryMode && !isViewingOldVersion && (
           <MetricSaveFilePopup metricId={metricId} />
         )}
       </div>
