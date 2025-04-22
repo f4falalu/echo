@@ -119,6 +119,7 @@ pub async fn get_user_information(user_id: &Uuid) -> Result<UserInfoObject> {
                 organizations::created_at,
                 organizations::updated_at,
                 organizations::deleted_at,
+                organizations::payment_required,
             )
                 .nullable(),
             users_to_organizations::role.nullable(),

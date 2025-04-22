@@ -33,6 +33,7 @@ pub async fn post_organization_handler(
         created_at: now,
         updated_at: now,
         deleted_at: None,
+        payment_required: true,
     };
 
     insert_into(organizations::table)

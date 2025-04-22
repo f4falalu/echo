@@ -433,6 +433,7 @@ diesel::table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         deleted_at -> Nullable<Timestamptz>,
+        payment_required -> Bool,
     }
 }
 
