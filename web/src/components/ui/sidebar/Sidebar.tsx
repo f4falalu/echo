@@ -15,7 +15,7 @@ export const Sidebar: React.FC<SidebarProps> = React.memo(
             ))}
           </div>
         </div>
-        {footer && <div className="mt-auto mb-2 pt-5">{footer}</div>}
+        {footer && <div className="mt-auto mb-2 overflow-hidden pt-5">{footer}</div>}
       </div>
     );
   }

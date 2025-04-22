@@ -23,6 +23,7 @@ export interface BusterChartComponentProps
     >,
     ReturnType<typeof useDatasetOptions> {
   selectedAxis: ChartEncodes;
+  isDownsampled: boolean;
 }
 
 export interface BusterChartRenderComponentProps

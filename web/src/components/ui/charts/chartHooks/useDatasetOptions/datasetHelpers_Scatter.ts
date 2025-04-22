@@ -1,8 +1,4 @@
-import {
-  type BusterChartProps,
-  type ColumnLabelFormat,
-  type ScatterAxis
-} from '@/api/asset_interfaces/metric/charts';
+import { type BusterChartProps, type ScatterAxis } from '@/api/asset_interfaces/metric/charts';
 import { createDimension } from './datasetHelpers_BarLinePie';
 import { appendToKeyValueChain } from './groupingHelpers';
 import { DatasetOption } from './interfaces';
@@ -68,10 +64,7 @@ export const processScatterData = (
     measureFields.forEach((measure) => {
       categories.forEach((category) => {
         const columnLabelFormat = columnLabelFormats[measure];
-        const replaceMissingDataWith =
-          columnLabelFormat?.replaceMissingDataWith !== undefined
-            ? columnLabelFormat?.replaceMissingDataWith
-            : defaultReplaceMissingDataWith;
+        const replaceMissingDataWith = defaultReplaceMissingDataWith;
         if (categoryKey === category) {
           const value = item[measure] || replaceMissingDataWith;
           row.push(value as string | number);

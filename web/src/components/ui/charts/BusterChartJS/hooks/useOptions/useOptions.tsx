@@ -167,8 +167,8 @@ export const useOptions = ({
   const interaction = useInteractions({ selectedChartType, barLayout });
 
   const numberOfSources = useMemo(() => {
-    return datasetOptions.reduce((acc, curr) => {
-      return acc + curr.source.length;
+    return datasetOptions.reduce((acc, dataset) => {
+      return acc + dataset.source.length;
     }, 0);
   }, [datasetOptions]);
 

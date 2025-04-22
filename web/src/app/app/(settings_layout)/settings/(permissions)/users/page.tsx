@@ -33,7 +33,7 @@ export default function Page() {
       <div className="flex flex-col space-y-4">
         <div className="px-[30px] pt-[46px]">
           <SettingsPageHeader
-            title="User Management"
+            title="User management"
             description="Manage your organization's users and their permissions"
             type="alternate"
           />
