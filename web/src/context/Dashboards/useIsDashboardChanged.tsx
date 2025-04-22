@@ -7,6 +7,8 @@ import { dashboardQueryKeys } from '@/api/query_keys/dashboard';
 import { compareObjectsByKeys } from '@/lib/objects';
 import { useMemo } from 'react';
 import { create } from 'mutative';
+import { canEdit } from '@/lib/share';
+import last from 'lodash/last';
 
 export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | undefined }) => {
   const queryClient = useQueryClient();
@@ -19,10 +21,17 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | u
         name: x.dashboard.name,
         description: x.dashboard.description,
         config: x.dashboard.config,
-        file: x.dashboard.file
+        file: x.dashboard.file,
+        permission: x.permission,
+        versions: x.versions,
+        version_number: x.dashboard.version_number
       })
     }
   );
+
+  const isLatestVersion = useMemo(() => {
+    return currentDashboard?.version_number === last(currentDashboard?.versions)?.version_number;
+  }, [currentDashboard]);
 
   const onResetDashboardToOriginal = useMemoizedFn(() => {
     const options = dashboardQueryKeys.dashboardGetDashboard(
@@ -39,7 +48,10 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | u
     refetchCurrentDashboard();
   });
 
+  const isEditor = canEdit(currentDashboard?.permission);
+
   const isDashboardChanged = useMemo(() => {
+    if (!isEditor || !isLatestVersion || !currentDashboard || !originalDashboard) return false;
     return (
       !originalDashboard ||
       !currentDashboard ||
@@ -50,9 +62,7 @@ export const useIsDashboardChanged = ({ dashboardId }: { dashboardId: string | u
         'file'
       ])
     );
-  }, [originalDashboard, currentDashboard]);
-
-  console.log('isDashboardChanged', { isDashboardChanged, originalDashboard, currentDashboard });
+  }, [originalDashboard, isEditor, currentDashboard, isLatestVersion]);
 
   return {
     onResetDashboardToOriginal,
