@@ -11,7 +11,7 @@ export interface AppSupportRequest {
   organizationName: string;
   currentURL: string;
   currentTimestamp: string;
-  screenshot: string;
+  screenshot: string; //base64 encoded image
 }
 
 export const submitAppSupportRequest = async (data: AppSupportRequest) => {

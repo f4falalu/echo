@@ -7,25 +7,8 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { AppModal } from '@/components/ui/modal';
 import { InputTextArea } from '@/components/ui/inputs/InputTextArea';
-import { exportElementToImage, downloadImageData } from '@/lib/exportUtils';
-
-const hideDialogElements = () => {
-  const dialogElements = document.querySelectorAll('.dialog-content, .dialog-overlay');
-  dialogElements.forEach((element) => {
-    if (element instanceof HTMLElement) {
-      element.style.display = 'none';
-    }
-  });
-};
-
-const showDialogElements = () => {
-  const dialogElements = document.querySelectorAll('.dialog-content, .dialog-overlay');
-  dialogElements.forEach((element) => {
-    if (element instanceof HTMLElement) {
-      element.style.display = '';
-    }
-  });
-};
+import { capturePageScreenshot } from '@/lib/exportUtils';
+import { timeout } from '@/lib';
 
 export const SupportModal: React.FC<{
   onClose: () => void;
@@ -44,19 +27,12 @@ export const SupportModal: React.FC<{
   const handleSubmitHelpRequest = useMemoizedFn(async () => {
     setLoading(true);
     try {
-      // Get the main app element (assuming it's the first child of body)
       const mainBody = document.body as HTMLElement;
-
-      // Hide dialog elements before taking screenshot
-      hideDialogElements();
-
-      const screenshot = await exportElementToImage(mainBody);
-
-      // Restore dialog elements after taking screenshot
-      showDialogElements();
-
-      // Download the screenshot
-      await downloadImageData(screenshot, `buster_support_${new Date().toISOString()}.png`);
+      await timeout(100);
+      const screenshot = await capturePageScreenshot(mainBody, [
+        '.dialog-content',
+        '.dialog-overlay'
+      ]);
 
       const res = await submitAppSupportRequest({
         userName: user?.name!,
@@ -75,6 +51,7 @@ export const SupportModal: React.FC<{
       openSuccessMessage('Help request submitted successfully');
       onClose();
     } catch (error) {
+      console.error(error);
       openErrorNotification({ title: 'Failed to submit help request' });
       setLoading(false);
     }

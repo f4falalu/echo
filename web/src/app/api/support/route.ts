@@ -1,32 +1,13 @@
 'use server';
 
 import { NextRequest, NextResponse } from 'next/server';
-
-interface BaseRequest {
-  userName: string;
-  userEmail: string;
-  organizationId: string;
-  userId: string;
-  message: string;
-  type: 'feedback' | 'support';
-}
-
-interface FeedbackRequest extends BaseRequest {
-  type: 'feedback';
-}
-
-interface SupportRequest extends BaseRequest {
-  type: 'support';
-  subject: string;
-}
-
-type SupportRequestBody = FeedbackRequest | SupportRequest;
+import { AppSupportRequest } from '@/api/buster_rest/nextjs/support';
 
 const slackHookURL = process.env.NEXT_SLACK_APP_SUPPORT_URL!;
 
 export async function POST(request: NextRequest) {
   // Parse and validate the request body
-  const body = (await request.json()) as SupportRequestBody;
+  const body = (await request.json()) as AppSupportRequest;
 
   if (
     !body.userName ||
@@ -39,9 +20,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  // Additional validation for support requests
-  if (body.type === 'support' && !body.subject) {
-    return NextResponse.json({ error: 'Support requests require a subject' }, { status: 400 });
+  // Additional validation for help requests
+  if (body.type === 'help' && !body.subject) {
+    return NextResponse.json({ error: 'Help requests require a subject' }, { status: 400 });
   }
 
   const slackMessage = {
@@ -61,7 +42,7 @@ export async function POST(request: NextRequest) {
             type: 'mrkdwn',
             text: `*Type:* ${body.type}`
           },
-          ...(body.type === 'support'
+          ...(body.type === 'help'
             ? [
                 {
                   type: 'mrkdwn',
@@ -83,7 +64,7 @@ export async function POST(request: NextRequest) {
           },
           {
             type: 'mrkdwn',
-            text: `*Organization ID:* ${body.organizationId}`
+            text: `*Organization:* ${body.organizationName} (${body.organizationId})`
           }
         ]
       },
@@ -93,7 +74,25 @@ export async function POST(request: NextRequest) {
           type: 'mrkdwn',
           text: `*Message:*\n${body.message}`
         }
-      }
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `*Additional Information:*\n• URL: ${body.currentURL}\n• Timestamp: ${body.currentTimestamp}`
+        }
+      },
+      ...(body.screenshot
+        ? [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `*Screenshot (base64):*\n\`\`\`${body.screenshot}\`\`\``
+              }
+            }
+          ]
+        : [])
     ]
   };
 
