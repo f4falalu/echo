@@ -3181,21 +3181,37 @@ fn process_current_turn_files(
 fn generate_file_response_values(filtered_files: &[CompletedFileInfo]) -> Vec<Value> {
     let mut file_response_values = Vec::new();
     // --- START MODIFICATION ---
-    let mut seen_file_ids = HashSet::new();
-    let mut unique_filtered_files = Vec::new();
+    // Use a HashMap to store the latest version of each file ID seen
+    let mut latest_files: HashMap<String, CompletedFileInfo> = HashMap::new();
 
     for file_info in filtered_files {
-        // Use the file ID for deduplication
-        if seen_file_ids.insert(file_info.id.clone()) {
-             unique_filtered_files.push(file_info);
+        // Check if this file ID is already in the map, or if the current file has a higher version
+        let should_insert = latest_files
+            .get(&file_info.id)
+            .map_or(true, |existing_file| file_info.version_number > existing_file.version_number);
+
+        if should_insert {
+             latest_files.insert(file_info.id.clone(), file_info.clone());
         } else {
-             tracing::debug!("Duplicate file ID found and skipped in final response: {}", file_info.id);
+             // Log if we skipped a file because a newer version was already present (or the same version)
+             if latest_files.contains_key(&file_info.id) {
+                 tracing::debug!(
+                     "Skipping file ID {} (version {}) because a newer or same version is already selected.",
+                     file_info.id,
+                     file_info.version_number
+                 );
+             }
         }
     }
+
+    // Convert the values (latest versions) from the map into a Vec
+    // Note: HashMap iteration order is not guaranteed. If order matters, sort here.
+    // For now, we'll use the order provided by the HashMap's values iterator.
+    let unique_latest_files: Vec<&CompletedFileInfo> = latest_files.values().collect();
     // --- END MODIFICATION ---
 
-    // Generate response values from the unique list
-    for file_info in unique_filtered_files { // Use the deduplicated list
+    // Generate response values from the unique, latest list
+    for file_info in unique_latest_files { // Use the deduplicated list with latest versions
         let response_message = BusterChatMessage::File {
             id: file_info.id.clone(),
             file_type: file_info.file_type.clone(),
