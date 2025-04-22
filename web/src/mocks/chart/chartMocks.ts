@@ -62,7 +62,8 @@ export const generateScatterChartData = (pointCount = 30): IDataResult => {
   const categories = ['Electronics', 'Clothing', 'Home Goods'];
   return Array.from({ length: pointCount }, (_, index) => ({
     x: (index % 10) * 10, // Values from 0-90 in steps of 10
-    y: Math.floor(index / 10) * 10, // Creates a grid pattern
+    y: Math.floor(index / 10) * 10, // Creates a grid pattern,
+    y2: Math.floor(index / 10) * 40, // Creates a grid pattern,
     size: 10 + (index % 5) * 10, // Sizes cycle between 10-50 in steps of 10
     category: categories[index % categories.length]
   }));

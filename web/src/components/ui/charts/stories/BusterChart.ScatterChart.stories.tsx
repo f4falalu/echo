@@ -8,6 +8,7 @@ import React from 'react';
 import { Slider } from '@/components/ui/slider';
 import { useDebounceFn } from '@/hooks';
 import dayjs from 'dayjs';
+import { scatterConfig_problematic1, scatterDataProblematic1 } from './scatterData_problematic1';
 
 type ScatterChartData = ReturnType<typeof generateScatterChartData>;
 
@@ -25,7 +26,7 @@ export const Default: Story = {
     data: generateScatterChartData(50),
     scatterAxis: {
       x: ['x'],
-      y: ['y'],
+      y: ['y', 'y2'],
       size: [],
       category: ['category']
     },
@@ -57,7 +58,7 @@ export const Default: Story = {
         style: 'string'
       } satisfies IColumnLabelFormat
     } satisfies Record<keyof ScatterChartData, IColumnLabelFormat>,
-    className: 'w-[400px] h-[400px]'
+    className: 'w-[400px] h-[400px] max-w-[400px] max-h-[400px]'
   }
 };
 
@@ -435,5 +436,20 @@ export const ScatterWithTrendline_DateXAxisLogarithmicRegression: Story = {
         currency: 'USD'
       }
     }
+  }
+};
+
+export const ProblematicDataset: Story = {
+  args: {
+    ...Default.args,
+    data: scatterDataProblematic1.data,
+    columnMetadata: scatterDataProblematic1.data_metadata.column_metadata,
+    ...(scatterConfig_problematic1 as any),
+    barAndLineAxis: {
+      x: ['eligible_orders'],
+      y: ['attach_rate'],
+      category: ['merchant']
+    },
+    selectedChartType: ChartType.Scatter
   }
 };

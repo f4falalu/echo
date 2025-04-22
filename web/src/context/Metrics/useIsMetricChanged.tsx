@@ -6,6 +6,7 @@ import { useGetMetric } from '@/api/buster_rest/metrics';
 import { compareObjectsByKeys } from '@/lib/objects';
 import { useMemo } from 'react';
 import last from 'lodash/last';
+import { canEdit } from '@/lib/share';
 
 export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined }) => {
   const queryClient = useQueryClient();
@@ -25,7 +26,8 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined 
         chart_config: x.chart_config,
         file: x.file,
         version_number: x.version_number,
-        versions: x.versions
+        versions: x.versions,
+        permission: x.permission
       })
     }
   );
@@ -44,8 +46,10 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined 
     refetchCurrentMetric();
   });
 
+  const isEditor = canEdit(currentMetric?.permission);
+
   const isMetricChanged = useMemo(() => {
-    if (!originalMetric || !isLatestVersion) return false;
+    if (!isEditor || !originalMetric || !isLatestVersion || !currentMetric) return false;
 
     return (
       !currentMetric ||
@@ -57,7 +61,7 @@ export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined 
         'version_number'
       ])
     );
-  }, [originalMetric, currentMetric, isLatestVersion]);
+  }, [originalMetric, currentMetric, isLatestVersion, isEditor]);
 
   return {
     onResetMetricToOriginal,

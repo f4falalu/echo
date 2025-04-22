@@ -22,13 +22,15 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
     selectedChartType,
     selectedAxis
   } = props;
+
   const {
     datasetOptions,
     dataTrendlineOptions,
     y2AxisKeys,
     yAxisKeys,
     tooltipKeys,
-    hasMismatchedTooltipsAndMeasures
+    hasMismatchedTooltipsAndMeasures,
+    isDownsampled
   } = useDatasetOptions({
     data: dataProp,
     selectedAxis,
@@ -52,7 +54,8 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
       y2AxisKeys,
       yAxisKeys,
       tooltipKeys,
-      hasMismatchedTooltipsAndMeasures
+      hasMismatchedTooltipsAndMeasures,
+      isDownsampled
     }),
     [
       props,
@@ -62,7 +65,8 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
       y2AxisKeys,
       yAxisKeys,
       hasMismatchedTooltipsAndMeasures,
-      tooltipKeys
+      tooltipKeys,
+      isDownsampled
     ]
   );
 

@@ -34,6 +34,8 @@ interface UseTooltipOptionsProps {
   colors: string[];
 }
 
+const MAX_TOOLTIP_CACHE_SIZE = 30;
+
 export const useTooltipOptions = ({
   columnLabelFormats,
   selectedChartType,
@@ -129,7 +131,6 @@ export const useTooltipOptions = ({
       selectedChartType,
       matchedCacheItem,
       keyToUsePercentage,
-      columnSettings,
       hasCategoryAxis,
       hasMultipleMeasures,
       barGroupType,
@@ -137,6 +138,9 @@ export const useTooltipOptions = ({
     );
 
     if (result) {
+      if (Object.keys(tooltipCache.current).length > MAX_TOOLTIP_CACHE_SIZE) {
+        tooltipCache.current = {};
+      }
       tooltipCache.current[key] = result;
     }
   });
@@ -225,7 +229,6 @@ const externalTooltip = (
   selectedChartType: NonNullable<BusterChartProps['selectedChartType']>,
   matchedCacheItem: string | undefined,
   keyToUsePercentage: string[],
-  columnSettings: NonNullable<BusterChartProps['columnSettings']>,
   hasCategoryAxis: boolean,
   hasMultipleMeasures: boolean,
   barGroupType: BusterChartProps['barGroupType'],
