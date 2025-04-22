@@ -46,15 +46,15 @@ const useChatIndividualContext = ({
     combine: (result) => result.some((res) => res.data)
   });
 
+  const { isFileChanged, onResetToOriginal } = useIsFileChanged({
+    selectedFileId,
+    selectedFileType
+  });
+
   useAutoChangeLayout({
     lastMessageId: currentMessageId,
     selectedFileId,
     chatId
-  });
-
-  const { isFileChanged, onResetToOriginal } = useIsFileChanged({
-    selectedFileId,
-    selectedFileType
   });
 
   return React.useMemo(

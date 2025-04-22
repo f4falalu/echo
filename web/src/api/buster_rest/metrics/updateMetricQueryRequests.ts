@@ -1,6 +1,10 @@
 import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useGetLatestMetricVersionMemoized, useGetMetricVersionNumber } from './metricQueryHelpers';
+import {
+  useGetLatestMetricVersionMemoized,
+  useGetMetricVersionNumber,
+  useMetricQueryStore
+} from './metricQueryStore';
 import {
   bulkUpdateMetricVerificationStatus,
   deleteMetrics,
@@ -25,6 +29,7 @@ import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '@/lib/metrics
  */
 export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
+  const onSetLatestMetricVersion = useMetricQueryStore((x) => x.onSetLatestMetricVersion);
   const queryClient = useQueryClient();
   const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
   const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
@@ -89,6 +94,8 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
           newMetric
         );
       }
+
+      onSetLatestMetricVersion(data.id, data.version_number);
 
       if (variables.update_version || variables.restore_to_version) {
         const initialOptions = metricsQueryKeys.metricsGetMetric(data.id, null);
