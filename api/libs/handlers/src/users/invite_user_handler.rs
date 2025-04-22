@@ -30,7 +30,7 @@ pub async fn invite_user_handler(
 
     // Fetch inviter details
     let inviter = users::table
-        .find(inviting_user.id)
+        .filter(users::id.eq(inviting_user.id)) // Find the specific user
         .select(User::as_select())
         .first::<User>(&mut conn)
         .await
@@ -45,6 +45,7 @@ pub async fn invite_user_handler(
 
     // Fetch organization details
     let organization = organizations::table
+        .filter(organizations::id.eq(organization_id)) // Find the specific organization
         .first::<Organization>(&mut conn)
         .await
         .context("Failed to find organization")?;
@@ -53,6 +54,7 @@ pub async fn invite_user_handler(
     let inviter_id = inviting_user.id;
     let now = Utc::now();
     let mut successful_emails: Vec<String> = Vec::new();
+    let assigned_role = UserOrganizationRole::RestrictedQuerier; // Define role once
 
     for email in emails {
         // Use a separate connection for each user to avoid holding one connection for the whole loop
@@ -64,45 +66,78 @@ pub async fn invite_user_handler(
             }
         };
 
-        // 1. Generate ID and construct attributes first
-        let new_user_id = Uuid::new_v4();
-        let user_email = email.clone();
-        let assigned_role = UserOrganizationRole::RestrictedQuerier;
-        let user_attributes = json!({
-          "user_id": new_user_id.to_string(),
-          "user_email": user_email,
-          "organization_id": organization_id.to_string(),
-          "organization_role": format!("{:?}", assigned_role)
-        });
-
-        // 2. Create User struct instance
-        let user_to_insert = User {
-            id: new_user_id,
-            email: email.clone(),
-            name: None,
-            config: json!({}),
-            created_at: now,
-            updated_at: now,
-            attributes: user_attributes,
-            avatar_url: None,
-        };
-
-        // 3. Insert user
-        let user_insert_result = diesel::insert_into(users::table)
-            .values(&user_to_insert)
-            .execute(&mut user_conn)
+        let email_for_lookup = email.clone(); // Clone email for lookup/use
+        let existing_user_result = users::table
+            .filter(users::email.eq(&email_for_lookup))
+            .select(User::as_select())
+            .first::<User>(&mut user_conn)
             .await;
 
-        if let Err(e) = user_insert_result {
-            tracing::error!(error = %e, email = %email, "Failed to insert user record");
-            continue; // Skip this user if insertion fails
-        }
+        let user_id: Uuid;
+        let user_email_for_attributes: String;
 
-        // 4. Create UserToOrganization struct instance
+        match existing_user_result {
+            Ok(user) => {
+                // User exists, use their ID
+                user_id = user.id;
+                user_email_for_attributes = user.email; // Use existing user's email
+                tracing::info!(email = %user_email_for_attributes, user_id = %user_id, "User already exists, using existing ID for organization association.");
+            }
+            Err(diesel::NotFound) => {
+                // User does not exist, create them
+                let new_user_id = Uuid::new_v4();
+                user_email_for_attributes = email.clone(); // Use the email from the loop input
+
+                // Attributes for the new user
+                let user_attributes = json!({
+                  "user_id": new_user_id.to_string(),
+                  "user_email": user_email_for_attributes,
+                  "organization_id": organization_id.to_string(),
+                  "organization_role": format!("{:?}", assigned_role) // Use pre-defined role
+                });
+
+                let user_to_insert = User {
+                    id: new_user_id,
+                    email: email.clone(), // Use email from loop input
+                    name: None,
+                    config: json!({}),
+                    created_at: now,
+                    updated_at: now,
+                    attributes: user_attributes,
+                    avatar_url: None,
+                };
+
+                // Insert the new user
+                match diesel::insert_into(users::table)
+                    .values(&user_to_insert)
+                    .execute(&mut user_conn)
+                    .await
+                {
+                    Ok(_) => {
+                        user_id = new_user_id; // Assign the new ID
+                        tracing::info!(email = %email, user_id = %user_id, "Successfully inserted new user.");
+                    }
+                    Err(e) => {
+                        // Handle unexpected insertion errors (e.g., DB connection issue mid-operation)
+                        tracing::error!(error = %e, email = %email, "Failed to insert non-existent user record");
+                        continue; // Skip this user if insertion fails unexpectedly
+                    }
+                }
+            }
+            Err(e) => {
+                // Other database error during lookup
+                tracing::error!(error = %e, email = %email, "Failed to query for existing user");
+                continue; // Skip this user
+            }
+        };
+
+        // At this point, user_id is set (either existing or newly created)
+        // Attempt to add the user to the organization, ignoring conflicts
+
         let user_org_to_insert = UserToOrganization {
-            user_id: new_user_id,
+            user_id, // Use the determined user_id
             organization_id,
-            role: assigned_role,
+            role: assigned_role, // Use pre-defined role
             sharing_setting: SharingSetting::None,
             edit_sql: false,
             upload_csv: false,
@@ -117,21 +152,32 @@ pub async fn invite_user_handler(
             status: UserOrganizationStatus::Active,
         };
 
-        // 5. Insert user organization mapping
+        // Insert user organization mapping with ON CONFLICT DO NOTHING
         let user_org_insert_result = diesel::insert_into(users_to_organizations::table)
             .values(&user_org_to_insert)
+            .on_conflict((
+                users_to_organizations::user_id,
+                users_to_organizations::organization_id,
+            ))
+            .do_nothing() // If user is already in the org, do nothing
             .execute(&mut user_conn)
             .await;
 
         match user_org_insert_result {
-            Ok(_) => {
-                // Only add email if both inserts were successful
-                successful_emails.push(email.clone());
+            Ok(rows_affected) => {
+                // User was either newly inserted or already existed in the org.
+                // The association is now confirmed.
+                if rows_affected > 0 {
+                    tracing::info!(email = %email, user_id = %user_id, organization_id = %organization_id, "Successfully associated user with organization.");
+                } else {
+                    tracing::info!(email = %email, user_id = %user_id, organization_id = %organization_id, "User association with organization already existed.");
+                }
+                successful_emails.push(email); // Use the original email from the loop input
             }
             Err(e) => {
-                tracing::error!(error = %e, email = %email, user_id = %new_user_id, "Failed to insert user_to_organization record");
-                // Consider rolling back the user insert here if desired, although it's complex without a transaction per user.
-                // For now, we just log and don't add the email to the success list.
+                // Handle unexpected insertion errors for the join table
+                tracing::error!(error = %e, email = %email, user_id = %user_id, "Failed unexpectedly while inserting or ignoring user_to_organization record");
+                // Don't add to successful_emails if the DB operation failed unexpectedly
             }
         };
     }
