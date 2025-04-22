@@ -50,26 +50,25 @@ export async function POST(request: NextRequest) {
 
       if (!bucketExists) {
         console.error('Storage bucket does not exist:', STORAGE_BUCKET);
-        throw new Error('Storage bucket does not exist');
-      }
-
-      // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from(STORAGE_BUCKET)
-        .upload(filename, buffer, {
-          contentType: 'image/png',
-          upsert: false
-        });
-
-      if (uploadError) {
-        console.error('Error uploading screenshot:', uploadError);
       } else {
-        // Get the public URL
-        const {
-          data: { publicUrl }
-        } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(filename);
+        // Upload to Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .upload(filename, buffer, {
+            contentType: 'image/png',
+            upsert: false
+          });
 
-        screenshotUrl = publicUrl;
+        if (uploadError) {
+          console.error('Error uploading screenshot:', uploadError);
+        } else {
+          // Get the public URL
+          const {
+            data: { publicUrl }
+          } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(filename);
+
+          screenshotUrl = publicUrl;
+        }
       }
     } catch (error) {
       console.error('Error processing screenshot:', error);
@@ -161,6 +160,8 @@ export async function POST(request: NextRequest) {
           : [])
     ]
   };
+
+  console.log(slackMessage);
 
   // Send the formatted message to Slack
   const response = await fetch(slackHookURL, {
