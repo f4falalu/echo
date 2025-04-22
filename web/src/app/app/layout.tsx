@@ -33,12 +33,13 @@ export default async function Layout({
 
   const userInfo = queryClient.getQueryData(queryKeys.userGetUserMyself.queryKey);
   const newUserRoute = createBusterRoute({ route: BusterRoutes.NEW_USER });
+  const loginRoute = createBusterRoute({ route: BusterRoutes.AUTH_LOGIN });
 
-  if (
-    (!userInfo?.organizations?.[0]?.id || !userInfo?.user?.name) &&
-    !supabaseContext.user?.is_anonymous &&
-    pathname !== newUserRoute
-  ) {
+  if (supabaseContext.user?.is_anonymous && pathname !== loginRoute) {
+    return <ClientRedirect to={loginRoute} />;
+  }
+
+  if ((!userInfo?.organizations?.[0]?.id || !userInfo?.user?.name) && pathname !== newUserRoute) {
     return <ClientRedirect to={newUserRoute} />;
   }
 

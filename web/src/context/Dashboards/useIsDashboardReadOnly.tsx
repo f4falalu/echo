@@ -1,5 +1,5 @@
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
-import { canEdit } from '@/lib/share';
+import { canEdit, getIsOwner } from '@/lib/share';
 import { useMemo } from 'react';
 import last from 'lodash/last';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
@@ -44,11 +44,14 @@ export const useIsDashboardReadOnly = ({
     return false;
   }, [isError, isFetched, dashboardData, isVersionHistoryMode, isViewingOldVersion]);
 
+  const isEditor = canEdit(dashboardData?.permission);
+
   return {
     isVersionHistoryMode,
     isReadOnly,
     isViewingOldVersion,
     isFetched,
-    isError
+    isError,
+    isEditor
   };
 };

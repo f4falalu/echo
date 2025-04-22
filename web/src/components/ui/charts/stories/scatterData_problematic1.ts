@@ -9016,8 +9016,6 @@ export const scatterDataProblematic1 = {
   }
 };
 
-console.log(scatterDataProblematic1);
-
 export const scatterConfig_problematic1 = {
   selectedChartType: ChartType.Scatter,
   columnLabelFormats: {
