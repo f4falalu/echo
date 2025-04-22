@@ -32,7 +32,11 @@ export const SupportModal: React.FC<{
         subject,
         message: selectedForm === 'feedback' ? feedback : helpRequest,
         type: selectedForm === 'feedback' ? 'feedback' : 'help',
-        organizationId: userOrganizations?.id!
+        organizationId: userOrganizations?.id || '',
+        organizationName: userOrganizations?.name || '',
+        currentURL: window.location.href,
+        currentTimestamp: new Date().toISOString(),
+        screenshot: ''
       });
       setLoading(false);
       openSuccessMessage('Help request submitted successfully');
