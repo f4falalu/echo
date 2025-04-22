@@ -3180,7 +3180,22 @@ fn process_current_turn_files(
 // Helper function to generate response message JSON values
 fn generate_file_response_values(filtered_files: &[CompletedFileInfo]) -> Vec<Value> {
     let mut file_response_values = Vec::new();
+    // --- START MODIFICATION ---
+    let mut seen_file_ids = HashSet::new();
+    let mut unique_filtered_files = Vec::new();
+
     for file_info in filtered_files {
+        // Use the file ID for deduplication
+        if seen_file_ids.insert(file_info.id.clone()) {
+             unique_filtered_files.push(file_info);
+        } else {
+             tracing::debug!("Duplicate file ID found and skipped in final response: {}", file_info.id);
+        }
+    }
+    // --- END MODIFICATION ---
+
+    // Generate response values from the unique list
+    for file_info in unique_filtered_files { // Use the deduplicated list
         let response_message = BusterChatMessage::File {
             id: file_info.id.clone(),
             file_type: file_info.file_type.clone(),
@@ -3189,7 +3204,7 @@ fn generate_file_response_values(filtered_files: &[CompletedFileInfo]) -> Vec<Va
             filter_version_id: None,
             metadata: Some(vec![BusterChatResponseFileMetadata {
                 status: "completed".to_string(),
-                message: format!("Created new {} file", file_info.file_type),
+                message: format!("Created new {} file", file_info.file_type), // Message might need adjustment if file was modified?
                 timestamp: Some(Utc::now().timestamp()),
             }]),
         };
