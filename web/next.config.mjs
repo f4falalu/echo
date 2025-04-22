@@ -16,11 +16,14 @@ const createCspHeader = (isEmbed = false) => {
         .replace('http', 'ws')
     : '';
 
+  const isDev = process.env.NODE_ENV === 'development';
+  const localDomains = isDev ? 'http://127.0.0.1:* ws://127.0.0.1:*' : '';
+
   return [
     // Default directives
     "default-src 'self'",
     // Scripts
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercel.app https://cdn.jsdelivr.net https://*.cloudflareinsights.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://*.vercel.app https://cdn.jsdelivr.net https://*.cloudflareinsights.com https://*.posthog.com",
     // Styles
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     // Images
@@ -32,7 +35,7 @@ const createCspHeader = (isEmbed = false) => {
     // Frame sources
     "frame-src 'self' https://vercel.live",
     // Connect sources for API calls
-    `connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:* https://*.vercel.app https://*.supabase.co wss://*.supabase.co ${apiUrl} ${wsUrl}`.trim(),
+    `connect-src 'self' ${localDomains} https://*.vercel.app https://*.supabase.co wss://*.supabase.co https://*.posthog.com ${apiUrl} ${wsUrl}`.trim(),
     // Media
     "media-src 'self'",
     // Object
