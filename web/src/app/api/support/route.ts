@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
                 type: 'section',
                 text: {
                   type: 'mrkdwn',
-                  text: '*Screenshot:* Failed to upload screenshot to storage. Screenshot was provided but could not be processed. Storage bucket does not exist: public'
+                  text: `*Screenshot:* Failed to upload screenshot to storage. Screenshot was provided but could not be processed. Storage bucket does not exist: ${STORAGE_BUCKET}`
                 }
               }
             ]
