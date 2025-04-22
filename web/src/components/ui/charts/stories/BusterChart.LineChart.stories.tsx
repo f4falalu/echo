@@ -1905,3 +1905,22 @@ export const WithTrendline_StringXAxisPolynomialRegression: Story = {
     }
   }
 };
+
+export const With2ThousandPoints: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: generateLineChartData(500),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: ['category']
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
+      }
+    }
+  }
+};

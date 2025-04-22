@@ -21,7 +21,7 @@ export const DownsampleAlert = React.memo(({ isDownsampled }: { isDownsampled: b
 
   return (
     <div
-      className="absolute right-0 bottom-0 left-0 w-full px-1 pb-0"
+      className="absolute right-0 bottom-0.5 left-0 w-full px-1 pb-0"
       onMouseEnter={() => setOnHover(true)}
       onMouseLeave={() => setOnHover(false)}>
       <Popover
