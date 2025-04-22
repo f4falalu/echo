@@ -161,19 +161,29 @@ export async function POST(request: NextRequest) {
     ]
   };
 
-  console.log(slackMessage);
+  try {
+    const stringifiedMessage = JSON.stringify(slackMessage);
+    console.log(stringifiedMessage);
+  } catch (error) {
+    console.error('Error stringifying message:', error);
+  }
 
   // Send the formatted message to Slack
-  const response = await fetch(slackHookURL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(slackMessage)
-  });
-
-  if (!response.ok) {
-    return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
+  try {
+    const response = await fetch(slackHookURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(slackMessage)
+    });
+    if (!response.ok) {
+      console.error('Failed to send message to Slack:', response);
+      return NextResponse.json({ error: 'Failed to send message' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('Error sending message to Slack:', error);
+    return NextResponse.json({ error: 'Failed to send message to Slack' }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });
