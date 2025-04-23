@@ -129,7 +129,7 @@ export const useDeleteMetric = () => {
     mutationFn: deleteMetrics,
     onMutate: async (variables) => {
       const metricIds = variables.ids;
-      const options = metricsQueryKeys.metricsGetList({});
+      const options = metricsQueryKeys.metricsGetList();
       queryClient.setQueryData(options.queryKey, (oldData) => {
         return oldData?.filter((metric) => !metricIds.includes(metric.id));
       });
@@ -398,7 +398,7 @@ export const useBulkUpdateMetricVerificationStatus = () => {
       });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: metricsQueryKeys.metricsGetList({}).queryKey });
+      queryClient.invalidateQueries({ queryKey: metricsQueryKeys.metricsGetList().queryKey });
       data.updated_metrics.forEach((metric) => {
         const oldMetric = queryClient.getQueryData(
           metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey

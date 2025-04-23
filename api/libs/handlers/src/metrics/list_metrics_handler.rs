@@ -17,6 +17,7 @@ pub struct MetricsListRequest {
     pub page_size: i64,
     pub shared_with_me: Option<bool>,
     pub only_my_metrics: Option<bool>,
+    pub verification: Option<Vec<Verification>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -73,13 +74,19 @@ pub async fn list_metrics_handler(
             ),
         ))
         .filter(metric_files::deleted_at.is_null())
-        .distinct()
         .order((metric_files::updated_at.desc(), metric_files::id.asc()))
         .offset(offset)
         .limit(request.page_size)
         .into_boxed();
 
     // Add filters based on request parameters
+    if let Some(verification_statuses) = request.verification {
+        // Only apply filter if the vec is not empty
+        if !verification_statuses.is_empty() {
+             metric_statement = metric_statement.filter(metric_files::verification.eq_any(verification_statuses));
+        }
+    }
+
     if let Some(true) = request.only_my_metrics {
         // Show only metrics created by the user
         metric_statement = metric_statement.filter(metric_files::created_by.eq(&user.id));

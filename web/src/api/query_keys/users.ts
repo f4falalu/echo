@@ -13,14 +13,14 @@ import type {
 import { getUserList } from '../buster_rest/users/requests';
 
 const favoritesGetList = queryOptions<BusterUserFavorite[]>({
-  queryKey: ['users', 'favorites', 'list'] as const,
+  queryKey: ['myself', 'list', 'favorites'] as const,
   staleTime: 1000 * 60 * 60, // 1 hour,
   initialData: [],
   initialDataUpdatedAt: 0
 });
 
 const userGetUserMyself = queryOptions<BusterUserResponse>({
-  queryKey: ['users', 'myself'] as const,
+  queryKey: ['myself'] as const,
   staleTime: 1000 * 60 * 60 // 1 hour
 });
 

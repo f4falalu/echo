@@ -9,19 +9,7 @@ const buster = packageJson.version;
 
 export const PERSIST_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
 
-export const PERSISTED_QUERIES = [
-  queryKeys.favoritesGetList.queryKey,
-  queryKeys.logsGetList().queryKey,
-  queryKeys.chatsGetList().queryKey,
-  queryKeys.dashboardGetList().queryKey,
-  queryKeys.metricsGetList().queryKey,
-  queryKeys.collectionsGetList().queryKey,
-  queryKeys.termsGetList.queryKey,
-  queryKeys.datasetsListQueryOptions().queryKey,
-  queryKeys.permissionGroupList.queryKey,
-  queryKeys.datasourceGetList.queryKey,
-  queryKeys.datasetGroupsList.queryKey
-].map(hashKey);
+export const PERSISTED_QUERIES = [].map(hashKey);
 
 export const PERMANENT_QUERIES = [queryKeys.getCurrencies.queryKey].map(hashKey);
 
@@ -52,7 +40,8 @@ export const persistOptions: PersistQueryClientProviderProps['persistOptions'] =
   maxAge: PERSIST_TIME,
   dehydrateOptions: {
     shouldDehydrateQuery: (query) => {
-      return ALL_PERSISTED_QUERIES.includes(query.queryHash);
+      const isList = query.queryKey[1] === 'list';
+      return isList || ALL_PERSISTED_QUERIES.includes(query.queryHash);
     }
   },
   hydrateOptions: {

@@ -34,7 +34,7 @@ export const AppProviders: React.FC<
                 <BusterAssetsProvider>
                   <BusterNewChatProvider>
                     <BusterPosthogProvider>{children}</BusterPosthogProvider>
-                    {!isDev && <RoutePrefetcher />}
+                    <RoutePrefetcher />
                   </BusterNewChatProvider>
                 </BusterAssetsProvider>
               </BusterUserConfigProvider>

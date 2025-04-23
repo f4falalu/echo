@@ -1,5 +1,5 @@
 import { CircleSpinnerLoaderContainer } from '@/components/ui/loaders';
 
 export default function EmbedDashboardsLoading() {
-  return <CircleSpinnerLoaderContainer className="min-h-screen" />;
+  return <CircleSpinnerLoaderContainer className="h-full min-h-screen w-full" />;
 }
