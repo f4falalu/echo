@@ -32,7 +32,8 @@ export const generateLineChartData = (pointCount = 10): IDataResult => {
       date: date.toISOString(),
       revenue: addNoise(baseRevenue, 15), // 15% variability
       profit: addNoise(baseProfit, 20), // 20% variability
-      customers: addNoise(baseCustomers, 10) // 10% variability
+      customers: addNoise(baseCustomers, 10), // 10% variability,
+      category: ['Electronics', 'Clothing', 'Food'][index % 3]
     };
   });
 };

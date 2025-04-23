@@ -1,6 +1,7 @@
 ---
 description: Rules for how the buster_socket api directory shoudl function
 globs: src/api/buster_socket/**/*
+alwaysApply: false
 ---
 # API Structure Rules
 
@@ -41,7 +42,7 @@ src/api/{namespace}/
 - Use descriptive names that clearly indicate purpose
 
 ## Documentation Requirements
-- Each interface must have JSDoc comments explaining its purpose
+- Each interface must have TSDoc comments explaining its purpose
 - Each property in interfaces must be documented
 - Include examples where appropriate
 - Document any validation requirements or constraints
@@ -92,7 +93,7 @@ Each request type must:
 - Extend BusterSocketRequestBase with appropriate generic parameters
 - Include a string literal endpoint path as first generic parameter
 - Include a payload interface as second generic parameter
-- Document each property with JSDoc comments
+- Document each property with TSDoc comments
 
 Example:
 ```typescript

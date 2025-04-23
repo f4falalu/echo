@@ -4125,6 +4125,10 @@ models:
 INSERT INTO public.permission_groups VALUES ('5381a3ac-9671-4318-a8d3-3dc34b7d3c42', 'Product', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', '2024-11-05 15:41:13.974669+00', '2024-11-05 15:41:13.97467+00', NULL);
 INSERT INTO public.permission_groups VALUES ('6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'Demo', 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce', '6840fa04-c0d7-4e0e-8d3d-ea9190d93874', 'c2dd64cd-f7f3-4884-bc91-d46ae431901e', '2024-11-05 15:41:13.974669+00', '2024-11-05 15:55:00.592421+00', NULL);
 
+select
+  vault.create_secret('http://127.0.0.1:54321', 'project_url');
+  
+
 
 --
 -- Data for Name: datasets_to_permission_groups; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -4299,8 +4303,7 @@ INSERT INTO supabase_migrations.seed_files VALUES ('supabase/seed.sql', 'e3b0c44
 -- Data for Name: secrets; Type: TABLE DATA; Schema: vault; Owner: supabase_admin
 --
 
-INSERT INTO vault.secrets VALUES ('cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', NULL, '', '{"type":"postgres","host":"aws-0-us-east-1.pooler.supabase.com","port":5432,"username":"postgres.fjbidcbjvmpesoonimhl","password":"S8Jrts05EqxsfA3q","database":"postgres","schema":"sem","jump_host":null,"ssh_username":null,"ssh_private_key":null}', 'b7bb1425-9c8f-46e9-88c3-89eb03f109ab', '\x112103b790985ae632e33b7859335b19', '2025-03-04 18:43:59.677122+00', '2025-03-04 18:43:59.677122+00');
-
+select vault.create_secret('{"type":"postgres","host":"aws-0-us-east-1.pooler.supabase.com","port":5432,"username":"postgres.fjbidcbjvmpesoonimhl","password":"S8Jrts05EqxsfA3q","default_database":"postgres","default_schema":"sem","jump_host":null,"ssh_username":null,"ssh_private_key":null}', 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a');
 
 --
 -- Name: refresh_tokens_id_seq; Type: SEQUENCE SET; Schema: auth; Owner: supabase_auth_admin

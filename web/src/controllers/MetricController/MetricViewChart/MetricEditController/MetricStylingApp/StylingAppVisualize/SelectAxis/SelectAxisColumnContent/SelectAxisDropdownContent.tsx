@@ -22,7 +22,6 @@ import { Text } from '@/components/ui/typography';
 import { SelectAxisContainerId } from '../config';
 import { EditReplaceMissingData } from './EditReplaceMissingData';
 import { EditLineStyle } from './EditLineStyle';
-import isEmpty from 'lodash/isEmpty';
 import { useGetCurrencies } from '@/api/buster_rest/nextjs/currency';
 import { cn } from '@/lib/classMerge';
 import { useUpdateMetricChart } from '@/context/Metrics';

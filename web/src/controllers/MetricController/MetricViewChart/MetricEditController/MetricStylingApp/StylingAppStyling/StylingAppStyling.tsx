@@ -5,7 +5,7 @@ import { EditGridLines } from './EditGridLines';
 import { EditHideYAxis } from './EditHideYAxis';
 import { EditShowDataLabels } from './EditShowDataLabels';
 import { useMemoizedFn } from '@/hooks';
-import { IBusterMetricChartConfig, ColumnMetaData } from '@/api/asset_interfaces';
+import type { IBusterMetricChartConfig } from '@/api/asset_interfaces/metric';
 import { EditBarSorting } from './EditBarAxisSorting';
 import { EditGrouping } from '../StylingAppVisualize/SelectAxis/SelectAxisSettingsContent/EditGrouping';
 import { EditBarRoundnessGlobal } from './EditBarRoundnessGlobal';
@@ -22,12 +22,7 @@ import { EditPieAppearance } from './EditPieAppearance';
 import { EditPieMinimumSlicePercentage } from './EditPieMinimumSlicePercentage';
 import { EditPieInnerLabel } from './EditPieInnerLabel';
 import { EditPieShowInnerLabel } from './EditPieShowInnerLabel';
-import {
-  BarAndLineAxis,
-  ChartEncodes,
-  ChartType,
-  ScatterAxis
-} from '@/api/asset_interfaces/metric/charts';
+import { type BarAndLineAxis, ChartType } from '@/api/asset_interfaces/metric/charts';
 import { StylingAppStylingNotSupported } from './StylingAppStylingNotSupported';
 import { EditScatterDotSize } from './EditScatterDotSize';
 import { useUpdateMetricChart } from '@/context/Metrics';

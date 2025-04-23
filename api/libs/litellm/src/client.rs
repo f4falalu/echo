@@ -235,6 +235,62 @@ impl LiteLLMClient {
         }
         Ok(rx)
     }
+
+    pub async fn generate_embeddings(
+        &self,
+        request: EmbeddingRequest,
+    ) -> Result<EmbeddingResponse> {
+        let url = format!("{}/embeddings", self.base_url);
+
+        Self::debug_log(&format!("Sending embedding request to URL: {}", url));
+        if *DEBUG_ENABLED {
+            Self::debug_log(&format!(
+                "Embedding request payload: {}",
+                serde_json::to_string_pretty(&request).unwrap_or_else(|e| format!("Serialization Error: {}", e))
+            ));
+        }
+
+        let response = self
+            .client
+            .post(&url)
+            .json(&request)
+            .send()
+            .await?;
+
+        // Check for non-success status codes first
+        let status = response.status();
+        let response_text = response.text().await?;
+        if !status.is_success() {
+            Self::debug_log(&format!(
+                "Error response from embedding endpoint (Status: {}): {}",
+                status,
+                response_text
+            ));
+            return Err(anyhow::anyhow!(
+                "Embedding request failed with status {}: {}",
+                status,
+                response_text
+            ));
+        }
+        
+        if *DEBUG_ENABLED {
+            Self::debug_log(&format!("Raw embedding response payload: {}", response_text));
+        }
+
+        // Parse the response text into the expected type
+        let response: EmbeddingResponse = serde_json::from_str(&response_text)
+            .map_err(|e| anyhow::anyhow!("Failed to deserialize embedding response: {}. Response text: {}", e, response_text))?;
+
+
+        if *DEBUG_ENABLED {
+             Self::debug_log(&format!(
+                "Received embedding response: {}",
+                serde_json::to_string_pretty(&response).unwrap_or_else(|e| format!("Serialization Error: {}", e))
+            ));
+        }
+
+        Ok(response)
+    }
 }
 
 impl Default for LiteLLMClient {

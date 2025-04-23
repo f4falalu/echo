@@ -26,7 +26,7 @@ src/api/asset_interfaces/
 
 2. Interface File (`interfaces.ts`) Requirements:
    - Must contain TypeScript interfaces, types, and enums for API responses
-   - All types must be properly documented with JSDoc comments
+   - All types must be properly documented with TSDoc comments
    - Use strict typing (no `any` types unless absolutely necessary)
    - Prefer readonly properties where applicable
    - Use proper naming conventions:

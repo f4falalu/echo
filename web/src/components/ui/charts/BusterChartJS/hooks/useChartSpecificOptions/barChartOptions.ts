@@ -21,7 +21,7 @@ export const barPluginsHandler = ({
 
   return {
     totalizer: {
-      enabled: (barShowTotalAtTop && barGroupType === 'stack') || hasShowLabelAsPercentage
+      enabled: barShowTotalAtTop || hasShowLabelAsPercentage || !!barGroupType
     }
   };
 };

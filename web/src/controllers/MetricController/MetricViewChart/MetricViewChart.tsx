@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';

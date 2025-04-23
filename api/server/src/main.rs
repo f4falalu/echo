@@ -3,6 +3,7 @@ pub mod utils;
 
 use std::env;
 use std::sync::Arc;
+use std::time::Duration;
 
 use axum::{Extension, Router, extract::Request};
 use middleware::{cors::cors, error::{init_sentry, sentry_layer, init_tracing_subscriber}};
@@ -11,16 +12,19 @@ use diesel::{Connection, PgConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use dotenv::dotenv;
 use rustls::crypto::ring;
+use stored_values::jobs::trigger_stale_sync_jobs;
 use tokio::sync::broadcast;
+use tokio_cron_scheduler::{Job, JobScheduler};
 use tower::ServiceBuilder;
 use tower_http::{compression::CompressionLayer, trace::TraceLayer};
+use tracing::{error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 #[tokio::main]
 #[allow(unused)]
-async fn main() {
+async fn main() -> Result<(), anyhow::Error> {
     dotenv().ok();
 
     let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string());
@@ -48,17 +52,37 @@ async fn main() {
 
     if let Err(e) = init_pools().await {
         tracing::error!("Failed to initialize database pools: {}", e);
-        return;
+        return Ok(());
     }
 
     tracing::info!("Running database migrations");
 
     if let Err(e) = run_migrations().await {
         tracing::error!("Failed to run database migrations: {}", e);
-        return;
+        return Ok(());
     }
 
     tracing::info!("Successfully ran database migrations");
+
+    // --- Start Stored Values Sync Job Scheduler ---
+    let scheduler = JobScheduler::new().await?; // Using `?` assuming main returns Result
+    info!("Starting stored values sync job scheduler...");
+
+    // Schedule to run every hour
+    let job = Job::new_async("0 0 * * * *", move |uuid, mut l| {
+        Box::pin(async move {
+            info!(job_uuid = %uuid, "Running hourly stored values sync job check.");
+            if let Err(e) = trigger_stale_sync_jobs().await {
+                error!(job_uuid = %uuid, "Hourly stored values sync job failed: {}", e);
+            }
+            // Optional: You could check l.next_tick_for_job(uuid).await to see the next scheduled time.
+        })
+    })?;
+
+    scheduler.add(job).await?;
+    scheduler.start().await?;
+    info!("Stored values sync job scheduler started.");
+    // --- End Stored Values Sync Job Scheduler ---
 
     let protected_router = Router::new().nest("/api/v1", routes::protected_router());
     let public_router = Router::new().route("/health", axum::routing::get(|| async { "OK" }));
@@ -91,19 +115,25 @@ async fn main() {
         Ok(listener) => listener,
         Err(e) => {
             tracing::error!("Failed to bind to port {}: {}", port_number, e);
-            return;
+            return Ok(());
         }
     };
 
     let server = axum::serve(listener, app);
 
     tokio::select! {
-        _ = server => {},
+        res = server => {
+            if let Err(e) = res {
+                error!("Axum server error: {}", e);
+            }
+         },
         _ = tokio::signal::ctrl_c() => {
-            tracing::info!("Shutdown signal received, starting graceful shutdown");
+            info!("Shutdown signal received, starting graceful shutdown");
             shutdown_tx.send(()).unwrap_or_default();
         }
     }
+
+    Ok(())
 }
 
 async fn run_migrations() -> Result<(), anyhow::Error> {

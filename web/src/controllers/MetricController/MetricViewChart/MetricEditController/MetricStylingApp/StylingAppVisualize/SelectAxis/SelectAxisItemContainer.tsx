@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { SelectAxisItemLabel } from './SelectAxisItemLabel';
 import { useSelectAxisContextSelector } from './useSelectAxisContext';
 import { useMemoizedFn } from '@/hooks';
@@ -9,6 +9,7 @@ import { CollapseDelete } from '../../Common/CollapseDelete';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import { DraggableAttributes } from '@dnd-kit/core';
 import { useUpdateMetricChart } from '@/context/Metrics';
+import { ErrorBoundary } from '@/components/ui/error';
 
 interface SelectAxisItemContainerProps {
   id: string;
@@ -80,18 +81,30 @@ const DropdownContent: React.FC<{ id: string; zoneId: SelectAxisContainerId }> =
   const selectedAxis = useSelectAxisContextSelector((x) => x.selectedAxis);
   const rowCount = useSelectAxisContextSelector((x) => x.rowCount);
 
+  const memoizedErrorComponent = useMemo(() => {
+    return (
+      <div className="bg-danger-background flex min-h-24 items-center justify-center rounded-b border border-red-500">
+        <span className="text-danger-foreground p-3 text-center">
+          There was an error loading the chart config. Please contact Buster support.
+        </span>
+      </div>
+    );
+  }, []);
+
   return (
-    <SelectAxisDropdownContent
-      hideTitle
-      id={id}
-      zoneId={zoneId}
-      columnLabelFormat={columnLabelFormat}
-      columnSetting={columnSetting}
-      selectedChartType={selectedChartType}
-      barGroupType={barGroupType}
-      lineGroupType={lineGroupType}
-      selectedAxis={selectedAxis}
-      rowCount={rowCount}
-    />
+    <ErrorBoundary errorComponent={memoizedErrorComponent}>
+      <SelectAxisDropdownContent
+        hideTitle
+        id={id}
+        zoneId={zoneId}
+        columnLabelFormat={columnLabelFormat}
+        columnSetting={columnSetting}
+        selectedChartType={selectedChartType}
+        barGroupType={barGroupType}
+        lineGroupType={lineGroupType}
+        selectedAxis={selectedAxis}
+        rowCount={rowCount}
+      />
+    </ErrorBoundary>
   );
 };

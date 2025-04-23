@@ -22,7 +22,7 @@ const editableTitleVariants = cva('relative flex items-center justify-between', 
 
 export const EditableTitle = React.memo(
   React.forwardRef<
-    HTMLDivElement,
+    HTMLInputElement,
     {
       children: string;
       onEdit?: (b: boolean) => void;
@@ -54,9 +54,8 @@ export const EditableTitle = React.memo(
         onChange,
         onSetValue
       },
-      ref
+      inputRef
     ) => {
-      const inputRef = useRef<HTMLInputElement>(null);
       const [value, setValue] = React.useState(children);
 
       useLayoutEffect(() => {
@@ -64,10 +63,7 @@ export const EditableTitle = React.memo(
       }, [children]);
 
       return (
-        <div
-          ref={ref}
-          className={cn('relative flex items-center justify-between', className)}
-          style={style}>
+        <div className={cn('relative flex items-center justify-between', className)} style={style}>
           <Input
             placeholder={placeholder}
             ref={inputRef}

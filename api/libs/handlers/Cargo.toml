@@ -33,6 +33,9 @@ email = { path = "../email" }
 # Add any handler-specific dependencies here 
 dashmap = "5.5.3"
 
+# Add stored_values dependency
+stored_values = { path = "../stored_values" }
+
 [dev-dependencies]
 tokio-test = { workspace = true }
 mockall = { workspace = true }
