@@ -334,6 +334,7 @@ export const WithDataLabelsAndStackTotal: Story = {
 
 export const LargeDataset: Story = {
   args: {
+    className: 'resize overflow-auto min-w-[250px] h-[400px]',
     selectedChartType: ChartType.Bar,
     data: Array.from({ length: 25 }, (_, index) => ({
       category: faker.commerce.productName(),
@@ -367,13 +368,6 @@ export const LargeDataset: Story = {
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat
     }
-  },
-  render: (args) => {
-    return (
-      <div className="h-[400px] w-[800px]">
-        <BusterChart {...args} />
-      </div>
-    );
   }
 };
 
