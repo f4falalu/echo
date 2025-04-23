@@ -739,3 +739,20 @@ pub struct MetricFileToDashboardFile {
     pub deleted_at: Option<DateTime<Utc>>,
     pub created_by: Uuid,
 }
+
+#[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize, Selectable, AsChangeset)]
+#[diesel(belongs_to(DataSource))]
+#[diesel(table_name = stored_values_sync_jobs)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct StoredValuesSyncJob {
+    pub id: Uuid,
+    pub data_source_id: Uuid,
+    pub database_name: String,
+    pub schema_name: String,
+    pub table_name: String,
+    pub column_name: String,
+    pub last_synced_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub status: String,
+    pub error_message: Option<String>,
+}

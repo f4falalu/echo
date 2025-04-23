@@ -6,6 +6,7 @@ import { Button } from '../buttons/Button';
 import React from 'react';
 import { ModalProps } from './AppModal';
 import { fn } from '@storybook/test';
+import { timeout } from '@/lib';
 
 const meta: Meta<typeof AppModal> = {
   title: 'UI/Modal/AppModal',
