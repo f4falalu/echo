@@ -13,7 +13,7 @@ export const useGetMetricsList = (
   >
 ) => {
   const compiledParams: Parameters<typeof listMetrics>[0] = useMemo(
-    () => ({ ...params, page_token: 0, page_size: 3000 }),
+    () => ({ ...params, page_token: 0, page_size: 3500 }),
     [params]
   );
 

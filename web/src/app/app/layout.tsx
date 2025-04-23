@@ -35,7 +35,10 @@ export default async function Layout({
   const newUserRoute = createBusterRoute({ route: BusterRoutes.NEW_USER });
   const loginRoute = createBusterRoute({ route: BusterRoutes.AUTH_LOGIN });
 
-  if (supabaseContext.user?.is_anonymous && pathname !== loginRoute) {
+  if (
+    (supabaseContext.user?.is_anonymous && pathname !== loginRoute) ||
+    !supabaseContext?.user?.id
+  ) {
     return <ClientRedirect to={loginRoute} />;
   }
 

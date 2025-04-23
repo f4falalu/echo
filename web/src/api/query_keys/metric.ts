@@ -17,7 +17,7 @@ export const metricsGetList = (
   filters?: Omit<Parameters<typeof listMetrics>[0], 'page_token' | 'page_size'>
 ) =>
   queryOptions<BusterMetricListItem[]>({
-    queryKey: ['metrics', 'list', filters || {}] as const,
+    queryKey: ['metrics', 'list', filters || { page_token: 0, page_size: 3500 }] as const,
     initialData: [],
     initialDataUpdatedAt: 0
   });
