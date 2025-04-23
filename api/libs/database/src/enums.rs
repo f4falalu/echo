@@ -417,20 +417,18 @@ impl FromSql<sql_types::DatasetTypeEnum, Pg> for DatasetType {
 }
 
 #[derive(
-    Serialize,
-    Deserialize,
     Debug,
-    Clone,
-    Copy,
     PartialEq,
     Eq,
     diesel::AsExpression,
     diesel::FromSqlRow,
+    Serialize,
+    Deserialize,
+    Clone,
+    Copy,
 )]
 #[diesel(sql_type = sql_types::VerificationEnum)]
 #[serde(rename_all = "camelCase")]
-#[derive(sqlx::Type)]
-#[sqlx(type_name = "verification_enum", rename_all = "camelCase")]
 pub enum Verification {
     Verified,
     Backlogged,
@@ -473,7 +471,6 @@ impl FromSql<sql_types::VerificationEnum, Pg> for Verification {
     Copy,
     PartialEq,
     Eq,
-    Hash,
     diesel::AsExpression,
     diesel::FromSqlRow,
 )]
