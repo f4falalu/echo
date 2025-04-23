@@ -95,6 +95,7 @@ const keySpecificHandlers: Partial<
     columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'],
     dataMetadata
   ) => {
+    console.log('HERE!', columnLabelFormats, dataMetadata);
     return createDefaultColumnLabelFormats(columnLabelFormats, dataMetadata?.column_metadata);
   },
   columnSettings: (columnSettings: IBusterMetricChartConfig['columnSettings'], dataMetadata) => {

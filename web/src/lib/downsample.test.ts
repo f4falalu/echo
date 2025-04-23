@@ -1,5 +1,6 @@
 import { uniformSampling, randomSampling } from './downsample';
 import type { DataPoint } from './downsample';
+import { detectAnomalies } from './downsample';
 
 describe('uniformSampling', () => {
   // Sample data for testing
@@ -233,5 +234,64 @@ describe('randomSampling', () => {
     });
 
     expect(executionTime).toBeLessThan(200);
+  });
+});
+
+describe('detectAnomalies', () => {
+  it('should correctly identify anomalous points based on standard deviation', () => {
+    const testData: DataPoint[] = [
+      { value: 10 },
+      { value: 12 },
+      { value: 9 },
+      { value: 11 },
+      { value: 10 }, // Anomaly
+      { value: 13 },
+      { value: 8 },
+      { value: 100 }, // Anomaly
+      { value: 11 },
+      { value: 10 }
+    ];
+
+    const anomalies = detectAnomalies(testData, 'value', 1.5);
+
+    // Should identify indices 4 and 7 as anomalous
+    expect(anomalies).toHaveLength(1);
+    expect(anomalies).toContain(7);
+    expect(testData[anomalies[0]].value).toBe(100);
+  });
+});
+
+describe('randomSampling with anomaly preservation', () => {
+  it('should preserve anomalous points while downsampling', () => {
+    const testData: DataPoint[] = [
+      { value: 10 },
+      { value: 12 },
+      { value: 9 },
+      { value: 11 },
+      { value: 10 },
+      { value: 13 },
+      { value: 8 },
+      { value: 100 }, // Anomaly
+      { value: 11 },
+      { value: 10 }
+    ];
+
+    // Request 5 points with anomaly preservation
+    const result = randomSampling(testData, 5, true, {
+      numericField: 'value',
+      threshold: 1.5
+    });
+
+    // Should have exactly 5 points
+    expect(result).toHaveLength(5);
+
+    // Should include the anomalous point
+    const resultValues = result.map((point) => point.value);
+    expect(resultValues).toContain(100);
+
+    // Should include first and last points (preserveEnds = true)
+    expect(resultValues).toContain(10); // first point
+    expect(resultValues[0]).toBe(10); // first point should be first
+    expect(resultValues[resultValues.length - 1]).toBe(10); // last point should be last
   });
 });
