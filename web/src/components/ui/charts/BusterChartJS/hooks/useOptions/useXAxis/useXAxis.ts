@@ -214,9 +214,9 @@ export const useXAxis = ({
           major: {
             enabled: false //test
           },
-          autoSkip: false,
-          maxTicksLimit: type === 'time' ? (timeUnit === 'month' ? 12 : 18) : undefined,
-          sampleSize: type === 'time' ? 24 : undefined,
+          autoSkip: true,
+          maxTicksLimit: type === 'time' ? (timeUnit === 'month' ? 18 : 18) : undefined,
+          //  sampleSize: type === 'time' ? 28 : undefined, //DO NOT USE THIS. IT BREAK TIME SCALES
           display: xAxisShowAxisLabel,
           callback: customTickCallback as any, //I need to use null for auto date
           //@ts-ignore
