@@ -13,7 +13,7 @@ export const createDashboardFullConfirmModal = ({
 }) => {
   return (
     <div className="relative">
-      <div className="max-h-[40vh] space-y-5 overflow-auto p-0 pb-5">
+      <div className="max-h-[55vh] space-y-5 overflow-auto p-0 pb-5">
         <div className="rounded border border-gray-100 bg-white p-2.5 dark:border-gray-800 dark:bg-gray-900">
           <Text className="text-sm font-medium text-gray-600 dark:text-gray-300">
             Only <span className="text-foreground font-semibold">{availableSlots}</span> metrics can

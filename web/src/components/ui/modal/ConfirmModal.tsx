@@ -1,12 +1,12 @@
 import React from 'react';
 import { AppModal } from './AppModal';
 
-export interface ConfirmProps {
+export interface ConfirmProps<T = unknown> {
   title: string | React.ReactNode;
   description?: string | React.ReactNode;
   content: string | React.ReactNode;
-  onOk: (() => Promise<void>) | (() => void);
-  onCancel?: () => Promise<void> | void;
+  onOk: (() => Promise<T>) | (() => T);
+  onCancel?: () => Promise<void>;
   width?: number;
   cancelButtonProps?: {
     text?: string;

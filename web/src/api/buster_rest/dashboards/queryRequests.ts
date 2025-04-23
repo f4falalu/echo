@@ -471,7 +471,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
             metricsToAdd: metricsToAdd
           });
 
-          return openConfirmModal({
+          return openConfirmModal<BusterDashboardResponse>({
             title: 'Dashboard is full',
             content,
             primaryButtonProps: {
@@ -487,6 +487,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
       }
 
       openErrorMessage('Failed to save metrics to dashboard');
+      return;
     }
   );
 

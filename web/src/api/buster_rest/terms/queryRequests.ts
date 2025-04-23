@@ -56,12 +56,14 @@ export const useDeleteTerm = () => {
   const queryClient = useQueryClient();
   const { openConfirmModal } = useBusterNotifications();
   const mutationFn = useMemoizedFn(
-    ({
+    async ({
       ids,
       ignoreConfirm = false
     }: Parameters<typeof deleteTerms>[0] & { ignoreConfirm?: boolean }) => {
       const method = async () => {
-        deleteTerms({ ids });
+        await deleteTerms({ ids });
+        const options = queryKeys.termsGetList;
+        queryClient.invalidateQueries({ queryKey: options.queryKey });
       };
 
       if (ignoreConfirm) {
@@ -77,10 +79,6 @@ export const useDeleteTerm = () => {
   );
 
   return useMutation({
-    mutationFn,
-    onSuccess: () => {
-      const options = queryKeys.termsGetList;
-      queryClient.invalidateQueries({ queryKey: options.queryKey });
-    }
+    mutationFn
   });
 };
