@@ -28,7 +28,7 @@ export const AddToDashboardModal: React.FC<{
       asset_types: ['metric'],
       num_results: 100
     },
-    { enabled: open }
+    { enabled: true }
   );
 
   const columns = useMemo<InputSelectModalProps['columns']>(
