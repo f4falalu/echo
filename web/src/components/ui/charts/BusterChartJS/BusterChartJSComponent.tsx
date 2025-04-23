@@ -124,7 +124,9 @@ export const BusterChartJSComponent = React.memo(
         columnLabelFormats,
         yAxisKeys,
         y2AxisKeys,
-        lineGroupType
+        lineGroupType,
+        barLayout,
+        barGroupType
       });
 
       const options: ChartOptions<ChartJSChartType> = useOptions({
