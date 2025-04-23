@@ -507,7 +507,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
 
 export const useAddMetricsToDashboard = () => {
   const queryClient = useQueryClient();
-  const { openErrorMessage } = useBusterNotifications();
+  const { openErrorMessage, openConfirmModal } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
   const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
@@ -515,6 +515,28 @@ export const useAddMetricsToDashboard = () => {
   const addMetricToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
       const dashboardResponse = await ensureDashboardConfig(dashboardId);
+
+      const existingMetricIds = new Set(
+        dashboardResponse?.dashboard.config.rows?.flatMap((row) =>
+          row.items.map((item) => item.id)
+        ) || []
+      );
+
+      // Determine which metrics to add and remove
+      const metricsToAdd = metricIds.filter((id) => !existingMetricIds.has(id));
+      const currentMetricCount = existingMetricIds.size;
+      const availableSlots = MAX_NUMBER_OF_ITEMS_ON_DASHBOARD - currentMetricCount;
+
+      if (metricsToAdd.length > availableSlots) {
+        return openConfirmModal({
+          title: 'Dashboard is full',
+          content: `The dashboard is full, please remove some metrics before adding more. You can only have ${MAX_NUMBER_OF_ITEMS_ON_DASHBOARD} metrics on a dashboard at a time.`,
+          primaryButtonProps: {
+            text: 'Okay'
+          },
+          onOk: () => {}
+        });
+      }
 
       if (dashboardResponse) {
         const newConfig = addMetricToDashboardConfig(metricIds, dashboardResponse.dashboard.config);
