@@ -552,7 +552,6 @@ export const useAddMetricsToDashboard = () => {
             .queryKey,
           data
         );
-
         Object.values(data.metrics).forEach((metric) => {
           const dashboardId = data.dashboard.id;
           const dashboardName = data.dashboard.name;
