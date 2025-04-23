@@ -35,7 +35,7 @@ import {
 } from './dashboardQueryHelpers';
 import { useGetLatestMetricVersionMemoized } from '../metrics';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
-import pluralize from 'pluralize';
+import { createDashboardFullConfirmModal } from './confirmModals';
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
   {
@@ -404,7 +404,13 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
 
   const addAndRemoveMetrics = useMemoizedFn(
-    async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
+    async ({
+      metrics,
+      dashboardId
+    }: {
+      metrics: { id: string; name: string }[];
+      dashboardId: string;
+    }) => {
       const dashboardResponse = await ensureDashboardConfig(dashboardId);
 
       if (dashboardResponse) {
@@ -416,9 +422,9 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
         );
 
         // Determine which metrics to add and remove
-        const metricsToAdd = metricIds.filter((id) => !existingMetricIds.has(id));
+        const metricsToAdd = metrics.filter((metric) => !existingMetricIds.has(metric.id));
         const metricsToRemove = Array.from(existingMetricIds).filter(
-          (id) => !metricIds.includes(id)
+          (id) => !metrics.some((metric) => metric.id === id)
         );
 
         // Calculate how many metrics we can add while staying under the limit
@@ -430,7 +436,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
           // Create the final list of metrics to include
           const finalMetricIds = [
             ...Array.from(existingMetricIds).filter((id) => !metricsToRemove.includes(id)),
-            ...metricsToActuallyAdd
+            ...metricsToActuallyAdd.map((metric) => metric.id)
           ];
 
           let newConfig = addAndRemoveMetricsToDashboard(
@@ -457,12 +463,17 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
               },
               onOk: () => {}
             });
-            return;
           }
+
+          const content = createDashboardFullConfirmModal({
+            availableSlots,
+            metricsToActuallyAdd: metricsToActuallyAdd,
+            metricsToAdd: metricsToAdd
+          });
 
           return openConfirmModal({
             title: 'Dashboard is full',
-            content: `Only ${availableSlots} metrics can be added to stay within the limit of ${MAX_NUMBER_OF_ITEMS_ON_DASHBOARD} metrics. The first ${availableSlots} metrics will be added.`,
+            content,
             primaryButtonProps: {
               text: 'Okay'
             },

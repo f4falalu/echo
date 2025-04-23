@@ -15,8 +15,12 @@ export const AddToDashboardModal: React.FC<{
   const { mutateAsync: addAndRemoveMetricsFromDashboard } = useAddAndRemoveMetricsFromDashboard();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
+  const [selectedMetrics, setSelectedMetrics] = useState<{ id: string; name: string }[]>([]);
   const debouncedSearchTerm = useDebounce(searchTerm, { wait: 175 });
+
+  const selectedMetricsIds = useMemo(() => {
+    return selectedMetrics.map((metric) => metric.id);
+  }, [selectedMetrics]);
 
   const { data: searchResults } = useSearch(
     {
@@ -60,20 +64,28 @@ export const AddToDashboardModal: React.FC<{
   const handleAddAndRemoveMetrics = useMemoizedFn(async () => {
     await addAndRemoveMetricsFromDashboard({
       dashboardId: dashboardId,
-      metricIds: selectedMetrics
+      metrics: selectedMetrics
     });
     onClose();
   });
 
   const onSelectChange = useMemoizedFn((items: string[]) => {
-    setSelectedMetrics(items);
+    const itemsWithName = items.map((id) => {
+      const item = rows.find((row) => row.id === id);
+      return {
+        id: id,
+        name: item?.data?.name || id
+      };
+    });
+
+    setSelectedMetrics(itemsWithName);
   });
 
   const isSelectedChanged = useMemo(() => {
     const originalIds = Object.keys(dashboard?.metrics || {});
-    const newIds = selectedMetrics;
+    const newIds = selectedMetricsIds;
     return originalIds.length !== newIds.length || originalIds.some((id) => !newIds.includes(id));
-  }, [dashboard?.metrics, selectedMetrics]);
+  }, [dashboard?.metrics, selectedMetricsIds]);
 
   const emptyState = useMemo(() => {
     if (!isFetchedDashboard) {
@@ -86,14 +98,14 @@ export const AddToDashboardModal: React.FC<{
   }, [isFetchedDashboard, rows]);
 
   const addedMetricCount = useMemo(() => {
-    return selectedMetrics.filter((id) => !Object.keys(dashboard?.metrics || {}).includes(id))
+    return selectedMetricsIds.filter((id) => !Object.keys(dashboard?.metrics || {}).includes(id))
       .length;
-  }, [dashboard?.metrics, selectedMetrics]);
+  }, [dashboard?.metrics, selectedMetricsIds]);
 
   const removedMetricCount = useMemo(() => {
-    return Object.keys(dashboard?.metrics || {}).filter((id) => !selectedMetrics.includes(id))
+    return Object.keys(dashboard?.metrics || {}).filter((id) => !selectedMetricsIds.includes(id))
       .length;
-  }, [dashboard?.metrics, selectedMetrics]);
+  }, [dashboard?.metrics, selectedMetricsIds]);
 
   const primaryButtonText = useMemo(() => {
     if (!isFetchedDashboard) {
@@ -171,7 +183,10 @@ export const AddToDashboardModal: React.FC<{
 
   useLayoutEffect(() => {
     if (isFetchedDashboard) {
-      const metrics = Object.keys(dashboard?.metrics || {});
+      const metrics = Object.values(dashboard?.metrics || {}).map((metric) => ({
+        id: metric.id,
+        name: metric.name
+      }));
       setSelectedMetrics(metrics);
     }
   }, [isFetchedDashboard, dashboard?.metrics]);
@@ -184,7 +199,7 @@ export const AddToDashboardModal: React.FC<{
       columns={columns}
       rows={rows}
       onSelectChange={onSelectChange}
-      selectedRowKeys={selectedMetrics}
+      selectedRowKeys={selectedMetricsIds}
       footer={footer}
       emptyState={emptyState}
       searchText={searchTerm}

@@ -1,0 +1,66 @@
+import { MAX_NUMBER_OF_ITEMS_ON_DASHBOARD } from '@/api/asset_interfaces/dashboard/config';
+import { Text, Title } from '@/components/ui/typography';
+import { cn } from '@/lib/classMerge';
+
+export const createDashboardFullConfirmModal = ({
+  availableSlots,
+  metricsToActuallyAdd,
+  metricsToAdd
+}: {
+  availableSlots: number;
+  metricsToActuallyAdd: { id: string; name: string }[];
+  metricsToAdd: { id: string; name: string }[];
+}) => {
+  return (
+    <div className="space-y-5 p-4">
+      <div className="rounded border border-gray-100 bg-white p-2.5 dark:border-gray-800 dark:bg-gray-900">
+        <Text className="text-sm font-medium text-gray-600 dark:text-gray-300">
+          Only <span className="text-foreground font-semibold">{availableSlots}</span> metrics can
+          be added to stay within the limit of{' '}
+          <span className="text-foreground font-semibold">{MAX_NUMBER_OF_ITEMS_ON_DASHBOARD}</span>{' '}
+          metrics.
+        </Text>
+      </div>
+
+      <div className="ml-2.5 space-y-6">
+        <div>
+          <Title size="h5" variant="primary" className="mb-3">
+            Will be added
+          </Title>
+          <ul className="space-y-2">
+            {metricsToActuallyAdd.map((metric) => (
+              <li key={metric.id} className="flex items-center gap-2">
+                <div className="bg-primary h-1.5 w-1.5 rounded-full"></div>
+                <Text className="text-sm font-medium text-gray-600 transition-colors duration-200 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100">
+                  {metric.name}
+                </Text>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {metricsToAdd.length > availableSlots && (
+          <div>
+            <Title size="h5" variant="danger" className="mb-3">
+              Will not be added
+            </Title>
+            <ul className="space-y-2">
+              {metricsToAdd.slice(availableSlots).map((metric) => (
+                <li key={metric.id} className="flex items-center gap-2">
+                  <div className="bg-danger-foreground h-1.5 w-1.5 rounded-full"></div>
+                  <Text
+                    className={cn(
+                      'text-sm font-medium transition-colors duration-200',
+                      'text-danger/80 hover:text-danger'
+                    )}>
+                    {metric.name}
+                  </Text>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
