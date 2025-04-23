@@ -335,35 +335,30 @@ impl ToolExecutor for SearchDataCatalogTool {
             }
         };
         
-        // Extract value search terms using Gemini instead of relying on passed parameters
-        let value_search_terms = match extract_value_search_terms(&user_prompt_str, &user_id, &session_id).await {
-            Ok(terms) => terms,
-            Err(e) => {
-                warn!(error = %e, "Failed to extract value search terms, falling back to provided terms if any");
-                vec![]
-            }
-        };
-        
         debug!(
             specific_queries_count = specific_queries.len(),
-            exploratory_topics_count = exploratory_topics.len(), 
-            value_search_terms_count = value_search_terms.len(),
-            "Request parameters"
+            exploratory_topics_count = exploratory_topics.len(),
+            "Starting request with specific queries and exploratory topics"
         );
 
-        if specific_queries.is_empty() && exploratory_topics.is_empty() && value_search_terms.is_empty() {
-            warn!("SearchDataCatalogTool executed with no search parameters.");
-            return Ok(SearchDataCatalogOutput {
-                message: "No search queries, exploratory topics, or value search terms provided.".to_string(),
-                specific_queries: params.specific_queries,
-                exploratory_topics: params.exploratory_topics,
-                value_search_terms: Some(value_search_terms),
-                duration: start_time.elapsed().as_millis() as i64,
-                results: vec![],
-            });
-        }
-
-        let all_datasets = match Self::get_datasets(&user_id).await {
+        // Start concurrent tasks
+        
+        // 1. Start value term extraction concurrently
+        let user_prompt_clone = user_prompt_str.clone();
+        let user_id_clone = user_id.clone();
+        let session_id_clone = session_id.clone();
+        let value_search_terms_future = tokio::spawn(async move {
+            extract_value_search_terms(user_prompt_clone, user_id_clone, session_id_clone).await
+        });
+        
+        // 2. Begin fetching datasets concurrently
+        let user_id_for_datasets = user_id.clone();
+        let all_datasets_future = tokio::spawn(async move {
+            Self::get_datasets(&user_id_for_datasets).await
+        });
+        
+        // Await the datasets future first (we need this to proceed)
+        let all_datasets = match all_datasets_future.await? {
             Ok(datasets) => datasets,
             Err(e) => {
                 error!(user_id=%user_id, "Failed to retrieve permissioned datasets for tool execution: {}", e);
@@ -371,7 +366,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                     message: format!("Error fetching datasets: {}", e),
                     specific_queries: params.specific_queries,
                     exploratory_topics: params.exploratory_topics,
-                    value_search_terms: Some(value_search_terms),
+                    value_search_terms: Some(vec![]),
                     duration: start_time.elapsed().as_millis() as i64,
                     results: vec![],
                 });
@@ -384,12 +379,13 @@ impl ToolExecutor for SearchDataCatalogTool {
                 message: "No datasets available to search.".to_string(),
                 specific_queries: params.specific_queries,
                 exploratory_topics: params.exploratory_topics,
-                value_search_terms: Some(value_search_terms),
+                value_search_terms: Some(vec![]),
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
             });
         }
 
+        // Get the data source ID
         let target_data_source_id = match extract_data_source_id(&all_datasets) {
             Some(id) => id,
             None => {
@@ -398,7 +394,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                     message: "Could not determine data source for value search.".to_string(),
                     specific_queries: params.specific_queries,
                     exploratory_topics: params.exploratory_topics,
-                    value_search_terms: Some(value_search_terms),
+                    value_search_terms: Some(vec![]),
                     duration: start_time.elapsed().as_millis() as i64,
                     results: vec![],
                 });
@@ -407,6 +403,7 @@ impl ToolExecutor for SearchDataCatalogTool {
         
         debug!(data_source_id = %target_data_source_id, "Identified target data source ID for value search");
 
+        // Prepare documents from datasets
         let documents: Vec<String> = all_datasets
             .iter()
             .filter_map(|dataset| dataset.yml_content.clone())
@@ -418,29 +415,97 @@ impl ToolExecutor for SearchDataCatalogTool {
                 message: "No searchable dataset content found.".to_string(),
                 specific_queries: params.specific_queries,
                 exploratory_topics: params.exploratory_topics,
+                value_search_terms: Some(vec![]),
+                duration: start_time.elapsed().as_millis() as i64,
+                results: vec![],
+            });
+        }
+
+        // 3. Start reranking tasks concurrently (for specific queries and exploratory topics)
+        // We'll use the user prompt for the LLM filtering
+        let user_prompt_for_task = user_prompt_str.clone();
+        
+        // 3a. Start specific query reranking
+        let specific_rerank_futures = stream::iter(specific_queries.clone())
+            .map(|query| {
+                let current_query = query.clone();
+                let datasets_clone = all_datasets.clone();
+                let documents_clone = documents.clone();
+
+                async move {
+                    let ranked = match rerank_datasets(&current_query, &datasets_clone, &documents_clone).await {
+                        Ok(r) => r,
+                        Err(e) => {
+                            error!(error = %e, query = current_query, "Reranking failed for specific query");
+                            Vec::new()
+                        }
+                    };
+
+                    (current_query, ranked)
+                }
+            })
+            .buffer_unordered(5);
+
+        // 3b. Start exploratory topic reranking
+        let exploratory_rerank_futures = stream::iter(exploratory_topics.clone())
+            .map(|topic| {
+                let current_topic = topic.clone();
+                let datasets_clone = all_datasets.clone();
+                let documents_clone = documents.clone();
+
+                async move {
+                    let ranked = match rerank_datasets(&current_topic, &datasets_clone, &documents_clone).await {
+                        Ok(r) => r,
+                        Err(e) => {
+                            error!(error = %e, topic = current_topic, "Reranking failed for exploratory topic");
+                            Vec::new()
+                        }
+                    };
+
+                    (current_topic, ranked)
+                }
+            })
+            .buffer_unordered(5);
+
+        // Collect rerank results in parallel
+        let specific_reranked_vec = specific_rerank_futures.collect::<Vec<(String, Vec<RankedDataset>)>>().await;
+        let exploratory_reranked_vec = exploratory_rerank_futures.collect::<Vec<(String, Vec<RankedDataset>)>>().await;
+        
+        // Now await the value search terms
+        let value_search_terms = match value_search_terms_future.await? {
+            Ok(terms) => terms,
+            Err(e) => {
+                warn!(error = %e, "Failed to extract value search terms, falling back to provided terms if any");
+                vec![]
+            }
+        };
+
+        debug!(
+            value_search_terms_count = value_search_terms.len(),
+            "Value search terms extracted"
+        );
+        
+        // Check if we have anything to search for
+        if specific_queries.is_empty() && exploratory_topics.is_empty() && value_search_terms.is_empty() {
+            warn!("SearchDataCatalogTool executed with no search parameters.");
+            return Ok(SearchDataCatalogOutput {
+                message: "No search queries, exploratory topics, or value search terms provided.".to_string(),
+                specific_queries: params.specific_queries,
+                exploratory_topics: params.exploratory_topics,
                 value_search_terms: Some(value_search_terms),
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
             });
         }
 
-        let user_prompt_value = self.agent.get_state_value("user_prompt").await;
-        let user_prompt_str = match user_prompt_value {
-            Some(Value::String(prompt)) => prompt,
-            _ => {
-                warn!("User prompt not found in agent state for LLM filtering.");
-                "User query context not available.".to_string()
-            }
-        };
-
-        // NEW: Execute value searches concurrently for each value_search_term
+        // 4. Begin value searches concurrently
         let mut value_search_futures = Vec::new();
         for term in &value_search_terms {
             let term_clone = term.clone();
             let data_source_id_clone = target_data_source_id;
             
             // Create a future for each value search term
-            let future = async move {
+            let future = tokio::spawn(async move {
                 let results = search_values_for_term(
                     &data_source_id_clone,
                     &term_clone,
@@ -448,15 +513,19 @@ impl ToolExecutor for SearchDataCatalogTool {
                 ).await;
                 
                 (term_clone, results)
-            };
+            });
             
             value_search_futures.push(future);
         }
         
-        // Execute value search futures concurrently
+        // Wait for value searches to complete
         let value_search_results_vec: Vec<(String, Result<Vec<stored_values::search::StoredValueResult>>)> = 
-            futures::future::join_all(value_search_futures).await;
-            
+            futures::future::join_all(value_search_futures)
+                .await
+                .into_iter()
+                .filter_map(|r| r.ok()) // Filter out any join errors
+                .collect();
+        
         // Process the value search results
         let mut found_values_by_term = HashMap::new();
         for (term, result) in value_search_results_vec {
@@ -484,32 +553,26 @@ impl ToolExecutor for SearchDataCatalogTool {
         let all_found_values: Vec<FoundValueInfo> = found_values_by_term.values()
             .flat_map(|values| values.clone())
             .collect();
-            
+        
         debug!(value_count = all_found_values.len(), "Total found values across all terms");
 
-        let specific_futures = stream::iter(specific_queries.clone())
-            .map(|query| {
-                let current_query = query.clone();
-                let datasets_clone = all_datasets.clone();
-                let documents_clone = documents.clone();
-                let user_id_clone = user_id;
-                let session_id_clone = session_id;
-                let user_prompt_for_task = user_prompt_str.clone();
-                let all_found_values_clone = all_found_values.clone();
+        // 5. Now run LLM filtering with the found values and ranked datasets
+        let specific_filter_futures = stream::iter(specific_reranked_vec)
+            .map(|(query, ranked)| {
+                let user_id_clone = user_id.clone();
+                let session_id_clone = session_id.clone();
+                let prompt_clone = user_prompt_for_task.clone();
+                let values_clone = all_found_values.clone();
 
                 async move {
-                    let ranked = match rerank_datasets(&current_query, &datasets_clone, &documents_clone).await {
-                        Ok(r) => r,
-                        Err(e) => {
-                            error!(error = %e, query = current_query, "Reranking failed for specific query");
-                            return Ok(vec![]);
-                        }
-                    };
-
-                    match filter_specific_datasets_with_llm(&current_query, &user_prompt_for_task, ranked, &user_id_clone, &session_id_clone, &all_found_values_clone).await {
+                    if ranked.is_empty() {
+                        return Ok(vec![]);
+                    }
+                    
+                    match filter_specific_datasets_with_llm(&query, &prompt_clone, ranked, &user_id_clone, &session_id_clone, &values_clone).await {
                         Ok(filtered) => Ok(filtered),
                         Err(e) => {
-                            error!(error = %e, query = current_query, "LLM filtering failed for specific query");
+                            error!(error = %e, query = query, "LLM filtering failed for specific query");
                             Ok(vec![])
                         }
                     }
@@ -517,39 +580,34 @@ impl ToolExecutor for SearchDataCatalogTool {
             })
             .buffer_unordered(5);
 
-        let exploratory_futures = stream::iter(exploratory_topics.clone())
-            .map(|topic| {
-                let current_topic = topic.clone();
-                let datasets_clone = all_datasets.clone();
-                let documents_clone = documents.clone();
-                let user_id_clone = user_id;
-                let session_id_clone = session_id;
-                let user_prompt_for_task = user_prompt_str.clone();
-                let all_found_values_clone = all_found_values.clone();
+        let exploratory_filter_futures = stream::iter(exploratory_reranked_vec)
+            .map(|(topic, ranked)| {
+                let user_id_clone = user_id.clone();
+                let session_id_clone = session_id.clone();
+                let prompt_clone = user_prompt_for_task.clone();
+                let values_clone = all_found_values.clone();
 
                 async move {
-                    let ranked = match rerank_datasets(&current_topic, &datasets_clone, &documents_clone).await {
-                        Ok(r) => r,
-                        Err(e) => {
-                            error!(error = %e, topic = current_topic, "Reranking failed for exploratory topic");
-                            return Ok(vec![]);
-                        }
-                    };
-
-                    match filter_exploratory_datasets_with_llm(&current_topic, &user_prompt_for_task, ranked, &user_id_clone, &session_id_clone, &all_found_values_clone).await {
+                    if ranked.is_empty() {
+                        return Ok(vec![]);
+                    }
+                    
+                    match filter_exploratory_datasets_with_llm(&topic, &prompt_clone, ranked, &user_id_clone, &session_id_clone, &values_clone).await {
                         Ok(filtered) => Ok(filtered),
                         Err(e) => {
-                            error!(error = %e, topic = current_topic, "LLM filtering failed for exploratory topic");
+                            error!(error = %e, topic = topic, "LLM filtering failed for exploratory topic");
                             Ok(vec![])
                         }
                     }
                 }
             })
             .buffer_unordered(5);
+        
+        // Collect filter results
+        let specific_results_vec: Vec<Result<Vec<DatasetResult>>> = specific_filter_futures.collect().await;
+        let exploratory_results_vec: Vec<Result<Vec<DatasetResult>>> = exploratory_filter_futures.collect().await;
 
-        let specific_results_vec: Vec<Result<Vec<DatasetResult>>> = specific_futures.collect().await;
-        let exploratory_results_vec: Vec<Result<Vec<DatasetResult>>> = exploratory_futures.collect().await;
-
+        // Process and combine results
         let mut combined_results = Vec::new();
         let mut unique_ids = HashSet::new();
 
@@ -634,22 +692,20 @@ impl ToolExecutor for SearchDataCatalogTool {
             "type": "object",
             "properties": {
               "specific_queries": {
-                "type": ["array", "null"],
+                "type": "array",
                 "description": "Optional list of specific, high-intent search queries targeting data assets based on identified Objects, Properties, Events, Metrics, Filters, and anticipated needs (e.g., required joins, identifiers). Use for focused requests.",
                 "items": {
                   "type": "string",
                   "description": "A concise, full-sentence, natural language query describing the specific search intent, e.g., 'Find datasets with Customer orders including Order ID, Order Date, Total Amount, and linked Customer Name and Email.'"
                 },
-                "minItems": 1
               },
               "exploratory_topics": {
-                 "type": ["array", "null"],
+                 "type": "array",
                  "description": "Optional list of broader topics for exploration when the user's request is vague or seeks related concepts. Aims to discover potentially relevant datasets based on thematic connections.",
                  "items": {
                    "type": "string",
                    "description": "A concise topic phrase describing a general area of interest, e.g., 'Customer churn factors', 'Website traffic analysis', 'Product performance metrics'."
                  },
-                 "minItems": 1
                },
             },
             "additionalProperties": false
@@ -917,7 +973,7 @@ async fn filter_exploratory_datasets_with_llm(
 }
 
 // NEW: Extract potential column values from user query using Gemini
-async fn extract_value_search_terms(user_request: &str, user_id: &Uuid, session_id: &Uuid) -> Result<Vec<String>> {
+async fn extract_value_search_terms(user_request: String, user_id: Uuid, session_id: Uuid) -> Result<Vec<String>> {
     debug!("Extracting potential value search terms from user request");
     
     let prompt = r#"
@@ -954,7 +1010,7 @@ Example response formats:
 ["Red Bull", "California"]
 ["John Smith"]
 []
-"#.replace("{user_request}", user_request);
+"#.replace("{user_request}", &user_request);
 
     let llm_client = LiteLLMClient::new(None, None);
 
