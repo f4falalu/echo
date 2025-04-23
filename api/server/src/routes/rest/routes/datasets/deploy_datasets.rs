@@ -669,6 +669,30 @@ async fn deploy_datasets_handler(
                                             let tbl_name = req.name.clone(); // dataset name is table name here
                                             let col_name = col.name.clone();
 
+                                            // ---- Check for database identifier ----
+                                            if db_name.is_empty() {
+                                                error!(
+                                                    dataset_name = %req.name,
+                                                    column_name = %col_name,
+                                                    "Database identifier (`database`) is missing or empty in the request for this dataset. Cannot set up stored values sync job for this column."
+                                                );
+                                                // Optionally add a warning to the validation result
+                                                if let Some(validation) = results.iter_mut().find(|r| {
+                                                    r.model_name == req.name
+                                                        && r.data_source_name == req.data_source_name
+                                                }) {
+                                                    // Add a specific warning/error type if desired
+                                                    validation.add_error(ValidationError::internal_error(format!(
+                                                        "Missing database identifier for searchable column '{}'.",
+                                                        col_name
+                                                    )));
+                                                    // Setting success = false might be too strong, depends on desired behavior.
+                                                    // validation.success = false;
+                                                }
+                                                continue; // Skip sync job setup for this column
+                                            }
+                                            // ---- End Check ----
+
                                             info!(
                                                 %dataset_id,
                                                 column_name = %col_name,
