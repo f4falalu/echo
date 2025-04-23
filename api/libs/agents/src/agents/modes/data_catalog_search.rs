@@ -32,7 +32,7 @@ pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
         // Note: This prompt doesn't use {TODAYS_DATE}
 
     // 2. Define the model for this mode
-    let model = "o4-mini".to_string(); // Use o4-mini as requested
+    let model = "gemini/gemini-2.5-pro-preview-03-25".to_string(); // Use gemini/gemini-2.5-pro-preview-03-25 as requested
 
     // 3. Define the tool loader closure
     let tool_loader: Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync> = 
