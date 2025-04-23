@@ -456,6 +456,46 @@ pub struct Delta {
     pub tool_calls: Option<Vec<DeltaToolCall>>,
 }
 
+// --- Embedding Types Start ---
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct EmbeddingRequest {
+    pub model: String,
+    pub input: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub encoding_format: Option<String>, // e.g., "float" or "base64"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dimensions: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<String>,
+    // Include any other provider-specific params if needed, potentially using a HashMap<String, Value>
+    // #[serde(flatten)]
+    // pub extra_params: Option<HashMap<String, Value>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct EmbeddingResponse {
+    pub object: String, // e.g., "list"
+    pub data: Vec<EmbeddingData>,
+    pub model: String,
+    pub usage: EmbeddingUsage,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct EmbeddingData {
+    pub object: String, // e.g., "embedding"
+    pub index: usize,
+    pub embedding: Vec<f32>, // Assuming float encoding
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct EmbeddingUsage {
+    pub prompt_tokens: u32,
+    pub total_tokens: u32,
+}
+
+// --- Embedding Types End ---
+
 #[cfg(test)]
 mod tests {
     use super::*;

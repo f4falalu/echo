@@ -10,6 +10,8 @@ use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
+use stored_values::jobs::{setup_sync_job, sync_distinct_values_chunk};
+use tracing::{error, info, warn};
 
 // Import from handlers library
 use handlers::utils::user::user_info::get_user_organization_id;
@@ -60,7 +62,7 @@ pub struct DeployDatasetsColumnsRequest {
     pub type_: Option<String>,
     pub agg: Option<String>,
     #[serde(default)]
-    pub stored_values: bool,
+    pub searchable: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -616,7 +618,60 @@ async fn deploy_datasets_handler(
                         .execute(&mut conn)
                         .await
                     {
-                        Ok(_) => (),
+                        Ok(_) => {
+                            // --- Start Stored Values Sync Job Logic ---
+                            // Successfully upserted columns, now check for stored_values flag
+                            if let Some(req) = dataset_req_map.get(&dataset_name) {
+                                for col in &final_columns {
+                                    if let Some(col_req) = req.columns.iter().find(|c| c.name == col.name) {
+                                        if col_req.searchable {
+                                            let ds_id = data_source.id; // from outer scope
+                                            let db_name = req.database_identifier.clone().unwrap_or_default();
+                                            let sch_name = req.schema.clone();
+                                            let tbl_name = req.name.clone(); // dataset name is table name here
+                                            let col_name = col.name.clone();
+
+                                            info!(
+                                                %dataset_id,
+                                                column_name = %col_name,
+                                                "Column marked for stored values, setting up sync job."
+                                            );
+
+                                            // 1. Setup the sync job entry
+                                            match setup_sync_job(ds_id, db_name.clone(), sch_name.clone(), tbl_name.clone(), col_name.clone()).await {
+                                                Ok(_) => {
+                                                    info!(%dataset_id, column_name = %col_name, "Successfully set up stored values sync job.");
+
+                                                    // 2. Spawn background task for immediate sync
+                                                    tokio::spawn(async move {
+                                                        info!(data_source_id = %ds_id, %db_name, %sch_name, %tbl_name, column_name = %col_name, "Spawning immediate sync task for newly deployed stored value column");
+                                                        match sync_distinct_values_chunk(ds_id, db_name, sch_name, tbl_name, col_name.clone()).await {
+                                                            Ok(count) => info!(column_name = %col_name, "Immediate sync task completed successfully, inserted {} values.", count),
+                                                            Err(e) => error!(column_name = %col_name, "Immediate sync task failed: {}", e),
+                                                        }
+                                                    });
+                                                }
+                                                Err(e) => {
+                                                    error!(
+                                                        %dataset_id,
+                                                        column_name = %col_name,
+                                                        "Failed to set up stored values sync job: {}. Skipping immediate sync.",
+                                                        e
+                                                    );
+                                                    // Optionally mark the validation result with a warning/error here
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                warn!(
+                                    "Original request not found for dataset name '{}' after column upsert. Cannot process stored values.",
+                                    dataset_name
+                                );
+                            }
+                            // --- End Stored Values Sync Job Logic ---
+                        },
                         Err(e) => {
                             tracing::error!(
                                 "Failed to bulk upsert columns for dataset ID '{}': {}",

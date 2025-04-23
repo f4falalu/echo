@@ -11,6 +11,7 @@ members = [
     "libs/search",
     "libs/dataset_security",
     "libs/email",
+    "libs/stored_values",
 ]
 resolver = "2"
 
@@ -104,6 +105,7 @@ url = "2.5.1"
 rayon = "1.10.0"
 diesel_migrations = "2.0.0"
 html-escape = "0.2.13"
+tokio-cron-scheduler = "0.13.0"
 
 [profile.release]
 debug = false

@@ -14,6 +14,7 @@ use database::{
     vault::create_secret,
 };
 use query_engine::credentials::Credential;
+use stored_values::schema::create_search_schema;
 
 #[derive(Deserialize)]
 pub struct CreateDataSourceRequest {
@@ -107,11 +108,16 @@ pub async fn create_data_source_handler(
         .await
         .map_err(|e| anyhow!("Error creating data source: {}", e))?;
 
+    // Create the search schema for this data source
+    create_search_schema(data_source.id)
+        .await
+        .map_err(|e| anyhow!("Error creating search schema: {}", e))?;
+
     // Store credentials in vault
     let credential_json = serde_json::to_string(&request.credential)
         .map_err(|e| anyhow!("Error serializing credentials: {}", e))?;
     
-    create_secret(&data_source_id, &credential_json)
+    create_secret(&credential_json, &request.name, None)
         .await
         .map_err(|e| anyhow!("Error storing credentials in vault: {}", e))?;
 
