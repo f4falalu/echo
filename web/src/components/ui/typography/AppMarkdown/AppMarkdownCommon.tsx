@@ -129,7 +129,7 @@ export const CustomOrderedList: React.FC<
       //@ts-ignore
       start={start}
       className={cn(
-        'space-y-1',
+        'mt-1 space-y-1',
         showLoader && 'fade-in transform-none! transition-none duration-700'
       )}>
       {children}
