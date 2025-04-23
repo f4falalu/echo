@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  useGetMetric,
-  useGetMetricData,
-  useGetMetricVersionNumber
-} from '@/api/buster_rest/metrics';
+import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { RustApiError } from '@/api/buster_rest/errors';
 import { useSearchParams } from 'next/navigation';
@@ -75,11 +71,6 @@ export const useGetAsset = (props: UseGetAssetProps) => {
   const isMetric = props.type === 'metric';
   const isDashboard = props.type === 'dashboard';
   const isCollection = props.type === 'collection';
-
-  const res = useGetMetricVersionNumber({
-    metricId: props.assetId,
-    versionNumber
-  });
 
   // Always call hooks at the top level with appropriate enabled flags
   const { error: metricError, isFetched: metricIsFetched } = useGetMetric(

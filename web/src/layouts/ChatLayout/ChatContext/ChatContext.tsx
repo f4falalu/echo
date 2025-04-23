@@ -53,7 +53,6 @@ const useChatIndividualContext = ({
 
   useAutoChangeLayout({
     lastMessageId: currentMessageId,
-    selectedFileId,
     chatId
   });
 

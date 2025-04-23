@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useOriginalMetricStore } from './useOriginalMetricStore';
 import { useMemoizedFn } from '@/hooks';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
-import { useGetMetric, useGetMetricVersionNumber } from '@/api/buster_rest/metrics';
+import { useGetMetric } from '@/api/buster_rest/metrics';
 import { compareObjectsByKeys } from '@/lib/objects';
 import { useMemo } from 'react';
 import last from 'lodash/last';

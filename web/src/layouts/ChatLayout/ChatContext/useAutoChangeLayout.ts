@@ -13,11 +13,9 @@ import { BusterRoutes } from '@/routes';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
-  selectedFileId,
   chatId
 }: {
   lastMessageId: string;
-  selectedFileId: string | undefined;
   chatId: string | undefined;
 }) => {
   const getChatMessageMemoized = useGetChatMessageMemoized();
