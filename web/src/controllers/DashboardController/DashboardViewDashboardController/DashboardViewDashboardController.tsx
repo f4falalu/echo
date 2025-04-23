@@ -63,7 +63,7 @@ export const DashboardViewDashboardController: React.FC<{
           readOnly={isReadOnly}
         />
 
-        {!isVersionHistoryMode && !isViewingOldVersion && (
+        {!isReadOnly && !isVersionHistoryMode && !isViewingOldVersion && (
           <DashboardSaveFilePopup dashboardId={dashboardId} />
         )}
       </div>

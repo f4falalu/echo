@@ -8,7 +8,7 @@ import {
   ChartType,
   ComboChartAxis
 } from '@/api/asset_interfaces/metric/charts';
-import { useDebounceEffect, useMemoizedFn } from '@/hooks';
+import { useDebounceEffect, useDebounceFn, useMemoizedFn } from '@/hooks';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces/metric';
 import {
   addLegendHeadlines,
@@ -18,7 +18,8 @@ import {
 } from '../../../BusterChartLegend';
 import { getLegendItems } from './helper';
 import { DatasetOption } from '../../../chartHooks';
-import { ANIMATION_THRESHOLD } from '../../../config';
+import { ANIMATION_THRESHOLD, LEGEND_ANIMATION_THRESHOLD } from '../../../config';
+import { timeout } from '@/lib';
 
 interface UseBusterChartJSLegendProps {
   chartRef: React.RefObject<ChartJSOrUndefined | null>;
@@ -57,6 +58,9 @@ export const useBusterChartJSLegend = ({
 }: UseBusterChartJSLegendProps): UseChartLengendReturnValues => {
   const [isPending, startTransition] = useTransition();
   const [isUpdatingChart, setIsUpdatingChart] = useState(false);
+  const [numberOfDataPoints, setNumberOfDataPoints] = useState(0);
+  const isLargeDataset = numberOfDataPoints > LEGEND_ANIMATION_THRESHOLD;
+  const legendTimeoutDuration = isLargeDataset ? 95 : 0;
 
   const {
     inactiveDatasets,
@@ -105,6 +109,13 @@ export const useBusterChartJSLegend = ({
         );
       }
 
+      const numberOfPoints =
+        chartRef.current?.data.datasets.reduce<number>((acc, dataset) => {
+          if (dataset.hidden) return acc;
+          return acc + dataset.data.length;
+        }, 0) || 0;
+      setNumberOfDataPoints(numberOfPoints);
+
       startTransition(() => {
         setLegendItems(items);
       });
@@ -144,25 +155,41 @@ export const useBusterChartJSLegend = ({
     chartjs.update();
   });
 
-  const onLegendItemClick = useMemoizedFn((item: BusterChartLegendItem) => {
+  const { run: debouncedChartUpdate } = useDebounceFn(
+    useMemoizedFn((timeoutDuration: number) => {
+      const chartjs = chartRef.current;
+      if (!chartjs) return;
+      // Schedule the heavy update operation with minimal delay to allow UI to remain responsive
+      setTimeout(() => {
+        startTransition(() => {
+          chartjs.update();
+
+          // Set a timeout to turn off loading state after the update is complete
+          requestAnimationFrame(() => {
+            setIsUpdatingChart(false);
+          });
+        });
+      }, timeoutDuration);
+    }),
+    { wait: isLargeDataset ? 250 : 0 }
+  );
+
+  const onLegendItemClick = useMemoizedFn(async (item: BusterChartLegendItem) => {
     const chartjs = chartRef.current;
 
     if (!chartjs) return;
-
     const data = chartjs.data;
-    const hasAnimation = chartjs.options.animation !== false;
-    const numberOfPoints = data.datasets.reduce((acc, dataset) => acc + dataset.data.length, 0);
-    const isLargeChart = numberOfPoints > ANIMATION_THRESHOLD;
-    const timeoutDuration = isLargeChart && hasAnimation ? 125 : 0;
 
     // Set updating state
-    if (timeoutDuration) setIsUpdatingChart(true);
+    if (legendTimeoutDuration) setIsUpdatingChart(true);
 
     // Update dataset visibility state
     setInactiveDatasets((prev) => ({
       ...prev,
       [item.id]: prev[item.id] ? !prev[item.id] : true
     }));
+
+    await timeout(legendTimeoutDuration);
 
     // Defer visual updates to prevent UI blocking
     requestAnimationFrame(() => {
@@ -177,53 +204,48 @@ export const useBusterChartJSLegend = ({
         }
       }
 
-      // Schedule the heavy update operation with minimal delay to allow UI to remain responsive
-      setTimeout(() => {
-        startTransition(() => {
-          chartjs.update();
-
-          // Set a timeout to turn off loading state after the update is complete
-          requestAnimationFrame(() => {
-            setIsUpdatingChart(false);
-          });
-        });
-      }, timeoutDuration);
+      debouncedChartUpdate(legendTimeoutDuration);
     });
   });
 
-  const onLegendItemFocus = useMemoizedFn((item: BusterChartLegendItem) => {
+  const onLegendItemFocus = useMemoizedFn(async (item: BusterChartLegendItem) => {
     const chartjs = chartRef.current;
     if (!chartjs) return;
 
-    const datasets = chartjs.data.datasets.filter((dataset) => !dataset.hidden);
-    const hasMultipleDatasets = datasets?.length > 1;
-    const assosciatedDatasetIndex = datasets?.findIndex((dataset) => dataset.label === item.id);
+    if (legendTimeoutDuration) setIsUpdatingChart(true);
 
-    if (hasMultipleDatasets) {
-      const hasOtherDatasetsVisible = datasets?.some(
-        (dataset, index) =>
-          dataset.label !== item.id && chartjs.isDatasetVisible(index) && !dataset.hidden
-      );
-      const inactiveDatasetsRecord: Record<string, boolean> = {};
-      if (hasOtherDatasetsVisible) {
-        datasets?.forEach((dataset, index) => {
-          const value = index === assosciatedDatasetIndex;
-          chartjs.setDatasetVisibility(index, value);
-          inactiveDatasetsRecord[dataset.label!] = !value;
-        });
-      } else {
-        datasets?.forEach((dataset, index) => {
-          chartjs.setDatasetVisibility(index, true);
-          inactiveDatasetsRecord[dataset.label!] = false;
-        });
+    // Defer visual updates to prevent UI blocking
+    requestAnimationFrame(() => {
+      const datasets = chartjs.data.datasets.filter((dataset) => !dataset.hidden);
+      const hasMultipleDatasets = datasets?.length > 1;
+      const assosciatedDatasetIndex = datasets?.findIndex((dataset) => dataset.label === item.id);
+
+      if (hasMultipleDatasets) {
+        const hasOtherDatasetsVisible = datasets?.some(
+          (dataset, index) =>
+            dataset.label !== item.id && chartjs.isDatasetVisible(index) && !dataset.hidden
+        );
+        const inactiveDatasetsRecord: Record<string, boolean> = {};
+        if (hasOtherDatasetsVisible) {
+          datasets?.forEach((dataset, index) => {
+            const value = index === assosciatedDatasetIndex;
+            chartjs.setDatasetVisibility(index, value);
+            inactiveDatasetsRecord[dataset.label!] = !value;
+          });
+        } else {
+          datasets?.forEach((dataset, index) => {
+            chartjs.setDatasetVisibility(index, true);
+            inactiveDatasetsRecord[dataset.label!] = false;
+          });
+        }
+        setInactiveDatasets((prev) => ({
+          ...prev,
+          ...inactiveDatasetsRecord
+        }));
       }
-      setInactiveDatasets((prev) => ({
-        ...prev,
-        ...inactiveDatasetsRecord
-      }));
 
-      chartjs.update();
-    }
+      debouncedChartUpdate(legendTimeoutDuration);
+    });
   });
 
   useDebounceEffect(
@@ -231,7 +253,7 @@ export const useBusterChartJSLegend = ({
       calculateLegendItems();
     },
     [selectedChartType],
-    { wait: 3 }
+    { wait: 4 }
   );
 
   //immediate items

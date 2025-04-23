@@ -99,6 +99,7 @@ export const barSeriesBuilder = ({
 
 declare module 'chart.js' {
   interface Chart {
+    $barDataLabelsPercentageMode: false | 'stacked' | 'data-label';
     $barDataLabels: Record<number, Record<number, string>>;
     $barDataLabelsGlobalRotation: boolean;
     $barDataLabelsUpdateInProgress: boolean;
@@ -228,7 +229,11 @@ export const barBuilder = ({
   } as ChartProps<'bar'>['data']['datasets'][number];
 };
 
-const setBarDataLabelsManager = (context: Context, formattedValue: string) => {
+const setBarDataLabelsManager = (
+  context: Context,
+  formattedValue: string,
+  percentageMode: false | 'stacked' | 'data-label'
+) => {
   const dataIndex = context.dataIndex;
   const datasetIndex = context.datasetIndex;
 
@@ -239,6 +244,7 @@ const setBarDataLabelsManager = (context: Context, formattedValue: string) => {
       [dataIndex]: formattedValue
     }
   };
+  context.chart.$barDataLabelsPercentageMode = percentageMode;
 };
 
 const getBarDimensions = (context: Context) => {
@@ -314,12 +320,15 @@ const getFormattedValue = (
   }
 ) => {
   const rawValue = context.dataset.data[context.dataIndex] as number;
-  const currentValue =
-    context.chart.$barDataLabels?.[context.datasetIndex]?.[context.dataIndex] || '';
+  const percentageModesMatch = context.chart.$barDataLabelsPercentageMode === percentageMode;
+  const currentValue = percentageModesMatch
+    ? context.chart.$barDataLabels?.[context.datasetIndex]?.[context.dataIndex] || ''
+    : '';
+
   const formattedValue =
     currentValue || formatBarAndLineDataLabel(rawValue, context, percentageMode, columnLabelFormat);
   // Store only the formatted value, rotation is handled globally
-  setBarDataLabelsManager(context, formattedValue);
+  setBarDataLabelsManager(context, formattedValue, percentageMode);
 
   return formattedValue;
 };

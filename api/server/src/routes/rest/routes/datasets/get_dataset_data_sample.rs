@@ -100,7 +100,7 @@ async fn get_dataset_data_sample_handler(
         let schema = dataset.schema.clone();
         let database_name = dataset.database_name.clone();
         let sql = format!("SELECT * FROM {}.{} LIMIT 25", schema, database_name);
-        match query_engine(dataset_id, &sql, None).await {
+        match query_engine(&dataset.data_source_id, &sql, None).await {
             Ok(data) => data.data,
             Err(e) => {
                 tracing::error!("Error getting dataset data: {:?}", e);

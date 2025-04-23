@@ -113,7 +113,7 @@ ChartJS.defaults.font = {
   scale.ticks.autoSkipPadding = 4;
   scale.ticks.align = 'center';
   scale.ticks.callback = function (value, index, values) {
-    return truncateText(this.getLabelForValue(index), 18);
+    return truncateText(this.getLabelForValue(value as number), 18);
   };
 });
 

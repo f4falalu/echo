@@ -73,3 +73,86 @@ export async function downloadImageData(imageData: string, fileName: string) {
   link.remove();
   URL.revokeObjectURL(imageData);
 }
+
+export const capturePageScreenshot = async (
+  elementToCapture: HTMLElement,
+  hideSelectors?: string[]
+): Promise<string> => {
+  try {
+    // Create a temporary container
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.width = elementToCapture.scrollWidth + 'px';
+    tempContainer.style.height = elementToCapture.scrollHeight + 'px';
+
+    // Clone the element and its styles
+    const clonedElement = elementToCapture.cloneNode(true) as HTMLElement;
+    const computedStyle = window.getComputedStyle(elementToCapture);
+
+    // Copy canvas contents
+    const originalCanvases = elementToCapture.getElementsByTagName('canvas');
+    const clonedCanvases = clonedElement.getElementsByTagName('canvas');
+
+    Array.from(originalCanvases).forEach((originalCanvas, index) => {
+      const clonedCanvas = clonedCanvases[index];
+      if (clonedCanvas) {
+        // Copy dimensions
+        clonedCanvas.width = originalCanvas.width;
+        clonedCanvas.height = originalCanvas.height;
+
+        // Copy the content
+        const context = clonedCanvas.getContext('2d');
+        if (context) {
+          context.drawImage(originalCanvas, 0, 0);
+        }
+      }
+    });
+
+    // Copy essential styles
+    const stylesToCopy = [
+      'width',
+      'height',
+      'padding',
+      'margin',
+      'background',
+      'color',
+      'font-family',
+      'font-size'
+    ];
+
+    stylesToCopy.forEach((property) => {
+      const value = computedStyle.getPropertyValue(property);
+      if (value) {
+        clonedElement.style.setProperty(property, value);
+      }
+    });
+
+    // Hide specified elements in the clone
+    if (hideSelectors) {
+      hideSelectors.forEach((selector) => {
+        const elements = clonedElement.querySelectorAll(selector);
+        elements.forEach((element) => {
+          if (element instanceof HTMLElement) {
+            element.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // Append clone to temporary container and add to document
+    tempContainer.appendChild(clonedElement);
+    document.body.appendChild(tempContainer);
+
+    // Take screenshot
+    const screenshot = await exportElementToImage(clonedElement);
+
+    // Clean up
+    document.body.removeChild(tempContainer);
+
+    return screenshot;
+  } catch (error) {
+    console.error('Error capturing page screenshot:', error);
+    throw error;
+  }
+};

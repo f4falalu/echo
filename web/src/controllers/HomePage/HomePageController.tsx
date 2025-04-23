@@ -25,7 +25,7 @@ export const HomePageController: React.FC<{}> = () => {
   return (
     <div className="flex flex-col items-center justify-center p-4.5">
       <div className="mt-[150px] flex w-full max-w-[650px] flex-col space-y-6">
-        <div className="flex flex-col justify-center gap-y-2.5 text-center">
+        <div className="flex flex-col justify-center gap-y-2 text-center">
           <Title as="h1" className="mb-0!">
             {greeting}
           </Title>

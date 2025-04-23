@@ -99,98 +99,101 @@ fn compute_column_metadata(data: &[IndexMap<String, DataType>]) -> Vec<ColumnMet
 
     columns.iter().map(|column_name| {
         let mut value_map = HashSet::new();
-        let mut min_value = None;
-        let mut max_value = None;
-        let mut is_date_type = false;
+        let mut min_value_numeric: Option<f64> = None; // Use specific name
+        let mut max_value_numeric: Option<f64> = None; // Use specific name
         let mut min_value_str: Option<String> = None;
         let mut max_value_str: Option<String> = None;
+        let mut determined_type: Option<(SimpleType, ColumnType)> = None;
 
         for row in data {
             if let Some(value) = row.get(column_name) {
                 // Track unique values (up to a reasonable limit)
                 if value_map.len() < 100 {
-                    value_map.insert(format!("{:?}", value));
+                    value_map.insert(format!("{:?}", value)); // format! handles nulls acceptably
                 }
 
-                // Calculate min/max for appropriate types
+                 // Determine type from first non-null value encountered
+                 if determined_type.is_none() {
+                     match value {
+                         // Check for non-null variants using matches! for conciseness
+                         DataType::Int2(Some(_)) | DataType::Int4(Some(_)) | DataType::Int8(Some(_)) |
+                         DataType::Float4(Some(_)) | DataType::Float8(Some(_)) | DataType::Text(Some(_)) |
+                         DataType::Bool(Some(_)) | DataType::Date(Some(_)) | DataType::Timestamp(Some(_)) |
+                         DataType::Timestamptz(Some(_)) | DataType::Json(Some(_)) | DataType::Uuid(Some(_)) |
+                          DataType::Decimal(Some(_)) | DataType::Time(Some(_)) => {
+                             determined_type = Some(determine_types(value));
+                         }
+                         // If it's a Null variant or Unknown, keep looking
+                         _ => {}
+                     }
+                 }
+
+                // Calculate min/max based on value's actual type in this row
                 match value {
                     DataType::Int2(Some(v)) => {
                         let n = *v as f64;
-                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                        min_value_numeric = Some(min_value_numeric.map_or(n, |min| min.min(n)));
+                        max_value_numeric = Some(max_value_numeric.map_or(n, |max| max.max(n)));
                     }
                     DataType::Int4(Some(v)) => {
                         let n = *v as f64;
-                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                        min_value_numeric = Some(min_value_numeric.map_or(n, |min| min.min(n)));
+                        max_value_numeric = Some(max_value_numeric.map_or(n, |max| max.max(n)));
                     }
                     DataType::Int8(Some(v)) => {
                         let n = *v as f64;
-                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                        min_value_numeric = Some(min_value_numeric.map_or(n, |min| min.min(n)));
+                        max_value_numeric = Some(max_value_numeric.map_or(n, |max| max.max(n)));
                     }
                     DataType::Float4(Some(v)) => {
                         let n = *v as f64;
-                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                        min_value_numeric = Some(min_value_numeric.map_or(n, |min| min.min(n)));
+                        max_value_numeric = Some(max_value_numeric.map_or(n, |max| max.max(n)));
                     }
                     DataType::Float8(Some(v)) => {
                         let n = *v as f64;
-                        min_value = Some(min_value.map_or(n, |min: f64| min.min(n)));
-                        max_value = Some(max_value.map_or(n, |max: f64| max.max(n)));
+                        min_value_numeric = Some(min_value_numeric.map_or(n, |min| min.min(n)));
+                        max_value_numeric = Some(max_value_numeric.map_or(n, |max| max.max(n)));
                     }
                     DataType::Date(Some(date)) => {
-                        is_date_type = true;
-                        let date_str = date.to_string();
-                        update_date_min_max(&date_str, &mut min_value_str, &mut max_value_str);
+                        update_date_min_max(&date.to_string(), &mut min_value_str, &mut max_value_str);
                     }
                     DataType::Timestamp(Some(ts)) => {
-                        is_date_type = true;
-                        let ts_str = ts.to_string();
-                        update_date_min_max(&ts_str, &mut min_value_str, &mut max_value_str);
+                        update_date_min_max(&ts.to_string(), &mut min_value_str, &mut max_value_str);
                     }
                     DataType::Timestamptz(Some(ts)) => {
-                        is_date_type = true;
-                        let ts_str = ts.to_string();
-                        update_date_min_max(&ts_str, &mut min_value_str, &mut max_value_str);
+                        update_date_min_max(&ts.to_string(), &mut min_value_str, &mut max_value_str);
                     }
+                    // Ignore nulls and non-comparable types for min/max calculation
                     _ => {}
                 }
             }
         }
 
-        // Determine the column type and simple type
-        let column_type = first_row.get(column_name).unwrap();
-        let (simple_type, column_type) = determine_types(column_type);
+        // Finalize types - default if no non-null value was found
+        let (simple_type, column_type) = determined_type.unwrap_or((SimpleType::Other, ColumnType::Other));
 
-        // Format min/max values appropriately based on type
-        let (min_value, max_value) = if is_date_type {
-            (
-                min_value_str.map_or(serde_json::Value::Null, |v| serde_json::Value::String(v)),
-                max_value_str.map_or(serde_json::Value::Null, |v| serde_json::Value::String(v)),
-            )
-        } else {
-            (
-                min_value.map_or(serde_json::Value::Null, |v| {
-                    match serde_json::Number::from_f64(v) {
-                        Some(num) => serde_json::Value::Number(num),
-                        None => serde_json::Value::Null,
-                    }
-                }),
-                max_value.map_or(serde_json::Value::Null, |v| {
-                    match serde_json::Number::from_f64(v) {
-                        Some(num) => serde_json::Value::Number(num),
-                        None => serde_json::Value::Null,
-                    }
-                }),
-            )
+        // Format min/max values appropriately based on determined simple_type
+        let (min_value_json, max_value_json) = match simple_type {
+            SimpleType::Number => (
+                min_value_numeric.and_then(|v| serde_json::Number::from_f64(v).map(serde_json::Value::Number))
+                                .unwrap_or(serde_json::Value::Null),
+                max_value_numeric.and_then(|v| serde_json::Number::from_f64(v).map(serde_json::Value::Number))
+                                .unwrap_or(serde_json::Value::Null),
+            ),
+            SimpleType::Date => (
+                min_value_str.map_or(serde_json::Value::Null, serde_json::Value::String),
+                max_value_str.map_or(serde_json::Value::Null, serde_json::Value::String),
+            ),
+            // Don't provide min/max for other types
+            _ => (serde_json::Value::Null, serde_json::Value::Null),
         };
 
         ColumnMetaData {
             name: column_name.to_lowercase(),
-            min_value,
-            max_value,
-            unique_values: value_map.len() as i32,
+            min_value: min_value_json,
+            max_value: max_value_json,
+            unique_values: value_map.len() as i32, // Count includes distinct null representations
             simple_type,
             column_type,
         }

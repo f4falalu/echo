@@ -28,7 +28,6 @@ export const ChartTotalizerPlugin: Plugin<ChartType, ChartTotalizerPluginOptions
 
     const stackTotals: Record<string, number> = {};
     const seriesTotals: number[] = [];
-
     chart.data.datasets
       .filter((dataset, index) => {
         const meta = chart.getDatasetMeta(index);

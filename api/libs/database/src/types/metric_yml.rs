@@ -9,7 +9,7 @@ use diesel::{
 use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::json;
 use std::io::Write;
 use uuid::Uuid;
@@ -25,6 +25,81 @@ fn sanitize_yaml_string(value: &str) -> String {
         .replace('%', "Percent") // Replace % with Percent
         .trim() // Trim leading/trailing whitespace
         .to_string()
+}
+
+// Helper function to recursively lowercase relevant keys and string values in serde_yaml::Value
+fn lowercase_column_identifiers(value: &mut serde_yaml::Value) {
+    match value {
+        serde_yaml::Value::Mapping(map) => {
+            let mut new_map = serde_yaml::Mapping::new();
+            for (k, v) in map.iter() {
+                // Make a mutable copy to modify
+                let mut current_v = v.clone();
+                // Recurse first
+                lowercase_column_identifiers(&mut current_v);
+
+                if let serde_yaml::Value::String(key_str) = k {
+                    // Lowercase keys for maps known to use column names as keys
+                    if ["columnLabelFormats", "columnSettings", "tableColumnWidths"]
+                        .contains(&key_str.as_str())
+                    {
+                        if let serde_yaml::Value::Mapping(inner_map) = &mut current_v {
+                            let mut lowercase_key_map = serde_yaml::Mapping::new();
+                            for (inner_k, inner_v) in inner_map.iter() {
+                                if let serde_yaml::Value::String(inner_key_str) = inner_k {
+                                    lowercase_key_map.insert(
+                                        serde_yaml::Value::String(inner_key_str.to_lowercase()),
+                                        inner_v.clone(), // Value already processed by recursion
+                                    );
+                                } else {
+                                    // Keep non-string keys as is
+                                    lowercase_key_map.insert(inner_k.clone(), inner_v.clone());
+                                }
+                            }
+                            current_v = serde_yaml::Value::Mapping(lowercase_key_map);
+                        }
+                    }
+                    // Lowercase string values for specific keys holding single column names
+                    else if ["metricColumnId", "columnId"].contains(&key_str.as_str()) {
+                        if let serde_yaml::Value::String(val_str) = &mut current_v {
+                            *val_str = val_str.to_lowercase();
+                        }
+                    }
+                    // Lowercase string elements within arrays for specific keys
+                    else if [
+                        "x",
+                        "y",
+                        "y2",
+                        "category",
+                        "tooltip",
+                        "size",
+                        "tableColumnOrder",
+                        "barSortBy", // Added barSortBy as it likely contains column names
+                    ]
+                    .contains(&key_str.as_str())
+                    {
+                        if let serde_yaml::Value::Sequence(seq) = &mut current_v {
+                            for item in seq.iter_mut() {
+                                if let serde_yaml::Value::String(s) = item {
+                                    *s = s.to_lowercase();
+                                }
+                            }
+                        }
+                    }
+                }
+                // Insert the potentially modified key and value into the new map
+                new_map.insert(k.clone(), current_v);
+            }
+            *value = serde_yaml::Value::Mapping(new_map);
+        }
+        serde_yaml::Value::Sequence(seq) => {
+            for item in seq.iter_mut() {
+                lowercase_column_identifiers(item);
+            }
+        }
+        // Handle other types like String, Number, Bool, Null - no action needed here
+        _ => {}
+    }
 }
 
 lazy_static! {
@@ -181,9 +256,11 @@ pub struct CategoryAxisStyleConfig {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BaseChartConfig {
+    // Keys of this map are column names, need lowercasing.
     #[serde(alias = "column_label_formats")]
     pub column_label_formats: IndexMap<String, ColumnLabelFormat>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    // Keys of this map are column names, need lowercasing.
     #[serde(alias = "column_settings")]
     pub column_settings: Option<IndexMap<String, ColumnSettings>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -692,12 +769,12 @@ impl MetricYml {
 
         let processed_yml_content = processed_lines.join("\n");
 
-        // Parse the processed YAML content
-        let file: MetricYml = match serde_yaml::from_str(&processed_yml_content) {
-            Ok(file) => file,
+        // Parse into generic serde_yaml::Value first
+        let mut yaml_value: serde_yaml::Value = match serde_yaml::from_str(&processed_yml_content) {
+            Ok(value) => value,
             Err(e) => {
+                // Keep existing error handling for initial parse
                 let error_message = format!("Error parsing YAML: {}", e);
-
                 let yaml_error_str = e.to_string();
                 let detailed_error =
                     if yaml_error_str.contains("at line") && yaml_error_str.contains("column") {
@@ -705,8 +782,22 @@ impl MetricYml {
                     } else {
                         error_message
                     };
-
                 return Err(anyhow::anyhow!(detailed_error));
+            }
+        };
+
+        // Recursively lowercase the relevant identifiers
+        lowercase_column_identifiers(&mut yaml_value);
+
+        // Now deserialize the modified value into the specific struct
+        let file: MetricYml = match serde_yaml::from_value(yaml_value) {
+            Ok(file) => file,
+            Err(e) => {
+                // Add error context for the second deserialization step
+                return Err(anyhow::anyhow!(
+                    "Error deserializing processed YAML into MetricYml: {}",
+                    e
+                ));
             }
         };
 
@@ -750,19 +841,66 @@ mod tests {
 
     #[test]
     fn test_metric_yml_bar_serialization() -> Result<()> {
-        let yml_content = "title: \"Average Time to Close by Rep\"\nsql: |\n  SELECT\n    rep_id,\n    AVG(time_to_close) AS average_time_to_close\n  FROM deal_metrics\n  GROUP BY rep_id\n  ORDER BY average_time_to_close DESC\nchart_config:\n  selected_chart_type: \"bar\"\n  selected_view: \"standard\"\n  bar_and_line_axis:\n    x: [\"rep_id\"]\n    y: [\"average_time_to_close\"]\n    category: [\"rep_id\"]\n  bar_layout: \"vertical\"\n  bar_group_type: \"group\"\n  column_label_formats: {}\n  colors: [\"#1f77b4\", \"#ff7f0e\", \"#2ca02c\", \"#d62728\"]\n  show_legend: false\n  grid_lines: true\n  column_settings: {}\ndata_metadata:\n  - name: \"rep_id\"\n    data_type: \"string\"\n  - name: \"average_time_to_close\"\n    data_type: \"number\"";
+        // Use raw string literal for multi-line YAML
+        let yml_content = r#"name: "Average Time to Close by Rep"
+sql: |
+  SELECT
+    rep_id,
+    AVG(time_to_close) AS average_time_to_close
+  FROM deal_metrics
+  GROUP BY rep_id
+  ORDER BY average_time_to_close DESC
+timeFrame: "last_quarter" # Explicit timeFrame
+chart_config:
+  selectedChartType: "bar"
+  barAndLineAxis:
+    x: ["REP_ID"]
+    y: ["AVERAGE_TIME_TO_CLOSE"]
+    category: ["REP_ID"]
+  barLayout: "vertical"
+  barGroupType: "group"
+  columnLabelFormats: 
+    REP_ID: 
+      columnType: string
+      style: string
+    AVERAGE_TIME_TO_CLOSE:
+      columnType: number
+      style: currency
+      currency: USD
+  colors: ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] # Quoted colors
+  showLegend: false
+  gridLines: true
+  columnSettings: 
+    AVERAGE_TIME_TO_CLOSE:
+       showDataLabels: true
+datasetIds: ["00000000-0000-0000-0000-000000000001"]
+"#;
 
         let metric = MetricYml::new(yml_content.to_string())?;
 
         assert_eq!(metric.name, "Average Time to Close by Rep");
+        assert_eq!(metric.time_frame, "last_quarter"); // Verify timeFrame parsing
 
         let expected_sql = normalize_whitespace("SELECT rep_id, AVG(time_to_close) AS average_time_to_close FROM deal_metrics GROUP BY rep_id ORDER BY average_time_to_close DESC");
         let actual_sql = normalize_whitespace(&metric.sql);
         assert_eq!(actual_sql, expected_sql);
+        assert_eq!(metric.dataset_ids, vec![Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap()]);
+
 
         match metric.chart_config {
             ChartConfig::Bar(config) => {
-                assert!(config.base.column_label_formats.is_empty());
+                // Check columnLabelFormats keys and content
+                assert!(config.base.column_label_formats.contains_key("rep_id"));
+                assert!(config.base.column_label_formats.contains_key("average_time_to_close"));
+                assert!(!config.base.column_label_formats.contains_key("REP_ID")); // Verify key is lowercase
+                let rep_format = config.base.column_label_formats.get("rep_id").unwrap();
+                assert_eq!(rep_format.column_type, "string");
+                let avg_format = config.base.column_label_formats.get("average_time_to_close").unwrap();
+                assert_eq!(avg_format.style, "currency");
+                assert_eq!(avg_format.currency, Some("USD".to_string()));
+
+
+                // Check axis elements are lowercase
                 assert_eq!(config.bar_and_line_axis.x, vec![String::from("rep_id")]);
                 assert_eq!(
                     config.bar_and_line_axis.y,
@@ -774,12 +912,21 @@ mod tests {
                 );
                 assert_eq!(config.bar_layout.unwrap(), "vertical");
                 assert_eq!(config.bar_group_type.unwrap(), "group");
+                // Check colors were quoted correctly during initial processing
                 assert_eq!(
                     config.base.colors.unwrap(),
                     vec!["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
                 );
                 assert_eq!(config.base.show_legend.unwrap(), false);
                 assert_eq!(config.base.grid_lines.unwrap(), true);
+
+                // Check columnSettings key is lowercase
+                assert!(config.base.column_settings.is_some());
+                let settings = config.base.column_settings.as_ref().unwrap();
+                assert!(settings.contains_key("average_time_to_close"));
+                assert!(!settings.contains_key("AVERAGE_TIME_TO_CLOSE"));
+                let avg_settings = settings.get("average_time_to_close").unwrap();
+                assert_eq!(avg_settings.show_data_labels, Some(true));
             }
             _ => panic!("Expected Bar chart type"),
         }
@@ -787,6 +934,179 @@ mod tests {
         Ok(())
     }
 
+    #[test]
+    fn test_lowercase_trendline_column_id() -> Result<()> {
+        // Use raw string literal
+        let yml_content = r#"
+name: Trend Test
+sql: SELECT date, VALUE FROM data
+timeFrame: all_time
+datasetIds: ["00000000-0000-0000-0000-000000000001"]
+chartConfig:
+  selectedChartType: line
+  columnLabelFormats:
+    date: { columnType: date, style: date }
+    VALUE: { columnType: number, style: number }
+  barAndLineAxis:
+    x: [date]
+    y: [VALUE]
+  trendlines:
+    - columnId: VALUE # Uppercase ID
+      type: linear
+"#;
+        let metric = MetricYml::new(yml_content.to_string())?;
+        match metric.chart_config {
+            ChartConfig::Line(config) => {
+                assert!(config.base.trendlines.is_some());
+                let trendlines = config.base.trendlines.as_ref().unwrap();
+                assert_eq!(trendlines.len(), 1);
+                assert_eq!(trendlines[0].column_id, "value"); // Verify lowercase
+                assert_eq!(trendlines[0].r#type, "linear");
+            }
+            _ => panic!("Expected Line chart"),
+        }
+        Ok(())
+    }
+
+     #[test]
+    fn test_lowercase_metric_column_id() -> Result<()> {
+        // Use raw string literal
+        let yml_content = r#"
+name: Metric ID Test
+sql: SELECT COUNT(*) AS TOTAL_COUNT FROM data
+timeFrame: all_time
+datasetIds: ["00000000-0000-0000-0000-000000000001"]
+chartConfig:
+  selectedChartType: metric
+  columnLabelFormats:
+    TOTAL_COUNT: { columnType: number, style: number }
+  metricColumnId: TOTAL_COUNT # Uppercase ID
+"#;
+        let metric = MetricYml::new(yml_content.to_string())?;
+        match metric.chart_config {
+            ChartConfig::Metric(config) => {
+                assert_eq!(config.metric_column_id, "total_count"); // Verify lowercase
+            }
+            _ => panic!("Expected Metric chart"),
+        }
+        Ok(())
+    }
+
+
+    #[test]
+    fn test_lowercase_table_config_columns() -> Result<()> {
+        // Use raw string literal
+        let yml_content = r#"
+name: Table Columns Test
+sql: SELECT COL_A, COL_B FROM data
+timeFrame: all_time
+datasetIds: ["00000000-0000-0000-0000-000000000001"]
+chartConfig:
+  selectedChartType: table
+  columnLabelFormats:
+    COL_A: { columnType: string, style: string }
+    COL_B: { columnType: number, style: number }
+  tableColumnOrder: [COL_A, COL_B] # Uppercase IDs
+  tableColumnWidths:
+    COL_A: 150 # Uppercase Key
+    COL_B: 100 # Uppercase Key
+"#;
+        let metric = MetricYml::new(yml_content.to_string())?;
+        match metric.chart_config {
+            ChartConfig::Table(config) => {
+                assert!(config.table_column_order.is_some());
+                assert_eq!(config.table_column_order.unwrap(), vec!["col_a", "col_b"]); // Verify lowercase
+
+                assert!(config.table_column_widths.is_some());
+                let widths = config.table_column_widths.as_ref().unwrap();
+                assert!(widths.contains_key("col_a")); // Verify lowercase key
+                assert!(widths.contains_key("col_b")); // Verify lowercase key
+                assert!(!widths.contains_key("COL_A"));
+                assert_eq!(widths.get("col_a").unwrap(), &150.0);
+            }
+            _ => panic!("Expected Table chart"),
+        }
+        Ok(())
+    }
+
+
+    #[test]
+    fn test_default_timeframe_insertion_and_lowercase() -> Result<()> {
+         // Use raw string literal
+         let yml_content = r#"
+name: Default Timeframe Test
+# No timeFrame specified
+sql: SELECT DATE_COL, VALUE_COL FROM data
+datasetIds: ["00000000-0000-0000-0000-000000000001"]
+chartConfig:
+  selectedChartType: line
+  columnLabelFormats:
+    DATE_COL: { columnType: date, style: date }
+    VALUE_COL: { columnType: number, style: number }
+  barAndLineAxis:
+    x: [DATE_COL]
+    y: [VALUE_COL]
+"#;
+        let metric = MetricYml::new(yml_content.to_string())?;
+
+        // Check default timeframe was inserted
+        assert_eq!(metric.time_frame, "all_time");
+
+        // Check column names were lowercased despite timeframe insertion
+        match metric.chart_config {
+            ChartConfig::Line(config) => {
+                assert!(config.base.column_label_formats.contains_key("date_col"));
+                assert!(config.base.column_label_formats.contains_key("value_col"));
+                assert_eq!(config.bar_and_line_axis.x, vec!["date_col"]);
+                assert_eq!(config.bar_and_line_axis.y, vec!["value_col"]);
+            }
+             _ => panic!("Expected Line chart"),
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_mixed_case_sanitization_and_lowercase() -> Result<()> {
+         // Use raw string literal
+         let yml_content = r#"
+name: Mixed Case Test: Needs 'Sanitization' and LOWERCASE
+sql: SELECT Category, "Total Sales" FROM sales_data
+timeFrame: all_time
+datasetIds: ["00000000-0000-0000-0000-000000000001"]
+chartConfig:
+  selectedChartType: bar
+  columnLabelFormats:
+    Category: { columnType: string, style: string, displayName: 'Product Category:' }
+    "Total Sales": { columnType: number, style: currency, currency: USD }
+  barAndLineAxis:
+    x: [Category]
+    y: ["Total Sales"]
+"#;
+        let metric = MetricYml::new(yml_content.to_string())?;
+
+        // Check name was sanitized
+        assert_eq!(metric.name, "Mixed Case Test Needs Sanitization and LOWERCASE");
+
+        // Check column names were lowercased
+        match metric.chart_config {
+            ChartConfig::Bar(config) => {
+                assert!(config.base.column_label_formats.contains_key("category"));
+                assert!(config.base.column_label_formats.contains_key("total sales")); // Note: Sanitization happens before lowercasing structural keys
+
+                let cat_format = config.base.column_label_formats.get("category").unwrap();
+                assert_eq!(cat_format.display_name, Some("Product Category".to_string())); // Check displayName sanitization
+
+                assert_eq!(config.bar_and_line_axis.x, vec!["category"]);
+                assert_eq!(config.bar_and_line_axis.y, vec!["total sales"]);
+            }
+             _ => panic!("Expected Bar chart"),
+        }
+        Ok(())
+    }
+
+
+    // ... existing tests ...
     #[test]
     fn test_column_label_format_constructors() {
         let number_format = ColumnLabelFormat::new_number();

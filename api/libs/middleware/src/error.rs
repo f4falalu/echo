@@ -10,6 +10,12 @@ use sentry::protocol::{Event, Level};
 use tower::ServiceBuilder;
 use tracing::{error, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Response},
+    Json,
+};
+use serde_json::json;
 
 /// Creates a Sentry layer for the Axum application
 ///
@@ -189,4 +195,29 @@ pub fn capture_anyhow(err: &Error, msg: Option<&str>) {
         level: Level::Error,
         ..Default::default()
     });
-} 
+}
+
+// Define a custom error type for authentication/authorization issues
+// #[derive(Debug)]
+// pub enum AuthError {
+//     Unauthorized,
+//     PaymentRequired,
+//     InternalError(String),
+// }
+
+// Implement IntoResponse for AuthError to convert it into an HTTP response
+// impl IntoResponse for AuthError {
+//     fn into_response(self) -> Response {
+//         let (status, error_message) = match self {
+//             AuthError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized".to_string()),
+//             AuthError::PaymentRequired => {
+//                 (StatusCode::PAYMENT_REQUIRED, "Payment Required".to_string())
+//             }
+//             AuthError::InternalError(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
+//         };
+// 
+//         let body = Json(json!({ "error": error_message }));
+// 
+//         (status, body).into_response()
+//     }
+// } 

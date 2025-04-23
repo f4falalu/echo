@@ -1,6 +1,39 @@
 export type DataPoint = Record<string, string | number | null | Date>;
 
 /**
+ * Detects anomalous points in a dataset using statistical methods
+ * @param data - Array of data points to analyze
+ * @param numericField - The field name containing numeric values to check for anomalies
+ * @param threshold - Number of standard deviations to consider anomalous (default: 2)
+ * @returns Array of indices of anomalous points
+ */
+export function detectAnomalies(
+  data: DataPoint[],
+  numericField: string,
+  threshold: number = 2
+): number[] {
+  const values = data.map((point) => Number(point[numericField])).filter((val) => !isNaN(val));
+
+  if (values.length === 0) return [];
+
+  // Calculate mean and standard deviation
+  const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+  const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+  const stdDev = Math.sqrt(variance);
+
+  // Find indices of anomalous points
+  return data.reduce<number[]>((indices, point, index) => {
+    const value = Number(point[numericField]);
+    if (isNaN(value)) return indices;
+
+    if (Math.abs(value - mean) > threshold * stdDev) {
+      indices.push(index);
+    }
+    return indices;
+  }, []);
+}
+
+/**
  * Uniform sampling - selects points at regular intervals
  * @param data - Array of data points to downsample
  * @param targetPoints - Target number of points in the downsampled dataset
@@ -38,65 +71,76 @@ export function uniformSampling(data: DataPoint[] | null, targetPoints: number):
 }
 
 /**
- * Random sampling - selects points randomly
+ * Random sampling - selects points randomly while preserving anomalous points
  * @param data - Array of data points to downsample
  * @param targetPoints - Target number of points in the downsampled dataset
  * @param preserveEnds - Whether to always include the first and last points (default: true)
+ * @param anomalyOptions - Options for anomaly detection (optional)
  * @returns Downsampled array with exactly targetPoints number of points (or original if already smaller)
  */
 export function randomSampling(
   data: DataPoint[] | null,
   targetPoints: number,
-  preserveEnds: boolean = true
+  preserveEnds: boolean = true,
+  anomalyOptions?: {
+    numericField: string;
+    threshold?: number;
+  }
 ): DataPoint[] {
   if (!data || data.length <= targetPoints) {
     return data || [];
   }
 
   if (preserveEnds && targetPoints < 2) {
-    return data.slice(0, 1); // Return just the first point if targetPoints is 1
+    return data.slice(0, 1);
   }
 
-  // If preserving ends, adjust target to account for first and last points
-  const adjustedTarget = preserveEnds ? targetPoints - 2 : targetPoints;
   const result: DataPoint[] = [];
+  let remainingTarget = targetPoints;
 
+  // Add first point if preserving ends
   if (preserveEnds) {
-    result.push(data[0]); // Add first point
+    result.push(data[0]);
+    remainingTarget--;
   }
 
-  // Create an array of available indices (excluding first and last if preserveEnds)
-  const availableIndices: number[] = [];
-  const startIdx = preserveEnds ? 1 : 0;
-  const endIdx = preserveEnds ? data.length - 1 : data.length;
+  // Detect and add anomalous points if options provided
+  const anomalousIndices = anomalyOptions
+    ? detectAnomalies(data, anomalyOptions.numericField, anomalyOptions.threshold)
+    : [];
 
-  for (let i = startIdx; i < endIdx; i++) {
-    availableIndices.push(i);
-  }
+  // Filter out ends if they're in anomalous points
+  const filteredAnomalousIndices = anomalousIndices.filter(
+    (idx) => !preserveEnds || (idx !== 0 && idx !== data.length - 1)
+  );
 
-  // Randomly select indices
-  for (let i = 0; i < adjustedTarget && availableIndices.length > 0; i++) {
+  // Add anomalous points within our target limit
+  const anomalousPoints = filteredAnomalousIndices
+    .slice(0, remainingTarget)
+    .map((idx) => data[idx]);
+  result.push(...anomalousPoints);
+  remainingTarget -= anomalousPoints.length;
+
+  // Create array of available indices (excluding anomalous points and ends)
+  const availableIndices = Array.from(Array(data.length).keys()).filter(
+    (i) =>
+      (!preserveEnds || (i !== 0 && i !== data.length - 1)) && !filteredAnomalousIndices.includes(i)
+  );
+
+  // Randomly select remaining points
+  while (remainingTarget > (preserveEnds ? 1 : 0) && availableIndices.length > 0) {
     const randomIndex = Math.floor(Math.random() * availableIndices.length);
     const dataIndex = availableIndices[randomIndex];
-
-    // Remove the selected index from available indices
     availableIndices.splice(randomIndex, 1);
-
     result.push(data[dataIndex]);
+    remainingTarget--;
   }
 
+  // Add last point if preserving ends
   if (preserveEnds) {
-    result.push(data[data.length - 1]); // Add last point
+    result.push(data[data.length - 1]);
   }
 
   // Sort the result by the original index to maintain order
-  if (!preserveEnds) {
-    result.sort((a, b) => {
-      const aIndex = data.indexOf(a);
-      const bIndex = data.indexOf(b);
-      return aIndex - bIndex;
-    });
-  }
-
-  return result;
+  return result.sort((a, b) => data.indexOf(a) - data.indexOf(b));
 }

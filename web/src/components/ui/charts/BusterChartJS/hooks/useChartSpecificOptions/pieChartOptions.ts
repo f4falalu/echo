@@ -74,7 +74,7 @@ export const piePluginsHandler = ({
             ];
           },
           font: [
-            { size: 16 }, // title font
+            { size: 22 }, // title font
             { size: 28 } // value font
           ],
           color: [titleColor, valueColor]

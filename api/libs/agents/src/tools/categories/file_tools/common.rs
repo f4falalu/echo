@@ -260,7 +260,10 @@ definitions:
       # Optional base properties below
       columnSettings:
         type: object
-        description: Visual settings {columnId: settingsObject}
+        description: |-
+          Visual settings applied per column. 
+          Keys MUST be LOWERCASE column names from the SQL query results. 
+          Example: `total_sales: { showDataLabels: true }`
         additionalProperties:
           $ref: #/definitions/column_settings
       colors:
@@ -470,6 +473,7 @@ definitions:
   # COLUMN VISUAL SETTINGS
   column_settings:
     type: object
+    description: Optional visual settings per LOWERCASE column name.
     properties:
       showDataLabels:
         type: boolean
@@ -514,12 +518,12 @@ definitions:
                 type: array
                 items:
                   type: string
-                description: Multiple y-axis columns can be specified to create multi-line charts. Each column will be represented as a separate line on the chart.
+                description: LOWERCASE column name from SQL for X-axis.
               category:
                 type: array
                 items:
                   type: string
-                description: Used to create multi-line charts with different lines based on categorical values. Especially useful for time series data that combines numeric values with categorical fields, allowing visualization of trends across different categories over time. Alternative to using multiple y-axis columns.
+                description: LOWERCASE column name from SQL for category grouping.
             required:
               - x
               - y
@@ -554,6 +558,14 @@ definitions:
                 items:
                   type: string
               y:
+                type: array
+                items:
+                  type: string
+              category:
+                type: array
+                items:
+                  type: string
+              size:
                 type: array
                 items:
                   type: string
@@ -626,7 +638,7 @@ definitions:
               - metric
           metricColumnId:
             type: string
-            description: The column ID to use for the metric value
+            description: LOWERCASE column name from SQL for the main metric value.
           metricValueAggregate:
             type: string
             enum:
@@ -637,7 +649,7 @@ definitions:
               - min
               - count
               - first
-            description: Optional aggregation method for the metric value, defaults to sum if not specified
+            description: Aggregate function for metric value
           metricHeader:
             oneOf:
               - type: string

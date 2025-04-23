@@ -88,8 +88,8 @@ export const LoginForm: React.FC<{}> = ({}) => {
       if (res?.error) throw res.error;
     } catch (error: any) {
       errorFallback(error);
+      setLoading(null);
     }
-    setLoading('azure');
   });
 
   const onSignUp = useMemoizedFn(async (d: { email: string; password: string }) => {
@@ -211,18 +211,11 @@ const LoginOptions: React.FC<{
         <WelcomeText signUpFlow={signUpFlow} />
       </div>
 
-      <form
-        className="my-6 space-y-3"
-        onSubmit={(v) => {
-          v.preventDefault();
-          onSubmitClickPreflight({
-            email,
-            password
-          });
-        }}>
+      <div className="mt-6 mb-4 flex flex-col space-y-3">
         <Button
           prefix={<Google />}
           size={'tall'}
+          type="button"
           onClick={() => {
             clearAllCookies();
             onSignInWithGoogle();
@@ -235,6 +228,7 @@ const LoginOptions: React.FC<{
         <Button
           prefix={<Github />}
           size={'tall'}
+          type="button"
           onClick={() => {
             clearAllCookies();
             onSignInWithGithub();
@@ -247,6 +241,7 @@ const LoginOptions: React.FC<{
         <Button
           prefix={<Microsoft />}
           size={'tall'}
+          type="button"
           onClick={() => {
             clearAllCookies();
             onSignInWithAzure();
@@ -256,8 +251,18 @@ const LoginOptions: React.FC<{
           tabIndex={3}>
           {!signUpFlow ? `Continue with Azure` : `Sign up with Azure`}
         </Button>
+      </div>
 
-        <div className="bg-border h-[0.5px] w-full" />
+      <form
+        className="space-y-3"
+        onSubmit={(v) => {
+          v.preventDefault();
+          onSubmitClickPreflight({
+            email,
+            password
+          });
+        }}>
+        <div className="bg-border mb-4 h-[0.5px] w-full" />
 
         <Input
           type="email"
@@ -333,7 +338,7 @@ const LoginOptions: React.FC<{
         </Button>
       </form>
 
-      <div className="flex flex-col gap-y-2 pt-0">
+      <div className="mt-2 flex flex-col gap-y-2">
         <AlreadyHaveAccount
           setErrorMessages={setErrorMessages}
           setPassword2={setPassword2}

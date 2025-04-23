@@ -18,7 +18,9 @@ export const useGoalLines = ({
   columnLabelFormats,
   yAxisKeys,
   y2AxisKeys,
-  lineGroupType
+  lineGroupType,
+  barGroupType,
+  barLayout
 }: {
   goalLines: GoalLine[];
   selectedChartType: ChartType;
@@ -26,15 +28,23 @@ export const useGoalLines = ({
   yAxisKeys: string[];
   y2AxisKeys: string[] | undefined;
   lineGroupType: BusterChartConfigProps['lineGroupType'];
+  barLayout: BusterChartConfigProps['barLayout'];
+  barGroupType: BusterChartConfigProps['barGroupType'];
 }): AnnotationPluginOptions['annotations'] => {
   const canSupportGoalLines = useMemo(() => {
+    if (yAxisKeys.length === 0) {
+      return false;
+    }
+    if (selectedChartType === 'bar') {
+      return barGroupType !== 'percentage-stack';
+    }
     if (selectedChartType === 'line') {
       return lineGroupType !== 'percentage-stack';
     }
-    return selectedChartType === 'scatter';
-  }, [selectedChartType, lineGroupType]);
+    return false;
+  }, [selectedChartType, barGroupType, lineGroupType]);
 
-  const trendlineLabelFormat: ColumnLabelFormat = useMemo(() => {
+  const goalLineLabelFormat: ColumnLabelFormat = useMemo(() => {
     const allKeys = [...yAxisKeys, ...(y2AxisKeys || [])];
     const isSimilar = yAxisSimilar(allKeys, columnLabelFormats);
     if (isSimilar) {
@@ -47,20 +57,31 @@ export const useGoalLines = ({
     };
   }, [columnLabelFormats, yAxisKeys, y2AxisKeys]);
 
+  const { minKey, maxKey } = useMemo(() => {
+    if (selectedChartType === 'bar' && barLayout === 'horizontal') {
+      return { minKey: 'xMin', maxKey: 'xMax' } as const;
+    }
+    return { minKey: 'yMin', maxKey: 'yMax' } as const;
+  }, [selectedChartType, barLayout]);
+
   const annotations: AnnotationPluginOptions['annotations'] = useMemo(() => {
+    if (!canSupportGoalLines) {
+      return [];
+    }
+
     return goalLines.reduce<Record<string, AnnotationOptions<'line'>>>((acc, goalLine, index) => {
       const { value, goalLineLabel, goalLineColor, showGoalLineLabel, show } = goalLine;
       if (show) {
         const id = `🔥-goal-line-${index}`;
-        const formattedValue = [goalLineLabel, formatLabel(value, trendlineLabelFormat)]
+        const formattedValue = [goalLineLabel, formatLabel(value, goalLineLabelFormat)]
           .filter(Boolean)
           .join(' ');
 
         const item: AnnotationOptions<'line'> = {
           type: 'line',
           id,
-          yMin: value,
-          yMax: value,
+          [minKey]: value,
+          [maxKey]: value,
           borderColor: goalLineColor || 'black',
           borderWidth: 1.5,
           borderDash: [5, 5],
@@ -77,7 +98,7 @@ export const useGoalLines = ({
       }
       return acc;
     }, {});
-  }, [goalLines, canSupportGoalLines, trendlineLabelFormat]);
+  }, [goalLines, minKey, maxKey, canSupportGoalLines, goalLineLabelFormat]);
 
   return annotations;
 };

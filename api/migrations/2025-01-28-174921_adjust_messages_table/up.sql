@@ -22,8 +22,8 @@ CREATE TABLE messages (
 
 
 -- Create indexes for common query patterns
-CREATE INDEX messages_chat_id_idx ON messages(chat_id);
-CREATE INDEX messages_created_by_idx ON messages(created_by);
-CREATE INDEX messages_created_at_idx ON messages(created_at);
+CREATE INDEX IF NOT EXISTS messages_chat_id_idx ON messages(chat_id);
+CREATE INDEX IF NOT EXISTS messages_created_by_idx ON messages(created_by);
+CREATE INDEX IF NOT EXISTS messages_created_at_idx ON messages(created_at);
 
 

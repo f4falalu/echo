@@ -32,7 +32,8 @@ export const generateLineChartData = (pointCount = 10): IDataResult => {
       date: date.toISOString(),
       revenue: addNoise(baseRevenue, 15), // 15% variability
       profit: addNoise(baseProfit, 20), // 20% variability
-      customers: addNoise(baseCustomers, 10) // 10% variability
+      customers: addNoise(baseCustomers, 10), // 10% variability,
+      category: ['Electronics', 'Clothing', 'Food'][index % 3]
     };
   });
 };
@@ -62,7 +63,8 @@ export const generateScatterChartData = (pointCount = 30): IDataResult => {
   const categories = ['Electronics', 'Clothing', 'Home Goods'];
   return Array.from({ length: pointCount }, (_, index) => ({
     x: (index % 10) * 10, // Values from 0-90 in steps of 10
-    y: Math.floor(index / 10) * 10, // Creates a grid pattern
+    y: Math.floor(index / 10) * 10, // Creates a grid pattern,
+    y2: Math.floor(index / 10) * 40, // Creates a grid pattern,
     size: 10 + (index % 5) * 10, // Sizes cycle between 10-50 in steps of 10
     category: categories[index % categories.length]
   }));

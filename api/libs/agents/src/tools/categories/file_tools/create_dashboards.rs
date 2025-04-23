@@ -9,11 +9,12 @@ use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
     models::{AssetPermission, DashboardFile, MetricFileToDashboardFile},
     pool::get_pg_pool,
-    schema::{asset_permissions, dashboard_files, metric_files_to_dashboard_files},
+    schema::{asset_permissions, dashboard_files, metric_files_to_dashboard_files, users_to_organizations},
     types::{DashboardYml, VersionHistory},
 };
-use diesel::insert_into;
-use diesel_async::RunQueryDsl;
+use diesel::prelude::*;
+use diesel::{insert_into, SelectableHelper};
+use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 use serde_json::{self, Value};
 use tracing::debug;
@@ -74,6 +75,7 @@ async fn process_dashboard_file(
     tool_call_id: String,
     file: DashboardFileParams,
     user_id: &Uuid,
+    organization_id: &Uuid,
 ) -> Result<(DashboardFile, DashboardYml), String> {
     debug!("Processing dashboard file creation: {}", file.name);
 
@@ -108,7 +110,7 @@ async fn process_dashboard_file(
         file_name: file.name.clone(),
         content: dashboard_yml.clone(),
         filter: None,
-        organization_id: Uuid::new_v4(),
+        organization_id: *organization_id,
         created_by: *user_id,
         created_at: Utc::now(),
         updated_at: Utc::now(),
@@ -135,10 +137,40 @@ impl ToolExecutor for CreateDashboardFilesTool {
     async fn execute(&self, params: Self::Params, tool_call_id: String) -> Result<Self::Output> {
         let start_time = Instant::now();
 
+        let user_id = self.agent.get_user_id();
         let files = params.files;
 
         let mut created_files = vec![];
         let mut failed_files = vec![];
+
+        // Get DB connection early
+        let mut conn = match get_pg_pool().get().await {
+            Ok(conn) => conn,
+            Err(e) => return Err(anyhow!("Failed to get database connection: {}", e)),
+        };
+
+        // Fetch the organization ID for the user
+        let organization_id = match users_to_organizations::table
+            .filter(users_to_organizations::user_id.eq(user_id))
+            .select(users_to_organizations::organization_id)
+            .first::<Uuid>(&mut conn)
+            .await
+        {
+            Ok(org_id) => org_id,
+            Err(diesel::NotFound) => {
+                return Err(anyhow!(
+                    "User {} is not associated with any organization.",
+                    user_id
+                ));
+            }
+            Err(e) => {
+                return Err(anyhow!(
+                    "Failed to fetch organization ID for user {}: {}",
+                    user_id,
+                    e
+                ));
+            }
+        };
 
         // Process dashboard files
         let mut dashboard_records = vec![];
@@ -146,7 +178,14 @@ impl ToolExecutor for CreateDashboardFilesTool {
 
         // First pass - validate and prepare all records
         for file in files {
-            match process_dashboard_file(tool_call_id.clone(), file.clone(), &self.agent.get_user_id()).await {
+            match process_dashboard_file(
+                tool_call_id.clone(),
+                file.clone(),
+                &user_id,
+                &organization_id,
+            )
+            .await
+            {
                 Ok((dashboard_file, dashboard_yml)) => {
                     dashboard_records.push(dashboard_file);
                     dashboard_ymls.push(dashboard_yml);
@@ -158,12 +197,6 @@ impl ToolExecutor for CreateDashboardFilesTool {
         }
 
         // Second pass - bulk insert records
-        let mut conn = match get_pg_pool().get().await {
-            Ok(conn) => conn,
-            Err(e) => return Err(anyhow!(e)),
-        };
-
-        // Insert dashboard files
         if !dashboard_records.is_empty() {
             match insert_into(dashboard_files::table)
                 .values(&dashboard_records)
@@ -172,7 +205,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
             {
                 Ok(_) => {
                     // Get the user ID from the agent state
-                    let user_id = self.agent.get_user_id();
+                    // let user_id = self.agent.get_user_id(); // Redundant
                     
                     // Create asset permissions for each dashboard file
                     for dashboard_file in &dashboard_records {

@@ -17,7 +17,6 @@ import { useChartSpecificOptions } from './hooks/useChartSpecificOptions';
 import { BusterChartTypeComponentProps } from '../interfaces/chartComponentInterfaces';
 import { useTrendlines } from './hooks/useTrendlines';
 import { ScatterAxis } from '@/api/asset_interfaces/metric/charts';
-import { useMount } from '@/hooks';
 
 export const BusterChartJSComponent = React.memo(
   React.forwardRef<ChartJSOrUndefined, BusterChartTypeComponentProps>(
@@ -125,7 +124,9 @@ export const BusterChartJSComponent = React.memo(
         columnLabelFormats,
         yAxisKeys,
         y2AxisKeys,
-        lineGroupType
+        lineGroupType,
+        barLayout,
+        barGroupType
       });
 
       const options: ChartOptions<ChartJSChartType> = useOptions({
