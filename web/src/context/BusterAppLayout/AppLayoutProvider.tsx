@@ -6,6 +6,7 @@ import { useMemoizedFn } from '@/hooks';
 import { useRouter, usePathname, useParams } from 'next/navigation';
 import React, { PropsWithChildren } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
+import isEmpty from 'lodash/isEmpty';
 
 export const useAppLayout = () => {
   const { push } = useRouter();
@@ -39,6 +40,7 @@ export const useAppLayout = () => {
       if (options?.shallow && targetPathname === currentPathname) {
         return new Promise((resolve) => {
           const params = getQueryParamsFromPath(targetPath);
+          console.log('params', params);
           onChangeQueryParams(params, false);
           resolve();
         });
@@ -79,11 +81,15 @@ export const useAppLayout = () => {
   //TODO: make this typesafe...
   const onChangeQueryParams = useMemoizedFn(
     (params: Record<string, string | null>, preserveExisting: boolean) => {
-      const isRemovingANonExistentParam = Object.entries(params).every(([key, value]) => {
-        return !value ? !window.location.href.includes(key) : false;
-      });
+      const isRemovingANonExistentParam = isEmpty(params)
+        ? false
+        : Object.entries(params).every(([key, value]) => {
+            return !value ? !window.location.href.includes(key) : false;
+          });
       if (isRemovingANonExistentParam) return; //we don't need to do anything if we're removing a non-existent param
       const url = createQueryParams(params, preserveExisting);
+
+      console.log('url', url);
 
       if (url) window.history.pushState({}, '', url); //we used window.history instead of replace for true shallow routing
     }
