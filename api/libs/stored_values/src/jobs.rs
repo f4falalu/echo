@@ -45,6 +45,30 @@ pub async fn setup_sync_job(
         .await
         .context("Failed to get DB connection for setting up sync job")?;
 
+    // Check if a job with the same parameters already exists
+    let existing_job_count = stored_values_sync_jobs::table
+        .filter(stored_values_sync_jobs::data_source_id.eq(data_source_id))
+        .filter(stored_values_sync_jobs::database_name.eq(&database_name))
+        .filter(stored_values_sync_jobs::schema_name.eq(&schema_name))
+        .filter(stored_values_sync_jobs::table_name.eq(&table_name))
+        .filter(stored_values_sync_jobs::column_name.eq(&column_name))
+        .count()
+        .get_result::<i64>(&mut conn)
+        .await
+        .context("Failed to check for existing sync job")?;
+
+    if existing_job_count > 0 {
+        info!(
+            %data_source_id,
+            %database_name,
+            %schema_name,
+            %table_name,
+            %column_name,
+            "Sync job already exists for this column. Skipping creation."
+        );
+        return Ok(()); // Job already exists, no need to insert again
+    }
+
     let new_job = StoredValuesSyncJob {
         id: Uuid::new_v4(),
         data_source_id,

@@ -19,7 +19,7 @@ query_engine = { path = "../query_engine" }
 # Add pgvector feature if not already enabled globally
 # sqlx = { workspace = true, features = ["pgvector"] } # Assuming pgvector is managed via workspace
 
-# ---> Add litellm and sqlx dependencies <---
+# ---> Add litellm dependency <---
 litellm = { path = "../litellm" }
 
 [dev-dependencies]

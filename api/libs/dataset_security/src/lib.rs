@@ -49,6 +49,7 @@ pub struct PermissionedDataset {
     pub updated_at: DateTime<Utc>,
     #[allow(dead_code)]
     pub deleted_at: Option<DateTime<Utc>>,
+    pub data_source_id: Uuid,
 }
 
 // --- Corrected Fetcher functions for different access paths ---
