@@ -40,7 +40,6 @@ export const useAppLayout = () => {
       if (options?.shallow && targetPathname === currentPathname) {
         return new Promise((resolve) => {
           const params = getQueryParamsFromPath(targetPath);
-          console.log('params', params);
           onChangeQueryParams(params, false);
           resolve();
         });
@@ -89,9 +88,10 @@ export const useAppLayout = () => {
       if (isRemovingANonExistentParam) return; //we don't need to do anything if we're removing a non-existent param
       const url = createQueryParams(params, preserveExisting);
 
-      console.log('url', url);
-
-      if (url) window.history.pushState({}, '', url); //we used window.history instead of replace for true shallow routing
+      if (url) {
+        //we use window.history.pushState instead of router.push for true shallow routing so we do not remount the page
+        window.history.pushState({}, '', url);
+      }
     }
   );
 
