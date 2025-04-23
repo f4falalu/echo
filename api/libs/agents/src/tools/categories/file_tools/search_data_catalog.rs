@@ -13,14 +13,25 @@ use database::{pool::get_pg_pool, schema::datasets};
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
 use futures::stream::{self, StreamExt};
-use litellm::{AgentMessage, ChatCompletionRequest, LiteLLMClient, Metadata, ResponseFormat};
+use litellm::{AgentMessage, ChatCompletionRequest, EmbeddingRequest, LiteLLMClient, Metadata, ResponseFormat};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 use dataset_security::{get_permissioned_datasets, PermissionedDataset};
+use sqlx::PgPool;
 
 use crate::{agent::Agent, tools::ToolExecutor};
+
+// NEW: Structure to represent found values with their source information
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
+pub struct FoundValueInfo {
+    pub value: String,
+    pub database_name: String,
+    pub schema_name: String,
+    pub table_name: String,
+    pub column_name: String,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchDataCatalogParams {
@@ -33,6 +44,7 @@ pub struct SearchDataCatalogOutput {
     pub message: String,
     pub specific_queries: Option<Vec<String>>,
     pub exploratory_topics: Option<Vec<String>>,
+    pub value_search_terms: Option<Vec<String>>,
     pub duration: i64,
     pub results: Vec<DatasetSearchResult>,
 }
@@ -42,6 +54,7 @@ pub struct DatasetSearchResult {
     pub id: Uuid,
     pub name: Option<String>,
     pub yml_content: Option<String>,
+    pub found_values: Vec<FoundValueInfo>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
@@ -49,12 +62,104 @@ struct DatasetResult {
     id: Uuid,
     name: Option<String>,
     yml_content: Option<String>,
+    found_values: Vec<FoundValueInfo>,
 }
 
 #[derive(Debug, Clone)]
 struct RankedDataset {
     dataset: PermissionedDataset,
-    relevance_score: f64,
+}
+
+// NEW: Helper function to generate embeddings for search terms
+async fn generate_embedding_for_text(text: &str) -> Result<Vec<f32>> {
+    let litellm_client = LiteLLMClient::new(None, None);
+    
+    let embedding_request = EmbeddingRequest {
+        model: "text-embedding-3-small".to_string(),
+        input: vec![text.to_string()], // Single input as a vector
+        dimensions: Some(1536),
+        encoding_format: Some("float".to_string()),
+        user: None,
+    };
+    
+    let embedding_response = litellm_client
+        .generate_embeddings(embedding_request)
+        .await?;
+    
+    if embedding_response.data.is_empty() {
+        return Err(anyhow::anyhow!("No embeddings returned from API"));
+    }
+    
+    Ok(embedding_response.data[0].embedding.clone())
+}
+
+// NEW: Search for a specific value term across a data source
+async fn search_values_for_term(
+    data_source_id: &Uuid,
+    term: &str,
+    limit: i64,
+) -> Result<Vec<stored_values::search::StoredValueResult>> {
+    // Skip searching for very short terms or time-based terms that might cause issues
+    if term.len() < 2 || is_time_period_term(term) {
+        debug!(term = %term, "Skipping search for this term (too short or time-based)");
+        return Ok(vec![]);
+    }
+
+    // Generate embedding for the search term
+    let embedding = match generate_embedding_for_text(term).await {
+        Ok(emb) => emb,
+        Err(e) => {
+            error!(term = %term, error = %e, "Failed to generate embedding for value search term");
+            return Ok(vec![]);
+        }
+    };
+
+    // Search values using the embedding (no table/column filters)
+    match stored_values::search::search_values_by_embedding(
+        *data_source_id,
+        &embedding,
+        limit,
+    ).await {
+        Ok(results) => {
+            debug!(term = %term, count = results.len(), "Successfully found values matching term");
+            Ok(results)
+        }
+        Err(e) => {
+            error!(term = %term, data_source_id = %data_source_id, error = %e, "Failed to search values by embedding");
+            // Return empty results on error to continue the process
+            Ok(vec![])
+        }
+    }
+}
+
+// Helper function to identify time-based terms that might cause issues
+fn is_time_period_term(term: &str) -> bool {
+    let term_lower = term.to_lowercase();
+    
+    // List of time periods that might cause embedding search issues
+    let time_terms = [
+        "today", "yesterday", "tomorrow",
+        "last week", "last month", "last year", "last quarter",
+        "this week", "this month", "this year", "this quarter",
+        "next week", "next month", "next year", "next quarter",
+        "q1", "q2", "q3", "q4",
+        "january", "february", "march", "april", "may", "june", 
+        "july", "august", "september", "october", "november", "december",
+        "jan", "feb", "mar", "apr", "jun", "jul", "aug", "sep", "oct", "nov", "dec"
+    ];
+    
+    time_terms.iter().any(|&t| term_lower.contains(t))
+}
+
+// NEW: Convert StoredValueResult to FoundValueInfo
+fn to_found_value_info(result: stored_values::search::StoredValueResult, _score: f64) -> FoundValueInfo {
+    FoundValueInfo {
+        value: result.value,
+        database_name: result.database_name,
+        schema_name: result.schema_name,
+        table_name: result.table_name,
+        column_name: result.column_name,
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -70,6 +175,10 @@ SPECIFIC SEARCH QUERY: {query} (This query is framed around key semantic concept
 
 Below is a list of datasets that were identified as potentially relevant by an initial ranking system.
 For each dataset, review its description in the YAML format. Evaluate how well the dataset's described contents (columns, metrics, entities, documentation) **semantically align** with the key **Objects, Properties, Events, Metrics, and Filters** required by the SPECIFIC SEARCH QUERY and USER REQUEST context.
+
+IMPORTANT EVIDENCE - ACTUAL DATA VALUES FOUND IN THIS DATASET:
+{found_values_json}
+These values were found in the actual data that matches your search requirements. Consider these as concrete evidence that this dataset contains data relevant to your query.
 
 **Crucially, anticipate necessary attributes**: Pay close attention to whether the dataset contains specific attributes like **names, IDs, emails, timestamps, or other identifying/linking information** that are likely required to fulfill the analytical goal, even if not explicitly stated in the query but inferable from the user request context and common analytical patterns (e.g., needing 'customer name' when analyzing 'customer revenue').
 
@@ -94,10 +203,11 @@ IMPORTANT GUIDELINES:
 2.  **Consider the Core Concepts & Analytical Goal**: Does the dataset seem to be about the primary Business Object(s) or Event(s)? Does it contain relevant Properties or Metrics (including anticipated ones)?
 3.  **Prioritize Datasets with Key Attributes**: Give higher importance to datasets containing necessary identifying or descriptive attributes (names, IDs, categories, timestamps) relevant to the query and user request context.
 4.  **Evaluate based on Semantic Fit**: Does the dataset's purpose and structure align well with the user's information need and the likely analytical steps?
-5.  **Contextual Information is Relevant**: Include datasets providing important contextual Properties for the core Objects or Events.
-6.  **When in doubt, lean towards inclusion if semantically plausible and potentially useful**: If the dataset seems semantically related, include it.
-7.  **CRITICAL:** Each string in the "results" array MUST contain ONLY the dataset's UUID string (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38").
-8.  **Use USER REQUEST for context, SPECIFIC SEARCH QUERY for focus**: Understand the underlying need (user request) and the specific concepts/attributes being targeted (search query).
+5.  **Consider Found Values as Evidence**: The actual values found in the dataset provide concrete evidence of relevance. If values matching the user's query (like specific entities, terms, or categories) appear in the dataset, this strongly suggests relevance.
+6.  **Contextual Information is Relevant**: Include datasets providing important contextual Properties for the core Objects or Events.
+7.  **When in doubt, lean towards inclusion if semantically plausible and potentially useful**: If the dataset seems semantically related, include it.
+8.  **CRITICAL:** Each string in the "results" array MUST contain ONLY the dataset's UUID string (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38").
+9.  **Use USER REQUEST for context, SPECIFIC SEARCH QUERY for focus**: Understand the underlying need (user request) and the specific concepts/attributes being targeted (search query).
 "#;
 
 const EXPLORATORY_LLM_FILTER_PROMPT: &str = r#"
@@ -108,6 +218,10 @@ EXPLORATORY TOPIC: {topic} (This topic represents a general area of interest der
 
 Below is a list of datasets identified as potentially relevant by an initial ranking system.
 For each dataset, review its description in the YAML format. Evaluate how well the dataset's described contents (columns, metrics, entities, documentation) **thematically relate** to the EXPLORATORY TOPIC and the overall USER REQUEST context.
+
+IMPORTANT EVIDENCE - ACTUAL DATA VALUES FOUND IN THIS DATASET:
+{found_values_json}
+These values were found in the actual data that matches your exploratory topics. Consider these as concrete evidence that this dataset contains data relevant to your exploration.
 
 Consider datasets that:
 - Directly address the EXPLORATORY TOPIC.
@@ -134,13 +248,29 @@ Return a JSON response containing ONLY a list of the UUIDs for the potentially r
 IMPORTANT GUIDELINES:
 1.  **Focus on Thematic Relevance & Potential Utility**: Include datasets whose content seems related to the EXPLORATORY TOPIC or could provide valuable context/insights for exploration.
 2.  **Consider Related Concepts**: Think broadly about what data is often analyzed alongside the given topic.
-3.  **Prioritize Breadth**: Lean towards including datasets that might offer different perspectives or dimensions related to the topic.
-4.  **Evaluate based on Potential for Discovery**: Does the dataset seem like it could contribute to understanding the topic area, even indirectly?
-5.  **Contextual Information is Valuable**: Include datasets providing relevant dimensions or related entities.
-6.  **When in doubt, lean towards inclusion if thematically plausible**: If the dataset seems potentially related to the exploration goal, include it.
-7.  **CRITICAL:** Each string in the "results" array MUST contain ONLY the dataset's UUID string (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38").
-8.  **Use USER REQUEST for context, EXPLORATORY TOPIC for focus**: Understand the underlying need (user request) and the general area being explored (topic).
+3.  **Consider Found Values as Evidence**: The actual values found in the dataset provide concrete evidence of relevance. If values matching the user's exploratory topic (like specific entities, terms, or categories) appear in the dataset, this strongly suggests usefulness for exploration.
+4.  **Prioritize Breadth**: Lean towards including datasets that might offer different perspectives or dimensions related to the topic.
+5.  **Evaluate based on Potential for Discovery**: Does the dataset seem like it could contribute to understanding the topic area, even indirectly?
+6.  **Contextual Information is Valuable**: Include datasets providing relevant dimensions or related entities.
+7.  **When in doubt, lean towards inclusion if thematically plausible**: If the dataset seems potentially related to the exploration goal, include it.
+8.  **CRITICAL:** Each string in the "results" array MUST contain ONLY the dataset's UUID string (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38").
+9.  **Use USER REQUEST for context, EXPLORATORY TOPIC for focus**: Understand the underlying need (user request) and the general area being explored (topic).
 "#;
+
+// NEW: Helper function to extract data source ID from permissioned datasets
+// This is a placeholder - you'll need to adjust based on how data_source_id is actually stored/retrieved
+fn extract_data_source_id(datasets: &[PermissionedDataset]) -> Option<Uuid> {
+    // Assuming datasets have a data_source_id property or it can be derived from dataset.id
+    // As a fallback, we're using the ID of the first dataset
+    // Replace this with actual implementation based on your data model
+    if datasets.is_empty() {
+        return None;
+    }
+    
+    // For this implementation, we're assuming the dataset ID is the data source ID
+    // In a real implementation, you would likely have a different way to get the data_source_id
+    Some(datasets[0].data_source_id)
+}
 
 pub struct SearchDataCatalogTool {
     agent: Arc<Agent>,
@@ -194,13 +324,40 @@ impl ToolExecutor for SearchDataCatalogTool {
 
         let specific_queries = params.specific_queries.clone().unwrap_or_default();
         let exploratory_topics = params.exploratory_topics.clone().unwrap_or_default();
+        
+        // Get the user prompt for extracting value search terms
+        let user_prompt_value = self.agent.get_state_value("user_prompt").await;
+        let user_prompt_str = match user_prompt_value {
+            Some(Value::String(prompt)) => prompt,
+            _ => {
+                warn!("User prompt not found in agent state for value extraction.");
+                "User query context not available.".to_string()
+            }
+        };
+        
+        // Extract value search terms using Gemini instead of relying on passed parameters
+        let value_search_terms = match extract_value_search_terms(&user_prompt_str, &user_id, &session_id).await {
+            Ok(terms) => terms,
+            Err(e) => {
+                warn!(error = %e, "Failed to extract value search terms, falling back to provided terms if any");
+                vec![]
+            }
+        };
+        
+        debug!(
+            specific_queries_count = specific_queries.len(),
+            exploratory_topics_count = exploratory_topics.len(), 
+            value_search_terms_count = value_search_terms.len(),
+            "Request parameters"
+        );
 
-        if specific_queries.is_empty() && exploratory_topics.is_empty() {
-            warn!("SearchDataCatalogTool executed with no specific queries or exploratory topics.");
+        if specific_queries.is_empty() && exploratory_topics.is_empty() && value_search_terms.is_empty() {
+            warn!("SearchDataCatalogTool executed with no search parameters.");
             return Ok(SearchDataCatalogOutput {
-                message: "No search queries or exploratory topics provided.".to_string(),
+                message: "No search queries, exploratory topics, or value search terms provided.".to_string(),
                 specific_queries: params.specific_queries,
                 exploratory_topics: params.exploratory_topics,
+                value_search_terms: Some(value_search_terms),
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
             });
@@ -214,6 +371,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                     message: format!("Error fetching datasets: {}", e),
                     specific_queries: params.specific_queries,
                     exploratory_topics: params.exploratory_topics,
+                    value_search_terms: Some(value_search_terms),
                     duration: start_time.elapsed().as_millis() as i64,
                     results: vec![],
                 });
@@ -226,10 +384,28 @@ impl ToolExecutor for SearchDataCatalogTool {
                 message: "No datasets available to search.".to_string(),
                 specific_queries: params.specific_queries,
                 exploratory_topics: params.exploratory_topics,
+                value_search_terms: Some(value_search_terms),
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
             });
         }
+
+        let target_data_source_id = match extract_data_source_id(&all_datasets) {
+            Some(id) => id,
+            None => {
+                warn!("No data source ID found in the permissioned datasets.");
+                return Ok(SearchDataCatalogOutput {
+                    message: "Could not determine data source for value search.".to_string(),
+                    specific_queries: params.specific_queries,
+                    exploratory_topics: params.exploratory_topics,
+                    value_search_terms: Some(value_search_terms),
+                    duration: start_time.elapsed().as_millis() as i64,
+                    results: vec![],
+                });
+            }
+        };
+        
+        debug!(data_source_id = %target_data_source_id, "Identified target data source ID for value search");
 
         let documents: Vec<String> = all_datasets
             .iter()
@@ -242,6 +418,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                 message: "No searchable dataset content found.".to_string(),
                 specific_queries: params.specific_queries,
                 exploratory_topics: params.exploratory_topics,
+                value_search_terms: Some(value_search_terms),
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
             });
@@ -256,6 +433,60 @@ impl ToolExecutor for SearchDataCatalogTool {
             }
         };
 
+        // NEW: Execute value searches concurrently for each value_search_term
+        let mut value_search_futures = Vec::new();
+        for term in &value_search_terms {
+            let term_clone = term.clone();
+            let data_source_id_clone = target_data_source_id;
+            
+            // Create a future for each value search term
+            let future = async move {
+                let results = search_values_for_term(
+                    &data_source_id_clone,
+                    &term_clone,
+                    20, // Get top 20 values per term
+                ).await;
+                
+                (term_clone, results)
+            };
+            
+            value_search_futures.push(future);
+        }
+        
+        // Execute value search futures concurrently
+        let value_search_results_vec: Vec<(String, Result<Vec<stored_values::search::StoredValueResult>>)> = 
+            futures::future::join_all(value_search_futures).await;
+            
+        // Process the value search results
+        let mut found_values_by_term = HashMap::new();
+        for (term, result) in value_search_results_vec {
+            match result {
+                Ok(values) => {
+                    let found_values: Vec<FoundValueInfo> = values.into_iter()
+                        .map(|val| {
+                            to_found_value_info(val, 0.0) // We don't use score in FoundValueInfo
+                        })
+                        .collect();
+                    
+                    let term_str = term.clone(); // Clone before moving into HashMap
+                    let values_count = found_values.len();
+                    found_values_by_term.insert(term, found_values);
+                    debug!(term = %term_str, count = values_count, "Found values for search term");
+                }
+                Err(e) => {
+                    error!(term = %term, error = %e, "Error searching for values");
+                    found_values_by_term.insert(term, vec![]);
+                }
+            }
+        }
+        
+        // Flatten all found values into a single list
+        let all_found_values: Vec<FoundValueInfo> = found_values_by_term.values()
+            .flat_map(|values| values.clone())
+            .collect();
+            
+        debug!(value_count = all_found_values.len(), "Total found values across all terms");
+
         let specific_futures = stream::iter(specific_queries.clone())
             .map(|query| {
                 let current_query = query.clone();
@@ -264,6 +495,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                 let user_id_clone = user_id;
                 let session_id_clone = session_id;
                 let user_prompt_for_task = user_prompt_str.clone();
+                let all_found_values_clone = all_found_values.clone();
 
                 async move {
                     let ranked = match rerank_datasets(&current_query, &datasets_clone, &documents_clone).await {
@@ -274,7 +506,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                         }
                     };
 
-                    match filter_specific_datasets_with_llm(&current_query, &user_prompt_for_task, ranked, &user_id_clone, &session_id_clone).await {
+                    match filter_specific_datasets_with_llm(&current_query, &user_prompt_for_task, ranked, &user_id_clone, &session_id_clone, &all_found_values_clone).await {
                         Ok(filtered) => Ok(filtered),
                         Err(e) => {
                             error!(error = %e, query = current_query, "LLM filtering failed for specific query");
@@ -293,6 +525,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                 let user_id_clone = user_id;
                 let session_id_clone = session_id;
                 let user_prompt_for_task = user_prompt_str.clone();
+                let all_found_values_clone = all_found_values.clone();
 
                 async move {
                     let ranked = match rerank_datasets(&current_topic, &datasets_clone, &documents_clone).await {
@@ -303,7 +536,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                         }
                     };
 
-                    match filter_exploratory_datasets_with_llm(&current_topic, &user_prompt_for_task, ranked, &user_id_clone, &session_id_clone).await {
+                    match filter_exploratory_datasets_with_llm(&current_topic, &user_prompt_for_task, ranked, &user_id_clone, &session_id_clone, &all_found_values_clone).await {
                         Ok(filtered) => Ok(filtered),
                         Err(e) => {
                             error!(error = %e, topic = current_topic, "LLM filtering failed for exploratory topic");
@@ -356,6 +589,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                 id: result.id,
                 name: result.name,
                 yml_content: result.yml_content,
+                found_values: result.found_values,
             })
             .collect();
 
@@ -382,6 +616,7 @@ impl ToolExecutor for SearchDataCatalogTool {
             message,
             specific_queries: params.specific_queries,
             exploratory_topics: params.exploratory_topics,
+            value_search_terms: Some(value_search_terms),
             duration: duration as i64,
             results: final_search_results,
         })
@@ -415,7 +650,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                    "description": "A concise topic phrase describing a general area of interest, e.g., 'Customer churn factors', 'Website traffic analysis', 'Product performance metrics'."
                  },
                  "minItems": 1
-               }
+               },
             },
             "additionalProperties": false
           }
@@ -472,7 +707,6 @@ async fn rerank_datasets(
         if let Some(dataset) = all_datasets.get(result.index as usize) {
             ranked_datasets.push(RankedDataset {
                 dataset: dataset.clone(),
-                relevance_score: result.relevance_score,
             });
         } else {
             error!(
@@ -483,12 +717,6 @@ async fn rerank_datasets(
             );
         }
     }
-
-    ranked_datasets.sort_by(|a, b| {
-        b.relevance_score
-            .partial_cmp(&a.relevance_score)
-            .unwrap_or(std::cmp::Ordering::Equal)
-    });
 
     let relevant_datasets = ranked_datasets.into_iter().collect::<Vec<_>>();
 
@@ -503,6 +731,7 @@ async fn llm_filter_helper(
     user_id: &Uuid,
     session_id: &Uuid,
     generation_name_suffix: &str,
+    all_found_values: &[FoundValueInfo],
 ) -> Result<Vec<DatasetResult>, anyhow::Error> {
     if ranked_datasets.is_empty() {
         return Ok(vec![]);
@@ -515,10 +744,27 @@ async fn llm_filter_helper(
                 "id": ranked.dataset.id.to_string(),
                 "name": ranked.dataset.name,
                 "yml_content": ranked.dataset.yml_content.clone().unwrap_or_default(),
-                "relevance_score": ranked.relevance_score
             })
         })
         .collect::<Vec<_>>();
+
+    // NEW: Format found values as JSON for the prompt
+    let found_values_json = if all_found_values.is_empty() {
+        "No specific values were found in the dataset that match the search terms.".to_string()
+    } else {
+        // Convert found values to a formatted string that can be inserted in the prompt
+        let values_json = all_found_values
+            .iter()
+            .map(|val| {
+                format!(
+                    "- '{}' (found in {}.{}.{})",
+                    val.value, val.database_name, val.table_name, val.column_name
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+        values_json
+    };
 
     let prompt = prompt_template
         .replace("{user_request}", user_prompt)
@@ -527,7 +773,8 @@ async fn llm_filter_helper(
         .replace(
             "{datasets_json}",
             &serde_json::to_string_pretty(&datasets_json)?,
-        );
+        )
+        .replace("{found_values_json}", &found_values_json);
 
     let llm_client = LiteLLMClient::new(None, None);
 
@@ -595,6 +842,7 @@ async fn llm_filter_helper(
                             id: dataset.id,
                             name: Some(dataset.name.clone()),
                             yml_content: dataset.yml_content.clone(),
+                            found_values: all_found_values.to_vec(),
                         })
                     } else {
                         warn!(parsed_id = %parsed_id, query_or_topic = query_or_topic, "LLM filter returned UUID not found in ranked list");
@@ -624,6 +872,7 @@ async fn filter_specific_datasets_with_llm(
     ranked_datasets: Vec<RankedDataset>,
     user_id: &Uuid,
     session_id: &Uuid,
+    all_found_values: &[FoundValueInfo],
 ) -> Result<Vec<DatasetResult>, anyhow::Error> {
     debug!(
         "Filtering {} datasets with SPECIFIC LLM for query: {}",
@@ -637,7 +886,8 @@ async fn filter_specific_datasets_with_llm(
         ranked_datasets,
         user_id,
         session_id,
-        "specific"
+        "specific",
+        all_found_values
     ).await
 }
 
@@ -647,6 +897,7 @@ async fn filter_exploratory_datasets_with_llm(
     ranked_datasets: Vec<RankedDataset>,
     user_id: &Uuid,
     session_id: &Uuid,
+    all_found_values: &[FoundValueInfo],
 ) -> Result<Vec<DatasetResult>, anyhow::Error> {
     debug!(
         "Filtering {} datasets with EXPLORATORY LLM for topic: {}",
@@ -660,6 +911,127 @@ async fn filter_exploratory_datasets_with_llm(
         ranked_datasets,
         user_id,
         session_id,
-        "exploratory"
+        "exploratory",
+        all_found_values
     ).await
+}
+
+// NEW: Extract potential column values from user query using Gemini
+async fn extract_value_search_terms(user_request: &str, user_id: &Uuid, session_id: &Uuid) -> Result<Vec<String>> {
+    debug!("Extracting potential value search terms from user request");
+    
+    let prompt = r#"
+Your task is to extract specific values/entities from a user request that are likely to appear as actual values in database columns, focusing on concrete entities that would be useful for semantic search.
+
+Focus on extracting these types of values:
+1. Product names (e.g., "Red Bull", "iPhone 12")
+2. Company/organization names (e.g., "Acme Corp", "Microsoft")
+3. People's names (e.g., "John Smith", "Dallin Bentley")
+4. Locations/regions (e.g., "California", "New York", "Europe", "West Coast")
+5. Categories/segments (e.g., "Premium tier", "Enterprise customers", "SMB segment")
+6. Status values (e.g., "completed", "pending", "active")
+7. Product features (e.g., "waterproof", "4K resolution")
+8. Industry terms (e.g., "B2B", "SaaS", "retail")
+
+DO NOT include:
+1. General concepts, objects, or metrics (e.g., "revenue", "customers", "products")
+2. Time periods (e.g., "last month", "Q1", "yesterday", "January") - these work poorly with embedding search
+3. Generic attributes (e.g., "name", "id", "date")
+4. Common words or very short terms (1-2 characters)
+5. Numbers without context
+
+Extract only SPECIFIC, DISTINCTIVE values that would be stored in a database as actual values in columns.
+
+For example, from: "Show me sales for Red Bull in California in Q1", only extract: ["Red Bull", "California"]
+From: "What is John Smith's customer satisfaction score?", extract: ["John Smith"]
+From: "Compare revenue between Premium and Basic tiers", extract: ["Premium", "Basic"]
+From: "Sales for Apple products last month in Europe", extract: ["Apple", "Europe"]
+
+User request: "{user_request}"
+
+Output the extracted values as a JSON array of strings. If no valid values are found, return an empty array.
+Example response formats:
+["Red Bull", "California"]
+["John Smith"]
+[]
+"#.replace("{user_request}", user_request);
+
+    let llm_client = LiteLLMClient::new(None, None);
+
+    let request = ChatCompletionRequest {
+        model: "gemini-2.0-flash-001".to_string(),
+        messages: vec![AgentMessage::User {
+            id: None,
+            content: prompt,
+            name: None,
+        }],
+        stream: Some(false),
+        response_format: Some(ResponseFormat {
+            type_: "json_object".to_string(),
+            json_schema: Some(serde_json::json!({
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            })),
+        }),
+        metadata: Some(Metadata {
+            generation_name: "extract_value_search_terms".to_string(),
+            user_id: user_id.to_string(),
+            session_id: session_id.to_string(),
+            trace_id: Uuid::new_v4().to_string(),
+        }),
+        max_completion_tokens: Some(2048),
+        temperature: Some(0.0),
+        ..Default::default()
+    };
+
+    let response = llm_client.chat_completion(request).await?;
+
+    let content = match response.choices.get(0).map(|c| &c.message) {
+        Some(AgentMessage::Assistant { content: Some(content), .. }) => content,
+        _ => {
+            error!("LLM response missing or invalid content");
+            return Ok(vec![]);
+        }
+    };
+
+    // Try to parse the response as a JSON array of strings
+    match serde_json::from_str::<Vec<String>>(content) {
+        Ok(extracted_terms) => {
+            debug!(
+                extracted_terms = ?extracted_terms,
+                count = extracted_terms.len(),
+                "Successfully extracted value search terms"
+            );
+            Ok(extracted_terms)
+        },
+        Err(e) => {
+            // If parsing as array fails, try as object with a values field
+            match serde_json::from_str::<serde_json::Value>(content) {
+                Ok(json_value) => {
+                    if let Some(values) = json_value.as_array() {
+                        let extracted_terms: Vec<String> = values
+                            .iter()
+                            .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                            .collect();
+                        
+                        debug!(
+                            extracted_terms = ?extracted_terms,
+                            count = extracted_terms.len(),
+                            "Successfully extracted value search terms from JSON array"
+                        );
+                        Ok(extracted_terms)
+                    } else {
+                        warn!(content = %content, "LLM response was valid JSON but not an array of strings");
+                        Ok(vec![])
+                    }
+                },
+                Err(e2) => {
+                    error!(error1 = %e, error2 = %e2, content = %content, "Failed to parse LLM response as JSON");
+                    Ok(vec![])
+                }
+            }
+        }
+    }
 }

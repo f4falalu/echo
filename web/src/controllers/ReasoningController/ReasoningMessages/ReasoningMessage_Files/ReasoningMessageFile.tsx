@@ -9,8 +9,9 @@ import { StreamingMessageCode } from '@/components/ui/streaming/StreamingMessage
 import isEmpty from 'lodash/isEmpty';
 import { Text } from '@/components/ui/typography';
 import { CircleSpinnerLoader } from '@/components/ui/loaders';
-import { CheckDouble, AlertWarning } from '@/components/ui/icons';
+import { CheckDouble } from '@/components/ui/icons';
 import { AnimatePresence, motion } from 'framer-motion';
+import { CircleWarning } from '@/components/ui/icons/NucleoIconFilled';
 
 export type ReasoningMessageFileProps = {
   chatId: string;
@@ -53,7 +54,7 @@ export const ReasoningMessage_File: React.FC<ReasoningMessageFileProps> = React.
 
 ReasoningMessage_File.displayName = 'ReasoningMessage_File';
 
-const StreamingMessageStatus = React.memo(
+export const StreamingMessageStatus = React.memo(
   ({ status }: { status: BusterChatMessageReasoning_file['status'] }) => {
     const content = useMemo(() => {
       if (status === 'loading')
@@ -74,7 +75,7 @@ const StreamingMessageStatus = React.memo(
       if (status === 'failed')
         return (
           <Text variant={'danger'} size={'sm'} className="flex gap-1.5">
-            Failed <AlertWarning />
+            Failed <CircleWarning />
           </Text>
         );
     }, [status]);
