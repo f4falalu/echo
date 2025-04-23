@@ -58,11 +58,12 @@ export const RoutePrefetcher: React.FC<{}> = React.memo(() => {
         new Promise((resolve) => {
           window.addEventListener('load', resolve, { once: true });
         }),
-        timeout(5000)
+        timeout(2000)
       ]);
     }
 
     // Setup network activity monitoring
+    let fallbackTimer: NodeJS.Timeout;
     const observer = new PerformanceObserver((list) => {
       // Clear any existing debounce timer
       if (debounceTimerRef.current) {
@@ -73,20 +74,30 @@ export const RoutePrefetcher: React.FC<{}> = React.memo(() => {
       debounceTimerRef.current = setTimeout(() => {
         prefetchRoutes(LOW_PRIORITY_ROUTES, 'low');
         observer.disconnect();
-      }, 1500);
+      }, 1000);
     });
 
-    observer.observe({ entryTypes: ['resource'] });
+    try {
+      observer.observe({ entryTypes: ['resource'] });
 
-    // Fallback - ensure prefetch happens even if network is already quiet
-    const fallbackTimer = setTimeout(() => {
-      prefetchRoutes(LOW_PRIORITY_ROUTES, 'low');
+      // Fallback - ensure prefetch happens even if network is already quiet
+      fallbackTimer = setTimeout(() => {
+        prefetchRoutes(LOW_PRIORITY_ROUTES, 'low');
+        observer.disconnect();
+      }, 3000);
+    } catch (error) {
+      console.error('Failed to setup PerformanceObserver:', error);
       observer.disconnect();
-    }, 6000);
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      // Still prefetch low priority routes as fallback
+      prefetchRoutes(LOW_PRIORITY_ROUTES, 'low');
+    }
 
     return () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-      clearTimeout(fallbackTimer);
+      if (fallbackTimer) clearTimeout(fallbackTimer);
       observer.disconnect();
     };
   }, [router]);
