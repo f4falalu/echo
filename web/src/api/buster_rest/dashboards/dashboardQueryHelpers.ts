@@ -14,6 +14,7 @@ import {
   useGetLatestDashboardVersionMemoized
 } from './dashboardQueryStore';
 import last from 'lodash/last';
+
 export const useEnsureDashboardConfig = (prefetchData: boolean = true) => {
   const queryClient = useQueryClient();
   const prefetchDashboard = useGetDashboardAndInitializeMetrics(prefetchData);

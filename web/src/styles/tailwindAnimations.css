@@ -3,6 +3,7 @@
   --animate-indeterminate-progress-bar: indeterminate-progress-bar 1s infinite linear;
   --animate-collapsible-down: collapsible-down 0.12s ease-out;
   --animate-collapsible-up: collapsible-up 0.12s ease-out;
+  --animate-fade-in: fade-in var(--tw-duration, 0.7s) var(--tw-ease-in, ease-in);
 
   @keyframes indeterminate-progress-bar {
     0% {
@@ -37,4 +38,17 @@
       opacity: 0;
     }
   }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+.fade-in {
+  animation-name: fade-in;
 }
