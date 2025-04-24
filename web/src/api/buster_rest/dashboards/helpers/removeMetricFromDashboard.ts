@@ -1,5 +1,5 @@
 import type { BusterDashboard } from '@/api/asset_interfaces/dashboard';
-import { NUMBER_OF_COLUMNS } from '@/components/ui/grid/helpers';
+import { NUMBER_OF_COLUMNS } from '../../../../components/ui/grid/helpers';
 
 export const removeMetricFromDashboardConfig = (
   metricIds: string[],
