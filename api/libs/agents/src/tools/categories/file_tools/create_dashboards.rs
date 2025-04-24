@@ -367,7 +367,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
     async fn get_schema(&self) -> Value {
         serde_json::json!({
             "name": self.get_name(),
-            "strict": true,
+            "strict": false,
             "parameters": {
                 "type": "object",
                 "required": ["files"],
@@ -377,7 +377,7 @@ impl ToolExecutor for CreateDashboardFilesTool {
                         "items": {
                             "type": "object",
                             "required": ["name", "yml_content"],
-                            "strict": true,
+                            "strict": false,
                             "properties": {
                                 "name": {
                                     "type": "string",

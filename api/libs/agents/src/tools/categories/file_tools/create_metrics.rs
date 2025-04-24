@@ -271,7 +271,7 @@ impl ToolExecutor for CreateMetricFilesTool {
         serde_json::json!({
           "name": self.get_name(),
           "description": get_create_metrics_description().await,
-          "strict": true,
+          "strict": false,
           "parameters": {
             "type": "object",
             "required": ["files"],
@@ -281,7 +281,7 @@ impl ToolExecutor for CreateMetricFilesTool {
                 "items": {
                   "type": "object",
                   "required": ["name", "yml_content"],
-                  "strict": true,
+                  "strict": false,
                   "properties": {
                     "name": {
                       "type": "string",

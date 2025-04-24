@@ -23,13 +23,6 @@ use crate::{agent::ModeProvider, Agent, AgentError, AgentExt, AgentThread}; // A
 
 use litellm::AgentMessage;
 
-// Remove direct prompt imports if they are moved to modes
-// use super::{ ... };
-
-// Add imports for Hook types
-use std::future::Future;
-use std::pin::Pin;
-
 // Import AgentState and determine_agent_state (assuming they are pub in modes/mod.rs or similar)
 // If not, they might need to be moved or re-exported.
 // For now, let's assume they are accessible via crate::agents::modes::{AgentState, determine_agent_state}
@@ -92,21 +85,63 @@ impl AgentExt for BusterMultiAgent {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DatasetWithDescriptions {
+    pub name: String,
+    pub description: String,
+}
+
+impl DatasetWithDescriptions {
+    pub fn to_string(&self) -> String {
+        format!("{}: {}", self.name, self.description)
+    }
+}
+
+// Define structs for YAML parsing
+#[derive(Debug, Deserialize)]
+struct YamlRoot {
+    models: Vec<ModelInfo>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ModelInfo {
+    name: String,
+    description: String,
+}
+
 impl BusterMultiAgent {
     pub async fn new(user_id: Uuid, session_id: Uuid, is_follow_up: bool) -> Result<Self> {
         // Prepare data for modes
         let todays_date = Arc::new(Local::now().format("%Y-%m-%d").to_string());
 
-        // Get permissioned datasets and extract names
+        // Get permissioned datasets and extract names/descriptions from the first model
         let permissioned_datasets = get_permissioned_datasets(&user_id, 0, 10000).await?;
-        let dataset_names: Vec<String> = permissioned_datasets
+        let dataset_descriptions: Vec<String> = permissioned_datasets
             .into_iter()
-            .map(|ds| ds.name)
+            .filter_map(|ds| ds.yml_content) // Get Some(String), filter out None
+            .map(|content| serde_yaml::from_str::<YamlRoot>(&content)) // Parse String -> Result<YamlRoot, Error>
+            .filter_map(|result| { // Handle Result
+                match result {
+                    Ok(parsed_root) => {
+                        // Extract info from the first model if available
+                        if let Some(model) = parsed_root.models.first() {
+                            Some(format!("{}: {}", model.name, model.description))
+                        } else {
+                            tracing::warn!("Parsed YAML has no models");
+                            None
+                        }
+                    },
+                    Err(e) => {
+                        tracing::warn!("Failed to parse dataset YAML: {}", e);
+                        None // Filter out errors
+                    }
+                }
+            })
             .collect();
-        let dataset_names = Arc::new(dataset_names);
+        let dataset_descriptions = Arc::new(dataset_descriptions); // Wrap in Arc
 
         let agent_data = ModeAgentData {
-            dataset_names,
+            dataset_with_descriptions: dataset_descriptions, // Use the correct field name 'dataset_with_descriptions'
             todays_date,
         };
 
@@ -115,7 +150,7 @@ impl BusterMultiAgent {
 
         // Create agent, passing the provider
         let agent = Arc::new(Agent::new(
-            "o4-mini".to_string(), // Initial model (can be overridden by first mode)
+            "xai/grok-3-mini-fast-beta".to_string(), // Initial model (can be overridden by first mode)
             user_id,
             session_id,
             "buster_multi_agent".to_string(),
