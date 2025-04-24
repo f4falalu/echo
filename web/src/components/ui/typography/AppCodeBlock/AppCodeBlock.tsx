@@ -88,7 +88,11 @@ AppCodeBlock.displayName = 'AppCodeBlock';
 const CodeInlineWrapper: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  return <code className={'bg-item-active rounded-sm border px-1 text-inherit'}>{children}</code>;
+  return (
+    <code className={'bg-item-active rounded-sm border px-1 text-[0.85em] text-inherit'}>
+      {children}
+    </code>
+  );
 };
 
 const PulseLoader = React.memo(({ className, size = 4 }: { className?: string; size?: number }) => {
