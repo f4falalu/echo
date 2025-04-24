@@ -150,7 +150,7 @@ impl BusterMultiAgent {
 
         // Create agent, passing the provider
         let agent = Arc::new(Agent::new(
-            "xai/grok-3-mini-fast-beta".to_string(), // Initial model (can be overridden by first mode)
+            "o4-mini".to_string(), // Initial model (can be overridden by first mode)
             user_id,
             session_id,
             "buster_multi_agent".to_string(),
