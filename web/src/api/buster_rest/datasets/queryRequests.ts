@@ -23,16 +23,11 @@ export const useGetDatasets = (params?: Parameters<typeof getDatasets>[0]) => {
     return getDatasets(params);
   });
 
-  const res = useQuery({
+  return useQuery({
     ...queryKeys.datasetsListQueryOptions(params),
     queryFn,
     enabled: true
   });
-
-  return {
-    ...res,
-    data: res.data || []
-  };
 };
 
 export const prefetchGetDatasets = async (

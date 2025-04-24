@@ -5,7 +5,8 @@ import { type getDatasets } from '../buster_rest/datasets';
 
 const datasetsListQueryOptions = (params?: Parameters<typeof getDatasets>[0]) =>
   queryOptions<BusterDatasetListItem[]>({
-    queryKey: ['datasets', 'list', params]
+    queryKey: ['datasets', 'list', params],
+    initialData: []
   });
 
 const datasetData = (datasetId: string) =>
