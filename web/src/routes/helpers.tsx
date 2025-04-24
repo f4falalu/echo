@@ -24,8 +24,6 @@ export const pathNameToRoute = (pathName: string, params: any): BusterRoutes => 
     return r === pathName || createBusterRoute({ route: r, ...params }) === pathName;
   });
 
-  console.log('pathNameToRoute', { pathName, route, params });
-
   if (route && PATHNAME_TO_ROUTE[route as string]) {
     return PATHNAME_TO_ROUTE[route as string];
   }

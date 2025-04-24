@@ -177,8 +177,6 @@ export const useLayoutConfig = ({
     return 'file-only';
   }, [selectedFileId, chatId, selectedFileViewSecondary]);
 
-  console.log('currentRoute', currentRoute);
-
   //we need to use for when the user clicks the back or forward in the browser
   useUpdateEffect(() => {
     const newInitialFileViews = initializeFileViews({
@@ -191,6 +189,8 @@ export const useLayoutConfig = ({
     const fileView = newInitialFileViews[fileId]?.selectedFileView;
     const secondaryViewFromSelected =
       newInitialFileViews[fileId]?.fileViewConfig?.[fileView]?.secondaryView;
+
+    console.log('newInitialFileViews', newInitialFileViews);
 
     onSetFileView({
       fileId,
