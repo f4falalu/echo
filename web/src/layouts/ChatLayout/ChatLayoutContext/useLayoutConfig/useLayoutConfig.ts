@@ -3,7 +3,7 @@
 import { FileType } from '@/api/asset_interfaces/chat';
 import { RefObject, useMemo, useState } from 'react';
 import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './interfaces';
-import { useMemoizedFn, useUpdateEffect } from '@/hooks';
+import { useIsChanged, useMemoizedFn, useUpdateEffect } from '@/hooks';
 import { create } from 'mutative';
 import { ChatLayoutView } from '../../interfaces';
 import type { SelectedFile } from '../../interfaces';
@@ -39,6 +39,7 @@ export const useLayoutConfig = ({
   const [fileViews, setFileViews] = useState<Record<string, FileConfig>>(() =>
     initializeFileViews({ secondaryView, metricId, dashboardId, currentRoute })
   );
+  const { onCheckIsChanged } = useIsChanged();
 
   const selectedFileId = selectedFile?.id;
   const selectedFileType = selectedFile?.type;
@@ -180,7 +181,14 @@ export const useLayoutConfig = ({
 
   //we need to use for when the user clicks the back or forward in the browser
   useUpdateEffect(() => {
-    console.log('useUpdateEffect', { chatId, metricId, secondaryView, dashboardId, currentRoute });
+    console.log('useUpdateEffect', {
+      metricId,
+      secondaryView,
+      chatId,
+      dashboardId,
+      messageId,
+      currentRoute
+    });
     const newInitialFileViews = initializeFileViews({
       secondaryView,
       metricId,
@@ -192,7 +200,18 @@ export const useLayoutConfig = ({
     const secondaryViewFromSelected =
       newInitialFileViews[fileId]?.fileViewConfig?.[fileView]?.secondaryView;
 
-    console.log(fileId, fileView, secondaryViewFromSelected);
+    //sooo.. I have a suspicion that the reasoning is not flipping because this was being called twice. So I added this hook.
+    const isFileViewsChanged = onCheckIsChanged({
+      metricId,
+      secondaryView,
+      chatId,
+      dashboardId,
+      messageId
+    });
+
+    console.log('isFileViewsChanged', isFileViewsChanged);
+
+    if (!isFileViewsChanged) return;
 
     onSetFileView({
       fileId,
