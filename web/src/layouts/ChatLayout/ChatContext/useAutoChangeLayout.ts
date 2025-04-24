@@ -54,9 +54,9 @@ export const useAutoChangeLayout = ({
     ) {
       previousLastMessageId.current = lastMessageId;
 
-      onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
-
       console.log('REASONING: FLIP TO REASONING!', lastMessageId);
+
+      onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
     }
 
     //this will when the chat is completed and it WAS streaming
@@ -72,7 +72,7 @@ export const useAutoChangeLayout = ({
         | undefined;
 
       if (lastFileId && lastFile) {
-        const { link, isSelected, selectedVersionNumber } = getFileLinkMeta({
+        const { link } = getFileLinkMeta({
           fileId: lastFileId,
           fileType: lastFile.file_type,
           chatId,
