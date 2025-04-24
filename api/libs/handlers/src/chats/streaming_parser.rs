@@ -1,6 +1,7 @@
 use agents::tools::categories::file_tools::common::generate_deterministic_uuid;
 use anyhow::Result;
 use serde_json::Value;
+use serde::Deserialize;
 
 use super::post_chat_handler::{
     BusterFile, BusterFileContent, BusterReasoningFile, BusterReasoningMessage, BusterReasoningText,
@@ -62,22 +63,12 @@ impl StreamingParser {
     pub fn process_search_data_catalog_chunk(
         &mut self,
         _id: String,
-        chunk: &str,
-    ) -> Option<Value> {
-        self.clear_buffer();
-        self.buffer.push_str(chunk);
-
-        let processed_json = self.complete_json_structure(self.buffer.clone());
-
-        // Try to parse arguments, return Some(Value) if successful and looks like search args
-        if let Ok(value) = serde_json::from_str::<Value>(&processed_json) {
-             if value.get("queries").is_some() {
-                 return Some(value);
-             }
-        }
-
-        // If the start of queries is not detected, return None
-        None
+        _chunk: &str,
+    ) -> Result<Option<BusterReasoningMessage>> {
+        // We no longer process streaming search args here.
+        // Logic moved to post_chat_handler on message completion.
+        self.clear_buffer(); // Clear buffer in case it was used
+        Ok(None) // Always return None during streaming for this tool now
     }
 
     // Process chunks meant for metric files
