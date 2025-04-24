@@ -161,10 +161,6 @@ pub async fn sync_distinct_values_chunk(
 
     // Wrap the core sync logic in a closure or block to handle errors centrally
     let sync_result: Result<usize, anyhow::Error> = async {
-        let quote = "\"";
-        let escape = format!("{0}{0}", quote);
-        let q = |s: &str| s.replace(quote, &escape);
-
         let app_db_pool = get_sqlx_pool();
         let target_schema_name = format!("ds_{}", data_source_id.to_string().replace('-', "_"));
         let target_table_name = "searchable_column_values".to_string(); // Define target table name
@@ -203,11 +199,22 @@ pub async fn sync_distinct_values_chunk(
                 break; // No more data
             }
 
+            // Determine the result column key dynamically from the first row
+            // Assumes query_engine returns consistent keys and only one column is selected.
+            let result_column_key = query_result.data.get(0)
+                .and_then(|first_row| first_row.keys().next().cloned())
+                .ok_or_else(|| {
+                    warn!(%job_id, "Query engine returned rows but could not determine result column key.");
+                    // Pass the format string and job_id to anyhow!
+                    anyhow!("Could not determine result column key for job_id={}", job_id)
+                })?;
+
+            info!(%job_id, %result_column_key, "Determined result column key for extraction");
+
             // 2. Extract Values for this Chunk
             let mut chunk_values_to_process: Vec<String> = Vec::with_capacity(fetched_count);
-            let result_column_name = &column_name;
             for row_map in query_result.data {
-                if let Some(value_opt) = row_map.get(result_column_name).and_then(|dt| match dt {
+                if let Some(value_opt) = row_map.get(&result_column_key).and_then(|dt| match dt {
                      DataType::Text(Some(v)) => Some(v.clone()),
                     DataType::Int2(Some(v)) => Some(v.to_string()),
                     DataType::Int4(Some(v)) => Some(v.to_string()),
@@ -230,7 +237,7 @@ pub async fn sync_distinct_values_chunk(
                         warn!(%job_id, "Skipping empty or whitespace-only string value in chunk.");
                     }
                 } else {
-                    warn!(%job_id, ?row_map, "Could not extract valid string value from row in chunk, skipping.");
+                    warn!(%job_id, %result_column_key, ?row_map, "Could not extract valid string value using determined key, skipping.");
                 }
             }
 
