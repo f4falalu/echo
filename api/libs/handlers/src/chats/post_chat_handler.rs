@@ -1221,6 +1221,7 @@ pub struct BusterReasoningText {
     pub message: Option<String>,
     pub message_chunk: Option<String>,
     pub status: Option<String>,
+    pub finished_reasoning: bool
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -1609,6 +1610,7 @@ fn tool_create_plan(id: String, content: String, elapsed_duration: Duration) -> 
                 message: Some(format!("Tool execution finished (parsing failed: {})", e)), // Optional detail
                 message_chunk: None,
                 status: Some("completed".to_string()), // Mark as completed
+                finished_reasoning: false,
             });
             Ok(vec![reasoning_message]) // Return the message
         }
@@ -2120,6 +2122,7 @@ fn transform_assistant_tool_message(
                             message: None,
                             message_chunk: None,
                             status: Some("completed".to_string()),
+                            finished_reasoning: true,
                         });
                         all_results.push(ToolTransformResult::Reasoning(generating_response_msg));
                         // Reset the timer for the next step (which is text generation)
@@ -2251,6 +2254,7 @@ fn transform_assistant_tool_message(
                             message: None,
                             message_chunk: Some(delta),
                             status: Some("loading".to_string()),
+                            finished_reasoning: false,
                         })));
                     }
                 }
@@ -2267,6 +2271,7 @@ fn transform_assistant_tool_message(
                                 message: Some(final_text), // Final text
                                 message_chunk: None,
                                 status: Some("completed".to_string()), // Mark as completed
+                                finished_reasoning: false,
                             })));
                          }
                         tracker.clear_chunk(tool_id.clone());
@@ -2288,6 +2293,7 @@ fn transform_assistant_tool_message(
                              message: None,
                              message_chunk: None,
                              status: Some("loading".to_string()),
+                             finished_reasoning: false,
                          });
                         all_results.push(ToolTransformResult::Reasoning(search_msg));
                         // Use tracker to mark that we've sent the initial message for this ID
@@ -2417,6 +2423,7 @@ fn transform_assistant_tool_message(
                                  message: None,
                                  message_chunk: None,
                                  status: Some("loading".to_string()),
+                                 finished_reasoning: false,
                              });
                             all_results.push(ToolTransformResult::Reasoning(review_msg));
                             tracker.add_chunk(tracker_key, "reviewing_sent".to_string());
@@ -2432,6 +2439,7 @@ fn transform_assistant_tool_message(
                             message: None,
                             message_chunk: None,
                             status: Some("completed".to_string()),
+                            finished_reasoning: false,
                         });
                         all_results.push(ToolTransformResult::Reasoning(reviewed_msg));
                         // Clear the tracker key used for the initial message
