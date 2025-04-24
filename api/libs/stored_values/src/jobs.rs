@@ -154,7 +154,10 @@ pub async fn sync_distinct_values_chunk(
     }
 
     // Instantiate the LiteLLM Client
-    let litellm_client = LiteLLMClient::default();
+    let litellm_client = LiteLLMClient::new(
+        std::env::var("OPENAI_API_KEY").ok(),
+        Some("https://api.openai.com/v1/".to_string()),
+    );
 
     // Wrap the core sync logic in a closure or block to handle errors centrally
     let sync_result: Result<usize, anyhow::Error> = async {
@@ -172,12 +175,11 @@ pub async fn sync_distinct_values_chunk(
         loop {
             // 1. Fetch Chunk
             let distinct_sql = format!(
-                "SELECT DISTINCT {q}{col}{q} FROM {q}{db}{q}.{q}{schema}{q}.{q}{table}{q} ORDER BY 1 NULLS LAST LIMIT {limit} OFFSET {offset}",
-                q = quote,
-                col = q(&column_name.to_uppercase()),
-                db = q(&database_name.to_uppercase()),
-                schema = q(&schema_name.to_uppercase()),
-                table = q(&table_name.to_uppercase()),
+                "SELECT DISTINCT {col} FROM {db}.{schema}.{table} ORDER BY 1 NULLS LAST LIMIT {limit} OFFSET {offset}",
+                col = column_name,
+                db = database_name,
+                schema = schema_name,
+                table = table_name,
                 limit = SYNC_CHUNK_LIMIT,
                 offset = offset
             );
@@ -203,11 +205,9 @@ pub async fn sync_distinct_values_chunk(
 
             // 2. Extract Values for this Chunk
             let mut chunk_values_to_process: Vec<String> = Vec::with_capacity(fetched_count);
-            // Use original column name for extraction key as query_engine likely returns keys based on original query, not uppercased
-            let result_column_name = q(&column_name);
+            let result_column_name = &column_name;
             for row_map in query_result.data {
-                // Existing logic to extract string value based on DataType
-                if let Some(value_opt) = row_map.get(&result_column_name).and_then(|dt| match dt {
+                if let Some(value_opt) = row_map.get(result_column_name).and_then(|dt| match dt {
                      DataType::Text(Some(v)) => Some(v.clone()),
                     DataType::Int2(Some(v)) => Some(v.to_string()),
                     DataType::Int4(Some(v)) => Some(v.to_string()),
