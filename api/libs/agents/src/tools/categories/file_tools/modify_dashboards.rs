@@ -382,7 +382,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
         serde_json::json!({
             "name": self.get_name(),
             "description": get_modify_dashboards_description().await,
-            "strict": true,
+            "strict": false,
             "parameters": {
                 "type": "object",
                 "required": ["files"],
@@ -393,7 +393,7 @@ impl ToolExecutor for ModifyDashboardFilesTool {
                         "items": {
                             "type": "object",
                             "required": ["id", "yml_content"],
-                            "strict": true,
+                            "strict": false,
                             "properties": {
                                 "id": {
                                     "type": "string",

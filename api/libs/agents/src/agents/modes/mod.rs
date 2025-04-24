@@ -1,10 +1,10 @@
+use crate::Agent;
 use anyhow::Result;
-use std::collections::HashMap;
 use serde_json::Value;
-use std::sync::Arc;
-use std::pin::Pin;
+use std::collections::HashMap;
 use std::future::Future;
-use crate::Agent; // Assuming Agent is accessible at this path
+use std::pin::Pin;
+use std::sync::Arc; // Assuming Agent is accessible at this path
 
 pub mod analysis;
 pub mod data_catalog_search;
@@ -22,25 +22,25 @@ pub mod review;
 /// Data required by different modes to generate their configuration.
 #[derive(Clone)] // Cloneable if needed to pass around easily
 pub struct ModeAgentData {
-   pub dataset_names: Arc<Vec<String>>,
-   pub todays_date: Arc<String>,
-   // Add other shared data if needed by modes, e.g., user_id, session_id if not in Agent state
+    pub dataset_with_descriptions: Arc<Vec<String>>,
+    pub todays_date: Arc<String>,
+    // Add other shared data if needed by modes, e.g., user_id, session_id if not in Agent state
 }
 
 /// Configuration specific to an agent mode.
 pub struct ModeConfiguration {
     /// The system prompt to use for the LLM call in this mode.
     pub prompt: String,
-    /// The specific LLM model identifier (e.g., "o4-mini") to use for this mode.
+    /// The specific LLM model identifier (e.g., "xai/grok-3-mini-fast-beta") to use for this mode.
     pub model: String,
     /// An async function/closure responsible for clearing existing tools
     /// and loading the specific tools required for this mode onto the agent.
-    pub tool_loader: Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync>,
+    pub tool_loader:
+        Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync>,
     /// A list of tool names that, upon successful execution in this mode,
     /// should terminate the agent's processing loop.
     pub terminating_tools: Vec<String>,
 }
-
 
 // --- Agent State Definition and Determination ---
 // It's better to have a single unified AgentState enum if possible.
@@ -67,14 +67,18 @@ pub fn determine_agent_state(state: &HashMap<String, Value>) -> AgentState {
         .and_then(Value::as_bool)
         .unwrap_or(false);
     // Let's refine this: check if data_context has meaningful content, not just if key exists
-    let has_data_context = state.get("data_context").map_or(false, |v| !v.is_null() && (!v.is_string() || !v.as_str().unwrap_or("").is_empty()));
-    let has_plan = state.get("plan_available").and_then(Value::as_bool).unwrap_or(false); // Check if plan is marked available
+    let has_data_context = state.get("data_context").map_or(false, |v| {
+        !v.is_null() && (!v.is_string() || !v.as_str().unwrap_or("").is_empty())
+    });
+    let has_plan = state
+        .get("plan_available")
+        .and_then(Value::as_bool)
+        .unwrap_or(false); // Check if plan is marked available
     let needs_review = state
         .get("review_needed")
         .and_then(|v| v.as_bool())
         .unwrap_or(false);
     let has_user_prompt = state.contains_key("user_prompt"); // Check if latest user prompt is stored
-
 
     // 1. Handle the state before the user provides their first prompt in this turn
     //    If it's not a follow-up and there's no prompt, it's the initial state.
