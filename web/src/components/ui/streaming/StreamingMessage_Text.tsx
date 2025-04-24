@@ -55,8 +55,7 @@ const AnimatedSpan: React.FC<{ children: React.ReactNode; isCompletedStream: boo
   isCompletedStream
 }) => {
   return (
-    <span
-      className={cn('leading-1.5', !isCompletedStream ? 'animate-in fade-in duration-700' : '')}>
+    <span className={cn('leading-1.5', !isCompletedStream ? 'fade-in duration-500' : '')}>
       {children}
     </span>
   );
