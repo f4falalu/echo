@@ -12,7 +12,7 @@ use tokio::task::JoinHandle;
 use uuid::Uuid;
 
 use crate::dashboards::types::{BusterShareIndividual, DashboardCollection};
-use crate::metrics::get_metric_handler;
+use crate::metrics::{get_metric_for_dashboard_handler, get_metric_handler};
 use crate::metrics::{BusterMetric, Dataset, Version};
 use database::enums::{AssetPermissionRole, AssetType, IdentityType, Verification};
 use database::helpers::dashboard_files::fetch_dashboard_file_with_permission;
@@ -249,12 +249,11 @@ pub async fn get_dashboard_handler(
     // Fetch metrics concurrently using get_metric_handler
     let mut metric_fetch_handles = Vec::new();
     for metric_id in metric_ids {
-        let user_clone = user.clone(); // Clone user for the spawned task
-                                       // Spawn a task for each metric fetch.
-                                       // Pass None for version_number and password as the dashboard view uses the latest metric
-                                       // and access is primarily determined by dashboard permissions.
+        // Spawn a task for each metric fetch using the dashboard-specific handler.
+        // Pass only the metric_id and None for version_number.
         let handle = tokio::spawn(async move {
-            get_metric_handler(&metric_id, &user_clone, None, None).await
+            // Call the new handler, no user or password needed
+            get_metric_for_dashboard_handler(&metric_id, None).await
         });
         metric_fetch_handles.push((metric_id, handle));
     }

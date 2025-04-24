@@ -15,6 +15,7 @@ import {
 import isEmpty from 'lodash/isEmpty';
 import { SelectAxisEmptyState } from './SelectAxisEmptyState';
 import { useUpdateMetricChart } from '@/context/Metrics';
+import { ErrorBoundary } from '@/components/ui/error';
 
 export const SelectAxis: React.FC<
   Required<YAxisConfig> &
@@ -54,18 +55,30 @@ export const SelectAxis: React.FC<
     });
   });
 
+  const memoizedErrorComponent = useMemo(() => {
+    return (
+      <div className="bg-danger-background flex min-h-28 items-center justify-center rounded border border-red-500">
+        <span className="text-danger-foreground p-3 text-center">
+          There was an error loading the chart config. Please contact Buster support.
+        </span>
+      </div>
+    );
+  }, []);
+
   if (isEmpty(items)) {
     return <SelectAxisEmptyState />;
   }
 
   return (
-    <SelectAxisProvider
-      {...props}
-      selectedAxis={selectedAxis}
-      selectedChartType={selectedChartType}
-      columnMetadata={columnMetadata}>
-      <SelectAxisDropzones items={items} dropZones={dropZones} onChange={onChange} />
-    </SelectAxisProvider>
+    <ErrorBoundary errorComponent={memoizedErrorComponent}>
+      <SelectAxisProvider
+        {...props}
+        selectedAxis={selectedAxis}
+        selectedChartType={selectedChartType}
+        columnMetadata={columnMetadata}>
+        <SelectAxisDropzones items={items} dropZones={dropZones} onChange={onChange} />
+      </SelectAxisProvider>
+    </ErrorBoundary>
   );
 });
 SelectAxis.displayName = 'SelectAxis';

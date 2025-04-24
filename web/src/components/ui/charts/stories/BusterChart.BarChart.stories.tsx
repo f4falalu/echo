@@ -334,6 +334,7 @@ export const WithDataLabelsAndStackTotal: Story = {
 
 export const LargeDataset: Story = {
   args: {
+    className: 'resize overflow-auto min-w-[250px] h-[400px]',
     selectedChartType: ChartType.Bar,
     data: Array.from({ length: 25 }, (_, index) => ({
       category: faker.commerce.productName(),
@@ -367,13 +368,6 @@ export const LargeDataset: Story = {
         numberSeparatorStyle: ','
       } satisfies IColumnLabelFormat
     }
-  },
-  render: (args) => {
-    return (
-      <div className="h-[400px] w-[800px]">
-        <BusterChart {...args} />
-      </div>
-    );
   }
 };
 
@@ -488,5 +482,59 @@ export const WithDatesInXAxisAndSorting: Story = {
         currency: 'USD'
       } satisfies IColumnLabelFormat
     }
+  }
+};
+
+export const HorizontalBarWithGoalLine: Story = {
+  args: {
+    selectedChartType: ChartType.Bar,
+    data: [
+      { category: 'Cat 1', sales: 4000, units: 1000, returns: 100 },
+      { category: 'Cat 2', sales: 10000, units: 1000, returns: 100 },
+      { category: 'Cat 3', sales: 8000, units: 1000, returns: 100 }
+    ],
+    barAndLineAxis: {
+      x: ['category'],
+      y: ['sales'],
+      category: []
+    },
+    columnLabelFormats: {
+      category: {
+        columnType: 'text',
+        style: 'string'
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      units: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat,
+      returns: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    } satisfies Record<keyof BarChartData, IColumnLabelFormat>,
+    barLayout: 'horizontal',
+    goalLines: [
+      {
+        show: true,
+        value: 7500,
+        showGoalLineLabel: true,
+        goalLineLabel: 'Target Sales',
+        goalLineColor: '#FF6B6B'
+      }
+    ]
+  },
+  render: (args) => {
+    return (
+      <div className="h-[400px] w-[800px]">
+        <BusterChart {...args} />
+      </div>
+    );
   }
 };

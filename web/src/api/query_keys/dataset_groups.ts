@@ -12,7 +12,7 @@ import {
 } from '@/api/asset_interfaces/datasets';
 
 const datasetGroupsList = queryOptions<ListDatasetGroupsResponse[]>({
-  queryKey: ['dataset_groups'] as const,
+  queryKey: ['dataset_groups', 'list'] as const,
   staleTime: 10 * 1000
 });
 

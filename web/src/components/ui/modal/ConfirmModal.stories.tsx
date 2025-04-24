@@ -17,12 +17,13 @@ export const Default: Story = {
   render: () => {
     const { openConfirmModal } = useBusterNotifications();
 
-    const props: ConfirmProps = {
+    const props: ConfirmProps<string> = {
       title: 'Confirm',
       content: 'Are you sure you want to confirm this action?',
       onOk: async () => {
         await new Promise((resolve) => setTimeout(resolve, 1));
         alert('onOk');
+        return 'Hello';
       },
       onCancel: async () => {
         await new Promise((resolve) => setTimeout(resolve, 1));
@@ -35,18 +36,16 @@ export const Default: Story = {
         <Button onClick={() => openConfirmModal(props)}>Open Confirm Modal</Button>
         <Button
           onClick={async () => {
-            await openConfirmModal({
+            const res = await openConfirmModal({
               title: 'Confirm',
               content: 'Are you sure you want to confirm this action?',
-              onOk: async () => {
-                await new Promise((resolve) => setTimeout(resolve, 1));
-                alert('onOk');
-              },
+              onOk: props.onOk,
               onCancel: async () => {
                 await new Promise((resolve) => setTimeout(resolve, 1));
                 alert('onCancel');
               }
             });
+            alert(res);
             alert('openConfirmModal promise resolved');
           }}>
           Open Confirm Modal with a promise

@@ -12,8 +12,8 @@ export default async function EmbedLayout({ children }: { children: React.ReactN
       <BusterReactQueryProvider>
         <BusterAssetsProvider>
           <BusterPosthogProvider>
-            <main className="bg-background flex min-h-screen w-full flex-col">
-              <div className="max-h-screen flex-1 overflow-hidden">{children}</div>
+            <main className="bg-background h-screen max-h-screen min-h-screen w-full">
+              <>{children}</>
             </main>
           </BusterPosthogProvider>
         </BusterAssetsProvider>

@@ -82,6 +82,7 @@ export type BusterChatMessageReasoning_text = {
   message?: string;
   message_chunk?: string;
   status: BusterChatMessageReasoning_status;
+  finished_reasoning?: boolean;
 };
 
 export type BusterChatMessageReasoning_file = {

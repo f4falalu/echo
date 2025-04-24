@@ -1,6 +1,10 @@
 import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useGetLatestMetricVersionMemoized, useGetMetricVersionNumber } from './metricQueryHelpers';
+import {
+  useGetLatestMetricVersionMemoized,
+  useGetMetricVersionNumber,
+  useMetricQueryStore
+} from './metricQueryStore';
 import {
   bulkUpdateMetricVerificationStatus,
   deleteMetrics,
@@ -25,6 +29,7 @@ import { prepareMetricUpdateMetric, upgradeMetricToIMetric } from '@/lib/metrics
  */
 export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
+  const onSetLatestMetricVersion = useMetricQueryStore((x) => x.onSetLatestMetricVersion);
   const queryClient = useQueryClient();
   const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
   const getOriginalMetric = useOriginalMetricStore((x) => x.getOriginalMetric);
@@ -90,6 +95,8 @@ export const useSaveMetric = (params?: { updateOnSave?: boolean }) => {
         );
       }
 
+      onSetLatestMetricVersion(data.id, data.version_number);
+
       if (variables.update_version || variables.restore_to_version) {
         const initialOptions = metricsQueryKeys.metricsGetMetric(data.id, null);
         const initialMetric = queryClient.getQueryData(initialOptions.queryKey);
@@ -122,7 +129,7 @@ export const useDeleteMetric = () => {
     mutationFn: deleteMetrics,
     onMutate: async (variables) => {
       const metricIds = variables.ids;
-      const options = metricsQueryKeys.metricsGetList({});
+      const options = metricsQueryKeys.metricsGetList();
       queryClient.setQueryData(options.queryKey, (oldData) => {
         return oldData?.filter((metric) => !metricIds.includes(metric.id));
       });
@@ -391,7 +398,7 @@ export const useBulkUpdateMetricVerificationStatus = () => {
       });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: metricsQueryKeys.metricsGetList({}).queryKey });
+      queryClient.invalidateQueries({ queryKey: metricsQueryKeys.metricsGetList().queryKey });
       data.updated_metrics.forEach((metric) => {
         const oldMetric = queryClient.getQueryData(
           metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey

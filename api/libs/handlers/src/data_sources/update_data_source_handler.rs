@@ -410,7 +410,7 @@ pub async fn update_data_source_handler(
         let updated_secret_json = serde_json::to_string(&updated_credential)
             .map_err(|e| anyhow!("Failed to serialize updated credentials: {}", e))?;
 
-        update_secret(data_source_id, &updated_secret_json)
+        update_secret(data_source_id, &updated_secret_json, &data_source.name, None)
             .await
             .map_err(|e| anyhow!("Error updating credentials in vault: {}", e))?;
     }

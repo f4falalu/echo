@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { MetricViewChartContent } from './MetricViewChartContent';
 import { MetricViewChartHeader } from './MetricViewChartHeader';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn, useMount } from '@/hooks';
 import { inputHasText } from '@/lib/text';
 import { MetricChartEvaluation } from './MetricChartEvaluation';
 import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';
@@ -57,12 +57,10 @@ export const MetricViewChart: React.FC<{
     const { name, description, time_frame, evaluation_score, evaluation_summary } = metric || {};
 
     const isTable = metric?.chart_config.selectedChartType === ChartType.Table;
-    const { isReadOnly, isEditor, isVersionHistoryMode, isViewingOldVersion } = useIsMetricReadOnly(
-      {
-        metricId,
-        readOnly: readOnlyProp
-      }
-    );
+    const { isReadOnly, isVersionHistoryMode, isViewingOldVersion } = useIsMetricReadOnly({
+      metricId,
+      readOnly: readOnlyProp
+    });
     const loadingData = !isFetchedMetricData;
     const errorData = !!metricDataError;
     const showEvaluation = !!evaluation_score && !!evaluation_summary;

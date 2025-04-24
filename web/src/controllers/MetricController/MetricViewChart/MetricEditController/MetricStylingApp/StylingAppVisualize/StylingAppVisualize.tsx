@@ -13,7 +13,6 @@ import {
 } from '@/api/asset_interfaces/metric/charts';
 import { ISelectAxisContext } from './SelectAxis/useSelectAxisContext';
 import { StylingMetric } from './StylingMetric';
-import { useMount, useUnmount } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 
 export const StylingAppVisualize: React.FC<

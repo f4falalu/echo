@@ -45,9 +45,8 @@ pub async fn create_dashboard_handler(user: &AuthenticatedUser) -> Result<Buster
     // Current timestamp
     let now = Utc::now();
 
-    // Create version history with initial version
-    let mut version_history = VersionHistory::new(0, dashboard_yml.clone());
-    version_history.add_version(1, dashboard_yml);
+    // Create version history with initial version 1
+    let version_history = VersionHistory::new(1, dashboard_yml);
 
     // Insert the dashboard file
     let dashboard_file = insert_into(dashboard_files::table)
@@ -113,7 +112,7 @@ pub async fn create_dashboard_handler(user: &AuthenticatedUser) -> Result<Buster
         file_name: dashboard_file.2,
     };
 
-    // Create initial version
+    // Create initial version details for the response
     let initial_version = Version {
         version_number: 1,
         updated_at: now,

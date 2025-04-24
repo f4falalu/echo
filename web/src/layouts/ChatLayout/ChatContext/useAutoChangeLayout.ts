@@ -7,17 +7,14 @@ import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
-import { useMount, usePrevious } from '@/hooks';
+import { usePrevious } from '@/hooks';
 import { useGetInitialChatFile } from './useGetInitialChatFile';
-import { BusterRoutes } from '@/routes';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
-  selectedFileId,
   chatId
 }: {
   lastMessageId: string;
-  selectedFileId: string | undefined;
   chatId: string | undefined;
 }) => {
   const getChatMessageMemoized = useGetChatMessageMemoized();
@@ -56,9 +53,9 @@ export const useAutoChangeLayout = ({
     ) {
       previousLastMessageId.current = lastMessageId;
 
-      onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
-
       console.log('REASONING: FLIP TO REASONING!', lastMessageId);
+
+      onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
     }
 
     //this will when the chat is completed and it WAS streaming
@@ -74,7 +71,7 @@ export const useAutoChangeLayout = ({
         | undefined;
 
       if (lastFileId && lastFile) {
-        const { link, isSelected, selectedVersionNumber } = getFileLinkMeta({
+        const { link } = getFileLinkMeta({
           fileId: lastFileId,
           fileType: lastFile.file_type,
           chatId,

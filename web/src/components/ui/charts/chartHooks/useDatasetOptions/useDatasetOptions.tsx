@@ -128,8 +128,8 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   }, [yAxisFieldsString, y2AxisFieldsString, tooltipFieldsString]);
 
   const isDownsampled = useMemo(() => {
-    return data.length > DOWNSIZE_SAMPLE_THRESHOLD;
-  }, [data]);
+    return data.length > DOWNSIZE_SAMPLE_THRESHOLD && isScatter;
+  }, [data, isScatter]);
 
   const sortedAndLimitedData = useMemo(() => {
     if (isScatter) return downsampleScatterData(data);

@@ -3,7 +3,7 @@ import { QueryClient, useQuery, useQueryClient, UseQueryOptions } from '@tanstac
 import { RustApiError } from '../errors';
 import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
-import { useGetMetricVersionNumber } from './metricQueryHelpers';
+import { useGetMetricVersionNumber, useMetricQueryStore } from './metricQueryStore';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { useMemoizedFn } from '@/hooks';
 import { getMetric, getMetricData } from './requests';
@@ -23,6 +23,7 @@ export const useGetMetric = <TData = IBusterMetric>(
   const queryClient = useQueryClient();
   const setOriginalMetric = useOriginalMetricStore((x) => x.setOriginalMetric);
   const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
+  const onSetLatestMetricVersion = useMetricQueryStore((x) => x.onSetLatestMetricVersion);
   const setAssetPasswordError = useBusterAssetsContextSelector((x) => x.setAssetPasswordError);
   const { password } = getAssetPassword(id!);
 
@@ -42,7 +43,10 @@ export const useGetMetric = <TData = IBusterMetric>(
     const updatedMetric = upgradeMetricToIMetric(result, null);
     const isLatestVersion =
       updatedMetric.version_number === last(updatedMetric.versions)?.version_number;
-    if (isLatestVersion) setOriginalMetric(updatedMetric);
+    if (isLatestVersion) {
+      setOriginalMetric(updatedMetric);
+    }
+    onSetLatestMetricVersion(id!, last(updatedMetric.versions)?.version_number || 0);
     if (result?.version_number) {
       queryClient.setQueryData(
         metricsQueryKeys.metricsGetMetric(result.id, result.version_number).queryKey,
@@ -106,8 +110,9 @@ export const useGetMetricData = <TData = IBusterMetricData>(
 ) => {
   const getAssetPassword = useBusterAssetsContextSelector((x) => x.getAssetPassword);
   const { password } = getAssetPassword(id!);
-  const { selectedVersionNumber } = useGetMetricVersionNumber({ versionNumber: versionNumberProp });
-
+  const { selectedVersionNumber } = useGetMetricVersionNumber({
+    versionNumber: versionNumberProp
+  });
   const {
     isFetched: isFetchedMetric,
     isError: isErrorMetric,

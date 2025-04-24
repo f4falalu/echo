@@ -49,9 +49,13 @@ query_engine = { path = "../libs/query_engine" }
 middleware = { path = "../libs/middleware" }
 sharing = { path = "../libs/sharing" }
 search = { path = "../libs/search" }
+stored_values = { path = "../libs/stored_values" }
 
 # Workspace Libraries
 dataset_security = { path = "../libs/dataset_security" }
+
+# Add the new dependency
+tokio-cron-scheduler = { workspace = true }
 
 [dev-dependencies]
 mockito = { workspace = true }

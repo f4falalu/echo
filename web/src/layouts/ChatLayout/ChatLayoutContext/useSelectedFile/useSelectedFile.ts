@@ -31,7 +31,9 @@ export const useSelectedFile = ({
    * @param file
    */
   const onSetSelectedFile = useMemoizedFn(async (file: SelectedFile | null) => {
+    console.log('onSetSelectedFile', file);
     const handleFileCollapse = shouldCloseSplitter(file, selectedFile, appSplitterRef);
+    console.log('handleFileCollapse', handleFileCollapse);
 
     if (file && chatParams.chatId) {
       const link = assetParamsToRoute({
@@ -40,6 +42,8 @@ export const useSelectedFile = ({
         type: file?.type,
         versionNumber: file?.versionNumber
       });
+
+      console.log('link', link);
 
       if (link) onChangePage(link);
     }

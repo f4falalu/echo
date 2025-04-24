@@ -59,6 +59,7 @@ async fn process_single_update(
     // Create an update request with just the verification status
     let request = UpdateMetricRequest {
         verification: Some(update.verification),
+        update_version: Some(false),
         ..UpdateMetricRequest::default()
     };
     

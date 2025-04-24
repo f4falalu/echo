@@ -449,7 +449,7 @@ export const NumericXYThatCorrespondToAMonth: Story = {
   args: {
     selectedChartType: ChartType.Line,
     data: Array.from({ length: 12 }, (_, i) => ({
-      month: i,
+      month: i + 1,
       sales: addNoise(i * 15 + 55, 10)
     })),
     barAndLineAxis: {
@@ -1901,6 +1901,25 @@ export const WithTrendline_StringXAxisPolynomialRegression: Story = {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
+      }
+    }
+  }
+};
+
+export const With2ThousandPoints: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: generateLineChartData(500),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: ['category']
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
       }
     }
   }

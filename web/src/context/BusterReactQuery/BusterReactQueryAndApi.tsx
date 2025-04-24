@@ -29,11 +29,7 @@ const ReactQueryDevtoolsProduction = dynamic(
     })),
   {
     ssr: false,
-    loading: () => (
-      <div className="bg-gray-light fixed top-0 right-0 bottom-0 left-0 h-full w-full p-10 opacity-80">
-        Loading dev tools...
-      </div>
-    )
+    loading: () => null
   }
 );
 

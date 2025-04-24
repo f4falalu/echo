@@ -487,6 +487,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    stored_values_sync_jobs (id) {
+        id -> Uuid,
+        data_source_id -> Uuid,
+        database_name -> Text,
+        schema_name -> Text,
+        table_name -> Text,
+        column_name -> Text,
+        last_synced_at -> Nullable<Timestamptz>,
+        created_at -> Timestamptz,
+        status -> Text,
+        error_message -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::SharingSettingEnum;
 
@@ -654,6 +669,7 @@ diesel::joinable!(metric_files_to_dashboard_files -> users (created_by));
 diesel::joinable!(permission_groups -> organizations (organization_id));
 diesel::joinable!(permission_groups_to_users -> permission_groups (permission_group_id));
 diesel::joinable!(permission_groups_to_users -> users (user_id));
+diesel::joinable!(stored_values_sync_jobs -> data_sources (data_source_id));
 diesel::joinable!(teams -> organizations (organization_id));
 diesel::joinable!(teams -> users (created_by));
 diesel::joinable!(teams_to_users -> teams (team_id));
@@ -696,6 +712,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     permission_groups_to_identities,
     permission_groups_to_users,
     sql_evaluations,
+    stored_values_sync_jobs,
     teams,
     teams_to_users,
     terms,

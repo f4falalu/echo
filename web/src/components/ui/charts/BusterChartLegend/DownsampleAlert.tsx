@@ -21,7 +21,7 @@ export const DownsampleAlert = React.memo(({ isDownsampled }: { isDownsampled: b
 
   return (
     <div
-      className="absolute right-0 bottom-0 left-0 w-full px-1 pb-0"
+      className="absolute right-0 bottom-0.5 left-0 w-full px-1 pb-0"
       onMouseEnter={() => setOnHover(true)}
       onMouseLeave={() => setOnHover(false)}>
       <Popover
@@ -38,7 +38,9 @@ export const DownsampleAlert = React.memo(({ isDownsampled }: { isDownsampled: b
         <div
           onClick={() => open && setClose(true)}
           className={cn(
-            'group relative z-10 flex h-6 w-full cursor-pointer items-center justify-center overflow-hidden rounded-sm border border-yellow-300 bg-yellow-200 px-1.5 text-sm text-yellow-700 shadow transition-all duration-300 hover:bg-yellow-300'
+            'group relative z-10 flex h-6 w-full cursor-pointer items-center justify-center overflow-hidden rounded-sm border px-1.5 text-sm',
+            'border-gray-100 bg-white text-gray-500 shadow transition-all duration-200 hover:bg-gray-50',
+            'dark:border-yellow-500/30 dark:bg-yellow-900/10 dark:text-yellow-300 dark:hover:bg-yellow-900/20'
           )}>
           <div
             className={cn(

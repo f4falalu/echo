@@ -11,6 +11,8 @@ import isEmpty from 'lodash/isEmpty';
 import { ReasoningScrollToBottom } from './ReasoningScrollToBottom';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
+import { BusterChatMessageReasoning_text } from '@/api/asset_interfaces/chat';
+import last from 'lodash/last';
 
 interface ReasoningControllerProps {
   chatId: string;
@@ -37,6 +39,12 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
     enabled: false
   });
 
+  const { data: reasoningIsCompleted } = useGetChatMessage(messageId, {
+    select: (x) =>
+      (x?.reasoning_messages[last(reasoningMessageIds) || ''] as BusterChatMessageReasoning_text)
+        ?.finished_reasoning
+  });
+
   useEffect(() => {
     if (hasChat && reasoningMessageIds) {
       enableAutoScroll();
@@ -60,7 +68,7 @@ export const ReasoningController: React.FC<ReasoningControllerProps> = ({ chatId
             />
           ))}
 
-          <BlackBoxMessage blackBoxMessage={blackBoxMessage} />
+          {!reasoningIsCompleted && <BlackBoxMessage blackBoxMessage={blackBoxMessage} />}
         </div>
       </ScrollArea>
 

@@ -1,3 +1,5 @@
+'use client';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { useOriginalMetricStore } from './useOriginalMetricStore';
 import { useMemoizedFn } from '@/hooks';
@@ -11,11 +13,6 @@ import { canEdit } from '@/lib/share';
 export const useIsMetricChanged = ({ metricId }: { metricId: string | undefined }) => {
   const queryClient = useQueryClient();
   const originalMetric = useOriginalMetricStore((x) => x.getOriginalMetric(metricId));
-
-  // const { data: latestVersionNumber } = useGetMetric(
-  //   { id: metricId },
-  //   { select: (x) => last(x.versions)?.version_number }
-  // );
 
   const { data: currentMetric, refetch: refetchCurrentMetric } = useGetMetric(
     { id: metricId, versionNumber: undefined },

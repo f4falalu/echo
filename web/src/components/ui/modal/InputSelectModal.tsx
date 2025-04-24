@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { BorderedModal, BorderedModalProps } from './BorderedModal';
 import { Input } from '../inputs/Input';
 import { BusterList, BusterListProps } from '../list/BusterList';
-import { useDebounceSearch } from '@/hooks';
+import { useDebounceSearch, useMemoizedFn } from '@/hooks';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 import { Text } from '../typography';
