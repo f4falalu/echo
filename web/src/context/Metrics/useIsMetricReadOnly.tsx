@@ -51,14 +51,11 @@ export const useIsMetricReadOnly = ({
     isViewingOldVersion
   ]);
 
-  const isEditor = canEdit(metricData?.permission);
-
   return {
     isFetched,
     isError,
     isVersionHistoryMode,
     isReadOnly,
-    isViewingOldVersion,
-    isEditor
+    isViewingOldVersion
   };
 };
