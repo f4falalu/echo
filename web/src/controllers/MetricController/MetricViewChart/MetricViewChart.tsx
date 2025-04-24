@@ -66,7 +66,6 @@ export const MetricViewChart: React.FC<{
     const hasData = !loadingData && !isEmpty(metricData?.data);
     const errorData = !!metricDataError;
     const showEvaluation = !!evaluation_score && !!evaluation_summary;
-    console.log('hasData', hasData);
 
     const onSetTitle = useMemoizedFn((title: string) => {
       if (inputHasText(title)) {

@@ -88,6 +88,7 @@ export const useLayoutConfig = ({
       secondaryView?: FileViewSecondary;
     }) => {
       const fileId = fileIdProp ?? selectedFileId;
+      console.log('onSetFileView', { chatId, fileId, fileView, secondaryView });
       if (!fileId) {
         onCollapseFileClick();
         return;
@@ -179,6 +180,7 @@ export const useLayoutConfig = ({
 
   //we need to use for when the user clicks the back or forward in the browser
   useUpdateEffect(() => {
+    console.log('useUpdateEffect', { chatId, metricId, secondaryView, dashboardId, currentRoute });
     const newInitialFileViews = initializeFileViews({
       secondaryView,
       metricId,
@@ -191,6 +193,15 @@ export const useLayoutConfig = ({
       newInitialFileViews[fileId]?.fileViewConfig?.[fileView]?.secondaryView;
 
     console.log('newInitialFileViews', newInitialFileViews);
+
+    const isFileUnchanged =
+      fileId === selectedFileId &&
+      fileView === selectedFileView &&
+      secondaryViewFromSelected === selectedFileViewSecondary;
+
+    console.log('isFileUnchanged', isFileUnchanged);
+
+    if (isFileUnchanged) return;
 
     onSetFileView({
       fileId,
