@@ -5,7 +5,10 @@ import sample from 'lodash/sample';
 import random from 'lodash/random';
 import last from 'lodash/last';
 import { useRef } from 'react';
-import { IBusterChatMessage } from '@/api/asset_interfaces/chat';
+import type {
+  BusterChatMessageReasoning_text,
+  IBusterChatMessage
+} from '@/api/asset_interfaces/chat';
 import { ChatEvent_GeneratingReasoningMessage } from '@/api/buster_socket/chats';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/query_keys';
@@ -39,7 +42,10 @@ export const useBlackBoxMessage = () => {
   const checkBlackBoxMessage = useMemoizedFn(
     (message: IBusterChatMessage, event: ChatEvent_GeneratingReasoningMessage) => {
       const isFinishedReasoningMessage = event.reasoning.status !== 'loading';
-      if (isFinishedReasoningMessage) {
+      const isFinishedReasoningLoop = (event.reasoning as BusterChatMessageReasoning_text)
+        .finished_reasoning;
+
+      if (isFinishedReasoningMessage && !isFinishedReasoningLoop) {
         clearTimeoutRef(message.id);
         addBlackBoxMessage({ messageId: message.id });
         _loopAutoThought({ messageId: message.id });
