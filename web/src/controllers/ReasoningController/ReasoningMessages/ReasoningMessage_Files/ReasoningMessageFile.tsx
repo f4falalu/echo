@@ -68,13 +68,13 @@ export const StreamingMessageStatus = React.memo(
         );
       if (status === 'completed')
         return (
-          <Text variant={'secondary'} size={'sm'} className="flex gap-1.5">
+          <Text variant={'secondary'} size={'sm'} className="flex items-center gap-1.5">
             Completed <CheckDouble />
           </Text>
         );
       if (status === 'failed')
         return (
-          <Text variant={'danger'} size={'sm'} className="flex gap-1.5">
+          <Text variant={'danger'} size={'sm'} className="flex items-center gap-1.5">
             Failed <CircleWarning />
           </Text>
         );

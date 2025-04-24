@@ -7,9 +7,8 @@ import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
-import { useMount, usePrevious } from '@/hooks';
+import { usePrevious } from '@/hooks';
 import { useGetInitialChatFile } from './useGetInitialChatFile';
-import { BusterRoutes } from '@/routes';
 
 export const useAutoChangeLayout = ({
   lastMessageId,
