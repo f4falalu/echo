@@ -12,16 +12,17 @@ export interface AvatarProps {
   fallbackClassName?: string;
   useToolTip?: boolean;
   size?: number;
+  tooltipTitle?: string | React.ReactNode;
 }
 
 export const Avatar: React.FC<AvatarProps> = React.memo(
-  ({ image, name, className, useToolTip, size, fallbackClassName }) => {
+  ({ image, name, className, useToolTip = true, size, fallbackClassName, tooltipTitle }) => {
     const hasName = !!name;
     const nameLetters = createNameLetters(name);
     const hasImage = !!image;
 
     return (
-      <Tooltip delayDuration={300} title={useToolTip ? name || '' : ''}>
+      <Tooltip delayDuration={300} title={useToolTip ? tooltipTitle || name || '' : ''}>
         <AvatarBase
           className={className}
           style={{
