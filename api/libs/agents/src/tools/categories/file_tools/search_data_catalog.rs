@@ -1364,7 +1364,7 @@ async fn search_and_update_yml(
                         let dimension_result = stored_values::search::search_values_by_embedding_with_filters(
                             data_source_id_clone,
                             &embedding_clone,
-                            10,
+                            20,
                             Some(database_name),
                             Some(schema_name),
                             Some(&dimension_clone.model_name),
