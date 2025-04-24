@@ -38,23 +38,24 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
      */
     const handleClick = useMemoizedFn((event: MouseEvent) => {
       let originalTarget = event.target as HTMLElement;
-      let target = event.target as HTMLElement;
-      let href: string | null = null;
       let originalEvent = event;
 
-      // Traverse up the DOM tree looking for an anchor tag with href
-      while (target && !href) {
-        if (target instanceof HTMLAnchorElement && target.href) {
-          href = target.href;
-          break;
-        }
-        target = target.parentElement as HTMLElement;
-      }
-
-      // Check if we're navigating to the same URL - if so, allow the navigation
-      if (href && new URL(href).pathname === window.location.pathname) {
-        return; // Allow navigation to the same URL
-      }
+      const newEvent = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        detail: originalEvent.detail,
+        screenX: originalEvent.screenX,
+        screenY: originalEvent.screenY,
+        clientX: originalEvent.clientX,
+        clientY: originalEvent.clientY,
+        ctrlKey: originalEvent.ctrlKey,
+        altKey: originalEvent.altKey,
+        shiftKey: originalEvent.shiftKey,
+        metaKey: originalEvent.metaKey,
+        button: originalEvent.button,
+        buttons: originalEvent.buttons
+      });
 
       if (isDirty) {
         event.preventDefault();
@@ -75,24 +76,6 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
             originalTarget.onclick = null;
           }
 
-          // Create a new click event
-          const newEvent = new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: window,
-            detail: originalEvent.detail,
-            screenX: originalEvent.screenX,
-            screenY: originalEvent.screenY,
-            clientX: originalEvent.clientX,
-            clientY: originalEvent.clientY,
-            ctrlKey: originalEvent.ctrlKey,
-            altKey: originalEvent.altKey,
-            shiftKey: originalEvent.shiftKey,
-            metaKey: originalEvent.metaKey,
-            button: originalEvent.button,
-            buttons: originalEvent.buttons
-          });
-
           // Dispatch the event directly on the original target
           originalTarget.dispatchEvent(newEvent);
 
@@ -100,16 +83,14 @@ export const PreventNavigation: React.FC<PreventNavigationProps> = React.memo(
           if (clickHandlers) {
             originalTarget.onclick = clickHandlers;
           }
-
-          // Re-attach our listeners after a short delay
-          setTimeout(() => {
-            document.querySelectorAll('a').forEach((link) => {
-              link.addEventListener('click', handleClick);
-            });
-          }, 50);
         };
 
         setLeavingPage(true);
+      } else {
+        document.querySelectorAll('a').forEach((link) => {
+          link.removeEventListener('click', handleClick);
+        });
+        originalTarget.dispatchEvent(newEvent);
       }
     });
 
