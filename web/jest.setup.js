@@ -43,3 +43,8 @@ jest.mock('next/navigation', () => ({
     return new URLSearchParams();
   }
 }));
+
+// Mock react-hotkeys-hook
+jest.mock('react-hotkeys-hook', () => ({
+  useHotkeys: jest.fn()
+}));

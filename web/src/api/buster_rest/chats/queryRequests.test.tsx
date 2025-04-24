@@ -8,7 +8,7 @@ import {
   useStartChatFromAsset,
   useUpdateChatMessageFeedback
 } from './queryRequests';
-import type { IBusterChat } from '@/api/asset_interfaces/chat';
+import type { IBusterChat } from '@/api/asset_interfaces/chat/iChatInterfaces';
 import React from 'react';
 
 // Mock the hooks and requests

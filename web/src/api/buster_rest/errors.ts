@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios';
 import isString from 'lodash/isString';
 
 export const rustErrorHandler = (errors: any = {}): RustApiError => {
