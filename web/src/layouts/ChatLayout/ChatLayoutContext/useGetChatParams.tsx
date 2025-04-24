@@ -63,16 +63,17 @@ export const useGetChatParams = () => {
       secondaryView
     }),
     [
+      isVersionHistoryMode,
       chatId,
       metricId,
-      secondaryView,
       dashboardId,
       collectionId,
       datasetId,
       messageId,
       metricVersionNumber,
       dashboardVersionNumber,
-      currentRoute
+      currentRoute,
+      secondaryView
     ]
   );
 };

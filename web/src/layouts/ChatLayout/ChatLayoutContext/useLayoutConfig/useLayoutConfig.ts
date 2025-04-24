@@ -192,16 +192,7 @@ export const useLayoutConfig = ({
     const secondaryViewFromSelected =
       newInitialFileViews[fileId]?.fileViewConfig?.[fileView]?.secondaryView;
 
-    console.log('newInitialFileViews', newInitialFileViews);
-
-    const isFileUnchanged =
-      fileId === selectedFileId &&
-      fileView === selectedFileView &&
-      secondaryViewFromSelected === selectedFileViewSecondary;
-
-    console.log('isFileUnchanged', isFileUnchanged);
-
-    if (isFileUnchanged) return;
+    console.log(fileId, fileView, secondaryViewFromSelected);
 
     onSetFileView({
       fileId,
@@ -209,6 +200,7 @@ export const useLayoutConfig = ({
       secondaryView: secondaryViewFromSelected
     });
   }, [metricId, secondaryView, chatId, dashboardId, messageId, currentRoute]);
+  //i removed currentRoute because I could not go from chat to file by clicking the file
 
   return {
     selectedLayout,
