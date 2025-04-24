@@ -29,6 +29,8 @@ export const useGetChatParams = () => {
   const secondaryView = searchParams.get('secondary_view') as FileViewSecondary | undefined;
   const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
 
+  console.log('currentRoute', currentRoute);
+
   const metricVersionNumber = useMemo(() => {
     if (!metricId) return undefined;
     if (versionNumberPath) return parseInt(versionNumberPath);

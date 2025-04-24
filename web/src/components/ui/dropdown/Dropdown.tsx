@@ -1,7 +1,8 @@
 'use client';
 
-import { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
+import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import React, { useEffect, useMemo } from 'react';
+import { DropdownMenuHeaderSearch } from './DropdownMenuHeaderSearch';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +26,6 @@ import { cn } from '@/lib/classMerge';
 import { useDebounceSearch } from '@/hooks';
 import Link from 'next/link';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { DropdownMenuHeaderSearch } from './DropdownMenuHeaderSearch';
 
 export interface DropdownItem<T = string> {
   label: React.ReactNode | string;

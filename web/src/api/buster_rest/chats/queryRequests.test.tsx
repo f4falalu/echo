@@ -3,13 +3,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as requests from './requests';
 import {
   useGetListChats,
-  useGetChat,
   useUpdateChat,
   useDeleteChat,
   useStartChatFromAsset,
   useUpdateChatMessageFeedback
 } from './queryRequests';
-import { IBusterChat } from '@/api/asset_interfaces/chat';
+import type { IBusterChat } from '@/api/asset_interfaces/chat';
 import React from 'react';
 
 // Mock the hooks and requests
