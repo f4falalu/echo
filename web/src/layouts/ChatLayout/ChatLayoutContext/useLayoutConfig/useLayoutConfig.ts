@@ -89,7 +89,6 @@ export const useLayoutConfig = ({
       secondaryView?: FileViewSecondary;
     }) => {
       const fileId = fileIdProp ?? selectedFileId;
-      console.log('onSetFileView', { chatId, fileId, fileView, secondaryView });
       if (!fileId) {
         onCollapseFileClick();
         return;
@@ -197,8 +196,6 @@ export const useLayoutConfig = ({
     });
     const fileId = Object.keys(newInitialFileViews)[0];
     const fileView = newInitialFileViews[fileId]?.selectedFileView;
-    const secondaryViewFromSelected =
-      newInitialFileViews[fileId]?.fileViewConfig?.[fileView]?.secondaryView;
 
     //sooo.. I have a suspicion that the reasoning is not flipping because this was being called twice. So I added this hook.
     const isFileViewsChanged = onCheckIsChanged({
@@ -206,17 +203,25 @@ export const useLayoutConfig = ({
       secondaryView,
       chatId,
       dashboardId,
-      messageId
+      messageId,
+      currentRoute
     });
 
     console.log('isFileViewsChanged', isFileViewsChanged);
 
     if (!isFileViewsChanged) return;
 
+    console.log('setting file view', {
+      newInitialFileViews,
+      fileId,
+      fileView,
+      secondaryView
+    });
+
     onSetFileView({
       fileId,
       fileView,
-      secondaryView: secondaryViewFromSelected
+      secondaryView
     });
   }, [metricId, secondaryView, chatId, dashboardId, messageId, currentRoute]);
   //i removed currentRoute because I could not go from chat to file by clicking the file
