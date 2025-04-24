@@ -171,11 +171,12 @@ pub async fn sync_distinct_values_chunk(
 
         loop {
             let distinct_sql = format!(
-                "SELECT DISTINCT {q}{col}{q} FROM {q}{schema}{q}.{q}{table}{q} ORDER BY 1 NULLS LAST LIMIT {limit} OFFSET {offset}",
+                "SELECT DISTINCT {q}{col}{q} FROM {q}{db}{q}.{q}{schema}{q}.{q}{table}{q} ORDER BY 1 NULLS LAST LIMIT {limit} OFFSET {offset}",
                 q = quote,
-                col = q(&column_name),
-                schema = q(&schema_name),
-                table = q(&table_name),
+                col = q(&column_name.to_uppercase()),
+                db = q(&database_name.to_uppercase()),
+                schema = q(&schema_name.to_uppercase()),
+                table = q(&table_name.to_uppercase()),
                 limit = SYNC_CHUNK_LIMIT,
                 offset = offset
             );

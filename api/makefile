@@ -17,6 +17,7 @@ stop:
 	pkill ollama
 
 fast:
-	export RUST_LOG=debug
-	export CARGO_INCREMENTAL=1
+	cd .. && docker compose up -d redis && cd api && \
+	export RUST_LOG=debug && \
+	export CARGO_INCREMENTAL=1 && \
 	nice cargo watch -C server -x run
