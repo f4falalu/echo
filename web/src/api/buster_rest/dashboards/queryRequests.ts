@@ -30,11 +30,12 @@ import { useOriginalDashboardStore } from '@/context/Dashboards';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import {
   useGetDashboardAndInitializeMetrics,
-  useGetDashboardVersionNumber,
   useEnsureDashboardConfig
 } from './dashboardQueryHelpers';
+import { useDashboardQueryStore, useGetDashboardVersionNumber } from './dashboardQueryStore';
 import { useGetLatestMetricVersionMemoized } from '../metrics';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
+import last from 'lodash/last';
 import { createDashboardFullConfirmModal } from './confirmModals';
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
@@ -89,15 +90,10 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
   const updateOnSave = params?.updateOnSave || false;
   const queryClient = useQueryClient();
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
+  const onSetLatestDashboardVersion = useDashboardQueryStore((x) => x.onSetLatestDashboardVersion);
 
   return useMutation({
     mutationFn: dashboardsUpdateDashboard,
-    onMutate: ({ id, update_version, restore_to_version }) => {
-      const isRestoringVersion = restore_to_version !== undefined;
-      const isUpdatingVersion = update_version === true;
-
-      //
-    },
     onSuccess: (data, variables) => {
       if (updateOnSave && data) {
         queryClient.setQueryData(
@@ -106,6 +102,9 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
           data
         );
         setOriginalDashboard(data.dashboard);
+        if (variables.update_version) {
+          onSetLatestDashboardVersion(data.dashboard.id, last(data.versions)?.version_number || 0);
+        }
       }
     }
   });

@@ -56,11 +56,11 @@ pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
                     condition.clone(),
                 ).await;
 
-                agent_clone.add_tool(
-                    no_search_needed_tool.get_name(),
-                    no_search_needed_tool.into_tool_call_executor(),
-                    condition.clone(),
-                ).await;
+                // agent_clone.add_tool(
+                //     no_search_needed_tool.get_name(),
+                //     no_search_needed_tool.into_tool_call_executor(),
+                //     condition.clone(),
+                // ).await;
 
                 Ok(())
             })
@@ -99,7 +99,7 @@ Your sole output MUST be a call to **ONE** of the following tools: `search_data_
     *   Explicitly check `{DATASET_DESCRIPTIONS}` for likely **linking keys** (e.g., `user_id`, `product_id`, `order_id`) and the presence of anticipated **descriptive attributes** (e.g., `name`, `email`, `category`, `title`).
     *   Consider the likely **output format** (chart, table, KPI) and anticipate the necessary **granularity and dimensions**.
 4.  **Determine Search Strategy**: Decide if the existing context (from previous searches, reflected in `{DATASET_DESCRIPTIONS}`) is sufficient, or if a new search is needed.
-5.  **Generate Tool Call Parameters**: If searching, formulate parameters for `search_data_catalog`, choosing between `specific_queries` and `exploratory_topics` (or both) based on the request type and reasoning.
+5.  **Generate Tool Call Parameters**: If searching, formulate parameters for `search_data_catalog`, choosing between `specific_queries`, `exploratory_topics`, and `value_search_terms` (or combinations) based on the request type and reasoning.
 
 **Workflow & Decision Logic:**
 
@@ -113,20 +113,23 @@ Your sole output MUST be a call to **ONE** of the following tools: `search_data_
     *   **Specific Requests** (e.g., "Top customer by revenue", "Sales for Product X last month"): Generate `specific_queries`. These queries should explicitly ask for the identified Objects, Properties, Events, Metrics, Filters, AND the **anticipated attributes/joining keys** identified during reasoning. *Example: If reasoning determined `customer_name` is needed from a separate dataset linked by `customer_id`, the query should reflect this: "Find datasets for Customer [Object] revenue [Metric] including linked Customer Name [Anticipated Property] via Customer ID [Linking Key]".* Aim for 1-3 focused queries, potentially splitting complex requests.
     *   **Exploratory Requests** (e.g., "Tell me about revenue", "Factors influencing churn", "Tell me more about this customer"): Generate `exploratory_topics`. These topics should represent broader themes related to the user's interest, encouraging discovery of related datasets. Aim for 3-5 distinct topics covering different facets (e.g., for "explore churn": 'Churn definition/metrics', 'Customer demographics & churn', 'Product usage & churn', 'Support interactions & churn').
     *   **Mixed Requests** (e.g., "Who is my top customer and tell me all about them?"): Generate *both* `specific_queries` (for the "top customer" part, including anticipated attributes like name/ID) *and* `exploratory_topics` (for the "tell me all about them" part, like 'Customer interaction history', 'Customer product usage').
-5.  **Execute Tool Call**: Call `search_data_catalog` with the generated `specific_queries` and/or `exploratory_topics`. Ensure at least one parameter is non-null if calling `search_data_catalog`.
+    *   **Value Search**: For ANY request where specific entities, categories, or values are mentioned (e.g., "Red Bull sales", "Dallin Bentley's account", "Premium tier customers"), extract these specific values and include them in `value_search_terms`. This parameter searches for the exact values in the data, helping identify datasets containing these specific entities.
+5.  **Execute Tool Call**: Call `search_data_catalog` with the generated `specific_queries`, `exploratory_topics`, and/or `value_search_terms`. Ensure at least one parameter is non-null if calling `search_data_catalog`.
 
 **Tool Parameters (`search_data_catalog`)**
 -   `specific_queries`: `Option<Vec<String>>` - Use for focused requests. Queries should be precise, natural language sentences reflecting the analysis need, including anticipated attributes/joins.
 -   `exploratory_topics`: `Option<Vec<String>>` - Use for vague requests. Topics are concise phrases representing areas for discovery.
-*(You MUST provide at least one of `specific_queries` or `exploratory_topics` if calling `search_data_catalog`)*
+-   `value_search_terms`: `Option<Vec<String>>` - Use when specific values, entities, or categories are mentioned. These are concrete terms like product names, customer names, locations, etc., that should be searched for in the actual data.
+*(You MUST provide at least one of these parameters if calling `search_data_catalog`)*
 
 **Rules**
 -   **Reasoning is Mandatory**: Before deciding `no_search_needed` or generating queries, you MUST mentally perform the reasoning step, considering `{DATASET_DESCRIPTIONS}` to anticipate joins and attributes.
 -   **Use Dataset Descriptions**: Your anticipation MUST be grounded in the provided `{DATASET_DESCRIPTIONS}` (checking for potential keys, attributes).
 -   **Output = Tool Call**: Only output a single tool call (`search_data_catalog` or `no_search_needed`).
--   **Match Parameters to Request Type**: Use `specific_queries` for specific needs (including anticipated details), `exploratory_topics` for exploration, and both for mixed requests.
+-   **Match Parameters to Request Type**: Use `specific_queries` for specific needs (including anticipated details), `exploratory_topics` for exploration, both for mixed requests, and `value_search_terms` whenever specific entities are mentioned.
 -   **Default to Search if No Context**: If `{DATASET_DESCRIPTIONS}` is empty or clearly insufficient, always search.
 -   **Handle Visualization Requests**: Use `no_search_needed` for purely visual changes.
+-   **Value Search for Specific Entities**: Always include named entities (products, people, categories, etc.) as `value_search_terms` to find datasets containing these exact values.
 
 **Examples (Illustrating New Parameters & Reasoning)**
 
@@ -137,22 +140,22 @@ Your sole output MUST be a call to **ONE** of the following tools: `search_data_
 -   **Follow-up (Context Exists -> Needs Search - Exploratory)**: User: "Tell me more about this customer [Acme Corp, ID 123]."
     -   *Reasoning*: Context has basic customer/revenue data for Acme Corp. User wants broader info. Check descriptions for datasets linkable via `customer_id=123` containing interactions, product usage, support tickets etc.
     -   Tool: `search_data_catalog`
-    -   Params: `{"exploratory_topics": ["Acme Corp interaction history", "Acme Corp product usage patterns", "Acme Corp support tickets", "Acme Corp marketing engagement"]}`
--   **Specific Request (Context Exists, Reasoning -> Needs Join Info)**: User: "Show revenue per campaign for campaigns targeting 'SMB' segment."
-    -   *Reasoning*: Need Revenue, Campaign, Segment Filter. Need to link Revenue to Campaign, and Campaign to Segment. Check descriptions for datasets with `revenue`, `campaign_id`, `segment`, `campaign_name`. Anticipate needing `campaign_id` to join revenue data to campaign details.
+    -   Params: `{"exploratory_topics": ["Acme Corp interaction history", "Acme Corp product usage patterns", "Acme Corp support tickets", "Acme Corp marketing engagement"], "value_search_terms": ["Acme Corp", "123"]}`
+-   **Specific Request with Named Entity**: User: "What's the sales trend for Red Bull in California?"
+    -   *Reasoning*: Need Sales Metric over time, filtered by Product Name="Red Bull" and Region="California". Need to link Sales to Product and Region. Check descriptions for datasets with `sales`, `product_name`, `region`.
     -   Tool: `search_data_catalog`
-    -   Params: `{"specific_queries": ["Find datasets showing Revenue [Metric] linked to Marketing Campaigns [Object], specifically for the 'SMB' segment [Filter], ensuring Campaign ID [Linking Key] and Campaign Name [Property] are available."]}`
--   **Mixed Request**: User: "What product generated the most revenue last quarter, and what are its key features?"
-    -   *Reasoning*: Specific part needs Product, Revenue, Time Filter (last quarter). Anticipate needing Product Name/ID. Exploratory part needs Product Features. Check descriptions for revenue data linkable to products, and product details/features datasets, likely using `product_id`.
+    -   Params: `{"specific_queries": ["Find datasets showing Sales [Metric] trends over time for specific products in specific regions, with Product Name and Region attributes available."], "value_search_terms": ["Red Bull", "California"]}`
+-   **Mixed Request with Multiple Values**: User: "Compare sales between Nike and Adidas in our Premium tier stores."
+    -   *Reasoning*: Need Sales Metrics, Product Brand comparison, Store Tier="Premium" filter. Need to link Sales to Product Brand and Store information. 
     -   Tool: `search_data_catalog`
-    -   Params: `{"specific_queries": ["Identify the top Product [Object] by revenue [Metric] in the last quarter [Filter], including Product Name and Product ID [Anticipated Properties/Linking Keys."], "exploratory_topics": ["Key features of top revenue product", "Product description and attributes"]}`
--   **Sufficient Context**: User: "Plot the Q1 revenue for the top customer [Acme Corp] we just identified."
+    -   Params: `{"specific_queries": ["Find datasets linking Sales [Metric] to Product Brand [Property] and Store Tier [Property] for comparison analysis."], "exploratory_topics": ["Brand comparison metrics", "Premium tier store performance"], "value_search_terms": ["Nike", "Adidas", "Premium"]}`
+-   **Sufficient Context with Values**: User: "Plot the Q1 revenue for the top customer [Acme Corp] we just identified."
     -   *Reasoning*: Previous search found customer+revenue data including `customer_id`, `order_date`, `revenue`. This context is sufficient for plotting.
     -   Tool: `no_search_needed`
-    -   Reason: "Existing dataset descriptions for customer revenue cover the request for Q1 revenue for the identified customer."
+    -   Reason: "Existing dataset descriptions for customer revenue cover the request for Q1 revenue for the identified customer Acme Corp."
 
 **Validation**
--   For `search_data_catalog`: Ensure parameters (`specific_queries`, `exploratory_topics`) match the interpreted request type (specific/exploratory/mixed) and reflect anticipated needs based on reasoning.
+-   For `search_data_catalog`: Ensure parameters (`specific_queries`, `exploratory_topics`, `value_search_terms`) match the interpreted request type and reflect anticipated needs based on reasoning.
 -   For `no_search_needed`: Ensure the reason accurately reflects why existing context (including anticipated needs) is sufficient.
 
 **Available Dataset Names (for context)**

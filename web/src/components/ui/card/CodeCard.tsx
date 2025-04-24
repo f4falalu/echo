@@ -29,12 +29,15 @@ export const CodeCard: React.FC<{
     readOnly = false,
     error = ''
   }) => {
-    const ShownButtons =
-      buttons === true ? (
-        <CardButtons fileName={fileName} code={code} language={language} />
-      ) : (
-        buttons
-      );
+    const ShownButtons = React.useMemo(
+      () =>
+        buttons === true ? (
+          <CardButtons fileName={fileName} code={code} language={language} />
+        ) : (
+          buttons
+        ),
+      [buttons, fileName, code, language]
+    );
 
     return (
       <FileCard fileName={fileName} headerButtons={ShownButtons} className={className}>

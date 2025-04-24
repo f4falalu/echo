@@ -449,7 +449,7 @@ export const NumericXYThatCorrespondToAMonth: Story = {
   args: {
     selectedChartType: ChartType.Line,
     data: Array.from({ length: 12 }, (_, i) => ({
-      month: i,
+      month: i + 1,
       sales: addNoise(i * 15 + 55, 10)
     })),
     barAndLineAxis: {

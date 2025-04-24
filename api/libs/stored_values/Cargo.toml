@@ -13,6 +13,8 @@ tokio = { workspace = true }
 diesel = { workspace = true }
 diesel-async = { workspace = true }
 indexmap = { workspace = true }
+futures = { workspace = true }
+serde_yaml = { workspace = true }
 
 database = { path = "../database" }
 query_engine = { path = "../query_engine" }
