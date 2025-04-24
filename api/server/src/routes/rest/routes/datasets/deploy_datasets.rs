@@ -664,7 +664,7 @@ async fn deploy_datasets_handler(
                                     if let Some(col_req) = req.columns.iter().find(|c| c.name == col.name) {
                                         if col_req.searchable {
                                             let ds_id = data_source.id; // from outer scope
-                                            let db_name = req.database_identifier.clone().unwrap_or_default();
+                                            let db_name = req.database.clone().unwrap_or_default();
                                             let sch_name = req.schema.clone();
                                             let tbl_name = req.name.clone(); // dataset name is table name here
                                             let col_name = col.name.clone();

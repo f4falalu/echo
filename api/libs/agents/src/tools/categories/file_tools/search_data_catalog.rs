@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::{env, sync::Arc, time::Instant};
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use async_trait::async_trait;
 use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::{DateTime, Utc};
@@ -20,6 +20,7 @@ use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 use dataset_security::{get_permissioned_datasets, PermissionedDataset};
 use sqlx::PgPool;
+use stored_values;
 
 use crate::{agent::Agent, tools::ToolExecutor};
 
@@ -54,7 +55,6 @@ pub struct DatasetSearchResult {
     pub id: Uuid,
     pub name: Option<String>,
     pub yml_content: Option<String>,
-    pub found_values: Vec<FoundValueInfo>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
@@ -62,12 +62,19 @@ struct DatasetResult {
     id: Uuid,
     name: Option<String>,
     yml_content: Option<String>,
-    found_values: Vec<FoundValueInfo>,
 }
 
 #[derive(Debug, Clone)]
 struct RankedDataset {
     dataset: PermissionedDataset,
+}
+
+/// Represents a searchable dimension in a model
+#[derive(Debug, Clone)]
+struct SearchableDimension {
+    model_name: String,
+    dimension_name: String,
+    dimension_path: Vec<String>, // Path to locate this dimension in the YAML
 }
 
 // NEW: Helper function to generate embeddings for search terms
@@ -93,39 +100,30 @@ async fn generate_embedding_for_text(text: &str) -> Result<Vec<f32>> {
     Ok(embedding_response.data[0].embedding.clone())
 }
 
-// NEW: Search for a specific value term across a data source
-async fn search_values_for_term(
+// Rename and modify the function signature
+async fn search_values_for_term_by_embedding(
     data_source_id: &Uuid,
-    term: &str,
+    embedding: Vec<f32>, // Accept pre-computed embedding
     limit: i64,
 ) -> Result<Vec<stored_values::search::StoredValueResult>> {
-    // Skip searching for very short terms or time-based terms that might cause issues
-    if term.len() < 2 || is_time_period_term(term) {
-        debug!(term = %term, "Skipping search for this term (too short or time-based)");
+    // Skip searching if embedding is invalid (e.g., empty)
+    if embedding.is_empty() {
+        debug!("Skipping search for empty embedding");
         return Ok(vec![]);
     }
 
-    // Generate embedding for the search term
-    let embedding = match generate_embedding_for_text(term).await {
-        Ok(emb) => emb,
-        Err(e) => {
-            error!(term = %term, error = %e, "Failed to generate embedding for value search term");
-            return Ok(vec![]);
-        }
-    };
-
-    // Search values using the embedding (no table/column filters)
+    // Search values using the provided embedding (no table/column filters)
     match stored_values::search::search_values_by_embedding(
         *data_source_id,
         &embedding,
         limit,
     ).await {
         Ok(results) => {
-            debug!(term = %term, count = results.len(), "Successfully found values matching term");
+            debug!(count = results.len(), "Successfully found values matching embedding");
             Ok(results)
         }
         Err(e) => {
-            error!(term = %term, data_source_id = %data_source_id, error = %e, "Failed to search values by embedding");
+            error!(data_source_id = %data_source_id, error = %e, "Failed to search values by embedding");
             // Return empty results on error to continue the process
             Ok(vec![])
         }
@@ -444,7 +442,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                     (current_query, ranked)
                 }
             })
-            .buffer_unordered(5);
+            .buffer_unordered(10);
 
         // 3b. Start exploratory topic reranking
         let exploratory_rerank_futures = stream::iter(exploratory_topics.clone())
@@ -465,7 +463,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                     (current_topic, ranked)
                 }
             })
-            .buffer_unordered(5);
+            .buffer_unordered(10);
 
         // Collect rerank results in parallel
         let specific_reranked_vec = specific_rerank_futures.collect::<Vec<(String, Vec<RankedDataset>)>>().await;
@@ -479,36 +477,55 @@ impl ToolExecutor for SearchDataCatalogTool {
                 vec![]
             }
         };
-
-        debug!(
-            value_search_terms_count = value_search_terms.len(),
-            "Value search terms extracted"
-        );
         
-        // Check if we have anything to search for
-        if specific_queries.is_empty() && exploratory_topics.is_empty() && value_search_terms.is_empty() {
-            warn!("SearchDataCatalogTool executed with no search parameters.");
+        // Filter terms before generating embeddings
+        let valid_value_search_terms: Vec<String> = value_search_terms
+            .into_iter()
+            .filter(|term| term.len() >= 2 && !is_time_period_term(term))
+            .collect();
+
+        // Check if we have anything to search for *after* extracting terms
+        if specific_queries.is_empty() && exploratory_topics.is_empty() && valid_value_search_terms.is_empty() {
+            warn!("SearchDataCatalogTool executed with no specific queries, exploratory topics, or valid value search terms.");
             return Ok(SearchDataCatalogOutput {
-                message: "No search queries, exploratory topics, or value search terms provided.".to_string(),
+                message: "No search queries, exploratory topics, or valid value search terms provided.".to_string(),
                 specific_queries: params.specific_queries,
                 exploratory_topics: params.exploratory_topics,
-                value_search_terms: Some(value_search_terms),
+                value_search_terms: Some(valid_value_search_terms.clone()), // Return the filtered list
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
             });
         }
 
-        // 4. Begin value searches concurrently
+        let embedding_terms = valid_value_search_terms.clone();
+
+        // 4. Generate embeddings for all valid terms concurrently using batching
+        let embedding_batch_future = tokio::spawn(async move {
+            generate_embeddings_batch(embedding_terms).await
+        });
+
+        // Await the batch embedding generation
+        let term_embeddings: HashMap<String, Vec<f32>> = match embedding_batch_future.await? {
+            Ok(results) => results.into_iter().collect(),
+            Err(e) => {
+                error!(error = %e, "Batch embedding generation failed");
+                HashMap::new() // Return empty map on error
+            }
+        };
+
+        debug!(count = term_embeddings.len(), "Generated embeddings for value search terms via batch");
+
+        // 5. Begin value searches concurrently using pre-generated embeddings
         let mut value_search_futures = Vec::new();
-        for term in &value_search_terms {
+        for (term, embedding) in term_embeddings.iter() {
             let term_clone = term.clone();
+            let embedding_clone = embedding.clone();
             let data_source_id_clone = target_data_source_id;
             
-            // Create a future for each value search term
             let future = tokio::spawn(async move {
-                let results = search_values_for_term(
+                let results = search_values_for_term_by_embedding(
                     &data_source_id_clone,
-                    &term_clone,
+                    embedding_clone,
                     20, // Get top 20 values per term
                 ).await;
                 
@@ -518,7 +535,7 @@ impl ToolExecutor for SearchDataCatalogTool {
             value_search_futures.push(future);
         }
         
-        // Wait for value searches to complete
+        // Await value searches to complete (renumbered step)
         let value_search_results_vec: Vec<(String, Result<Vec<stored_values::search::StoredValueResult>>)> = 
             futures::future::join_all(value_search_futures)
                 .await
@@ -556,7 +573,7 @@ impl ToolExecutor for SearchDataCatalogTool {
         
         debug!(value_count = all_found_values.len(), "Total found values across all terms");
 
-        // 5. Now run LLM filtering with the found values and ranked datasets
+        // 6. Now run LLM filtering with the found values and ranked datasets (renumbered step)
         let specific_filter_futures = stream::iter(specific_reranked_vec)
             .map(|(query, ranked)| {
                 let user_id_clone = user_id.clone();
@@ -578,7 +595,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                     }
                 }
             })
-            .buffer_unordered(5);
+            .buffer_unordered(10);
 
         let exploratory_filter_futures = stream::iter(exploratory_reranked_vec)
             .map(|(topic, ranked)| {
@@ -601,7 +618,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                     }
                 }
             })
-            .buffer_unordered(5);
+            .buffer_unordered(10);
         
         // Collect filter results
         let specific_results_vec: Vec<Result<Vec<DatasetResult>>> = specific_filter_futures.collect().await;
@@ -647,20 +664,56 @@ impl ToolExecutor for SearchDataCatalogTool {
                 id: result.id,
                 name: result.name,
                 yml_content: result.yml_content,
-                found_values: result.found_values,
             })
             .collect();
 
-        let message = if final_search_results.is_empty() {
+        // After filtering and before returning results, update YML content with search results
+        // For each dataset in the final results, search for searchable dimensions and update YML
+        let mut updated_results = Vec::new();
+        
+        for result in &final_search_results {
+            let mut updated_result = result.clone();
+            
+            if let Some(yml_content) = &result.yml_content {
+                // Search and update YML with relevant values
+                match search_and_update_yml(
+                    yml_content,
+                    target_data_source_id,
+                    &user_prompt_str,
+                    &user_id,
+                    &session_id
+                ).await {
+                    Ok(updated_yml) => {
+                        debug!(
+                            dataset_id = %result.id,
+                            "Successfully updated YML with relevant values for searchable dimensions"
+                        );
+                        updated_result.yml_content = Some(updated_yml);
+                    },
+                    Err(e) => {
+                        warn!(
+                            dataset_id = %result.id,
+                            error = %e,
+                            "Failed to update YML with relevant values"
+                        );
+                    }
+                }
+            }
+            
+            updated_results.push(updated_result);
+        }
+
+        // Return the updated results
+        let message = if updated_results.is_empty() {
             "No relevant datasets found after filtering.".to_string()
         } else {
-            format!("Found {} relevant datasets.", final_search_results.len())
+            format!("Found {} relevant datasets with injected values for searchable dimensions.", updated_results.len())
         };
 
         self.agent
             .set_state_value(
                 String::from("data_context"),
-                Value::Bool(!final_search_results.is_empty()),
+                Value::Bool(!updated_results.is_empty()),
             )
             .await;
 
@@ -674,9 +727,9 @@ impl ToolExecutor for SearchDataCatalogTool {
             message,
             specific_queries: params.specific_queries,
             exploratory_topics: params.exploratory_topics,
-            value_search_terms: Some(value_search_terms),
+            value_search_terms: Some(valid_value_search_terms),
             duration: duration as i64,
-            results: final_search_results,
+            results: updated_results,  // Use updated results instead of final_search_results
         })
     }
 
@@ -898,7 +951,6 @@ async fn llm_filter_helper(
                             id: dataset.id,
                             name: Some(dataset.name.clone()),
                             yml_content: dataset.yml_content.clone(),
-                            found_values: all_found_values.to_vec(),
                         })
                     } else {
                         warn!(parsed_id = %parsed_id, query_or_topic = query_or_topic, "LLM filter returned UUID not found in ranked list");
@@ -1090,4 +1142,460 @@ Example response formats:
             }
         }
     }
+}
+
+// NEW: Helper function to generate embeddings for multiple texts in a batch
+async fn generate_embeddings_batch(texts: Vec<String>) -> Result<Vec<(String, Vec<f32>)>> {
+    if texts.is_empty() {
+        return Ok(vec![]);
+    }
+    
+    let litellm_client = LiteLLMClient::new(None, None);
+    
+    let embedding_request = EmbeddingRequest {
+        model: "text-embedding-3-small".to_string(),
+        input: texts.clone(), // Pass all texts to the API
+        dimensions: Some(1536),
+        encoding_format: Some("float".to_string()),
+        user: None,
+    };
+    
+    debug!(count = texts.len(), "Generating embeddings in batch");
+    
+    let embedding_response = litellm_client
+        .generate_embeddings(embedding_request)
+        .await
+        .context("Failed to generate embeddings batch")?;
+        
+    if embedding_response.data.len() != texts.len() {
+        warn!(
+            "Mismatch between input text count ({}) and returned embedding count ({})",
+            texts.len(),
+            embedding_response.data.len()
+        );
+        // Attempt to match based on index, but this might be inaccurate if the order isn't guaranteed
+    }
+
+    let mut results = Vec::with_capacity(texts.len());
+    for (index, text) in texts.into_iter().enumerate() {
+        if let Some(embedding_data) = embedding_response.data.get(index) {
+            results.push((text, embedding_data.embedding.clone()));
+        } else {
+            error!(term = %text, index = index, "Could not find corresponding embedding in batch response");
+        }
+    }
+    
+    Ok(results)
+}
+
+/// Parse YAML content to find models with searchable dimensions
+fn extract_searchable_dimensions(yml_content: &str) -> Result<Vec<SearchableDimension>> {
+    let yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
+        .context("Failed to parse dataset YAML content")?;
+    
+    let mut searchable_dimensions = Vec::new();
+    
+    // Check if models field exists
+    if let Some(models) = yaml["models"].as_sequence() {
+        for model in models {
+            let model_name = model["name"].as_str().unwrap_or("unknown_model").to_string();
+            
+            // Check if dimensions field exists
+            if let Some(dimensions) = model["dimensions"].as_sequence() {
+                for dimension in dimensions {
+                    // Check if dimension has searchable: true
+                    if let Some(true) = dimension["searchable"].as_bool() {
+                        let dimension_name = dimension["name"].as_str().unwrap_or("unknown_dimension").to_string();
+                        
+                        // Store this dimension as searchable
+                        searchable_dimensions.push(SearchableDimension {
+                            model_name: model_name.clone(), // Clone here to avoid move
+                            dimension_name: dimension_name.clone(),
+                            dimension_path: vec!["models".to_string(), model_name.clone(), "dimensions".to_string(), dimension_name],
+                        });
+                    }
+                }
+            }
+        }
+    }
+    
+    Ok(searchable_dimensions)
+}
+
+/// Extract database structure from YAML content based on actual model structure
+fn extract_database_info_from_yaml(yml_content: &str) -> Result<HashMap<String, HashMap<String, HashMap<String, Vec<String>>>>> {
+    let yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
+        .context("Failed to parse dataset YAML content")?;
+    
+    // Structure: database -> schema -> table -> columns
+    let mut database_info = HashMap::new();
+    
+    // Process models
+    if let Some(models) = yaml["models"].as_sequence() {
+        for model in models {
+            // Extract database, schema, and model name (which acts as table name)
+            let database_name = model["database"].as_str().unwrap_or("unknown").to_string();
+            let schema_name = model["schema"].as_str().unwrap_or("public").to_string();
+            let table_name = model["name"].as_str().unwrap_or("unknown_model").to_string();
+            
+            // Initialize the nested structure if needed
+            database_info
+                .entry(database_name.clone())
+                .or_insert_with(HashMap::new)
+                .entry(schema_name.clone())
+                .or_insert_with(HashMap::new);
+            
+            // Collect column names from dimensions, measures, and metrics
+            let mut columns = Vec::new();
+            
+            // Add dimensions
+            if let Some(dimensions) = model["dimensions"].as_sequence() {
+                for dim in dimensions {
+                    if let Some(dim_name) = dim["name"].as_str() {
+                        columns.push(dim_name.to_string());
+                        
+                        // Also add the expression as a potential column to search
+                        if let Some(expr) = dim["expr"].as_str() {
+                            if expr != dim_name {
+                                columns.push(expr.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Add measures
+            if let Some(measures) = model["measures"].as_sequence() {
+                for measure in measures {
+                    if let Some(measure_name) = measure["name"].as_str() {
+                        columns.push(measure_name.to_string());
+                        
+                        // Also add the expression as a potential column to search
+                        if let Some(expr) = measure["expr"].as_str() {
+                            if expr != measure_name {
+                                columns.push(expr.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Add metrics
+            if let Some(metrics) = model["metrics"].as_sequence() {
+                for metric in metrics {
+                    if let Some(metric_name) = metric["name"].as_str() {
+                        columns.push(metric_name.to_string());
+                    }
+                }
+            }
+            
+            // Store columns for this model
+            database_info
+                .get_mut(&database_name)
+                .unwrap()
+                .get_mut(&schema_name)
+                .unwrap()
+                .insert(table_name, columns);
+        }
+    }
+    
+    Ok(database_info)
+}
+
+/// Perform concurrent searches for searchable dimensions and update YAML
+async fn search_and_update_yml(
+    yml_content: &str,
+    data_source_id: Uuid,
+    user_query: &str,
+    user_id: &Uuid,
+    session_id: &Uuid,
+) -> Result<String> {
+    // Extract searchable dimensions
+    let searchable_dimensions = extract_searchable_dimensions(yml_content)?;
+    
+    if searchable_dimensions.is_empty() {
+        debug!("No searchable dimensions found in YAML content");
+        return Ok(yml_content.to_string());
+    }
+    
+    // Generate embedding for user query
+    let embedding = generate_embedding_for_text(user_query).await?;
+    
+    // Extract database structure from YAML - this is now model-based
+    let database_info = extract_database_info_from_yaml(yml_content)?;
+    
+    debug!(
+        dimensions_count = searchable_dimensions.len(),
+        databases = database_info.keys().map(|k| k.to_string()).collect::<Vec<_>>().join(", "),
+        "Found searchable dimensions and database info from models in YAML"
+    );
+    
+    // Create search targets for each dimension
+    let mut search_futures = Vec::new();
+    
+    for dimension in &searchable_dimensions {
+        let embedding_clone = embedding.clone();
+        let dimension_clone = dimension.clone();
+        let data_source_id_clone = data_source_id;
+        let database_info_clone = database_info.clone();
+        
+        // Create and spawn a search task
+        let future = tokio::spawn(async move {
+            let mut all_results = Vec::new();
+            
+            // Find matching tables and columns for this dimension
+            // For model-based YAML, we use model name as the table
+            
+            // We'll first check for dimension's corresponding model
+            for (database_name, schemas) in &database_info_clone {
+                for (schema_name, tables) in schemas {
+                    // First check if there's a direct match for model name
+                    if let Some(columns) = tables.get(&dimension_clone.model_name) {
+                        debug!(
+                            dimension = %dimension_clone.dimension_name,
+                            model = %dimension_clone.model_name,
+                            db = %database_name,
+                            schema = %schema_name,
+                            "Found exact model to search for dimension"
+                        );
+                        
+                        // Use dimension name or expression as the column to search
+                        // First try direct match for the dimension name
+                        let dimension_result = stored_values::search::search_values_by_embedding_with_filters(
+                            data_source_id_clone,
+                            &embedding_clone,
+                            10,
+                            Some(database_name),
+                            Some(schema_name),
+                            Some(&dimension_clone.model_name),
+                            Some(&dimension_clone.dimension_name),
+                        ).await;
+                        
+                        match dimension_result {
+                            Ok(results) => {
+                                if !results.is_empty() {
+                                    debug!(
+                                        dimension = %dimension_clone.dimension_name,
+                                        count = results.len(),
+                                        "Found values for dimension using direct match"
+                                    );
+                                    all_results.extend(results);
+                                }
+                            },
+                            Err(e) => {
+                                warn!(
+                                    dimension = %dimension_clone.dimension_name,
+                                    error = %e,
+                                    "Error searching for dimension values"
+                                );
+                            }
+                        }
+                        
+                        // If no results from direct match, try related columns
+                        if all_results.is_empty() {
+                            let matching_columns: Vec<String> = columns.iter()
+                                .filter(|col| {
+                                    // Skip self
+                                    if *col == &dimension_clone.dimension_name {
+                                        return false;
+                                    }
+                                    
+                                    // Column contains dimension name
+                                    if col.to_lowercase().contains(&dimension_clone.dimension_name.to_lowercase()) {
+                                        return true;
+                                    }
+                                    
+                                    // Dimension contains column name
+                                    if col.len() >= 3 && dimension_clone.dimension_name.to_lowercase().contains(&col.to_lowercase()) {
+                                        return true;
+                                    }
+                                    
+                                    false
+                                })
+                                .cloned()
+                                .collect();
+                            
+                            for column_name in matching_columns {
+                                match stored_values::search::search_values_by_embedding_with_filters(
+                                    data_source_id_clone,
+                                    &embedding_clone,
+                                    5,
+                                    Some(database_name),
+                                    Some(schema_name),
+                                    Some(&dimension_clone.model_name),
+                                    Some(&column_name),
+                                ).await {
+                                    Ok(results) => {
+                                        all_results.extend(results);
+                                    },
+                                    Err(e) => {
+                                        warn!(
+                                            dimension = %dimension_clone.dimension_name,
+                                            column = %column_name,
+                                            error = %e,
+                                            "Error searching related column"
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // If we found results for this model, we can stop
+                        if !all_results.is_empty() {
+                            break;
+                        }
+                    }
+                }
+                
+                // If we've found results in the model, stop searching
+                if !all_results.is_empty() {
+                    break;
+                }
+            }
+            
+            // If still no results, try database-level search for the dimension name
+            if all_results.is_empty() {
+                debug!(
+                    dimension = %dimension_clone.dimension_name,
+                    "No results found in model, trying database-level search"
+                );
+                
+                for (database_name, _) in &database_info_clone {
+                    match stored_values::search::search_values_by_embedding_with_filters(
+                        data_source_id_clone,
+                        &embedding_clone,
+                        10,
+                        Some(database_name),
+                        None, // No schema
+                        None, // No table
+                        Some(&dimension_clone.dimension_name), // Just filter by column name
+                    ).await {
+                        Ok(results) => {
+                            if !results.is_empty() {
+                                debug!(
+                                    dimension = %dimension_clone.dimension_name,
+                                    db = %database_name,
+                                    count = results.len(),
+                                    "Found values using database-level search"
+                                );
+                                all_results.extend(results);
+                                break;
+                            }
+                        },
+                        Err(e) => {
+                            warn!(
+                                dimension = %dimension_clone.dimension_name,
+                                db = %database_name,
+                                error = %e,
+                                "Error in database-level search"
+                            );
+                        }
+                    }
+                }
+            }
+            
+            // Last resort fallback
+            if all_results.is_empty() {
+                match stored_values::search::search_values_by_embedding(
+                    data_source_id_clone,
+                    &embedding_clone,
+                    5,
+                ).await {
+                    Ok(results) => {
+                        debug!(
+                            dimension = %dimension_clone.dimension_name,
+                            count = results.len(),
+                            "Found values using unfiltered search (last resort)"
+                        );
+                        all_results = results;
+                    },
+                    Err(e) => {
+                        warn!(
+                            dimension = %dimension_clone.dimension_name,
+                            error = %e,
+                            "Error in unfiltered fallback search"
+                        );
+                    }
+                }
+            }
+            
+            (dimension_clone, Ok::<Vec<stored_values::search::StoredValueResult>, anyhow::Error>(all_results))
+        });
+        
+        search_futures.push(future);
+    }
+    
+    // Await all searches to complete
+    let search_results = futures::future::join_all(search_futures).await;
+    
+    // Parse YAML for modification
+    let mut yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
+        .context("Failed to parse dataset YAML for updating")?;
+    
+    // Process search results and update YAML
+    for result in search_results {
+        match result {
+            Ok((dimension, Ok(values))) => {
+                // Extract unique values from search results and sort by relevance
+                // (the values are already sorted by relevance from the embedding search)
+                let mut relevant_values: Vec<String> = values // Make mutable
+                    .into_iter()
+                    .map(|v| v.value)
+                    .collect::<std::collections::HashSet<_>>() // Deduplicate
+                    .into_iter()
+                    .collect();
+                
+                // Limit to max 20 results
+                relevant_values.truncate(20);
+                
+                debug!(
+                    dimension = %dimension.model_name,
+                    dimension_name = %dimension.dimension_name,
+                    values_count = relevant_values.len(),
+                    "Adding relevant values to dimension"
+                );
+                
+                // Update the YAML with relevant_values
+                if let Some(models) = yaml["models"].as_sequence_mut() {
+                    for model in models {
+                        if model["name"].as_str() == Some(&dimension.model_name) {
+                            if let Some(dimensions) = model["dimensions"].as_sequence_mut() {
+                                for dim in dimensions {
+                                    if dim["name"].as_str() == Some(&dimension.dimension_name) {
+                                        // Add relevant_values field
+                                        dim["relevant_values"] = serde_yaml::Value::Sequence(
+                                            relevant_values.iter()
+                                                .map(|v| serde_yaml::Value::String(v.clone()))
+                                                .collect()
+                                        );
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            },
+            Ok((dimension, Err(e))) => {
+                warn!(
+                    dimension = ?dimension,
+                    error = %e,
+                    "Error searching for values for dimension"
+                );
+            },
+            Err(e) => {
+                warn!(
+                    error = %e,
+                    "Task join error during search"
+                );
+            }
+        }
+    }
+    
+    // Convert back to YAML string
+    let updated_yml = serde_yaml::to_string(&yaml)
+        .context("Failed to convert updated YAML back to string")?;
+    
+    Ok(updated_yml)
 }
