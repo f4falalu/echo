@@ -1,4 +1,10 @@
-import { useMutation, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions
+} from '@tanstack/react-query';
 import {
   dashboardsGetList,
   dashboardsCreateDashboard,
@@ -37,6 +43,7 @@ import { useGetLatestMetricVersionMemoized } from '../metrics';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import last from 'lodash/last';
 import { createDashboardFullConfirmModal } from './confirmModals';
+import { isQueryStale } from '@/lib';
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
   {
@@ -700,13 +707,29 @@ export const useGetDashboardsList = (
     return {
       ...params,
       page_token: 0,
-      page_size: 3000
+      page_size: 3500
     };
   }, [params]);
 
   return useQuery({
-    ...dashboardQueryKeys.dashboardGetList(params),
+    ...dashboardQueryKeys.dashboardGetList(filters),
     queryFn: () => dashboardsGetList(filters),
     ...options
   });
+};
+
+export const prefetchGetDashboardsList = async (
+  queryClient: QueryClient,
+  params?: Parameters<typeof dashboardsGetList>[0]
+) => {
+  const options = dashboardQueryKeys.dashboardGetList(params);
+  const isStale = isQueryStale(options, queryClient);
+  if (!isStale) return queryClient;
+
+  const lastQueryKey = options.queryKey[options.queryKey.length - 1];
+  const compiledParams = lastQueryKey as Parameters<typeof dashboardsGetList>[0];
+
+  await queryClient.prefetchQuery({ ...options, queryFn: () => dashboardsGetList(compiledParams) });
+
+  return queryClient;
 };

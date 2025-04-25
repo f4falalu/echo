@@ -3,7 +3,7 @@ import { BusterTerm, BusterTermListItem } from '@/api/asset_interfaces/terms';
 
 export const getTermsList = async (params: {
   /** The page number to retrieve */
-  page: number;
+  page_token: number;
   /** The number of items per page */
   page_size: number;
 }) => {

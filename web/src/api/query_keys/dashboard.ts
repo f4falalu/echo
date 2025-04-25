@@ -9,7 +9,7 @@ const dashboardGetList = (
   filters?: Omit<Parameters<typeof dashboardsGetList>[0], 'page_token' | 'page_size'>
 ) =>
   queryOptions<BusterDashboardListItem[]>({
-    queryKey: ['dashboard', 'list', filters || {}] as const,
+    queryKey: ['dashboard', 'list', filters || { page_token: 0, page_size: 3500 }] as const,
     initialData: [],
     staleTime: 60 * 1000,
     initialDataUpdatedAt: 0

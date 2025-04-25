@@ -10,7 +10,7 @@ import { collectionsGetList } from '@/api/buster_rest/collections/requests';
 export const CollectionListController: React.FC = () => {
   const [openNewCollectionModal, setOpenNewCollectionModal] = useState(false);
   const [collectionListFilters, setCollectionListFilters] = useState<
-    Omit<Parameters<typeof collectionsGetList>[0], 'page' | 'page_size'>
+    Omit<Parameters<typeof collectionsGetList>[0], 'page_token' | 'page_size'>
   >({});
 
   const { data: collectionsList, isFetched: isCollectionListFetched } =

@@ -37,14 +37,14 @@ export const useGetListChats = (
   filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
 ) => {
   const filtersCompiled: Parameters<typeof getListChats>[0] = useMemo(
-    () => ({ admin_view: false, page_token: 0, page_size: 3000, ...filters }),
+    () => ({ admin_view: false, page_token: 0, page_size: 3500, ...filters }),
     [filters]
   );
 
   const queryFn = useMemoizedFn(() => getListChats(filtersCompiled));
 
   return useQuery({
-    ...chatQueryKeys.chatsGetList(filters),
+    ...chatQueryKeys.chatsGetList(filtersCompiled),
     queryFn
   });
 };
@@ -67,14 +67,14 @@ export const useGetListLogs = (
   filters?: Omit<Parameters<typeof getListLogs>[0], 'page_token' | 'page_size'>
 ) => {
   const filtersCompiled: Parameters<typeof getListLogs>[0] = useMemo(
-    () => ({ page_token: 0, page_size: 3000, ...filters }),
+    () => ({ page_token: 0, page_size: 3500, ...filters }),
     [filters]
   );
 
   const queryFn = useMemoizedFn(() => getListLogs(filtersCompiled));
 
   return useQuery({
-    ...chatQueryKeys.logsGetList(filters),
+    ...chatQueryKeys.logsGetList(filtersCompiled),
     queryFn
   });
 };

@@ -44,7 +44,7 @@ describe('Chat API Requests', () => {
 
       // Verify the API was called with correct parameters
       expect(mainApi.get).toHaveBeenCalledWith('/chats', {
-        params: { page_token: 0, page_size: 3000 }
+        params: { page_token: 0, page_size: 3500 }
       });
 
       // Verify the result matches the mock data
