@@ -73,7 +73,8 @@ export const useDatasetUpdatePermissionGroups = () => {
     },
     onSettled: (_, __, { dataset_id }) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasetPermissionGroupsList(dataset_id).queryKey
+        queryKey: queryKeys.datasetPermissionGroupsList(dataset_id).queryKey,
+        refetchType: 'all'
       });
     }
   });

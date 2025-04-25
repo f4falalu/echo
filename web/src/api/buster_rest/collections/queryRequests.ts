@@ -94,7 +94,8 @@ export const useCreateCollection = () => {
     mutationFn: collectionsCreateCollection,
     onSuccess: (collection) => {
       queryClient.invalidateQueries({
-        queryKey: collectionQueryKeys.collectionsGetList().queryKey
+        queryKey: collectionQueryKeys.collectionsGetList().queryKey,
+        refetchType: 'all'
       });
       queryClient.setQueryData(
         collectionQueryKeys.collectionsGetCollection(collection.id).queryKey,
@@ -159,7 +160,8 @@ export const useDeleteCollection = () => {
     mutationFn: deleteCollection,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: collectionQueryKeys.collectionsGetList().queryKey
+        queryKey: collectionQueryKeys.collectionsGetList().queryKey,
+        refetchType: 'all'
       });
     }
   });
@@ -245,7 +247,8 @@ export const useAddAssetToCollection = (useInvalidate = true) => {
     onSuccess: (_, variables) => {
       if (useInvalidate) {
         queryClient.invalidateQueries({
-          queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey
+          queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey,
+          refetchType: 'all'
         });
       }
     }
@@ -270,7 +273,8 @@ export const useRemoveAssetFromCollection = (useInvalidate = true) => {
     onSuccess: (_, variables) => {
       if (useInvalidate) {
         queryClient.invalidateQueries({
-          queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey
+          queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey,
+          refetchType: 'all'
         });
       }
     }
@@ -334,7 +338,8 @@ export const useAddAndRemoveAssetsFromCollection = () => {
     mutationFn: addAndRemoveAssetsToCollection,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: collectionQueryKeys.collectionsGetCollection(variables.collectionId).queryKey
+        queryKey: collectionQueryKeys.collectionsGetCollection(variables.collectionId).queryKey,
+        refetchType: 'all'
       });
     }
   });

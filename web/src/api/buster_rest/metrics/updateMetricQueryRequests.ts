@@ -165,7 +165,8 @@ export const useSaveMetricToCollections = () => {
       queryClient.invalidateQueries({
         queryKey: collectionIds.map(
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
-        )
+        ),
+        refetchType: 'all'
       });
     }
   });
@@ -200,7 +201,8 @@ export const useRemoveMetricFromCollection = () => {
       queryClient.invalidateQueries({
         queryKey: collectionIds.map(
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
-        )
+        ),
+        refetchType: 'all'
       });
     }
   });
@@ -398,7 +400,10 @@ export const useBulkUpdateMetricVerificationStatus = () => {
       });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: metricsQueryKeys.metricsGetList().queryKey });
+      queryClient.invalidateQueries({
+        queryKey: metricsQueryKeys.metricsGetList().queryKey,
+        refetchType: 'all'
+      });
       data.updated_metrics.forEach((metric) => {
         const oldMetric = queryClient.getQueryData(
           metricsQueryKeys.metricsGetMetric(metric.id, metric.version_number).queryKey

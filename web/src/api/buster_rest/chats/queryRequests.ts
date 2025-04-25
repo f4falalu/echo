@@ -140,7 +140,8 @@ export const useStartChatFromAsset = () => {
     mutationFn,
     onSuccess: (chat) => {
       queryClient.invalidateQueries({
-        queryKey: chatQueryKeys.chatsGetList().queryKey
+        queryKey: chatQueryKeys.chatsGetList().queryKey,
+        refetchType: 'all'
       });
     }
   });
@@ -231,7 +232,8 @@ export const useDeleteChat = () => {
     mutationFn,
     onSuccess(data, variables, context) {
       queryClient.invalidateQueries({
-        queryKey: chatQueryKeys.chatsGetList().queryKey
+        queryKey: chatQueryKeys.chatsGetList().queryKey,
+        refetchType: 'all'
       });
     }
   });
@@ -307,7 +309,8 @@ export const useSaveChatToCollections = () => {
       queryClient.invalidateQueries({
         queryKey: collectionIds.map(
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
-        )
+        ),
+        refetchType: 'all'
       });
     }
   });
@@ -342,7 +345,8 @@ export const useRemoveChatFromCollections = () => {
       queryClient.invalidateQueries({
         queryKey: collectionIds.map(
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
-        )
+        ),
+        refetchType: 'all'
       });
     }
   });

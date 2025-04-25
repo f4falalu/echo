@@ -79,7 +79,10 @@ export const useChatStreamMessage = () => {
               responseMessage.id,
               responseMessage.version_number
             );
-            queryClient.invalidateQueries({ queryKey: options.queryKey });
+            queryClient.invalidateQueries({
+              queryKey: options.queryKey,
+              refetchType: 'all'
+            });
           }
         });
       }
@@ -94,8 +97,12 @@ export const useChatStreamMessage = () => {
     onUpdateChat(iChat);
     prefetchLastMessageMetricData(iChat, iChatMessages);
 
-    queryClient.invalidateQueries({
-      queryKey: [queryKeys.chatsGetList().queryKey, queryKeys.metricsGetList().queryKey]
+    const refreshKeys = [queryKeys.chatsGetList().queryKey, queryKeys.metricsGetList().queryKey];
+    refreshKeys.forEach((key) => {
+      queryClient.invalidateQueries({
+        queryKey: key,
+        refetchType: 'all'
+      });
     });
   });
 

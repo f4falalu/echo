@@ -14,11 +14,10 @@ import { useMemoizedFn } from '@/hooks';
 import { DashboardSelectedOptionPopup } from './DashboardSelectedPopup';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator/helpers';
-import { useCreateDashboard } from '@/api/buster_rest/dashboards';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { FavoriteStar } from '@/components/features/list';
 import { ShareAssetType } from '@/api/asset_interfaces';
 import { Text } from '@/components/ui/typography';
+import { NewDashboardModal } from '@/components/features/modal/NewDashboardModal';
 
 const columns: BusterListColumn[] = [
   {
@@ -71,64 +70,71 @@ const columns: BusterListColumn[] = [
 export const DashboardListContent: React.FC<{
   loading: boolean;
   dashboardsList: BusterDashboardListItem[];
+  openNewDashboardModal: boolean;
+  setOpenNewDashboardModal: (open: boolean) => void;
   className?: string;
-}> = React.memo(({ loading, dashboardsList, className = '' }) => {
-  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useCreateDashboard();
-  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const [selectedDashboardIds, setSelectedDashboardIds] = useState<string[]>([]);
+}> = React.memo(
+  ({
+    loading,
+    dashboardsList,
+    openNewDashboardModal,
+    setOpenNewDashboardModal,
+    className = ''
+  }) => {
+    const [selectedDashboardIds, setSelectedDashboardIds] = useState<string[]>([]);
 
-  const rows: BusterListRow[] = useMemo(() => {
-    return dashboardsList.map((dashboard) => {
-      return {
-        id: dashboard.id,
-        data: dashboard,
-        link: createBusterRoute({
-          route: BusterRoutes.APP_DASHBOARD_ID,
-          dashboardId: dashboard.id
-        })
-      };
-    });
-  }, [dashboardsList]);
-
-  const onClickEmptyState = useMemoizedFn(async () => {
-    const res = await createDashboard({});
-    if (res?.dashboard?.id) {
-      onChangePage({
-        route: BusterRoutes.APP_DASHBOARD_ID,
-        dashboardId: res.dashboard.id
+    const rows: BusterListRow[] = useMemo(() => {
+      return dashboardsList.map((dashboard) => {
+        return {
+          id: dashboard.id,
+          data: dashboard,
+          link: createBusterRoute({
+            route: BusterRoutes.APP_DASHBOARD_ID,
+            dashboardId: dashboard.id
+          })
+        };
       });
-    }
-  });
+    }, [dashboardsList]);
 
-  return (
-    <div className={`${className} relative flex h-full flex-col items-center`}>
-      <BusterList
-        rows={rows}
-        columns={columns}
-        selectedRowKeys={selectedDashboardIds}
-        onSelectChange={setSelectedDashboardIds}
-        emptyState={
-          !loading ? (
-            <ListEmptyStateWithButton
-              title={`You don’t have any dashboards yet.`}
-              buttonText="New dashboard"
-              description={`You don’t have any dashboards. As soon as you do, they will start to  appear here.`}
-              onClick={onClickEmptyState}
-              loading={isCreatingDashboard}
-            />
-          ) : (
-            <></>
-          )
-        }
-      />
+    const onClickEmptyState = useMemoizedFn(async () => {
+      setOpenNewDashboardModal(true);
+    });
 
-      <DashboardSelectedOptionPopup
-        selectedRowKeys={selectedDashboardIds}
-        onSelectChange={setSelectedDashboardIds}
-        hasSelected={selectedDashboardIds.length > 0}
-      />
-    </div>
-  );
-});
+    return (
+      <div className={`${className} relative flex h-full flex-col items-center`}>
+        <BusterList
+          rows={rows}
+          columns={columns}
+          selectedRowKeys={selectedDashboardIds}
+          onSelectChange={setSelectedDashboardIds}
+          emptyState={
+            !loading ? (
+              <ListEmptyStateWithButton
+                title={`You don’t have any dashboards yet.`}
+                buttonText="New dashboard"
+                description={`You don’t have any dashboards. As soon as you do, they will start to  appear here.`}
+                onClick={onClickEmptyState}
+              />
+            ) : (
+              <></>
+            )
+          }
+        />
+
+        <DashboardSelectedOptionPopup
+          selectedRowKeys={selectedDashboardIds}
+          onSelectChange={setSelectedDashboardIds}
+          hasSelected={selectedDashboardIds.length > 0}
+        />
+
+        <NewDashboardModal
+          open={openNewDashboardModal}
+          onClose={useMemoizedFn(() => setOpenNewDashboardModal(false))}
+          useChangePage={true}
+        />
+      </div>
+    );
+  }
+);
 
 DashboardListContent.displayName = 'DashboardListContent';

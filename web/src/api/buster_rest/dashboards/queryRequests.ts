@@ -197,14 +197,29 @@ export const useUpdateDashboardConfig = () => {
 
 export const useCreateDashboard = () => {
   const queryClient = useQueryClient();
+  const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
   return useMutation({
     mutationFn: dashboardsCreateDashboard,
-    onSuccess: () => {
+    onSuccess: (originalData, variables) => {
+      const data = create(originalData, (draft) => {
+        draft.dashboard.name = variables.name || originalData.dashboard.name;
+      });
+      queryClient.setQueryData(
+        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, data.dashboard.version_number)
+          .queryKey,
+        data
+      );
+      queryClient.setQueryData(
+        dashboardQueryKeys.dashboardGetDashboard(data.dashboard.id, null).queryKey,
+        data
+      );
+      setOriginalDashboard(data.dashboard);
       setTimeout(() => {
         queryClient.invalidateQueries({
-          queryKey: dashboardQueryKeys.dashboardGetList({}).queryKey
+          queryKey: dashboardQueryKeys.dashboardGetList().queryKey,
+          refetchType: 'all'
         });
-      }, 350);
+      }, 550);
     }
   });
 };
@@ -222,7 +237,7 @@ export const useDeleteDashboards = () => {
       ignoreConfirm?: boolean;
     }) => {
       const onMutate = () => {
-        const queryKey = dashboardQueryKeys.dashboardGetList({}).queryKey;
+        const queryKey = dashboardQueryKeys.dashboardGetList().queryKey;
         queryClient.setQueryData(queryKey, (v) => {
           const ids = typeof dashboardId === 'string' ? [dashboardId] : dashboardId;
           return v?.filter((t) => !ids.includes(t.id)) || [];
@@ -252,7 +267,8 @@ export const useDeleteDashboards = () => {
     mutationFn: onDeleteDashboard,
     onSuccess: (_, { dashboardId }) => {
       queryClient.invalidateQueries({
-        queryKey: dashboardQueryKeys.dashboardGetList({}).queryKey
+        queryKey: dashboardQueryKeys.dashboardGetList().queryKey,
+        refetchType: 'all'
       });
     }
   });
@@ -280,7 +296,8 @@ export const useAddDashboardToCollection = () => {
       queryClient.invalidateQueries({
         queryKey: collectionIds.map(
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
-        )
+        ),
+        refetchType: 'all'
       });
     }
   });
@@ -310,7 +327,8 @@ export const useRemoveDashboardFromCollection = () => {
       queryClient.invalidateQueries({
         queryKey: collectionIds.map(
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
-        )
+        ),
+        refetchType: 'all'
       });
     }
   });

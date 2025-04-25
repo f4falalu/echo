@@ -177,7 +177,8 @@ export const useInviteUser = () => {
       const teamId = user?.organizations?.[0]?.id;
       if (teamId) {
         queryClient.invalidateQueries({
-          queryKey: [queryKeys.userGetUserList({ team_id: teamId }).queryKey]
+          queryKey: [queryKeys.userGetUserList({ team_id: teamId }).queryKey],
+          refetchType: 'all'
         });
       }
     }

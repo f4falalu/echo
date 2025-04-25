@@ -12,9 +12,9 @@ import { BusterRoutes } from '@/routes/busterRoutes';
 import { SelectedFileSecondaryRenderRecord } from '../../FileContainer/FileContainerSecondary';
 import { ChatParams } from '../useGetChatParams';
 import { initializeFileViews } from './helpers';
-import { DEFAULT_FILE_VIEW } from '../helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
+import { DEFAULT_FILE_VIEW } from '../helpers';
 
 export const useLayoutConfig = ({
   selectedFile,
