@@ -8,7 +8,8 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
   useSearchParams: jest.fn(() => ({
     get: jest.fn()
-  }))
+  })),
+  usePathname: jest.fn()
 }));
 
 jest.mock('@/context/BusterAppLayout', () => ({
@@ -26,6 +27,7 @@ describe('useGetChatParams', () => {
       get: jest.fn().mockReturnValue(null)
     }));
     mockUseAppLayoutContextSelector.mockReturnValue('default-route');
+    (navigation.usePathname as jest.Mock).mockReturnValue('/');
   });
 
   test('returns undefined values when no params are provided', () => {
@@ -43,7 +45,7 @@ describe('useGetChatParams', () => {
       messageId: undefined,
       metricVersionNumber: undefined,
       dashboardVersionNumber: undefined,
-      currentRoute: 'default-route',
+      currentRoute: '/',
       secondaryView: null
     });
   });
@@ -130,14 +132,6 @@ describe('useGetChatParams', () => {
 
     expect(result.current.collectionId).toBe('collection-123');
     expect(result.current.datasetId).toBe('dataset-456');
-  });
-
-  test('preserves current route from app layout context', () => {
-    mockUseAppLayoutContextSelector.mockReturnValue('custom-route');
-
-    const { result } = renderHook(() => useGetChatParams());
-
-    expect(result.current.currentRoute).toBe('custom-route');
   });
 
   test('returns consistent values on multiple renders without param changes', () => {
