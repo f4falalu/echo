@@ -7,17 +7,71 @@ import {
   BusterMetricListItem
 } from '@/api/asset_interfaces/metric';
 import { ShareRole, VerificationStatus } from '@/api/asset_interfaces/share';
-import { faker } from '@faker-js/faker';
 
-const createMockChartConfig = (): IBusterMetricChartConfig => {
-  const chartType = faker.helpers.arrayElement([
-    ChartType.Bar,
-    ChartType.Table,
-    ChartType.Line,
-    ChartType.Pie,
-    ChartType.Scatter,
-    ChartType.Metric
-  ]);
+// Utility functions for predictable mock data generation
+const CHART_TYPES = [
+  ChartType.Bar,
+  ChartType.Table,
+  ChartType.Line,
+  ChartType.Pie,
+  ChartType.Scatter,
+  ChartType.Metric
+];
+
+const PRODUCT_NAMES = [
+  'Premium Widget',
+  'Super Gadget',
+  'Mega Tool',
+  'Ultra Device',
+  'Pro Instrument',
+  'Advanced System'
+];
+
+const generatePredictableWords = (id: string, count: number): string => {
+  const words = [
+    'analytics',
+    'metrics',
+    'sales',
+    'performance',
+    'revenue',
+    'growth',
+    'trends',
+    'insights'
+  ];
+  const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const result = [];
+  for (let i = 0; i < count; i++) {
+    result.push(words[(hash + i) % words.length]);
+  }
+  return result.join(' ');
+};
+
+const generatePredictableDate = (id: string): string => {
+  const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const date = new Date(2024, 0, (hash % 28) + 1); // Generates a date in January 2024
+  return date.toISOString();
+};
+
+const generatePredictableUUID = (id: string, salt: string = ''): string => {
+  const hash = Array.from(id + salt).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const segments = [8, 4, 4, 4, 12].map((length, index) => {
+    return Array.from({ length }, (_, i) => ((hash + index + i) % 16).toString(16)).join('');
+  });
+  return segments.join('-');
+};
+
+const generatePredictableEmail = (id: string): string => {
+  const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const names = ['john', 'jane', 'bob', 'alice', 'charlie'];
+  const domains = ['example.com', 'test.org', 'mock.net'];
+  const name = names[hash % names.length];
+  const domain = domains[(hash + 1) % domains.length];
+  return `${name}.${hash % 100}@${domain}`;
+};
+
+const createMockChartConfig = (id: string): IBusterMetricChartConfig => {
+  const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const chartType = CHART_TYPES[hash % CHART_TYPES.length];
 
   return {
     ...DEFAULT_CHART_CONFIG,
@@ -75,25 +129,28 @@ const dataMetadata: DataMetadata = {
 };
 
 export const createMockMetric = (id: string): IBusterMetric => {
-  const chart_config = createMockChartConfig();
+  const chart_config = createMockChartConfig(id);
 
   return {
-    name: id + ' - ' + faker.lorem.words({ min: 2, max: 6 }),
+    name: `${id} - ${generatePredictableWords(id, 3)}`,
     version_number: 1,
-    file_name: `${faker.lorem.words({ min: 1, max: 4 })}.yml`,
-    description: faker.commerce.productName(),
-    data_source_id: '6840fa04-c0d7-4e0e-8d3d-ea9190d93874',
+    file_name: `${generatePredictableWords(id, 2)}.yml`,
+    description:
+      PRODUCT_NAMES[
+        Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0) % PRODUCT_NAMES.length
+      ],
+    data_source_id: generatePredictableUUID(id, 'source'),
     time_frame: '1d',
     type: 'metric',
     chart_config: chart_config,
-    dataset_id: '21c91803-c324-4341-98d1-960ef6a3e003',
+    dataset_id: generatePredictableUUID(id, 'dataset'),
     dataset_name: 'Mock Dataset',
     error: null,
     data_metadata: dataMetadata,
     status: VerificationStatus.NOT_REQUESTED,
     evaluation_score: 'Moderate',
     versions: [],
-    evaluation_summary: faker.lorem.sentence(33),
+    evaluation_summary: `Predictable evaluation summary for ${id} showing consistent performance metrics and data quality indicators.`,
     file: `
   metric:
     name: sales_performance
@@ -136,11 +193,11 @@ export const createMockMetric = (id: string): IBusterMetric => {
       direction: desc
       
   limit: 1000`,
-    created_at: '',
-    updated_at: '',
-    sent_by_id: '',
-    sent_by_name: '',
-    sent_by_avatar_url: '',
+    created_at: generatePredictableDate(id),
+    updated_at: generatePredictableDate(id),
+    sent_by_id: generatePredictableUUID(id, 'user'),
+    sent_by_name: `User ${id}`,
+    sent_by_avatar_url: `https://avatar.example.com/${id}`,
     sql: `WITH records AS (
     SELECT 
       response_time_id,
@@ -199,14 +256,16 @@ export const mockMetric30 = createMockMetric('number30');
 
 export const createMockListMetric = (id: string): BusterMetricListItem => ({
   id,
-  name: faker.commerce.productName(),
-  last_edited: faker.date.recent().toISOString(),
-  dataset_name: faker.commerce.productName(),
-  dataset_uuid: faker.string.uuid(),
-  created_by_id: faker.string.uuid(),
-  created_by_name: faker.person.fullName(),
-  created_by_email: faker.internet.email(),
-  created_by_avatar: faker.image.avatar(),
+  name: PRODUCT_NAMES[
+    Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0) % PRODUCT_NAMES.length
+  ],
+  last_edited: generatePredictableDate(id),
+  dataset_name: `Dataset ${id}`,
+  dataset_uuid: generatePredictableUUID(id, 'dataset'),
+  created_by_id: generatePredictableUUID(id, 'user'),
+  created_by_name: `User ${id}`,
+  created_by_email: generatePredictableEmail(id),
+  created_by_avatar: `https://avatar.example.com/${id}`,
   status: VerificationStatus.VERIFIED,
   is_shared: true
 });
