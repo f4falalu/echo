@@ -32,6 +32,7 @@ redis = { workspace = true }
 reqwest = { workspace = true }
 sqlx = { workspace = true }
 stored_values = { path = "../stored_values" }
+tokio-retry = { workspace = true }
 
 # Development dependencies
 [dev-dependencies]
