@@ -6,6 +6,7 @@ export type ThoughtFileType =
   | 'collection'
   | 'dataset'
   | 'term'
+  | 'topic'
   | 'value'
   | 'empty';
 

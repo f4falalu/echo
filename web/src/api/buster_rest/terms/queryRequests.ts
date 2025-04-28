@@ -7,10 +7,10 @@ import { useMemoizedFn } from '@/hooks';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 
 export const useGetTermsList = (
-  params?: Omit<Parameters<typeof getTermsList>[0], 'page' | 'page_size'>
+  params?: Omit<Parameters<typeof getTermsList>[0], 'page_token' | 'page_size'>
 ) => {
   const compiledParams: Parameters<typeof getTermsList>[0] = useMemo(
-    () => ({ page: 0, page_size: 3000, ...params }),
+    () => ({ page_token: 0, page_size: 3500, ...params }),
     [params]
   );
 

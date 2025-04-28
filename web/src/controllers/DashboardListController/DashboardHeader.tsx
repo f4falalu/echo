@@ -3,13 +3,9 @@
 import React from 'react';
 import { Text } from '@/components/ui/typography';
 import { Button } from '@/components/ui/buttons';
-import { BusterRoutes } from '@/routes';
 import { AppSegmented, SegmentedItem } from '@/components/ui/segmented';
-import { useMemoizedFn } from '@/hooks';
 import { Plus } from '@/components/ui/icons';
-import { type dashboardsGetList, useCreateDashboard } from '@/api/buster_rest/dashboards';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useThrottleFn } from '@/hooks';
+import { type dashboardsGetList } from '@/api/buster_rest/dashboards';
 
 export const DashboardHeader: React.FC<{
   dashboardFilters: {
@@ -20,27 +16,9 @@ export const DashboardHeader: React.FC<{
     shared_with_me?: boolean;
     only_my_dashboards?: boolean;
   }) => void;
-}> = React.memo(({ dashboardFilters, onSetDashboardListFilters }) => {
-  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useCreateDashboard();
-  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
+  setOpenNewDashboardModal: (open: boolean) => void;
+}> = React.memo(({ dashboardFilters, onSetDashboardListFilters, setOpenNewDashboardModal }) => {
   const showFilters = true;
-
-  //this is a throttle function that will prevent the user from creating a dashboard too quickly
-  const { run: onClickNewDashboardButton } = useThrottleFn(
-    useMemoizedFn(async () => {
-      const res = await createDashboard({});
-      if (res?.dashboard?.id) {
-        onChangePage({
-          route: BusterRoutes.APP_DASHBOARD_ID,
-          dashboardId: res.dashboard.id
-        });
-      }
-    }),
-    {
-      wait: 1500,
-      leading: true
-    }
-  );
 
   return (
     <>
@@ -55,7 +33,7 @@ export const DashboardHeader: React.FC<{
       </div>
 
       <div className="flex items-center">
-        <Button prefix={<Plus />} loading={isCreatingDashboard} onClick={onClickNewDashboardButton}>
+        <Button prefix={<Plus />} onClick={() => setOpenNewDashboardModal(true)}>
           New dashboard
         </Button>
       </div>

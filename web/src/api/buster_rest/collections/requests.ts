@@ -1,4 +1,3 @@
-import { ShareRole } from '@/api/asset_interfaces';
 import type { BusterCollection, BusterCollectionListItem } from '@/api/asset_interfaces/collection';
 import {
   ShareDeleteRequest,
@@ -10,7 +9,7 @@ import type { ShareAssetType } from '@/api/asset_interfaces';
 
 export const collectionsGetList = async (params: {
   /** Current page number (1-based indexing) */
-  page: number;
+  page_token: number;
   /** Number of items to display per page */
   page_size: number;
   /** When true, returns only collections shared with the current user */

@@ -6,6 +6,10 @@ import { BusterRoutes, createBusterRoute } from '@/routes';
 import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
 import { useAsyncEffect } from '@/hooks';
 import { timeout } from '@/lib';
+import { prefetchGetMetricsList } from '@/api/buster_rest/metrics';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import { prefetchGetDashboardsList } from '@/api/buster_rest/dashboards';
+import { prefetchGetCollectionsList } from '@/api/buster_rest/collections';
 
 const HIGH_PRIORITY_ROUTES = [
   BusterRoutes.APP_HOME,
@@ -25,20 +29,35 @@ const LOW_PRIORITY_ROUTES = [
   BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART
 ];
 
+const LOW_PRIORITY_PREFETCH: ((queryClient: QueryClient) => Promise<QueryClient>)[] = [
+  (queryClient) => prefetchGetMetricsList(queryClient),
+  (queryClient) => prefetchGetDashboardsList(queryClient),
+  (queryClient) => prefetchGetCollectionsList(queryClient)
+];
+
 export const RoutePrefetcher: React.FC<{}> = React.memo(() => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isPreFetchedHighPriorityRef = useRef(false);
   const isPreFetchedLowPriorityRef = useRef(false);
 
   useAsyncEffect(async () => {
-    const prefetchRoutes = (routes: BusterRoutes[], priority: 'high' | 'low') => {
+    const prefetchRoutes = (
+      routes: BusterRoutes[],
+      prefetchFns: typeof LOW_PRIORITY_PREFETCH,
+      priority: 'high' | 'low'
+    ) => {
       if (priority === 'high' && isPreFetchedHighPriorityRef.current) return;
       if (priority === 'low' && isPreFetchedLowPriorityRef.current) return;
 
       routes.forEach((route) => {
         const path = createBusterRoute({ route: route as BusterAppRoutes.APP_COLLECTIONS });
         router.prefetch(path);
+      });
+
+      prefetchFns.forEach((prefetchFn) => {
+        prefetchFn(queryClient);
       });
 
       if (priority === 'high') {
@@ -49,7 +68,7 @@ export const RoutePrefetcher: React.FC<{}> = React.memo(() => {
     };
 
     if (!isPreFetchedHighPriorityRef.current) {
-      prefetchRoutes(HIGH_PRIORITY_ROUTES, 'high');
+      prefetchRoutes(HIGH_PRIORITY_ROUTES, [], 'high');
     }
 
     // Wait for page load
@@ -72,7 +91,7 @@ export const RoutePrefetcher: React.FC<{}> = React.memo(() => {
 
       // Set a new debounce timer - will trigger if no network activity for 1500ms
       debounceTimerRef.current = setTimeout(() => {
-        prefetchRoutes(LOW_PRIORITY_ROUTES, 'low');
+        prefetchRoutes(LOW_PRIORITY_ROUTES, LOW_PRIORITY_PREFETCH, 'low');
         observer.disconnect();
       }, 1000);
     });
@@ -82,7 +101,7 @@ export const RoutePrefetcher: React.FC<{}> = React.memo(() => {
 
       // Fallback - ensure prefetch happens even if network is already quiet
       fallbackTimer = setTimeout(() => {
-        prefetchRoutes(LOW_PRIORITY_ROUTES, 'low');
+        prefetchRoutes(LOW_PRIORITY_ROUTES, LOW_PRIORITY_PREFETCH, 'low');
         observer.disconnect();
       }, 3000);
     } catch (error) {
@@ -92,7 +111,7 @@ export const RoutePrefetcher: React.FC<{}> = React.memo(() => {
         clearTimeout(debounceTimerRef.current);
       }
       // Still prefetch low priority routes as fallback
-      prefetchRoutes(LOW_PRIORITY_ROUTES, 'low');
+      prefetchRoutes(LOW_PRIORITY_ROUTES, LOW_PRIORITY_PREFETCH, 'low');
     }
 
     return () => {

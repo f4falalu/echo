@@ -1,5 +1,5 @@
 import type { BusterDashboard } from '@/api/asset_interfaces/dashboard';
-import { MAX_NUMBER_OF_ITEMS, NUMBER_OF_COLUMNS } from '@/components/ui/grid/helpers';
+import { MAX_NUMBER_OF_ITEMS, NUMBER_OF_COLUMNS } from '../../../../components/ui/grid/helpers';
 import { v4 as uuidv4 } from 'uuid';
 
 export const addMetricToDashboardConfig = (

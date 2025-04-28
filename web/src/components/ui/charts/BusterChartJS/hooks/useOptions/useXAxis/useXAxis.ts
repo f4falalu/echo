@@ -19,7 +19,7 @@ import { Chart as ChartJS } from 'chart.js';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 import { DATE_FORMATS } from './config';
 
-const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category.ticks.callback;
+const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category?.ticks?.callback;
 
 export const useXAxis = ({
   columnLabelFormats,

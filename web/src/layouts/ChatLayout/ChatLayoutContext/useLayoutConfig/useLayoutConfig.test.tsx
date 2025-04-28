@@ -18,8 +18,8 @@ jest.mock('next/navigation', () => ({
   }))
 }));
 
-// Mock timeout function
-jest.mock('@/lib', () => ({
+// Mock timeout to return immediately
+jest.mock('@/lib/timeout', () => ({
   timeout: jest.fn().mockImplementation(() => Promise.resolve())
 }));
 
@@ -50,9 +50,13 @@ describe('useLayoutConfig', () => {
     chatId: 'chat-123',
     onSetSelectedFile: mockOnSetSelectedFile,
     animateOpenSplitter: mockAnimateOpenSplitter,
-    appSplitterRef: { current: null },
+    appSplitterRef: {
+      current: {
+        isSideClosed: jest.fn().mockReturnValue(false)
+      }
+    } as any,
     // ChatParams properties
-    metricId: undefined,
+    metricId: 'metric-123',
     dashboardId: undefined,
     collectionId: undefined,
     datasetId: undefined,
@@ -276,5 +280,101 @@ describe('useLayoutConfig', () => {
     });
 
     expect(result.current.selectedFileViewSecondary).toBeNull();
+  });
+
+  describe('useUpdateEffect', () => {
+    it('should update file views when metricId changes', async () => {
+      const { result, rerender } = renderHook((props) => useLayoutConfig(props), {
+        initialProps: defaultProps
+      });
+
+      // Update with a new metric ID
+      rerender({
+        ...defaultProps,
+        metricId: 'new-metric-id',
+        currentRoute: BusterRoutes.APP_METRIC_ID_CHART
+      });
+
+      expect(result.current.selectedFileView).toBe('chart');
+      expect(mockAnimateOpenSplitter).toHaveBeenCalled();
+    });
+
+    it('should update file views when secondaryView changes', async () => {
+      const { result, rerender } = renderHook((props) => useLayoutConfig(props), {
+        initialProps: defaultProps
+      });
+
+      expect(result.current.selectedFileViewSecondary).toBeNull();
+
+      // Update with a new secondary view
+      await act(async () => {
+        rerender({
+          ...defaultProps,
+          secondaryView: 'chart-edit' as FileViewSecondary
+        });
+      });
+
+      // Now the secondary view should be updated
+      expect(result.current.selectedFileViewSecondary).toBe('chart-edit');
+      expect(mockAnimateOpenSplitter).toHaveBeenCalledWith('right');
+    });
+
+    it('should not update file views when changes are not significant', async () => {
+      const { result, rerender } = renderHook((props) => useLayoutConfig(props), {
+        initialProps: defaultProps
+      });
+
+      const initialCallCount = mockAnimateOpenSplitter.mock.calls.length;
+
+      // Rerender with the same props
+      rerender({ ...defaultProps });
+
+      expect(mockAnimateOpenSplitter.mock.calls.length).toBe(initialCallCount);
+    });
+
+    it('should handle multiple dependency changes simultaneously', async () => {
+      const { result, rerender } = renderHook((props) => useLayoutConfig(props), {
+        initialProps: defaultProps
+      });
+
+      // Update multiple dependencies at once
+      await act(async () => {
+        rerender({
+          ...defaultProps,
+          metricId: 'metric-123',
+          secondaryView: 'chart-edit' as FileViewSecondary
+        });
+      });
+
+      // Now the secondary view should be updated
+      expect(result.current.selectedFileViewSecondary).toBe('chart-edit');
+      expect(mockAnimateOpenSplitter).toHaveBeenCalledWith('right');
+    });
+
+    it('should handle transition from chat to file view correctly', async () => {
+      const { result, rerender } = renderHook((props) => useLayoutConfig(props), {
+        initialProps: {
+          ...defaultProps,
+          chatId: 'chat-123',
+          selectedFile: null
+        }
+      });
+
+      // Transition to file view
+      rerender({
+        ...defaultProps,
+        metricId: 'new-metric-id',
+        currentRoute: BusterRoutes.APP_METRIC_ID_CHART,
+        selectedFile: {
+          id: 'new-metric-id',
+          type: 'metric',
+          versionNumber: 1
+        }
+      } as any);
+
+      expect(result.current.selectedLayout).toBe('both');
+      expect(result.current.selectedFileView).toBe('chart');
+      expect(mockAnimateOpenSplitter).toHaveBeenCalled();
+    });
   });
 });

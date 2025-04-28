@@ -1,20 +1,14 @@
 'use client';
 
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { FileViewSecondary } from './useLayoutConfig';
+import { useWhyDidYouUpdate } from '@/hooks';
+import { pathNameToRoute } from '@/routes/helpers';
 
 export const useGetChatParams = () => {
-  const {
-    chatId,
-    versionNumber: versionNumberPath,
-    metricId,
-    dashboardId,
-    collectionId,
-    datasetId,
-    messageId
-  } = useParams() as {
+  const params = useParams() as {
     versionNumber: string | undefined;
     chatId: string | undefined;
     metricId: string | undefined;
@@ -23,11 +17,22 @@ export const useGetChatParams = () => {
     datasetId: string | undefined;
     messageId: string | undefined;
   };
+  const {
+    chatId,
+    versionNumber: versionNumberPath,
+    metricId,
+    dashboardId,
+    collectionId,
+    datasetId,
+    messageId
+  } = params;
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const queryMetricVersionNumber = searchParams.get('metric_version_number');
   const queryDashboardVersionNumber = searchParams.get('dashboard_version_number');
   const secondaryView = searchParams.get('secondary_view') as FileViewSecondary | undefined;
-  const currentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
+  const currentRoute = pathNameToRoute(pathname, params);
+  const iCurrentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
 
   const metricVersionNumber = useMemo(() => {
     if (!metricId) return undefined;
@@ -50,6 +55,7 @@ export const useGetChatParams = () => {
 
   return useMemo(
     () => ({
+      currentRoute,
       isVersionHistoryMode,
       chatId,
       metricId,
@@ -59,20 +65,21 @@ export const useGetChatParams = () => {
       messageId,
       metricVersionNumber,
       dashboardVersionNumber,
-      currentRoute,
       secondaryView
     }),
+    //So... currentRoute was always one render cycle behind the app context selector. So we calculate it here.
     [
+      currentRoute,
+      isVersionHistoryMode,
       chatId,
       metricId,
-      secondaryView,
       dashboardId,
       collectionId,
       datasetId,
       messageId,
       metricVersionNumber,
       dashboardVersionNumber,
-      currentRoute
+      secondaryView
     ]
   );
 };

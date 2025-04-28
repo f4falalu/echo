@@ -101,10 +101,7 @@ export const StreamingMessageCode: React.FC<
         {lineSegments.map((segment, index) => (
           <div
             key={`${segment.lineNumber}-${index}`}
-            className={cn(
-              'line-number pr-1',
-              !isCompletedStream && 'animate-in fade-in duration-700'
-            )}>
+            className={cn('line-number pr-1', !isCompletedStream && 'fade-in duration-500')}>
             {segment.type === 'text' ? (
               <MemoizedSyntaxHighlighter lineNumber={segment.lineNumber} text={segment.content} />
             ) : (

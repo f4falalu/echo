@@ -16,7 +16,10 @@ import { BusterCollectionListItem } from '@/api/asset_interfaces/collection';
 import { useGetCollection } from '@/api/buster_rest/collections';
 import { collectionsGetList } from '@/api/buster_rest/collections/requests';
 
-type CollectionListFilters = Omit<Parameters<typeof collectionsGetList>[0], 'page' | 'page_size'>;
+type CollectionListFilters = Omit<
+  Parameters<typeof collectionsGetList>[0],
+  'page_token' | 'page_size'
+>;
 type SetCollectionListFilters = (filters: CollectionListFilters) => void;
 
 export const CollectionListHeader: React.FC<{

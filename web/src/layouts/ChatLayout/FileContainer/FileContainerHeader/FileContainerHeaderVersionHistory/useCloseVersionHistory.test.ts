@@ -1,13 +1,13 @@
 import { renderHook } from '@testing-library/react';
 import { useCloseVersionHistory } from './useCloseVersionHistory';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
+import { useAppLayoutContextSelector } from '@/context/BusterAppLayout/AppLayoutProvider';
 import { useGetInitialChatFile } from '@/layouts/ChatLayout/ChatContext/useGetInitialChatFile';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
+import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext/ChatLayoutContext';
 
 // Mock the dependencies
-jest.mock('@/context/BusterAppLayout');
+jest.mock('@/context/BusterAppLayout/AppLayoutProvider');
 jest.mock('@/layouts/ChatLayout/ChatContext/useGetInitialChatFile');
-jest.mock('@/layouts/ChatLayout/ChatLayoutContext');
+jest.mock('@/layouts/ChatLayout/ChatLayoutContext/ChatLayoutContext');
 
 describe('useCloseVersionHistory', () => {
   const mockOnChangePage = jest.fn();
@@ -23,6 +23,10 @@ describe('useCloseVersionHistory', () => {
 
     // Mock useGetInitialChatFile
     (useGetInitialChatFile as jest.Mock).mockReturnValue(mockGetInitialChatFileHref);
+  });
+
+  it('should be true', () => {
+    expect(true).toBe(true);
   });
 
   it('should return correct href when chatId is present', () => {

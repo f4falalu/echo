@@ -41,7 +41,8 @@ export const useDeleteDatasetGroup = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.datasetGroupsList.queryKey,
-        exact: true
+        exact: true,
+        refetchType: 'all'
       });
     }
   });
@@ -54,7 +55,8 @@ export const useUpdateDatasetGroup = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.datasetGroupsList.queryKey,
-        exact: true
+        exact: true,
+        refetchType: 'all'
       });
     }
   });
@@ -102,18 +104,21 @@ export const useCreateDatasetGroup = (datasetId?: string, userId?: string) => {
       if (datasetId) {
         await queryClient.invalidateQueries({
           ...queryKeys.datasetPermissionGroupsList(datasetId),
-          exact: true
+          exact: true,
+          refetchType: 'all'
         });
       }
       await queryClient.invalidateQueries({
         queryKey: queryKeys.datasetGroupsList.queryKey,
-        exact: true
+        exact: true,
+        refetchType: 'all'
       });
 
       if (userId) {
         await queryClient.invalidateQueries({
           queryKey: queryKeys.userGetUserDatasetGroups(userId).queryKey,
-          exact: true
+          exact: true,
+          refetchType: 'all'
         });
       }
       return newDatasetGroup;

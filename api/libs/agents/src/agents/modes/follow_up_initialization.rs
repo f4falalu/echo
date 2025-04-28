@@ -38,11 +38,11 @@ use crate::tools::{
 pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
     // 1. Get the prompt, formatted with current data
     let prompt = FOLLOW_UP_INTIALIZATION_PROMPT
-        .replace("{DATASETS}", &agent_data.dataset_names.join(", "))
+        .replace("{DATASETS}", &agent_data.dataset_with_descriptions.join("\n\n"))
         .replace("{TODAYS_DATE}", &agent_data.todays_date);
 
     // 2. Define the model for this mode (Using a default, adjust if needed)
-    let model = "o4-mini".to_string(); // Assuming default based on original MODEL = None
+    let model = "gemini-2.5-pro-exp-03-25".to_string(); // Assuming default based on original MODEL = None
 
     // 3. Define the tool loader closure
     let tool_loader: Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync> = 

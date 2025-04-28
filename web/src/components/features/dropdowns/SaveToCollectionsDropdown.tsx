@@ -1,5 +1,4 @@
 import { Dropdown, type DropdownItem, type DropdownProps } from '@/components/ui/dropdown';
-import { AppTooltip } from '@/components/ui/tooltip';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import { useMemoizedFn } from '@/hooks';

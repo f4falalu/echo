@@ -17,7 +17,9 @@ const config = {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
   // Test files can be next to components with .test.tsx or .spec.tsx extensions
-  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)']
+  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+  // Exclude Playwright tests from Jest
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/playwright-tests/']
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

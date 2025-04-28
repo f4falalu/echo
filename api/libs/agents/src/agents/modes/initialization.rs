@@ -21,13 +21,13 @@ use crate::tools::{
 pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
     // 1. Get the prompt, formatted with current data
     let prompt = INTIALIZATION_PROMPT
-        .replace("{DATASETS}", &agent_data.dataset_names.join(", "))
+        .replace("{DATASETS}", &agent_data.dataset_with_descriptions.join("\n\n"))
         .replace("{TODAYS_DATE}", &agent_data.todays_date);
 
     // 2. Define the model for this mode (Using a default, adjust if needed)
     //    Since the original MODEL was None, we might use the agent's default
-    //    or specify a standard one like "o4-mini". Let's use "o4-mini".
-    let model = "o4-mini".to_string();
+    //    or specify a standard one like "gemini-2.5-pro-exp-03-25". Let's use "gemini-2.5-pro-exp-03-25".
+    let model = "gemini-2.5-pro-exp-03-25".to_string();
 
     // 3. Define the tool loader closure
     let tool_loader: Box<

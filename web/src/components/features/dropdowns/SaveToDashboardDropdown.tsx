@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/buttons';
 import { Dropdown, type DropdownProps } from '@/components/ui/dropdown/Dropdown';
 import { Plus } from '@/components/ui/icons';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
-import { useCreateDashboard, useGetDashboardsList } from '@/api/buster_rest/dashboards';
+import { useGetDashboardsList } from '@/api/buster_rest/dashboards';
+import { NewDashboardModal } from '../modal/NewDashboardModal';
 
 export const SaveToDashboardDropdown: React.FC<{
   children: React.ReactNode;
@@ -62,9 +63,9 @@ export const useSaveToDashboardDropdownContent = ({
   DropdownProps,
   'items' | 'footerContent' | 'menuHeader' | 'selectType' | 'emptyStateText'
 > => {
-  const { mutateAsync: createDashboard, isPending: isCreatingDashboard } = useCreateDashboard();
   const { data: dashboardsList } = useGetDashboardsList({});
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
+  const [openNewDashboardModal, setOpenNewDashboardModal] = useState(false);
 
   const onClickItem = useMemoizedFn(async (dashboard: BusterDashboardListItem) => {
     const isSelected = selectedDashboards.some((d) => d === dashboard.id);
@@ -72,18 +73,6 @@ export const useSaveToDashboardDropdownContent = ({
       await onRemoveFromDashboard([dashboard.id]);
     } else {
       await onSaveToDashboard([dashboard.id]);
-    }
-  });
-
-  const onClickNewDashboardButton = useMemoizedFn(async () => {
-    const res = await createDashboard({});
-
-    if (res?.dashboard?.id) {
-      await onSaveToDashboard([res.dashboard.id]);
-      onChangePage({
-        route: BusterRoutes.APP_DASHBOARD_ID,
-        dashboardId: res.dashboard.id
-      });
     }
   });
 
@@ -104,32 +93,51 @@ export const useSaveToDashboardDropdownContent = ({
     [dashboardsList, selectedDashboards]
   );
 
+  const onDashboardCreated = useMemoizedFn(async (dashboardId: string) => {
+    await onSaveToDashboard([dashboardId]);
+    onChangePage({
+      route: BusterRoutes.APP_DASHBOARD_ID,
+      dashboardId: dashboardId
+    });
+  });
+
   const footerContent = useMemo(() => {
     return (
       <Button
         variant="ghost"
         className="justify-start!"
-        loading={isCreatingDashboard}
         block
         prefix={<Plus />}
-        onClick={onClickNewDashboardButton}>
+        onClick={() => setOpenNewDashboardModal(true)}>
         New dashboard
       </Button>
     );
-  }, [isCreatingDashboard, onClickNewDashboardButton]);
+  }, []);
 
   const menuHeader = useMemo(() => {
     return items.length > 0 ? 'Save to a dashboard' : undefined;
   }, [items.length]);
+
+  const onCloseNewDashboardModal = useMemoizedFn(() => {
+    setOpenNewDashboardModal(false);
+  });
 
   return useMemo(
     () => ({
       items,
       footerContent,
       menuHeader,
+      selectType: 'multiple',
       emptyStateText: 'No dashboards found',
-      selectType: 'multiple'
+      modal: (
+        <NewDashboardModal
+          open={openNewDashboardModal}
+          onClose={onCloseNewDashboardModal}
+          useChangePage={false}
+          onDashboardCreated={onDashboardCreated}
+        />
+      )
     }),
-    [items, footerContent, menuHeader]
+    [items, footerContent, menuHeader, openNewDashboardModal, onDashboardCreated]
   );
 };

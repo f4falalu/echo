@@ -1,4 +1,10 @@
-import { useMutation, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions
+} from '@tanstack/react-query';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import {
   collectionsGetList,
@@ -19,23 +25,43 @@ import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsPro
 import { create } from 'mutative';
 import type { BusterCollection } from '@/api/asset_interfaces/collection';
 import { RustApiError } from '../errors';
+import { isQueryStale } from '@/lib';
 
 export const useGetCollectionsList = (
-  filters: Omit<Parameters<typeof collectionsGetList>[0], 'page' | 'page_size'>,
+  filters: Omit<Parameters<typeof collectionsGetList>[0], 'page_token' | 'page_size'>,
   options?: Omit<
     UseQueryOptions<Awaited<ReturnType<typeof collectionsGetList>>, RustApiError>,
     'queryKey' | 'queryFn' | 'initialData'
   >
 ) => {
   const payload = useMemo(() => {
-    return { page: 0, page_size: 3000, ...filters };
+    return { ...filters, page_token: 0, page_size: 3500 };
   }, [filters]);
 
   return useQuery({
-    ...collectionQueryKeys.collectionsGetList(filters),
+    ...collectionQueryKeys.collectionsGetList(payload),
     queryFn: () => collectionsGetList(payload),
     ...options
   });
+};
+
+export const prefetchGetCollectionsList = async (
+  queryClient: QueryClient,
+  params?: Parameters<typeof collectionsGetList>[0]
+) => {
+  const options = collectionQueryKeys.collectionsGetList(params);
+  const isStale = isQueryStale(options, queryClient);
+  if (!isStale) return queryClient;
+
+  const lastQueryKey = options.queryKey[options.queryKey.length - 1];
+  const compiledParams = lastQueryKey as Parameters<typeof collectionsGetList>[0];
+
+  await queryClient.prefetchQuery({
+    ...options,
+    queryFn: () => collectionsGetList(compiledParams)
+  });
+
+  return queryClient;
 };
 
 const useFetchCollection = () => {
@@ -68,7 +94,8 @@ export const useCreateCollection = () => {
     mutationFn: collectionsCreateCollection,
     onSuccess: (collection) => {
       queryClient.invalidateQueries({
-        queryKey: collectionQueryKeys.collectionsGetList().queryKey
+        queryKey: collectionQueryKeys.collectionsGetList().queryKey,
+        refetchType: 'all'
       });
       queryClient.setQueryData(
         collectionQueryKeys.collectionsGetCollection(collection.id).queryKey,
@@ -133,7 +160,8 @@ export const useDeleteCollection = () => {
     mutationFn: deleteCollection,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: collectionQueryKeys.collectionsGetList().queryKey
+        queryKey: collectionQueryKeys.collectionsGetList().queryKey,
+        refetchType: 'all'
       });
     }
   });
@@ -219,7 +247,8 @@ export const useAddAssetToCollection = (useInvalidate = true) => {
     onSuccess: (_, variables) => {
       if (useInvalidate) {
         queryClient.invalidateQueries({
-          queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey
+          queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey,
+          refetchType: 'all'
         });
       }
     }
@@ -244,7 +273,8 @@ export const useRemoveAssetFromCollection = (useInvalidate = true) => {
     onSuccess: (_, variables) => {
       if (useInvalidate) {
         queryClient.invalidateQueries({
-          queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey
+          queryKey: collectionQueryKeys.collectionsGetCollection(variables.id).queryKey,
+          refetchType: 'all'
         });
       }
     }
@@ -308,7 +338,8 @@ export const useAddAndRemoveAssetsFromCollection = () => {
     mutationFn: addAndRemoveAssetsToCollection,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: collectionQueryKeys.collectionsGetCollection(variables.collectionId).queryKey
+        queryKey: collectionQueryKeys.collectionsGetCollection(variables.collectionId).queryKey,
+        refetchType: 'all'
       });
     }
   });

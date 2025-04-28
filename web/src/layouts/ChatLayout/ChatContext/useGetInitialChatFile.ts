@@ -1,8 +1,8 @@
-import { useMemoizedFn } from '@/hooks';
-import { FileViewSecondary } from '../ChatLayoutContext';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
+import type { FileViewSecondary } from '../ChatLayoutContext/useLayoutConfig/interfaces';
 import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
+import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
 
 export const useGetInitialChatFile = () => {
   const getChatMemoized = useGetChatMemoized();
