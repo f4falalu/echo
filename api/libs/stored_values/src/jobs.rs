@@ -453,14 +453,12 @@ pub async fn trigger_stale_sync_jobs() -> Result<()> {
 
     let twenty_four_hours_ago = Utc::now() - chrono::Duration::hours(24);
 
-    // Find jobs that are pending OR were last synced > 24h ago (successfully or with error)
+    // Find jobs that were last synced > 24h ago and are not 'in_progress'
     let jobs_to_sync = stored_values_sync_jobs::table
         .filter(
-            stored_values_sync_jobs::status.eq("pending").or(
-                stored_values_sync_jobs::last_synced_at
-                    .lt(twenty_four_hours_ago)
-                    .and(stored_values_sync_jobs::status.ne("in_progress")), // Avoid re-triggering already running jobs
-            ),
+            stored_values_sync_jobs::last_synced_at
+                .lt(twenty_four_hours_ago)
+                .and(stored_values_sync_jobs::status.ne("in_progress")), // Avoid re-triggering already running jobs
         )
         .load::<StoredValuesSyncJob>(&mut conn)
         .await
