@@ -1,5 +1,6 @@
 import { MAX_NUMBER_OF_ITEMS_ON_DASHBOARD } from '@/api/asset_interfaces/dashboard/config';
-import { Text, Title } from '@/components/ui/typography';
+import { Text } from '../../../components/ui/typography/Text';
+import { Title } from '../../../components/ui/typography/Title';
 import { cn } from '@/lib/classMerge';
 
 export const createDashboardFullConfirmModal = ({

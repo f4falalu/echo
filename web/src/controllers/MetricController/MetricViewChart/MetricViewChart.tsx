@@ -13,6 +13,7 @@ import { cn } from '@/lib/classMerge';
 import { useIsMetricReadOnly } from '@/context/Metrics/useIsMetricReadOnly';
 import { MetricSaveFilePopup } from './MetricSaveFilePopup';
 import { useUpdateMetricChart } from '@/context/Metrics';
+import isEmpty from 'lodash/isEmpty';
 
 export const MetricViewChart: React.FC<{
   metricId: string;
@@ -62,6 +63,7 @@ export const MetricViewChart: React.FC<{
       readOnly: readOnlyProp
     });
     const loadingData = !isFetchedMetricData;
+    const hasData = !loadingData && !isEmpty(metricData?.data);
     const errorData = !!metricDataError;
     const showEvaluation = !!evaluation_score && !!evaluation_summary;
 
@@ -79,6 +81,7 @@ export const MetricViewChart: React.FC<{
       <div className={cn('flex h-full flex-col justify-between space-y-3.5 p-5', className)}>
         <MetricViewChartCard
           loadingData={loadingData}
+          hasData={hasData}
           errorData={errorData}
           isTable={isTable}
           className={cardClassName}>
@@ -122,15 +125,16 @@ MetricViewChart.displayName = 'MetricViewChart';
 const MetricViewChartCard: React.FC<{
   children: React.ReactNode;
   loadingData: boolean;
+  hasData: boolean;
   errorData: boolean;
   isTable: boolean;
   className?: string;
-}> = React.memo(({ children, loadingData, errorData, isTable, className }) => {
+}> = React.memo(({ children, loadingData, hasData, errorData, isTable, className }) => {
   const cardClass = useMemo(() => {
-    if (loadingData || errorData) return 'h-full max-h-[600px]';
+    if (loadingData || errorData || !hasData) return 'h-full max-h-[600px]';
     if (isTable) return '';
     return 'h-full max-h-[600px]';
-  }, [isTable, loadingData, errorData]);
+  }, [isTable, loadingData, hasData, errorData]);
 
   return (
     <div

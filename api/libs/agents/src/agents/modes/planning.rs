@@ -25,10 +25,10 @@ pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
     // 1. Get the prompt, formatted with current data
     let prompt = PLANNING_PROMPT
         .replace("{TODAYS_DATE}", &agent_data.todays_date)
-        .replace("{DATASETS}", &agent_data.dataset_names.join(", "));
+        .replace("{DATASETS}", &agent_data.dataset_with_descriptions.join("\n\n"));
 
     // 2. Define the model for this mode (Using default based on original MODEL = None)
-    let model = "o4-mini".to_string();
+    let model = "gemini-2.5-pro-exp-03-25".to_string();
 
     // 3. Define the tool loader closure
     let tool_loader: Box<

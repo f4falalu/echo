@@ -3,13 +3,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as requests from './requests';
 import {
   useGetListChats,
-  useGetChat,
   useUpdateChat,
   useDeleteChat,
   useStartChatFromAsset,
   useUpdateChatMessageFeedback
 } from './queryRequests';
-import { IBusterChat } from '@/api/asset_interfaces/chat';
+import type { IBusterChat } from '@/api/asset_interfaces/chat/iChatInterfaces';
 import React from 'react';
 
 // Mock the hooks and requests
@@ -94,7 +93,7 @@ describe('Chat Query Hooks', () => {
       expect(requests.getListChats).toHaveBeenCalledWith({
         admin_view: false,
         page_token: 0,
-        page_size: 3000,
+        page_size: 3500,
         search: 'test'
       });
     });

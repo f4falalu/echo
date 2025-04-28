@@ -115,10 +115,10 @@ pub async fn sync_distinct_values_chunk(
             .context("Failed to get DB connection for finding job ID")?;
         stored_values_sync_jobs::table
             .filter(stored_values_sync_jobs::data_source_id.eq(data_source_id))
-            .filter(stored_values_sync_jobs::database_name.eq(&database_name))
-            .filter(stored_values_sync_jobs::schema_name.eq(&schema_name))
-            .filter(stored_values_sync_jobs::table_name.eq(&table_name))
-            .filter(stored_values_sync_jobs::column_name.eq(&column_name))
+            .filter(stored_values_sync_jobs::database_name.eq(&database_name.to_lowercase()))
+            .filter(stored_values_sync_jobs::schema_name.eq(&schema_name.to_lowercase()))
+            .filter(stored_values_sync_jobs::table_name.eq(&table_name.to_lowercase()))
+            .filter(stored_values_sync_jobs::column_name.eq(&column_name.to_lowercase()))
             .filter(stored_values_sync_jobs::status.eq("pending")) // Only pick up pending jobs
             .select(stored_values_sync_jobs::id)
             .order(stored_values_sync_jobs::created_at.desc()) // Get the most recent pending one
@@ -453,14 +453,12 @@ pub async fn trigger_stale_sync_jobs() -> Result<()> {
 
     let twenty_four_hours_ago = Utc::now() - chrono::Duration::hours(24);
 
-    // Find jobs that are pending OR were last synced > 24h ago (successfully or with error)
+    // Find jobs that were last synced > 24h ago and are not 'in_progress'
     let jobs_to_sync = stored_values_sync_jobs::table
         .filter(
-            stored_values_sync_jobs::status.eq("pending").or(
-                stored_values_sync_jobs::last_synced_at
-                    .lt(twenty_four_hours_ago)
-                    .and(stored_values_sync_jobs::status.ne("in_progress")), // Avoid re-triggering already running jobs
-            ),
+            stored_values_sync_jobs::last_synced_at
+                .lt(twenty_four_hours_ago)
+                .and(stored_values_sync_jobs::status.ne("in_progress")), // Avoid re-triggering already running jobs
         )
         .load::<StoredValuesSyncJob>(&mut conn)
         .await

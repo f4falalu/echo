@@ -1,7 +1,8 @@
 import { queryOptions } from '@tanstack/react-query';
-import type { BusterMetricData } from '@/api/asset_interfaces/metric';
-import { IBusterChat, BusterChatListItem, IBusterChatMessage } from '@/api/asset_interfaces/chat';
-import { type getListLogs, type getListChats } from '@/api/buster_rest/chats';
+import type { BusterMetricData } from '@/api/asset_interfaces/metric/metricDataInterfaces';
+import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat/iChatInterfaces';
+import { type getListLogs, type getListChats } from '@/api/buster_rest/chats/requests';
+import type { BusterChatListItem } from '../asset_interfaces/chat/chatInterfaces';
 
 const chatsGetChat = (chatId: string) =>
   queryOptions<IBusterChat>({
@@ -28,7 +29,7 @@ const chatsGetList = (
   filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
 ) =>
   queryOptions<BusterChatListItem[]>({
-    queryKey: ['chats', 'list', filters || {}] as const,
+    queryKey: ['chats', 'list', filters || { page_token: 0, page_size: 3500 }] as const,
     staleTime: 60 * 1000, // 1 minute
     initialData: [],
     initialDataUpdatedAt: 0
@@ -46,7 +47,7 @@ const logsGetList = (
   filters?: Omit<Parameters<typeof getListLogs>[0], 'page_token' | 'page_size'>
 ) =>
   queryOptions<BusterChatListItem[]>({
-    queryKey: ['logs', 'list', filters || {}] as const,
+    queryKey: ['logs', 'list', filters || { page_token: 0, page_size: 3500 }] as const,
     staleTime: 60 * 1000, // 1 minute
     initialData: [],
     initialDataUpdatedAt: 0

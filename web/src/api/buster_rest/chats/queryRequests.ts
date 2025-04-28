@@ -1,4 +1,4 @@
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import {
   QueryClient,
   useQuery,
@@ -18,8 +18,8 @@ import {
   startChatFromAsset,
   updateChatMessageFeedback
 } from './requests';
-import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat';
-import { queryKeys } from '@/api/query_keys';
+import type { IBusterChat, IBusterChatMessage } from '@/api/asset_interfaces/chat/iChatInterfaces';
+import { chatQueryKeys } from '@/api/query_keys/chat';
 import { updateChatToIChat } from '@/lib/chat';
 import { useMemo } from 'react';
 import last from 'lodash/last';
@@ -31,20 +31,20 @@ import {
   useRemoveAssetFromCollection
 } from '../collections/queryRequests';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
-import { RustApiError } from '../errors';
+import type { RustApiError } from '../errors';
 
 export const useGetListChats = (
   filters?: Omit<Parameters<typeof getListChats>[0], 'page_token' | 'page_size'>
 ) => {
   const filtersCompiled: Parameters<typeof getListChats>[0] = useMemo(
-    () => ({ admin_view: false, page_token: 0, page_size: 3000, ...filters }),
+    () => ({ admin_view: false, page_token: 0, page_size: 3500, ...filters }),
     [filters]
   );
 
   const queryFn = useMemoizedFn(() => getListChats(filtersCompiled));
 
   return useQuery({
-    ...queryKeys.chatsGetList(filters),
+    ...chatQueryKeys.chatsGetList(filtersCompiled),
     queryFn
   });
 };
@@ -56,7 +56,7 @@ export const prefetchGetListChats = async (
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...queryKeys.chatsGetList(params),
+    ...chatQueryKeys.chatsGetList(params),
     queryFn: () => getListChats_server(params)
   });
 
@@ -67,14 +67,14 @@ export const useGetListLogs = (
   filters?: Omit<Parameters<typeof getListLogs>[0], 'page_token' | 'page_size'>
 ) => {
   const filtersCompiled: Parameters<typeof getListLogs>[0] = useMemo(
-    () => ({ page_token: 0, page_size: 3000, ...filters }),
+    () => ({ page_token: 0, page_size: 3500, ...filters }),
     [filters]
   );
 
   const queryFn = useMemoizedFn(() => getListLogs(filtersCompiled));
 
   return useQuery({
-    ...queryKeys.logsGetList(filters),
+    ...chatQueryKeys.logsGetList(filtersCompiled),
     queryFn
   });
 };
@@ -102,7 +102,7 @@ export const useGetChat = <TData = IBusterChat>(
 
       iChat.message_ids.forEach((messageId) => {
         queryClient.setQueryData(
-          queryKeys.chatsMessages(messageId).queryKey,
+          chatQueryKeys.chatsMessages(messageId).queryKey,
           iChatMessages[messageId]
         );
       });
@@ -112,7 +112,7 @@ export const useGetChat = <TData = IBusterChat>(
   });
 
   return useQuery({
-    ...queryKeys.chatsGetChat(params.id),
+    ...chatQueryKeys.chatsGetChat(params.id),
     enabled: !!params.id,
     queryFn,
     select: options?.select,
@@ -128,11 +128,11 @@ export const useStartChatFromAsset = () => {
     const { iChat, iChatMessages } = updateChatToIChat(chat, false);
     iChat.message_ids.forEach((messageId) => {
       queryClient.setQueryData(
-        queryKeys.chatsMessages(messageId).queryKey,
+        chatQueryKeys.chatsMessages(messageId).queryKey,
         iChatMessages[messageId]
       );
     });
-    queryClient.setQueryData(queryKeys.chatsGetChat(chat.id).queryKey, iChat);
+    queryClient.setQueryData(chatQueryKeys.chatsGetChat(chat.id).queryKey, iChat);
     return iChat;
   });
 
@@ -140,7 +140,8 @@ export const useStartChatFromAsset = () => {
     mutationFn,
     onSuccess: (chat) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.chatsGetList().queryKey
+        queryKey: chatQueryKeys.chatsGetList().queryKey,
+        refetchType: 'all'
       });
     }
   });
@@ -153,7 +154,7 @@ export const prefetchGetChat = async (
   const queryClient = queryClientProp || new QueryClient();
 
   await queryClient.prefetchQuery({
-    ...queryKeys.chatsGetChat(params.id),
+    ...chatQueryKeys.chatsGetChat(params.id),
     queryFn: async () => {
       return await getChat_server(params).then((chat) => {
         return updateChatToIChat(chat, true).iChat;
@@ -172,7 +173,7 @@ export const useUpdateChat = () => {
       //this is actually handled in @useChatUpdate file
       //except for the chat title and feedback
       if (data.title) {
-        const options = queryKeys.chatsGetChat(data.id);
+        const options = chatQueryKeys.chatsGetChat(data.id);
         queryClient.setQueryData(options.queryKey, (old) => {
           return {
             ...old!,
@@ -189,7 +190,7 @@ export const useUpdateChatMessageFeedback = () => {
   return useMutation({
     mutationFn: updateChatMessageFeedback,
     onMutate: ({ message_id, feedback }) => {
-      const options = queryKeys.chatsMessages(message_id);
+      const options = chatQueryKeys.chatsMessages(message_id);
       queryClient.setQueryData(options.queryKey, (old) => {
         return {
           ...old!,
@@ -231,7 +232,8 @@ export const useDeleteChat = () => {
     mutationFn,
     onSuccess(data, variables, context) {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.chatsGetList().queryKey
+        queryKey: chatQueryKeys.chatsGetList().queryKey,
+        refetchType: 'all'
       });
     }
   });
@@ -241,7 +243,7 @@ export const useGetChatMessageMemoized = () => {
   const queryClient = useQueryClient();
 
   const getChatMessageMemoized = useMemoizedFn((messageId: string) => {
-    const options = queryKeys.chatsMessages(messageId);
+    const options = chatQueryKeys.chatsMessages(messageId);
     const queryKey = options.queryKey;
     return queryClient.getQueryData<IBusterChatMessage>(queryKey);
   });
@@ -253,7 +255,7 @@ export const useGetChatMemoized = () => {
   const queryClient = useQueryClient();
 
   const getChatMemoized = useMemoizedFn((chatId: string) => {
-    const options = queryKeys.chatsGetChat(chatId);
+    const options = chatQueryKeys.chatsGetChat(chatId);
     const queryKey = options.queryKey;
     return queryClient.getQueryData<IBusterChat>(queryKey);
   });
@@ -266,7 +268,7 @@ export const useGetChatMessage = <TData = IBusterChatMessage>(
   options?: Omit<UseQueryOptions<IBusterChatMessage, RustApiError, TData>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery({
-    ...queryKeys.chatsMessages(messageId),
+    ...chatQueryKeys.chatsMessages(messageId),
     enabled: false, //this will come from the chat
     select: options?.select,
     ...options
@@ -307,7 +309,8 @@ export const useSaveChatToCollections = () => {
       queryClient.invalidateQueries({
         queryKey: collectionIds.map(
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
-        )
+        ),
+        refetchType: 'all'
       });
     }
   });
@@ -342,7 +345,8 @@ export const useRemoveChatFromCollections = () => {
       queryClient.invalidateQueries({
         queryKey: collectionIds.map(
           (id) => collectionQueryKeys.collectionsGetCollection(id).queryKey
-        )
+        ),
+        refetchType: 'all'
       });
     }
   });

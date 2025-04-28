@@ -7,6 +7,7 @@ import { AppPageLayout } from '@/components/ui/layouts';
 import { useGetDashboardsList } from '@/api/buster_rest/dashboards';
 
 export const DashboardListController: React.FC = () => {
+  const [openNewDashboardModal, setOpenNewDashboardModal] = useState(false);
   const [dashboardListFilters, setDashboardListFilters] = useState<{
     shared_with_me?: boolean;
     only_my_dashboards?: boolean;
@@ -21,9 +22,15 @@ export const DashboardListController: React.FC = () => {
         <DashboardHeader
           dashboardFilters={dashboardListFilters}
           onSetDashboardListFilters={setDashboardListFilters}
+          setOpenNewDashboardModal={setOpenNewDashboardModal}
         />
       }>
-      <DashboardListContent loading={!isFetchedDashboardsList} dashboardsList={dashboardsList} />
+      <DashboardListContent
+        loading={!isFetchedDashboardsList}
+        dashboardsList={dashboardsList}
+        openNewDashboardModal={openNewDashboardModal}
+        setOpenNewDashboardModal={setOpenNewDashboardModal}
+      />
     </AppPageLayout>
   );
 };

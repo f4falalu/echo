@@ -1,11 +1,29 @@
 import type { DataMetadata, BusterMetricData } from '@/api/asset_interfaces/metric';
-import { faker } from '@faker-js/faker';
 
-const mockData = (): Record<string, string | number | null>[] => {
-  return Array.from({ length: faker.number.int({ min: 2, max: 100 }) }, (x, index) => ({
-    sales: index + 1,
-    date: faker.date.past({ years: index + 1 }).toISOString(),
-    product: faker.commerce.productName()
+const PRODUCTS = [
+  'Laptop',
+  'Smartphone',
+  'Tablet',
+  'Monitor',
+  'Keyboard',
+  'Mouse',
+  'Headphones',
+  'Printer',
+  'Camera',
+  'Speaker'
+];
+
+const generateDate = (index: number): string => {
+  const baseDate = new Date('2024-01-01');
+  baseDate.setDate(baseDate.getDate() + index);
+  return baseDate.toISOString();
+};
+
+const mockData = (length: number = 10): Record<string, string | number | null>[] => {
+  return Array.from({ length }, (_, index) => ({
+    sales: (index + 1) * 100,
+    date: generateDate(index),
+    product: PRODUCTS[index % PRODUCTS.length]
   }));
 };
 
@@ -14,7 +32,7 @@ const dataMetadata: DataMetadata = {
   column_metadata: [
     {
       name: 'sales',
-      min_value: 0,
+      min_value: 100,
       max_value: 1000,
       unique_values: 10,
       simple_type: 'number',
@@ -30,9 +48,9 @@ const dataMetadata: DataMetadata = {
     },
     {
       name: 'product',
-      min_value: 'Product A',
-      max_value: 'Product Z',
-      unique_values: 26,
+      min_value: PRODUCTS[0],
+      max_value: PRODUCTS[PRODUCTS.length - 1],
+      unique_values: PRODUCTS.length,
       simple_type: 'text',
       type: 'text'
     }
@@ -42,7 +60,7 @@ const dataMetadata: DataMetadata = {
 
 const MOCK_DATA: Required<BusterMetricData> = {
   data: mockData(),
-  metricId: faker.string.uuid(),
+  metricId: 'mock-metric-1',
   data_metadata: dataMetadata
 };
 

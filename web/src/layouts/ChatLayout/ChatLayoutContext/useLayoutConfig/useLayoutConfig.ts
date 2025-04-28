@@ -3,7 +3,7 @@
 import { FileType } from '@/api/asset_interfaces/chat';
 import { RefObject, useMemo, useState } from 'react';
 import { FileConfig, FileView, FileViewConfig, FileViewSecondary } from './interfaces';
-import { useMemoizedFn, useUpdateEffect } from '@/hooks';
+import { useIsChanged, useMemoizedFn, useUpdateEffect } from '@/hooks';
 import { create } from 'mutative';
 import { ChatLayoutView } from '../../interfaces';
 import type { SelectedFile } from '../../interfaces';
@@ -12,9 +12,9 @@ import { BusterRoutes } from '@/routes/busterRoutes';
 import { SelectedFileSecondaryRenderRecord } from '../../FileContainer/FileContainerSecondary';
 import { ChatParams } from '../useGetChatParams';
 import { initializeFileViews } from './helpers';
-import { DEFAULT_FILE_VIEW } from '../helpers';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
+import { DEFAULT_FILE_VIEW } from '../helpers';
 
 export const useLayoutConfig = ({
   selectedFile,
@@ -39,6 +39,7 @@ export const useLayoutConfig = ({
   const [fileViews, setFileViews] = useState<Record<string, FileConfig>>(() =>
     initializeFileViews({ secondaryView, metricId, dashboardId, currentRoute })
   );
+  const { onCheckIsChanged } = useIsChanged();
 
   const selectedFileId = selectedFile?.id;
   const selectedFileType = selectedFile?.type;
@@ -179,6 +180,14 @@ export const useLayoutConfig = ({
 
   //we need to use for when the user clicks the back or forward in the browser
   useUpdateEffect(() => {
+    console.log('useUpdateEffect', {
+      metricId,
+      secondaryView,
+      chatId,
+      dashboardId,
+      messageId,
+      currentRoute
+    });
     const newInitialFileViews = initializeFileViews({
       secondaryView,
       metricId,
@@ -187,15 +196,35 @@ export const useLayoutConfig = ({
     });
     const fileId = Object.keys(newInitialFileViews)[0];
     const fileView = newInitialFileViews[fileId]?.selectedFileView;
-    const secondaryViewFromSelected =
-      newInitialFileViews[fileId]?.fileViewConfig?.[fileView]?.secondaryView;
+
+    //sooo.. I have a suspicion that the reasoning is not flipping because this was being called twice. So I added this hook.
+    const isFileViewsChanged = onCheckIsChanged({
+      metricId,
+      secondaryView,
+      chatId,
+      dashboardId,
+      messageId,
+      currentRoute
+    });
+
+    console.log('isFileViewsChanged', isFileViewsChanged);
+
+    if (!isFileViewsChanged) return;
+
+    console.log('setting file view', {
+      newInitialFileViews,
+      fileId,
+      fileView,
+      secondaryView
+    });
 
     onSetFileView({
       fileId,
       fileView,
-      secondaryView: secondaryViewFromSelected
+      secondaryView
     });
   }, [metricId, secondaryView, chatId, dashboardId, messageId, currentRoute]);
+  //i removed currentRoute because I could not go from chat to file by clicking the file
 
   return {
     selectedLayout,

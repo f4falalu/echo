@@ -82,7 +82,8 @@ export const useDeleteDatasource = () => {
     mutationFn,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey
+        queryKey: queryKeys.datasourceGetList.queryKey,
+        refetchType: 'all'
       });
     }
   });
@@ -94,7 +95,8 @@ export const useCreatePostgresDataSource = () => {
     mutationFn: createPostgresDataSource,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey
+        queryKey: queryKeys.datasourceGetList.queryKey,
+        refetchType: 'all'
       });
     }
   });
@@ -106,10 +108,12 @@ export const useUpdatePostgresDataSource = () => {
     mutationFn: updatePostgresDataSource,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGetList.queryKey
+        queryKey: queryKeys.datasourceGetList.queryKey,
+        refetchType: 'all'
       });
       queryClient.invalidateQueries({
-        queryKey: queryKeys.datasourceGet(variables.id).queryKey
+        queryKey: queryKeys.datasourceGet(variables.id).queryKey,
+        refetchType: 'all'
       });
     }
   });

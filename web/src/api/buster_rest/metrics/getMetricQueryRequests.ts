@@ -1,4 +1,8 @@
-import { BusterMetricData, IBusterMetric, IBusterMetricData } from '@/api/asset_interfaces/metric';
+import type {
+  BusterMetricData,
+  IBusterMetric,
+  IBusterMetricData
+} from '@/api/asset_interfaces/metric';
 import { QueryClient, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { RustApiError } from '../errors';
 import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
