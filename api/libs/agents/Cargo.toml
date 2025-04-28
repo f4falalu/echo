@@ -34,7 +34,7 @@ sqlx = { workspace = true }
 stored_values = { path = "../stored_values" }
 tokio-retry = { workspace = true }
 thiserror = { workspace = true }
-
+raindrop = { path = "../raindrop" }
 # Development dependencies
 [dev-dependencies]
 tokio-test = { workspace = true }
