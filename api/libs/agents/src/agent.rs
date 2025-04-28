@@ -1448,7 +1448,6 @@ pub trait AgentExt {
         (*self.get_agent_arc()).get_current_thread().await
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1826,3 +1825,4 @@ mod tests {
         assert_eq!(agent.get_state_bool("bool_key").await, None);
     }
 }
+
