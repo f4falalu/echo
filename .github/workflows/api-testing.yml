@@ -1,0 +1,137 @@
+name: API Testing
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+      - '.github/workflows/api-testing.yml' # Also run if the workflow file itself changes
+
+jobs:
+  test:
+    runs-on: blacksmith-16vcpu-ubuntu-2204 # Using a powerful runner as requested
+
+    # Service container for Redis
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Node.js setup removed - not needed for cargo test
+
+      - name: Install Supabase CLI
+        run: npm install --global supabase@latest
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Diesel CLI
+        run: cargo install diesel_cli --no-default-features --features postgres
+
+      - name: Start Supabase
+        id: supabase_start
+        # Supabase start needs Docker
+        # Run in background, pipe output to file, then process file
+        run: |
+          supabase start &> supabase_output.log &
+          echo "Waiting for Supabase services to initialize..."
+          sleep 30 # Initial wait time, adjust as needed
+
+          # Wait for DB to be connectable - adjust port if supabase start uses a different default
+          n=0
+          until [ "$n" -ge 30 ] || pg_isready -h 127.0.0.1 -p 54322 -U postgres; do
+            n=$((n+1))
+            echo "Waiting for DB... Attempt $n/30"
+            sleep 2
+          done
+          if ! pg_isready -h 127.0.0.1 -p 54322 -U postgres; then
+            echo "::error::Supabase DB did not become ready in time."
+            cat supabase_output.log
+            exit 1
+          fi
+
+          echo "Supabase services seem ready. Extracting config..."
+          cat supabase_output.log
+
+          # Extract variables from supabase start output
+          # These grep patterns might need adjustment based on actual supabase cli output format
+          echo "DB_URL=$(grep 'DB URL:' supabase_output.log | sed 's/.*DB URL: *//')" >> $GITHUB_ENV
+          echo "SUPABASE_URL=$(grep 'API URL:' supabase_output.log | sed 's/.*API URL: *//')" >> $GITHUB_ENV
+          echo "SUPABASE_ANON_KEY=$(grep 'anon key:' supabase_output.log | sed 's/.*anon key: *//')" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(grep 'service_role key:' supabase_output.log | sed 's/.*service_role key: *//')" >> $GITHUB_ENV
+          echo "JWT_SECRET=$(grep 'JWT secret:' supabase_output.log | sed 's/.*JWT secret: *//')" >> $GITHUB_ENV
+
+          # Check if variables were extracted
+          if [ -z "${DB_URL}" ] || [ -z "${SUPABASE_URL}" ] || [ -z "${SUPABASE_ANON_KEY}" ] || [ -z "${SUPABASE_SERVICE_ROLE_KEY}" ] || [ -z "${JWT_SECRET}" ]; then
+            echo "::error::Failed to extract Supabase configuration from output."
+            cat supabase_output.log
+            exit 1
+          fi
+
+          echo "Supabase started and configured."
+
+      - name: Run Migrations
+        working-directory: ./api
+        run: diesel migration run
+        env:
+          # Use the DB URL extracted from supabase start
+          DATABASE_URL: ${{ env.DB_URL }}
+
+      - name: Seed Database
+        run: |
+          # Extract connection details from DB_URL (format: postgres://USER:PASS@HOST:PORT/DBNAME)
+          PGUSER=$(echo "${{ env.DB_URL }}" | awk -F '[/:]' '{print $4}')
+          PGPASSWORD=$(echo "${{ env.DB_URL }}" | awk -F '[:@]' '{print $3}')
+          PGHOST=$(echo "${{ env.DB_URL }}" | awk -F '[@:]' '{print $4}')
+          PGPORT=$(echo "${{ env.DB_URL }}" | awk -F '[:/]' '{print $6}')
+          PGDATABASE=$(echo "${{ env.DB_URL }}" | awk -F '/' '{print $NF}')
+
+          PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f ./api/libs/database/seed.sql
+        env:
+          DATABASE_URL: ${{ env.DB_URL }}
+
+      # Removed Build API Server step - cargo test builds implicitly
+      # Removed Run API Server step - cargo test runs tests directly
+      # Removed Wait for API Server step - not needed as server isn't run separately
+
+      - name: Run API Tests
+        working-directory: ./api # Tests run from the api directory
+        run: cargo test --workspace # Run tests for all packages in the api workspace
+        env:
+          # Pass necessary env vars to the tests, using values from supabase start
+          DATABASE_URL: ${{ env.DB_URL }}
+          REDIS_URL: redis://localhost:6379 # Connect to the Redis service container
+          JWT_SECRET: ${{ env.JWT_SECRET }}
+          SUPABASE_URL: ${{ env.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
+          RUST_LOG: debug # Or adjust as needed
+
+          # Sensitive values from Secrets (Ensure these exist in GitHub Secrets if tests need them)
+          # Example: needed if tests make external calls
+          OPENAI_API_KEY: ${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.GH_ACTIONS_RESEND_API_KEY }}
+          COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
+          LLM_API_KEY: ${{ secrets.GH_ACTIONS_LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.GH_ACTIONS_LLM_BASE_URL }}
+
+      - name: Stop Supabase
+        if: always() # Ensure Supabase is stopped even if tests fail
+        run: supabase stop
