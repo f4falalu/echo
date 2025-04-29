@@ -6,13 +6,15 @@ on:
       - main
     paths:
       - 'web/**'
-      - '.github/workflows/web-testing.yml' # Also run if the workflow file itself changes
+      - '.github/workflows/web-testing.yml'
+      - '.github/actions/setup-test-environment/action.yml' # Rerun if common setup changes
+      - '.github/actions/stop-supabase/action.yml'
 
 jobs:
   test:
-    runs-on: blacksmith-16vcpu-ubuntu-2204 # Using a powerful runner as requested
-    
-    # Service container for Redis
+    runs-on: blacksmith-16vcpu-ubuntu-2204
+
+    # Service container for Redis (needed by the setup action and potentially API)
     services:
       redis:
         image: redis
@@ -28,126 +30,56 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js # Assuming frontend tests use Node
+      - name: Set up Node.js # Still needed for frontend build/test commands
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Specify your Node version
+          node-version: '20'
 
-      - name: Install Supabase CLI
-        run: npm install --global supabase@latest
+      - name: Setup Test Environment
+        id: setup_env # Give an ID to reference outputs
+        uses: ./.github/actions/setup-test-environment
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-
-      - name: Install Diesel CLI
-        run: cargo install diesel_cli --no-default-features --features postgres
-
-      - name: Start Supabase
-        id: supabase_start
-        # Supabase start needs Docker
-        # Run in background, pipe output to file, then process file
-        run: |
-          supabase start &> supabase_output.log &
-          echo "Waiting for Supabase services to initialize..."
-          sleep 30 # Initial wait time, adjust as needed
-          
-          # Wait for DB to be connectable - adjust port if supabase start uses a different default
-          n=0
-          until [ "$n" -ge 30 ] || pg_isready -h 127.0.0.1 -p 54322 -U postgres; do
-            n=$((n+1))
-            echo "Waiting for DB... Attempt $n/30"
-            sleep 2
-          done
-          if ! pg_isready -h 127.0.0.1 -p 54322 -U postgres; then
-            echo "::error::Supabase DB did not become ready in time."
-            cat supabase_output.log
-            exit 1
-          fi
-          
-          echo "Supabase services seem ready. Extracting config..."
-          cat supabase_output.log
-          
-          # Extract variables from supabase start output
-          # These grep patterns might need adjustment based on actual supabase cli output format
-          echo "DB_URL=$(grep 'DB URL:' supabase_output.log | sed 's/.*DB URL: *//')" >> $GITHUB_ENV
-          echo "SUPABASE_URL=$(grep 'API URL:' supabase_output.log | sed 's/.*API URL: *//')" >> $GITHUB_ENV
-          echo "SUPABASE_ANON_KEY=$(grep 'anon key:' supabase_output.log | sed 's/.*anon key: *//')" >> $GITHUB_ENV
-          echo "SUPABASE_SERVICE_ROLE_KEY=$(grep 'service_role key:' supabase_output.log | sed 's/.*service_role key: *//')" >> $GITHUB_ENV
-          echo "JWT_SECRET=$(grep 'JWT secret:' supabase_output.log | sed 's/.*JWT secret: *//')" >> $GITHUB_ENV
-          
-          # Check if variables were extracted
-          if [ -z "${DB_URL}" ] || [ -z "${SUPABASE_URL}" ] || [ -z "${SUPABASE_ANON_KEY}" ] || [ -z "${SUPABASE_SERVICE_ROLE_KEY}" ] || [ -z "${JWT_SECRET}" ]; then
-            echo "::error::Failed to extract Supabase configuration from output."
-            cat supabase_output.log
-            exit 1
-          fi
-          
-          echo "Supabase started and configured."
-
-      - name: Run Migrations
-        working-directory: ./api
-        run: diesel migration run
-        env:
-          # Use the DB URL extracted from supabase start
-          DATABASE_URL: ${{ env.DB_URL }}
-
-      - name: Seed Database
-        run: |
-          # Extract connection details from DB_URL (format: postgres://USER:PASS@HOST:PORT/DBNAME)
-          PGUSER=$(echo "${{ env.DB_URL }}" | awk -F '[/:]' '{print $4}')
-          PGPASSWORD=$(echo "${{ env.DB_URL }}" | awk -F '[:@]' '{print $3}')
-          PGHOST=$(echo "${{ env.DB_URL }}" | awk -F '[@:]' '{print $4}')
-          PGPORT=$(echo "${{ env.DB_URL }}" | awk -F '[:/]' '{print $6}')
-          PGDATABASE=$(echo "${{ env.DB_URL }}" | awk -F '/' '{print $NF}')
-          
-          PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f ./api/libs/database/seed.sql
-        env:
-          DATABASE_URL: ${{ env.DB_URL }}
-
+      # Build/Run/Wait steps remain for web testing as it needs the API server running
       - name: Build API Server
         working-directory: ./api
-        run: cargo build --release # Build release for potentially faster execution
+        run: cargo build --release
+        env:
+          # Potentially needed if build process requires env vars, though unlikely
+          DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
 
       - name: Run API Server
         working-directory: ./api
         run: |
-          ./target/release/server & 
-          echo "API_PID=$!" >> $GITHUB_ENV # Store PID for later cleanup
+          ./target/release/server & # Run in background
+          echo $! > /tmp/api-server.pid # Store PID for later cleanup
         env:
-          # Core Supabase/DB/Redis vars (Dynamically set)
-          DATABASE_URL: ${{ env.DB_URL }}
-          POOLER_URL: ${{ env.DB_URL }} # Uses the same DB URL from supabase start
-          REDIS_URL: redis://localhost:6379 # Corrected to localhost for service container access from runner
-          JWT_SECRET: ${{ env.JWT_SECRET }}
-          SUPABASE_URL: ${{ env.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
-          
+          # Core Supabase/DB/Redis vars from setup action outputs
+          DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
+          POOLER_URL: ${{ steps.setup_env.outputs.database-url }} # Assuming pooler uses same DB
+          REDIS_URL: redis://localhost:6379 # Use localhost as it runs on the runner accessing the service
+          JWT_SECRET: ${{ steps.setup_env.outputs.jwt-secret }}
+          SUPABASE_URL: ${{ steps.setup_env.outputs.supabase-url }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.setup_env.outputs.supabase-service-role-key }}
+
           # Non-sensitive / Default values
           ENVIRONMENT: development
-          BUSTER_URL: http://localhost:3000 # Assuming frontend runs here
-          BUSTER_WH_TOKEN: buster-wh-token # Non-sensitive token
-          LOG_LEVEL: debug # As provided
-          PORT: 3001 # Default API port
+          BUSTER_URL: http://localhost:3000
+          BUSTER_WH_TOKEN: buster-wh-token
+          LOG_LEVEL: debug
+          PORT: 3001 # API server port
+          RUST_LOG: debug
 
-          # Sensitive values from Secrets (Ensure these exist in GitHub Secrets)
-          OPENAI_API_KEY: ${{ secrets.GH_ACTIONS_OPENAI_API_KEY }} # Use secrets
-          RESEND_API_KEY: ${{ secrets.GH_ACTIONS_RESEND_API_KEY }} # Use secrets
-          COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }} # Use secrets
-          LLM_API_KEY: ${{ secrets.GH_ACTIONS_LLM_API_KEY }} # Use secrets
-          LLM_BASE_URL: ${{ secrets.GH_ACTIONS_LLM_BASE_URL }} # Use secrets
+          # Sensitive values from Secrets
+          OPENAI_API_KEY: ${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.GH_ACTIONS_RESEND_API_KEY }}
+          COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
+          LLM_API_KEY: ${{ secrets.GH_ACTIONS_LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.GH_ACTIONS_LLM_BASE_URL }}
 
-          RUST_LOG: ${{ env.LOG_LEVEL }} # Use LOG_LEVEL for RUST_LOG
 
       - name: Wait for API Server
         run: |
-          echo "Waiting for API server to be ready..."
+          echo "Waiting for API server (localhost:3001) to be ready..."
           n=0
           until [ "$n" -ge 30 ] || curl -f http://localhost:3001/health; do
             n=$((n+1))
@@ -156,29 +88,29 @@ jobs:
           done
           if ! curl -f http://localhost:3001/health; then
             echo "::error::API server did not become ready in time."
-            # Consider fetching logs from the background process if possible
             exit 1
           fi
           echo "API server is ready."
 
-      # Placeholder for frontend tests
       - name: Run Frontend E2E Tests
-        working-directory: ./web # Assuming tests are run from the web directory
+        working-directory: ./web
         run: |
           echo "Running web E2E tests..."
           # Add your actual test command here, e.g.:
-          # npm install
-          # npm run build # If needed
-          # npm run test:e2e
+          npm install # Or yarn install, pnpm install
+          npm run build # If needed
+          npm run test:e2e
         env:
-          # Pass necessary env vars to the frontend tests
-          NEXT_PUBLIC_API_URL: http://localhost:3001 # API server runs locally in the workflow
-          NEXT_PUBLIC_URL: http://localhost:3000 # Default from provided env
-          NEXT_PUBLIC_SUPABASE_URL: ${{ env.SUPABASE_URL }} # Dynamic from supabase start
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ env.SUPABASE_ANON_KEY }} # Dynamic from supabase start
-          NEXT_PUBLIC_WEB_SOCKET_URL: ws://localhost:3001 # WS likely points to the API server
-          # Add any other NEXT_PUBLIC_ or test-specific vars needed
+          # API runs on localhost within the runner
+          NEXT_PUBLIC_API_URL: http://localhost:3001
+          NEXT_PUBLIC_URL: http://localhost:3000 # Assuming default URL for the app itself
+          # Use Supabase details from the setup action outputs
+          NEXT_PUBLIC_SUPABASE_URL: ${{ steps.setup_env.outputs.supabase-url }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.setup_env.outputs.supabase-anon-key }}
+          NEXT_PUBLIC_WEB_SOCKET_URL: ws://localhost:3001 # Assuming WS connects to API
 
-      - name: Stop Supabase
+          # Pass any other required NEXT_PUBLIC_ variables
+
+      - name: Stop Supabase # Use the cleanup action
+        uses: ./.github/actions/stop-supabase
         if: always() # Ensure Supabase is stopped even if tests fail
-        run: supabase stop

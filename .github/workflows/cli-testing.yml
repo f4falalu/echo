@@ -1,18 +1,18 @@
-name: API Testing
+name: CLI Testing
 
 on:
   pull_request:
     branches:
       - main
     paths:
-      - 'api/**'
-      - '.github/workflows/api-testing.yml'
+      - 'cli/**' # Trigger on changes in the cli directory
+      - '.github/workflows/cli-testing.yml' # Also run if the workflow file itself changes
       - '.github/actions/setup-test-environment/action.yml' # Rerun if common setup changes
       - '.github/actions/stop-supabase/action.yml'
 
 jobs:
   test:
-    runs-on: blacksmith-16vcpu-ubuntu-2204
+    runs-on: blacksmith-16vcpu-ubuntu-2204 # Using a powerful runner as requested
 
     # Service container for Redis (needed by the setup action)
     services:
@@ -30,15 +30,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Node.js setup removed
+      # Node.js setup removed - not needed for cargo test
+
+      - name: Install Supabase CLI
+        run: npm install --global supabase@latest
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        # Consider a different cache key if CLI dependencies are separate
+        # with:
+        #   key: ${{ runner.os }}-cargo-cli-${{ hashFiles('**/cli/Cargo.lock') }}
+
+      - name: Install Diesel CLI
+        run: cargo install diesel_cli --no-default-features --features postgres
 
       - name: Setup Test Environment
         id: setup_env # Give an ID to reference outputs
         uses: ./.github/actions/setup-test-environment
 
-      - name: Run API Tests
-        working-directory: ./api # Tests run from the api directory
-        run: cargo test --workspace # Run tests for all packages in the api workspace
+      - name: Run CLI Tests
+        working-directory: ./cli # Tests run from the cli directory
+        run: cargo test --workspace # Run tests for all packages in the cli workspace
         env:
           # Pass necessary env vars from setup action outputs
           DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
@@ -48,7 +67,9 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ steps.setup_env.outputs.supabase-service-role-key }}
           RUST_LOG: debug # Or adjust as needed
 
-          # Sensitive values from Secrets
+          # Add any other environment variables your CLI tests might require
+
+          # Sensitive values from Secrets (if needed by CLI tests)
           OPENAI_API_KEY: ${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}
           RESEND_API_KEY: ${{ secrets.GH_ACTIONS_RESEND_API_KEY }}
           COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
