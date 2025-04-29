@@ -117,7 +117,9 @@ jobs:
 
       - name: Run API Server
         working-directory: ./api
-        run: ./target/release/server & # Run the built binary in the background
+        run: |
+          ./target/release/server & 
+          echo "API_PID=$!" >> $GITHUB_ENV # Store PID for later cleanup
         env:
           # Core Supabase/DB/Redis vars (Dynamically set)
           DATABASE_URL: ${{ env.DB_URL }}
