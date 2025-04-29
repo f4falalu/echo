@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use chrono::Utc;
 use database::{
     enums::Verification,
@@ -12,7 +12,7 @@ use indexmap::IndexMap;
 use query_engine::{data_source_query_routes::query_engine::query_engine, data_types::DataType};
 use serde_json::Value;
 use serde_yaml;
-use tracing::{debug, error};
+use tracing::{debug, error, warn};
 use uuid::Uuid;
 
 use diesel::{ExpressionMethods, QueryDsl};
@@ -24,11 +24,16 @@ use super::file_types::file::FileWithId;
 
 // Import dataset_security for permission check
 use dataset_security::has_dataset_access;
+use dataset_security::has_all_datasets_access;
 
 // Import the types needed for the modification function
 
+use database::models::Dataset;
+use database::schema::datasets;
+use sql_analyzer::{analyze_query, types::TableKind};
+
 /// Validates SQL query using existing query engine by attempting to run it
-/// Returns a tuple with a message about the number of records, the results (if ≤ 13 records), and metadata
+/// Returns a tuple with a message, results (if ≤ 13 records), metadata, and validated dataset IDs
 pub async fn validate_sql(
     sql: &str,
     data_source_id: &Uuid,
@@ -37,6 +42,7 @@ pub async fn validate_sql(
     String,
     Vec<IndexMap<String, DataType>>,
     Option<DataMetadata>,
+    Vec<Uuid>,
 )> {
     debug!("Validating SQL query for data source {}", data_source_id);
 
@@ -44,24 +50,58 @@ pub async fn validate_sql(
         return Err(anyhow!("SQL query cannot be empty"));
     }
 
-    // // Check dataset access before proceeding
-    // if !has_dataset_access(user_id, dataset_id).await? {
-    //     bail!(
-    //         "Permission denied: User {} does not have access to dataset {}",
-    //         user_id,
-    //         dataset_id
-    //     );
-    // }
+    // Analyze the SQL to extract base table names
+    let analysis_result = analyze_query(sql.to_string()).await?;
 
-    // Try to execute the query using query_engine
-    let query_result = match query_engine(&data_source_id, sql, Some(15)).await {
+    // Extract base table names
+    let table_names: Vec<String> = analysis_result
+        .tables
+        .into_iter()
+        .filter(|t| t.kind == TableKind::Base)
+        .map(|t| t.table_identifier.clone())
+        .collect();
+
+    let mut validated_dataset_ids = Vec::new(); // Store IDs of datasets user has access to
+
+    if !table_names.is_empty() {
+        let mut conn = get_pg_pool().get().await?;
+
+        // Find corresponding datasets
+        let found_datasets = datasets::table
+            .filter(datasets::data_source_id.eq(data_source_id))
+            .filter(datasets::name.eq_any(&table_names))
+            .filter(datasets::deleted_at.is_null())
+            .load::<Dataset>(&mut conn)
+            .await?;
+
+        let dataset_ids: Vec<Uuid> = found_datasets.iter().map(|ds| ds.id).collect();
+
+        // Check dataset access
+        if !dataset_ids.is_empty() {
+            if !has_all_datasets_access(user_id, &dataset_ids).await? {
+                bail!(
+                    "Permission denied: User {} does not have access to one or more datasets required by the query: {:?}",
+                    user_id,
+                    table_names
+                );
+            }
+            // If access is granted, add these IDs to the validated list
+            validated_dataset_ids.extend(dataset_ids);
+        } else {
+            warn!(
+                "Tables {:?} mentioned in query not found as datasets for data source {}",
+                table_names, data_source_id
+            );
+        }
+    }
+
+    // Try to execute the query
+    let query_result = match query_engine(data_source_id, sql, Some(15)).await {
         Ok(result) => result,
         Err(e) => return Err(anyhow!("SQL validation failed: {}", e)),
     };
 
     let num_records = query_result.data.len();
-
-    // Create appropriate message based on number of records
     let message = if num_records == 0 {
         "No records were found".to_string()
     } else if num_records > 13 {
@@ -69,15 +109,15 @@ pub async fn validate_sql(
     } else {
         format!("{} records were returned", num_records)
     };
+    let return_records = query_result.data.into_iter().take(13).collect();
 
-    // Return at most 13 records
-    let return_records = if num_records <= 13 {
-        query_result.data.clone()
-    } else {
-        query_result.data.into_iter().take(13).collect() // Take first 13 records when more than 13
-    };
-
-    Ok((message, return_records, Some(query_result.metadata)))
+    // Return validated IDs along with other results
+    Ok((
+        message,
+        return_records,
+        Some(query_result.metadata),
+        validated_dataset_ids, 
+    ))
 }
 
 /// Validates existence of metric IDs in database
@@ -158,16 +198,6 @@ properties:
       RULE: Follow general quoting rules. 
       RULE: Should not contain ':'.
 
-  # DATASET IDS
-  datasetIds:
-    required: true
-    type: array
-    description: UUIDs of datasets this metric belongs to (NEVER quoted).
-    items:
-      type: string
-      format: uuid
-      description: Dataset UUID (unquoted)
-    
   # TIME FRAME
   timeFrame:
     required: true
@@ -821,7 +851,7 @@ required:
 "##;
 
 /// Process a metric file creation request
-/// Returns Ok((MetricFile, MetricYml, String, Vec<IndexMap<String, DataType>))) if successful, or an error message if failed
+/// Returns Ok((MetricFile, MetricYml, String, Vec<IndexMap<String, DataType>>, Vec<Uuid>)) if successful, or an error message if failed
 /// The string is a message about the number of records returned by the SQL query
 /// The vector of IndexMap<String, DataType> is the results of the SQL query.  Returns empty vector if more than 13 records or no results.
 pub async fn process_metric_file(
@@ -836,6 +866,7 @@ pub async fn process_metric_file(
         MetricYml,
         String,
         Vec<IndexMap<String, DataType>>,
+        Vec<Uuid>,
     ),
     String,
 > {
@@ -850,8 +881,8 @@ pub async fn process_metric_file(
         return Err(format!("Invalid metric structure: {}", e));
     }
 
-    // Validate SQL with the selected dataset_id and get results
-    let (message, results, metadata) =
+    // Validate SQL and get results + validated dataset IDs
+    let (message, results, metadata, validated_dataset_ids) =
         match validate_sql(&metric_yml.sql, &data_source_id, user_id).await {
             Ok(results) => results,
             Err(e) => return Err(format!("Invalid SQL query: {}", e)),
@@ -890,9 +921,10 @@ pub async fn process_metric_file(
         version_history: VersionHistory::new(1, metric_yml.clone()),
         data_metadata: metadata,
         public_password: None,
+        data_source_id,
     };
 
-    Ok((metric_file, metric_yml, message, results))
+    Ok((metric_file, metric_yml, message, results, validated_dataset_ids))
 }
 
 /// Process a dashboard file modification request
@@ -1214,7 +1246,8 @@ pub fn apply_modifications_to_content(
 mod tests {
     use super::*;
     use chrono::Utc;
-    use database::{models::DashboardFile, types::DashboardYml};
+    use database::models::DashboardFile;
+    use database::types::DashboardYml;
 
     use uuid::Uuid;
 
@@ -1524,5 +1557,80 @@ rows:
         let err_str = err.to_string();
         assert!(err_str.contains("multiple locations"));
         assert!(err_str.contains("occurrences"));
+    }
+}
+
+async fn process_metric_file_update(
+    mut file: MetricFile,
+    yml_content: String,
+    duration: i64,
+    user_id: &Uuid,
+    data_source_id: &Uuid,
+) -> Result<(
+    MetricFile,
+    MetricYml,
+    Vec<ModificationResult>,
+    String, // message
+    Vec<IndexMap<String, DataType>>, // results
+    Vec<Uuid>, // validated_dataset_ids <--- Add this
+)> {
+    // Parse YAML to MetricYml struct
+    let new_yml = match MetricYml::new(yml_content) {
+        Ok(yml) => yml,
+        Err(e) => {
+            let error = format!("Invalid YAML format: {}", e);
+            return Err(anyhow::anyhow!(error));
+        }
+    };
+
+    // Validate MetricYml structure
+    if let Err(e) = new_yml.validate() {
+        let error = format!("Invalid metric structure: {}", e);
+        return Err(anyhow::anyhow!(error));
+    }
+
+    let mut results = Vec::new();
+
+    // Check if SQL or metadata has changed
+    if file.content.sql != new_yml.sql {
+        // SQL changed or metadata missing, perform validation
+        match validate_sql(&new_yml.sql, data_source_id, user_id).await {
+            Ok((message, validation_results, metadata, validated_ids)) => {
+                // Update file record
+                file.content = new_yml.clone();
+                file.name = new_yml.name.clone();
+                file.updated_at = Utc::now();
+                file.data_metadata = metadata;
+
+                // Track successful update
+                results.push(ModificationResult {
+                    file_id: file.id,
+                    file_name: file.file_name.clone(),
+                    success: true,
+                    error: None,
+                    modification_type: "content".to_string(),
+                    timestamp: Utc::now(),
+                    duration,
+                });
+
+                Ok((file, new_yml, results, message, validation_results, validated_ids))
+            }
+            Err(e) => {
+                let error = format!("Invalid SQL query: {}", e);
+                results.push(ModificationResult {
+                    file_id: file.id,
+                    file_name: file.file_name.clone(),
+                    success: false,
+                    error: Some(error.clone()),
+                    modification_type: "validation".to_string(),
+                    timestamp: Utc::now(),
+                    duration,
+                });
+                Err(anyhow::anyhow!(error))
+            }
+        }
+    } else {
+        // No changes, return original file and empty results
+        Ok((file, new_yml, results, "No changes detected".to_string(), Vec::new(), Vec::new()))
     }
 }

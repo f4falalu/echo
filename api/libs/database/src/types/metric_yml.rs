@@ -9,10 +9,9 @@ use diesel::{
 use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use regex::Regex;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::io::Write;
-use uuid::Uuid;
 
 // Helper function to sanitize string values for YAML
 fn sanitize_yaml_string(value: &str) -> String {

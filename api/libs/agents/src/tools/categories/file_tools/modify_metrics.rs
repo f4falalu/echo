@@ -1,12 +1,12 @@
 use std::{env, sync::Arc, time::Instant};
 
-use anyhow::Result;
+use anyhow::{anyhow, bail, Result};
 use async_trait::async_trait;
 use braintrust::{get_prompt_system_message, BraintrustClient};
 use database::{
-    models::MetricFile,
+    models::{MetricFile, MetricFileToDataset},
     pool::get_pg_pool,
-    schema::{datasets, metric_files},
+    schema::{datasets, metric_files, metric_files_to_datasets},
     types::MetricYml,
 };
 use diesel::{upsert::excluded, ExpressionMethods, QueryDsl};
@@ -19,6 +19,7 @@ use serde_json::Value;
 use tracing::{debug, error, info};
 use uuid::Uuid;
 use chrono::Utc;
+use std::collections::HashMap;
 
 use super::{
     common::{
@@ -79,6 +80,7 @@ async fn process_metric_file_update(
     Vec<ModificationResult>,
     String,
     Vec<IndexMap<String, DataType>>,
+    Vec<Uuid>,
 )> {
     debug!(
         file_id = %file.id,
@@ -131,7 +133,8 @@ async fn process_metric_file_update(
                     new_yml.clone(), 
                     results,
                     "SQL unchanged, validation skipped".to_string(),
-                    Vec::new() // Empty results since validation was skipped
+                    Vec::new(), // Empty results since validation was skipped
+                    Vec::new(), // Empty validated IDs since validation was skipped
                 ));
             }
             
@@ -151,7 +154,7 @@ async fn process_metric_file_update(
 
 
             match validate_sql(&new_yml.sql, &data_source_id, user_id).await {
-                Ok((message, validation_results, metadata)) => {
+                Ok((message, validation_results, metadata, validated_dataset_ids)) => {
                     // Update file record
                     file.content = new_yml.clone();
                     file.name = new_yml.name.clone();
@@ -169,7 +172,7 @@ async fn process_metric_file_update(
                         duration,
                     });
 
-                    Ok((file, new_yml.clone(), results, message, validation_results))
+                    Ok((file, new_yml.clone(), results, message, validation_results, validated_dataset_ids))
                 }
                 Err(e) => {
                     let error = format!("SQL validation failed: {}", e);
@@ -242,8 +245,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
         // Collect file IDs and create map
         let metric_ids: Vec<Uuid> = params.files.iter().map(|f| f.id).collect();
-        let file_map: std::collections::HashMap<_, _> =
-            params.files.iter().map(|f| (f.id, f)).collect();
+        let file_map: HashMap<_, _> = params.files.iter().map(|f| (f.id, f)).collect();
 
         // Get database connection
         let mut conn = match get_pg_pool().get().await {
@@ -260,18 +262,18 @@ impl ToolExecutor for ModifyMetricFilesTool {
         };
 
         let data_source_id = match self.agent.get_state_value("data_source_id").await {
-            Some(Value::String(id_str)) => match Uuid::parse_str(&id_str) {
-                Ok(id) => id,
-                Err(e) => return Err(anyhow::anyhow!(format!("Invalid data source ID format: {}", e))),
-            },
-            Some(_) => return Err(anyhow::anyhow!("Data source ID is not a string")),
-            None => return Err(anyhow::anyhow!("Data source ID not found in agent state")),
+            Some(Value::String(id_str)) => Uuid::parse_str(&id_str).map_err(|e| anyhow!("Invalid data source ID format: {}", e))?,
+            Some(_) => bail!("Data source ID is not a string"),
+            None => bail!("Data source ID not found in agent state"),
         };
+
+        // Map to store validated dataset IDs for each successfully updated metric
+        let mut validated_dataset_ids_map: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
 
         // Fetch metric files
         if !metric_ids.is_empty() {
             match metric_files::table
-                .filter(metric_files::id.eq_any(metric_ids))
+                .filter(metric_files::id.eq_any(&metric_ids))
                 .filter(metric_files::deleted_at.is_null())
                 .load::<MetricFile>(&mut conn)
                 .await
@@ -283,22 +285,18 @@ impl ToolExecutor for ModifyMetricFilesTool {
                         .filter_map(|file| {
                             let file_update = file_map.get(&file.id)?;
                             let start_time_elapsed = start_time.elapsed().as_millis() as i64;
+                            let user_id = self.agent.get_user_id(); // Capture user_id outside async block
                             
                             Some(async move {
                                 let result = process_metric_file_update(
                                     file.clone(),
                                     file_update.yml_content.clone(),
                                     start_time_elapsed,
-                                    &self.agent.get_user_id(),
+                                    &user_id, // Pass user_id reference
                                     &data_source_id,
                                 ).await;
                                 
-                                match result {
-                                    Ok((metric_file, metric_yml, results, validation_message, validation_results)) => {
-                                        Ok((metric_file, metric_yml, results, validation_message, validation_results))
-                                    }
-                                    Err(e) => Err((file.name.clone(), e.to_string())),
-                                }
+                                (file.name, result) // Return file name along with result
                             })
                         })
                         .collect::<Vec<_>>();
@@ -307,28 +305,27 @@ impl ToolExecutor for ModifyMetricFilesTool {
                     let results = join_all(update_futures).await;
                     
                     // Process results
-                    for result in results {
+                    for (file_name, result) in results {
                         match result {
-                            Ok((mut metric_file, metric_yml, results, validation_message, validation_results)) => {
-                                // Calculate next version number from existing version history
-                                let next_version = match metric_file.version_history.get_latest_version() {
-                                    Some(version) => version.version_number + 1,
-                                    None => 1,
-                                };
+                            Ok((mut metric_file, metric_yml, mod_results, validation_message, validation_results, validated_ids)) => {
+                                // Calculate next version number
+                                let next_version = metric_file.version_history.get_latest_version()
+                                                                    .map_or(1, |v| v.version_number + 1);
 
                                 // Add new version to history
-                                metric_file
-                                    .version_history
-                                    .add_version(next_version, metric_yml.clone());
+                                metric_file.version_history.add_version(next_version, metric_yml.clone());
 
-                                batch.files.push(metric_file);
+                                batch.files.push(metric_file.clone());
                                 batch.ymls.push(metric_yml);
-                                batch.update_results.extend(results);
+                                batch.update_results.extend(mod_results);
                                 batch.validation_messages.push(validation_message);
                                 batch.validation_results.push(validation_results);
+                                
+                                // Store validated IDs associated with this metric file's ID
+                                validated_dataset_ids_map.insert(metric_file.id, validated_ids);
                             }
-                            Err((file_name, error)) => {
-                                batch.failed_updates.push((file_name, error));
+                            Err(e) => {
+                                batch.failed_updates.push((file_name, e.to_string()));
                             }
                         }
                     }
@@ -359,7 +356,6 @@ impl ToolExecutor for ModifyMetricFilesTool {
                     metric_files::content.eq(excluded(metric_files::content)),
                     metric_files::updated_at.eq(excluded(metric_files::updated_at)),
                     metric_files::version_history.eq(excluded(metric_files::version_history)),
-                    // Explicitly set name even though it's in content to ensure it's updated in case content parsing fails
                     metric_files::name.eq(excluded(metric_files::name)),
                     metric_files::data_metadata.eq(excluded(metric_files::data_metadata)),
                 ))
@@ -368,13 +364,43 @@ impl ToolExecutor for ModifyMetricFilesTool {
             {
                 Ok(_) => {
                     debug!("Successfully updated metric files with versioning and metadata");
+                    
+                    // --- Insert into metric_files_to_datasets --- 
+                    let mut join_table_records = Vec::new();
+                    let now = Utc::now();
+                    for metric_file in &batch.files {
+                        if let Some(dataset_ids) = validated_dataset_ids_map.get(&metric_file.id) {
+                             let current_version = metric_file.version_history.get_version_number(); // Get the latest version number
+                             for dataset_id in dataset_ids {
+                                join_table_records.push(MetricFileToDataset {
+                                    metric_file_id: metric_file.id,
+                                    dataset_id: *dataset_id,
+                                    metric_version_number: current_version, // Use the updated version number
+                                    created_at: now,
+                                });
+                            }
+                        }
+                    }
+
+                    if !join_table_records.is_empty() {
+                        match insert_into(metric_files_to_datasets::table)
+                           .values(&join_table_records)
+                           .on_conflict_do_nothing() // Avoid errors if associations already exist for this version
+                           .execute(&mut conn)
+                           .await {
+                               Ok(_) => tracing::debug!("Successfully inserted dataset associations for updated metrics"),
+                               Err(e) => {
+                                   tracing::error!("Failed to insert dataset associations for updated metrics: {}", e);
+                                   // Handle potential errors - maybe log or add to failed_updates?
+                               }
+                        }
+                   }
+                    // --- End Insert --- 
+
                 }
                 Err(e) => {
                     error!("Failed to update metric files in database: {}", e);
-                    return Err(anyhow::anyhow!(
-                        "Failed to update metric files in database: {}",
-                        e
-                    ));
+                    return Err(anyhow!("Failed to update metric files in database: {}", e));
                 }
             }
         }

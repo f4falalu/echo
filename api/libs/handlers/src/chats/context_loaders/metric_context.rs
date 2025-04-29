@@ -2,9 +2,9 @@ use agents::{Agent, AgentMessage};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use database::{
-    models::Dataset,
+    models::{Dataset, MetricFile},
     pool::get_pg_pool,
-    schema::{datasets, metric_files},
+    schema::{datasets, metric_files, metric_files_to_datasets},
 };
 use diesel::prelude::*;
 use diesel_async::RunQueryDsl;
@@ -27,7 +27,11 @@ impl MetricContextLoader {
 
 #[async_trait]
 impl ContextLoader for MetricContextLoader {
-    async fn load_context(&self, user: &AuthenticatedUser, agent: &Arc<Agent>) -> Result<Vec<AgentMessage>> {
+    async fn load_context(
+        &self,
+        user: &AuthenticatedUser,
+        agent: &Arc<Agent>,
+    ) -> Result<Vec<AgentMessage>> {
         let mut conn = get_pg_pool().get().await.map_err(|e| {
             anyhow!(
                 "Failed to get database connection for metric context loading: {}",
@@ -39,7 +43,7 @@ impl ContextLoader for MetricContextLoader {
         let metric = metric_files::table
             .filter(metric_files::id.eq(self.metric_id))
             // .filter(metric_files::created_by.eq(&user.id))
-            .first::<database::models::MetricFile>(&mut conn)
+            .first::<MetricFile>(&mut conn)
             .await
             .map_err(|e| {
                 anyhow!("Failed to load metric (id: {}). Either it doesn't exist or user {} doesn't have access: {}", 
@@ -48,21 +52,88 @@ impl ContextLoader for MetricContextLoader {
 
         // Get the metric content as MetricYml
         let metric_yml = metric.content;
-        // Load all referenced datasets
-        let dataset_ids = &metric_yml.dataset_ids;
-        let mut datasets_vec = Vec::new();
-        let mut failed_dataset_loads = Vec::new();
 
-        for dataset_id in dataset_ids {
+        // --- Optimized Dataset Loading ---
+
+        // Query 1: Fetch associated Dataset IDs from the join table
+        let dataset_ids_result = metric_files_to_datasets::table
+            .filter(metric_files_to_datasets::metric_file_id.eq(self.metric_id))
+            .select(metric_files_to_datasets::dataset_id)
+            .load::<Uuid>(&mut conn)
+            .await;
+
+        let dataset_ids_vec: Vec<Uuid> = match dataset_ids_result {
+            Ok(ids) => ids,
+            Err(e) => {
+                tracing::error!(
+                    "Failed to load associated dataset IDs for metric {}: {}",
+                    self.metric_id,
+                    e
+                );
+                // Return an error or handle as appropriate (e.g., empty Vec)
+                return Err(anyhow!(
+                    "Failed to load dataset associations for metric: {}",
+                    e
+                ));
+            }
+        };
+
+        // Query 2: Fetch all Dataset objects at once
+        let datasets_vec: Vec<Dataset>; // Explicit type annotation
+        let mut failed_dataset_loads: Vec<(Uuid, String)> = Vec::new(); // Explicit type annotation
+
+        if !dataset_ids_vec.is_empty() {
             match datasets::table
-                .filter(datasets::id.eq(dataset_id))
-                .first::<Dataset>(&mut conn)
+                .filter(datasets::id.eq_any(&dataset_ids_vec))
+                .load::<Dataset>(&mut conn)
                 .await
             {
-                Ok(dataset) => datasets_vec.push(dataset),
-                Err(e) => failed_dataset_loads.push((dataset_id, e.to_string())),
+                Ok(loaded_datasets) => {
+                    datasets_vec = loaded_datasets;
+                    // Optional: Check if all expected datasets were loaded
+                    if datasets_vec.len() != dataset_ids_vec.len() {
+                        let found_dataset_ids: std::collections::HashSet<Uuid> =
+                            datasets_vec.iter().map(|d| d.id).collect();
+                        for missing_id in dataset_ids_vec
+                            .iter()
+                            .filter(|id| !found_dataset_ids.contains(id))
+                        {
+                            failed_dataset_loads
+                                .push((*missing_id, "Dataset not found in database".to_string()));
+                        }
+                    }
+                }
+                Err(e) => {
+                    tracing::error!(
+                        "Failed to load datasets in bulk for metric {}: {}",
+                        self.metric_id,
+                        e
+                    );
+                    datasets_vec = Vec::new(); // Set to empty on failure
+                    failed_dataset_loads.extend(
+                        dataset_ids_vec
+                            .into_iter()
+                            .map(|id| (id, format!("Bulk load failed: {}", e))),
+                    );
+                }
             }
+        } else {
+            // No associated datasets found
+            datasets_vec = Vec::new();
         }
+
+        // Remove the old commented-out loop if present
+        // // for dataset_id in dataset_ids {
+        // //     match datasets::table
+        // //         .filter(datasets::id.eq(dataset_id))
+        // //         .first::<Dataset>(&mut conn)
+        // //         .await
+        // //     {
+        // //         Ok(dataset) => datasets_vec.push(dataset),
+        // //         Err(e) => failed_dataset_loads.push((dataset_id, e.to_string())),
+        // //     }
+        // // }
+        // --- End Optimized Dataset Loading ---
 
         if !failed_dataset_loads.is_empty() {
             tracing::warn!(

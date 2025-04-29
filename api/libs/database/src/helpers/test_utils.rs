@@ -95,6 +95,7 @@ impl TestDb {
             version_history: VersionHistory(std::collections::HashMap::new()),
             data_metadata: None,
             public_password: None,
+            data_source_id: Uuid::new_v4(),
         };
 
         Ok(metric_file)

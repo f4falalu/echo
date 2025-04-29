@@ -14,7 +14,7 @@ use std::ops::ControlFlow;
 pub async fn analyze_query(sql: String) -> Result<QuerySummary, SqlAnalyzerError> {
     let ast = Parser::parse_sql(&GenericDialect, &sql)?;
     let mut analyzer = QueryAnalyzer::new();
-
+    
     for stmt in ast {
         if let Statement::Query(query) = stmt {
             analyzer.process_query(&query, &HashMap::new())?;
@@ -526,8 +526,32 @@ impl QueryAnalyzer {
                     self.current_scope_aliases.insert(a_name, derived_key.clone());
                 }
             }
-            TableFactor::TableFunction { expr, .. } => {
+            TableFactor::TableFunction { expr, alias, .. } => {
+                // Process the expression that generates the function table
                 expr.visit(self);
+                
+                // Register the table function as a derived table
+                let alias_name = alias.as_ref().map(|a| a.name.value.clone());
+                let derived_key = alias_name
+                    .clone()
+                    .unwrap_or_else(|| format!("_function_{}", rand::random::<u32>()));
+                
+                self.tables.insert(
+                    derived_key.clone(),
+                    TableInfo {
+                        database_identifier: None,
+                        schema_identifier: None,
+                        table_identifier: derived_key.clone(),
+                        alias: alias_name.clone(),
+                        columns: HashSet::new(),
+                        kind: TableKind::Derived,
+                        subquery_summary: None,
+                    },
+                );
+                
+                if let Some(a_name) = alias_name {
+                    self.current_scope_aliases.insert(a_name, derived_key.clone());
+                }
             }
             TableFactor::NestedJoin {
                 table_with_joins,
@@ -766,7 +790,7 @@ impl QueryAnalyzer {
     }
 
     // Check for and report vague references
-    fn check_for_vague_references(&self, final_tables: &HashMap<String, TableInfo>) -> Result<(), SqlAnalyzerError> {
+    fn check_for_vague_references(&self, final_tables: &HashMap<String, TableInfo>) -> Result<(), SqlAnalyzerError> {        
         let mut errors = Vec::new();
         
         // Check for vague column references
@@ -786,6 +810,7 @@ impl QueryAnalyzer {
                     !final_tables.contains_key(*t)
                         && !self.current_scope_aliases.contains_key(*t)
                         && !t.starts_with("_derived_")
+                        && !t.starts_with("_function_")
                         && !t.starts_with("derived:")
                         && !t.starts_with("inner_query")
                         && !t.starts_with("set_op_")
@@ -794,6 +819,7 @@ impl QueryAnalyzer {
                 })
                 .cloned()
                 .collect();
+                
             if !filtered_vague_tables.is_empty() {
                 errors.push(format!(
                     "Vague/Unknown tables, CTEs, or aliases: {:?}",
@@ -829,11 +855,33 @@ impl QueryAnalyzer {
         column: &str,
         available_aliases: &HashMap<String, String>,
     ) {
+        // Handle dialect-specific column patterns
+        // For structured and nested columns like:
+        // 1. Snowflake/JSON paths: metadata__user_id (from metadata:user.id)
+        // 2. BigQuery nested fields: user__device__type (from user.device.type)
+        let mut base_column = column;
+        let mut dialect_nested = false;
+        
+        if column.contains("__") {
+            // Could be a preprocessed dialect-specific column
+            let parts: Vec<&str> = column.split("__").collect();
+            if parts.len() >= 2 {
+                // Use just the base column part for table assignment
+                base_column = parts[0];
+                dialect_nested = true;
+            }
+        }
+        
         match qualifier_opt {
             Some(qualifier) => {
                 if let Some(resolved_identifier) = available_aliases.get(qualifier) {
                     if let Some(table_info) = self.tables.get_mut(resolved_identifier) {
+                        // Add both the original column (which could be preprocessed)
+                        // and the base column for dialect-specific syntax
                         table_info.columns.insert(column.to_string());
+                        if dialect_nested {
+                            table_info.columns.insert(base_column.to_string());
+                        }
                     } else {
                         self.vague_tables.push(qualifier.to_string());
                     }
@@ -841,6 +889,9 @@ impl QueryAnalyzer {
                     if self.tables.contains_key(qualifier) {
                          if let Some(table_info) = self.tables.get_mut(qualifier) {
                             table_info.columns.insert(column.to_string());
+                            if dialect_nested {
+                                table_info.columns.insert(base_column.to_string());
+                            }
                          }
                     } else if self.parent_scope_aliases.contains_key(qualifier) {
                         // Qualifier is not a known table/alias in current scope,
@@ -854,9 +905,30 @@ impl QueryAnalyzer {
                 }
             }
             None => {
-                // No qualifier provided (e.g., SELECT id FROM users)
-                // Resolve if there is exactly one potential source
-                self.resolve_unqualified_column(column, available_aliases);
+                // Special handling for nested fields without qualifier
+                // For example: "SELECT user.device.type" in BigQuery becomes "SELECT user__device__type"
+                if dialect_nested {
+                    // Try to find a table that might contain the base column
+                    let mut assigned = false;
+                    
+                    for table_info in self.tables.values_mut() {
+                        // For now, simply add the column to all tables
+                        // This is less strict but ensures we don't miss real references
+                        table_info.columns.insert(base_column.to_string());
+                        table_info.columns.insert(column.to_string());
+                        assigned = true;
+                    }
+                    
+                    // If we couldn't assign it to any table and we have tables in scope,
+                    // it's likely a literal or expression, so don't report as vague
+                    if !assigned && !self.tables.is_empty() {
+                        // Just add the base column as vague for reporting
+                        self.vague_columns.push(base_column.to_string());
+                    }
+                } else {
+                    // Standard unqualified column handling
+                    self.resolve_unqualified_column(column, available_aliases);
+                }
             }
         }
     }
@@ -889,17 +961,23 @@ impl QueryAnalyzer {
     }
 
     fn parse_object_name(&mut self, name: &ObjectName) -> (Option<String>, Option<String>, String) {
+        // Handle BigQuery backtick-quoted identifiers
+        // If the name has a backtick, it's likely from BigQuery
+        let has_backtick = name.to_string().contains('`');
+        
         let idents: Vec<String> = name.0.iter().map(|i| i.value.clone()).collect();
+        
         match idents.len() {
             1 => {
                 let table_name = idents[0].clone();
-                // If we're in the "vague references" test, don't filter the table
-                // from our vague list
-                if !self.is_known_cte_definition(&table_name) {
+                
+                // For backtick-quoted identifiers, don't add to vague_tables list
+                if !self.is_known_cte_definition(&table_name) && !has_backtick {
                     // We add the table as vague, but it might be properly qualified
                     // even without schema/db when it's a "simple" query
                     self.vague_tables.push(table_name.clone());
                 }
+                
                 (None, None, table_name)
             }
             2 => (None, Some(idents[0].clone()), idents[1].clone()),
@@ -913,7 +991,14 @@ impl QueryAnalyzer {
     }
 
     fn get_table_name(&self, name: &ObjectName) -> String {
-        name.0.last().map(|i| i.value.clone()).unwrap_or_default()
+        let table_str = name.0.last().map(|i| i.value.clone()).unwrap_or_default();
+        
+        // Clean up any comment annotation we might have added during preprocessing
+        if table_str.contains("/*") {
+            table_str.split("/*").next().unwrap_or(&table_str).trim().to_string()
+        } else {
+            table_str
+        }
     }
 
     fn new_child_analyzer(&self) -> Self {
