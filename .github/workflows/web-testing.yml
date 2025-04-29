@@ -36,7 +36,6 @@ jobs:
           node-version: '20'
 
       - name: Setup Test Environment
-        id: setup_env # Give an ID to reference outputs
         uses: ./.github/actions/setup-test-environment
 
       # Build/Run/Wait steps remain for web testing as it needs the API server running
@@ -45,7 +44,7 @@ jobs:
         run: cargo build --release
         env:
           # Potentially needed if build process requires env vars, though unlikely
-          DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres
 
       - name: Run API Server
         working-directory: ./api
@@ -53,13 +52,13 @@ jobs:
           ./target/release/server & # Run in background
           echo $! > /tmp/api-server.pid # Store PID for later cleanup
         env:
-          # Core Supabase/DB/Redis vars from setup action outputs
-          DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
-          POOLER_URL: ${{ steps.setup_env.outputs.database-url }} # Assuming pooler uses same DB
+          # Core Supabase/DB/Redis vars - use hardcoded values and secrets
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres
+          POOLER_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres # Assuming pooler uses same DB
           REDIS_URL: redis://localhost:6379 # Use localhost as it runs on the runner accessing the service
-          JWT_SECRET: ${{ steps.setup_env.outputs.jwt-secret }}
-          SUPABASE_URL: ${{ steps.setup_env.outputs.supabase-url }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.setup_env.outputs.supabase-service-role-key }}
+          JWT_SECRET: ${{ secrets.GH_ACTIONS_SUPABASE_JWT_SECRET }} # Use secret
+          SUPABASE_URL: http://127.0.0.1:54321 # Default local URL
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.GH_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }} # Use secret
 
           # Non-sensitive / Default values
           ENVIRONMENT: development
@@ -75,7 +74,6 @@ jobs:
           COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
           LLM_API_KEY: ${{ secrets.GH_ACTIONS_LLM_API_KEY }}
           LLM_BASE_URL: ${{ secrets.GH_ACTIONS_LLM_BASE_URL }}
-
 
       - name: Wait for API Server
         run: |
@@ -104,9 +102,9 @@ jobs:
           # API runs on localhost within the runner
           NEXT_PUBLIC_API_URL: http://localhost:3001
           NEXT_PUBLIC_URL: http://localhost:3000 # Assuming default URL for the app itself
-          # Use Supabase details from the setup action outputs
-          NEXT_PUBLIC_SUPABASE_URL: ${{ steps.setup_env.outputs.supabase-url }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.setup_env.outputs.supabase-anon-key }}
+          # Use Supabase details - default URL and secret anon key
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321 # Default local URL
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.GH_ACTIONS_SUPABASE_ANON_KEY }} # Use secret
           NEXT_PUBLIC_WEB_SOCKET_URL: ws://localhost:3001 # Assuming WS connects to API
 
           # Pass any other required NEXT_PUBLIC_ variables

@@ -32,49 +32,22 @@ jobs:
 
       # Node.js setup removed - not needed for cargo test
 
-      - name: Install Supabase CLI
-        run: npm install --global supabase@latest
-
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
-        # Consider a different cache key if CLI dependencies are separate
-        # with:
-        #   key: ${{ runner.os }}-cargo-cli-${{ hashFiles('**/cli/Cargo.lock') }}
-
-      - name: Install Diesel CLI
-        run: cargo install diesel_cli --no-default-features --features postgres
-
       - name: Setup Test Environment
-        id: setup_env # Give an ID to reference outputs
         uses: ./.github/actions/setup-test-environment
 
       - name: Run CLI Tests
         working-directory: ./cli # Tests run from the cli directory
         run: cargo test --workspace # Run tests for all packages in the cli workspace
         env:
-          # Pass necessary env vars from setup action outputs
-          DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
+          # Use hardcoded default values and secrets
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres
           REDIS_URL: redis://localhost:6379 # Connect to the Redis service container
-          JWT_SECRET: ${{ steps.setup_env.outputs.jwt-secret }}
-          SUPABASE_URL: ${{ steps.setup_env.outputs.supabase-url }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.setup_env.outputs.supabase-service-role-key }}
+          JWT_SECRET: ${{ secrets.GH_ACTIONS_SUPABASE_JWT_SECRET }} # Use secret
+          SUPABASE_URL: http://127.0.0.1:54321 # Default local URL
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.GH_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }} # Use secret
           RUST_LOG: debug # Or adjust as needed
 
           # Add any other environment variables your CLI tests might require
-
-          # Sensitive values from Secrets (if needed by CLI tests)
-          OPENAI_API_KEY: ${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}
-          RESEND_API_KEY: ${{ secrets.GH_ACTIONS_RESEND_API_KEY }}
-          COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
-          LLM_API_KEY: ${{ secrets.GH_ACTIONS_LLM_API_KEY }}
-          LLM_BASE_URL: ${{ secrets.GH_ACTIONS_LLM_BASE_URL }}
 
       - name: Stop Supabase # Use the cleanup action
         uses: ./.github/actions/stop-supabase

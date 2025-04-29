@@ -33,19 +33,18 @@ jobs:
       # Node.js setup removed
 
       - name: Setup Test Environment
-        id: setup_env # Give an ID to reference outputs
         uses: ./.github/actions/setup-test-environment
 
       - name: Run API Tests
         working-directory: ./api # Tests run from the api directory
         run: cargo test --workspace # Run tests for all packages in the api workspace
         env:
-          # Pass necessary env vars from setup action outputs
-          DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
+          # Use hardcoded default values and secrets
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres
           REDIS_URL: redis://localhost:6379 # Connect to the Redis service container
-          JWT_SECRET: ${{ steps.setup_env.outputs.jwt-secret }}
-          SUPABASE_URL: ${{ steps.setup_env.outputs.supabase-url }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.setup_env.outputs.supabase-service-role-key }}
+          JWT_SECRET: ${{ secrets.GH_ACTIONS_SUPABASE_JWT_SECRET }} # Use secret
+          SUPABASE_URL: http://127.0.0.1:54321 # Default local URL
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.GH_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }} # Use secret
           RUST_LOG: debug # Or adjust as needed
 
           # Sensitive values from Secrets
