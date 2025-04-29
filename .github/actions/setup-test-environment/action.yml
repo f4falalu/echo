@@ -17,7 +17,7 @@ runs:
         override: true
 
     - name: Cache Rust dependencies
-      uses: Swatinem/rust-cache@v2
+      uses: useblacksmith/rust-cache@v3
 
     - name: Install Diesel CLI
       shell: bash
@@ -27,7 +27,7 @@ runs:
       shell: bash
       run: |
         echo "Starting Supabase..."
-        supabase start
+        supabase start --exclude postgrest,studio
 
         echo "Waiting a bit for services to stabilize after start..."
         sleep 15 # Adjust if needed, Supabase start should block but sometimes a small delay helps

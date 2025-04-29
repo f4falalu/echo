@@ -4,19 +4,15 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'cli/**' # Trigger on changes in the cli directory
-      - '.github/workflows/cli-testing.yml' # Also run if the workflow file itself changes
-      - '.github/actions/setup-test-environment/action.yml' # Rerun if common setup changes
-      - '.github/actions/stop-supabase/action.yml'
 
 jobs:
   test:
     runs-on: blacksmith-16vcpu-ubuntu-2204 # Using a powerful runner as requested
-    environment: testing # Add the environment key
+    environment: testing
 
-    # Service container for Redis (needed by the setup action)
+    # Service containers
     services:
+      # Redis needed by API
       redis:
         image: redis
         ports:
@@ -27,28 +23,77 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      # API service built from Dockerfile
+      api:
+        image: local-api-test:latest # Use the locally built image
+        ports:
+          - 3001:3001
+        options: >-
+          --health-cmd "curl -f http://localhost:3001/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          # Core Supabase/DB/Redis vars - use service names or host IP
+          # Runner host IP is often 172.17.0.1, Supabase runs directly on host via setup action
+          DATABASE_URL: postgres://postgres:postgres@172.17.0.1:54322/postgres
+          POOLER_URL: postgres://postgres:postgres@172.17.0.1:54322/postgres
+          REDIS_URL: redis://redis:6379 # Connect to redis service container
+          JWT_SECRET: 'super-secret-jwt-token-with-at-least-32-characters-long' # Use default local value
+          SUPABASE_URL: http://172.17.0.1:54321 # Default local URL on host
+          SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MjM0MzA5Nn0.EGgMpd9zvvHPCOq4DJRLwzJ1iS3GV4AEyzguXGcbEIY' # Use default local value
+
+          # Non-sensitive / Default values
+          ENVIRONMENT: development
+          # BUSTER_URL might not be relevant for CLI tests
+          LOG_LEVEL: debug
+          PORT: 3001 # API server port within container
+          RUST_LOG: debug
+
+          # Sensitive values from Secrets (passed to API container)
+          OPENAI_API_KEY: ${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.GH_ACTIONS_RESEND_API_KEY }}
+          COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
+          LLM_API_KEY: ${{ secrets.GH_ACTIONS_LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.GH_ACTIONS_LLM_BASE_URL }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Node.js setup removed - not needed for cargo test
+      # --- Build API Docker Image with Blacksmith Caching ---
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Setup Test Environment
+      - name: Build and Load API Docker Image
+        uses: useblacksmith/build-push-action@v1
+        with:
+          context: ./api
+          file: ./api/Dockerfile
+          push: false # Do not push, load locally for service container
+          load: true  # Load the image into the runner's Docker daemon
+          tags: local-api-test:latest # Tag for the service definition
+
+      # --- Setup Supabase Environment on Host ---
+      - name: Setup Test Environment # Runs Supabase, migrations, seeding on host
         uses: ./.github/actions/setup-test-environment
 
       - name: Run CLI Tests
         working-directory: ./cli # Tests run from the cli directory
         run: cargo test --workspace # Run tests for all packages in the cli workspace
         env:
-          # Use hardcoded default values and secrets
+          # Point to services on host (DB/Supabase/Redis) and API container
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres
-          REDIS_URL: redis://localhost:6379 # Connect to the Redis service container
+          REDIS_URL: redis://localhost:6379 # Tests run on host, connect to exposed Redis port
           JWT_SECRET: 'super-secret-jwt-token-with-at-least-32-characters-long' # Use default local value
-          SUPABASE_URL: http://127.0.0.1:54321 # Default local URL
+          SUPABASE_URL: http://127.0.0.1:54321 # Tests run on host
           SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MjM0MzA5Nn0.EGgMpd9zvvHPCOq4DJRLwzJ1iS3GV4AEyzguXGcbEIY' # Use default local value
           RUST_LOG: debug # Or adjust as needed
+          BUSTER_API_URL: http://api:3001 # Point CLI tests to the API service container
 
-          # Add any other environment variables your CLI tests might require
+          # Secrets are passed to the API container, not needed directly by CLI tests
 
       - name: Stop Supabase # Use the cleanup action
         uses: ./.github/actions/stop-supabase

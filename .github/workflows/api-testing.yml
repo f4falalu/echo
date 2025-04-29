@@ -4,11 +4,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'api/**'
-      - '.github/workflows/api-testing.yml'
-      - '.github/actions/setup-test-environment/action.yml' # Rerun if common setup changes
-      - '.github/actions/stop-supabase/action.yml'
 
 jobs:
   test:
