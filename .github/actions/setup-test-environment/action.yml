@@ -77,11 +77,11 @@ runs:
           exit 1
         fi
 
-        echo "::set-output name=db_url::$DB_URL_VAL"
-        echo "::set-output name=supabase_url::$SUPABASE_URL_VAL"
-        echo "::set-output name=supabase_anon_key::$SUPABASE_ANON_KEY_VAL"
-        echo "::set-output name=supabase_service_role_key::$SUPABASE_SERVICE_ROLE_KEY_VAL"
-        echo "::set-output name=jwt_secret::$JWT_SECRET_VAL"
+        echo "db_url=$DB_URL_VAL" >> $GITHUB_OUTPUT
+        echo "supabase_url=$SUPABASE_URL_VAL" >> $GITHUB_OUTPUT
+        echo "supabase_anon_key=$SUPABASE_ANON_KEY_VAL" >> $GITHUB_OUTPUT
+        echo "supabase_service_role_key=$SUPABASE_SERVICE_ROLE_KEY_VAL" >> $GITHUB_OUTPUT
+        echo "jwt_secret=$JWT_SECRET_VAL" >> $GITHUB_OUTPUT
 
         echo "Supabase started and configured."
 
