@@ -1,0 +1,109 @@
+name: 'Setup Test Environment'
+description: 'Installs tools, starts Supabase, runs migrations/seeds, and exports env vars.'
+
+outputs:
+  database-url:
+    description: 'Supabase DB Connection URL'
+    value: ${{ steps.start_supabase.outputs.db_url }}
+  supabase-url:
+    description: 'Supabase API URL'
+    value: ${{ steps.start_supabase.outputs.supabase_url }}
+  supabase-anon-key:
+    description: 'Supabase Anon Key'
+    value: ${{ steps.start_supabase.outputs.supabase_anon_key }}
+  supabase-service-role-key:
+    description: 'Supabase Service Role Key'
+    value: ${{ steps.start_supabase.outputs.supabase_service_role_key }}
+  jwt-secret:
+    description: 'Supabase JWT Secret'
+    value: ${{ steps.start_supabase.outputs.jwt_secret }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Supabase CLI
+      shell: bash
+      run: npm install --global supabase@latest
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+
+    - name: Cache Rust dependencies
+      uses: Swatinem/rust-cache@v2
+
+    - name: Install Diesel CLI
+      shell: bash
+      run: cargo install diesel_cli --no-default-features --features postgres
+
+    - name: Start Supabase & Set Outputs
+      id: start_supabase
+      shell: bash
+      run: |
+        supabase start &> supabase_output.log &
+        echo "Waiting for Supabase services to initialize..."
+        sleep 30 # Initial wait time, adjust as needed
+
+        # Wait for DB to be connectable
+        n=0
+        until [ "$n" -ge 30 ] || pg_isready -h 127.0.0.1 -p 54322 -U postgres; do
+          n=$((n+1))
+          echo "Waiting for DB... Attempt $n/30"
+          sleep 2
+        done
+        if ! pg_isready -h 127.0.0.1 -p 54322 -U postgres; then
+          echo "::error::Supabase DB did not become ready in time."
+          cat supabase_output.log
+          exit 1
+        fi
+
+        echo "Supabase services seem ready. Extracting config..."
+        cat supabase_output.log
+
+        # Extract variables and set them as outputs
+        DB_URL_VAL=$(grep 'DB URL:' supabase_output.log | sed 's/.*DB URL: *//')
+        SUPABASE_URL_VAL=$(grep 'API URL:' supabase_output.log | sed 's/.*API URL: *//')
+        SUPABASE_ANON_KEY_VAL=$(grep 'anon key:' supabase_output.log | sed 's/.*anon key: *//')
+        SUPABASE_SERVICE_ROLE_KEY_VAL=$(grep 'service_role key:' supabase_output.log | sed 's/.*service_role key: *//')
+        JWT_SECRET_VAL=$(grep 'JWT secret:' supabase_output.log | sed 's/.*JWT secret: *//')
+
+        # Check if variables were extracted
+        if [ -z "$DB_URL_VAL" ] || [ -z "$SUPABASE_URL_VAL" ] || [ -z "$SUPABASE_ANON_KEY_VAL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY_VAL" ] || [ -z "$JWT_SECRET_VAL" ]; then
+          echo "::error::Failed to extract Supabase configuration from output."
+          cat supabase_output.log
+          exit 1
+        fi
+
+        echo "::set-output name=db_url::$DB_URL_VAL"
+        echo "::set-output name=supabase_url::$SUPABASE_URL_VAL"
+        echo "::set-output name=supabase_anon_key::$SUPABASE_ANON_KEY_VAL"
+        echo "::set-output name=supabase_service_role_key::$SUPABASE_SERVICE_ROLE_KEY_VAL"
+        echo "::set-output name=jwt_secret::$JWT_SECRET_VAL"
+
+        echo "Supabase started and configured."
+
+    - name: Run Migrations
+      working-directory: ./api # Assuming migrations are always relative to api
+      shell: bash
+      run: diesel migration run
+      env:
+        # Use the output from the previous step
+        DATABASE_URL: ${{ steps.start_supabase.outputs.db_url }}
+
+    - name: Seed Database
+      shell: bash
+      run: |
+        # Extract connection details from DB_URL
+        DB_URL_VAL="${{ steps.start_supabase.outputs.db_url }}"
+        PGUSER=$(echo "$DB_URL_VAL" | awk -F '[/:]' '{print $4}')
+        PGPASSWORD=$(echo "$DB_URL_VAL" | awk -F '[:@]' '{print $3}')
+        PGHOST=$(echo "$DB_URL_VAL" | awk -F '[@:]' '{print $4}')
+        PGPORT=$(echo "$DB_URL_VAL" | awk -F '[:/]' '{print $6}')
+        PGDATABASE=$(echo "$DB_URL_VAL" | awk -F '/' '{print $NF}')
+
+        PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f ./api/libs/database/seed.sql
+      env:
+        DATABASE_URL: ${{ steps.start_supabase.outputs.db_url }} 
