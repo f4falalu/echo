@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::{env, sync::Arc, time::Instant};
+use tokio::sync::Mutex;
 
 use anyhow::{Context, Result};
 use async_trait::async_trait;
@@ -45,7 +46,6 @@ pub struct SearchDataCatalogOutput {
     pub message: String,
     pub specific_queries: Option<Vec<String>>,
     pub exploratory_topics: Option<Vec<String>>,
-    pub value_search_terms: Option<Vec<String>>,
     pub duration: i64,
     pub results: Vec<DatasetSearchResult>,
 }
@@ -364,42 +364,37 @@ impl ToolExecutor for SearchDataCatalogTool {
                     message: format!("Error fetching datasets: {}", e),
                     specific_queries: params.specific_queries,
                     exploratory_topics: params.exploratory_topics,
-                    value_search_terms: Some(vec![]),
                     duration: start_time.elapsed().as_millis() as i64,
                     results: vec![],
                 });
             }
         };
 
+        // Check if datasets were fetched and are not empty
         if all_datasets.is_empty() {
-            info!("No datasets found for the organization.");
+            info!("No datasets found for the organization or user.");
+            // Optionally cache that no data source was found or handle as needed
+            self.agent.set_state_value(String::from("data_source_id"), Value::Null).await;
             return Ok(SearchDataCatalogOutput {
-                message: "No datasets available to search.".to_string(),
+                message: "No datasets available to search. Have you deployed datasets? If you believe this is an error, please contact support.".to_string(),
                 specific_queries: params.specific_queries,
                 exploratory_topics: params.exploratory_topics,
-                value_search_terms: Some(vec![]),
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
             });
         }
 
-        // Get the data source ID
-        let target_data_source_id = match extract_data_source_id(&all_datasets) {
-            Some(id) => id,
-            None => {
-                warn!("No data source ID found in the permissioned datasets.");
-                return Ok(SearchDataCatalogOutput {
-                    message: "Could not determine data source for value search.".to_string(),
-                    specific_queries: params.specific_queries,
-                    exploratory_topics: params.exploratory_topics,
-                    value_search_terms: Some(vec![]),
-                    duration: start_time.elapsed().as_millis() as i64,
-                    results: vec![],
-                });
-            }
-        };
+        // Extract and cache the data_source_id from the first dataset
+        // Assumes all datasets belong to the same data source for this user context
+        let target_data_source_id = all_datasets[0].data_source_id;
+        debug!(data_source_id = %target_data_source_id, "Extracted data source ID");
         
-        debug!(data_source_id = %target_data_source_id, "Identified target data source ID for value search");
+        // Cache the data_source_id in agent state
+        self.agent.set_state_value(
+            "data_source_id".to_string(),
+            Value::String(target_data_source_id.to_string())
+        ).await;
+        debug!(data_source_id = %target_data_source_id, "Cached data source ID in agent state");
 
         // Prepare documents from datasets
         let documents: Vec<String> = all_datasets
@@ -413,7 +408,6 @@ impl ToolExecutor for SearchDataCatalogTool {
                 message: "No searchable dataset content found.".to_string(),
                 specific_queries: params.specific_queries,
                 exploratory_topics: params.exploratory_topics,
-                value_search_terms: Some(vec![]),
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
             });
@@ -423,19 +417,26 @@ impl ToolExecutor for SearchDataCatalogTool {
         // We'll use the user prompt for the LLM filtering
         let user_prompt_for_task = user_prompt_str.clone();
         
+        // Keep track of reranking errors using Arc<Mutex>
+        let rerank_errors = Arc::new(Mutex::new(Vec::new()));
+        
         // 3a. Start specific query reranking
         let specific_rerank_futures = stream::iter(specific_queries.clone())
             .map(|query| {
                 let current_query = query.clone();
                 let datasets_clone = all_datasets.clone();
                 let documents_clone = documents.clone();
+                let rerank_errors_clone = Arc::clone(&rerank_errors); // Clone Arc
 
                 async move {
                     let ranked = match rerank_datasets(&current_query, &datasets_clone, &documents_clone).await {
                         Ok(r) => r,
                         Err(e) => {
                             error!(error = %e, query = current_query, "Reranking failed for specific query");
-                            Vec::new()
+                            // Lock and push error
+                            let mut errors = rerank_errors_clone.lock().await;
+                            errors.push(format!("Failed to rerank for specific query '{}': {}", current_query, e));
+                            Vec::new() // Return empty vec on error to avoid breaking flow
                         }
                     };
 
@@ -450,13 +451,17 @@ impl ToolExecutor for SearchDataCatalogTool {
                 let current_topic = topic.clone();
                 let datasets_clone = all_datasets.clone();
                 let documents_clone = documents.clone();
+                let rerank_errors_clone = Arc::clone(&rerank_errors); // Clone Arc
 
                 async move {
                     let ranked = match rerank_datasets(&current_topic, &datasets_clone, &documents_clone).await {
                         Ok(r) => r,
                         Err(e) => {
                             error!(error = %e, topic = current_topic, "Reranking failed for exploratory topic");
-                            Vec::new()
+                            // Lock and push error
+                            let mut errors = rerank_errors_clone.lock().await;
+                            errors.push(format!("Failed to rerank for exploratory topic '{}': {}", current_topic, e));
+                            Vec::new() // Return empty vec on error to avoid breaking flow
                         }
                     };
 
@@ -491,7 +496,6 @@ impl ToolExecutor for SearchDataCatalogTool {
                 message: "No search queries, exploratory topics, or valid value search terms provided.".to_string(),
                 specific_queries: params.specific_queries,
                 exploratory_topics: params.exploratory_topics,
-                value_search_terms: Some(valid_value_search_terms.clone()), // Return the filtered list
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
             });
@@ -704,11 +708,24 @@ impl ToolExecutor for SearchDataCatalogTool {
         }
 
         // Return the updated results
-        let message = if updated_results.is_empty() {
+        let mut message = if updated_results.is_empty() {
             "No relevant datasets found after filtering.".to_string()
         } else {
             format!("Found {} relevant datasets with injected values for searchable dimensions.", updated_results.len())
         };
+
+        // Append reranking error information if any occurred
+        // Lock the mutex to access the errors safely
+        let final_errors = rerank_errors.lock().await;
+        if !final_errors.is_empty() {
+            message.push_str("
+ Warning: Some parts of the search failed due to reranking errors:");
+            for error_msg in final_errors.iter() { // Iterate over locked data
+                message.push_str(&format!("
+ - {}", error_msg));
+            }
+        }
+        // Mutex guard `final_errors` is dropped here
 
         self.agent
             .set_state_value(
@@ -727,7 +744,6 @@ impl ToolExecutor for SearchDataCatalogTool {
             message,
             specific_queries: params.specific_queries,
             exploratory_topics: params.exploratory_topics,
-            value_search_terms: Some(valid_value_search_terms),
             duration: duration as i64,
             results: updated_results,  // Use updated results instead of final_search_results
         })
