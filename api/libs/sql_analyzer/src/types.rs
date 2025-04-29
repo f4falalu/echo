@@ -1,53 +1,68 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub enum TableKind {
+    Base,
+    Cte,
+    Derived, // Represents a subquery used as a table factor
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct QuerySummary {
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub tables: Vec<TableInfo>,
+    #[serde(skip_serializing_if = "HashSet::is_empty")]
+    pub joins: HashSet<JoinInfo>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ctes: Vec<CteSummary>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct TableInfo {
     pub database_identifier: Option<String>,
     pub schema_identifier: Option<String>,
-    pub table_identifier: String,
+    pub table_identifier: String, // For Base: table name; For CTE: CTE name; For Derived: alias or generated ID
     pub alias: Option<String>,
-    pub columns: HashSet<String>, // Deduped columns used from this table
+    pub columns: HashSet<String>,
+    pub kind: TableKind,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subquery_summary: Option<Box<QuerySummary>>, // Only relevant for TableKind::Derived
 }
 
-#[derive(Serialize, Debug, Clone)]
+// Custom Hash implementation because QuerySummary is not Hash
+impl std::hash::Hash for TableInfo {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.database_identifier.hash(state);
+        self.schema_identifier.hash(state);
+        self.table_identifier.hash(state);
+        self.alias.hash(state);
+        // Hash columns deterministically
+        let mut cols: Vec<_> = self.columns.iter().collect();
+        cols.sort_unstable();
+        cols.hash(state);
+        self.kind.hash(state);
+        // subquery_summary is not included in the hash
+    }
+}
+
+// Custom Eq implementation needed because QuerySummary is not Eq
+impl Eq for TableInfo {}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct JoinInfo {
-    pub left_table: String,
-    pub right_table: String,
-    pub condition: String, // e.g., "users.id = orders.user_id"
+    pub left_table: String,  // Can be table name, CTE name, or Derived alias/ID
+    pub right_table: String, // Can be table name, CTE name, or Derived alias/ID
+    pub condition: String,
 }
 
-impl Hash for JoinInfo {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.left_table.hash(state);
-        self.right_table.hash(state);
-        self.condition.hash(state);
-    }
-}
-
-impl PartialEq for JoinInfo {
-    fn eq(&self, other: &Self) -> bool {
-        self.left_table == other.left_table &&
-        self.right_table == other.right_table &&
-        self.condition == other.condition
-    }
-}
-
-impl Eq for JoinInfo {}
-
-#[derive(Serialize, Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CteSummary {
     pub name: String,
-    pub summary: QuerySummary,
-    pub column_mappings: HashMap<String, (String, String)>, // Output col -> (table, source_col)
-}
-
-#[derive(Serialize, Debug, Clone)]
-pub struct QuerySummary {
-    pub tables: Vec<TableInfo>,
-    pub joins: HashSet<JoinInfo>,
-    pub ctes: Vec<CteSummary>,
+    pub summary: Box<QuerySummary>,
+    #[serde(skip_serializing_if = "HashMap::is_empty")]
+    pub column_mappings: HashMap<String, (String, String)>, // Optional: Map CTE output column to source
 }
 
 /// A parameter definition for parameterized metrics and filters
@@ -155,8 +170,8 @@ impl SemanticLayer {
     /// Checks if two tables are directly related in the semantic layer
     pub fn are_tables_related(&self, table1: &str, table2: &str) -> bool {
         self.relationships.iter().any(|r| {
-            (r.from_table == table1 && r.to_table == table2) ||
-            (r.from_table == table2 && r.to_table == table1)
+            (r.from_table == table1 && r.to_table == table2)
+                || (r.from_table == table2 && r.to_table == table1)
         })
     }
 
@@ -187,7 +202,8 @@ impl SemanticLayer {
 
     /// Checks if a column exists in a table
     pub fn has_column(&self, table: &str, column: &str) -> bool {
-        self.tables.get(table)
+        self.tables
+            .get(table)
             .map(|columns| columns.contains(&column.to_string()))
             .unwrap_or(false)
     }

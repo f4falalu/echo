@@ -184,7 +184,7 @@ impl QueryAnalyzer {
                     Ok(summary) => {
                         self.ctes.push(CteSummary {
                             name: cte_name.clone(),
-                            summary,
+                            summary: Box::new(summary),
                             column_mappings: HashMap::new(),
                         });
                         if let Some(current_scope_aliases) = self.cte_aliases.last_mut() {
@@ -222,6 +222,8 @@ impl QueryAnalyzer {
                         table_identifier: table_part,
                         alias: None,
                         columns: HashSet::new(),
+                        kind: crate::types::TableKind::Base,
+                        subquery_summary: None,
                     });
                 }
             },
