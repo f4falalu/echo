@@ -1,0 +1,60 @@
+name: API Testing
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'api/**'
+      - '.github/workflows/api-testing.yml'
+      - '.github/actions/setup-test-environment/action.yml' # Rerun if common setup changes
+      - '.github/actions/stop-supabase/action.yml'
+
+jobs:
+  test:
+    runs-on: blacksmith-16vcpu-ubuntu-2204
+
+    # Service container for Redis (needed by the setup action)
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Node.js setup removed
+
+      - name: Setup Test Environment
+        id: setup_env # Give an ID to reference outputs
+        uses: ./.github/actions/setup-test-environment
+
+      - name: Run API Tests
+        working-directory: ./api # Tests run from the api directory
+        run: cargo test --workspace # Run tests for all packages in the api workspace
+        env:
+          # Pass necessary env vars from setup action outputs
+          DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
+          REDIS_URL: redis://localhost:6379 # Connect to the Redis service container
+          JWT_SECRET: ${{ steps.setup_env.outputs.jwt-secret }}
+          SUPABASE_URL: ${{ steps.setup_env.outputs.supabase-url }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.setup_env.outputs.supabase-service-role-key }}
+          RUST_LOG: debug # Or adjust as needed
+
+          # Sensitive values from Secrets
+          OPENAI_API_KEY: ${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.GH_ACTIONS_RESEND_API_KEY }}
+          COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
+          LLM_API_KEY: ${{ secrets.GH_ACTIONS_LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.GH_ACTIONS_LLM_BASE_URL }}
+
+      - name: Stop Supabase # Use the cleanup action
+        uses: ./.github/actions/stop-supabase
+        if: always() # Ensure Supabase is stopped even if tests fail

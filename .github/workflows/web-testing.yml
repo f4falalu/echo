@@ -1,0 +1,116 @@
+name: Web App E2E Testing
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'web/**'
+      - '.github/workflows/web-testing.yml'
+      - '.github/actions/setup-test-environment/action.yml' # Rerun if common setup changes
+      - '.github/actions/stop-supabase/action.yml'
+
+jobs:
+  test:
+    runs-on: blacksmith-16vcpu-ubuntu-2204
+
+    # Service container for Redis (needed by the setup action and potentially API)
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js # Still needed for frontend build/test commands
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Test Environment
+        id: setup_env # Give an ID to reference outputs
+        uses: ./.github/actions/setup-test-environment
+
+      # Build/Run/Wait steps remain for web testing as it needs the API server running
+      - name: Build API Server
+        working-directory: ./api
+        run: cargo build --release
+        env:
+          # Potentially needed if build process requires env vars, though unlikely
+          DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
+
+      - name: Run API Server
+        working-directory: ./api
+        run: |
+          ./target/release/server & # Run in background
+          echo $! > /tmp/api-server.pid # Store PID for later cleanup
+        env:
+          # Core Supabase/DB/Redis vars from setup action outputs
+          DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
+          POOLER_URL: ${{ steps.setup_env.outputs.database-url }} # Assuming pooler uses same DB
+          REDIS_URL: redis://localhost:6379 # Use localhost as it runs on the runner accessing the service
+          JWT_SECRET: ${{ steps.setup_env.outputs.jwt-secret }}
+          SUPABASE_URL: ${{ steps.setup_env.outputs.supabase-url }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.setup_env.outputs.supabase-service-role-key }}
+
+          # Non-sensitive / Default values
+          ENVIRONMENT: development
+          BUSTER_URL: http://localhost:3000
+          BUSTER_WH_TOKEN: buster-wh-token
+          LOG_LEVEL: debug
+          PORT: 3001 # API server port
+          RUST_LOG: debug
+
+          # Sensitive values from Secrets
+          OPENAI_API_KEY: ${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.GH_ACTIONS_RESEND_API_KEY }}
+          COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
+          LLM_API_KEY: ${{ secrets.GH_ACTIONS_LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.GH_ACTIONS_LLM_BASE_URL }}
+
+
+      - name: Wait for API Server
+        run: |
+          echo "Waiting for API server (localhost:3001) to be ready..."
+          n=0
+          until [ "$n" -ge 30 ] || curl -f http://localhost:3001/health; do
+            n=$((n+1))
+            echo "Waiting for API... Attempt $n/30"
+            sleep 2
+          done
+          if ! curl -f http://localhost:3001/health; then
+            echo "::error::API server did not become ready in time."
+            exit 1
+          fi
+          echo "API server is ready."
+
+      - name: Run Frontend E2E Tests
+        working-directory: ./web
+        run: |
+          echo "Running web E2E tests..."
+          # Add your actual test command here, e.g.:
+          npm install # Or yarn install, pnpm install
+          npm run build # If needed
+          npm run test:e2e
+        env:
+          # API runs on localhost within the runner
+          NEXT_PUBLIC_API_URL: http://localhost:3001
+          NEXT_PUBLIC_URL: http://localhost:3000 # Assuming default URL for the app itself
+          # Use Supabase details from the setup action outputs
+          NEXT_PUBLIC_SUPABASE_URL: ${{ steps.setup_env.outputs.supabase-url }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.setup_env.outputs.supabase-anon-key }}
+          NEXT_PUBLIC_WEB_SOCKET_URL: ws://localhost:3001 # Assuming WS connects to API
+
+          # Pass any other required NEXT_PUBLIC_ variables
+
+      - name: Stop Supabase # Use the cleanup action
+        uses: ./.github/actions/stop-supabase
+        if: always() # Ensure Supabase is stopped even if tests fail
