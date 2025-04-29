@@ -6,4 +6,4 @@ runs:
   steps:
     - name: Stop Supabase instance
       shell: bash
-      run: supabase stop 
+      run: supabase stop --no-backup
