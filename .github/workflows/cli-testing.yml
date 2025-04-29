@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    runs-on: blacksmith-16vcpu-ubuntu-2204 # Using a powerful runner as requested
+    runs-on: blacksmith-32vcpu-ubuntu-2204 # Using a powerful runner as requested
     environment: testing
 
     # Service containers
@@ -28,11 +28,6 @@ jobs:
         uses: actions/checkout@v4
 
       # --- Build API Docker Image with Blacksmith Caching ---
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build and Load API Docker Image
         uses: useblacksmith/build-push-action@v1
         with:
@@ -85,6 +80,7 @@ jobs:
         working-directory: ./cli # Tests run from the cli directory
         run: cargo test --workspace # Run tests for all packages in the cli workspace
         env:
+          RUST_TEST_THREADS: 24
           # Point to services on host (DB/Supabase/Redis) and API container
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres
           REDIS_URL: redis://localhost:6379 # Tests run on host, connect to exposed Redis port
