@@ -23,40 +23,6 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-      # API service built from Dockerfile
-      api:
-        image: local-api-test:latest # Use the locally built image
-        ports:
-          - 3001:3001
-        options: >-
-          --health-cmd "curl -f http://localhost:3001/health || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        env:
-          # Core Supabase/DB/Redis vars - use service names or host IP
-          # Runner host IP is often 172.17.0.1, Supabase runs directly on host via setup action
-          DATABASE_URL: postgres://postgres:postgres@172.17.0.1:54322/postgres
-          POOLER_URL: postgres://postgres:postgres@172.17.0.1:54322/postgres
-          REDIS_URL: redis://redis:6379 # Connect to redis service container
-          JWT_SECRET: 'super-secret-jwt-token-with-at-least-32-characters-long' # Use default local value
-          SUPABASE_URL: http://172.17.0.1:54321 # Default local URL on host
-          SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MjM0MzA5Nn0.EGgMpd9zvvHPCOq4DJRLwzJ1iS3GV4AEyzguXGcbEIY' # Use default local value
-
-          # Non-sensitive / Default values
-          ENVIRONMENT: development
-          # BUSTER_URL might not be relevant for CLI tests
-          LOG_LEVEL: debug
-          PORT: 3001 # API server port within container
-          RUST_LOG: debug
-
-          # Sensitive values from Secrets (passed to API container)
-          OPENAI_API_KEY: ${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}
-          RESEND_API_KEY: ${{ secrets.GH_ACTIONS_RESEND_API_KEY }}
-          COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
-          LLM_API_KEY: ${{ secrets.GH_ACTIONS_LLM_API_KEY }}
-          LLM_BASE_URL: ${{ secrets.GH_ACTIONS_LLM_BASE_URL }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,6 +46,41 @@ jobs:
       - name: Setup Test Environment # Runs Supabase, migrations, seeding on host
         uses: ./.github/actions/setup-test-environment
 
+      # --- Start API Container Manually ---
+      - name: Start API Container
+        run: |
+          docker run -d --name local-api -p 3001:3001 \
+            --network=host \
+            -e DATABASE_URL='postgres://postgres:postgres@127.0.0.1:54322/postgres' \
+            -e POOLER_URL='postgres://postgres:postgres@127.0.0.1:54322/postgres' \
+            -e REDIS_URL='redis://127.0.0.1:6379' \
+            -e JWT_SECRET='super-secret-jwt-token-with-at-least-32-characters-long' \
+            -e SUPABASE_URL='http://127.0.0.1:54321' \
+            -e SUPABASE_SERVICE_ROLE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MjM0MzA5Nn0.EGgMpd9zvvHPCOq4DJRLwzJ1iS3GV4AEyzguXGcbEIY' \
+            -e ENVIRONMENT='development' \
+            -e LOG_LEVEL='debug' \
+            -e PORT='3001' \
+            -e RUST_LOG='debug' \
+            -e OPENAI_API_KEY='${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}' \
+            -e RESEND_API_KEY='${{ secrets.GH_ACTIONS_RESEND_API_KEY }}' \
+            -e COHERE_API_KEY='${{ secrets.GH_ACTIONS_COHERE_API_KEY }}' \
+            -e LLM_API_KEY='${{ secrets.GH_ACTIONS_LLM_API_KEY }}' \
+            -e LLM_BASE_URL='${{ secrets.GH_ACTIONS_LLM_BASE_URL }}' \
+            local-api-test:latest
+
+      - name: Wait for API Health Check
+        run: |
+          echo "Waiting for API to be healthy..."
+          for i in {1..30}; do # Wait up to 30 seconds
+            if curl -f http://localhost:3001/health; then
+              echo "API is healthy!"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "API did not become healthy in time."
+          exit 1
+
       - name: Run CLI Tests
         working-directory: ./cli # Tests run from the cli directory
         run: cargo test --workspace # Run tests for all packages in the cli workspace
@@ -91,10 +92,14 @@ jobs:
           SUPABASE_URL: http://127.0.0.1:54321 # Tests run on host
           SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MjM0MzA5Nn0.EGgMpd9zvvHPCOq4DJRLwzJ1iS3GV4AEyzguXGcbEIY' # Use default local value
           RUST_LOG: debug # Or adjust as needed
-          BUSTER_API_URL: http://api:3001 # Point CLI tests to the API service container
+          BUSTER_API_URL: http://localhost:3001 # Point CLI tests to the manually started API container
 
           # Secrets are passed to the API container, not needed directly by CLI tests
 
       - name: Stop Supabase # Use the cleanup action
         uses: ./.github/actions/stop-supabase
         if: always() # Ensure Supabase is stopped even if tests fail
+
+      - name: Stop API Container # Cleanup manually started container
+        if: always()
+        run: docker stop local-api && docker rm local-api
