@@ -43,6 +43,11 @@ jobs:
           key: ${{ github.repository }}-api-target # Unique key per repository
           path: ./api/target # Cache build artifacts
 
+      - name: Set up Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable # Or specify a version
+
       - name: Run API Tests
         working-directory: ./api # Tests run from the api directory
         run: cargo test --workspace # Run tests for all packages in the api workspace
