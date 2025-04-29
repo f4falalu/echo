@@ -49,7 +49,9 @@ jobs:
 
       - name: Run API Server
         working-directory: ./api
-        run: ./target/release/server & # Run in background
+        run: |
+          ./target/release/server & # Run in background
+          echo $! > /tmp/api-server.pid # Store PID for later cleanup
         env:
           # Core Supabase/DB/Redis vars from setup action outputs
           DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
