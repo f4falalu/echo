@@ -72,6 +72,7 @@ async fn process_metric_file_update(
     yml_content: String,
     duration: i64,
     user_id: &Uuid,
+    data_source_id: &Uuid,
 ) -> Result<(
     MetricFile,
     MetricYml,
@@ -95,21 +96,6 @@ async fn process_metric_file_update(
                 file_name = %file.name,
                 "Successfully parsed and validated new metric content"
             );
-
-            // Validate SQL and get dataset_id from the first dataset
-            if new_yml.dataset_ids.is_empty() {
-                let error = "Missing required field 'dataset_ids'".to_string();
-                results.push(ModificationResult {
-                    file_id: file.id,
-                    file_name: file.name.clone(),
-                    success: false,
-                    error: Some(error.clone()),
-                    modification_type: "validation".to_string(),
-                    timestamp: Utc::now(),
-                    duration,
-                });
-                return Err(anyhow::anyhow!(error));
-            }
 
             // Check if SQL has changed to avoid unnecessary validation
             let sql_changed = file.content.sql != new_yml.sql;
@@ -149,9 +135,6 @@ async fn process_metric_file_update(
                 ));
             }
             
-            // If SQL has changed or metadata is missing, perform validation
-            let dataset_id = new_yml.dataset_ids[0];
-            
             if sql_changed {
                 debug!(
                     file_id = %file.id,
@@ -166,7 +149,8 @@ async fn process_metric_file_update(
                 );
             }
 
-            match validate_sql(&new_yml.sql, &dataset_id, user_id).await {
+
+            match validate_sql(&new_yml.sql, &data_source_id, user_id).await {
                 Ok((message, validation_results, metadata)) => {
                     // Update file record
                     file.content = new_yml.clone();
@@ -275,6 +259,15 @@ impl ToolExecutor for ModifyMetricFilesTool {
             }
         };
 
+        let data_source_id = match self.agent.get_state_value("data_source_id").await {
+            Some(Value::String(id_str)) => match Uuid::parse_str(&id_str) {
+                Ok(id) => id,
+                Err(e) => return Err(anyhow::anyhow!(format!("Invalid data source ID format: {}", e))),
+            },
+            Some(_) => return Err(anyhow::anyhow!("Data source ID is not a string")),
+            None => return Err(anyhow::anyhow!("Data source ID not found in agent state")),
+        };
+
         // Fetch metric files
         if !metric_ids.is_empty() {
             match metric_files::table
@@ -297,6 +290,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                                     file_update.yml_content.clone(),
                                     start_time_elapsed,
                                     &self.agent.get_user_id(),
+                                    &data_source_id,
                                 ).await;
                                 
                                 match result {

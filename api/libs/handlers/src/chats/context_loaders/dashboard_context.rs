@@ -116,6 +116,19 @@ impl ContextLoader for DashboardContextLoader {
             );
         }
 
+        // NEW: Load data_source_id from agent state
+        let data_source_id: Option<Uuid> = match agent.get_state_value("data_source_id").await {
+            Some(Value::String(id_str)) => Uuid::parse_str(&id_str).ok(),
+            _ => None,
+        };
+
+        // Example of potentially using data_source_id (logging it here)
+        if let Some(ds_id) = data_source_id {
+            tracing::debug!(dashboard_id = %self.dashboard_id, data_source_id = %ds_id, "Loading context for dashboard within data source");
+        } else {
+            tracing::warn!(dashboard_id = %self.dashboard_id, "Data source ID not found in agent state for dashboard context");
+        }
+
         // Set agent state based on loaded assets
         agent
             .set_state_value(String::from("dashboards_available"), Value::Bool(true))

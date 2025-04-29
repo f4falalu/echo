@@ -37,6 +37,13 @@ struct ModifiedFileInfo {
 struct UserManuallyModifiedFileOutput {
     updated_files: Vec<ModifiedFileInfo>, // Contains details for all updated files
 }
+
+// Add a struct to deserialize the search_data_catalog output
+#[derive(Deserialize)]
+struct SearchDataCatalogToolOutput {
+    data_source_id: Option<Uuid>,
+    // Include other fields if needed for future context, but only data_source_id is required now
+}
 // --- End Structs ---
 
 pub struct ChatContextLoader {
@@ -59,9 +66,11 @@ impl ChatContextLoader {
             for tool_call in tool_calls {
                 match tool_call.function.name.as_str() {
                     "search_data_catalog" => {
-                        agent
-                            .set_state_value(String::from("data_context"), Value::Bool(true))
-                            .await;
+                        // We will set data_context based on the *response* now,
+                        // but keep this for potential future use or broader context setting.
+                        // agent
+                        //     .set_state_value(String::from("data_context"), Value::Bool(true))
+                        //     .await;
                     }
                     "create_metrics" | "update_metrics" => {
                         agent
@@ -199,6 +208,36 @@ impl ChatContextLoader {
                                     .await;
                             }
                         }
+                    }
+                }
+            }
+
+            // NEW: Check for search_data_catalog response and extract data_source_id
+            if tool_name == "search_data_catalog" {
+                match serde_json::from_str::<SearchDataCatalogToolOutput>(content) {
+                    Ok(output) => {
+                        if let Some(ds_id) = output.data_source_id {
+                            tracing::debug!(data_source_id = %ds_id, "Found data_source_id in search_data_catalog tool history, caching in agent state.");
+                            // Cache the data_source_id
+                            agent.set_state_value(
+                                "data_source_id".to_string(), 
+                                Value::String(ds_id.to_string())
+                            ).await;
+                            // Also set data_context flag to true since we found the ID
+                            agent.set_state_value("data_context".to_string(), Value::Bool(true)).await;
+                        } else {
+                            // If the tool ran but didn't return an ID (e.g., no datasets found)
+                            tracing::debug!("search_data_catalog tool ran in history but did not return a data_source_id.");
+                            // Optionally clear or set to null if needed, or just leave as is
+                            // agent.set_state_value("data_source_id".to_string(), Value::Null).await;
+                        }
+                    }
+                    Err(e) => {
+                        tracing::warn!(
+                            error = %e, 
+                            content = %content,
+                            "Failed to parse search_data_catalog tool output from chat history."
+                        );
                     }
                 }
             }

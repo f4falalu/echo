@@ -73,7 +73,6 @@ impl TestDb {
             sql: "SELECT * FROM test".to_string(),
             time_frame: "last 30 days".to_string(),
             chart_config: create_default_chart_config(),
-            dataset_ids: Vec::new(),
         };
 
         let metric_file = MetricFile {

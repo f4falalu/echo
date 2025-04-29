@@ -13,10 +13,9 @@ use database::{
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 use futures::future::join_all;
-use indexmap::IndexMap;
-use query_engine::data_types::DataType;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use uuid::Uuid;
 
 use crate::{
     agent::Agent,
@@ -90,22 +89,37 @@ impl ToolExecutor for CreateMetricFilesTool {
         let mut created_files = vec![];
         let mut failed_files = vec![];
 
+        let data_source_id = match self.agent.get_state_value("data_source_id").await {
+            Some(Value::String(id_str)) => match Uuid::parse_str(&id_str) {
+                Ok(id) => id,
+                Err(e) => {
+                    return Err(anyhow::anyhow!(format!(
+                        "Invalid data source ID format: {}",
+                        e
+                    )))
+                }
+            },
+            Some(_) => return Err(anyhow::anyhow!("Data source ID is not a string")),
+            None => return Err(anyhow::anyhow!("Data source ID not found in agent state")),
+        };
+
         // Create futures for concurrent processing
         let process_futures = files
             .into_iter()
             .map(|file| {
                 let tool_call_id_clone = tool_call_id.clone();
                 let user_id = self.agent.get_user_id();
-                
+
                 async move {
                     let result = process_metric_file(
                         tool_call_id_clone,
                         file.name.clone(),
                         file.yml_content.clone(),
+                        data_source_id,
                         &user_id,
                     )
                     .await;
-                    
+
                     (file.name.clone(), result)
                 }
             })
@@ -127,7 +141,10 @@ impl ToolExecutor for CreateMetricFilesTool {
                     results_vec.push((message, results));
                 }
                 Err(e) => {
-                    failed_files.push(FailedFileCreation { name: file_name, error: e.to_string() });
+                    failed_files.push(FailedFileCreation {
+                        name: file_name,
+                        error: e.to_string(),
+                    });
                 }
             }
         }
@@ -201,11 +218,9 @@ impl ToolExecutor for CreateMetricFilesTool {
                     }
                 }
                 Err(e) => {
-                    failed_files.extend(metric_records.iter().map(|r| {
-                        FailedFileCreation {
-                            name: r.file_name.clone(),
-                            error: format!("Failed to create metric file: {}", e),
-                        }
+                    failed_files.extend(metric_records.iter().map(|r| FailedFileCreation {
+                        name: r.file_name.clone(),
+                        error: format!("Failed to create metric file: {}", e),
                     }));
                 }
             }
@@ -341,7 +356,7 @@ async fn get_metric_yml_description() -> String {
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
     match get_prompt_system_message(&client, "54d01b7c-07c9-4c80-8ec7-8026ab8242a9").await {
-        Ok(message) => message, 
+        Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
             // Revert to just returning the schema string on error

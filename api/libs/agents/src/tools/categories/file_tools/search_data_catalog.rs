@@ -48,6 +48,7 @@ pub struct SearchDataCatalogOutput {
     pub exploratory_topics: Option<Vec<String>>,
     pub duration: i64,
     pub results: Vec<DatasetSearchResult>,
+    pub data_source_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
@@ -366,6 +367,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                     exploratory_topics: params.exploratory_topics,
                     duration: start_time.elapsed().as_millis() as i64,
                     results: vec![],
+                    data_source_id: None,
                 });
             }
         };
@@ -381,6 +383,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                 exploratory_topics: params.exploratory_topics,
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
+                data_source_id: None,
             });
         }
 
@@ -410,6 +413,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                 exploratory_topics: params.exploratory_topics,
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
+                data_source_id: Some(target_data_source_id),
             });
         }
 
@@ -498,6 +502,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                 exploratory_topics: params.exploratory_topics,
                 duration: start_time.elapsed().as_millis() as i64,
                 results: vec![],
+                data_source_id: Some(target_data_source_id),
             });
         }
 
@@ -746,6 +751,7 @@ impl ToolExecutor for SearchDataCatalogTool {
             exploratory_topics: params.exploratory_topics,
             duration: duration as i64,
             results: updated_results,  // Use updated results instead of final_search_results
+            data_source_id: Some(target_data_source_id),
         })
     }
 

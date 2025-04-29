@@ -72,6 +72,19 @@ impl ContextLoader for MetricContextLoader {
             );
         }
 
+        // NEW: Load data_source_id from agent state
+        let data_source_id: Option<Uuid> = match agent.get_state_value("data_source_id").await {
+            Some(Value::String(id_str)) => Uuid::parse_str(&id_str).ok(),
+            _ => None,
+        };
+
+        // Example of potentially using data_source_id (logging it here)
+        if let Some(ds_id) = data_source_id {
+            tracing::debug!(metric_id = %self.metric_id, data_source_id = %ds_id, "Loading context for metric within data source");
+        } else {
+            tracing::warn!(metric_id = %self.metric_id, "Data source ID not found in agent state for metric context");
+        }
+
         // Set agent state based on loaded assets
         agent
             .set_state_value(String::from("metrics_available"), Value::Bool(true))
