@@ -13,6 +13,7 @@ on:
 jobs:
   test:
     runs-on: blacksmith-16vcpu-ubuntu-2204
+    environment: testing
 
     # Service container for Redis (needed by the setup action)
     services:
@@ -42,9 +43,9 @@ jobs:
           # Use hardcoded default values and secrets
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres
           REDIS_URL: redis://localhost:6379 # Connect to the Redis service container
-          JWT_SECRET: ${{ secrets.GH_ACTIONS_SUPABASE_JWT_SECRET }} # Use secret
+          JWT_SECRET: 'super-secret-jwt-token-with-at-least-32-characters-long' # Use default local value
           SUPABASE_URL: http://127.0.0.1:54321 # Default local URL
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.GH_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }} # Use secret
+          SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MjM0MzA5Nn0.EGgMpd9zvvHPCOq4DJRLwzJ1iS3GV4AEyzguXGcbEIY' # Use default local value
           RUST_LOG: debug # Or adjust as needed
 
           # Sensitive values from Secrets

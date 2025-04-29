@@ -13,6 +13,7 @@ on:
 jobs:
   test:
     runs-on: blacksmith-16vcpu-ubuntu-2204
+    environment: testing
 
     # Service container for Redis (needed by the setup action and potentially API)
     services:
@@ -56,9 +57,9 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres
           POOLER_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres # Assuming pooler uses same DB
           REDIS_URL: redis://localhost:6379 # Use localhost as it runs on the runner accessing the service
-          JWT_SECRET: ${{ secrets.GH_ACTIONS_SUPABASE_JWT_SECRET }} # Use secret
+          JWT_SECRET: 'super-secret-jwt-token-with-at-least-32-characters-long' # Use default local value
           SUPABASE_URL: http://127.0.0.1:54321 # Default local URL
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.GH_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }} # Use secret
+          SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MjM0MzA5Nn0.EGgMpd9zvvHPCOq4DJRLwzJ1iS3GV4AEyzguXGcbEIY' # Use default local value
 
           # Non-sensitive / Default values
           ENVIRONMENT: development
@@ -104,7 +105,7 @@ jobs:
           NEXT_PUBLIC_URL: http://localhost:3000 # Assuming default URL for the app itself
           # Use Supabase details - default URL and secret anon key
           NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321 # Default local URL
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.GH_ACTIONS_SUPABASE_ANON_KEY }} # Use secret
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODIzNDMwOTZ9.7UIsMFfHYKxH7bUJCRfxd6lr7CSXGF7UxtZQO10FMMo' # Use default local value
           NEXT_PUBLIC_WEB_SOCKET_URL: ws://localhost:3001 # Assuming WS connects to API
 
           # Pass any other required NEXT_PUBLIC_ variables
