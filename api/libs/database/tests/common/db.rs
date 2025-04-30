@@ -93,6 +93,7 @@ impl TestDb {
             created_at: Utc::now(),
             updated_at: Utc::now(),
             deleted_at: None,
+            payment_required: false,
         };
         
         let mut conn = self.diesel_conn().await?;

@@ -3,12 +3,14 @@ use chrono::Utc;
 use database::enums::{AssetPermissionRole, AssetType, Verification};
 use database::models::{Chat, Collection, DashboardFile, MetricFile};
 use database::schema::{chats, collections, dashboard_files, metric_files};
+use database::types::metric_yml::{
+    BarAndLineAxis, BarLineChartConfig, BaseChartConfig, ChartConfig,
+};
 use database::types::{DashboardYml, MetricYml, VersionHistory};
-use database::types::metric_yml::{BaseChartConfig, BarAndLineAxis, BarLineChartConfig, ChartConfig};
 use diesel_async::RunQueryDsl;
 use indexmap;
-use uuid::Uuid;
 use std::collections::HashMap;
+use uuid::Uuid;
 
 use crate::common::db::TestDb;
 use crate::common::permissions::PermissionTestHelpers;
@@ -18,13 +20,10 @@ pub struct AssetTestHelpers;
 
 impl AssetTestHelpers {
     /// Creates a test metric file
-    pub async fn create_test_metric(
-        test_db: &TestDb,
-        name: &str,
-    ) -> Result<MetricFile> {
+    pub async fn create_test_metric(test_db: &TestDb, name: &str) -> Result<MetricFile> {
         let mut conn = test_db.diesel_conn().await?;
         let metric_id = Uuid::new_v4();
-        
+
         // Create a simple metric content
         let content = MetricYml {
             name: name.to_string(),
@@ -34,11 +33,15 @@ impl AssetTestHelpers {
             chart_config: create_default_chart_config(),
             dataset_ids: Vec::new(),
         };
-        
+
         let metric_file = MetricFile {
             id: metric_id,
             name: format!("{}-{}", test_db.test_id, name),
-            file_name: format!("{}-{}.yml", test_db.test_id, name.to_lowercase().replace(" ", "_")),
+            file_name: format!(
+                "{}-{}.yml",
+                test_db.test_id,
+                name.to_lowercase().replace(" ", "_")
+            ),
             content,
             verification: Verification::Verified,
             evaluation_obj: None,
@@ -56,34 +59,35 @@ impl AssetTestHelpers {
             data_metadata: None,
             public_password: None,
         };
-        
+
         diesel::insert_into(metric_files::table)
             .values(&metric_file)
             .execute(&mut conn)
             .await?;
-            
+
         Ok(metric_file)
     }
-    
+
     /// Creates a test dashboard file
-    pub async fn create_test_dashboard(
-        test_db: &TestDb,
-        name: &str,
-    ) -> Result<DashboardFile> {
+    pub async fn create_test_dashboard(test_db: &TestDb, name: &str) -> Result<DashboardFile> {
         let mut conn = test_db.diesel_conn().await?;
         let dashboard_id = Uuid::new_v4();
-        
+
         // Create a simple dashboard content
         let content = DashboardYml {
             name: name.to_string(),
             description: Some(format!("Test dashboard description for {}", name)),
             rows: Vec::new(),
         };
-        
+
         let dashboard_file = DashboardFile {
             id: dashboard_id,
             name: format!("{}-{}", test_db.test_id, name),
-            file_name: format!("{}-{}.yml", test_db.test_id, name.to_lowercase().replace(" ", "_")),
+            file_name: format!(
+                "{}-{}.yml",
+                test_db.test_id,
+                name.to_lowercase().replace(" ", "_")
+            ),
             content,
             filter: None,
             organization_id: test_db.organization_id,
@@ -97,23 +101,20 @@ impl AssetTestHelpers {
             version_history: VersionHistory(HashMap::new()),
             public_password: None,
         };
-        
+
         diesel::insert_into(dashboard_files::table)
             .values(&dashboard_file)
             .execute(&mut conn)
             .await?;
-            
+
         Ok(dashboard_file)
     }
-    
+
     /// Creates a test collection
-    pub async fn create_test_collection(
-        test_db: &TestDb,
-        name: &str,
-    ) -> Result<Collection> {
+    pub async fn create_test_collection(test_db: &TestDb, name: &str) -> Result<Collection> {
         let mut conn = test_db.diesel_conn().await?;
         let collection_id = Uuid::new_v4();
-        
+
         let collection = Collection {
             id: collection_id,
             name: format!("{}-{}", test_db.test_id, name),
@@ -125,23 +126,20 @@ impl AssetTestHelpers {
             deleted_at: None,
             organization_id: test_db.organization_id,
         };
-        
+
         diesel::insert_into(collections::table)
             .values(&collection)
             .execute(&mut conn)
             .await?;
-            
+
         Ok(collection)
     }
-    
+
     /// Creates a test chat
-    pub async fn create_test_chat(
-        test_db: &TestDb,
-        title: &str,
-    ) -> Result<Chat> {
+    pub async fn create_test_chat(test_db: &TestDb, title: &str) -> Result<Chat> {
         let mut conn = test_db.diesel_conn().await?;
         let chat_id = Uuid::new_v4();
-        
+
         let chat = Chat {
             id: chat_id,
             title: format!("{}-{}", test_db.test_id, title),
@@ -156,16 +154,17 @@ impl AssetTestHelpers {
             public_expiry_date: None,
             most_recent_file_id: None,
             most_recent_file_type: None,
+            most_recent_version_number: None,
         };
-        
+
         diesel::insert_into(chats::table)
             .values(&chat)
             .execute(&mut conn)
             .await?;
-            
+
         Ok(chat)
     }
-    
+
     /// Creates a test metric with owner permission
     pub async fn create_test_metric_with_permission(
         test_db: &TestDb,
@@ -174,7 +173,7 @@ impl AssetTestHelpers {
         role: AssetPermissionRole,
     ) -> Result<MetricFile> {
         let metric = Self::create_test_metric(test_db, name).await?;
-        
+
         // Add permission
         PermissionTestHelpers::create_user_permission(
             test_db,
@@ -182,11 +181,12 @@ impl AssetTestHelpers {
             AssetType::MetricFile,
             user_id,
             role,
-        ).await?;
-        
+        )
+        .await?;
+
         Ok(metric)
     }
-    
+
     /// Creates a test dashboard with owner permission
     pub async fn create_test_dashboard_with_permission(
         test_db: &TestDb,
@@ -195,7 +195,7 @@ impl AssetTestHelpers {
         role: AssetPermissionRole,
     ) -> Result<DashboardFile> {
         let dashboard = Self::create_test_dashboard(test_db, name).await?;
-        
+
         // Add permission
         PermissionTestHelpers::create_user_permission(
             test_db,
@@ -203,11 +203,12 @@ impl AssetTestHelpers {
             AssetType::DashboardFile,
             user_id,
             role,
-        ).await?;
-        
+        )
+        .await?;
+
         Ok(dashboard)
     }
-    
+
     /// Creates a test collection with owner permission
     pub async fn create_test_collection_with_permission(
         test_db: &TestDb,
@@ -216,7 +217,7 @@ impl AssetTestHelpers {
         role: AssetPermissionRole,
     ) -> Result<Collection> {
         let collection = Self::create_test_collection(test_db, name).await?;
-        
+
         // Add permission
         PermissionTestHelpers::create_user_permission(
             test_db,
@@ -224,11 +225,12 @@ impl AssetTestHelpers {
             AssetType::Collection,
             user_id,
             role,
-        ).await?;
-        
+        )
+        .await?;
+
         Ok(collection)
     }
-    
+
     /// Creates a test chat with owner permission
     pub async fn create_test_chat_with_permission(
         test_db: &TestDb,
@@ -237,7 +239,7 @@ impl AssetTestHelpers {
         role: AssetPermissionRole,
     ) -> Result<Chat> {
         let chat = Self::create_test_chat(test_db, title).await?;
-        
+
         // Add permission
         PermissionTestHelpers::create_user_permission(
             test_db,
@@ -245,8 +247,9 @@ impl AssetTestHelpers {
             AssetType::Chat,
             user_id,
             role,
-        ).await?;
-        
+        )
+        .await?;
+
         Ok(chat)
     }
 }
