@@ -2,6 +2,8 @@ use agents::{Agent, AgentMessage};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use database::{
+    enums::{AssetPermissionRole, AssetType},
+    helpers::metric_files::fetch_metric_file_with_permissions,
     models::{Dataset, MetricFile},
     pool::get_pg_pool,
     schema::{datasets, metric_files, metric_files_to_datasets},
@@ -32,26 +34,70 @@ impl ContextLoader for MetricContextLoader {
         user: &AuthenticatedUser,
         agent: &Arc<Agent>,
     ) -> Result<Vec<AgentMessage>> {
+        // Note: We don't need a separate connection pool get here,
+        // fetch_metric_file_with_permissions handles it internally.
+
+        // 1. Fetch metric file ensuring user has at least view permission
+        let metric_with_permission_option =
+            fetch_metric_file_with_permissions(&self.metric_id, &user.id)
+                .await
+                .map_err(|e| {
+                    anyhow!(
+                        "Failed database lookup for metric {} permissions: {}",
+                        self.metric_id,
+                        e
+                    )
+                })?;
+
+        let (metric, permission_level) = match metric_with_permission_option {
+            Some(mfwp) => (mfwp.metric_file, mfwp.permission),
+            None => {
+                tracing::warn!(
+                    metric_id = %self.metric_id,
+                    user_id = %user.id,
+                    "Metric not found or no direct permission found during context load."
+                );
+                // Even if not found, we need to check if it's maybe publicly accessible?
+                // For context loading, let's keep it simple: if no direct record/permission, deny.
+                // If public access needs to be considered here, this logic would need expansion,
+                // potentially reusing more from get_metric_handler.
+                 return Err(anyhow!(
+                    "Metric file {} not found or you lack direct permission.",
+                    self.metric_id
+                ));
+            }
+        };
+
+        // 2. Verify sufficient permission level (at least CanView)
+        // We assume CanView is the minimum required to load context.
+        // Adjust if different logic (like public access) should apply here.
+        match permission_level {
+            Some(AssetPermissionRole::CanView) |
+            Some(AssetPermissionRole::CanEdit) |
+            Some(AssetPermissionRole::FullAccess) |
+            Some(AssetPermissionRole::Owner) => {
+                 tracing::debug!(metric_id = %self.metric_id, user_id = %user.id, ?permission_level, "Sufficient permission found for context load.");
+            }
+            _ => {
+                 tracing::warn!(metric_id = %self.metric_id, user_id = %user.id, ?permission_level, "Insufficient permission to load metric context.");
+                 return Err(anyhow!(
+                    "You don't have sufficient permission (need at least CanView) to load context for metric {}.",
+                    self.metric_id
+                ));
+            }
+        }
+
+
+        // Get a connection for subsequent queries
         let mut conn = get_pg_pool().get().await.map_err(|e| {
             anyhow!(
-                "Failed to get database connection for metric context loading: {}",
+                "Failed to get database connection for dataset loading: {}",
                 e
             )
         })?;
 
-        // First verify the metric exists and user has access
-        let metric = metric_files::table
-            .filter(metric_files::id.eq(self.metric_id))
-            // .filter(metric_files::created_by.eq(&user.id))
-            .first::<MetricFile>(&mut conn)
-            .await
-            .map_err(|e| {
-                anyhow!("Failed to load metric (id: {}). Either it doesn't exist or user {} doesn't have access: {}", 
-                    self.metric_id, user.id, e)
-            })?;
-
         // Get the metric content as MetricYml
-        let metric_yml = metric.content;
+        let metric_yml = metric.content; // Use the metric fetched above
 
         // --- Optimized Dataset Loading ---
 

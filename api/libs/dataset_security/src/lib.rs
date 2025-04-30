@@ -425,7 +425,8 @@ pub async fn has_all_datasets_access(user_id: &Uuid, dataset_ids: &[Uuid]) -> Re
     if dataset_ids.is_empty() {
         // No datasets to check, vacuously true? Or should this be an error/false?
         // Let's assume true for now, meaning "no permissions required". Adjust if needed.
-        return Ok(true);
+        // Changing to false for safer behavior: no datasets means no access granted.
+        return Ok(false);
     }
 
     let mut conn = get_pg_pool().get().await.context("DB Error")?; // Get initial connection
@@ -504,8 +505,8 @@ pub async fn has_all_datasets_access(user_id: &Uuid, dataset_ids: &[Uuid]) -> Re
         // However, it repeats the deleted check and org role check we partially did.
         // Let's refine the logic to avoid redundant checks.
 
-        // Optimization: Check if this dataset's org was already covered by admin check
-         let dataset_org_id = dataset_infos.iter().find(|(id, _, _)| id == dataset_id).map(|(_, org_id, _)| *org_id).unwrap(); // Should exist due to earlier checks
+         let dataset_org_id = dataset_infos.iter().find(|(id, _, _)| id == dataset_id).map(|(_, org_id, _)| *org_id)
+             .expect("Dataset info missing after validation - this is a bug"); // Should exist due to earlier checks
          if admin_org_ids_with_access.contains(&dataset_org_id) {
              // User has admin/querier access in this dataset's org, so access is granted for this specific dataset.
              continue; // Move to the next dataset

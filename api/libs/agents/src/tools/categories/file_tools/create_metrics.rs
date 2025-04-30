@@ -187,6 +187,10 @@ impl ToolExecutor for CreateMetricFilesTool {
                     .await
                 {
                     tracing::error!("Error inserting asset permissions: {}", e);
+                    failed_files.extend(metric_records.iter().map(|r| FailedFileCreation {
+                        name: r.file_name.clone(),
+                        error: format!("Failed to set asset permissions: {}", e),
+                    }));
                 }
 
                 let mut join_table_records = Vec::new();
@@ -208,23 +212,39 @@ impl ToolExecutor for CreateMetricFilesTool {
                         .await
                     {
                         tracing::error!("Failed to insert dataset associations: {}", e);
+                        failed_files.extend(metric_records.iter().map(|r| FailedFileCreation {
+                            name: r.file_name.clone(),
+                            error: format!("Failed to link datasets: {}", e),
+                        }));
                     }
                 }
 
                 let metric_ymls: Vec<MetricYml> = successful_processing.iter().map(|(_, yml, _, _, _)| yml.clone()).collect();
                 let results_vec: Vec<(String, Vec<IndexMap<String, DataType>>)> = successful_processing.iter().map(|(_, _, msg, res, _)| (msg.clone(), res.clone())).collect();
                 for (i, yml) in metric_ymls.into_iter().enumerate() {
-                    created_files.push(FileWithId {
-                        id: metric_records[i].id,
-                        name: metric_records[i].name.clone(),
-                        file_type: "metric".to_string(),
-                        yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
-                        result_message: Some(results_vec[i].0.clone()),
-                        results: Some(results_vec[i].1.clone()),
-                        created_at: metric_records[i].created_at,
-                        updated_at: metric_records[i].updated_at,
-                        version_number: 1,
-                    });
+                    // Attempt to serialize the YAML content
+                    match serde_yaml::to_string(&yml) {
+                        Ok(yml_content) => {
+                            created_files.push(FileWithId {
+                                id: metric_records[i].id,
+                                name: metric_records[i].name.clone(),
+                                file_type: "metric".to_string(),
+                                yml_content, // Use the successfully serialized content
+                                result_message: Some(results_vec[i].0.clone()),
+                                results: Some(results_vec[i].1.clone()),
+                                created_at: metric_records[i].created_at,
+                                updated_at: metric_records[i].updated_at,
+                                version_number: 1,
+                            });
+                        }
+                        Err(e) => {
+                            // If serialization fails, add to failed_files
+                            failed_files.push(FailedFileCreation {
+                                name: metric_records[i].name.clone(),
+                                error: format!("Failed to serialize metric YAML content: {}", e),
+                            });
+                        }
+                    }
                 }
             }
         }

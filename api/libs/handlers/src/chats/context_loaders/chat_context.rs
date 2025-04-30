@@ -39,7 +39,7 @@ struct UserManuallyModifiedFileOutput {
 }
 
 // Add a struct to deserialize the search_data_catalog output
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct SearchDataCatalogToolOutput {
     data_source_id: Option<Uuid>,
     // Include other fields if needed for future context, but only data_source_id is required now

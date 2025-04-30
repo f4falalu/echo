@@ -138,6 +138,7 @@ impl ContextLoader for DashboardContextLoader {
                     // Optional: Check if all expected datasets were loaded
                     if datasets_vec.len() != dataset_ids_vec.len() {
                          let found_dataset_ids: HashSet<Uuid> = datasets_vec.iter().map(|d| d.id).collect();
+                         
                          for missing_id in dataset_ids_vec.iter().filter(|id| !found_dataset_ids.contains(id)) {
                             failed_dataset_loads.push((*missing_id, "Dataset not found in database".to_string()));
                          }

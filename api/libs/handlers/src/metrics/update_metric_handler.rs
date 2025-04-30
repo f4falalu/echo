@@ -189,7 +189,7 @@ pub async fn update_metric_handler(
     // --- SQL Validation, Dataset ID Extraction, and Metadata Calculation ---
     let mut data_metadata: Option<DataMetadata> = current_metric_file_record.data_metadata; // Default to existing
     let mut validated_dataset_ids: Vec<Uuid> = Vec::new(); // Store validated IDs for association
-    let mut requires_revalidation =
+    let requires_revalidation =
         request.sql.is_some() || request.file.is_some() || request.restore_to_version.is_some();
 
     if requires_revalidation {

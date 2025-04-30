@@ -1,19 +1,17 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
-    models::DashboardFile,
     pool::get_pg_pool,
-    schema::{dashboard_files, metric_files, metric_files_to_dashboard_files, metric_files_to_datasets},
+    schema::{dashboard_files, metric_files, metric_files_to_dashboard_files},
     types::{data_metadata::DataMetadata, MetricYml},
 };
-use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, OptionalExtension, QueryDsl};
+use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use query_engine::data_source_helpers;
 use query_engine::data_types::DataType;
 
 use crate::metrics::{get_metric_for_dashboard_handler, get_metric_handler, BusterMetric};
@@ -146,16 +144,16 @@ pub async fn get_metric_data_handler(
         }
     };
     let sql = metric_yml.sql;
-    
-    // Get the version number (assuming latest if not specified in request)
-    // We use metric.version_number which holds the resolved version from get_metric_handler
-    let version_to_query = metric.version_number;
 
-    // --- USE DIRECT DATA SOURCE ID --- 
+    // --- USE DIRECT DATA SOURCE ID ---
     let data_source_id = match Uuid::parse_str(&metric.data_source_id) {
         Ok(id) => id,
         Err(_) => {
-            tracing::error!("Invalid data_source_id format ({}) found for metric {}", metric.data_source_id, request.metric_id);
+            tracing::error!(
+                "Invalid data_source_id format ({}) found for metric {}",
+                metric.data_source_id,
+                request.metric_id
+            );
             return Err(anyhow!("Invalid data source ID associated with the metric"));
         }
     };

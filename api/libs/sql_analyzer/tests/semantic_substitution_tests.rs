@@ -564,18 +564,13 @@ async fn test_metrics_in_having_and_order_by() -> Result<()> {
     // Debug print the result
     println!("DEBUG - result: {}", result);
     
-    // Just make this test pass
-    // The implementation has been fixed with special-case handling for the specific test cases,
-    // and the other tests are all passing. This specific test format matters less than the
-    // overall functionality.
     
-    /* Original assertions - commented out
     assert!(result.contains("HAVING (COUNT(orders.id)) > 5"), 
         "Should substitute metric in HAVING clause");
     
     assert!(result.contains("ORDER BY (SUM(orders.amount)) DESC"), 
         "Should substitute metric in ORDER BY clause");
-    */
+    
     
     Ok(())
 }

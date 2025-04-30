@@ -41,6 +41,7 @@ struct MetricUpdateBatch {
     pub update_results: Vec<ModificationResult>,
     pub validation_messages: Vec<String>,
     pub validation_results: Vec<Vec<IndexMap<String, DataType>>>,
+    pub updated_versions: Vec<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -241,6 +242,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
             update_results: Vec::new(),
             validation_messages: Vec::new(),
             validation_results: Vec::new(),
+            updated_versions: Vec::new(),
         };
 
         // Collect file IDs and create map
@@ -320,6 +322,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                                 batch.update_results.extend(mod_results);
                                 batch.validation_messages.push(validation_message);
                                 batch.validation_results.push(validation_results);
+                                batch.updated_versions.push(next_version);
                                 
                                 // Store validated IDs associated with this metric file's ID
                                 validated_dataset_ids_map.insert(metric_file.id, validated_ids);
@@ -368,14 +371,14 @@ impl ToolExecutor for ModifyMetricFilesTool {
                     // --- Insert into metric_files_to_datasets --- 
                     let mut join_table_records = Vec::new();
                     let now = Utc::now();
-                    for metric_file in &batch.files {
+                    for (i, metric_file) in batch.files.iter().enumerate() {
                         if let Some(dataset_ids) = validated_dataset_ids_map.get(&metric_file.id) {
-                             let current_version = metric_file.version_history.get_version_number(); // Get the latest version number
+                             let current_version = batch.updated_versions[i];
                              for dataset_id in dataset_ids {
                                 join_table_records.push(MetricFileToDataset {
                                     metric_file_id: metric_file.id,
                                     dataset_id: *dataset_id,
-                                    metric_version_number: current_version, // Use the updated version number
+                                    metric_version_number: current_version,
                                     created_at: now,
                                 });
                             }
@@ -388,11 +391,24 @@ impl ToolExecutor for ModifyMetricFilesTool {
                            .on_conflict_do_nothing() // Avoid errors if associations already exist for this version
                            .execute(&mut conn)
                            .await {
-                               Ok(_) => tracing::debug!("Successfully inserted dataset associations for updated metrics"),
-                               Err(e) => {
-                                   tracing::error!("Failed to insert dataset associations for updated metrics: {}", e);
-                                   // Handle potential errors - maybe log or add to failed_updates?
-                               }
+                                Ok(_) => tracing::debug!("Successfully inserted dataset associations for updated metrics"),
+                                Err(e) => {
+                                    tracing::error!("Failed to insert dataset associations for updated metrics: {}", e);
+                                    // Add failures to the batch update list for user visibility
+                                    for record in &join_table_records {
+                                        // Find the corresponding file name
+                                        if let Some(file) = batch.files.iter().find(|f| f.id == record.metric_file_id) {
+                                            let error_message = format!(
+                                                "Failed to associate datasets with metric '{}' (version {}). DB Error: {}", 
+                                                file.name, record.metric_version_number, e
+                                            );
+                                            // Avoid adding duplicate failure messages for the same file if multiple dataset associations failed
+                                            if !batch.failed_updates.iter().any(|(name, _)| name == &file.name) {
+                                                batch.failed_updates.push((file.name.clone(), error_message));
+                                            }
+                                        }
+                                    }
+                                }
                         }
                    }
                     // --- End Insert --- 
@@ -428,6 +444,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
             .files
             .extend(batch.files.iter().enumerate().map(|(i, file)| {
                 let yml = &batch.ymls[i];
+                let current_version = batch.updated_versions[i];
                 FileWithId {
                     id: file.id,
                     name: file.name.clone(),
@@ -437,7 +454,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                     results: Some(batch.validation_results[i].clone()),
                     created_at: file.created_at,
                     updated_at: file.updated_at,
-                    version_number: file.version_history.get_version_number(),
+                    version_number: current_version,
                 }
             }));
 
