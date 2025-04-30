@@ -29,6 +29,9 @@ pub enum SqlAnalyzerError {
     #[error("Substitution error: {0}")]
     SubstitutionError(String),
 
+    #[error("Unsupported statement type found: {0}")]
+    UnsupportedStatement(String),
+
     #[error("Internal error: {0}")]
     Internal(#[from] anyhow::Error),
 }

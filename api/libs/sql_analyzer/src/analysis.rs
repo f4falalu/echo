@@ -14,11 +14,23 @@ use std::ops::ControlFlow;
 pub async fn analyze_query(sql: String) -> Result<QuerySummary, SqlAnalyzerError> {
     let ast = Parser::parse_sql(&GenericDialect, &sql)?;
     let mut analyzer = QueryAnalyzer::new();
-    
+
+    // First, check if all statements are read-only (Query statements)
+    for stmt in &ast {
+        if !matches!(stmt, Statement::Query(_)) {
+            return Err(SqlAnalyzerError::UnsupportedStatement(format!(
+                "Only SELECT queries are supported. Found: {}",
+                stmt.to_string()
+            )));
+        }
+    }
+
+    // If all statements are okay, proceed with analysis
     for stmt in ast {
         if let Statement::Query(query) = stmt {
             analyzer.process_query(&query, &HashMap::new())?;
         }
+        // No need for else, we already checked above
     }
 
     analyzer.into_summary()

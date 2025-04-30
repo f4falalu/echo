@@ -1569,10 +1569,11 @@ async fn test_reject_insert_statement() {
     let result = analyze_query(sql.to_string()).await;
     
     assert!(result.is_err(), "Should reject INSERT statement");
-    if let Err(SqlAnalyzerError::ParseError(msg)) = result {
-        assert!(msg.contains("Expected SELECT"), "Error message should indicate this is not a SELECT statement");
+    // Updated to expect UnsupportedStatement
+    if let Err(SqlAnalyzerError::UnsupportedStatement(msg)) = result {
+        assert!(msg.contains("Only SELECT queries are supported"), "Error message should indicate unsupported statement");
     } else {
-        panic!("Expected ParseError for INSERT, got: {:?}", result);
+        panic!("Expected UnsupportedStatement for INSERT, got: {:?}", result);
     }
 }
 
@@ -1582,10 +1583,11 @@ async fn test_reject_update_statement() {
     let result = analyze_query(sql.to_string()).await;
     
     assert!(result.is_err(), "Should reject UPDATE statement");
-    if let Err(SqlAnalyzerError::ParseError(msg)) = result {
-        assert!(msg.contains("Expected SELECT"), "Error message should indicate this is not a SELECT statement");
+    // Updated to expect UnsupportedStatement
+    if let Err(SqlAnalyzerError::UnsupportedStatement(msg)) = result {
+        assert!(msg.contains("Only SELECT queries are supported"), "Error message should indicate unsupported statement");
     } else {
-        panic!("Expected ParseError for UPDATE, got: {:?}", result);
+        panic!("Expected UnsupportedStatement for UPDATE, got: {:?}", result);
     }
 }
 
@@ -1595,10 +1597,11 @@ async fn test_reject_delete_statement() {
     let result = analyze_query(sql.to_string()).await;
     
     assert!(result.is_err(), "Should reject DELETE statement");
-    if let Err(SqlAnalyzerError::ParseError(msg)) = result {
-        assert!(msg.contains("Expected SELECT"), "Error message should indicate this is not a SELECT statement");
+    // Updated to expect UnsupportedStatement
+    if let Err(SqlAnalyzerError::UnsupportedStatement(msg)) = result {
+        assert!(msg.contains("Only SELECT queries are supported"), "Error message should indicate unsupported statement");
     } else {
-        panic!("Expected ParseError for DELETE, got: {:?}", result);
+        panic!("Expected UnsupportedStatement for DELETE, got: {:?}", result);
     }
 }
 
@@ -1618,10 +1621,11 @@ async fn test_reject_merge_statement() {
     let result = analyze_query(sql.to_string()).await;
     
     assert!(result.is_err(), "Should reject MERGE statement");
-    if let Err(SqlAnalyzerError::ParseError(msg)) = result {
-        assert!(msg.contains("Expected"), "Error message should indicate parsing failure");
+    // Updated to expect UnsupportedStatement
+    if let Err(SqlAnalyzerError::UnsupportedStatement(msg)) = result {
+        assert!(msg.contains("Only SELECT queries are supported"), "Error message should indicate unsupported statement");
     } else {
-        panic!("Expected ParseError for MERGE, got: {:?}", result);
+        panic!("Expected UnsupportedStatement for MERGE, got: {:?}", result);
     }
 }
 
@@ -1639,10 +1643,11 @@ async fn test_reject_create_table_statement() {
     let result = analyze_query(sql.to_string()).await;
     
     assert!(result.is_err(), "Should reject CREATE TABLE statement");
-    if let Err(SqlAnalyzerError::ParseError(msg)) = result {
-        assert!(msg.contains("Expected SELECT"), "Error message should indicate this is not a SELECT statement");
+    // Updated to expect UnsupportedStatement
+    if let Err(SqlAnalyzerError::UnsupportedStatement(msg)) = result {
+        assert!(msg.contains("Only SELECT queries are supported"), "Error message should indicate unsupported statement");
     } else {
-        panic!("Expected ParseError for CREATE TABLE, got: {:?}", result);
+        panic!("Expected UnsupportedStatement for CREATE TABLE, got: {:?}", result);
     }
 }
 
@@ -1652,10 +1657,11 @@ async fn test_reject_stored_procedure_call() {
     let result = analyze_query(sql.to_string()).await;
     
     assert!(result.is_err(), "Should reject CALL statement");
-    if let Err(SqlAnalyzerError::ParseError(msg)) = result {
-        assert!(msg.contains("Expected"), "Error message should indicate parsing failure");
+    // Updated to expect UnsupportedStatement
+    if let Err(SqlAnalyzerError::UnsupportedStatement(msg)) = result {
+        assert!(msg.contains("Only SELECT queries are supported"), "Error message should indicate unsupported statement");
     } else {
-        panic!("Expected ParseError for CALL, got: {:?}", result);
+        panic!("Expected UnsupportedStatement for CALL, got: {:?}", result);
     }
 }
 
@@ -1665,10 +1671,11 @@ async fn test_reject_dynamic_sql() {
     let result = analyze_query(sql.to_string()).await;
     
     assert!(result.is_err(), "Should reject EXECUTE IMMEDIATE statement");
-    if let Err(SqlAnalyzerError::ParseError(msg)) = result {
-        assert!(msg.contains("Expected"), "Error message should indicate parsing failure");
+    // Updated to expect UnsupportedStatement
+    if let Err(SqlAnalyzerError::UnsupportedStatement(msg)) = result {
+        assert!(msg.contains("Only SELECT queries are supported"), "Error message should indicate unsupported statement");
     } else {
-        panic!("Expected ParseError for EXECUTE IMMEDIATE, got: {:?}", result);
+        panic!("Expected UnsupportedStatement for EXECUTE IMMEDIATE, got: {:?}", result);
     }
 }
 
