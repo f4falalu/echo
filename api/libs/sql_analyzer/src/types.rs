@@ -4,9 +4,10 @@ use std::hash::Hash;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum TableKind {
-    Base,
-    Cte,
+    Base,    // A standard table from the database
+    Cte,     // A Common Table Expression
     Derived, // Represents a subquery used as a table factor
+    Function, // Represents a table-valued function call
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

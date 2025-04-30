@@ -23,6 +23,9 @@ pub enum SqlAnalyzerError {
     #[error("Invalid parameter: {0}")]
     InvalidParameter(String),
 
+    #[error("Missing required parameter: {0}")]
+    MissingParameter(String),
+
     #[error("Invalid expression: {0}")]
     InvalidExpression(String),
 

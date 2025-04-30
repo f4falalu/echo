@@ -104,24 +104,38 @@ impl QueryAnalyzer {
                 alias,
                 lateral: _,
                 subquery: _,
-            } => alias.as_ref().map(|a| {
-                let alias_name = a.name.value.clone();
-                self.current_scope_aliases
-                    .insert(alias_name.clone(), alias_name.clone());
-                alias_name
-            }),
-            TableFactor::TableFunction { alias, .. } => alias.as_ref().map(|a| {
-                let alias_name = a.name.value.clone();
-                self.current_scope_aliases
-                    .insert(alias_name.clone(), alias_name.clone());
-                alias_name
-            }),
+            } => alias
+                .as_ref()
+                .map(|a| {
+                    let alias_name = a.name.value.clone();
+                    self.current_scope_aliases
+                        .insert(alias_name.clone(), alias_name.clone());
+                    alias_name
+                })
+                .or_else(|| Some(format!("_derived_{}", rand::random::<u32>()))), // Assign a temporary ID if no alias
+            TableFactor::TableFunction { alias, .. } => alias
+                .as_ref()
+                .map(|a| {
+                    let alias_name = a.name.value.clone();
+                    self.current_scope_aliases
+                        .insert(alias_name.clone(), alias_name.clone());
+                    alias_name
+                })
+                .or_else(|| Some(format!("_function_{}", rand::random::<u32>()))), // Assign temp ID
             TableFactor::NestedJoin { alias, .. } => alias.as_ref().map(|a| {
                 let alias_name = a.name.value.clone();
                 self.current_scope_aliases
                     .insert(alias_name.clone(), alias_name.clone());
                 alias_name
             }),
+            TableFactor::Pivot { alias, .. } => {
+                alias.as_ref().map(|a| {
+                    let alias_name = a.name.value.clone();
+                    self.current_scope_aliases
+                        .insert(alias_name.clone(), alias_name.clone());
+                    alias_name
+                })
+            },
             _ => None,
         }
     }
@@ -553,33 +567,76 @@ impl QueryAnalyzer {
                         .insert(a_name, derived_key.clone());
                 }
             }
-            TableFactor::TableFunction { expr, alias, .. } => {
-                // Process the expression that generates the function table
-                expr.visit(self);
+            TableFactor::TableFunction { expr, alias } => {
+                // Extract the function name if possible
+                let function_name = if let Expr::Function(f) = expr {
+                    // Visit the function's arguments explicitly if it's an Expr::Function
+                    if let sqlparser::ast::FunctionArguments::List(arg_list) = &f.args {
+                        for arg in &arg_list.args {
+                            match arg {
+                                sqlparser::ast::FunctionArg::Unnamed(arg_expr) => {
+                                    if let sqlparser::ast::FunctionArgExpr::Expr(inner_expr) = arg_expr {
+                                        inner_expr.visit(self);
+                                    }
+                                }
+                                sqlparser::ast::FunctionArg::Named { arg: named_arg, .. } => {
+                                     if let sqlparser::ast::FunctionArgExpr::Expr(inner_expr) = named_arg {
+                                        inner_expr.visit(self);
+                                    }
+                                }
+                                 sqlparser::ast::FunctionArg::ExprNamed { arg: expr_named_arg, .. } => {
+                                     if let sqlparser::ast::FunctionArgExpr::Expr(inner_expr) = expr_named_arg {
+                                        inner_expr.visit(self);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    f.name.to_string()
+                } else {
+                    // Fallback or handle other expr types if necessary
+                    // Also visit the expression itself in case it's not a simple function call
+                    // expr.visit(self); // <<< Temporarily comment this out
+                    "unknown_function".to_string()
+                };
 
-                // Register the table function as a derived table
-                let alias_name = alias.as_ref().map(|a| a.name.value.clone());
-                let derived_key = alias_name
-                    .clone()
-                    .unwrap_or_else(|| format!("_function_{}", rand::random::<u32>()));
+                // Use the alias name as the primary key for this table source.
+                // Generate a key if no alias is provided.
+                let alias_name_opt = alias.as_ref().map(|a| a.name.value.clone());
+                let table_key = alias_name_opt.clone().unwrap_or_else(|| {
+                    format!("_function_{}_{}", function_name, rand::random::<u32>())
+                });
 
+                // Extract column names defined in the alias (e.g., `func() AS t(col1, col2)`)
+                let mut columns_from_alias = HashSet::new();
+                if let Some(a) = alias {
+                    for col_ident in &a.columns { // col_ident is TableAliasColumnDef
+                        // Access the name field directly
+                        columns_from_alias.insert(col_ident.name.value.clone());
+                    }
+                }
+
+                // Insert the TableInfo using the table_key
                 self.tables.insert(
-                    derived_key.clone(),
+                    table_key.clone(),
                     TableInfo {
                         database_identifier: None,
                         schema_identifier: None,
-                        table_identifier: derived_key.clone(),
-                        alias: alias_name.clone(),
-                        columns: HashSet::new(),
-                        kind: TableKind::Derived,
-                        subquery_summary: None,
+                        // The identifier IS the alias or the generated key
+                        table_identifier: table_key.clone(),
+                        alias: alias_name_opt.clone(),
+                        columns: columns_from_alias, // Use columns from the alias definition
+                        kind: TableKind::Function, // Use a specific kind for clarity
+                        subquery_summary: None,    // Not a subquery
                     },
                 );
 
-                if let Some(a_name) = alias_name {
-                    self.current_scope_aliases
-                        .insert(a_name, derived_key.clone());
+                // Register the alias in the current scope, mapping it to the table_key
+                if let Some(a_name) = alias_name_opt {
+                    self.current_scope_aliases.insert(a_name, table_key);
                 }
+                // If there's no alias, it's hard to refer to its columns later,
+                // but we've still recorded the function call.
             }
             TableFactor::NestedJoin {
                 table_with_joins, ..
@@ -587,6 +644,36 @@ impl QueryAnalyzer {
                 self.process_table_factor(&table_with_joins.relation);
                 for join in &table_with_joins.joins {
                     self.process_join(join);
+                }
+            }
+            TableFactor::Pivot { table, alias, .. } => {
+                let pivot_table = table;
+                let pivot_alias_opt = alias;
+
+                // 1. Process the underlying source table factor first
+                self.process_table_factor(pivot_table);
+
+                // 2. If the pivot operation itself has an alias, register it.
+                if let Some(pivot_alias) = pivot_alias_opt {
+                    let alias_name = pivot_alias.name.value.clone();
+                    let pivot_key = alias_name.clone();
+
+                    self.tables.entry(pivot_key.clone()).or_insert_with(|| {
+                        TableInfo {
+                            database_identifier: None,
+                            schema_identifier: None,
+                            table_identifier: pivot_key.clone(),
+                            alias: Some(alias_name.clone()),
+                            columns: HashSet::new(),
+                            kind: TableKind::Derived,
+                            subquery_summary: None,
+                        }
+                    });
+
+                    self.current_scope_aliases
+                        .insert(alias_name.clone(), pivot_key);
+                } else {
+                    eprintln!("Warning: PIVOT operation without an explicit alias found.");
                 }
             }
             _ => {}
@@ -796,7 +883,7 @@ impl QueryAnalyzer {
                             .entry(table_info.table_identifier.clone())
                             .or_insert_with(|| table_info.clone());
                     }
-                    TableKind::Cte => { /* Already handled by CTE processing */ }
+                    TableKind::Cte | TableKind::Function => { /* Not base tables, handled elsewhere or ignored */ }
                     TableKind::Derived => {
                         if let Some(ref sub_summary) = table_info.subquery_summary {
                             extract_base_tables(sub_summary, base_tables);
@@ -1004,9 +1091,10 @@ impl QueryAnalyzer {
     }
 
     fn parse_object_name(&mut self, name: &ObjectName) -> (Option<String>, Option<String>, String) {
+        let name_str = name.to_string(); // Keep this for the check
+
         // Handle BigQuery backtick-quoted identifiers
-        // If the name has a backtick, it's likely from BigQuery
-        let has_backtick = name.to_string().contains('`');
+        let has_backtick = name_str.contains('`');
 
         let idents: Vec<String> = name.0.iter().map(|i| i.value.clone()).collect();
 
@@ -1014,10 +1102,9 @@ impl QueryAnalyzer {
             1 => {
                 let table_name = idents[0].clone();
 
-                // For backtick-quoted identifiers, don't add to vague_tables list
-                if !self.is_known_cte_definition(&table_name) && !has_backtick {
-                    // We add the table as vague, but it might be properly qualified
-                    // even without schema/db when it's a "simple" query
+                // If it's not a CTE, not backticked, AND doesn't look like a function call,
+                // then it might be a vague table reference.
+                if !self.is_known_cte_definition(&table_name) && !has_backtick && !name_str.contains('(') {
                     self.vague_tables.push(table_name.clone());
                 }
 
@@ -1137,13 +1224,13 @@ impl QueryAnalyzer {
                             self.visit_expr_with_parent_scope(expr, available_aliases);
                         }
                     }
-                    sqlparser::ast::FunctionArg::Named { arg, .. } => {
-                        if let sqlparser::ast::FunctionArgExpr::Expr(expr) = arg {
+                    sqlparser::ast::FunctionArg::Named { arg: named_arg, .. } => {
+                        if let sqlparser::ast::FunctionArgExpr::Expr(expr) = named_arg {
                             self.visit_expr_with_parent_scope(expr, available_aliases);
                         }
                     }
-                    sqlparser::ast::FunctionArg::ExprNamed { arg, .. } => {
-                        if let sqlparser::ast::FunctionArgExpr::Expr(expr) = arg {
+                    sqlparser::ast::FunctionArg::ExprNamed { arg: expr_named_arg, .. } => {
+                        if let sqlparser::ast::FunctionArgExpr::Expr(expr) = expr_named_arg {
                             self.visit_expr_with_parent_scope(expr, available_aliases);
                         }
                     }
