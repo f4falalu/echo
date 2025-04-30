@@ -142,10 +142,10 @@ impl QueryAnalyzer {
             SetExpr::Select(select) => self.process_select_query(select),
             SetExpr::Query(inner_query) => {
                 self.process_nested_query(inner_query)?;
-            },
+            }
             SetExpr::SetOperation { left, right, .. } => {
                 self.process_set_operation(left, right)?;
-            },
+            }
             _ => {}
         }
 
@@ -163,7 +163,7 @@ impl QueryAnalyzer {
             if !with.cte_tables.is_empty() {
                 // Create a new scope for CTE definitions
                 self.known_cte_definitions.push(HashSet::new());
-                
+
                 // First, register all CTE names upfront so they can reference each other
                 for cte in &with.cte_tables {
                     let cte_name = cte.alias.name.value.clone();
@@ -171,7 +171,7 @@ impl QueryAnalyzer {
                         current_scope.insert(cte_name);
                     }
                 }
-                
+
                 // Then, process each CTE
                 for cte in &with.cte_tables {
                     let combined_aliases_for_cte = self
@@ -210,7 +210,9 @@ impl QueryAnalyzer {
         }
 
         // Process all parts of the query with collected context
-        let combined_aliases_for_visit = self.current_scope_aliases.iter()
+        let combined_aliases_for_visit = self
+            .current_scope_aliases
+            .iter()
             .chain(self.parent_scope_aliases.iter())
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
@@ -249,7 +251,9 @@ impl QueryAnalyzer {
         let right_identifier_opt = self.get_factor_identifier_and_register_alias(&join.relation);
         let left_identifier_opt = self.current_from_relation_identifier.clone();
 
-        if let (Some(left_id_alias), Some(right_id_alias)) = (&left_identifier_opt, &right_identifier_opt) {
+        if let (Some(left_id_alias), Some(right_id_alias)) =
+            (&left_identifier_opt, &right_identifier_opt)
+        {
             let resolved_left_id = self
                 .current_scope_aliases
                 .get(left_id_alias)
@@ -303,7 +307,10 @@ impl QueryAnalyzer {
                 condition: condition_str,
             });
         } else {
-            eprintln!("Warning: Could not resolve identifiers for join. Left: {:?}, Right: {:?}", left_identifier_opt, right_identifier_opt);
+            eprintln!(
+                "Warning: Could not resolve identifiers for join. Left: {:?}, Right: {:?}",
+                left_identifier_opt, right_identifier_opt
+            );
         }
 
         if right_identifier_opt.is_some() {
@@ -315,7 +322,9 @@ impl QueryAnalyzer {
     fn process_nested_query(&mut self, inner_query: &Box<Query>) -> Result<(), SqlAnalyzerError> {
         let mut inner_analyzer = self.new_child_analyzer();
         inner_analyzer.scope_stack.push("inner_query".to_string());
-        let combined_aliases = self.current_scope_aliases.iter()
+        let combined_aliases = self
+            .current_scope_aliases
+            .iter()
             .chain(self.parent_scope_aliases.iter())
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
@@ -326,7 +335,11 @@ impl QueryAnalyzer {
     }
 
     // Process set operations (UNION, INTERSECT, EXCEPT)
-    fn process_set_operation(&mut self, left: &Box<SetExpr>, right: &Box<SetExpr>) -> Result<(), SqlAnalyzerError> {
+    fn process_set_operation(
+        &mut self,
+        left: &Box<SetExpr>,
+        right: &Box<SetExpr>,
+    ) -> Result<(), SqlAnalyzerError> {
         let mut left_analyzer = self.new_child_analyzer();
         left_analyzer.scope_stack.push("set_op_left".to_string());
         left_analyzer.process_query_body(left, &self.parent_scope_aliases)?;
@@ -385,13 +398,20 @@ impl QueryAnalyzer {
         cte_analyzer
             .current_scope_aliases
             .insert(cte_name.clone(), cte_name.clone());
-        cte_analyzer.known_cte_definitions.last_mut().unwrap().insert(cte_name.clone());
+        cte_analyzer
+            .known_cte_definitions
+            .last_mut()
+            .unwrap()
+            .insert(cte_name.clone());
 
-        let combined_aliases_for_cte_body = cte_analyzer.current_scope_aliases.iter()
+        let combined_aliases_for_cte_body = cte_analyzer
+            .current_scope_aliases
+            .iter()
             .chain(cte_analyzer.parent_scope_aliases.iter())
-            .map(|(k,v)|(k.clone(), v.clone()))
+            .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
-        let cte_analysis_result = cte_analyzer.process_query(&cte.query, &combined_aliases_for_cte_body);
+        let cte_analysis_result =
+            cte_analyzer.process_query(&cte.query, &combined_aliases_for_cte_body);
 
         match cte_analysis_result {
             Ok(()) => {
@@ -413,46 +433,38 @@ impl QueryAnalyzer {
                             .insert(cte_name.clone(), cte_name.clone());
 
                         // Add the CTE as a table in our analyzer's tables collection
-                        self.tables.entry(cte_name.clone()).or_insert_with(|| TableInfo {
-                            database_identifier: None, 
-                            schema_identifier: None,
-                            table_identifier: cte_name.clone(),
-                            alias: Some(cte_name.clone()),
-                            columns: HashSet::new(),
-                            kind: TableKind::Cte,
-                            subquery_summary: None,
-                        });
+                        self.tables
+                            .entry(cte_name.clone())
+                            .or_insert_with(|| TableInfo {
+                                database_identifier: None,
+                                schema_identifier: None,
+                                table_identifier: cte_name.clone(),
+                                alias: Some(cte_name.clone()),
+                                columns: HashSet::new(),
+                                kind: TableKind::Cte,
+                                subquery_summary: None,
+                            });
 
                         Ok(())
                     }
-                    Err(e @ SqlAnalyzerError::VagueReferences(_)) => {
-                        Err(SqlAnalyzerError::VagueReferences(format!(
-                            "In CTE '{}': {}",
-                            cte_name, e
-                        )))
-                    }
-                    Err(e) => {
-                        Err(SqlAnalyzerError::Internal(anyhow::anyhow!(
-                            "Internal error summarizing CTE '{}': {}",
-                            cte_name,
-                            e
-                        )))
-                    }
+                    Err(e @ SqlAnalyzerError::VagueReferences(_)) => Err(
+                        SqlAnalyzerError::VagueReferences(format!("In CTE '{}': {}", cte_name, e)),
+                    ),
+                    Err(e) => Err(SqlAnalyzerError::Internal(anyhow::anyhow!(
+                        "Internal error summarizing CTE '{}': {}",
+                        cte_name,
+                        e
+                    ))),
                 }
             }
-            Err(e @ SqlAnalyzerError::VagueReferences(_)) => {
-                Err(SqlAnalyzerError::VagueReferences(format!(
-                    "In CTE '{}': {}",
-                    cte_name, e
-                )))
-            }
-            Err(e) => {
-                Err(SqlAnalyzerError::Internal(anyhow::anyhow!(
-                    "Error processing CTE '{}': {}",
-                    cte_name,
-                    e
-                )))
-            }
+            Err(e @ SqlAnalyzerError::VagueReferences(_)) => Err(
+                SqlAnalyzerError::VagueReferences(format!("In CTE '{}': {}", cte_name, e)),
+            ),
+            Err(e) => Err(SqlAnalyzerError::Internal(anyhow::anyhow!(
+                "Error processing CTE '{}': {}",
+                cte_name,
+                e
+            ))),
         }
     }
 
@@ -478,7 +490,8 @@ impl QueryAnalyzer {
                     if let Some(a_name) = alias_name {
                         self.current_scope_aliases.insert(a_name, cte_name);
                     } else {
-                        self.current_scope_aliases.insert(cte_name.clone(), cte_name.clone());
+                        self.current_scope_aliases
+                            .insert(cte_name.clone(), cte_name.clone());
                     }
                 } else {
                     let (db, schema, table_part) = self.parse_object_name(name);
@@ -499,7 +512,8 @@ impl QueryAnalyzer {
                         if let Some(a_name) = alias.as_ref().map(|a| a.name.value.clone()) {
                             self.current_scope_aliases.insert(a_name, table_key);
                         } else {
-                            self.current_scope_aliases.insert(table_key.clone(), table_key.clone());
+                            self.current_scope_aliases
+                                .insert(table_key.clone(), table_key.clone());
                         }
                     }
                 }
@@ -535,19 +549,20 @@ impl QueryAnalyzer {
                 );
 
                 if let Some(a_name) = alias_name {
-                    self.current_scope_aliases.insert(a_name, derived_key.clone());
+                    self.current_scope_aliases
+                        .insert(a_name, derived_key.clone());
                 }
             }
             TableFactor::TableFunction { expr, alias, .. } => {
                 // Process the expression that generates the function table
                 expr.visit(self);
-                
+
                 // Register the table function as a derived table
                 let alias_name = alias.as_ref().map(|a| a.name.value.clone());
                 let derived_key = alias_name
                     .clone()
                     .unwrap_or_else(|| format!("_function_{}", rand::random::<u32>()));
-                
+
                 self.tables.insert(
                     derived_key.clone(),
                     TableInfo {
@@ -560,14 +575,14 @@ impl QueryAnalyzer {
                         subquery_summary: None,
                     },
                 );
-                
+
                 if let Some(a_name) = alias_name {
-                    self.current_scope_aliases.insert(a_name, derived_key.clone());
+                    self.current_scope_aliases
+                        .insert(a_name, derived_key.clone());
                 }
             }
             TableFactor::NestedJoin {
-                table_with_joins,
-                ..
+                table_with_joins, ..
             } => {
                 self.process_table_factor(&table_with_joins.relation);
                 for join in &table_with_joins.joins {
@@ -579,12 +594,18 @@ impl QueryAnalyzer {
     }
 
     // Process a derived table's subquery
-    fn process_derived_subquery(&mut self, subquery: &Box<Query>, derived_key: &str) -> Option<Box<QuerySummary>> {
+    fn process_derived_subquery(
+        &mut self,
+        subquery: &Box<Query>,
+        derived_key: &str,
+    ) -> Option<Box<QuerySummary>> {
         let mut subquery_analyzer = self.new_child_analyzer();
 
-        let combined_aliases = self.current_scope_aliases.iter()
+        let combined_aliases = self
+            .current_scope_aliases
+            .iter()
             .chain(self.parent_scope_aliases.iter())
-            .map(|(k,v)|(k.clone(), v.clone()))
+            .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
         let sub_result = subquery_analyzer.process_query(subquery, &combined_aliases);
 
@@ -692,10 +713,12 @@ impl QueryAnalyzer {
     }
 
     fn process_join_condition(&mut self, expr: &Expr) {
-        let combined_aliases = self.current_scope_aliases.iter()
-           .chain(self.parent_scope_aliases.iter())
-           .map(|(k, v)| (k.clone(), v.clone()))
-           .collect();
+        let combined_aliases = self
+            .current_scope_aliases
+            .iter()
+            .chain(self.parent_scope_aliases.iter())
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
         self.visit_expr_with_parent_scope(expr, &combined_aliases);
     }
 
@@ -802,9 +825,12 @@ impl QueryAnalyzer {
     }
 
     // Check for and report vague references
-    fn check_for_vague_references(&self, final_tables: &HashMap<String, TableInfo>) -> Result<(), SqlAnalyzerError> {        
+    fn check_for_vague_references(
+        &self,
+        final_tables: &HashMap<String, TableInfo>,
+    ) -> Result<(), SqlAnalyzerError> {
         let mut errors = Vec::new();
-        
+
         // Check for vague column references
         if !self.vague_columns.is_empty() {
             errors.push(format!(
@@ -812,7 +838,7 @@ impl QueryAnalyzer {
                 self.vague_columns
             ));
         }
-        
+
         // Check for vague table references, filtering out known system-generated names
         if !self.vague_tables.is_empty() {
             let filtered_vague_tables: Vec<_> = self
@@ -827,11 +853,11 @@ impl QueryAnalyzer {
                         && !t.starts_with("inner_query")
                         && !t.starts_with("set_op_")
                         && !t.starts_with("expr_subquery_")
-                        && !t.contains("Subquery")  // Filter out subquery error messages
+                        && !t.contains("Subquery") // Filter out subquery error messages
                 })
                 .cloned()
                 .collect();
-                
+
             if !filtered_vague_tables.is_empty() {
                 errors.push(format!(
                     "Vague/Unknown tables, CTEs, or aliases: {:?}",
@@ -839,25 +865,26 @@ impl QueryAnalyzer {
                 ));
             }
         }
-        
+
         // Return error if we have any issues
         if !errors.is_empty() {
             return Err(SqlAnalyzerError::VagueReferences(errors.join("\n")));
         }
-        
+
         Ok(())
     }
 
     fn is_known_cte_definition(&self, name: &str) -> bool {
         // Check if the name is in any of the CTE definition scopes
-        let in_definitions = self.known_cte_definitions
+        let in_definitions = self
+            .known_cte_definitions
             .iter()
             .rev()
             .any(|scope| scope.contains(name));
-        
+
         // Also check if it matches any CTE name we've processed
         let in_ctes = self.ctes.iter().any(|cte| cte.name == name);
-        
+
         in_definitions || in_ctes
     }
 
@@ -873,7 +900,7 @@ impl QueryAnalyzer {
         // 2. BigQuery nested fields: user__device__type (from user.device.type)
         let mut base_column = column;
         let mut dialect_nested = false;
-        
+
         if column.contains("__") {
             // Could be a preprocessed dialect-specific column
             let parts: Vec<&str> = column.split("__").collect();
@@ -883,7 +910,7 @@ impl QueryAnalyzer {
                 dialect_nested = true;
             }
         }
-        
+
         match qualifier_opt {
             Some(qualifier) => {
                 if let Some(resolved_identifier) = available_aliases.get(qualifier) {
@@ -899,12 +926,12 @@ impl QueryAnalyzer {
                     }
                 } else {
                     if self.tables.contains_key(qualifier) {
-                         if let Some(table_info) = self.tables.get_mut(qualifier) {
+                        if let Some(table_info) = self.tables.get_mut(qualifier) {
                             table_info.columns.insert(column.to_string());
                             if dialect_nested {
                                 table_info.columns.insert(base_column.to_string());
                             }
-                         }
+                        }
                     } else if self.parent_scope_aliases.contains_key(qualifier) {
                         // Qualifier is not a known table/alias in current scope,
                         // BUT it IS known in the parent scope (correlated subquery reference).
@@ -922,7 +949,7 @@ impl QueryAnalyzer {
                 if dialect_nested {
                     // Try to find a table that might contain the base column
                     let mut assigned = false;
-                    
+
                     for table_info in self.tables.values_mut() {
                         // For now, simply add the column to all tables
                         // This is less strict but ensures we don't miss real references
@@ -930,7 +957,7 @@ impl QueryAnalyzer {
                         table_info.columns.insert(column.to_string());
                         assigned = true;
                     }
-                    
+
                     // If we couldn't assign it to any table and we have tables in scope,
                     // it's likely a literal or expression, so don't report as vague
                     if !assigned && !self.tables.is_empty() {
@@ -946,13 +973,17 @@ impl QueryAnalyzer {
     }
 
     // Resolve an unqualified column to a table
-    fn resolve_unqualified_column(&mut self, column: &str, available_aliases: &HashMap<String, String>) {
+    fn resolve_unqualified_column(
+        &mut self,
+        column: &str,
+        available_aliases: &HashMap<String, String>,
+    ) {
         // Special case for the test_vague_references test - always report unqualified 'id' as vague
         if column == "id" {
             self.vague_columns.push(column.to_string());
             return;
         }
-        
+
         if available_aliases.len() == 1 {
             // Exactly one source available.
             let resolved_identifier = available_aliases.values().next().unwrap(); // Get the single value
@@ -976,20 +1007,20 @@ impl QueryAnalyzer {
         // Handle BigQuery backtick-quoted identifiers
         // If the name has a backtick, it's likely from BigQuery
         let has_backtick = name.to_string().contains('`');
-        
+
         let idents: Vec<String> = name.0.iter().map(|i| i.value.clone()).collect();
-        
+
         match idents.len() {
             1 => {
                 let table_name = idents[0].clone();
-                
+
                 // For backtick-quoted identifiers, don't add to vague_tables list
                 if !self.is_known_cte_definition(&table_name) && !has_backtick {
                     // We add the table as vague, but it might be properly qualified
                     // even without schema/db when it's a "simple" query
                     self.vague_tables.push(table_name.clone());
                 }
-                
+
                 (None, None, table_name)
             }
             2 => (None, Some(idents[0].clone()), idents[1].clone()),
@@ -1004,10 +1035,15 @@ impl QueryAnalyzer {
 
     fn get_table_name(&self, name: &ObjectName) -> String {
         let table_str = name.0.last().map(|i| i.value.clone()).unwrap_or_default();
-        
+
         // Clean up any comment annotation we might have added during preprocessing
         if table_str.contains("/*") {
-            table_str.split("/*").next().unwrap_or(&table_str).trim().to_string()
+            table_str
+                .split("/*")
+                .next()
+                .unwrap_or(&table_str)
+                .trim()
+                .to_string()
         } else {
             table_str
         }
@@ -1031,7 +1067,11 @@ impl QueryAnalyzer {
         self.vague_tables.extend(child_analyzer.vague_tables);
     }
 
-    fn visit_expr_with_parent_scope(&mut self, expr: &Expr, parent_aliases: &HashMap<String, String>) {
+    fn visit_expr_with_parent_scope(
+        &mut self,
+        expr: &Expr,
+        parent_aliases: &HashMap<String, String>,
+    ) {
         let original_parent_scope = self.parent_scope_aliases.clone();
         self.parent_scope_aliases = parent_aliases.clone();
 
@@ -1045,9 +1085,11 @@ impl Visitor for QueryAnalyzer {
     type Break = ();
 
     fn pre_visit_expr(&mut self, expr: &Expr) -> ControlFlow<Self::Break> {
-        let available_aliases = self.current_scope_aliases.iter()
+        let available_aliases = self
+            .current_scope_aliases
+            .iter()
             .chain(self.parent_scope_aliases.iter())
-            .map(|(k,v)|(k.clone(), v.clone()))
+            .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
 
         match expr {
@@ -1067,12 +1109,12 @@ impl Visitor for QueryAnalyzer {
                 self.process_subquery_expr(subquery, &available_aliases);
                 // Return Break to prevent default visitation
                 ControlFlow::Break(())
-            },
+            }
             Expr::Function(function) => {
                 self.process_function_expr(function, &available_aliases);
                 // Return Break to prevent default visitation of function arguments
                 ControlFlow::Break(())
-            },
+            }
             _ => ControlFlow::Continue(()),
         }
     }
@@ -1081,7 +1123,11 @@ impl Visitor for QueryAnalyzer {
 // Extension methods for QueryAnalyzer
 impl QueryAnalyzer {
     // Process function expressions
-    fn process_function_expr(&mut self, function: &sqlparser::ast::Function, available_aliases: &HashMap<String, String>) {
+    fn process_function_expr(
+        &mut self,
+        function: &sqlparser::ast::Function,
+        available_aliases: &HashMap<String, String>,
+    ) {
         // Process function arguments
         if let sqlparser::ast::FunctionArguments::List(arg_list) = &function.args {
             for arg in &arg_list.args {
@@ -1106,7 +1152,13 @@ impl QueryAnalyzer {
         }
 
         // Process window specifications
-        if let Some(sqlparser::ast::WindowType::WindowSpec(WindowSpec { partition_by, order_by, window_frame, .. })) = &function.over {
+        if let Some(sqlparser::ast::WindowType::WindowSpec(WindowSpec {
+            partition_by,
+            order_by,
+            window_frame,
+            ..
+        })) = &function.over
+        {
             for expr in partition_by {
                 self.visit_expr_with_parent_scope(expr, available_aliases);
             }
@@ -1123,17 +1175,23 @@ impl QueryAnalyzer {
     }
 
     // Process subquery expressions
-    fn process_subquery_expr(&mut self, subquery: &Box<Query>, available_aliases: &HashMap<String, String>) {
+    fn process_subquery_expr(
+        &mut self,
+        subquery: &Box<Query>,
+        available_aliases: &HashMap<String, String>,
+    ) {
         // For correlated subqueries, we need to pass both parent aliases and
         // the parent tables context
         let mut sub_analyzer = self.new_child_analyzer();
-        
+
         // Also share parent tables for correlated subqueries
         for (key, table) in &self.tables {
-            sub_analyzer.tables.entry(key.clone())
+            sub_analyzer
+                .tables
+                .entry(key.clone())
                 .or_insert_with(|| table.clone());
         }
-        
+
         // Generate a unique name for this subquery
         let scope_name = format!("expr_subquery_{}", rand::random::<u32>());
         sub_analyzer.scope_stack.push(scope_name.clone());
@@ -1149,7 +1207,7 @@ impl QueryAnalyzer {
                             summary: Box::new(summary.clone()),
                             column_mappings: HashMap::new(),
                         });
-                        
+
                         // Add base tables from the subquery to our tables collection
                         for table_info in summary.tables {
                             if table_info.kind == TableKind::Base {
@@ -1159,14 +1217,17 @@ impl QueryAnalyzer {
                                     .or_insert(table_info);
                             }
                         }
-                        
+
                         // Add joins from the subquery to our joins collection
                         self.joins.extend(summary.joins);
                     }
                     Err(SqlAnalyzerError::VagueReferences(msg)) => {
                         // For correlated subqueries, vague references might be fine
                         // if they refer to parent scope tables, so we just log a warning
-                        eprintln!("Subquery '{}' contains vague references: {}", scope_name, msg);
+                        eprintln!(
+                            "Subquery '{}' contains vague references: {}",
+                            scope_name, msg
+                        );
                     }
                     Err(e) => {
                         eprintln!(
@@ -1182,10 +1243,7 @@ impl QueryAnalyzer {
                 eprintln!("Error in subquery '{}': {}", scope_name, msg);
             }
             Err(e) => {
-                eprintln!(
-                    "Warning: Error processing subquery '{}': {}",
-                    scope_name, e
-                );
+                eprintln!("Warning: Error processing subquery '{}': {}", scope_name, e);
             }
         }
     }
