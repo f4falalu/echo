@@ -1069,6 +1069,7 @@ DO NOT include:
 3. Generic attributes (e.g., "name", "id", "date")
 4. Common words or very short terms (1-2 characters)
 5. Numbers without context
+6. UUIDs or other machine-generated identifiers (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38", "cust_12345", "1234445556667")
 
 Extract only SPECIFIC, DISTINCTIVE values that would be stored in a database as actual values in columns.
 
