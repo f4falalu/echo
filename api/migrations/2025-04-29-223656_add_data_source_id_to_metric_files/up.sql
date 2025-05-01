@@ -32,7 +32,6 @@ WHERE data_source_id IS NULL;
 -- Clean up related tables before deleting the metric_files
 -- NOTE: Assumes the AssetTypeEnum value for metric files is 'MetricFile'. Verify this.
 DELETE FROM metric_files_to_dashboard_files WHERE metric_file_id IN (SELECT id FROM metric_files_to_delete);
-DELETE FROM metric_files_to_datasets WHERE metric_file_id IN (SELECT id FROM metric_files_to_delete);
 DELETE FROM asset_permissions WHERE asset_id IN (SELECT id FROM metric_files_to_delete) AND asset_type = 'MetricFile';
 DELETE FROM collections_to_assets WHERE asset_id IN (SELECT id FROM metric_files_to_delete) AND asset_type = 'MetricFile';
 DELETE FROM user_favorites WHERE asset_id IN (SELECT id FROM metric_files_to_delete) AND asset_type = 'MetricFile';
