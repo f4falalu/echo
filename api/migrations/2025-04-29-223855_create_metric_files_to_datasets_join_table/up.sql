@@ -21,10 +21,12 @@ CREATE TABLE metric_files_to_datasets (
 INSERT INTO metric_files_to_datasets (metric_file_id, dataset_id, metric_version_number)
 SELECT
     mf.id AS metric_file_id,
-    (jsonb_array_elements_text((mf.content->>'datasetIds')::jsonb))::uuid AS dataset_id,
+    ds.id AS dataset_id,
     1 AS metric_version_number
 FROM
-    metric_files mf
+    metric_files mf,
+    jsonb_array_elements_text((mf.content->>'datasetIds')::jsonb) AS extracted_dataset_id(id)
+INNER JOIN datasets ds ON ds.id = (extracted_dataset_id.id)::uuid
 WHERE
     mf.content->>'datasetIds' IS NOT NULL
     AND jsonb_typeof((mf.content->>'datasetIds')::jsonb) = 'array'
