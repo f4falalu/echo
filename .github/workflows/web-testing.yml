@@ -4,18 +4,15 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'web/**'
-      - '.github/workflows/web-testing.yml'
-      - '.github/actions/setup-test-environment/action.yml' # Rerun if common setup changes
-      - '.github/actions/stop-supabase/action.yml'
 
 jobs:
   test:
-    runs-on: blacksmith-16vcpu-ubuntu-2204
+    runs-on: blacksmith-32vcpu-ubuntu-2204
+    environment: testing
 
-    # Service container for Redis (needed by the setup action and potentially API)
+    # Service containers
     services:
+      # Redis needed by API
       redis:
         image: redis
         ports:
@@ -30,67 +27,73 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js # Still needed for frontend build/test commands
-        uses: actions/setup-node@v4
+      - name: Setup Node.js (Blacksmith Cache)
+        uses: useblacksmith/setup-node@v5
         with:
           node-version: '20'
 
-      - name: Setup Test Environment
-        id: setup_env # Give an ID to reference outputs
+      - name: Mount NPM Cache (Sticky Disk)
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-npm-cache # Unique key per repository
+          path: ~/.npm
+
+      - name: Mount node_modules (Sticky Disk)
+        uses: useblacksmith/stickydisk@v1
+        with:
+          key: ${{ github.repository }}-node-modules # Unique key per repository
+          path: ./web/node_modules # Mount directly into the web directory's node_modules
+
+      # --- Setup Supabase Environment ---
+      - name: Setup Test Environment # Runs Supabase, migrations, seeding on host
         uses: ./.github/actions/setup-test-environment
 
-      # Build/Run/Wait steps remain for web testing as it needs the API server running
-      - name: Build API Server
-        working-directory: ./api
-        run: cargo build --release
-        env:
-          # Potentially needed if build process requires env vars, though unlikely
-          DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
+      # --- Build API Docker Image with Blacksmith Caching ---
+      - name: Build and Load API Docker Image
+        uses: useblacksmith/build-push-action@v1
+        with:
+          context: ./api
+          file: ./api/Dockerfile
+          push: false # Do not push, load locally for service container
+          load: true  # Load the image into the runner's Docker daemon
+          tags: local-api-test:latest # Tag for the service definition
 
-      - name: Run API Server
-        working-directory: ./api
+      # --- Start API Container Manually ---
+      - name: Start API Container
         run: |
-          ./target/release/server & # Run in background
-          echo $! > /tmp/api-server.pid # Store PID for later cleanup
-        env:
-          # Core Supabase/DB/Redis vars from setup action outputs
-          DATABASE_URL: ${{ steps.setup_env.outputs.database-url }}
-          POOLER_URL: ${{ steps.setup_env.outputs.database-url }} # Assuming pooler uses same DB
-          REDIS_URL: redis://localhost:6379 # Use localhost as it runs on the runner accessing the service
-          JWT_SECRET: ${{ steps.setup_env.outputs.jwt-secret }}
-          SUPABASE_URL: ${{ steps.setup_env.outputs.supabase-url }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.setup_env.outputs.supabase-service-role-key }}
+          docker run -d --name local-api -p 3001:3001 \
+            --network=host \
+            -e DATABASE_URL='postgres://postgres:postgres@127.0.0.1:54322/postgres' \
+            -e POOLER_URL='postgres://postgres:postgres@127.0.0.1:54322/postgres' \
+            -e REDIS_URL='redis://127.0.0.1:6379' \
+            -e JWT_SECRET='super-secret-jwt-token-with-at-least-32-characters-long' \
+            -e SUPABASE_URL='http://127.0.0.1:54321' \
+            -e SUPABASE_SERVICE_ROLE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MjM0MzA5Nn0.EGgMpd9zvvHPCOq4DJRLwzJ1iS3GV4AEyzguXGcbEIY' \
+            -e ENVIRONMENT='development' \
+            -e BUSTER_URL='http://localhost:3000' \
+            -e BUSTER_WH_TOKEN='buster-wh-token' \
+            -e LOG_LEVEL='debug' \
+            -e PORT='3001' \
+            -e RUST_LOG='debug' \
+            -e OPENAI_API_KEY='${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}' \
+            -e RESEND_API_KEY='${{ secrets.GH_ACTIONS_RESEND_API_KEY }}' \
+            -e COHERE_API_KEY='${{ secrets.GH_ACTIONS_COHERE_API_KEY }}' \
+            -e LLM_API_KEY='${{ secrets.GH_ACTIONS_LLM_API_KEY }}' \
+            -e LLM_BASE_URL='${{ secrets.GH_ACTIONS_LLM_BASE_URL }}' \
+            local-api-test:latest
 
-          # Non-sensitive / Default values
-          ENVIRONMENT: development
-          BUSTER_URL: http://localhost:3000
-          BUSTER_WH_TOKEN: buster-wh-token
-          LOG_LEVEL: debug
-          PORT: 3001 # API server port
-          RUST_LOG: debug
-
-          # Sensitive values from Secrets
-          OPENAI_API_KEY: ${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}
-          RESEND_API_KEY: ${{ secrets.GH_ACTIONS_RESEND_API_KEY }}
-          COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
-          LLM_API_KEY: ${{ secrets.GH_ACTIONS_LLM_API_KEY }}
-          LLM_BASE_URL: ${{ secrets.GH_ACTIONS_LLM_BASE_URL }}
-
-
-      - name: Wait for API Server
+      - name: Wait for API Health Check
         run: |
-          echo "Waiting for API server (localhost:3001) to be ready..."
-          n=0
-          until [ "$n" -ge 30 ] || curl -f http://localhost:3001/health; do
-            n=$((n+1))
-            echo "Waiting for API... Attempt $n/30"
-            sleep 2
+          echo "Waiting for API to be healthy..."
+          for i in {1..30}; do # Wait up to 30 seconds
+            if curl -f http://localhost:3001/health; then
+              echo "API is healthy!"
+              exit 0
+            fi
+            sleep 1
           done
-          if ! curl -f http://localhost:3001/health; then
-            echo "::error::API server did not become ready in time."
-            exit 1
-          fi
-          echo "API server is ready."
+          echo "API did not become healthy in time."
+          exit 1
 
       - name: Run Frontend E2E Tests
         working-directory: ./web
@@ -101,16 +104,20 @@ jobs:
           npm run build # If needed
           npm run test:e2e
         env:
-          # API runs on localhost within the runner
+          # Point to the API service container
           NEXT_PUBLIC_API_URL: http://localhost:3001
           NEXT_PUBLIC_URL: http://localhost:3000 # Assuming default URL for the app itself
-          # Use Supabase details from the setup action outputs
-          NEXT_PUBLIC_SUPABASE_URL: ${{ steps.setup_env.outputs.supabase-url }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.setup_env.outputs.supabase-anon-key }}
-          NEXT_PUBLIC_WEB_SOCKET_URL: ws://localhost:3001 # Assuming WS connects to API
+          # Use Supabase details - pointing to Supabase running on the HOST (127.0.0.1)
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321 # Default local URL on host
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODIzNDMwOTZ9.7UIsMFfHYKxH7bUJCRfxd6lr7CSXGF7UxtZQO10FMMo' # Use default local value
+          NEXT_PUBLIC_WEB_SOCKET_URL: ws://localhost:3001 # Point WS to API service container
 
           # Pass any other required NEXT_PUBLIC_ variables
 
       - name: Stop Supabase # Use the cleanup action
         uses: ./.github/actions/stop-supabase
         if: always() # Ensure Supabase is stopped even if tests fail
+
+      - name: Stop API Container # Cleanup manually started container
+        if: always()
+        run: docker stop local-api && docker rm local-api
