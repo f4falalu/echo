@@ -152,7 +152,17 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 # `name`: Human-readable title (e.g., Total Sales). 
 #   - RULE: Should NOT contain underscores (`_`). Use spaces instead.
 # `description`: Detailed explanation of the metric. 
-# `timeFrame`: Human-readable time period covered by the query (e.g., Last 30 days). 
+# `timeFrame`: Human-readable time period covered by the query, similar to a filter in a BI tool.
+#   RULE: Must accurately reflect the date/time filter used in the `sql` field. Do not misrepresent the time range.
+#   Examples:
+#   - Relative Dates: "Last 7 days", "Last 30 days", "Last Quarter", "Last Year", "Year to Date"
+#   - Fixed Dates: "June 1, 2025 - June 3, 2025", "2024", "Q2 2024"
+#   - Comparisons: Use the format "Comparison - [Period 1] vs [Period 2]". Examples:
+#     - "Comparison - Last 30 days vs Previous 30 days"
+#     - "Comparison - This Quarter vs Last Quarter"
+#     - "Comparison - 2024 vs 2023"
+#     - "Comparison - Q2 2024 vs Q2 2023"
+#   RULE: Follow general quoting rules. Should not contain ':'.
 # `sql`: The SQL query for the metric.
 #   - RULE: MUST use the pipe `|` block scalar style to preserve formatting and newlines.
 #   - Example:
@@ -203,14 +213,16 @@ properties:
     required: true
     type: string
     description: |
-      Human-readable time period covered by the SQL query. 
+      Human-readable time period covered by the SQL query, similar to a filter in a BI tool.
       RULE: Must accurately reflect the date/time filter used in the `sql` field. Do not misrepresent the time range.
-      - If the SQL uses fixed dates (e.g., `BETWEEN '2025-06-01' AND '2025-06-03'`), use specific dates: "June 1, 2025 - June 3, 2025".
-      - If the SQL uses dynamic relative dates (e.g., `created_at >= NOW() - INTERVAL '3 days'`), use relative terms: "Last 3 days".
-      - For comparisons between two periods, use the format "Comparison - [Period 1] vs [Period 2]". Examples:
-        - "Comparison - This Week vs Last Week"
-        - "Comparison - Q3 2024 vs Q3 2023"
-        - "Comparison - June 1, 2025 vs August 1, 2025"
+      Examples:
+      - Relative Dates: "Last 7 days", "Last 30 days", "Last Quarter", "Last Year", "Year to Date"
+      - Fixed Dates: "June 1, 2025 - June 3, 2025", "2024", "Q2 2024"
+      - Comparisons: Use the format "Comparison - [Period 1] vs [Period 2]". Examples:
+        - "Comparison - Last 30 days vs Previous 30 days"
+        - "Comparison - This Quarter vs Last Quarter"
+        - "Comparison - 2024 vs 2023"
+        - "Comparison - Q2 2024 vs Q2 2023"
       RULE: Follow general quoting rules. Should not contain ':'.
 
   # SQL QUERY
