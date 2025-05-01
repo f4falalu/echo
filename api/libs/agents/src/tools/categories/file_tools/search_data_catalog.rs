@@ -788,7 +788,7 @@ impl ToolExecutor for SearchDataCatalogTool {
                },
                "value_search_terms": {
                  "type": "array",
-                 "description": "Optional list of specific, concrete values (like 'Red Bull', 'California', 'John Smith') extracted from the user query, to be used for semantic value search within columns. Exclude general concepts, time periods, and IDs.",
+                 "description": "Optional list of specific, concrete, meaningful values (e.g., 'Red Bull', 'California', 'John Smith', 'Premium Tier') extracted directly from the user query. These are used for semantic value search within columns. **CRITICAL**: Exclude general concepts ('revenue'), time periods ('last month'), generic identifiers (UUIDs, numerical IDs like 'cust_12345'), and non-semantic composite values (e.g., avoid 'item 987abc', prefer 'item' if meaningful or omit). Focus on distinct proper nouns, categories, or status names.",
                  "items": {
                    "type": "string",
                    "description": "A specific value or entity likely to appear in database columns."
