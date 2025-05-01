@@ -1,4 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
+import fs from 'fs';
 
 /**
  * Read environment variables from file.
@@ -31,8 +33,18 @@ export default defineConfig({
     /* Capture screenshot on failure */
     screenshot: 'on',
     /* Run tests in headed mode (non-headless) */
-    headless: false
+    headless: false,
+    /* Use stored auth state only if it exists */
+    storageState: fs.existsSync(path.join(__dirname, 'playwright-tests/auth-utils/auth.json'))
+      ? path.join(__dirname, 'playwright-tests/auth-utils/auth.json')
+      : undefined
   },
+
+  /* Global setup to run before all tests */
+  globalSetup: './playwright-tests/auth-utils/global-setup.ts',
+
+  /* Global teardown to run after all tests */
+  globalTeardown: './playwright-tests/auth-utils/global-teardown.ts',
 
   /* Configure projects for major browsers */
   projects: [
@@ -77,6 +89,6 @@ export default defineConfig({
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000 // 120 seconds
+    timeout: 30 * 1000 // 30 seconds
   }
 });
