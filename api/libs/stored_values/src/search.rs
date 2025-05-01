@@ -3,7 +3,6 @@ use database::pool::get_sqlx_pool;
 use futures::future;
 use serde_yaml;
 use sqlx::FromRow;
-use std::collections::HashMap;
 use tracing::{debug, warn};
 use uuid::Uuid;
 
@@ -56,20 +55,10 @@ pub async fn search_values_by_embedding(
         return Ok(vec![]); // Or return an error if appropriate
     }
 
-    // 2. Use embedding array directly in SQL using proper dynamic SQL construction
-    let query_sql = format!(
-        r#"
-        WITH embedding_input AS (
-            SELECT '[{}]'::vector AS embedding
-        )
-        SELECT
-            id, value, database_name, column_name, table_name, schema_name, synced_at
-        FROM
-            "{schema_name}"."searchable_column_values" as searchable_column_values, embedding_input
-        ORDER BY
-            searchable_column_values.embedding <=> embedding_input.embedding ASC 
-        LIMIT $1
-        "#,
+    // 2. Use embedding array directly in SQL
+    // NOTE: If your embedding column is 'halfvec', change '::vector' to '::halfvec' below.
+    let vector_literal = format!(
+        "'[{}]'::halfvec", // <-- Change to ::halfvec if needed
         query_embedding
             .iter()
             .map(|f| f.to_string())
@@ -77,12 +66,24 @@ pub async fn search_values_by_embedding(
             .join(",")
     );
 
+    let query_sql = format!(
+        r#"
+        SELECT
+            id, value, database_name, column_name, table_name, schema_name, synced_at
+        FROM
+            "{schema_name}"."searchable_column_values" as searchable_column_values
+        ORDER BY
+            searchable_column_values.embedding <=> {vector_literal} ASC
+        LIMIT $1
+        "#
+    );
+
     debug!(
         %data_source_id,
         %schema_name,
         embedding_len = query_embedding.len(),
         %limit,
-        "Executing stored value embedding search with vector CTE"
+        "Executing stored value embedding search with inline vector"
     );
 
     let mut conn = get_sqlx_pool().acquire().await?;
@@ -169,7 +170,17 @@ pub async fn search_values_by_embedding_with_filters(
         bind_idx += 1;
     }
 
-    // 3. Use embedding array directly in SQL using CTE
+    // 3. Use embedding array directly in SQL
+    // NOTE: If your embedding column is 'halfvec', change '::vector' to '::halfvec' below.
+    let vector_literal = format!(
+        "'[{}]'::halfvec", // <-- Change to ::halfvec if needed
+        query_embedding
+            .iter()
+            .map(|f| f.to_string())
+            .collect::<Vec<String>>()
+            .join(",")
+    );
+
     let where_clause = if filters.is_empty() {
         String::new()
     } else {
@@ -178,23 +189,15 @@ pub async fn search_values_by_embedding_with_filters(
 
     let query_sql = format!(
         r#"
-        WITH embedding_input AS (
-            SELECT '[{}]'::vector AS embedding
-        )
         SELECT
             id, value, database_name, column_name, table_name, schema_name, synced_at
         FROM
-            "{pg_schema_name}"."searchable_column_values" as searchable_column_values, embedding_input
+            "{pg_schema_name}"."searchable_column_values" as searchable_column_values
         {where_clause}
         ORDER BY
-            searchable_column_values.embedding <=> embedding_input.embedding ASC 
+            searchable_column_values.embedding <=> {vector_literal} ASC
         LIMIT $1
-        "#,
-        query_embedding
-            .iter()
-            .map(|f| f.to_string())
-            .collect::<Vec<String>>()
-            .join(",")
+        "#
     );
 
     debug!(
@@ -203,7 +206,7 @@ pub async fn search_values_by_embedding_with_filters(
         embedding_len = query_embedding.len(),
         filters = ?filters,
         %limit,
-        "Executing filtered stored value embedding search with vector CTE"
+        "Executing filtered stored value embedding search with inline vector"
     );
 
     // 5. Execute the Query with all bind parameters
@@ -380,137 +383,4 @@ pub fn extract_searchable_columns_from_yaml(yml_content: &str) -> Result<Vec<Sea
     }
 
     Ok(search_targets)
-}
-
-/// Search for specific values across the searchable columns of specified datasets
-///
-/// This function:
-/// 1. Extracts searchable columns from each dataset's YAML content
-/// 2. Creates embedding for the search terms
-/// 3. Searches for values matching those terms across the identified columns
-///
-/// # Arguments
-///
-/// * `data_source_id` - UUID of the data source
-/// * `search_terms` - Terms to search for
-/// * `dataset_yml_contents` - Vector of YAML content strings for each dataset
-/// * `limit_per_target` - Maximum number of results per target (table/column combination)
-///
-/// # Returns
-///
-/// A `Result` containing a `HashMap` mapping from dataset YAML content to found values
-pub async fn search_values_in_datasets(
-    data_source_id: Uuid,
-    search_terms: &[String],
-    dataset_yml_contents: &[String],
-    limit_per_target: i64,
-) -> Result<HashMap<String, Vec<StoredValueResult>>> {
-    if search_terms.is_empty() || dataset_yml_contents.is_empty() {
-        debug!("No search terms or datasets provided");
-        return Ok(HashMap::new());
-    }
-
-    let mut result_map = HashMap::new();
-
-    // Step 1: Extract all searchable columns from all datasets
-    let mut all_search_targets = Vec::new();
-    let mut dataset_targets = HashMap::new();
-
-    for yml_content in dataset_yml_contents {
-        match extract_searchable_columns_from_yaml(yml_content) {
-            Ok(targets) => {
-                if !targets.is_empty() {
-                    all_search_targets.extend(targets.clone());
-                    dataset_targets.insert(yml_content.clone(), targets);
-                }
-            }
-            Err(e) => {
-                warn!(error = %e, "Failed to extract searchable columns from YAML");
-                // Continue with other datasets
-            }
-        }
-    }
-
-    if all_search_targets.is_empty() {
-        debug!("No searchable columns found in any dataset");
-        return Ok(result_map);
-    }
-
-    // Step 2: Generate embeddings for each search term
-    let litellm_client = litellm::LiteLLMClient::new(None, None);
-
-    // Process each search term
-    for term in search_terms {
-        // Skip very short terms that might cause issues
-        if term.len() < 2 {
-            debug!(term = %term, "Skipping search for term (too short)");
-            continue;
-        }
-
-        // Generate embedding for the search term
-        let embedding_request = litellm::EmbeddingRequest {
-            model: "text-embedding-3-small".to_string(),
-            input: vec![term.clone()],
-            dimensions: Some(1536),
-            encoding_format: Some("float".to_string()),
-            user: None,
-        };
-
-        let embedding_result = match litellm_client.generate_embeddings(embedding_request).await {
-            Ok(response) => {
-                if response.data.is_empty() {
-                    warn!(term = %term, "No embeddings returned from API");
-                    continue;
-                }
-                response.data[0].embedding.clone()
-            }
-            Err(e) => {
-                warn!(term = %term, error = %e, "Failed to generate embedding for search term");
-                continue;
-            }
-        };
-
-        debug!(term = %term, "Successfully generated embedding, searching values...");
-
-        // Step 3: Search for values across all targets
-        match search_values_across_targets(
-            data_source_id,
-            &embedding_result,
-            limit_per_target,
-            all_search_targets.clone(),
-        )
-        .await
-        {
-            Ok(found_values) => {
-                debug!(term = %term, count = found_values.len(), "Found values for search term");
-
-                // Map results back to their source datasets
-                for value in found_values {
-                    // Find which dataset this result belongs to
-                    for (yml_content, targets) in &dataset_targets {
-                        let matches_dataset = targets.iter().any(|target| {
-                            target.database_name == value.database_name
-                                && target.schema_name == value.schema_name
-                                && target.table_name == value.table_name
-                                && target.column_name == value.column_name
-                        });
-
-                        if matches_dataset {
-                            result_map
-                                .entry(yml_content.clone())
-                                .or_insert_with(Vec::new)
-                                .push(value.clone());
-                            break;
-                        }
-                    }
-                }
-            }
-            Err(e) => {
-                warn!(term = %term, error = %e, "Error searching for values");
-                // Continue with other terms
-            }
-        }
-    }
-
-    Ok(result_map)
 }
