@@ -9,10 +9,9 @@ use diesel::{
 use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use regex::Regex;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::io::Write;
-use uuid::Uuid;
 
 // Helper function to sanitize string values for YAML
 fn sanitize_yaml_string(value: &str) -> String {
@@ -128,8 +127,6 @@ pub struct MetricYml {
     pub sql: String,
     #[serde(alias = "chart_config")]
     pub chart_config: ChartConfig,
-    #[serde(alias = "dataset_ids")]
-    pub dataset_ids: Vec<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -192,19 +189,27 @@ pub enum XAxisLabelRotation {
     Auto,
 }
 
-
 // --- Axis Configuration Structs ---
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct YAxisConfig {
-    #[serde(skip_serializing_if = "Option::is_none", alias = "y_axis_show_axis_label")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        alias = "y_axis_show_axis_label"
+    )]
     pub y_axis_show_axis_label: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "y_axis_show_axis_title")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        alias = "y_axis_show_axis_title"
+    )]
     pub y_axis_show_axis_title: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none", alias = "y_axis_axis_title")]
     pub y_axis_axis_title: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "y_axis_start_axis_at_zero")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        alias = "y_axis_start_axis_at_zero"
+    )]
     pub y_axis_start_axis_at_zero: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none", alias = "y_axis_scale_type")]
     pub y_axis_scale_type: Option<YAxisScaleType>,
@@ -213,13 +218,22 @@ pub struct YAxisConfig {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Y2AxisConfig {
-     #[serde(skip_serializing_if = "Option::is_none", alias = "y2_axis_show_axis_label")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        alias = "y2_axis_show_axis_label"
+    )]
     pub y2_axis_show_axis_label: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "y2_axis_show_axis_title")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        alias = "y2_axis_show_axis_title"
+    )]
     pub y2_axis_show_axis_title: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none", alias = "y2_axis_axis_title")]
     pub y2_axis_axis_title: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "y2_axis_start_axis_at_zero")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        alias = "y2_axis_start_axis_at_zero"
+    )]
     pub y2_axis_start_axis_at_zero: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none", alias = "y2_axis_scale_type")]
     pub y2_axis_scale_type: Option<YAxisScaleType>, // Reuses YAxisScaleType enum
@@ -228,15 +242,27 @@ pub struct Y2AxisConfig {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct XAxisConfig {
-    #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_time_interval")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        alias = "x_axis_time_interval"
+    )]
     pub x_axis_time_interval: Option<XAxisTimeInterval>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_show_axis_label")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        alias = "x_axis_show_axis_label"
+    )]
     pub x_axis_show_axis_label: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_show_axis_title")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        alias = "x_axis_show_axis_title"
+    )]
     pub x_axis_show_axis_title: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_axis_title")]
     pub x_axis_axis_title: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_label_rotation")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        alias = "x_axis_label_rotation"
+    )]
     pub x_axis_label_rotation: Option<XAxisLabelRotation>,
     #[serde(skip_serializing_if = "Option::is_none", alias = "x_axis_data_zoom")]
     pub x_axis_data_zoom: Option<bool>,
@@ -248,7 +274,6 @@ pub struct CategoryAxisStyleConfig {
     #[serde(skip_serializing_if = "Option::is_none", alias = "category_axis_title")]
     pub category_axis_title: Option<String>,
 }
-
 
 // --- Base Chart Config ---
 
@@ -283,16 +308,16 @@ pub struct BaseChartConfig {
     #[serde(alias = "disable_tooltip")]
     pub disable_tooltip: Option<bool>,
     // Updated Axis Configs using defined structs (now optional)
-    #[serde(skip_serializing_if = "Option::is_none")] 
-    #[serde(alias = "y_axis_config", flatten)]   
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "y_axis_config", flatten)]
     pub y_axis_config: Option<YAxisConfig>,
-    #[serde(skip_serializing_if = "Option::is_none")] 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "x_axis_config", flatten)]
     pub x_axis_config: Option<XAxisConfig>,
-    #[serde(skip_serializing_if = "Option::is_none")] 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "category_axis_style_config", flatten)]
     pub category_axis_style_config: Option<CategoryAxisStyleConfig>,
-    #[serde(skip_serializing_if = "Option::is_none")] 
+    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "y2_axis_config", flatten)]
     pub y2_axis_config: Option<Y2AxisConfig>,
 }
@@ -884,21 +909,25 @@ datasetIds: ["00000000-0000-0000-0000-000000000001"]
         let expected_sql = normalize_whitespace("SELECT rep_id, AVG(time_to_close) AS average_time_to_close FROM deal_metrics GROUP BY rep_id ORDER BY average_time_to_close DESC");
         let actual_sql = normalize_whitespace(&metric.sql);
         assert_eq!(actual_sql, expected_sql);
-        assert_eq!(metric.dataset_ids, vec![Uuid::parse_str("00000000-0000-0000-0000-000000000001").unwrap()]);
-
 
         match metric.chart_config {
             ChartConfig::Bar(config) => {
                 // Check columnLabelFormats keys and content
                 assert!(config.base.column_label_formats.contains_key("rep_id"));
-                assert!(config.base.column_label_formats.contains_key("average_time_to_close"));
+                assert!(config
+                    .base
+                    .column_label_formats
+                    .contains_key("average_time_to_close"));
                 assert!(!config.base.column_label_formats.contains_key("REP_ID")); // Verify key is lowercase
                 let rep_format = config.base.column_label_formats.get("rep_id").unwrap();
                 assert_eq!(rep_format.column_type, "string");
-                let avg_format = config.base.column_label_formats.get("average_time_to_close").unwrap();
+                let avg_format = config
+                    .base
+                    .column_label_formats
+                    .get("average_time_to_close")
+                    .unwrap();
                 assert_eq!(avg_format.style, "currency");
                 assert_eq!(avg_format.currency, Some("USD".to_string()));
-
 
                 // Check axis elements are lowercase
                 assert_eq!(config.bar_and_line_axis.x, vec![String::from("rep_id")]);
@@ -968,7 +997,7 @@ chartConfig:
         Ok(())
     }
 
-     #[test]
+    #[test]
     fn test_lowercase_metric_column_id() -> Result<()> {
         // Use raw string literal
         let yml_content = r#"
@@ -991,7 +1020,6 @@ chartConfig:
         }
         Ok(())
     }
-
 
     #[test]
     fn test_lowercase_table_config_columns() -> Result<()> {
@@ -1029,11 +1057,10 @@ chartConfig:
         Ok(())
     }
 
-
     #[test]
     fn test_default_timeframe_insertion_and_lowercase() -> Result<()> {
-         // Use raw string literal
-         let yml_content = r#"
+        // Use raw string literal
+        let yml_content = r#"
 name: Default Timeframe Test
 # No timeFrame specified
 sql: SELECT DATE_COL, VALUE_COL FROM data
@@ -1060,7 +1087,7 @@ chartConfig:
                 assert_eq!(config.bar_and_line_axis.x, vec!["date_col"]);
                 assert_eq!(config.bar_and_line_axis.y, vec!["value_col"]);
             }
-             _ => panic!("Expected Line chart"),
+            _ => panic!("Expected Line chart"),
         }
 
         Ok(())
@@ -1068,8 +1095,8 @@ chartConfig:
 
     #[test]
     fn test_mixed_case_sanitization_and_lowercase() -> Result<()> {
-         // Use raw string literal
-         let yml_content = r#"
+        // Use raw string literal
+        let yml_content = r#"
 name: Mixed Case Test: Needs 'Sanitization' and LOWERCASE
 sql: SELECT Category, "Total Sales" FROM sales_data
 timeFrame: all_time
@@ -1086,7 +1113,10 @@ chartConfig:
         let metric = MetricYml::new(yml_content.to_string())?;
 
         // Check name was sanitized
-        assert_eq!(metric.name, "Mixed Case Test Needs Sanitization and LOWERCASE");
+        assert_eq!(
+            metric.name,
+            "Mixed Case Test Needs Sanitization and LOWERCASE"
+        );
 
         // Check column names were lowercased
         match metric.chart_config {
@@ -1095,16 +1125,18 @@ chartConfig:
                 assert!(config.base.column_label_formats.contains_key("total sales")); // Note: Sanitization happens before lowercasing structural keys
 
                 let cat_format = config.base.column_label_formats.get("category").unwrap();
-                assert_eq!(cat_format.display_name, Some("Product Category".to_string())); // Check displayName sanitization
+                assert_eq!(
+                    cat_format.display_name,
+                    Some("Product Category".to_string())
+                ); // Check displayName sanitization
 
                 assert_eq!(config.bar_and_line_axis.x, vec!["category"]);
                 assert_eq!(config.bar_and_line_axis.y, vec!["total sales"]);
             }
-             _ => panic!("Expected Bar chart"),
+            _ => panic!("Expected Bar chart"),
         }
         Ok(())
     }
-
 
     // ... existing tests ...
     #[test]

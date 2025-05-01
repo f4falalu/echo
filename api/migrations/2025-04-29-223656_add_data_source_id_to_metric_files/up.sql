@@ -1,0 +1,35 @@
+-- Your SQL goes here
+
+-- Add the data_source_id column to metric_files
+ALTER TABLE metric_files
+ADD COLUMN data_source_id UUID;
+
+-- Backfill the data_source_id using information from the content field and datasets table
+WITH metric_dataset AS (
+    SELECT
+        mf.id AS metric_id,
+        (mf.content->>'datasetIds')::jsonb ->> 0 AS first_dataset_id_str -- Extract the first datasetId as text
+    FROM metric_files mf
+    WHERE mf.content->>'datasetIds' IS NOT NULL AND jsonb_array_length((mf.content->>'datasetIds')::jsonb) > 0
+),
+ dataset_source AS (
+    SELECT
+        ds.id AS dataset_id,
+        ds.data_source_id
+    FROM datasets ds
+)
+UPDATE metric_files
+SET data_source_id = ds.data_source_id
+FROM metric_dataset md
+JOIN dataset_source ds ON ds.dataset_id = (md.first_dataset_id_str)::uuid -- Cast the text datasetId to UUID for joining
+WHERE metric_files.id = md.metric_id;
+
+-- Add the NOT NULL constraint after backfilling
+ALTER TABLE metric_files
+ALTER COLUMN data_source_id SET NOT NULL;
+
+-- Add the foreign key constraint
+ALTER TABLE metric_files
+ADD CONSTRAINT fk_data_source
+FOREIGN KEY (data_source_id)
+REFERENCES data_sources (id);
