@@ -12,7 +12,7 @@ use database::helpers::metric_files::fetch_metric_file_with_permissions;
 use database::pool::get_pg_pool;
 use database::schema::{
     asset_permissions, collections, collections_to_assets, dashboard_files, datasets,
-    metric_files_to_dashboard_files, users,
+    metric_files_to_dashboard_files, users, metric_files_to_datasets,
 };
 use sharing::check_permission_access;
 
@@ -191,7 +191,6 @@ pub async fn get_metric_handler(
     let resolved_name: String;
     let resolved_description: Option<String>;
     let resolved_time_frame: String;
-    let resolved_dataset_ids: Vec<Uuid>;
     let resolved_chart_config: database::types::ChartConfig;
     let resolved_sql: String;
     let resolved_updated_at: chrono::DateTime<chrono::Utc>;
@@ -211,7 +210,6 @@ pub async fn get_metric_handler(
                     resolved_name = version_content.name.clone();
                     resolved_description = version_content.description.clone(); // Assume this is already Option<String>
                     resolved_time_frame = version_content.time_frame.clone();
-                    resolved_dataset_ids = version_content.dataset_ids.clone();
                     resolved_chart_config = version_content.chart_config.clone();
                     resolved_sql = version_content.sql.clone();
                     resolved_updated_at = v.updated_at;
@@ -239,7 +237,6 @@ pub async fn get_metric_handler(
         resolved_name = metric_file.name.clone(); // Use main record name
         resolved_description = current_content.description.clone(); // Assume this is already Option<String>
         resolved_time_frame = current_content.time_frame.clone();
-        resolved_dataset_ids = current_content.dataset_ids.clone();
         resolved_chart_config = current_content.chart_config.clone();
         resolved_sql = current_content.sql.clone();
         resolved_updated_at = metric_file.updated_at; // Use main record updated_at
@@ -272,22 +269,45 @@ pub async fn get_metric_handler(
 
     let mut conn = get_pg_pool().get().await?;
 
+    // Query dataset IDs from the join table based on the resolved version
+    let resolved_dataset_ids = match metric_files_to_datasets::table
+        .filter(metric_files_to_datasets::metric_file_id.eq(metric_id))
+        .filter(metric_files_to_datasets::metric_version_number.eq(resolved_version_num))
+        .select(metric_files_to_datasets::dataset_id)
+        .load::<Uuid>(&mut conn)
+        .await {
+            Ok(ids) => ids,
+            Err(e) => {
+                tracing::error!("Failed to fetch dataset IDs for metric {} version {}: {}", metric_id, resolved_version_num, e);
+                // Return empty or handle error as appropriate
+                Vec::new() 
+            }
+        };
+
     // Get dataset information for the resolved dataset IDs
     let mut datasets = Vec::new();
     let mut first_data_source_id = None;
-    for dataset_id in &resolved_dataset_ids {
-        if let Ok(dataset_info) = datasets::table
-            .filter(datasets::id.eq(dataset_id))
+    // Fetch datasets based on the resolved_dataset_ids fetched above
+    if !resolved_dataset_ids.is_empty() { 
+        let dataset_infos = datasets::table
+            .filter(datasets::id.eq_any(&resolved_dataset_ids))
             .filter(datasets::deleted_at.is_null())
             .select((datasets::id, datasets::name, datasets::data_source_id))
-            .first::<DatasetInfo>(&mut conn)
+            .load::<DatasetInfo>(&mut conn)
             .await
-        {
+            .map_err(|e| {
+                tracing::error!("Failed to fetch dataset info for metric {}: {}", metric_id, e);
+                anyhow!("Failed to fetch dataset info")
+            })?;
+
+        for dataset_info in dataset_infos {
             datasets.push(Dataset {
                 id: dataset_info.id.to_string(),
                 name: dataset_info.name,
             });
-            first_data_source_id = Some(dataset_info.data_source_id);
+            if first_data_source_id.is_none() {
+                first_data_source_id = Some(dataset_info.data_source_id);
+            }
         }
     }
 

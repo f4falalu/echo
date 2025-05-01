@@ -1,22 +1,24 @@
 use std::{env, sync::Arc, time::Instant};
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use async_trait::async_trait;
 use braintrust::{get_prompt_system_message, BraintrustClient};
 use chrono::Utc;
 use database::{
     enums::{AssetPermissionRole, AssetType, IdentityType},
-    models::AssetPermission,
+    models::{AssetPermission, MetricFile, MetricFileToDataset},
     pool::get_pg_pool,
-    schema::{asset_permissions, metric_files},
+    schema::{asset_permissions, metric_files, metric_files_to_datasets},
+    types::MetricYml,
 };
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 use futures::future::join_all;
-use indexmap::IndexMap;
-use query_engine::data_types::DataType;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use uuid::Uuid;
+use indexmap::IndexMap;
+use query_engine::data_types::DataType;
 
 use crate::{
     agent::Agent,
@@ -90,123 +92,159 @@ impl ToolExecutor for CreateMetricFilesTool {
         let mut created_files = vec![];
         let mut failed_files = vec![];
 
-        // Create futures for concurrent processing
-        let process_futures = files
-            .into_iter()
-            .map(|file| {
-                let tool_call_id_clone = tool_call_id.clone();
-                let user_id = self.agent.get_user_id();
-                
-                async move {
-                    let result = process_metric_file(
-                        tool_call_id_clone,
-                        file.name.clone(),
-                        file.yml_content.clone(),
-                        &user_id,
-                    )
-                    .await;
-                    
-                    (file.name.clone(), result)
-                }
-            })
-            .collect::<Vec<_>>();
+        let data_source_id = match self.agent.get_state_value("data_source_id").await {
+            Some(Value::String(id_str)) => Uuid::parse_str(&id_str).map_err(|e| anyhow!("Invalid data source ID format: {}", e))?,
+            Some(_) => bail!("Data source ID is not a string"),
+            None => bail!("Data source ID not found in agent state"),
+        };
 
-        // Wait for all futures to complete
-        let results = join_all(process_futures).await;
+        // Collect results from processing each file concurrently
+        let process_futures = files.into_iter().map(|file| {
+            let tool_call_id_clone = tool_call_id.clone();
+            let user_id = self.agent.get_user_id();
+            async move {
+                let result = process_metric_file(
+                    tool_call_id_clone,
+                    file.name.clone(),
+                    file.yml_content.clone(),
+                    data_source_id,
+                    &user_id,
+                )
+                .await;
+                (file.name, result)
+            }
+        });
+        let processed_results = join_all(process_futures).await;
 
-        // Process results
-        let mut metric_records = vec![];
-        let mut metric_ymls = vec![];
-        let mut results_vec = vec![];
-
-        for (file_name, result) in results {
+        // Separate successful from failed processing
+        let mut successful_processing: Vec<(
+            MetricFile,
+            MetricYml,
+            String, 
+            Vec<IndexMap<String, DataType>>,
+            Vec<Uuid> 
+        )> = Vec::new();
+        for (file_name, result) in processed_results {
             match result {
-                Ok((metric_file, metric_yml, message, results)) => {
-                    metric_records.push(metric_file);
-                    metric_ymls.push(metric_yml);
-                    results_vec.push((message, results));
+                Ok((metric_file, metric_yml, message, results, validated_dataset_ids)) => {
+                    successful_processing.push((
+                        metric_file,
+                        metric_yml,
+                        message,
+                        results,
+                        validated_dataset_ids,
+                    ));
                 }
                 Err(e) => {
-                    failed_files.push(FailedFileCreation { name: file_name, error: e.to_string() });
+                    failed_files.push(FailedFileCreation {
+                        name: file_name,
+                        error: e.to_string(),
+                    });
                 }
             }
         }
 
-        // Second pass - bulk insert records
-        let mut conn = match get_pg_pool().get().await {
-            Ok(conn) => conn,
-            Err(e) => return Err(anyhow!(e)),
-        };
+        let metric_records: Vec<MetricFile> = successful_processing.iter().map(|(mf, _, _, _, _)| mf.clone()).collect();
+        let all_validated_dataset_ids: Vec<(Uuid, i32, Vec<Uuid>)> = successful_processing
+            .iter()
+            .map(|(mf, _, _, _, ids)| (mf.id, 1, ids.clone()))
+            .collect();
 
-        // Insert metric files
+        let mut conn = get_pg_pool().get().await?;
+
         if !metric_records.is_empty() {
-            match insert_into(metric_files::table)
+            if let Err(e) = insert_into(metric_files::table)
                 .values(&metric_records)
                 .execute(&mut conn)
                 .await
             {
-                Ok(_) => {
-                    // Get the user ID from the agent state
-                    let user_id = self.agent.get_user_id();
+                failed_files.extend(metric_records.iter().map(|r| FailedFileCreation {
+                    name: r.file_name.clone(),
+                    error: format!("Failed to create metric file record: {}", e),
+                }));
+            } else {
+                let user_id = self.agent.get_user_id();
+                let now = Utc::now();
 
-                    // Create asset permissions for each metric file
-                    let now = Utc::now();
-                    let asset_permissions: Vec<AssetPermission> = metric_records
-                        .iter()
-                        .map(|record| AssetPermission {
-                            identity_id: user_id,
-                            identity_type: IdentityType::User,
-                            asset_id: record.id,
-                            asset_type: AssetType::MetricFile,
-                            role: AssetPermissionRole::Owner,
+                let asset_permissions: Vec<AssetPermission> = metric_records
+                    .iter()
+                    .map(|record| AssetPermission {
+                        identity_id: user_id,
+                        identity_type: IdentityType::User,
+                        asset_id: record.id,
+                        asset_type: AssetType::MetricFile,
+                        role: AssetPermissionRole::Owner,
+                        created_at: now,
+                        updated_at: now,
+                        deleted_at: None,
+                        created_by: user_id,
+                        updated_by: user_id,
+                    })
+                    .collect();
+                if let Err(e) = insert_into(asset_permissions::table)
+                    .values(&asset_permissions)
+                    .execute(&mut conn)
+                    .await
+                {
+                    tracing::error!("Error inserting asset permissions: {}", e);
+                    failed_files.extend(metric_records.iter().map(|r| FailedFileCreation {
+                        name: r.file_name.clone(),
+                        error: format!("Failed to set asset permissions: {}", e),
+                    }));
+                }
+
+                let mut join_table_records = Vec::new();
+                for (metric_id, version, dataset_ids) in &all_validated_dataset_ids {
+                    for dataset_id in dataset_ids {
+                        join_table_records.push(MetricFileToDataset {
+                            metric_file_id: *metric_id,
+                            dataset_id: *dataset_id,
+                            metric_version_number: *version,
                             created_at: now,
-                            updated_at: now,
-                            deleted_at: None,
-                            created_by: user_id,
-                            updated_by: user_id,
-                        })
-                        .collect();
-
-                    // Insert asset permissions
-                    match insert_into(asset_permissions::table)
-                        .values(&asset_permissions)
-                        .execute(&mut conn)
-                        .await
-                    {
-                        Ok(_) => {
-                            tracing::debug!(
-                                "Successfully inserted asset permissions for {} metric files",
-                                asset_permissions.len()
-                            );
-                        }
-                        Err(e) => {
-                            tracing::error!("Error inserting asset permissions: {}", e);
-                            // Continue with the process even if permissions failed
-                            // We'll still return the created files
-                        }
-                    }
-
-                    for (i, yml) in metric_ymls.into_iter().enumerate() {
-                        created_files.push(FileWithId {
-                            id: metric_records[i].id,
-                            name: metric_records[i].name.clone(),
-                            file_type: "metric".to_string(),
-                            yml_content: serde_yaml::to_string(&yml).unwrap_or_default(),
-                            result_message: Some(results_vec[i].0.clone()),
-                            results: Some(results_vec[i].1.clone()),
-                            created_at: metric_records[i].created_at,
-                            updated_at: metric_records[i].updated_at,
-                            version_number: metric_records[i].version_history.get_version_number(),
                         });
                     }
                 }
-                Err(e) => {
-                    failed_files.extend(metric_records.iter().map(|r| {
-                        FailedFileCreation {
+                if !join_table_records.is_empty() {
+                    if let Err(e) = insert_into(metric_files_to_datasets::table)
+                        .values(&join_table_records)
+                        .on_conflict_do_nothing()
+                        .execute(&mut conn)
+                        .await
+                    {
+                        tracing::error!("Failed to insert dataset associations: {}", e);
+                        failed_files.extend(metric_records.iter().map(|r| FailedFileCreation {
                             name: r.file_name.clone(),
-                            error: format!("Failed to create metric file: {}", e),
+                            error: format!("Failed to link datasets: {}", e),
+                        }));
+                    }
+                }
+
+                let metric_ymls: Vec<MetricYml> = successful_processing.iter().map(|(_, yml, _, _, _)| yml.clone()).collect();
+                let results_vec: Vec<(String, Vec<IndexMap<String, DataType>>)> = successful_processing.iter().map(|(_, _, msg, res, _)| (msg.clone(), res.clone())).collect();
+                for (i, yml) in metric_ymls.into_iter().enumerate() {
+                    // Attempt to serialize the YAML content
+                    match serde_yaml::to_string(&yml) {
+                        Ok(yml_content) => {
+                            created_files.push(FileWithId {
+                                id: metric_records[i].id,
+                                name: metric_records[i].name.clone(),
+                                file_type: "metric".to_string(),
+                                yml_content, // Use the successfully serialized content
+                                result_message: Some(results_vec[i].0.clone()),
+                                results: Some(results_vec[i].1.clone()),
+                                created_at: metric_records[i].created_at,
+                                updated_at: metric_records[i].updated_at,
+                                version_number: 1,
+                            });
                         }
-                    }));
+                        Err(e) => {
+                            // If serialization fails, add to failed_files
+                            failed_files.push(FailedFileCreation {
+                                name: metric_records[i].name.clone(),
+                                error: format!("Failed to serialize metric YAML content: {}", e),
+                            });
+                        }
+                    }
                 }
             }
         }
@@ -252,7 +290,6 @@ impl ToolExecutor for CreateMetricFilesTool {
                 .await;
         }
 
-        // Set review_needed flag if execution was successful
         if failed_files.is_empty() {
             self.agent
                 .set_state_value(String::from("review_needed"), Value::Bool(true))
@@ -335,16 +372,14 @@ async fn get_metric_name_description() -> String {
 
 async fn get_metric_yml_description() -> String {
     if env::var("USE_BRAINTRUST_PROMPTS").is_err() {
-        // Revert to just returning the schema string
         return format!("The YAML content for a single metric, adhering to the schema below. Multiple metrics can be created in one call by providing multiple entries in the 'files' array. **Prefer creating metrics in bulk.**\n\n{}", METRIC_YML_SCHEMA);
     }
 
     let client = BraintrustClient::new(None, "96af8b2b-cf3c-494f-9092-44eb3d5b96ff").unwrap();
     match get_prompt_system_message(&client, "54d01b7c-07c9-4c80-8ec7-8026ab8242a9").await {
-        Ok(message) => message, 
+        Ok(message) => message,
         Err(e) => {
             eprintln!("Failed to get prompt system message: {}", e);
-            // Revert to just returning the schema string on error
             format!("The YAML content for a single metric, adhering to the schema below. Multiple metrics can be created in one call by providing multiple entries in the 'files' array. **Prefer creating metrics in bulk.**\n\n{}", METRIC_YML_SCHEMA)
         }
     }
