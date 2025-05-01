@@ -146,17 +146,7 @@ pub async fn get_metric_data_handler(
     let sql = metric_yml.sql;
 
     // --- USE DIRECT DATA SOURCE ID ---
-    let data_source_id = match Uuid::parse_str(&metric.data_source_id) {
-        Ok(id) => id,
-        Err(_) => {
-            tracing::error!(
-                "Invalid data_source_id format ({}) found for metric {}",
-                metric.data_source_id,
-                request.metric_id
-            );
-            return Err(anyhow!("Invalid data source ID associated with the metric"));
-        }
-    };
+    let data_source_id = metric.data_source_id; // Already a Uuid
     tracing::debug!(metric_id = %request.metric_id, data_source_id = %data_source_id, "Using direct data source ID from metric");
 
     tracing::info!(

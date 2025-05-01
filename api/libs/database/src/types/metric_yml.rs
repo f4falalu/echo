@@ -690,6 +690,18 @@ pub struct MetricChartConfig {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub enum MetricValueAggregate {
+    Sum,
+    Average,
+    Median,
+    Count,
+    Max,
+    Min,
+    First
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct TableChartConfig {
     #[serde(flatten)]
     pub base: BaseChartConfig,
