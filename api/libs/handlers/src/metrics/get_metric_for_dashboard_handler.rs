@@ -168,7 +168,6 @@ pub async fn get_metric_for_dashboard_handler(
 
     // Get dataset information for the resolved dataset IDs (using the fetched IDs)
     let mut datasets = Vec::new();
-    let mut first_data_source_id = None;
     if !resolved_dataset_ids.is_empty() {
         // Fetch only if there are IDs to prevent unnecessary query
         let dataset_infos = datasets::table
@@ -187,9 +186,6 @@ pub async fn get_metric_for_dashboard_handler(
                 id: dataset_info.id.to_string(),
                 name: dataset_info.name,
             });
-            if first_data_source_id.is_none() {
-                first_data_source_id = Some(dataset_info.data_source_id);
-            }
         }
     }
 
@@ -278,7 +274,7 @@ pub async fn get_metric_for_dashboard_handler(
         file_name: metric_file.file_name,
         time_frame: resolved_time_frame,
         datasets,
-        data_source_id: first_data_source_id.map_or("".to_string(), |id| id.to_string()),
+        data_source_id: metric_file.data_source_id, // Use canonical Uuid from main record
         error: None, // Assume ok
         chart_config: Some(resolved_chart_config),
         data_metadata,

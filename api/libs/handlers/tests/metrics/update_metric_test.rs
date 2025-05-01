@@ -41,6 +41,7 @@ impl TestSetup {
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
             deleted_at: None,
+            payment_required: false,
         };
         
         // Create user with specified role

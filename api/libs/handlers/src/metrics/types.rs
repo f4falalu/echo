@@ -3,6 +3,8 @@ use database::{enums::{AssetPermissionRole, Verification}, types::{ChartConfig, 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::HashMap;
+use diesel::Selectable;
+use serde_json::Value;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Dataset {
@@ -34,8 +36,8 @@ pub struct BusterMetric {
     pub file_name: String,
     pub time_frame: String,
     pub datasets: Vec<Dataset>,
-    pub data_source_id: String,
-    pub error: Option<String>,
+    pub data_source_id: Uuid,
+    pub error: Option<Value>,
     pub chart_config: Option<ChartConfig>, // BusterChartConfigProps
     pub data_metadata: Option<DataMetadata>,
     pub status: Verification,

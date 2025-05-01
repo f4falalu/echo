@@ -286,7 +286,6 @@ pub async fn get_metric_handler(
 
     // Get dataset information for the resolved dataset IDs
     let mut datasets = Vec::new();
-    let mut first_data_source_id = None;
     // Fetch datasets based on the resolved_dataset_ids fetched above
     if !resolved_dataset_ids.is_empty() { 
         let dataset_infos = datasets::table
@@ -305,9 +304,6 @@ pub async fn get_metric_handler(
                 id: dataset_info.id.to_string(),
                 name: dataset_info.name,
             });
-            if first_data_source_id.is_none() {
-                first_data_source_id = Some(dataset_info.data_source_id);
-            }
         }
     }
 
@@ -420,8 +416,8 @@ pub async fn get_metric_handler(
         description: resolved_description, // Use resolved description
         file_name: metric_file.file_name, // Not versioned
         time_frame: resolved_time_frame, // Use resolved time frame
-        datasets, // Fetched based on resolved_dataset_ids
-        data_source_id: first_data_source_id.map_or("".to_string(), |id| id.to_string()), // Based on resolved datasets
+        datasets, // Fetched based on resolved_dataset_ids (for display purposes only)
+        data_source_id: metric_file.data_source_id, // Use canonical ID (Uuid) from main record
         error: None, // Assume ok
         chart_config: Some(resolved_chart_config), // Use resolved chart config
         data_metadata, // Not versioned
