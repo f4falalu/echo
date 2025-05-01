@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useEffect, useState, useTransition } from 'react';
-import { ChartJSOrUndefined } from '../../core/types';
-import {
+import React, { useEffect, useMemo, useState, useTransition } from 'react';
+import type { ChartJSOrUndefined } from '../../core/types';
+import type {
   BusterChartProps,
   ChartEncodes,
-  ChartType,
-  ComboChartAxis
+  ChartType
 } from '@/api/asset_interfaces/metric/charts';
-import { useDebounceEffect, useDebounceFn, useMemoizedFn } from '@/hooks';
+import { useDebounceFn, useMemoizedFn, useUpdateDebounceEffect } from '@/hooks';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces/metric';
 import {
   addLegendHeadlines,
@@ -16,9 +15,9 @@ import {
   useBusterChartLegend,
   UseChartLengendReturnValues
 } from '../../../BusterChartLegend';
-import { getLegendItems } from './helper';
-import { DatasetOption } from '../../../chartHooks';
-import { ANIMATION_THRESHOLD, LEGEND_ANIMATION_THRESHOLD } from '../../../config';
+import { getLegendItems } from './getLegendItems';
+import type { DatasetOptionsWithTicks } from '../../../chartHooks';
+import { LEGEND_ANIMATION_THRESHOLD } from '../../../config';
 import { timeout } from '@/lib';
 
 interface UseBusterChartJSLegendProps {
@@ -33,11 +32,15 @@ interface UseBusterChartJSLegendProps {
   loading: boolean;
   lineGroupType: BusterChartProps['lineGroupType'];
   barGroupType: BusterChartProps['barGroupType'];
-  datasetOptions: DatasetOption[];
+  datasetOptions: DatasetOptionsWithTicks;
   columnSettings: NonNullable<BusterChartProps['columnSettings']>;
   columnMetadata: NonNullable<BusterChartProps['columnMetadata']>;
   pieMinimumSlicePercentage: NonNullable<BusterChartProps['pieMinimumSlicePercentage']>;
+  numberOfDataPoints: number;
+  animateLegend?: boolean;
 }
+
+const DELAY_DURATION_FOR_LARGE_DATASET = 95; //95
 
 export const useBusterChartJSLegend = ({
   chartRef,
@@ -54,13 +57,14 @@ export const useBusterChartJSLegend = ({
   barGroupType,
   datasetOptions,
   columnMetadata,
-  columnSettings
+  animateLegend: animateLegendProp,
+  columnSettings,
+  numberOfDataPoints
 }: UseBusterChartJSLegendProps): UseChartLengendReturnValues => {
   const [isPending, startTransition] = useTransition();
   const [isUpdatingChart, setIsUpdatingChart] = useState(false);
-  const [numberOfDataPoints, setNumberOfDataPoints] = useState(0);
   const isLargeDataset = numberOfDataPoints > LEGEND_ANIMATION_THRESHOLD;
-  const legendTimeoutDuration = isLargeDataset ? 95 : 0;
+  const legendTimeoutDuration = isLargeDataset ? DELAY_DURATION_FOR_LARGE_DATASET : 0;
 
   const {
     inactiveDatasets,
@@ -80,10 +84,12 @@ export const useBusterChartJSLegend = ({
     barGroupType
   });
 
-  const categoryAxisColumnNames = (selectedAxis as ComboChartAxis).category as string[];
+  const animateLegend = useMemo(() => {
+    return !!animateLegendProp && numberOfDataPoints <= LEGEND_ANIMATION_THRESHOLD;
+  }, [animateLegendProp, numberOfDataPoints]);
 
   const calculateLegendItems = useMemoizedFn(() => {
-    if (showLegend === false) return;
+    if (showLegend === false || !chartMounted) return;
 
     // Defer the actual calculation to the next animation frame
     requestAnimationFrame(() => {
@@ -92,9 +98,7 @@ export const useBusterChartJSLegend = ({
         colors,
         inactiveDatasets,
         selectedChartType,
-        allYAxisColumnNames,
         columnLabelFormats,
-        categoryAxisColumnNames,
         columnSettings
       });
 
@@ -105,16 +109,10 @@ export const useBusterChartJSLegend = ({
           showLegendHeadline,
           columnMetadata,
           columnLabelFormats,
-          selectedChartType
+          selectedChartType,
+          selectedAxis?.x || []
         );
       }
-
-      const numberOfPoints =
-        chartRef.current?.data.datasets.reduce<number>((acc, dataset) => {
-          if (dataset.hidden) return acc;
-          return acc + dataset.data.length;
-        }, 0) || 0;
-      setNumberOfDataPoints(numberOfPoints);
 
       startTransition(() => {
         setLegendItems(items);
@@ -171,7 +169,7 @@ export const useBusterChartJSLegend = ({
         });
       }, timeoutDuration);
     }),
-    { wait: isLargeDataset ? 250 : 0 }
+    { wait: isLargeDataset ? DELAY_DURATION_FOR_LARGE_DATASET * 2.5 : 0 }
   );
 
   const onLegendItemClick = useMemoizedFn(async (item: BusterChartLegendItem) => {
@@ -248,12 +246,12 @@ export const useBusterChartJSLegend = ({
     });
   });
 
-  useDebounceEffect(
+  useUpdateDebounceEffect(
     () => {
       calculateLegendItems();
     },
     [selectedChartType],
-    { wait: 4 }
+    { wait: 5 }
   );
 
   //immediate items
@@ -280,6 +278,7 @@ export const useBusterChartJSLegend = ({
     onLegendItemFocus: selectedChartType === 'pie' ? undefined : onLegendItemFocus,
     showLegend,
     inactiveDatasets,
-    isUpdatingChart
+    isUpdatingChart,
+    animateLegend
   };
 };

@@ -1,69 +1,34 @@
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
 import type { ChartDataset, TooltipItem, ChartTypeRegistry } from 'chart.js';
-import { appendToKeyValueChain, extractFieldsFromChain } from '../../../../chartHooks';
-import { formatChartLabel } from '../../../helpers';
 import { formatLabel } from '@/lib/columnFormatter';
 
 export const scatterTooltipHelper = (
-  datasets: ChartDataset[],
   dataPoints: TooltipItem<keyof ChartTypeRegistry>[],
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>,
-  hasMultipleMeasures: boolean,
-  hasCategoryAxis: boolean
+  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>
 ): ITooltipItem[] => {
-  const dataPoint = dataPoints[0];
-  const dataPointDatasetIndex = dataPoint.datasetIndex;
-  const dataPointDataset = datasets[dataPointDatasetIndex!];
-  const rawLabel = dataPointDataset.label!;
-  const color = datasets[dataPointDatasetIndex!].borderColor as string;
-  const title = formatChartLabel(
-    rawLabel,
-    columnLabelFormats,
-    hasMultipleMeasures,
-    hasCategoryAxis
-  );
-  const tooltipDatasets = datasets.filter((dataset) => dataset.hidden && !dataset.isTrendline);
-  const dataPointDataIndex = dataPoint.dataIndex;
+  return dataPoints.slice(0, 1).flatMap<ITooltipItem>((dataPoint) => {
+    const dataPointDataset = dataPoint.dataset;
+    const dataPointDataIndex = dataPoint.dataIndex;
+    const tooltipData = dataPointDataset.tooltipData;
+    const selectedToolTipData = tooltipData[dataPointDataIndex];
 
-  let relevantDatasets: ChartDataset[] = [];
+    const title = dataPointDataset.label as string;
 
-  if (hasCategoryAxis) {
-    const dataPointCategory = extractFieldsFromChain(dataPointDataset.label!).at(0)?.value!;
-    relevantDatasets = tooltipDatasets.filter((dataset) => {
-      const datasetCategory = extractFieldsFromChain(dataset.label!).at(0)?.value!;
-      return datasetCategory === dataPointCategory;
+    return selectedToolTipData.map<ITooltipItem>((item) => {
+      return {
+        color: dataPointDataset.backgroundColor as string,
+        seriesType: 'scatter',
+        usePercentage: false,
+        formattedLabel: title,
+        values: [
+          {
+            formattedValue: formatLabel(item.value as number, columnLabelFormats[item.key]),
+            formattedPercentage: undefined,
+            formattedLabel: formatLabel(item.key as string, columnLabelFormats[item.key], true)
+          }
+        ]
+      };
     });
-  } else {
-    relevantDatasets = tooltipDatasets;
-  }
-
-  const values = relevantDatasets.map((dataset) => {
-    const label = appendToKeyValueChain(extractFieldsFromChain(dataset.label!).at(-1)!);
-    const rawValue = dataset.data[dataPointDataIndex] as number;
-    const key = extractFieldsFromChain(label).at(-1)?.key!;
-    const formattedValue = formatLabel(rawValue, columnLabelFormats[key]);
-    const formattedLabel = formatChartLabel(
-      label,
-      columnLabelFormats,
-      hasMultipleMeasures,
-      hasCategoryAxis
-    );
-
-    return {
-      formattedValue,
-      formattedLabel,
-      formattedPercentage: undefined
-    };
   });
-
-  return [
-    {
-      usePercentage: false,
-      color,
-      seriesType: 'scatter',
-      formattedLabel: title,
-      values
-    }
-  ];
 };

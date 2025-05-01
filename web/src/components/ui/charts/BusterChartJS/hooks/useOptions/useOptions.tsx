@@ -12,7 +12,7 @@ import { useYAxis } from './useYAxis';
 import { DeepPartial } from 'utility-types';
 import type { PluginChartOptions } from 'chart.js';
 import { useTooltipOptions } from './useTooltipOptions.ts/useTooltipOptions';
-import { DatasetOption } from '../../../chartHooks';
+import type { DatasetOptionsWithTicks } from '../../../chartHooks';
 import { useY2Axis } from './useY2Axis';
 import { AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import type { BusterChartTypeComponentProps } from '../../../interfaces';
@@ -48,7 +48,7 @@ interface UseOptionsProps {
   pieDisplayLabelAs: NonNullable<BusterChartProps['pieDisplayLabelAs']>;
   columnSettings: NonNullable<BusterChartProps['columnSettings']>;
   tooltipKeys: string[];
-  datasetOptions: DatasetOption[];
+  datasetOptions: DatasetOptionsWithTicks;
   hasMismatchedTooltipsAndMeasures: boolean;
   yAxisShowAxisLabel: NonNullable<BusterChartProps['yAxisShowAxisLabel']>;
   yAxisStartAxisAtZero: BusterChartProps['yAxisStartAxisAtZero'];
@@ -61,6 +61,7 @@ interface UseOptionsProps {
   trendlineAnnotations: AnnotationPluginOptions['annotations'];
   disableTooltip: boolean;
   xAxisTimeInterval: BusterChartProps['xAxisTimeInterval'];
+  numberOfDataPoints: number;
 }
 
 export const useOptions = ({
@@ -100,7 +101,8 @@ export const useOptions = ({
   goalLinesAnnotations,
   trendlineAnnotations,
   disableTooltip: disableTooltipProp,
-  xAxisTimeInterval
+  xAxisTimeInterval,
+  numberOfDataPoints
 }: UseOptionsProps) => {
   const xAxis = useXAxis({
     columnLabelFormats,
@@ -166,16 +168,16 @@ export const useOptions = ({
 
   const interaction = useInteractions({ selectedChartType, barLayout });
 
-  const numberOfSources = useMemo(() => {
-    const lastDataset = datasetOptions[datasetOptions.length - 1];
-    return lastDataset?.source?.length || 0;
-  }, [datasetOptions]);
-
-  const animation = useAnimations({ animate, numberOfSources, chartType: selectedChartType });
+  const animation = useAnimations({
+    animate,
+    numberOfDataPoints,
+    selectedChartType,
+    barGroupType
+  });
 
   const disableTooltip = useMemo(() => {
-    return disableTooltipProp || numberOfSources >= TOOLTIP_THRESHOLD;
-  }, [disableTooltipProp, numberOfSources]);
+    return disableTooltipProp || numberOfDataPoints > TOOLTIP_THRESHOLD;
+  }, [disableTooltipProp, numberOfDataPoints]);
 
   const tooltipOptions = useTooltipOptions({
     columnLabelFormats,
@@ -186,7 +188,6 @@ export const useOptions = ({
     pieDisplayLabelAs,
     selectedAxis,
     columnSettings,
-    datasetOptions,
     hasMismatchedTooltipsAndMeasures,
     disableTooltip,
     colors
@@ -194,7 +195,7 @@ export const useOptions = ({
 
   const options: ChartProps<ChartJSChartType>['options'] = useMemo(() => {
     const chartAnnotations = chartPlugins?.annotation?.annotations;
-    const isLargeDataset = datasetOptions[0].source.length > LINE_DECIMATION_THRESHOLD;
+    const isLargeDataset = numberOfDataPoints > LINE_DECIMATION_THRESHOLD;
 
     return {
       indexAxis: isHorizontalBar ? 'y' : 'x',
