@@ -33,6 +33,7 @@ use diesel_async::{
 use std::collections::HashSet;
 use tokio::{task::JoinHandle, try_join};
 use uuid::Uuid;
+use tracing::{debug, warn};
 
 // Define the new struct mirroring the one in search_data_catalog.rs
 #[derive(Queryable, Selectable, Clone, Debug)]
@@ -416,4 +417,223 @@ pub async fn has_dataset_access(user_id: &Uuid, dataset_id: &Uuid) -> Result<boo
 
     // If no task returned true
     Ok(false)
+}
+
+/// Checks if a user has access to ALL specified datasets.
+/// Returns true if the user has access to every dataset in the list, false otherwise.
+pub async fn has_all_datasets_access(user_id: &Uuid, dataset_ids: &[Uuid]) -> Result<bool> {
+    if dataset_ids.is_empty() {
+        // No datasets to check, vacuously true? Or should this be an error/false?
+        // Let's assume true for now, meaning "no permissions required". Adjust if needed.
+        // Changing to false for safer behavior: no datasets means no access granted.
+        return Ok(false);
+    }
+
+    let mut conn = get_pg_pool().get().await.context("DB Error")?; // Get initial connection
+
+    // --- Step 1: Verify all datasets exist, are not deleted, and get their org IDs ---
+    let dataset_infos = datasets::table
+        .filter(datasets::id.eq_any(dataset_ids))
+        .select((datasets::id, datasets::organization_id, datasets::deleted_at))
+        .load::<(Uuid, Uuid, Option<DateTime<Utc>>)>(&mut conn)
+        .await
+        .context("Failed to fetch dataset info for bulk check")?;
+
+    // Check if we found info for all requested datasets
+    if dataset_infos.len() != dataset_ids.len() {
+        warn!("One or more dataset IDs not found during bulk access check.");
+        return Ok(false); // At least one dataset doesn't exist
+    }
+
+    // Check for deleted datasets and collect unique organization IDs
+    let mut organization_ids = std::collections::HashSet::new();
+    for (id, org_id, deleted_at) in &dataset_infos {
+        if deleted_at.is_some() {
+            warn!("Dataset {} is deleted, access denied in bulk check.", id);
+            return Ok(false); // Access denied if any dataset is deleted
+        }
+        organization_ids.insert(*org_id);
+    }
+
+    // --- Step 2: Check Admin/Querier access across all relevant organizations ---
+    // If the user is an Admin/Querier in ANY of the organizations containing these datasets,
+    // they have access to ALL non-deleted datasets within those specific orgs.
+    // We need to ensure ALL datasets belong to orgs where the user has such a role.
+
+    let admin_roles = users_to_organizations::table
+        .filter(users_to_organizations::user_id.eq(user_id))
+        .filter(users_to_organizations::organization_id.eq_any(organization_ids.iter().cloned().collect::<Vec<_>>()))
+        .filter(users_to_organizations::deleted_at.is_null())
+        .select((users_to_organizations::organization_id, users_to_organizations::role))
+        .load::<(Uuid, UserOrganizationRole)>(&mut conn)
+        .await
+        .context("Error checking admin roles for bulk dataset access")?;
+
+    let admin_org_ids_with_access: std::collections::HashSet<Uuid> = admin_roles
+        .into_iter()
+        .filter_map(|(org_id, role)| {
+            if matches!(
+                role,
+                UserOrganizationRole::WorkspaceAdmin
+                    | UserOrganizationRole::DataAdmin
+                    | UserOrganizationRole::Querier
+            ) {
+                Some(org_id)
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    // Check if all required organization IDs are covered by the user's admin/querier roles
+    if organization_ids.is_subset(&admin_org_ids_with_access) {
+         debug!("User {} has admin/querier access to all required organizations for datasets {:?}", user_id, dataset_ids);
+        return Ok(true); // User is admin/querier in all necessary orgs
+    }
+
+
+    // --- Step 3: If not fully covered by admin/querier roles, check specific permissions for each dataset ---
+    // This requires checking each dataset individually using the existing logic.
+    // We can iterate and call the single `has_dataset_access` function.
+    // This might be less efficient than a complex bulk query but reuses existing logic.
+
+    // Drop the connection before potentially spawning tasks in the loop
+    drop(conn);
+
+    for dataset_id in dataset_ids {
+        // We could call the existing has_dataset_access here.
+        // However, it repeats the deleted check and org role check we partially did.
+        // Let's refine the logic to avoid redundant checks.
+
+         let dataset_org_id = dataset_infos.iter().find(|(id, _, _)| id == dataset_id).map(|(_, org_id, _)| *org_id)
+             .expect("Dataset info missing after validation - this is a bug"); // Should exist due to earlier checks
+         if admin_org_ids_with_access.contains(&dataset_org_id) {
+             // User has admin/querier access in this dataset's org, so access is granted for this specific dataset.
+             continue; // Move to the next dataset
+         }
+
+
+        // If not admin/querier for this dataset's org, perform detailed permission checks
+        // Using a simplified version of the concurrent checks from has_dataset_access
+        let has_specific_access = check_specific_dataset_permissions(user_id, dataset_id).await?;
+        if !has_specific_access {
+             debug!("User {} lacks specific permissions for dataset {} in bulk check.", user_id, dataset_id);
+            return Ok(false); // If access fails for any single dataset, the whole check fails
+        }
+    }
+
+    // If the loop completes without returning false, the user has access to all datasets
+    debug!("User {} has access to all datasets {:?} via specific permissions or admin roles.", user_id, dataset_ids);
+    Ok(true)
+}
+
+/// Helper function for `has_all_datasets_access` to check non-admin permissions for a single dataset.
+/// This avoids repeating the deleted check and admin check.
+async fn check_specific_dataset_permissions(user_id: &Uuid, dataset_id: &Uuid) -> Result<bool> {
+
+     // Clone IDs needed for tasks
+    let user_id = *user_id;
+    let dataset_id = *dataset_id;
+
+    // --- Check Non-Admin Access Paths Concurrently using Tokio tasks ---
+    // Path 1: Direct User -> Dataset
+    let task1: JoinHandle<Result<bool>> = tokio::spawn(async move {
+        let mut conn = get_pg_pool().get().await.context("DB Error")?;
+        let count = dataset_permissions::table
+            .filter(dataset_permissions::permission_id.eq(user_id))
+            .filter(dataset_permissions::permission_type.eq("user"))
+            .filter(dataset_permissions::dataset_id.eq(dataset_id))
+            .filter(dataset_permissions::deleted_at.is_null())
+            .select(diesel::dsl::count_star())
+            .get_result::<i64>(&mut conn)
+            .await?;
+        Ok(count > 0)
+    });
+
+    // Path 3: User -> Team -> Dataset
+    let task2: JoinHandle<Result<bool>> = tokio::spawn(async move {
+        let mut conn = get_pg_pool().get().await.context("DB Error")?;
+        let count = dataset_permissions::table
+            .inner_join(
+                teams_to_users::table.on(dataset_permissions::permission_id
+                    .eq(teams_to_users::team_id)
+                    .and(dataset_permissions::permission_type.eq("team"))
+                    .and(teams_to_users::user_id.eq(user_id))
+                    .and(teams_to_users::deleted_at.is_null())),
+            )
+            .filter(dataset_permissions::dataset_id.eq(dataset_id))
+            .filter(dataset_permissions::deleted_at.is_null())
+            .select(diesel::dsl::count_star())
+            .get_result::<i64>(&mut conn)
+            .await?;
+        Ok(count > 0)
+    });
+
+    // Path 2: User -> Group -> Dataset
+    let task3: JoinHandle<Result<bool>> = tokio::spawn(async move {
+        let mut conn = get_pg_pool().get().await.context("DB Error")?;
+        let count = datasets_to_permission_groups::table
+            .inner_join(
+                permission_groups::table.on(datasets_to_permission_groups::permission_group_id
+                    .eq(permission_groups::id)
+                    .and(permission_groups::deleted_at.is_null())),
+            )
+            .inner_join(
+                permission_groups_to_identities::table.on(permission_groups::id
+                    .eq(permission_groups_to_identities::permission_group_id)
+                    .and(permission_groups_to_identities::identity_id.eq(user_id))
+                    .and(permission_groups_to_identities::identity_type.eq(IdentityType::User))
+                    .and(permission_groups_to_identities::deleted_at.is_null())),
+            )
+            .filter(datasets_to_permission_groups::dataset_id.eq(dataset_id))
+            .filter(datasets_to_permission_groups::deleted_at.is_null())
+            .select(diesel::dsl::count_star())
+            .get_result::<i64>(&mut conn)
+            .await?;
+        Ok(count > 0)
+    });
+
+    // Path 4: User -> Team -> Group -> Dataset
+    let task4: JoinHandle<Result<bool>> = tokio::spawn(async move {
+        let mut conn = get_pg_pool().get().await.context("DB Error")?;
+        let count = datasets_to_permission_groups::table
+            .inner_join(
+                permission_groups::table.on(datasets_to_permission_groups::permission_group_id
+                    .eq(permission_groups::id)
+                    .and(permission_groups::deleted_at.is_null())),
+            )
+            .inner_join(
+                permission_groups_to_identities::table.on(permission_groups::id
+                    .eq(permission_groups_to_identities::permission_group_id)
+                    .and(permission_groups_to_identities::identity_type.eq(IdentityType::Team))
+                    .and(permission_groups_to_identities::deleted_at.is_null())),
+            )
+            .inner_join(
+                teams_to_users::table.on(permission_groups_to_identities::identity_id
+                    .eq(teams_to_users::team_id)
+                    .and(teams_to_users::user_id.eq(user_id))
+                    .and(teams_to_users::deleted_at.is_null())),
+            )
+            .filter(datasets_to_permission_groups::dataset_id.eq(dataset_id))
+            .filter(datasets_to_permission_groups::deleted_at.is_null())
+            .select(diesel::dsl::count_star())
+            .get_result::<i64>(&mut conn)
+            .await?;
+        Ok(count > 0)
+    });
+
+     // Await tasks and check results
+    let results = vec![task1, task2, task3, task4];
+    for handle in results {
+        match handle.await {
+            Ok(Ok(true)) => return Ok(true), // Access granted by this path
+            Ok(Ok(false)) => continue,       // This path didn't grant access, check next
+            Ok(Err(e)) => return Err(e).context("Permission check task failed"), // DB error in check
+            Err(e) => return Err(anyhow::Error::from(e)).context("Tokio task join error"), // Task failed
+        }
+    }
+
+    // If no task returned true
+    Ok(false)
+
 }

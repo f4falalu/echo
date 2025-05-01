@@ -411,6 +411,7 @@ diesel::table! {
         version_history -> Jsonb,
         data_metadata -> Nullable<Jsonb>,
         public_password -> Nullable<Text>,
+        data_source_id -> Uuid,
     }
 }
 
@@ -422,6 +423,15 @@ diesel::table! {
         updated_at -> Timestamptz,
         deleted_at -> Nullable<Timestamptz>,
         created_by -> Uuid,
+    }
+}
+
+diesel::table! {
+    metric_files_to_datasets (metric_file_id, metric_version_number, dataset_id) {
+        metric_file_id -> Uuid,
+        dataset_id -> Uuid,
+        metric_version_number -> Int4,
+        created_at -> Timestamptz,
     }
 }
 
@@ -663,9 +673,12 @@ diesel::joinable!(messages -> chats (chat_id));
 diesel::joinable!(messages -> users (created_by));
 diesel::joinable!(messages_deprecated -> datasets (dataset_id));
 diesel::joinable!(messages_to_files -> messages (message_id));
+diesel::joinable!(metric_files -> data_sources (data_source_id));
 diesel::joinable!(metric_files_to_dashboard_files -> dashboard_files (dashboard_file_id));
 diesel::joinable!(metric_files_to_dashboard_files -> metric_files (metric_file_id));
 diesel::joinable!(metric_files_to_dashboard_files -> users (created_by));
+diesel::joinable!(metric_files_to_datasets -> datasets (dataset_id));
+diesel::joinable!(metric_files_to_datasets -> metric_files (metric_file_id));
 diesel::joinable!(permission_groups -> organizations (organization_id));
 diesel::joinable!(permission_groups_to_users -> permission_groups (permission_group_id));
 diesel::joinable!(permission_groups_to_users -> users (user_id));
@@ -707,6 +720,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     messages_to_files,
     metric_files,
     metric_files_to_dashboard_files,
+    metric_files_to_datasets,
     organizations,
     permission_groups,
     permission_groups_to_identities,
