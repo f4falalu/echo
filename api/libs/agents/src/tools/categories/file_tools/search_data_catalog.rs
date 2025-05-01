@@ -39,6 +39,7 @@ pub struct FoundValueInfo {
 pub struct SearchDataCatalogParams {
     specific_queries: Option<Vec<String>>,
     exploratory_topics: Option<Vec<String>>,
+    value_search_terms: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -342,14 +343,6 @@ impl ToolExecutor for SearchDataCatalogTool {
 
         // Start concurrent tasks
         
-        // 1. Start value term extraction concurrently
-        let user_prompt_clone = user_prompt_str.clone();
-        let user_id_clone = user_id.clone();
-        let session_id_clone = session_id.clone();
-        let value_search_terms_future = tokio::spawn(async move {
-            extract_value_search_terms(user_prompt_clone, user_id_clone, session_id_clone).await
-        });
-        
         // 2. Begin fetching datasets concurrently
         let user_id_for_datasets = user_id.clone();
         let all_datasets_future = tokio::spawn(async move {
@@ -399,7 +392,124 @@ impl ToolExecutor for SearchDataCatalogTool {
         ).await;
         debug!(data_source_id = %target_data_source_id, "Cached data source ID in agent state");
 
-        // Prepare documents from datasets
+        // --- BEGIN REORDERED VALUE SEARCH ---
+
+        // Extract value search terms
+        let value_search_terms = params.value_search_terms.clone().unwrap_or_default();
+        
+        // Filter terms before generating embeddings
+        let valid_value_search_terms: Vec<String> = value_search_terms
+            .into_iter()
+            .filter(|term| term.len() >= 2 && !is_time_period_term(term))
+            .collect();
+
+        // Generate embeddings for all valid terms concurrently using batching
+        let term_embeddings: HashMap<String, Vec<f32>> = if !valid_value_search_terms.is_empty() {
+            let embedding_terms = valid_value_search_terms.clone();
+            let embedding_batch_future = tokio::spawn(async move {
+                generate_embeddings_batch(embedding_terms).await
+            });
+
+            // Await the batch embedding generation
+            match embedding_batch_future.await? {
+                Ok(results) => results.into_iter().collect(),
+                Err(e) => {
+                    error!(error = %e, "Batch embedding generation failed");
+                    HashMap::new() // Return empty map on error
+                }
+            }
+        } else {
+            HashMap::new() // No valid terms, no embeddings needed
+        };
+
+        debug!(count = term_embeddings.len(), "Generated embeddings for value search terms via batch");
+
+        // Begin value searches concurrently using pre-generated embeddings and schema filter
+        let mut value_search_futures = Vec::new();
+        if !term_embeddings.is_empty() {
+            let schema_name = format!("ds_{}", target_data_source_id.to_string().replace('-', "_"));
+            debug!(schema_filter = %schema_name, "Using schema filter for value search");
+
+            for (term, embedding) in term_embeddings.iter() {
+                let term_clone = term.clone();
+                let embedding_clone = embedding.clone();
+                let data_source_id_clone = target_data_source_id;
+
+                let future = tokio::spawn(async move {
+                    // Use search_values_by_embedding_with_filters with only the schema filter
+                    let results = stored_values::search::search_values_by_embedding(
+                        data_source_id_clone,
+                        &embedding_clone,
+                        20, // Limit to 20 values per term
+                    ).await;
+                    
+                    (term_clone, results)
+                });
+                
+                value_search_futures.push(future);
+            }
+        }
+        
+        // Await value searches to complete
+        let value_search_results_vec: Vec<(String, Result<Vec<stored_values::search::StoredValueResult>>)> = 
+            futures::future::join_all(value_search_futures)
+                .await
+                .into_iter()
+                .filter_map(|r| r.ok()) // Filter out any join errors
+                .collect();
+        
+        // Process the value search results
+        let mut found_values_by_term = HashMap::new();
+        for (term, result) in value_search_results_vec {
+            match result {
+                Ok(values) => {
+                    let found_values: Vec<FoundValueInfo> = values.into_iter()
+                        .map(|val| {
+                            to_found_value_info(val, 0.0) // We don't use score in FoundValueInfo
+                        })
+                        .collect();
+                    
+                    let term_str = term.clone(); // Clone before moving into HashMap
+                    let values_count = found_values.len();
+                    found_values_by_term.insert(term, found_values);
+                    debug!(term = %term_str, count = values_count, schema = %format!("ds_{}", target_data_source_id.to_string().replace('-', "_")), "Found values for search term");
+                }
+                Err(e) => {
+                    error!(term = %term, error = %e, "Error searching for values");
+                    // Store empty vec even on error to avoid issues later
+                    found_values_by_term.insert(term, vec![]);
+                }
+            }
+        }
+        
+        // Flatten all found values into a single list (needed for LLM filter)
+        let all_found_values: Vec<FoundValueInfo> = found_values_by_term.values()
+            .flat_map(|values| values.clone())
+            .collect();
+        
+        debug!(value_count = all_found_values.len(), "Total found values across all terms after initial search");
+
+        // --- END REORDERED VALUE SEARCH ---
+
+        // Check if we have anything to search for *after* value search and before reranking
+        if specific_queries.is_empty() && exploratory_topics.is_empty() && all_found_values.is_empty() && valid_value_search_terms.is_empty() {
+            // Adjusted condition to check all_found_values as well
+            warn!("SearchDataCatalogTool executed with no specific queries, exploratory topics, or valid value search terms resulting in found values.");
+            // We might still want to return an empty list if no queries/topics provided, even if values were searched but none found.
+            // Let's return the empty list if no queries/topics AND no values found from terms.
+            if specific_queries.is_empty() && exploratory_topics.is_empty() && all_found_values.is_empty() {
+                 return Ok(SearchDataCatalogOutput {
+                    message: "No search queries, exploratory topics, or found values from provided terms.".to_string(),
+                    specific_queries: params.specific_queries,
+                    exploratory_topics: params.exploratory_topics,
+                    duration: start_time.elapsed().as_millis() as i64,
+                    results: vec![],
+                    data_source_id: Some(target_data_source_id),
+                });
+            }
+        }
+
+        // Prepare documents from datasets (needed for reranking)
         let documents: Vec<String> = all_datasets
             .iter()
             .filter_map(|dataset| dataset.yml_content.clone())
@@ -417,14 +527,14 @@ impl ToolExecutor for SearchDataCatalogTool {
             });
         }
 
-        // 3. Start reranking tasks concurrently (for specific queries and exploratory topics)
+        // --- BEGIN MOVED RERANKING ---
         // We'll use the user prompt for the LLM filtering
         let user_prompt_for_task = user_prompt_str.clone();
         
         // Keep track of reranking errors using Arc<Mutex>
         let rerank_errors = Arc::new(Mutex::new(Vec::new()));
         
-        // 3a. Start specific query reranking
+        // Start specific query reranking
         let specific_rerank_futures = stream::iter(specific_queries.clone())
             .map(|query| {
                 let current_query = query.clone();
@@ -449,7 +559,7 @@ impl ToolExecutor for SearchDataCatalogTool {
             })
             .buffer_unordered(10);
 
-        // 3b. Start exploratory topic reranking
+        // Start exploratory topic reranking
         let exploratory_rerank_futures = stream::iter(exploratory_topics.clone())
             .map(|topic| {
                 let current_topic = topic.clone();
@@ -477,112 +587,9 @@ impl ToolExecutor for SearchDataCatalogTool {
         // Collect rerank results in parallel
         let specific_reranked_vec = specific_rerank_futures.collect::<Vec<(String, Vec<RankedDataset>)>>().await;
         let exploratory_reranked_vec = exploratory_rerank_futures.collect::<Vec<(String, Vec<RankedDataset>)>>().await;
+        // --- END MOVED RERANKING ---
         
-        // Now await the value search terms
-        let value_search_terms = match value_search_terms_future.await? {
-            Ok(terms) => terms,
-            Err(e) => {
-                warn!(error = %e, "Failed to extract value search terms, falling back to provided terms if any");
-                vec![]
-            }
-        };
-        
-        // Filter terms before generating embeddings
-        let valid_value_search_terms: Vec<String> = value_search_terms
-            .into_iter()
-            .filter(|term| term.len() >= 2 && !is_time_period_term(term))
-            .collect();
-
-        // Check if we have anything to search for *after* extracting terms
-        if specific_queries.is_empty() && exploratory_topics.is_empty() && valid_value_search_terms.is_empty() {
-            warn!("SearchDataCatalogTool executed with no specific queries, exploratory topics, or valid value search terms.");
-            return Ok(SearchDataCatalogOutput {
-                message: "No search queries, exploratory topics, or valid value search terms provided.".to_string(),
-                specific_queries: params.specific_queries,
-                exploratory_topics: params.exploratory_topics,
-                duration: start_time.elapsed().as_millis() as i64,
-                results: vec![],
-                data_source_id: Some(target_data_source_id),
-            });
-        }
-
-        let embedding_terms = valid_value_search_terms.clone();
-
-        // 4. Generate embeddings for all valid terms concurrently using batching
-        let embedding_batch_future = tokio::spawn(async move {
-            generate_embeddings_batch(embedding_terms).await
-        });
-
-        // Await the batch embedding generation
-        let term_embeddings: HashMap<String, Vec<f32>> = match embedding_batch_future.await? {
-            Ok(results) => results.into_iter().collect(),
-            Err(e) => {
-                error!(error = %e, "Batch embedding generation failed");
-                HashMap::new() // Return empty map on error
-            }
-        };
-
-        debug!(count = term_embeddings.len(), "Generated embeddings for value search terms via batch");
-
-        // 5. Begin value searches concurrently using pre-generated embeddings
-        let mut value_search_futures = Vec::new();
-        for (term, embedding) in term_embeddings.iter() {
-            let term_clone = term.clone();
-            let embedding_clone = embedding.clone();
-            let data_source_id_clone = target_data_source_id;
-            
-            let future = tokio::spawn(async move {
-                let results = search_values_for_term_by_embedding(
-                    &data_source_id_clone,
-                    embedding_clone,
-                    20, // Get top 20 values per term
-                ).await;
-                
-                (term_clone, results)
-            });
-            
-            value_search_futures.push(future);
-        }
-        
-        // Await value searches to complete (renumbered step)
-        let value_search_results_vec: Vec<(String, Result<Vec<stored_values::search::StoredValueResult>>)> = 
-            futures::future::join_all(value_search_futures)
-                .await
-                .into_iter()
-                .filter_map(|r| r.ok()) // Filter out any join errors
-                .collect();
-        
-        // Process the value search results
-        let mut found_values_by_term = HashMap::new();
-        for (term, result) in value_search_results_vec {
-            match result {
-                Ok(values) => {
-                    let found_values: Vec<FoundValueInfo> = values.into_iter()
-                        .map(|val| {
-                            to_found_value_info(val, 0.0) // We don't use score in FoundValueInfo
-                        })
-                        .collect();
-                    
-                    let term_str = term.clone(); // Clone before moving into HashMap
-                    let values_count = found_values.len();
-                    found_values_by_term.insert(term, found_values);
-                    debug!(term = %term_str, count = values_count, "Found values for search term");
-                }
-                Err(e) => {
-                    error!(term = %term, error = %e, "Error searching for values");
-                    found_values_by_term.insert(term, vec![]);
-                }
-            }
-        }
-        
-        // Flatten all found values into a single list
-        let all_found_values: Vec<FoundValueInfo> = found_values_by_term.values()
-            .flat_map(|values| values.clone())
-            .collect();
-        
-        debug!(value_count = all_found_values.len(), "Total found values across all terms");
-
-        // 6. Now run LLM filtering with the found values and ranked datasets (renumbered step)
+        // 6. Now run LLM filtering with the found values and ranked datasets
         let specific_filter_futures = stream::iter(specific_reranked_vec)
             .map(|(query, ranked)| {
                 let user_id_clone = user_id.clone();
@@ -684,13 +691,10 @@ impl ToolExecutor for SearchDataCatalogTool {
             let mut updated_result = result.clone();
             
             if let Some(yml_content) = &result.yml_content {
-                // Search and update YML with relevant values
-                match search_and_update_yml(
+                // Inject pre-found values into YML
+                match inject_prefound_values_into_yml(
                     yml_content,
-                    target_data_source_id,
-                    &user_prompt_str,
-                    &user_id,
-                    &session_id
+                    &all_found_values, // Pass the results from the initial value search
                 ).await {
                     Ok(updated_yml) => {
                         debug!(
@@ -780,6 +784,14 @@ impl ToolExecutor for SearchDataCatalogTool {
                  "items": {
                    "type": "string",
                    "description": "A concise topic phrase describing a general area of interest, e.g., 'Customer churn factors', 'Website traffic analysis', 'Product performance metrics'."
+                 },
+               },
+               "value_search_terms": {
+                 "type": "array",
+                 "description": "Optional list of specific, concrete values (like 'Red Bull', 'California', 'John Smith') extracted from the user query, to be used for semantic value search within columns. Exclude general concepts, time periods, and IDs.",
+                 "items": {
+                   "type": "string",
+                   "description": "A specific value or entity likely to appear in database columns."
                  },
                },
             },
@@ -1046,127 +1058,6 @@ async fn filter_exploratory_datasets_with_llm(
     ).await
 }
 
-// NEW: Extract potential column values from user query using Gemini
-async fn extract_value_search_terms(user_request: String, user_id: Uuid, session_id: Uuid) -> Result<Vec<String>> {
-    debug!("Extracting potential value search terms from user request");
-    
-    let prompt = r#"
-Your task is to extract specific values/entities from a user request that are likely to appear as actual values in database columns, focusing on concrete entities that would be useful for semantic search.
-
-Focus on extracting these types of values:
-1. Product names (e.g., "Red Bull", "iPhone 12")
-2. Company/organization names (e.g., "Acme Corp", "Microsoft")
-3. People's names (e.g., "John Smith", "Dallin Bentley")
-4. Locations/regions (e.g., "California", "New York", "Europe", "West Coast")
-5. Categories/segments (e.g., "Premium tier", "Enterprise customers", "SMB segment")
-6. Status values (e.g., "completed", "pending", "active")
-7. Product features (e.g., "waterproof", "4K resolution")
-8. Industry terms (e.g., "B2B", "SaaS", "retail")
-
-DO NOT include:
-1. General concepts, objects, or metrics (e.g., "revenue", "customers", "products")
-2. Time periods (e.g., "last month", "Q1", "yesterday", "January") - these work poorly with embedding search
-3. Generic attributes (e.g., "name", "id", "date")
-4. Common words or very short terms (1-2 characters)
-5. Numbers without context
-6. UUIDs or other machine-generated identifiers (e.g., "9711ca55-8329-4fd9-8b20-b6a3289f3d38", "cust_12345", "1234445556667")
-
-Extract only SPECIFIC, DISTINCTIVE values that would be stored in a database as actual values in columns.
-
-For example, from: "Show me sales for Red Bull in California in Q1", only extract: ["Red Bull", "California"]
-From: "What is John Smith's customer satisfaction score?", extract: ["John Smith"]
-From: "Compare revenue between Premium and Basic tiers", extract: ["Premium", "Basic"]
-From: "Sales for Apple products last month in Europe", extract: ["Apple", "Europe"]
-
-User request: "{user_request}"
-
-Output the extracted values as a JSON array of strings. If no valid values are found, return an empty array.
-Example response formats:
-["Red Bull", "California"]
-["John Smith"]
-[]
-"#.replace("{user_request}", &user_request);
-
-    let llm_client = LiteLLMClient::new(None, None);
-
-    let request = ChatCompletionRequest {
-        model: "gemini-2.0-flash-001".to_string(),
-        messages: vec![AgentMessage::User {
-            id: None,
-            content: prompt,
-            name: None,
-        }],
-        stream: Some(false),
-        response_format: Some(ResponseFormat {
-            type_: "json_object".to_string(),
-            json_schema: Some(serde_json::json!({
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            })),
-        }),
-        metadata: Some(Metadata {
-            generation_name: "extract_value_search_terms".to_string(),
-            user_id: user_id.to_string(),
-            session_id: session_id.to_string(),
-            trace_id: Uuid::new_v4().to_string(),
-        }),
-        max_completion_tokens: Some(2048),
-        temperature: Some(0.0),
-        ..Default::default()
-    };
-
-    let response = llm_client.chat_completion(request).await?;
-
-    let content = match response.choices.get(0).map(|c| &c.message) {
-        Some(AgentMessage::Assistant { content: Some(content), .. }) => content,
-        _ => {
-            error!("LLM response missing or invalid content");
-            return Ok(vec![]);
-        }
-    };
-
-    // Try to parse the response as a JSON array of strings
-    match serde_json::from_str::<Vec<String>>(content) {
-        Ok(extracted_terms) => {
-            debug!(
-                extracted_terms = ?extracted_terms,
-                count = extracted_terms.len(),
-                "Successfully extracted value search terms"
-            );
-            Ok(extracted_terms)
-        },
-        Err(e) => {
-            // If parsing as array fails, try as object with a values field
-            match serde_json::from_str::<serde_json::Value>(content) {
-                Ok(json_value) => {
-                    if let Some(values) = json_value.as_array() {
-                        let extracted_terms: Vec<String> = values
-                            .iter()
-                            .filter_map(|v| v.as_str().map(|s| s.to_string()))
-                            .collect();
-                        
-                        debug!(
-                            extracted_terms = ?extracted_terms,
-                            count = extracted_terms.len(),
-                            "Successfully extracted value search terms from JSON array"
-                        );
-                        Ok(extracted_terms)
-                    } else {
-                        warn!(content = %content, "LLM response was valid JSON but not an array of strings");
-                        Ok(vec![])
-                    }
-                },
-                Err(e2) => {
-                    error!(error1 = %e, error2 = %e2, content = %content, "Failed to parse LLM response as JSON");
-                    Ok(vec![])
-                }
-            }
-        }
-    }
-}
-
 // NEW: Helper function to generate embeddings for multiple texts in a batch
 async fn generate_embeddings_batch(texts: Vec<String>) -> Result<Vec<(String, Vec<f32>)>> {
     if texts.is_empty() {
@@ -1325,300 +1216,117 @@ fn extract_database_info_from_yaml(yml_content: &str) -> Result<HashMap<String, 
     Ok(database_info)
 }
 
-/// Perform concurrent searches for searchable dimensions and update YAML
-async fn search_and_update_yml(
+/// Injects relevant values from a pre-compiled list into the YML of a dataset.
+/// Matches values based on the database/schema/table/column defined in the YML.
+async fn inject_prefound_values_into_yml(
     yml_content: &str,
-    data_source_id: Uuid,
-    user_query: &str,
-    user_id: &Uuid,
-    session_id: &Uuid,
+    all_found_values: &[FoundValueInfo], // Use the pre-found values
 ) -> Result<String> {
-    // Extract searchable dimensions
-    let searchable_dimensions = extract_searchable_dimensions(yml_content)?;
-    
+    // Parse YAML for dimension definitions and modification
+    let mut yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
+        .context("Failed to parse dataset YAML for injecting values")?;
+
+    // Extract database structure from YAML (which defines the source for dimensions)
+    let database_info = match extract_database_info_from_yaml(yml_content) {
+        Ok(info) => info,
+        Err(e) => {
+            warn!(error = %e, "Failed to extract database info from YAML, skipping value injection");
+            return Ok(yml_content.to_string()); // Return original YML if parsing fails
+        }
+    };
+
+    // Get searchable dimensions from the YML
+    let searchable_dimensions = match extract_searchable_dimensions(yml_content) {
+        Ok(dims) => dims,
+        Err(e) => {
+             warn!(error = %e, "Failed to extract searchable dimensions from YAML, skipping value injection");
+            return Ok(yml_content.to_string());
+        }
+    };
+
     if searchable_dimensions.is_empty() {
-        debug!("No searchable dimensions found in YAML content");
+        debug!("No searchable dimensions found in YAML content for value injection");
         return Ok(yml_content.to_string());
     }
-    
-    // Generate embedding for user query
-    let embedding = generate_embedding_for_text(user_query).await?;
-    
-    // Extract database structure from YAML - this is now model-based
-    let database_info = extract_database_info_from_yaml(yml_content)?;
-    
-    debug!(
-        dimensions_count = searchable_dimensions.len(),
-        databases = database_info.keys().map(|k| k.to_string()).collect::<Vec<_>>().join(", "),
-        "Found searchable dimensions and database info from models in YAML"
-    );
-    
-    // Create search targets for each dimension
-    let mut search_futures = Vec::new();
-    
-    for dimension in &searchable_dimensions {
-        let embedding_clone = embedding.clone();
-        let dimension_clone = dimension.clone();
-        let data_source_id_clone = data_source_id;
-        let database_info_clone = database_info.clone();
-        
-        // Create and spawn a search task
-        let future = tokio::spawn(async move {
-            let mut all_results = Vec::new();
-            
-            // Find matching tables and columns for this dimension
-            // For model-based YAML, we use model name as the table
-            
-            // We'll first check for dimension's corresponding model
-            for (database_name, schemas) in &database_info_clone {
+
+    // Inject values into the mutable YAML structure
+    if let Some(models) = yaml["models"].as_sequence_mut() {
+        for model_yaml in models {
+            // --- Extract immutable info before mutable borrow ---
+            let model_name_opt = model_yaml["name"].as_str();
+            if model_name_opt.is_none() { continue; }
+            let model_name = model_name_opt.unwrap().to_string(); // Clone name to avoid borrow issue
+
+            // Find the database and schema for this model from extracted info
+            let mut model_db_info: Option<(&String, &String)> = None;
+            for (db_name, schemas) in &database_info {
                 for (schema_name, tables) in schemas {
-                    // First check if there's a direct match for model name
-                    if let Some(columns) = tables.get(&dimension_clone.model_name) {
+                    if tables.contains_key(&model_name) {
+                        model_db_info = Some((db_name, schema_name));
+                        break;
+                    }
+                }
+                if model_db_info.is_some() { break; }
+            }
+
+            let (model_database_name, model_schema_name) = if let Some(info) = model_db_info {
+                info
+            } else {
+                 warn!(model=%model_name, "Could not find database/schema info for model in YAML, skipping value injection for its dimensions");
+                 continue;
+            };
+            // --- End immutable info extraction ---
+
+            if let Some(dimensions_yaml) = model_yaml["dimensions"].as_sequence_mut() {
+                for dim_yaml in dimensions_yaml {
+                    let dim_name_opt = dim_yaml["name"].as_str();
+                    if dim_name_opt.is_none() { continue; }
+                    let dim_name = dim_name_opt.unwrap();
+
+                    // Check if this dimension is marked as searchable
+                    let is_searchable = searchable_dimensions.iter().any(|sd| sd.model_name == model_name && sd.dimension_name == dim_name);
+                    if !is_searchable {
+                        continue; // Only inject into searchable dimensions
+                    }
+
+                    // Find values from the pre-found list that match this dimension's source
+                    let relevant_values_for_dim: Vec<String> = all_found_values
+                        .iter()
+                        .filter(|found_val| {
+                            // Match based on db, schema, table (model name), and column (dimension name)
+                            found_val.database_name == *model_database_name
+                                && found_val.schema_name == *model_schema_name
+                                && found_val.table_name == model_name
+                                && found_val.column_name == dim_name
+                        })
+                        .map(|found_val| found_val.value.clone())
+                        .collect::<std::collections::HashSet<_>>() // Deduplicate
+                        .into_iter()
+                        .take(20) // Limit to max 20 unique values
+                        .collect();
+
+                    if !relevant_values_for_dim.is_empty() {
                         debug!(
-                            dimension = %dimension_clone.dimension_name,
-                            model = %dimension_clone.model_name,
-                            db = %database_name,
-                            schema = %schema_name,
-                            "Found exact model to search for dimension"
+                            model = %model_name,
+                            dimension = %dim_name,
+                            values_count = relevant_values_for_dim.len(),
+                            "Injecting relevant values into dimension from pre-found list"
                         );
-                        
-                        // Use dimension name or expression as the column to search
-                        // First try direct match for the dimension name
-                        let dimension_result = stored_values::search::search_values_by_embedding_with_filters(
-                            data_source_id_clone,
-                            &embedding_clone,
-                            20,
-                            Some(database_name),
-                            Some(schema_name),
-                            Some(&dimension_clone.model_name),
-                            Some(&dimension_clone.dimension_name),
-                        ).await;
-                        
-                        match dimension_result {
-                            Ok(results) => {
-                                if !results.is_empty() {
-                                    debug!(
-                                        dimension = %dimension_clone.dimension_name,
-                                        count = results.len(),
-                                        "Found values for dimension using direct match"
-                                    );
-                                    all_results.extend(results);
-                                }
-                            },
-                            Err(e) => {
-                                warn!(
-                                    dimension = %dimension_clone.dimension_name,
-                                    error = %e,
-                                    "Error searching for dimension values"
-                                );
-                            }
-                        }
-                        
-                        // If no results from direct match, try related columns
-                        if all_results.is_empty() {
-                            let matching_columns: Vec<String> = columns.iter()
-                                .filter(|col| {
-                                    // Skip self
-                                    if *col == &dimension_clone.dimension_name {
-                                        return false;
-                                    }
-                                    
-                                    // Column contains dimension name
-                                    if col.to_lowercase().contains(&dimension_clone.dimension_name.to_lowercase()) {
-                                        return true;
-                                    }
-                                    
-                                    // Dimension contains column name
-                                    if col.len() >= 3 && dimension_clone.dimension_name.to_lowercase().contains(&col.to_lowercase()) {
-                                        return true;
-                                    }
-                                    
-                                    false
-                                })
-                                .cloned()
-                                .collect();
-                            
-                            for column_name in matching_columns {
-                                match stored_values::search::search_values_by_embedding_with_filters(
-                                    data_source_id_clone,
-                                    &embedding_clone,
-                                    5,
-                                    Some(database_name),
-                                    Some(schema_name),
-                                    Some(&dimension_clone.model_name),
-                                    Some(&column_name),
-                                ).await {
-                                    Ok(results) => {
-                                        all_results.extend(results);
-                                    },
-                                    Err(e) => {
-                                        warn!(
-                                            dimension = %dimension_clone.dimension_name,
-                                            column = %column_name,
-                                            error = %e,
-                                            "Error searching related column"
-                                        );
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // If we found results for this model, we can stop
-                        if !all_results.is_empty() {
-                            break;
-                        }
-                    }
-                }
-                
-                // If we've found results in the model, stop searching
-                if !all_results.is_empty() {
-                    break;
-                }
-            }
-            
-            // If still no results, try database-level search for the dimension name
-            if all_results.is_empty() {
-                debug!(
-                    dimension = %dimension_clone.dimension_name,
-                    "No results found in model, trying database-level search"
-                );
-                
-                for (database_name, _) in &database_info_clone {
-                    match stored_values::search::search_values_by_embedding_with_filters(
-                        data_source_id_clone,
-                        &embedding_clone,
-                        10,
-                        Some(database_name),
-                        None, // No schema
-                        None, // No table
-                        Some(&dimension_clone.dimension_name), // Just filter by column name
-                    ).await {
-                        Ok(results) => {
-                            if !results.is_empty() {
-                                debug!(
-                                    dimension = %dimension_clone.dimension_name,
-                                    db = %database_name,
-                                    count = results.len(),
-                                    "Found values using database-level search"
-                                );
-                                all_results.extend(results);
-                                break;
-                            }
-                        },
-                        Err(e) => {
-                            warn!(
-                                dimension = %dimension_clone.dimension_name,
-                                db = %database_name,
-                                error = %e,
-                                "Error in database-level search"
-                            );
-                        }
-                    }
-                }
-            }
-            
-            // Last resort fallback
-            if all_results.is_empty() {
-                match stored_values::search::search_values_by_embedding(
-                    data_source_id_clone,
-                    &embedding_clone,
-                    5,
-                ).await {
-                    Ok(results) => {
-                        debug!(
-                            dimension = %dimension_clone.dimension_name,
-                            count = results.len(),
-                            "Found values using unfiltered search (last resort)"
-                        );
-                        all_results = results;
-                    },
-                    Err(e) => {
-                        warn!(
-                            dimension = %dimension_clone.dimension_name,
-                            error = %e,
-                            "Error in unfiltered fallback search"
+                        // Add/update relevant_values field in the YAML dimension map
+                        dim_yaml["relevant_values"] = serde_yaml::Value::Sequence(
+                            relevant_values_for_dim.iter()
+                                .map(|v| serde_yaml::Value::String(v.clone()))
+                                .collect()
                         );
                     }
                 }
-            }
-            
-            (dimension_clone, Ok::<Vec<stored_values::search::StoredValueResult>, anyhow::Error>(all_results))
-        });
-        
-        search_futures.push(future);
-    }
-    
-    // Await all searches to complete
-    let search_results = futures::future::join_all(search_futures).await;
-    
-    // Parse YAML for modification
-    let mut yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
-        .context("Failed to parse dataset YAML for updating")?;
-    
-    // Process search results and update YAML
-    for result in search_results {
-        match result {
-            Ok((dimension, Ok(values))) => {
-                // Extract unique values from search results and sort by relevance
-                // (the values are already sorted by relevance from the embedding search)
-                let mut relevant_values: Vec<String> = values // Make mutable
-                    .into_iter()
-                    .map(|v| v.value)
-                    .collect::<std::collections::HashSet<_>>() // Deduplicate
-                    .into_iter()
-                    .collect();
-                
-                // Limit to max 20 results
-                relevant_values.truncate(20);
-                
-                debug!(
-                    dimension = %dimension.model_name,
-                    dimension_name = %dimension.dimension_name,
-                    values_count = relevant_values.len(),
-                    "Adding relevant values to dimension"
-                );
-                
-                // Update the YAML with relevant_values
-                if let Some(models) = yaml["models"].as_sequence_mut() {
-                    for model in models {
-                        if model["name"].as_str() == Some(&dimension.model_name) {
-                            if let Some(dimensions) = model["dimensions"].as_sequence_mut() {
-                                for dim in dimensions {
-                                    if dim["name"].as_str() == Some(&dimension.dimension_name) {
-                                        // Add relevant_values field
-                                        dim["relevant_values"] = serde_yaml::Value::Sequence(
-                                            relevant_values.iter()
-                                                .map(|v| serde_yaml::Value::String(v.clone()))
-                                                .collect()
-                                        );
-                                        break;
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-            },
-            Ok((dimension, Err(e))) => {
-                warn!(
-                    dimension = ?dimension,
-                    error = %e,
-                    "Error searching for values for dimension"
-                );
-            },
-            Err(e) => {
-                warn!(
-                    error = %e,
-                    "Task join error during search"
-                );
             }
         }
     }
-    
+
     // Convert back to YAML string
     let updated_yml = serde_yaml::to_string(&yaml)
-        .context("Failed to convert updated YAML back to string")?;
-    
+        .context("Failed to convert updated YAML with injected values back to string")?;
+
     Ok(updated_yml)
 }
