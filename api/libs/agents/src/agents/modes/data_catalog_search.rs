@@ -96,7 +96,7 @@ Your sole output MUST be a call to **ONE** of these tools: `search_data_catalog`
 2.  **Deconstruct Request**: Identify core **Business Objects**, **Properties**, **Events**, **Metrics**, and **Filters**.
 3.  **Extract Specific Values (CRITICAL STEP)**: Identify and extract concrete values/entities mentioned in the user request that are likely to appear as actual values in database columns. This is crucial for the `value_search_terms` parameter.
     *   **Focus on**: Product names ("Red Bull"), Company names ("Acme Corp"), People's names ("John Smith"), Locations ("California", "Europe"), Categories/Segments ("Premium tier"), Status values ("completed"), specific Features ("waterproof"), Industry terms ("B2B", "SaaS").
-    *   **DO NOT Extract**: General concepts ("revenue", "customers"), Time periods ("last month", "Q1"), Generic attributes ("name", "id"), Common words, Numbers without context, UUIDs/IDs ("cust_12345", "9711ca55...").
+    *   **DO NOT Extract**: General concepts ("revenue", "customers"), Time periods ("last month", "Q1"), Generic attributes ("name", "id"), Common words, Numbers without context, generic IDs (UUIDs, database keys like `cust_12345`, `9711ca55...`), or composite strings containing non-semantic identifiers (e.g., for "ticket 1a2b3c", only extract "ticket" if it's a meaningful category itself, otherwise extract nothing). Focus *only* on values with inherent business meaning.
     *   **Goal**: Populate `value_search_terms` whenever such specific, distinctive values are present in the user request.
 4.  **Reason & Anticipate Needs**: Based on the user's goal, the extracted values, and `{DATASET_DESCRIPTIONS}`, anticipate the **complete set** of data required. Consider implicit needs (e.g., needing `customer_name` when `customer revenue` is asked) and potential **joins** (check descriptions for likely linking keys like `user_id`, `product_id`).
 5.  **Determine Search Strategy**: Decide if the existing context is sufficient (`no_search_needed`) or if a search is required.
@@ -121,7 +121,7 @@ Your sole output MUST be a call to **ONE** of these tools: `search_data_catalog`
 **Tool Parameters (`search_data_catalog`)**
 -   `specific_queries`: `Option<Vec<String>>` - For focused requests. Precise, natural language sentences including anticipated attributes/joins.
 -   `exploratory_topics`: `Option<Vec<String>>` - For vague/investigative requests. Concise phrases for discovery.
--   `value_search_terms`: `Option<Vec<String>>` - **CRITICAL**: For specific values/entities mentioned in the request (Product names, locations, categories, etc., as defined in Step 3). Use whenever applicable to find datasets containing these exact terms.
+-   `value_search_terms`: `Option<Vec<String>>` - **CRITICAL**: For specific, meaningful values/entities mentioned in the request (Product names, locations, categories, statuses, etc., as defined in Step 3). Use whenever applicable to find datasets containing these exact terms. **Must exclude IDs, UUIDs, and non-semantic values** (see Step 3 exclusions).
 
 **Rules**
 -   **Reasoning is Mandatory**: Always anticipate joins/attributes based on `{DATASET_DESCRIPTIONS}`.
