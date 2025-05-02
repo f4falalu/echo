@@ -11,13 +11,13 @@ dev:
 	nice cargo watch -C server -x run
 
 update-seed:
-	PGPASSWORD=postgres pg_dump -h 127.0.0.1 -p 54322 -U postgres -d postgres \\
-	--data-only --no-owner --no-privileges \\
-	--schema=public \\
-	--exclude-table=schema_migrations \\
-	--exclude-table=__diesel_schema_migrations \\
-	--exclude-table=migrations \\
-	--exclude-table=users \\
+	PGPASSWORD=postgres pg_dump -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+	--data-only --no-owner --no-privileges \
+	--schema=public \
+	--exclude-table=schema_migrations \
+	--exclude-table=__diesel_schema_migrations \
+	--exclude-table=migrations \
+	--exclude-table=users \
 	> libs/database/seed.sql
 
 stop:
