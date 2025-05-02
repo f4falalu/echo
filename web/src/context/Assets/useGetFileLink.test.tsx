@@ -222,7 +222,6 @@ describe('useGetFileLink', () => {
         fileType: 'dashboard',
         versionNumber: mockDashboardVersionNumber
       });
-      console.log(meta);
 
       expect(meta).toEqual({
         link: `/dashboards/${mockDashboardId}/v${mockDashboardVersionNumber}`,
