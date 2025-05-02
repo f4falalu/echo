@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION sync_metric_files_to_search()
 RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
-        INSERT INTO asset_search (
+        insert into public.asset_search (
             asset_id, asset_type, content, organization_id,
             created_at, updated_at, deleted_at
         )
@@ -30,7 +30,7 @@ CREATE OR REPLACE FUNCTION sync_dashboard_files_to_search()
 RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
-        INSERT INTO asset_search (
+        insert into public.asset_search (
             asset_id, asset_type, content, organization_id,
             created_at, updated_at, deleted_at
         )
@@ -57,7 +57,7 @@ CREATE OR REPLACE FUNCTION sync_collections_to_search()
 RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
-        INSERT INTO asset_search (
+        insert into public.asset_search (
             asset_id, asset_type, content, organization_id,
             created_at, updated_at, deleted_at
         )
@@ -99,7 +99,7 @@ AFTER INSERT OR UPDATE OR DELETE ON collections
 FOR EACH ROW EXECUTE FUNCTION sync_collections_to_search();
 
 -- Populate existing data
-INSERT INTO asset_search (
+insert into public.asset_search (
     asset_id, asset_type, content, organization_id,
     created_at, updated_at, deleted_at
 )
@@ -111,7 +111,7 @@ FROM metric_files
 WHERE deleted_at IS NULL
 ON CONFLICT (asset_id, asset_type) DO NOTHING;
 
-INSERT INTO asset_search (
+insert into public.asset_search (
     asset_id, asset_type, content, organization_id,
     created_at, updated_at, deleted_at
 )
@@ -123,7 +123,7 @@ FROM dashboard_files
 WHERE deleted_at IS NULL
 ON CONFLICT (asset_id, asset_type) DO NOTHING;
 
-INSERT INTO asset_search (
+insert into public.asset_search (
     asset_id, asset_type, content, organization_id,
     created_at, updated_at, deleted_at
 )

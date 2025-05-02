@@ -22,66 +22,11 @@ SET row_security = off;
 
 SET SESSION AUTHORIZATION DEFAULT;
 
-ALTER TABLE _realtime.tenants DISABLE TRIGGER ALL;
-
-COPY _realtime.tenants (id, name, external_id, jwt_secret, max_concurrent_users, inserted_at, updated_at, max_events_per_second, postgres_cdc_default, max_bytes_per_second, max_channels_per_client, max_joins_per_second, suspend, jwt_jwks, notify_private_alpha, private_only) FROM stdin;
-c7e94078-9295-4c8f-8cb4-137559ec7d16	realtime-dev	realtime-dev	iNjicxc4+llvc9wovDvqymwfnj9teWMlyOIbJ8Fh6j2WNU8CIJ2ZgjR6MUIKqSmeDmvpsKLsZ9jgXJmQPpwL8w==	200	2025-05-02 16:53:01	2025-05-02 16:53:01	100	postgres_cdc_rls	100000	100	100	f	{"keys": [{"k": "c3VwZXItc2VjcmV0LWp3dC10b2tlbi13aXRoLWF0LWxlYXN0LTMyLWNoYXJhY3RlcnMtbG9uZw", "kty": "oct"}]}	f	f
-\.
-
-
-ALTER TABLE _realtime.tenants ENABLE TRIGGER ALL;
-
---
--- Data for Name: extensions; Type: TABLE DATA; Schema: _realtime; Owner: -
---
-
-ALTER TABLE _realtime.extensions DISABLE TRIGGER ALL;
-
-COPY _realtime.extensions (id, type, settings, tenant_external_id, inserted_at, updated_at) FROM stdin;
-d27bb7a0-1f3f-4fc2-a8e4-5073e40e80f3	postgres_cdc_rls	{"region": "us-east-1", "db_host": "Gx2oy6eFRzMfDQLVoL/nRRIg3q4KGWZe9ki6tTQqMrg=", "db_name": "sWBpZNdjggEPTQVlI52Zfw==", "db_port": "+enMDFi1J/3IrrquHHwUmA==", "db_user": "uxbEq/zz8DXVD53TOI1zmw==", "slot_name": "supabase_realtime_replication_slot", "db_password": "sWBpZNdjggEPTQVlI52Zfw==", "publication": "supabase_realtime", "ssl_enforced": false, "poll_interval_ms": 100, "poll_max_changes": 100, "poll_max_record_bytes": 1048576}	realtime-dev	2025-05-02 16:53:01	2025-05-02 16:53:01
-\.
-
-
-ALTER TABLE _realtime.extensions ENABLE TRIGGER ALL;
-
---
--- Data for Name: schema_migrations; Type: TABLE DATA; Schema: _realtime; Owner: -
---
-
-ALTER TABLE _realtime.schema_migrations DISABLE TRIGGER ALL;
-
-COPY _realtime.schema_migrations (version, inserted_at) FROM stdin;
-20210706140551	2025-05-02 16:52:57
-20220329161857	2025-05-02 16:52:57
-20220410212326	2025-05-02 16:52:57
-20220506102948	2025-05-02 16:52:57
-20220527210857	2025-05-02 16:52:57
-20220815211129	2025-05-02 16:52:57
-20220815215024	2025-05-02 16:52:57
-20220818141501	2025-05-02 16:52:57
-20221018173709	2025-05-02 16:52:57
-20221102172703	2025-05-02 16:52:57
-20221223010058	2025-05-02 16:52:57
-20230110180046	2025-05-02 16:52:57
-20230810220907	2025-05-02 16:52:57
-20230810220924	2025-05-02 16:52:57
-20231024094642	2025-05-02 16:52:57
-20240306114423	2025-05-02 16:52:57
-20240418082835	2025-05-02 16:52:57
-20240625211759	2025-05-02 16:52:57
-20240704172020	2025-05-02 16:52:57
-20240902173232	2025-05-02 16:52:57
-20241106103258	2025-05-02 16:52:57
-\.
-
-
-ALTER TABLE _realtime.schema_migrations ENABLE TRIGGER ALL;
-
 --
 -- Data for Name: audit_log_entries; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.audit_log_entries DISABLE TRIGGER ALL;
+
 
 COPY auth.audit_log_entries (instance_id, id, payload, created_at, ip_address) FROM stdin;
 00000000-0000-0000-0000-000000000000	c01c1de3-5735-4089-806b-8ea3a7c9a09e	{"action":"login","actor_id":"c2dd64cd-f7f3-4884-bc91-d46ae431901e","actor_username":"chad@buster.so","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2025-05-02 17:08:24.091189+00	
@@ -99,25 +44,25 @@ COPY auth.audit_log_entries (instance_id, id, payload, created_at, ip_address) F
 \.
 
 
-ALTER TABLE auth.audit_log_entries ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: flow_state; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.flow_state DISABLE TRIGGER ALL;
+
 
 COPY auth.flow_state (id, user_id, auth_code, code_challenge_method, code_challenge, provider_type, provider_access_token, provider_refresh_token, created_at, updated_at, authentication_method, auth_code_issued_at) FROM stdin;
 \.
 
 
-ALTER TABLE auth.flow_state ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.users DISABLE TRIGGER ALL;
+
 
 COPY auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at, confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at, email_change_token_new, email_change, email_change_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone, phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at, email_change_token_current, email_change_confirm_status, banned_until, reauthentication_token, reauthentication_sent_at, is_sso_user, deleted_at, is_anonymous) FROM stdin;
 00000000-0000-0000-0000-000000000000	6840fa04-c0d7-4e0e-8d3d-ea9190d93874	authenticated	authenticated	nate@buster.so	$2a$06$Qy7COradxcriaW2vMkfFce1GNSvt3NVq/7LI0bPid.rk.gMZ20Thi	2025-03-04 18:42:05.801697+00	\N		\N		\N			\N	\N	{"provider": "email", "providers": ["email"]}	{}	\N	2025-03-04 18:42:05.801697+00	2025-03-04 18:42:05.801697+00	\N	\N			\N		0	\N		\N	f	\N	f
@@ -129,13 +74,13 @@ COPY auth.users (instance_id, id, aud, role, email, encrypted_password, email_co
 \.
 
 
-ALTER TABLE auth.users ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: identities; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.identities DISABLE TRIGGER ALL;
+
 
 COPY auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at, id) FROM stdin;
 c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e	{"sub": "c2dd64cd-f7f3-4884-bc91-d46ae431901e"}	email	2025-03-04 18:42:05.81425+00	2025-03-04 18:42:05.81425+00	2025-03-04 18:42:05.81425+00	c2dd64cd-f7f3-4884-bc91-d46ae431901e
@@ -147,25 +92,25 @@ aa0a1367-3a10-4fe5-9244-2db46c000d64	aa0a1367-3a10-4fe5-9244-2db46c000d64	{"sub"
 \.
 
 
-ALTER TABLE auth.identities ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: instances; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.instances DISABLE TRIGGER ALL;
+
 
 COPY auth.instances (id, uuid, raw_base_config, created_at, updated_at) FROM stdin;
 \.
 
 
-ALTER TABLE auth.instances ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: sessions; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.sessions DISABLE TRIGGER ALL;
+
 
 COPY auth.sessions (id, user_id, created_at, updated_at, factor_id, aal, not_after, refreshed_at, user_agent, ip, tag) FROM stdin;
 a451f4af-f9ec-411d-92c3-54ba729182f3	c2dd64cd-f7f3-4884-bc91-d46ae431901e	2025-05-02 17:08:24.093566+00	2025-05-02 17:08:24.093566+00	\N	aal1	\N	\N	node	192.168.65.1	\N
@@ -180,13 +125,13 @@ ef130b38-e62e-4eac-a144-2c918ff741bb	8e98a1fc-c4d5-401c-98d8-2cce60e11079	2025-0
 \.
 
 
-ALTER TABLE auth.sessions ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: mfa_amr_claims; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.mfa_amr_claims DISABLE TRIGGER ALL;
+
 
 COPY auth.mfa_amr_claims (session_id, created_at, updated_at, authentication_method, id) FROM stdin;
 a451f4af-f9ec-411d-92c3-54ba729182f3	2025-05-02 17:08:24.09973+00	2025-05-02 17:08:24.09973+00	password	035734ed-ae9e-4035-b176-cd0d5518cd10
@@ -201,49 +146,49 @@ ef130b38-e62e-4eac-a144-2c918ff741bb	2025-05-02 17:34:05.081939+00	2025-05-02 17
 \.
 
 
-ALTER TABLE auth.mfa_amr_claims ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: mfa_factors; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.mfa_factors DISABLE TRIGGER ALL;
+
 
 COPY auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at, secret, phone, last_challenged_at, web_authn_credential, web_authn_aaguid) FROM stdin;
 \.
 
 
-ALTER TABLE auth.mfa_factors ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: mfa_challenges; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.mfa_challenges DISABLE TRIGGER ALL;
+
 
 COPY auth.mfa_challenges (id, factor_id, created_at, verified_at, ip_address, otp_code, web_authn_session_data) FROM stdin;
 \.
 
 
-ALTER TABLE auth.mfa_challenges ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: one_time_tokens; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.one_time_tokens DISABLE TRIGGER ALL;
+
 
 COPY auth.one_time_tokens (id, user_id, token_type, token_hash, relates_to, created_at, updated_at) FROM stdin;
 \.
 
 
-ALTER TABLE auth.one_time_tokens ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: refresh_tokens; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.refresh_tokens DISABLE TRIGGER ALL;
+
 
 COPY auth.refresh_tokens (instance_id, id, token, user_id, revoked, created_at, updated_at, parent, session_id) FROM stdin;
 00000000-0000-0000-0000-000000000000	1	zuawvihlmzle	c2dd64cd-f7f3-4884-bc91-d46ae431901e	f	2025-05-02 17:08:24.098191+00	2025-05-02 17:08:24.098191+00	\N	a451f4af-f9ec-411d-92c3-54ba729182f3
@@ -258,272 +203,81 @@ COPY auth.refresh_tokens (instance_id, id, token, user_id, revoked, created_at, 
 \.
 
 
-ALTER TABLE auth.refresh_tokens ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: sso_providers; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.sso_providers DISABLE TRIGGER ALL;
+
 
 COPY auth.sso_providers (id, resource_id, created_at, updated_at) FROM stdin;
 \.
 
 
-ALTER TABLE auth.sso_providers ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: saml_providers; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.saml_providers DISABLE TRIGGER ALL;
+
 
 COPY auth.saml_providers (id, sso_provider_id, entity_id, metadata_xml, metadata_url, attribute_mapping, created_at, updated_at, name_id_format) FROM stdin;
 \.
 
 
-ALTER TABLE auth.saml_providers ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: saml_relay_states; Type: TABLE DATA; Schema: auth; Owner: -
 --
 
-ALTER TABLE auth.saml_relay_states DISABLE TRIGGER ALL;
+
 
 COPY auth.saml_relay_states (id, sso_provider_id, request_id, for_email, redirect_to, created_at, updated_at, flow_state_id) FROM stdin;
 \.
 
 
-ALTER TABLE auth.saml_relay_states ENABLE TRIGGER ALL;
-
---
--- Data for Name: schema_migrations; Type: TABLE DATA; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.schema_migrations DISABLE TRIGGER ALL;
-
-COPY auth.schema_migrations (version) FROM stdin;
-20171026211738
-20171026211808
-20171026211834
-20180103212743
-20180108183307
-20180119214651
-20180125194653
-00
-20210710035447
-20210722035447
-20210730183235
-20210909172000
-20210927181326
-20211122151130
-20211124214934
-20211202183645
-20220114185221
-20220114185340
-20220224000811
-20220323170000
-20220429102000
-20220531120530
-20220614074223
-20220811173540
-20221003041349
-20221003041400
-20221011041400
-20221020193600
-20221021073300
-20221021082433
-20221027105023
-20221114143122
-20221114143410
-20221125140132
-20221208132122
-20221215195500
-20221215195800
-20221215195900
-20230116124310
-20230116124412
-20230131181311
-20230322519590
-20230402418590
-20230411005111
-20230508135423
-20230523124323
-20230818113222
-20230914180801
-20231027141322
-20231114161723
-20231117164230
-20240115144230
-20240214120130
-20240306115329
-20240314092811
-20240427152123
-20240612123726
-20240729123726
-20240802193726
-20240806073726
-20241009103726
-\.
 
 
-ALTER TABLE auth.schema_migrations ENABLE TRIGGER ALL;
-
---
--- Data for Name: sso_domains; Type: TABLE DATA; Schema: auth; Owner: -
---
-
-ALTER TABLE auth.sso_domains DISABLE TRIGGER ALL;
-
-COPY auth.sso_domains (id, sso_provider_id, domain, created_at, updated_at) FROM stdin;
-\.
-
-
-ALTER TABLE auth.sso_domains ENABLE TRIGGER ALL;
-
---
--- Data for Name: job; Type: TABLE DATA; Schema: cron; Owner: -
---
-
-ALTER TABLE cron.job DISABLE TRIGGER ALL;
-
-COPY cron.job (jobid, schedule, command, nodename, nodeport, database, username, active, jobname) FROM stdin;
-1	0 3 * * *	SELECT delete_old_anon_users()	localhost	5432	postgres	postgres	t	delete_old_anon_users_job
-\.
-
-
-ALTER TABLE cron.job ENABLE TRIGGER ALL;
-
---
--- Data for Name: job_run_details; Type: TABLE DATA; Schema: cron; Owner: -
---
-
-ALTER TABLE cron.job_run_details DISABLE TRIGGER ALL;
-
-COPY cron.job_run_details (jobid, runid, job_pid, database, username, command, status, return_message, start_time, end_time) FROM stdin;
-\.
-
-
-ALTER TABLE cron.job_run_details ENABLE TRIGGER ALL;
-
---
--- Data for Name: __diesel_schema_migrations; Type: TABLE DATA; Schema: public; Owner: -
---
-
-ALTER TABLE public.__diesel_schema_migrations DISABLE TRIGGER ALL;
-
-COPY public.__diesel_schema_migrations (version, run_on) FROM stdin;
-20240603034617	2025-05-02 16:53:09.686504
-20240603034618	2025-05-02 16:53:09.69349
-20240603034619	2025-05-02 16:53:09.700319
-20240603035237	2025-05-02 16:53:09.703913
-20240603040003	2025-05-02 16:53:09.708956
-20240603040138	2025-05-02 16:53:09.714482
-20240603220858	2025-05-02 16:53:09.716806
-20240603221241	2025-05-02 16:53:09.722123
-20240603221610	2025-05-02 16:53:09.72637
-20240603221828	2025-05-02 16:53:09.73059
-20240603222323	2025-05-02 16:53:09.733611
-20240603223319	2025-05-02 16:53:09.736243
-20240603223320	2025-05-02 16:53:09.739071
-20240603223321	2025-05-02 16:53:09.742273
-20240603223322	2025-05-02 16:53:09.745474
-20240603224321	2025-05-02 16:53:09.749424
-20240607180843	2025-05-02 16:53:09.752435
-20240618230440	2025-05-02 16:53:09.757789
-20240708175008	2025-05-02 16:53:09.760455
-20240708175124	2025-05-02 16:53:09.762706
-20240708175134	2025-05-02 16:53:09.766572
-20240723214547	2025-05-02 16:53:09.768648
-20240724194453	2025-05-02 16:53:09.771841
-20240806220651	2025-05-02 16:53:09.774097
-20240809224447	2025-05-02 16:53:09.775724
-20240812173526	2025-05-02 16:53:09.777897
-20240816170337	2025-05-02 16:53:09.810159
-20241114155519	2025-05-02 16:53:09.811807
-20241119195358	2025-05-02 16:53:09.813525
-20241126141715	2025-05-02 16:53:09.816491
-20241126151750	2025-05-02 16:53:09.817667
-20241126170536	2025-05-02 16:53:09.819269
-20241217180014	2025-05-02 16:53:09.820359
-20241220203412	2025-05-02 16:53:09.825949
-20241223200017	2025-05-02 16:53:09.927168
-20250101212411	2025-05-02 16:53:09.965403
-20250108163102	2025-05-02 16:53:09.967483
-20250109044455	2025-05-02 16:53:09.986339
-20250109183703	2025-05-02 16:53:09.987866
-20250116154339	2025-05-02 16:53:09.990067
-20250117180051	2025-05-02 16:53:09.991825
-20250117182615	2025-05-02 16:53:09.994239
-20250120221752	2025-05-02 16:53:09.995758
-20250121172028	2025-05-02 16:53:10.001374
-20250121184456	2025-05-02 16:53:10.003099
-20250127235752	2025-05-02 16:53:10.004316
-20250127235858	2025-05-02 16:53:10.008686
-20250127390057	2025-05-02 16:53:10.013849
-20250128174921	2025-05-02 16:53:10.017982
-20250129164827	2025-05-02 16:53:10.023374
-20250206220857	2025-05-02 16:53:10.028152
-20250305201142	2025-05-02 16:53:10.029212
-20250306232923	2025-05-02 16:53:10.030206
-20250320161346	2025-05-02 16:53:10.032252
-20250320220600	2025-05-02 16:53:10.035547
-20250325184029	2025-05-02 16:53:10.036524
-20250325200823	2025-05-02 16:53:10.037591
-20250401184914	2025-05-02 16:53:10.040141
-20250402030531	2025-05-02 16:53:10.042889
-20250402225201	2025-05-02 16:53:10.043972
-20250407145234	2025-05-02 16:53:10.045114
-20250407222456	2025-05-02 16:53:10.045828
-20250408213658	2025-05-02 16:53:10.049309
-20250421231239	2025-05-02 16:53:10.050126
-20250422151030	2025-05-02 16:53:10.051122
-20250423130230	2025-05-02 16:53:10.070917
-20250423131710	2025-05-02 16:53:10.072386
-20250423133127	2025-05-02 16:53:10.077143
-20250429223656	2025-05-02 16:53:10.079714
-20250429223855	2025-05-02 16:53:10.081827
-\.
-
-
-ALTER TABLE public.__diesel_schema_migrations ENABLE TRIGGER ALL;
 
 --
 -- Data for Name: organizations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.organizations DISABLE TRIGGER ALL;
+
 
 COPY public.organizations (id, name, domain, created_at, updated_at, deleted_at, payment_required) FROM stdin;
 bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	Buster	buster.so	2024-11-05 15:41:13.864677+00	2024-11-05 15:41:13.8647+00	\N	f
 \.
 
 
-ALTER TABLE public.organizations ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.users DISABLE TRIGGER ALL;
-
-COPY public.users (id, email, name, config, created_at, updated_at, attributes, avatar_url) FROM stdin;
-c2dd64cd-f7f3-4884-bc91-d46ae431901e	chad@buster.so	Chad	{}	2025-05-02 16:53:10.229922+00	2025-05-02 16:53:10.229922+00	{"user_id": "c2dd64cd-f7f3-4884-bc91-d46ae431901e", "user_email": "chad@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "workspace_admin"}	\N
-1fe85021-e799-471b-8837-953e9ae06e4c	blake@buster.so	Blake	{}	2025-05-02 16:53:10.233763+00	2025-05-02 16:53:10.233763+00	{"user_id": "1fe85021-e799-471b-8837-953e9ae06e4c", "user_email": "blake@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "querier"}	\N
-6840fa04-c0d7-4e0e-8d3d-ea9190d93874	nate@buster.so	Nate	{}	2025-05-02 16:53:10.234238+00	2025-05-02 16:53:10.234238+00	{"user_id": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874", "user_email": "nate@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "data_admin"}	\N
-aa0a1367-3a10-4fe5-9244-2db46c000d64	dallin@buster.so	Dallin	{}	2025-05-02 17:12:48.375136+00	2025-05-02 17:12:48.375136+00	{"user_id": "d95cbf56-ad7f-4e0f-a0a2-7f1ec8a4763a", "user_email": "dallin@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "restricted_querier"}	\N
-8e98a1fc-c4d5-401c-98d8-2cce60e11079	sales@buster.so	Sales	{}	2025-05-02 17:14:31.649276+00	2025-05-02 17:14:31.649276+00	{"user_id": "d4473789-c400-48a4-992a-04618efc1606", "user_email": "sales@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "restricted_querier"}	\N
-70d05d4e-b2c1-40c5-be69-315e420fd0ab	noaccess@buster.so	No Access	{}	2025-05-02 17:14:31.649276+00	2025-05-02 17:14:31.649276+00	{"user_id": "cf212c03-8e5c-4406-9ca9-452e032eddc5", "user_email": "noaccess@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "viewer"}	\N
-\.
 
 
-ALTER TABLE public.users ENABLE TRIGGER ALL;
+-- COPY public.users (id, email, name, config, created_at, updated_at, attributes, avatar_url) FROM stdin;
+-- c2dd64cd-f7f3-4884-bc91-d46ae431901e	chad@buster.so	Chad	{}	2025-05-02 16:53:10.229922+00	2025-05-02 16:53:10.229922+00	{"user_id": "c2dd64cd-f7f3-4884-bc91-d46ae431901e", "user_email": "chad@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "workspace_admin"}	\N
+-- 1fe85021-e799-471b-8837-953e9ae06e4c	blake@buster.so	Blake	{}	2025-05-02 16:53:10.233763+00	2025-05-02 16:53:10.233763+00	{"user_id": "1fe85021-e799-471b-8837-953e9ae06e4c", "user_email": "blake@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "querier"}	\N
+-- 6840fa04-c0d7-4e0e-8d3d-ea9190d93874	nate@buster.so	Nate	{}	2025-05-02 16:53:10.234238+00	2025-05-02 16:53:10.234238+00	{"user_id": "6840fa04-c0d7-4e0e-8d3d-ea9190d93874", "user_email": "nate@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "data_admin"}	\N
+-- aa0a1367-3a10-4fe5-9244-2db46c000d64	dallin@buster.so	Dallin	{}	2025-05-02 17:12:48.375136+00	2025-05-02 17:12:48.375136+00	{"user_id": "d95cbf56-ad7f-4e0f-a0a2-7f1ec8a4763a", "user_email": "dallin@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "restricted_querier"}	\N
+-- 8e98a1fc-c4d5-401c-98d8-2cce60e11079	sales@buster.so	Sales	{}	2025-05-02 17:14:31.649276+00	2025-05-02 17:14:31.649276+00	{"user_id": "d4473789-c400-48a4-992a-04618efc1606", "user_email": "sales@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "restricted_querier"}	\N
+-- 70d05d4e-b2c1-40c5-be69-315e420fd0ab	noaccess@buster.so	No Access	{}	2025-05-02 17:14:31.649276+00	2025-05-02 17:14:31.649276+00	{"user_id": "cf212c03-8e5c-4406-9ca9-452e032eddc5", "user_email": "noaccess@buster.so", "organization_id": "bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce", "organization_role": "viewer"}	\N
+-- \.
+
+
+
 
 --
 -- Data for Name: api_keys; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.api_keys DISABLE TRIGGER ALL;
+
 
 COPY public.api_keys (id, owner_id, key, organization_id, created_at, updated_at, deleted_at) FROM stdin;
 d596bfa2-8efb-4583-a46c-939c4eae96c7	c2dd64cd-f7f3-4884-bc91-d46ae431901e	eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE4OTg3OTM3NzIsImF1ZCI6ImFwaSIsInN1YiI6ImMyZGQ2NGNkLWY3ZjMtNDg4NC1iYzkxLWQ0NmFlNDMxOTAxZSJ9.beASQcaww_gcW9mwnqj-7GyYaVW5xQBEsju_qUZ-PlE	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	2025-03-04 18:42:52.360993+00	2025-03-04 18:42:52.360994+00	2025-05-02 17:09:51.542807+00
@@ -531,13 +285,13 @@ d596bfa2-8efb-4583-a46c-939c4eae96c7	c2dd64cd-f7f3-4884-bc91-d46ae431901e	eyJ0eX
 \.
 
 
-ALTER TABLE public.api_keys ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: asset_permissions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.asset_permissions DISABLE TRIGGER ALL;
+
 
 COPY public.asset_permissions (identity_id, identity_type, asset_id, asset_type, role, created_at, updated_at, deleted_at, created_by, updated_by) FROM stdin;
 c2dd64cd-f7f3-4884-bc91-d46ae431901e	user	865352e8-c327-461d-ae67-9efeb530ff0e	chat	owner	2025-05-02 17:11:47.074692+00	2025-05-02 17:11:47.074693+00	\N	c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e
@@ -601,13 +355,13 @@ c2dd64cd-f7f3-4884-bc91-d46ae431901e	user	5316b39f-54ca-59b4-9102-9f581e1fa680	m
 \.
 
 
-ALTER TABLE public.asset_permissions ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: asset_search; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.asset_search DISABLE TRIGGER ALL;
+
 
 COPY public.asset_search (id, asset_id, asset_type, content, organization_id, created_at, updated_at, deleted_at) FROM stdin;
 ec1b39a5-28f5-44cc-81d2-ff689058fea8	1e91b291-8883-5451-8b98-89e99071e4f8	metric	Total Customers	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	2025-05-02 17:12:08.081276+00	2025-05-02 17:12:08.08128+00	\N
@@ -655,13 +409,13 @@ f56fe7c7-0e93-4ae1-96ce-bf80937903d4	45c17750-2b61-5683-ba8d-ff6c6fefacee	metric
 \.
 
 
-ALTER TABLE public.asset_search ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: chats; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.chats DISABLE TRIGGER ALL;
+
 
 COPY public.chats (id, title, organization_id, created_at, updated_at, deleted_at, created_by, updated_by, publicly_accessible, publicly_enabled_by, public_expiry_date, most_recent_file_id, most_recent_file_type, most_recent_version_number) FROM stdin;
 643c4d58-62e0-4d5a-9ec2-c0dde0f140a6	Last 30 Products Sold: Table View	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	2025-05-02 17:22:49.885323+00	2025-05-02 17:25:03.702973+00	\N	1fe85021-e799-471b-8837-953e9ae06e4c	1fe85021-e799-471b-8837-953e9ae06e4c	f	\N	\N	5bb48c11-86c4-52e7-8019-b835c801fbe8	metric	1
@@ -679,13 +433,13 @@ bfc138ed-2b28-4a88-bff9-b4e3d7881cd9	Clothing Products Table Duplication	bf58d19
 \.
 
 
-ALTER TABLE public.chats ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: collections; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.collections DISABLE TRIGGER ALL;
+
 
 COPY public.collections (id, name, description, created_by, updated_by, created_at, updated_at, deleted_at, organization_id) FROM stdin;
 0ac43ae2-beda-4007-9574-71a17425da0a	Important Things	\N	c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e	2025-05-02 17:46:14.67728+00	2025-05-02 17:46:14.677282+00	\N	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce
@@ -693,13 +447,13 @@ COPY public.collections (id, name, description, created_by, updated_by, created_
 \.
 
 
-ALTER TABLE public.collections ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: collections_to_assets; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.collections_to_assets DISABLE TRIGGER ALL;
+
 
 COPY public.collections_to_assets (collection_id, asset_id, asset_type, created_at, updated_at, deleted_at, created_by, updated_by) FROM stdin;
 0ac43ae2-beda-4007-9574-71a17425da0a	c0855f0f-f50a-424e-9e72-9e53711a7f6a	dashboard_file	2025-05-02 17:46:21.622514+00	2025-05-02 17:46:21.622515+00	\N	c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e
@@ -717,13 +471,13 @@ COPY public.collections_to_assets (collection_id, asset_id, asset_type, created_
 \.
 
 
-ALTER TABLE public.collections_to_assets ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: dashboard_files; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.dashboard_files DISABLE TRIGGER ALL;
+
 
 COPY public.dashboard_files (id, name, file_name, content, filter, organization_id, created_by, created_at, updated_at, deleted_at, publicly_accessible, publicly_enabled_by, public_expiry_date, version_history, public_password) FROM stdin;
 e57e64e6-9c8c-50d2-aa7e-491ce8c03898	Quarterly Revenue Report (Last 4 Quarters)	Quarterly Revenue Report (Last 4 Quarters)	{"name": "Quarterly Revenue Report (Last 4 Quarters)", "rows": [{"id": 1, "items": [{"id": "435f45d2-f3f0-578c-b3aa-d590d52fb09f"}], "columnSizes": [12]}, {"id": 2, "items": [{"id": "83258d77-00ea-5b6b-8c53-ae6f16024088"}, {"id": "5f1d1fde-f16f-56c3-aa18-14dbce7443f5"}], "columnSizes": [6, 6]}, {"id": 3, "items": [{"id": "017365d0-5292-59a1-b79a-bb8db3f836d2"}, {"id": "7f0ad771-7241-51ad-bb5c-76d32a0ab98b"}], "columnSizes": [6, 6]}, {"id": 4, "items": [{"id": "0f4c458a-875e-5641-89aa-ef392e40e445"}, {"id": "807ab3f7-eac6-5bf7-973e-de98fa99b626"}], "columnSizes": [6, 6]}, {"id": 5, "items": [{"id": "88f342bf-19f9-53a9-87c6-804399e69644"}], "columnSizes": [12]}, {"id": 6, "items": [{"id": "722e80e6-9a09-5ba6-9d0c-87c1cd00fa27"}, {"id": "0502cb5e-965c-5b4f-bd88-3e8725de4275"}], "columnSizes": [6, 6]}], "description": "A dashboard highlighting key revenue metrics for the last four completed quarters (Q2 2024 - Q1 2025), including total revenue, trends, growth, average order value, breakdowns, discount impact, and profitability."}	\N	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	c2dd64cd-f7f3-4884-bc91-d46ae431901e	2025-05-02 17:17:03.424007+00	2025-05-02 17:17:03.42401+00	\N	f	\N	\N	{"1": {"content": {"name": "Quarterly Revenue Report (Last 4 Quarters)", "rows": [{"id": 1, "items": [{"id": "435f45d2-f3f0-578c-b3aa-d590d52fb09f"}], "columnSizes": [12]}, {"id": 2, "items": [{"id": "83258d77-00ea-5b6b-8c53-ae6f16024088"}, {"id": "5f1d1fde-f16f-56c3-aa18-14dbce7443f5"}], "columnSizes": [6, 6]}, {"id": 3, "items": [{"id": "017365d0-5292-59a1-b79a-bb8db3f836d2"}, {"id": "7f0ad771-7241-51ad-bb5c-76d32a0ab98b"}], "columnSizes": [6, 6]}, {"id": 4, "items": [{"id": "0f4c458a-875e-5641-89aa-ef392e40e445"}, {"id": "807ab3f7-eac6-5bf7-973e-de98fa99b626"}], "columnSizes": [6, 6]}, {"id": 5, "items": [{"id": "88f342bf-19f9-53a9-87c6-804399e69644"}], "columnSizes": [12]}, {"id": 6, "items": [{"id": "722e80e6-9a09-5ba6-9d0c-87c1cd00fa27"}, {"id": "0502cb5e-965c-5b4f-bd88-3e8725de4275"}], "columnSizes": [6, 6]}], "description": "A dashboard highlighting key revenue metrics for the last four completed quarters (Q2 2024 - Q1 2025), including total revenue, trends, growth, average order value, breakdowns, discount impact, and profitability."}, "updated_at": "2025-05-02T17:17:03.424016Z", "version_number": 1}}	\N
@@ -734,50 +488,50 @@ c0855f0f-f50a-424e-9e72-9e53711a7f6a	Important Metrics	Untitled Dashboard	{"name
 \.
 
 
-ALTER TABLE public.dashboard_files ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: dashboards; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.dashboards DISABLE TRIGGER ALL;
+
 
 COPY public.dashboards (id, name, description, config, publicly_accessible, publicly_enabled_by, public_expiry_date, password_secret_id, created_by, updated_by, created_at, updated_at, deleted_at, organization_id) FROM stdin;
 \.
 
 
-ALTER TABLE public.dashboards ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: dashboard_versions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.dashboard_versions DISABLE TRIGGER ALL;
+
 
 COPY public.dashboard_versions (id, dashboard_id, config, created_at, updated_at, deleted_at) FROM stdin;
 \.
 
 
-ALTER TABLE public.dashboard_versions ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: data_sources; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.data_sources DISABLE TRIGGER ALL;
+
 
 COPY public.data_sources (id, name, type, secret_id, onboarding_status, onboarding_error, organization_id, created_by, updated_by, created_at, updated_at, deleted_at, env) FROM stdin;
 cc3ef3bc-44ec-4a43-8dc4-681cae5c996a	adventure_works	postgres	211887e9-e359-4d10-bcad-8abd2d5d10a7	notStarted	\N	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e	2025-03-04 18:43:59.670034+00	2025-03-04 18:43:59.670039+00	\N	dev
 \.
 
 
-ALTER TABLE public.data_sources ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: dataset_columns; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.dataset_columns DISABLE TRIGGER ALL;
+
 
 COPY public.dataset_columns (id, dataset_id, name, type, description, nullable, created_at, updated_at, deleted_at, stored_values, stored_values_status, stored_values_error, stored_values_count, stored_values_last_synced, semantic_type, dim_type, expr) FROM stdin;
 cac5073f-396e-4180-8334-1bc6ac4f59f3	61b5c22f-e2f1-4ded-9369-6aef760e4fa7	startdate	timestamp without time zone	The starting timestamp for the bill of materials	t	2025-05-02 17:10:46.081887+00	2025-05-02 17:10:46.081887+00	\N	f	\N	\N	\N	\N	dimension	timestamp without time zone	startdate
@@ -1384,13 +1138,13 @@ c389f27e-c877-4f3f-b1f8-d21bd24f6a22	1575dab0-1372-4d83-8e90-3a618dc772ea	actual
 \.
 
 
-ALTER TABLE public.dataset_columns ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: dataset_groups; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.dataset_groups DISABLE TRIGGER ALL;
+
 
 COPY public.dataset_groups (id, organization_id, name, created_at, updated_at, deleted_at) FROM stdin;
 1611f2f4-6364-4f19-86d1-b4014a4b8a90	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	Sales Group	2025-05-02 17:29:52.700877+00	2025-05-02 17:29:52.70088+00	\N
@@ -1398,26 +1152,26 @@ COPY public.dataset_groups (id, organization_id, name, created_at, updated_at, d
 \.
 
 
-ALTER TABLE public.dataset_groups ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: dataset_groups_permissions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.dataset_groups_permissions DISABLE TRIGGER ALL;
+
 
 COPY public.dataset_groups_permissions (id, dataset_group_id, permission_id, permission_type, organization_id, created_at, updated_at, deleted_at) FROM stdin;
 420c16b4-d441-4c25-8f7b-54851f18c3c7	1611f2f4-6364-4f19-86d1-b4014a4b8a90	b25e4d5a-178e-4441-a7eb-761e9dcec16f	permission_group	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	2025-05-02 17:30:40.667469+00	2025-05-02 17:30:40.667471+00	\N
 \.
 
 
-ALTER TABLE public.dataset_groups_permissions ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: datasets; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.datasets DISABLE TRIGGER ALL;
+
 
 COPY public.datasets (id, name, database_name, when_to_use, when_not_to_use, type, definition, schema, enabled, imported, data_source_id, organization_id, created_by, updated_by, created_at, updated_at, deleted_at, model, yml_file, database_identifier) FROM stdin;
 f8f19df4-dd6c-428c-87b7-ad67c2ba3a56	discount_percentage	discount_percentage	Generated model for discount_percentage	\N	view	select * from .discount_percentage	ont_ont	t	f	cc3ef3bc-44ec-4a43-8dc4-681cae5c996a	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e	2025-05-02 17:10:46.081436+00	2025-05-02 17:10:46.081436+00	\N	\N	version: 0\nmodels:\n- name: discount_percentage\n  data_source_name: null\n  schema: ont_ont\n  database: postgres\n  description: Generated model for discount_percentage\n  model: null\n  entities: []\n  dimensions: []\n  measures:\n  - name: year\n    expr: year\n    agg: sum\n    description: Aggregated sum for discount percentage by year\n    type: numeric\n  - name: quarter\n    expr: quarter\n    agg: sum\n    description: Aggregated sum for discount percentage by quarter\n    type: numeric\n  - name: month\n    expr: month\n    agg: sum\n    description: Aggregated sum for discount percentage by month\n    type: numeric\n  - name: metric_discountpercentage\n    expr: metric_discountpercentage\n    agg: sum\n    description: Calculated metric representing the overall discount percentage\n    type: numeric\n  metrics: []\n  segments: []\n	postgres
@@ -1523,13 +1277,13 @@ e9918c35-d7be-43e7-9fba-be5294ea1452	total_orders_count	total_orders_count	Gener
 \.
 
 
-ALTER TABLE public.datasets ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: dataset_permissions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.dataset_permissions DISABLE TRIGGER ALL;
+
 
 COPY public.dataset_permissions (id, organization_id, dataset_id, permission_id, permission_type, created_at, updated_at, deleted_at) FROM stdin;
 ef495d61-fa98-4a08-8ec3-da34ce0fc2d2	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	27d21b4d-23ff-439b-94cb-e5d903e2a34a	83e090f0-d160-4372-8484-6ab6b9b07048	permission_group	2025-05-02 17:28:30.267477+00	2025-05-02 17:28:30.26748+00	\N
@@ -1539,13 +1293,13 @@ b56f0fb8-574f-41db-87b4-dd31e45b8f49	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	27d21b
 \.
 
 
-ALTER TABLE public.dataset_permissions ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: datasets_to_dataset_groups; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.datasets_to_dataset_groups DISABLE TRIGGER ALL;
+
 
 COPY public.datasets_to_dataset_groups (dataset_id, dataset_group_id, created_at, updated_at, deleted_at) FROM stdin;
 3000431c-0061-4830-8a5c-6c0d4e695c92	1611f2f4-6364-4f19-86d1-b4014a4b8a90	2025-05-02 17:29:52.924876+00	2025-05-02 17:29:52.924878+00	\N
@@ -1569,13 +1323,13 @@ fb648c2c-26f4-4c2b-bc29-34032bb17a3d	9c316602-d980-4ad0-b0b3-3e73cae56676	2025-0
 \.
 
 
-ALTER TABLE public.datasets_to_dataset_groups ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: permission_groups; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.permission_groups DISABLE TRIGGER ALL;
+
 
 COPY public.permission_groups (id, name, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) FROM stdin;
 83e090f0-d160-4372-8484-6ab6b9b07048	Dallin Special Group	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e	2025-05-02 17:28:30.253863+00	2025-05-02 17:28:30.253866+00	\N
@@ -1584,37 +1338,37 @@ b25e4d5a-178e-4441-a7eb-761e9dcec16f	Sales	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	
 \.
 
 
-ALTER TABLE public.permission_groups ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: datasets_to_permission_groups; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.datasets_to_permission_groups DISABLE TRIGGER ALL;
+
 
 COPY public.datasets_to_permission_groups (dataset_id, permission_group_id, created_at, updated_at, deleted_at) FROM stdin;
 \.
 
 
-ALTER TABLE public.datasets_to_permission_groups ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: entity_relationship; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.entity_relationship DISABLE TRIGGER ALL;
+
 
 COPY public.entity_relationship (primary_dataset_id, foreign_dataset_id, relationship_type, created_at) FROM stdin;
 \.
 
 
-ALTER TABLE public.entity_relationship ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: messages; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.messages DISABLE TRIGGER ALL;
+
 
 COPY public.messages (id, request_message, response_messages, reasoning, title, raw_llm_messages, final_reasoning_message, chat_id, created_at, updated_at, deleted_at, created_by, feedback) FROM stdin;
 a3206f20-35d1-4a6c-84a7-48f8f222c39f	show me how many customers we have	[{"id": "1e91b291-8883-5451-8b98-89e99071e4f8", "type": "file", "metadata": [{"status": "completed", "message": "Created new metric file", "timestamp": 1746205933}], "file_name": "Total Customers", "file_type": "metric", "version_number": 1, "filter_version_id": null}, {"id": "34fc46a1-6628-415c-810a-b5ba1fe3208c", "type": "text", "message": "I found the total number of unique customers using the customer data.\\n\\nThere are **19,820** customers in total.\\n\\nI've created a metric card displaying this number for you. Let me know if you need anything else!", "message_chunk": null, "is_final_message": true, "originating_tool_name": "done"}]	[{"id": "e875f703-0a5a-4ba6-9e16-8fa8fe1dc22f", "type": "pills", "title": "6 data catalog items found", "status": "completed", "pill_containers": [{"pills": [{"id": "923881ca-ff34-4e97-bf9c-4b3c5e4beb46", "text": "customer_all_time_clv", "type": "dataset"}, {"id": "7a6ec01c-7718-4304-b8c6-38271b2db530", "text": "customer", "type": "dataset"}, {"id": "59079b2f-5578-40c3-b1d3-7e5fb852af8a", "text": "customer_lifetime_value", "type": "dataset"}, {"id": "8918407e-8bf1-4c0e-9c0e-50099d5a9ff3", "text": "customer_period_clv", "type": "dataset"}, {"id": "abf11a4c-c909-41bc-8914-84d5f51b088c", "text": "person", "type": "dataset"}, {"id": "c3d631ee-6868-45d9-86c3-3f9759059c9f", "text": "email_address", "type": "dataset"}], "title": "Datasets"}], "secondary_title": "9 seconds"}, {"id": "9604d9c0-d2ce-4ba0-b8d0-369a059352f1", "type": "text", "title": "Created a plan", "status": "completed", "message": "**Thought**\\nThe user wants to know the total number of customers. I will use the `customer` dataset found in the search results to count the unique customers.\\nA number card is the best way to display this single value.\\n\\n**Step-by-Step Plan**\\n1. **Create 1 Visualization**:\\n   - **Title**: Total Customers\\n   - **Type**: Number Card\\n   - **Datasets**: `customer`\\n   - **Expected Output**: A number card displaying the total count of unique customers based on the `customerid` field.\\n2. **Review & Finish**:\\n   - Verify the number card displays a single, non-zero count. Respond to the user.\\n", "message_chunk": null, "secondary_title": "3 seconds", "finished_reasoning": false}, {"id": "24c99c75-0b77-4f67-a483-529bdb77ff5f", "type": "files", "files": {"1e91b291-8883-5451-8b98-89e99071e4f8": {"id": "1e91b291-8883-5451-8b98-89e99071e4f8", "file": {"text": "name: Total Customers\\ndescription: What is the total number of unique customers?\\ntimeFrame: All Time\\nsql: |\\n  SELECT\\n    COUNT(DISTINCT c.customerid) AS total_customers\\n  FROM postgres.ont_ont.customer AS c\\nchartConfig:\\n  selectedChartType: metric\\n  columnLabelFormats:\\n    total_customers:\\n      columnType: number\\n      style: number\\n      numberSeparatorStyle: ','\\n      maximumFractionDigits: 0\\n      replaceMissingDataWith: 0\\n  metricColumnId: total_customers\\n", "modifided": null, "text_chunk": null}, "status": "completed", "metadata": [], "file_name": "Total Customers", "file_type": "metric", "version_number": 1}}, "title": "Created 1 metric", "status": "completed", "file_ids": ["1e91b291-8883-5451-8b98-89e99071e4f8"], "secondary_title": "6 seconds"}, {"id": "89f696d8-f6b8-42f4-a002-d21d8122a47d", "type": "text", "title": "Reviewed my work", "status": "completed", "message": null, "message_chunk": null, "secondary_title": "0.82 seconds", "finished_reasoning": false}, {"id": "904a96cf-0582-46f5-9a75-5f851ea867b9", "type": "text", "title": "Finished reasoning", "status": "completed", "message": null, "message_chunk": null, "secondary_title": "", "finished_reasoning": true}]	Customer Count Calculation	[{"role": "user", "content": "show me how many customers we have"}, {"name": "buster_multi_agent", "role": "assistant", "tool_calls": [{"id": "e875f703-0a5a-4ba6-9e16-8fa8fe1dc22f", "type": "function", "function": {"name": "search_data_catalog", "arguments": "{\\"specific_queries\\": [\\"Find datasets or metrics related to counting the total number of unique customers.\\"]}"}}]}, {"name": "search_data_catalog", "role": "tool", "content": "{\\"message\\":\\"Found 6 relevant datasets with injected values for searchable dimensions.\\",\\"specific_queries\\":[\\"Find datasets or metrics related to counting the total number of unique customers.\\"],\\"exploratory_topics\\":null,\\"duration\\":2884,\\"results\\":[{\\"id\\":\\"923881ca-ff34-4e97-bf9c-4b3c5e4beb46\\",\\"name\\":\\"customer_all_time_clv\\",\\"yml_content\\":\\"version: 0\\\\nmodels:\\\\n- name: customer_all_time_clv\\\\n  data_source_name: null\\\\n  schema: ont_ont\\\\n  database: postgres\\\\n  description: Metric model that calculates the total revenue generated by each customer over their entire history\\\\n  model: null\\\\n  entities:\\\\n  - name: customer\\\\n    ref_: null\\\\n    expr: customerid\\\\n    type: foreign\\\\n    description: Reference to the customer entity\\\\n    project_path: null\\\\n  dimensions: []\\\\n  measures:\\\\n  - name: customerid\\\\n    expr: customerid\\\\n    agg: sum\\\\n    description: Unique identifier for the customer in aggregated calculations.\\\\n    type: integer\\\\n  - name: metric_clv_all_time\\\\n    expr: metric_clv_all_time\\\\n    agg: sum\\\\n    description: Total customer lifetime value aggregated over all transactions.\\\\n    type: numeric\\\\n  metrics: []\\\\n  segments: []\\\\n\\"},{\\"id\\":\\"7a6ec01c-7718-4304-b8c6-38271b2db530\\",\\"name\\":\\"customer\\",\\"yml_content\\":\\"version: 0\\\\nmodels:\\\\n- name: customer\\\\n  data_source_name: null\\\\n  schema: ont_ont\\\\n  database: postgres\\\\n  description: Comprehensive customer model that powers customer relationship management, market segmentation, and purchase behavior analysis. Supports customer lifetime value calculations, retention strategy development, and targeted marketing campaigns while enabling personalized customer experience optimization.\\\\n  model: null\\\\n  entities:\\\\n  - name: person\\\\n    ref_: null\\\\n    expr: personid\\\\n    type: foreign\\\\n    description: Reference to the person (for individual customers)\\\\n    project_path: null\\\\n  - name: store\\\\n    ref_: null\\\\n    expr: storeid\\\\n    type: foreign\\\\n    description: Reference to the store (for store customers)\\\\n    project_path: null\\\\n  - name: sales_territory\\\\n    ref_: null\\\\n    expr: territoryid\\\\n    type: foreign\\\\n    description: Reference to the sales territory\\\\n    project_path: null\\\\n  - name: sales_order_header\\\\n    ref_: null\\\\n    expr: customerid\\\\n    type: foreign\\\\n    description: Reference to sales orders placed by this customer\\\\n    project_path: null\\\\n  dimensions:\\\\n  - name: rowguid\\\\n    expr: rowguid\\\\n    type: uuid\\\\n    description: Unique identifier for each row, typically a UUID.\\\\n    searchable: false\\\\n  - name: modifieddate\\\\n    expr: modifieddate\\\\n    type: timestamp without time zone\\\\n    description: Timestamp when the record was last modified.\\\\n    searchable: false\\\\n  - name: filter_cycling_frequency\\\\n    expr: filter_cycling_frequency\\\\n    type: text\\\\n    description: Indicates the customer cycling frequency for purchases.\\\\n    searchable: true\\\\n  - name: filter_purchase_motivation\\\\n    expr: filter_purchase_motivation\\\\n    type: text\\\\n    description: Describes the primary motive behind customer purchases.\\\\n    searchable: true\\\\n  - name: filter_technical_knowledge\\\\n    expr: filter_technical_knowledge\\\\n    type: text\\\\n    description: Represents the level of technical understanding of the customer.\\\\n    searchable: true\\\\n  - name: filter_maintenance_behavior\\\\n    expr: filter_maintenance_behavior\\\\n    type: text\\\\n    description: Indicates how frequently the customer engages in maintenance activities.\\\\n    searchable: true\\\\n  measures:\\\\n  - name: customerid\\\\n    expr: customerid\\\\n    agg: sum\\\\n    description: Aggregated sum of customer identifiers, used for customer-level analysis.\\\\n    type: integer\\\\n  - name: personid\\\\n    expr: personid\\\\n    agg: sum\\\\n    description: Aggregated sum of person identifiers for linking customer to person profiles.\\\\n    type: integer\\\\n  - name: storeid\\\\n    expr: storeid\\\\n    agg: sum\\\\n    description: Aggregated sum of store identifiers associated with the customer transactions.\\\\n    type: integer\\\\n  - name: territoryid\\\\n    expr: territoryid\\\\n    agg: sum\\\\n    description: Aggregated sum of territory identifiers for regional customer segmentation.\\\\n    type: integer\\\\n  metrics: []\\\\n  segments: []\\\\n\\"},{\\"id\\":\\"59079b2f-5578-40c3-b1d3-7e5fb852af8a\\",\\"name\\":\\"customer_lifetime_value\\",\\"yml_content\\":\\"version: 0\\\\nmodels:\\\\n- name: customer_lifetime_value\\\\n  data_source_name: null\\\\n  schema: ont_ont\\\\n  database: postgres\\\\n  description: |\\\\n    A strategic metric that estimates the total revenue a business can expect from a customer throughout their relationship. This metric is essential for customer acquisition strategy (determining maximum viable CAC), segmentation for retention efforts,  personalizing marketing investment, and identifying your most valuable customers. Use it to inform long-term business planning, prioritize customer service resources, and make data-driven decisions about customer relationship management.\\\\n  model: null\\\\n  entities:\\\\n  - name: customer\\\\n    ref_: null\\\\n    expr: customerid\\\\n    type: foreign\\\\n    description: Reference to the customer entity\\\\n    project_path: null\\\\n  dimensions: []\\\\n  measures:\\\\n  - name: customerid\\\\n    expr: customerid\\\\n    agg: sum\\\\n    description: Unique identifier for the customer\\\\n    type: integer\\\\n  - name: year\\\\n    expr: year\\\\n    agg: sum\\\\n    description: Year component of the data\\\\n    type: numeric\\\\n  - name: quarter\\\\n    expr: quarter\\\\n    agg: sum\\\\n    description: Quarter component of the year\\\\n    type: numeric\\\\n  - name: metric_clv\\\\n    expr: metric_clv\\\\n    agg: sum\\\\n    description: Calculated customer lifetime value metric\\\\n    type: numeric\\\\n  metrics: []\\\\n  segments: []\\\\n\\"},{\\"id\\":\\"8918407e-8bf1-4c0e-9c0e-50099d5a9ff3\\",\\"name\\":\\"customer_period_clv\\",\\"yml_content\\":\\"version: 0\\\\nmodels:\\\\n- name: customer_period_clv\\\\n  data_source_name: null\\\\n  schema: ont_ont\\\\n  database: postgres\\\\n  description: Generated model for customer_period_clv\\\\n  model: null\\\\n  entities: []\\\\n  dimensions: []\\\\n  measures:\\\\n  - name: customerid\\\\n    expr: customerid\\\\n    agg: sum\\\\n    description: Unique identifier for the customer used in aggregation\\\\n    type: integer\\\\n  - name: year\\\\n    expr: year\\\\n    agg: sum\\\\n    description: The calendar year corresponding to the customer record\\\\n    type: numeric\\\\n  - name: quarter\\\\n    expr: quarter\\\\n    agg: sum\\\\n    description: The fiscal quarter representing the time period for the metric\\\\n    type: numeric\\\\n  - name: metric_period_clv\\\\n    expr: metric_period_clv\\\\n    agg: sum\\\\n    description: Calculated customer lifetime value metric for the specified period\\\\n    type: numeric\\\\n  metrics: []\\\\n  segments: []\\\\n\\"},{\\"id\\":\\"abf11a4c-c909-41bc-8914-84d5f51b088c\\",\\"name\\":\\"person\\",\\"yml_content\\":\\"version: 0\\\\nmodels:\\\\n- name: person\\\\n  data_source_name: null\\\\n  schema: ont_ont\\\\n  database: postgres\\\\n  description: Core identity model that captures detailed personal information for employees, customers, and business contacts. Essential for contact management, personalization, demographic analysis, and relationship management across the organization. Supports customer segmentation, employee directories, and communication preferences.\\\\n  model: null\\\\n  entities:\\\\n  - name: business_entity\\\\n    ref_: null\\\\n    expr: businessentityid\\\\n    type: foreign\\\\n    description: Reference to the business entity\\\\n    project_path: null\\\\n  - name: employee\\\\n    ref_: null\\\\n    expr: businessentityid\\\\n    type: foreign\\\\n    description: Reference to employee information\\\\n    project_path: null\\\\n  - name: customer\\\\n    ref_: null\\\\n    expr: businessentityid\\\\n    type: foreign\\\\n    description: Reference to customer information\\\\n    project_path: null\\\\n  dimensions:\\\\n  - name: persontype\\\\n    expr: persontype\\\\n    type: character\\\\n    description: Defines the category or type of the person record.\\\\n    searchable: true\\\\n  - name: namestyle\\\\n    expr: namestyle\\\\n    type: boolean\\\\n    description: Indicates if the naming style is formal or informal.\\\\n    searchable: false\\\\n  - name: title\\\\n    expr: title\\\\n    type: character varying\\\\n    description: The title or honorific associated with the person.\\\\n    searchable: true\\\\n  - name: firstname\\\\n    expr: firstname\\\\n    type: character varying\\\\n    description: The first name of the person.\\\\n    searchable: true\\\\n  - name: middlename\\\\n    expr: middlename\\\\n    type: character varying\\\\n    description: The middle name of the person, if applicable.\\\\n    searchable: true\\\\n  - name: lastname\\\\n    expr: lastname\\\\n    type: character varying\\\\n    description: The last name or family name of the person.\\\\n    searchable: true\\\\n  - name: suffix\\\\n    expr: suffix\\\\n    type: character varying\\\\n    description: A suffix indicator such as Jr., Sr., or III.\\\\n    searchable: true\\\\n  - name: additionalcontactinfo\\\\n    expr: additionalcontactinfo\\\\n    type: xml\\\\n    description: Additional contact information provided in XML format.\\\\n    searchable: false\\\\n  - name: demographics\\\\n    expr: demographics\\\\n    type: xml\\\\n    description: Demographic details stored in XML format.\\\\n    searchable: false\\\\n  - name: rowguid\\\\n    expr: rowguid\\\\n    type: uuid\\\\n    description: A globally unique identifier (GUID) for the record.\\\\n    searchable: false\\\\n  - name: modifieddate\\\\n    expr: modifieddate\\\\n    type: timestamp without time zone\\\\n    description: Timestamp indicating the last modification of the record.\\\\n    searchable: false\\\\n  measures:\\\\n  - name: businessentityid\\\\n    expr: businessentityid\\\\n    agg: sum\\\\n    description: The unique identifier for the business entity, summed for aggregation.\\\\n    type: integer\\\\n  - name: emailpromotion\\\\n    expr: emailpromotion\\\\n    agg: sum\\\\n    description: The number of email promotions sent, aggregated via summation.\\\\n    type: integer\\\\n  metrics: []\\\\n  segments: []\\\\n\\"},{\\"id\\":\\"c3d631ee-6868-45d9-86c3-3f9759059c9f\\",\\"name\\":\\"email_address\\",\\"yml_content\\":\\"version: 0\\\\nmodels:\\\\n- name: email_address\\\\n  data_source_name: null\\\\n  schema: ont_ont\\\\n  database: postgres\\\\n  description: Customer and stakeholder contact information model supporting communication strategy development, customer reach analysis, and digital engagement tracking. Enables email campaign segmentation, customer contact preference analysis, and communication effectiveness measurement. Essential for CRM integration and maintaining unified customer contact records.\\\\n  model: null\\\\n  entities:\\\\n  - name: person\\\\n    ref_: null\\\\n    expr: businessentityid\\\\n    type: foreign\\\\n    description: Reference to the person\\\\n    project_path: null\\\\n  dimensions:\\\\n  - name: emailaddress\\\\n    expr: emailaddress\\\\n    type: character varying\\\\n    description: The email address of the user or contact.\\\\n    searchable: false\\\\n  - name: modifieddate\\\\n    expr: modifieddate\\\\n    type: timestamp without time zone\\\\n    description: The date and time when the record was last modified.\\\\n    searchable: false\\\\n  measures:\\\\n  - name: businessentityid\\\\n    expr: businessentityid\\\\n    agg: sum\\\\n    description: Identifier for the associated business entity.\\\\n    type: integer\\\\n  - name: emailaddressid\\\\n    expr: emailaddressid\\\\n    agg: sum\\\\n    description: Unique identifier for the email address record.\\\\n    type: integer\\\\n  metrics: []\\\\n  segments: []\\\\n\\"}],\\"data_source_id\\":\\"cc3ef3bc-44ec-4a43-8dc4-681cae5c996a\\"}", "tool_call_id": "e875f703-0a5a-4ba6-9e16-8fa8fe1dc22f"}, {"name": "buster_multi_agent", "role": "assistant", "tool_calls": [{"id": "9604d9c0-d2ce-4ba0-b8d0-369a059352f1", "type": "function", "function": {"name": "create_plan_straightforward", "arguments": "{\\"plan\\": \\"**Thought**\\\\nThe user wants to know the total number of customers. I will use the `customer` dataset found in the search results to count the unique customers.\\\\nA number card is the best way to display this single value.\\\\n\\\\n**Step-by-Step Plan**\\\\n1. **Create 1 Visualization**:\\\\n   - **Title**: Total Customers\\\\n   - **Type**: Number Card\\\\n   - **Datasets**: `customer`\\\\n   - **Expected Output**: A number card displaying the total count of unique customers based on the `customerid` field.\\\\n2. **Review & Finish**:\\\\n   - Verify the number card displays a single, non-zero count. Respond to the user.\\\\n\\"}"}}]}, {"name": "create_plan_straightforward", "role": "tool", "content": "{\\"success\\":true,\\"todos\\":\\"[ ] Create number card visualization 'Total Customers'\\"}", "tool_call_id": "9604d9c0-d2ce-4ba0-b8d0-369a059352f1"}, {"name": "buster_multi_agent", "role": "assistant", "tool_calls": [{"id": "24c99c75-0b77-4f67-a483-529bdb77ff5f", "type": "function", "function": {"name": "create_metrics", "arguments": "{\\"files\\": [{\\"yml_content\\": \\"name: Total Customers\\\\ndescription: What is the total number of unique customers?\\\\ntimeFrame: All Time\\\\nsql: |\\\\n  SELECT\\\\n    COUNT(DISTINCT c.customerid) AS total_customers\\\\n  FROM postgres.ont_ont.customer AS c\\\\nchartConfig:\\\\n  selectedChartType: metric\\\\n  columnLabelFormats:\\\\n    total_customers:\\\\n      columnType: number\\\\n      style: number\\\\n      replaceMissingDataWith: 0\\\\n      numberSeparatorStyle: \\\\\\",\\\\\\"\\\\n      maximumFractionDigits: 0\\\\n  metricColumnId: total_customers\\\\n\\", \\"name\\": \\"Total Customers\\"}]}"}}]}, {"name": "create_metrics", "role": "tool", "content": "{\\"message\\":\\"Successfully created 1 metric files.\\",\\"duration\\":749,\\"files\\":[{\\"id\\":\\"1e91b291-8883-5451-8b98-89e99071e4f8\\",\\"name\\":\\"Total Customers\\",\\"file_type\\":\\"metric\\",\\"yml_content\\":\\"name: Total Customers\\\\ndescription: What is the total number of unique customers?\\\\ntimeFrame: All Time\\\\nsql: |\\\\n  SELECT\\\\n    COUNT(DISTINCT c.customerid) AS total_customers\\\\n  FROM postgres.ont_ont.customer AS c\\\\nchartConfig:\\\\n  selectedChartType: metric\\\\n  columnLabelFormats:\\\\n    total_customers:\\\\n      columnType: number\\\\n      style: number\\\\n      numberSeparatorStyle: ','\\\\n      maximumFractionDigits: 0\\\\n      replaceMissingDataWith: 0\\\\n  metricColumnId: total_customers\\\\n\\",\\"result_message\\":\\"1 records were returned\\",\\"results\\":[{\\"total_customers\\":19820}],\\"created_at\\":\\"2025-05-02T17:12:08.081276Z\\",\\"version_number\\":1,\\"updated_at\\":\\"2025-05-02T17:12:08.081280Z\\"}],\\"failed_files\\":[]}", "tool_call_id": "24c99c75-0b77-4f67-a483-529bdb77ff5f"}, {"name": "buster_multi_agent", "role": "assistant", "tool_calls": [{"id": "89f696d8-f6b8-42f4-a002-d21d8122a47d", "type": "function", "function": {"name": "review_plan", "arguments": "{\\"todo_items\\": [1]}"}}]}, {"name": "review_plan", "role": "tool", "content": "{\\"success\\":true,\\"todos\\":\\"[x] Create number card visualization 'Total Customers'\\"}", "tool_call_id": "89f696d8-f6b8-42f4-a002-d21d8122a47d"}, {"name": "buster_multi_agent", "role": "assistant", "tool_calls": [{"id": "34fc46a1-6628-415c-810a-b5ba1fe3208c", "type": "function", "function": {"name": "done", "arguments": "{\\"final_response\\": \\"I found the total number of unique customers using the customer data.\\\\n\\\\nThere are **19,820** customers in total.\\\\n\\\\nI've created a metric card displaying this number for you. Let me know if you need anything else!\\"}"}}]}, {"name": "done", "role": "tool", "content": "{\\"success\\":true,\\"todos\\":\\"[x] Create number card visualization 'Total Customers'\\"}", "tool_call_id": "34fc46a1-6628-415c-810a-b5ba1fe3208c"}]	Reasoned for 26 seconds	865352e8-c327-461d-ae67-9efeb530ff0e	2025-05-02 17:12:13.654347+00	2025-05-02 17:12:13.654347+00	\N	c2dd64cd-f7f3-4884-bc91-d46ae431901e	\N
@@ -1635,25 +1389,25 @@ f0fbb688-4b23-4dc6-a9fb-2f84719ff807	can you duplicate out this table for me but
 \.
 
 
-ALTER TABLE public.messages ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: messages_deprecated; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.messages_deprecated DISABLE TRIGGER ALL;
+
 
 COPY public.messages_deprecated (id, thread_id, sent_by, message, responses, code, context, title, feedback, verification, dataset_id, chart_config, chart_recommendations, time_frame, data_metadata, draft_session_id, created_at, updated_at, deleted_at, draft_state, summary_question, sql_evaluation_id) FROM stdin;
 \.
 
 
-ALTER TABLE public.messages_deprecated ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: messages_to_files; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.messages_to_files DISABLE TRIGGER ALL;
+
 
 COPY public.messages_to_files (id, message_id, file_id, created_at, updated_at, deleted_at, is_duplicate, version_number) FROM stdin;
 a161aeba-4c9a-467b-910f-d64859a26f24	a3206f20-35d1-4a6c-84a7-48f8f222c39f	1e91b291-8883-5451-8b98-89e99071e4f8	2025-05-02 17:12:13.694395+00	2025-05-02 17:12:13.694396+00	\N	f	1
@@ -1696,13 +1450,13 @@ e4478928-2ec6-4111-bb7a-18306f0a5919	de1a87f9-2b23-41f9-96b0-f32df503d92c	e43643
 \.
 
 
-ALTER TABLE public.messages_to_files ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: metric_files; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.metric_files DISABLE TRIGGER ALL;
+
 
 COPY public.metric_files (id, name, file_name, content, verification, evaluation_obj, evaluation_summary, evaluation_score, organization_id, created_by, created_at, updated_at, deleted_at, publicly_accessible, publicly_enabled_by, public_expiry_date, version_history, data_metadata, public_password, data_source_id) FROM stdin;
 1e91b291-8883-5451-8b98-89e99071e4f8	Total Customers	Total Customers	{"sql": "SELECT\\n  COUNT(DISTINCT c.customerid) AS total_customers\\nFROM postgres.ont_ont.customer AS c\\n", "name": "Total Customers", "timeFrame": "All Time", "chartConfig": {"metricColumnId": "total_customers", "selectedChartType": "metric", "columnLabelFormats": {"total_customers": {"style": "number", "columnType": "number", "numberSeparatorStyle": ",", "maximumFractionDigits": 0, "replaceMissingDataWith": 0}}}, "description": "What is the total number of unique customers?"}	notRequested	\N	\N	\N	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	c2dd64cd-f7f3-4884-bc91-d46ae431901e	2025-05-02 17:12:08.081276+00	2025-05-02 17:12:08.08128+00	\N	f	\N	\N	{"1": {"content": {"sql": "SELECT\\n  COUNT(DISTINCT c.customerid) AS total_customers\\nFROM postgres.ont_ont.customer AS c\\n", "name": "Total Customers", "timeFrame": "All Time", "chartConfig": {"metricColumnId": "total_customers", "selectedChartType": "metric", "columnLabelFormats": {"total_customers": {"style": "number", "columnType": "number", "numberSeparatorStyle": ",", "maximumFractionDigits": 0, "replaceMissingDataWith": 0}}}, "description": "What is the total number of unique customers?"}, "updated_at": "2025-05-02T17:12:08.081290Z", "version_number": 1}}	{"row_count": 1, "column_count": 1, "column_metadata": [{"name": "total_customers", "type": "int8", "max_value": 19820.0, "min_value": 19820.0, "simple_type": "number", "unique_values": 1}]}	\N	cc3ef3bc-44ec-4a43-8dc4-681cae5c996a
@@ -1743,13 +1497,13 @@ e6224028-a508-514d-bf87-ff2196b5703a	Last 30 Clothing Products Sold	Last 30 Clot
 \.
 
 
-ALTER TABLE public.metric_files ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: metric_files_to_dashboard_files; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.metric_files_to_dashboard_files DISABLE TRIGGER ALL;
+
 
 COPY public.metric_files_to_dashboard_files (metric_file_id, dashboard_file_id, created_at, updated_at, deleted_at, created_by) FROM stdin;
 435f45d2-f3f0-578c-b3aa-d590d52fb09f	e57e64e6-9c8c-50d2-aa7e-491ce8c03898	2025-05-02 17:17:03.473395+00	2025-05-02 17:17:03.473398+00	\N	c2dd64cd-f7f3-4884-bc91-d46ae431901e
@@ -1784,13 +1538,13 @@ ea6b0583-e9cb-5b2f-a18c-69571042ee67	c0855f0f-f50a-424e-9e72-9e53711a7f6a	2025-0
 \.
 
 
-ALTER TABLE public.metric_files_to_dashboard_files ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: metric_files_to_datasets; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.metric_files_to_datasets DISABLE TRIGGER ALL;
+
 
 COPY public.metric_files_to_datasets (metric_file_id, dataset_id, metric_version_number, created_at) FROM stdin;
 1e91b291-8883-5451-8b98-89e99071e4f8	7a6ec01c-7718-4304-b8c6-38271b2db530	1	2025-05-02 17:12:08.132962+00
@@ -1856,13 +1610,13 @@ e6224028-a508-514d-bf87-ff2196b5703a	7c501b74-f2eb-4a93-bc6f-8751508ec84e	1	2025
 \.
 
 
-ALTER TABLE public.metric_files_to_datasets ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: permission_groups_to_identities; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.permission_groups_to_identities DISABLE TRIGGER ALL;
+
 
 COPY public.permission_groups_to_identities (permission_group_id, identity_id, identity_type, created_at, updated_at, deleted_at, created_by, updated_by) FROM stdin;
 6840fa04-c0d7-4e0e-8d3d-ea9190d93874	c2dd64cd-f7f3-4884-bc91-d46ae431901e	team	2024-11-05 15:41:13.98306+00	2024-11-05 15:41:13.98306+00	\N	6840fa04-c0d7-4e0e-8d3d-ea9190d93874	6840fa04-c0d7-4e0e-8d3d-ea9190d93874
@@ -1873,37 +1627,37 @@ b25e4d5a-178e-4441-a7eb-761e9dcec16f	70d05d4e-b2c1-40c5-be69-315e420fd0ab	user	2
 \.
 
 
-ALTER TABLE public.permission_groups_to_identities ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: permission_groups_to_users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.permission_groups_to_users DISABLE TRIGGER ALL;
+
 
 COPY public.permission_groups_to_users (permission_group_id, user_id, created_at) FROM stdin;
 \.
 
 
-ALTER TABLE public.permission_groups_to_users ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: sql_evaluations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.sql_evaluations DISABLE TRIGGER ALL;
+
 
 COPY public.sql_evaluations (id, evaluation_obj, evaluation_summary, score, created_at, updated_at, deleted_at) FROM stdin;
 \.
 
 
-ALTER TABLE public.sql_evaluations ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: stored_values_sync_jobs; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.stored_values_sync_jobs DISABLE TRIGGER ALL;
+
 
 COPY public.stored_values_sync_jobs (id, data_source_id, database_name, schema_name, table_name, column_name, last_synced_at, created_at, status, error_message) FROM stdin;
 38660933-9452-450b-9145-40ae17bd3fe1	cc3ef3bc-44ec-4a43-8dc4-681cae5c996a	postgres	ont_ont	product	sizeunitmeasurecode	2025-05-02 17:10:47.0282+00	2025-05-02 17:10:46.477197+00	success	\N
@@ -1992,13 +1746,13 @@ b0ea4daf-6cb6-4b93-afac-c76e8b0b6022	cc3ef3bc-44ec-4a43-8dc4-681cae5c996a	postgr
 \.
 
 
-ALTER TABLE public.stored_values_sync_jobs ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: teams; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.teams DISABLE TRIGGER ALL;
+
 
 COPY public.teams (id, name, organization_id, sharing_setting, edit_sql, upload_csv, export_assets, email_slack_enabled, created_by, created_at, updated_at, deleted_at) FROM stdin;
 c2dd64cd-f7f3-4884-bc91-d46ae431901e	Sales	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	none	f	f	f	f	6840fa04-c0d7-4e0e-8d3d-ea9190d93874	2024-11-05 15:41:13.962104+00	2024-11-05 15:41:13.962105+00	\N
@@ -2006,13 +1760,13 @@ c2dd64cd-f7f3-4884-bc91-d46ae431901e	Sales	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	
 \.
 
 
-ALTER TABLE public.teams ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: teams_to_users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.teams_to_users DISABLE TRIGGER ALL;
+
 
 COPY public.teams_to_users (team_id, user_id, role, created_at, updated_at, deleted_at) FROM stdin;
 c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e	manager	2024-11-05 15:41:13.964456+00	2024-11-05 15:41:13.964457+00	\N
@@ -2020,73 +1774,73 @@ c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e	manage
 \.
 
 
-ALTER TABLE public.teams_to_users ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: terms; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.terms DISABLE TRIGGER ALL;
+
 
 COPY public.terms (id, name, definition, sql_snippet, organization_id, created_by, updated_by, created_at, updated_at, deleted_at) FROM stdin;
 \.
 
 
-ALTER TABLE public.terms ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: terms_search; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.terms_search DISABLE TRIGGER ALL;
+
 
 COPY public.terms_search (id, term_id, content, definition, embedding, organization_id, created_at, updated_at, deleted_at) FROM stdin;
 \.
 
 
-ALTER TABLE public.terms_search ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: terms_to_datasets; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.terms_to_datasets DISABLE TRIGGER ALL;
+
 
 COPY public.terms_to_datasets (term_id, dataset_id, created_at, updated_at, deleted_at) FROM stdin;
 \.
 
 
-ALTER TABLE public.terms_to_datasets ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: threads_deprecated; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.threads_deprecated DISABLE TRIGGER ALL;
+
 
 COPY public.threads_deprecated (id, created_by, updated_by, publicly_accessible, publicly_enabled_by, public_expiry_date, password_secret_id, state_message_id, parent_thread_id, created_at, updated_at, deleted_at, organization_id) FROM stdin;
 \.
 
 
-ALTER TABLE public.threads_deprecated ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: threads_to_dashboards; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.threads_to_dashboards DISABLE TRIGGER ALL;
+
 
 COPY public.threads_to_dashboards (thread_id, dashboard_id, added_by, created_at, updated_at, deleted_at) FROM stdin;
 \.
 
 
-ALTER TABLE public.threads_to_dashboards ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: user_favorites; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.user_favorites DISABLE TRIGGER ALL;
+
 
 COPY public.user_favorites (user_id, asset_id, asset_type, order_index, created_at, deleted_at) FROM stdin;
 c2dd64cd-f7f3-4884-bc91-d46ae431901e	b401778a-bd93-53f4-b884-236aaf62c9a8	metric_file	1	2025-05-02 17:48:27.125755+00	\N
@@ -2097,13 +1851,13 @@ c2dd64cd-f7f3-4884-bc91-d46ae431901e	c0855f0f-f50a-424e-9e72-9e53711a7f6a	dashbo
 \.
 
 
-ALTER TABLE public.user_favorites ENABLE TRIGGER ALL;
+
 
 --
 -- Data for Name: users_to_organizations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-ALTER TABLE public.users_to_organizations DISABLE TRIGGER ALL;
+
 
 COPY public.users_to_organizations (user_id, organization_id, role, sharing_setting, edit_sql, upload_csv, export_assets, email_slack_enabled, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by, status) FROM stdin;
 c2dd64cd-f7f3-4884-bc91-d46ae431901e	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	workspace_admin	none	f	f	f	f	2024-11-05 15:41:13.958254+00	2024-11-05 15:41:13.958254+00	\N	c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e	\N	active
@@ -2113,292 +1867,3 @@ aa0a1367-3a10-4fe5-9244-2db46c000d64	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	restri
 8e98a1fc-c4d5-401c-98d8-2cce60e11079	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	restricted_querier	none	f	f	f	f	2025-05-02 17:14:31.649276+00	2025-05-02 17:14:31.649276+00	\N	c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e	\N	active
 70d05d4e-b2c1-40c5-be69-315e420fd0ab	bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce	viewer	none	f	f	f	f	2025-05-02 17:14:31.649276+00	2025-05-02 17:14:31.649276+00	\N	c2dd64cd-f7f3-4884-bc91-d46ae431901e	c2dd64cd-f7f3-4884-bc91-d46ae431901e	\N	active
 \.
-
-
-ALTER TABLE public.users_to_organizations ENABLE TRIGGER ALL;
-
---
--- Data for Name: schema_migrations; Type: TABLE DATA; Schema: realtime; Owner: -
---
-
-ALTER TABLE realtime.schema_migrations DISABLE TRIGGER ALL;
-
-COPY realtime.schema_migrations (version, inserted_at) FROM stdin;
-20211116024918	2025-05-02 16:52:58
-20211116045059	2025-05-02 16:52:58
-20211116050929	2025-05-02 16:52:58
-20211116051442	2025-05-02 16:52:58
-20211116212300	2025-05-02 16:52:58
-20211116213355	2025-05-02 16:52:58
-20211116213934	2025-05-02 16:52:58
-20211116214523	2025-05-02 16:52:58
-20211122062447	2025-05-02 16:52:58
-20211124070109	2025-05-02 16:52:58
-20211202204204	2025-05-02 16:52:58
-20211202204605	2025-05-02 16:52:58
-20211210212804	2025-05-02 16:52:58
-20211228014915	2025-05-02 16:52:58
-20220107221237	2025-05-02 16:52:58
-20220228202821	2025-05-02 16:52:58
-20220312004840	2025-05-02 16:52:58
-20220603231003	2025-05-02 16:52:58
-20220603232444	2025-05-02 16:52:58
-20220615214548	2025-05-02 16:52:58
-20220712093339	2025-05-02 16:52:58
-20220908172859	2025-05-02 16:52:58
-20220916233421	2025-05-02 16:52:58
-20230119133233	2025-05-02 16:52:58
-20230128025114	2025-05-02 16:52:58
-20230128025212	2025-05-02 16:52:58
-20230227211149	2025-05-02 16:52:58
-20230228184745	2025-05-02 16:52:58
-20230308225145	2025-05-02 16:52:58
-20230328144023	2025-05-02 16:52:58
-20231018144023	2025-05-02 16:52:58
-20231204144023	2025-05-02 16:52:58
-20231204144024	2025-05-02 16:52:58
-20231204144025	2025-05-02 16:52:58
-20240108234812	2025-05-02 16:52:58
-20240109165339	2025-05-02 16:52:58
-20240227174441	2025-05-02 16:52:58
-20240311171622	2025-05-02 16:52:58
-20240321100241	2025-05-02 16:52:58
-20240401105812	2025-05-02 16:52:58
-20240418121054	2025-05-02 16:52:58
-20240523004032	2025-05-02 16:52:58
-20240618124746	2025-05-02 16:52:58
-20240801235015	2025-05-02 16:52:58
-20240805133720	2025-05-02 16:52:58
-20240827160934	2025-05-02 16:52:58
-20240919163303	2025-05-02 16:52:58
-20240919163305	2025-05-02 16:52:58
-20241019105805	2025-05-02 16:52:58
-20241030150047	2025-05-02 16:52:58
-20241108114728	2025-05-02 16:52:58
-20241121104152	2025-05-02 16:52:58
-20241130184212	2025-05-02 16:52:58
-20241220035512	2025-05-02 16:52:58
-20241220123912	2025-05-02 16:52:58
-20241224161212	2025-05-02 16:52:58
-20250107150512	2025-05-02 16:52:58
-20250110162412	2025-05-02 16:52:58
-20250123174212	2025-05-02 16:52:58
-20250128220012	2025-05-02 16:52:58
-\.
-
-
-ALTER TABLE realtime.schema_migrations ENABLE TRIGGER ALL;
-
---
--- Data for Name: subscription; Type: TABLE DATA; Schema: realtime; Owner: -
---
-
-ALTER TABLE realtime.subscription DISABLE TRIGGER ALL;
-
-COPY realtime.subscription (id, subscription_id, entity, filters, claims, created_at) FROM stdin;
-\.
-
-
-ALTER TABLE realtime.subscription ENABLE TRIGGER ALL;
-
---
--- Data for Name: buckets; Type: TABLE DATA; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.buckets DISABLE TRIGGER ALL;
-
-COPY storage.buckets (id, name, owner, created_at, updated_at, public, avif_autodetection, file_size_limit, allowed_mime_types, owner_id) FROM stdin;
-\.
-
-
-ALTER TABLE storage.buckets ENABLE TRIGGER ALL;
-
---
--- Data for Name: migrations; Type: TABLE DATA; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.migrations DISABLE TRIGGER ALL;
-
-COPY storage.migrations (id, name, hash, executed_at) FROM stdin;
-0	create-migrations-table	e18db593bcde2aca2a408c4d1100f6abba2195df	2025-05-02 16:52:58.927734
-1	initialmigration	6ab16121fbaa08bbd11b712d05f358f9b555d777	2025-05-02 16:52:58.928807
-2	storage-schema	5c7968fd083fcea04050c1b7f6253c9771b99011	2025-05-02 16:52:58.929375
-3	pathtoken-column	2cb1b0004b817b29d5b0a971af16bafeede4b70d	2025-05-02 16:52:58.934294
-4	add-migrations-rls	427c5b63fe1c5937495d9c635c263ee7a5905058	2025-05-02 16:52:58.939372
-5	add-size-functions	79e081a1455b63666c1294a440f8ad4b1e6a7f84	2025-05-02 16:52:58.940252
-6	change-column-name-in-get-size	f93f62afdf6613ee5e7e815b30d02dc990201044	2025-05-02 16:52:58.941259
-7	add-rls-to-buckets	e7e7f86adbc51049f341dfe8d30256c1abca17aa	2025-05-02 16:52:58.942109
-8	add-public-to-buckets	fd670db39ed65f9d08b01db09d6202503ca2bab3	2025-05-02 16:52:58.942726
-9	fix-search-function	3a0af29f42e35a4d101c259ed955b67e1bee6825	2025-05-02 16:52:58.943356
-10	search-files-search-function	68dc14822daad0ffac3746a502234f486182ef6e	2025-05-02 16:52:58.944361
-11	add-trigger-to-auto-update-updated_at-column	7425bdb14366d1739fa8a18c83100636d74dcaa2	2025-05-02 16:52:58.945201
-12	add-automatic-avif-detection-flag	8e92e1266eb29518b6a4c5313ab8f29dd0d08df9	2025-05-02 16:52:58.947431
-13	add-bucket-custom-limits	cce962054138135cd9a8c4bcd531598684b25e7d	2025-05-02 16:52:58.948089
-14	use-bytes-for-max-size	941c41b346f9802b411f06f30e972ad4744dad27	2025-05-02 16:52:58.950142
-15	add-can-insert-object-function	934146bc38ead475f4ef4b555c524ee5d66799e5	2025-05-02 16:52:58.957026
-16	add-version	76debf38d3fd07dcfc747ca49096457d95b1221b	2025-05-02 16:52:58.957698
-17	drop-owner-foreign-key	f1cbb288f1b7a4c1eb8c38504b80ae2a0153d101	2025-05-02 16:52:58.958133
-18	add_owner_id_column_deprecate_owner	e7a511b379110b08e2f214be852c35414749fe66	2025-05-02 16:52:58.9587
-19	alter-default-value-objects-id	02e5e22a78626187e00d173dc45f58fa66a4f043	2025-05-02 16:52:58.959915
-20	list-objects-with-delimiter	cd694ae708e51ba82bf012bba00caf4f3b6393b7	2025-05-02 16:52:58.960567
-21	s3-multipart-uploads	8c804d4a566c40cd1e4cc5b3725a664a9303657f	2025-05-02 16:52:58.962133
-22	s3-multipart-uploads-big-ints	9737dc258d2397953c9953d9b86920b8be0cdb73	2025-05-02 16:52:58.969329
-23	optimize-search-function	9d7e604cddc4b56a5422dc68c9313f4a1b6f132c	2025-05-02 16:52:58.973214
-24	operation-function	8312e37c2bf9e76bbe841aa5fda889206d2bf8aa	2025-05-02 16:52:58.973973
-25	custom-metadata	d974c6057c3db1c1f847afa0e291e6165693b990	2025-05-02 16:52:58.975096
-26	objects-prefixes	ef3f7871121cdc47a65308e6702519e853422ae2	2025-05-02 16:52:58.975717
-27	search-v2	33b8f2a7ae53105f028e13e9fcda9dc4f356b4a2	2025-05-02 16:52:58.980267
-28	object-bucket-name-sorting	ba85ec41b62c6a30a3f136788227ee47f311c436	2025-05-02 16:52:58.986426
-29	create-prefixes	a7b1a22c0dc3ab630e3055bfec7ce7d2045c5b7b	2025-05-02 16:52:58.987514
-30	update-object-levels	6c6f6cc9430d570f26284a24cf7b210599032db7	2025-05-02 16:52:58.988194
-31	objects-level-index	33f1fef7ec7fea08bb892222f4f0f5d79bab5eb8	2025-05-02 16:52:58.989479
-32	backward-compatible-index-on-objects	2d51eeb437a96868b36fcdfb1ddefdf13bef1647	2025-05-02 16:52:58.991761
-33	backward-compatible-index-on-prefixes	fe473390e1b8c407434c0e470655945b110507bf	2025-05-02 16:52:58.992828
-34	optimize-search-function-v1	82b0e469a00e8ebce495e29bfa70a0797f7ebd2c	2025-05-02 16:52:58.993167
-35	add-insert-trigger-prefixes	63bb9fd05deb3dc5e9fa66c83e82b152f0caf589	2025-05-02 16:52:58.994594
-36	optimise-existing-functions	81cf92eb0c36612865a18016a38496c530443899	2025-05-02 16:52:58.995104
-\.
-
-
-ALTER TABLE storage.migrations ENABLE TRIGGER ALL;
-
---
--- Data for Name: objects; Type: TABLE DATA; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.objects DISABLE TRIGGER ALL;
-
-COPY storage.objects (id, bucket_id, name, owner, created_at, updated_at, last_accessed_at, metadata, version, owner_id, user_metadata, level) FROM stdin;
-\.
-
-
-ALTER TABLE storage.objects ENABLE TRIGGER ALL;
-
---
--- Data for Name: prefixes; Type: TABLE DATA; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.prefixes DISABLE TRIGGER ALL;
-
-COPY storage.prefixes (bucket_id, name, created_at, updated_at) FROM stdin;
-\.
-
-
-ALTER TABLE storage.prefixes ENABLE TRIGGER ALL;
-
---
--- Data for Name: s3_multipart_uploads; Type: TABLE DATA; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.s3_multipart_uploads DISABLE TRIGGER ALL;
-
-COPY storage.s3_multipart_uploads (id, in_progress_size, upload_signature, bucket_id, key, version, owner_id, created_at, user_metadata) FROM stdin;
-\.
-
-
-ALTER TABLE storage.s3_multipart_uploads ENABLE TRIGGER ALL;
-
---
--- Data for Name: s3_multipart_uploads_parts; Type: TABLE DATA; Schema: storage; Owner: -
---
-
-ALTER TABLE storage.s3_multipart_uploads_parts DISABLE TRIGGER ALL;
-
-COPY storage.s3_multipart_uploads_parts (id, upload_id, size, part_number, bucket_id, key, etag, owner_id, version, created_at) FROM stdin;
-\.
-
-
-ALTER TABLE storage.s3_multipart_uploads_parts ENABLE TRIGGER ALL;
-
---
--- Data for Name: hooks; Type: TABLE DATA; Schema: supabase_functions; Owner: -
---
-
-ALTER TABLE supabase_functions.hooks DISABLE TRIGGER ALL;
-
-COPY supabase_functions.hooks (id, hook_table_id, hook_name, created_at, request_id) FROM stdin;
-\.
-
-
-ALTER TABLE supabase_functions.hooks ENABLE TRIGGER ALL;
-
---
--- Data for Name: migrations; Type: TABLE DATA; Schema: supabase_functions; Owner: -
---
-
-ALTER TABLE supabase_functions.migrations DISABLE TRIGGER ALL;
-
-COPY supabase_functions.migrations (version, inserted_at) FROM stdin;
-initial	2025-05-02 16:52:47.512597+00
-20210809183423_update_grants	2025-05-02 16:52:47.512597+00
-\.
-
-
-ALTER TABLE supabase_functions.migrations ENABLE TRIGGER ALL;
-
---
--- Data for Name: seed_files; Type: TABLE DATA; Schema: supabase_migrations; Owner: -
---
-
-ALTER TABLE supabase_migrations.seed_files DISABLE TRIGGER ALL;
-
-COPY supabase_migrations.seed_files (path, hash) FROM stdin;
-supabase/seed.sql	e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-\.
-
-
-ALTER TABLE supabase_migrations.seed_files ENABLE TRIGGER ALL;
-
---
--- Data for Name: secrets; Type: TABLE DATA; Schema: vault; Owner: -
---
-
-ALTER TABLE vault.secrets DISABLE TRIGGER ALL;
-
-COPY vault.secrets (id, name, description, secret, key_id, nonce, created_at, updated_at) FROM stdin;
-f9886703-199b-4571-8eee-1e7abfc0422f	project_url		XQVPbftO73yEzbDH0jSZhfuBSXpdyC2UxKivGv+joFg6tw19g4jep6FsM2rZin2poBGIqwE5	\N	\\xc95ec5c801d028b8068c7a756fae12cf	2025-05-02 16:53:10.35624+00	2025-05-02 16:53:10.35624+00
-c872b210-83f1-4839-aa8a-b4ef8eaf0929	cc3ef3bc-44ec-4a43-8dc4-681cae5c996a		xgdQzK6unfJZCtuxJMto0lTLP64lsIM/vWksVrtuFPlJDHdZ+HY7+FQeMttz5beoLm0mjU1MmJuZ\nkDPryoqNLqy3tVu2vWRfHaDDRCh5BGpjFyqUZD+x1525FvUkgM5ylU5/TN1RsEEXDa55cqx0baWW\nQeU6m2/RtilKnGuRZ1/jff4ixdi2X05EK19eqejEibqITNoqZnSdQrxzUgfmjlrFBVt1esyQjy9F\n9Gp8qze+AwaxZ4t3mYU5rg5JAtbOBW41XBp+BzUhB3aI26VfEET/r53z0neK2+I8BQh9Gm9fW0XU\nbsOKKrXz+/GpdLR5Xo2T70sbsnoV51IIfc57AWF/K0O4iUis0HXIKpU4fF2kxoH74zIwmWbtlz2M\nWuyLD4SAEdm6	\N	\\x61b85eb8c877d98d3876f9c7b23c1a0d	2025-05-02 16:53:10.361757+00	2025-05-02 16:53:10.361757+00
-\.
-
-
-ALTER TABLE vault.secrets ENABLE TRIGGER ALL;
-
---
--- Name: refresh_tokens_id_seq; Type: SEQUENCE SET; Schema: auth; Owner: -
---
-
-SELECT pg_catalog.setval('auth.refresh_tokens_id_seq', 9, true);
-
-
---
--- Name: jobid_seq; Type: SEQUENCE SET; Schema: cron; Owner: -
---
-
-SELECT pg_catalog.setval('cron.jobid_seq', 1, true);
-
-
---
--- Name: runid_seq; Type: SEQUENCE SET; Schema: cron; Owner: -
---
-
-SELECT pg_catalog.setval('cron.runid_seq', 1, false);
-
-
---
--- Name: subscription_id_seq; Type: SEQUENCE SET; Schema: realtime; Owner: -
---
-
-SELECT pg_catalog.setval('realtime.subscription_id_seq', 1, false);
-
-
---
--- Name: hooks_id_seq; Type: SEQUENCE SET; Schema: supabase_functions; Owner: -
---
-
-SELECT pg_catalog.setval('supabase_functions.hooks_id_seq', 1, false);
-
-
---
--- PostgreSQL database dump complete
---
-
