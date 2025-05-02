@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import isEmpty from 'lodash/isEmpty';
 import { jwtDecode } from 'jwt-decode';
+import { expect } from '@playwright/test';
 
 // Path to the authentication state file
 export const authFile = path.join(__dirname, 'auth.json');
@@ -64,21 +65,42 @@ export async function login(page: Page) {
   // await page.click('button[type="submit"]');
 
   await page.getByText('Sign in').click();
+  await page.getByText(`Don't already have an account?`).click();
   await page.getByRole('textbox', { name: 'What is your email address?' }).fill('chad@buster.so');
   await page.getByRole('textbox', { name: 'What is your email address?' }).press('Tab');
   await page.getByRole('textbox', { name: 'Password' }).fill('password');
+  expect(page.getByRole('textbox', { name: 'Confirm passowrd' })).not.toBeVisible();
   await page.getByRole('button', { name: 'Sign in' }).click();
+  console.log('Waiting for response to /auth/login');
+  // Check that call to /auth/login was fired
+  await page.waitForResponse(
+    (response) => response.url().includes('/auth/login') && response.status() === 200
+  );
+  console.log('Response to /auth/login received');
+  //expect "Invalid email or password" to not be visible
+  expect(page.getByText('Invalid email or password')).not.toBeVisible();
+  console.log('Invalid email or password not visible');
+
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForTimeout(250);
+
+  console.log('Waiting for home page after login', page.url());
+
   await page.waitForURL('http://localhost:3000/app/home');
   await page.waitForTimeout(350);
   await page.goto('http://localhost:3000/app/new-user');
   await page.getByRole('button', { name: 'Get Started' }).click();
   await page.getByRole('textbox', { name: 'What is your full name' }).dblclick();
   await page.getByRole('textbox', { name: 'What is your full name' }).fill('Chad');
-
-  await page.waitForTimeout(50);
+  await page.waitForTimeout(20);
   await page.getByRole('button', { name: 'Create your account' }).click();
-  await page.waitForTimeout(50);
+  await page.waitForTimeout(550);
 
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
+
+  console.log('Waiting for home page', page.url());
   await page.waitForURL('http://localhost:3000/app/home');
 
   // Wait for the page to be fully loaded before accessing storage

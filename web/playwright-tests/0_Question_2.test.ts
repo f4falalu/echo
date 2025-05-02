@@ -15,5 +15,5 @@ test('Question: Can you make me a line chart that showcases my sales over time? 
   await expect(page.getByText('Reasoned')).toBeVisible();
 
   //expect to for the text "Chart" on the page
-  await expect(page.getByText('Chart')).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Chart' })).toBeVisible();
 });

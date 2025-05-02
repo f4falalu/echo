@@ -5,6 +5,8 @@ test.describe.serial('Dataset tests', () => {
   test('Can navigate to a dataset chart from the dataset list', async ({ page }) => {
     await page.goto('http://localhost:3000/app/home');
     await page.getByRole('link', { name: 'Datasets' }).click();
+    //wait for url to change
+    await page.waitForURL((url) => url.toString().includes('datasets'));
 
     await expect(
       page

@@ -67,7 +67,9 @@ async function globalSetup(config: FullConfig) {
         }
       } else {
         await login(page).catch((error) => {
-          throw new Error(`Error during global setup: Failed to login - ${error}`);
+          throw new Error(
+            `Error during global setup: Failed to login with no valid auth - ${error}`
+          );
         });
       }
 

@@ -34,6 +34,7 @@ export const AvailableItemsList: React.FC<AvailableItemsListProps> = ({
       className="mb-4 h-full"
       ref={setNodeRef}>
       <div
+        data-testid={`select-axis-available-items-list`}
         className={cn(
           'mb-1',
           showDeleteHoverState ? 'rounded bg-red-100 shadow-[0_0_3px_1px] shadow-red-300' : ''

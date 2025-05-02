@@ -82,7 +82,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: process.env.CI ? 'make start-fast' : 'make dev',
+    command: process.env.PLAYWRIGHT_START_COMMAND || 'make start-fast',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 60 * 1000 * 6,
