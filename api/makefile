@@ -13,17 +13,11 @@ dev:
 update-seed:
 	PGPASSWORD=postgres pg_dump -h 127.0.0.1 -p 54322 -U postgres -d postgres \\
 	--data-only --no-owner --no-privileges \\
+	--schema=public \\
 	--exclude-table=schema_migrations \\
 	--exclude-table=__diesel_schema_migrations \\
 	--exclude-table=migrations \\
-	--exclude-table=supabase_migrations.schema_migrations \\
-	--exclude-schema=auth \\
-	--exclude-schema=storage \\
-	--exclude-schema=realtime \\
-	--exclude-schema=pgsodium \\
-	--exclude-schema=pgsodium_masks \\
-	--exclude-schema='pg_*' \\
-	--exclude-schema=information_schema \\
+	--exclude-table=users \\
 	> libs/database/seed.sql
 
 stop:
