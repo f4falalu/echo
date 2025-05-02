@@ -115,7 +115,7 @@ pub async fn create_collection_handler(
         };
 
         let query = diesel::sql_query(
-            "INSERT INTO asset_search (asset_id, asset_type, content, organization_id)
+            "insert into public.asset_search (asset_id, asset_type, content, organization_id)
             VALUES ($1, 'collection', $2, $3)
             ON CONFLICT (asset_id, asset_type) 
             DO UPDATE SET
