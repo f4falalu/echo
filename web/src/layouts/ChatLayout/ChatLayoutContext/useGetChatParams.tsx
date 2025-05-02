@@ -4,7 +4,6 @@ import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { FileViewSecondary } from './useLayoutConfig';
-import { useWhyDidYouUpdate } from '@/hooks';
 import { pathNameToRoute } from '@/routes/helpers';
 
 export const useGetChatParams = () => {
@@ -52,20 +51,6 @@ export const useGetChatParams = () => {
     if (secondaryView === 'version-history') return true;
     return false;
   }, [secondaryView]);
-
-  useWhyDidYouUpdate('useGetChatParams', {
-    currentRoute,
-    isVersionHistoryMode,
-    chatId,
-    metricId,
-    dashboardId,
-    collectionId,
-    datasetId,
-    messageId,
-    metricVersionNumber,
-    dashboardVersionNumber,
-    secondaryView
-  });
 
   return useMemo(
     () => ({

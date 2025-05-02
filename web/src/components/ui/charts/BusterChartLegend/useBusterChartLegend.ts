@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useLegendAutoShow } from './useLegendAutoShow';
 import { BusterChartLegendItem } from './interfaces';
 import {
@@ -15,7 +15,7 @@ import {
   DEFAULT_X_AXIS_COLUMN_NAMES,
   DEFAULT_Y_AXIS_COLUMN_NAMES
 } from './config';
-import { useUpdateEffect, useWhyDidYouUpdate } from '@/hooks';
+import { useUpdateEffect } from '@/hooks';
 
 interface UseBusterChartLegendProps {
   selectedChartType: ChartType;
