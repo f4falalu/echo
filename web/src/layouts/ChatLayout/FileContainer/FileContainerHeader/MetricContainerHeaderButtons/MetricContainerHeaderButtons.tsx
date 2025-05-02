@@ -102,6 +102,7 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
       shallow={true}
       prefetch={true}
       passHref
+      data-testid="edit-chart-button"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -177,6 +178,7 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
       href={href}
       prefetch={true}
       shallow={true}
+      data-testid="edit-sql-button"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();

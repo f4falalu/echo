@@ -3,7 +3,11 @@ import type { Chart, ScriptableContext } from 'chart.js';
 
 describe('barDelayAnimation', () => {
   test('should calculate correct delay for regular bar chart', () => {
-    const animation = barDelayAnimation({ barGroupType: 'group', maxDelay: 1000 });
+    const animation = barDelayAnimation({
+      barGroupType: 'group',
+      maxDelayBetweenDatasets: 500,
+      maxDelayBetweenDataPoints: 200
+    });
 
     // Mock chart context
     const context = {
@@ -24,16 +28,19 @@ describe('barDelayAnimation', () => {
     } as unknown as ScriptableContext<'bar'>;
 
     // Calculate expected delay
-    // For 3 datasets with 3 data points each, total segments = 8 (9-1)
-    // Scaling factor = 1000 / 8 = 125
-    // Position = (2 * 3 + 1) = 7
-    // Expected delay = 7 * 125 = 875
+    // datasetIndex = 2, dataIndex = 1
+    // delay = 2 * 500 + 1 * 200 = 1200
+    // Expected delay = 1200
     const delay = animation.delay?.(context);
-    expect(delay).toBe(875);
+    expect(delay).toBe(1200);
   });
 
   test('should return zero delay for percentage-stack chart type', () => {
-    const animation = barDelayAnimation({ barGroupType: 'percentage-stack', maxDelay: 1000 });
+    const animation = barDelayAnimation({
+      barGroupType: 'percentage-stack',
+      maxDelayBetweenDatasets: 500,
+      maxDelayBetweenDataPoints: 200
+    });
 
     const context = {
       type: 'data',

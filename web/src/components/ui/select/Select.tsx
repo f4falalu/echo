@@ -35,6 +35,7 @@ export interface SelectProps<T> {
   showIndex?: boolean;
   className?: string;
   defaultValue?: string;
+  dataTestId?: string;
 }
 
 export const Select = <T extends string>({
@@ -47,7 +48,8 @@ export const Select = <T extends string>({
   onOpenChange,
   open,
   className = '',
-  defaultValue
+  defaultValue,
+  dataTestId
 }: SelectProps<T>) => {
   const onValueChange = useMemoizedFn((value: string) => {
     onChange(value as T);
@@ -60,7 +62,7 @@ export const Select = <T extends string>({
       defaultValue={defaultValue}
       value={value}
       onValueChange={onValueChange}>
-      <SelectTrigger className={className}>
+      <SelectTrigger className={className} data-testid={dataTestId}>
         <SelectValue placeholder={placeholder} defaultValue={value || defaultValue} />
       </SelectTrigger>
       <SelectContent>

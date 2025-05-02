@@ -2,7 +2,8 @@ import type { BusterChartProps } from '@/api/asset_interfaces/metric';
 import type { AnimationOptions } from 'chart.js';
 import memoize from 'lodash/memoize';
 
-const MAX_DELAY = 1000;
+const DEFAULT_MAX_DELAY_DATA_POINT = 95;
+const DEFAULT_MAX_DELAY_DATASET = 250;
 
 // Create a memoized function that uses the chart ID as part of the cache key
 const createHasDataLabelsChecker = () => {
@@ -24,10 +25,15 @@ const createHasDataLabelsChecker = () => {
 };
 
 export const barDelayAnimation = (props?: {
-  maxDelay?: number;
+  maxDelayBetweenDataPoints?: number;
+  maxDelayBetweenDatasets?: number;
   barGroupType: BusterChartProps['barGroupType'];
 }) => {
-  const { maxDelay = MAX_DELAY, barGroupType } = props || {};
+  const {
+    maxDelayBetweenDataPoints = DEFAULT_MAX_DELAY_DATA_POINT,
+    maxDelayBetweenDatasets = DEFAULT_MAX_DELAY_DATASET,
+    barGroupType
+  } = props || {};
   let delayed = false;
 
   // Create a new memoized function for this animation instance
@@ -55,15 +61,18 @@ export const barDelayAnimation = (props?: {
       let delay = 0;
       const dataIndex = context.dataIndex;
       const datasetIndex = context.datasetIndex;
-      const numberOfDatasets = context.chart.data.datasets.length;
+
       const numberOfDataPoints = context.chart.data.datasets[datasetIndex]?.data.length || 1;
+      const numberOfDatasets = context.chart.data.datasets.length || 1;
+
+      if (numberOfDataPoints > 12 || numberOfDatasets > 3) {
+        return delay;
+      }
 
       if (context.type === 'data' && context.mode === 'default' && !delayed) {
-        const totalSegments = numberOfDatasets * numberOfDataPoints - 1;
-        const scalingFactor = totalSegments > 0 ? maxDelay / totalSegments : 0;
-        const sequencePosition = datasetIndex * numberOfDataPoints + dataIndex;
-        delay = sequencePosition * scalingFactor;
+        delay = datasetIndex * maxDelayBetweenDatasets + dataIndex * maxDelayBetweenDataPoints;
       }
+
       return delay;
     }
   } satisfies AnimationOptions<'bar'>['animation'];
