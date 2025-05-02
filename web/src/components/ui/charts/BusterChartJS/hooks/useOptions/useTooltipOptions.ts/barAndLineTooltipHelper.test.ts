@@ -109,12 +109,6 @@ describe('barAndLineTooltipHelper', () => {
     const hasMultipleShownDatasets = true;
     const mockDataPoint = createMockDataPoint();
 
-    console.log(JSON.stringify(mockChart, null, 2));
-
-    console.log(JSON.stringify(mockColumnLabelFormats, null, 2));
-
-    console.log(JSON.stringify(mockDataPoint, null, 2));
-
     const result = barAndLineTooltipHelper(
       [mockDataPoint],
       mockChart,
@@ -123,8 +117,6 @@ describe('barAndLineTooltipHelper', () => {
       hasMultipleShownDatasets,
       undefined
     );
-
-    console.log(JSON.stringify(result, null, 2));
 
     expect(result).toHaveLength(2);
 

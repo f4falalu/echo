@@ -25,7 +25,6 @@ export const addLegendHeadlines = (
   //  const canUseRange = !hasMultipleXAxisDimensions && xIsDate;
   // let range: string;
   // if (canUseRange) {
-  //   console.log(columnMetadata, firstXAxisDimensionName);
   //   const firstXAxisDimensionMetadata = columnMetadata.find(
   //     (metadata) => metadata.name === firstXAxisDimensionName
   //   );

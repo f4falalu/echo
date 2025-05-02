@@ -307,9 +307,7 @@ describe('lineSeriesBuilder', () => {
         }
       };
       const labels = lineSeriesBuilder_labels(props);
-      console.log(props.datasetOptions.ticks);
       expect(props.datasetOptions.ticks).toHaveLength(3);
-      console.log(labels);
       expect(labels).toHaveLength(3);
       expect(typeof labels[0]).not.toBe('string');
       expect(createDayjsDate).toHaveBeenCalledWith('2023-01-01');
