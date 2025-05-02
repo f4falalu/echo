@@ -445,7 +445,7 @@ definitions:
         description: Custom display name for the column
       numberSeparatorStyle:
         type: string
-        description: Style for number separators. Your option is ',' or null.  Null results in no separator.
+        description: Style for number separators. Your option is ',' or a null value.  Not null wrapped in quotes, a null value.
       minimumFractionDigits:
         type: integer
         description: Minimum number of fraction digits to display
