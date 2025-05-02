@@ -55,6 +55,14 @@ runs:
       shell: bash
       run: |
         # Use hardcoded default credentials for local Supabase
+        PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -f ./api/libs/database/setup.sql
+      env:
+        DATABASE_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres # Also set here just in case seed script needs it
+
+    - name: Seed Database
+      shell: bash
+      run: |
+        # Use hardcoded default credentials for local Supabase
         PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -f ./api/libs/database/seed.sql
       env:
         DATABASE_URL: postgres://postgres:postgres@127.0.0.1:54322/postgres # Also set here just in case seed script needs it
