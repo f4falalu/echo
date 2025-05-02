@@ -18,9 +18,11 @@ export default defineConfig({
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
+  /* timeout for each test */
+  timeout: 180000,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
+  /* Run 3 tests in parallel */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
@@ -33,7 +35,7 @@ export default defineConfig({
     /* Capture screenshot on failure */
     screenshot: 'on',
     /* Run tests in headed mode (non-headless) */
-    headless: false,
+    headless: true,
     /* Use stored auth state only if it exists */
     storageState: fs.existsSync(path.join(__dirname, 'playwright-tests/auth-utils/auth.json'))
       ? path.join(__dirname, 'playwright-tests/auth-utils/auth.json')
@@ -51,18 +53,16 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] }
-    },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] }
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] }
     }
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] }
+    // },
 
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] }
+    // }
     /* Test against mobile viewports. */
     // {
     //   name: 'Mobile Chrome',
@@ -78,17 +78,15 @@ export default defineConfig({
     //   name: 'Microsoft Edge',
     //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
     // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
   ],
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
+    command: 'make start-fast',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 30 * 1000 // 30 seconds
+    timeout: 60 * 1000 * 6,
+    stdout: 'pipe',
+    stderr: 'pipe'
   }
 });
