@@ -1,4 +1,4 @@
-select vault.create_secret('cc3ef3bc-44ec-4a43-8dc4-681cae5c996a', '{"type":"postgres","host":"aws-0-us-east-1.pooler.supabase.com","port":5432,"username":"postgres.fjbidcbjvmpesoonimhl","password":"S8Jrts05EqxsfA3q","database":"postgres","schema":"sem","jump_host":null,"ssh_username":null,"ssh_private_key":null}');
+select vault.create_secret('{"type":"postgres","host":"aws-0-us-east-1.pooler.supabase.com","port":5432,"username":"postgres.fjbidcbjvmpesoonimhl","password":"S8Jrts05EqxsfA3q","database":"postgres","schema":"sem","jump_host":null,"ssh_username":null,"ssh_private_key":null}', 'cc3ef3bc-44ec-4a43-8dc4-681cae5c996a');
 
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: auth; Owner: supabase_auth_admin
