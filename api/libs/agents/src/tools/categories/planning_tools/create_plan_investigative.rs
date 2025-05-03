@@ -77,7 +77,10 @@ impl ToolExecutor for CreatePlanInvestigative {
             }
         }
 
-        Ok(CreatePlanInvestigativeOutput { success: true, todos: todos_string })
+        Ok(CreatePlanInvestigativeOutput {
+            success: true,
+            todos: todos_string,
+        })
     }
 
     async fn get_schema(&self) -> Value {
@@ -173,6 +176,22 @@ Add any assumptions, limitations, or clarifications about the analysis and findi
 - **Use Names instead of IDs**: When visualizations or tables include things like people, customers, vendors, products, categories, etc, you should display names instead of IDs (if names are included in the available datasets). IDs are not meaningful to users. For people, you should combine first and last names if they are available. State this clearly in the `Expected Output` (e.g., "...split into separate lines by sales rep full names").
 - **Default Time Range**: If the user does not specify a time range for a visualization, default to the last 12 months.
 - **Visual Modifications**: If the user requests visual changes (e.g., "make charts green"), describe the *intended change* (e.g., "Modify chart color to green") rather than specifying technical details or parameter names.
+- **Include Specified Filters in Titles**: When a user requests specific filters (e.g., specific individuals, teams, regions, or time periods), incorporate those filters directly into the titles of visualizations or dashboards to reflect the filtered context. Ensure titles remain concise while clearly reflecting the specified filters. Examples:
+  - **Initial Request:** "Show me monthly sales for Doug Smith."  
+    - Title: *Monthly Sales for Doug Smith*  
+      *(Only the metric and Doug Smith filter are included at this stage.)*
+  - **Follow-up Request:** "Only show his online sales."  
+    - Updated Title: *Monthly Online Sales for Doug Smith*  
+      *(Now reflects the cumulative state: monthly sales + Doug Smith + online only.)*
+  - **Modify Dashboard Request:** "Change the Sales Overview dashboard to only show sales from the northwest team." 
+    - **Dashboard Title:** *Sales Overview, Northwest Team*  
+    - **Visualization Titles:** *[Metric Name] for Northwest Team* (e.g., *Total Sales for Northwest Team*)  
+      *(The dashboard and its visualizations now reflect the northwest team filter applied to the entire context.)*
+  - **Time-Specific Request:** "Show Q1 2023 data only."  
+    - **Dashboard Title:** *Sales Overview, Northwest Team, Q1 2023*  
+    - **Visualization Titles:**  
+      - *Total Sales for Northwest Team, Q1 2023*  
+      *(Titles now include the time filter layered onto the existing state.)*
 
 ---
 
