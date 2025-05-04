@@ -39,7 +39,6 @@ async function globalSetup(config: FullConfig) {
     });
 
     const hasValidAuthJSON = hasValidAuth();
-    console.log('hasValidAuthJSON', hasValidAuthJSON);
 
     try {
       // Check if we have valid stored credentials

@@ -59,17 +59,22 @@ export const formatNumber = (
     ].filter(isNumber)
   );
 
-  const formatter = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: options?.minDecimals,
-    maximumFractionDigits: maxFractionDigits,
-    notation: options?.compact ? 'compact' : 'standard',
-    compactDisplay: 'short',
-    style: options?.currency ? 'currency' : 'decimal',
-    currency: options?.currency,
-    useGrouping: options?.useGrouping !== false
-  });
+  try {
+    const formatter = new Intl.NumberFormat(locale, {
+      minimumFractionDigits: options?.minDecimals,
+      maximumFractionDigits: maxFractionDigits,
+      notation: options?.compact ? 'compact' : 'standard',
+      compactDisplay: 'short',
+      style: options?.currency ? 'currency' : 'decimal',
+      currency: options?.currency,
+      useGrouping: options?.useGrouping !== false
+    });
 
-  return formatter.format(Number(value));
+    return formatter.format(Number(value));
+  } catch (error) {
+    console.error('error', error, { value, options });
+    return String(value);
+  }
 
   /*
   300000000
