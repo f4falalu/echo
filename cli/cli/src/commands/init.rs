@@ -47,6 +47,13 @@ impl std::fmt::Display for DatabaseType {
 
 // Using shared RedshiftCredentials from query_engine now, no need for local definition
 
+// Helper struct to parse dbt_project.yml
+#[derive(Debug, Deserialize)]
+struct DbtProject {
+    #[serde(rename = "model-paths")]
+    model_paths: Option<Vec<String>>,
+}
+
 pub async fn init(destination_path: Option<&str>) -> Result<()> {
     println!("{}", "Initializing Buster...".bold().green());
 
@@ -1152,12 +1159,55 @@ fn create_buster_config_file(
     database: &str,
     schema: Option<&str>,
 ) -> Result<()> {
-    // Prompt for model paths (optional)
+    // --- BEGIN DBT PROJECT DETECTION ---
+    let mut suggested_model_paths = "".to_string(); // Default to empty string
+
+    // Construct path to dbt_project.yml relative to the buster.yml path
+    if let Some(parent_dir) = path.parent() {
+        let dbt_project_path = parent_dir.join("dbt_project.yml");
+        if dbt_project_path.exists() && dbt_project_path.is_file() {
+            match fs::read_to_string(&dbt_project_path) {
+                Ok(content) => {
+                    match serde_yaml::from_str::<DbtProject>(&content) {
+                        Ok(dbt_config) => {
+                            // Use specified model-paths or default ["models"] if present in file
+                            let paths_to_suggest = dbt_config.model_paths.unwrap_or_else(|| vec!["models".to_string()]);
+                             if !paths_to_suggest.is_empty() {
+                                suggested_model_paths = paths_to_suggest.join(",");
+                                println!(
+                                    "{}",
+                                    format!("Found dbt_project.yml, suggesting model paths: {}", suggested_model_paths.cyan()).dimmed()
+                                );
+                            }
+                        },
+                        Err(e) => {
+                            // Log error but don't fail the init process
+                            eprintln!(
+                                "{}",
+                                format!("Warning: Failed to parse {}: {}. Proceeding without suggested model paths.", dbt_project_path.display(), e).yellow()
+                            );
+                        }
+                    }
+                },
+                Err(e) => {
+                     eprintln!(
+                         "{}",
+                         format!("Warning: Failed to read {}: {}. Proceeding without suggested model paths.", dbt_project_path.display(), e).yellow()
+                     );
+                }
+            }
+        }
+    }
+    // --- END DBT PROJECT DETECTION ---
+
+
+    // Prompt for model paths (optional), now with potential initial input
     let model_paths_input = Text::new(
         "Enter paths to your SQL models (optional, comma-separated):",
     )
+    .with_default(&suggested_model_paths) // Use with_default instead
     .with_help_message(
-        "Leave blank to use current directory, or specify paths like './models,./analytics/models'",
+        "Leave blank if none, or specify paths like './models,./analytics/models'",
     )
     .prompt()?;
 
