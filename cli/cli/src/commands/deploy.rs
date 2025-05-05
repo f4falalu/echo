@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 use tokio::task;
 use walkdir::WalkDir;
 
+use crate::utils::{find_yml_files, ExclusionManager, ProgressTracker};
 use crate::utils::{
     buster::ValidationError,
     buster::ValidationErrorType,
@@ -15,8 +16,8 @@ use crate::utils::{
         BusterClient, DeployDatasetsColumnsRequest, DeployDatasetsEntityRelationshipsRequest,
         DeployDatasetsRequest,
     },
+    config::BusterConfig,
     file::buster_credentials::get_and_validate_buster_credentials,
-    exclusion::{find_yml_files, BusterConfig, ExclusionManager, ProgressTracker},
 };
 
 // Use the unified BusterConfig from exclusion.rs instead

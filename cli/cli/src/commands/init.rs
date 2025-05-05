@@ -51,8 +51,44 @@ impl std::fmt::Display for DatabaseType {
 // Helper struct to parse dbt_project.yml
 #[derive(Debug, Deserialize)]
 struct DbtProject {
+    name: Option<String>,
     #[serde(rename = "model-paths")]
     model_paths: Option<Vec<String>>,
+}
+
+// Helper function to parse dbt_project.yml if it exists
+fn parse_dbt_project(base_dir: &Path) -> Result<Option<DbtProject>> {
+    let dbt_project_path = base_dir.join("dbt_project.yml");
+    if dbt_project_path.exists() && dbt_project_path.is_file() {
+        println!(
+            "{}",
+            format!("Found {}, attempting to read config...", dbt_project_path.display())
+                .dimmed()
+        );
+        match fs::read_to_string(&dbt_project_path) {
+            Ok(content) => {
+                match serde_yaml::from_str::<DbtProject>(&content) {
+                    Ok(dbt_config) => Ok(Some(dbt_config)),
+                    Err(e) => {
+                        eprintln!(
+                            "{}",
+                            format!("Warning: Failed to parse {}: {}. Proceeding without dbt project info.", dbt_project_path.display(), e).yellow()
+                        );
+                        Ok(None)
+                    }
+                }
+            },
+            Err(e) => {
+                 eprintln!(
+                     "{}",
+                     format!("Warning: Failed to read {}: {}. Proceeding without dbt project info.", dbt_project_path.display(), e).yellow()
+                 );
+                 Ok(None)
+            }
+        }
+    } else {
+        Ok(None)
+    }
 }
 
 pub async fn init(destination_path: Option<&str>) -> Result<()> {
@@ -87,6 +123,19 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
             return Ok(());
         }
     }
+
+    // --- Try to parse dbt_project.yml --- 
+    let dbt_config = parse_dbt_project(&dest_path)?;
+    // Extract suggested name (if available)
+    let suggested_name = dbt_config.as_ref().and_then(|c| c.name.as_deref());
+    if let Some(name) = suggested_name {
+         println!(
+            "{}",
+            format!("Suggesting data source name '{}' from dbt_project.yml", name.cyan())
+                .dimmed()
+        );
+    }
+    // --- End dbt_project.yml parsing --- 
 
     // Check for Buster credentials with progress indicator
     let spinner = ProgressBar::new_spinner();
@@ -130,25 +179,25 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
 
     match db_type {
         DatabaseType::Redshift => {
-            setup_redshift(buster_creds.url, buster_creds.api_key, &config_path).await
+            setup_redshift(buster_creds.url, buster_creds.api_key, &config_path, suggested_name).await
         }
         DatabaseType::Postgres => {
-            setup_postgres(buster_creds.url, buster_creds.api_key, &config_path).await
+            setup_postgres(buster_creds.url, buster_creds.api_key, &config_path, suggested_name).await
         }
         DatabaseType::BigQuery => {
-            setup_bigquery(buster_creds.url, buster_creds.api_key, &config_path).await
+            setup_bigquery(buster_creds.url, buster_creds.api_key, &config_path, suggested_name).await
         }
         DatabaseType::Snowflake => {
-            setup_snowflake(buster_creds.url, buster_creds.api_key, &config_path).await
+            setup_snowflake(buster_creds.url, buster_creds.api_key, &config_path, suggested_name).await
         }
         DatabaseType::MySql => {
-            setup_mysql(buster_creds.url, buster_creds.api_key, &config_path).await
+            setup_mysql(buster_creds.url, buster_creds.api_key, &config_path, suggested_name).await
         }
         DatabaseType::SqlServer => {
-            setup_sqlserver(buster_creds.url, buster_creds.api_key, &config_path).await
+            setup_sqlserver(buster_creds.url, buster_creds.api_key, &config_path, suggested_name).await
         }
         DatabaseType::Databricks => {
-            setup_databricks(buster_creds.url, buster_creds.api_key, &config_path).await
+            setup_databricks(buster_creds.url, buster_creds.api_key, &config_path, suggested_name).await
         }
     }
 }
@@ -157,27 +206,34 @@ async fn setup_redshift(
     buster_url: String,
     buster_api_key: String,
     config_path: &Path,
+    suggested_name: Option<&str>,
 ) -> Result<()> {
     println!("{}", "Setting up Redshift connection...".bold().green());
 
     // Collect name (with validation)
     let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
-    let name = Text::new("Enter a unique name for this data source:")
-        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
-        .with_validator(move |input: &str| {
-            if input.trim().is_empty() {
-                return Ok(Validation::Invalid("Name cannot be empty".into()));
-            }
-            if name_regex.is_match(input) {
-                Ok(Validation::Valid)
-            } else {
-                Ok(Validation::Invalid(
-                    "Name must contain only alphanumeric characters, dash (-) or underscore (_)"
-                        .into(),
-                ))
-            }
-        })
-        .prompt()?;
+    let mut name_prompt = Text::new("Enter a unique name for this data source:")
+        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed");
+    
+    // Set default if provided
+    if let Some(s_name) = suggested_name {
+        name_prompt = name_prompt.with_default(s_name);
+    }
+
+    let name = name_prompt.with_validator(move |input: &str| {
+        if input.trim().is_empty() {
+            return Ok(Validation::Invalid("Name cannot be empty".into()));
+        }
+        if name_regex.is_match(input) {
+            Ok(Validation::Valid)
+        } else {
+            Ok(Validation::Invalid(
+                "Name must contain only alphanumeric characters, dash (-) or underscore (_)"
+                    .into(),
+            ))
+        }
+    })
+    .prompt()?;
 
     // Collect host
     let host = Text::new("Enter the Redshift host:")
@@ -329,27 +385,34 @@ async fn setup_postgres(
     buster_url: String,
     buster_api_key: String,
     config_path: &Path,
+    suggested_name: Option<&str>,
 ) -> Result<()> {
     println!("{}", "Setting up PostgreSQL connection...".bold().green());
 
     // Collect name (with validation)
     let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
-    let name = Text::new("Enter a unique name for this data source:")
-        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
-        .with_validator(move |input: &str| {
-            if input.trim().is_empty() {
-                return Ok(Validation::Invalid("Name cannot be empty".into()));
-            }
-            if name_regex.is_match(input) {
-                Ok(Validation::Valid)
-            } else {
-                Ok(Validation::Invalid(
-                    "Name must contain only alphanumeric characters, dash (-) or underscore (_)"
-                        .into(),
-                ))
-            }
-        })
-        .prompt()?;
+    let mut name_prompt = Text::new("Enter a unique name for this data source:")
+        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed");
+
+    // Set default if provided
+    if let Some(s_name) = suggested_name {
+        name_prompt = name_prompt.with_default(s_name);
+    }
+
+    let name = name_prompt.with_validator(move |input: &str| {
+        if input.trim().is_empty() {
+            return Ok(Validation::Invalid("Name cannot be empty".into()));
+        }
+        if name_regex.is_match(input) {
+            Ok(Validation::Valid)
+        } else {
+            Ok(Validation::Invalid(
+                "Name must contain only alphanumeric characters, dash (-) or underscore (_)"
+                    .into(),
+            ))
+        }
+    })
+    .prompt()?;
 
     // Collect host
     let host = Text::new("Enter the PostgreSQL host:")
@@ -504,27 +567,34 @@ async fn setup_bigquery(
     buster_url: String,
     buster_api_key: String,
     config_path: &Path,
+    suggested_name: Option<&str>,
 ) -> Result<()> {
     println!("{}", "Setting up BigQuery connection...".bold().green());
 
     // Collect name (with validation)
     let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
-    let name = Text::new("Enter a unique name for this data source:")
-        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
-        .with_validator(move |input: &str| {
-            if input.trim().is_empty() {
-                return Ok(Validation::Invalid("Name cannot be empty".into()));
-            }
-            if name_regex.is_match(input) {
-                Ok(Validation::Valid)
-            } else {
-                Ok(Validation::Invalid(
-                    "Name must contain only alphanumeric characters, dash (-) or underscore (_)"
-                        .into(),
-                ))
-            }
-        })
-        .prompt()?;
+    let mut name_prompt = Text::new("Enter a unique name for this data source:")
+        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed");
+
+    // Set default if provided
+    if let Some(s_name) = suggested_name {
+        name_prompt = name_prompt.with_default(s_name);
+    }
+
+    let name = name_prompt.with_validator(move |input: &str| {
+        if input.trim().is_empty() {
+            return Ok(Validation::Invalid("Name cannot be empty".into()));
+        }
+        if name_regex.is_match(input) {
+            Ok(Validation::Valid)
+        } else {
+            Ok(Validation::Invalid(
+                "Name must contain only alphanumeric characters, dash (-) or underscore (_)"
+                    .into(),
+            ))
+        }
+    })
+    .prompt()?;
 
     // Collect project ID
     let project_id = Text::new("Enter the default Google Cloud project ID:")
@@ -664,19 +734,26 @@ async fn setup_mysql(
     buster_url: String,
     buster_api_key: String,
     config_path: &Path,
+    suggested_name: Option<&str>,
 ) -> Result<()> {
     println!("{}", "Setting up MySQL/MariaDB connection...".bold().green());
 
     // Collect name
     let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
-    let name = Text::new("Enter a unique name for this data source:")
-        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
-        .with_validator(move |input: &str| {
-            if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
-            else if name_regex.is_match(input) { Ok(Validation::Valid) }
-            else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
-        })
-        .prompt()?;
+    let mut name_prompt = Text::new("Enter a unique name for this data source:")
+        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed");
+
+    // Set default if provided
+    if let Some(s_name) = suggested_name {
+        name_prompt = name_prompt.with_default(s_name);
+    }
+    
+    let name = name_prompt.with_validator(move |input: &str| {
+        if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
+        else if name_regex.is_match(input) { Ok(Validation::Valid) }
+        else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
+    })
+    .prompt()?;
 
     // Collect host
     let host = Text::new("Enter the MySQL/MariaDB host:")
@@ -782,19 +859,26 @@ async fn setup_sqlserver(
     buster_url: String,
     buster_api_key: String,
     config_path: &Path,
+    suggested_name: Option<&str>,
 ) -> Result<()> {
     println!("{}", "Setting up SQL Server connection...".bold().green());
 
     // Collect name
     let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
-    let name = Text::new("Enter a unique name for this data source:")
-        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
-        .with_validator(move |input: &str| {
-             if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
-             else if name_regex.is_match(input) { Ok(Validation::Valid) }
-             else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
-        })
-        .prompt()?;
+    let mut name_prompt = Text::new("Enter a unique name for this data source:")
+        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed");
+
+    // Set default if provided
+    if let Some(s_name) = suggested_name {
+        name_prompt = name_prompt.with_default(s_name);
+    }
+
+    let name = name_prompt.with_validator(move |input: &str| {
+        if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
+        else if name_regex.is_match(input) { Ok(Validation::Valid) }
+        else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
+    })
+    .prompt()?;
 
     // Collect host
     let host = Text::new("Enter the SQL Server host:")
@@ -914,19 +998,26 @@ async fn setup_databricks(
     buster_url: String,
     buster_api_key: String,
     config_path: &Path,
+    suggested_name: Option<&str>,
 ) -> Result<()> {
     println!("{}", "Setting up Databricks connection...".bold().green());
 
     // Collect name
     let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
-    let name = Text::new("Enter a unique name for this data source:")
-         .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
-         .with_validator(move |input: &str| {
-             if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
-             else if name_regex.is_match(input) { Ok(Validation::Valid) }
-             else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
-         })
-        .prompt()?;
+    let mut name_prompt = Text::new("Enter a unique name for this data source:")
+         .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed");
+
+    // Set default if provided
+    if let Some(s_name) = suggested_name {
+        name_prompt = name_prompt.with_default(s_name);
+    }
+
+    let name = name_prompt.with_validator(move |input: &str| {
+        if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
+        else if name_regex.is_match(input) { Ok(Validation::Valid) }
+        else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
+    })
+    .prompt()?;
 
     // Collect host
     let host = Text::new("Enter the Databricks host:")
@@ -1027,19 +1118,26 @@ async fn setup_snowflake(
     buster_url: String,
     buster_api_key: String,
     config_path: &Path,
+    suggested_name: Option<&str>,
 ) -> Result<()> {
     println!("{}", "Setting up Snowflake connection...".bold().green());
 
     // Collect name
      let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
-     let name = Text::new("Enter a unique name for this data source:")
-         .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
-         .with_validator(move |input: &str| {
-             if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
-             else if name_regex.is_match(input) { Ok(Validation::Valid) }
-             else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
-         })
-         .prompt()?;
+     let mut name_prompt = Text::new("Enter a unique name for this data source:")
+         .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed");
+
+    // Set default if provided
+    if let Some(s_name) = suggested_name {
+        name_prompt = name_prompt.with_default(s_name);
+    }
+
+     let name = name_prompt.with_validator(move |input: &str| {
+        if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
+        else if name_regex.is_match(input) { Ok(Validation::Valid) }
+        else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
+    })
+    .prompt()?;
 
     // Collect account ID
     let account_id = Text::new("Enter the Snowflake account identifier:")
