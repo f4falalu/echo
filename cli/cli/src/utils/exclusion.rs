@@ -10,13 +10,17 @@ use walkdir::WalkDir;
 #[derive(Debug, Deserialize, Serialize, Clone, Default)] // Add Default for serde
 pub struct ProjectContext {
     pub path: String, // The directory prefix for this context
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub data_source_name: Option<String>,
-    #[serde(alias = "dataset_id")]
+    #[serde(alias = "dataset_id", skip_serializing_if = "Option::is_none")]
     pub schema: Option<String>,
-    #[serde(alias = "project_id")]
+    #[serde(alias = "project_id", skip_serializing_if = "Option::is_none")]
     pub database: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub exclude_files: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub exclude_tags: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub model_paths: Option<Vec<String>>,
 }
 
@@ -24,21 +28,21 @@ pub struct ProjectContext {
 #[derive(Debug, Deserialize, Serialize, Clone, Default)] // Add Default for serde
 pub struct BusterConfig {
     // --- Top-level fields for backwards compatibility --- 
-    #[serde(default)] // Ensure this field is optional during deserialization
+    #[serde(default, skip_serializing_if = "Option::is_none")] // Ensure this field is optional during deserialization AND serialization
     pub data_source_name: Option<String>,
-    #[serde(alias = "dataset_id", default)] // Ensure this field is optional
+    #[serde(alias = "dataset_id", default, skip_serializing_if = "Option::is_none")] // Ensure this field is optional
     pub schema: Option<String>,        // For SQL DBs: schema, For BigQuery: dataset ID
-    #[serde(alias = "project_id", default)] // Ensure this field is optional
+    #[serde(alias = "project_id", default, skip_serializing_if = "Option::is_none")] // Ensure this field is optional
     pub database: Option<String>,      // For SQL DBs: database, For BigQuery: project ID
-    #[serde(default)] // Ensure this field is optional
+    #[serde(default, skip_serializing_if = "Option::is_none")] // Ensure this field is optional
     pub exclude_files: Option<Vec<String>>,
-    #[serde(default)] // Ensure this field is optional
+    #[serde(default, skip_serializing_if = "Option::is_none")] // Ensure this field is optional
     pub exclude_tags: Option<Vec<String>>,
-    #[serde(default)] // Ensure this field is optional
+    #[serde(default, skip_serializing_if = "Option::is_none")] // Ensure this field is optional
     pub model_paths: Option<Vec<String>>,  // Paths to SQL model files/directories
 
     // --- New multi-project structure --- 
-    #[serde(default)] // Allows files without 'projects' key to parse
+    #[serde(default, skip_serializing_if = "Option::is_none")] // Allows files without 'projects' key to parse and skips serializing if None
     pub projects: Option<Vec<ProjectContext>>, 
 }
 
