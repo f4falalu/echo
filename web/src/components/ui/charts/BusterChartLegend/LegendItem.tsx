@@ -135,10 +135,11 @@ const LegendItemStandard = React.memo(
             inactive={item.inactive}
           />
 
-          <span
+          <div
             className={cn(
-              'flex! items-center truncate text-base transition-all duration-100 select-none',
-              !inactive ? 'text-foreground' : 'text-text-secondary'
+              'items-center truncate text-base transition-all duration-100 select-none',
+              !inactive ? 'text-foreground' : 'text-text-secondary',
+              hasHeadline && 'flex'
             )}>
             <AnimatePresence mode="wait" initial={false}>
               {headlinePreText && (
@@ -151,7 +152,7 @@ const LegendItemStandard = React.memo(
             </AnimatePresence>
 
             {formattedName}
-          </span>
+          </div>
         </div>
       </motion.div>
     );

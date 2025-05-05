@@ -91,6 +91,7 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
     });
   }, [chatId, metricId, isSelectedView, metricVersionNumber]);
 
+  //I HAVE NO IDEA WHY... but onClickButton is called twice if wrapped in a link
   const onClickButton = useMemoizedFn(() => {
     onChangePage(href, { shallow: true });
   });
@@ -100,15 +101,20 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
       href={href}
       shallow={true}
       prefetch={true}
+      passHref
+      data-testid="edit-chart-button"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        //SHALLOW PAGE CHANGED! DO NOT REMOVE
+      }}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClickButton();
       }}>
       <SelectableButton
         tooltipText="Edit chart"
         icon={<SquareChartPen />}
-        onClick={onClickButton}
         selected={isSelectedView}
       />
     </Link>
@@ -162,6 +168,7 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
     });
   }, [chatId, metricId, metricVersionNumber, isSelectedView]);
 
+  //I HAVE NO IDEA WHY... but onClickButton is called twice if wrapped in a link
   const onClickButton = useMemoizedFn(() => {
     onChangePage(href, { shallow: true });
   });
@@ -170,16 +177,18 @@ const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
     <Link
       href={href}
       prefetch={true}
+      shallow={true}
+      data-testid="edit-sql-button"
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+      }}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClickButton();
       }}>
-      <SelectableButton
-        tooltipText="SQL editor"
-        icon={<SquareCode />}
-        onClick={onClickButton}
-        selected={isSelectedView}
-      />
+      <SelectableButton tooltipText="SQL editor" icon={<SquareCode />} selected={isSelectedView} />
     </Link>
   );
 });

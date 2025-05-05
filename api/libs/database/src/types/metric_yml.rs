@@ -324,6 +324,14 @@ pub struct BaseChartConfig {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub enum NumberSeparatorStyle {
+    #[serde(rename = ",")]
+    Comma,
+    None,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ColumnLabelFormat {
     #[serde(alias = "column_type")]
     pub column_type: String,

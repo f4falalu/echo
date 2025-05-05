@@ -19,9 +19,9 @@ export const SelectAxisItemDragContainer = React.forwardRef<
     <div
       ref={ref}
       style={style}
+      data-testid="select-axis-item-drag-container"
       className={cn(
-        'flex items-center space-x-1 overflow-hidden rounded-sm',
-        'h-8',
+        'flex h-8 items-center space-x-1 overflow-hidden rounded-sm',
         isDragging && 'bg-background cursor-grabbing border shadow-lg',
         className
       )}>

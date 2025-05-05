@@ -1,88 +1,82 @@
 import { BusterChartLegendItem } from './interfaces';
 import { BusterChartProps, ShowLegendHeadline } from '@/api/asset_interfaces/metric/charts';
-import { DataFrameOperations } from '@/lib/math';
-import { formatLabel } from '@/lib/columnFormatter';
-import { DatasetOption, extractFieldsFromChain } from '../chartHooks';
-import { createDayjsDate, getBestDateFormat } from '@/lib/date';
+import { ArrayOperations } from '@/lib/math';
+import { DatasetOptionsWithTicks } from '../chartHooks';
 import type { IBusterMetricChartConfig } from '@/api/asset_interfaces/metric';
+import { isDateColumnType } from '@/lib/messages';
+import { formatLabel } from '@/lib/columnFormatter';
 
 export const addLegendHeadlines = (
   legendItems: BusterChartLegendItem[],
-  datasets: DatasetOption[],
+  { datasets, ...rest }: DatasetOptionsWithTicks,
   showLegendHeadline: ShowLegendHeadline,
   columnMetadata: NonNullable<BusterChartProps['columnMetadata']>,
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>,
-  selectedChartType: IBusterMetricChartConfig['selectedChartType']
+  selectedChartType: IBusterMetricChartConfig['selectedChartType'],
+  xAxisKeys: string[]
 ) => {
-  if (!showLegendHeadline) return legendItems;
-  const lastDataset = datasets[datasets.length - 1];
-  const dimensionNames = lastDataset.dimensions!;
-  const source = lastDataset.source as [string | number, ...number[]][];
-  const indexOfXAxis = 0;
-  const xAxisDimensionNames = extractFieldsFromChain(dimensionNames[indexOfXAxis] as string);
-  const hasMultipleXAxisDimensions = xAxisDimensionNames.length > 1;
-  const firstXAxisDimensionName = xAxisDimensionNames[0]?.key;
-  const firstXAxisDimensionMetadata = columnMetadata.find(
-    (metadata) => metadata.name === firstXAxisDimensionName
-  );
-  const canUseRange =
-    !hasMultipleXAxisDimensions && firstXAxisDimensionMetadata?.simple_type === 'date';
-
-  let range: string;
-
-  if (canUseRange) {
-    const { min_value, max_value } = firstXAxisDimensionMetadata!;
-    const minDate = createDayjsDate((min_value as string) || new Date());
-    const maxDate = createDayjsDate((max_value as string) || new Date());
-
-    const dateFormat = getBestDateFormat(minDate, maxDate);
-    range = `${minDate.format(dateFormat)} - ${maxDate.format(dateFormat)}`;
-  }
-  const isPieChart = selectedChartType === 'pie';
   const isScatterChart = selectedChartType === 'scatter';
 
+  if (!showLegendHeadline || isScatterChart) return legendItems;
+
+  // const hasMultipleXAxisDimensions = xAxisKeys.length > 1;
+  // const firstXAxisDimensionName = xAxisKeys[0];
+  // const xIsDate = isDateColumnType(columnLabelFormats[firstXAxisDimensionName]?.columnType);
+  //  const canUseRange = !hasMultipleXAxisDimensions && xIsDate;
+  // let range: string;
+  // if (canUseRange) {
+  //   const firstXAxisDimensionMetadata = columnMetadata.find(
+  //     (metadata) => metadata.name === firstXAxisDimensionName
+  //   );
+  //   const { min_value, max_value } = firstXAxisDimensionMetadata || {};
+  //   const minDate = createDayjsDate((min_value as string) || new Date());
+  //   const maxDate = createDayjsDate((max_value as string) || new Date());
+
+  //   const dateFormat = getBestDateFormat(minDate, maxDate);
+  //   range = `${minDate.format(dateFormat)} - ${maxDate.format(dateFormat)}`;
+  // }
+
+  const isPieChart = selectedChartType === 'pie';
+
   legendItems.forEach((item, index) => {
+    if (!item.data || !Array.isArray(item.data)) {
+      item.headline = {
+        type: showLegendHeadline,
+        titleAmount: 0
+      };
+      return;
+    }
+
     if (isPieChart) {
-      const indexOfSeries = 1;
-      const columnLabelName = extractFieldsFromChain(dimensionNames[indexOfSeries])[0]?.key;
-      const assosciatedRow = source[index];
-      const result = assosciatedRow?.[indexOfSeries]!;
-      const formattedResult = formatLabel(result, columnLabelFormats[columnLabelName]);
-      const legendHeadlineOption = 'current';
+      const result = item.data[index % item.data.length] as number;
+      const formattedResult = formatLabel(result, columnLabelFormats[item.yAxisKey]);
       const headline: BusterChartLegendItem['headline'] = {
-        type: legendHeadlineOption,
+        type: 'current',
         titleAmount: formattedResult
       };
       item.headline = headline;
-
       return;
     }
 
-    if (isScatterChart) {
+    const arrayOperations = new ArrayOperations(item.data as number[]);
+
+    // Use the mapping to get the correct operation method
+    const operationMethod = legendHeadlineToOperation[showLegendHeadline];
+    if (!operationMethod) {
+      console.warn(`Unknown operation: ${showLegendHeadline}`);
+      item.headline = {
+        type: showLegendHeadline,
+        titleAmount: 0
+      };
       return;
     }
 
-    const indexOfDimension = dimensionNames.findIndex((dimension) => dimension === item.id);
-
-    if (indexOfDimension === -1) {
-      console.warn('TODO - fix this bug');
-      return;
-    }
-
-    const columnLabelName = extractFieldsFromChain(item.id).at(-1)?.key!;
-
-    const arrayOperations = new DataFrameOperations(source, indexOfDimension);
-    const operation = legendHeadlineToOperation[showLegendHeadline];
-    const result = operation(arrayOperations);
-
-    const formattedResult = formatLabel(result, columnLabelFormats[columnLabelName]);
-
+    const result = operationMethod(arrayOperations);
+    const formattedResult = formatLabel(result, columnLabelFormats[item.yAxisKey]);
     const headline: BusterChartLegendItem['headline'] = {
       type: showLegendHeadline,
-      titleAmount: formattedResult,
-      range
+      titleAmount: formattedResult
     };
-
     item.headline = headline;
   });
 
@@ -91,7 +85,7 @@ export const addLegendHeadlines = (
 
 const legendHeadlineToOperation: Record<
   'current' | 'average' | 'total' | 'median' | 'min' | 'max',
-  (arrayOperations: DataFrameOperations) => number
+  (arrayOperations: ArrayOperations) => number
 > = {
   current: (arrayOperations) => arrayOperations.last(),
   average: (arrayOperations) => arrayOperations.average(),

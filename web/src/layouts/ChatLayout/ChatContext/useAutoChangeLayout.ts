@@ -3,7 +3,10 @@
 import { useGetChatMessageMemoized, useGetChatMessage } from '@/api/buster_rest/chats';
 import { useEffect, useRef } from 'react';
 import findLast from 'lodash/findLast';
-import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
+import type {
+  BusterChatMessageReasoning_text,
+  BusterChatResponseMessage_file
+} from '@/api/asset_interfaces/chat';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
@@ -33,20 +36,34 @@ export const useAutoChangeLayout = ({
 
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const previousLastMessageId = useRef<string | null>(null);
-  const { data: reasoningMessagesLength } = useGetChatMessage(lastMessageId, {
-    select: (x) => x?.reasoning_message_ids?.length || 0
+  const { data: lastReasoningMessageId } = useGetChatMessage(lastMessageId, {
+    select: (x) => x?.reasoning_message_ids?.[x?.reasoning_message_ids?.length - 1]
+  });
+  const { data: isFinishedReasoning } = useGetChatMessage(lastMessageId, {
+    select: (x) =>
+      !!lastReasoningMessageId &&
+      !!(x?.reasoning_messages[lastReasoningMessageId] as BusterChatMessageReasoning_text)
+        ?.finished_reasoning
   });
   const { getFileLinkMeta } = useGetFileLink();
 
   const previousIsCompletedStream = usePrevious(isCompletedStream);
 
-  const hasReasoning = !!reasoningMessagesLength;
+  const hasReasoning = !!lastReasoningMessageId;
 
   useEffect(() => {
-    console.log('REASONING: useEffect', isCompletedStream, hasReasoning, chatId, lastMessageId);
+    console.log(
+      'REASONING: useEffect',
+      isCompletedStream,
+      hasReasoning,
+      chatId,
+      lastMessageId,
+      isFinishedReasoning
+    );
     //this will trigger when the chat is streaming and is has not completed yet (new chat)
     if (
       !isCompletedStream &&
+      !isFinishedReasoning &&
       hasReasoning &&
       previousLastMessageId.current !== lastMessageId &&
       chatId
@@ -80,6 +97,7 @@ export const useAutoChangeLayout = ({
         });
 
         if (link) {
+          console.log('auto change layout', link);
           onChangePage(link);
         }
         return;
@@ -104,6 +122,7 @@ export const useAutoChangeLayout = ({
       });
 
       if (href) {
+        console.log('auto change layout2', href);
         onChangePage(href);
       }
     }
