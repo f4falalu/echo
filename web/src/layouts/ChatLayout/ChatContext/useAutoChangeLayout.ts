@@ -3,7 +3,10 @@
 import { useGetChatMessageMemoized, useGetChatMessage } from '@/api/buster_rest/chats';
 import { useEffect, useRef } from 'react';
 import findLast from 'lodash/findLast';
-import { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat';
+import type {
+  BusterChatMessageReasoning_text,
+  BusterChatResponseMessage_file
+} from '@/api/asset_interfaces/chat';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useGetFileLink } from '@/context/Assets/useGetFileLink';
 import { useChatLayoutContextSelector } from '../ChatLayoutContext';
@@ -33,34 +36,37 @@ export const useAutoChangeLayout = ({
 
   const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
   const previousLastMessageId = useRef<string | null>(null);
-  const { data: reasoningMessagesLength } = useGetChatMessage(lastMessageId, {
-    select: (x) => x?.reasoning_message_ids?.length || 0
+  const { data: lastReasoningMessageId } = useGetChatMessage(lastMessageId, {
+    select: (x) => x?.reasoning_message_ids?.[x?.reasoning_message_ids?.length - 1]
+  });
+  const { data: isFinishedReasoning } = useGetChatMessage(lastMessageId, {
+    select: (x) =>
+      !!lastReasoningMessageId &&
+      !!(x?.reasoning_messages[lastReasoningMessageId] as BusterChatMessageReasoning_text)
+        ?.finished_reasoning
   });
   const { getFileLinkMeta } = useGetFileLink();
 
   const previousIsCompletedStream = usePrevious(isCompletedStream);
 
-  const hasReasoning = !!reasoningMessagesLength;
+  const hasReasoning = !!lastReasoningMessageId;
 
   useEffect(() => {
-    console.log('REASONING: useEffect', isCompletedStream, hasReasoning, chatId, lastMessageId);
     //this will trigger when the chat is streaming and is has not completed yet (new chat)
     if (
       !isCompletedStream &&
+      !isFinishedReasoning &&
       hasReasoning &&
       previousLastMessageId.current !== lastMessageId &&
       chatId
     ) {
       previousLastMessageId.current = lastMessageId;
 
-      console.log('REASONING: FLIP TO REASONING!', lastMessageId);
-
       onSetSelectedFile({ id: lastMessageId, type: 'reasoning', versionNumber: undefined });
     }
 
     //this will when the chat is completed and it WAS streaming
     else if (isCompletedStream && previousIsCompletedStream === false) {
-      console.log('REASONING: SELECT STREAMING FILE');
       const chatMessage = getChatMessageMemoized(lastMessageId);
       const lastFileId = findLast(chatMessage?.response_message_ids, (id) => {
         const responseMessage = chatMessage?.response_messages[id];
@@ -87,7 +93,6 @@ export const useAutoChangeLayout = ({
     }
     //this will trigger on a page refresh and the chat is completed
     else if (isCompletedStream && chatId) {
-      console.log('REASONING: SELECT INITIAL CHAT FILE - PAGE LOAD');
       const isChatOnlyMode = !metricId && !dashboardId && !messageId;
       if (isChatOnlyMode) {
         return;

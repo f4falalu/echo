@@ -118,6 +118,10 @@ export const useSaveToDashboardDropdownContent = ({
     return items.length > 0 ? 'Save to a dashboard' : undefined;
   }, [items.length]);
 
+  const onCloseNewDashboardModal = useMemoizedFn(() => {
+    setOpenNewDashboardModal(false);
+  });
+
   return useMemo(
     () => ({
       items,
@@ -128,7 +132,7 @@ export const useSaveToDashboardDropdownContent = ({
       modal: (
         <NewDashboardModal
           open={openNewDashboardModal}
-          onClose={useMemoizedFn(() => setOpenNewDashboardModal(false))}
+          onClose={onCloseNewDashboardModal}
           useChangePage={false}
           onDashboardCreated={onDashboardCreated}
         />

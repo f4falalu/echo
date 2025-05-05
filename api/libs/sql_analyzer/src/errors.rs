@@ -23,11 +23,17 @@ pub enum SqlAnalyzerError {
     #[error("Invalid parameter: {0}")]
     InvalidParameter(String),
 
+    #[error("Missing required parameter: {0}")]
+    MissingParameter(String),
+
     #[error("Invalid expression: {0}")]
     InvalidExpression(String),
 
     #[error("Substitution error: {0}")]
     SubstitutionError(String),
+
+    #[error("Unsupported statement type found: {0}")]
+    UnsupportedStatement(String),
 
     #[error("Internal error: {0}")]
     Internal(#[from] anyhow::Error),

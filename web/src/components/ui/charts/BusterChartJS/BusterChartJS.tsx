@@ -5,7 +5,7 @@ import './ChartJSTheme';
 import React, { useCallback, useRef, useState } from 'react';
 import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_METADATA } from '@/api/asset_interfaces/metric';
 import { BusterChartJSLegendWrapper } from './BusterChartJSLegendWrapper';
-import { ChartJSOrUndefined } from './core/types';
+import type { ChartJSOrUndefined } from './core/types';
 import { useMemoizedFn } from '@/hooks';
 import { BusterChartJSComponent } from './BusterChartJSComponent';
 import type { BusterChartComponentProps } from '../interfaces';
@@ -24,7 +24,7 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
   onChartMounted,
   onInitialAnimationEnd,
   columnSettings = DEFAULT_CHART_CONFIG.columnSettings,
-  animateLegend = true,
+  animateLegend,
   ...props
 }) => {
   const chartRef = useRef<ChartJSOrUndefined>(null);
@@ -34,7 +34,7 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
 
   const onChartReady = useMemoizedFn(() => {
     setChartMounted(true);
-    onChartMounted?.();
+    if (chartRef.current) onChartMounted?.(chartRef.current);
   });
 
   const onInitialAnimationEndPreflight = useCallback(() => {
@@ -60,6 +60,7 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
       chartRef={chartRef}
       datasetOptions={datasetOptions}
       isDownsampled={props.isDownsampled}
+      numberOfDataPoints={props.numberOfDataPoints}
       pieMinimumSlicePercentage={pieMinimumSlicePercentage}>
       <BusterChartJSComponent
         ref={chartRef}

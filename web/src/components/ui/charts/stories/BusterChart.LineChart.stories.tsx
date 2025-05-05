@@ -1909,7 +1909,7 @@ export const WithTrendline_StringXAxisPolynomialRegression: Story = {
 export const With2ThousandPoints: Story = {
   args: {
     selectedChartType: ChartType.Line,
-    data: generateLineChartData(500),
+    data: generateLineChartData(655),
     barAndLineAxis: {
       x: ['date'],
       y: ['revenue'],
@@ -1922,5 +1922,48 @@ export const With2ThousandPoints: Story = {
         dateFormat: 'auto'
       }
     }
+  }
+};
+
+export const With5ThousandPoints: Story = {
+  args: {
+    selectedChartType: ChartType.Line,
+    data: generateLineChartData(1650),
+    barAndLineAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: ['category']
+    },
+    columnLabelFormats: {
+      date: {
+        columnType: 'date',
+        style: 'date',
+        dateFormat: 'auto'
+      }
+    }
+  }
+};
+
+export const DefaultWithLegendHeader: Story = {
+  args: {
+    ...Default.args,
+    showLegend: true,
+    showLegendHeadline: 'current'
+  }
+};
+
+export const DefaultWithLegendHeaderAverage: Story = {
+  args: {
+    ...Default.args,
+    showLegend: true,
+    showLegendHeadline: 'average'
+  }
+};
+
+export const CategoryWithLegendHeaderAverage: Story = {
+  args: {
+    ...CategoricalXNumericY.args,
+    showLegend: true,
+    showLegendHeadline: 'average'
   }
 };

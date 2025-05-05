@@ -9,14 +9,15 @@ import {
   ChartTotalizerPlugin,
   OutLabelsPlugin
 } from './core';
-import { ChartJSOrUndefined, ChartProps } from './core/types';
-import type { ChartType as ChartJSChartType, ChartOptions } from 'chart.js';
+import type { ChartJSOrUndefined, ChartProps } from './core/types';
+import type { ChartType as ChartJSChartType, ChartOptions, Plugin } from 'chart.js';
 import { useColors } from '../chartHooks';
 import { useGoalLines, useOptions, useSeriesOptions } from './hooks';
 import { useChartSpecificOptions } from './hooks/useChartSpecificOptions';
-import { BusterChartTypeComponentProps } from '../interfaces/chartComponentInterfaces';
+import type { BusterChartTypeComponentProps } from '../interfaces/chartComponentInterfaces';
 import { useTrendlines } from './hooks/useTrendlines';
-import { ScatterAxis } from '@/api/asset_interfaces/metric/charts';
+import type { ScatterAxis } from '@/api/asset_interfaces/metric/charts';
+import { useMount } from '@/hooks';
 
 export const BusterChartJSComponent = React.memo(
   React.forwardRef<ChartJSOrUndefined, BusterChartTypeComponentProps>(
@@ -67,13 +68,20 @@ export const BusterChartJSComponent = React.memo(
         lineGroupType,
         disableTooltip,
         xAxisTimeInterval,
+        numberOfDataPoints,
         //TODO
         xAxisDataZoom,
         ...rest
       },
       ref
     ) => {
-      const colors = useColors({ colors: colorsProp, yAxisKeys, y2AxisKeys, datasetOptions });
+      const colors = useColors({
+        colors: colorsProp,
+        yAxisKeys,
+        y2AxisKeys,
+        datasetOptions: datasetOptions.datasets,
+        selectedChartType
+      });
 
       const { trendlineAnnotations, trendlineSeries } = useTrendlines({
         trendlines: dataTrendlineOptions,
@@ -166,7 +174,8 @@ export const BusterChartJSComponent = React.memo(
         yAxisScaleType,
         animate,
         disableTooltip,
-        xAxisTimeInterval
+        xAxisTimeInterval,
+        numberOfDataPoints
       });
 
       const type = useMemo(() => {
@@ -176,7 +185,7 @@ export const BusterChartJSComponent = React.memo(
         return 'line';
       }, [selectedChartType]);
 
-      const chartSpecificPlugins = useMemo((): any[] => {
+      const chartSpecificPlugins = useMemo((): Plugin[] => {
         if (selectedChartType === 'scatter') return [ChartHoverScatterPlugin];
         if (selectedChartType === 'line') return [ChartHoverLinePlugin, ChartTotalizerPlugin];
         if (selectedChartType === 'bar') {
@@ -188,17 +197,37 @@ export const BusterChartJSComponent = React.memo(
       }, [selectedChartType]);
 
       return (
-        <Chart
-          className={className}
-          ref={ref}
-          options={options}
-          data={data}
-          type={type}
-          plugins={chartSpecificPlugins}
-        />
+        <ChartMountedWrapper>
+          <Chart
+            className={className}
+            ref={ref}
+            options={options}
+            data={data}
+            type={type}
+            plugins={chartSpecificPlugins}
+          />
+        </ChartMountedWrapper>
       );
     }
   )
 );
 
 BusterChartJSComponent.displayName = 'BusterChartJSComponent';
+
+const ChartMountedWrapper = ({ children }: { children: React.ReactNode }) => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useMount(() => {
+    setTimeout(() => {
+      setIsMounted(true);
+    }, 35);
+  });
+
+  if (!isMounted) {
+    return (
+      <div className="to-bg-gradient-to-r to-border/15 h-full w-full bg-gradient-to-b from-transparent" />
+    );
+  }
+
+  return children;
+};

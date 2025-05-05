@@ -141,6 +141,7 @@ export const useLayoutConfig = ({
 
   const closeSecondaryView = useMemoizedFn(async () => {
     if (!selectedFileId || !selectedFileViewConfig || !selectedFileView) return;
+
     setFileViews((prev) => {
       return create(prev, (draft) => {
         if (!draft[selectedFileId]?.fileViewConfig?.[selectedFileView]) return;
@@ -152,9 +153,7 @@ export const useLayoutConfig = ({
   });
 
   const onCollapseFileClick = useMemoizedFn(async () => {
-    console.log('onCollapseFileClick');
     const isSecondaryViewOpen = !!selectedFileViewSecondary;
-    console.log('isSecondaryViewOpen', chatId, isSecondaryViewOpen);
 
     if (isSecondaryViewOpen) {
       closeSecondaryView();
@@ -180,14 +179,6 @@ export const useLayoutConfig = ({
 
   //we need to use for when the user clicks the back or forward in the browser
   useUpdateEffect(() => {
-    console.log('useUpdateEffect', {
-      metricId,
-      secondaryView,
-      chatId,
-      dashboardId,
-      messageId,
-      currentRoute
-    });
     const newInitialFileViews = initializeFileViews({
       secondaryView,
       metricId,
@@ -207,16 +198,7 @@ export const useLayoutConfig = ({
       currentRoute
     });
 
-    console.log('isFileViewsChanged', isFileViewsChanged);
-
     if (!isFileViewsChanged) return;
-
-    console.log('setting file view', {
-      newInitialFileViews,
-      fileId,
-      fileView,
-      secondaryView
-    });
 
     onSetFileView({
       fileId,

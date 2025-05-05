@@ -94,6 +94,7 @@ pub struct MetricFile {
     pub version_history: VersionHistory,
     pub data_metadata: Option<DataMetadata>,
     pub public_password: Option<String>,
+    pub data_source_id: Uuid,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize)]
@@ -738,6 +739,17 @@ pub struct MetricFileToDashboardFile {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub created_by: Uuid,
+}
+
+#[derive(Queryable, Insertable, Associations, Debug)]
+#[diesel(belongs_to(MetricFile, foreign_key = metric_file_id))]
+#[diesel(belongs_to(Dataset, foreign_key = dataset_id))]
+#[diesel(table_name = metric_files_to_datasets)]
+pub struct MetricFileToDataset {
+    pub metric_file_id: Uuid,
+    pub dataset_id: Uuid,
+    pub metric_version_number: i32,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Queryable, Insertable, Identifiable, Associations, Debug, Clone, Serialize, Selectable, AsChangeset)]

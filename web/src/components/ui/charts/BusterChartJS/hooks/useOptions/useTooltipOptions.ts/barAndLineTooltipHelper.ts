@@ -1,81 +1,62 @@
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
-import type { Chart, ChartDataset, TooltipItem, ChartTypeRegistry } from 'chart.js';
-import { formatChartLabel } from '../../../helpers';
-import { getPercentage } from './helper';
+import type { Chart, TooltipItem, ChartTypeRegistry } from 'chart.js';
+import { getPercentage } from './helpers';
 import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
-import { formatChartValueDelimiter } from '@/components/ui/charts/commonHelpers';
+import { formatLabel } from '@/lib';
 
 export const barAndLineTooltipHelper = (
-  datasets: ChartDataset[],
   dataPoints: TooltipItem<keyof ChartTypeRegistry>[],
   chart: Chart,
   columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>,
-  hasMultipleMeasures: boolean,
   keyToUsePercentage: string[],
-  hasCategoryAxis: boolean,
   hasMultipleShownDatasets: boolean,
   percentageMode: undefined | 'stacked'
 ): ITooltipItem[] => {
-  const dataPoint = dataPoints[0];
-  const dataPointDataset = dataPoint.dataset;
-  const dataPointDataIndex = dataPoint.dataIndex;
-  const tooltipDatasets = datasets.filter((dataset) => dataset.hidden && !dataset.isTrendline);
+  if (percentageMode) {
+    dataPoints.reverse(); //we do this because the data points are in reverse order and it looks better
+  }
 
-  // if (!datapointIsInTooltip) {
-  // const datapointIsInTooltip = tooltipDatasets.some(
-  //   (dataset) => dataset.label === dataPointDataset.label
-  // );
-  //   return [];   //I removed the early return because if tooltip only had non plotted values it would not show
-  // }
+  const tooltipItems = dataPoints.flatMap<ITooltipItem>((dataPoint) => {
+    const tooltipDataset = dataPoint.dataset;
+    const dataPointDataIndex = dataPoint.dataIndex;
+    const tooltipData = tooltipDataset.tooltipData;
+    const selectedToolTipData = tooltipData[dataPointDataIndex];
+    return selectedToolTipData.map<ITooltipItem>((item) => {
+      const colorItem = tooltipDataset?.backgroundColor as string;
+      const color =
+        tooltipDataset && tooltipDataset.yAxisKey === item.key //we want to use the default gray color if the y axis key is the same as the item key (which means it is plotted)
+          ? typeof colorItem === 'function'
+            ? (tooltipDataset?.borderColor as string)
+            : (tooltipDataset?.backgroundColor as string)
+          : undefined;
+      const usePercentage =
+        !!percentageMode || keyToUsePercentage.includes(tooltipDataset.label as string);
 
-  const tooltipItems = tooltipDatasets.map<ITooltipItem>((tooltipDataset) => {
-    const usePercentage =
-      !!percentageMode || keyToUsePercentage.includes(tooltipDataset.label as string);
-    const assosciatedData = datasets.find((dataset) => dataset.label === tooltipDataset.label);
-    const colorItem = assosciatedData?.backgroundColor as string;
-    const color = assosciatedData
-      ? typeof colorItem === 'function'
-        ? (assosciatedData?.borderColor as string)
-        : (assosciatedData?.backgroundColor as string)
-      : undefined;
+      const formattedLabel = formatLabel(item.key as string, columnLabelFormats[item.key], true);
+      const formattedValue = formatLabel(item.value as number, columnLabelFormats[item.key]);
 
-    const rawValue = tooltipDataset.data[dataPoint.dataIndex] as number;
-
-    const formattedPercentage = usePercentage
-      ? getPercentage(
-          rawValue,
-          dataPointDataIndex,
-          datasets.findIndex((dataset) => dataset.label === tooltipDataset.label),
-          tooltipDataset.label as string,
-          columnLabelFormats,
-          chart,
-          hasMultipleShownDatasets,
-          percentageMode
-        )
-      : undefined;
-
-    return {
-      seriesType: 'bar',
-      usePercentage,
-      color,
-      formattedLabel: formatChartLabel(
-        tooltipDataset.label as string,
-        columnLabelFormats,
-        hasMultipleMeasures,
-        hasCategoryAxis
-      ),
-      values: [
-        {
-          formattedValue: formatChartValueDelimiter(
-            tooltipDataset.data[dataPoint.dataIndex] as number,
-            tooltipDataset.label as string,
-            columnLabelFormats
-          ),
-          formattedLabel: tooltipDataset.label as string,
-          formattedPercentage
-        }
-      ]
-    };
+      return {
+        seriesType: 'bar',
+        color,
+        usePercentage,
+        formattedLabel,
+        values: [
+          {
+            formattedValue,
+            formattedLabel,
+            formattedPercentage: getPercentage(
+              item.value as number,
+              dataPointDataIndex,
+              dataPoint.datasetIndex,
+              columnLabelFormats,
+              chart,
+              hasMultipleShownDatasets,
+              percentageMode
+            )
+          }
+        ]
+      };
+    });
   });
 
   return tooltipItems;

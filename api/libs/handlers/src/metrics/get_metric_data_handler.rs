@@ -1,19 +1,17 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use database::{
-    models::DashboardFile,
     pool::get_pg_pool,
     schema::{dashboard_files, metric_files, metric_files_to_dashboard_files},
     types::{data_metadata::DataMetadata, MetricYml},
 };
-use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, OptionalExtension, QueryDsl};
+use diesel::{BoolExpressionMethods, ExpressionMethods, JoinOnDsl, QueryDsl};
 use diesel_async::RunQueryDsl;
 use indexmap::IndexMap;
 use middleware::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use query_engine::data_source_helpers;
 use query_engine::data_types::DataType;
 
 use crate::metrics::{get_metric_for_dashboard_handler, get_metric_handler, BusterMetric};
@@ -136,8 +134,8 @@ pub async fn get_metric_data_handler(
     };
 
     // --- Step 5: Proceed with data fetching using the obtained metric definition ---
-    tracing::debug!("Parsing metric definition from YAML to get SQL and dataset IDs.");
-    // Parse the metric definition from YAML to get SQL and dataset IDs
+    tracing::debug!("Parsing metric definition from YAML to get SQL.");
+    // Parse the metric definition from YAML to get SQL
     let metric_yml: MetricYml = match serde_yaml::from_str(&metric.file) {
         Ok(yml) => yml,
         Err(parse_err) => {
@@ -146,52 +144,15 @@ pub async fn get_metric_data_handler(
         }
     };
     let sql = metric_yml.sql;
-    let dataset_ids = metric_yml.dataset_ids;
 
-    if dataset_ids.is_empty() {
-        tracing::error!(
-            "No dataset IDs found in metric definition for metric {}",
-            request.metric_id
-        );
-        return Err(anyhow!("No dataset IDs found in metric definition"));
-    }
-    tracing::debug!("Found dataset IDs: {:?}", dataset_ids);
-
-    // Get the first dataset ID to use for querying
-    let primary_dataset_id = dataset_ids[0];
-
-    // Get the data source ID for the dataset
-    tracing::debug!("Fetching data sources for datasets: {:?}", dataset_ids);
-    let dataset_sources = data_source_helpers::get_data_sources_for_datasets(&dataset_ids).await?;
-
-    if dataset_sources.is_empty() {
-        tracing::error!(
-            "Could not find data sources for the specified datasets: {:?}",
-            dataset_ids
-        );
-        return Err(anyhow!(
-            "Could not find data sources for the specified datasets"
-        ));
-    }
-    tracing::debug!("Found data sources: {:?}", dataset_sources);
-
-    // Find the data source for the primary dataset
-    let data_source = dataset_sources
-        .iter()
-        .find(|ds| ds.dataset_id == primary_dataset_id)
-        .ok_or_else(|| {
-            tracing::error!(
-                "Primary dataset ID {} not found among fetched data sources",
-                primary_dataset_id
-            );
-            anyhow!("Primary dataset ID not found among associated data sources")
-        })?;
+    // --- USE DIRECT DATA SOURCE ID ---
+    let data_source_id = metric.data_source_id; // Already a Uuid
+    tracing::debug!(metric_id = %request.metric_id, data_source_id = %data_source_id, "Using direct data source ID from metric");
 
     tracing::info!(
-        "Querying data for metric {}. Dataset: {}, Data source: {}, Limit: {:?}",
+        "Querying data for metric {}. Data source: {}, Limit: {:?}", // Removed dataset name as we don't fetch it anymore
         request.metric_id,
-        data_source.name,
-        data_source.data_source_id,
+        data_source_id, // Use the direct ID
         request.limit
     );
 
@@ -207,7 +168,7 @@ pub async fn get_metric_data_handler(
 
     // Execute the query to get the metric data
     let query_result = match query_engine::data_source_query_routes::query_engine::query_engine(
-        &data_source.data_source_id,
+        &data_source_id, // Use the direct ID
         &sql,
         request.limit,
     )

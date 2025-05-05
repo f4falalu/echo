@@ -1,4 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
+import fs from 'fs';
 
 /**
  * Read environment variables from file.
@@ -13,13 +15,15 @@ dotenv.config();
 export default defineConfig({
   testDir: './playwright-tests',
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
+  /* timeout for each test */
+  timeout: 180000,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Run 3 tests in parallel */
+  workers: process.env.CI ? 1 : 3,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -29,26 +33,36 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     /* Capture screenshot on failure */
-    screenshot: 'only-on-failure'
+    screenshot: 'on',
+    /* Run tests in headed mode (non-headless) */
+    headless: true,
+    /* Use stored auth state only if it exists */
+    storageState: fs.existsSync(path.join(__dirname, 'playwright-tests/auth-utils/auth.json'))
+      ? path.join(__dirname, 'playwright-tests/auth-utils/auth.json')
+      : undefined
   },
+
+  /* Global setup to run before all tests */
+  globalSetup: './playwright-tests/auth-utils/global-setup.ts',
+
+  /* Global teardown to run after all tests */
+  globalTeardown: './playwright-tests/auth-utils/global-teardown.ts',
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] }
-    },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] }
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] }
     }
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] }
+    // },
 
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] }
+    // }
     /* Test against mobile viewports. */
     // {
     //   name: 'Mobile Chrome',
@@ -64,17 +78,15 @@ export default defineConfig({
     //   name: 'Microsoft Edge',
     //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
     // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
   ],
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
+    command: process.env.PLAYWRIGHT_START_COMMAND || 'make start-fast',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000 // 120 seconds
+    timeout: 60 * 1000 * 6,
+    stdout: 'pipe',
+    stderr: 'pipe'
   }
 });

@@ -4,7 +4,6 @@ import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { FileViewSecondary } from './useLayoutConfig';
-import { useWhyDidYouUpdate } from '@/hooks';
 import { pathNameToRoute } from '@/routes/helpers';
 
 export const useGetChatParams = () => {

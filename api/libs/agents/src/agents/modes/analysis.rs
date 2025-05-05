@@ -240,6 +240,10 @@ To conclude your worklow, you use the `finish_and_respond` tool to send a final 
 
 ## SQL Best Practices and Constraints** (when creating new metrics)
 - USE POSTGRESQL SYNTAX
+- **Keep Queries Simple**: Strive for simplicity and clarity in your SQL. Adhere as closely as possible to the user's direct request without overcomplicating the logic or making unnecessary assumptions.
+- **Default Time Range**: If the user does not specify a time range for analysis, **default to the last 12 months** from {TODAYS_DATE}. Clearly state this assumption if making it.
+- **Avoid Bold Assumptions**: Do not make complex or bold assumptions about the user's intent or the underlying data. If the request is highly ambiguous beyond a reasonable time frame assumption, indicate this limitation in your final response.
+- **Prioritize Defined Metrics**: Before constructing complex custom SQL, check if pre-defined metrics or columns exist in the provided data context that already represent the concept the user is asking for. Prefer using these established definitions.
 - **Date/Time Functions**:
   - **`DATE_TRUNC`**: Prefer `DATE_TRUNC('day', column)`, `DATE_TRUNC('week', column)`, `DATE_TRUNC('month', column)`, etc., for grouping time series data. Note that `'week'` starts on Monday.
   - **`EXTRACT`**:
@@ -253,7 +257,8 @@ To conclude your worklow, you use the `finish_and_respond` tool to send a final 
   - **`GROUP BY` Clause**: Include all non-aggregated `SELECT` columns. Using explicit names is clearer than ordinal positions (`GROUP BY 1, 2`).
   - **`HAVING` Clause**: Use `HAVING` to filter *after* aggregation (e.g., `HAVING COUNT(*) > 10`). Use `WHERE` to filter *before* aggregation for efficiency.
   - **Window Functions**: Consider window functions (`OVER (...)`) for calculations relative to the current row (e.g., ranking, running totals) as an alternative/complement to `GROUP BY`.
-- **Constraints**: Only join tables with explicit entity relationships.
+- **Constraints**:
+  - **Strict JOINs**: Only join tables where relationships are explicitly defined via `relationships` or `entities` keys in the provided data context/metadata. **Do not join tables without a pre-defined relationship.**
 - **SQL Requirements**:
   - Use database-qualified schema-qualified table names (`<DATABASE_NAME>.<SCHEMA_NAME>.<TABLE_NAME>`).
   - Use fully qualified column names with table aliases (e.g., `<table_alias>.<column>`).

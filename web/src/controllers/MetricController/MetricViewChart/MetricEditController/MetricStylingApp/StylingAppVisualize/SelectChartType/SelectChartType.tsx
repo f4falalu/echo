@@ -141,8 +141,10 @@ const ChartButton: React.FC<{
   ({ id, icon: Icon, tooltipText, onSelectChartType, isSelected, disabled, colors }) => {
     return (
       <AppTooltip title={tooltipText} delayDuration={650}>
-        <div
+        <button
           key={id}
+          disabled={disabled}
+          data-testid={`select-chart-type-${id}`}
           onClick={() => !disabled && onSelectChartType(id)}
           className={cn(
             'flex aspect-square h-[35px] w-full items-center justify-center hover:transition-none',
@@ -151,7 +153,7 @@ const ChartButton: React.FC<{
             disabled && 'cursor-not-allowed! bg-transparent!'
           )}>
           <Icon colors={colors} disabled={disabled} />
-        </div>
+        </button>
       </AppTooltip>
     );
   }

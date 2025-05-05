@@ -13,7 +13,7 @@ use database::enums::AssetPermissionRole; // Keep for hardcoding permission
 use database::pool::get_pg_pool;
 use database::schema::{
     collections, collections_to_assets, dashboard_files, datasets, metric_files,
-    metric_files_to_dashboard_files,
+    metric_files_to_dashboard_files, metric_files_to_datasets,
 };
 
 use super::Version;
@@ -96,7 +96,6 @@ pub async fn get_metric_for_dashboard_handler(
     let resolved_name: String;
     let resolved_description: Option<String>;
     let resolved_time_frame: String;
-    let resolved_dataset_ids: Vec<Uuid>;
     let resolved_chart_config: database::types::ChartConfig;
     let resolved_sql: String;
     let resolved_updated_at: chrono::DateTime<Utc>;
@@ -116,7 +115,6 @@ pub async fn get_metric_for_dashboard_handler(
                     resolved_name = version_content.name.clone();
                     resolved_description = version_content.description.clone();
                     resolved_time_frame = version_content.time_frame.clone();
-                    resolved_dataset_ids = version_content.dataset_ids.clone();
                     resolved_chart_config = version_content.chart_config.clone();
                     resolved_sql = version_content.sql.clone();
                     resolved_updated_at = v.updated_at;
@@ -144,7 +142,6 @@ pub async fn get_metric_for_dashboard_handler(
         resolved_name = metric_file.name.clone(); // Use main record name
         resolved_description = current_content.description.clone();
         resolved_time_frame = current_content.time_frame.clone();
-        resolved_dataset_ids = current_content.dataset_ids.clone();
         resolved_chart_config = current_content.chart_config.clone();
         resolved_sql = current_content.sql.clone();
         resolved_updated_at = metric_file.updated_at; // Use main record updated_at
@@ -154,29 +151,23 @@ pub async fn get_metric_for_dashboard_handler(
         tracing::debug!(metric_id = %metric_id, latest_version = resolved_version_num, "Determined latest version number for dashboard");
     }
 
-    // Convert the selected content to pretty YAML for the 'file' field
-    let file = match serde_yaml::to_string(&resolved_content_for_yaml) {
-        Ok(yaml) => yaml,
-        Err(e) => {
-            tracing::error!(metric_id = %metric_id, error = %e, "Failed to serialize selected metric content to YAML for dashboard");
-            return Err(anyhow!("Failed to convert metric content to YAML: {}", e));
-        }
-    };
+    // Query dataset IDs from the join table based on the resolved version
+    let resolved_dataset_ids = match metric_files_to_datasets::table
+        .filter(metric_files_to_datasets::metric_file_id.eq(metric_id))
+        .filter(metric_files_to_datasets::metric_version_number.eq(resolved_version_num))
+        .select(metric_files_to_datasets::dataset_id)
+        .load::<Uuid>(&mut conn)
+        .await {
+            Ok(ids) => ids,
+            Err(e) => {
+                tracing::error!("Failed to fetch dataset IDs for metric {} version {}: {}", metric_id, resolved_version_num, e);
+                // Return empty or handle error as appropriate for dashboard context
+                Vec::new() 
+            }
+        };
 
-    // Map evaluation score - this is not versioned
-    let evaluation_score = metric_file.evaluation_score.map(|score| {
-        if score >= 0.8 {
-            "High".to_string()
-        } else if score >= 0.5 {
-            "Moderate".to_string()
-        } else {
-            "Low".to_string()
-        }
-    });
-
-    // Get dataset information for the resolved dataset IDs
+    // Get dataset information for the resolved dataset IDs (using the fetched IDs)
     let mut datasets = Vec::new();
-    let mut first_data_source_id = None;
     if !resolved_dataset_ids.is_empty() {
         // Fetch only if there are IDs to prevent unnecessary query
         let dataset_infos = datasets::table
@@ -195,9 +186,6 @@ pub async fn get_metric_for_dashboard_handler(
                 id: dataset_info.id.to_string(),
                 name: dataset_info.name,
             });
-            if first_data_source_id.is_none() {
-                first_data_source_id = Some(dataset_info.data_source_id);
-            }
         }
     }
 
@@ -256,6 +244,26 @@ pub async fn get_metric_for_dashboard_handler(
         }
     };
 
+    // Convert the selected content to pretty YAML for the 'file' field
+    let file = match serde_yaml::to_string(&resolved_content_for_yaml) {
+        Ok(yaml) => yaml,
+        Err(e) => {
+            tracing::error!(metric_id = %metric_id, error = %e, "Failed to serialize selected metric content to YAML for dashboard");
+            return Err(anyhow!("Failed to convert metric content to YAML: {}", e));
+        }
+    };
+
+    // Map evaluation score - this is not versioned
+    let evaluation_score = metric_file.evaluation_score.map(|score| {
+        if score >= 0.8 {
+            "High".to_string()
+        } else if score >= 0.5 {
+            "Moderate".to_string()
+        } else {
+            "Low".to_string()
+        }
+    });
+
     // Construct BusterMetric using resolved values
     Ok(BusterMetric {
         id: metric_file.id,
@@ -266,7 +274,7 @@ pub async fn get_metric_for_dashboard_handler(
         file_name: metric_file.file_name,
         time_frame: resolved_time_frame,
         datasets,
-        data_source_id: first_data_source_id.map_or("".to_string(), |id| id.to_string()),
+        data_source_id: metric_file.data_source_id, // Use canonical Uuid from main record
         error: None, // Assume ok
         chart_config: Some(resolved_chart_config),
         data_metadata,
