@@ -34,7 +34,7 @@ export const SelectAxisDropZone: React.FC<{
   const hasItems = zone.items.length > 0;
 
   return (
-    <div ref={setNodeRef}>
+    <div ref={setNodeRef} data-testid={`select-axis-drop-zone-${zone.id}`}>
       <StylingLabel
         className="space-y-2!"
         label={zone.title}

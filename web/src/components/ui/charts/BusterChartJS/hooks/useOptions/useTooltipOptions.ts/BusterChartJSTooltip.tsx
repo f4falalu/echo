@@ -1,12 +1,13 @@
 import { BusterChartTooltip } from '../../../../BusterChartTooltip';
 import { type BusterChartProps, ChartType } from '@/api/asset_interfaces/metric/charts';
 import React, { useMemo } from 'react';
-import type { Chart, TooltipItem, ChartType as ChartJSChartType } from 'chart.js';
+import type { Chart, TooltipItem, ChartType as ChartJSChartType, TimeScale } from 'chart.js';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 import { barAndLineTooltipHelper } from './barAndLineTooltipHelper';
 import { pieTooltipHelper } from './pieTooltipHelper';
 import { formatLabel } from '@/lib/columnFormatter';
 import { scatterTooltipHelper } from './scatterTooltipHelper';
+import { AUTO_DATE_FORMATS } from '../useXAxis/config';
 
 export const BusterChartJSTooltip: React.FC<{
   chart: Chart;
@@ -54,30 +55,21 @@ export const BusterChartJSTooltip: React.FC<{
         datasets.filter((dataset) => !dataset.hidden && !dataset.isTrendline).length > 1;
 
       return barAndLineTooltipHelper(
-        datasets,
         dataPoints,
         chart,
         columnLabelFormats,
-        hasMultipleMeasures,
         keyToUsePercentage,
-        hasCategoryAxis,
         hasMultipleShownDatasets,
         percentageMode
       );
     }
 
     if (isPieChart) {
-      return pieTooltipHelper(datasets, dataPoints, chart, columnLabelFormats, keyToUsePercentage);
+      return pieTooltipHelper(dataPoints, chart, columnLabelFormats, keyToUsePercentage);
     }
 
     if (isScatter) {
-      return scatterTooltipHelper(
-        datasets,
-        dataPoints,
-        columnLabelFormats,
-        hasMultipleMeasures,
-        hasCategoryAxis
-      );
+      return scatterTooltipHelper(dataPoints, columnLabelFormats);
     }
 
     return [];
@@ -100,11 +92,23 @@ export const BusterChartJSTooltip: React.FC<{
     //THIS IS ONLY FOR LINE CHART WITH A TIME AXIS
     const datasetIndex = dataPoints[0].datasetIndex;
     const dataset = datasets[datasetIndex!];
-    const xAxisKeys = (dataset as any).xAxisKeys as string[]; //hacky... TODO look into this
+    const xAxisKeys = dataset.xAxisKeys;
     const key = xAxisKeys.at(0)!;
     const columnLabelFormat = columnLabelFormats[key!];
 
-    return formatLabel(value as number | Date, columnLabelFormat);
+    //I decided to do this because the tooltip really need to be more detailed than the x...
+    // const isAutoDateFormat =
+    //   columnLabelFormat?.dateFormat === 'auto' && columnLabelFormat?.style === 'date';
+    // console.log(columnLabelFormat);
+
+    // if (isAutoDateFormat) {
+    //   const unit = (chart.scales.x as TimeScale)._unit;
+    //   const format = AUTO_DATE_FORMATS[unit];
+
+    //   return formatLabel(value as number | Date, { ...columnLabelFormat, dateFormat: format });
+    // }
+
+    return formatLabel(value as number | string, columnLabelFormat);
   }, [dataPoints, isPie, isScatter, chart, tooltipItems[0], hasCategoryAxis]);
 
   //use mount will not work here because the tooltip is passed to a renderString function

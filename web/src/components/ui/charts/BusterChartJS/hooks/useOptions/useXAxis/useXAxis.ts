@@ -11,13 +11,13 @@ import { useMemoizedFn } from '@/hooks';
 import { useMemo } from 'react';
 import { DeepPartial } from 'utility-types';
 import type { ScaleChartOptions, Scale, GridLineOptions, TimeScale } from 'chart.js';
-import { useXAxisTitle } from '../../../../commonHelpers/useXAxisTitle';
+import { useXAxisTitle } from '../axisHooks/useXAxisTitle';
 import { useIsStacked } from '../useIsStacked';
 import { formatLabel, isNumericColumnType, truncateText } from '@/lib';
 import isDate from 'lodash/isDate';
 import { Chart as ChartJS } from 'chart.js';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
-import { DATE_FORMATS } from './config';
+import { AUTO_DATE_FORMATS } from './config';
 
 const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category?.ticks?.callback;
 
@@ -88,7 +88,7 @@ export const useXAxis = ({
         return 'time';
       }
 
-      if (isComboChart && columnSettings) {
+      if (isComboChart && columnSettings && xIsDate) {
         const allYAxisKeys = [...selectedAxis.y, ...((selectedAxis as ComboChartAxis).y2 || [])];
         const atLeastOneLineVisualization = allYAxisKeys.some(
           (y) =>
@@ -155,7 +155,7 @@ export const useXAxis = ({
           | 'month'
           | 'quarter'
           | 'year';
-        const format = DATE_FORMATS[unit];
+        const format = AUTO_DATE_FORMATS[unit];
         return formatLabel(rawValue, { ...xColumnLabelFormat, dateFormat: format });
       }
       const res = formatLabel(rawValue, xColumnLabelFormat);

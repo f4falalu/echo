@@ -42,6 +42,7 @@ export const EditMetricAggregate: React.FC<{
   return (
     <LabelAndInput label={'Aggregation'}>
       <Select
+        dataTestId="edit-metric-aggregate"
         items={AGGREGATE_OPTIONS}
         value={selectedOption}
         onChange={onUpdateMetricValueAggregate}

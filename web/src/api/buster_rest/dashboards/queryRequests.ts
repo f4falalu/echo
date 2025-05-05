@@ -198,6 +198,7 @@ export const useUpdateDashboardConfig = () => {
 export const useCreateDashboard = () => {
   const queryClient = useQueryClient();
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
+  const setLatestDashboardVersion = useDashboardQueryStore((x) => x.onSetLatestDashboardVersion);
   return useMutation({
     mutationFn: dashboardsCreateDashboard,
     onSuccess: (originalData, variables) => {
@@ -214,6 +215,7 @@ export const useCreateDashboard = () => {
         data
       );
       setOriginalDashboard(data.dashboard);
+      setLatestDashboardVersion(data.dashboard.id, data.dashboard.version_number);
       setTimeout(() => {
         queryClient.invalidateQueries({
           queryKey: dashboardQueryKeys.dashboardGetList().queryKey,
@@ -426,6 +428,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
   const { openErrorMessage, openConfirmModal } = useBusterNotifications();
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
+  const setLatestDashboardVersion = useDashboardQueryStore((x) => x.onSetLatestDashboardVersion);
 
   const addAndRemoveMetrics = useMemoizedFn(
     async ({
@@ -456,7 +459,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
         const availableSlots = MAX_NUMBER_OF_ITEMS_ON_DASHBOARD - currentMetricCount;
         const metricsToActuallyAdd = metricsToAdd.slice(0, availableSlots);
 
-        const addMethod = () => {
+        const addMethod = async () => {
           // Create the final list of metrics to include
           const finalMetricIds = [
             ...Array.from(existingMetricIds).filter((id) => !metricsToRemove.includes(id)),
@@ -468,10 +471,12 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
             dashboardResponse.dashboard.config
           );
 
-          return dashboardsUpdateDashboard({
+          const data = await dashboardsUpdateDashboard({
             id: dashboardId,
             config: newConfig
           });
+
+          return data;
         };
 
         if (metricsToAdd.length > availableSlots) {
@@ -507,7 +512,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
           });
         }
 
-        return addMethod();
+        return await addMethod();
       }
 
       openErrorMessage('Failed to save metrics to dashboard');
@@ -525,6 +530,7 @@ export const useAddAndRemoveMetricsFromDashboard = () => {
           data
         );
         setOriginalDashboard(data.dashboard);
+        setLatestDashboardVersion(data.dashboard.id, data.dashboard.version_number);
       }
     }
   });
@@ -536,6 +542,7 @@ export const useAddMetricsToDashboard = () => {
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
   const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
+  const setLatestDashboardVersion = useDashboardQueryStore((x) => x.onSetLatestDashboardVersion);
 
   const addMetricToDashboard = useMemoizedFn(
     async ({ metricIds, dashboardId }: { metricIds: string[]; dashboardId: string }) => {
@@ -614,6 +621,7 @@ export const useAddMetricsToDashboard = () => {
         });
 
         setOriginalDashboard(data.dashboard);
+        setLatestDashboardVersion(data.dashboard.id, data.dashboard.version_number);
       }
     }
   });
@@ -625,6 +633,7 @@ export const useRemoveMetricsFromDashboard = () => {
   const ensureDashboardConfig = useEnsureDashboardConfig(false);
   const setOriginalDashboard = useOriginalDashboardStore((x) => x.setOriginalDashboard);
   const getLatestMetricVersion = useGetLatestMetricVersionMemoized();
+  const setLatestDashboardVersion = useDashboardQueryStore((x) => x.onSetLatestDashboardVersion);
 
   const removeMetricFromDashboard = useMemoizedFn(
     async ({
@@ -710,7 +719,12 @@ export const useRemoveMetricsFromDashboard = () => {
   );
 
   return useMutation({
-    mutationFn: removeMetricFromDashboard
+    mutationFn: removeMetricFromDashboard,
+    onSuccess: (data) => {
+      if (data) {
+        setLatestDashboardVersion(data.dashboard.id, data.dashboard.version_number);
+      }
+    }
   });
 };
 

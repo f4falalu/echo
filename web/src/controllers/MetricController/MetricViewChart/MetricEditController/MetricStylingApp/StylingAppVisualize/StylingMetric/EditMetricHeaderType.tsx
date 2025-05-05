@@ -82,7 +82,12 @@ export const EditMetricHeader: React.FC<{
 
   return (
     <LabelAndInput label={title}>
-      <Select items={options} value={selectedOption} onChange={onUpdateMetricHeader} />
+      <Select
+        dataTestId={type === 'header' ? 'edit-metric-header-type' : 'edit-metric-subheader-type'}
+        items={options}
+        value={selectedOption}
+        onChange={onUpdateMetricHeader}
+      />
     </LabelAndInput>
   );
 });
