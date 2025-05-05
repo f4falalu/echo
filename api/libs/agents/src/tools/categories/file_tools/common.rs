@@ -223,25 +223,19 @@ properties:
       RULE: Follow general quoting rules. CANNOT contain ':'.
 
   # SQL QUERY
-  ### SQL Best Practices and Constraints** (when creating new metrics)  
-  #  - **Constraints**: Only join tables with explicit entity relationships.  
-  #  - **SQL Requirements**:  
-  #    - Use schema-qualified table names (`<DATABASE_NAME>.<SCHEMA_NAME>.<TABLE_NAME>`).  
-  #    - Use fully qualified column names with table aliases (e.g., `<table_alias>.<column>`).
-  #    - Select specific columns (avoid `SELECT *` or `COUNT(*)`).  
-  #    - Use CTEs instead of subqueries, and use snake_case for naming them.  
-  #    - Use `DISTINCT` (not `DISTINCT ON`) with matching `GROUP BY`/`SORT BY` clauses.  
-  #    - Show entity names rather than just IDs.  
-  #    - Handle date conversions appropriately.  
-  #    - Order dates in ascending order.
-  #    - Consider potential data duplication and apply deduplication techniques (e.g., `DISTINCT`, `GROUP BY`) where necessary.
+  # Describes how the SQL should be formatted within the YAML
   sql:
     required: true
     type: string
     description: |
-      SQL query using YAML pipe syntax (|)
+      SQL query using YAML pipe syntax (|).
       The SQL query should be formatted with proper indentation using the YAML pipe (|) syntax.
       This ensures the multi-line SQL is properly parsed while preserving whitespace and newlines.
+      Example:
+        sql: |
+          SELECT column1, column2
+          FROM my_table
+          WHERE condition;
 
   # CHART CONFIGURATION
   chartConfig:
