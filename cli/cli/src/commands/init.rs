@@ -14,8 +14,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use crate::utils::exclusion::{BusterConfig, ProjectContext};
+// Update imports to use new modules via mod.rs re-exports
 use crate::utils::{
+    BusterConfig, ProjectContext, // Use re-exported items directly
     buster::{BusterClient, PostDataSourcesRequest},
     file::buster_credentials::get_and_validate_buster_credentials,
 };
