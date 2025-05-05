@@ -3,7 +3,8 @@ use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
 use inquire::{validator::Validation, Confirm, Password, Select, Text};
 use query_engine::credentials::{
-    BigqueryCredentials, Credential, PostgresCredentials, RedshiftCredentials, SnowflakeCredentials,
+    BigqueryCredentials, Credential, DatabricksCredentials, MySqlCredentials, PostgresCredentials,
+    RedshiftCredentials, SnowflakeCredentials, SqlServerCredentials,
 };
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -25,6 +26,9 @@ enum DatabaseType {
     Postgres,
     BigQuery,
     Snowflake,
+    MySql,
+    SqlServer,
+    Databricks,
 }
 
 impl std::fmt::Display for DatabaseType {
@@ -34,6 +38,9 @@ impl std::fmt::Display for DatabaseType {
             DatabaseType::Postgres => write!(f, "Postgres"),
             DatabaseType::BigQuery => write!(f, "BigQuery"),
             DatabaseType::Snowflake => write!(f, "Snowflake"),
+            DatabaseType::MySql => write!(f, "MySQL/MariaDB"),
+            DatabaseType::SqlServer => write!(f, "SQL Server"),
+            DatabaseType::Databricks => write!(f, "Databricks"),
         }
     }
 }
@@ -102,6 +109,9 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
         DatabaseType::Postgres,
         DatabaseType::BigQuery,
         DatabaseType::Snowflake,
+        DatabaseType::MySql,
+        DatabaseType::SqlServer,
+        DatabaseType::Databricks,
     ];
 
     let db_type = Select::new("Select your database type:", db_types).prompt()?;
@@ -118,13 +128,17 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
         DatabaseType::BigQuery => {
             setup_bigquery(buster_creds.url, buster_creds.api_key, &config_path).await
         }
-        _ => {
-            println!(
-                "{}",
-                format!("{} support is coming soon!", db_type).yellow()
-            );
-            println!("Currently, only Redshift, Postgres, and BigQuery are supported.");
-            Err(anyhow::anyhow!("Database type not yet implemented"))
+        DatabaseType::Snowflake => {
+            setup_snowflake(buster_creds.url, buster_creds.api_key, &config_path).await
+        }
+        DatabaseType::MySql => {
+            setup_mysql(buster_creds.url, buster_creds.api_key, &config_path).await
+        }
+        DatabaseType::SqlServer => {
+            setup_sqlserver(buster_creds.url, buster_creds.api_key, &config_path).await
+        }
+        DatabaseType::Databricks => {
+            setup_databricks(buster_creds.url, buster_creds.api_key, &config_path).await
         }
     }
 }
@@ -201,7 +215,7 @@ async fn setup_redshift(
         .prompt()?;
 
     // Collect database (required)
-    let database = Text::new("Enter the Redshift database:")
+    let database = Text::new("Enter the default Redshift database:")
         .with_validator(|input: &str| {
             if input.trim().is_empty() {
                 return Ok(Validation::Invalid("Database cannot be empty".into()));
@@ -211,14 +225,13 @@ async fn setup_redshift(
         .prompt()?;
 
     // Collect schema (required)
-    let schema = Text::new("Enter the Redshift schema:")
-        .with_validator(|input: &str| {
-            if input.trim().is_empty() {
-                return Ok(Validation::Invalid("Schema cannot be empty".into()));
-            }
-            Ok(Validation::Valid)
-        })
+    let schema = Text::new("Enter the default Redshift schema (optional):")
         .prompt()?;
+    let schema_opt = if schema.trim().is_empty() {
+        None
+    } else {
+        Some(schema.clone())
+    };
 
     // Show summary and confirm
     println!("\n{}", "Connection Summary:".bold());
@@ -227,8 +240,10 @@ async fn setup_redshift(
     println!("Port: {}", port.to_string().cyan());
     println!("Username: {}", username.cyan());
     println!("Password: {}", "********".cyan());
-    println!("Database: {}", database.cyan()); // Now required
-    println!("Schema: {}", schema.cyan()); // Now required
+    println!("Default Database: {}", database.cyan());
+    if let Some(s) = &schema_opt {
+        println!("Default Schema: {}", s.cyan());
+    }
 
     let confirm = Confirm::new("Do you want to create this data source?")
         .with_default(true)
@@ -240,14 +255,13 @@ async fn setup_redshift(
     }
 
     // Create API request
-    // Note: Linter previously indicated these expect Option<String> despite being required now.
     let redshift_creds = RedshiftCredentials {
         host,
         port,
         username,
         password,
-        default_database: database.clone(), // Pass as Option<String>
-        default_schema: Some(schema.clone()), // Pass as Option<String>
+        default_database: database.clone(),
+        default_schema: schema_opt.clone(),
     };
     let credential = Credential::Redshift(redshift_creds);
     let request = PostDataSourcesRequest {
@@ -285,8 +299,8 @@ async fn setup_redshift(
             create_buster_config_file(
                 config_path,
                 &name,
-                &database, // Pass required string ref
-                &schema,   // Pass required string ref
+                &database,
+                schema_opt.as_deref(),
             )?;
 
             println!("You can now use this data source with other Buster commands.");
@@ -373,7 +387,7 @@ async fn setup_postgres(
         .prompt()?;
 
     // Collect database (required)
-    let database = Text::new("Enter the PostgreSQL database name:")
+    let database = Text::new("Enter the default PostgreSQL database name:")
         .with_validator(|input: &str| {
             if input.trim().is_empty() {
                 return Ok(Validation::Invalid("Database cannot be empty".into()));
@@ -383,14 +397,13 @@ async fn setup_postgres(
         .prompt()?;
 
     // Collect schema (required)
-    let schema = Text::new("Enter the PostgreSQL schema:")
-        .with_validator(|input: &str| {
-            if input.trim().is_empty() {
-                return Ok(Validation::Invalid("Schema cannot be empty".into()));
-            }
-            Ok(Validation::Valid)
-        })
+    let schema = Text::new("Enter the default PostgreSQL schema (optional):")
         .prompt()?;
+    let schema_opt = if schema.trim().is_empty() {
+        None
+    } else {
+        Some(schema.clone())
+    };
 
     // Show summary and confirm
     println!("\n{}", "Connection Summary:".bold());
@@ -399,8 +412,10 @@ async fn setup_postgres(
     println!("Port: {}", port.to_string().cyan());
     println!("Username: {}", username.cyan());
     println!("Password: {}", "********".cyan());
-    println!("Database: {}", database.cyan()); // Now required
-    println!("Schema: {}", schema.cyan()); // Now required
+    println!("Default Database: {}", database.cyan());
+    if let Some(s) = &schema_opt {
+        println!("Default Schema: {}", s.cyan());
+    }
 
     let confirm = Confirm::new("Do you want to create this data source?")
         .with_default(true)
@@ -412,14 +427,13 @@ async fn setup_postgres(
     }
 
     // Create API request
-    // Assuming these expect Option<String> based on typical patterns, adjust if linter disagrees
     let postgres_creds = PostgresCredentials {
         host,
         port,
         username,
         password,
-        default_database: database.clone(), // Pass as Option<String>
-        default_schema: Some(schema.clone()), // Pass as Option<String>
+        default_database: database.clone(),
+        default_schema: schema_opt.clone(),
         jump_host: None,
         ssh_username: None,
         ssh_private_key: None,
@@ -460,8 +474,8 @@ async fn setup_postgres(
             create_buster_config_file(
                 config_path,
                 &name,
-                &database, // Pass required string ref
-                &schema,   // Pass required string ref
+                &database,
+                schema_opt.as_deref(),
             )?;
 
             println!("You can now use this data source with other Buster commands.");
@@ -503,7 +517,7 @@ async fn setup_bigquery(
         .prompt()?;
 
     // Collect project ID
-    let project_id = Text::new("Enter the Google Cloud project ID:")
+    let project_id = Text::new("Enter the default Google Cloud project ID:")
         .with_help_message("Example: my-project-123456")
         .with_validator(|input: &str| {
             if input.trim().is_empty() {
@@ -514,7 +528,7 @@ async fn setup_bigquery(
         .prompt()?;
 
     // Collect dataset ID (required)
-    let dataset_id = Text::new("Enter the BigQuery dataset ID:")
+    let dataset_id = Text::new("Enter the default BigQuery dataset ID:")
         .with_validator(|input: &str| {
             if input.trim().is_empty() {
                 return Ok(Validation::Invalid("Dataset ID cannot be empty".into()));
@@ -565,8 +579,8 @@ async fn setup_bigquery(
     // Show summary and confirm
     println!("\n{}", "Connection Summary:".bold());
     println!("Name: {}", name.cyan());
-    println!("Project ID: {}", project_id.cyan());
-    println!("Dataset ID: {}", dataset_id.cyan()); // Now required
+    println!("Default Project ID: {}", project_id.cyan());
+    println!("Default Dataset ID: {}", dataset_id.cyan());
     println!("Credentials: {}", credentials_path.cyan());
 
     let confirm = Confirm::new("Do you want to create this data source?")
@@ -580,9 +594,9 @@ async fn setup_bigquery(
 
     // Create API request
     let bigquery_creds = BigqueryCredentials {
-        default_project_id: project_id.clone(),       // Expects String
-        default_dataset_id: dataset_id.clone(), // Expects Option<String>
-        credentials_json: credentials_json,           // Expects serde_json::Value
+        default_project_id: project_id.clone(),
+        default_dataset_id: dataset_id.clone(),
+        credentials_json: credentials_json,
     };
     let credential = Credential::Bigquery(bigquery_creds);
     let request = PostDataSourcesRequest {
@@ -620,8 +634,8 @@ async fn setup_bigquery(
             create_buster_config_file(
                 config_path,
                 &name,
-                &project_id, // Project ID maps to database
-                &dataset_id, // Dataset ID maps to schema
+                &project_id,
+                Some(&dataset_id),
             )?;
 
             println!("You can now use this data source with other Buster commands.");
@@ -636,12 +650,507 @@ async fn setup_bigquery(
     }
 }
 
+async fn setup_mysql(
+    buster_url: String,
+    buster_api_key: String,
+    config_path: &Path,
+) -> Result<()> {
+    println!("{}", "Setting up MySQL/MariaDB connection...".bold().green());
+
+    // Collect name
+    let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
+    let name = Text::new("Enter a unique name for this data source:")
+        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
+        .with_validator(move |input: &str| {
+            if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
+            else if name_regex.is_match(input) { Ok(Validation::Valid) }
+            else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
+        })
+        .prompt()?;
+
+    // Collect host
+    let host = Text::new("Enter the MySQL/MariaDB host:")
+        .with_help_message("Example: localhost or db.example.com")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() { Ok(Validation::Invalid("Host cannot be empty".into())) }
+            else { Ok(Validation::Valid) }
+        })
+        .prompt()?;
+
+    // Collect port
+    let port_str = Text::new("Enter the MySQL/MariaDB port:")
+        .with_default("3306")
+        .with_help_message("Default MySQL/MariaDB port is 3306")
+        .with_validator(|input: &str| match input.parse::<u16>() {
+            Ok(_) => Ok(Validation::Valid),
+            Err(_) => Ok(Validation::Invalid("Port must be a valid number between 1 and 65535".into())),
+        })
+        .prompt()?;
+    let port = port_str.parse::<u16>()?;
+
+    // Collect username
+    let username = Text::new("Enter the MySQL/MariaDB username:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() { Ok(Validation::Invalid("Username cannot be empty".into())) }
+            else { Ok(Validation::Valid) }
+        })
+        .prompt()?;
+
+    // Collect password
+    let password = Password::new("Enter the MySQL/MariaDB password:")
+        .with_validator(|input: &str| {
+             if input.trim().is_empty() { Ok(Validation::Invalid("Password cannot be empty".into())) }
+             else { Ok(Validation::Valid) }
+        })
+        .without_confirmation()
+        .prompt()?;
+
+    // Collect database (required)
+    let database = Text::new("Enter the default MySQL/MariaDB database name:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() { Ok(Validation::Invalid("Database cannot be empty".into())) }
+            else { Ok(Validation::Valid) }
+        })
+        .prompt()?;
+
+    // Show summary and confirm
+    println!("\n{}", "Connection Summary:".bold());
+    println!("Name: {}", name.cyan());
+    println!("Host: {}", host.cyan());
+    println!("Port: {}", port.to_string().cyan());
+    println!("Username: {}", username.cyan());
+    println!("Password: {}", "********".cyan());
+    println!("Default Database: {}", database.cyan());
+
+    let confirm = Confirm::new("Do you want to create this data source?")
+        .with_default(true)
+        .prompt()?;
+
+    if !confirm {
+        println!("{}", "Data source creation cancelled.".yellow());
+        return Ok(());
+    }
+
+    // Create API request
+    let mysql_creds = MySqlCredentials {
+        host,
+        port,
+        username,
+        password,
+        default_database: database.clone(),
+        jump_host: None, // Not prompted for simplicity
+        ssh_username: None,
+        ssh_private_key: None,
+    };
+    let credential = Credential::MySql(mysql_creds);
+    let request = PostDataSourcesRequest { name: name.clone(), credential };
+
+    // Send to API
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(ProgressStyle::default_spinner().tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ").template("{spinner:.green} {msg}").unwrap());
+    spinner.set_message("Sending credentials to Buster API...");
+    spinner.enable_steady_tick(Duration::from_millis(100));
+    let client = BusterClient::new(buster_url, buster_api_key)?;
+
+    match client.post_data_sources(request).await {
+        Ok(_) => {
+            spinner.finish_with_message("✓ Data source created successfully!".green().bold().to_string());
+            println!("\nData source '{}' is now available for use with Buster.", name.cyan());
+            create_buster_config_file(config_path, &name, &database, None)?; // MySQL doesn't have a top-level schema concept like others
+            println!("You can now use this data source with other Buster commands.");
+            Ok(())
+        }
+        Err(e) => {
+            spinner.finish_with_message("✗ Failed to create data source".red().bold().to_string());
+            println!("\nError: {}", e);
+            Err(anyhow::anyhow!("Failed to create data source: {}", e))
+        }
+    }
+}
+
+async fn setup_sqlserver(
+    buster_url: String,
+    buster_api_key: String,
+    config_path: &Path,
+) -> Result<()> {
+    println!("{}", "Setting up SQL Server connection...".bold().green());
+
+    // Collect name
+    let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
+    let name = Text::new("Enter a unique name for this data source:")
+        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
+        .with_validator(move |input: &str| {
+             if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
+             else if name_regex.is_match(input) { Ok(Validation::Valid) }
+             else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
+        })
+        .prompt()?;
+
+    // Collect host
+    let host = Text::new("Enter the SQL Server host:")
+        .with_help_message("Example: server.database.windows.net or localhost")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() { Ok(Validation::Invalid("Host cannot be empty".into())) }
+            else { Ok(Validation::Valid) }
+        })
+        .prompt()?;
+
+    // Collect port
+    let port_str = Text::new("Enter the SQL Server port:")
+        .with_default("1433")
+        .with_help_message("Default SQL Server port is 1433")
+        .with_validator(|input: &str| match input.parse::<u16>() {
+             Ok(_) => Ok(Validation::Valid),
+             Err(_) => Ok(Validation::Invalid("Port must be a valid number between 1 and 65535".into())),
+        })
+        .prompt()?;
+    let port = port_str.parse::<u16>()?;
+
+    // Collect username
+    let username = Text::new("Enter the SQL Server username:")
+         .with_validator(|input: &str| {
+             if input.trim().is_empty() { Ok(Validation::Invalid("Username cannot be empty".into())) }
+             else { Ok(Validation::Valid) }
+         })
+         .prompt()?;
+
+    // Collect password
+    let password = Password::new("Enter the SQL Server password:")
+        .with_validator(|input: &str| {
+             if input.trim().is_empty() { Ok(Validation::Invalid("Password cannot be empty".into())) }
+             else { Ok(Validation::Valid) }
+        })
+        .without_confirmation()
+        .prompt()?;
+
+    // Collect database (required)
+    let database = Text::new("Enter the default SQL Server database name:")
+        .with_validator(|input: &str| {
+             if input.trim().is_empty() { Ok(Validation::Invalid("Database cannot be empty".into())) }
+             else { Ok(Validation::Valid) }
+        })
+        .prompt()?;
+
+    // Collect schema (optional)
+    let schema = Text::new("Enter the default SQL Server schema (optional, default: dbo):")
+        // No validator needed for optional field
+        .prompt()?;
+    let schema_opt = if schema.trim().is_empty() {
+        None // Or perhaps Some("dbo".to_string()) depending on desired default behavior
+    } else {
+        Some(schema.clone())
+    };
+
+    // Show summary and confirm
+    println!("\n{}", "Connection Summary:".bold());
+    println!("Name: {}", name.cyan());
+    println!("Host: {}", host.cyan());
+    println!("Port: {}", port.to_string().cyan());
+    println!("Username: {}", username.cyan());
+    println!("Password: {}", "********".cyan());
+    println!("Default Database: {}", database.cyan());
+    if let Some(s) = &schema_opt {
+        println!("Default Schema: {}", s.cyan());
+    }
+
+    let confirm = Confirm::new("Do you want to create this data source?")
+        .with_default(true)
+        .prompt()?;
+
+    if !confirm {
+        println!("{}", "Data source creation cancelled.".yellow());
+        return Ok(());
+    }
+
+    // Create API request
+    let sqlserver_creds = SqlServerCredentials {
+        host,
+        port,
+        username,
+        password,
+        default_database: database.clone(),
+        default_schema: schema_opt.clone(),
+        jump_host: None, // Not prompted for simplicity
+        ssh_username: None,
+        ssh_private_key: None,
+    };
+    let credential = Credential::SqlServer(sqlserver_creds);
+    let request = PostDataSourcesRequest { name: name.clone(), credential };
+
+    // Send to API
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(ProgressStyle::default_spinner().tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ").template("{spinner:.green} {msg}").unwrap());
+    spinner.set_message("Sending credentials to Buster API...");
+    spinner.enable_steady_tick(Duration::from_millis(100));
+    let client = BusterClient::new(buster_url, buster_api_key)?;
+
+    match client.post_data_sources(request).await {
+        Ok(_) => {
+            spinner.finish_with_message("✓ Data source created successfully!".green().bold().to_string());
+            println!("\nData source '{}' is now available for use with Buster.", name.cyan());
+            create_buster_config_file(config_path, &name, &database, schema_opt.as_deref())?;
+            println!("You can now use this data source with other Buster commands.");
+            Ok(())
+        }
+        Err(e) => {
+            spinner.finish_with_message("✗ Failed to create data source".red().bold().to_string());
+            println!("\nError: {}", e);
+            Err(anyhow::anyhow!("Failed to create data source: {}", e))
+        }
+    }
+}
+
+async fn setup_databricks(
+    buster_url: String,
+    buster_api_key: String,
+    config_path: &Path,
+) -> Result<()> {
+    println!("{}", "Setting up Databricks connection...".bold().green());
+
+    // Collect name
+    let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
+    let name = Text::new("Enter a unique name for this data source:")
+         .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
+         .with_validator(move |input: &str| {
+             if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
+             else if name_regex.is_match(input) { Ok(Validation::Valid) }
+             else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
+         })
+        .prompt()?;
+
+    // Collect host
+    let host = Text::new("Enter the Databricks host:")
+        .with_help_message("Example: adb-xxxxxxxxxxxx.xx.azuredatabricks.net")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() { Ok(Validation::Invalid("Host cannot be empty".into())) }
+            else { Ok(Validation::Valid) }
+        })
+        .prompt()?;
+
+    // Collect API key
+    let api_key = Password::new("Enter the Databricks API key (Personal Access Token):")
+        .with_validator(|input: &str| {
+             if input.trim().is_empty() { Ok(Validation::Invalid("API key cannot be empty".into())) }
+             else { Ok(Validation::Valid) }
+        })
+        .without_confirmation()
+        .prompt()?;
+
+     // Collect Warehouse ID
+    let warehouse_id = Text::new("Enter the Databricks SQL Warehouse HTTP Path:")
+        .with_help_message("Example: /sql/1.0/warehouses/xxxxxxxxxxxx")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() { Ok(Validation::Invalid("Warehouse ID cannot be empty".into())) }
+            else { Ok(Validation::Valid) }
+        })
+        .prompt()?;
+
+    // Collect default catalog (required)
+    let catalog = Text::new("Enter the default Databricks catalog:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() { Ok(Validation::Invalid("Catalog cannot be empty".into())) }
+            else { Ok(Validation::Valid) }
+        })
+        .prompt()?;
+
+    // Collect default schema (optional)
+    let schema = Text::new("Enter the default Databricks schema (optional):")
+        .prompt()?;
+    let schema_opt = if schema.trim().is_empty() { None } else { Some(schema) };
+
+    // Show summary and confirm
+    println!("\n{}", "Connection Summary:".bold());
+    println!("Name: {}", name.cyan());
+    println!("Host: {}", host.cyan());
+    println!("API Key: {}", "********".cyan());
+    println!("Warehouse ID: {}", warehouse_id.cyan());
+    println!("Default Catalog: {}", catalog.cyan());
+    if let Some(s) = &schema_opt {
+        println!("Default Schema: {}", s.cyan());
+    }
+
+    let confirm = Confirm::new("Do you want to create this data source?")
+        .with_default(true)
+        .prompt()?;
+
+    if !confirm {
+        println!("{}", "Data source creation cancelled.".yellow());
+        return Ok(());
+    }
+
+    // Create API request
+    let databricks_creds = DatabricksCredentials {
+        host,
+        api_key,
+        warehouse_id,
+        default_catalog: catalog.clone(),
+        default_schema: schema_opt.clone(),
+    };
+    let credential = Credential::Databricks(databricks_creds);
+    let request = PostDataSourcesRequest { name: name.clone(), credential };
+
+    // Send to API
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(ProgressStyle::default_spinner().tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ").template("{spinner:.green} {msg}").unwrap());
+    spinner.set_message("Sending credentials to Buster API...");
+    spinner.enable_steady_tick(Duration::from_millis(100));
+    let client = BusterClient::new(buster_url, buster_api_key)?;
+
+    match client.post_data_sources(request).await {
+        Ok(_) => {
+            spinner.finish_with_message("✓ Data source created successfully!".green().bold().to_string());
+            println!("\nData source '{}' is now available for use with Buster.", name.cyan());
+            // Map catalog to database, schema to schema for buster.yml
+            create_buster_config_file(config_path, &name, &catalog, schema_opt.as_deref())?;
+            println!("You can now use this data source with other Buster commands.");
+            Ok(())
+        }
+        Err(e) => {
+            spinner.finish_with_message("✗ Failed to create data source".red().bold().to_string());
+            println!("\nError: {}", e);
+            Err(anyhow::anyhow!("Failed to create data source: {}", e))
+        }
+    }
+}
+
+async fn setup_snowflake(
+    buster_url: String,
+    buster_api_key: String,
+    config_path: &Path,
+) -> Result<()> {
+    println!("{}", "Setting up Snowflake connection...".bold().green());
+
+    // Collect name
+     let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
+     let name = Text::new("Enter a unique name for this data source:")
+         .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed")
+         .with_validator(move |input: &str| {
+             if input.trim().is_empty() { Ok(Validation::Invalid("Name cannot be empty".into())) }
+             else if name_regex.is_match(input) { Ok(Validation::Valid) }
+             else { Ok(Validation::Invalid("Name must contain only alphanumeric characters, dash (-) or underscore (_)".into())) }
+         })
+         .prompt()?;
+
+    // Collect account ID
+    let account_id = Text::new("Enter the Snowflake account identifier:")
+        .with_help_message("Example: xy12345.us-east-1")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() { Ok(Validation::Invalid("Account identifier cannot be empty".into())) }
+            else { Ok(Validation::Valid) }
+        })
+        .prompt()?;
+
+    // Collect Warehouse ID
+    let warehouse_id = Text::new("Enter the Snowflake warehouse name:")
+        .with_help_message("Example: COMPUTE_WH")
+         .with_validator(|input: &str| {
+             if input.trim().is_empty() { Ok(Validation::Invalid("Warehouse name cannot be empty".into())) }
+             else { Ok(Validation::Valid) }
+         })
+        .prompt()?;
+
+    // Collect username
+    let username = Text::new("Enter the Snowflake username:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() { Ok(Validation::Invalid("Username cannot be empty".into())) }
+            else { Ok(Validation::Valid) }
+        })
+        .prompt()?;
+
+    // Collect password
+    let password = Password::new("Enter the Snowflake password:")
+        .with_validator(|input: &str| {
+             if input.trim().is_empty() { Ok(Validation::Invalid("Password cannot be empty".into())) }
+             else { Ok(Validation::Valid) }
+        })
+        .without_confirmation()
+        .prompt()?;
+
+     // Collect role (optional)
+    let role = Text::new("Enter the Snowflake role (optional):")
+        .prompt()?;
+    let role_opt = if role.trim().is_empty() { None } else { Some(role) };
+
+    // Collect database (required)
+    let database = Text::new("Enter the default Snowflake database name:")
+        .with_validator(|input: &str| {
+            if input.trim().is_empty() { Ok(Validation::Invalid("Database cannot be empty".into())) }
+            else { Ok(Validation::Valid) }
+        })
+        .prompt()?;
+
+    // Collect schema (optional)
+    let schema = Text::new("Enter the default Snowflake schema (optional):")
+        .prompt()?;
+    let schema_opt = if schema.trim().is_empty() { None } else { Some(schema) };
+
+
+    // Show summary and confirm
+    println!("\n{}", "Connection Summary:".bold());
+    println!("Name: {}", name.cyan());
+    println!("Account Identifier: {}", account_id.cyan());
+    println!("Warehouse: {}", warehouse_id.cyan());
+    println!("Username: {}", username.cyan());
+    println!("Password: {}", "********".cyan());
+    if let Some(r) = &role_opt {
+        println!("Role: {}", r.cyan());
+    }
+    println!("Default Database: {}", database.cyan());
+     if let Some(s) = &schema_opt {
+        println!("Default Schema: {}", s.cyan());
+    }
+
+    let confirm = Confirm::new("Do you want to create this data source?")
+        .with_default(true)
+        .prompt()?;
+
+    if !confirm {
+        println!("{}", "Data source creation cancelled.".yellow());
+        return Ok(());
+    }
+
+    // Create API request
+    let snowflake_creds = SnowflakeCredentials {
+        account_id,
+        warehouse_id,
+        username,
+        password,
+        role: role_opt.clone(),
+        default_database: database.clone(),
+        default_schema: schema_opt.clone(),
+    };
+    let credential = Credential::Snowflake(snowflake_creds);
+    let request = PostDataSourcesRequest { name: name.clone(), credential };
+
+    // Send to API
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(ProgressStyle::default_spinner().tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ").template("{spinner:.green} {msg}").unwrap());
+    spinner.set_message("Sending credentials to Buster API...");
+    spinner.enable_steady_tick(Duration::from_millis(100));
+    let client = BusterClient::new(buster_url, buster_api_key)?;
+
+    match client.post_data_sources(request).await {
+        Ok(_) => {
+            spinner.finish_with_message("✓ Data source created successfully!".green().bold().to_string());
+            println!("\nData source '{}' is now available for use with Buster.", name.cyan());
+            create_buster_config_file(config_path, &name, &database, schema_opt.as_deref())?;
+            println!("You can now use this data source with other Buster commands.");
+            Ok(())
+        }
+        Err(e) => {
+            spinner.finish_with_message("✗ Failed to create data source".red().bold().to_string());
+            println!("\nError: {}", e);
+            Err(anyhow::anyhow!("Failed to create data source: {}", e))
+        }
+    }
+}
+
 // Helper function to create buster.yml file
 fn create_buster_config_file(
     path: &Path,
     data_source_name: &str,
-    database: &str, // Now required
-    schema: &str,   // Now required
+    database: &str,
+    schema: Option<&str>,
 ) -> Result<()> {
     // Prompt for model paths (optional)
     let model_paths_input = Text::new(
@@ -667,8 +1176,8 @@ fn create_buster_config_file(
 
     let config = BusterConfig {
         data_source_name: Some(data_source_name.to_string()),
-        schema: Some(schema.to_string()),     // Use required schema
-        database: Some(database.to_string()), // Use required database
+        schema: schema.map(|s| s.to_string()),
+        database: Some(database.to_string()),
         exclude_files: None,
         exclude_tags: None,
         model_paths,
