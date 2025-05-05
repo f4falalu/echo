@@ -150,12 +150,12 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 #
 # --- FIELD DETAILS & RULES --- 
 # `name`: Human-readable title (e.g., Total Sales). 
-#   - RULE: CANNOT contain underscores (`_`). Use spaces instead.
+#   - RULE: CANNOT contain underscores (`_`). Use spaces instead.   
 # `description`: Detailed explanation of the metric. 
 # `timeFrame`: Human-readable time period covered by the query, similar to a filter in a BI tool.
 #   - For queries with fixed date filters, use specific date ranges, e.g., "January 1, 2020 - December 31, 2020", "2024", "Q2 2024", "June 1, 2025".
 #   - For queries with relative date filters or no date filter, use relative terms, e.g., "Today", "Yesterday", "Last 7 days", "Last 30 days", "Last Quarter", "Last 12 Months", "Year to Date", "All time", etc.
-#   - For comparisons, use "Comparison: [Period 1] vs [Period 2]", with each period formatted according to whether it is fixed or relative, e.g., "Comparison: Last 30 days vs Previous 30 days" or "Comparison: June 1, 2025 - June 30, 2025 vs July 1, 2025 - July 31, 2025".
+#   - For comparisons, use "Comparison - [Period 1] vs [Period 2]", with each period formatted according to whether it is fixed or relative, e.g., "Comparison - Last 30 days vs Previous 30 days" or "Comparison - June 1, 2025 - June 30, 2025 vs July 1, 2025 - July 31, 2025".
 #   Rules:
 #     - Must accurately reflect the date/time filter used in the `sql` field. Do not misrepresent the time range.
 #     - Use full month names for dates, e.g., "January", not "Jan".
