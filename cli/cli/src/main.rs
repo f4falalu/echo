@@ -5,7 +5,7 @@ mod utils;
 
 use clap::{Parser, Subcommand};
 use colored::*;
-use commands::{auth::AuthArgs, deploy, init, auth::check_authentication};
+use commands::{auth::check_authentication, auth::AuthArgs, deploy, init};
 use utils::updater::check_for_updates;
 
 pub const APP_NAME: &str = "buster";
@@ -48,21 +48,6 @@ pub enum Commands {
         /// Skip update confirmation prompt
         #[arg(short = 'y')]
         no_prompt: bool,
-    },
-    Generate {
-        #[arg(long)]
-        source_path: Option<String>,
-        #[arg(long)]
-        destination_path: Option<String>,
-        #[arg(long)]
-        data_source_name: Option<String>,
-        #[arg(long)]
-        schema: Option<String>,
-        #[arg(long)]
-        database: Option<String>,
-        /// Output YML files in a flat structure instead of maintaining directory hierarchy
-        #[arg(long, default_value_t = false)]
-        flat_structure: bool,
     },
     Deploy {
         #[arg(long)]
@@ -142,43 +127,26 @@ async fn main() {
             let cmd = commands::update::UpdateCommand::new(check_only, force, no_prompt);
             cmd.execute().await
         }
-        Commands::Generate {
-            source_path,
-            destination_path,
-            data_source_name,
-            schema,
-            database,
-            flat_structure,
-        } => async move {
-            check_authentication().await?;
-            commands::generate(
-                source_path.as_deref(),
-                destination_path.as_deref(),
-                data_source_name,
-                schema,
-                database,
-                flat_structure,
-            )
-            .await
-        }.await,
         Commands::Deploy {
             path,
             dry_run,
             recursive,
-        } => async move {
-            check_authentication().await?;
-            deploy(path.as_deref(), dry_run, recursive).await
-        }.await,
-        // Commands::Chat {
-        //     base_url,
-        //     api_key,
-        // } => async move {
-        //     // No explicit auth check needed here as chat command handles its own logic
-        //     commands::chat::chat_command(commands::chat::ChatArgs {
-        //         base_url,
-        //         api_key,
-        //     }).await
-        // }.await,
+        } => {
+            async move {
+                check_authentication().await?;
+                deploy(path.as_deref(), dry_run, recursive).await
+            }
+            .await
+        } // Commands::Chat {
+          //     base_url,
+          //     api_key,
+          // } => async move {
+          //     // No explicit auth check needed here as chat command handles its own logic
+          //     commands::chat::chat_command(commands::chat::ChatArgs {
+          //         base_url,
+          //         api_key,
+          //     }).await
+          // }.await,
     };
 
     if let Err(e) = result {

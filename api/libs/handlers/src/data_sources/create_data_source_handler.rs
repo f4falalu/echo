@@ -59,10 +59,14 @@ pub async fn create_data_source_handler(
 
     // Get the first organization (users can only belong to one organization currently)
     let user_org = &user.organizations[0];
-    
+
     // Verify user has appropriate permissions (admin role)
-    if user_org.role != UserOrganizationRole::WorkspaceAdmin && user_org.role != UserOrganizationRole::DataAdmin {
-        return Err(anyhow!("User does not have appropriate permissions to create data sources"));
+    if user_org.role != UserOrganizationRole::WorkspaceAdmin
+        && user_org.role != UserOrganizationRole::DataAdmin
+    {
+        return Err(anyhow!(
+            "User does not have appropriate permissions to create data sources"
+        ));
     }
 
     let mut conn = get_pg_pool().get().await?;
@@ -116,8 +120,8 @@ pub async fn create_data_source_handler(
     // Store credentials in vault
     let credential_json = serde_json::to_string(&request.credential)
         .map_err(|e| anyhow!("Error serializing credentials: {}", e))?;
-    
-    create_secret(&credential_json, &request.name, None)
+
+    create_secret(&credential_json, &data_source.id.to_string(), None)
         .await
         .map_err(|e| anyhow!("Error storing credentials in vault: {}", e))?;
 

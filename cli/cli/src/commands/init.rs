@@ -14,7 +14,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use crate::utils::exclusion::BusterConfig;
+use crate::utils::exclusion::{BusterConfig, ProjectContext};
 use crate::utils::{
     buster::{BusterClient, PostDataSourcesRequest},
     file::buster_credentials::get_and_validate_buster_credentials,
@@ -111,7 +111,8 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
     };
 
     // Select database type
-    let db_types = vec![
+    // Sort database types alphabetically by display name
+    let mut db_types = vec![
         DatabaseType::Redshift,
         DatabaseType::Postgres,
         DatabaseType::BigQuery,
@@ -120,6 +121,7 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
         DatabaseType::SqlServer,
         DatabaseType::Databricks,
     ];
+    db_types.sort_by_key(|db| db.to_string()); // Sort alphabetically
 
     let db_type = Select::new("Select your database type:", db_types).prompt()?;
 
@@ -1212,7 +1214,7 @@ fn create_buster_config_file(
     .prompt()?;
 
     // Process the comma-separated input into a vector if not empty
-    let model_paths = if model_paths_input.trim().is_empty() {
+    let model_paths_vec = if model_paths_input.trim().is_empty() {
         None
     } else {
         Some(
@@ -1224,16 +1226,30 @@ fn create_buster_config_file(
         )
     };
 
-    let config = BusterConfig {
+    // --- Create config using the new ProjectContext structure ---
+    let main_context = ProjectContext {
+        path: ".".to_string(), // Default path for the primary context
         data_source_name: Some(data_source_name.to_string()),
-        schema: schema.map(|s| s.to_string()),
         database: Some(database.to_string()),
-        exclude_files: None,
-        exclude_tags: None,
-        model_paths,
+        schema: schema.map(|s| s.to_string()),
+        model_paths: model_paths_vec,
+        exclude_files: None, // Keep excludes at top-level for now, or handle differently?
+        exclude_tags: None,  // Decide if these should be part of context or remain top-level
     };
 
-    let yaml = serde_yaml::to_string(&config)?;
+    let config = BusterConfig {
+        // --- Top-level fields are None when generating new config ---
+        data_source_name: None,
+        schema: None,
+        database: None, 
+        exclude_files: None, // Define top-level excludes if needed
+        exclude_tags: None,
+        model_paths: None,
+        // --- Populate the projects field --- 
+        projects: Some(vec![main_context]),
+    };
+
+    let yaml = serde_yaml::to_string(&config)?; 
     fs::write(path, yaml)?;
 
     println!(

@@ -6,17 +6,40 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
-/// Unified BusterConfig structure for configuration across all commands
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct BusterConfig {
+/// Represents a specific project context within buster.yml
+#[derive(Debug, Deserialize, Serialize, Clone, Default)] // Add Default for serde
+pub struct ProjectContext {
+    pub path: String, // The directory prefix for this context
     pub data_source_name: Option<String>,
-    #[serde(alias = "dataset_id")]     // BigQuery alias for schema
-    pub schema: Option<String>,        // For SQL DBs: schema, For BigQuery: dataset ID
-    #[serde(alias = "project_id")]     // BigQuery alias for database
-    pub database: Option<String>,      // For SQL DBs: database, For BigQuery: project ID
+    #[serde(alias = "dataset_id")]
+    pub schema: Option<String>,
+    #[serde(alias = "project_id")]
+    pub database: Option<String>,
     pub exclude_files: Option<Vec<String>>,
     pub exclude_tags: Option<Vec<String>>,
+    pub model_paths: Option<Vec<String>>,
+}
+
+/// Unified BusterConfig structure for configuration across all commands
+#[derive(Debug, Deserialize, Serialize, Clone, Default)] // Add Default for serde
+pub struct BusterConfig {
+    // --- Top-level fields for backwards compatibility --- 
+    #[serde(default)] // Ensure this field is optional during deserialization
+    pub data_source_name: Option<String>,
+    #[serde(alias = "dataset_id", default)] // Ensure this field is optional
+    pub schema: Option<String>,        // For SQL DBs: schema, For BigQuery: dataset ID
+    #[serde(alias = "project_id", default)] // Ensure this field is optional
+    pub database: Option<String>,      // For SQL DBs: database, For BigQuery: project ID
+    #[serde(default)] // Ensure this field is optional
+    pub exclude_files: Option<Vec<String>>,
+    #[serde(default)] // Ensure this field is optional
+    pub exclude_tags: Option<Vec<String>>,
+    #[serde(default)] // Ensure this field is optional
     pub model_paths: Option<Vec<String>>,  // Paths to SQL model files/directories
+
+    // --- New multi-project structure --- 
+    #[serde(default)] // Allows files without 'projects' key to parse
+    pub projects: Option<Vec<ProjectContext>>, 
 }
 
 impl BusterConfig {

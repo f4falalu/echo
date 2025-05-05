@@ -7,12 +7,6 @@ use diesel::{
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
 
-#[derive(QueryableByName)]
-struct SecretIdResult {
-    #[diesel(sql_type = SqlUuid)]
-    id: Uuid,
-}
-
 // Creates a new secret using the vault extension function
 // Takes secret value, name, and an optional description
 // Returns the Uuid of the newly created secret
@@ -20,21 +14,21 @@ pub async fn create_secret(
     secret_value: &str,
     name: &str,
     description: Option<&str>,
-) -> Result<Uuid> {
+) -> Result<()> {
     let mut conn = get_pg_pool()
         .get()
         .await
         .map_err(|e| anyhow!("Error getting client from pool: {}", e))?;
 
     // Call the vault function to create the secret and return its ID
-    match diesel::sql_query("SELECT id FROM vault.create_secret($1, $2, $3)")
+    match diesel::sql_query("SELECT vault.create_secret($1, $2, $3)")
         .bind::<Text, _>(secret_value)
         .bind::<Text, _>(name)
-        .bind::<Nullable<Text>, _>(description)
-        .get_result::<SecretIdResult>(&mut conn)
+        .bind::<Text, _>(description.unwrap_or(""))
+        .execute(&mut conn)
         .await
     {
-        Ok(result) => Ok(result.id),
+        Ok(_) => Ok(()),
         Err(e) => Err(anyhow!("Error creating secret via vault function: {}", e)),
     }
 }
@@ -91,10 +85,7 @@ pub async fn update_secret(
         .await
     {
         Ok(_) => Ok(()),
-        Err(e) => Err(anyhow!(
-            "Error updating secret via vault function: {}",
-            e
-        )),
+        Err(e) => Err(anyhow!("Error updating secret via vault function: {}", e)),
     }
 }
 
@@ -112,9 +103,6 @@ pub async fn delete_secret(secret_id: &Uuid) -> Result<()> {
         .await
     {
         Ok(_) => Ok(()),
-        Err(e) => Err(anyhow!(
-            "Error deleting secret via vault function: {}",
-            e
-        )),
+        Err(e) => Err(anyhow!("Error deleting secret via vault function: {}", e)),
     }
 }

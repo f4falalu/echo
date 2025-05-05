@@ -279,6 +279,7 @@ impl ModelFile {
             exclude_files: None,
             exclude_tags: Some(exclude_tags.to_vec()),
             model_paths: None,
+            projects: None,
         };
 
         let manager = ExclusionManager::new(&temp_config)?;
