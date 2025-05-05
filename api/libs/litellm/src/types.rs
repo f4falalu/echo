@@ -172,7 +172,6 @@ impl AgentMessage {
     }
 
     pub fn assistant(
-        id: Option<String>,
         content: Option<String>,
         tool_calls: Option<Vec<ToolCall>>,
         progress: MessageProgress,
@@ -182,7 +181,7 @@ impl AgentMessage {
         let initial = initial.unwrap_or(false);
 
         Self::Assistant {
-            id,
+            id: None,
             content,
             name,
             tool_calls,
@@ -558,7 +557,6 @@ mod tests {
                 message: AgentMessage::assistant(
                     Some("\n\nHello there, how may I assist you today?".to_string()),
                     None,
-                    None,
                     MessageProgress::Complete,
                     None,
                     None,
@@ -707,7 +705,6 @@ mod tests {
                 index: 0,
                 message: AgentMessage::assistant(
                     Some("".to_string()),
-                    None,
                     None,
                     MessageProgress::Complete,
                     None,
@@ -991,7 +988,6 @@ mod tests {
             choices: vec![Choice {
                 index: 0,
                 message: AgentMessage::assistant(
-                    None,
                     None,
                     Some(vec![ToolCall {
                         id: "call_abc123".to_string(),
