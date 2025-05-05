@@ -28,7 +28,7 @@ export const useAnimations = ({
           ...animationRecord[selectedChartType]?.({ barGroupType })
         }
       : false;
-  }, [isAnimationEnabled, selectedChartType]);
+  }, [isAnimationEnabled, selectedChartType, barGroupType]);
 };
 
 const animationRecord: Record<
