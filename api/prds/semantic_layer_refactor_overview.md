@@ -95,7 +95,7 @@ graph TD
     *   Purpose: Update `BusterConfig` to support a `projects` structure. Modify model discovery logic to use these project paths and adhere to the "search down" rule for `buster.yml`
     *   Dependencies: Semantic Model Definition (for understanding model file structure)
     *   Required for: CLI Deployment Logic
-    *   Status: 🆕 Not Started
+    *   Status: ✅ Completed
     *   *Concurrency: Can start once the core structs in "Semantic Model Definition" are stable.*
 
 #### Success Criteria

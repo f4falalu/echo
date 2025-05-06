@@ -164,16 +164,16 @@ async fn deploy(path_arg: Option<&str>, /* ... other args ... */) -> Result<()> 
 ```
 
 #### Implementation Steps
-1.  [ ] Define `ProjectConfig` struct in `cli/cli/src/utils/config.rs`.
-2.  [ ] Add `projects: Option<Vec<ProjectConfig>>` to `BusterConfig` struct.
-3.  [ ] Update `BusterConfig::load_from_dir` (or ensure existing loader) to only look in the provided directory.
-4.  [ ] Implement `BusterConfig::resolve_effective_model_paths(&self, buster_yml_dir: &Path)` method.
-5.  [ ] In `cli/cli/src/commands/deploy.rs`:
+1.  [x] Define `ProjectConfig` struct in `cli/cli/src/utils/config.rs`.
+2.  [x] Add `projects: Option<Vec<ProjectConfig>>` to `BusterConfig` struct.
+3.  [x] Update `BusterConfig::load_from_dir` (or ensure existing loader) to only look in the provided directory.
+4.  [x] Implement `BusterConfig::resolve_effective_model_paths(&self, buster_yml_dir: &Path)` method.
+5.  [x] In `cli/cli/src/commands/deploy.rs`:
     a.  Modify `deploy` to determine `base_dir` (current or specified path).
     b.  Load `BusterConfig` strictly from `base_dir`.
     c.  Use `resolve_effective_model_paths` to get search locations.
     d.  Implement recursive search for `.yml` files (excluding `buster.yml`) in these locations, associating found files with their `Option<ProjectConfig>`.
-6.  [ ] Ensure exclusion logic (`exclude_files`, `exclude_tags`) is still applied correctly to the discovered files.
+6.  [x] Ensure exclusion logic (`exclude_files`, `exclude_tags`) is still applied correctly to the discovered files.
 
 #### Tests
 
@@ -192,11 +192,11 @@ async fn deploy(path_arg: Option<&str>, /* ... other args ... */) -> Result<()> 
     -   Ensure `exclude_files` patterns correctly filter results from `projects` paths.
 
 #### Success Criteria
-- [ ] `BusterConfig` and `ProjectConfig` are correctly defined and can be deserialized from YAML.
-- [ ] `deploy` command loads `buster.yml` only from the specified/current directory.
-- [ ] Model discovery correctly uses `projects`, then `model_paths`, then `buster.yml` directory, and finds `.yml` files recursively within these.
-- [ ] Discovered model files are correctly associated with their `ProjectConfig` (if any) for later steps.
-- [ ] All tests pass.
+- [x] `BusterConfig` and `ProjectConfig` are correctly defined and can be deserialized from YAML.
+- [x] `deploy` command loads `buster.yml` only from the specified/current directory.
+- [x] Model discovery correctly uses `projects`, then `model_paths`, then `buster.yml` directory, and finds `.yml` files recursively within these.
+- [x] Discovered model files are correctly associated with their `ProjectConfig` (if any) for later steps.
+- [x] All tests pass.
 
 ## Dependencies on Other Components
 
