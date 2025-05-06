@@ -21,7 +21,7 @@ export const EditPieLabelLocation = React.memo(
     const selectedLabelPosition = useMemo(() => {
       return options.find((option) => option.value === pieLabelPosition)?.value || 'outside';
     }, [pieLabelPosition]);
-    const hideLabel = pieLabelPosition === 'none';
+    const hideLabel = pieLabelPosition === 'none' || !pieLabelPosition;
 
     const onChangeSelect = useMemoizedFn((value: IBusterMetricChartConfig['pieLabelPosition']) => {
       onUpdateChartConfig({ pieLabelPosition: value });

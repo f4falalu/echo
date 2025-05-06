@@ -78,3 +78,58 @@ test('Can open sql editor', async ({ page }) => {
   await page.getByTestId('edit-chart-button').getByRole('button').click();
   await expect(page.locator('div').filter({ hasText: /^Edit chart$/ })).toBeVisible();
 });
+
+test('Bar chart span clicking works', async ({ page }) => {
+  await page.goto('http://localhost:3000/app/metrics/45c17750-2b61-5683-ba8d-ff6c6fefacee/chart');
+  await page.getByTestId('edit-chart-button').getByRole('button').click();
+  await page.waitForTimeout(55);
+  await page.getByTestId('edit-chart-button').getByRole('button').click();
+  await page.waitForTimeout(55);
+  await page.getByTestId('edit-chart-button').getByRole('button').click();
+  await page.waitForTimeout(55);
+  await page.getByTestId('edit-chart-button').getByRole('button').click();
+  await page.waitForTimeout(55);
+  await page.getByTestId('segmented-trigger-results').click();
+  await page.waitForTimeout(55);
+  await page.getByTestId('edit-chart-button').getByRole('button').click();
+  await expect(page.getByTestId('metric-view-chart-content').getByRole('img')).toBeVisible();
+  await page.getByTestId('edit-sql-button').getByRole('button').click();
+  await page.waitForTimeout(55);
+  await expect(page.getByText('Copy SQLSaveRun')).toBeVisible();
+  await page.getByTestId('segmented-trigger-file').click();
+  await page.waitForTimeout(55);
+
+  await expect(
+    page.getByText('Yearly Sales Revenue - Signature Cycles Products (Last 3 Years + YTD)', {
+      exact: true
+    })
+  ).toBeVisible();
+
+  await page.getByTestId('edit-chart-button').getByRole('button').click();
+  await expect(page.getByText('Edit chart')).toBeVisible({ timeout: 15000 });
+  await page
+    .locator('div')
+    .filter({ hasText: /^Edit chart$/ })
+    .getByRole('button')
+    .click();
+  await page.waitForTimeout(55);
+  await page.getByTestId('edit-chart-button').getByRole('button').click();
+  await page.waitForTimeout(55);
+  await page
+    .locator('div')
+    .filter({ hasText: /^Edit chart$/ })
+    .getByRole('button')
+    .click();
+  await page.getByTestId('edit-chart-button').getByRole('button').click();
+  await page.waitForTimeout(55);
+  await page
+    .locator('div')
+    .filter({ hasText: /^Edit chart$/ })
+    .getByRole('button')
+    .click();
+  await expect(page.locator('body')).toMatchAriaSnapshot(`
+      - textbox "New chart": Yearly Sales Revenue - Signature Cycles Products (Last 3 Years + YTD)
+      - text: /Jan 1, \\d+ - May 2, \\d+ • What is the total yearly sales revenue for products supplied by Signature Cycles from \\d+ to present\\? Total Sales Revenue/
+      - img
+      `);
+});
