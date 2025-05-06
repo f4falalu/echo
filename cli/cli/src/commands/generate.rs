@@ -93,34 +93,59 @@ pub async fn generate_semantic_models_command(
     }
     
     if sql_files_to_process.is_empty() { // If path_arg didn't yield files, or wasn't provided, use buster.yml config
-        let mut patterns_from_config: Vec<Pattern> = Vec::new();
+        let mut processed_via_buster_yml_paths = false;
         if let Some(projects) = &buster_config.projects {
             if let Some(first_project) = projects.first() {
-                if let Some(mp_globs) = &first_project.model_paths {
-                    for path_str_glob in mp_globs {
-                        match Pattern::new(&buster_config_dir.join(path_str_glob).to_string_lossy()) {
-                            Ok(p) => patterns_from_config.push(p),
-                            Err(e) => eprintln!("{}", format!("Warning: Invalid glob pattern from buster.yml '{}': {}", path_str_glob, e).yellow()),
+                if let Some(config_model_paths) = &first_project.model_paths { // Vec<String>
+                    if !config_model_paths.is_empty() { // Check if there are paths to process
+                        println!("{}", format!("No SQL files from path_arg. Scanning based on buster.yml model_paths: {:?}", config_model_paths).dimmed());
+                        for path_entry_from_config in config_model_paths {
+                            if path_entry_from_config.trim().is_empty() {
+                                continue; // Skip empty path strings
+                            }
+                            let final_glob_pattern_str: String;
+                            let path_is_absolute = Path::new(path_entry_from_config).is_absolute();
+
+                            let base_path_for_glob = if path_is_absolute {
+                                PathBuf::from(path_entry_from_config)
+                            } else {
+                                buster_config_dir.join(path_entry_from_config)
+                            };
+
+                            if path_entry_from_config.contains('*') || path_entry_from_config.contains('?') || path_entry_from_config.contains('[') {
+                                final_glob_pattern_str = base_path_for_glob.to_string_lossy().into_owned();
+                            } else {
+                                final_glob_pattern_str = base_path_for_glob.join("**/*.sql").to_string_lossy().into_owned();
+                            }
+
+                            match glob(&final_glob_pattern_str) {
+                                Ok(paths) => paths.for_each(|entry| {
+                                    if let Ok(p) = entry {
+                                        if p.is_file() && p.extension().map_or(false, |e| e == "sql") {
+                                            sql_files_to_process.insert(p);
+                                        }
+                                    }
+                                }),
+                                Err(e) => eprintln!("{}", format!("Glob pattern error for buster.yml path '{}': {}", final_glob_pattern_str, e).yellow()),
+                            }
+                        }
+                        // If config_model_paths had at least one non-empty string, consider this path taken
+                        if config_model_paths.iter().any(|s| !s.trim().is_empty()) {
+                             processed_via_buster_yml_paths = true;
                         }
                     }
                 }
             }
         }
-        if patterns_from_config.is_empty() { // Still no patterns, use dbt_project.yml defaults
-            println!("{}", "No specific model paths from path_arg or buster.yml. Using dbt_project.yml model-paths.".dimmed());
+
+        if !processed_via_buster_yml_paths {
+            // Fallback to dbt_project.yml defaults
+            println!("{}", "No SQL files from path_arg, and no model_paths in buster.yml (or they were empty). Using dbt_project.yml model-paths as fallback.".dimmed());
             for dbt_root_rel in &dbt_project_model_roots_for_stripping {
                 let glob_pattern = buster_config_dir.join(dbt_root_rel).join("**/*.sql");
                 match glob(&glob_pattern.to_string_lossy()) {
                     Ok(paths) => paths.for_each(|entry| if let Ok(p) = entry { if p.is_file() {sql_files_to_process.insert(p);}}),
                     Err(e) => eprintln!("{}", format!("Error globbing default dbt path '{}': {}",glob_pattern.display(),e).yellow()),
-                }
-            }
-        } else {
-             println!("{}", format!("Scanning for SQL files based on buster.yml model_paths: {:?}", patterns_from_config.iter().map(|p|p.as_str()).collect::<Vec<_>>()).dimmed());
-            for pattern in patterns_from_config {
-                match glob(pattern.as_str()) {
-                    Ok(paths) => paths.for_each(|entry| if let Ok(p) = entry { if p.is_file() && p.extension().map_or(false, |e|e=="sql"){sql_files_to_process.insert(p);}}),
-                    Err(e) => eprintln!("{}",format!("Glob pattern error for '{}': {}",pattern.as_str(),e).yellow()),
                 }
             }
         }

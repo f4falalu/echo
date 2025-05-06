@@ -684,44 +684,63 @@ async fn generate_semantic_models_from_dbt_catalog(
 
     // --- 2. Determine SQL Files to Process ---
     let mut sql_files_to_process: HashSet<PathBuf> = HashSet::new();
-    let mut model_path_patterns_from_buster_yml: Vec<Pattern> = Vec::new();
+    let mut processed_via_buster_yml_paths = false; // Renamed for clarity
 
     if let Some(projects) = &buster_config.projects {
         if let Some(first_project) = projects.first() {
-            if let Some(mp_globs) = &first_project.model_paths {
-                for path_str_glob in mp_globs {
-                    match Pattern::new(&buster_config_dir.join(path_str_glob).to_string_lossy()) {
-                        Ok(p) => model_path_patterns_from_buster_yml.push(p),
-                        Err(e) => eprintln!("{}", format!("Warning: Invalid glob pattern '{}' from buster.yml: {}", path_str_glob, e).yellow()),
+            if let Some(config_model_paths) = &first_project.model_paths { // These are Vec<String> from buster.yml
+                if !config_model_paths.is_empty() { // Check if there are paths to process
+                    println!("{}", format!("Scanning for SQL files based on model_paths in buster.yml: {:?}", config_model_paths).dimmed());
+                    for path_entry_from_config in config_model_paths {
+                        if path_entry_from_config.trim().is_empty() {
+                            continue; // Skip empty path strings
+                        }
+                        let final_glob_pattern_str: String;
+                        let path_is_absolute = Path::new(path_entry_from_config).is_absolute();
+                        
+                        // Construct the base path correctly whether path_entry_from_config is absolute or relative
+                        let base_path_for_glob = if path_is_absolute {
+                            PathBuf::from(path_entry_from_config)
+                        } else {
+                            buster_config_dir.join(path_entry_from_config)
+                        };
+
+                        // Check if path_entry_from_config (the original string) itself is a glob or just a directory
+                        if path_entry_from_config.contains('*') || path_entry_from_config.contains('?') || path_entry_from_config.contains('[') {
+                            // It's already a glob. If relative, it's joined with buster_config_dir. If absolute, it's used as is.
+                            final_glob_pattern_str = base_path_for_glob.to_string_lossy().into_owned();
+                        } else {
+                            // It's a directory, append '/**/*.sql'
+                            final_glob_pattern_str = base_path_for_glob.join("**/*.sql").to_string_lossy().into_owned();
+                        }
+                        
+                        match glob::glob(&final_glob_pattern_str) {
+                            Ok(paths) => {
+                                for entry in paths {
+                                    match entry {
+                                        Ok(path) => {
+                                            if path.is_file() && path.extension().map_or(false, |ext| ext == "sql") {
+                                                sql_files_to_process.insert(path);
+                                            }
+                                        }
+                                        Err(e) => eprintln!("{}", format!("Error processing entry from glob path '{}': {}", final_glob_pattern_str, e).yellow()),
+                                    }
+                                }
+                            }
+                            Err(e) => eprintln!("{}", format!("Glob pattern error for '{}': {}", final_glob_pattern_str, e).yellow()),
+                        }
+                    }
+                    // If config_model_paths had at least one non-empty string, consider buster.yml paths as processed.
+                    if config_model_paths.iter().any(|s| !s.trim().is_empty()) {
+                        processed_via_buster_yml_paths = true;
                     }
                 }
             }
         }
     }
 
-    if !model_path_patterns_from_buster_yml.is_empty() {
-        println!("{}", format!("Scanning for SQL files based on model_paths patterns in buster.yml: {:?}", 
-            model_path_patterns_from_buster_yml.iter().map(|p| p.as_str()).collect::<Vec<_>>() ).dimmed());
-        for pattern in model_path_patterns_from_buster_yml {
-            // Ripgrep or glob to find files matching the pattern string itself
-            // This simple glob might need enhancement for more complex patterns handled by buster_config.model_paths
-            // For now, assuming model_paths are like "models/marts/**/*.sql"
-            match glob::glob(pattern.as_str()) {
-                Ok(paths) => {
-                    for entry in paths {
-                        match entry {
-                            Ok(path) => if path.is_file() && path.extension().map_or(false, |ext| ext == "sql") {
-                                sql_files_to_process.insert(path);
-                            }
-                            Err(e) => eprintln!("{}", format!("Error processing glob path: {}", e).yellow()),
-                        }
-                    }
-                }
-                Err(e) => eprintln!("{}", format!("Glob pattern error for '{}': {}", pattern.as_str(), e).yellow()),
-            }
-        }
-    } else {
-        println!("{}", "No model_paths in buster.yml. Using dbt_project.yml model-paths to find SQL files.".dimmed());
+    if !processed_via_buster_yml_paths {
+        println!("{}", "No model_paths in buster.yml, they were empty, or no specific paths configured. Using dbt_project.yml model-paths as fallback.".dimmed());
         let dbt_project_content = parse_dbt_project_file_content(buster_config_dir)?;
         let dbt_model_source_roots = dbt_project_content.as_ref()
             .map(|content| content.model_paths.iter().map(PathBuf::from).collect::<Vec<PathBuf>>())
