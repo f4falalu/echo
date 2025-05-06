@@ -1,0 +1,162 @@
+name: Manage Versions
+
+on:
+  workflow_dispatch:
+    inputs:
+      component:
+        description: 'Component to version bump'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - api
+          - web
+          - cli
+      version_spec:
+        description: 'Version bump type (patch, minor, major) or specific version (e.g., 1.2.3)'
+        required: true
+        default: 'patch'
+        type: string
+
+permissions:
+  contents: write # To push commits and tags
+
+jobs:
+  bump_versions:
+    runs-on: blacksmith	
+    outputs:
+      new_api_version: ${{ steps.bump.outputs.new_api_version }}
+      new_web_version: ${{ steps.bump.outputs.new_web_version }}
+      new_cli_version: ${{ steps.bump.outputs.new_cli_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # Or a PAT if you push to protected branches from actions
+          fetch-depth: 0 # For git tagging and history
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Specify a Node.js version
+
+      - name: Install cargo-bump
+        run: cargo install cargo-bump
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Perform Version Bumps
+        id: bump
+        run: |
+          COMPONENT="${{ github.event.inputs.component }}"
+          VERSION_SPEC="${{ github.event.inputs.version_spec }}"
+          COMMIT_MESSAGE_PREFIX="chore(versions):"
+          COMMIT_CHANGES=false
+
+          NEW_API_VERSION=""
+          NEW_WEB_VERSION=""
+          NEW_CLI_VERSION=""
+
+          # API Version Bump
+          if [[ "$COMPONENT" == "all" || "$COMPONENT" == "api" ]]; then
+            echo "Bumping API version..."
+            cd api/server
+            OLD_API_VERSION=$(grep '^version *=' Cargo.toml | sed 's/version *= *"\(.*\)"/\1/')
+            cargo bump "$VERSION_SPEC"
+            NEW_API_VERSION=$(grep '^version *=' Cargo.toml | sed 's/version *= *"\(.*\)"/\1/')
+            echo "API: $OLD_API_VERSION -> $NEW_API_VERSION"
+            cd ../..
+            if [[ "$OLD_API_VERSION" != "$NEW_API_VERSION" ]]; then
+              git add api/server/Cargo.toml
+              COMMIT_MESSAGE_PREFIX="$COMMIT_MESSAGE_PREFIX bump api to v$NEW_API_VERSION;"
+              COMMIT_CHANGES=true
+              echo "::set-output name=new_api_version::$NEW_API_VERSION"
+            fi
+          fi
+
+          # Web Version Bump
+          if [[ "$COMPONENT" == "all" || "$COMPONENT" == "web" ]]; then
+            echo "Bumping Web version..."
+            cd web
+            OLD_WEB_VERSION=$(jq -r .version package.json)
+            npm version "$VERSION_SPEC" --no-git-tag-version --allow-same-version
+            NEW_WEB_VERSION=$(jq -r .version package.json)
+            echo "Web: $OLD_WEB_VERSION -> $NEW_WEB_VERSION"
+            cd ..
+            if [[ "$OLD_WEB_VERSION" != "$NEW_WEB_VERSION" ]]; then
+              git add web/package.json web/package-lock.json # package-lock.json might also change
+              COMMIT_MESSAGE_PREFIX="$COMMIT_MESSAGE_PREFIX bump web to v$NEW_WEB_VERSION;"
+              COMMIT_CHANGES=true
+              echo "::set-output name=new_web_version::$NEW_WEB_VERSION"
+            fi
+          fi
+
+          # CLI Version Bump
+          if [[ "$COMPONENT" == "all" || "$COMPONENT" == "cli" ]]; then
+            echo "Bumping CLI version..."
+            cd cli/cli
+            OLD_CLI_VERSION=$(grep '^version *=' Cargo.toml | sed 's/version *= *"\(.*\)"/\1/')
+            cargo bump "$VERSION_SPEC"
+            NEW_CLI_VERSION=$(grep '^version *=' Cargo.toml | sed 's/version *= *"\(.*\)"/\1/')
+            echo "CLI: $OLD_CLI_VERSION -> $NEW_CLI_VERSION"
+            cd ../..
+            if [[ "$OLD_CLI_VERSION" != "$NEW_CLI_VERSION" ]]; then
+              git add cli/cli/Cargo.toml
+              COMMIT_MESSAGE_PREFIX="$COMMIT_MESSAGE_PREFIX bump cli to v$NEW_CLI_VERSION;"
+              COMMIT_CHANGES=true
+              echo "::set-output name=new_cli_version::$NEW_CLI_VERSION"
+            fi
+          fi
+          
+          if [[ "$COMMIT_CHANGES" == true ]]; then
+            # Remove trailing semicolon if any
+            FINAL_COMMIT_MESSAGE=$(echo "$COMMIT_MESSAGE_PREFIX" | sed 's/;$//')
+            echo "Final Commit Message: $FINAL_COMMIT_MESSAGE [skip ci]"
+            echo "COMMIT_MESSAGE=$FINAL_COMMIT_MESSAGE [skip ci]" >> $GITHUB_ENV
+            echo "::set-output name=commit_message::$FINAL_COMMIT_MESSAGE [skip ci]"
+          else
+            echo "No version changes detected."
+            echo "COMMIT_MESSAGE=" >> $GITHUB_ENV # Ensure it's empty
+            echo "::set-output name=commit_message::"
+          fi
+          echo "New API Version: $NEW_API_VERSION"
+          echo "New Web Version: $NEW_WEB_VERSION"
+          echo "New CLI Version: $NEW_CLI_VERSION"
+
+      - name: Commit version changes
+        if: steps.bump.outputs.commit_message != ''
+        run: |
+          git commit -m "${{ steps.bump.outputs.commit_message }}"
+
+      - name: Create and Push Tags
+        if: steps.bump.outputs.commit_message != '' # Only tag if there were changes
+        run: |
+          echo "Creating and pushing tags..."
+          NEW_API_VERSION="${{ steps.bump.outputs.new_api_version }}"
+          NEW_WEB_VERSION="${{ steps.bump.outputs.new_web_version }}"
+          NEW_CLI_VERSION="${{ steps.bump.outputs.new_cli_version }}"
+
+          if [[ -n "$NEW_API_VERSION" ]]; then
+            echo "Tagging API: api/v$NEW_API_VERSION"
+            git tag "api/v$NEW_API_VERSION"
+          fi
+          if [[ -n "$NEW_WEB_VERSION" ]]; then
+            echo "Tagging Web: web/v$NEW_WEB_VERSION"
+            git tag "web/v$NEW_WEB_VERSION"
+          fi
+          if [[ -n "$NEW_CLI_VERSION" ]]; then
+            echo "Tagging CLI: cli/v$NEW_CLI_VERSION"
+            git tag "cli/v$NEW_CLI_VERSION"
+          fi
+          
+          git push origin HEAD --follow-tags # Push current branch and all tags
+
+      - name: Push changes (if only commit, no tags yet or if tag push failed)
+        if: steps.bump.outputs.commit_message != '' && (steps.bump.outputs.new_api_version == '' && steps.bump.outputs.new_web_version == '' && steps.bump.outputs.new_cli_version == '')
+        run: |
+          echo "Pushing commit without tags..." # Should not happen if logic is correct
+          git push origin HEAD 

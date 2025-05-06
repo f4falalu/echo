@@ -2,20 +2,21 @@ name: CLI Release
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'cli/**'
-      - '.github/workflows/cli-release.yml'
+    tags:
+      - 'cli/v*'
+  # workflow_dispatch is kept to allow manual releases if needed.
+  # Remove if all releases must be tag-triggered.
   workflow_dispatch:
 
 # Add permissions for creating releases
 permissions:
   contents: write
-  pull-requests: write
+  pull-requests: write # May not be needed if PRs don't trigger this directly
 
 jobs:
   build:
+    # The build job remains largely the same, as it builds based on checked-out code.
+    # It doesn't strictly need the version from the tag, but its artifacts will be used by the release job.
     strategy:
       matrix:
         include:
@@ -40,7 +41,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Important for the release job if it needs history for release notes
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -64,15 +65,27 @@ jobs:
           echo 'strip = true' >> .cargo/config.toml
 
       - name: Build optimized release
-        working-directory: ./cli
-        run: cargo build --release --target ${{ matrix.target }}
+        working-directory: ./cli # Assuming this is the workspace root for the cli crate
+        # If your CLI project is in cli/cli, adjust working-directory to ./cli/cli
+        run: cargo build --release --target ${{ matrix.target }} --manifest-path ./cli/Cargo.toml
+
+      - name: Determine Binary Name and Path
+        id: binary_info
+        shell: bash
+        run: |
+          CRATE_NAME=$(basename $(find cli/target/${{ matrix.target }}/release -maxdepth 1 -type f -executable ! -name '*.dSYM' ! -name '*.pdb'))
+          echo "CRATE_NAME=$CRATE_NAME"
+          echo "Binary name: $CRATE_NAME"
+          echo "binary_name=$CRATE_NAME" >> $GITHUB_OUTPUT
+          echo "binary_path=cli/target/${{ matrix.target }}/release/$CRATE_NAME"
+          echo "binary_path_val=cli/target/${{ matrix.target }}/release/$CRATE_NAME" >> $GITHUB_OUTPUT
 
       - name: Compress binary (Unix)
         if: matrix.use_tar
-        working-directory: ./cli
+        shell: bash
         run: |
-          cd target/${{ matrix.target }}/release
-          tar czf ${{ matrix.artifact_name }} buster-cli
+          cd cli/target/${{ matrix.target }}/release
+          tar czf ${{ matrix.artifact_name }} ${{ steps.binary_info.outputs.binary_name }}
           if [[ "${{ runner.os }}" == "macOS" ]]; then
             shasum -a 256 ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256
           else
@@ -81,11 +94,10 @@ jobs:
 
       - name: Compress binary (Windows)
         if: matrix.use_tar == false
-        working-directory: ./cli
         shell: pwsh
         run: |
-          cd target/${{ matrix.target }}/release
-          Compress-Archive -Path buster-cli.exe -DestinationPath ${{ matrix.artifact_name }}
+          cd cli/target/${{ matrix.target }}/release
+          Compress-Archive -Path ${{ steps.binary_info.outputs.binary_name }}.exe -DestinationPath ${{ matrix.artifact_name }}
           Get-FileHash -Algorithm SHA256 ${{ matrix.artifact_name }} | Select-Object -ExpandProperty Hash > ${{ matrix.artifact_name }}.sha256
 
       - name: Upload artifacts
@@ -100,27 +112,37 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    # Condition this job to run only for tag pushes, 
+    # or add logic to handle workflow_dispatch differently if version isn't from tag
+    if: startsWith(github.ref, 'refs/tags/cli/v')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # For release notes generation
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+        # No specific path needed, it downloads all to a directory named after the artifact
 
-      - name: Extract version from Cargo.toml
+      - name: Extract version from Git tag
         id: get_version
         run: |
-          VERSION=$(grep '^version =' cli/Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          # github.ref_name will be like "cli/v1.2.3"
+          VERSION=$(echo "${{ github.ref_name }}" | sed 's#^cli/v##')
+          if [ -z "$VERSION" ]; then
+            echo "Could not extract version from tag: ${{ github.ref_name }}"
+            # Potentially fail here if version is critical and not found
+            exit 1
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION"
+          echo "Extracted version: $VERSION from tag ${{ github.ref_name }}"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          name: Release v${{ steps.get_version.outputs.version }}
+          tag_name: ${{ github.ref_name }} # Use the tag that triggered the workflow
+          name: CLI Release v${{ steps.get_version.outputs.version }} # Name the release clearly
           files: |
             **/buster-cli-linux-x86_64.tar.gz
             **/buster-cli-linux-x86_64.tar.gz.sha256
@@ -132,6 +154,6 @@ jobs:
             **/buster-cli-windows-x86_64.zip.sha256
           draft: false
           prerelease: false
-          generate_release_notes: true
+          generate_release_notes: true # This uses conventional commits from the tag to main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
