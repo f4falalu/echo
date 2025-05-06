@@ -34,6 +34,10 @@ pub enum Commands {
         /// Don't save credentials to disk
         #[arg(long)]
         no_save: bool,
+
+        /// Clear saved credentials
+        #[arg(long)]
+        clear: bool,
     },
     /// Display version information
     Version,
@@ -89,11 +93,13 @@ async fn main() {
             host,
             api_key,
             no_save,
+            clear,
         } => {
             commands::auth::auth_with_args(AuthArgs {
                 host,
                 api_key,
                 no_save,
+                clear,
             })
             .await
         }

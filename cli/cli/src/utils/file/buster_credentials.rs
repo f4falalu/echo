@@ -42,6 +42,25 @@ pub async fn get_buster_credentials() -> Result<BusterCredentials, BusterError> 
     Ok(creds_yaml)
 }
 
+pub async fn delete_buster_credentials() -> Result<(), BusterError> {
+    let mut path = home_dir().unwrap_or_default();
+    path.push(".buster");
+    path.push("credentials.yml");
+
+    if path.exists() {
+        match fs::remove_file(&path).await {
+            Ok(_) => Ok(()),
+            Err(e) => Err(BusterError::FileWriteError {
+                path,
+                error: format!("Failed to delete credentials file: {}", e),
+            }),
+        }
+    } else {
+        // It's not an error if the file doesn't exist when trying to clear
+        Ok(())
+    }
+}
+
 pub async fn get_and_validate_buster_credentials() -> Result<BusterCredentials, BusterError> {
     // Get the credentials.
     let creds = match get_buster_credentials().await {

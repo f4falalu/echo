@@ -6,7 +6,7 @@ use thiserror::Error;
 
 use crate::utils::{
     buster::BusterClient,
-    file::buster_credentials::{get_buster_credentials, set_buster_credentials, BusterCredentials},
+    file::buster_credentials::{get_buster_credentials, set_buster_credentials, delete_buster_credentials, BusterCredentials},
 };
 
 const DEFAULT_HOST: &str = "https://api.buster.so";
@@ -24,7 +24,7 @@ pub enum AuthError {
 #[derive(Parser, Debug)]
 #[command(about = "Authenticate with Buster API")]
 pub struct AuthArgs {
-    /// The Buster API host URL
+    /// The Buster API host UL
     #[arg(long, env = "BUSTER_HOST")]
     pub host: Option<String>,
 
@@ -35,6 +35,10 @@ pub struct AuthArgs {
     /// Don't save credentials to disk
     #[arg(long)]
     pub no_save: bool,
+
+    /// Clear saved credentials
+    #[arg(long)]
+    pub clear: bool,
 }
 
 // --- Credentials Validation Trait ---
@@ -133,6 +137,19 @@ pub async fn check_authentication() -> Result<()> {
 }
 
 pub async fn auth_with_args(args: AuthArgs) -> Result<()> {
+    // Handle --clear flag first
+    if args.clear {
+        match delete_buster_credentials().await {
+            Ok(_) => {
+                println!("Saved credentials cleared successfully.");
+                return Ok(());
+            }
+            Err(e) => {
+                return Err(anyhow::anyhow!("Failed to clear credentials: {}", e));
+            }
+        }
+    }
+
     // Get existing credentials or create default
     let mut buster_creds = match get_buster_credentials().await {
         Ok(creds) => creds,
