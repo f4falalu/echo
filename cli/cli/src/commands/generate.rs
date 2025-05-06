@@ -262,94 +262,160 @@ pub async fn generate_semantic_models_command(
                 if existing_model.name != actual_model_name_in_yaml {
                     existing_model.name = actual_model_name_in_yaml.clone(); model_was_updated = true;
                 }
-                // Update description from catalog if catalog has one
-                if table_meta.comment.is_some() && existing_model.description != table_meta.comment {
-                    existing_model.description = table_meta.comment.clone(); model_was_updated = true;
-                }
-                // Update db/schema from catalog node, clearing if they match project defaults
-                let cat_db_from_meta = &table_meta.database; // Option<String>
-                let new_yaml_db = cat_db_from_meta.as_ref()
-                    .filter(|cat_db_val_str_ref| proj_default_database != Some(cat_db_val_str_ref.as_str()))
-                    .cloned();
-                if existing_model.database != new_yaml_db {
-                    existing_model.database = new_yaml_db;
-                    model_was_updated = true;
-                }
 
-                let cat_schema_from_meta = &table_meta.schema; // String
-                let new_yaml_schema = if proj_default_schema.as_deref() == Some(cat_schema_from_meta.as_str()) {
-                    None
-                } else {
-                    Some(cat_schema_from_meta.clone())
-                };
-                if existing_model.schema != new_yaml_schema {
-                    existing_model.schema = new_yaml_schema;
-                    model_was_updated = true;
-                }
-
-                // For data_source_name, if it was manually set and matches project default, clear it.
-                // Otherwise, preserve manual overrides. Catalog doesn't provide this.
-                if let Some(default_ds_val_str) = proj_default_ds_name {
-                    if existing_model.data_source_name.as_deref() == Some(default_ds_val_str) {
-                        if existing_model.data_source_name.is_some() { // Only update if it changes from Some to None
-                            existing_model.data_source_name = None;
+                // Preserve manual description, otherwise update from catalog if catalog has one.
+                let placeholder_desc = "Description missing - please update.".to_string();
+                match &existing_model.description {
+                    Some(existing_desc) if existing_desc != &placeholder_desc => {
+                        // Manual description exists and is not the placeholder, do nothing to preserve it.
+                    }
+                    _ => { // Existing is None or is the placeholder
+                        if table_meta.comment.is_some() && existing_model.description != table_meta.comment {
+                            existing_model.description = table_meta.comment.clone();
                             model_was_updated = true;
                         }
                     }
                 }
+
+                // Preserve manual database override, otherwise update from catalog.
+                if existing_model.database.is_none() {
+                    let cat_db_from_meta = &table_meta.database; // Option<String>
+                    let new_yaml_db = cat_db_from_meta.as_ref()
+                        .filter(|cat_db_val_str_ref| proj_default_database != Some(cat_db_val_str_ref.as_str()))
+                        .cloned();
+                    if existing_model.database != new_yaml_db { // Check if it actually changes
+                        existing_model.database = new_yaml_db;
+                        model_was_updated = true;
+                    }
+                } // If Some, it's preserved.
+
+                // Preserve manual schema override, otherwise update from catalog.
+                if existing_model.schema.is_none() {
+                    let cat_schema_from_meta = &table_meta.schema; // String
+                    let new_yaml_schema = if proj_default_schema.as_deref() == Some(cat_schema_from_meta.as_str()) {
+                        None
+                    } else {
+                        Some(cat_schema_from_meta.clone())
+                    };
+                    if existing_model.schema != new_yaml_schema { // Check if it actually changes
+                        existing_model.schema = new_yaml_schema;
+                        model_was_updated = true;
+                    }
+                } // If Some, it's preserved.
 
                 // Reconcile columns
                 let mut current_dims: Vec<YamlDimension> = Vec::new();
                 let mut current_measures: Vec<YamlMeasure> = Vec::new();
                 let mut dbt_columns_map: HashMap<String, &ColumnMetadata> = catalog_node.columns.values().map(|c| (c.name.clone(), c)).collect();
 
-                for existing_dim_col in std::mem::take(&mut existing_model.dimensions) {
-                    if let Some(dbt_col) = dbt_columns_map.remove(&existing_dim_col.name) {
-                        let mut updated_dim = existing_dim_col.clone();
+                for existing_dim in std::mem::take(&mut existing_model.dimensions) {
+                    if let Some(dbt_col) = dbt_columns_map.get(&existing_dim.name) { // Use .get() to keep it in map for measure pass
+                        let mut updated_dim = existing_dim.clone();
                         let mut dim_col_updated = false;
 
                         if !crate::commands::init::is_measure_type(&dbt_col.type_) { // Still a dimension
-                            if updated_dim.type_.as_deref() != Some(&dbt_col.type_) {
-                                updated_dim.type_ = Some(dbt_col.type_.clone());
-                                dim_col_updated = true; 
+                            // Preserve manual type if Some, otherwise update from catalog.
+                            if updated_dim.type_.is_none() {
+                                if updated_dim.type_.as_deref() != Some(&dbt_col.type_) { // Check if it actually changes
+                                    updated_dim.type_ = Some(dbt_col.type_.clone());
+                                    dim_col_updated = true;
+                                }
                             }
-                            if dbt_col.comment.is_some() && updated_dim.description != dbt_col.comment {
-                                updated_dim.description = dbt_col.comment.clone(); 
-                                dim_col_updated = true; 
+
+                            // Preserve manual description if Some and not placeholder, otherwise update from catalog.
+                            let placeholder_col_desc = "Description missing - please update.".to_string();
+                            match &updated_dim.description {
+                                Some(existing_col_desc) if existing_col_desc != &placeholder_col_desc => {
+                                    // Manual description exists and is not placeholder, do nothing.
+                                }
+                                _ => { // Existing is None or is placeholder
+                                    let new_description_from_catalog = dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned();
+                                    if updated_dim.description != new_description_from_catalog {
+                                        updated_dim.description = new_description_from_catalog.or_else(|| Some(placeholder_col_desc));
+                                        dim_col_updated = true;
+                                    }
+                                }
                             }
+
+                            // Preserve existing_dim.searchable and existing_dim.options, so no changes needed here for them.
+                            // If updated_dim.searchable was true, it remains true.
+                            // If updated_dim.options was Some, it remains Some.
+
                             if dim_col_updated { columns_updated_count +=1; model_was_updated = true; }
                             current_dims.push(updated_dim);
-                        } else { // Was a dimension, but is now a measure according to dbt_col
-                            columns_removed_count += 1; model_was_updated = true; // Will be added as a new measure later
+                            dbt_columns_map.remove(&existing_dim.name); // Consume it now that it's processed as a dim
+                        } else { // Was a dimension, but is now a measure according to dbt_col type
+                            println!("{}", format!("   ✏️ Column '{}' changed from Dimension to Measure. It will be re-added as Measure.", existing_dim.name).yellow());
+                            columns_removed_count += 1; // Count as removed dimension
+                            model_was_updated = true;
+                            // Do not remove from dbt_columns_map yet, it will be picked up as a new measure.
                         }
-                    } else { columns_removed_count += 1; model_was_updated = true; }
+                    } else { // Dimension no longer in catalog
+                        println!("{}", format!("   ➖ Dimension '{}' removed (not in catalog).", existing_dim.name).yellow());
+                        columns_removed_count += 1; model_was_updated = true;
+                        // dbt_columns_map.remove(&existing_dim.name); // Not needed, it's not in the map
+                    }
                 }
-                for existing_measure_col in std::mem::take(&mut existing_model.measures) {
-                    if let Some(dbt_col) = dbt_columns_map.remove(&existing_measure_col.name) {
-                        let mut updated_measure = existing_measure_col.clone();
+
+                for existing_measure in std::mem::take(&mut existing_model.measures) {
+                    if let Some(dbt_col) = dbt_columns_map.get(&existing_measure.name) { // Use .get() initially
+                        let mut updated_measure = existing_measure.clone();
                         let mut measure_col_updated = false;
 
                         if crate::commands::init::is_measure_type(&dbt_col.type_) { // Still a measure
-                            if updated_measure.type_.as_deref() != Some(&dbt_col.type_) {
-                                updated_measure.type_ = Some(dbt_col.type_.clone());
-                                measure_col_updated = true; 
+                            // Preserve manual type if Some, otherwise update from catalog.
+                            if updated_measure.type_.is_none() {
+                                if updated_measure.type_.as_deref() != Some(&dbt_col.type_) { // Check if it actually changes
+                                    updated_measure.type_ = Some(dbt_col.type_.clone());
+                                    measure_col_updated = true;
+                                }
                             }
-                            if dbt_col.comment.is_some() && updated_measure.description != dbt_col.comment {
-                               updated_measure.description = dbt_col.comment.clone(); 
-                               measure_col_updated = true; 
+
+                            // Preserve manual description if Some and not placeholder, otherwise update from catalog.
+                            let placeholder_col_desc = "Description missing - please update.".to_string();
+                            match &updated_measure.description {
+                                Some(existing_col_desc) if existing_col_desc != &placeholder_col_desc => {
+                                    // Manual description exists and is not placeholder, do nothing.
+                                }
+                                _ => { // Existing is None or is placeholder
+                                    let new_description_from_catalog = dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned();
+                                    if updated_measure.description != new_description_from_catalog {
+                                        updated_measure.description = new_description_from_catalog.or_else(|| Some(placeholder_col_desc));
+                                        measure_col_updated = true;
+                                    }
+                                }
                             }
+
                             if measure_col_updated { columns_updated_count +=1; model_was_updated = true; }
                             current_measures.push(updated_measure);
+                            dbt_columns_map.remove(&existing_measure.name); // Consume it
                         } else { // Was a measure, but is now a dimension
-                            columns_removed_count += 1; model_was_updated = true; // Will be added as a new dimension later
+                            println!("{}", format!("   ✏️ Column '{}' changed from Measure to Dimension. It will be re-added as Dimension.", existing_measure.name).cyan());
+                            columns_removed_count += 1; // Count as removed measure
+                            model_was_updated = true;
+                            // Do not remove from dbt_columns_map yet, it will be picked up as a new dimension.
                         }
-                    } else { columns_removed_count += 1; model_was_updated = true; }
+                    } else { // Measure no longer in catalog
+                        println!("{}", format!("   ➖ Measure '{}' removed (not in catalog).", existing_measure.name).yellow());
+                        columns_removed_count += 1; model_was_updated = true;
+                        // dbt_columns_map.remove(&existing_measure.name); // Not needed
+                    }
                 }
                 for (_col_name, dbt_col) in dbt_columns_map { // Remaining are new columns
                     if crate::commands::init::is_measure_type(&dbt_col.type_) { 
-                        current_measures.push(YamlMeasure { name: dbt_col.name.clone(), description: dbt_col.comment.clone(), type_: Some(dbt_col.type_.clone()) });
+                        current_measures.push(YamlMeasure { 
+                            name: dbt_col.name.clone(), 
+                            description: dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
+                            type_: Some(dbt_col.type_.clone()) 
+                        });
                     } else {
-                        current_dims.push(YamlDimension { name: dbt_col.name.clone(), description: dbt_col.comment.clone(), type_: Some(dbt_col.type_.clone()), searchable: false, options: None });
+                        current_dims.push(YamlDimension { 
+                            name: dbt_col.name.clone(), 
+                            description: dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
+                            type_: Some(dbt_col.type_.clone()), 
+                            searchable: false, // Ensure searchable is false 
+                            options: None 
+                        });
                     }
                     columns_added_count += 1; model_was_updated = true;
                 }
@@ -370,9 +436,19 @@ pub async fn generate_semantic_models_command(
                 let mut measures = Vec::new();
                 for (_col_name, col_meta) in &catalog_node.columns {
                     if crate::commands::init::is_measure_type(&col_meta.type_) { // type_ is String
-                        measures.push(YamlMeasure { name: col_meta.name.clone(), description: col_meta.comment.clone(), type_: Some(col_meta.type_.clone()) });
+                        measures.push(YamlMeasure { 
+                            name: col_meta.name.clone(), 
+                            description: col_meta.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
+                            type_: Some(col_meta.type_.clone()) 
+                        });
                     } else {
-                        dimensions.push(YamlDimension { name: col_meta.name.clone(), description: col_meta.comment.clone(), type_: Some(col_meta.type_.clone()), searchable: false, options: None });
+                        dimensions.push(YamlDimension { 
+                            name: col_meta.name.clone(), 
+                            description: col_meta.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
+                            type_: Some(col_meta.type_.clone()), 
+                            searchable: false, // Ensure searchable is false
+                            options: None 
+                        });
                     }
                 }
                 let new_model = YamlModel {
