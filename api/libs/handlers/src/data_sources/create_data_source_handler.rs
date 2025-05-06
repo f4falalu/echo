@@ -102,7 +102,7 @@ pub async fn create_data_source_handler(
         created_at: now,
         updated_at: now,
         deleted_at: None,
-        env: "env".to_string(),
+        env: "dev".to_string(),
     };
 
     // Insert the data source

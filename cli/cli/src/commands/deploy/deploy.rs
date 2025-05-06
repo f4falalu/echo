@@ -231,41 +231,101 @@ fn check_excluded_tags(
     Ok(should_exclude)
 }
 
-/// Find the associated SQL file for a model
-fn find_sql_file(yml_path: &Path) -> Option<PathBuf> {
-    // Get the file stem (name without extension)
-    let file_stem = yml_path.file_stem()?;
+/// Find the associated SQL file for a model by searching configured model_paths.
+fn find_sql_file_in_model_paths(
+    model_name: &str,
+    config: Option<&BusterConfig>,
+    project_ctx: Option<&ProjectContext>,
+    base_dir_for_model_paths: &Path,
+) -> Option<PathBuf> {
+    let mut search_paths_str: Vec<String> = Vec::new();
 
-    // Look one directory up
-    let parent_dir = yml_path.parent()?.parent()?;
-    let sql_path = parent_dir.join(format!("{}.sql", file_stem.to_str()?));
-
-    if sql_path.exists() {
-        Some(sql_path)
-    } else {
-        None
+    // Prefer project-specific model_paths if available
+    if let Some(pc) = project_ctx {
+        if let Some(ref paths) = pc.model_paths {
+            search_paths_str.extend(paths.iter().cloned());
+        }
     }
+
+    // If no project-specific paths, or if they were empty, try global model_paths
+    if search_paths_str.is_empty() {
+        if let Some(cfg) = config {
+            if let Some(ref paths) = cfg.model_paths {
+                search_paths_str.extend(paths.iter().cloned());
+            }
+        }
+    }
+
+    if search_paths_str.is_empty() {
+        // No model_paths configured to search in.
+        return None;
+    }
+
+    for path_str in search_paths_str {
+        let dir_path = base_dir_for_model_paths.join(&path_str); // path_str is relative to buster.yml dir
+        if dir_path.is_dir() {
+            let sql_file_name = format!("{}.sql", model_name);
+            let sql_file_path = dir_path.join(&sql_file_name);
+            if sql_file_path.is_file() { // is_file() checks for existence and that it's a file
+                println!("Found SQL file for model '{}' at: {}", model_name, sql_file_path.display());
+                return Some(sql_file_path);
+            }
+        } else {
+            // Log if a configured model_path is not a directory, as we expect directories here.
+            // However, model_paths can also point to specific YML files for model discovery,
+            // so this might be noisy if not distinguished. For SQL lookup, we need dirs.
+            // For now, let's assume model_paths used for SQL search should be directories.
+            // println!("Configured model_path '{}' (resolved to '{}') is not a directory, skipping for SQL search.", path_str, dir_path.display());
+        }
+    }
+    None
 }
 
 /// Generate default SQL content for a model when no SQL file is found
 fn generate_default_sql(model: &Model) -> String {
     format!(
-        "select * from {}.{}",
-        model.schema.as_ref().map(String::as_str).unwrap_or(""),
+        "SELECT * FROM {}{}.{}",
+        model.database.as_ref().map(|db| format!("{}.", db)).unwrap_or_default(),
+        model.schema.as_ref().expect("Schema should be resolved by resolve_model_configurations"),
         model.name
     )
 }
 
-/// Get SQL content for a model, using original_file_path if available, or falling back to other methods.
-fn get_sql_content_for_model(model: &Model, _buster_config_dir: &Path, yml_path_for_fallback: &Path) -> Result<String> {
-    // Fallback for models: try to find an associated .sql file or generate default.
-    let found_sql_path = find_sql_file(yml_path_for_fallback); // yml_path_for_fallback is the path of the .yml file itself
-    if let Some(ref p) = found_sql_path {
-        Ok(fs::read_to_string(p)?)
-    } else {
-        println!("Warning: No .sql file found associated with {} for model {}. Generating default SQL.", yml_path_for_fallback.display(), model.name.yellow());
-        Ok(generate_default_sql(model))
+/// Get SQL content for a model.
+/// It first tries to find a {model_name}.sql file in configured `model_paths`.
+/// If not found, it generates a default "SELECT * FROM ..." query.
+fn get_sql_content_for_model(
+    model: &Model,
+    buster_config: Option<&BusterConfig>,
+    project_ctx_opt: Option<&ProjectContext>,
+    effective_buster_config_dir: &Path, // Base directory for resolving model_paths from config
+    yml_path_of_model: &Path, // Path of the .yml file that defined this model, for context in warnings
+) -> Result<String> {
+    // Attempt 1: Search in model_paths
+    if let Some(sql_path) = find_sql_file_in_model_paths(
+        &model.name,
+        buster_config,
+        project_ctx_opt,
+        effective_buster_config_dir,
+    ) {
+        return fs::read_to_string(&sql_path).map_err(|e| {
+            anyhow!(
+                "Found SQL file for model '{}' at {} but failed to read it: {}",
+                model.name,
+                sql_path.display(),
+                e
+            )
+        });
     }
+
+    // If not found via model_paths or if model_paths were not configured:
+    println!(
+        "Warning: No .sql file found for model '{}' in configured model_paths (searched relative to '{}'). File defining model: {}. Generating default SQL.",
+        model.name.yellow(),
+        effective_buster_config_dir.display(),
+        yml_path_of_model.display()
+    );
+    Ok(generate_default_sql(model))
 }
 
 /// Convert the semantic_layer::Model to BusterClient's DeployDatasetsRequest
@@ -465,7 +525,7 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
                                 progress.status = format!("Processing model '{}'", model.name);
                                 progress.log_progress();
 
-                                let sql_content = match get_sql_content_for_model(&model, &effective_buster_config_dir, &yml_file_path) {
+                                let sql_content = match get_sql_content_for_model(&model, Some(cfg), Some(project_ctx), &effective_buster_config_dir, &yml_file_path) {
                                     Ok(content) => content,
                                     Err(e) => {
                                         progress.log_error(&format!("Failed to get SQL for model {}: {}", model.name, e));
@@ -655,7 +715,7 @@ async fn deploy_individual_yml_files(
         for model in resolved_models {
             // Use effective_buster_config_dir for resolving SQL paths if original_file_path is used
             // For find_sql_file, yml_path is the context
-            let sql_content = match get_sql_content_for_model(&model, base_search_dir, &yml_path) { 
+            let sql_content = match get_sql_content_for_model(&model, buster_config, project_ctx_opt, base_search_dir, &yml_path) { 
                 Ok(content) => content,
                 Err(e) => {
                     progress.log_error(&format!("Failed to get SQL for model {}: {}", model.name, e));
