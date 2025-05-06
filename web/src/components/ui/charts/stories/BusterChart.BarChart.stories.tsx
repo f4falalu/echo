@@ -138,6 +138,66 @@ export const MultipleYAxis: Story = {
 export const WithCategory: Story = {
   args: {
     selectedChartType: ChartType.Bar,
+    data: [
+      {
+        region: 'North',
+        product: 'Product 1',
+        sales: 1000
+      },
+      {
+        region: 'North',
+        product: 'Product 2',
+        sales: 800
+      },
+      {
+        region: 'South',
+        product: 'Product 1',
+        sales: 1200
+      },
+      {
+        region: 'South',
+        product: 'Product 2',
+        sales: 300
+      }
+    ],
+    barAndLineAxis: {
+      x: ['region'],
+      y: ['sales'],
+      category: ['product']
+    },
+    columnLabelFormats: {
+      region: {
+        columnType: 'text',
+        style: 'string'
+      } satisfies IColumnLabelFormat,
+      product: {
+        columnType: 'text',
+        style: 'string'
+      } satisfies IColumnLabelFormat,
+      sales: {
+        columnType: 'number',
+        style: 'currency',
+        currency: 'USD'
+      } satisfies IColumnLabelFormat,
+      units: {
+        columnType: 'number',
+        style: 'number',
+        numberSeparatorStyle: ','
+      } satisfies IColumnLabelFormat
+    }
+  },
+  render: (args) => {
+    return (
+      <div className="h-[400px] w-[400px]">
+        <BusterChart {...args} />
+      </div>
+    );
+  }
+};
+
+export const WithCategoryAndMultipleYAxis: Story = {
+  args: {
+    selectedChartType: ChartType.Bar,
     data: Array.from({ length: 4 }, (_, index) => ({
       region: generateRegion(index),
       product: generateProductName(index),
@@ -1001,6 +1061,46 @@ export const WithGoalLinesNotSimilar: Story = {
         showGoalLineLabel: true,
         goalLineLabel: 'Target Sales',
         goalLineColor: '#FF6B6B'
+      }
+    ]
+  }
+};
+
+export const WithTrendlines: Story = {
+  args: {
+    ...Default.args,
+    trendlines: [
+      {
+        type: 'max',
+        show: true,
+        showTrendlineLabel: false,
+        trendlineLabel: 'Testing Max',
+        trendLineColor: 'red',
+        columnId: 'sales'
+      },
+      {
+        type: 'min',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: 'Testing Min',
+        trendLineColor: 'blue',
+        columnId: 'sales'
+      },
+      {
+        type: 'average',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: 'Testing Average',
+        trendLineColor: 'green',
+        columnId: 'sales'
+      },
+      {
+        type: 'median',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: 'Testing Median',
+        trendLineColor: 'yellow',
+        columnId: 'sales'
       }
     ]
   }
