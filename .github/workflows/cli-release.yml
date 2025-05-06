@@ -1,12 +1,10 @@
 name: CLI Release
 
 on:
-  push:
-    tags:
-      - 'cli/v*'
-  # workflow_dispatch is kept to allow manual releases if needed.
-  # Remove if all releases must be tag-triggered.
-  # workflow_dispatch: # Commenting this out as per user request
+  workflow_run:
+    workflows: ["Manage Versions"] # Name of the manage-versions.yml workflow
+    types:
+      - completed
 
 # Add permissions for creating releases
 permissions:
@@ -15,8 +13,7 @@ permissions:
 
 jobs:
   build:
-    # The build job remains largely the same, as it builds based on checked-out code.
-    # It doesn't strictly need the version from the tag, but its artifacts will be used by the release job.
+    if: github.event.workflow_run.conclusion == 'success'
     strategy:
       matrix:
         include:
@@ -41,7 +38,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Important for the release job if it needs history for release notes
+          ref: ${{ github.event.workflow_run.head_sha }} # Checkout the commit from the completed manage-versions run
+          fetch-depth: 0 # Important for release notes generation
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -112,40 +110,64 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    # Condition this job to run only for tag pushes, 
-    # or add logic to handle workflow_dispatch differently if version isn't from tag
-    if: startsWith(github.ref, 'refs/tags/cli/v')
-    outputs: # Add outputs for the next job
-      release_tag: ${{ github.ref_name }}
-      release_version: ${{ steps.get_version.outputs.version }}
+    if: github.event.workflow_run.conclusion == 'success'
+    outputs: 
+      release_tag: ${{ steps.get_tag_info.outputs.cli_tag_name }}
+      release_version: ${{ steps.get_tag_info.outputs.cli_version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # For release notes generation
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
 
-      - name: Download all artifacts
+      - name: Download Tag Information Artifact from Manage Versions workflow
+        uses: actions/download-artifact@v4
+        with:
+          name: version-tag-info
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Token to download artifact from another workflow run
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Extract CLI Tag and Version from Artifact
+        id: get_tag_info
+        shell: bash
+        run: |
+          if [ ! -f tag_info.json ]; then
+            echo "tag_info.json not found. This might happen if no tags were created by the Manage Versions workflow."
+            # Decide if this is a critical failure or if the workflow should exit gracefully
+            # For now, we'll set outputs to empty and let downstream steps handle it (e.g. Create Release might skip)
+            echo "cli_tag_name=" >> $GITHUB_OUTPUT
+            echo "cli_version=" >> $GITHUB_OUTPUT
+            exit 0 # Exit gracefully to allow other jobs or steps to evaluate
+          fi
+
+          CLI_TAG_NAME=$(jq -r '.cli_tag // empty' tag_info.json)
+          
+          if [ -z "$CLI_TAG_NAME" ] || [ "$CLI_TAG_NAME" == "null" ]; then
+            echo "CLI tag not found in tag_info.json or is null."
+            # As above, decide on failure or graceful exit
+            echo "cli_tag_name=" >> $GITHUB_OUTPUT
+            echo "cli_version=" >> $GITHUB_OUTPUT
+            exit 0 # Exit gracefully
+          fi
+
+          # Extract version from the tag name (e.g., cli/v1.2.3 -> 1.2.3)
+          CLI_VERSION=$(echo "$CLI_TAG_NAME" | sed 's#^cli/v##')
+
+          echo "cli_tag_name=$CLI_TAG_NAME" >> $GITHUB_OUTPUT
+          echo "cli_version=$CLI_VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted CLI Tag: $CLI_TAG_NAME, CLI Version: $CLI_VERSION"
+
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         # No specific path needed, it downloads all to a directory named after the artifact
 
-      - name: Extract version from Git tag
-        id: get_version
-        run: |
-          # github.ref_name will be like "cli/v1.2.3"
-          VERSION=$(echo "${{ github.ref_name }}" | sed 's#^cli/v##')
-          if [ -z "$VERSION" ]; then
-            echo "Could not extract version from tag: ${{ github.ref_name }}"
-            # Potentially fail here if version is critical and not found
-            exit 1
-          fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION from tag ${{ github.ref_name }}"
-
       - name: Create Release
+        if: steps.get_tag_info.outputs.cli_tag_name != '' # Only run if a CLI tag was found
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }} # Use the tag that triggered the workflow
-          name: CLI Release v${{ steps.get_version.outputs.version }} # Name the release clearly
+          tag_name: ${{ steps.get_tag_info.outputs.cli_tag_name }}
+          name: CLI Release v${{ steps.get_tag_info.outputs.cli_version }}
           files: |
             **/buster-cli-linux-x86_64.tar.gz
             **/buster-cli-linux-x86_64.tar.gz.sha256
@@ -157,7 +179,7 @@ jobs:
             **/buster-cli-windows-x86_64.zip.sha256
           draft: false
           prerelease: false
-          generate_release_notes: true # This uses conventional commits from the tag to main
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -165,7 +187,7 @@ jobs:
     name: Update Homebrew Tap
     needs: release
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/cli/v') # Ensure it runs only for CLI tags
+    if: github.event.workflow_run.conclusion == 'success' && needs.release.outputs.release_tag != '' # Run only if Manage Versions succeeded and a CLI tag was processed
     steps:
       - name: Get release version and tag from previous job
         id: release_info

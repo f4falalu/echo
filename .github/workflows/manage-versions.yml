@@ -49,7 +49,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.branch_info.outputs.branch_name }}
-          token: ${{ secrets.GH_WORKFLOW_PAT }} # Use PAT to allow triggering other workflows
+          token: ${{ secrets.GITHUB_TOKEN }} # Or a PAT if you push to protected branches from actions
           fetch-depth: 0 # For git tagging and history
 
       - name: Set up Node.js
@@ -233,26 +233,54 @@ jobs:
         if: steps.bump.outputs.commit_message != '' # Only tag if there were changes
         run: |
           echo "Creating and pushing tags..."
+          TAG_INFO_FILE="tag_info.json"
+          echo "{" > $TAG_INFO_FILE # Start JSON object
+          FIRST_TAG=true
+
           NEW_API_VERSION="${{ steps.bump.outputs.new_api_version }}"
           NEW_WEB_VERSION="${{ steps.bump.outputs.new_web_version }}"
           NEW_CLI_VERSION="${{ steps.bump.outputs.new_cli_version }}"
 
           if [[ -n "$NEW_API_VERSION" ]]; then
-            echo "Tagging API: api/v$NEW_API_VERSION"
-            git tag "api/v$NEW_API_VERSION"
+            TAG_NAME="api/v$NEW_API_VERSION"
+            echo "Tagging API: $TAG_NAME"
+            git tag "$TAG_NAME"
+            if [ "$FIRST_TAG" = false ]; then echo "," >> $TAG_INFO_FILE; fi
+            echo "  \"api_tag\": \"$TAG_NAME\"" >> $TAG_INFO_FILE
+            FIRST_TAG=false
           fi
           if [[ -n "$NEW_WEB_VERSION" ]]; then
-            echo "Tagging Web: web/v$NEW_WEB_VERSION"
-            git tag "web/v$NEW_WEB_VERSION"
+            TAG_NAME="web/v$NEW_WEB_VERSION"
+            echo "Tagging Web: $TAG_NAME"
+            git tag "$TAG_NAME"
+            if [ "$FIRST_TAG" = false ]; then echo "," >> $TAG_INFO_FILE; fi
+            echo "  \"web_tag\": \"$TAG_NAME\"" >> $TAG_INFO_FILE
+            FIRST_TAG=false
           fi
           if [[ -n "$NEW_CLI_VERSION" ]]; then
-            echo "Tagging CLI: cli/v$NEW_CLI_VERSION"
-            git tag "cli/v$NEW_CLI_VERSION"
+            TAG_NAME="cli/v$NEW_CLI_VERSION"
+            echo "Tagging CLI: $TAG_NAME"
+            git tag "$TAG_NAME"
+            if [ "$FIRST_TAG" = false ]; then echo "," >> $TAG_INFO_FILE; fi
+            echo "  \"cli_tag\": \"$TAG_NAME\"" >> $TAG_INFO_FILE
+            FIRST_TAG=false
           fi
           
+          echo "}" >> $TAG_INFO_FILE # End JSON object
+          echo "Created tag info file:"
+          cat $TAG_INFO_FILE
+
           BRANCH_TO_PUSH="${{ steps.branch_info.outputs.branch_name }}"
           echo "Pushing commit and tags to branch: $BRANCH_TO_PUSH"
           git push origin HEAD:"refs/heads/$BRANCH_TO_PUSH" --follow-tags
+
+      - name: Upload Tag Information Artifact
+        if: steps.bump.outputs.commit_message != '' && (steps.bump.outputs.new_api_version != '' || steps.bump.outputs.new_web_version != '' || steps.bump.outputs.new_cli_version != '')
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-tag-info
+          path: tag_info.json
+          retention-days: 1
 
       - name: Push changes (if only commit, no tags yet or if tag push failed)
         # This condition implies commit happened, but no versions were actually outputted.
