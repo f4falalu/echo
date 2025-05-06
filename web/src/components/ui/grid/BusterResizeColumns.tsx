@@ -137,7 +137,10 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
 
   return (
     <SortableContext id={rowId} items={items} disabled={false}>
-      <div ref={setNodeRef} className="buster-resize-columns relative h-full w-full">
+      <div
+        ref={setNodeRef}
+        className="buster-resize-columns relative h-full w-full"
+        data-testid={`buster-resize-columns-${rowIndex}`}>
         <BusterDragColumnMarkers
           isDraggingIndex={columnMarkerColumnIndex}
           itemsLength={items.length}
@@ -163,7 +166,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
               )}
               key={item.id}
               minSize={'25%'}>
-              <div className="relative h-full w-full">
+              <div className="relative h-full w-full" data-testid={`pane-${index}`}>
                 <DropzonePlaceholder
                   right={false}
                   isDropzoneActives={isDropzoneActives}
@@ -216,6 +219,7 @@ const DropzonePlaceholder: React.FC<{
         active && 'bg-primary! z-10 opacity-100'
       )}
       style={memoizedStyle}
+      data-testid={`dropzone-placeholder-${right ? 'right' : 'left'}`}
     />
   );
 });
