@@ -741,7 +741,7 @@ fn handle_deploy_response(
     let mut has_validation_errors = false;
 
     // Process validation results
-    for validation in &response.results {
+    for validation in response.results.iter() {
         // Find corresponding file from model mapping
         let file = model_mappings
             .iter()
