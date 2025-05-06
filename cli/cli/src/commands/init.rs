@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use colored::*;
 use glob::{glob, Pattern, PatternError};
 use indicatif::{ProgressBar, ProgressStyle};
-use inquire::{validator::Validation, Confirm, Password, Select, Text};
+use inquire::{validator::Validation, Confirm, Password, Select, Text, MultiSelect};
 use once_cell::sync::Lazy;
 use query_engine::credentials::{
     BigqueryCredentials, Credential, DatabricksCredentials, MySqlCredentials, PostgresCredentials,
@@ -124,29 +124,82 @@ impl std::fmt::Display for DatabaseType {
 }
 
 // --- Structs for parsing dbt_project.yml (local to init) ---
-#[derive(Debug, Deserialize, Clone, Default)]
-struct DbtModelGroupConfig {
-    #[serde(rename = "+schema")]
-    schema: Option<String>,
-    #[serde(rename = "+database")]
-    database: Option<String>,
-    #[serde(flatten)]
-    subgroups: HashMap<String, DbtModelGroupConfig>,
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct DbtModelGroupConfig {
+    pub schema: Option<String>,
+    pub database: Option<String>,
+    pub subgroups: HashMap<String, DbtModelGroupConfig>,
+    #[serde(skip_serializing_if = "HashMap::is_empty")]
+    pub other_plus_configs: HashMap<String, serde_yaml::Value>,
 }
 
-#[derive(Debug, Deserialize, Clone, Default)]
+impl<'de> Deserialize<'de> for DbtModelGroupConfig {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let raw_map: HashMap<String, serde_yaml::Value> = HashMap::deserialize(deserializer)?;
+        let mut config = DbtModelGroupConfig::default();
+
+        for (key, value) in raw_map {
+            if key == "+schema" {
+                if let Some(s) = value.as_str() {
+                    config.schema = Some(s.to_string());
+                } else if !value.is_null() { // Allow null schema to mean "unset"
+                    return Err(serde::de::Error::custom(format!(
+                        "Invalid type for '+schema', expected string or null, got {:?}",
+                        value
+                    )));
+                }
+            } else if key == "+database" {
+                if let Some(s) = value.as_str() {
+                    config.database = Some(s.to_string());
+                } else if !value.is_null() { // Allow null database to mean "unset"
+                     return Err(serde::de::Error::custom(format!(
+                        "Invalid type for '+database', expected string or null, got {:?}",
+                        value
+                    )));
+                }
+            } else if key.starts_with('+') {
+                config.other_plus_configs.insert(key, value);
+            } else {
+                // This is a potential subgroup (directory) or a model-specific config block.
+                // Attempt to deserialize as DbtModelGroupConfig for recursion.
+                match serde_yaml::from_value::<DbtModelGroupConfig>(value.clone()) {
+                    Ok(sub_config) => {
+                        config.subgroups.insert(key, sub_config);
+                    }
+                    Err(_e) => {
+                        // This key does not represent a DbtModelGroupConfig.
+                        // It could be a model file config (e.g., "my_model.sql: {enabled: false}").
+                        // For buster init's purpose of schema/db hierarchy, we can often ignore these
+                        // if they don't fit the recursive DbtModelGroupConfig structure.
+                        // The value is preserved in `other_plus_configs` if the key started with '+',
+                        // otherwise, if not a subgroup, it's effectively skipped for hierarchy.
+                        // Example: `my_model.sql: {enabled: false}` -- here `my_model.sql` does not start with `+`.
+                        // This means it will not be in `other_plus_configs` and if `from_value` fails, it won't be a `subgroup`.
+                        // This is generally fine as `build_contexts_recursive` focuses on `subgroups`.
+                    }
+                }
+            }
+        }
+        Ok(config)
+    }
+}
+
+#[derive(Debug, Deserialize, Clone, Default, Serialize)]
 pub struct DbtProjectModelsBlock {
     #[serde(flatten)]
-    project_configs: HashMap<String, DbtModelGroupConfig>,
+    pub project_configs: HashMap<String, DbtModelGroupConfig>,
 }
 
-#[derive(Debug, Deserialize, Clone, Default)]
+#[derive(Debug, Deserialize, Clone, Default, Serialize)]
 pub struct DbtProjectFileContent {
-    name: Option<String>,
+    pub name: Option<String>,
     #[serde(rename = "model-paths", default = "default_model_paths")]
     pub model_paths: Vec<String>,
     #[serde(default)]
-    models: Option<DbtProjectModelsBlock>,
+    pub models: Option<DbtProjectModelsBlock>,
 }
 
 fn default_model_paths() -> Vec<String> {
@@ -980,44 +1033,85 @@ fn create_buster_config_file(
 
     let mut project_contexts: Vec<ProjectContext> = Vec::new();
 
-    if let Some(dbt_content) = dbt_project_content_opt {
+    if let Some(dbt_content) = &dbt_project_content_opt {
         if let Some(models_block) = &dbt_content.models {
-            for (dbt_project_key_name, top_level_config) in &models_block.project_configs {
-                // dbt_project_key_name is usually the dbt project's name (e.g., "adventure_works")
-                // dbt_content.model_paths are the base model directories (e.g., ["models"])
-                
-                build_contexts_recursive(
-                    &mut project_contexts,
-                    top_level_config,
-                    Vec::new(), // Current path segments relative to a base dbt model path
-                    &dbt_content.model_paths,
-                    dbt_project_key_name, // Name of the dbt project e.g. "adventure_works"
-                    data_source_name_cli,
-                    database_cli,
-                    schema_cli, // Top-level schema from CLI as initial default
+            let mut potential_contexts_info: Vec<DbtDerivedContextInfo> = Vec::new();
+            for (dbt_project_key, top_level_dbt_config) in &models_block.project_configs {
+                collect_potential_dbt_contexts_recursive(
+                    &mut potential_contexts_info,
+                    top_level_dbt_config,
+                    Vec::new(), // current_config_path_segments
+                    &dbt_content.model_paths, // base_dbt_model_paths from dbt_project.yml
+                    dbt_project_key, // dbt_project_name_in_config e.g. "adventure_works"
+                    database_cli, // top_level_database_cli_default
+                    schema_cli,   // top_level_schema_cli_default
+                    None, // parent_dbt_database
+                    None, // parent_dbt_schema
                 );
+            }
+
+            if !potential_contexts_info.is_empty() {
+                println!("{}", "ℹ️ Found the following potential model configurations in your dbt_project.yml:".dimmed());
+                // Sort for consistent display
+                potential_contexts_info.sort_by(|a, b| a.display_name.cmp(&b.display_name));
+
+                let selected_infos = MultiSelect::new(
+                    "Select dbt model configurations to create project contexts for in buster.yml:",
+                    potential_contexts_info,
+                )
+                .with_help_message("Use space to select, enter to confirm. Selected contexts will have their specific schema, database (if overridden in dbt), and model paths.")
+                .prompt();
+
+                match selected_infos {
+                    Ok(infos) => {
+                        if infos.is_empty() {
+                            println!("{}", "No dbt configurations selected. Will prompt for manual model path configuration.".yellow());
+                        }
+                        for selected_info in infos {
+                            println!(
+                                "   {}{}",
+                                "Selected: ".dimmed(),
+                                selected_info.display_name.cyan()
+                            );
+                            project_contexts.push(ProjectContext {
+                                name: None, // User wants None
+                                data_source_name: Some(data_source_name_cli.to_string()),
+                                database: Some(selected_info.effective_database.clone()),
+                                schema: selected_info.effective_schema.clone(),
+                                model_paths: Some(selected_info.derived_model_paths.clone()),
+                                exclude_files: None,
+                                exclude_tags: None,
+                                // semantic_model_paths will also use these specific dirs for side-by-side
+                                semantic_model_paths: Some(selected_info.derived_model_paths),
+                            });
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("Error during dbt configuration selection: {}. Proceeding with manual setup.", e);
+                    }
+                }
             }
         }
     }
 
+
     if project_contexts.is_empty() {
-        println!("{}", "ℹ️ No project contexts derived from dbt_project.yml models block, or it's not configured. Falling back to manual prompt or dbt_project.yml model-paths.".yellow());
+        println!("{}", "ℹ️ No dbt-derived project contexts created. Proceeding with manual model path configuration...".yellow());
         
-        let mut suggested_model_paths_str = "models".to_string(); // Default suggestion
+        let mut suggested_model_paths_str = "models".to_string();
         if let Some(dbt_content) = parse_dbt_project_file_content(buster_config_dir).ok().flatten() {
-            if !dbt_content.model_paths.is_empty() && dbt_content.model_paths != vec!["models"] { // if not default or empty
+            if !dbt_content.model_paths.is_empty() && dbt_content.model_paths != vec!["models"] {
                  suggested_model_paths_str = dbt_content.model_paths.join(",");
-                 println!("{}", format!("ℹ️ Suggesting model paths from dbt_project.yml: {}", suggested_model_paths_str.cyan()).dimmed());
+                 println!("{}", format!("ℹ️ Suggesting model paths from dbt_project.yml global model-paths: {}", suggested_model_paths_str.cyan()).dimmed());
             }
         }
 
-
-        let model_paths_input = Text::new("Enter paths to your SQL models (comma-separated):")
+        let model_paths_input = Text::new("Enter root paths to your SQL models (comma-separated):")
             .with_default(&suggested_model_paths_str)
             .with_help_message("Example: ./models,./analytics/models or models (if relative to dbt project root)")
             .prompt()?;
 
-        let model_paths_vec = if model_paths_input.trim().is_empty() {
+        let model_paths_vec_option = if model_paths_input.trim().is_empty() {
             None
         } else {
             Some(
@@ -1025,13 +1119,12 @@ fn create_buster_config_file(
                     .split(',')
                     .map(|s| s.trim().to_string())
                     .filter(|s| !s.is_empty())
-                    .map(|s| { // Ensure paths are relative to project root for consistency
+                    .map(|s| { 
                         let p = Path::new(&s);
                         if p.is_absolute() {
                             eprintln!("{}", format!("⚠️ Warning: Absolute path '{}' provided for models. Consider using relative paths from your project root.", s).yellow());
                             s
                         } else {
-                            // Assuming paths like "models" or "./models" are intended to be relative to project root
                             s
                         }
                     })
@@ -1039,7 +1132,7 @@ fn create_buster_config_file(
             )
         };
         
-        let main_context_name = if let Some(dbt_proj_name) = parse_dbt_project_file_content(buster_config_dir).ok().flatten().and_then(|p| p.name) {
+        let _main_context_name = if let Some(dbt_proj_name) = parse_dbt_project_file_content(buster_config_dir).ok().flatten().and_then(|p| p.name) {
             format!("{}_default_config", dbt_proj_name)
         } else {
             "DefaultProject".to_string()
@@ -1050,10 +1143,10 @@ fn create_buster_config_file(
             data_source_name: Some(data_source_name_cli.to_string()),
             database: Some(database_cli.to_string()),
             schema: schema_cli.map(str::to_string),
-            model_paths: model_paths_vec.clone(),
+            model_paths: model_paths_vec_option.clone(),
             exclude_files: None,
             exclude_tags: None,
-            semantic_model_paths: model_paths_vec,
+            semantic_model_paths: model_paths_vec_option, // Use same paths for semantic models by default
         });
     }
 
@@ -1078,97 +1171,119 @@ fn create_buster_config_file(
     Ok(())
 }
 
-// Recursive helper for create_buster_config_file
-fn build_contexts_recursive(
-    contexts: &mut Vec<ProjectContext>,
+// Recursive helper to collect potential DbtDerivedContextInfo
+#[derive(Debug, Clone)]
+struct DbtDerivedContextInfo {
+    display_name: String,           // e.g., "adventure_works.mart (schema: ont_ont, db: db_override)"
+    config_path_segments: Vec<String>, // e.g., ["adventure_works", "mart"]
+    derived_model_paths: Vec<String>, // e.g., ["models/mart", "other_models_root/mart"]
+    effective_schema: Option<String>,
+    effective_database: String,    // Database always has a value (CLI default if not from dbt)
+    dbt_project_name_in_config: String, // e.g. "adventure_works"
+}
+
+impl std::fmt::Display for DbtDerivedContextInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.display_name)
+    }
+}
+
+fn collect_potential_dbt_contexts_recursive(
+    potential_contexts: &mut Vec<DbtDerivedContextInfo>,
     current_dbt_group_config: &DbtModelGroupConfig,
-    current_path_segments: Vec<String>, // Segments relative to a base model path, e.g., ["staging"] or [] for top-level
-    base_dbt_model_paths: &[String], // From dbt_project.yml model-paths, e.g., ["models", "analysis"]
-    dbt_project_name: &str, // The name of the dbt project this config belongs to (e.g. "adventure_works")
-    data_source_name_cli: &str,
-    database_cli: &str,
-    parent_schema_cli: Option<&str>, // Schema from parent dbt group or initial CLI schema
+    current_config_path_segments: Vec<String>, // Segments *within* the dbt project's config, e.g., ["mart"] or ["staging", "core"]
+    base_dbt_model_paths: &[String],           // From dbt_project.yml model-paths, e.g., ["models", "analysis"]
+    dbt_project_name_in_config: &str,          // The key from dbt_project.yml (e.g., "adventure_works")
+    top_level_database_cli_default: &str,
+    top_level_schema_cli_default: Option<&str>,
+    parent_dbt_database: Option<&str>, // Effective database from the parent dbt config node
+    parent_dbt_schema: Option<&str>,   // Effective schema from the parent dbt config node
 ) {
-    // Determine schema: dbt config for this group -> parent_schema_cli (could be from parent dbt group or original CLI)
-    let current_schema = current_dbt_group_config.schema.as_deref().or(parent_schema_cli);
-    // Determine database: dbt config for this group -> database_cli
-    let current_database = current_dbt_group_config.database.as_deref().unwrap_or(database_cli);
+    // Determine effective schema and database for *this* dbt config node
+    let current_group_effective_database = current_dbt_group_config
+        .database
+        .as_deref()
+        .or(parent_dbt_database)
+        .unwrap_or(top_level_database_cli_default);
 
-    let mut model_globs_for_context: Vec<String> = Vec::new();
-    for base_path_str in base_dbt_model_paths { // e.g., "models"
-        let mut path_parts = vec![base_path_str.clone()];
-        path_parts.extend_from_slice(&current_path_segments); // e.g., ["models", "staging"]
-        
-        let relative_model_group_path = PathBuf::from_iter(path_parts);
-        
-        // Add globs for .sql files in this directory and subdirectories
-        model_globs_for_context.push(relative_model_group_path.join("**/*.sql").to_string_lossy().into_owned());
-        // To also include models directly in the folder, e.g. models/staging.sql (though less common for dbt)
-        // model_globs_for_context.push(relative_model_group_path.join("*.sql").to_string_lossy().into_owned());
-    }
-    model_globs_for_context.sort();
-    model_globs_for_context.dedup();
+    let current_group_effective_schema = current_dbt_group_config
+        .schema
+        .as_deref()
+        .or(parent_dbt_schema)
+        .or(top_level_schema_cli_default);
 
-    if model_globs_for_context.is_empty() && current_dbt_group_config.subgroups.is_empty() {
-        // If a config block has no schema/db override, no subgroups, and results in no model paths,
-        // it might be a passthrough config or an empty node. Don't create a context for it unless it has overrides.
-        if current_dbt_group_config.schema.is_none() && current_dbt_group_config.database.is_none() {
-             // Only recurse if it has subgroups, otherwise this path ends.
-            if !current_dbt_group_config.subgroups.is_empty() {
-                 println!("Skipping context for intermediate dbt config group: {}/{}", dbt_project_name, current_path_segments.join("/").dimmed());
-            } else {
-                // If no schema/db override AND no model paths AND no subgroups, then this config entry is likely not for Buster.
-                // Unless it's the very top-level implicit one.
-                // We always create a context for the top-level (current_path_segments.is_empty()) if it has schema/db settings or leads to models.
-            }
+    // Construct model paths for this specific group
+    // current_config_path_segments: ["mart"] or ["staging", "jaffle_shop"]
+    // base_dbt_model_paths: ["models", "analysis_models"]
+    // derived_model_paths should be: ["models/mart", "analysis_models/mart"] etc.
+    let mut derived_model_paths_for_this_group: Vec<String> = Vec::new();
+    if !current_config_path_segments.is_empty() { // Only create paths if we are inside a group
+        for base_path_str in base_dbt_model_paths {
+            let mut path_parts = vec![base_path_str.clone()];
+            path_parts.extend_from_slice(&current_config_path_segments); // Add "mart" or "staging/core"
+            derived_model_paths_for_this_group.push(PathBuf::from_iter(path_parts).to_string_lossy().into_owned());
         }
+    } else { // This is the top-level dbt project config (e.g. "adventure_works:")
+         // Use the base_dbt_model_paths directly
+        derived_model_paths_for_this_group = base_dbt_model_paths.to_vec();
     }
+    derived_model_paths_for_this_group.sort();
+    derived_model_paths_for_this_group.dedup();
 
 
-    // Only create a ProjectContext if there are model paths OR if it's the root config of the dbt project
-    // (even if empty, it provides default schema/db for children) or it has explicit schema/db overrides.
-    if !model_globs_for_context.is_empty() || current_path_segments.is_empty() || current_dbt_group_config.schema.is_some() || current_dbt_group_config.database.is_some() {
-        let context_name = if current_path_segments.is_empty() {
-            format!("{}_base", dbt_project_name) // For the top-level config of the dbt project
-        } else {
-            format!("{}_{}", dbt_project_name, current_path_segments.join("_"))
-        };
+    // Decide if this node itself represents a selectable context.
+    // A context is selectable if it has specific model paths (i.e., not the top-level dbt project key itself without further segments,
+    // unless it's the *only* thing, or it has schema/db overrides).
+    // Or, more simply: always offer a node if it could lead to models, or has overrides.
+    // We will offer contexts for each level of nesting that could contain models.
+    // The `display_name` helps the user understand what they are selecting.
 
-        contexts.push(ProjectContext {
-            name: None,
-            data_source_name: Some(data_source_name_cli.to_string()),
-            database: Some(current_database.to_string()),
-            schema: current_schema.map(str::to_string),
-            model_paths: if model_globs_for_context.is_empty() { None } else { Some(model_globs_for_context.clone()) },
-            exclude_files: None,
-            exclude_tags: None,
-            semantic_model_paths: if model_globs_for_context.is_empty() { None } else { Some(model_globs_for_context) },
+    let mut full_display_path_segments = vec![dbt_project_name_in_config.to_string()];
+    full_display_path_segments.extend_from_slice(&current_config_path_segments);
+    let display_name_prefix = full_display_path_segments.join(".");
+
+    // Add this current group as a potential context if it has model paths.
+    // The top-level (current_config_path_segments.is_empty()) is also a valid context.
+    if !derived_model_paths_for_this_group.is_empty() {
+        let schema_display = current_group_effective_schema.unwrap_or("default (CLI)");
+        let db_display = current_group_effective_database;
+        let paths_display = derived_model_paths_for_this_group.join(", ");
+
+        potential_contexts.push(DbtDerivedContextInfo {
+            display_name: format!(
+                "{} (schema: {}, db: {}, paths: [{}])",
+                display_name_prefix.blue().bold(),
+                schema_display.cyan(),
+                db_display.cyan(),
+                paths_display.dimmed()
+            ),
+            config_path_segments: full_display_path_segments.clone(),
+            derived_model_paths: derived_model_paths_for_this_group.clone(),
+            effective_schema: current_group_effective_schema.map(str::to_string),
+            effective_database: current_group_effective_database.to_string(),
+            dbt_project_name_in_config: dbt_project_name_in_config.to_string(),
         });
-        println!("   {}{}{}", 
-            format!("Context for {} (Project: '{}'): ", current_path_segments.join("/").blue().italic(), dbt_project_name.blue().italic() ).dimmed(),
-            format!("Schema: {}, ", current_schema.unwrap_or("Default").cyan()).dimmed(), 
-            format!("DB: {}", current_database.cyan()).dimmed()
-        );
     }
 
 
     // Recurse for subgroups
     for (subgroup_name, subgroup_config) in &current_dbt_group_config.subgroups {
-        let mut next_path_segments = current_path_segments.clone();
-        next_path_segments.push(subgroup_name.clone());
-        build_contexts_recursive(
-            contexts,
+        let mut next_config_path_segments = current_config_path_segments.clone();
+        next_config_path_segments.push(subgroup_name.clone());
+
+        collect_potential_dbt_contexts_recursive(
+            potential_contexts,
             subgroup_config,
-            next_path_segments,
+            next_config_path_segments,
             base_dbt_model_paths,
-            dbt_project_name,
-            data_source_name_cli,
-            database_cli,
-            current_schema, // Pass the current group's schema as the parent/default for the next level
+            dbt_project_name_in_config, // This stays the same, it's the dbt project key
+            top_level_database_cli_default,
+            top_level_schema_cli_default,
+            Some(current_group_effective_database), // Pass current node's effective as parent for next
+            current_group_effective_schema,       // Pass current node's effective as parent for next
         );
     }
 }
-
 
 // --- Functions for setting up specific database types ---
 // Modified to return Result<(String, String, Option<String>)> for (data_source_name, database, schema)
