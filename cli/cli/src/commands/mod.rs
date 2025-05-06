@@ -1,9 +1,10 @@
 pub mod auth;
 pub mod deploy;
-pub mod init;
-pub mod update;
 pub mod generate;
+pub mod init;
+pub mod parse;
 pub mod run;
+pub mod update;
 
 pub use auth::auth_with_args;
 pub use init::init;

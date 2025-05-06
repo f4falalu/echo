@@ -11,13 +11,13 @@ use query_engine::credentials::{
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 // Import from dbt_utils for dbt catalog parsing
-use dbt_utils::models::{DbtCatalog, DbtNode, DbtColumn, DbtNodeMetadata, DbtCatalogMetadata}; 
+use dbt_utils::models::{DbtCatalog, CatalogNode, ColumnMetadata, TableMetadata, CatalogMetadata}; 
 use dbt_utils::{run_dbt_docs_generate, load_and_parse_catalog}; 
 
 // Imports for Buster specific utilities and config
@@ -84,21 +84,16 @@ pub fn is_false(val: &bool) -> bool {
 }
 
 // Helper function to determine if a SQL type should be a measure
-pub fn is_measure_type(sql_type_opt: Option<&str>) -> bool {
-    match sql_type_opt {
-        Some(sql_type) => {
-            let lower_sql_type = sql_type.to_lowercase();
-            lower_sql_type.contains("int") || 
-            lower_sql_type.contains("numeric") ||
-            lower_sql_type.contains("decimal") ||
-            lower_sql_type.contains("real") || 
-            lower_sql_type.contains("double") ||
-            lower_sql_type.contains("float") ||
-            lower_sql_type.contains("money") ||
-            lower_sql_type.contains("number")
-        }
-        None => false, // If type is missing, default to not a measure (dimension)
-    }
+pub fn is_measure_type(sql_type: &str) -> bool {
+    let lower_sql_type = sql_type.to_lowercase();
+    lower_sql_type.contains("int") || 
+    lower_sql_type.contains("numeric") ||
+    lower_sql_type.contains("decimal") ||
+    lower_sql_type.contains("real") || 
+    lower_sql_type.contains("double") ||
+    lower_sql_type.contains("float") ||
+    lower_sql_type.contains("money") ||
+    lower_sql_type.contains("number")
 }
 
 // Enum for Database Type selection (ensure only one definition, placed before use)
@@ -638,303 +633,259 @@ async fn generate_semantic_models_from_dbt_catalog(
     _config_path: &Path, // Path to buster.yml
     buster_config_dir: &Path, // Directory containing buster.yml, assumed dbt project root
 ) -> Result<()> {
-    println!("{}", "Starting semantic model generation from dbt catalog...".dimmed());
+    println!("{}", "Starting semantic model generation (file-first approach)...".dimmed());
 
-    // Get the semantic model output configuration from the first project context
-    let project_semantic_model_paths_config = buster_config.projects.as_ref()
-        .and_then(|projs| projs.first())
-        .and_then(|proj| proj.semantic_model_paths.as_ref());
-
-    let is_side_by_side_generation = project_semantic_model_paths_config.map_or(true, |paths| paths.is_empty());
-
-    let path_construction_base_dir: PathBuf; // Base directory for constructing output paths
-
-    if is_side_by_side_generation {
-        path_construction_base_dir = buster_config_dir.to_path_buf(); // Project root is the base for side-by-side
-        println!("{}", format!("Semantic models will be generated side-by-side with SQL models (within '{}').", path_construction_base_dir.display()).dimmed());
-    } else {
-        // A specific directory (or directories) was configured for semantic models. Use the first one.
-        let primary_path_str = project_semantic_model_paths_config.unwrap().first().unwrap(); // Safe due to map_or check
-        path_construction_base_dir = buster_config_dir.join(primary_path_str);
-        println!("{}", format!("Semantic models will be generated in/under: {}", path_construction_base_dir.display()).dimmed());
-        // Ensure this specific output directory exists
-        fs::create_dir_all(&path_construction_base_dir).map_err(|e| {
-            anyhow!("Failed to create semantic models output directory '{}': {}", path_construction_base_dir.display(), e)
-        })?;
-    }
-    
-    // Get dbt model source roots (e.g., ["models", "my_other_models"])
-    // These are paths relative to the dbt_project_path (buster_config_dir)
-    let dbt_project_content = parse_dbt_project_file_content(buster_config_dir)?;
-    let dbt_model_source_roots: Vec<PathBuf> = dbt_project_content.as_ref()
-        .map(|content| content.model_paths.iter().map(PathBuf::from).collect())
-        .unwrap_or_else(|| vec![PathBuf::from("models")]); // Default if not found
-
-    // Get defaults from the primary project context for model properties
-    let primary_project_context = buster_config.projects.as_ref().and_then(|p| p.first());
-    let default_data_source_name = primary_project_context
-        .and_then(|pc| pc.data_source_name.as_ref());
-    let default_database = primary_project_context
-        .and_then(|pc| pc.database.as_ref());
-    let default_schema = primary_project_context
-        .and_then(|pc| pc.schema.as_ref());
-
-    let dbt_project_path = buster_config_dir;
-    let catalog_json_path = dbt_project_path.join("target").join("catalog.json");
-
-    if Confirm::new("Can Buster run 'dbt docs generate' to get the latest schema (catalog.json)?")
+    // --- 1. Load Catalog & Build Lookup Map ---
+    let catalog_json_path = buster_config_dir.join("target").join("catalog.json");
+    if Confirm::new("Run 'dbt docs generate' to refresh dbt catalog (catalog.json)?")
         .with_default(true)
         .prompt()?
     {
-        match run_dbt_docs_generate(dbt_project_path).await {
-            Ok(_) => { /* Success is logged by the helper function itself */ }
-            Err(e) => {
-                eprintln!("{}", format!("'dbt docs generate' (via dbt_utils) reported an error. Proceeding with existing catalog.json if available. Error: {}", e).yellow());
-            }
+        match run_dbt_docs_generate(buster_config_dir).await {
+            Ok(_) => {}
+            Err(e) => eprintln!("{}", format!("'dbt docs generate' error. Proceeding with existing catalog if available. Error: {}", e).yellow()),
         }
     } else {
-        println!("{}", "Skipping 'dbt docs generate'. Will look for existing catalog.json.".dimmed());
+        println!("{}", "Skipping 'dbt docs generate'. Using existing catalog.json if available.".dimmed());
     }
 
     if !catalog_json_path.exists() {
-        eprintln!(
-            "{}",
-            format!("✗ catalog.json not found at {}.", catalog_json_path.display()).red()
-        );
-        println!("Please ensure 'dbt docs generate' has been run successfully in your dbt project.");
-        println!("Skipping semantic model generation.");
+        eprintln!("{}", format!("✗ catalog.json not found at {}. Cannot generate models.", catalog_json_path.display()).red());
         return Ok(());
     }
-
-    println!(
-        "{}",
-        format!(
-            "Attempting to load catalog.json from {}",
-            catalog_json_path.display()
-        )
-        .dimmed()
-    );
+    
     let dbt_catalog = match load_and_parse_catalog(&catalog_json_path) {
         Ok(catalog) => {
-            println!("{}", "✓ Successfully parsed catalog.json via dbt_utils.".green());
+            println!("{}", "✓ Successfully parsed catalog.json.".green());
             catalog
         }
         Err(e) => {
-            eprintln!("{}", format!("✗ Error loading/parsing catalog.json via dbt_utils: {}. Ensure catalog.json exists and is valid.", e).red());
+            eprintln!("{}", format!("✗ Error loading/parsing catalog.json: {}. Cannot generate models.", e).red());
             return Ok(()); 
         }
     };
 
-    // --- Model Scoping Logic ---    
-    let mut configured_model_path_patterns: Vec<Pattern> = Vec::new();
-    if let Some(projects) = &buster_config.projects {
-        for project_context in projects {
-            if let Some(model_paths) = &project_context.model_paths {
-                for path_str in model_paths {
-                    // Construct absolute path for glob pattern relative to buster_config_dir
-                    let path_to_glob = buster_config_dir.join(path_str);
-                    // dbt model paths are often directories, so add a glob to match files within them.
-                    // e.g., if path_str is "models", pattern becomes "<abs_path_to_models>/**/*.sql"
-                    // If path_str already contains wildcards, use it as is more directly.
-                    let pattern_str = if path_str.contains('*') || path_str.contains('?') || path_str.contains('[') {
-                        path_to_glob.to_string_lossy().into_owned()
-                    } else {
-                        path_to_glob.join("**").join("*.sql").to_string_lossy().into_owned()
-                    };
+    // Build lookup map: Keyed by derived_model_name_from_file (which should be metadata.name)
+    // We filter for nodes that have a derived_model_name_from_file and are models.
+    let catalog_nodes_by_name: HashMap<String, &CatalogNode> = dbt_catalog.nodes.values()
+        .filter_map(|node| {
+            if node.derived_resource_type.as_deref() == Some("model") {
+                node.derived_model_name_from_file.as_ref().map(|name| (name.clone(), node))
+            } else {
+                None
+            }
+        })
+        .collect();
+    
+    if catalog_nodes_by_name.is_empty() {
+        println!("{}", "No models found in the dbt catalog after parsing. Nothing to generate.".yellow());
+        return Ok(());
+    }
 
-                    match Pattern::new(&pattern_str) {
-                        Ok(p) => configured_model_path_patterns.push(p),
-                        Err(e) => eprintln!(
-                            "{}",
-                            format!(
-                                "Warning: Invalid glob pattern '{}' from buster.yml model_paths: {}",
-                                pattern_str,
-                                e
-                            )
-                            .yellow()
-                        ),
+    // --- 2. Determine SQL Files to Process ---
+    let mut sql_files_to_process: HashSet<PathBuf> = HashSet::new();
+    let mut model_path_patterns_from_buster_yml: Vec<Pattern> = Vec::new();
+
+    if let Some(projects) = &buster_config.projects {
+        if let Some(first_project) = projects.first() {
+            if let Some(mp_globs) = &first_project.model_paths {
+                for path_str_glob in mp_globs {
+                    match Pattern::new(&buster_config_dir.join(path_str_glob).to_string_lossy()) {
+                        Ok(p) => model_path_patterns_from_buster_yml.push(p),
+                        Err(e) => eprintln!("{}", format!("Warning: Invalid glob pattern '{}' from buster.yml: {}", path_str_glob, e).yellow()),
                     }
                 }
             }
         }
     }
-    if configured_model_path_patterns.is_empty() {
-        println!("{}", "No model_paths configured in buster.yml or patterns are invalid. Will process all models from catalog.json.".yellow());
+
+    if !model_path_patterns_from_buster_yml.is_empty() {
+        println!("{}", format!("Scanning for SQL files based on model_paths patterns in buster.yml: {:?}", 
+            model_path_patterns_from_buster_yml.iter().map(|p| p.as_str()).collect::<Vec<_>>() ).dimmed());
+        for pattern in model_path_patterns_from_buster_yml {
+            // Ripgrep or glob to find files matching the pattern string itself
+            // This simple glob might need enhancement for more complex patterns handled by buster_config.model_paths
+            // For now, assuming model_paths are like "models/marts/**/*.sql"
+            match glob::glob(pattern.as_str()) {
+                Ok(paths) => {
+                    for entry in paths {
+                        match entry {
+                            Ok(path) => if path.is_file() && path.extension().map_or(false, |ext| ext == "sql") {
+                                sql_files_to_process.insert(path);
+                            }
+                            Err(e) => eprintln!("{}", format!("Error processing glob path: {}", e).yellow()),
+                        }
+                    }
+                }
+                Err(e) => eprintln!("{}", format!("Glob pattern error for '{}': {}", pattern.as_str(), e).yellow()),
+            }
+        }
+    } else {
+        println!("{}", "No model_paths in buster.yml. Using dbt_project.yml model-paths to find SQL files.".dimmed());
+        let dbt_project_content = parse_dbt_project_file_content(buster_config_dir)?;
+        let dbt_model_source_roots = dbt_project_content.as_ref()
+            .map(|content| content.model_paths.iter().map(PathBuf::from).collect::<Vec<PathBuf>>())
+            .unwrap_or_else(|| vec![PathBuf::from("models")]);
+
+        for dbt_source_root_rel in dbt_model_source_roots {
+            let dbt_source_root_abs = buster_config_dir.join(dbt_source_root_rel);
+            let glob_pattern = dbt_source_root_abs.join("**/*.sql");
+            match glob::glob(&glob_pattern.to_string_lossy()) {
+                Ok(paths) => {
+                    for entry in paths {
+                        match entry {
+                            Ok(path) => if path.is_file() {
+                                sql_files_to_process.insert(path);
+                            }
+                            Err(e) => eprintln!("{}", format!("Error processing glob path from dbt_project.yml: {}", e).yellow()),
+                        }
+                    }
+                }
+                Err(e) => eprintln!("{}", format!("Glob pattern error for dbt_project.yml path '{}': {}", glob_pattern.display(), e).yellow()),
+            }
+        }
     }
-    // --- End Model Scoping Logic ---
 
+    if sql_files_to_process.is_empty() {
+        println!("{}", "No SQL model files found based on configuration. Nothing to generate.".yellow());
+        return Ok(());
+    }
+    println!("{}", format!("Found {} SQL model file(s) to process.", sql_files_to_process.len()).dimmed());
+
+    // --- 3. Determine Output Configuration (Side-by-side or Dedicated Dir) ---
+    let project_semantic_model_paths_config = buster_config.projects.as_ref()
+        .and_then(|projs| projs.first())
+        .and_then(|proj| proj.semantic_model_paths.as_ref());
+    let is_side_by_side_generation = project_semantic_model_paths_config.map_or(true, |paths| paths.is_empty());
+    let primary_dedicated_output_dir: Option<PathBuf> = if is_side_by_side_generation { None } 
+        else { 
+            project_semantic_model_paths_config.and_then(|paths| paths.first()).map(|p_str| buster_config_dir.join(p_str))
+        };
+    
+    if is_side_by_side_generation {
+        println!("{}", "Semantic models will be generated side-by-side with their SQL counterparts.".dimmed());
+    } else if let Some(ref out_dir) = primary_dedicated_output_dir {
+        println!("{}", format!("Semantic models will be generated in/under: {}", out_dir.display()).dimmed());
+        fs::create_dir_all(out_dir).map_err(|e| anyhow!("Failed to create semantic models output dir '{}': {}", out_dir.display(), e))?;
+    } else {
+        // This case (not side-by-side but no primary_dedicated_output_dir) should ideally not happen if config is valid.
+        // Defaulting to side-by-side for safety, though this indicates a potential config issue handled earlier in init.
+        println!("{}", "Warning: Semantic model output directory not clearly configured, defaulting to side-by-side generation logic.".yellow());
+    }
+
+    // --- 4. Iterate Through SQL Files & Generate YamlModels ---
     let mut yaml_models_generated_count = 0;
+    let default_data_source_name = buster_config.projects.as_ref().and_then(|p| p.first()).and_then(|pc| pc.data_source_name.as_ref());
+    let default_database = buster_config.projects.as_ref().and_then(|p| p.first()).and_then(|pc| pc.database.as_ref());
+    let default_schema = buster_config.projects.as_ref().and_then(|p| p.first()).and_then(|pc| pc.schema.as_ref());
 
-    for (_node_id, node) in dbt_catalog.nodes.iter().filter(|(_id, n)| {
-        match &n.resource_type {
-            Some(rt) => rt == "model",
-            None => {
-                eprintln!(
-                    "{}",
-                    format!(
-                        "Warning: Skipping dbt node with unique_id: {} because it is missing 'resource_type' in catalog.json.",
-                        n.unique_id
-                    ).yellow()
-                );
-                false
-            }
-        }
-    }) {
-        let Some(ref original_file_path_str) = node.original_file_path else {
-            eprintln!(
-                "{}",
-                format!(
-                    "Warning: Skipping dbt model unique_id: {} because it is missing 'original_file_path' in catalog.json.",
-                    node.unique_id
-                ).yellow()
-            );
-            continue;
-        };
-
-        // Ensure metadata and metadata.name exist, as it's crucial for the semantic model name
-        let Some(ref node_metadata) = node.metadata else {
-            eprintln!(
-                "{}",
-                format!(
-                    "Warning: Skipping dbt model with unique_id: {} because its 'metadata' block is missing in catalog.json.",
-                    node.unique_id
-                ).yellow()
-            );
-            continue;
-        };
-        let Some(ref actual_model_name_from_metadata) = node_metadata.name else {
-            eprintln!(
-                "{}",
-                format!(
-                    "Warning: Skipping dbt model with unique_id: {} because its 'metadata.name' is missing in catalog.json.",
-                    node.unique_id
-                ).yellow()
-            );
-            continue;
-        };
-        let actual_model_name = actual_model_name_from_metadata.clone();
-
-        let original_file_path_abs = buster_config_dir.join(original_file_path_str);
-
-        let in_scope = if configured_model_path_patterns.is_empty() {
-            true // If no patterns, assume all models are in scope
-        } else {
-            configured_model_path_patterns
-                .iter()
-                .any(|pattern| pattern.matches_path(&original_file_path_abs))
-        };
-
-        if !in_scope {
-            // Only log if verbose or similar, this can be noisy
-            // println!("Skipping dbt model (not in configured model_paths): {}", node.unique_id.dimmed());
-            continue;
-        }
-        
-        println!("Processing dbt model for semantic layer: {}: {}", node.unique_id.cyan(), actual_model_name.cyan());
-
-        let mut dimensions: Vec<YamlDimension> = Vec::new();
-        let mut measures: Vec<YamlMeasure> = Vec::new();
-
-        for (_col_name, col) in &node.columns { // node.columns is HashMap, defaults to empty if missing
-            if is_measure_type(Some(col.column_type.as_str())) { // Assuming col.column_type is String here based on linter
-                measures.push(YamlMeasure {
-                    name: col.name.clone(), 
-                    description: col.comment.clone(), 
-                    type_: Some(col.column_type.clone()), // Wrap in Some()
-                });
-            } else {
-                dimensions.push(YamlDimension {
-                    name: col.name.clone(),
-                    description: col.comment.clone(),
-                    type_: Some(col.column_type.clone()), // Wrap in Some()
-                    searchable: false, 
-                    options: None,
-                });
-            }
-        }
-
-        let yaml_model = YamlModel {
-            name: actual_model_name.clone(),
-            description: node_metadata.comment.clone(), // Access comment via node_metadata ref
-            data_source_name: default_data_source_name.cloned(),
-            database: node.database.clone().or_else(|| default_database.cloned()), // node.database is Option<String>
-            schema: node.schema.clone().or_else(|| default_schema.cloned()),     // node.schema is Option<String>
-            dimensions,
-            measures,
-            original_file_path: Some(original_file_path_str.clone()),
-        };
-
-        // Determine the output path for this individual YAML model
-        let dbt_model_path = Path::new(original_file_path_str);
-        let mut stripped_model_path_suffix = PathBuf::new(); // e.g. "marts/sales/revenue.sql" if original is "models/marts/sales/revenue.sql"
-        let mut found_base_for_stripping = false;
-
-        for dbt_source_root in &dbt_model_source_roots { // dbt_source_root is like "models"
-            if let Ok(stripped_path) = dbt_model_path.strip_prefix(dbt_source_root) {
-                stripped_model_path_suffix = stripped_path.to_path_buf();
-                found_base_for_stripping = true;
-                break;
-            }
-        }
-
-        if !found_base_for_stripping {
-            // Fallback: if original_file_path_str didn't start with any known dbt_model_source_roots,
-            // (e.g. original_file_path_str is "marts/revenue.sql" and source_root is "models")
-            // then use original_file_path_str as is for the suffix part.
-            // This can happen if dbt_model_source_roots are not exhaustive or path is weird.
-            // The resulting YAML structure will still be relative to path_construction_base_dir.
-            stripped_model_path_suffix = dbt_model_path.to_path_buf();
-            eprintln!("{}", format!(
-                    "Warning: Could not strip a known dbt model source root ('{:?}') from dbt model path '{}'. Using full path for suffix: '{}'", 
-                    dbt_model_source_roots, original_file_path_str, stripped_model_path_suffix.display()
-                ).yellow()
-            );
-        }
-        
-        let output_yaml_path: PathBuf;
-        if is_side_by_side_generation {
-            // For side-by-side, output is next to the SQL file.
-            // original_file_path_str is relative to buster_config_dir (e.g., "models/marts/sales/revenue.sql")
-            // buster_config_dir is the dbt project root.
-            output_yaml_path = buster_config_dir.join(original_file_path_str).with_extension("yml");
-        } else {
-            // For dedicated output directory:
-            // path_construction_base_dir is the dedicated dir (e.g., "/path/to/project/buster_yamls")
-            // stripped_model_path_suffix is the path part after dbt source root (e.g., "marts/sales/revenue.sql")
-            let yaml_filename_with_subdir = stripped_model_path_suffix.with_extension("yml"); // e.g., "marts/sales/revenue.yml"
-            output_yaml_path = path_construction_base_dir.join(yaml_filename_with_subdir);
-        }
-
-        if let Some(parent_dir) = output_yaml_path.parent() {
-            fs::create_dir_all(parent_dir).map_err(|e| {
-                anyhow!("Failed to create directory for semantic model YAML '{}': {}", parent_dir.display(), e)
-            })?;
-        }
-
-        let yaml_string = serde_yaml::to_string(&yaml_model)
-            .map_err(|e| anyhow!("Failed to serialize semantic model '{}' to YAML: {}", yaml_model.name, e))?;
-        fs::write(&output_yaml_path, yaml_string)
-            .map_err(|e| anyhow!("Failed to write semantic model YAML for '{}' to '{}': {}", yaml_model.name, output_yaml_path.display(), e))?;
-
-        println!(
-            "{} Generated semantic model: {}",
-            "✓".green(),
-            output_yaml_path.display().to_string().cyan()
+    for sql_file_abs_path in sql_files_to_process {
+        let model_name_from_filename = sql_file_abs_path.file_stem().map_or_else(
+            || "".to_string(), 
+            |stem| stem.to_string_lossy().into_owned()
         );
-        yaml_models_generated_count += 1;
+
+        if model_name_from_filename.is_empty() {
+            eprintln!("{}", format!("Warning: Could not determine model name from file: {}. Skipping.", sql_file_abs_path.display()).yellow());
+            continue;
+        }
+
+        match catalog_nodes_by_name.get(&model_name_from_filename) {
+            Some(catalog_node) => {
+                let Some(ref node_metadata_opt) = catalog_node.metadata else {
+                    eprintln!("{}", format!("Warning: Skipping model '{}' (from file {}): Missing metadata in catalog entry.", model_name_from_filename, sql_file_abs_path.display()).yellow());
+                    continue;
+                };
+                let node_metadata = node_metadata_opt; // Shadow to non-Option for easier access, already checked Some
+                // actual_model_name for YamlModel comes from catalog metadata.name
+                let actual_semantic_model_name = node_metadata.name.clone(); 
+
+                println!("Processing SQL model: {} (Catalog Name: {}, UniqueID: {})", 
+                    sql_file_abs_path.display().to_string().cyan(), 
+                    actual_semantic_model_name.purple(),
+                    catalog_node.unique_id.as_deref().unwrap_or("N/A").dimmed()
+                );
+
+                let mut dimensions: Vec<YamlDimension> = Vec::new();
+                let mut measures: Vec<YamlMeasure> = Vec::new();
+
+                for (_col_name, col_meta) in &catalog_node.columns { // col_meta is &ColumnMetadata
+                    if is_measure_type(&col_meta.type_) { // Pass &String, is_measure_type takes &str
+                        measures.push(YamlMeasure {
+                            name: col_meta.name.clone(),
+                            description: col_meta.comment.clone(),
+                            type_: Some(col_meta.type_.clone()),
+                        });
+                    } else {
+                        dimensions.push(YamlDimension {
+                            name: col_meta.name.clone(),
+                            description: col_meta.comment.clone(),
+                            type_: Some(col_meta.type_.clone()),
+                            searchable: false,
+                            options: None,
+                        });
+                    }
+                }
+                
+                let relative_sql_file_path_str = pathdiff::diff_paths(&sql_file_abs_path, buster_config_dir)
+                    .map(|p| p.to_string_lossy().into_owned())
+                    .unwrap_or_else(|| sql_file_abs_path.to_string_lossy().into_owned());
+
+                let yaml_model = YamlModel {
+                    name: actual_semantic_model_name, // Use name from catalog metadata
+                    description: node_metadata.comment.clone(),
+                    data_source_name: default_data_source_name.cloned(),
+                    database: node_metadata.database.clone().or_else(|| default_database.cloned()),
+                    schema: Some(node_metadata.schema.clone()), // schema from TableMetadata is String, wrap in Some()
+                    dimensions,
+                    measures,
+                    original_file_path: Some(relative_sql_file_path_str.clone()),
+                };
+
+                // Determine output path
+                let output_yaml_path: PathBuf;
+                if is_side_by_side_generation {
+                    output_yaml_path = sql_file_abs_path.with_extension("yml");
+                } else if let Some(ref dedicated_dir) = primary_dedicated_output_dir {
+                     // Need to reconstruct subpath relative to a dbt model root (e.g. "models/")
+                    let dbt_model_source_roots_for_stripping = parse_dbt_project_file_content(buster_config_dir)?.as_ref()
+                        .map(|c| c.model_paths.iter().map(PathBuf::from).collect::<Vec<PathBuf>>())
+                        .unwrap_or_else(|| vec![PathBuf::from("models")]);
+                    
+                    let mut stripped_suffix_for_yaml: Option<PathBuf> = None;
+                    for dbt_root in &dbt_model_source_roots_for_stripping {
+                        let abs_dbt_root = buster_config_dir.join(dbt_root);
+                        if let Ok(stripped) = sql_file_abs_path.strip_prefix(&abs_dbt_root) {
+                            stripped_suffix_for_yaml = Some(stripped.with_extension("yml"));
+                            break;
+                        }
+                    }
+                    let final_suffix = stripped_suffix_for_yaml.unwrap_or_else(|| 
+                        PathBuf::from(&model_name_from_filename).with_extension("yml")
+                    );
+                    output_yaml_path = dedicated_dir.join(final_suffix);
+                } else { // Should not be reached due to earlier checks, but for safety:
+                    output_yaml_path = sql_file_abs_path.with_extension("yml"); 
+                }
+
+                if let Some(parent_dir) = output_yaml_path.parent() {
+                    fs::create_dir_all(parent_dir).map_err(|e| anyhow!("Failed to create dir '{}': {}", parent_dir.display(), e))?;
+                }
+                let yaml_string = serde_yaml::to_string(&yaml_model)?;
+                fs::write(&output_yaml_path, yaml_string)?;
+                println!("{} Generated semantic model: {}", "✓".green(), output_yaml_path.display().to_string().cyan());
+                yaml_models_generated_count += 1;
+            }
+            None => {
+                eprintln!("{}", format!("Warning: SQL model file '{}' (model name: '{}') found, but no corresponding entry in dbt catalog. Skipping.", sql_file_abs_path.display(), model_name_from_filename).yellow());
+            }
+        }
     }
 
     if yaml_models_generated_count == 0 {
-        println!(
-            "{}",
-            "No dbt models found matching configured paths in catalog.json, or no models in catalog. No semantic model YAML files generated."
-                .yellow()
-        );
+        println!("{}", "No semantic model YAML files were generated.".yellow());
     } else {
-        println!(
-            "{}",
-            format!("Successfully generated {} semantic model YAML file(s).", yaml_models_generated_count).bold().green()
-        );
+        println!("{}", format!("Successfully generated {} semantic model YAML file(s).", yaml_models_generated_count).bold().green());
     }
 
     Ok(())

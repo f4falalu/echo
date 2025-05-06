@@ -73,6 +73,13 @@ pub enum Commands {
         // output-file as a more descriptive name for the arg
         target_semantic_file: Option<String>,
     },
+    /// Parse and validate semantic model YAML definitions
+    Parse {
+        /// Optional path to a specific model .yml file or a directory of models to process.
+        /// If not provided, processes models based on 'model_paths' in buster.yml or CWD.
+        #[arg(long)]
+        path: Option<String>,
+    },
     Start,
     Stop,
 }
@@ -130,6 +137,7 @@ async fn main() {
             path,
             target_semantic_file,
         } => commands::generate::generate_semantic_models_command(path, target_semantic_file).await,
+        Commands::Parse { path } => commands::parse::parse_models_command(path).await,
         Commands::Start => run::start().await.map_err(anyhow::Error::from),
         Commands::Stop => run::stop().await.map_err(anyhow::Error::from),
     };

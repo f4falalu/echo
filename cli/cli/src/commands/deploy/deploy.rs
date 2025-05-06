@@ -128,7 +128,7 @@ impl ProgressTracker for DeployProgress {
 }
 
 /// Parse a YAML model file into semantic_layer::Model structs
-fn parse_model_file(file_path: &Path) -> Result<Vec<Model>> {
+pub fn parse_model_file(file_path: &Path) -> Result<Vec<Model>> {
     let yml_content = std::fs::read_to_string(file_path)?;
     
     // First try parsing as a SemanticLayerSpec (with top-level 'models' key)
@@ -150,7 +150,7 @@ fn parse_model_file(file_path: &Path) -> Result<Vec<Model>> {
 /// 1. Values in the model itself
 /// 2. Values from the project context
 /// 3. Values from the global config
-fn resolve_model_configurations(
+pub fn resolve_model_configurations(
     models_with_context: Vec<(Model, Option<&ProjectContext>)>,
     global_buster_config: &BusterConfig,
 ) -> Result<Vec<Model>> {
