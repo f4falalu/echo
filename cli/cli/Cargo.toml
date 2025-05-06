@@ -59,6 +59,8 @@ semantic_layer = { path = "../../api/libs/semantic_layer" }
 
 chrono = { workspace = true }
 
+dbt_utils = { path = "../libs/dbt_utils" }
+
 [profile.dev]
 # Increase parallel code generation units for faster debug builds
 codegen-units = 16 

@@ -9,7 +9,8 @@ pub mod yaml_diff_merger;
 // New modules
 pub mod config;
 pub mod progress;
-pub mod fs_utils; 
+pub mod fs_utils;
+pub mod version;
 
 // Re-export key items for convenience
 pub use config::{BusterConfig, ProjectContext};
