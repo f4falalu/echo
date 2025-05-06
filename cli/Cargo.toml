@@ -2,7 +2,6 @@
 members = [
     "cli",
     "libs/dbt_utils",
-    "libs/semantic_layer",
     # Add "libs/*" or specific lib crates here later
 ]
 
