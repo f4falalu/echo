@@ -35,9 +35,20 @@ jobs:
       new_web_version: ${{ steps.bump.outputs.new_web_version }}
       new_cli_version: ${{ steps.bump.outputs.new_cli_version }}
     steps:
+      - name: Determine Branch Name
+        id: branch_info
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "branch_name=${{ github.head_ref }}" >> $GITHUB_OUTPUT
+          else
+            echo "branch_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          ref: ${{ steps.branch_info.outputs.branch_name }}
           token: ${{ secrets.GITHUB_TOKEN }} # Or a PAT if you push to protected branches from actions
           fetch-depth: 0 # For git tagging and history
 
@@ -239,7 +250,9 @@ jobs:
             git tag "cli/v$NEW_CLI_VERSION"
           fi
           
-          git push origin HEAD --follow-tags # Push current branch and all tags
+          BRANCH_TO_PUSH="${{ steps.branch_info.outputs.branch_name }}"
+          echo "Pushing commit and tags to branch: $BRANCH_TO_PUSH"
+          git push origin HEAD:"refs/heads/$BRANCH_TO_PUSH" --follow-tags
 
       - name: Push changes (if only commit, no tags yet or if tag push failed)
         # This condition implies commit happened, but no versions were actually outputted.
@@ -250,5 +263,6 @@ jobs:
         # For now, keeping the original logic.
         if: steps.bump.outputs.commit_message != '' && (steps.bump.outputs.new_api_version == '' && steps.bump.outputs.new_web_version == '' && steps.bump.outputs.new_cli_version == '')
         run: |
-          echo "Pushing commit because changes were made but no version tags were generated (e.g. version already existed or no actual version change)."
-          git push origin HEAD 
+          BRANCH_TO_PUSH="${{ steps.branch_info.outputs.branch_name }}"
+          echo "Pushing commit to branch: $BRANCH_TO_PUSH (changes made but no version tags generated)."
+          git push origin HEAD:"refs/heads/$BRANCH_TO_PUSH" 
