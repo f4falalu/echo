@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 // use std::time::Duration; // Duration seems unused here now
 
 use crate::utils::config::BusterConfig;
-use crate::commands::init::{YamlModel, YamlDimension, YamlMeasure}; // is_measure_type is also in init
+use crate::commands::init::{YamlModel, YamlDimension, YamlMeasure, is_measure_type};
 
 // Use new struct names from dbt_utils
 use dbt_utils::models::{DbtCatalog, CatalogNode, ColumnMetadata, TableMetadata}; // CatalogMetadata might not be directly used here
@@ -303,32 +303,46 @@ pub async fn generate_semantic_models_command(
                     if let Some(dbt_col) = dbt_columns_map.remove(&existing_dim_col.name) {
                         let mut updated_dim = existing_dim_col.clone();
                         let mut dim_col_updated = false;
-                        if updated_dim.type_.as_deref() != Some(&dbt_col.type_) { // type_ is String
-                            updated_dim.type_ = Some(dbt_col.type_.clone()); dim_col_updated = true; columns_updated_count +=1;
+
+                        if !crate::commands::init::is_measure_type(&dbt_col.type_) { // Still a dimension
+                            if updated_dim.type_.as_deref() != Some(&dbt_col.type_) {
+                                updated_dim.type_ = Some(dbt_col.type_.clone());
+                                dim_col_updated = true; 
+                            }
+                            if dbt_col.comment.is_some() && updated_dim.description != dbt_col.comment {
+                                updated_dim.description = dbt_col.comment.clone(); 
+                                dim_col_updated = true; 
+                            }
+                            if dim_col_updated { columns_updated_count +=1; model_was_updated = true; }
+                            current_dims.push(updated_dim);
+                        } else { // Was a dimension, but is now a measure according to dbt_col
+                            columns_removed_count += 1; model_was_updated = true; // Will be added as a new measure later
                         }
-                        if dbt_col.comment.is_some() && updated_dim.description != dbt_col.comment {
-                            updated_dim.description = dbt_col.comment.clone(); dim_col_updated = true; columns_updated_count +=1;
-                        }
-                        current_dims.push(updated_dim);
-                        if dim_col_updated { model_was_updated = true; }
                     } else { columns_removed_count += 1; model_was_updated = true; }
                 }
                 for existing_measure_col in std::mem::take(&mut existing_model.measures) {
                     if let Some(dbt_col) = dbt_columns_map.remove(&existing_measure_col.name) {
                         let mut updated_measure = existing_measure_col.clone();
                         let mut measure_col_updated = false;
-                        if updated_measure.type_.as_deref() != Some(&dbt_col.type_) { // type_ is String
-                            updated_measure.type_ = Some(dbt_col.type_.clone()); measure_col_updated = true; columns_updated_count +=1;
+
+                        if crate::commands::init::is_measure_type(&dbt_col.type_) { // Still a measure
+                            if updated_measure.type_.as_deref() != Some(&dbt_col.type_) {
+                                updated_measure.type_ = Some(dbt_col.type_.clone());
+                                measure_col_updated = true; 
+                            }
+                            if dbt_col.comment.is_some() && updated_measure.description != dbt_col.comment {
+                               updated_measure.description = dbt_col.comment.clone(); 
+                               measure_col_updated = true; 
+                            }
+                            if measure_col_updated { columns_updated_count +=1; model_was_updated = true; }
+                            current_measures.push(updated_measure);
+                        } else { // Was a measure, but is now a dimension
+                            columns_removed_count += 1; model_was_updated = true; // Will be added as a new dimension later
                         }
-                        if dbt_col.comment.is_some() && updated_measure.description != dbt_col.comment {
-                           updated_measure.description = dbt_col.comment.clone(); measure_col_updated = true; columns_updated_count +=1;
-                        }
-                        current_measures.push(updated_measure);
-                        if measure_col_updated { model_was_updated = true; }
                     } else { columns_removed_count += 1; model_was_updated = true; }
                 }
                 for (_col_name, dbt_col) in dbt_columns_map { // Remaining are new columns
-                    if crate::commands::init::is_measure_type(&dbt_col.type_) { // type_ is String
+                    if crate::commands::init::is_measure_type(&dbt_col.type_) { 
                         current_measures.push(YamlMeasure { name: dbt_col.name.clone(), description: dbt_col.comment.clone(), type_: Some(dbt_col.type_.clone()) });
                     } else {
                         current_dims.push(YamlDimension { name: dbt_col.name.clone(), description: dbt_col.comment.clone(), type_: Some(dbt_col.type_.clone()), searchable: false, options: None });

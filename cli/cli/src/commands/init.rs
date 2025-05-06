@@ -94,6 +94,16 @@ pub fn is_measure_type(sql_type: &str) -> bool {
     lower_sql_type.contains("number")
 }
 
+// Helper function to normalize and unquote catalog types
+pub fn normalize_catalog_type(catalog_type_value: &str) -> String {
+    let trimmed_type = catalog_type_value.trim();
+    if trimmed_type.starts_with('"') && trimmed_type.ends_with('"') && trimmed_type.len() > 1 {
+        trimmed_type[1..trimmed_type.len() - 1].to_string()
+    } else {
+        trimmed_type.to_string()
+    }
+}
+
 // Enum for Database Type selection (ensure only one definition, placed before use)
 #[derive(Debug, Clone)]
 enum DatabaseType {
@@ -827,7 +837,7 @@ async fn generate_semantic_models_from_dbt_catalog(
                 let mut measures: Vec<YamlMeasure> = Vec::new();
 
                 for (_col_name, col_meta) in &catalog_node.columns { // col_meta is &ColumnMetadata
-                    if is_measure_type(&col_meta.type_) { // Pass &String, is_measure_type takes &str
+                    if is_measure_type(&col_meta.type_) { 
                         measures.push(YamlMeasure {
                             name: col_meta.name.clone(),
                             description: col_meta.comment.clone(),

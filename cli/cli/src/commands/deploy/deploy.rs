@@ -257,19 +257,8 @@ fn generate_default_sql(model: &Model) -> String {
 }
 
 /// Get SQL content for a model, using original_file_path if available, or falling back to other methods.
-fn get_sql_content_for_model(model: &Model, buster_config_dir: &Path, yml_path_for_fallback: &Path) -> Result<String> {
-    if let Some(ref rel_sql_path_str) = model.original_file_path {
-        let sql_path = buster_config_dir.join(rel_sql_path_str);
-        if sql_path.exists() {
-            return fs::read_to_string(&sql_path).map_err(|e| {
-                anyhow!("Failed to read SQL content from {} (original_file_path): {}", sql_path.display(), e)
-            });
-        } else {
-            println!("Warning: original_file_path {} not found for model {}. Falling back or generating default SQL.", sql_path.display(), model.name.yellow());
-            // Fall through to default generation or error if strict
-        }
-    }
-    // Fallback for models without original_file_path (e.g. individually deployed YMLs)
+fn get_sql_content_for_model(model: &Model, _buster_config_dir: &Path, yml_path_for_fallback: &Path) -> Result<String> {
+    // Fallback for models: try to find an associated .sql file or generate default.
     let found_sql_path = find_sql_file(yml_path_for_fallback); // yml_path_for_fallback is the path of the .yml file itself
     if let Some(ref p) = found_sql_path {
         Ok(fs::read_to_string(p)?)
@@ -799,8 +788,8 @@ mod tests {
         let single_model_yml = r#"
 name: test_model
 description: "Test model"
-original_file_path: "some/path/model.sql"
-dimensions:
+
+dimension:
   - name: dim1
     description: "First dimension"
     type: "string"
@@ -816,20 +805,17 @@ measures:
         let models = parse_model_file(&single_model_path)?;
         assert_eq!(models.len(), 1);
         assert_eq!(models[0].name, "test_model");
-        assert_eq!(models[0].original_file_path, Some("some/path/model.sql".to_string()));
         
         let multi_model_yml = r#"
 models:
   - name: model1
     description: "First model"
-    original_file_path: "models/model1.sql"
     dimensions:
       - name: dim1
         description: "First dimension"
         type: "string"
   - name: model2
     description: "Second model"
-    original_file_path: "models/model2.sql"
     measures:
       - name: measure1
         description: "First measure"
@@ -842,9 +828,7 @@ models:
         let models = parse_model_file(&multi_model_path)?;
         assert_eq!(models.len(), 2);
         assert_eq!(models[0].name, "model1");
-        assert_eq!(models[0].original_file_path, Some("models/model1.sql".to_string()));
         assert_eq!(models[1].name, "model2");
-        assert_eq!(models[1].original_file_path, Some("models/model2.sql".to_string()));
         
         Ok(())
     }
@@ -862,7 +846,6 @@ models:
             metrics: vec![],
             filters: vec![],
             relationships: vec![],
-            original_file_path: Some("m1.sql".to_string()),
         };
         
         let model2 = Model {
@@ -876,7 +859,6 @@ models:
             metrics: vec![],
             filters: vec![],
             relationships: vec![],
-            original_file_path: None,
         };
         
         let model3 = Model {
@@ -890,7 +872,6 @@ models:
             metrics: vec![],
             filters: vec![],
             relationships: vec![],
-            original_file_path: Some("path/to/m3.sql".to_string()),
         };
         
         let project_context = ProjectContext {
@@ -926,17 +907,14 @@ models:
         assert_eq!(resolved_models[0].data_source_name, Some("model1_ds".to_string()));
         assert_eq!(resolved_models[0].schema, Some("project_schema".to_string()));
         assert_eq!(resolved_models[0].database, Some("global_db".to_string()));
-        assert_eq!(resolved_models[0].original_file_path, Some("m1.sql".to_string()));
 
         assert_eq!(resolved_models[1].data_source_name, Some("project_ds".to_string()));
         assert_eq!(resolved_models[1].schema, Some("project_schema".to_string()));
         assert_eq!(resolved_models[1].database, Some("model2_db".to_string()));
-        assert_eq!(resolved_models[1].original_file_path, None);
         
         assert_eq!(resolved_models[2].data_source_name, Some("global_ds".to_string()));
         assert_eq!(resolved_models[2].schema, Some("global_schema".to_string()));
         assert_eq!(resolved_models[2].database, Some("global_db".to_string()));
-        assert_eq!(resolved_models[2].original_file_path, Some("path/to/m3.sql".to_string()));
         
         Ok(())
     }
@@ -977,7 +955,6 @@ models:
                     description: Some("Relationship to another model".to_string()),
                 }
             ],
-            original_file_path: Some("test_model.sql".to_string()),
         };
         
         let sql_content = "SELECT * FROM test_schema.test_model";
