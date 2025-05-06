@@ -52,8 +52,8 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Install cargo-bump
-        run: cargo install cargo-bump --locked
+      - name: Install cargo-edit
+        run: cargo install cargo-edit --locked
 
       - name: Configure Git
         run: |
@@ -132,10 +132,17 @@ jobs:
 
           # API Version Bump
           if [[ "$COMPONENT" == "all" || "$COMPONENT" == "api" ]]; then
-            echo "Bumping API version using spec: $VERSION_SPEC..."
+            echo "Processing API version using spec: $VERSION_SPEC..."
             cd api/server
             OLD_API_VERSION=$(grep '^version *=' Cargo.toml | sed 's/version *= *"\\(.*\\)"/\\1/')
-            cargo bump "$VERSION_SPEC"
+            if [[ "$VERSION_SPEC" == "major" || "$VERSION_SPEC" == "minor" || "$VERSION_SPEC" == "patch" ]]; then
+              echo "Bumping API version with --bump $VERSION_SPEC"
+              cargo set-version --bump "$VERSION_SPEC"
+            else
+              CLEANED_VERSION_SPEC=$(echo "$VERSION_SPEC" | sed 's/^v//')
+              echo "Setting API version to $CLEANED_VERSION_SPEC"
+              cargo set-version "$CLEANED_VERSION_SPEC"
+            fi
             NEW_API_VERSION=$(grep '^version *=' Cargo.toml | sed 's/version *= *"\\(.*\\)"/\\1/')
             echo "API: $OLD_API_VERSION -> $NEW_API_VERSION"
             cd ../..
@@ -152,6 +159,7 @@ jobs:
             echo "Bumping Web version using spec: $VERSION_SPEC..."
             cd web
             OLD_WEB_VERSION=$(jq -r .version package.json)
+            # npm version can handle bump types and specific versions directly
             npm version "$VERSION_SPEC" --no-git-tag-version --allow-same-version
             NEW_WEB_VERSION=$(jq -r .version package.json)
             echo "Web: $OLD_WEB_VERSION -> $NEW_WEB_VERSION"
@@ -166,10 +174,17 @@ jobs:
 
           # CLI Version Bump
           if [[ "$COMPONENT" == "all" || "$COMPONENT" == "cli" ]]; then
-            echo "Bumping CLI version using spec: $VERSION_SPEC..."
+            echo "Processing CLI version using spec: $VERSION_SPEC..."
             cd cli/cli
             OLD_CLI_VERSION=$(grep '^version *=' Cargo.toml | sed 's/version *= *"\\(.*\\)"/\\1/')
-            cargo bump "$VERSION_SPEC"
+            if [[ "$VERSION_SPEC" == "major" || "$VERSION_SPEC" == "minor" || "$VERSION_SPEC" == "patch" ]]; then
+              echo "Bumping CLI version with --bump $VERSION_SPEC"
+              cargo set-version --bump "$VERSION_SPEC"
+            else
+              CLEANED_VERSION_SPEC=$(echo "$VERSION_SPEC" | sed 's/^v//')
+              echo "Setting CLI version to $CLEANED_VERSION_SPEC"
+              cargo set-version "$CLEANED_VERSION_SPEC"
+            fi
             NEW_CLI_VERSION=$(grep '^version *=' Cargo.toml | sed 's/version *= *"\\(.*\\)"/\\1/')
             echo "CLI: $OLD_CLI_VERSION -> $NEW_CLI_VERSION"
             cd ../..
