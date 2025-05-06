@@ -23,7 +23,7 @@ pub struct ProjectContext {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>, // Optional name for the project
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub semantic_models_file: Option<String>, // Path to the semantic layer YAML for this project
+    pub semantic_model_paths: Option<Vec<String>>, // Paths to directories where semantic model YAML files (1:1 with SQL models) are stored
 }
 
 impl ProjectContext {

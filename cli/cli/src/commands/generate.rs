@@ -18,7 +18,7 @@ use glob::{Pattern};
 
 pub async fn generate_semantic_models_command(
     path_arg: Option<String>,
-    target_semantic_file_arg: Option<String>,
+    target_output_dir_arg: Option<String>,
 ) -> Result<()> {
     println!(
         "{}",
@@ -26,7 +26,7 @@ pub async fn generate_semantic_models_command(
     );
 
     // 1. Determine Buster configuration directory (where buster.yml is or should be)
-    // For now, assume current directory. This might need to be more sophisticated if target_semantic_file_arg implies a different project.
+    // For now, assume current directory. This might need to be more sophisticated if target_output_dir_arg implies a different project.
     let buster_config_dir = std::env::current_dir().context("Failed to get current directory")?;
 
     // 2. Load BusterConfig
@@ -43,46 +43,48 @@ pub async fn generate_semantic_models_command(
         }
     };
 
-    // 3. Determine target semantic YAML file path
-    let semantic_models_file_path_str = match target_semantic_file_arg {
-        Some(path_str) => path_str,
-        None => match buster_config.projects.as_ref().and_then(|projects| projects.first()) {
-            Some(project) => project.semantic_models_file.clone().unwrap_or_else(|| "models.yml".to_string()),
-            None => {
-                return Err(anyhow!(
-                    "No target semantic model file specified and 'semantic_models_file' not set in buster.yml. \nPlease use the --output-file option or configure buster.yml via 'buster init'."
-                ));
-            }
-        }
-    };
-    // Resolve the path: if it's absolute, use it. If relative, resolve from buster_config_dir.
-    let semantic_models_file_path = if Path::new(&semantic_models_file_path_str).is_absolute() {
-        PathBuf::from(&semantic_models_file_path_str)
+    // 3. Determine target semantic YAML base directory and generation mode
+    let mut is_side_by_side_generation = false;
+    let effective_semantic_models_base_dir: PathBuf; // Base for path construction
+
+    if let Some(path_str) = target_output_dir_arg {
+        // User specified an output directory via CLI arg. Not side-by-side.
+        effective_semantic_models_base_dir = if Path::new(&path_str).is_absolute() { 
+            PathBuf::from(path_str) 
+        } else { 
+            buster_config_dir.join(path_str) 
+        };
+        println!("Target semantic models base directory (from CLI arg): {}", effective_semantic_models_base_dir.display().to_string().cyan());
+        fs::create_dir_all(&effective_semantic_models_base_dir).with_context(|| format!("Failed to create semantic models base directory: {}", effective_semantic_models_base_dir.display()))?;
     } else {
-        buster_config_dir.join(&semantic_models_file_path_str)
-    };
+        // No CLI arg, check buster.yml config
+        let configured_semantic_paths = buster_config.projects.as_ref()
+            .and_then(|projs| projs.first())
+            .and_then(|proj| proj.semantic_model_paths.as_ref());
 
-    println!("Target semantic model file: {}", semantic_models_file_path.display().to_string().cyan());
-
-    // 4. Load existing semantic models from the target file (if it exists)
-    let mut existing_yaml_models_map: HashMap<String, YamlModel> = if semantic_models_file_path.exists() {
-        println!("Loading existing semantic models from {}", semantic_models_file_path.display());
-        let content = fs::read_to_string(&semantic_models_file_path)
-            .with_context(|| format!("Failed to read existing semantic model file: {}", semantic_models_file_path.display()))?;
-        
-        if content.trim().is_empty() {
-            println!("{}", "Existing semantic model file is empty.".yellow());
-            HashMap::new()
+        if configured_semantic_paths.map_or(true, |paths| paths.is_empty()) { // Default to side-by-side if None or empty list
+            is_side_by_side_generation = true;
+            effective_semantic_models_base_dir = buster_config_dir.clone(); // Project root is the base for side-by-side
+            println!("Semantic models will be generated side-by-side with SQL models (base: {}).", effective_semantic_models_base_dir.display().to_string().cyan());
+            // No specific single base directory to create for all YAMLs in this mode.
         } else {
-            let spec: YamlSemanticLayerSpec = serde_yaml::from_str(&content)
-                .with_context(|| format!("Failed to parse existing semantic model file: {}. Ensure it is a valid YAML with a top-level 'models:' key.", semantic_models_file_path.display()))?;
-            spec.models.into_iter().map(|m| (m.name.clone(), m)).collect()
+            // Configured path(s) exist, use the first one. Not side-by-side.
+            let first_path_str = configured_semantic_paths.unwrap().first().unwrap(); // Safe due to map_or and is_empty checks
+            effective_semantic_models_base_dir = if Path::new(first_path_str).is_absolute() { 
+                PathBuf::from(first_path_str) 
+            } else { 
+                buster_config_dir.join(first_path_str) 
+            };
+            println!("Target semantic models base directory (from buster.yml): {}", effective_semantic_models_base_dir.display().to_string().cyan());
+            fs::create_dir_all(&effective_semantic_models_base_dir).with_context(|| format!("Failed to create semantic models base directory: {}", effective_semantic_models_base_dir.display()))?;
         }
-    } else {
-        println!("{}", "No existing semantic model file found. Will generate a new one.".yellow());
-        HashMap::new()
-    };
-    let initial_model_count = existing_yaml_models_map.len();
+    }
+
+    // 4. Load existing semantic models - THIS LOGIC WILL CHANGE SIGNIFICANTLY.
+    // For now, we clear it as we load 1-to-1.
+    let mut existing_yaml_models_map: HashMap<String, YamlModel> = HashMap::new();
+
+    let initial_model_count = 0; // This will be re-evaluated based on files found
 
     // 5. Run dbt docs generate (similar to init.rs)
     let dbt_project_path = &buster_config_dir; // Assuming buster.yml is at the root of dbt project
@@ -153,14 +155,72 @@ pub async fn generate_semantic_models_command(
     let mut columns_updated_count = 0;
     let mut columns_removed_count = 0;
 
-    let mut processed_dbt_model_names: HashSet<String> = HashSet::new();
+    let mut processed_dbt_model_unique_ids: HashSet<String> = HashSet::new(); // Using unique_id for tracking
 
-    for (dbt_node_id, dbt_node) in dbt_catalog.nodes.iter().filter(|(_,n)| n.resource_type == "model") {
-        let dbt_model_name = dbt_node.metadata.name.clone();
-        processed_dbt_model_names.insert(dbt_model_name.clone());
+    // Get dbt model source roots for path stripping (similar to init.rs)
+    let dbt_project_file_content_for_paths = crate::commands::init::parse_dbt_project_file_content(&buster_config_dir)?;
+    let dbt_model_source_roots: Vec<PathBuf> = dbt_project_file_content_for_paths.as_ref()
+        .map(|content| content.model_paths.iter().map(PathBuf::from).collect())
+        .unwrap_or_else(|| vec![PathBuf::from("models")]);
 
-        // --- Scoping logic --- Apply path_arg and configured_model_path_patterns ---
-        let dbt_original_file_path_abs = buster_config_dir.join(&dbt_node.original_file_path);
+    for (dbt_node_id, dbt_node) in dbt_catalog.nodes.iter().filter(|(_,n)| {
+        match &n.resource_type {
+            Some(rt) => rt == "model",
+            None => {
+                eprintln!(
+                    "{}",
+                    format!(
+                        "Warning: Skipping dbt node with unique_id: {} because it is missing 'resource_type' in catalog.json.",
+                        n.unique_id
+                    ).yellow()
+                );
+                false
+            }
+        }
+    }) {
+        // Path construction for individual YAML
+        let Some(ref dbt_original_file_path_str) = dbt_node.original_file_path else {
+            eprintln!("{}", format!("Warning: Skipping dbt model {} due to missing 'original_file_path'.", dbt_node.unique_id).yellow());
+            continue;
+        };
+
+        let dbt_model_path_obj = Path::new(dbt_original_file_path_str);
+        let mut relative_to_dbt_model_root = PathBuf::new();
+        let mut found_base_for_stripping = false;
+        for dbt_source_root in &dbt_model_source_roots { // dbt_source_root is e.g. "models"
+            if let Ok(stripped_path) = dbt_model_path_obj.strip_prefix(dbt_source_root) {
+                relative_to_dbt_model_root = stripped_path.to_path_buf(); // e.g. "marts/sales/revenue.sql"
+                found_base_for_stripping = true;
+                break;
+            }
+        }
+        if !found_base_for_stripping {
+            // Fallback: if original_file_path_str didn't start with any known dbt_model_source_roots,
+            // then use original_file_path_str as is for the suffix part for dedicated dir mode.
+            // For side-by-side, the full original path is used anyway.
+            relative_to_dbt_model_root = dbt_model_path_obj.to_path_buf();
+            eprintln!("{}", format!(
+                    "Warning: Could not strip a known dbt model source root ('{:?}') from dbt model path '{}'. Using full path for suffix calculation: '{}'", 
+                    dbt_model_source_roots, dbt_original_file_path_str, relative_to_dbt_model_root.display()
+                ).yellow()
+            );
+        }
+        
+        let individual_semantic_yaml_path: PathBuf;
+        if is_side_by_side_generation {
+            // Side-by-side: YAML is next to SQL. dbt_original_file_path_str is relative to buster_config_dir.
+            individual_semantic_yaml_path = buster_config_dir.join(dbt_original_file_path_str).with_extension("yml");
+        } else {
+            // Dedicated output directory (effective_semantic_models_base_dir)
+            // relative_to_dbt_model_root is the path part after the dbt model source root (e.g. "marts/sales/revenue.sql")
+            let yaml_filename_with_subdir = relative_to_dbt_model_root.with_extension("yml"); // e.g. "marts/sales/revenue.yml"
+            individual_semantic_yaml_path = effective_semantic_models_base_dir.join(yaml_filename_with_subdir);
+        }
+
+        processed_dbt_model_unique_ids.insert(dbt_node.unique_id.clone()); // Store unique_id
+
+        // --- Scoping logic (remains similar, but applied before file load) ---
+        let dbt_original_file_path_abs = buster_config_dir.join(dbt_original_file_path_str);
         let is_in_configured_model_paths = configured_model_path_patterns.is_empty() || 
             configured_model_path_patterns.iter().any(|p| p.matches_path(&dbt_original_file_path_abs));
 
@@ -173,117 +233,156 @@ pub async fn generate_semantic_models_command(
                     dbt_original_file_path_abs.starts_with(&target_path_abs)
                 }
             }
-            None => true, // No path_arg, so all models (that match buster.yml model_paths) are in scope
+            None => true, 
         };
 
         if !is_in_configured_model_paths || !is_in_path_arg_scope {
-            // println!("Skipping dbt model {} (not in scope of generate command or buster.yml model_paths)", dbt_model_name.dimmed());
             continue;
         }
+
+        // Ensure metadata.name exists, as it's crucial for the semantic model name
+        let Some(ref dbt_model_name_for_yaml_from_metadata) = dbt_node.metadata.name else {
+            eprintln!(
+                "{}",
+                format!(
+                    "Warning: Skipping dbt model with unique_id: {} because its 'metadata.name' is missing in catalog.json.",
+                    dbt_node.unique_id
+                ).yellow()
+            );
+            continue;
+        };
+        let dbt_model_name_for_yaml = dbt_model_name_for_yaml_from_metadata.clone(); // Now safe to clone
+
         dbt_models_processed_count += 1;
         // --- End Scoping Logic ---
 
-        match existing_yaml_models_map.get_mut(&dbt_model_name) {
-            Some(mut existing_semantic_model) => {
+        let existing_semantic_model_opt: Option<YamlModel> = if individual_semantic_yaml_path.exists() {
+            match fs::read_to_string(&individual_semantic_yaml_path) {
+                Ok(content) => {
+                    match serde_yaml::from_str::<YamlModel>(&content) {
+                        Ok(model) => Some(model),
+                        Err(e) => {
+                            eprintln!("{}", format!("Warning: Failed to parse existing semantic YAML '{}': {}. Will attempt to overwrite.", individual_semantic_yaml_path.display(), e).yellow());
+                            None
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("{}", format!("Warning: Failed to read existing semantic YAML '{}': {}. Will attempt to create anew.", individual_semantic_yaml_path.display(), e).yellow());
+                    None
+                }
+            }
+        } else {
+            None
+        };
+
+        match existing_semantic_model_opt {
+            Some(mut existing_model) => {
                 // Existing model: Update it
                 let mut model_was_updated = false;
-                println!("Updating existing semantic model: {}", dbt_model_name.cyan());
+                println!("Updating existing semantic model: {} at {}", dbt_model_name_for_yaml.cyan(), individual_semantic_yaml_path.display());
 
-                // Update description if dbt comment exists and is different
-                if let Some(dbt_comment) = &dbt_node.metadata.comment {
-                    if existing_semantic_model.description.as_deref() != Some(dbt_comment.as_str()) {
-                        println!("  Updating description for model {}", dbt_model_name);
-                        existing_semantic_model.description = Some(dbt_comment.clone());
-                        model_was_updated = true;
-                    }
-                } // If dbt_comment is None, we keep user's existing description
-
-                // Update original_file_path
-                if existing_semantic_model.original_file_path.as_deref() != Some(dbt_node.original_file_path.as_str()) {
-                    existing_semantic_model.original_file_path = Some(dbt_node.original_file_path.clone());
+                if existing_model.name != dbt_model_name_for_yaml {
+                    // This might happen if filename and inner model name differ. We prioritize dbt_model_name_for_yaml.
+                    // Or if user manually changed name in YML. For now, dbt catalog is source of truth for name.
+                    println!("  Aligning name in YAML from '{}' to '{}'", existing_model.name, dbt_model_name_for_yaml);
+                    existing_model.name = dbt_model_name_for_yaml.clone();
                     model_was_updated = true;
                 }
 
-                // Update DB/Schema from dbt catalog if present
-                // ... (add logic for database/schema update based on dbt_node.database/schema) ...
+                if let Some(dbt_comment) = &dbt_node.metadata.comment {
+                    if existing_model.description.as_deref() != Some(dbt_comment.as_str()) {
+                        existing_model.description = Some(dbt_comment.clone());
+                        model_was_updated = true;
+                    }
+                } // Consider if dbt_comment=None should clear existing_model.description
+
+                if existing_model.original_file_path.as_deref() != Some(dbt_original_file_path_str.as_str()) {
+                    existing_model.original_file_path = Some(dbt_original_file_path_str.clone());
+                    model_was_updated = true;
+                }
+                // Update DB/Schema if different - dbt catalog is source of truth
+                if existing_model.database != dbt_node.database {
+                    existing_model.database = dbt_node.database.clone();
+                    model_was_updated = true;
+                }
+                if existing_model.schema != dbt_node.schema {
+                    existing_model.schema = dbt_node.schema.clone();
+                    model_was_updated = true;
+                }
 
                 // Reconcile columns
                 let mut current_dims: Vec<YamlDimension> = Vec::new();
                 let mut current_measures: Vec<YamlMeasure> = Vec::new();
                 let mut dbt_columns_map: HashMap<String, &DbtColumn> = dbt_node.columns.values().map(|c| (c.name.clone(), c)).collect();
 
-                // Process existing dimensions
-                for existing_dim in std::mem::take(&mut existing_semantic_model.dimensions) {
-                    if let Some(dbt_col) = dbt_columns_map.remove(&existing_dim.name) {
-                        let mut updated_dim = existing_dim.clone();
-                        let mut dim_updated = false;
+                for existing_dim_col in std::mem::take(&mut existing_model.dimensions) {
+                    if let Some(dbt_col) = dbt_columns_map.remove(&existing_dim_col.name) {
+                        let mut updated_dim = existing_dim_col.clone();
+                        let mut dim_col_updated = false;
                         if updated_dim.type_.as_deref() != Some(dbt_col.column_type.as_str()) {
                             updated_dim.type_ = Some(dbt_col.column_type.clone());
-                            dim_updated = true; columns_updated_count +=1;
+                            dim_col_updated = true; columns_updated_count +=1;
                         }
                         if let Some(dbt_col_comment) = &dbt_col.comment {
                             if updated_dim.description.as_deref() != Some(dbt_col_comment.as_str()) {
                                 updated_dim.description = Some(dbt_col_comment.clone());
-                                dim_updated = true; columns_updated_count +=1;
+                                dim_col_updated = true; columns_updated_count +=1;
                             }
                         } // else keep user's existing_dim.description
                         current_dims.push(updated_dim);
-                        if dim_updated { model_was_updated = true; }
+                        if dim_col_updated { model_was_updated = true; }
                     } else {
-                        println!("  Removing dimension '{}' from model '{}' (no longer in dbt model)", existing_dim.name.yellow(), dbt_model_name);
+                        println!("  Removing dimension '{}' from semantic model '{}' (no longer in dbt model)", existing_dim_col.name.yellow(), dbt_model_name_for_yaml);
                         columns_removed_count += 1; model_was_updated = true;
                     }
                 }
-                // Process existing measures (similar logic)
-                 for existing_measure in std::mem::take(&mut existing_semantic_model.measures) {
-                    if let Some(dbt_col) = dbt_columns_map.remove(&existing_measure.name) {
-                        let mut updated_measure = existing_measure.clone();
-                        let mut measure_updated = false;
+                for existing_measure_col in std::mem::take(&mut existing_model.measures) {
+                    if let Some(dbt_col) = dbt_columns_map.remove(&existing_measure_col.name) {
+                        let mut updated_measure = existing_measure_col.clone();
+                        let mut measure_col_updated = false;
                         if updated_measure.type_.as_deref() != Some(dbt_col.column_type.as_str()) {
                             updated_measure.type_ = Some(dbt_col.column_type.clone());
-                            measure_updated = true; columns_updated_count +=1;
+                            measure_col_updated = true; columns_updated_count +=1;
                         }
                         if let Some(dbt_col_comment) = &dbt_col.comment {
                            if updated_measure.description.as_deref() != Some(dbt_col_comment.as_str()) {
                                 updated_measure.description = Some(dbt_col_comment.clone());
-                                measure_updated = true; columns_updated_count +=1;
+                                measure_col_updated = true; columns_updated_count +=1;
                            }
                         } // else keep user's description
                         current_measures.push(updated_measure);
-                        if measure_updated { model_was_updated = true; }
+                        if measure_col_updated { model_was_updated = true; }
                     } else {
-                        println!("  Removing measure '{}' from model '{}' (no longer in dbt model)", existing_measure.name.yellow(), dbt_model_name);
+                        println!("  Removing measure '{}' from semantic model '{}' (no longer in dbt model)", existing_measure_col.name.yellow(), dbt_model_name_for_yaml);
                         columns_removed_count += 1; model_was_updated = true;
                     }
                 }
 
-                // Add new columns from dbt_node not yet processed
                 for (col_name, dbt_col) in dbt_columns_map {
-                    println!("  Adding new column '{}' to model '{}'", col_name.green(), dbt_model_name);
+                    println!("  Adding new column '{}' to semantic model '{}'", col_name.green(), dbt_model_name_for_yaml);
                     if is_measure_type(&dbt_col.column_type) {
-                        current_measures.push(YamlMeasure {
-                            name: dbt_col.name.clone(),
-                            description: dbt_col.comment.clone(),
-                            type_: Some(dbt_col.column_type.clone()),
-                        });
+                        current_measures.push(YamlMeasure { name: dbt_col.name.clone(), description: dbt_col.comment.clone(), type_: Some(dbt_col.column_type.clone()) });
                     } else {
-                        current_dims.push(YamlDimension {
-                            name: dbt_col.name.clone(),
-                            description: dbt_col.comment.clone(),
-                            type_: Some(dbt_col.column_type.clone()),
-                            searchable: false, // Default for new dimensions
-                            options: None,
-                        });
+                        current_dims.push(YamlDimension { name: dbt_col.name.clone(), description: dbt_col.comment.clone(), type_: Some(dbt_col.column_type.clone()), searchable: false, options: None });
                     }
                     columns_added_count += 1; model_was_updated = true;
                 }
-                existing_semantic_model.dimensions = current_dims;
-                existing_semantic_model.measures = current_measures;
-                if model_was_updated { models_updated_count += 1; }
+                existing_model.dimensions = current_dims;
+                existing_model.measures = current_measures;
+                
+                if model_was_updated {
+                    models_updated_count += 1;
+                    let yaml_string = serde_yaml::to_string(&existing_model).context(format!("Failed to serialize updated semantic model {} to YAML", existing_model.name))?;
+                    if let Some(parent_dir) = individual_semantic_yaml_path.parent() { fs::create_dir_all(parent_dir)?; }
+                    fs::write(&individual_semantic_yaml_path, yaml_string).context(format!("Failed to write updated semantic model to {}", individual_semantic_yaml_path.display()))?;
+                } else {
+                    println!("  No changes detected for semantic model: {}", dbt_model_name_for_yaml);
+                }
             }
             None => {
-                // New model: Generate from scratch
-                println!("Found new dbt model: {}. Generating semantic model definition.", dbt_model_name.green());
+                // New semantic model: Generate from scratch
+                println!("Generating new semantic model: {} at {}", dbt_model_name_for_yaml.green(), individual_semantic_yaml_path.display());
                 let mut dimensions = Vec::new();
                 let mut measures = Vec::new();
                 for (_col_name, col) in &dbt_node.columns {
@@ -294,22 +393,25 @@ pub async fn generate_semantic_models_command(
                     }
                 }
                 let new_model = YamlModel {
-                    name: dbt_model_name.clone(),
+                    name: dbt_model_name_for_yaml.clone(),
                     description: dbt_node.metadata.comment.clone(),
-                    data_source_name: None, // Will be resolved by deploy or could use buster_config defaults
+                    data_source_name: buster_config.projects.as_ref().and_then(|p|p.first()).and_then(|pc|pc.data_source_name.clone()), // Default from first project context
                     database: dbt_node.database.clone(),
                     schema: dbt_node.schema.clone(),
                     dimensions,
                     measures,
-                    original_file_path: Some(dbt_node.original_file_path.clone()),
+                    original_file_path: Some(dbt_original_file_path_str.clone()),
                 };
-                existing_yaml_models_map.insert(dbt_model_name, new_model);
+                let yaml_string = serde_yaml::to_string(&new_model).context(format!("Failed to serialize new semantic model {} to YAML", new_model.name))?;
+                if let Some(parent_dir) = individual_semantic_yaml_path.parent() { fs::create_dir_all(parent_dir)?; }
+                fs::write(&individual_semantic_yaml_path, yaml_string).context(format!("Failed to write new semantic model to {}", individual_semantic_yaml_path.display()))?;
                 new_models_added_count += 1;
             }
         }
     }
 
-    // Identify and remove models that are in semantic_models_file but no longer in dbt catalog (or not in scope)
+    // Remove or comment out the old logic for handling removed models from a single spec file
+    /*
     let mut removed_models_count = 0;
     existing_yaml_models_map.retain(|model_name: &String, _model: &mut YamlModel| {
         if processed_dbt_model_names.contains(model_name) {
@@ -320,27 +422,31 @@ pub async fn generate_semantic_models_command(
             false
         }
     });
+    */
 
-    // 8. Save updated semantic models
-    let final_models_vec: Vec<YamlModel> = existing_yaml_models_map.values().cloned().collect();
-    let updated_spec = YamlSemanticLayerSpec { models: final_models_vec };
-    
-    let yaml_string = serde_yaml::to_string(&updated_spec).context("Failed to serialize updated semantic models to YAML")?;
-    if let Some(parent_dir) = semantic_models_file_path.parent() {
-        fs::create_dir_all(parent_dir).with_context(|| format!("Failed to create directory for semantic models file: {}", parent_dir.display()))?;
-    }
-    fs::write(&semantic_models_file_path, yaml_string).with_context(|| format!("Failed to write updated semantic models to {}", semantic_models_file_path.display()))?;
+    // Remove the final save logic for the aggregated spec file
+    // let final_models_vec: Vec<YamlModel> = existing_yaml_models_map.values().cloned().collect();
+    // let updated_spec = YamlSemanticLayerSpec { models: final_models_vec };
+    // let yaml_string = serde_yaml::to_string(&updated_spec).context("Failed to serialize updated semantic models to YAML")?;
+    // fs::write(&semantic_models_base_dir_path, yaml_string).context(format!("Failed to write updated semantic models to {}", semantic_models_base_dir_path.display()))?;
+    // Note: The above fs::write was to semantic_models_base_dir_path which is a directory, this was an error in previous diff. It should have been semantic_models_file_path.
+    // Since we save per file, this block is removed.
 
     println!("\n{}", "Semantic Model Generation Summary:".bold().green());
     println!("  Processed dbt models (in scope): {}", dbt_models_processed_count);
     println!("  Semantic models initially loaded: {}", initial_model_count);
     println!("  New semantic models added: {}", new_models_added_count.to_string().green());
     println!("  Existing semantic models updated: {}", models_updated_count.to_string().cyan());
-    println!("  Semantic models removed (dbt model deleted/out of scope): {}", removed_models_count.to_string().red());
+    println!("  Semantic models removed (dbt model deleted/out of scope): {}", columns_removed_count.to_string().red());
     println!("  Columns added: {}", columns_added_count.to_string().green());
     println!("  Columns updated (type/dbt_comment): {}", columns_updated_count.to_string().cyan());
     println!("  Columns removed: {}", columns_removed_count.to_string().red());
-    println!("✓ Semantic models successfully updated at {}", semantic_models_file_path.display().to_string().green());
+    
+    if is_side_by_side_generation {
+        println!("✓ Semantic models successfully updated (side-by-side with SQL models, base directory: {}).", effective_semantic_models_base_dir.display().to_string().green());
+    } else {
+        println!("✓ Semantic models successfully updated in {}.", effective_semantic_models_base_dir.display().to_string().green());
+    }
 
     Ok(())
 } 

@@ -399,99 +399,122 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
     if let Some(ref cfg) = buster_config {
         if let Some(ref projects) = cfg.projects {
             for project_ctx in projects {
-                if let Some(ref semantic_models_file_str) = project_ctx.semantic_models_file {
-                    println!(
-                        "ℹ️  Using semantic_models_file for project '{}': {}",
-                        project_ctx.identifier().cyan(),
-                        semantic_models_file_str.cyan()
-                    );
-                    let semantic_spec_path = effective_buster_config_dir.join(semantic_models_file_str);
+                if let Some(ref semantic_model_dirs) = project_ctx.semantic_model_paths {
+                    for semantic_models_dir_str in semantic_model_dirs {
+                        println!(
+                            "ℹ️  Using semantic model directory for project '{}': {}",
+                            project_ctx.identifier().cyan(),
+                            semantic_models_dir_str.cyan()
+                        );
+                        let semantic_models_dir_path = effective_buster_config_dir.join(semantic_models_dir_str);
 
-                    if !semantic_spec_path.exists() {
-                        // Log error for this specific project and continue to next or fallback
-                        let error_msg = format!("Specified semantic_models_file not found for project '{}': {}", project_ctx.identifier(), semantic_spec_path.display());
-                        eprintln!("❌ {}", error_msg.red());
-                        result.failures.push((
-                            semantic_spec_path.to_string_lossy().into_owned(), 
-                            format!("project_{}", project_ctx.identifier()), 
-                            vec![format!("File not found: {}", semantic_spec_path.display())]
-                        ));
-                        continue; // Continue to the next project or fallback if this was the last one
-                    }
-
-                    progress.current_file = semantic_spec_path.to_string_lossy().into_owned();
-                    progress.status = format!("Loading semantic layer specification for project '{}'...", project_ctx.identifier());
-                    progress.log_progress();
-
-                    let spec = match parse_semantic_layer_spec(&semantic_spec_path) {
-                        Ok(s) => s,
-                        Err(e) => {
-                            progress.log_error(&format!("Failed to parse semantic layer spec for project '{}': {}", project_ctx.identifier(), e));
+                        if !semantic_models_dir_path.is_dir() {
+                            let error_msg = format!("Specified semantic model path is not a directory or does not exist for project '{}': {}", project_ctx.identifier(), semantic_models_dir_path.display());
+                            eprintln!("❌ {}", error_msg.red());
                             result.failures.push((
-                                progress.current_file.clone(), 
-                                format!("project_{}_spec_level", project_ctx.identifier()), 
-                                vec![e.to_string()]
+                                semantic_models_dir_path.to_string_lossy().into_owned(), 
+                                format!("project_{}_dir_not_found", project_ctx.identifier()), 
+                                vec![error_msg]
                             ));
-                            continue; // Continue to the next project or fallback
+                            continue; // Continue to the next directory or project
                         }
-                    };
-                    progress.total_files += spec.models.len(); // Accumulate total files
-                    processed_models_from_spec = true;
 
-                    // Resolve configurations for all models in the spec using the current project_ctx
-                    let models_with_context: Vec<(Model, Option<&ProjectContext>)> = spec.models.into_iter()
-                        .map(|m| (m, Some(project_ctx)))
-                        .collect();
-
-                    let resolved_models = match resolve_model_configurations(models_with_context, cfg) { // cfg is the global BusterConfig
-                        Ok(models) => models,
-                        Err(e) => {
-                            progress.log_error(&format!("Configuration resolution failed for spec in project '{}': {}", project_ctx.identifier(), e));
-                            result.failures.push((
-                                progress.current_file.clone(), 
-                                format!("project_{}_config_resolution", project_ctx.identifier()), 
-                                vec![e.to_string()]
-                            ));
-                            continue; // Continue to the next project or fallback
-                        }
-                    };
-
-                    for model in resolved_models {
-                        progress.processed += 1;
-                        progress.current_file = format!("{} (from {} in project '{}')", model.name, semantic_spec_path.file_name().unwrap_or_default().to_string_lossy(), project_ctx.identifier());
-                        progress.status = format!("Processing model '{}'", model.name);
-                        progress.log_progress();
-
-                        let sql_content = match get_sql_content_for_model(&model, &effective_buster_config_dir, &semantic_spec_path) {
-                            Ok(content) => content,
+                        // Scan this directory for .yml files
+                        // Using a temporary ExclusionManager as deploy_individual_yml_files does, or simplify if not needed here.
+                        let exclusion_manager = ExclusionManager::new(cfg).unwrap_or_else(|_| ExclusionManager::empty()); 
+                        let yml_files_in_dir = match find_yml_files(&semantic_models_dir_path, true, &exclusion_manager, Some(&mut progress)) { // Assuming recursive scan for now
+                            Ok(files) => files,
                             Err(e) => {
-                                progress.log_error(&format!("Failed to get SQL for model {}: {}", model.name, e));
-                                result.failures.push((progress.current_file.clone(),model.name.clone(),vec![e.to_string()]));
-                                continue;
+                                progress.log_error(&format!("Failed to scan for YML files in directory '{}' for project '{}': {}", semantic_models_dir_path.display(), project_ctx.identifier(), e));
+                                result.failures.push((
+                                    semantic_models_dir_path.to_string_lossy().into_owned(),
+                                    format!("project_{}_scan_failed", project_ctx.identifier()),
+                                    vec![e.to_string()]
+                                ));
+                                continue; // Next directory or project
                             }
                         };
+
+                        if yml_files_in_dir.is_empty() {
+                            println!("ℹ️  No .yml files found in directory: {}", semantic_models_dir_path.display());
+                            continue;
+                        }
                         
-                        model_mappings_final.push(ModelMapping { 
-                            file: semantic_spec_path.file_name().unwrap_or_default().to_string_lossy().into_owned(), 
-                            model_name: model.name.clone() 
-                        });
-                        deploy_requests_final.push(to_deploy_request(&model, sql_content));
-                        progress.log_success();
+                        processed_models_from_spec = true; // Mark that we are processing based on config
+                        progress.total_files += yml_files_in_dir.len();
+
+                        for yml_file_path in yml_files_in_dir {
+                            progress.current_file = yml_file_path.strip_prefix(&effective_buster_config_dir).unwrap_or(&yml_file_path).to_string_lossy().into_owned();
+                            progress.status = format!("Loading models from '{}' in project '{}'...", yml_file_path.file_name().unwrap_or_default().to_string_lossy(), project_ctx.identifier());
+                            progress.log_progress();
+
+                            let parsed_models = match parse_model_file(&yml_file_path) {
+                                Ok(m) => m,
+                                Err(e) => {
+                                    progress.log_error(&format!("Failed to parse model file '{}': {}", yml_file_path.display(), e));
+                                    result.failures.push((progress.current_file.clone(), "parse_failed".to_string(), vec![e.to_string()]));
+                                    continue;
+                                }
+                            };
+
+                            let models_with_context: Vec<(Model, Option<&ProjectContext>)> = parsed_models.into_iter()
+                                .map(|m| (m, Some(project_ctx)))
+                                .collect();
+
+                            let resolved_models = match resolve_model_configurations(models_with_context, cfg) {
+                                Ok(models) => models,
+                                Err(e) => {
+                                    progress.log_error(&format!("Config resolution for '{}': {}", yml_file_path.display(), e));
+                                    result.failures.push((progress.current_file.clone(), "config_resolution_failed".to_string(), vec![e.to_string()]));
+                                    continue;
+                                }
+                            };
+
+                            for model in resolved_models {
+                                progress.processed += 1;
+                                progress.current_file = format!("{} (from {} in project '{}')", model.name, yml_file_path.file_name().unwrap_or_default().to_string_lossy(), project_ctx.identifier());
+                                progress.status = format!("Processing model '{}'", model.name);
+                                progress.log_progress();
+
+                                let sql_content = match get_sql_content_for_model(&model, &effective_buster_config_dir, &yml_file_path) {
+                                    Ok(content) => content,
+                                    Err(e) => {
+                                        progress.log_error(&format!("Failed to get SQL for model {}: {}", model.name, e));
+                                        result.failures.push((progress.current_file.clone(),model.name.clone(),vec![e.to_string()]));
+                                        continue;
+                                    }
+                                };
+                                
+                                model_mappings_final.push(ModelMapping { 
+                                    file: yml_file_path.file_name().unwrap_or_default().to_string_lossy().into_owned(), 
+                                    model_name: model.name.clone() 
+                                });
+                                deploy_requests_final.push(to_deploy_request(&model, sql_content));
+                                progress.log_success();
+                            }
+                        }
                     }
-                } 
+                } else {
+                    // This project_ctx has no semantic_model_paths defined.
+                    // It will be handled by the fallback mechanism if no other projects define paths.
+                }
             }
         }
     }
 
     // --- FALLBACK or ADDITIONAL: Scan for individual .yml files --- 
-    // This runs if no semantic_models_file was processed from any project, 
-    // or to supplement if specific logic allows (currently, it runs if processed_models_from_spec is false).
     if !processed_models_from_spec {
-        if buster_config.as_ref().map_or(false, |cfg| cfg.projects.as_ref().map_or(false, |p| p.iter().any(|pc| pc.semantic_models_file.is_some()))) {
-            // This case means semantic_models_file was specified in some project but all failed to load/process.
-            println!("⚠️  A semantic_models_file was specified in buster.yml project(s) but failed to process. Now attempting to scan for individual .yml files.");
+        // Check if any project *attempted* to specify paths, to adjust message
+        let any_project_had_paths_configured = buster_config.as_ref().map_or(false, |cfg| 
+            cfg.projects.as_ref().map_or(false, |p_vec| 
+                p_vec.iter().any(|pc| pc.semantic_model_paths.as_ref().map_or(false, |paths| !paths.is_empty()))
+            )
+        );
+
+        if any_project_had_paths_configured {
+            println!("⚠️  Semantic model paths were specified in buster.yml project(s) but may have failed to yield models or directories were empty/inaccessible. Now attempting to scan for individual .yml files based on broader model_paths configuration.");
         } else if buster_config.is_some() {
-            println!("ℹ️  No semantic_models_file specified in any project in buster.yml. Falling back to scanning for individual .yml files.");
+            println!("ℹ️  No specific semantic_model_paths found or processed from projects in buster.yml. Falling back to scanning for individual .yml files based on model_paths.");
         } else {
              println!("ℹ️  No buster.yml loaded. Scanning current/target directory for individual .yml files.");
         }
@@ -879,7 +902,7 @@ models:
             exclude_tags: None,
             model_paths: None,
             name: Some("Test Project".to_string()),
-            semantic_models_file: None,
+            semantic_model_paths: None,
         };
         
         let global_config = BusterConfig {

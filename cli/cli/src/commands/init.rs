@@ -127,26 +127,27 @@ struct DbtModelGroupConfig {
 }
 
 #[derive(Debug, Deserialize, Clone, Default)]
-struct DbtProjectModelsBlock {
+pub struct DbtProjectModelsBlock {
     #[serde(flatten)]
     project_configs: HashMap<String, DbtModelGroupConfig>,
+}
+
+#[derive(Debug, Deserialize, Clone, Default)]
+pub struct DbtProjectFileContent {
+    name: Option<String>,
+    #[serde(rename = "model-paths", default = "default_model_paths")]
+    pub model_paths: Vec<String>,
+    #[serde(default)]
+    models: Option<DbtProjectModelsBlock>,
 }
 
 fn default_model_paths() -> Vec<String> {
     vec!["models".to_string()]
 }
 
-#[derive(Debug, Deserialize, Clone, Default)]
-struct DbtProjectFileContent {
-    name: Option<String>,
-    #[serde(rename = "model-paths", default = "default_model_paths")]
-    model_paths: Vec<String>,
-    #[serde(default)]
-    models: Option<DbtProjectModelsBlock>,
-}
-
 // Helper function to parse dbt_project.yml if it exists
-fn parse_dbt_project_file_content(base_dir: &Path) -> Result<Option<DbtProjectFileContent>> {
+// Make this function public so it can be called from generate.rs
+pub fn parse_dbt_project_file_content(base_dir: &Path) -> Result<Option<DbtProjectFileContent>> {
     let dbt_project_path = base_dir.join("dbt_project.yml");
     if dbt_project_path.exists() && dbt_project_path.is_file() {
         println!(
@@ -490,58 +491,66 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
         .with_default(true)
         .prompt()? 
     {
-        // Default directory for semantic models:
-        // Try to use the first model_path from the first project context, if available.
-        let default_semantic_models_dir = current_buster_config.projects.as_ref()
+        // Default directory for semantic models: "" for side-by-side
+        let default_semantic_models_dirs_str = current_buster_config.projects.as_ref()
             .and_then(|projs| projs.first())
-            .and_then(|proj| proj.model_paths.as_ref())
-            .and_then(|paths| paths.first())
-            .map(|p| Path::new(p).parent().unwrap_or_else(|| Path::new(p)).to_string_lossy().into_owned()) // Use parent of first model path, or the path itself
-            .unwrap_or_else(|| "./buster_semantic_models".to_string());
+            .and_then(|proj| proj.semantic_model_paths.as_ref())
+            .filter(|paths| !paths.is_empty()) // Only join if paths exist and are not empty
+            .map(|paths| paths.join(","))
+            .unwrap_or_else(String::new); // Default to empty string for side-by-side
 
+        let semantic_models_dirs_input_str = Text::new("Enter directory/directories for generated semantic model YAML files (comma-separated, leave empty for side-by-side with SQL files):")
+            .with_default(&default_semantic_models_dirs_str)
+            .with_help_message("Example: ./semantic_layer (for dedicated dir) or empty (for side-by-side)")
+            .prompt()?;
 
-        let semantic_models_dir_str = Text::new("Enter directory for generated semantic model YAML files:")
-            .with_default(&default_semantic_models_dir)
-            .with_help_message("Example: ./semantic_layer or ./models")
-            .prompt()?;
-        let semantic_models_filename_str = Text::new("Enter filename for the main semantic models YAML file:")
-            .with_default("models.yml") // Keep models.yml as a common default name
-            .with_help_message("Example: main_spec.yml or buster_models.yml")
-            .prompt()?;
-        
-        let semantic_output_path = PathBuf::from(&semantic_models_dir_str).join(&semantic_models_filename_str);
-        
-        // Ensure the output directory exists
-        if let Some(parent_dir) = semantic_output_path.parent() {
-            fs::create_dir_all(parent_dir).map_err(|e| {
-                anyhow!("Failed to create directory for semantic models YAML '{}': {}", parent_dir.display(), e)
+        let semantic_model_paths_vec = semantic_models_dirs_input_str
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .collect::<Vec<String>>();
+
+        // If semantic_model_paths_vec is empty, it implies side-by-side generation.
+        // No error here, this is a valid configuration.
+
+        if !semantic_model_paths_vec.is_empty() {
+            // Only create primary output directory if a specific path is given (not side-by-side)
+            let primary_semantic_models_dir_str = semantic_model_paths_vec.first().unwrap().clone(); // Must exist due to !is_empty()
+            let primary_semantic_output_dir_abs = dest_path.join(&primary_semantic_models_dir_str);
+            fs::create_dir_all(&primary_semantic_output_dir_abs).map_err(|e| {
+                anyhow!("Failed to create primary directory for semantic models YAML '{}': {}", primary_semantic_output_dir_abs.display(), e)
             })?;
-            println!("{} {}", "✓".green(), format!("Ensured directory exists: {}", parent_dir.display()).dimmed());
+            println!("{} {}", "✓".green(), format!("Ensured primary semantic model directory exists: {}", primary_semantic_output_dir_abs.display()).dimmed());
+        } else {
+            println!("{}", "Semantic models will be generated side-by-side with their SQL counterparts.".dimmed());
         }
 
-        let relative_semantic_path = match pathdiff::diff_paths(&semantic_output_path, &dest_path) {
-            Some(p) => p.to_string_lossy().into_owned(),
-            None => { 
-                eprintln!("{}", "Could not determine relative path for semantic models file. Using absolute path.".yellow());
-                semantic_output_path.to_string_lossy().into_owned()
+
+        // Store relative paths in the config
+        let relative_semantic_model_paths = semantic_model_paths_vec.iter().map(|p_str| {
+            let p_path = PathBuf::from(p_str);
+            match pathdiff::diff_paths(&p_path, &dest_path) {
+                Some(p) => p.to_string_lossy().into_owned(),
+                None => {
+                    eprintln!("{}", format!("Could not determine relative path for semantic model directory '{}'. Using path as is.", p_str).yellow());
+                    p_str.clone()
+                }
             }
-        };
+        }).collect::<Vec<String>>();
 
         // Store in the first project context
         if let Some(projects) = current_buster_config.projects.as_mut() {
             if let Some(first_project) = projects.first_mut() {
-                first_project.semantic_models_file = Some(relative_semantic_path.clone());
+                first_project.semantic_model_paths = Some(relative_semantic_model_paths.clone());
             } else {
-                // This case should ideally not happen if create_buster_config_file always creates a project
-                eprintln!("{}", "Warning: No project contexts found in buster.yml to store semantic_models_file path.".yellow());
-                // Optionally, create a default project here if necessary, or rely on create_buster_config_file to have done its job
+                eprintln!("{}", "Warning: No project contexts found in buster.yml to store semantic_model_paths.".yellow());
             }
         } else {
-             eprintln!("{}", "Warning: 'projects' array is None in buster.yml. Cannot store semantic_models_file path.".yellow());
+             eprintln!("{}", "Warning: 'projects' array is None in buster.yml. Cannot store semantic_model_paths.".yellow());
         }
         
-        current_buster_config.save(&config_path).map_err(|e| anyhow!("Failed to save buster.yml with semantic model path: {}", e))?;
-        println!("{} {} {}", "✓".green(), "Updated buster.yml with semantic_models_file path in the first project:".green(), relative_semantic_path.cyan());
+        current_buster_config.save(&config_path).map_err(|e| anyhow!("Failed to save buster.yml with semantic model paths: {}", e))?;
+        println!("{} {} {}: {}", "✓".green(), "Updated buster.yml with".green(), "semantic_model_paths".cyan(), relative_semantic_model_paths.join(", ").cyan());
 
         generate_semantic_models_from_dbt_catalog(&current_buster_config, &config_path, &dest_path).await?;
     }
@@ -552,59 +561,67 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
 
 // Helper function to manage the flow of semantic model generation
 async fn generate_semantic_models_flow(buster_config: &mut BusterConfig, config_path: &Path, buster_config_dir: &Path) -> Result<()> {
-    let default_dir = "./buster_semantic_models";
-    let default_file = "models.yml";
+    let default_dirs_str = String::new(); // Default to empty string for side-by-side
 
-    // Try to get defaults from the first project context's semantic_models_file
-    let (initial_dir, initial_file) = buster_config.projects.as_ref()
+    // Try to get defaults from the first project context's semantic_model_paths
+    let initial_dirs_str = buster_config.projects.as_ref()
         .and_then(|projs| projs.first())
-        .and_then(|proj| proj.semantic_models_file.as_ref())
-        .map(|p_str| {
-            let pth = Path::new(p_str);
-            let dir = pth.parent().and_then(|pp| pp.to_str()).unwrap_or(default_dir);
-            let file = pth.file_name().and_then(|f| f.to_str()).unwrap_or(default_file);
-            (dir.to_string(), file.to_string())
-        })
-        .unwrap_or((default_dir.to_string(), default_file.to_string()));
+        .and_then(|proj| proj.semantic_model_paths.as_ref())
+        .filter(|paths| !paths.is_empty()) // Only join if paths exist and are not empty
+        .map(|paths| paths.join(","))
+        .unwrap_or(default_dirs_str);
 
-    let semantic_models_dir_str = Text::new("Enter directory for generated semantic model YAML files:")
-        .with_default(&initial_dir)
-        .prompt()?;
-    let semantic_models_filename_str = Text::new("Enter filename for the main semantic models YAML file:")
-        .with_default(&initial_file)
+    let semantic_models_dirs_input_str = Text::new("Enter directory/directories for generated semantic model YAML files (comma-separated, leave empty for side-by-side):")
+        .with_default(&initial_dirs_str)
         .prompt()?;
     
-    let semantic_output_path = PathBuf::from(&semantic_models_dir_str).join(&semantic_models_filename_str);
+    let semantic_model_paths_vec = semantic_models_dirs_input_str
+        .split(',')
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<String>>();
 
-    // Ensure the output directory exists
-    if let Some(parent_dir) = semantic_output_path.parent() {
-        fs::create_dir_all(parent_dir).map_err(|e| {
-            anyhow!("Failed to create directory for semantic models YAML '{}': {}", parent_dir.display(), e)
+    // If semantic_model_paths_vec is empty, it implies side-by-side generation.
+    // No error here.
+
+    if !semantic_model_paths_vec.is_empty() {
+        let primary_semantic_models_dir_str = semantic_model_paths_vec.first().unwrap().clone(); 
+        let primary_semantic_output_dir_abs = buster_config_dir.join(&primary_semantic_models_dir_str);
+
+        // Ensure the primary output directory exists
+        fs::create_dir_all(&primary_semantic_output_dir_abs).map_err(|e| {
+            anyhow!("Failed to create primary directory for semantic models YAML '{}': {}", primary_semantic_output_dir_abs.display(), e)
         })?;
-         println!("{} {}", "✓".green(), format!("Ensured directory exists: {}", parent_dir.display()).dimmed());
+        println!("{} {}", "✓".green(), format!("Ensured primary semantic model directory exists: {}", primary_semantic_output_dir_abs.display()).dimmed());
+    } else {
+        println!("{}", "Semantic models will be generated side-by-side with their SQL counterparts.".dimmed());
     }
     
-    let relative_semantic_path = match pathdiff::diff_paths(&semantic_output_path, buster_config_dir) {
-        Some(p) => p.to_string_lossy().into_owned(),
-        None => {
-            eprintln!("{}", "Could not determine relative path for semantic models file. Using absolute path.".yellow());
-            semantic_output_path.to_string_lossy().into_owned()
+    // Store relative paths in the config
+    let relative_semantic_model_paths = semantic_model_paths_vec.iter().map(|p_str| {
+        let p_path = PathBuf::from(p_str);
+        match pathdiff::diff_paths(&p_path, buster_config_dir) {
+            Some(p) => p.to_string_lossy().into_owned(),
+            None => {
+                eprintln!("{}", format!("Could not determine relative path for semantic model directory '{}' relative to '{}'. Using path as is.", p_path.display(), buster_config_dir.display()).yellow());
+                p_str.clone()
+            }
         }
-    };
+    }).collect::<Vec<String>>();
 
     // Store in the first project context
     if let Some(projects) = buster_config.projects.as_mut() {
         if let Some(first_project) = projects.first_mut() {
-            first_project.semantic_models_file = Some(relative_semantic_path.clone());
+            first_project.semantic_model_paths = Some(relative_semantic_model_paths.clone());
         } else {
-            eprintln!("{}", "Warning: No project contexts found in buster.yml to update semantic_models_file path.".yellow());
+            eprintln!("{}", "Warning: No project contexts found in buster.yml to update semantic_model_paths.".yellow());
         }
     } else {
-        eprintln!("{}", "Warning: 'projects' array is None in buster.yml. Cannot update semantic_models_file path.".yellow());
+        eprintln!("{}", "Warning: 'projects' array is None in buster.yml. Cannot update semantic_model_paths.".yellow());
     }
 
-    buster_config.save(config_path).map_err(|e| anyhow!("Failed to save buster.yml with semantic model path: {}", e))?;
-    println!("{} {} {}", "✓".green(), "Updated buster.yml with semantic_models_file path in the first project:".green(), relative_semantic_path.cyan());
+    buster_config.save(config_path).map_err(|e| anyhow!("Failed to save buster.yml with semantic model paths: {}", e))?;
+    println!("{} {} {}: {}", "✓".green(), "Updated buster.yml with".green(), "semantic_model_paths".cyan(), relative_semantic_model_paths.join(", ").cyan());
 
     generate_semantic_models_from_dbt_catalog(buster_config, config_path, buster_config_dir).await
 }
@@ -613,18 +630,49 @@ async fn generate_semantic_models_flow(buster_config: &mut BusterConfig, config_
 // Placeholder for the main logic function
 async fn generate_semantic_models_from_dbt_catalog(
     buster_config: &BusterConfig,
-    _config_path: &Path, // Path to buster.yml (config_path is not directly used for choosing semantic_models_file anymore)
+    _config_path: &Path, // Path to buster.yml
     buster_config_dir: &Path, // Directory containing buster.yml, assumed dbt project root
 ) -> Result<()> {
     println!("{}", "Starting semantic model generation from dbt catalog...".dimmed());
 
-    // Get semantic_models_file from the first project context
-    let semantic_output_path_str = buster_config.projects.as_ref()
+    // Get the semantic model output configuration from the first project context
+    let project_semantic_model_paths_config = buster_config.projects.as_ref()
         .and_then(|projs| projs.first())
-        .and_then(|proj| proj.semantic_models_file.as_ref())
-        .ok_or_else(|| anyhow!("Semantic models file path not set in any project context within BusterConfig. This should have been prompted."))?;
+        .and_then(|proj| proj.semantic_model_paths.as_ref());
+
+    let is_side_by_side_generation = project_semantic_model_paths_config.map_or(true, |paths| paths.is_empty());
+
+    let path_construction_base_dir: PathBuf; // Base directory for constructing output paths
+
+    if is_side_by_side_generation {
+        path_construction_base_dir = buster_config_dir.to_path_buf(); // Project root is the base for side-by-side
+        println!("{}", format!("Semantic models will be generated side-by-side with SQL models (within '{}').", path_construction_base_dir.display()).dimmed());
+    } else {
+        // A specific directory (or directories) was configured for semantic models. Use the first one.
+        let primary_path_str = project_semantic_model_paths_config.unwrap().first().unwrap(); // Safe due to map_or check
+        path_construction_base_dir = buster_config_dir.join(primary_path_str);
+        println!("{}", format!("Semantic models will be generated in/under: {}", path_construction_base_dir.display()).dimmed());
+        // Ensure this specific output directory exists
+        fs::create_dir_all(&path_construction_base_dir).map_err(|e| {
+            anyhow!("Failed to create semantic models output directory '{}': {}", path_construction_base_dir.display(), e)
+        })?;
+    }
     
-    let semantic_output_path = buster_config_dir.join(semantic_output_path_str);
+    // Get dbt model source roots (e.g., ["models", "my_other_models"])
+    // These are paths relative to the dbt_project_path (buster_config_dir)
+    let dbt_project_content = parse_dbt_project_file_content(buster_config_dir)?;
+    let dbt_model_source_roots: Vec<PathBuf> = dbt_project_content.as_ref()
+        .map(|content| content.model_paths.iter().map(PathBuf::from).collect())
+        .unwrap_or_else(|| vec![PathBuf::from("models")]); // Default if not found
+
+    // Get defaults from the primary project context for model properties
+    let primary_project_context = buster_config.projects.as_ref().and_then(|p| p.first());
+    let default_data_source_name = primary_project_context
+        .and_then(|pc| pc.data_source_name.as_ref());
+    let default_database = primary_project_context
+        .and_then(|pc| pc.database.as_ref());
+    let default_schema = primary_project_context
+        .and_then(|pc| pc.schema.as_ref());
 
     let dbt_project_path = buster_config_dir;
     let catalog_json_path = dbt_project_path.join("target").join("catalog.json");
@@ -710,23 +758,52 @@ async fn generate_semantic_models_from_dbt_catalog(
     }
     // --- End Model Scoping Logic ---
 
-    let mut yaml_models: Vec<YamlModel> = Vec::new();
-    let primary_project_context = buster_config.projects.as_ref().and_then(|p| p.first());
-    
-    // These defaults are now primarily for the model properties themselves if not set in dbt,
-    // data_source_name should come from the project context more directly.
-    let default_data_source_name = primary_project_context
-        .and_then(|pc| pc.data_source_name.as_ref());
-    let default_database = primary_project_context
-        .and_then(|pc| pc.database.as_ref());
-    let default_schema = primary_project_context
-        .and_then(|pc| pc.schema.as_ref());
+    let mut yaml_models_generated_count = 0;
 
-    for (_node_id, node) in dbt_catalog.nodes.iter().filter(|(_id, n)| n.resource_type == "model") {
-        let original_file_path_abs = buster_config_dir.join(&node.original_file_path);
+    for (_node_id, node) in dbt_catalog.nodes.iter().filter(|(_id, n)| {
+        match &n.resource_type {
+            Some(rt) => rt == "model",
+            None => {
+                eprintln!(
+                    "{}",
+                    format!(
+                        "Warning: Skipping dbt node with unique_id: {} because it is missing 'resource_type' in catalog.json.",
+                        n.unique_id
+                    ).yellow()
+                );
+                false
+            }
+        }
+    }) {
+        let Some(ref original_file_path_str) = node.original_file_path else {
+            eprintln!(
+                "{}",
+                format!(
+                    "Warning: Skipping dbt model {} (unique_id: {}) because it is missing 'original_file_path' in catalog.json.", 
+                    node.name.as_deref().unwrap_or("[unknown name]"), // Use derived node.name if available
+                    node.unique_id
+                ).yellow()
+            );
+            continue;
+        };
+
+        // Ensure metadata.name exists, as it's crucial for the semantic model name
+        let Some(ref actual_model_name_from_metadata) = node.metadata.name else {
+            eprintln!(
+                "{}",
+                format!(
+                    "Warning: Skipping dbt model with unique_id: {} because its 'metadata.name' is missing in catalog.json.",
+                    node.unique_id
+                ).yellow()
+            );
+            continue;
+        };
+        let actual_model_name = actual_model_name_from_metadata.clone(); // Now safe to clone
+
+        let original_file_path_abs = buster_config_dir.join(original_file_path_str);
 
         let in_scope = if configured_model_path_patterns.is_empty() {
-            true // If no patterns, assume all models are in scope (or handle as error/warning)
+            true // If no patterns, assume all models are in scope
         } else {
             configured_model_path_patterns
                 .iter()
@@ -734,13 +811,13 @@ async fn generate_semantic_models_from_dbt_catalog(
         };
 
         if !in_scope {
-            println!("Skipping dbt model (not in configured model_paths): {}", node.unique_id.dimmed());
+            // Only log if verbose or similar, this can be noisy
+            // println!("Skipping dbt model (not in configured model_paths): {}", node.unique_id.dimmed());
             continue;
         }
         
-        println!("Processing dbt model: {}", node.unique_id.cyan());
+        println!("Processing dbt model for semantic layer: {}: {}", node.unique_id.cyan(), actual_model_name.cyan());
 
-        let actual_model_name = node.metadata.name.clone();
         let mut dimensions: Vec<YamlDimension> = Vec::new();
         let mut measures: Vec<YamlMeasure> = Vec::new();
 
@@ -756,59 +833,95 @@ async fn generate_semantic_models_from_dbt_catalog(
                     name: col.name.clone(),
                     description: col.comment.clone(),
                     type_: Some(col.column_type.clone()),
-                    searchable: false,
+                    searchable: false, // Default to false, user can change
                     options: None,
                 });
             }
         }
 
         let yaml_model = YamlModel {
-            name: actual_model_name,
-            description: node.metadata.comment.clone(),
+            name: actual_model_name, // This should be the model's identifier name
+            description: node.metadata.comment.clone(), // Use metadata.comment as the source for description
             data_source_name: default_data_source_name.cloned(),
             database: node.database.clone().or_else(|| default_database.cloned()),
             schema: node.schema.clone().or_else(|| default_schema.cloned()),
             dimensions,
             measures,
-            original_file_path: Some(node.original_file_path.clone()),
+            original_file_path: Some(original_file_path_str.clone()), // Keep original dbt model path for reference
         };
-        yaml_models.push(yaml_model);
+
+        // Determine the output path for this individual YAML model
+        let dbt_model_path = Path::new(original_file_path_str);
+        let mut stripped_model_path_suffix = PathBuf::new(); // e.g. "marts/sales/revenue.sql" if original is "models/marts/sales/revenue.sql"
+        let mut found_base_for_stripping = false;
+
+        for dbt_source_root in &dbt_model_source_roots { // dbt_source_root is like "models"
+            if let Ok(stripped_path) = dbt_model_path.strip_prefix(dbt_source_root) {
+                stripped_model_path_suffix = stripped_path.to_path_buf();
+                found_base_for_stripping = true;
+                break;
+            }
+        }
+
+        if !found_base_for_stripping {
+            // Fallback: if original_file_path_str didn't start with any known dbt_model_source_roots,
+            // (e.g. original_file_path_str is "marts/revenue.sql" and source_root is "models")
+            // then use original_file_path_str as is for the suffix part.
+            // This can happen if dbt_model_source_roots are not exhaustive or path is weird.
+            // The resulting YAML structure will still be relative to path_construction_base_dir.
+            stripped_model_path_suffix = dbt_model_path.to_path_buf();
+            eprintln!("{}", format!(
+                    "Warning: Could not strip a known dbt model source root ('{:?}') from dbt model path '{}'. Using full path for suffix: '{}'", 
+                    dbt_model_source_roots, original_file_path_str, stripped_model_path_suffix.display()
+                ).yellow()
+            );
+        }
+        
+        let output_yaml_path: PathBuf;
+        if is_side_by_side_generation {
+            // For side-by-side, output is next to the SQL file.
+            // original_file_path_str is relative to buster_config_dir (e.g., "models/marts/sales/revenue.sql")
+            // buster_config_dir is the dbt project root.
+            output_yaml_path = buster_config_dir.join(original_file_path_str).with_extension("yml");
+        } else {
+            // For dedicated output directory:
+            // path_construction_base_dir is the dedicated dir (e.g., "/path/to/project/buster_yamls")
+            // stripped_model_path_suffix is the path part after dbt source root (e.g., "marts/sales/revenue.sql")
+            let yaml_filename_with_subdir = stripped_model_path_suffix.with_extension("yml"); // e.g., "marts/sales/revenue.yml"
+            output_yaml_path = path_construction_base_dir.join(yaml_filename_with_subdir);
+        }
+
+        if let Some(parent_dir) = output_yaml_path.parent() {
+            fs::create_dir_all(parent_dir).map_err(|e| {
+                anyhow!("Failed to create directory for semantic model YAML '{}': {}", parent_dir.display(), e)
+            })?;
+        }
+
+        let yaml_string = serde_yaml::to_string(&yaml_model)
+            .map_err(|e| anyhow!("Failed to serialize semantic model '{}' to YAML: {}", yaml_model.name, e))?;
+        fs::write(&output_yaml_path, yaml_string)
+            .map_err(|e| anyhow!("Failed to write semantic model YAML for '{}' to '{}': {}", yaml_model.name, output_yaml_path.display(), e))?;
+
+        println!(
+            "{} Generated semantic model: {}",
+            "✓".green(),
+            output_yaml_path.display().to_string().cyan()
+        );
+        yaml_models_generated_count += 1;
     }
 
-    if yaml_models.is_empty() {
+    if yaml_models_generated_count == 0 {
         println!(
             "{}",
-            "No dbt models found matching configured paths in catalog.json. Skipping YAML file creation."
+            "No dbt models found matching configured paths in catalog.json, or no models in catalog. No semantic model YAML files generated."
                 .yellow()
         );
-        return Ok(());
+    } else {
+        println!(
+            "{}",
+            format!("Successfully generated {} semantic model YAML file(s).", yaml_models_generated_count).bold().green()
+        );
     }
-
-    let semantic_spec = YamlSemanticLayerSpec { models: yaml_models };
-    // The semantic_output_path is already determined above using project context's semantic_models_file
-    // let yaml_output_path_str = buster_config
-    //     .semantic_models_file // This top-level field is removed
-    //     .as_ref()
-    //     .ok_or_else(|| anyhow!("Semantic models file path not set in BusterConfig"))?;
-    // let semantic_output_path = buster_config_dir.join(yaml_output_path_str);
-
-
-    if let Some(parent_dir) = semantic_output_path.parent() {
-        fs::create_dir_all(parent_dir).map_err(|e| {
-            anyhow!("Failed to create directory for semantic models YAML '{}': {}", parent_dir.display(), e)
-        })?;
-    }
-
-    let yaml_string = serde_yaml::to_string(&semantic_spec)
-        .map_err(|e| anyhow!("Failed to serialize semantic models to YAML: {}", e))?;
-    fs::write(&semantic_output_path, yaml_string)
-        .map_err(|e| anyhow!("Failed to write semantic models YAML file: {}", e))?;
-
-    println!(
-        "{} {}",
-        "✓ Successfully generated semantic layer YAML at:".green(),
-        semantic_output_path.display().to_string().cyan()
-    );
 
     Ok(())
 }
@@ -937,7 +1050,7 @@ fn create_buster_config_file(
             model_paths: model_paths_vec,
             exclude_files: None,
             exclude_tags: None,
-            semantic_models_file: None, // Initialized as None, will be set later if user opts in
+            semantic_model_paths: None, // Initialized as None, will be set later if user opts in
         });
     }
 
@@ -949,7 +1062,6 @@ fn create_buster_config_file(
         exclude_tags: None,
         model_paths: None, // This top-level field is superseded by 'projects'
         projects: Some(project_contexts),
-        // semantic_models_file: None, // Removed from top-level
     };
 
     config.save(path)?;
@@ -1027,7 +1139,7 @@ fn build_contexts_recursive(
             model_paths: if model_globs_for_context.is_empty() { None } else { Some(model_globs_for_context) },
             exclude_files: None,
             exclude_tags: None,
-            semantic_models_file: None, // Initialized as None for contexts derived from dbt_project.yml
+            semantic_model_paths: None, // Initialized as None, will be set later if user opts in
         });
         println!("Generated project context: {} (Schema: {}, DB: {})", 
             context_name.cyan(), 
