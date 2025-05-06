@@ -7,13 +7,11 @@ use crate::utils::{
     config::{BusterConfig, ProjectContext},
     file::buster_credentials::get_and_validate_buster_credentials,
 };
-use super::auth::check_authentication;
+use crate::commands::auth::check_authentication;
 
 // Import the semantic layer models
 use semantic_layer::models::{Model, SemanticLayerSpec};
 
-#[cfg(test)]
-mod integration_tests;
 
 #[derive(Debug, Default)]
 pub struct DeployResult {

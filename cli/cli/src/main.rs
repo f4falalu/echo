@@ -141,7 +141,7 @@ async fn main() {
         } => {
             async move {
                 check_authentication().await?;
-                deploy(path.as_deref(), dry_run, recursive).await
+                commands::deploy::deploy(path.as_deref(), dry_run, recursive).await
             }
             .await
         } // Commands::Chat {
