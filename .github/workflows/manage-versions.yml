@@ -19,7 +19,7 @@ on:
         default: 'patch'
         type: string
   pull_request:
-    types: [closed] # Trigger only when a PR is closed
+    types: [opened] # Trigger only when a PR is opened
     branches:
       - evals # Target the 'evals' branch
 
@@ -29,8 +29,8 @@ permissions:
 jobs:
   bump_versions:
     runs-on: blacksmith
-    # Add a condition to run only if the PR was merged
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
+    # Updated condition to run if PR is opened or on workflow_dispatch
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action == 'opened')
     outputs:
       new_api_version: ${{ steps.bump.outputs.new_api_version }}
       new_web_version: ${{ steps.bump.outputs.new_web_version }}
