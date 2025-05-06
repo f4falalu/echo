@@ -84,16 +84,21 @@ pub fn is_false(val: &bool) -> bool {
 }
 
 // Helper function to determine if a SQL type should be a measure
-pub fn is_measure_type(sql_type: &str) -> bool {
-    let lower_sql_type = sql_type.to_lowercase();
-    lower_sql_type.contains("int") || 
-    lower_sql_type.contains("numeric") ||
-    lower_sql_type.contains("decimal") ||
-    lower_sql_type.contains("real") || 
-    lower_sql_type.contains("double") ||
-    lower_sql_type.contains("float") ||
-    lower_sql_type.contains("money") ||
-    lower_sql_type.contains("number")
+pub fn is_measure_type(sql_type_opt: Option<&str>) -> bool {
+    match sql_type_opt {
+        Some(sql_type) => {
+            let lower_sql_type = sql_type.to_lowercase();
+            lower_sql_type.contains("int") || 
+            lower_sql_type.contains("numeric") ||
+            lower_sql_type.contains("decimal") ||
+            lower_sql_type.contains("real") || 
+            lower_sql_type.contains("double") ||
+            lower_sql_type.contains("float") ||
+            lower_sql_type.contains("money") ||
+            lower_sql_type.contains("number")
+        }
+        None => false, // If type is missing, default to not a measure (dimension)
+    }
 }
 
 // Enum for Database Type selection (ensure only one definition, placed before use)
@@ -779,16 +784,25 @@ async fn generate_semantic_models_from_dbt_catalog(
             eprintln!(
                 "{}",
                 format!(
-                    "Warning: Skipping dbt model {} (unique_id: {}) because it is missing 'original_file_path' in catalog.json.", 
-                    node.name.as_deref().unwrap_or("[unknown name]"), // Use derived node.name if available
+                    "Warning: Skipping dbt model unique_id: {} because it is missing 'original_file_path' in catalog.json.",
                     node.unique_id
                 ).yellow()
             );
             continue;
         };
 
-        // Ensure metadata.name exists, as it's crucial for the semantic model name
-        let Some(ref actual_model_name_from_metadata) = node.metadata.name else {
+        // Ensure metadata and metadata.name exist, as it's crucial for the semantic model name
+        let Some(ref node_metadata) = node.metadata else {
+            eprintln!(
+                "{}",
+                format!(
+                    "Warning: Skipping dbt model with unique_id: {} because its 'metadata' block is missing in catalog.json.",
+                    node.unique_id
+                ).yellow()
+            );
+            continue;
+        };
+        let Some(ref actual_model_name_from_metadata) = node_metadata.name else {
             eprintln!(
                 "{}",
                 format!(
@@ -798,7 +812,7 @@ async fn generate_semantic_models_from_dbt_catalog(
             );
             continue;
         };
-        let actual_model_name = actual_model_name_from_metadata.clone(); // Now safe to clone
+        let actual_model_name = actual_model_name_from_metadata.clone();
 
         let original_file_path_abs = buster_config_dir.join(original_file_path_str);
 
@@ -821,33 +835,33 @@ async fn generate_semantic_models_from_dbt_catalog(
         let mut dimensions: Vec<YamlDimension> = Vec::new();
         let mut measures: Vec<YamlMeasure> = Vec::new();
 
-        for (_col_name, col) in &node.columns {
-            if is_measure_type(&col.column_type) {
+        for (_col_name, col) in &node.columns { // node.columns is HashMap, defaults to empty if missing
+            if is_measure_type(Some(col.column_type.as_str())) { // Assuming col.column_type is String here based on linter
                 measures.push(YamlMeasure {
-                    name: col.name.clone(),
-                    description: col.comment.clone(),
-                    type_: Some(col.column_type.clone()),
+                    name: col.name.clone(), 
+                    description: col.comment.clone(), 
+                    type_: Some(col.column_type.clone()), // Wrap in Some()
                 });
             } else {
                 dimensions.push(YamlDimension {
                     name: col.name.clone(),
                     description: col.comment.clone(),
-                    type_: Some(col.column_type.clone()),
-                    searchable: false, // Default to false, user can change
+                    type_: Some(col.column_type.clone()), // Wrap in Some()
+                    searchable: false, 
                     options: None,
                 });
             }
         }
 
         let yaml_model = YamlModel {
-            name: actual_model_name, // This should be the model's identifier name
-            description: node.metadata.comment.clone(), // Use metadata.comment as the source for description
+            name: actual_model_name.clone(),
+            description: node_metadata.comment.clone(), // Access comment via node_metadata ref
             data_source_name: default_data_source_name.cloned(),
-            database: node.database.clone().or_else(|| default_database.cloned()),
-            schema: node.schema.clone().or_else(|| default_schema.cloned()),
+            database: node.database.clone().or_else(|| default_database.cloned()), // node.database is Option<String>
+            schema: node.schema.clone().or_else(|| default_schema.cloned()),     // node.schema is Option<String>
             dimensions,
             measures,
-            original_file_path: Some(original_file_path_str.clone()), // Keep original dbt model path for reference
+            original_file_path: Some(original_file_path_str.clone()),
         };
 
         // Determine the output path for this individual YAML model

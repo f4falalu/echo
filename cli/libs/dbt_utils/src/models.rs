@@ -5,9 +5,11 @@ use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct DbtCatalog {
-    pub metadata: DbtCatalogMetadata,
+    #[serde(default)]
+    pub metadata: Option<DbtCatalogMetadata>,
+    #[serde(default)]
     pub nodes: HashMap<String, DbtNode>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub sources: Option<HashMap<String, DbtSource>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub macros: Option<HashMap<String, serde_json::Value>>,
@@ -29,8 +31,8 @@ pub struct DbtCatalog {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct DbtCatalogMetadata {
-    #[serde(rename = "dbt_schema_version")]
-    pub dbt_schema_version: String,
+    #[serde(rename = "dbt_schema_version", default)]
+    pub dbt_schema_version: Option<String>,
     #[allow(dead_code)] // If not used directly by Buster, but good for complete parsing
     pub dbt_version: Option<String>,
     #[allow(dead_code)]
@@ -47,7 +49,9 @@ pub struct DbtNode {
     // However, standard dbt catalog.json *does* have a metadata block within each node.
     // The example provided might be a slight simplification or custom representation.
     // Assuming standard catalog structure for now, where DbtNodeMetadata is a separate struct.
-    pub metadata: DbtNodeMetadata, 
+    #[serde(default)]
+    pub metadata: Option<DbtNodeMetadata>, 
+    #[serde(default)]
     pub columns: HashMap<String, DbtColumn>,
     #[serde(rename = "resource_type")] // if resource_type is not directly in JSON, this helps map if some other key exists
                                      // if type is the key in JSON for resource_type, then it should be:
@@ -84,13 +88,18 @@ pub struct DbtNodeMetadata {
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct DbtSource {
-    pub name: String, // This is the source's table name
+    #[serde(default)]
+    pub name: Option<String>, // This is the source's table name
     pub unique_id: String,
+    #[serde(default)]
     pub database: Option<String>,
+    #[serde(default)]
     pub schema: Option<String>,
     #[serde(default, alias = "resource_type")] // Sources have "source" as resource_type, or a specific table type.
     pub table_type: Option<String>, // e.g. "table", often not explicitly a 'type' field in catalog for sources, but implied.
+    #[serde(default)]
     pub columns: HashMap<String, DbtColumn>,
+    #[serde(default)]
     pub comment: Option<String>,
     pub stats: Option<serde_json::Value>,
     // Sources can also have a 'meta' field, 'tags', 'description', 'loader', 'freshness' etc.

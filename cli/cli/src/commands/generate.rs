@@ -240,18 +240,28 @@ pub async fn generate_semantic_models_command(
             continue;
         }
 
-        // Ensure metadata.name exists, as it's crucial for the semantic model name
-        let Some(ref dbt_model_name_for_yaml_from_metadata) = dbt_node.metadata.name else {
+        // Ensure metadata and metadata.name exist
+        let Some(ref dbt_node_metadata) = dbt_node.metadata else {
             eprintln!(
                 "{}",
                 format!(
-                    "Warning: Skipping dbt model with unique_id: {} because its 'metadata.name' is missing in catalog.json.",
+                    "Warning: Skipping dbt node with unique_id: {} in generate because its 'metadata' block is missing.",
                     dbt_node.unique_id
                 ).yellow()
             );
             continue;
         };
-        let dbt_model_name_for_yaml = dbt_model_name_for_yaml_from_metadata.clone(); // Now safe to clone
+        let Some(ref dbt_model_name_from_metadata) = dbt_node_metadata.name else {
+            eprintln!(
+                "{}",
+                format!(
+                    "Warning: Skipping dbt model with unique_id: {} in generate because its 'metadata.name' is missing.",
+                    dbt_node.unique_id
+                ).yellow()
+            );
+            continue;
+        };
+        let dbt_model_name_for_yaml = dbt_model_name_from_metadata.clone();
 
         dbt_models_processed_count += 1;
         // --- End Scoping Logic ---
@@ -290,7 +300,7 @@ pub async fn generate_semantic_models_command(
                     model_was_updated = true;
                 }
 
-                if let Some(dbt_comment) = &dbt_node.metadata.comment {
+                if let Some(dbt_comment) = &dbt_node_metadata.comment {
                     if existing_model.description.as_deref() != Some(dbt_comment.as_str()) {
                         existing_model.description = Some(dbt_comment.clone());
                         model_was_updated = true;
@@ -361,7 +371,7 @@ pub async fn generate_semantic_models_command(
 
                 for (col_name, dbt_col) in dbt_columns_map {
                     println!("  Adding new column '{}' to semantic model '{}'", col_name.green(), dbt_model_name_for_yaml);
-                    if is_measure_type(&dbt_col.column_type) {
+                    if crate::commands::init::is_measure_type(Some(dbt_col.column_type.as_str())) { // Assuming dbt_col.column_type is String
                         current_measures.push(YamlMeasure { name: dbt_col.name.clone(), description: dbt_col.comment.clone(), type_: Some(dbt_col.column_type.clone()) });
                     } else {
                         current_dims.push(YamlDimension { name: dbt_col.name.clone(), description: dbt_col.comment.clone(), type_: Some(dbt_col.column_type.clone()), searchable: false, options: None });
@@ -385,17 +395,27 @@ pub async fn generate_semantic_models_command(
                 println!("Generating new semantic model: {} at {}", dbt_model_name_for_yaml.green(), individual_semantic_yaml_path.display());
                 let mut dimensions = Vec::new();
                 let mut measures = Vec::new();
-                for (_col_name, col) in &dbt_node.columns {
-                    if is_measure_type(&col.column_type) {
-                        measures.push(YamlMeasure { name: col.name.clone(), description: col.comment.clone(), type_: Some(col.column_type.clone()) });
+                for (_col_name, col) in &dbt_node.columns { // dbt_node.columns defaults to empty if missing
+                    if crate::commands::init::is_measure_type(Some(col.column_type.as_str())) { // Assuming col.column_type is String
+                        measures.push(YamlMeasure { 
+                            name: col.name.clone(), 
+                            description: col.comment.clone(), 
+                            type_: Some(col.column_type.clone()) 
+                        });
                     } else {
-                        dimensions.push(YamlDimension { name: col.name.clone(), description: col.comment.clone(), type_: Some(col.column_type.clone()), searchable: false, options: None });
+                        dimensions.push(YamlDimension { 
+                            name: col.name.clone(), 
+                            description: col.comment.clone(), 
+                            type_: Some(col.column_type.clone()), 
+                            searchable: false, 
+                            options: None 
+                        });
                     }
                 }
                 let new_model = YamlModel {
                     name: dbt_model_name_for_yaml.clone(),
-                    description: dbt_node.metadata.comment.clone(),
-                    data_source_name: buster_config.projects.as_ref().and_then(|p|p.first()).and_then(|pc|pc.data_source_name.clone()), // Default from first project context
+                    description: dbt_node_metadata.comment.clone(), // Use dbt_node_metadata
+                    data_source_name: buster_config.projects.as_ref().and_then(|p|p.first()).and_then(|pc|pc.data_source_name.clone()),
                     database: dbt_node.database.clone(),
                     schema: dbt_node.schema.clone(),
                     dimensions,
