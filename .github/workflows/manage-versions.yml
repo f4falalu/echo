@@ -46,8 +46,14 @@ jobs:
         with:
           node-version: '20' # Specify a Node.js version
 
+      - name: Set up Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
       - name: Install cargo-bump
-        run: cargo install cargo-bump
+        run: cargo install cargo-bump --locked
 
       - name: Configure Git
         run: |
