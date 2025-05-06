@@ -1,0 +1,84 @@
+name: Docker Release
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  # Placeholder for Docker Hub username/organization
+  DOCKER_USERNAME: your-dockerhub-username 
+  API_IMAGE_NAME: api-service
+  WEB_IMAGE_NAME: web-service
+
+jobs:
+  build_and_push_api:
+    name: Build and Push API Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api
+          file: ./api/Dockerfile
+          push: true
+          tags: ${{ env.DOCKER_USERNAME }}/${{ env.API_IMAGE_NAME }}:latest
+          # You can add more tags, like git SHA:
+          # tags: |
+          #   ${{ env.DOCKER_USERNAME }}/${{ env.API_IMAGE_NAME }}:latest
+          #   ${{ env.DOCKER_USERNAME }}/${{ env.API_IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build_and_push_web:
+    name: Build and Push Web Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Web image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./web
+          file: ./web/Dockerfile
+          push: true
+          tags: ${{ env.DOCKER_USERNAME }}/${{ env.WEB_IMAGE_NAME }}:latest
+          # You can add more tags, like git SHA:
+          # tags: |
+          #   ${{ env.DOCKER_USERNAME }}/${{ env.WEB_IMAGE_NAME }}:latest
+          #   ${{ env.DOCKER_USERNAME }}/${{ env.WEB_IMAGE_NAME }}:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -9,6 +9,12 @@ pub struct SemanticLayerSpec {
 pub struct Model {
     pub name: String,
     pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data_source_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub database: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub schema: Option<String>,
     #[serde(default)] // Use default empty vec if missing
     pub dimensions: Vec<Dimension>,
     #[serde(default)]
@@ -17,8 +23,8 @@ pub struct Model {
     pub metrics: Vec<Metric>,
     #[serde(default)]
     pub filters: Vec<Filter>,
-    #[serde(default)]
-    pub entities: Vec<Entity>,
+    #[serde(rename = "entities", default)] // Added default
+    pub relationships: Vec<Relationship>,
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
@@ -45,7 +51,8 @@ pub struct Metric {
     pub name: String,
     pub expr: String,
     pub description: Option<String>,
-    pub args: Option<Vec<Argument>>, // 'args' is optional
+    #[serde(default)] // Changed from Option<Vec<Argument>>
+    pub args: Vec<Argument>,
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
@@ -53,7 +60,8 @@ pub struct Filter {
     pub name: String,
     pub expr: String,
     pub description: Option<String>,
-    pub args: Option<Vec<Argument>>, // 'args' is optional
+    #[serde(default)] // Changed from Option<Vec<Argument>>
+    pub args: Vec<Argument>,
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
@@ -65,7 +73,7 @@ pub struct Argument {
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
-pub struct Entity {
+pub struct Relationship {
     pub name: String,
     pub primary_key: String,
     pub foreign_key: String,
@@ -180,49 +188,53 @@ models:
         // Basic checks on the first model ('culture')
         let culture_model = &spec.models[0];
         assert_eq!(culture_model.name, "culture");
-        assert_eq!(culture_model.description, Some("Core model for cultural groups".to_string()));
+        assert_eq!(
+            culture_model.description,
+            Some("Core model for cultural groups".to_string())
+        );
         assert_eq!(culture_model.dimensions.len(), 2);
         assert_eq!(culture_model.measures.len(), 1);
         assert_eq!(culture_model.filters.len(), 1);
         assert_eq!(culture_model.metrics.len(), 1);
-        assert_eq!(culture_model.entities.len(), 3);
+        assert_eq!(culture_model.relationships.len(), 3);
 
         // Check dimension 'name' options
         let name_dim = &culture_model.dimensions[1];
         assert_eq!(name_dim.name, "name");
-        assert_eq!(name_dim.options, Some(vec!["Western".to_string(), "Eastern".to_string()]));
+        assert_eq!(
+            name_dim.options,
+            Some(vec!["Western".to_string(), "Eastern".to_string()])
+        );
         assert!(!name_dim.searchable); // Default false
 
-         // Check filter 'active_subscribed_customer' args
+        // Check filter 'active_subscribed_customer' args
         let filter = &culture_model.filters[0];
         assert_eq!(filter.name, "active_subscribed_customer");
-        assert!(filter.args.is_some());
-        let filter_args = filter.args.as_ref().unwrap();
+        assert!(!filter.args.is_empty());
+        let filter_args = &filter.args;
         assert_eq!(filter_args.len(), 1);
         assert_eq!(filter_args[0].name, "threshold");
         assert_eq!(filter_args[0].type_, "integer");
 
-
         // Check entity 'logins' type and cardinality
-        let logins_entity = &culture_model.entities[0];
+        let logins_entity = &culture_model.relationships[0];
         assert_eq!(logins_entity.name, "logins");
         assert_eq!(logins_entity.type_, Some("LEFT".to_string()));
         assert_eq!(logins_entity.cardinality, Some("one-to-many".to_string()));
 
         // Check entity 'subscriptions' type and cardinality (optional)
-         let subs_entity = &culture_model.entities[1];
-         assert_eq!(subs_entity.name, "subscriptions");
-         assert_eq!(subs_entity.type_, None);
-         assert_eq!(subs_entity.cardinality, Some("one-to-one".to_string()));
+        let subs_entity = &culture_model.relationships[1];
+        assert_eq!(subs_entity.name, "subscriptions");
+        assert_eq!(subs_entity.type_, None);
+        assert_eq!(subs_entity.cardinality, Some("one-to-one".to_string()));
 
         // Check second model ('logins')
         let logins_model = &spec.models[1];
         assert_eq!(logins_model.name, "logins");
         assert_eq!(logins_model.dimensions.len(), 1);
-         assert_eq!(logins_model.measures.len(), 1);
-         assert_eq!(logins_model.filters.len(), 0); // Default empty vec
-         assert_eq!(logins_model.metrics.len(), 0); // Default empty vec
-         assert_eq!(logins_model.entities.len(), 1);
-
+        assert_eq!(logins_model.measures.len(), 1);
+        assert_eq!(logins_model.filters.len(), 0); // Default empty vec
+        assert_eq!(logins_model.metrics.len(), 0); // Default empty vec
+        assert_eq!(logins_model.relationships.len(), 1);
     }
-} 
+}
