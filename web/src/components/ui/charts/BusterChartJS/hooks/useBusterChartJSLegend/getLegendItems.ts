@@ -51,9 +51,9 @@ export const getLegendItems = ({
 
   return datasets.map<BusterChartLegendItem>((dataset, index) => ({
     color: colors[index % colors.length],
-    inactive: inactiveDatasets[dataset.label!],
+    inactive: dataset.label ? inactiveDatasets[dataset.label] : false,
     type: getType(isComboChart, globalType, dataset, columnSettings),
-    formattedName: formatLabel(dataset.label!, columnLabelFormats[dataset.yAxisKey], true),
+    formattedName: dataset.label as string,
     id: dataset.label!,
     data: dataset.data,
     yAxisKey: dataset.yAxisKey
