@@ -5,10 +5,12 @@ const logsRoute = createBusterRoute({
   route: BusterRoutes.APP_LOGS
 });
 
-test.skip('Can navigate to a metric chart from the metric list', async ({ page }) => {
+test('Can navigate to a metric chart from the logs list', async ({ page }) => {
   await page.goto('http://localhost:3000/app/home');
   await page.getByRole('link', { name: 'Logs' }).click();
-  await expect(page.getByText('Name')).toBeVisible();
+  await page.waitForTimeout(1000);
+  await page.waitForSelector('text=Name', { timeout: 30000 });
+  await expect(page.getByText('Name', { exact: true })).toBeVisible({ timeout: 30000 });
 
   await page.locator('.list-container').getByRole('link').first().click();
 

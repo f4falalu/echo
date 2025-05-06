@@ -13,6 +13,7 @@ members = [
     "libs/email",
     "libs/stored_values",
     "libs/semantic_layer",
+    "libs/raindrop",
 ]
 resolver = "2"
 
