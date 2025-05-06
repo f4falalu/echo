@@ -1,20 +1,55 @@
 name: Docker Release
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
       - main
 
 env:
-  # Placeholder for Docker Hub username/organization
-  DOCKER_USERNAME: your-dockerhub-username 
+  # Placeholder for Docker Hub username/organization or GHCR owner
+  DOCKER_REGISTRY_OWNER: your-docker-registry-owner 
   API_IMAGE_NAME: api-service
   WEB_IMAGE_NAME: web-service
 
 jobs:
+  detect-changes:
+    name: Detect Changed Files
+    runs-on: ubuntu-latest
+    outputs:
+      api_changed: ${{ steps.changed-files-api.outputs.any_changed }}
+      web_changed: ${{ steps.changed-files-web.outputs.any_changed }}
+      workflow_changed: ${{ steps.changed-files-workflow.outputs.any_changed }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for tj-actions/changed-files to diff correctly on PRs
+
+      - name: Get changed files for API
+        id: changed-files-api
+        uses: tj-actions/changed-files@v44
+        with:
+          files: api/**
+
+      - name: Get changed files for Web
+        id: changed-files-web
+        uses: tj-actions/changed-files@v44
+        with:
+          files: web/**
+
+      - name: Get changed files for Workflow
+        id: changed-files-workflow
+        uses: tj-actions/changed-files@v44
+        with:
+          files: .github/workflows/docker-release.yml
+
   build_and_push_api:
     name: Build and Push API Image
-    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: github.event.pull_request.merged == true && (needs.detect-changes.outputs.api_changed == 'true' || needs.detect-changes.outputs.workflow_changed == 'true')
+    runs-on: blacksmith-32vcpu-ubuntu-2204 # Updated runner
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,11 +60,23 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
+      - name: Extract API version from Cargo.toml
+        id: api_version
+        run: |
+          VERSION=$(grep '^version *=' api/Cargo.toml | sed 's/version *= *\"\(.*\)\"/\1/')
+          if [ -z "$VERSION" ]; then
+            echo "Version not found in api/Cargo.toml or format is incorrect."
+            VERSION="unknown" # Fallback or fail: exit 1
+          fi
+          echo "API_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "api_version=$VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Log in to Docker Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }} # Or your registry specific username e.g., ${{ github.actor }} for GHCR
+          password: ${{ secrets.DOCKERHUB_TOKEN }}   # Or your registry specific token e.g., ${{ secrets.GITHUB_TOKEN }} for GHCR
 
       - name: Build and push API image
         uses: docker/build-push-action@v5
@@ -37,17 +84,18 @@ jobs:
           context: ./api
           file: ./api/Dockerfile
           push: true
-          tags: ${{ env.DOCKER_USERNAME }}/${{ env.API_IMAGE_NAME }}:latest
-          # You can add more tags, like git SHA:
-          # tags: |
-          #   ${{ env.DOCKER_USERNAME }}/${{ env.API_IMAGE_NAME }}:latest
-          #   ${{ env.DOCKER_USERNAME }}/${{ env.API_IMAGE_NAME }}:${{ github.sha }}
+          tags: |
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ steps.api_version.outputs.api_version }}
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   build_and_push_web:
     name: Build and Push Web Image
-    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: github.event.pull_request.merged == true && (needs.detect-changes.outputs.web_changed == 'true' || needs.detect-changes.outputs.workflow_changed == 'true')
+    runs-on: blacksmith-32vcpu-ubuntu-2204 # Updated runner
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -58,11 +106,30 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
+      - name: Extract Web version from package.json
+        id: web_version
+        run: |
+          # Ensure Node.js is available for jq or other tools if needed, or use grep/sed
+          # Using jq for robustness if available, otherwise fallback or install
+          if command -v jq &> /dev/null; then
+            VERSION=$(jq -r .version web/package.json)
+          else
+            # Fallback using grep/sed - less robust
+            VERSION=$(grep '"version":' web/package.json | sed -E 's/.*"version": *"([^"]+)".*/\1/' | head -n 1)
+          fi
+          if [ -z "$VERSION" ] || [ "$VERSION" == "null" ]; then
+            echo "Version not found in web/package.json or format is incorrect."
+            VERSION="unknown" # Fallback or fail: exit 1
+          fi
+          echo "WEB_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "web_version=$VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Log in to Docker Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }} # Or your registry specific username
+          password: ${{ secrets.DOCKERHUB_TOKEN }}   # Or your registry specific token
 
       - name: Build and push Web image
         uses: docker/build-push-action@v5
@@ -70,11 +137,10 @@ jobs:
           context: ./web
           file: ./web/Dockerfile
           push: true
-          tags: ${{ env.DOCKER_USERNAME }}/${{ env.WEB_IMAGE_NAME }}:latest
-          # You can add more tags, like git SHA:
-          # tags: |
-          #   ${{ env.DOCKER_USERNAME }}/${{ env.WEB_IMAGE_NAME }}:latest
-          #   ${{ env.DOCKER_USERNAME }}/${{ env.WEB_IMAGE_NAME }}:${{ github.sha }}
+          tags: |
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ steps.web_version.outputs.web_version }}
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:latest
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
             NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}

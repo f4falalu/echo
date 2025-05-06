@@ -92,7 +92,7 @@ graph TD
     *   *Concurrency: This is foundational and should be completed or largely stabilized first.*
 
 2.  **CLI Configuration & Discovery** ([prd_cli_config_and_discovery.md](prd_cli_config_and_discovery.md))
-    *   Purpose: Update `BusterConfig` to support a `projects` structure. Modify model discovery logic to use these project paths and adhere to the "search down" rule for `buster.yml`.
+    *   Purpose: Update `BusterConfig` to support a `projects` structure. Modify model discovery logic to use these project paths and adhere to the "search down" rule for `buster.yml`
     *   Dependencies: Semantic Model Definition (for understanding model file structure)
     *   Required for: CLI Deployment Logic
     *   Status: 🆕 Not Started

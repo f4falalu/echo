@@ -1101,6 +1101,7 @@ fn create_buster_config_file(
         model_paths: model_paths_vec,
         exclude_files: None, // Keep excludes at top-level for now, or handle differently?
         exclude_tags: None,  // Decide if these should be part of context or remain top-level
+        name: Some("Main Project".to_string()), // Add a default name for the main project
     };
 
     let config = BusterConfig {

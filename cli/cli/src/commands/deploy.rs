@@ -1,11 +1,9 @@
 use anyhow::Result;
-use regex;
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use tokio::task;
-use walkdir::WalkDir;
 
 use crate::utils::{find_yml_files, ExclusionManager, ProgressTracker};
 use crate::utils::{
@@ -16,7 +14,7 @@ use crate::utils::{
         BusterClient, DeployDatasetsColumnsRequest, DeployDatasetsEntityRelationshipsRequest,
         DeployDatasetsRequest,
     },
-    config::BusterConfig,
+    config::{BusterConfig, ProjectContext},
     file::buster_credentials::get_and_validate_buster_credentials,
 };
 use super::auth::check_authentication;
@@ -441,20 +439,25 @@ impl ModelFile {
         &self,
         model: &Model,
         config: Option<&BusterConfig>,
+        project_context: Option<&ProjectContext>,
     ) -> (Option<String>, Option<String>, Option<String>) {
-        let data_source_name = model
-            .data_source_name
-            .clone()
+        // Model values have highest precedence
+        // Then project context values if available
+        // Then global config values
+        
+        // Resolve data_source_name
+        let data_source_name = model.data_source_name.clone()
+            .or_else(|| project_context.and_then(|p| p.data_source_name.clone()))
             .or_else(|| config.and_then(|c| c.data_source_name.clone()));
 
-        let schema = model
-            .schema
-            .clone()
+        // Resolve schema
+        let schema = model.schema.clone()
+            .or_else(|| project_context.and_then(|p| p.schema.clone()))
             .or_else(|| config.and_then(|c| c.schema.clone()));
 
-        let database = model
-            .database
-            .clone()
+        // Resolve database
+        let database = model.database.clone()
+            .or_else(|| project_context.and_then(|p| p.database.clone()))
             .or_else(|| config.and_then(|c| c.database.clone()));
 
         (data_source_name, schema, database)
@@ -500,9 +503,20 @@ impl ModelFile {
             })
             .collect();
 
-        // Resolve configuration with global config
+        // Resolve configuration with global config and project context
+        let project_context = if let Some(config) = &self.config {
+            if let Some(yml_dir) = self.yml_path.parent() {
+                // Determine the appropriate project context, if any
+                config.get_context_for_path(&self.yml_path, yml_dir)
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+        
         let (data_source_name, schema, database) =
-            self.resolve_model_config(model, self.config.as_ref());
+            self.resolve_model_config(model, self.config.as_ref(), project_context);
 
         // Unwrap with error if missing - this should never happen since we validate earlier
         let data_source_name = data_source_name.expect("data_source_name missing after validation");
@@ -799,8 +813,17 @@ impl ModelFile {
             }
         }
 
-        // Fall back to global config
+        // Try to get data source from project context if applicable
         if let Some(config) = config {
+            if let Some(yml_dir) = self.yml_path.parent() {
+                if let Some(project_context) = config.get_context_for_path(&self.yml_path, yml_dir) {
+                    if let Some(ds) = &project_context.data_source_name {
+                        return Ok(ds.clone());
+                    }
+                }
+            }
+            
+            // Fall back to global config
             if let Some(ds) = &config.data_source_name {
                 return Ok(ds.clone());
             }
@@ -808,9 +831,9 @@ impl ModelFile {
 
         Err(vec![ValidationError {
             error_type: ValidationErrorType::InvalidBusterYml,
-            message: "No data_source_name found in model or buster.yml".to_string(),
+            message: "No data_source_name found in model, project context, or global buster.yml".to_string(),
             column_name: None,
-            suggestion: Some("Add data_source_name to your model or buster.yml".to_string()),
+            suggestion: Some("Add data_source_name to your model, project context, or global configuration in buster.yml".to_string()),
         }])
     }
 }
@@ -874,21 +897,53 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
 
     let yml_files = if recursive {
         println!("Recursively searching for model files...");
-        // Use the config's model_paths if available, otherwise use the target path
+        
         if let Some(config) = &config {
-            let model_paths = config.resolve_model_paths(&target_path);
-            if !model_paths.is_empty() {
-                println!("Using model_paths from buster.yml: {:?}", model_paths);
-                find_yml_files_recursively(&target_path, Some(config), Some(&mut progress))?
+            // Get effective search paths with their project contexts
+            let effective_paths = config.resolve_effective_model_paths(&target_path);
+            
+            if !effective_paths.is_empty() {
+                // Log the paths we're going to search
+                println!("ℹ️  Using effective model paths from buster.yml:");
+                for (path, project_ctx) in &effective_paths {
+                    if let Some(project) = project_ctx {
+                        println!("   - {} (from project: {})", path.display(), project.identifier());
+                    } else {
+                        println!("   - {} (from global configuration)", path.display());
+                    }
+                }
+                
+                // Find yml files in all paths
+                let mut all_files = Vec::new();
+                
+                for (path, _project_ctx) in effective_paths {
+                    if path.is_dir() {
+                        println!("   Scanning directory: {}", path.display());
+                        let files = find_yml_files(&path, true, &exclusion_manager, Some(&mut progress))?;
+                        println!("   Found {} model files in {}", files.len(), path.display());
+                        all_files.extend(files);
+                    } else if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("yml") {
+                        if path.file_name().and_then(|name| name.to_str()) != Some("buster.yml") {
+                            println!("   Using direct model file: {}", path.display());
+                            all_files.push(path);
+                        }
+                    } else {
+                        println!("   Path not found or not a valid directory/file: {}", path.display());
+                    }
+                }
+                
+                all_files
             } else {
-                println!("No model_paths specified in buster.yml, using target path");
+                println!("No model paths found in buster.yml configuration, using target path");
                 find_yml_files_recursively(&target_path, None, Some(&mut progress))?
             }
         } else {
+            println!("No buster.yml found, searching recursively in target path");
             find_yml_files_recursively(&target_path, None, Some(&mut progress))?
         }
     } else {
         // Non-recursive mode - only search in the specified directory
+        println!("Using non-recursive search mode - only looking in specified directory");
         std::fs::read_dir(&target_path)?
             .filter_map(|entry| entry.ok())
             .filter(|entry| {
@@ -982,7 +1037,7 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
         // Process each model in the file
         for model in &model_file.model.models {
             let (data_source_name, schema, database) =
-                model_file.resolve_model_config(model, config.as_ref());
+                model_file.resolve_model_config(model, config.as_ref(), None);
 
             if data_source_name.is_none() {
                 progress.log_error(&format!(
