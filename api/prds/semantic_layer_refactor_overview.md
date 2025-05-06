@@ -110,7 +110,7 @@ graph TD
     *   Purpose: Refactor `cli/cli/src/commands/deploy.rs` to parse YAML models using the new semantic layer structs. Implement logic to resolve `database` and `schema` (model file -> project config -> global config). Construct the API request payload based on the semantic model.
     *   Dependencies: Semantic Model Definition, CLI Configuration & Discovery
     *   Required for: End-to-end testing of CLI deployment
-    *   Status: 🆕 Not Started
+    *   Status: ✅ Completed
     *   *Concurrency: Depends on completion of both Phase 1 PRDs.*
 
 4.  **API Request Handling** ([prd_api_request_handling.md](prd_api_request_handling.md))

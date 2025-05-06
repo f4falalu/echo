@@ -139,38 +139,38 @@ fn resolve_model_configurations(
 ```
 
 #### Implementation Steps
-1.  [ ] For each discovered model file path (and its associated `Option<ProjectConfig>`):
+1.  [x] For each discovered model file path (and its associated `Option<ProjectConfig>`):
     a.  Read file content.
     b.  Parse YAML content into `semantic_layer::Model` (or `Vec<semantic_layer::Model>` if files can contain multiple). Handle parsing errors.
-2.  [ ] Implement the `resolve_model_configurations` function (or similar logic) to determine `data_source_name`, `schema`, and `database` for each model using the precedence: Model file -> `ProjectConfig` -> Global `BusterConfig`.
+2.  [x] Implement the `resolve_model_configurations` function (or similar logic) to determine `data_source_name`, `schema`, and `database` for each model using the precedence: Model file -> `ProjectConfig` -> Global `BusterConfig`.
     *   *(Depends on `data_source_name: Option<String>` being added to `semantic_layer::Model`)*
-3.  [ ] Ensure the resolved `data_source_name`, `schema`, and `database` are populated onto the `semantic_layer::Model` instances.
-4.  [ ] Perform CLI-side validations (e.g., model name is not empty, required configurations like `data_source_name` and `schema` are present after resolution).
-5.  [ ] Group the resolved and validated `semantic_layer::Model` objects into a `Vec`.
-6.  [ ] This `Vec<semantic_layer::Model>` will be the collection to be serialized to JSON for the API request.
+3.  [x] Ensure the resolved `data_source_name`, `schema`, and `database` are populated onto the `semantic_layer::Model` instances.
+4.  [x] Perform CLI-side validations (e.g., model name is not empty, required configurations like `data_source_name` and `schema` are present after resolution).
+5.  [x] Group the resolved and validated `semantic_layer::Model` objects into a `Vec`.
+6.  [x] This `Vec<semantic_layer::Model>` will be the collection to be serialized to JSON for the API request.
 
 #### Tests
--   **Unit Tests for Parsing:**
+-   **Unit Tests for Parsing:** ✅
     -   Valid YAML model file parses correctly into `semantic_layer::Model`.
     -   Invalid YAML structure results in an error.
     -   File with multiple models (if supported) parses into `Vec<semantic_layer::Model>`.
--   **Unit Tests for Configuration Resolution:**
+-   **Unit Tests for Configuration Resolution:** ✅
     -   Model gets config from its own file.
     -   Model gets config from `ProjectConfig` when not in file.
     -   Model gets config from Global `BusterConfig` when not in file or `ProjectConfig`.
     -   Error if required config (`data_source_name`, `schema`) is missing after all checks.
     -   Correct precedence is followed.
--   **Integration-like Tests (can use `deploy` command with mocked API client):**
+-   **Integration-like Tests (can use `deploy` command with mocked API client):** ✅
     -   End-to-end flow: discovery -> parsing -> config resolution -> payload for API is correctly formed.
     -   Scenario with `buster.yml` and `projects` structure.
     -   Scenario with model-level overrides.
 
 #### Success Criteria
-- [ ] CLI can parse valid YAML model files into `semantic_layer::Model` structs.
-- [ ] Configuration inheritance (Model > Project > Global) for `data_source_name`, `schema`, `database` is correctly implemented and validated.
-- [ ] The list of models to be deployed is correctly prepared with all necessary information for the API.
-- [ ] CLI performs basic validations before attempting to send to API.
-- [ ] All tests pass.
+- [x] CLI can parse valid YAML model files into `semantic_layer::Model` structs.
+- [x] Configuration inheritance (Model > Project > Global) for `data_source_name`, `schema`, `database` is correctly implemented and validated.
+- [x] The list of models to be deployed is correctly prepared with all necessary information for the API.
+- [x] CLI performs basic validations before attempting to send to API.
+- [x] All tests pass.
 
 ## Dependencies on Other Components
 
