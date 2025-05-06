@@ -21,14 +21,15 @@ pub async fn generate_semantic_models_command(
     path_arg: Option<String>,
     target_output_dir_arg: Option<String>, // This argument determines the *base* output dir if specified
 ) -> Result<()> {
-    println!("{}", "Starting semantic model generation/update (file-first approach)...".bold().blue());
+    println!("{}", "🚀 Starting semantic model generation/update...".bold().blue());
 
     let buster_config_dir = std::env::current_dir().context("Failed to get current directory")?;
     let buster_config = BusterConfig::load_from_dir(&buster_config_dir)?.ok_or_else(|| {
-        anyhow!("buster.yml not found in {}. Please run 'buster init' first.", buster_config_dir.display())
+        anyhow!("❌ buster.yml not found in {}. Please run 'buster init' first.", buster_config_dir.display())
     })?;
 
     // --- 1. Load Catalog & Build Lookup Map ---
+    println!("\n{}", "🔍 Loading dbt catalog...".dimmed());
     let catalog_json_path = buster_config_dir.join("target").join("catalog.json");
     if Confirm::new("Run 'dbt docs generate' to refresh dbt catalog (catalog.json)?")
         .with_default(true)
@@ -36,23 +37,23 @@ pub async fn generate_semantic_models_command(
     {
         match run_dbt_docs_generate(&buster_config_dir).await {
             Ok(_) => {},
-            Err(e) => eprintln!("{}", format!("'dbt docs generate' error. Proceeding with existing catalog. Error: {}", e).yellow()),
+            Err(e) => eprintln!("{}", format!("⚠️ 'dbt docs generate' error. Proceeding with existing catalog. Error: {}", e).yellow()),
         }
     } else {
-        println!("{}", "Skipping 'dbt docs generate'. Using existing catalog.json.".dimmed());
+        println!("{}", "ℹ️ Skipping 'dbt docs generate'. Using existing catalog.json.".dimmed());
     }
 
     if !catalog_json_path.exists() {
-        eprintln!("{}", format!("✗ catalog.json not found at {}. Cannot generate/update models.", catalog_json_path.display()).red());
+        eprintln!("{}", format!("❌ catalog.json not found at {}. Cannot generate/update models.", catalog_json_path.display()).red());
         return Ok(());
     }
     let dbt_catalog = match load_and_parse_catalog(&catalog_json_path) {
         Ok(catalog) => {
-            println!("{}", "✓ Successfully parsed catalog.json.".green());
+            println!("{}", "✅ Successfully parsed catalog.json.".green());
             catalog
         }
         Err(e) => {
-            eprintln!("{}", format!("✗ Error loading/parsing catalog.json: {}. Cannot generate/update.", e).red());
+            eprintln!("{}", format!("❌ Error loading/parsing catalog.json: {}. Cannot generate/update.", e).red());
             return Ok(());
         }
     };
@@ -66,11 +67,12 @@ pub async fn generate_semantic_models_command(
         .collect();
 
     if catalog_nodes_by_name.is_empty() {
-        println!("{}", "No models found in dbt catalog. Nothing to generate/update.".yellow());
+        println!("{}", "ℹ️ No models found in dbt catalog. Nothing to generate/update.".yellow());
         return Ok(());
     }
 
     // --- 2. Determine SQL Files to Process (based on path_arg or buster.yml model_paths) ---
+    println!("\n{}", "⚙️ Determining SQL files to process...".dimmed());
     let mut sql_files_to_process: HashSet<PathBuf> = HashSet::new();
     let dbt_project_model_roots_for_stripping = crate::commands::init::parse_dbt_project_file_content(&buster_config_dir)?.as_ref()
         .map(|c| c.model_paths.iter().map(PathBuf::from).collect::<Vec<PathBuf>>())
@@ -87,7 +89,7 @@ pub async fn generate_semantic_models_command(
                 Err(e) => eprintln!("{}", format!("Error globbing '{}': {}", glob_pattern.display(), e).yellow()),
             }
         } else {
-            eprintln!("{}", format!("Warning: path_arg '{}' is not a valid SQL file or directory. Processing all configured models.", pa_str).yellow());
+            eprintln!("{}", format!("⚠️ Warning: path_arg '{}' is not a valid SQL file or directory. Processing all configured models.", pa_str).yellow());
             // Fall through to buster.yml model_paths if path_arg is invalid
         }
     }
@@ -98,7 +100,7 @@ pub async fn generate_semantic_models_command(
             if let Some(first_project) = projects.first() {
                 if let Some(config_model_paths) = &first_project.model_paths { // Vec<String>
                     if !config_model_paths.is_empty() { // Check if there are paths to process
-                        println!("{}", format!("No SQL files from path_arg. Scanning based on buster.yml model_paths: {:?}", config_model_paths).dimmed());
+                        println!("{}", format!("ℹ️ No SQL files from path_arg. Scanning based on buster.yml model_paths: {:?}", config_model_paths).dimmed());
                         for path_entry_from_config in config_model_paths {
                             if path_entry_from_config.trim().is_empty() {
                                 continue; // Skip empty path strings
@@ -140,7 +142,7 @@ pub async fn generate_semantic_models_command(
 
         if !processed_via_buster_yml_paths {
             // Fallback to dbt_project.yml defaults
-            println!("{}", "No SQL files from path_arg, and no model_paths in buster.yml (or they were empty). Using dbt_project.yml model-paths as fallback.".dimmed());
+            println!("{}", "ℹ️ No SQL files from path_arg, and no model_paths in buster.yml (or they were empty). Using dbt_project.yml model-paths as fallback.".dimmed());
             for dbt_root_rel in &dbt_project_model_roots_for_stripping {
                 let glob_pattern = buster_config_dir.join(dbt_root_rel).join("**/*.sql");
                 match glob(&glob_pattern.to_string_lossy()) {
@@ -152,12 +154,13 @@ pub async fn generate_semantic_models_command(
     }
 
     if sql_files_to_process.is_empty() {
-        println!("{}", "No SQL model files found to process/update based on configuration.".yellow());
+        println!("{}", "ℹ️ No SQL model files found to process/update based on configuration.".yellow());
         return Ok(());
     }
-    println!("{}", format!("Found {} SQL model file(s) for potential generation/update.", sql_files_to_process.len()).dimmed());
+    println!("{}", format!("✅ Found {} SQL model file(s) for potential generation/update.", sql_files_to_process.len()).dimmed());
 
     // --- 3. Determine Output Base Directory for Semantic Models ---
+    println!("\n{}", "⚙️ Determining output directory for semantic models...".dimmed());
     let semantic_models_base_dir_path_str = target_output_dir_arg.or_else(|| 
         buster_config.projects.as_ref()
             .and_then(|p| p.first())
@@ -169,7 +172,7 @@ pub async fn generate_semantic_models_command(
     );
 
     let (is_side_by_side_generation, semantic_output_base_abs_dir) = if semantic_models_base_dir_path_str.is_empty() {
-        println!("{}", "Semantic models output set to side-by-side with SQL files.".dimmed());
+        println!("{}", "ℹ️ Semantic models output set to side-by-side with SQL files.".dimmed());
         (true, buster_config_dir.clone()) // Base for side-by-side is project root
     } else {
         let abs_path = if Path::new(&semantic_models_base_dir_path_str).is_absolute() {
@@ -177,12 +180,13 @@ pub async fn generate_semantic_models_command(
         } else {
             buster_config_dir.join(&semantic_models_base_dir_path_str)
         };
-        println!("{}", format!("Semantic models output base directory: {}", abs_path.display()).cyan());
+        println!("{}", format!("➡️ Semantic models output base directory: {}", abs_path.display()).cyan());
         fs::create_dir_all(&abs_path).context(format!("Failed to create semantic models output dir: {}", abs_path.display()))?;
         (false, abs_path)
     };
     
     // --- 4. Iterate SQL Files, Match to Catalog, Generate/Update YamlModels ---
+    println!("\n{}", "✨ Processing SQL files and generating/updating YAML models...".dimmed());
     let mut models_generated_count = 0;
     let mut models_updated_count = 0;
     let mut columns_added_count = 0;
@@ -201,23 +205,23 @@ pub async fn generate_semantic_models_command(
     for sql_file_abs_path in sql_files_to_process {
         let model_name_from_filename = sql_file_abs_path.file_stem().map_or_else(String::new, |s| s.to_string_lossy().into_owned());
         if model_name_from_filename.is_empty() {
-            eprintln!("{}", format!("Warning: Could not get model name from file {}. Skipping.", sql_file_abs_path.display()).yellow());
+            eprintln!("{}", format!("⚠️ Warning: Could not get model name from file {}. Skipping.", sql_file_abs_path.display()).yellow());
             continue;
         }
 
         let Some(catalog_node) = catalog_nodes_by_name.get(&model_name_from_filename) else {
-            eprintln!("{}", format!("Info: SQL model file '{}' found, but no corresponding entry ('{}') in dbt catalog. Skipping.", sql_file_abs_path.display(), model_name_from_filename).dimmed());
+            eprintln!("{}", format!("ℹ️ Info: SQL model file '{}' found, but no corresponding entry ('{}') in dbt catalog. Skipping.", sql_file_abs_path.display(), model_name_from_filename).dimmed());
             continue;
         };
 
         let Some(ref table_meta) = catalog_node.metadata else {
-            eprintln!("{}", format!("Warning: Catalog entry for '{}' (file: {}) is missing metadata. Skipping.", model_name_from_filename, sql_file_abs_path.display()).yellow());
+            eprintln!("{}", format!("⚠️ Warning: Catalog entry for '{}' (file: {}) is missing metadata. Skipping.", model_name_from_filename, sql_file_abs_path.display()).yellow());
             continue;
         };
         // actual_model_name_in_yaml is from catalog metadata.name
         let actual_model_name_in_yaml = table_meta.name.clone(); 
 
-        println!("Processing: SQL '{}' -> Catalog Model '{}' (UniqueID: {})", 
+        println!("➡️ Processing: SQL '{}' -> Catalog Model '{}' (UniqueID: {})", 
             sql_file_abs_path.display().to_string().cyan(), 
             actual_model_name_in_yaml.purple(),
             catalog_node.unique_id.as_deref().unwrap_or("N/A").dimmed()
@@ -356,7 +360,10 @@ pub async fn generate_semantic_models_command(
                     models_updated_count += 1;
                     let yaml_string = serde_yaml::to_string(&existing_model)?;
                     fs::write(&individual_semantic_yaml_path, yaml_string)?;
-                } 
+                    println!("   {} Updated semantic model: {}", "✅".cyan(), individual_semantic_yaml_path.display().to_string().cyan());
+                } else {
+                    println!("   {} No changes needed for existing model: {}", "➖".dimmed(), individual_semantic_yaml_path.display().to_string().dimmed());
+                }
             }
             None => { // New semantic model
                 let mut dimensions = Vec::new();
@@ -392,19 +399,25 @@ pub async fn generate_semantic_models_command(
                 let yaml_string = serde_yaml::to_string(&new_model)?;
                 fs::write(&individual_semantic_yaml_path, yaml_string)?;
                 models_generated_count += 1;
+                println!("   {} Generated new semantic model: {}", "✨".green(), individual_semantic_yaml_path.display().to_string().green());
             }
         }
     }
 
-    println!("\n{}", "Semantic Model Generation/Update Summary:".bold().green());
-    println!("  SQL models processed that had a matching catalog entry: {}", sql_models_successfully_processed_from_catalog_count); 
-    println!("  New semantic models generated: {}", models_generated_count.to_string().green());
-    println!("  Existing semantic models updated: {}", models_updated_count.to_string().cyan());
-    println!("  Columns added to existing models: {}", columns_added_count.to_string().green());
-    println!("  Columns updated in existing models: {}", columns_updated_count.to_string().cyan());
-    println!("  Columns removed from existing models: {}", columns_removed_count.to_string().red());
-    // Consider adding a count for models found on disk but not in catalog / models in catalog but no matching SQL file
-    println!("✓ Semantic model generation/update complete.");
+    println!("\n{}", "📊 Semantic Model Generation/Update Summary:".bold().green());
+    println!("  --------------------------------------------------");
+    println!("  SQL models processed with catalog entry: {}", sql_models_successfully_processed_from_catalog_count.to_string().cyan()); 
+    println!("  New semantic models generated        : {}", models_generated_count.to_string().green());
+    println!("  Existing semantic models updated     : {}", models_updated_count.to_string().cyan());
+    println!("  Columns added to existing models     : {}", columns_added_count.to_string().green());
+    println!("  Columns updated in existing models   : {}", columns_updated_count.to_string().cyan());
+    println!("  Columns removed from existing models : {}", columns_removed_count.to_string().red());
+    println!("  --------------------------------------------------");
+    if sql_models_successfully_processed_from_catalog_count == 0 && models_generated_count == 0 && models_updated_count == 0 {
+        println!("{}", "ℹ️ No models were generated or updated.".yellow());
+    } else {
+        println!("🎉 Semantic model generation/update complete.");
+    }
 
     Ok(())
 } 

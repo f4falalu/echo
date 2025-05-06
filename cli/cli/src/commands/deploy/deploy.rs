@@ -19,6 +19,8 @@ use semantic_layer::models::{Model, SemanticLayerSpec, Dimension, Measure, Relat
 pub struct DeployResult {
     success: Vec<(String, String, String)>, // (filename, model_name, data_source)
     failures: Vec<(String, String, Vec<String>)>, // (filename, model_name, errors)
+    updated: Vec<(String, String, String)>, // (filename, model_name, data_source) - For models that were updated
+    no_change: Vec<(String, String, String)>, // (filename, model_name, data_source) - For models that had no change
 }
 
 // Track mapping between files and their models
@@ -51,62 +53,75 @@ impl DeployProgress {
     fn log_progress(&self) {
         println!(
             "\n[{}/{}] Processing: {}",
-            self.processed, self.total_files, self.current_file
+            self.processed, self.total_files, self.current_file.cyan()
         );
-        println!("Status: {}", self.status);
+        if !self.status.is_empty() {
+            println!("Status: {}", self.status.dimmed());
+        }
     }
 
     fn log_error(&self, error: &str) {
-        eprintln!("❌ Error processing {}: {}", self.current_file, error);
+        eprintln!("❌ Error processing {}: {}", self.current_file.cyan(), error.red());
     }
 
     fn log_success(&self) {
-        println!("✅ Successfully processed: {}", self.current_file);
+        println!("✅ Successfully processed and validated: {}", self.current_file.cyan());
     }
 
     fn log_validating(&self, validation_data: (&str, &str, &str)) {
-        println!("\n🔍 Validating {}", validation_data.0);
-        println!("   Data Source: {}", validation_data.1);
-        println!("   Schema: {}", validation_data.2);
+        println!("\n🔍 Validating model: {}", validation_data.0.purple());
+        println!("   Data Source: {}", validation_data.1.cyan());
+        println!("   Schema: {}", validation_data.2.cyan());
     }
 
     fn log_excluded(&mut self, reason: &str) {
         self.excluded += 1;
-        println!("⚠️  Skipping {} ({})", self.current_file, reason);
+        println!("⚠️  Skipping {} ({})", self.current_file.cyan(), reason.yellow());
     }
 
     fn log_summary(&self, result: &DeployResult) {
-        // Print final summary with more details
-        println!("\n📊 Deployment Summary");
-        println!("==================");
-        println!("✅ Successfully deployed: {} models", result.success.len());
+        println!("\n{}", "📊 Deployment Summary".bold().green());
+        println!("======================================");
+        println!(
+            "Successfully deployed (new or updated): {} models",
+            (result.success.len() + result.updated.len()).to_string().green()
+        );
+        if !result.success.is_empty() {
+            println!("   ✨ New models deployed: {}", result.success.len().to_string().green());
+        }
+        if !result.updated.is_empty() {
+            println!("   🔄 Models updated: {}", result.updated.len().to_string().cyan());
+        }
+        if !result.no_change.is_empty() {
+             println!("   ➖ Models with no changes: {}", result.no_change.len().to_string().dimmed());
+        }
+
         if self.excluded > 0 {
             println!(
                 "⛔ Excluded: {} models (due to patterns or tags)",
-                self.excluded
+                self.excluded.to_string().yellow()
             );
-        }
-        if !result.success.is_empty() {
-            println!("\nSuccessful deployments:");
-            for (file, model_name, data_source) in &result.success {
-                println!(
-                    "   - {} (Model: {}, Data Source: {})",
-                    file, model_name, data_source
-                );
-            }
         }
 
         if !result.failures.is_empty() {
-            println!("\n❌ Failed deployments: {} models", result.failures.len());
-            println!("\nFailures:");
+            println!("\n❌ Failed deployments: {} models", result.failures.len().to_string().red());
+            println!("--------------------------------------");
             for (file, model_name, errors) in &result.failures {
                 println!(
-                    "   - {} (Model: {}, Errors: {})",
-                    file,
-                    model_name,
-                    errors.join(", ")
+                    "   - File: {} (Model: {})",
+                    file.cyan(), model_name.purple()
                 );
+                for error in errors {
+                    println!("     Error: {}", error.red());
+                }
             }
+            println!("--------------------------------------");
+        } 
+        println!("======================================");
+        if result.failures.is_empty() {
+            println!("{}", "🎉 All specified models processed successfully!".bold().green());
+        } else {
+            println!("{}", "⚠️ Some models failed to deploy. Please check the errors above.".bold().yellow());
         }
     }
 }
@@ -268,7 +283,7 @@ fn find_sql_file_in_model_paths(
             let sql_file_name = format!("{}.sql", model_name);
             let sql_file_path = dir_path.join(&sql_file_name);
             if sql_file_path.is_file() { // is_file() checks for existence and that it's a file
-                println!("Found SQL file for model '{}' at: {}", model_name, sql_file_path.display());
+                println!("   {} Found SQL file for model '{}' at: {}", "➡️".dimmed(), model_name.purple(), sql_file_path.display().to_string().dimmed());
                 return Some(sql_file_path);
             }
         } else {
@@ -321,10 +336,12 @@ fn get_sql_content_for_model(
 
     // If not found via model_paths or if model_paths were not configured:
     println!(
-        "Warning: No .sql file found for model '{}' in configured model_paths (searched relative to '{}'). File defining model: {}. Generating default SQL.",
+        "   {} No .sql file found for model '{}' in configured model_paths (searched relative to '{}'). File defining model: {}. {}",
+        "⚠️".yellow(),
         model.name.yellow(),
-        effective_buster_config_dir.display(),
-        yml_path_of_model.display()
+        effective_buster_config_dir.display().to_string().dimmed(),
+        yml_path_of_model.display().to_string().dimmed(),
+        "Generating default SQL.".yellow()
     );
     Ok(generate_default_sql(model))
 }
@@ -409,6 +426,9 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
     check_authentication().await?;
 
     let current_dir = std::env::current_dir()?;
+    println!("\n{}", "🚀 Starting Buster Deployment Process...".bold().blue());
+    println!("Working directory: {}", current_dir.display().to_string().dimmed());
+
     let buster_config_load_dir = path.map(PathBuf::from).unwrap_or_else(|| current_dir.clone());
 
     let mut progress = DeployProgress::new(0);
@@ -430,11 +450,11 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
             Some(cfg)
         }
         Ok(None) => {
-            println!("ℹ️  No buster.yml found in {}, will require full configuration in model files or use defaults.", buster_config_load_dir.display());
+            println!("ℹ️  No buster.yml found in {}, will require full configuration in model files or use defaults.", buster_config_load_dir.display().to_string().yellow());
             None
         }
         Err(e) => {
-            println!("⚠️  Error reading buster.yml: {}. Proceeding without it.", e);
+            println!("⚠️  Error reading buster.yml: {}. Proceeding without it.", e.to_string().yellow());
             None
         }
     };
@@ -452,9 +472,11 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
                 if let Some(ref semantic_model_dirs) = project_ctx.semantic_model_paths {
                     for semantic_models_dir_str in semantic_model_dirs {
                         println!(
-                            "ℹ️  Using semantic model directory for project '{}': {}",
-                            project_ctx.identifier().cyan(),
-                            semantic_models_dir_str.cyan()
+                            "\n{}",
+                            format!("🔍 Scanning semantic model directory for project '{}': {}",
+                                project_ctx.identifier().cyan(),
+                                semantic_models_dir_str.cyan()
+                            ).dimmed()
                         );
                         let semantic_models_dir_path = effective_buster_config_dir.join(semantic_models_dir_str);
 
@@ -486,7 +508,7 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
                         };
 
                         if yml_files_in_dir.is_empty() {
-                            println!("ℹ️  No .yml files found in directory: {}", semantic_models_dir_path.display());
+                            println!("ℹ️  No .yml files found in directory: {}", semantic_models_dir_path.display().to_string().dimmed());
                             continue;
                         }
                         
@@ -495,7 +517,7 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
 
                         for yml_file_path in yml_files_in_dir {
                             progress.current_file = yml_file_path.strip_prefix(&effective_buster_config_dir).unwrap_or(&yml_file_path).to_string_lossy().into_owned();
-                            progress.status = format!("Loading models from '{}' in project '{}'...", yml_file_path.file_name().unwrap_or_default().to_string_lossy(), project_ctx.identifier());
+                            progress.status = format!("Parsing models from '{}' in project '{}'...", yml_file_path.file_name().unwrap_or_default().to_string_lossy(), project_ctx.identifier().cyan());
                             progress.log_progress();
 
                             let parsed_models = match parse_model_file(&yml_file_path) {
@@ -522,15 +544,15 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
 
                             for model in resolved_models {
                                 progress.processed += 1;
-                                progress.current_file = format!("{} (from {} in project '{}')", model.name, yml_file_path.file_name().unwrap_or_default().to_string_lossy(), project_ctx.identifier());
-                                progress.status = format!("Processing model '{}'", model.name);
+                                progress.current_file = format!("{} (from {} in project '{}')", model.name.purple(), yml_file_path.file_name().unwrap_or_default().to_string_lossy(), project_ctx.identifier().cyan());
+                                progress.status = format!("Resolving SQL for model '{}'", model.name.purple());
                                 progress.log_progress();
 
                                 let sql_content = match get_sql_content_for_model(&model, Some(cfg), Some(project_ctx), &effective_buster_config_dir, &yml_file_path) {
                                     Ok(content) => content,
                                     Err(e) => {
-                                        progress.log_error(&format!("Failed to get SQL for model {}: {}", model.name, e));
-                                        result.failures.push((progress.current_file.clone(),model.name.clone(),vec![e.to_string()]));
+                                        progress.log_error(&format!("Failed to get SQL for model {}: {}", model.name.purple(), e));
+                                        result.failures.push((progress.current_file.clone(), model.name.clone(), vec![e.to_string()]));
                                         continue;
                                     }
                                 };
@@ -540,7 +562,7 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
                                     model_name: model.name.clone() 
                                 });
                                 deploy_requests_final.push(to_deploy_request(&model, sql_content));
-                                progress.log_success();
+                                println!("   {} Model '{}' prepared for deployment.", "👍".green(), model.name.purple());
                             }
                         }
                     }
@@ -579,33 +601,57 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
             &mut model_mappings_final
         ).await?;
     } else {
-        println!("ℹ️  Processed models from semantic_models_file(s) specified in buster.yml. Skipping scan for individual .yml files.");
+        println!("{}", "\nℹ️  Processed models from semantic_model_paths specified in buster.yml. Skipping scan for individual .yml files.".dimmed());
     }
 
 
     // --- DEPLOYMENT TO API (remains largely the same, uses deploy_requests_final and model_mappings_final) ---
     if !deploy_requests_final.is_empty() {
         if dry_run {
-            println!("\n🔍 Dry run mode - validation successful!");
-            println!("\n📦 Would deploy {} models:", deploy_requests_final.len());
+            println!("\n{}", "🔍 Dry Run Mode Activated. No changes will be made.".bold().yellow());
+            println!("📦 Would attempt to deploy {} models:", deploy_requests_final.len());
             for request in &deploy_requests_final {
-                // ... (dry run print logic) ...
+                println!("  -------------------------------------");
+                println!("  Model Name:      {}", request.name.purple());
+                println!("  Data Source:   {}", request.data_source_name.cyan());
+                println!("  Schema:          {}", request.schema.cyan());
+                if let Some(db) = &request.database {
+                    println!("  Database:        {}", db.cyan());
+                }
+                println!("  Description:     {}", request.description.dimmed());
+                println!("  Columns:         {}", request.columns.len());
+                if request.entity_relationships.as_ref().map_or(false, |er| !er.is_empty()) {
+                    println!("  Relationships:   {}", request.entity_relationships.as_ref().unwrap().len());
+                }
+                // Optionally print SQL or YML content if needed for dry run, but can be verbose
+                // println!("  SQL Definition:\n{}", request.sql_definition.as_deref().unwrap_or("N/A"));
+                // println!("  YML Content:\n{}", request.yml_file.as_deref().unwrap_or("N/A"));
             }
+            println!("  -------------------------------------");
+            println!("{}", "✅ Dry run validation complete.".green());
             return Ok(());
         }
 
-        let client = client.expect("BusterClient should be initialized");
-        // ... (rest of deployment logic, calling client.deploy_datasets(deploy_requests_final).await ...)
+        println!("\n{}", format!("🚀 Deploying {} models to Buster Cloud...", deploy_requests_final.len()).bold().blue());
+        let client = client.expect("BusterClient should be initialized for non-dry run");
+        // ... (rest of deployment logic, calling client.deploy_datasets(deploy_requests_final).await ...) 
         // ... (handle_deploy_response(&response, &mut result, &model_mappings_final, &progress)) ...
          match client.deploy_datasets(deploy_requests_final).await {
             Ok(response) => handle_deploy_response(&response, &mut result, &model_mappings_final, &progress),
             Err(e) => {
-                // ... (error handling as before) ...
-                return Err(anyhow!("Failed to deploy models to Buster: {}", e));
+                eprintln!("❌ Critical error during deployment API call: {}", e.to_string().red());
+                // Populate failures for all models that were attempted if a general API error occurs
+                for mapping in model_mappings_final {
+                    result.failures.push((
+                        mapping.file.clone(), 
+                        mapping.model_name.clone(), 
+                        vec![format!("API deployment failed: {}", e)]
+                    ));
+                }
             }
         }
     } else {
-        println!("\n🤷 No models found to deploy.");
+        println!("\n{}", "🤷 No models found to deploy.".yellow());
     }
 
     progress.log_summary(&result);
@@ -637,7 +683,7 @@ async fn deploy_individual_yml_files(
     if let Some(cfg) = buster_config {
         let effective_paths_with_contexts = cfg.resolve_effective_model_paths(base_search_dir);
         if !effective_paths_with_contexts.is_empty() {
-            println!("ℹ️  Using effective model paths for individual .yml scan:");
+            println!("\n{}", "ℹ️  Using effective model paths for individual .yml scan:".dimmed());
             for (path, project_ctx_opt) in effective_paths_with_contexts {
                 // Log the path and its associated project context identifier if available
                 let context_identifier = project_ctx_opt.map_or_else(|| "Global/Default".to_string(), |ctx| ctx.identifier());
@@ -681,14 +727,14 @@ async fn deploy_individual_yml_files(
         }
     };
 
-    println!("Found {} individual model .yml files to process.", files_to_process_with_context.len());
+    println!("\nFound {} individual model .yml files to process.", files_to_process_with_context.len().to_string().cyan());
     progress.total_files = files_to_process_with_context.len(); // Reset total files for this phase
     progress.processed = 0; // Reset processed for this phase
 
     for (yml_path, project_ctx_opt) in files_to_process_with_context {
         progress.processed += 1;
         progress.current_file = yml_path.strip_prefix(base_search_dir).unwrap_or(&yml_path).to_string_lossy().into_owned();
-        progress.status = "Loading individual model file...".to_string();
+        progress.status = "Parsing individual model file...".to_string();
         progress.log_progress();
 
         let parsed_models = match parse_model_file(&yml_path) { // parse_model_file handles single or multi-model in one yml
@@ -719,15 +765,15 @@ async fn deploy_individual_yml_files(
             let sql_content = match get_sql_content_for_model(&model, buster_config, project_ctx_opt, base_search_dir, &yml_path) { 
                 Ok(content) => content,
                 Err(e) => {
-                    progress.log_error(&format!("Failed to get SQL for model {}: {}", model.name, e));
+                    progress.log_error(&format!("Failed to get SQL for model {}: {}", model.name.purple(), e));
                     result.failures.push((progress.current_file.clone(), model.name.clone(), vec![e.to_string()]));
                     continue;
                 }
             };
             model_mappings_final.push(ModelMapping { file: progress.current_file.clone(), model_name: model.name.clone() });
             deploy_requests_final.push(to_deploy_request(&model, sql_content));
+            println!("   {} Model '{}' prepared from individual file.", "👍".green(), model.name.purple());
         }
-        progress.log_success();
     }
     Ok(())
 }
@@ -742,38 +788,48 @@ fn handle_deploy_response(
     let mut has_validation_errors = false;
 
     // Process validation results
+    println!("\n{}", "🔬 Processing deployment results from Buster Cloud...".dimmed());
     for validation in response.results.iter() {
         // Find corresponding file from model mapping
         let file = model_mappings
             .iter()
             .find(|m| m.model_name == validation.model_name)
             .map(|m| m.file.clone())
-            .unwrap_or_else(|| "unknown".to_string());
+            .unwrap_or_else(|| "<unknown file>".to_string());
 
+        progress.log_validating((&validation.model_name, &validation.data_source_name, &validation.schema));
+        
         if validation.success {
-            progress.log_validating((&validation.model_name, &validation.data_source_name, &validation.schema));
-            println!("\n✅ Validation passed for {}", validation.model_name);
-            println!("   Data Source: {}", validation.data_source_name);
-            println!("   Schema: {}", validation.schema);
+            // Check if it's a new deployment or an update based on previous state (if tracked)
+            // For now, we'll simplify. If API says success, it's either new or successfully updated (no-op or actual change).
+            // We can differentiate further if the API provides more info or if we compare with a previous state.
             
+            // Let's assume for now the API doesn't tell us if it was new/update/no-change directly in this part of response.
+            // We will base it on whether an ID was present in the request (implying update) or not (implying create).
+            // This is a simplification as the `id` field in `DeployDatasetsRequest` is `Option<String>` and might be `None` even for updates if not managed by CLI state.
+            // A more robust way would be to check if the model already existed by querying Buster first, or if the API response itself differentiates.
+
+            // For simplicity here, we'll assume all successes from API are either new or updated.
+            // The `DeployResult` struct could be enhanced to better differentiate if needed by tracking initial state or from richer API responses.
+            
+            // If we had an ID in the original request for this model, it implies it was an update attempt.
+            // For now, just add to generic success. We can refine later.
             result.success.push((
                 file,
                 validation.model_name.clone(),
                 validation.data_source_name.clone(),
             ));
+
         } else {
             has_validation_errors = true;
-            
-            println!("\n❌ Validation failed for {}", validation.model_name);
-            println!("   Data Source: {}", validation.data_source_name);
-            println!("   Schema: {}", validation.schema);
+            eprintln!("❌ Validation failed for model: {}", validation.model_name.purple());
 
             if !validation.errors.is_empty() {
-                println!("\nErrors:");
+                eprintln!("   Errors:");
                 for error in &validation.errors {
-                    println!("   - {:?}: {}", error.error_type, error.message);
+                    eprintln!("     - {:?}: {}", error.error_type, error.message);
                     if let Some(col) = &error.column_name {
-                        println!("     Column: {}", col);
+                        eprintln!("       Column: {}", col.yellow());
                     }
                 }
 
@@ -785,9 +841,9 @@ fn handle_deploy_response(
                     .collect();
 
                 if !suggestions.is_empty() {
-                    println!("\n💡 Suggestions:");
+                    eprintln!("\n💡 Suggestions:");
                     for suggestion in suggestions {
-                        println!("   - {}", suggestion);
+                        eprintln!("   - {}", suggestion);
                     }
                 }
             }
@@ -806,13 +862,15 @@ fn handle_deploy_response(
     }
 
     if has_validation_errors {
-        println!("\n❌ Deployment failed due to validation errors!");
-        println!("\n💡 Troubleshooting:");
-        println!("1. Check data source");
-        println!("2. Check model definitions");
-        println!("3. Check relationships");
+        // This message is now part of the summary
+        // println!("\n❌ Deployment failed due to validation errors!");
+        // println!("\n💡 Troubleshooting:");
+        // println!("1. Check data source");
+        // println!("2. Check model definitions");
+        // println!("3. Check relationships");
     } else {
-        println!("\n✅ All models deployed successfully!");
+        // This message is now part of the summary
+        // println!("\n✅ All models deployed successfully!");
     }
 }
 

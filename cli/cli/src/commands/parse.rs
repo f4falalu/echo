@@ -30,76 +30,85 @@ impl ParseProgress {
 
     fn log_status(&self) {
         if !self.current_file.is_empty() {
-            println!("Processing [{} / {}]: {}", self.processed_files, self.total_files, self.current_file);
+            println!("[{}/{}] Parsing: {}", self.processed_files, self.total_files, self.current_file.cyan());
         }
     }
 
     fn log_summary(&self) {
-        println!("\n--- Parse Summary ---");
-        println!("Total files processed: {}", self.processed_files);
-        println!("Total files excluded: {}", self.excluded_files);
-        println!("Models successfully parsed & validated: {}", self.successes.len());
-        println!("Models with errors: {}", self.errors.len());
+        println!("\n{}", "📊 Parse Command Summary".bold().blue());
+        println!("======================================");
+        println!("Total files scanned                 : {}", self.total_files);
+        println!("Files processed                   : {}", self.processed_files);
+        println!("Files excluded (due to patterns)  : {}", self.excluded_files.to_string().yellow());
+        println!("Models successfully parsed        : {}", self.successes.len().to_string().green());
+        println!("Models with errors                : {}", self.errors.len().to_string().red());
 
         if !self.successes.is_empty() {
-            println!("\nSuccessfully parsed models:");
+            println!("\n✅ Successfully parsed models:");
             for (file, model_name) in &self.successes {
-                println!("  - {} (in file: {})", model_name.green(), file.dimmed());
+                println!("  - {} (in file: {})", model_name.purple(), file.dimmed());
             }
         }
 
         if !self.errors.is_empty() {
-            println!("\nModels with errors:");
+            println!("\n❌ Models with errors:");
             for (file, model_name, errors) in &self.errors {
-                println!("  - {} (in file: {}):", model_name.red(), file.dimmed());
+                println!("  - File: {} (Model: {}):", file.cyan(), model_name.purple());
                 for error in errors {
-                    println!("    - {}", error);
+                    println!("    - {}", error.red());
                 }
             }
         }
-        println!("---------------------");
+        println!("======================================");
+        if self.errors.is_empty() {
+            println!("{}", "🎉 All specified model files parsed successfully!".bold().green());
+        } else {
+            println!("{}", "⚠️ Some model files had parsing/validation errors. Please check the output above.".bold().yellow());
+        }
     }
 }
 
 impl ProgressTracker for ParseProgress {
     fn log_excluded_file(&mut self, path: &str, pattern: &str) {
         self.excluded_files += 1;
-        println!("Excluding file: {} (matched pattern: {})", path, pattern);
+        println!("⛔ Excluding file: {} (matched pattern: {})", path.yellow(), pattern.dimmed());
     }
 
     fn log_excluded_tag(&mut self, path: &str, tag: &str) {
         self.excluded_files += 1;
         println!(
-            "Excluding file: {} (matched excluded tag: {})",
-            path,
-            tag
+            "⛔ Excluding file: {} (matched excluded tag: {})",
+            path.yellow(),
+            tag.dimmed()
         );
     }
 }
 
 pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
+    println!("\n{}", "🚀 Starting Buster Model Parser...".bold().blue());
     let current_dir = std::env::current_dir()?;
     let buster_config_load_dir = path_arg.as_ref().map(PathBuf::from).unwrap_or_else(|| current_dir.clone());
 
     let mut progress = ParseProgress::new();
 
-    println!("Looking for buster.yml configuration...");
+    println!("\n{}", "⚙️  Looking for buster.yml configuration...".dimmed());
     let buster_config = match BusterConfig::load_from_dir(&buster_config_load_dir) {
         Ok(Some(cfg)) => {
-            println!("Found buster.yml configuration at {}", buster_config_load_dir.join("buster.yml").display());
+            println!("  ✅ Found buster.yml at {}", buster_config_load_dir.join("buster.yml").display());
             Some(cfg)
         }
         Ok(None) => {
-            println!("No buster.yml found in {}, will parse files directly or use defaults.", buster_config_load_dir.display());
+            println!("  ℹ️ No buster.yml found in {}. Will parse files directly or use defaults.", buster_config_load_dir.display().to_string().yellow());
             None
         }
         Err(e) => {
-            println!("Warning: Error reading buster.yml: {}. Proceeding without it.", e);
+            println!("  ⚠️ Error reading buster.yml: {}. Proceeding without it.", e.to_string().yellow());
             None
         }
     };
 
     let effective_buster_config_dir = BusterConfig::base_dir(&buster_config_load_dir.join("buster.yml")).unwrap_or(buster_config_load_dir.clone());
+    println!("Effective config directory: {}", effective_buster_config_dir.display().to_string().dimmed());
     
     let exclusion_manager = if let Some(cfg) = &buster_config {
         ExclusionManager::new(cfg)?
@@ -113,8 +122,12 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
     if let Some(p_str) = &path_arg {
         // If a specific path is given, use it directly.
         // It could be a file or a directory.
-        let specific_path = effective_buster_config_dir.join(p_str);
-        println!("Processing specified path: {}", specific_path.display());
+        let specific_path = if Path::new(p_str).is_absolute() {
+            PathBuf::from(p_str)
+        } else {
+            effective_buster_config_dir.join(p_str)
+        };
+        println!("\n{}", format!("🔍 Processing specified path: {}", specific_path.display()).dimmed());
         if specific_path.is_dir() {
             match find_yml_files(&specific_path, true, &exclusion_manager, Some(&mut progress)) { // Assuming recursive
                 Ok(files_in_dir) => {
@@ -139,7 +152,7 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
         if let Some(cfg) = &buster_config {
             let effective_paths_with_contexts = cfg.resolve_effective_semantic_model_paths(&effective_buster_config_dir);
             if !effective_paths_with_contexts.is_empty() {
-                println!("Using effective semantic_model paths from buster.yml:");
+                println!("\n{}", "ℹ️  Using effective semantic_model paths from buster.yml:".dimmed());
                 for (path, project_ctx_opt) in effective_paths_with_contexts {
                     let context_identifier = project_ctx_opt.map_or_else(|| "Global/Default".to_string(), |ctx| ctx.identifier());
                      println!("  - Path: {}, Context: {}", path.display(), context_identifier.dimmed());
@@ -159,7 +172,7 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
                     }
                 }
             } else {
-                 println!("No semantic_model_paths specified in buster.yml, scanning current directory: {}", effective_buster_config_dir.display());
+                 println!("\n{}", format!("ℹ️ No semantic_model_paths specified in buster.yml, scanning directory: {}", effective_buster_config_dir.display()).yellow());
                  match find_yml_files(&effective_buster_config_dir, true, &exclusion_manager, Some(&mut progress)) {
                     Ok(files_in_dir) => {
                         for f in files_in_dir {
@@ -171,7 +184,10 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
             }
         } else {
             // No buster.yml and no path_arg, scan current directory.
-            println!("No buster.yml found and no specific path provided. Scanning current directory: {}", effective_buster_config_dir.display());
+            println!(
+                "\n{}", 
+                format!("ℹ️ No buster.yml found and no specific path provided. Scanning directory: {}", effective_buster_config_dir.display()).yellow()
+            );
             match find_yml_files(&effective_buster_config_dir, true, &exclusion_manager, Some(&mut progress)) {
                 Ok(files_in_dir) => {
                     for f in files_in_dir {
@@ -184,14 +200,15 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
     }
 
     progress.total_files = files_to_parse_with_context.len();
-    println!("Found {} semantic model .yml file(s) to parse.", progress.total_files);
+    println!("\nFound {} semantic model .yml file(s) to parse.", progress.total_files.to_string().cyan());
 
     if files_to_parse_with_context.is_empty() {
-        println!("No semantic model files found to parse.");
+        println!("\n{}", "🤷 No semantic model files found to parse.".yellow());
         progress.log_summary();
         return Ok(());
     }
 
+    println!("\n{}", "✨ Starting parsing and validation process...".dimmed());
     let default_cfg_storage;
     let global_config_for_resolution = match buster_config.as_ref() {
         Some(cfg) => cfg,
@@ -221,55 +238,43 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
                              // Potentially add to errors if this is unexpected
                         }
                         for model in resolved_models {
+                            let mut model_errors: Vec<String> = Vec::new();
                             // Basic validation: model name should not be empty
                             if model.name.is_empty() {
-                                progress.errors.push((
-                                    progress.current_file.clone(),
-                                    "<Unnamed Model>".to_string(),
-                                    vec!["Model name is empty.".to_string()],
-                                ));
-                                continue;
+                                model_errors.push("Model name is empty.".to_string());
                             }
                             // Further validation could be added here, e.g., checking for data_source_name and schema after resolution
                             if model.data_source_name.is_none() {
-                                progress.errors.push((
-                                    progress.current_file.clone(),
-                                    model.name.clone(),
-                                    vec!["data_source_name could not be resolved.".to_string()],
-                                ));
+                                model_errors.push("data_source_name could not be resolved.".to_string());
                             }
                             if model.schema.is_none() {
-                                progress.errors.push((
-                                    progress.current_file.clone(),
-                                    model.name.clone(),
-                                    vec!["schema could not be resolved.".to_string()],
-                                ));
+                                model_errors.push("schema could not be resolved.".to_string());
                             }
 
-                            // If previous checks created errors for this model, don't mark as success.
-                            // Check if current_file and model.name combination is already in errors.
-                            let is_error = progress.errors.iter().any(|(f, m, _)| f == &progress.current_file && m == &model.name);
-                            if !is_error {
-                                println!("  Successfully parsed and resolved semantic model: {}", model.name.green());
+                            if !model_errors.is_empty() {
+                                progress.errors.push((
+                                    progress.current_file.clone(),
+                                    if model.name.is_empty() { "<Unnamed Model>".to_string() } else { model.name.clone() },
+                                    model_errors,
+                                ));
+                            } else {
+                                println!("  ✅ Parsed & validated: {}", model.name.purple());
                                 progress.successes.push((progress.current_file.clone(), model.name.clone()));
                             }
                         }
                     }
                     Err(e) => {
-                        println!("  Error resolving configurations for semantic models in {}: {}", yml_path.display(), e.to_string().red());
-                        // Attempt to identify model names if possible, otherwise use file name
-                        // This part is tricky as parsing might have succeeded but resolution failed for all.
-                        // For now, associating error with the file.
+                        println!("  ❌ Error resolving configurations for models in {}: {}", yml_path.display(), e.to_string().red());
                         progress.errors.push((
                             progress.current_file.clone(),
-                            format!("File-level resolution error"), 
+                            format!("<File-level Resolution Error>"), 
                             vec![e.to_string()]
                         ));
                     }
                 }
             }
             Err(e) => {
-                println!("  Error parsing semantic model file {}: {}", yml_path.display(), e.to_string().red());
+                println!("  ❌ Error parsing semantic model file {}: {}", yml_path.display(), e.to_string().red());
                 progress.errors.push((
                     progress.current_file.clone(),
                     "<Parse Error>".to_string(),
