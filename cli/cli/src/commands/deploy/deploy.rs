@@ -223,6 +223,7 @@ fn check_excluded_tags(
         exclude_tags: Some(exclude_tags.to_vec()),
         model_paths: None,
         projects: None,
+        semantic_model_paths: None,
     };
 
     let manager = ExclusionManager::new(&temp_config)?;
@@ -952,6 +953,7 @@ models:
             exclude_files: None,
             exclude_tags: None,
             model_paths: None,
+            semantic_model_paths: None,
             projects: None,
         };
         

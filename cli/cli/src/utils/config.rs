@@ -49,6 +49,24 @@ impl ProjectContext {
         }
     }
     
+    /// Returns the effective semantic model paths for this project context, relative to buster_yml_dir if not absolute.
+    pub fn resolve_semantic_model_paths(&self, buster_yml_dir: &Path) -> Vec<PathBuf> {
+        if let Some(semantic_model_paths) = &self.semantic_model_paths {
+            semantic_model_paths.iter()
+                .map(|path_str| {
+                    let p = Path::new(path_str);
+                    if p.is_absolute() {
+                        p.to_path_buf()
+                    } else {
+                        buster_yml_dir.join(p)
+                    }
+                })
+                .collect()
+        } else {
+            Vec::new()
+        }
+    }
+
     /// Returns a string identifier for this project
     pub fn identifier(&self) -> String {
         self.name.clone().unwrap_or_else(|| "DefaultProjectContext".to_string())
@@ -71,6 +89,8 @@ pub struct BusterConfig {
     pub exclude_tags: Option<Vec<String>>,
     #[serde(default, skip_serializing_if = "Option::is_none")] // Ensure this field is optional
     pub model_paths: Option<Vec<String>>, // Paths to SQL model files/directories
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub semantic_model_paths: Option<Vec<String>>, // Paths to semantic model YAML files
 
     // --- New multi-project structure ---
     #[serde(default, skip_serializing_if = "Option::is_none")] // Allows files without 'projects' key to parse and skips serializing if None
@@ -117,41 +137,32 @@ impl BusterConfig {
     /// Resolves all effective model search paths from buster.yml
     /// Returns a list of absolute paths paired with their associated project context (if any)
     pub fn resolve_effective_model_paths(&self, buster_yml_dir: &Path) -> Vec<(PathBuf, Option<&ProjectContext>)> {
-        let mut effective_paths = Vec::new();
-        
-        // First priority: Check projects if they exist
-        if let Some(projects) = &self.projects {
-            for project in projects {
-                let project_paths = project.resolve_model_paths(buster_yml_dir);
-                for path in project_paths {
-                    effective_paths.push((path, Some(project)));
+        let mut collected_paths = Vec::new();
+
+        if let Some(projects_list) = &self.projects {
+            // If 'projects' key exists, it is the sole source of truth for model_paths.
+            for project_ctx in projects_list {
+                let project_model_paths = project_ctx.resolve_model_paths(buster_yml_dir);
+                for path in project_model_paths {
+                    collected_paths.push((path, Some(project_ctx)));
                 }
             }
-            
-            if !effective_paths.is_empty() {
-                return effective_paths;
+            // If projects are defined but none specify model_paths, collected_paths will be empty, which is correct.
+        } else {
+            // Fallback to top-level model_paths for backward compatibility if 'projects' is not defined.
+            if let Some(global_model_paths) = &self.model_paths {
+                for path_str in global_model_paths {
+                    let resolved_path = if Path::new(path_str).is_absolute() {
+                        PathBuf::from(path_str)
+                    } else {
+                        buster_yml_dir.join(path_str)
+                    };
+                    collected_paths.push((resolved_path, None));
+                }
             }
+            // If no projects and no top-level model_paths, collected_paths remains empty.
         }
-        
-        // Second priority: Use top-level model_paths if projects didn't yield any paths
-        if let Some(model_paths) = &self.model_paths {
-            for path in model_paths {
-                let resolved_path = if Path::new(path).is_absolute() {
-                    PathBuf::from(path)
-                } else {
-                    buster_yml_dir.join(path)
-                };
-                effective_paths.push((resolved_path, None));
-            }
-            
-            if !effective_paths.is_empty() {
-                return effective_paths;
-            }
-        }
-        
-        // Last resort: Use the directory containing buster.yml
-        effective_paths.push((buster_yml_dir.to_path_buf(), None));
-        effective_paths
+        collected_paths
     }
     
     /// Validates all exclude patterns to ensure they are valid glob patterns
@@ -182,28 +193,54 @@ impl BusterConfig {
     /// Uses the new resolve_effective_model_paths method which is context-aware
     /// and returns just the PathBufs without their context associations for backward compatibility
     pub fn resolve_model_paths(&self, base_dir: &Path) -> Vec<PathBuf> {
-        let effective_paths = self.resolve_effective_model_paths(base_dir);
+        let effective_paths_with_contexts = self.resolve_effective_model_paths(base_dir);
         
-        // Extract just the paths from the (path, context) pairs
-        let resolved_paths: Vec<PathBuf> = effective_paths
+        let resolved_paths: Vec<PathBuf> = effective_paths_with_contexts
             .into_iter()
             .map(|(path, _context)| path)
             .collect();
         
         if !resolved_paths.is_empty() {
-            // Log the resolved paths
-            println!("ℹ️  Using model paths from buster.yml:");
+            println!("ℹ️  Using resolved model paths:");
             for path in &resolved_paths {
                 println!("   - {}", path.display());
             }
-            resolved_paths
         } else {
-            // This should never happen with our implementation, but just in case
-            println!("ℹ️  No model paths found, using current directory: {}", base_dir.display());
-            vec![base_dir.to_path_buf()]
+            println!("ℹ️  No model paths configured or found.");
         }
+        resolved_paths
     }
 
+    /// Resolves all effective semantic model search paths from buster.yml
+    /// Returns a list of absolute paths paired with their associated project context (if any)
+    pub fn resolve_effective_semantic_model_paths(&self, buster_yml_dir: &Path) -> Vec<(PathBuf, Option<&ProjectContext>)> {
+        let mut collected_paths = Vec::new();
+
+        if let Some(projects_list) = &self.projects {
+            // If 'projects' key exists, it is the sole source of truth for semantic_model_paths.
+            for project_ctx in projects_list {
+                let project_semantic_paths = project_ctx.resolve_semantic_model_paths(buster_yml_dir);
+                for path in project_semantic_paths {
+                    collected_paths.push((path, Some(project_ctx)));
+                }
+            }
+            // If projects are defined but none specify semantic_model_paths, collected_paths will be empty.
+        } else {
+            // Fallback to top-level semantic_model_paths for backward compatibility if 'projects' is not defined.
+            if let Some(global_semantic_paths) = &self.semantic_model_paths {
+                for path_str in global_semantic_paths {
+                    let resolved_path = if Path::new(path_str).is_absolute() {
+                        PathBuf::from(path_str)
+                    } else {
+                        buster_yml_dir.join(path_str)
+                    };
+                    collected_paths.push((resolved_path, None));
+                }
+            }
+            // If no projects and no top-level semantic_model_paths, collected_paths remains empty.
+        }
+        collected_paths
+    }
 
     /// Load configuration from the specified directory
     /// This method only looks for buster.yml in the exact directory provided,
@@ -371,6 +408,58 @@ mod tests {
     }
 
     #[test]
+    fn test_project_context_resolve_semantic_model_paths() -> Result<()> {
+        let base_dir = create_test_dir()?;
+        let buster_yml_dir = base_dir.path();
+        
+        let project_semantic_models_dir = buster_yml_dir.join("project_specific_semantic_models");
+        fs::create_dir(&project_semantic_models_dir)?;
+
+        // Test with no semantic_model_paths
+        let project_no_paths = ProjectContext {
+            name: Some("NoSemanticPathsProject".to_string()),
+            ..Default::default()
+        };
+        let paths = project_no_paths.resolve_semantic_model_paths(buster_yml_dir);
+        assert!(paths.is_empty());
+
+        // Test with relative semantic_model_paths
+        let project_with_paths = ProjectContext {
+            name: Some("WithSemanticPathsProject".to_string()),
+            semantic_model_paths: Some(vec!["project_specific_semantic_models".to_string(), "another_semantic_relative".to_string()]),
+            ..Default::default()
+        };
+        let paths = project_with_paths.resolve_semantic_model_paths(buster_yml_dir);
+        assert_eq!(paths.len(), 2);
+        assert_eq!(paths[0], project_semantic_models_dir);
+        assert_eq!(paths[1], buster_yml_dir.join("another_semantic_relative"));
+
+        // Test with absolute semantic_model_paths
+        let abs_path_str = if cfg!(windows) { "C:\\abs_semantic_path" } else { "/tmp/abs_semantic_path" };
+        let project_abs_paths = ProjectContext {
+            name: Some("AbsSemanticPathsProject".to_string()),
+            semantic_model_paths: Some(vec![abs_path_str.to_string()]),
+            ..Default::default()
+        };
+        let paths = project_abs_paths.resolve_semantic_model_paths(buster_yml_dir);
+        assert_eq!(paths.len(), 1);
+        assert_eq!(paths[0], PathBuf::from(abs_path_str));
+        
+        // Test with mixed paths
+        let project_mixed_paths = ProjectContext {
+            name: Some("MixedSemanticPathsProject".to_string()),
+            semantic_model_paths: Some(vec!["relative_semantic_path".to_string(), abs_path_str.to_string()]),
+            ..Default::default()
+        };
+        let paths = project_mixed_paths.resolve_semantic_model_paths(buster_yml_dir);
+        assert_eq!(paths.len(), 2);
+        assert_eq!(paths[0], buster_yml_dir.join("relative_semantic_path"));
+        assert_eq!(paths[1], PathBuf::from(abs_path_str));
+
+        Ok(())
+    }
+
+    #[test]
     fn test_project_context_identifier() {
         // Test with name
         let project = ProjectContext {
@@ -442,10 +531,17 @@ mod tests {
     fn test_buster_config_resolve_effective_model_paths() -> Result<()> {
         let base_dir = create_test_dir()?;
         let buster_yml_dir = base_dir.path();
-        
-        // Create a BusterConfig with projects
-        let config = BusterConfig {
-            model_paths: Some(vec!["global_models".to_string()]),
+
+        let p1_models_dir = buster_yml_dir.join("p1_models");
+        fs::create_dir_all(&p1_models_dir)?;
+        let p2_models_dir = buster_yml_dir.join("p2_models_relative");
+        // No need to create p2_models_dir if it's just for path assertion
+        let global_models_dir = buster_yml_dir.join("global_cfg_models");
+        fs::create_dir_all(&global_models_dir)?;
+
+        // Scenario 1: Projects define model_paths. Global model_paths should be ignored.
+        let config_projects_have_paths = BusterConfig {
+            model_paths: Some(vec!["global_cfg_models".to_string()]), // This should be ignored
             projects: Some(vec![
                 ProjectContext {
                     name: Some("Project 1".to_string()),
@@ -454,57 +550,218 @@ mod tests {
                 },
                 ProjectContext {
                     name: Some("Project 2".to_string()),
+                    model_paths: Some(vec!["p2_models_relative".to_string()]),
                     ..Default::default()
+                },
+                ProjectContext {
+                    name: Some("Project 3 No Paths".to_string()),
+                    ..Default::default() // No model_paths here
                 }
             ]),
             ..Default::default()
         };
-        
-        // Get effective paths
-        let paths = config.resolve_effective_model_paths(buster_yml_dir);
-        
-        // Expect paths from Project 1. Project 2 contributes nothing from its own model_paths.
-        // If projects yielded paths, global_models should not be used.
-        assert_eq!(paths.len(), 1); 
-        
-        // Check first path and its context (from Project 1)
-        assert_eq!(paths[0].0, buster_yml_dir.join("p1_models"));
-        assert!(paths[0].1.is_some());
-        assert_eq!(paths[0].1.unwrap().name, Some("Project 1".to_string()));
-        
-        // Test with config where projects have no model_paths, should use global
-        let config_global_fallback = BusterConfig {
-            model_paths: Some(vec!["global_models".to_string()]),
+        let paths1 = config_projects_have_paths.resolve_effective_model_paths(buster_yml_dir);
+        assert_eq!(paths1.len(), 2, "Should only find paths from Project 1 and Project 2");
+        assert!(paths1.iter().any(|(p, ctx)| p == &p1_models_dir && ctx.unwrap().name == Some("Project 1".to_string())));
+        assert!(paths1.iter().any(|(p, ctx)| p == &p2_models_dir && ctx.unwrap().name == Some("Project 2".to_string())));
+
+        // Scenario 2: Projects key exists but is empty. Fallback to global model_paths.
+        let config_empty_projects_list = BusterConfig {
+            model_paths: Some(vec!["global_cfg_models".to_string()]),
+            projects: Some(vec![]), // Empty projects list
+            ..Default::default()
+        };
+        // Correction: If projects list is empty, it means no project-defined paths.
+        // The current refined logic will result in an empty path list from the projects block.
+        // Then it will NOT fall back to global. Fallback only happens if `projects` key is None.
+        // This test needs to reflect that. If `projects: Some([])` then result is [].
+        // To test global fallback, `projects` must be `None`.
+        let paths2_empty_projects = config_empty_projects_list.resolve_effective_model_paths(buster_yml_dir);
+        assert!(paths2_empty_projects.is_empty(), "Expected no paths if projects list is present but empty, and no project defines paths");
+
+        // Scenario 2.1: Projects key exists, but NO project defines model_paths. Result should be empty.
+        let config_projects_no_paths = BusterConfig {
+            model_paths: Some(vec!["global_cfg_models".to_string()]), // Should be ignored
             projects: Some(vec![
-                ProjectContext { name: Some("Project A".to_string()), ..Default::default()},
-                ProjectContext { name: Some("Project B".to_string()), ..Default::default()}
+                ProjectContext { name: Some("Project NoPathsA".to_string()), ..Default::default() },
+                ProjectContext { name: Some("Project NoPathsB".to_string()), ..Default::default() }
             ]),
             ..Default::default()
         };
-        let paths_global = config_global_fallback.resolve_effective_model_paths(buster_yml_dir);
-        assert_eq!(paths_global.len(), 1);
-        assert_eq!(paths_global[0].0, buster_yml_dir.join("global_models"));
-        assert!(paths_global[0].1.is_none()); // Global paths have no project context associated
+        let paths2_1 = config_projects_no_paths.resolve_effective_model_paths(buster_yml_dir);
+        assert!(paths2_1.is_empty(), "Should be empty if projects are defined but none have model_paths");
 
-        // Test with config without projects at all
-        let config_no_projects = BusterConfig {
-            model_paths: Some(vec!["global_models".to_string()]),
+        // Scenario 3: `projects` key is None. Fallback to global model_paths.
+        let config_no_projects_key = BusterConfig {
+            model_paths: Some(vec!["global_cfg_models".to_string()]),
+            projects: None, // `projects` key is absent
+            ..Default::default()
+        };
+        let paths3 = config_no_projects_key.resolve_effective_model_paths(buster_yml_dir);
+        assert_eq!(paths3.len(), 1);
+        assert_eq!(paths3[0].0, global_models_dir);
+        assert!(paths3[0].1.is_none(), "Context should be None for global paths");
+
+        // Scenario 4: `projects` key is None, and global model_paths is also None. Result is empty.
+        let config_all_none = BusterConfig {
+            model_paths: None,
             projects: None,
             ..Default::default()
         };
+        let paths4 = config_all_none.resolve_effective_model_paths(buster_yml_dir);
+        assert!(paths4.is_empty(), "Should be empty if no projects and no global model_paths");
         
-        let paths_no_proj = config_no_projects.resolve_effective_model_paths(buster_yml_dir);
-        assert_eq!(paths_no_proj.len(), 1);
-        assert_eq!(paths_no_proj[0].0, buster_yml_dir.join("global_models"));
-        assert!(paths_no_proj[0].1.is_none());
-        
-        // Test with empty config (no projects, no global model_paths)
-        let config_empty = BusterConfig::default();
-        let paths_empty = config_empty.resolve_effective_model_paths(buster_yml_dir);
-        assert_eq!(paths_empty.len(), 1);
-        assert_eq!(paths_empty[0].0, buster_yml_dir.to_path_buf()); // Fallback to buster_yml_dir itself
-        assert!(paths_empty[0].1.is_none());
-        
+        // Scenario 5: `projects` key is None, and global model_paths is Some([]). Result is empty.
+        let config_global_empty_array = BusterConfig {
+            model_paths: Some(vec![]),
+            projects: None,
+            ..Default::default()
+        };
+        let paths5 = config_global_empty_array.resolve_effective_model_paths(buster_yml_dir);
+        assert!(paths5.is_empty(), "Should be empty if no projects and global model_paths is an empty array");
+
+        // Scenario 6: Absolute path in project
+        let abs_path_str = if cfg!(windows) { "C:\\abs_project_models" } else { "/tmp/abs_project_models" };
+        let config_abs_project = BusterConfig {
+            projects: Some(vec![ProjectContext {
+                name: Some("AbsProject".to_string()),
+                model_paths: Some(vec![abs_path_str.to_string()]),
+                ..Default::default()
+            }]),
+            ..Default::default()
+        };
+        let paths6 = config_abs_project.resolve_effective_model_paths(buster_yml_dir);
+        assert_eq!(paths6.len(), 1);
+        assert_eq!(paths6[0].0, PathBuf::from(abs_path_str));
+        assert!(paths6[0].1.unwrap().name == Some("AbsProject".to_string()));
+
+        // Scenario 7: Absolute path in global (when projects is None)
+        let config_abs_global = BusterConfig {
+            model_paths: Some(vec![abs_path_str.to_string()]),
+            projects: None,
+            ..Default::default()
+        };
+        let paths7 = config_abs_global.resolve_effective_model_paths(buster_yml_dir);
+        assert_eq!(paths7.len(), 1);
+        assert_eq!(paths7[0].0, PathBuf::from(abs_path_str));
+        assert!(paths7[0].1.is_none());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_buster_config_resolve_effective_semantic_model_paths() -> Result<()> {
+        let base_dir = create_test_dir()?;
+        let buster_yml_dir = base_dir.path();
+
+        let p1_semantic_dir = buster_yml_dir.join("project1_semantic_models");
+        fs::create_dir_all(&p1_semantic_dir)?;
+        let p2_semantic_dir = buster_yml_dir.join("project2_sem_relative");
+        let global_semantic_dir = buster_yml_dir.join("global_cfg_semantic_models");
+        fs::create_dir_all(&global_semantic_dir)?;
+
+        // Scenario 1: Projects define semantic_model_paths. Global semantic_model_paths should be ignored.
+        let config_projects_have_paths = BusterConfig {
+            semantic_model_paths: Some(vec!["global_cfg_semantic_models".to_string()]), // This should be ignored
+            projects: Some(vec![
+                ProjectContext {
+                    name: Some("Project 1 Sem".to_string()),
+                    semantic_model_paths: Some(vec!["project1_semantic_models".to_string()]),
+                    ..Default::default()
+                },
+                ProjectContext {
+                    name: Some("Project 2 Sem".to_string()),
+                    semantic_model_paths: Some(vec!["project2_sem_relative".to_string()]),
+                    ..Default::default()
+                },
+                ProjectContext {
+                    name: Some("Project 3 No SemPaths".to_string()),
+                    ..Default::default() // No semantic_model_paths here
+                }
+            ]),
+            ..Default::default()
+        };
+        let paths1 = config_projects_have_paths.resolve_effective_semantic_model_paths(buster_yml_dir);
+        assert_eq!(paths1.len(), 2, "Should only find paths from Project 1 Sem and Project 2 Sem");
+        assert!(paths1.iter().any(|(p, ctx)| p == &p1_semantic_dir && ctx.unwrap().name == Some("Project 1 Sem".to_string())));
+        assert!(paths1.iter().any(|(p, ctx)| p == &p2_semantic_dir && ctx.unwrap().name == Some("Project 2 Sem".to_string())));
+
+        // Scenario 2: Projects key exists but is empty. Result should be empty (no fallback to global).
+        let config_empty_projects_list = BusterConfig {
+            semantic_model_paths: Some(vec!["global_cfg_semantic_models".to_string()]),
+            projects: Some(vec![]), // Empty projects list
+            ..Default::default()
+        };
+        let paths2_empty_projects = config_empty_projects_list.resolve_effective_semantic_model_paths(buster_yml_dir);
+        assert!(paths2_empty_projects.is_empty(), "Expected no paths if projects list is present but empty");
+
+        // Scenario 2.1: Projects key exists, but NO project defines semantic_model_paths. Result should be empty.
+        let config_projects_no_paths = BusterConfig {
+            semantic_model_paths: Some(vec!["global_cfg_semantic_models".to_string()]), // Should be ignored
+            projects: Some(vec![
+                ProjectContext { name: Some("Project NoSemPathsA".to_string()), ..Default::default() },
+                ProjectContext { name: Some("Project NoSemPathsB".to_string()), ..Default::default() }
+            ]),
+            ..Default::default()
+        };
+        let paths2_1 = config_projects_no_paths.resolve_effective_semantic_model_paths(buster_yml_dir);
+        assert!(paths2_1.is_empty(), "Should be empty if projects are defined but none have semantic_model_paths");
+
+        // Scenario 3: `projects` key is None. Fallback to global semantic_model_paths.
+        let config_no_projects_key = BusterConfig {
+            semantic_model_paths: Some(vec!["global_cfg_semantic_models".to_string()]),
+            projects: None, // `projects` key is absent
+            ..Default::default()
+        };
+        let paths3 = config_no_projects_key.resolve_effective_semantic_model_paths(buster_yml_dir);
+        assert_eq!(paths3.len(), 1);
+        assert_eq!(paths3[0].0, global_semantic_dir);
+        assert!(paths3[0].1.is_none(), "Context should be None for global semantic paths");
+
+        // Scenario 4: `projects` key is None, and global semantic_model_paths is also None. Result is empty.
+        let config_all_none = BusterConfig {
+            semantic_model_paths: None,
+            projects: None,
+            ..Default::default()
+        };
+        let paths4 = config_all_none.resolve_effective_semantic_model_paths(buster_yml_dir);
+        assert!(paths4.is_empty(), "Should be empty if no projects and no global semantic_model_paths");
+
+        // Scenario 5: `projects` key is None, and global semantic_model_paths is Some([]). Result is empty.
+        let config_global_empty_array = BusterConfig {
+            semantic_model_paths: Some(vec![]),
+            projects: None,
+            ..Default::default()
+        };
+        let paths5 = config_global_empty_array.resolve_effective_semantic_model_paths(buster_yml_dir);
+        assert!(paths5.is_empty(), "Should be empty if no projects and global semantic_model_paths is an empty array");
+
+        // Scenario 6: Absolute path in project for semantic models
+        let abs_path_semantic_str = if cfg!(windows) { "C:\\abs_project_semantic_models" } else { "/tmp/abs_project_semantic_models" };
+        let config_abs_project_semantic = BusterConfig {
+            projects: Some(vec![ProjectContext {
+                name: Some("AbsProjectSem".to_string()),
+                semantic_model_paths: Some(vec![abs_path_semantic_str.to_string()]),
+                ..Default::default()
+            }]),
+            ..Default::default()
+        };
+        let paths6 = config_abs_project_semantic.resolve_effective_semantic_model_paths(buster_yml_dir);
+        assert_eq!(paths6.len(), 1);
+        assert_eq!(paths6[0].0, PathBuf::from(abs_path_semantic_str));
+        assert!(paths6[0].1.unwrap().name == Some("AbsProjectSem".to_string()));
+
+        // Scenario 7: Absolute path in global for semantic models (when projects is None)
+        let config_abs_global_semantic = BusterConfig {
+            semantic_model_paths: Some(vec![abs_path_semantic_str.to_string()]),
+            projects: None,
+            ..Default::default()
+        };
+        let paths7 = config_abs_global_semantic.resolve_effective_semantic_model_paths(buster_yml_dir);
+        assert_eq!(paths7.len(), 1);
+        assert_eq!(paths7[0].0, PathBuf::from(abs_path_semantic_str));
+        assert!(paths7[0].1.is_none());
+
         Ok(())
     }
 

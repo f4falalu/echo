@@ -137,9 +137,9 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
     } else {
         // No specific path, use buster_config (if available) or current directory
         if let Some(cfg) = &buster_config {
-            let effective_paths_with_contexts = cfg.resolve_effective_model_paths(&effective_buster_config_dir);
+            let effective_paths_with_contexts = cfg.resolve_effective_semantic_model_paths(&effective_buster_config_dir);
             if !effective_paths_with_contexts.is_empty() {
-                println!("Using effective model paths from buster.yml:");
+                println!("Using effective semantic_model paths from buster.yml:");
                 for (path, project_ctx_opt) in effective_paths_with_contexts {
                     let context_identifier = project_ctx_opt.map_or_else(|| "Global/Default".to_string(), |ctx| ctx.identifier());
                      println!("  - Path: {}, Context: {}", path.display(), context_identifier.dimmed());
@@ -159,7 +159,7 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
                     }
                 }
             } else {
-                 println!("No model_paths specified in buster.yml, scanning current directory: {}", effective_buster_config_dir.display());
+                 println!("No semantic_model_paths specified in buster.yml, scanning current directory: {}", effective_buster_config_dir.display());
                  match find_yml_files(&effective_buster_config_dir, true, &exclusion_manager, Some(&mut progress)) {
                     Ok(files_in_dir) => {
                         for f in files_in_dir {
@@ -184,10 +184,10 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
     }
 
     progress.total_files = files_to_parse_with_context.len();
-    println!("Found {} model .yml file(s) to parse.", progress.total_files);
+    println!("Found {} semantic model .yml file(s) to parse.", progress.total_files);
 
     if files_to_parse_with_context.is_empty() {
-        println!("No model files found to parse.");
+        println!("No semantic model files found to parse.");
         progress.log_summary();
         return Ok(());
     }
@@ -217,7 +217,7 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
                 match resolve_model_configurations(models_with_context, global_config_for_resolution) {
                     Ok(resolved_models) => {
                         if resolved_models.is_empty() && !yml_path.to_string_lossy().contains("empty_test") { // Guard against empty files unless for specific tests
-                             println!("Warning: No models found in file: {}", yml_path.display());
+                             println!("Warning: No semantic models found in file: {}", yml_path.display());
                              // Potentially add to errors if this is unexpected
                         }
                         for model in resolved_models {
@@ -250,13 +250,13 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
                             // Check if current_file and model.name combination is already in errors.
                             let is_error = progress.errors.iter().any(|(f, m, _)| f == &progress.current_file && m == &model.name);
                             if !is_error {
-                                println!("  Successfully parsed and resolved model: {}", model.name.green());
+                                println!("  Successfully parsed and resolved semantic model: {}", model.name.green());
                                 progress.successes.push((progress.current_file.clone(), model.name.clone()));
                             }
                         }
                     }
                     Err(e) => {
-                        println!("  Error resolving configurations for models in {}: {}", yml_path.display(), e.to_string().red());
+                        println!("  Error resolving configurations for semantic models in {}: {}", yml_path.display(), e.to_string().red());
                         // Attempt to identify model names if possible, otherwise use file name
                         // This part is tricky as parsing might have succeeded but resolution failed for all.
                         // For now, associating error with the file.
@@ -269,7 +269,7 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
                 }
             }
             Err(e) => {
-                println!("  Error parsing model file {}: {}", yml_path.display(), e.to_string().red());
+                println!("  Error parsing semantic model file {}: {}", yml_path.display(), e.to_string().red());
                 progress.errors.push((
                     progress.current_file.clone(),
                     "<Parse Error>".to_string(),
