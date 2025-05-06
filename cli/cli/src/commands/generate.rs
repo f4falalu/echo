@@ -46,8 +46,8 @@ pub async fn generate_semantic_models_command(
     // 3. Determine target semantic YAML file path
     let semantic_models_file_path_str = match target_semantic_file_arg {
         Some(path_str) => path_str,
-        None => match buster_config.semantic_models_file {
-            Some(path_str) => path_str,
+        None => match buster_config.projects.as_ref().and_then(|projects| projects.first()) {
+            Some(project) => project.semantic_models_file.clone().unwrap_or_else(|| "models.yml".to_string()),
             None => {
                 return Err(anyhow!(
                     "No target semantic model file specified and 'semantic_models_file' not set in buster.yml. \nPlease use the --output-file option or configure buster.yml via 'buster init'."

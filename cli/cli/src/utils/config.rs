@@ -22,6 +22,8 @@ pub struct ProjectContext {
     pub model_paths: Option<Vec<String>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>, // Optional name for the project
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub semantic_models_file: Option<String>, // Path to the semantic layer YAML for this project
 }
 
 impl ProjectContext {
@@ -81,8 +83,6 @@ pub struct BusterConfig {
     // --- New multi-project structure ---
     #[serde(default, skip_serializing_if = "Option::is_none")] // Allows files without 'projects' key to parse and skips serializing if None
     pub projects: Option<Vec<ProjectContext>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub semantic_models_file: Option<String>, // Path to the generated semantic layer YAML file
 }
 
 impl BusterConfig {
