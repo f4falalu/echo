@@ -1064,6 +1064,7 @@ fn create_buster_config_file(
         exclude_tags: None,
         model_paths: None, // This top-level field is superseded by 'projects'
         projects: Some(project_contexts),
+        semantic_model_paths: None,
     };
 
     config.save(path)?;
