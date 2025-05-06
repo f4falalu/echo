@@ -75,8 +75,6 @@ test('Can remove a metric from a dashboard', async ({ page }) => {
     await page.mouse.up();
     await page.waitForTimeout(1000);
   } catch (e) {
-    console.log('Drag and drop failed with first approach, trying backup method');
-
     const sourceBoundingBox = await sourceElement.boundingBox();
     const targetBoundingBox = await targetElement.boundingBox();
 
@@ -155,4 +153,54 @@ test('Can remove a metric from a dashboard', async ({ page }) => {
     - heading /\\d+/ [level=1]
     - text: Drag here to create a new row
     `);
+});
+
+test('Can edit name and description of a dashboard', async ({ page }) => {
+  await page.goto('http://localhost:3000/app/dashboards/c0855f0f-f50a-424e-9e72-9e53711a7f6a');
+  await expect(page.getByRole('textbox', { name: 'Add description...' })).toHaveValue('');
+
+  await page.getByRole('textbox', { name: 'New dashboard' }).click();
+  await page.getByRole('textbox', { name: 'New dashboard' }).fill('Important Metrics NATE RULES');
+  await page.getByRole('textbox', { name: 'Add description...' }).click();
+  await page.getByRole('textbox', { name: 'Add description...' }).fill('HUH?');
+  await expect(page.getByRole('textbox', { name: 'New dashboard' })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'New dashboard' })).toHaveValue(
+    'Important Metrics NATE RULES'
+  );
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByRole('textbox', { name: 'New dashboard' })).toHaveValue(
+    'Important Metrics NATE RULES'
+  );
+  await page.getByRole('textbox', { name: 'New dashboard' }).click();
+  await page.getByRole('textbox', { name: 'New dashboard' }).fill('Important Metrics');
+  await page.getByRole('textbox', { name: 'Add description...' }).click();
+  await expect(page.getByRole('textbox', { name: 'Add description...' })).toHaveValue('HUH?');
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(100);
+  await page.waitForLoadState('networkidle');
+
+  await expect(page.getByRole('textbox', { name: 'New dashboard' })).toHaveValue(
+    'Important Metrics'
+  );
+  await page.getByRole('textbox', { name: 'Add description...' }).fill('');
+  await expect(page.getByRole('textbox', { name: 'Add description...' })).toBeEmpty();
+  await page.getByRole('textbox', { name: 'New dashboard' }).click();
+  await page.getByRole('textbox', { name: 'New dashboard' }).fill('Important Metrics SWAG');
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(400);
+  await page.waitForLoadState('networkidle');
+  await page.getByTestId('segmented-trigger-file').click();
+  await page.getByTestId('segmented-trigger-file').click();
+  await page.waitForTimeout(5000); // Wait up to 2 seconds for the text to appear
+
+  await expect(page.getByText('Important Metrics SWAG')).toBeVisible({ timeout: 20000 }); // Wait up to 20 seconds for visibility
+  await expect(page.locator('.current-line').first()).toBeVisible();
+
+  await page
+    .getByRole('textbox', { name: 'Editor content' })
+    .fill(
+      "name: Important Metrics\ndescription: ''\nrows:\n- items:\n  - id: 72e445a5-fb08-5b76-8c77-1642adf0cb72\n  - id: 45848c7f-0d28-52a0-914e-f3fc1b7d4180\n  - id: 117a2fc5-e3e8-5bb0-a29b-bcfa3da3adc0\n  - id: b19d2606-6061-5d22-8628-78a4878310d4\n  rowHeight: 320\n  columnSizes:\n"
+    );
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByTestId('segmented-trigger-dashboard').click();
 });
