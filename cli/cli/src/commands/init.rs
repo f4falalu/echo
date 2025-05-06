@@ -225,6 +225,29 @@ async fn create_data_source_with_progress(
 pub async fn init(destination_path: Option<&str>) -> Result<()> {
     println!("{}", "Initializing Buster...".bold().green());
 
+    // Check for Buster credentials with progress indicator
+    let spinner = ProgressBar::new_spinner();
+    spinner.set_style(
+        ProgressStyle::default_spinner()
+            .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ")
+            .template("{spinner:.green} {msg}")
+            .unwrap(),
+    );
+    spinner.set_message("Checking for Buster credentials...");
+    spinner.enable_steady_tick(Duration::from_millis(100));
+
+    let buster_creds = match get_and_validate_buster_credentials().await {
+        Ok(creds) => {
+            spinner.finish_with_message("✓ Buster credentials found".green().to_string());
+            creds
+        }
+        Err(_) => {
+            spinner.finish_with_message("✗ No valid Buster credentials found".red().to_string());
+            println!("Please run {} first.", "buster auth".cyan());
+            return Err(anyhow::anyhow!("No valid Buster credentials found"));
+        }
+    };
+
     // Determine the destination path for buster.yml
     let dest_path = match destination_path {
         Some(path) => PathBuf::from(path),
@@ -270,29 +293,6 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
         );
     }
     // --- End dbt_project.yml parsing ---
-
-    // Check for Buster credentials with progress indicator
-    let spinner = ProgressBar::new_spinner();
-    spinner.set_style(
-        ProgressStyle::default_spinner()
-            .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ")
-            .template("{spinner:.green} {msg}")
-            .unwrap(),
-    );
-    spinner.set_message("Checking for Buster credentials...");
-    spinner.enable_steady_tick(Duration::from_millis(100));
-
-    let buster_creds = match get_and_validate_buster_credentials().await {
-        Ok(creds) => {
-            spinner.finish_with_message("✓ Buster credentials found".green().to_string());
-            creds
-        }
-        Err(_) => {
-            spinner.finish_with_message("✗ No valid Buster credentials found".red().to_string());
-            println!("Please run {} first.", "buster auth".cyan());
-            return Err(anyhow::anyhow!("No valid Buster credentials found"));
-        }
-    };
 
     // Select database type
     // Sort database types alphabetically by display name

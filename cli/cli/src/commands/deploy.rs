@@ -19,6 +19,7 @@ use crate::utils::{
     config::BusterConfig,
     file::buster_credentials::get_and_validate_buster_credentials,
 };
+use super::auth::check_authentication;
 
 // Use the unified BusterConfig from exclusion.rs instead
 // This BusterConfig struct is now deprecated and replaced by the one from utils::exclusion
@@ -815,7 +816,12 @@ impl ModelFile {
 }
 
 pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Result<()> {
-    let target_path = PathBuf::from(path.unwrap_or("."));
+    check_authentication().await?;
+
+    let current_dir = std::env::current_dir()?;
+    let target_path = path
+        .map(|p| PathBuf::from(p))
+        .unwrap_or_else(|| current_dir);
     let mut progress = DeployProgress::new(0);
     let mut result = DeployResult::default();
 
@@ -876,7 +882,7 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
                 find_yml_files_recursively(&target_path, Some(config), Some(&mut progress))?
             } else {
                 println!("No model_paths specified in buster.yml, using target path");
-                find_yml_files_recursively(&target_path, Some(config), Some(&mut progress))?
+                find_yml_files_recursively(&target_path, None, Some(&mut progress))?
             }
         } else {
             find_yml_files_recursively(&target_path, None, Some(&mut progress))?

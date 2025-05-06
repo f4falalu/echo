@@ -16,6 +16,7 @@ pub const GIT_HASH: &str = env!("GIT_HASH");
 #[derive(Subcommand)]
 #[clap(rename_all = "kebab-case")]
 pub enum Commands {
+    /// Initialize a new Buster project
     Init {
         /// Path to create the buster.yml file (defaults to current directory)
         #[arg(long)]
