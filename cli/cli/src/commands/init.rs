@@ -1045,15 +1045,14 @@ fn create_buster_config_file(
         };
 
         project_contexts.push(ProjectContext {
-            name: Some(main_context_name),
-            path: ".".to_string(), // Models paths are relative to project root (buster.yml location)
+            name: None,
             data_source_name: Some(data_source_name_cli.to_string()),
             database: Some(database_cli.to_string()),
             schema: schema_cli.map(str::to_string),
-            model_paths: model_paths_vec,
+            model_paths: model_paths_vec.clone(),
             exclude_files: None,
             exclude_tags: None,
-            semantic_model_paths: None, // Initialized as None, will be set later if user opts in
+            semantic_model_paths: model_paths_vec,
         });
     }
 
@@ -1134,17 +1133,16 @@ fn build_contexts_recursive(
         };
 
         contexts.push(ProjectContext {
-            name: Some(context_name.clone()),
-            path: ".".to_string(), // All model_paths are relative to buster.yml (project root)
+            name: None,
             data_source_name: Some(data_source_name_cli.to_string()),
             database: Some(current_database.to_string()),
             schema: current_schema.map(str::to_string),
-            model_paths: if model_globs_for_context.is_empty() { None } else { Some(model_globs_for_context) },
+            model_paths: if model_globs_for_context.is_empty() { None } else { Some(model_globs_for_context.clone()) },
             exclude_files: None,
             exclude_tags: None,
-            semantic_model_paths: None, // Initialized as None, will be set later if user opts in
+            semantic_model_paths: if model_globs_for_context.is_empty() { None } else { Some(model_globs_for_context) },
         });
-        println!("Generated project context: {} (Schema: {}, DB: {})", 
+        println!("Generated project context for {} (Schema: {}, DB: {})",
             context_name.cyan(), 
             current_schema.unwrap_or("Default").dimmed(), 
             current_database.dimmed()

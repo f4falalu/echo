@@ -875,7 +875,6 @@ models:
         };
         
         let project_context = ProjectContext {
-            path: "project".to_string(),
             data_source_name: Some("project_ds".to_string()),
             schema: Some("project_schema".to_string()),
             database: None,
