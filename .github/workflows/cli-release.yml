@@ -6,7 +6,7 @@ on:
       - 'cli/v*'
   # workflow_dispatch is kept to allow manual releases if needed.
   # Remove if all releases must be tag-triggered.
-  workflow_dispatch:
+  # workflow_dispatch: # Commenting this out as per user request
 
 # Add permissions for creating releases
 permissions:
@@ -115,6 +115,9 @@ jobs:
     # Condition this job to run only for tag pushes, 
     # or add logic to handle workflow_dispatch differently if version isn't from tag
     if: startsWith(github.ref, 'refs/tags/cli/v')
+    outputs: # Add outputs for the next job
+      release_tag: ${{ github.ref_name }}
+      release_version: ${{ steps.get_version.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -156,4 +159,161 @@ jobs:
           prerelease: false
           generate_release_notes: true # This uses conventional commits from the tag to main
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update-homebrew-tap:
+    name: Update Homebrew Tap
+    needs: release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/cli/v') # Ensure it runs only for CLI tags
+    steps:
+      - name: Get release version and tag from previous job
+        id: release_info
+        run: |
+          echo "RELEASE_VERSION=${{ needs.release.outputs.release_version }}" >> $GITHUB_ENV
+          echo "RELEASE_TAG=${{ needs.release.outputs.release_tag }}" >> $GITHUB_ENV
+          echo "Using version: ${{ needs.release.outputs.release_version }} from tag: ${{ needs.release.outputs.release_tag }}"
+
+      - name: Set up GitHub CLI
+        uses: actions/setup-node@v4 # gh is often bundled, but this ensures it's available or can be installed
+        with:
+          node-version: '20' # Or any version that ensures gh is available
+
+      - name: Download SHA256 sums from GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN to interact with the current repo's release
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release download ${{ env.RELEASE_TAG }} --pattern '*.sha256' -R $GH_REPO
+          echo "Downloaded SHA256 files:"
+          ls -la *.sha256
+
+          SHA_ARM64=$(cat buster-cli-darwin-arm64.tar.gz.sha256 | awk '{print $1}')
+          SHA_INTEL=$(cat buster-cli-darwin-x86_64.tar.gz.sha256 | awk '{print $1}')
+          SHA_LINUX=$(cat buster-cli-linux-x86_64.tar.gz.sha256 | awk '{print $1}')
+
+          echo "SHA_ARM64=$SHA_ARM64" >> $GITHUB_ENV
+          echo "SHA_INTEL=$SHA_INTEL" >> $GITHUB_ENV
+          echo "SHA_LINUX=$SHA_LINUX" >> $GITHUB_ENV
+
+          echo "ARM64 SHA: $SHA_ARM64"
+          echo "Intel SHA: $SHA_INTEL"
+          echo "Linux SHA: $SHA_LINUX"
+
+      - name: Checkout Homebrew tap repository
+        uses: actions/checkout@v4
+        with:
+          repository: buster-so/buster-homebrew
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }} # PAT with repo scope for buster-so/buster-homebrew
+          path: buster-homebrew # Checkout to a specific path
+
+      - name: Configure Git
+        working-directory: ./buster-homebrew
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update Homebrew Formula
+        working-directory: ./buster-homebrew
+        env:
+          VERSION: ${{ env.RELEASE_VERSION }}
+          TAG: ${{ env.RELEASE_TAG }}
+          SHA_ARM64: ${{ env.SHA_ARM64 }}
+          SHA_INTEL: ${{ env.SHA_INTEL }}
+          SHA_LINUX: ${{ env.SHA_LINUX }}
+        run: |
+          FORMULA_FILE="Formula/buster.rb"
+          TEMP_FORMULA_FILE="Formula/buster.rb.tmp"
+
+          # URLs for artifacts
+          URL_BASE="https://github.com/${{ github.repository_owner }}/buster/releases/download/$TAG"
+          URL_ARM64="$URL_BASE/buster-cli-darwin-arm64.tar.gz"
+          URL_INTEL="$URL_BASE/buster-cli-darwin-x86_64.tar.gz"
+          URL_LINUX="$URL_BASE/buster-cli-linux-x86_64.tar.gz"
+
+          echo "Updating $FORMULA_FILE with Version: $VERSION"
+          echo "ARM64 URL: $URL_ARM64, SHA: $SHA_ARM64"
+          echo "Intel URL: $URL_INTEL, SHA: $SHA_INTEL"
+          echo "Linux URL: $URL_LINUX, SHA: $SHA_LINUX"
+
+          # Update version
+          sed "s/^  version .*/  version \\"$VERSION\\"/" "$FORMULA_FILE" > "$TEMP_FORMULA_FILE" && mv "$TEMP_FORMULA_FILE" "$FORMULA_FILE"
+
+          # Update top-level (defaults to ARM usually, as per your formula)
+          sed -E "s#^  url .*#  url \\"$URL_ARM64\\"#" "$FORMULA_FILE" > "$TEMP_FORMULA_FILE" && mv "$TEMP_FORMULA_FILE" "$FORMULA_FILE"
+          sed "s/^  sha256 .*/  sha256 \\"$SHA_ARM64\\"/" "$FORMULA_FILE" > "$TEMP_FORMULA_FILE" && mv "$TEMP_FORMULA_FILE" "$FORMULA_FILE"
+          
+          # Update on_macos -> on_arm
+          # Use a block to target sed within the on_arm block. Delimit with unique markers.
+          awk '
+          BEGIN { printing = 1; in_arm_block = 0; }
+          /on_macos do/,/end/ {
+            if (/on_arm do/) { in_arm_block = 1; }
+            if (in_arm_block && /url /) {
+              print "        url \\"\\"" ENVIRON["URL_ARM64"] "\\"\\""
+              next
+            }
+            if (in_arm_block && /sha256 /) {
+              print "        sha256 \\"\\"" ENVIRON["SHA_ARM64"] "\\"\\""
+              next
+            }
+            if (in_arm_block && /end/) { in_arm_block = 0; }
+          }
+          { print }
+          ' "$FORMULA_FILE" > "$TEMP_FORMULA_FILE" && mv "$TEMP_FORMULA_FILE" "$FORMULA_FILE"
+
+          # Update on_macos -> on_intel
+          awk '
+          BEGIN { printing = 1; in_intel_block = 0; }
+          /on_macos do/,/end/ {
+            if (/on_intel do/) { in_intel_block = 1; }
+            if (in_intel_block && /url /) {
+              print "        url \\"\\"" ENVIRON["URL_INTEL"] "\\"\\""
+              next
+            }
+            if (in_intel_block && /sha256 /) {
+              print "        sha256 \\"\\"" ENVIRON["SHA_INTEL"] "\\"\\""
+              next
+            }
+            if (in_intel_block && /end/) { in_intel_block = 0; }
+          }
+          { print }
+          ' "$FORMULA_FILE" > "$TEMP_FORMULA_FILE" && mv "$TEMP_FORMULA_FILE" "$FORMULA_FILE"
+
+          # Update on_linux
+          awk '
+          BEGIN { printing = 1; in_linux_block = 0; }
+          /on_linux do/,/end/ {
+            if (/url / && !in_linux_block) { next } # Skip top-level url if not already processed
+            if (/on_linux do/) { in_linux_block = 1; }
+            if (in_linux_block && /url /) {
+              print "    url \\"\\"" ENVIRON["URL_LINUX"] "\\"\\""
+              next
+            }
+            if (in_linux_block && /sha256 /) {
+              print "    sha256 \\"\\"" ENVIRON["SHA_LINUX"] "\\"\\""
+              next
+            }
+            if (in_linux_block && /end/) { in_linux_block = 0; }
+          }
+          { print }
+          ' "$FORMULA_FILE" > "$TEMP_FORMULA_FILE" && mv "$TEMP_FORMULA_FILE" "$FORMULA_FILE"
+          
+          echo "--- Formula file after updates ---"
+          cat "$FORMULA_FILE"
+          echo "--- End of formula file ---"
+
+      - name: Commit and push changes to Homebrew tap
+        working-directory: ./buster-homebrew
+        run: |
+          git add Formula/buster.rb
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit to Homebrew tap."
+          else
+            git commit -m "Update buster formula to version ${{ env.RELEASE_VERSION }}
+
+            [skip ci]"
+            git push
+            echo "Pushed updated formula to buster-so/buster-homebrew."
+          fi 

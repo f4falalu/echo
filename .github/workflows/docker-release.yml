@@ -49,7 +49,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push API image
-        uses: docker/build-push-action@v5
+        uses: useblacksmith/build-push-action@v1
         with:
           context: ./api
           file: ./api/Dockerfile # Assuming this Dockerfile is for api/server
@@ -97,7 +97,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Web image
-        uses: docker/build-push-action@v5
+        uses: useblacksmith/build-push-action@v1
         with:
           context: ./web
           file: ./web/Dockerfile
