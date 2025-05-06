@@ -206,8 +206,15 @@ async fn create_data_source_with_progress(
         }
         Err(e) => {
             spinner.finish_with_message("✗ Failed to create data source".red().bold().to_string());
-            println!("\nError: {}", e);
-            println!("Please check your credentials and try again.");
+            let error_message = e.to_string();
+            println!("\nError: {}", error_message);
+            // Check for the specific error string
+            if error_message.contains("Data source already exists") {
+                println!("{}", "A data source with this name already exists in Buster.".yellow());
+            } else {
+                 // Keep the generic message for other errors
+                println!("Please check your credentials and network connection, then try again.");
+            }
             Err(anyhow::anyhow!("Failed to create data source: {}", e))
         }
     }
