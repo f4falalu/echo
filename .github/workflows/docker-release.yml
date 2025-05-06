@@ -9,7 +9,7 @@ on:
 
 env:
   # Placeholder for Docker Hub username/organization or GHCR owner
-  DOCKER_REGISTRY_OWNER: your-docker-registry-owner 
+  DOCKER_REGISTRY_OWNER: ghcr.io/${{ github.repository_owner }}
   API_IMAGE_NAME: api-service
   WEB_IMAGE_NAME: web-service
 
@@ -75,8 +75,9 @@ jobs:
       - name: Log in to Docker Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }} # Or your registry specific username e.g., ${{ github.actor }} for GHCR
-          password: ${{ secrets.DOCKERHUB_TOKEN }}   # Or your registry specific token e.g., ${{ secrets.GITHUB_TOKEN }} for GHCR
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push API image
         uses: docker/build-push-action@v5
@@ -128,8 +129,9 @@ jobs:
       - name: Log in to Docker Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }} # Or your registry specific username
-          password: ${{ secrets.DOCKERHUB_TOKEN }}   # Or your registry specific token
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Web image
         uses: docker/build-push-action@v5
