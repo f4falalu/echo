@@ -25,8 +25,6 @@ pub struct Model {
     pub filters: Vec<Filter>,
     #[serde(rename = "entities", default)] // Added default
     pub relationships: Vec<Relationship>,
-    #[serde(skip_serializing_if = "Option::is_none")] // New field
-    pub original_file_path: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
@@ -239,8 +237,5 @@ models:
         assert_eq!(logins_model.filters.len(), 0); // Default empty vec
         assert_eq!(logins_model.metrics.len(), 0); // Default empty vec
         assert_eq!(logins_model.relationships.len(), 1);
-
-        // Check original_file_path
-        assert_eq!(culture_model.original_file_path, Some("models/core/culture.sql".to_string()));
     }
 }

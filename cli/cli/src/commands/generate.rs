@@ -190,6 +190,14 @@ pub async fn generate_semantic_models_command(
     let mut columns_removed_count = 0;
     let mut sql_models_successfully_processed_from_catalog_count = 0; // New counter
 
+    // Get project defaults for comparison
+    let proj_default_ds_name = buster_config.projects.as_ref()
+        .and_then(|p| p.first()).and_then(|pc| pc.data_source_name.as_deref());
+    let proj_default_database = buster_config.projects.as_ref()
+        .and_then(|p| p.first()).and_then(|pc| pc.database.as_deref());
+    let proj_default_schema = buster_config.projects.as_ref()
+        .and_then(|p| p.first()).and_then(|pc| pc.schema.as_deref());
+
     for sql_file_abs_path in sql_files_to_process {
         let model_name_from_filename = sql_file_abs_path.file_stem().map_or_else(String::new, |s| s.to_string_lossy().into_owned());
         if model_name_from_filename.is_empty() {
@@ -254,16 +262,36 @@ pub async fn generate_semantic_models_command(
                 if table_meta.comment.is_some() && existing_model.description != table_meta.comment {
                     existing_model.description = table_meta.comment.clone(); model_was_updated = true;
                 }
-                // Update original_file_path
-                if existing_model.original_file_path.as_deref() != Some(&relative_sql_path_str) {
-                    existing_model.original_file_path = Some(relative_sql_path_str.clone()); model_was_updated = true;
+                // Update db/schema from catalog node, clearing if they match project defaults
+                let cat_db_from_meta = &table_meta.database; // Option<String>
+                let new_yaml_db = cat_db_from_meta.as_ref()
+                    .filter(|cat_db_val_str_ref| proj_default_database != Some(cat_db_val_str_ref.as_str()))
+                    .cloned();
+                if existing_model.database != new_yaml_db {
+                    existing_model.database = new_yaml_db;
+                    model_was_updated = true;
                 }
-                // Update db/schema from catalog node (which should be authoritative)
-                if existing_model.database.as_deref() != catalog_node.metadata.as_ref().and_then(|m| m.database.as_deref()) {
-                    existing_model.database = catalog_node.metadata.as_ref().and_then(|m| m.database.clone()); model_was_updated = true;
+
+                let cat_schema_from_meta = &table_meta.schema; // String
+                let new_yaml_schema = if proj_default_schema.as_deref() == Some(cat_schema_from_meta.as_str()) {
+                    None
+                } else {
+                    Some(cat_schema_from_meta.clone())
+                };
+                if existing_model.schema != new_yaml_schema {
+                    existing_model.schema = new_yaml_schema;
+                    model_was_updated = true;
                 }
-                if existing_model.schema.as_deref() != Some(table_meta.schema.as_str()) { // table_meta.schema is String, compare as &str
-                    existing_model.schema = Some(table_meta.schema.clone()); model_was_updated = true;
+
+                // For data_source_name, if it was manually set and matches project default, clear it.
+                // Otherwise, preserve manual overrides. Catalog doesn't provide this.
+                if let Some(default_ds_val_str) = proj_default_ds_name {
+                    if existing_model.data_source_name.as_deref() == Some(default_ds_val_str) {
+                        if existing_model.data_source_name.is_some() { // Only update if it changes from Some to None
+                            existing_model.data_source_name = None;
+                            model_was_updated = true;
+                        }
+                    }
                 }
 
                 // Reconcile columns
@@ -329,12 +357,23 @@ pub async fn generate_semantic_models_command(
                 let new_model = YamlModel {
                     name: actual_model_name_in_yaml,
                     description: table_meta.comment.clone(),
-                    data_source_name: buster_config.projects.as_ref().and_then(|p|p.first()).and_then(|pc|pc.data_source_name.clone()),
-                    database: table_meta.database.clone(), // From TableMetadata
-                    schema: Some(table_meta.schema.clone()),     // From TableMetadata (String -> Option<String>)
+                    data_source_name: None, // Per user request, dbt catalog doesn't provide this, so imply project default for new models
+                    database: {
+                        let model_db_from_catalog = &table_meta.database; // Option<String>
+                        model_db_from_catalog.as_ref()
+                            .filter(|catalog_db_str_ref| proj_default_database != Some(catalog_db_str_ref.as_str()))
+                            .cloned()
+                    },
+                    schema: {
+                        let model_schema_from_catalog = &table_meta.schema; // String
+                        if proj_default_schema.as_deref() == Some(model_schema_from_catalog.as_str()) {
+                            None
+                        } else {
+                            Some(model_schema_from_catalog.clone())
+                        }
+                    },
                     dimensions,
                     measures,
-                    original_file_path: Some(relative_sql_path_str),
                 };
                 let yaml_string = serde_yaml::to_string(&new_model)?;
                 fs::write(&individual_semantic_yaml_path, yaml_string)?;

@@ -52,8 +52,6 @@ pub struct YamlModel {
     pub dimensions: Vec<YamlDimension>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub measures: Vec<YamlMeasure>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub original_file_path: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -794,9 +792,9 @@ async fn generate_semantic_models_from_dbt_catalog(
 
     // --- 4. Iterate Through SQL Files & Generate YamlModels ---
     let mut yaml_models_generated_count = 0;
-    let default_data_source_name = buster_config.projects.as_ref().and_then(|p| p.first()).and_then(|pc| pc.data_source_name.as_ref());
-    let default_database = buster_config.projects.as_ref().and_then(|p| p.first()).and_then(|pc| pc.database.as_ref());
-    let default_schema = buster_config.projects.as_ref().and_then(|p| p.first()).and_then(|pc| pc.schema.as_ref());
+    let default_data_source_name = buster_config.projects.as_ref().and_then(|p| p.first()).and_then(|pc| pc.data_source_name.as_deref());
+    let default_database = buster_config.projects.as_ref().and_then(|p| p.first()).and_then(|pc| pc.database.as_deref());
+    let default_schema = buster_config.projects.as_ref().and_then(|p| p.first()).and_then(|pc| pc.schema.as_deref());
 
     for sql_file_abs_path in sql_files_to_process {
         let model_name_from_filename = sql_file_abs_path.file_stem().map_or_else(
@@ -850,15 +848,26 @@ async fn generate_semantic_models_from_dbt_catalog(
                     .map(|p| p.to_string_lossy().into_owned())
                     .unwrap_or_else(|| sql_file_abs_path.to_string_lossy().into_owned());
 
+                // Determine database and schema for YAML, comparing with project defaults
+                let yaml_database = node_metadata.database.as_ref()
+                    .filter(|catalog_db_val_str_ref| default_database != Some(catalog_db_val_str_ref.as_str()))
+                    .cloned();
+
+                let model_schema_from_catalog = &node_metadata.schema; // This is String
+                let yaml_schema = if default_schema.as_deref() == Some(model_schema_from_catalog.as_str()) {
+                    None
+                } else {
+                    Some(model_schema_from_catalog.clone())
+                };
+
                 let yaml_model = YamlModel {
                     name: actual_semantic_model_name, // Use name from catalog metadata
                     description: node_metadata.comment.clone(),
-                    data_source_name: default_data_source_name.cloned(),
-                    database: node_metadata.database.clone().or_else(|| default_database.cloned()),
-                    schema: Some(node_metadata.schema.clone()), // schema from TableMetadata is String, wrap in Some()
+                    data_source_name: None, // Per user request, dbt catalog doesn't provide this, so imply project default
+                    database: yaml_database,
+                    schema: yaml_schema,
                     dimensions,
                     measures,
-                    original_file_path: Some(relative_sql_file_path_str.clone()),
                 };
 
                 // Determine output path
