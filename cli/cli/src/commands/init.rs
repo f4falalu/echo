@@ -115,34 +115,56 @@ impl std::fmt::Display for DatabaseType {
     }
 }
 
-// --- Helper struct to parse dbt_project.yml (local to init) ---
-#[derive(Debug, Deserialize)]
-struct DbtProject { // This is distinct from dbt_utils::DbtProject (if one existed)
+// --- Structs for parsing dbt_project.yml (local to init) ---
+#[derive(Debug, Deserialize, Clone, Default)]
+struct DbtModelGroupConfig {
+    #[serde(rename = "+schema")]
+    schema: Option<String>,
+    #[serde(rename = "+database")]
+    database: Option<String>,
+    #[serde(flatten)]
+    subgroups: HashMap<String, DbtModelGroupConfig>,
+}
+
+#[derive(Debug, Deserialize, Clone, Default)]
+struct DbtProjectModelsBlock {
+    #[serde(flatten)]
+    project_configs: HashMap<String, DbtModelGroupConfig>,
+}
+
+fn default_model_paths() -> Vec<String> {
+    vec!["models".to_string()]
+}
+
+#[derive(Debug, Deserialize, Clone, Default)]
+struct DbtProjectFileContent {
     name: Option<String>,
-    #[serde(rename = "model-paths")]
-    model_paths: Option<Vec<String>>,
+    #[serde(rename = "model-paths", default = "default_model_paths")]
+    model_paths: Vec<String>,
+    #[serde(default)]
+    models: Option<DbtProjectModelsBlock>,
 }
 
 // Helper function to parse dbt_project.yml if it exists
-fn parse_dbt_project(base_dir: &Path) -> Result<Option<DbtProject>> {
+fn parse_dbt_project_file_content(base_dir: &Path) -> Result<Option<DbtProjectFileContent>> {
     let dbt_project_path = base_dir.join("dbt_project.yml");
     if dbt_project_path.exists() && dbt_project_path.is_file() {
         println!(
             "{}",
             format!(
-                "Found {}, attempting to read config...",
+                "Found {}, attempting to read config for model paths and schemas...",
                 dbt_project_path.display()
             )
             .dimmed()
         );
         match fs::read_to_string(&dbt_project_path) {
             Ok(content) => {
-                match serde_yaml::from_str::<DbtProject>(&content) {
+                match serde_yaml::from_str::<DbtProjectFileContent>(&content) {
                     Ok(dbt_config) => Ok(Some(dbt_config)),
                     Err(e) => {
                         eprintln!(
                             "{}",
-                            format!("Warning: Failed to parse {}: {}. Proceeding without dbt project info.", dbt_project_path.display(), e).yellow()
+                            format!("Warning: Failed to parse {}: {}. Proceeding without dbt project info for advanced config.", dbt_project_path.display(), e).yellow()
                         );
                         Ok(None)
                     }
@@ -152,7 +174,7 @@ fn parse_dbt_project(base_dir: &Path) -> Result<Option<DbtProject>> {
                 eprintln!(
                     "{}",
                     format!(
-                        "Warning: Failed to read {}: {}. Proceeding without dbt project info.",
+                        "Warning: Failed to read {}: {}. Proceeding without dbt project info for advanced config.",
                         dbt_project_path.display(),
                         e
                     )
@@ -348,9 +370,10 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
     }
 
     // --- Try to parse dbt_project.yml ---
-    let dbt_config_parsed = parse_dbt_project(&dest_path)?;
-    let suggested_name = dbt_config_parsed.as_ref().and_then(|c| c.name.as_deref());
-    if let Some(name) = suggested_name {
+    let dbt_project_main_name_suggestion = parse_dbt_project_file_content(&dest_path)?
+        .and_then(|parsed_content| parsed_content.name);
+
+    if let Some(name) = &dbt_project_main_name_suggestion {
         println!(
             "{}",
             format!(
@@ -389,14 +412,12 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
     // Placeholder for the result of database setup, which should include
     // the data_source_name, database_name, and schema_name needed for BusterConfig.
     // In a real scenario, these would be returned by the setup_X functions.
-    let (data_source_name_for_config, db_name_for_config, schema_name_for_config) = match db_type {
+    let (data_source_name_for_config, db_name_for_config, schema_name_for_config_opt) = match db_type {
         DatabaseType::Redshift => {
             setup_redshift(
                 buster_creds.url.clone(),
                 buster_creds.api_key.clone(),
-                &config_path, // Pass config_path for context, setup_X will call create_buster_config_file
-                suggested_name,
-                !existing_config_overwrite, // If not overwriting, this is effectively a dry run for buster.yml content
+                dbt_project_main_name_suggestion.as_deref(),
             )
             .await?
         }
@@ -404,9 +425,7 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
             setup_postgres(
                 buster_creds.url.clone(),
                 buster_creds.api_key.clone(),
-                &config_path,
-                suggested_name,
-                !existing_config_overwrite,
+                dbt_project_main_name_suggestion.as_deref(),
             )
             .await?
         }
@@ -414,9 +433,7 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
             setup_bigquery(
                 buster_creds.url.clone(),
                 buster_creds.api_key.clone(),
-                &config_path,
-                suggested_name,
-                !existing_config_overwrite,
+                dbt_project_main_name_suggestion.as_deref(),
             )
             .await?
         }
@@ -424,9 +441,7 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
             setup_mysql(
                 buster_creds.url.clone(),
                 buster_creds.api_key.clone(),
-                &config_path,
-                suggested_name,
-                !existing_config_overwrite,
+                dbt_project_main_name_suggestion.as_deref(),
             )
             .await?
         }
@@ -434,9 +449,7 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
             setup_sqlserver(
                 buster_creds.url.clone(),
                 buster_creds.api_key.clone(),
-                &config_path,
-                suggested_name,
-                !existing_config_overwrite,
+                dbt_project_main_name_suggestion.as_deref(),
             )
             .await?
         }
@@ -444,9 +457,7 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
             setup_databricks(
                 buster_creds.url.clone(),
                 buster_creds.api_key.clone(),
-                &config_path,
-                suggested_name,
-                !existing_config_overwrite,
+                dbt_project_main_name_suggestion.as_deref(),
             )
             .await?
         }
@@ -454,18 +465,24 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
             setup_snowflake(
                 buster_creds.url.clone(),
                 buster_creds.api_key.clone(),
-                &config_path,
-                suggested_name,
-                !existing_config_overwrite,
+                dbt_project_main_name_suggestion.as_deref(),
             )
             .await?
         }
     };
 
+    // Create buster.yml using the gathered information
+    create_buster_config_file(
+        &config_path,
+        &data_source_name_for_config,
+        &db_name_for_config,
+        schema_name_for_config_opt.as_deref(),
+    )?;
+    
     // If we overwrote, or if the file didn't exist, buster.yml was just created by one of the setup_X functions.
     // Now, load it to potentially add semantic_models_file.
     let mut current_buster_config = BusterConfig::load(&config_path).map_err(|e| {
-        anyhow!("Failed to load buster.yml after database setup (path: {}): {}. Ensure setup functions create it.", config_path.display(), e)
+        anyhow!("Failed to load buster.yml (path: {}): {}", config_path.display(), e)
     })?;
 
     // --- Semantic Model Generation --- 
@@ -735,11 +752,9 @@ fn suggest_model_paths_from_dbt(buster_config_dir: &Path) -> (Option<String>, St
     let dbt_project_path = buster_config_dir.join("dbt_project.yml");
     if dbt_project_path.exists() && dbt_project_path.is_file() {
         match fs::read_to_string(&dbt_project_path) {
-            Ok(content) => match serde_yaml::from_str::<DbtProject>(&content) {
+            Ok(content) => match serde_yaml::from_str::<DbtProjectFileContent>(&content) {
                 Ok(dbt_config) => {
-                    let paths_to_suggest = dbt_config
-                        .model_paths
-                        .unwrap_or_else(|| vec!["models".to_string()]);
+                    let paths_to_suggest = dbt_config.model_paths.clone();
                     if !paths_to_suggest.is_empty() {
                         suggested_model_paths_str = paths_to_suggest.join(",");
                         log_message = format!(
@@ -770,93 +785,213 @@ fn suggest_model_paths_from_dbt(buster_config_dir: &Path) -> (Option<String>, St
 // Helper function to create buster.yml file
 fn create_buster_config_file(
     path: &Path,
-    data_source_name: &str,
-    database: &str, // This represents 'database' for most, 'project_id' for BQ, 'catalog' for Databricks
-    schema: Option<&str>, // Made optional again at signature level
+    data_source_name_cli: &str,
+    database_cli: &str,
+    schema_cli: Option<&str>,
 ) -> Result<()> {
-    // --- Suggest model paths based on dbt_project.yml ---
-    let (suggested_paths_opt, suggestion_log) = if let Some(parent_dir) = path.parent() {
-        suggest_model_paths_from_dbt(parent_dir)
-    } else {
-        (None, "".to_string()) // Cannot determine parent dir
-    };
+    let buster_config_dir = path.parent().unwrap_or_else(|| Path::new("."));
+    let dbt_project_content_opt = parse_dbt_project_file_content(buster_config_dir).ok().flatten();
 
-    if !suggestion_log.is_empty() {
-        if suggestion_log.starts_with("Warning") {
-            eprintln!("{}", suggestion_log.yellow());
-        } else {
-            println!("{}", suggestion_log.dimmed());
+    let mut project_contexts: Vec<ProjectContext> = Vec::new();
+
+    if let Some(dbt_content) = dbt_project_content_opt {
+        if let Some(models_block) = &dbt_content.models {
+            for (dbt_project_key_name, top_level_config) in &models_block.project_configs {
+                // dbt_project_key_name is usually the dbt project's name (e.g., "adventure_works")
+                // dbt_content.model_paths are the base model directories (e.g., ["models"])
+                
+                build_contexts_recursive(
+                    &mut project_contexts,
+                    top_level_config,
+                    Vec::new(), // Current path segments relative to a base dbt model path
+                    &dbt_content.model_paths,
+                    dbt_project_key_name, // Name of the dbt project e.g. "adventure_works"
+                    data_source_name_cli,
+                    database_cli,
+                    schema_cli, // Top-level schema from CLI as initial default
+                );
+            }
         }
     }
 
-    // Prompt for model paths (optional), now with potential initial input
-    let model_paths_input =
-        Text::new("Enter paths to your SQL models (optional, comma-separated):")
-            .with_default(suggested_paths_opt.as_deref().unwrap_or("")) // Use with_default
-            .with_help_message(
-                "Leave blank if none, or specify paths like './models,./analytics/models'",
-            )
+    if project_contexts.is_empty() {
+        println!("{}", "Could not derive project contexts from dbt_project.yml, or it's not configured for models. Falling back to manual prompt for model paths.".yellow());
+        
+        let mut suggested_model_paths_str = "models".to_string(); // Default suggestion
+        if let Some(dbt_content) = parse_dbt_project_file_content(buster_config_dir).ok().flatten() {
+            if !dbt_content.model_paths.is_empty() && dbt_content.model_paths != vec!["models"] { // if not default or empty
+                 suggested_model_paths_str = dbt_content.model_paths.join(",");
+                 println!("{}", format!("Suggesting model paths from dbt_project.yml: {}", suggested_model_paths_str.cyan()).dimmed());
+            }
+        }
+
+
+        let model_paths_input = Text::new("Enter paths to your SQL models (comma-separated):")
+            .with_default(&suggested_model_paths_str)
+            .with_help_message("Example: ./models,./analytics/models or models (if relative to dbt project root)")
             .prompt()?;
 
-    // Process the comma-separated input into a vector if not empty
-    let model_paths_vec = if model_paths_input.trim().is_empty() {
-        None
-    } else {
-        Some(
-            model_paths_input
-                .split(',')
-                .map(|s| s.trim().to_string())
-                .filter(|s| !s.is_empty())
-                .collect::<Vec<String>>(),
-        )
-    };
+        let model_paths_vec = if model_paths_input.trim().is_empty() {
+            None
+        } else {
+            Some(
+                model_paths_input
+                    .split(',')
+                    .map(|s| s.trim().to_string())
+                    .filter(|s| !s.is_empty())
+                    .map(|s| { // Ensure paths are relative to project root for consistency
+                        let p = Path::new(&s);
+                        if p.is_absolute() {
+                            eprintln!("{}", format!("Warning: Absolute path '{}' provided for models. Consider using relative paths from your project root.", s).yellow());
+                            s
+                        } else {
+                            // Assuming paths like "models" or "./models" are intended to be relative to project root
+                            s
+                        }
+                    })
+                    .collect::<Vec<String>>(),
+            )
+        };
+        
+        let main_context_name = if let Some(dbt_proj_name) = parse_dbt_project_file_content(buster_config_dir).ok().flatten().and_then(|p| p.name) {
+            format!("{}_default_config", dbt_proj_name)
+        } else {
+            "DefaultProject".to_string()
+        };
 
-    // --- Create config using the new ProjectContext structure ---
-    let main_context = ProjectContext {
-        path: ".".to_string(), // Default path for the primary context
-        data_source_name: Some(data_source_name.to_string()),
-        database: Some(database.to_string()),
-        schema: schema.map(|s| s.to_string()),
-        model_paths: model_paths_vec,
-        exclude_files: None, // Keep excludes at top-level for now, or handle differently?
-        exclude_tags: None,  // Decide if these should be part of context or remain top-level
-        name: Some("Main Project".to_string()), // Add a default name for the main project
-    };
+        project_contexts.push(ProjectContext {
+            name: Some(main_context_name),
+            path: ".".to_string(), // Models paths are relative to project root (buster.yml location)
+            data_source_name: Some(data_source_name_cli.to_string()),
+            database: Some(database_cli.to_string()),
+            schema: schema_cli.map(str::to_string),
+            model_paths: model_paths_vec,
+            exclude_files: None,
+            exclude_tags: None,
+        });
+    }
 
     let config = BusterConfig {
-        // --- Top-level fields are None when generating new config ---
         data_source_name: None,
         schema: None,
         database: None,
-        exclude_files: None, // Define top-level excludes if needed
+        exclude_files: None,
         exclude_tags: None,
-        model_paths: None,
-        // --- Populate the projects field ---
-        projects: Some(vec![main_context]),
-        semantic_models_file: None, // Initially None
+        model_paths: None, // This top-level field is superseded by 'projects'
+        projects: Some(project_contexts),
+        semantic_models_file: None,
     };
 
-    config.save(path)?; // Use the save method
+    config.save(path)?;
     println!(
         "{} {}",
         "✓".green(),
-        format!("Created buster.yml at {}", path.display()).green()
+        format!("Created/Updated buster.yml at {}", path.display()).green()
     );
 
     Ok(())
 }
 
+// Recursive helper for create_buster_config_file
+fn build_contexts_recursive(
+    contexts: &mut Vec<ProjectContext>,
+    current_dbt_group_config: &DbtModelGroupConfig,
+    current_path_segments: Vec<String>, // Segments relative to a base model path, e.g., ["staging"] or [] for top-level
+    base_dbt_model_paths: &[String], // From dbt_project.yml model-paths, e.g., ["models", "analysis"]
+    dbt_project_name: &str, // The name of the dbt project this config belongs to (e.g. "adventure_works")
+    data_source_name_cli: &str,
+    database_cli: &str,
+    parent_schema_cli: Option<&str>, // Schema from parent dbt group or initial CLI schema
+) {
+    // Determine schema: dbt config for this group -> parent_schema_cli (could be from parent dbt group or original CLI)
+    let current_schema = current_dbt_group_config.schema.as_deref().or(parent_schema_cli);
+    // Determine database: dbt config for this group -> database_cli
+    let current_database = current_dbt_group_config.database.as_deref().unwrap_or(database_cli);
+
+    let mut model_globs_for_context: Vec<String> = Vec::new();
+    for base_path_str in base_dbt_model_paths { // e.g., "models"
+        let mut path_parts = vec![base_path_str.clone()];
+        path_parts.extend_from_slice(&current_path_segments); // e.g., ["models", "staging"]
+        
+        let relative_model_group_path = PathBuf::from_iter(path_parts);
+        
+        // Add globs for .sql files in this directory and subdirectories
+        model_globs_for_context.push(relative_model_group_path.join("**/*.sql").to_string_lossy().into_owned());
+        // To also include models directly in the folder, e.g. models/staging.sql (though less common for dbt)
+        // model_globs_for_context.push(relative_model_group_path.join("*.sql").to_string_lossy().into_owned());
+    }
+    model_globs_for_context.sort();
+    model_globs_for_context.dedup();
+
+    if model_globs_for_context.is_empty() && current_dbt_group_config.subgroups.is_empty() {
+        // If a config block has no schema/db override, no subgroups, and results in no model paths,
+        // it might be a passthrough config or an empty node. Don't create a context for it unless it has overrides.
+        if current_dbt_group_config.schema.is_none() && current_dbt_group_config.database.is_none() {
+             // Only recurse if it has subgroups, otherwise this path ends.
+            if !current_dbt_group_config.subgroups.is_empty() {
+                 println!("Skipping context for intermediate dbt config group: {}/{}", dbt_project_name, current_path_segments.join("/").dimmed());
+            } else {
+                // If no schema/db override AND no model paths AND no subgroups, then this config entry is likely not for Buster.
+                // Unless it's the very top-level implicit one.
+                // We always create a context for the top-level (current_path_segments.is_empty()) if it has schema/db settings or leads to models.
+            }
+        }
+    }
+
+
+    // Only create a ProjectContext if there are model paths OR if it's the root config of the dbt project
+    // (even if empty, it provides default schema/db for children) or it has explicit schema/db overrides.
+    if !model_globs_for_context.is_empty() || current_path_segments.is_empty() || current_dbt_group_config.schema.is_some() || current_dbt_group_config.database.is_some() {
+        let context_name = if current_path_segments.is_empty() {
+            format!("{}_base", dbt_project_name) // For the top-level config of the dbt project
+        } else {
+            format!("{}_{}", dbt_project_name, current_path_segments.join("_"))
+        };
+
+        contexts.push(ProjectContext {
+            name: Some(context_name.clone()),
+            path: ".".to_string(), // All model_paths are relative to buster.yml (project root)
+            data_source_name: Some(data_source_name_cli.to_string()),
+            database: Some(current_database.to_string()),
+            schema: current_schema.map(str::to_string),
+            model_paths: if model_globs_for_context.is_empty() { None } else { Some(model_globs_for_context) },
+            exclude_files: None,
+            exclude_tags: None,
+        });
+        println!("Generated project context: {} (Schema: {}, DB: {})", 
+            context_name.cyan(), 
+            current_schema.unwrap_or("Default").dimmed(), 
+            current_database.dimmed()
+        );
+    }
+
+
+    // Recurse for subgroups
+    for (subgroup_name, subgroup_config) in &current_dbt_group_config.subgroups {
+        let mut next_path_segments = current_path_segments.clone();
+        next_path_segments.push(subgroup_name.clone());
+        build_contexts_recursive(
+            contexts,
+            subgroup_config,
+            next_path_segments,
+            base_dbt_model_paths,
+            dbt_project_name,
+            data_source_name_cli,
+            database_cli,
+            current_schema, // Pass the current group's schema as the parent/default for the next level
+        );
+    }
+}
+
+
 // --- Functions for setting up specific database types ---
 // Modified to return Result<(String, String, Option<String>)> for (data_source_name, database, schema)
-// And to take a 'dry_run_config' flag.
-// The actual creation of buster.yml is now deferred or handled conditionally.
+// They no longer write to buster.yml directly.
 
 async fn setup_redshift(
     buster_url: String,
     buster_api_key: String,
-    config_path: &Path, // For context, not direct write unless it's the final step
     suggested_name: Option<&str>,
-    skip_config_write: bool, // If true, don't write buster.yml here
 ) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up Redshift connection...".bold().green());
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
@@ -900,18 +1035,13 @@ async fn setup_redshift(
         println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
     
-    if !skip_config_write {
-         create_buster_config_file(config_path, &name, &database, Some(&schema))?;
-    }
     Ok((name, database, Some(schema)))
 }
 
 async fn setup_postgres(
     buster_url: String,
     buster_api_key: String,
-    config_path: &Path,
     suggested_name: Option<&str>,
-    skip_config_write: bool,
 ) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up PostgreSQL connection...".bold().green());
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
@@ -944,18 +1074,13 @@ async fn setup_postgres(
         println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
 
-    if !skip_config_write {
-        create_buster_config_file(config_path, &name, &database, Some(&schema))?;
-    }
     Ok((name, database, Some(schema)))
 }
 
 async fn setup_bigquery(
     buster_url: String,
     buster_api_key: String,
-    config_path: &Path,
     suggested_name: Option<&str>,
-    skip_config_write: bool,
 ) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up BigQuery connection...".bold().green());
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
@@ -992,18 +1117,13 @@ async fn setup_bigquery(
         println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
 
-    if !skip_config_write {
-        create_buster_config_file(config_path, &name, &project_id, Some(&dataset_id))?;
-    }
     Ok((name, project_id, Some(dataset_id))) // project_id is like 'database', dataset_id is like 'schema'
 }
 
 async fn setup_mysql(
     buster_url: String,
     buster_api_key: String,
-    config_path: &Path,
     suggested_name: Option<&str>,
-    skip_config_write: bool,
 ) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up MySQL/MariaDB connection...".bold().green());
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
@@ -1035,18 +1155,13 @@ async fn setup_mysql(
         println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
     
-    if !skip_config_write {
-        create_buster_config_file(config_path, &name, &database, None)?;
-    }
     Ok((name, database, None))
 }
 
 async fn setup_sqlserver(
     buster_url: String,
     buster_api_key: String,
-    config_path: &Path,
     suggested_name: Option<&str>,
-    skip_config_write: bool,
 ) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up SQL Server connection...".bold().green());
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
@@ -1079,18 +1194,13 @@ async fn setup_sqlserver(
         println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
 
-    if !skip_config_write {
-        create_buster_config_file(config_path, &name, &database, Some(&schema))?;
-    }
     Ok((name, database, Some(schema)))
 }
 
 async fn setup_databricks(
     buster_url: String,
     buster_api_key: String,
-    config_path: &Path,
     suggested_name: Option<&str>,
-    skip_config_write: bool,
 ) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up Databricks connection...".bold().green());
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
@@ -1121,18 +1231,13 @@ async fn setup_databricks(
         println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
 
-    if !skip_config_write {
-        create_buster_config_file(config_path, &name, &catalog, Some(&schema))?; // catalog is 'database'
-    }
     Ok((name, catalog, Some(schema)))
 }
 
 async fn setup_snowflake(
     buster_url: String,
     buster_api_key: String,
-    config_path: &Path,
     suggested_name: Option<&str>,
-    skip_config_write: bool,
 ) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up Snowflake connection...".bold().green());
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
@@ -1170,8 +1275,5 @@ async fn setup_snowflake(
         println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
 
-    if !skip_config_write {
-        create_buster_config_file(config_path, &name, &database, Some(&schema))?;
-    }
     Ok((name, database, Some(schema)))
 }
