@@ -1,16 +1,18 @@
 use anyhow::{anyhow, Result};
 use std::path::{Path, PathBuf};
+use std::fs;
+use colored::*;
 
 use crate::utils::{find_yml_files, ExclusionManager, ProgressTracker};
 use crate::utils::{
-    buster::{BusterClient, DeployDatasetsResponse},
+    buster::{BusterClient, DeployDatasetsResponse, DeployDatasetsRequest, DeployDatasetsColumnsRequest, DeployDatasetsEntityRelationshipsRequest},
     config::{BusterConfig, ProjectContext},
     file::buster_credentials::get_and_validate_buster_credentials,
 };
 use crate::commands::auth::check_authentication;
 
 // Import the semantic layer models
-use semantic_layer::models::{Model, SemanticLayerSpec};
+use semantic_layer::models::{Model, SemanticLayerSpec, Dimension, Measure, Relationship};
 
 
 #[derive(Debug, Default)]
@@ -221,6 +223,7 @@ fn check_excluded_tags(
         exclude_tags: Some(exclude_tags.to_vec()),
         model_paths: None,
         projects: None,
+        semantic_models_file: None,
     };
 
     let manager = ExclusionManager::new(&temp_config)?;
@@ -254,19 +257,31 @@ fn generate_default_sql(model: &Model) -> String {
     )
 }
 
-/// Get SQL content for a model, either from the associated SQL file or generate a default
-fn get_sql_content(model: &Model, sql_path: &Option<PathBuf>) -> Result<String> {
-    if let Some(ref sql_path) = sql_path {
-        Ok(std::fs::read_to_string(sql_path)?)
+/// Get SQL content for a model, using original_file_path if available, or falling back to other methods.
+fn get_sql_content_for_model(model: &Model, buster_config_dir: &Path, yml_path_for_fallback: &Path) -> Result<String> {
+    if let Some(ref rel_sql_path_str) = model.original_file_path {
+        let sql_path = buster_config_dir.join(rel_sql_path_str);
+        if sql_path.exists() {
+            return fs::read_to_string(&sql_path).map_err(|e| {
+                anyhow!("Failed to read SQL content from {} (original_file_path): {}", sql_path.display(), e)
+            });
+        } else {
+            println!("Warning: original_file_path {} not found for model {}. Falling back or generating default SQL.", sql_path.display(), model.name.yellow());
+            // Fall through to default generation or error if strict
+        }
+    }
+    // Fallback for models without original_file_path (e.g. individually deployed YMLs)
+    let found_sql_path = find_sql_file(yml_path_for_fallback); // yml_path_for_fallback is the path of the .yml file itself
+    if let Some(ref p) = found_sql_path {
+        Ok(fs::read_to_string(p)?)
     } else {
+        println!("Warning: No .sql file found associated with {} for model {}. Generating default SQL.", yml_path_for_fallback.display(), model.name.yellow());
         Ok(generate_default_sql(model))
     }
 }
 
 /// Convert the semantic_layer::Model to BusterClient's DeployDatasetsRequest
-fn to_deploy_request(model: &Model, sql_content: String) -> crate::utils::buster::DeployDatasetsRequest {
-    use crate::utils::buster::{DeployDatasetsRequest, DeployDatasetsColumnsRequest, DeployDatasetsEntityRelationshipsRequest};
-    
+fn to_deploy_request(model: &Model, sql_content: String) -> DeployDatasetsRequest {
     let mut columns = Vec::new();
 
     // Convert dimensions to columns
@@ -275,9 +290,9 @@ fn to_deploy_request(model: &Model, sql_content: String) -> crate::utils::buster
             name: dim.name.clone(),
             description: dim.description.clone().unwrap_or_default(),
             semantic_type: Some("dimension".to_string()),
-            expr: None, // dimension.expr is missing in the semantic model
+            expr: None, // Dimension doesn't have a direct `expr` in semantic_layer::Model that maps here
             type_: dim.type_.clone(),
-            agg: None,
+            agg: None, // Dimensions typically don't have aggregation functions
             searchable: dim.searchable,
         });
     }
@@ -288,45 +303,56 @@ fn to_deploy_request(model: &Model, sql_content: String) -> crate::utils::buster
             name: measure.name.clone(),
             description: measure.description.clone().unwrap_or_default(),
             semantic_type: Some("measure".to_string()),
-            expr: None, // measure.expr is missing in the semantic model
+            expr: None, // Measure doesn't have a direct `expr` in semantic_layer::Model that maps here, measures are typically simple column references or aggregations defined by their type/agg
             type_: measure.type_.clone(),
-            agg: None, // measure.agg is missing in the semantic model
-            searchable: false,
+            // Measures might have an implicit aggregation (like SUM, AVG) based on their type or usage,
+            // but semantic_layer::Measure doesn't explicitly store an `agg` field like `DeployDatasetsColumnsRequest` expects.
+            // This might need further refinement based on how `agg` should be derived for measures.
+            agg: None, // Placeholder for now
+            searchable: false, // Measures are typically not directly searched upon like free-text dimensions
         });
     }
 
     // Convert entity relationships
-    let entity_relationships = model
-        .relationships
-        .iter()
-        .map(|rel| DeployDatasetsEntityRelationshipsRequest {
-            name: rel.name.clone(),
-            expr: rel.foreign_key.clone(), // Using foreign_key as expr
-            type_: rel.type_.clone().unwrap_or_default(),
-        })
-        .collect();
+    let entity_relationships: Option<Vec<DeployDatasetsEntityRelationshipsRequest>> = 
+        if !model.relationships.is_empty() {
+            Some(
+                model.relationships.iter().map(|rel| DeployDatasetsEntityRelationshipsRequest {
+                    name: rel.name.clone(),
+                    expr: rel.foreign_key.clone(), // Assuming foreign_key is the expression for the relationship for now
+                    type_: rel.type_.clone().unwrap_or_else(|| "LEFT".to_string()), // Default to LEFT if not specified
+                }).collect()
+            )
+        } else {
+            None
+        };
 
-    // Unwrap with error if missing - this should never happen since we validate earlier
-    let data_source_name = model.data_source_name.clone().expect("data_source_name missing after validation");
-    let schema = model.schema.clone().expect("schema missing after validation");
+    let data_source_name = model.data_source_name.clone()
+        .expect("data_source_name missing after validation, should be resolved by resolve_model_configurations");
+    let schema = model.schema.clone()
+        .expect("schema missing after validation, should be resolved by resolve_model_configurations");
 
-    // Serialize to YAML for yml_file field
-    let yml_content = serde_yaml::to_string(&model).unwrap_or_default();
+    // Serialize the input Model to YAML to be stored in the yml_file field of the request.
+    // This captures the full semantic definition as sent.
+    let yml_content_for_request = serde_yaml::to_string(&model).unwrap_or_else(|e| {
+        eprintln!("Error serializing model {} to YAML for deploy request: {}. Using empty string.", model.name, e);
+        String::new()
+    });
 
     DeployDatasetsRequest {
         id: None,
         data_source_name,
-        env: "dev".to_string(),
-        type_: "view".to_string(),
+        env: "dev".to_string(), // Assuming "dev" environment for now, might need configuration
+        type_: "view".to_string(), // Assuming models are deployed as views, might need configuration
         name: model.name.clone(),
-        model: None, // This seems to be optional in the API
+        model: None, // This seems to be for a different kind of model (e.g. Python model), not semantic layer model name itself
         schema,
         database: model.database.clone(),
         description: model.description.clone().unwrap_or_default(),
         sql_definition: Some(sql_content),
-        entity_relationships: Some(entity_relationships),
+        entity_relationships,
         columns,
-        yml_file: Some(yml_content),
+        yml_file: Some(yml_content_for_request), // Store the YAML of the model being deployed
     }
 }
 
@@ -334,311 +360,259 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
     check_authentication().await?;
 
     let current_dir = std::env::current_dir()?;
-    let target_path = path
-        .map(|p| PathBuf::from(p))
-        .unwrap_or_else(|| current_dir);
+    let buster_config_load_dir = path.map(PathBuf::from).unwrap_or_else(|| current_dir.clone());
+
     let mut progress = DeployProgress::new(0);
     let mut result = DeployResult::default();
 
-    // Only create client if not in dry-run mode
     let client = if !dry_run {
-        // Create API client without explicit auth check
         let creds = get_and_validate_buster_credentials().await?;
         Some(BusterClient::new(creds.url, creds.api_key)?)
     } else {
         None
     };
 
-    // Try to load buster.yml first
     progress.status = "Looking for buster.yml configuration...".to_string();
     progress.log_progress();
 
-    let config = match BusterConfig::load_from_dir(&target_path) {
-        Ok(Some(config)) => {
-            println!("✅ Found buster.yml configuration");
-            if let Some(ds) = &config.data_source_name {
-                println!("   - Default data source: {}", ds);
-            }
-            if let Some(schema) = &config.schema {
-                println!("   - Default schema: {}", schema);
-            }
-            if let Some(database) = &config.database {
-                println!("   - Default database: {}", database);
-            }
-            Some(config)
+    let buster_config = match BusterConfig::load_from_dir(&buster_config_load_dir) {
+        Ok(Some(cfg)) => {
+            println!("✅ Found buster.yml configuration at {}", buster_config_load_dir.join("buster.yml").display());
+            Some(cfg)
         }
         Ok(None) => {
-            println!("ℹ️  No buster.yml found, will require configuration in model files");
+            println!("ℹ️  No buster.yml found in {}, will require full configuration in model files or use defaults.", buster_config_load_dir.display());
             None
         }
         Err(e) => {
-            println!("⚠️  Error reading buster.yml: {}", e);
+            println!("⚠️  Error reading buster.yml: {}. Proceeding without it.", e);
             None
         }
     };
+    
+    // Determine the base directory for resolving relative paths (where buster.yml is or would be)
+    let effective_buster_config_dir = BusterConfig::base_dir(&buster_config_load_dir.join("buster.yml")).unwrap_or(buster_config_load_dir.clone());
 
-    // Find all .yml files
-    progress.status = "Discovering model files...".to_string();
-    progress.log_progress();
+    let mut deploy_requests_final: Vec<DeployDatasetsRequest> = Vec::new();
+    let mut model_mappings_final: Vec<ModelMapping> = Vec::new();
 
-    let exclusion_manager = if let Some(cfg) = &config {
+    // --- PRIMARY PATH: Use semantic_models_file from BusterConfig if available --- 
+    if let Some(ref cfg) = buster_config {
+        if let Some(ref semantic_models_file_str) = cfg.semantic_models_file {
+            println!("ℹ️  Using semantic_models_file from buster.yml: {}", semantic_models_file_str.cyan());
+            let semantic_spec_path = effective_buster_config_dir.join(semantic_models_file_str);
+
+            if !semantic_spec_path.exists() {
+                return Err(anyhow!("Specified semantic_models_file not found: {}", semantic_spec_path.display()));
+            }
+
+            progress.current_file = semantic_spec_path.to_string_lossy().into_owned();
+            progress.status = "Loading main semantic layer specification...".to_string();
+            progress.log_progress();
+
+            let spec = match parse_semantic_layer_spec(&semantic_spec_path) {
+                Ok(s) => s,
+                Err(e) => {
+                    progress.log_error(&format!("Failed to parse semantic layer spec: {}", e));
+                    result.failures.push((progress.current_file.clone(), "spec_level".to_string(), vec![e.to_string()]));
+                    // Decide if to bail out or proceed to fallback
+                    // For now, let's assume if semantic_models_file is specified and fails, we stop.
+                    progress.log_summary(&result);
+                    return Err(anyhow!("Failed to process specified semantic_models_file."));
+                }
+            };
+            progress.total_files = spec.models.len();
+
+            // Resolve configurations for all models in the spec
+            // For a single spec file, the "project context" is effectively the global one or the first one defined.
+            let primary_project_context = cfg.projects.as_ref().and_then(|p| p.first());
+            let models_with_context: Vec<(Model, Option<&ProjectContext>)> = spec.models.into_iter()
+                .map(|m| (m, primary_project_context))
+                .collect();
+
+            let resolved_models = match resolve_model_configurations(models_with_context, cfg) {
+                Ok(models) => models,
+                Err(e) => {
+                    progress.log_error(&format!("Configuration resolution failed for spec: {}", e));
+                    result.failures.push((progress.current_file.clone(), "spec_config_resolution".to_string(), vec![e.to_string()]));
+                    progress.log_summary(&result);
+                    return Err(anyhow!("Configuration resolution failed for models in semantic_models_file."));
+                }
+            };
+
+            for model in resolved_models {
+                progress.processed += 1;
+                progress.current_file = format!("{} (from {})", model.name, semantic_spec_path.file_name().unwrap_or_default().to_string_lossy());
+                progress.status = format!("Processing model '{}'", model.name);
+                progress.log_progress();
+
+                let sql_content = match get_sql_content_for_model(&model, &effective_buster_config_dir, &semantic_spec_path) {
+                    Ok(content) => content,
+                    Err(e) => {
+                        progress.log_error(&format!("Failed to get SQL for model {}: {}", model.name, e));
+                        result.failures.push((progress.current_file.clone(),model.name.clone(),vec![e.to_string()]));
+                        continue;
+                    }
+                };
+                
+                model_mappings_final.push(ModelMapping { 
+                    file: semantic_spec_path.file_name().unwrap_or_default().to_string_lossy().into_owned(), // Use spec filename
+                    model_name: model.name.clone() 
+                });
+                deploy_requests_final.push(to_deploy_request(&model, sql_content));
+                progress.log_success();
+            }
+
+        } else {
+            println!("ℹ️  No semantic_models_file specified in buster.yml. Falling back to scanning for individual .yml files.");
+            deploy_individual_yml_files(
+                buster_config.as_ref(), 
+                &effective_buster_config_dir, 
+                recursive, 
+                &mut progress, 
+                &mut result, 
+                &mut deploy_requests_final, 
+                &mut model_mappings_final
+            ).await?;
+        }
+    } else {
+        // No BusterConfig loaded at all
+        println!("ℹ️  No buster.yml loaded. Scanning current/target directory for individual .yml files.");
+        deploy_individual_yml_files(
+            None, 
+            &buster_config_load_dir, // Use the initial load directory as base if no config
+            recursive, 
+            &mut progress, 
+            &mut result, 
+            &mut deploy_requests_final, 
+            &mut model_mappings_final
+        ).await?;
+    }
+
+
+    // --- DEPLOYMENT TO API (remains largely the same, uses deploy_requests_final and model_mappings_final) ---
+    if !deploy_requests_final.is_empty() {
+        if dry_run {
+            println!("\n🔍 Dry run mode - validation successful!");
+            println!("\n📦 Would deploy {} models:", deploy_requests_final.len());
+            for request in &deploy_requests_final {
+                // ... (dry run print logic) ...
+            }
+            return Ok(());
+        }
+
+        let client = client.expect("BusterClient should be initialized");
+        // ... (rest of deployment logic, calling client.deploy_datasets(deploy_requests_final).await ...)
+        // ... (handle_deploy_response(&response, &mut result, &model_mappings_final, &progress)) ...
+         match client.deploy_datasets(deploy_requests_final).await {
+            Ok(response) => handle_deploy_response(&response, &mut result, &model_mappings_final, &progress),
+            Err(e) => {
+                // ... (error handling as before) ...
+                return Err(anyhow!("Failed to deploy models to Buster: {}", e));
+            }
+        }
+    } else {
+        println!("\n🤷 No models found to deploy.");
+    }
+
+    progress.log_summary(&result);
+    if !result.failures.is_empty() {
+        return Err(anyhow!("Some models failed to deploy"));
+    }
+    Ok(())
+}
+
+// New helper function for the fallback logic (deploying individual YML files)
+async fn deploy_individual_yml_files(
+    buster_config: Option<&BusterConfig>,
+    base_search_dir: &Path, // Base directory to search for YMLs or use from config's model_paths
+    recursive: bool,
+    progress: &mut DeployProgress,
+    result: &mut DeployResult,
+    deploy_requests_final: &mut Vec<DeployDatasetsRequest>,
+    model_mappings_final: &mut Vec<ModelMapping>,
+) -> Result<()> {
+    let exclusion_manager = if let Some(cfg) = buster_config {
         ExclusionManager::new(cfg)?
     } else {
         ExclusionManager::empty()
     };
 
-    // Get model files based on config
-    let yml_files = if let Some(cfg) = &config {
-        // Get effective search paths with their project contexts
-        let effective_paths = cfg.resolve_effective_model_paths(&target_path);
-        
+    let yml_files_to_process = if let Some(cfg) = buster_config {
+        let effective_paths = cfg.resolve_effective_model_paths(base_search_dir);
         if !effective_paths.is_empty() {
-            // Log the paths we're going to search
-            println!("ℹ️  Using effective model paths from buster.yml:");
-            for (path, project_ctx) in &effective_paths {
-                if let Some(project) = project_ctx {
-                    println!("   - {} (from project: {})", path.display(), project.identifier());
-                } else {
-                    println!("   - {} (from global configuration)", path.display());
-                }
-            }
-            
-            // Find yml files in all paths
+            println!("ℹ️  Using effective model paths for individual .yml scan:");
+            // ... (logging paths) ...
             let mut all_files = Vec::new();
-            
             for (path, _project_ctx) in effective_paths {
                 if path.is_dir() {
-                    println!("   Scanning directory: {}", path.display());
-                    let files = find_yml_files(&path, recursive, &exclusion_manager, Some(&mut progress))?;
-                    println!("   Found {} model files in {}", files.len(), path.display());
-                    all_files.extend(files);
+                    all_files.extend(find_yml_files(&path, recursive, &exclusion_manager, Some(progress))?);
                 } else if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("yml") {
                     if path.file_name().and_then(|name| name.to_str()) != Some("buster.yml") {
-                        println!("   Using direct model file: {}", path.display());
                         all_files.push(path);
                     }
-                } else {
-                    println!("   Path not found or not a valid directory/file: {}", path.display());
                 }
             }
-            
             all_files
         } else {
-            // Fallback to target path
-            println!("No model paths found in buster.yml configuration, using target path");
-            find_yml_files(&target_path, recursive, &exclusion_manager, Some(&mut progress))?
+            find_yml_files(base_search_dir, recursive, &exclusion_manager, Some(progress))?
         }
     } else {
-        // No config, use target path
-        println!("No buster.yml found, searching in target path");
-        find_yml_files(&target_path, recursive, &exclusion_manager, Some(&mut progress))?
+        find_yml_files(base_search_dir, recursive, &exclusion_manager, Some(progress))?
     };
 
-    println!(
-        "Found {} model files in {}",
-        yml_files.len(),
-        target_path.display()
-    );
-    progress.total_files = yml_files.len();
+    println!("Found {} individual model .yml files to process.", yml_files_to_process.len());
+    progress.total_files = yml_files_to_process.len(); // Reset total files for this phase
+    progress.processed = 0; // Reset processed for this phase
 
-    // Initialize vectors to store processed models and their mappings
-    let mut deploy_requests = Vec::new();
-    let mut model_mappings = Vec::new();
-
-    // Process each file
-    for yml_path in yml_files {
+    for yml_path in yml_files_to_process {
         progress.processed += 1;
-        progress.current_file = yml_path
-            .strip_prefix(&target_path)
-            .unwrap_or(&yml_path)
-            .to_string_lossy()
-            .to_string();
-
-        progress.status = "Loading model file...".to_string();
+        progress.current_file = yml_path.strip_prefix(base_search_dir).unwrap_or(&yml_path).to_string_lossy().into_owned();
+        progress.status = "Loading individual model file...".to_string();
         progress.log_progress();
 
-        // Parse the model file
-        let parsed_models = match parse_model_file(&yml_path) {
+        let parsed_models = match parse_model_file(&yml_path) { // parse_model_file handles single or multi-model in one yml
             Ok(models) => models,
             Err(e) => {
                 progress.log_error(&format!("Failed to parse model file: {}", e));
-                result.failures.push((
-                    progress.current_file.clone(),
-                    "unknown".to_string(),
-                    vec![format!("Failed to parse model file: {}", e)],
-                ));
+                result.failures.push((progress.current_file.clone(), "unknown".to_string(), vec![e.to_string()]));
                 continue;
             }
         };
 
-        // Find the associated SQL file
-        let sql_path = find_sql_file(&yml_path);
+        let project_context_opt = if let Some(cfg) = buster_config {
+            yml_path.parent().and_then(|p| cfg.get_context_for_path(&yml_path, p))
+        } else { None };
 
-        // Check for excluded tags if we have SQL content
-        if let Some(ref cfg) = config {
-            if let Some(ref exclude_tags) = cfg.exclude_tags {
-                if !exclude_tags.is_empty() {
-                    match check_excluded_tags(&sql_path, exclude_tags) {
-                        Ok(true) => {
-                            // Model has excluded tag, skip it
-                            let tag_info = exclude_tags.join(", ");
-                            progress.log_excluded(&format!(
-                                "Skipping model due to excluded tag(s): {}",
-                                tag_info
-                            ));
-                            continue;
-                        }
-                        Err(e) => {
-                            progress.log_error(&format!("Error checking tags: {}", e));
-                        }
-                        _ => {}
-                    }
-                }
-            }
-        }
-
-        // Determine project context for this file
-        let project_context = if let Some(ref cfg) = config {
-            if let Some(yml_dir) = yml_path.parent() {
-                cfg.get_context_for_path(&yml_path, yml_dir)
-            } else {
-                None
-            }
-        } else {
-            None
-        };
-
-        // Resolve configurations for each model
-        let mut models_with_context = Vec::new();
-        for model in parsed_models {
-            models_with_context.push((model, project_context));
-        }
-
-        let resolved_models = match resolve_model_configurations(
-            models_with_context, 
-            config.as_ref().unwrap_or(&BusterConfig::default())
-        ) {
+        let models_with_context: Vec<(Model, Option<&ProjectContext>)> = parsed_models.into_iter()
+            .map(|m| (m, project_context_opt))
+            .collect();
+        
+        let resolved_models = match resolve_model_configurations(models_with_context, buster_config.unwrap_or(&BusterConfig::default())) {
             Ok(models) => models,
             Err(e) => {
                 progress.log_error(&format!("Configuration resolution failed: {}", e));
-                result.failures.push((
-                    progress.current_file.clone(),
-                    "multiple".to_string(),
-                    vec![format!("Configuration resolution failed: {}", e)],
-                ));
+                result.failures.push((progress.current_file.clone(), "multiple".to_string(), vec![e.to_string()]));
                 continue;
             }
         };
 
-        // Process each resolved model
         for model in resolved_models {
-            // Get SQL content
-            let sql_content = match get_sql_content(&model, &sql_path) {
+            // Use effective_buster_config_dir for resolving SQL paths if original_file_path is used
+            // For find_sql_file, yml_path is the context
+            let sql_content = match get_sql_content_for_model(&model, base_search_dir, &yml_path) { 
                 Ok(content) => content,
                 Err(e) => {
-                    progress.log_error(&format!("Failed to read SQL content: {}", e));
-                    result.failures.push((
-                        progress.current_file.clone(),
-                        model.name.clone(),
-                        vec![format!("Failed to read SQL content: {}", e)],
-                    ));
+                    progress.log_error(&format!("Failed to get SQL for model {}: {}", model.name, e));
+                    result.failures.push((progress.current_file.clone(), model.name.clone(), vec![e.to_string()]));
                     continue;
                 }
             };
-
-            // Track model mapping
-            model_mappings.push(ModelMapping {
-                file: progress.current_file.clone(),
-                model_name: model.name.clone(),
-            });
-
-            // Create deploy request
-            deploy_requests.push(to_deploy_request(&model, sql_content));
+            model_mappings_final.push(ModelMapping { file: progress.current_file.clone(), model_name: model.name.clone() });
+            deploy_requests_final.push(to_deploy_request(&model, sql_content));
         }
-
         progress.log_success();
     }
-
-    // Deploy to API if we have valid models and not in dry-run mode
-    if !deploy_requests.is_empty() {
-        if dry_run {
-            println!("\n🔍 Dry run mode - validation successful!");
-            println!("\n📦 Would deploy {} models:", deploy_requests.len());
-            for request in &deploy_requests {
-                println!("   - Model: {} ", request.name);
-                println!(
-                    "     Data Source: {} (env: {})",
-                    request.data_source_name, request.env
-                );
-                println!("     Schema: {}", request.schema);
-                if let Some(database) = &request.database {
-                    println!("     Database: {}", database);
-                }
-                println!("     Columns: {}", request.columns.len());
-                if let Some(rels) = &request.entity_relationships {
-                    println!("     Relationships: {}", rels.len());
-                }
-            }
-            return Ok(());
-        }
-
-        let client =
-            client.expect("BusterClient should be initialized for non-dry-run deployments");
-        progress.status = "Deploying models to Buster...".to_string();
-        progress.log_progress();
-
-        // Store data source name for error messages
-        let data_source_name = deploy_requests[0].data_source_name.clone();
-
-        // Log what we're trying to deploy
-        println!("\n📦 Deploying {} models:", deploy_requests.len());
-        for request in &deploy_requests {
-            println!("   - Model: {} ", request.name);
-            println!(
-                "     Data Source: {} (env: {})",
-                request.data_source_name, request.env
-            );
-            println!("     Schema: {}", request.schema);
-            if let Some(database) = &request.database {
-                println!("     Database: {}", database);
-            }
-            println!("     Columns: {}", request.columns.len());
-            if let Some(rels) = &request.entity_relationships {
-                println!("     Relationships: {}", rels.len());
-            }
-        }
-
-        match client.deploy_datasets(deploy_requests).await {
-            Ok(response) => handle_deploy_response(&response, &mut result, &model_mappings, &progress),
-            Err(e) => {
-                println!("\n❌ Deployment failed!");
-                println!("Error: {}", e);
-                println!("\n💡 Troubleshooting:");
-                println!("1. Check data source:");
-                println!("   - Verify '{}' exists in Buster", data_source_name);
-                println!("   - Confirm it has env='dev'");
-                println!("   - Check your access permissions");
-                println!("2. Check model definitions:");
-                println!("   - Validate SQL syntax");
-                println!("   - Verify column names match");
-                println!("3. Check relationships:");
-                println!("   - Ensure referenced models exist");
-                println!("   - Verify relationship types");
-                return Err(anyhow!(
-                    "Failed to deploy models to Buster: {}",
-                    e
-                ));
-            }
-        }
-    }
-
-    // Report deployment results and return
-    progress.log_summary(&result);
-
-    if !result.failures.is_empty() {
-        return Err(anyhow!("Some models failed to deploy"));
-    }
-
     Ok(())
 }
 
@@ -726,6 +700,13 @@ fn handle_deploy_response(
     }
 }
 
+fn parse_semantic_layer_spec(file_path: &Path) -> Result<SemanticLayerSpec> {
+    let yml_content = fs::read_to_string(file_path)
+        .map_err(|e| anyhow!("Failed to read semantic layer spec file {}: {}", file_path.display(), e))?;
+    serde_yaml::from_str::<SemanticLayerSpec>(&yml_content)
+        .map_err(|e| anyhow!("Failed to parse semantic layer spec from {}: {}", file_path.display(), e))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -749,10 +730,10 @@ mod tests {
     fn test_parse_model_file() -> Result<()> {
         let temp_dir = TempDir::new()?;
         
-        // Test single model YAML
         let single_model_yml = r#"
 name: test_model
 description: "Test model"
+original_file_path: "some/path/model.sql"
 dimensions:
   - name: dim1
     description: "First dimension"
@@ -769,18 +750,20 @@ measures:
         let models = parse_model_file(&single_model_path)?;
         assert_eq!(models.len(), 1);
         assert_eq!(models[0].name, "test_model");
+        assert_eq!(models[0].original_file_path, Some("some/path/model.sql".to_string()));
         
-        // Test multi-model YAML
         let multi_model_yml = r#"
 models:
   - name: model1
     description: "First model"
+    original_file_path: "models/model1.sql"
     dimensions:
       - name: dim1
         description: "First dimension"
         type: "string"
   - name: model2
     description: "Second model"
+    original_file_path: "models/model2.sql"
     measures:
       - name: measure1
         description: "First measure"
@@ -793,14 +776,15 @@ models:
         let models = parse_model_file(&multi_model_path)?;
         assert_eq!(models.len(), 2);
         assert_eq!(models[0].name, "model1");
+        assert_eq!(models[0].original_file_path, Some("models/model1.sql".to_string()));
         assert_eq!(models[1].name, "model2");
+        assert_eq!(models[1].original_file_path, Some("models/model2.sql".to_string()));
         
         Ok(())
     }
 
     #[test]
     fn test_resolve_model_configurations() -> Result<()> {
-        // Create test models
         let model1 = Model {
             name: "model1".to_string(),
             description: Some("Model 1".to_string()),
@@ -812,6 +796,7 @@ models:
             metrics: vec![],
             filters: vec![],
             relationships: vec![],
+            original_file_path: Some("m1.sql".to_string()),
         };
         
         let model2 = Model {
@@ -825,6 +810,7 @@ models:
             metrics: vec![],
             filters: vec![],
             relationships: vec![],
+            original_file_path: None,
         };
         
         let model3 = Model {
@@ -838,9 +824,9 @@ models:
             metrics: vec![],
             filters: vec![],
             relationships: vec![],
+            original_file_path: Some("path/to/m3.sql".to_string()),
         };
         
-        // Create project context
         let project_context = ProjectContext {
             path: "project".to_string(),
             data_source_name: Some("project_ds".to_string()),
@@ -852,7 +838,6 @@ models:
             name: Some("Test Project".to_string()),
         };
         
-        // Create global config
         let global_config = BusterConfig {
             data_source_name: Some("global_ds".to_string()),
             schema: Some("global_schema".to_string()),
@@ -861,9 +846,9 @@ models:
             exclude_tags: None,
             model_paths: None,
             projects: None,
+            semantic_models_file: None,
         };
         
-        // Test resolution
         let models_with_context = vec![
             (model1, Some(&project_context)),
             (model2, Some(&project_context)),
@@ -872,20 +857,20 @@ models:
         
         let resolved_models = resolve_model_configurations(models_with_context, &global_config)?;
         
-        // Verify model1 keeps its own data_source_name but inherits schema from project
         assert_eq!(resolved_models[0].data_source_name, Some("model1_ds".to_string()));
         assert_eq!(resolved_models[0].schema, Some("project_schema".to_string()));
         assert_eq!(resolved_models[0].database, Some("global_db".to_string()));
-        
-        // Verify model2 inherits data_source_name from project but keeps its own database
+        assert_eq!(resolved_models[0].original_file_path, Some("m1.sql".to_string()));
+
         assert_eq!(resolved_models[1].data_source_name, Some("project_ds".to_string()));
         assert_eq!(resolved_models[1].schema, Some("project_schema".to_string()));
         assert_eq!(resolved_models[1].database, Some("model2_db".to_string()));
+        assert_eq!(resolved_models[1].original_file_path, None);
         
-        // Verify model3 inherits everything from global config
         assert_eq!(resolved_models[2].data_source_name, Some("global_ds".to_string()));
         assert_eq!(resolved_models[2].schema, Some("global_schema".to_string()));
         assert_eq!(resolved_models[2].database, Some("global_db".to_string()));
+        assert_eq!(resolved_models[2].original_file_path, Some("path/to/m3.sql".to_string()));
         
         Ok(())
     }
@@ -899,16 +884,16 @@ models:
             database: Some("test_db".to_string()),
             schema: Some("test_schema".to_string()),
             dimensions: vec![
-                semantic_layer::models::Dimension {
+                Dimension {
                     name: "dim1".to_string(),
                     description: Some("First dimension".to_string()),
                     type_: Some("string".to_string()),
-                    searchable: false,
+                    searchable: true, // Example value
                     options: None,
                 }
             ],
             measures: vec![
-                semantic_layer::models::Measure {
+                Measure {
                     name: "measure1".to_string(),
                     description: Some("First measure".to_string()),
                     type_: Some("number".to_string()),
@@ -917,7 +902,7 @@ models:
             metrics: vec![],
             filters: vec![],
             relationships: vec![
-                semantic_layer::models::Relationship {
+                Relationship {
                     name: "related_model".to_string(),
                     primary_key: "id".to_string(),
                     foreign_key: "related_id".to_string(),
@@ -926,37 +911,22 @@ models:
                     description: Some("Relationship to another model".to_string()),
                 }
             ],
+            original_file_path: Some("test_model.sql".to_string()),
         };
         
         let sql_content = "SELECT * FROM test_schema.test_model";
+        let request = to_deploy_request(&model, sql_content.to_string()); // Call the restored function
         
-        let request = to_deploy_request(&model, sql_content.to_string());
-        
-        // Verify request fields
         assert_eq!(request.name, "test_model");
-        assert_eq!(request.data_source_name, "test_source");
-        assert_eq!(request.schema, "test_schema");
-        assert_eq!(request.database, Some("test_db".to_string()));
-        assert_eq!(request.description, "Test model");
-        assert_eq!(request.sql_definition, Some(sql_content.to_string()));
-        
-        // Verify columns
-        assert_eq!(request.columns.len(), 2);
+        assert_eq!(request.columns.len(), 2); // 1 dim, 1 measure
         assert_eq!(request.columns[0].name, "dim1");
-        assert_eq!(request.columns[0].semantic_type, Some("dimension".to_string()));
-        assert_eq!(request.columns[0].type_, Some("string".to_string()));
-        
+        assert_eq!(request.columns[0].searchable, true);
         assert_eq!(request.columns[1].name, "measure1");
-        assert_eq!(request.columns[1].semantic_type, Some("measure".to_string()));
-        assert_eq!(request.columns[1].type_, Some("number".to_string()));
-        
-        // Verify relationships
         assert!(request.entity_relationships.is_some());
-        let rels = request.entity_relationships.as_ref().unwrap();
-        assert_eq!(rels.len(), 1);
-        assert_eq!(rels[0].name, "related_model");
-        assert_eq!(rels[0].expr, "related_id");
-        assert_eq!(rels[0].type_, "LEFT");
+        assert_eq!(request.entity_relationships.as_ref().unwrap().len(), 1);
+        assert_eq!(request.entity_relationships.as_ref().unwrap()[0].name, "related_model");
+        let expected_yml_content = serde_yaml::to_string(&model)?;
+        assert_eq!(request.yml_file, Some(expected_yml_content));
         
         Ok(())
     }

@@ -43,6 +43,7 @@ glob = { workspace = true }
 walkdir = { workspace = true }
 semver = { workspace = true }
 once_cell = { workspace = true }
+pathdiff = { workspace = true }
 # Add the shared query engine library
 query_engine = { workspace = true }
 

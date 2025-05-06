@@ -2,6 +2,7 @@ pub mod chats;
 pub mod collections;
 pub mod dashboards;
 pub mod data_sources;
+pub mod datasets;
 pub mod favorites;
 pub mod logs;
 pub mod messages;

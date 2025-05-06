@@ -1,5 +1,6 @@
 use anyhow::Result;
 use colored::*;
+use glob::{glob, Pattern, PatternError};
 use indicatif::{ProgressBar, ProgressStyle};
 use inquire::{validator::Validation, Confirm, Password, Select, Text};
 use once_cell::sync::Lazy;
@@ -8,10 +9,12 @@ use query_engine::credentials::{
     RedshiftCredentials, SnowflakeCredentials, SqlServerCredentials,
 };
 use regex::Regex;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_yaml;
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::process::Command as StdCommand;
 use std::time::Duration;
 
 // Update imports to use new modules via mod.rs re-exports
@@ -21,6 +24,114 @@ use crate::utils::{
     BusterConfig,
     ProjectContext, // Use re-exported items directly
 };
+
+// --- Structs for dbt catalog.json parsing ---
+#[derive(Debug, Deserialize, Clone)]
+struct DbtCatalog {
+    #[allow(dead_code)] // metadata might be used later
+    metadata: DbtCatalogMetadata,
+    nodes: HashMap<String, DbtNode>,
+    // sources, errors etc. are not needed for now
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct DbtCatalogMetadata {
+    #[serde(rename = "dbt_schema_version")]
+    #[allow(dead_code)]
+    dbt_schema_version: String,
+    // ... other metadata fields if needed
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct DbtNode {
+    metadata: DbtNodeMetadata,
+    columns: HashMap<String, DbtColumn>,
+    resource_type: String, // "model", "source", etc.
+    unique_id: String,     // e.g., "model.my_project.my_model"
+    #[serde(default)] // Handle cases where this field might be missing
+    original_file_path: String, // e.g., "models/my_model.sql"
+                                // Add 'database', 'schema', 'name' from the catalog structure if they are at this level
+    database: Option<String>,
+    schema: Option<String>,
+    name: String, // This is the alias in dbt, metadata.name is the relation name
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct DbtNodeMetadata {
+    #[serde(rename = "type")]
+    relation_type: Option<String>, // For models: "TABLE", "VIEW", etc.
+    schema: Option<String>,        // schema name from metadata
+    name: String,                  // model name (relation name in DB)
+    database: Option<String>,      // database name from metadata
+    comment: Option<String>,
+    #[allow(dead_code)]
+    owner: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct DbtColumn {
+    #[serde(rename = "type")]
+    column_type: String, // SQL data type
+    index: u32,
+    name: String, // column name
+    comment: Option<String>,
+}
+
+// --- Structs for serializing to Semantic Layer YAML ---
+// These mirror structures from api/libs/semantic_layer/src/models.rs
+// to ensure the generated YAML is compatible.
+
+#[derive(Debug, Serialize, PartialEq)]
+struct YamlSemanticLayerSpec {
+    models: Vec<YamlModel>,
+}
+
+#[derive(Debug, Serialize, PartialEq)]
+struct YamlModel {
+    name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    data_source_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    database: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    schema: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    dimensions: Vec<YamlDimension>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    measures: Vec<YamlMeasure>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    original_file_path: Option<String>,
+    // metrics, filters, relationships can be added later if needed
+}
+
+#[derive(Debug, Serialize, PartialEq)]
+struct YamlDimension {
+    name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    description: Option<String>,
+    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
+    type_: Option<String>,
+    #[serde(default, skip_serializing_if = "is_false")] // skip if false (default)
+    searchable: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    options: Option<Vec<String>>,
+}
+
+#[derive(Debug, Serialize, PartialEq)]
+struct YamlMeasure {
+    name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    description: Option<String>,
+    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
+    type_: Option<String>,
+}
+
+// Helper for serde to skip serializing default false values for bool
+fn is_false(val: &bool) -> bool {
+    !*val
+}
 
 #[derive(Debug, Clone)]
 enum DatabaseType {
@@ -260,6 +371,7 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
     }
 
     let config_path = dest_path.join("buster.yml");
+    let mut existing_config_overwrite = false;
 
     if config_path.exists() {
         let overwrite = Confirm::new(&format!(
@@ -274,14 +386,30 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
                 "{}",
                 "Keeping existing buster.yml file. Configuration will be skipped.".yellow()
             );
-            return Ok(());
+            // Try to load existing config for semantic model generation step
+            match BusterConfig::load(&config_path) {
+                Ok(existing_cfg) => {
+                    // Ask to generate semantic models even if main config is skipped
+                    if Confirm::new("Do you want to attempt to generate a base semantic layer from your dbt project (using existing buster.yml)?")
+                        .with_default(true)
+                        .prompt()? {
+                        generate_semantic_models_flow(&existing_cfg, &config_path, &dest_path).await?;
+                    }
+                    return Ok(());
+                }
+                Err(e) => {
+                    eprintln!("{}: {}. Proceeding to overwrite prevention message.", "Failed to load existing buster.yml".yellow(), e);
+                    return Ok(()); // Or ask to re-init fully
+                }
+            }
+        } else {
+            existing_config_overwrite = true;
         }
     }
 
     // --- Try to parse dbt_project.yml ---
-    let dbt_config = parse_dbt_project(&dest_path)?;
-    // Extract suggested name (if available)
-    let suggested_name = dbt_config.as_ref().and_then(|c| c.name.as_deref());
+    let dbt_config_parsed = parse_dbt_project(&dest_path)?;
+    let suggested_name = dbt_config_parsed.as_ref().and_then(|c| c.name.as_deref());
     if let Some(name) = suggested_name {
         println!(
             "{}",
@@ -314,173 +442,474 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
         format!("You selected: {}", db_type.to_string().cyan()).dimmed()
     );
 
-    match db_type {
+    // --- Database specific setup --- (This section largely remains the same)
+    // It will eventually call create_buster_config_file internally or return data for it.
+    // For brevity, assuming it populates necessary details for BusterConfig.
+
+    // Placeholder for the result of database setup, which should include
+    // the data_source_name, database_name, and schema_name needed for BusterConfig.
+    // In a real scenario, these would be returned by the setup_X functions.
+    let (data_source_name_for_config, db_name_for_config, schema_name_for_config) = match db_type {
         DatabaseType::Redshift => {
             setup_redshift(
-                buster_creds.url,
-                buster_creds.api_key,
-                &config_path,
+                buster_creds.url.clone(),
+                buster_creds.api_key.clone(),
+                &config_path, // Pass config_path for context, setup_X will call create_buster_config_file
                 suggested_name,
+                !existing_config_overwrite, // If not overwriting, this is effectively a dry run for buster.yml content
             )
-            .await
+            .await?
         }
         DatabaseType::Postgres => {
             setup_postgres(
-                buster_creds.url,
-                buster_creds.api_key,
+                buster_creds.url.clone(),
+                buster_creds.api_key.clone(),
                 &config_path,
                 suggested_name,
+                !existing_config_overwrite,
             )
-            .await
+            .await?
         }
         DatabaseType::BigQuery => {
             setup_bigquery(
-                buster_creds.url,
-                buster_creds.api_key,
+                buster_creds.url.clone(),
+                buster_creds.api_key.clone(),
                 &config_path,
                 suggested_name,
+                !existing_config_overwrite,
             )
-            .await
-        }
-        DatabaseType::Snowflake => {
-            setup_snowflake(
-                buster_creds.url,
-                buster_creds.api_key,
-                &config_path,
-                suggested_name,
-            )
-            .await
+            .await?
         }
         DatabaseType::MySql => {
             setup_mysql(
-                buster_creds.url,
-                buster_creds.api_key,
+                buster_creds.url.clone(),
+                buster_creds.api_key.clone(),
                 &config_path,
                 suggested_name,
+                !existing_config_overwrite,
             )
-            .await
+            .await?
         }
         DatabaseType::SqlServer => {
             setup_sqlserver(
-                buster_creds.url,
-                buster_creds.api_key,
+                buster_creds.url.clone(),
+                buster_creds.api_key.clone(),
                 &config_path,
                 suggested_name,
+                !existing_config_overwrite,
             )
-            .await
+            .await?
         }
         DatabaseType::Databricks => {
             setup_databricks(
-                buster_creds.url,
-                buster_creds.api_key,
+                buster_creds.url.clone(),
+                buster_creds.api_key.clone(),
                 &config_path,
                 suggested_name,
+                !existing_config_overwrite,
             )
-            .await
+            .await?
+        }
+        DatabaseType::Snowflake => {
+            setup_snowflake(
+                buster_creds.url.clone(),
+                buster_creds.api_key.clone(),
+                &config_path,
+                suggested_name,
+                !existing_config_overwrite,
+            )
+            .await?
+        }
+    };
+
+    // If we overwrote, or if the file didn't exist, buster.yml was just created by one of the setup_X functions.
+    // Now, load it to potentially add semantic_models_file.
+    let mut current_buster_config = BusterConfig::load(&config_path).map_err(|e| {
+        anyhow::anyhow!("Failed to load buster.yml after creation/update: {}", e)
+    })?;
+
+    // --- Semantic Model Generation --- 
+    if Confirm::new("Do you want to attempt to generate a base semantic layer from your dbt project?")
+        .with_default(true)
+        .prompt()? 
+    {
+        let semantic_models_dir_str = Text::new("Enter directory for generated semantic model YAML files:")
+            .with_default("./buster_semantic_models")
+            .with_help_message("Example: ./semantic_layer or ./models_config")
+            .prompt()?;
+        let semantic_models_filename_str = Text::new("Enter filename for the main semantic models YAML file:")
+            .with_default("models.yml")
+            .with_help_message("Example: main_spec.yml or buster_models.yml")
+            .prompt()?;
+        
+        let semantic_output_path = PathBuf::from(&semantic_models_dir_str).join(&semantic_models_filename_str);
+        // Ensure path is relative to buster.yml location for portability
+        let relative_semantic_path = match pathdiff::diff_paths(&semantic_output_path, &dest_path) {
+            Some(p) => p.to_string_lossy().into_owned(),
+            None => { 
+                // If paths are on different prefixes (e.g. Windows C: vs D:), or one is not prefix of other.
+                // Default to the absolute path in this rare case, or use semantic_output_path directly.
+                eprintln!("{}", "Could not determine relative path for semantic models file. Using absolute path.".yellow());
+                semantic_output_path.to_string_lossy().into_owned()
+            }
+        };
+
+        current_buster_config.semantic_models_file = Some(relative_semantic_path);
+        current_buster_config.save(&config_path).map_err(|e| anyhow::anyhow!("Failed to save buster.yml with semantic model path: {}", e))?;
+        println!("{} {} {}", "✓".green(), "Updated buster.yml with semantic_models_file path:".green(), current_buster_config.semantic_models_file.as_ref().unwrap().cyan());
+
+        generate_semantic_models_from_dbt_catalog(&current_buster_config, &config_path, &dest_path).await?;
+    }
+
+    println!("{}", "Buster initialization complete!".bold().green());
+    Ok(())
+}
+
+// Helper function to manage the flow of semantic model generation
+async fn generate_semantic_models_flow(config: &BusterConfig, config_path: &Path, buster_config_dir: &Path) -> Result<()> {
+    let mut mutable_config = config.clone(); // Clone to make it mutable
+
+    let semantic_models_dir_str = Text::new("Enter directory for generated semantic model YAML files:")
+        .with_default(mutable_config.semantic_models_file.as_ref().map_or("./buster_semantic_models", |p| Path::new(p).parent().map_or("./buster_semantic_models", |pp| pp.to_str().unwrap_or("./buster_semantic_models"))))
+        .prompt()?;
+    let semantic_models_filename_str = Text::new("Enter filename for the main semantic models YAML file:")
+        .with_default(mutable_config.semantic_models_file.as_ref().map_or("models.yml", |p| Path::new(p).file_name().map_or("models.yml", |f| f.to_str().unwrap_or("models.yml"))))
+        .prompt()?;
+    
+    let semantic_output_path = PathBuf::from(&semantic_models_dir_str).join(&semantic_models_filename_str);
+    let relative_semantic_path = match pathdiff::diff_paths(&semantic_output_path, buster_config_dir) {
+        Some(p) => p.to_string_lossy().into_owned(),
+        None => {
+            eprintln!("{}", "Could not determine relative path for semantic models file. Using absolute path.".yellow());
+            semantic_output_path.to_string_lossy().into_owned()
+        }
+    };
+
+    mutable_config.semantic_models_file = Some(relative_semantic_path);
+    mutable_config.save(config_path).map_err(|e| anyhow::anyhow!("Failed to save buster.yml with semantic model path: {}", e))?;
+    println!("{} {} {}", "✓".green(), "Updated buster.yml with semantic_models_file path:".green(), mutable_config.semantic_models_file.as_ref().unwrap().cyan());
+
+    generate_semantic_models_from_dbt_catalog(&mutable_config, config_path, buster_config_dir).await
+}
+
+
+// Placeholder for the main logic function
+async fn generate_semantic_models_from_dbt_catalog(
+    buster_config: &BusterConfig,
+    config_path: &Path, // Path to buster.yml
+    buster_config_dir: &Path, // Directory containing buster.yml, assumed dbt project root
+) -> Result<()> {
+    println!(
+        "{}",
+        "Starting semantic model generation from dbt catalog...".dimmed()
+    );
+
+    let dbt_project_path = buster_config_dir;
+    let dbt_project_yml_path = dbt_project_path.join("dbt_project.yml");
+    if !dbt_project_yml_path.exists() {
+        eprintln!(
+            "{}",
+            format!(
+                "Warning: dbt_project.yml not found at {}. dbt commands may fail.",
+                dbt_project_yml_path.display()
+            )
+            .yellow()
+        );
+    }
+
+    let catalog_json_path = dbt_project_path.join("target").join("catalog.json");
+
+    if Confirm::new(
+        "Can Buster run 'dbt docs generate' to get the latest schema (catalog.json)?",
+    )
+    .with_default(true)
+    .prompt()?
+    {
+        println!("{}", "Running 'dbt docs generate'...".dimmed());
+        let spinner = ProgressBar::new_spinner();
+        spinner.set_style(
+            ProgressStyle::default_spinner()
+                .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ")
+                .template("{spinner:.green} {msg}")
+                .unwrap(),
+        );
+        spinner.set_message("Executing dbt docs generate...");
+        spinner.enable_steady_tick(Duration::from_millis(100));
+
+        let output = StdCommand::new("dbt")
+            .arg("docs")
+            .arg("generate")
+            .arg("--project-dir")
+            .arg(dbt_project_path.as_os_str())
+            .output();
+
+        spinner.finish_and_clear();
+
+        match output {
+            Ok(o) => {
+                if o.status.success() {
+                    println!("{}", "✓ 'dbt docs generate' completed successfully.".green());
+                    if !catalog_json_path.exists() {
+                        eprintln!(
+                            "{}",
+                            format!(
+                                "Warning: 'dbt docs generate' ran but catalog.json not found at {}. Output:\nStdout: {}\nStderr: {}",
+                                catalog_json_path.display(),
+                                String::from_utf8_lossy(&o.stdout),
+                                String::from_utf8_lossy(&o.stderr)
+                            )
+                            .yellow()
+                        );
+                    }
+                } else {
+                    eprintln!(
+                        "{}",
+                        format!(
+                            "✗ 'dbt docs generate' failed. Status: {}.\nStdout: {}\nStderr: {}",
+                            o.status,
+                            String::from_utf8_lossy(&o.stdout),
+                            String::from_utf8_lossy(&o.stderr)
+                        )
+                        .red()
+                    );
+                    println!(
+                        "{}",
+                        "Will attempt to use existing catalog.json if available.".yellow()
+                    );
+                }
+            }
+            Err(e) => {
+                eprintln!(
+                    "{}",
+                    format!(
+                        "✗ Failed to execute 'dbt docs generate': {}. Is dbt installed and in your PATH?",
+                        e
+                    )
+                    .red()
+                );
+                println!(
+                    "{}",
+                    "Will attempt to use existing catalog.json if available.".yellow()
+                );
+            }
+        }
+    } else {
+        println!(
+            "{}",
+            "Skipping 'dbt docs generate'. Will look for existing catalog.json.".dimmed()
+        );
+    }
+
+    if !catalog_json_path.exists() {
+        eprintln!(
+            "{}",
+            format!("✗ catalog.json not found at {}.", catalog_json_path.display()).red()
+        );
+        println!("Please ensure 'dbt docs generate' has been run successfully in your dbt project.");
+        println!("Skipping semantic model generation.");
+        return Ok(());
+    }
+
+    println!(
+        "{}",
+        format!(
+            "Attempting to load catalog.json from {}",
+            catalog_json_path.display()
+        )
+        .dimmed()
+    );
+    let catalog_content = fs::read_to_string(&catalog_json_path)
+        .map_err(|e| anyhow::anyhow!("Failed to read catalog.json: {}", e))?;
+    let dbt_catalog: DbtCatalog = serde_json::from_str(&catalog_content)
+        .map_err(|e| anyhow::anyhow!("Failed to parse catalog.json: {}", e))?;
+    println!("{}", "✓ Successfully parsed catalog.json".green());
+
+    // --- Model Scoping Logic ---    
+    let mut configured_model_path_patterns: Vec<Pattern> = Vec::new();
+    if let Some(projects) = &buster_config.projects {
+        for project_context in projects {
+            if let Some(model_paths) = &project_context.model_paths {
+                for path_str in model_paths {
+                    // Construct absolute path for glob pattern relative to buster_config_dir
+                    let path_to_glob = buster_config_dir.join(path_str);
+                    // dbt model paths are often directories, so add a glob to match files within them.
+                    // e.g., if path_str is "models", pattern becomes "<abs_path_to_models>/**/*.sql"
+                    // If path_str already contains wildcards, use it as is more directly.
+                    let pattern_str = if path_str.contains('*') || path_str.contains('?') || path_str.contains('[') {
+                        path_to_glob.to_string_lossy().into_owned()
+                    } else {
+                        path_to_glob.join("**").join("*.sql").to_string_lossy().into_owned()
+                    };
+
+                    match Pattern::new(&pattern_str) {
+                        Ok(p) => configured_model_path_patterns.push(p),
+                        Err(e) => eprintln!(
+                            "{}",
+                            format!(
+                                "Warning: Invalid glob pattern '{}' from buster.yml model_paths: {}",
+                                pattern_str,
+                                e
+                            )
+                            .yellow()
+                        ),
+                    }
+                }
+            }
         }
     }
+    if configured_model_path_patterns.is_empty() {
+        println!("{}", "No model_paths configured in buster.yml or patterns are invalid. Will process all models from catalog.json.".yellow());
+    }
+    // --- End Model Scoping Logic ---
+
+    let mut yaml_models: Vec<YamlModel> = Vec::new();
+    let primary_project_context = buster_config.projects.as_ref().and_then(|p| p.first());
+    let default_data_source_name = primary_project_context
+        .and_then(|pc| pc.data_source_name.as_ref())
+        .or(buster_config.data_source_name.as_ref());
+    let default_database = primary_project_context
+        .and_then(|pc| pc.database.as_ref())
+        .or(buster_config.database.as_ref());
+    let default_schema = primary_project_context
+        .and_then(|pc| pc.schema.as_ref())
+        .or(buster_config.schema.as_ref());
+
+    for (_node_id, node) in dbt_catalog.nodes.iter().filter(|(_id, n)| n.resource_type == "model") {
+        let original_file_path_abs = buster_config_dir.join(&node.original_file_path);
+
+        let in_scope = if configured_model_path_patterns.is_empty() {
+            true // If no patterns, assume all models are in scope (or handle as error/warning)
+        } else {
+            configured_model_path_patterns
+                .iter()
+                .any(|pattern| pattern.matches_path(&original_file_path_abs))
+        };
+
+        if !in_scope {
+            println!("Skipping dbt model (not in configured model_paths): {}", node.unique_id.dimmed());
+            continue;
+        }
+        
+        println!("Processing dbt model: {}", node.unique_id.cyan());
+
+        let actual_model_name = node.metadata.name.clone();
+        let mut dimensions: Vec<YamlDimension> = Vec::new();
+        let mut measures: Vec<YamlMeasure> = Vec::new();
+
+        for (_col_name, col) in &node.columns {
+            if is_measure_type(&col.column_type) {
+                measures.push(YamlMeasure {
+                    name: col.name.clone(),
+                    description: col.comment.clone(),
+                    type_: Some(col.column_type.clone()),
+                });
+            } else {
+                dimensions.push(YamlDimension {
+                    name: col.name.clone(),
+                    description: col.comment.clone(),
+                    type_: Some(col.column_type.clone()),
+                    searchable: false,
+                    options: None,
+                });
+            }
+        }
+
+        let yaml_model = YamlModel {
+            name: actual_model_name,
+            description: node.metadata.comment.clone(),
+            data_source_name: default_data_source_name.cloned(),
+            database: node.database.clone().or_else(|| default_database.cloned()),
+            schema: node.schema.clone().or_else(|| default_schema.cloned()),
+            dimensions,
+            measures,
+            original_file_path: Some(node.original_file_path.clone()),
+        };
+        yaml_models.push(yaml_model);
+    }
+
+    if yaml_models.is_empty() {
+        println!(
+            "{}",
+            "No dbt models found matching configured paths in catalog.json. Skipping YAML file creation."
+                .yellow()
+        );
+        return Ok(());
+    }
+
+    let semantic_spec = YamlSemanticLayerSpec { models: yaml_models };
+    let yaml_output_path_str = buster_config
+        .semantic_models_file
+        .as_ref()
+        .ok_or_else(|| anyhow::anyhow!("Semantic models file path not set in BusterConfig"))?;
+    let semantic_output_path = buster_config_dir.join(yaml_output_path_str);
+
+    if let Some(parent_dir) = semantic_output_path.parent() {
+        fs::create_dir_all(parent_dir).map_err(|e| {
+            anyhow::anyhow!(
+                "Failed to create directory for semantic models YAML: {}",
+                e
+            )
+        })?;
+    }
+
+    let yaml_string = serde_yaml::to_string(&semantic_spec)
+        .map_err(|e| anyhow::anyhow!("Failed to serialize semantic models to YAML: {}", e))?;
+    fs::write(&semantic_output_path, yaml_string)
+        .map_err(|e| anyhow::anyhow!("Failed to write semantic models YAML file: {}", e))?;
+
+    println!(
+        "{} {}",
+        "✓ Successfully generated semantic layer YAML at:".green(),
+        semantic_output_path.display().to_string().cyan()
+    );
+
+    Ok(())
 }
+
+// Helper function to determine if a SQL type should be a measure
+fn is_measure_type(sql_type: &str) -> bool {
+    let lower_sql_type = sql_type.to_lowercase();
+    // Basic check, can be expanded
+    lower_sql_type.contains("int") || // tinyint, smallint, int, bigint
+    lower_sql_type.contains("numeric") ||
+    lower_sql_type.contains("decimal") ||
+    lower_sql_type.contains("real") || // float, double precision
+    lower_sql_type.contains("double") ||
+    lower_sql_type.contains("float") ||
+    lower_sql_type.contains("money") ||
+    lower_sql_type.contains("number")
+    // Consider adding exclusions for boolean-like names if a heuristic is developed
+}
+
+
+// --- Functions for setting up specific database types ---
+// Modified to return Result<(String, String, Option<String>)> for (data_source_name, database, schema)
+// And to take a 'dry_run_config' flag.
+// The actual creation of buster.yml is now deferred or handled conditionally.
 
 async fn setup_redshift(
     buster_url: String,
     buster_api_key: String,
-    config_path: &Path,
+    config_path: &Path, // For context, not direct write unless it's the final step
     suggested_name: Option<&str>,
-) -> Result<()> {
+    skip_config_write: bool, // If true, don't write buster.yml here
+) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up Redshift connection...".bold().green());
+    let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
+    let host = prompt_required_text(
+        "Enter the Redshift host:",
+        Some("Example: my-cluster.abc123xyz789.us-west-2.redshift.amazonaws.com"),
+    )?;
+    let port = prompt_u16_with_default(
+        "Enter the Redshift port:",
+        "5439",
+        Some("Default Redshift port is 5439"),
+    )?;
+    let username = prompt_required_text("Enter the Redshift username:", None)?;
+    let password = prompt_password("Enter the Redshift password:")?;
+    let database = prompt_required_text("Enter the default Redshift database:", None)?;
+    let schema = prompt_required_text("Enter the default Redshift schema:", None)?;
 
-    // Collect name (with validation)
-    let name_regex = Regex::new(r"^[a-zA-Z0-9_-]+$")?;
-    let mut name_prompt = Text::new("Enter a unique name for this data source:")
-        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed");
-
-    // Set default if provided
-    if let Some(s_name) = suggested_name {
-        name_prompt = name_prompt.with_default(s_name);
-    }
-
-    let name = name_prompt
-        .with_validator(move |input: &str| {
-            if input.trim().is_empty() {
-                return Ok(Validation::Invalid("Name cannot be empty".into()));
-            }
-            if name_regex.is_match(input) {
-                Ok(Validation::Valid)
-            } else {
-                Ok(Validation::Invalid(
-                    "Name must contain only alphanumeric characters, dash (-) or underscore (_)"
-                        .into(),
-                ))
-            }
-        })
-        .prompt()?;
-
-    // Collect host
-    let host = Text::new("Enter the Redshift host:")
-        .with_help_message("Example: my-cluster.abc123xyz789.us-west-2.redshift.amazonaws.com")
-        .with_validator(|input: &str| {
-            if input.trim().is_empty() {
-                return Ok(Validation::Invalid("Host cannot be empty".into()));
-            }
-            Ok(Validation::Valid)
-        })
-        .prompt()?;
-
-    // Collect port (with validation)
-    let port_str = Text::new("Enter the Redshift port:")
-        .with_default("5439")
-        .with_help_message("Default Redshift port is 5439")
-        .with_validator(|input: &str| match input.parse::<u16>() {
-            Ok(_) => Ok(Validation::Valid),
-            Err(_) => Ok(Validation::Invalid(
-                "Port must be a valid number between 1 and 65535".into(),
-            )),
-        })
-        .prompt()?;
-    let port = port_str.parse::<u16>()?;
-
-    // Collect username
-    let username = Text::new("Enter the Redshift username:")
-        .with_validator(|input: &str| {
-            if input.trim().is_empty() {
-                return Ok(Validation::Invalid("Username cannot be empty".into()));
-            }
-            Ok(Validation::Valid)
-        })
-        .prompt()?;
-
-    // Collect password (masked)
-    let password = Password::new("Enter the Redshift password:")
-        .with_validator(|input: &str| {
-            if input.trim().is_empty() {
-                return Ok(Validation::Invalid("Password cannot be empty".into()));
-            }
-            Ok(Validation::Valid)
-        })
-        .without_confirmation()
-        .prompt()?;
-
-    // Collect database (required)
-    let database = Text::new("Enter the default Redshift database:")
-        .with_validator(|input: &str| {
-            if input.trim().is_empty() {
-                return Ok(Validation::Invalid("Database cannot be empty".into()));
-            }
-            Ok(Validation::Valid)
-        })
-        .prompt()?;
-
-    // Collect schema (required)
-    let schema = Text::new("Enter the default Redshift schema:")
-        .with_validator(|input: &str| {
-            if input.trim().is_empty() {
-                return Ok(Validation::Invalid("Schema cannot be empty".into()));
-            }
-            Ok(Validation::Valid)
-        })
-        .prompt()?;
-
-    // Show summary and confirm
     println!("\n{}", "Connection Summary:".bold());
     println!("Name: {}", name.cyan());
     println!("Host: {}", host.cyan());
@@ -490,39 +919,27 @@ async fn setup_redshift(
     println!("Default Database: {}", database.cyan());
     println!("Default Schema: {}", schema.cyan());
 
-    let confirm = Confirm::new("Do you want to create this data source?")
+    if Confirm::new("Do you want to create this data source in Buster Cloud?")
         .with_default(true)
-        .prompt()?;
-
-    if !confirm {
-        println!("{}", "Data source creation cancelled.".yellow());
-        return Ok(());
+        .prompt()? 
+    {
+        let redshift_creds = RedshiftCredentials {
+            host, port, username, password,
+            default_database: database.clone(),
+            default_schema: Some(schema.clone()),
+        };
+        let credential = Credential::Redshift(redshift_creds);
+        let request = PostDataSourcesRequest { name: name.clone(), credential };
+        let client = BusterClient::new(buster_url, buster_api_key)?;
+        create_data_source_with_progress(&client, request).await?;
+    } else {
+        println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
-
-    // Create API request
-    let redshift_creds = RedshiftCredentials {
-        host,
-        port,
-        username,
-        password,
-        default_database: database.clone(),
-        default_schema: Some(schema.clone()),
-    };
-    let credential = Credential::Redshift(redshift_creds);
-    let request = PostDataSourcesRequest {
-        name: name.clone(),
-        credential,
-    };
-
-    // Send to API with progress indicator
-    let client = BusterClient::new(buster_url, buster_api_key)?;
-    create_data_source_with_progress(&client, request).await?;
-
-    // Create buster.yml file
-    create_buster_config_file(config_path, &name, &database, Some(&schema))?;
-
-    println!("You can now use this data source with other Buster commands.");
-    Ok(())
+    
+    if !skip_config_write {
+         create_buster_config_file(config_path, &name, &database, Some(&schema))?;
+    }
+    Ok((name, database, Some(schema)))
 }
 
 async fn setup_postgres(
@@ -530,26 +947,17 @@ async fn setup_postgres(
     buster_api_key: String,
     config_path: &Path,
     suggested_name: Option<&str>,
-) -> Result<()> {
+    skip_config_write: bool,
+) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up PostgreSQL connection...".bold().green());
-
-    // Collect fields using helpers
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
-    let host = prompt_required_text(
-        "Enter the PostgreSQL host:",
-        Some("Example: localhost or db.example.com"),
-    )?;
-    let port = prompt_u16_with_default(
-        "Enter the PostgreSQL port:",
-        "5432",
-        Some("Default PostgreSQL port is 5432"),
-    )?;
+    let host = prompt_required_text("Enter the PostgreSQL host:", Some("Example: localhost or db.example.com"))?;
+    let port = prompt_u16_with_default("Enter the PostgreSQL port:", "5432", Some("Default PostgreSQL port is 5432"))?;
     let username = prompt_required_text("Enter the PostgreSQL username:", None)?;
     let password = prompt_password("Enter the PostgreSQL password:")?;
     let database = prompt_required_text("Enter the default PostgreSQL database name:", None)?;
     let schema = prompt_required_text("Enter the default PostgreSQL schema:", None)?;
 
-    // Show summary and confirm
     println!("\n{}", "Connection Summary:".bold());
     println!("Name: {}", name.cyan());
     println!("Host: {}", host.cyan());
@@ -559,46 +967,23 @@ async fn setup_postgres(
     println!("Default Database: {}", database.cyan());
     println!("Default Schema: {}", schema.cyan());
 
-    let confirm = Confirm::new("Do you want to create this data source?")
+    if Confirm::new("Do you want to create this data source in Buster Cloud?")
         .with_default(true)
-        .prompt()?;
-
-    if !confirm {
-        println!("{}", "Data source creation cancelled.".yellow());
-        return Ok(());
+        .prompt()? 
+    {
+        let postgres_creds = PostgresCredentials { host, port, username, password, default_database: database.clone(), default_schema: Some(schema.clone()), jump_host: None, ssh_username: None, ssh_private_key: None };
+        let credential = Credential::Postgres(postgres_creds);
+        let request = PostDataSourcesRequest { name: name.clone(), credential };
+        let client = BusterClient::new(buster_url, buster_api_key)?;
+        create_data_source_with_progress(&client, request).await?;
+    } else {
+        println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
 
-    // Create credentials and request
-    let postgres_creds = PostgresCredentials {
-        host,
-        port,
-        username,
-        password,
-        default_database: database.clone(),
-        default_schema: Some(schema.clone()),
-        jump_host: None,
-        ssh_username: None,
-        ssh_private_key: None,
-    };
-    let credential = Credential::Postgres(postgres_creds);
-    let request = PostDataSourcesRequest {
-        name: name.clone(),
-        credential,
-    };
-
-    // Send to API using helper
-    let client = BusterClient::new(buster_url, buster_api_key)?;
-    create_data_source_with_progress(&client, request).await?;
-
-    // If successful, proceed to create config file
-    println!(
-        "\nData source '{}' is now available for use with Buster.",
-        name.cyan()
-    );
-    create_buster_config_file(config_path, &name, &database, Some(&schema))?;
-    println!("You can now use this data source with other Buster commands.");
-
-    Ok(())
+    if !skip_config_write {
+        create_buster_config_file(config_path, &name, &database, Some(&schema))?;
+    }
+    Ok((name, database, Some(schema)))
 }
 
 async fn setup_bigquery(
@@ -606,99 +991,47 @@ async fn setup_bigquery(
     buster_api_key: String,
     config_path: &Path,
     suggested_name: Option<&str>,
-) -> Result<()> {
+    skip_config_write: bool,
+) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up BigQuery connection...".bold().green());
-
-    // Collect fields using helpers
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
-    let project_id = prompt_required_text(
-        "Enter the default Google Cloud project ID:",
-        Some("Example: my-project-123456"),
-    )?;
+    let project_id = prompt_required_text("Enter the default Google Cloud project ID:", Some("Example: my-project-123456"))?;
     let dataset_id = prompt_required_text("Enter the default BigQuery dataset ID:", None)?;
-
-    // Collect credentials JSON (specific to BigQuery)
-    println!(
-        "\n{}",
-        "BigQuery requires a service account credentials JSON file.".bold()
-    );
-    println!(
-        "You can create one in the Google Cloud Console under IAM & Admin > Service Accounts."
-    );
-
     let credentials_path_str = Text::new("Enter the path to your credentials JSON file:")
         .with_help_message("Example: /path/to/credentials.json")
         .with_validator(|input: &str| {
             let path = Path::new(input);
-            if !path.exists() {
-                Ok(Validation::Invalid("File does not exist".into()))
-            } else if !path.is_file() {
-                Ok(Validation::Invalid("Path is not a file".into()))
-            } else {
-                Ok(Validation::Valid)
-            }
+            if !path.exists() { Ok(Validation::Invalid("File does not exist".into())) }
+            else if !path.is_file() { Ok(Validation::Invalid("Path is not a file".into())) }
+            else { Ok(Validation::Valid) }
         })
         .prompt()?;
-
-    // Read and parse credentials file
-    let credentials_content = fs::read_to_string(&credentials_path_str).map_err(|e| {
-        anyhow::anyhow!(
-            "Failed to read credentials file '{}': {}",
-            credentials_path_str,
-            e
-        )
-    })?;
-    let credentials_json: serde_json::Value =
-        serde_json::from_str(&credentials_content).map_err(|e| {
-            anyhow::anyhow!(
-                "Invalid JSON in credentials file '{}': {}",
-                credentials_path_str,
-                e
-            )
-        })?;
-
-    // Show summary and confirm
+    let credentials_content = fs::read_to_string(&credentials_path_str).map_err(|e| anyhow::anyhow!("Failed to read credentials file '{}': {}", credentials_path_str, e))?;
+    let credentials_json: serde_json::Value = serde_json::from_str(&credentials_content).map_err(|e| anyhow::anyhow!("Invalid JSON in credentials file '{}': {}", credentials_path_str, e))?;
+    
     println!("\n{}", "Connection Summary:".bold());
     println!("Name: {}", name.cyan());
     println!("Default Project ID: {}", project_id.cyan());
     println!("Default Dataset ID: {}", dataset_id.cyan());
     println!("Credentials: {}", credentials_path_str.cyan());
 
-    let confirm = Confirm::new("Do you want to create this data source?")
+    if Confirm::new("Do you want to create this data source in Buster Cloud?")
         .with_default(true)
-        .prompt()?;
-
-    if !confirm {
-        println!("{}", "Data source creation cancelled.".yellow());
-        return Ok(());
+        .prompt()? 
+    {
+        let bigquery_creds = BigqueryCredentials { default_project_id: project_id.clone(), default_dataset_id: dataset_id.clone(), credentials_json };
+        let credential = Credential::Bigquery(bigquery_creds);
+        let request = PostDataSourcesRequest { name: name.clone(), credential };
+        let client = BusterClient::new(buster_url, buster_api_key)?;
+        create_data_source_with_progress(&client, request).await?;
+    } else {
+        println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
 
-    // Create credentials and request
-    let bigquery_creds = BigqueryCredentials {
-        default_project_id: project_id.clone(),
-        default_dataset_id: dataset_id.clone(),
-        credentials_json,
-    };
-    let credential = Credential::Bigquery(bigquery_creds);
-    let request = PostDataSourcesRequest {
-        name: name.clone(),
-        credential,
-    };
-
-    // Send to API using helper
-    let client = BusterClient::new(buster_url, buster_api_key)?;
-    create_data_source_with_progress(&client, request).await?;
-
-    // If successful, proceed to create config file
-    println!(
-        "\nData source '{}' is now available for use with Buster.",
-        name.cyan()
-    );
-    // Map project_id to database, dataset_id to schema for config
-    create_buster_config_file(config_path, &name, &project_id, Some(&dataset_id))?;
-    println!("You can now use this data source with other Buster commands.");
-
-    Ok(())
+    if !skip_config_write {
+        create_buster_config_file(config_path, &name, &project_id, Some(&dataset_id))?;
+    }
+    Ok((name, project_id, Some(dataset_id))) // project_id is like 'database', dataset_id is like 'schema'
 }
 
 async fn setup_mysql(
@@ -706,29 +1039,17 @@ async fn setup_mysql(
     buster_api_key: String,
     config_path: &Path,
     suggested_name: Option<&str>,
-) -> Result<()> {
-    println!(
-        "{}",
-        "Setting up MySQL/MariaDB connection...".bold().green()
-    );
-
-    // Collect fields using helpers
+    skip_config_write: bool,
+) -> Result<(String, String, Option<String>)> {
+    println!("{}", "Setting up MySQL/MariaDB connection...".bold().green());
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
-    let host = prompt_required_text(
-        "Enter the MySQL/MariaDB host:",
-        Some("Example: localhost or db.example.com"),
-    )?;
-    let port = prompt_u16_with_default(
-        "Enter the MySQL/MariaDB port:",
-        "3306",
-        Some("Default MySQL/MariaDB port is 3306"),
-    )?;
+    let host = prompt_required_text("Enter the MySQL/MariaDB host:", Some("Example: localhost or db.example.com"))?;
+    let port = prompt_u16_with_default("Enter the MySQL/MariaDB port:", "3306", Some("Default MySQL/MariaDB port is 3306"))?;
     let username = prompt_required_text("Enter the MySQL/MariaDB username:", None)?;
     let password = prompt_password("Enter the MySQL/MariaDB password:")?;
     let database = prompt_required_text("Enter the default MySQL/MariaDB database name:", None)?;
     // No schema for MySQL
 
-    // Show summary and confirm
     println!("\n{}", "Connection Summary:".bold());
     println!("Name: {}", name.cyan());
     println!("Host: {}", host.cyan());
@@ -737,45 +1058,23 @@ async fn setup_mysql(
     println!("Password: {}", "********".cyan());
     println!("Default Database: {}", database.cyan());
 
-    let confirm = Confirm::new("Do you want to create this data source?")
+    if Confirm::new("Do you want to create this data source in Buster Cloud?")
         .with_default(true)
-        .prompt()?;
-
-    if !confirm {
-        println!("{}", "Data source creation cancelled.".yellow());
-        return Ok(());
+        .prompt()? 
+    {
+        let mysql_creds = MySqlCredentials { host, port, username, password, default_database: database.clone(), jump_host: None, ssh_username: None, ssh_private_key: None };
+        let credential = Credential::MySql(mysql_creds);
+        let request = PostDataSourcesRequest { name: name.clone(), credential };
+        let client = BusterClient::new(buster_url, buster_api_key)?;
+        create_data_source_with_progress(&client, request).await?;
+    } else {
+        println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
-
-    // Create credentials and request
-    let mysql_creds = MySqlCredentials {
-        host,
-        port,
-        username,
-        password,
-        default_database: database.clone(),
-        jump_host: None,
-        ssh_username: None,
-        ssh_private_key: None,
-    };
-    let credential = Credential::MySql(mysql_creds);
-    let request = PostDataSourcesRequest {
-        name: name.clone(),
-        credential,
-    };
-
-    // Send to API using helper
-    let client = BusterClient::new(buster_url, buster_api_key)?;
-    create_data_source_with_progress(&client, request).await?;
-
-    // If successful, proceed to create config file
-    println!(
-        "\nData source '{}' is now available for use with Buster.",
-        name.cyan()
-    );
-    create_buster_config_file(config_path, &name, &database, None)?;
-    println!("You can now use this data source with other Buster commands.");
-
-    Ok(())
+    
+    if !skip_config_write {
+        create_buster_config_file(config_path, &name, &database, None)?;
+    }
+    Ok((name, database, None))
 }
 
 async fn setup_sqlserver(
@@ -783,26 +1082,17 @@ async fn setup_sqlserver(
     buster_api_key: String,
     config_path: &Path,
     suggested_name: Option<&str>,
-) -> Result<()> {
+    skip_config_write: bool,
+) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up SQL Server connection...".bold().green());
-
-    // Collect fields using helpers
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
-    let host = prompt_required_text(
-        "Enter the SQL Server host:",
-        Some("Example: server.database.windows.net or localhost"),
-    )?;
-    let port = prompt_u16_with_default(
-        "Enter the SQL Server port:",
-        "1433",
-        Some("Default SQL Server port is 1433"),
-    )?;
+    let host = prompt_required_text("Enter the SQL Server host:", Some("Example: server.database.windows.net or localhost"))?;
+    let port = prompt_u16_with_default("Enter the SQL Server port:", "1433", Some("Default SQL Server port is 1433"))?;
     let username = prompt_required_text("Enter the SQL Server username:", None)?;
     let password = prompt_password("Enter the SQL Server password:")?;
     let database = prompt_required_text("Enter the default SQL Server database name:", None)?;
     let schema = prompt_required_text("Enter the default SQL Server schema:", None)?;
 
-    // Show summary and confirm
     println!("\n{}", "Connection Summary:".bold());
     println!("Name: {}", name.cyan());
     println!("Host: {}", host.cyan());
@@ -812,46 +1102,23 @@ async fn setup_sqlserver(
     println!("Default Database: {}", database.cyan());
     println!("Default Schema: {}", schema.cyan());
 
-    let confirm = Confirm::new("Do you want to create this data source?")
+    if Confirm::new("Do you want to create this data source in Buster Cloud?")
         .with_default(true)
-        .prompt()?;
-
-    if !confirm {
-        println!("{}", "Data source creation cancelled.".yellow());
-        return Ok(());
+        .prompt()? 
+    {
+        let sqlserver_creds = SqlServerCredentials { host, port, username, password, default_database: database.clone(), default_schema: Some(schema.clone()), jump_host: None, ssh_username: None, ssh_private_key: None };
+        let credential = Credential::SqlServer(sqlserver_creds);
+        let request = PostDataSourcesRequest { name: name.clone(), credential };
+        let client = BusterClient::new(buster_url, buster_api_key)?;
+        create_data_source_with_progress(&client, request).await?;
+    } else {
+        println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
 
-    // Create credentials and request
-    let sqlserver_creds = SqlServerCredentials {
-        host,
-        port,
-        username,
-        password,
-        default_database: database.clone(),
-        default_schema: Some(schema.clone()),
-        jump_host: None,
-        ssh_username: None,
-        ssh_private_key: None,
-    };
-    let credential = Credential::SqlServer(sqlserver_creds);
-    let request = PostDataSourcesRequest {
-        name: name.clone(),
-        credential,
-    };
-
-    // Send to API using helper
-    let client = BusterClient::new(buster_url, buster_api_key)?;
-    create_data_source_with_progress(&client, request).await?;
-
-    // If successful, proceed to create config file
-    println!(
-        "\nData source '{}' is now available for use with Buster.",
-        name.cyan()
-    );
-    create_buster_config_file(config_path, &name, &database, Some(&schema))?;
-    println!("You can now use this data source with other Buster commands.");
-
-    Ok(())
+    if !skip_config_write {
+        create_buster_config_file(config_path, &name, &database, Some(&schema))?;
+    }
+    Ok((name, database, Some(schema)))
 }
 
 async fn setup_databricks(
@@ -859,25 +1126,16 @@ async fn setup_databricks(
     buster_api_key: String,
     config_path: &Path,
     suggested_name: Option<&str>,
-) -> Result<()> {
+    skip_config_write: bool,
+) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up Databricks connection...".bold().green());
-
-    // Collect fields using helpers
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
-    let host = prompt_required_text(
-        "Enter the Databricks host:",
-        Some("Example: adb-xxxxxxxxxxxx.xx.azuredatabricks.net"),
-    )?;
-    // Databricks uses API key and warehouse ID instead of user/pass/port
-    let api_key = prompt_password("Enter the Databricks API key (Personal Access Token):")?;
-    let warehouse_id = prompt_required_text(
-        "Enter the Databricks SQL Warehouse HTTP Path:",
-        Some("Example: /sql/1.0/warehouses/xxxxxxxxxxxx"),
-    )?;
+    let host = prompt_required_text("Enter the Databricks host:", Some("Example: adb-xxxxxxxxxxxx.xx.azuredatabricks.net"))?;
+    let api_key_db = prompt_password("Enter the Databricks API key (Personal Access Token):")?;
+    let warehouse_id = prompt_required_text("Enter the Databricks SQL Warehouse HTTP Path:", Some("Example: /sql/1.0/warehouses/xxxxxxxxxxxx"))?;
     let catalog = prompt_required_text("Enter the default Databricks catalog:", None)?;
     let schema = prompt_required_text("Enter the default Databricks schema:", None)?;
 
-    // Show summary and confirm
     println!("\n{}", "Connection Summary:".bold());
     println!("Name: {}", name.cyan());
     println!("Host: {}", host.cyan());
@@ -886,43 +1144,23 @@ async fn setup_databricks(
     println!("Default Catalog: {}", catalog.cyan());
     println!("Default Schema: {}", schema.cyan());
 
-    let confirm = Confirm::new("Do you want to create this data source?")
+    if Confirm::new("Do you want to create this data source in Buster Cloud?")
         .with_default(true)
-        .prompt()?;
-
-    if !confirm {
-        println!("{}", "Data source creation cancelled.".yellow());
-        return Ok(());
+        .prompt()? 
+    {
+        let databricks_creds = DatabricksCredentials { host, api_key: api_key_db, warehouse_id, default_catalog: catalog.clone(), default_schema: Some(schema.clone()) };
+        let credential = Credential::Databricks(databricks_creds);
+        let request = PostDataSourcesRequest { name: name.clone(), credential };
+        let client = BusterClient::new(buster_url, buster_api_key)?;
+        create_data_source_with_progress(&client, request).await?;
+    } else {
+        println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
 
-    // Create credentials and request
-    let databricks_creds = DatabricksCredentials {
-        host,
-        api_key,
-        warehouse_id,
-        default_catalog: catalog.clone(),
-        default_schema: Some(schema.clone()),
-    };
-    let credential = Credential::Databricks(databricks_creds);
-    let request = PostDataSourcesRequest {
-        name: name.clone(),
-        credential,
-    };
-
-    // Send to API using helper
-    let client = BusterClient::new(buster_url, buster_api_key)?;
-    create_data_source_with_progress(&client, request).await?;
-
-    // If successful, proceed to create config file
-    println!(
-        "\nData source '{}' is now available for use with Buster.",
-        name.cyan()
-    );
-    // Map catalog to database, schema to schema for buster.yml
-    create_buster_config_file(config_path, &name, &catalog, Some(&schema))?;
-    println!("You can now use this data source with other Buster commands.");
-
-    Ok(())
+    if !skip_config_write {
+        create_buster_config_file(config_path, &name, &catalog, Some(&schema))?; // catalog is 'database'
+    }
+    Ok((name, catalog, Some(schema)))
 }
 
 async fn setup_snowflake(
@@ -930,32 +1168,19 @@ async fn setup_snowflake(
     buster_api_key: String,
     config_path: &Path,
     suggested_name: Option<&str>,
-) -> Result<()> {
+    skip_config_write: bool,
+) -> Result<(String, String, Option<String>)> {
     println!("{}", "Setting up Snowflake connection...".bold().green());
-
-    // Collect fields using helpers
     let name = prompt_validated_name("Enter a unique name for this data source:", suggested_name)?;
-    let account_id = prompt_required_text(
-        "Enter the Snowflake account identifier:",
-        Some("Example: xy12345.us-east-1"),
-    )?;
-    let warehouse_id = prompt_required_text(
-        "Enter the Snowflake warehouse name:",
-        Some("Example: COMPUTE_WH"),
-    )?;
+    let account_id = prompt_required_text("Enter the Snowflake account identifier:", Some("Example: xy12345.us-east-1"))?;
+    let warehouse_id = prompt_required_text("Enter the Snowflake warehouse name:", Some("Example: COMPUTE_WH"))?;
     let username = prompt_required_text("Enter the Snowflake username:", None)?;
     let password = prompt_password("Enter the Snowflake password:")?;
-    // Role is optional for Snowflake - use standard Text prompt
-    let role = Text::new("Enter the Snowflake role (optional):").prompt()?;
-    let role_opt = if role.trim().is_empty() {
-        None
-    } else {
-        Some(role)
-    };
+    let role_input = Text::new("Enter the Snowflake role (optional):").prompt()?;
+    let role_opt = if role_input.trim().is_empty() { None } else { Some(role_input) };
     let database = prompt_required_text("Enter the default Snowflake database name:", None)?;
     let schema = prompt_required_text("Enter the default Snowflake schema:", None)?;
 
-    // Show summary and confirm
     println!("\n{}", "Connection Summary:".bold());
     println!("Name: {}", name.cyan());
     println!("Account Identifier: {}", account_id.cyan());
@@ -968,47 +1193,26 @@ async fn setup_snowflake(
     println!("Default Database: {}", database.cyan());
     println!("Default Schema: {}", schema.cyan());
 
-    let confirm = Confirm::new("Do you want to create this data source?")
+    if Confirm::new("Do you want to create this data source in Buster Cloud?")
         .with_default(true)
-        .prompt()?;
-
-    if !confirm {
-        println!("{}", "Data source creation cancelled.".yellow());
-        return Ok(());
+        .prompt()? 
+    {
+        let snowflake_creds = SnowflakeCredentials { account_id, warehouse_id, username, password, role: role_opt.clone(), default_database: database.clone(), default_schema: Some(schema.clone()) };
+        let credential = Credential::Snowflake(snowflake_creds);
+        let request = PostDataSourcesRequest { name: name.clone(), credential };
+        let client = BusterClient::new(buster_url, buster_api_key)?;
+        create_data_source_with_progress(&client, request).await?;
+    } else {
+        println!("{}", "Skipping data source creation in Buster Cloud.".yellow());
     }
 
-    // Create credentials and request
-    let snowflake_creds = SnowflakeCredentials {
-        account_id,
-        warehouse_id,
-        username,
-        password,
-        role: role_opt.clone(),
-        default_database: database.clone(),
-        default_schema: Some(schema.clone()),
-    };
-    let credential = Credential::Snowflake(snowflake_creds);
-    let request = PostDataSourcesRequest {
-        name: name.clone(),
-        credential,
-    };
-
-    // Send to API using helper
-    let client = BusterClient::new(buster_url, buster_api_key)?;
-    create_data_source_with_progress(&client, request).await?;
-
-    // If successful, proceed to create config file
-    println!(
-        "\nData source '{}' is now available for use with Buster.",
-        name.cyan()
-    );
-    create_buster_config_file(config_path, &name, &database, Some(&schema))?;
-    println!("You can now use this data source with other Buster commands.");
-
-    Ok(())
+    if !skip_config_write {
+        create_buster_config_file(config_path, &name, &database, Some(&schema))?;
+    }
+    Ok((name, database, Some(schema)))
 }
 
-// --- Helper to suggest model paths from dbt_project.yml ---
+// Helper function to suggest model paths from dbt_project.yml
 fn suggest_model_paths_from_dbt(buster_config_dir: &Path) -> (Option<String>, String) {
     let mut suggested_model_paths_str = "".to_string();
     let mut log_message = "".to_string();
@@ -1114,11 +1318,10 @@ fn create_buster_config_file(
         model_paths: None,
         // --- Populate the projects field ---
         projects: Some(vec![main_context]),
+        semantic_models_file: None, // Initially None
     };
 
-    let yaml = serde_yaml::to_string(&config)?;
-    fs::write(path, yaml)?;
-
+    config.save(path)?; // Use the save method
     println!(
         "{} {}",
         "✓".green(),

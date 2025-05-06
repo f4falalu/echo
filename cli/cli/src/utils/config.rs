@@ -1,7 +1,8 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use glob::Pattern; // Keep glob dependency if validate_exclude_patterns is here
+use std::fs;
 
 /// Represents a specific project context within buster.yml
 #[derive(Debug, Deserialize, Serialize, Clone, Default)] // Add Default for serde
@@ -80,6 +81,8 @@ pub struct BusterConfig {
     // --- New multi-project structure ---
     #[serde(default, skip_serializing_if = "Option::is_none")] // Allows files without 'projects' key to parse and skips serializing if None
     pub projects: Option<Vec<ProjectContext>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub semantic_models_file: Option<String>, // Path to the generated semantic layer YAML file
 }
 
 impl BusterConfig {
@@ -270,10 +273,32 @@ impl BusterConfig {
         }
     }
 
-     // Method get_context_for_path is implemented above
-     // It determines the most specific project context that applies to a given file path,
-     // falling back to top-level defaults if no project context matches or if a specific setting
-     // is missing in the matched context. This will be crucial for commands like `analyze`, `sync`, etc.
+    pub fn load(path: &Path) -> Result<Self> {
+        let content = fs::read_to_string(path)
+            .with_context(|| format!("Failed to read Buster configuration from {}", path.display()))?;
+        serde_yaml::from_str(&content)
+            .with_context(|| format!("Failed to parse Buster configuration from {}", path.display()))
+    }
+
+    pub fn save(&self, path: &Path) -> Result<()> {
+        let yaml_string = serde_yaml::to_string(self)
+            .with_context(|| "Failed to serialize Buster configuration to YAML")?;
+        if let Some(parent_dir) = path.parent() {
+            fs::create_dir_all(parent_dir).with_context(|| {
+                format!("Failed to create parent directory for buster.yml at {}", parent_dir.display())
+            })?;
+        }
+        fs::write(path, yaml_string)
+            .with_context(|| format!("Failed to write Buster configuration to {}", path.display()))
+    }
+
+    // Helper to get the directory where buster.yml is located.
+    pub fn base_dir(config_path: &Path) -> Result<PathBuf> {
+        config_path
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("Could not determine base directory of buster.yml"))
+            .map(|p| p.to_path_buf())
+    }
 } 
 
 #[cfg(test)]
