@@ -53,6 +53,9 @@ rustyline = { workspace = true }
 # Add the agents crate
 agents = { path = "../../api/libs/agents" }
 
+# Add semantic layer library
+semantic_layer = { path = "../../api/libs/semantic_layer" }
+
 chrono = { workspace = true }
 
 [profile.dev]

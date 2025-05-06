@@ -1,11 +1,11 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct SemanticLayerSpec {
     pub models: Vec<Model>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Model {
     pub name: String,
     pub description: Option<String>,
@@ -27,7 +27,7 @@ pub struct Model {
     pub relationships: Vec<Relationship>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Dimension {
     pub name: String,
     pub description: Option<String>,
@@ -38,7 +38,7 @@ pub struct Dimension {
     pub options: Option<Vec<String>>, // Default to None if 'options' is missing
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Measure {
     pub name: String,
     pub description: Option<String>,
@@ -46,7 +46,7 @@ pub struct Measure {
     pub type_: Option<String>, // 'type' is optional according to spec
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Metric {
     pub name: String,
     pub expr: String,
@@ -55,7 +55,7 @@ pub struct Metric {
     pub args: Vec<Argument>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Filter {
     pub name: String,
     pub expr: String,
@@ -64,7 +64,7 @@ pub struct Filter {
     pub args: Vec<Argument>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Argument {
     pub name: String,
     #[serde(rename = "type")]
@@ -72,7 +72,7 @@ pub struct Argument {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Relationship {
     pub name: String,
     pub primary_key: String,

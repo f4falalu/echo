@@ -147,6 +147,22 @@ graph TD
 -   All parts of a deployed semantic model are correctly stored in the database.
 -   Deployed models can be retrieved and are consistent with the input.
 
+### Phase 4: Final Integration and Cleanup
+
+#### Sub-PRDs
+7.  **CLI Migration and Cleanup** ([prd_cli_migration_and_cleanup.md](prd_cli_migration_and_cleanup.md))
+    *   Purpose: Integrate the new implementation into the main CLI application, remove temporary code, and ensure backward compatibility.
+    *   Dependencies: All previous PRDs must be completed
+    *   Required for: Complete rollout of the refactored system
+    *   Status: 🆕 Not Started
+    *   *Concurrency: Must be done after all other PRDs are completed and tested.*
+
+#### Success Criteria
+-   CLI uses the new unified semantic layer model for all deployment operations
+-   All temporary/development code has been removed
+-   System operates correctly end-to-end with the new implementation
+-   Documentation accurately reflects the new workflow and capabilities
+
 ## Security Considerations
 -   Ensure that file path manipulations during model discovery in the CLI are secure and do not allow for directory traversal vulnerabilities outside the intended project scope.
 -   Database connection details and credentials used for type inference in the API must be handled securely.
