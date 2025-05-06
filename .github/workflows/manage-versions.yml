@@ -19,7 +19,6 @@ on:
         default: 'patch'
         type: string
   pull_request:
-    types: [opened] # Trigger only when a PR is opened
     branches:
       - evals # Target the 'evals' branch
 
