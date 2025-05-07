@@ -139,6 +139,7 @@ jobs:
     name: Build and Push Web Image
     needs: prepare_docker_release_info
     if: needs.prepare_docker_release_info.outputs.web_version_found == 'true'
+    environment: main
     strategy:
       fail-fast: false
       matrix:
