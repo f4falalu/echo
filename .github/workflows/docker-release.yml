@@ -18,8 +18,10 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/api/v') # Trigger only for API tags
     runs-on: blacksmith-32vcpu-ubuntu-2204 # Updated runner
     steps:
-      - name: Checkout code
+      - name: Checkout code at the specific tag
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }} # Checks out the specific API tag
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -28,16 +30,16 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Extract API version from Git tag
-        id: api_version
+        id: api_version_extractor # Renamed for clarity
         run: |
           # github.ref_name will be like "api/v1.2.3"
           VERSION=$(echo "${{ github.ref_name }}" | sed 's#^api/v##')
-          if [ -z "$VERSION" ]; then
+          if [ -z "$VERSION" ]; then # Should not happen due to startsWith condition
             echo "Could not extract version from tag: ${{ github.ref_name }}"
-            VERSION="unknown" # Fallback or fail: exit 1
+            VERSION="unknown"
           fi
-          echo "API_VERSION=$VERSION" >> $GITHUB_ENV
-          echo "api_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "API_VERSION_ENV=$VERSION" >> $GITHUB_ENV # Set for current job
+          echo "api_version_output=$VERSION" >> $GITHUB_OUTPUT # Output for other steps if needed
           echo "Extracted API version: $VERSION"
         shell: bash
 
@@ -55,8 +57,8 @@ jobs:
           file: ./api/Dockerfile # Assuming this Dockerfile is for api/server
           push: true
           tags: |
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ steps.api_version.outputs.api_version }}
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ github.sha }} # Consider if SHA tag is still needed or if component-specific SHA makes sense
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ env.API_VERSION_ENV }}
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ github.sha }} # SHA of the tag commit
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -66,8 +68,10 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/web/v') # Trigger only for Web tags
     runs-on: blacksmith-32vcpu-ubuntu-2204 # Updated runner
     steps:
-      - name: Checkout code
+      - name: Checkout code at the specific tag
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }} # Checks out the specific Web tag
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -76,16 +80,16 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Extract Web version from Git tag
-        id: web_version
+        id: web_version_extractor # Renamed for clarity
         run: |
           # github.ref_name will be like "web/v1.2.3"
           VERSION=$(echo "${{ github.ref_name }}" | sed 's#^web/v##')
-          if [ -z "$VERSION" ]; then
+          if [ -z "$VERSION" ]; then # Should not happen due to startsWith condition
             echo "Could not extract version from tag: ${{ github.ref_name }}"
-            VERSION="unknown" # Fallback or fail: exit 1
+            VERSION="unknown"
           fi
-          echo "WEB_VERSION=$VERSION" >> $GITHUB_ENV
-          echo "web_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "WEB_VERSION_ENV=$VERSION" >> $GITHUB_ENV # Set for current job
+          echo "web_version_output=$VERSION" >> $GITHUB_OUTPUT # Output for other steps if needed
           echo "Extracted Web version: $VERSION"
         shell: bash
 
@@ -103,8 +107,8 @@ jobs:
           file: ./web/Dockerfile
           push: true
           tags: |
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ steps.web_version.outputs.web_version }}
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ github.sha }} # Consider if SHA tag is still needed
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ env.WEB_VERSION_ENV }}
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ github.sha }} # SHA of the tag commit
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:latest
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
