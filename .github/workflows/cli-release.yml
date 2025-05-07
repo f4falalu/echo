@@ -3,54 +3,20 @@ name: CLI Release
 on:
   push:
     branches:
-      - main # Trigger when PR from staging (or any other) is merged to main
+      - main
+    paths:
+      - 'cli/**'
+      - '.github/workflows/cli-release.yml'
+  workflow_dispatch:
 
 # Add permissions for creating releases
 permissions:
   contents: write
-  # pull-requests: write # Not typically needed for a tag-triggered release workflow
+  pull-requests: write # As per old workflow
 
 jobs:
-  prepare_cli_release_info:
-    name: Prepare CLI Release Information
-    runs-on: ubuntu-latest
-    outputs:
-      cli_version: ${{ steps.version_info.outputs.cli_version }}
-      cli_tag_name: ${{ steps.version_info.outputs.cli_tag_name }}
-    steps:
-      - name: Checkout code from main
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }} # Checkout the specific commit on main (merge commit)
-      
-      - name: Read CLI Version and Determine Tag
-        id: version_info
-        shell: bash
-        run: |
-          CLI_VERSION=""
-          if [ -f cli/cli/Cargo.toml ]; then
-            CLI_VERSION=$(grep '^version' cli/cli/Cargo.toml | head -n 1 | sed 's/version = \"\(.*\)\"/\1/')
-            echo "Read CLI version '$CLI_VERSION' from cli/cli/Cargo.toml"
-          else
-            echo "Error: cli/cli/Cargo.toml not found!"
-            exit 1
-          fi
-
-          if [ -z "$CLI_VERSION" ]; then
-            echo "Error: Could not determine CLI version from Cargo.toml."
-            exit 1
-          fi
-          
-          CLI_TAG_NAME="cli/v$CLI_VERSION"
-          echo "Determined CLI Version: $CLI_VERSION"
-          echo "Determined CLI Tag Name: $CLI_TAG_NAME"
-          echo "cli_version=$CLI_VERSION" >> $GITHUB_OUTPUT
-          echo "cli_tag_name=$CLI_TAG_NAME" >> $GITHUB_OUTPUT
-
-# Separate Build Job (similar to original)
-  build_cli:
+  build:
     name: Build CLI Binaries
-    needs: prepare_cli_release_info # Does not strictly need outputs, but runs after version is confirmed
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -59,23 +25,27 @@ jobs:
             target: x86_64-unknown-linux-gnu
             artifact_name: buster-cli-linux-x86_64.tar.gz
             use_tar: true
+            binary_name: buster-cli
           - os: macos-latest
             target: x86_64-apple-darwin
             artifact_name: buster-cli-darwin-x86_64.tar.gz
             use_tar: true
+            binary_name: buster-cli
           - os: macos-latest
             target: aarch64-apple-darwin
             artifact_name: buster-cli-darwin-arm64.tar.gz
             use_tar: true
+            binary_name: buster-cli
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             artifact_name: buster-cli-windows-x86_64.zip
             use_tar: false
+            binary_name: buster-cli.exe
     steps:
-      - name: Checkout code from main
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }} 
+          fetch-depth: 0 # As per old workflow
 
       - name: Install libpq (macOS)
         if: runner.os == 'macOS'
@@ -101,54 +71,32 @@ jobs:
           echo 'panic = "abort"' >> .cargo/config.toml
           echo 'opt-level = 3' >> .cargo/config.toml
           echo 'strip = true' >> .cargo/config.toml
-
+      
       - name: Build optimized release
-        working-directory: ./cli # Assuming this is the workspace root for the cli crate
+        # Builds the buster-cli package from cli/cli/Cargo.toml
+        working-directory: ./cli 
         run: cargo build --release --target ${{ matrix.target }} --manifest-path ./cli/Cargo.toml
-
-      - name: Determine Binary Name and Path
-        id: binary_info
-        shell: bash
-        run: |
-          mkdir -p cli/target/${{ matrix.target }}/release
-          # Default to 'buster' if find command fails or returns empty
-          CRATE_NAME_OUTPUT=$(basename $(find cli/target/${{ matrix.target }}/release -maxdepth 1 -type f -executable ! -name '*.dSYM' ! -name '*.pdb' 2>/dev/null) || echo "buster")
-          if [ "$CRATE_NAME_OUTPUT" == "." ] || [ -z "$CRATE_NAME_OUTPUT" ]; then CRATE_NAME_OUTPUT="buster"; fi # Further fallback for empty/dot
-
-          # Check if the determined/fallback name actually exists as a file
-          if [[ "${{ matrix.os }}" == "windows-latest" ]] && [[ "$CRATE_NAME_OUTPUT" != *.exe ]]; then
-             EXECUTABLE_NAME="${CRATE_NAME_OUTPUT}.exe"
-          else
-             EXECUTABLE_NAME="$CRATE_NAME_OUTPUT"
-          fi
-          
-          if ! [ -f "cli/target/${{ matrix.target }}/release/$EXECUTABLE_NAME" ]; then
-            echo "Warning: Binary '$EXECUTABLE_NAME' not found after build. Defaulting to 'buster' or 'buster.exe'."
-            if [[ "${{ matrix.os }}" == "windows-latest" ]]; then CRATE_NAME_FINAL="buster.exe"; else CRATE_NAME_FINAL="buster"; fi
-          else
-            CRATE_NAME_FINAL=$EXECUTABLE_NAME
-          fi
-          echo "Final binary name for packaging: $CRATE_NAME_FINAL"
-          echo "binary_name=$CRATE_NAME_FINAL" >> $GITHUB_OUTPUT
-          # GITHUB_OUTPUT for binary_path_val is not strictly needed by subsequent steps if using artifact names directly
-          # echo "binary_path_val=cli/target/${{ matrix.target }}/release/$CRATE_NAME_FINAL" >> $GITHUB_OUTPUT
 
       - name: Compress binary (Unix)
         if: matrix.use_tar
+        # working-directory: ./cli # Old: This was ./cli
         shell: bash
         run: |
-          cd cli/target/${{ matrix.target }}/release
-          # Use the exact binary name determined (could be buster or buster.exe from binary_info)
-          tar czf ${{ matrix.artifact_name }} ${{ steps.binary_info.outputs.binary_name }}
-          if [[ "${{ runner.os }}" == "macOS" ]]; then shasum -a 256 ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256; else sha256sum ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256; fi
+          cd cli/target/${{ matrix.target }}/release # Adjusted path to be from repo root
+          tar czf ${{ matrix.artifact_name }} ${{ matrix.binary_name }}
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            shasum -a 256 ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256
+          else
+            sha256sum ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256
+          fi
 
       - name: Compress binary (Windows)
         if: matrix.use_tar == false
+        # working-directory: ./cli # Old: This was ./cli
         shell: pwsh
         run: |
-          cd cli/target/${{ matrix.target }}/release
-          # Use the exact binary name, which should include .exe on Windows from binary_info
-          Compress-Archive -Path ${{ steps.binary_info.outputs.binary_name }} -DestinationPath ${{ matrix.artifact_name }}
+          cd cli/target/${{ matrix.target }}/release # Adjusted path to be from repo root
+          Compress-Archive -Path ${{ matrix.binary_name }} -DestinationPath ${{ matrix.artifact_name }}
           Get-FileHash -Algorithm SHA256 ${{ matrix.artifact_name }} | Select-Object -ExpandProperty Hash > ${{ matrix.artifact_name }}.sha256
 
       - name: Upload artifacts
@@ -160,47 +108,18 @@ jobs:
             cli/target/${{ matrix.target }}/release/${{ matrix.artifact_name }}.sha256
           retention-days: 1
 
-  # This job now handles tagging and creating the GitHub release
-  tag_and_release_cli: 
-    name: Create Git Tag and GitHub Release for CLI
-    needs: [prepare_cli_release_info, build_cli] 
+  release:
+    name: Create GitHub Release for CLI
+    needs: build
     runs-on: ubuntu-latest
     outputs:
-      cli_version: ${{ needs.prepare_cli_release_info.outputs.cli_version }}
-      cli_tag_name: ${{ needs.prepare_cli_release_info.outputs.cli_tag_name }}
+      cli_version: ${{ steps.get_version.outputs.version }}
+      cli_tag_name: v${{ steps.get_version.outputs.version }} # Matches old tag format
     steps:
-      - name: Checkout code from main (for tagging context)
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }} 
-          fetch-depth: 0 
-          # IMPORTANT: Use a PAT with repo scope to push tags, especially if main is protected
-          # or if the default GITHUB_TOKEN doesn't have tag push permissions.
-          # token: ${{ secrets.REPO_ACCESS_PAT }} 
-      
-      - name: Configure Git User
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Create and Push Git Tag
-        env:
-          # Get tag name from the prepare_cli_release_info job
-          CLI_TAG_NAME: ${{ needs.prepare_cli_release_info.outputs.cli_tag_name }}
-          # Ensure PAT is used if GITHUB_TOKEN is insufficient for pushing tags:
-          # GH_TOKEN: ${{ secrets.REPO_ACCESS_PAT }} # Uncomment and use your PAT secret
-        run: |
-          echo "Creating Git tag: $CLI_TAG_NAME on commit ${{ github.sha }}"
-          # Create tag pointing to the current commit on main (merge commit)
-          git tag "$CLI_TAG_NAME" ${{ github.sha }} 
-          echo "Pushing Git tag: $CLI_TAG_NAME"
-          # If using PAT for push, uncomment the following lines after setting GH_TOKEN env var:
-          # git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
-          # git push origin "refs/tags/$CLI_TAG_NAME"
-          
-          # For now, using default GITHUB_TOKEN. THIS MIGHT NOT WORK FOR PROTECTED BRANCHES/TAGS
-          # OR IF THE TOKEN LACKS PERMISSION. REPLACE WITH PAT PUSH.
-          git push origin "refs/tags/$CLI_TAG_NAME"
+          fetch-depth: 0
 
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
@@ -210,11 +129,24 @@ jobs:
       - name: List downloaded artifacts (for debugging)
         run: ls -R downloaded-artifacts
 
+      - name: Extract version from cli/cli/Cargo.toml
+        id: get_version
+        shell: bash
+        run: |
+          # Correctly extract from the package manifest, not the workspace
+          VERSION=$(grep '^version' cli/cli/Cargo.toml | head -n 1 | sed 's/version = "\(.*\)"/\1/')
+          if [ -z "$VERSION" ]; then
+            echo "Error: Could not determine CLI version from cli/cli/Cargo.toml."
+            exit 1
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ needs.prepare_cli_release_info.outputs.cli_tag_name }}
-          name: CLI Release v${{ needs.prepare_cli_release_info.outputs.cli_version }}
+          tag_name: v${{ steps.get_version.outputs.version }} # Uses version from cli/cli/Cargo.toml
+          name: CLI Release v${{ steps.get_version.outputs.version }}
           files: |
             downloaded-artifacts/**/buster-cli-linux-x86_64.tar.gz
             downloaded-artifacts/**/buster-cli-linux-x86_64.tar.gz.sha256
@@ -228,32 +160,32 @@ jobs:
           prerelease: false
           generate_release_notes: true 
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Default token is usually fine for softprops action if tag exists
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   update_homebrew_tap:
     name: Update Homebrew Tap
-    needs: tag_and_release_cli # Trigger after tag_and_release_cli which now outputs version and tag
+    needs: release 
     runs-on: ubuntu-latest
-    if: needs.tag_and_release_cli.outputs.cli_tag_name != ''
+    if: needs.release.outputs.cli_tag_name != '' && needs.release.outputs.cli_version != ''
     steps:
       - name: Get release version and tag from previous job
         id: release_info
         run: |
-          echo "RELEASE_VERSION=${{ needs.tag_and_release_cli.outputs.cli_version }}" >> $GITHUB_ENV
-          echo "RELEASE_TAG=${{ needs.tag_and_release_cli.outputs.cli_tag_name }}" >> $GITHUB_ENV
-          echo "Using version: ${{ needs.tag_and_release_cli.outputs.cli_version }} from tag: ${{ needs.tag_and_release_cli.outputs.cli_tag_name }}"
+          echo "RELEASE_VERSION=${{ needs.release.outputs.cli_version }}" >> $GITHUB_ENV
+          echo "RELEASE_TAG=${{ needs.release.outputs.cli_tag_name }}" >> $GITHUB_ENV
+          echo "Using version: ${{ needs.release.outputs.cli_version }} from tag: ${{ needs.release.outputs.cli_tag_name }}"
 
       - name: Set up GitHub CLI
-        uses: actions/setup-node@v4 # gh is often bundled, but this ensures it's available or can be installed
+        uses: actions/setup-node@v4 
         with:
-          node-version: '20' # Or any version that ensures gh is available
+          node-version: '20'
 
       - name: Download SHA256 sums from GitHub Release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN to interact with the current repo's release
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
           GH_REPO: ${{ github.repository }}
         run: |
-          gh release download ${{ env.RELEASE_TAG }} --pattern '*.sha256' -R $GH_REPO
+          gh release download ${{ env.RELEASE_TAG }} --pattern '*.sha256' -R $GH_REPO --clobber
           echo "Downloaded SHA256 files:"
           ls -la *.sha256
 
@@ -273,8 +205,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: buster-so/buster-homebrew
-          token: ${{ secrets.HOMEBREW_TAP_TOKEN }} # PAT with repo scope for buster-so/buster-homebrew
-          path: buster-homebrew # Checkout to a specific path
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }} 
+          path: buster-homebrew
 
       - name: Configure Git
         working-directory: ./buster-homebrew
@@ -286,16 +218,17 @@ jobs:
         working-directory: ./buster-homebrew
         env:
           VERSION: ${{ env.RELEASE_VERSION }}
-          TAG: ${{ env.RELEASE_TAG }}
+          TAG: ${{ env.RELEASE_TAG }} # This will be vX.Y.Z
           SHA_ARM64: ${{ env.SHA_ARM64 }}
           SHA_INTEL: ${{ env.SHA_INTEL }}
           SHA_LINUX: ${{ env.SHA_LINUX }}
+          REPO_OWNER: ${{ github.repository_owner }} # Needed for URLs
         run: |
           FORMULA_FILE="Formula/buster.rb"
           TEMP_FORMULA_FILE="Formula/buster.rb.tmp"
 
-          # URLs for artifacts
-          URL_BASE="https://github.com/${{ github.repository_owner }}/buster/releases/download/$TAG"
+          # URLs for artifacts, using REPO_OWNER and TAG
+          URL_BASE="https://github.com/$REPO_OWNER/buster/releases/download/$TAG"
           URL_ARM64="$URL_BASE/buster-cli-darwin-arm64.tar.gz"
           URL_INTEL="$URL_BASE/buster-cli-darwin-x86_64.tar.gz"
           URL_LINUX="$URL_BASE/buster-cli-linux-x86_64.tar.gz"
@@ -307,17 +240,16 @@ jobs:
 
           # Update version
           sed "s/^  version .*/  version \\"$VERSION\\"/" "$FORMULA_FILE" > "$TEMP_FORMULA_FILE" && mv "$TEMP_FORMULA_FILE" "$FORMULA_FILE"
-
-          # Update top-level (defaults to ARM usually, as per your formula)
+          
+          # Update top-level URL and SHA (typically ARM)
           sed -E "s#^  url .*#  url \\"$URL_ARM64\\"#" "$FORMULA_FILE" > "$TEMP_FORMULA_FILE" && mv "$TEMP_FORMULA_FILE" "$FORMULA_FILE"
           sed "s/^  sha256 .*/  sha256 \\"$SHA_ARM64\\"/" "$FORMULA_FILE" > "$TEMP_FORMULA_FILE" && mv "$TEMP_FORMULA_FILE" "$FORMULA_FILE"
           
           # Update on_macos -> on_arm
-          # Use a block to target sed within the on_arm block. Delimit with unique markers.
           awk '
-          BEGIN { printing = 1; in_arm_block = 0; }
+          BEGIN { in_arm_block = 0; }
           /on_macos do/,/end/ {
-            if (/on_arm do/) { in_arm_block = 1; }
+            if (/on_arm do/) { in_arm_block = 1; print; next; }
             if (in_arm_block && /url /) {
               print "        url \\"\\"" ENVIRON["URL_ARM64"] "\\"\\""
               next
@@ -333,9 +265,9 @@ jobs:
 
           # Update on_macos -> on_intel
           awk '
-          BEGIN { printing = 1; in_intel_block = 0; }
+          BEGIN { in_intel_block = 0; }
           /on_macos do/,/end/ {
-            if (/on_intel do/) { in_intel_block = 1; }
+            if (/on_intel do/) { in_intel_block = 1; print; next; }
             if (in_intel_block && /url /) {
               print "        url \\"\\"" ENVIRON["URL_INTEL"] "\\"\\""
               next
@@ -351,10 +283,9 @@ jobs:
 
           # Update on_linux
           awk '
-          BEGIN { printing = 1; in_linux_block = 0; }
+          BEGIN { in_linux_block = 0; }
           /on_linux do/,/end/ {
-            if (/url / && !in_linux_block) { next } # Skip top-level url if not already processed
-            if (/on_linux do/) { in_linux_block = 1; }
+            if (/on_linux do/) { in_linux_block = 1; print; next; }
             if (in_linux_block && /url /) {
               print "    url \\"\\"" ENVIRON["URL_LINUX"] "\\"\\""
               next
@@ -376,7 +307,6 @@ jobs:
         working-directory: ./buster-homebrew
         run: |
           git add Formula/buster.rb
-          # Check if there are changes to commit
           if git diff --staged --quiet; then
             echo "No changes to commit to Homebrew tap."
           else

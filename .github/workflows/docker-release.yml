@@ -12,8 +12,8 @@ permissions:
 env:
   # Placeholder for Docker Hub username/organization or GHCR owner
   DOCKER_REGISTRY_OWNER: ghcr.io/${{ github.repository_owner }}
-  API_IMAGE_NAME: api-service
-  WEB_IMAGE_NAME: web-service
+  API_IMAGE_NAME: buster/api
+  WEB_IMAGE_NAME: buster/web
 
 jobs:
   prepare_docker_release_info:
