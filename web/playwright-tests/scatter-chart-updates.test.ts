@@ -26,24 +26,29 @@ test.describe.serial('Create a scatter plot with a question', () => {
     );
 
     const url = page.url();
-    await page.goto(
-      'http://localhost:3000/app/chats/21cd1170-7ecf-4796-9d5e-9828285c62ec/metrics/0023f1a3-58fe-53f7-9f23-07f20868e1b4/chart?secondary_view=chart-edit'
-    );
+
     scatterURL = url;
   });
 
-  scatterURL =
-    'http://localhost:3000/app/chats/21cd1170-7ecf-4796-9d5e-9828285c62ec/metrics/0023f1a3-58fe-53f7-9f23-07f20868e1b4/chart';
+  // scatterURL =
+  //   'http://localhost:3000/app/chats/84c1d148-4056-4aca-8741-29f2d11619c2/metrics/8c1e2db2-1cbb-532a-bf36-040c2431c7f3/chart?metric_version_number=1&secondary_view=chart-edit';
+
   test(`I can update the scatter plot`, async ({ page }) => {
     await page.goto(scatterURL);
-
+    await expect(page.getByTestId('edit-chart-button').getByRole('button')).toBeVisible();
     await page.getByTestId('edit-chart-button').getByRole('button').click();
-    await expect(page.getByTestId('select-chart-type-scatter')).toBeVisible();
+    await page.waitForTimeout(250);
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('load');
+    await page.waitForTimeout(1500);
+    await expect(page.getByTestId('select-chart-type-scatter')).not.toBeVisible();
+    await page.getByTestId('edit-chart-button').getByRole('button').click();
+    await page.waitForTimeout(250);
     await expect(page.getByTestId('select-chart-type-scatter')).toHaveAttribute(
       'data-state',
       'selected'
     );
     await page.getByTestId('segmented-trigger-Styling').click();
-    //
+    await expect(page.getByText('Dot size')).toBeVisible();
   });
 });

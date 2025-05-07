@@ -11,6 +11,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import { ErrorBoundary } from '../error';
+import { useMemoizedFn } from '@/hooks';
 
 export interface SliderProps extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
   min?: number;
@@ -40,21 +41,16 @@ const Slider = React.forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, S
     );
     const currentValue: number[] = value || defaultValue || [min];
 
-    const handleValueChange = React.useCallback(
-      (newValue: number[]) => {
-        onValueChange?.(newValue);
-        setInternalValues(newValue);
-        setUseTooltip(true);
-      },
-      [onValueChange]
-    );
+    const handleValueChange = useMemoizedFn((newValue: number[]) => {
+      onValueChange?.(newValue);
+      setInternalValues(newValue);
+      setUseTooltip(true);
+    });
 
-    const handleValueCommit = React.useCallback(() => {
+    const handleValueCommit = useMemoizedFn(() => {
       setUseTooltip(false);
       setInternalValues(currentValue);
-    }, []);
-
-    console.log(internalValues, value, defaultValue, min);
+    });
 
     return (
       <ErrorBoundary errorComponent={<div>Error</div>}>

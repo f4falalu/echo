@@ -18,7 +18,6 @@ export const EditScatterDotSize: React.FC<{
     const newLower = v[0];
     const newUpper = hasSize ? v[1] : newLower + 18;
     const arrayFormat: [number, number] = [newLower, newUpper];
-    console.log({ arrayFormat });
     onUpdateChartConfig({
       scatterDotSize: arrayFormat
     });
