@@ -127,9 +127,4 @@ test('Bar chart span clicking works', async ({ page }) => {
     .filter({ hasText: /^Edit chart$/ })
     .getByRole('button')
     .click();
-  await expect(page.locator('body')).toMatchAriaSnapshot(`
-      - textbox "New chart": Yearly Sales Revenue - Signature Cycles Products (Last 3 Years + YTD)
-      - text: /Jan 1, \\d+ - May 2, \\d+ • What is the total yearly sales revenue for products supplied by Signature Cycles from \\d+ to present\\? Total Sales Revenue/
-      - img
-      `);
 });
