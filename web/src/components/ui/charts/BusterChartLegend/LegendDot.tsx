@@ -49,6 +49,7 @@ const dotVariants = cva('bg-border transition-colors duration-100', {
     }
   ]
 });
+
 export const LegendItemDot: React.FC<
   {
     color: string | undefined;
@@ -81,9 +82,10 @@ export const LegendItemDot: React.FC<
   }, [type, size]);
 
   return (
-    <div className={cn(itemVariants({ size }))}>
+    <div className={cn(itemVariants({ size }))} data-testid="legend-dot-container">
       <div
         onClick={onClick}
+        data-testid="legend-dot"
         className={cn(dotStyle, dotVariants({ size }), {
           'group-hover:opacity-0': hasFocusItem
         })}
@@ -92,7 +94,9 @@ export const LegendItemDot: React.FC<
         <div
           onClick={onFocusItemPreflight}
           className="absolute hidden h-full w-full items-center justify-center overflow-hidden group-hover:flex">
-          <div className="focus-item group-hover:bg-item-hover flex h-full w-full items-center justify-center rounded-sm">
+          <div
+            data-testid="focus-target"
+            className="focus-item group-hover:bg-item-hover flex h-full w-full items-center justify-center rounded-sm">
             <div
               className={cn(
                 'flex h-full w-full items-center justify-center overflow-hidden',
