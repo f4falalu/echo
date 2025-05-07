@@ -2,18 +2,28 @@ name: CLI Release
 
 on:
   workflow_run:
-    workflows: ["Manage Versions"] # Name of the manage-versions.yml workflow
+    workflows: ["Manage Versions"]
     types:
       - completed
+  workflow_dispatch:
+    inputs:
+      manage_versions_run_id:
+        description: 'Run ID of the completed "Manage Versions" workflow (that produced version-tag-info artifact)'
+        required: true
+        type: string
+      checkout_sha:
+        description: 'Commit SHA to checkout (ideally the head_sha from the Manage Versions run)'
+        required: true
+        type: string
 
 # Add permissions for creating releases
 permissions:
   contents: write
-  pull-requests: write # May not be needed if PRs don't trigger this directly
+  pull-requests: write
 
 jobs:
   build:
-    if: github.event.workflow_run.conclusion == 'success'
+    if: (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
         include:
@@ -38,8 +48,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }} # Checkout the commit from the completed manage-versions run
-          fetch-depth: 0 # Important for release notes generation
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.checkout_sha || github.event.workflow_run.head_sha }}
+          fetch-depth: 0
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -110,7 +120,7 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success'
+    if: (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || github.event_name == 'workflow_dispatch'
     outputs: 
       release_tag: ${{ steps.get_tag_info.outputs.cli_tag_name }}
       release_version: ${{ steps.get_tag_info.outputs.cli_version }}
@@ -118,15 +128,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.checkout_sha || github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
-      - name: Download Tag Information Artifact from Manage Versions workflow
+      - name: Download Tag Information Artifact
         uses: actions/download-artifact@v4
         with:
           name: version-tag-info
-          github-token: ${{ secrets.GITHUB_TOKEN }} # Token to download artifact from another workflow run
-          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.manage_versions_run_id || github.event.workflow_run.id }}
 
       - name: Extract CLI Tag and Version from Artifact
         id: get_tag_info
