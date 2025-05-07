@@ -14,6 +14,10 @@ test.describe.serial('Pie chart styling updates', async () => {
       .getByTestId('select-axis-drop-zone-xAxis')
       .locator('div')
       .filter({ hasText: /^Drag column here$/ });
+
+    expect(sourceElement).toBeVisible();
+    expect(targetElement).toBeVisible();
+
     const sourceBoundingBox = await sourceElement.boundingBox();
     const targetBoundingBox = await targetElement.boundingBox();
 
@@ -178,6 +182,8 @@ test.describe.serial('Pie chart styling updates', async () => {
     );
     await page.getByTestId('segmented-trigger-pie').click();
     await expect(page.getByTestId('segmented-trigger-pie')).toBeVisible();
+    await page.getByTestId('segmented-trigger-donut').click();
+    await page.waitForTimeout(60);
     await page.getByTestId('segmented-trigger-donut').click();
     await page.waitForTimeout(10);
     await expect(page.getByTestId('segmented-trigger-donut')).toBeVisible();
