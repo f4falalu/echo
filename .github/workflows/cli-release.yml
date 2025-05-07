@@ -26,21 +26,29 @@ jobs:
             artifact_name: buster-cli-linux-x86_64.tar.gz
             use_tar: true
             binary_name: buster-cli
+            rust_flags: ""
+            pkg_config_path: ""
           - os: macos-latest
             target: x86_64-apple-darwin
             artifact_name: buster-cli-darwin-x86_64.tar.gz
             use_tar: true
             binary_name: buster-cli
+            rust_flags: "-L/usr/local/opt/libpq/lib"
+            pkg_config_path: "/usr/local/opt/libpq/lib/pkgconfig"
           - os: macos-latest
             target: aarch64-apple-darwin
             artifact_name: buster-cli-darwin-arm64.tar.gz
             use_tar: true
             binary_name: buster-cli
+            rust_flags: "-L/opt/homebrew/opt/libpq/lib"
+            pkg_config_path: "/opt/homebrew/opt/libpq/lib/pkgconfig"
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             artifact_name: buster-cli-windows-x86_64.zip
             use_tar: false
             binary_name: buster-cli.exe
+            rust_flags: ""
+            pkg_config_path: ""
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -75,6 +83,9 @@ jobs:
       - name: Build optimized release
         # Builds the buster-cli package from cli/cli/Cargo.toml
         working-directory: ./cli 
+        env:
+          RUSTFLAGS: ${{ matrix.rust_flags }}
+          PKG_CONFIG_PATH: ${{ matrix.pkg_config_path }}
         run: cargo build --release --target ${{ matrix.target }} --manifest-path ./cli/Cargo.toml
 
       - name: Compress binary (Unix)
