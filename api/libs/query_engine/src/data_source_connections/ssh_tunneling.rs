@@ -6,8 +6,6 @@ use std::{
     net::TcpListener,
     process::{Child, Command},
 };
-#[cfg(unix)]
-use std::os::unix::fs::PermissionsExt;
 use tempfile::NamedTempFile;
 
 pub fn establish_ssh_tunnel(
@@ -61,33 +59,6 @@ pub fn establish_ssh_tunnel(
             break port;
         }
     };
-
-    #[cfg(unix)]
-    {
-        let mut perms = match fs::metadata(temp_ssh_key.path()) {
-            Ok(p) => p.permissions(),
-            Err(e) => {
-                tracing::error!(
-                    "There was a problem while getting the metadata of the temp file: {}",
-                    e
-                );
-                return Err(anyhow!(e));
-            }
-        };
-
-        perms.set_mode(0o600);
-
-        match fs::set_permissions(temp_ssh_key.path(), perms) {
-            Ok(_) => {}
-            Err(e) => {
-                tracing::error!(
-                    "There was a problem while setting the permissions of the temp file: {}",
-                    e
-                );
-                return Err(anyhow!(e));
-            }
-        };
-    }
 
     let ssh_tunnel = match Command::new("ssh")
         .arg("-T")
