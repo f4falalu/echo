@@ -42,8 +42,9 @@ export const useDataTrendlineOptions = ({
       !hasTrendlines ||
       !datasetOptions ||
       !datasetOptions.datasets.length
-    )
+    ) {
       return [] as TrendlineDataset[];
+    }
 
     const trendlineDatasets: TrendlineDataset[] = [];
 

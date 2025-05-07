@@ -282,14 +282,14 @@ export const trendlineDatasetCreator: Record<
   },
 
   average: (trendline, datasetsWithTicks) => {
-    const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+      datasetsWithTicks.datasets,
+      trendline
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
-    // Filter out null/undefined values
-    const validData = selectedDataset.data.filter((value) => value !== null && value !== undefined);
-
+    // Sum all valid values and divide by the count
     if (validData.length === 0) return [];
 
     // Sum all valid values and divide by the count
@@ -313,14 +313,12 @@ export const trendlineDatasetCreator: Record<
   },
 
   min: (trendline, datasetsWithTicks) => {
-    const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+      datasetsWithTicks.datasets,
+      trendline
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
-
-    // Filter out null/undefined values
-    const validData = selectedDataset.data.filter((value) => value !== null && value !== undefined);
-    if (validData.length === 0) return [];
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
     // Use the first valid value as initial accumulator
     const min = validData.reduce<number>((acc, datapoint) => {
@@ -341,14 +339,12 @@ export const trendlineDatasetCreator: Record<
   },
 
   max: (trendline, datasetsWithTicks) => {
-    const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+      datasetsWithTicks.datasets,
+      trendline
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
-
-    // Filter out null/undefined values
-    const validData = selectedDataset.data.filter((value) => value !== null && value !== undefined);
-    if (validData.length === 0) return [];
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
     // Use the first valid value as initial accumulator
     const max = validData.reduce<number>((acc, datapoint) => {
@@ -369,15 +365,15 @@ export const trendlineDatasetCreator: Record<
   },
 
   median: (trendline, datasetsWithTicks) => {
-    const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+      datasetsWithTicks.datasets,
+      trendline
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
     // Sort the data and get the middle value
-    const sortedData = [...selectedDataset.data]
-      .filter((value) => value !== null && value !== undefined)
-      .sort((a, b) => (a as number) - (b as number));
+    const sortedData = [...validData].sort((a, b) => (a as number) - (b as number));
 
     let median: number;
     const midIndex = Math.floor(sortedData.length / 2);
