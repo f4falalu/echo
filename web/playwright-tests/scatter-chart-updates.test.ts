@@ -52,7 +52,28 @@ test.describe.serial('Create a scatter plot with a question', () => {
     await expect(page.getByText('Dot size')).toBeVisible();
   });
 
+  // scatterURL =
+  //   'http://localhost:3000/app/metrics/8c1e2db2-1cbb-532a-bf36-040c2431c7f3/chart?secondary_view=chart-edit';
+
   test(`I can add a trend line`, async ({ page }) => {
     await page.goto(scatterURL);
+    await page.waitForTimeout(100);
+    await page.getByTestId('segmented-trigger-Styling').click();
+    await page.getByRole('button', { name: 'Add trend line' }).click();
+
+    await expect(
+      page
+        .locator('div')
+        .filter({ hasText: /^Linear$/ })
+        .nth(1)
+    ).toBeVisible();
+
+    await page.locator('.relative > button').first().click();
+    await expect(
+      page
+        .locator('div')
+        .filter({ hasText: /^Linear$/ })
+        .nth(1)
+    ).toBeHidden();
   });
 });
