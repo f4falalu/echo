@@ -54,6 +54,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Install libpq (macOS and Linux)
+        if: runner.os != 'Windows'
         run: |
           if [[ "${{ runner.os }}" == "macOS" ]]; then
             brew install libpq
