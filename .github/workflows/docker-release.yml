@@ -106,6 +106,25 @@ jobs:
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ env.API_VERSION }}
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ github.sha }}
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:latest
+      
+      - name: Set API Package Visibility to Public
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG_NAME: ${{ github.repository_owner }}
+        run: |
+          echo "Attempting to set visibility for $ORG_NAME/${{ env.API_IMAGE_NAME }}"
+          RESPONSE_CODE=$(curl -L -s -o /dev/null -w "%{http_code}" -X PATCH \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/orgs/$ORG_NAME/packages/container/${{ env.API_IMAGE_NAME }}" \
+            -d '{"visibility":"public"}')
+          if [ "$RESPONSE_CODE" -eq 200 ] || [ "$RESPONSE_CODE" -eq 204 ]; then
+            echo "Package $ORG_NAME/${{ env.API_IMAGE_NAME }} visibility set to public successfully."
+          else
+            echo "Failed to set package $ORG_NAME/${{ env.API_IMAGE_NAME }} visibility to public. HTTP Status: $RESPONSE_CODE"
+            # Optionally, fail the step: exit 1
+          fi
 
   build_and_push_web:
     name: Build and Push Web Image
@@ -148,3 +167,22 @@ jobs:
             NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Set Web Package Visibility to Public
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG_NAME: ${{ github.repository_owner }}
+        run: |
+          echo "Attempting to set visibility for $ORG_NAME/${{ env.WEB_IMAGE_NAME }}"
+          RESPONSE_CODE=$(curl -L -s -o /dev/null -w "%{http_code}" -X PATCH \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/orgs/$ORG_NAME/packages/container/${{ env.WEB_IMAGE_NAME }}" \
+            -d '{"visibility":"public"}')
+          if [ "$RESPONSE_CODE" -eq 200 ] || [ "$RESPONSE_CODE" -eq 204 ]; then
+            echo "Package $ORG_NAME/${{ env.WEB_IMAGE_NAME }} visibility set to public successfully."
+          else
+            echo "Failed to set package $ORG_NAME/${{ env.WEB_IMAGE_NAME }} visibility to public. HTTP Status: $RESPONSE_CODE"
+            # Optionally, fail the step: exit 1
+          fi
