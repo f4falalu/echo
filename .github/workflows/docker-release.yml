@@ -5,6 +5,10 @@ on:
     branches:
       - main # Trigger when PR from staging is merged to main
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   # Placeholder for Docker Hub username/organization or GHCR owner
   DOCKER_REGISTRY_OWNER: ghcr.io/${{ github.repository_owner }}
@@ -14,7 +18,7 @@ env:
 jobs:
   prepare_docker_release_info:
     name: Prepare Docker Release Information
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-32vcpu-ubuntu-2204
     outputs:
       api_version: ${{ steps.version_info.outputs.api_version }}
       web_version: ${{ steps.version_info.outputs.web_version }}
