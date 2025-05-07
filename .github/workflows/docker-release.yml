@@ -74,7 +74,18 @@ jobs:
     name: Build and Push API Image
     needs: prepare_docker_release_info
     if: needs.prepare_docker_release_info.outputs.api_version_found == 'true'
-    runs-on: blacksmith-32vcpu-ubuntu-2204
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [amd64, arm64]
+        include:
+          - platform: amd64
+            runner: blacksmith-8vcpu-ubuntu-2204
+            docker_platform: linux/amd64
+          - platform: arm64
+            runner: blacksmith-8vcpu-ubuntu-2204-arm
+            docker_platform: linux/arm64
+    runs-on: ${{ matrix.runner }}
     env:
       API_VERSION: ${{ needs.prepare_docker_release_info.outputs.api_version }}
     steps:
@@ -82,9 +93,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -102,11 +110,11 @@ jobs:
           context: ./api
           file: ./api/Dockerfile
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.docker_platform }}
           tags: |
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ env.API_VERSION }}
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ github.sha }}
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:latest
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ env.API_VERSION }}-${{ matrix.platform }}
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ github.sha }}-${{ matrix.platform }}
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:latest-${{ matrix.platform }}
       
       - name: Set API Package Visibility to Public
         env:
@@ -131,7 +139,18 @@ jobs:
     name: Build and Push Web Image
     needs: prepare_docker_release_info
     if: needs.prepare_docker_release_info.outputs.web_version_found == 'true'
-    runs-on: blacksmith-32vcpu-ubuntu-2204
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [amd64, arm64]
+        include:
+          - platform: amd64
+            runner: blacksmith-8vcpu-ubuntu-2204
+            docker_platform: linux/amd64
+          - platform: arm64
+            runner: blacksmith-8vcpu-ubuntu-2204-arm
+            docker_platform: linux/arm64
+    runs-on: ${{ matrix.runner }}
     env:
       WEB_VERSION: ${{ needs.prepare_docker_release_info.outputs.web_version }}
     steps:
@@ -140,9 +159,6 @@ jobs:
         with:
           ref: ${{ github.sha }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -159,11 +175,11 @@ jobs:
           context: ./web
           file: ./web/Dockerfile
           push: true
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.docker_platform }}
           tags: |
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ env.WEB_VERSION }}
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ github.sha }}
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:latest
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ env.WEB_VERSION }}-${{ matrix.platform }}
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ github.sha }}-${{ matrix.platform }}
+            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:latest-${{ matrix.platform }}
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
             NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
