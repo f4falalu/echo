@@ -50,9 +50,9 @@ export const LoginForm: React.FC<{}> = ({}) => {
     async ({ email, password }: { email: string; password: string }) => {
       setLoading('email');
       try {
-        const res = await signInWithEmailAndPassword({ email, password });
-        if (res?.error) throw res.error;
+        await signInWithEmailAndPassword({ email, password });
       } catch (error: any) {
+        console.error(error);
         errorFallback(error);
         setLoading(null);
       }
@@ -62,9 +62,9 @@ export const LoginForm: React.FC<{}> = ({}) => {
   const onSignInWithGoogle = useMemoizedFn(async () => {
     setLoading('google');
     try {
-      const res = await signInWithGoogle();
-      if (res?.error) throw res.error;
+      await signInWithGoogle();
     } catch (error: any) {
+      console.error(error);
       errorFallback(error);
       setLoading(null);
     }
@@ -74,8 +74,8 @@ export const LoginForm: React.FC<{}> = ({}) => {
     setLoading('github');
     try {
       const res = await signInWithGithub();
-      if (res?.error) throw res.error;
     } catch (error: any) {
+      console.error(error);
       errorFallback(error);
       setLoading(null);
     }
@@ -84,8 +84,7 @@ export const LoginForm: React.FC<{}> = ({}) => {
   const onSignInWithAzure = useMemoizedFn(async () => {
     setLoading('azure');
     try {
-      const res = await signInWithAzure();
-      if (res?.error) throw res.error;
+      await signInWithAzure();
     } catch (error: any) {
       errorFallback(error);
       setLoading(null);
@@ -95,11 +94,10 @@ export const LoginForm: React.FC<{}> = ({}) => {
   const onSignUp = useMemoizedFn(async (d: { email: string; password: string }) => {
     setLoading('email');
     try {
-      const res = await signUp(d);
-      if (res?.error) throw res.error;
-
+      await signUp(d);
       setSignUpSuccess(true);
     } catch (error: any) {
+      console.error(error);
       errorFallback(error);
       setLoading(null);
     }
@@ -113,6 +111,7 @@ export const LoginForm: React.FC<{}> = ({}) => {
       if (signUpFlow) onSignUp(d);
       else onSignInWithUsernameAndPassword(d);
     } catch (error: any) {
+      console.error(error);
       const errorMessage = rustErrorHandler(error);
       if (errorMessage?.message == 'User already registered') {
         onSignInWithUsernameAndPassword(d);

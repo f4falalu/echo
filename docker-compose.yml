@@ -16,7 +16,7 @@ services:
       retries: 30
 
   api:
-    image: ghcr.io/buster-so/buster/api:latest
+    image: ghcr.io/buster-so/buster/api:latest-arm64
     container_name: buster-api
     env_file:
       - .env
@@ -34,12 +34,7 @@ services:
       - COHERE_API_KEY=${COHERE_API_KEY}
     ports:
       - "3001:3001"
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-        reservations:
-          memory: 2G
+      - "3000:3000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
@@ -52,29 +47,16 @@ services:
         condition: service_healthy
       kong:
         condition: service_healthy
-      
+
   web:
-    image: ghcr.io/buster-so/buster/web:latest
+    image: ghcr.io/buster-so/buster/web:latest-arm64
     container_name: buster-web
-    ports:
-      - "3000:3000"
+    env_file:
+      - .env
     depends_on:
       api:
         condition: service_healthy
-
-  litellm:
-    image: ghcr.io/berriai/litellm:main-stable
-    container_name: buster-litellm
-    restart: always
-    ports:
-      - "4001:4001"
-    env_file:
-      - .env
-    environment:
-      - LITELLM_ENV=local
-    depends_on:
-      supavisor:
-        condition: service_healthy
+    network_mode: "service:api"
 
 volumes:
   buster_redis_data: 
