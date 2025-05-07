@@ -102,7 +102,7 @@ jobs:
           context: ./api
           file: ./api/Dockerfile
           push: true
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ env.API_VERSION }}
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ github.sha }}
@@ -159,7 +159,7 @@ jobs:
           context: ./web
           file: ./web/Dockerfile
           push: true
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ env.WEB_VERSION }}
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ github.sha }}
