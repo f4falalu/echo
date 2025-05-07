@@ -496,7 +496,7 @@ describe('trendlineDatasetCreator', () => {
           id: 'test-column-id',
           data: [2, 4, 6, 8, 10], // Perfect linear data
           label: [{ key: 'test-label', value: 'Test Label' }],
-          dataKey: 'x-axis',
+          dataKey: 'test-column-id',
           axisType: 'y',
           tooltipData: [[{ key: 'test-tooltip', value: 'Test Tooltip' }]]
         }
@@ -547,7 +547,7 @@ describe('trendlineDatasetCreator', () => {
       // Arrange
       const trendline: Trendline = {
         type: 'linear_regression',
-        columnId: 'test-column-id',
+        columnId: 'x-axis',
         show: true,
         showTrendlineLabel: true,
         trendlineLabel: 'Linear Regression'
@@ -587,8 +587,8 @@ describe('trendlineDatasetCreator', () => {
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
-        id: DATASET_IDS.linearRegression('test-column-id'),
-        dataKey: 'test-column-id',
+        id: DATASET_IDS.linearRegression('x-axis'),
+        dataKey: 'x-axis',
         axisType: 'y'
       });
 
@@ -608,7 +608,7 @@ describe('trendlineDatasetCreator', () => {
       // Arrange
       const trendline: Trendline = {
         type: 'linear_regression',
-        columnId: 'test-column-id',
+        columnId: 'x-axis',
         show: true,
         showTrendlineLabel: true,
         trendlineLabel: 'Linear Regression'
@@ -648,8 +648,8 @@ describe('trendlineDatasetCreator', () => {
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
-        id: DATASET_IDS.linearRegression('test-column-id'),
-        dataKey: 'test-column-id',
+        id: DATASET_IDS.linearRegression('x-axis'),
+        dataKey: 'x-axis',
         axisType: 'y'
       });
 
@@ -673,14 +673,14 @@ describe('trendlineDatasetCreator', () => {
       const approximateSlope = (lastPoint - firstPoint) / (data.length - 1);
       expect(approximateSlope).toBeCloseTo(1, 0);
 
-      expect(result[0].columnId).toEqual('test-column-id');
+      expect(result[0].columnId).toEqual('x-axis');
     });
 
     it('should calculate linear regression with date-based ticks', () => {
       // Arrange
       const trendline: Trendline = {
         type: 'linear_regression',
-        columnId: 'test-column-id',
+        columnId: 'x-axis',
         show: true,
         showTrendlineLabel: true,
         trendlineLabel: 'Linear Regression'
@@ -727,8 +727,8 @@ describe('trendlineDatasetCreator', () => {
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
-        id: DATASET_IDS.linearRegression('test-column-id'),
-        dataKey: 'test-column-id',
+        id: DATASET_IDS.linearRegression('x-axis'),
+        dataKey: 'x-axis',
         axisType: 'y'
       });
 
@@ -748,7 +748,7 @@ describe('trendlineDatasetCreator', () => {
       expect(data[0] as number).toBeCloseTo(102, 0);
       expect(data[data.length - 1] as number).toBeCloseTo(155, 0);
 
-      expect(result[0].columnId).toEqual('test-column-id');
+      expect(result[0].columnId).toEqual('x-axis');
     });
   });
 
@@ -757,7 +757,7 @@ describe('trendlineDatasetCreator', () => {
       // Arrange
       const trendline: Trendline = {
         type: 'exponential_regression',
-        columnId: 'test-column-id',
+        columnId: 'x-axis',
         show: true,
         showTrendlineLabel: true,
         trendlineLabel: 'Exponential Regression'
@@ -797,8 +797,8 @@ describe('trendlineDatasetCreator', () => {
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
-        id: DATASET_IDS.exponentialRegression('test-column-id'),
-        dataKey: 'test-column-id',
+        id: DATASET_IDS.exponentialRegression('x-axis'),
+        dataKey: 'x-axis',
         axisType: 'y'
       });
 
@@ -815,7 +815,7 @@ describe('trendlineDatasetCreator', () => {
       // Arrange
       const trendline: Trendline = {
         type: 'exponential_regression',
-        columnId: 'test-column-id',
+        columnId: 'x-axis',
         show: true,
         showTrendlineLabel: true,
         trendlineLabel: 'Exponential Regression'
@@ -858,8 +858,8 @@ describe('trendlineDatasetCreator', () => {
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
-        id: DATASET_IDS.exponentialRegression('test-column-id'),
-        dataKey: 'test-column-id',
+        id: DATASET_IDS.exponentialRegression('x-axis'),
+        dataKey: 'x-axis',
         axisType: 'y'
       });
 
@@ -872,7 +872,7 @@ describe('trendlineDatasetCreator', () => {
       // Arrange
       const trendline: Trendline = {
         type: 'exponential_regression',
-        columnId: 'test-column-id',
+        columnId: 'x-axis',
         show: true,
         showTrendlineLabel: true,
         trendlineLabel: 'Exponential Regression'
@@ -925,7 +925,7 @@ describe('trendlineDatasetCreator', () => {
       // Arrange
       const trendline: Trendline = {
         type: 'exponential_regression',
-        columnId: 'test-column-id',
+        columnId: 'x-axis',
         show: true,
         showTrendlineLabel: true,
         trendlineLabel: 'Exponential Regression'
@@ -972,7 +972,7 @@ describe('trendlineDatasetCreator', () => {
       // Arrange
       const trendline: Trendline = {
         type: 'logarithmic_regression',
-        columnId: 'test-column-id',
+        columnId: 'x-axis',
         show: true,
         showTrendlineLabel: true,
         trendlineLabel: 'Logarithmic Regression'
@@ -1013,8 +1013,8 @@ describe('trendlineDatasetCreator', () => {
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
-        id: DATASET_IDS.logarithmicRegression('test-column-id'),
-        dataKey: 'test-column-id',
+        id: DATASET_IDS.logarithmicRegression('x-axis'),
+        dataKey: 'x-axis',
         axisType: 'y'
       });
 

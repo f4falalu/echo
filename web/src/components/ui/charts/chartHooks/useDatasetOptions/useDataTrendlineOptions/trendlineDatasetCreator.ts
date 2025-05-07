@@ -22,7 +22,8 @@ export const trendlineDatasetCreator: Record<
     const datasets = datasetsWithTicks.datasets;
     const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
       datasets,
-      trendline
+      trendline,
+      datasetsWithTicks.ticks
     );
 
     if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
@@ -86,7 +87,8 @@ export const trendlineDatasetCreator: Record<
     const datasets = datasetsWithTicks.datasets;
     const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
       datasets,
-      trendline
+      trendline,
+      datasetsWithTicks.ticks
     );
 
     if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
@@ -153,7 +155,8 @@ export const trendlineDatasetCreator: Record<
     const datasets = datasetsWithTicks.datasets;
     const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
       datasets,
-      trendline
+      trendline,
+      datasetsWithTicks.ticks
     );
 
     if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
@@ -221,7 +224,8 @@ export const trendlineDatasetCreator: Record<
     const datasets = datasetsWithTicks.datasets;
     const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
       datasets,
-      trendline
+      trendline,
+      datasetsWithTicks.ticks
     );
 
     if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
@@ -282,9 +286,10 @@ export const trendlineDatasetCreator: Record<
   },
 
   average: (trendline, datasetsWithTicks) => {
-    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+    const { validData, selectedDatasets } = getValidDataAndTicks(
       datasetsWithTicks.datasets,
-      trendline
+      trendline,
+      datasetsWithTicks.ticks
     );
 
     if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
@@ -313,9 +318,10 @@ export const trendlineDatasetCreator: Record<
   },
 
   min: (trendline, datasetsWithTicks) => {
-    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+    const { validData, selectedDatasets } = getValidDataAndTicks(
       datasetsWithTicks.datasets,
-      trendline
+      trendline,
+      datasetsWithTicks.ticks
     );
 
     if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
@@ -339,9 +345,10 @@ export const trendlineDatasetCreator: Record<
   },
 
   max: (trendline, datasetsWithTicks) => {
-    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+    const { validData, selectedDatasets } = getValidDataAndTicks(
       datasetsWithTicks.datasets,
-      trendline
+      trendline,
+      datasetsWithTicks.ticks
     );
 
     if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
@@ -365,9 +372,10 @@ export const trendlineDatasetCreator: Record<
   },
 
   median: (trendline, datasetsWithTicks) => {
-    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+    const { validData, selectedDatasets } = getValidDataAndTicks(
       datasetsWithTicks.datasets,
-      trendline
+      trendline,
+      datasetsWithTicks.ticks
     );
 
     if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
@@ -404,10 +412,12 @@ export const trendlineDatasetCreator: Record<
 
 const getValidDataAndTicks = (
   datasets: DatasetOptionsWithTicks['datasets'],
-  trendline: Trendline
+  trendline: Trendline,
+  datasetTicks: DatasetOptionsWithTicks['ticks']
 ) => {
-  const selectedDatasets = datasets.filter((dataset) => dataset.dataKey === trendline.columnId);
-  const xAxisColumn = selectedDatasets[0].dataKey;
+  const selectedDatasets =
+    datasets?.filter((dataset) => dataset.dataKey === trendline.columnId) || [];
+  const xAxisColumn = selectedDatasets[0]?.dataKey;
 
   // If there's only one dataset, we can skip sorting
   if (selectedDatasets.length === 1) {
@@ -417,11 +427,12 @@ const getValidDataAndTicks = (
 
     dataset.data.forEach((value, index) => {
       const isValidData = value !== null && value !== undefined;
-      const associatedTick = dataset.ticksForScatter?.[index];
 
-      if (isValidData && associatedTick !== undefined) {
+      const associatedTick = dataset.ticksForScatter?.[index] || datasetTicks?.[index];
+
+      if (isValidData) {
         validData.push(value as number);
-        ticks.push(associatedTick);
+        if (associatedTick !== undefined) ticks.push(associatedTick);
       }
     });
 
@@ -432,7 +443,7 @@ const getValidDataAndTicks = (
   const pairs = selectedDatasets.reduce<Array<[(string | number)[], number]>>((acc, dataset) => {
     dataset.data.forEach((value, index) => {
       const isValidData = value !== null && value !== undefined;
-      const associatedTick = dataset.ticksForScatter?.[index];
+      const associatedTick = dataset.ticksForScatter?.[index] || datasetTicks?.[index];
 
       if (isValidData && associatedTick !== undefined) {
         acc.push([associatedTick, value as number]);
