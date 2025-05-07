@@ -3,9 +3,9 @@ mod error;
 mod types;
 mod utils;
 
+use anyhow;
 use clap::{Parser, Subcommand};
-use colored::*;
-use commands::{auth::AuthArgs, deploy, init, auth::check_authentication};
+use commands::{auth::check_authentication, auth::AuthArgs, init, run};
 use utils::updater::check_for_updates;
 
 pub const APP_NAME: &str = "buster";
@@ -16,6 +16,7 @@ pub const GIT_HASH: &str = env!("GIT_HASH");
 #[derive(Subcommand)]
 #[clap(rename_all = "kebab-case")]
 pub enum Commands {
+    /// Initialize a new Buster project
     Init {
         /// Path to create the buster.yml file (defaults to current directory)
         #[arg(long)]
@@ -34,9 +35,11 @@ pub enum Commands {
         /// Don't save credentials to disk
         #[arg(long)]
         no_save: bool,
+
+        /// Clear saved credentials
+        #[arg(long)]
+        clear: bool,
     },
-    /// Display version information
-    Version,
     /// Update buster-cli to the latest version
     Update {
         /// Only check if an update is available
@@ -49,21 +52,6 @@ pub enum Commands {
         #[arg(short = 'y')]
         no_prompt: bool,
     },
-    Generate {
-        #[arg(long)]
-        source_path: Option<String>,
-        #[arg(long)]
-        destination_path: Option<String>,
-        #[arg(long)]
-        data_source_name: Option<String>,
-        #[arg(long)]
-        schema: Option<String>,
-        #[arg(long)]
-        database: Option<String>,
-        /// Output YML files in a flat structure instead of maintaining directory hierarchy
-        #[arg(long, default_value_t = false)]
-        flat_structure: bool,
-    },
     Deploy {
         #[arg(long)]
         path: Option<String>,
@@ -73,19 +61,31 @@ pub enum Commands {
         #[arg(long, default_value_t = true)]
         recursive: bool,
     },
-    /// Start an interactive chat session
-    Chat {
-        /// The API base URL to use
-        #[arg(long, env = "OPENAI_API_BASE")]
-        base_url: Option<String>,
-
-        /// The API key to use
-        #[arg(long, env = "OPENAI_API_KEY")]
-        api_key: Option<String>,
+    /// Generate or update semantic model YAML definitions from dbt project
+    Generate {
+        /// Optional path to a specific dbt model .sql file or a directory of dbt models to process.
+        /// If not provided, processes models based on 'model_paths' in buster.yml.
+        #[arg(long)]
+        path: Option<String>,
+        /// Optional path to the semantic model YAML file to update.
+        /// If not provided, uses 'semantic_models_file' from buster.yml.
+        #[arg(long, short = 'o', name = "output-file")]
+        // output-file as a more descriptive name for the arg
+        target_semantic_file: Option<String>,
     },
+    /// Parse and validate semantic model YAML definitions
+    Parse {
+        /// Optional path to a specific model .yml file or a directory of models to process.
+        /// If not provided, processes models based on 'model_paths' in buster.yml or CWD.
+        #[arg(long)]
+        path: Option<String>,
+    },
+    Start,
+    Stop,
 }
 
 #[derive(Parser)]
+#[command(name = APP_NAME, version = VERSION, about = "Buster CLI - manage your semantic models and interact with the Buster API.")]
 pub struct Args {
     #[command(subcommand)]
     pub cmd: Commands,
@@ -104,35 +104,15 @@ async fn main() {
             host,
             api_key,
             no_save,
+            clear,
         } => {
             commands::auth::auth_with_args(AuthArgs {
                 host,
                 api_key,
                 no_save,
+                clear,
             })
             .await
-        }
-        Commands::Version => {
-            println!("{} v{}", APP_NAME.bold(), VERSION);
-            println!("Build Date: {}", BUILD_DATE);
-            println!("Git Commit: {}", GIT_HASH);
-
-            // Check for updates
-            match commands::version::check_latest_version().await {
-                Ok(Some(latest_version)) => {
-                    if commands::version::is_update_available(VERSION, &latest_version) {
-                        println!("\n{}", "Update available!".yellow().bold());
-                        println!("Latest version: {}", latest_version.green());
-                        println!("Run {} to update", "buster update".cyan());
-                    } else {
-                        println!("\n{}", "You are using the latest version".green());
-                    }
-                }
-                Ok(None) => println!("\n{}", "Unable to check for updates".yellow()),
-                Err(e) => println!("\n{}: {}", "Error checking for updates".red(), e),
-            }
-            // Explicitly return Ok(()) to match the other arms' types
-            Ok(())
         }
         Commands::Update {
             check_only,
@@ -142,43 +122,24 @@ async fn main() {
             let cmd = commands::update::UpdateCommand::new(check_only, force, no_prompt);
             cmd.execute().await
         }
-        Commands::Generate {
-            source_path,
-            destination_path,
-            data_source_name,
-            schema,
-            database,
-            flat_structure,
-        } => async move {
-            check_authentication().await?;
-            commands::generate(
-                source_path.as_deref(),
-                destination_path.as_deref(),
-                data_source_name,
-                schema,
-                database,
-                flat_structure,
-            )
-            .await
-        }.await,
         Commands::Deploy {
             path,
             dry_run,
             recursive,
-        } => async move {
-            check_authentication().await?;
-            deploy(path.as_deref(), dry_run, recursive).await
-        }.await,
-        Commands::Chat {
-            base_url,
-            api_key,
-        } => async move {
-            // No explicit auth check needed here as chat command handles its own logic
-            commands::chat::chat_command(commands::chat::ChatArgs {
-                base_url,
-                api_key,
-            }).await
-        }.await,
+        } => {
+            async move {
+                check_authentication().await?;
+                commands::deploy::deploy(path.as_deref(), dry_run, recursive).await
+            }
+            .await
+        }
+        Commands::Generate {
+            path,
+            target_semantic_file,
+        } => commands::generate::generate_semantic_models_command(path, target_semantic_file).await,
+        Commands::Parse { path } => commands::parse::parse_models_command(path).await,
+        Commands::Start => run::start().await.map_err(anyhow::Error::from),
+        Commands::Stop => run::stop().await.map_err(anyhow::Error::from),
     };
 
     if let Err(e) = result {

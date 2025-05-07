@@ -15,15 +15,15 @@ ENV NEXT_PUBLIC_URL=$NEXT_PUBLIC_URL
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-# Copy all necessary files first
+# Copy package files and install dependencies first for better caching
 COPY package*.json ./
+RUN npm ci
+
+# Copy other necessary configuration files and the rest of the application code
 COPY next.config.mjs ./
 COPY tsconfig*.json ./
 COPY public ./public
 COPY . .
-
-# Install dependencies with verbose logging
-RUN npm ci
 
 # Build with verbose output
 RUN npm run build --verbose
@@ -39,8 +39,9 @@ ENV NODE_ENV=production
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+# Copy package.json and install only production dependencies in the runtime stage
+COPY --from=builder /app/package*.json ./
+RUN npm ci --omit=dev
 COPY --from=builder /app/next.config.mjs ./
 
 # Expose the port your app runs on
