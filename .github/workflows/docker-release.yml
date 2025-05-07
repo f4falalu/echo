@@ -106,8 +106,6 @@ jobs:
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ env.API_VERSION }}
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ github.sha }}
             ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
   build_and_push_web:
     name: Build and Push Web Image
@@ -150,5 +148,3 @@ jobs:
             NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max

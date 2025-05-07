@@ -77,6 +77,10 @@ jobs:
         with:
           ref: ${{ github.sha }} 
 
+      - name: Install libpq (macOS)
+        if: runner.os == 'macOS'
+        run: brew install libpq
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
