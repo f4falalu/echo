@@ -5,8 +5,6 @@ on:
     workflows: ["Manage Versions"] # Name of the manage-versions.yml workflow
     types:
       - completed
-    branches:
-      - evals
 
 # Add permissions for creating releases
 permissions:
