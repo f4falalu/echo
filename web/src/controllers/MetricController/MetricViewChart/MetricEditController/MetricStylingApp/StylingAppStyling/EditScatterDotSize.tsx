@@ -18,14 +18,17 @@ export const EditScatterDotSize: React.FC<{
     const newLower = v[0];
     const newUpper = hasSize ? v[1] : newLower + 18;
     const arrayFormat: [number, number] = [newLower, newUpper];
+    console.log({ arrayFormat });
     onUpdateChartConfig({
       scatterDotSize: arrayFormat
     });
   });
 
+  const arrayValue = Array.isArray(defaultValue) ? defaultValue : [defaultValue];
+
   return (
     <LabelAndInput label="Dot size">
-      <Slider min={1} max={50} step={1} value={defaultValue as number[]} onValueChange={onChange} />
+      <Slider min={1} max={50} step={1} value={arrayValue} onValueChange={onChange} />
     </LabelAndInput>
   );
 });

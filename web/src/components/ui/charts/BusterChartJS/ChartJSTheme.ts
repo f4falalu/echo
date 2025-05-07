@@ -73,6 +73,7 @@ ChartJS.register(
 );
 
 ChartJS.defaults.responsive = true;
+ChartJS.defaults.clip = false;
 ChartJS.defaults.resizeDelay = 7;
 ChartJS.defaults.maintainAspectRatio = false;
 ChartJS.defaults.color = color;
@@ -85,11 +86,11 @@ ChartJS.defaults.font = {
 };
 
 [
-  ChartJS.defaults.scales.category,
+  (ChartJS.defaults.scales.category,
   ChartJS.defaults.scales.linear,
   ChartJS.defaults.scales.logarithmic,
   ChartJS.defaults.scales.time,
-  ChartJS.defaults.scales.timeseries
+  ChartJS.defaults.scales.timeseries)
 ].forEach((scale) => {
   scale.title = {
     ...scale.title,
