@@ -18,7 +18,7 @@ interface ColorPickerProps {
   className?: string;
 }
 
-const colorPickerWrapperVariants = cva('border p-1 rounded cursor-pointer shadow', {
+const colorPickerWrapperVariants = cva('border p-0.5 rounded cursor-pointer shadow', {
   variants: {
     size: {
       default: 'w-6 min-w-6 max-w-6 h-6 min-h-6 max-h-6',

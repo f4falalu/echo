@@ -1,5 +1,5 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { ChartEncodes, Trendline } from '@/api/asset_interfaces/metric/charts';
 import { v4 as uuidv4 } from 'uuid';
 import { useSet, useMemoizedFn } from '@/hooks';
@@ -120,9 +120,11 @@ export const EditTrendline: React.FC<{
       };
     }, [trends]);
 
+    //TODO: fix the bug where we need to "reset" the trends when the reset button is clicked
+
     return (
       <div className="flex flex-col space-y-2.5">
-        <LabelAndInput label="Trend line">
+        <LabelAndInput label="Trend lines">
           <div className="flex items-center justify-end">
             <Button onClick={onAddTrendline} variant="ghost" prefix={<Plus />}>
               Add trend line

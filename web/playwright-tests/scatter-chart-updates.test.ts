@@ -51,4 +51,8 @@ test.describe.serial('Create a scatter plot with a question', () => {
     await page.getByTestId('segmented-trigger-Styling').click();
     await expect(page.getByText('Dot size')).toBeVisible();
   });
+
+  test(`I can add a trend line`, async ({ page }) => {
+    await page.goto(scatterURL);
+  });
 });
