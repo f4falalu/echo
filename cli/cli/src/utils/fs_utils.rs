@@ -5,10 +5,9 @@ use regex::Regex;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
-// Import BusterConfig potentially needed by ExclusionManager::new
-// We will fix this import path after updating mod.rs
+// Import BusterConfig from the new config module
 use crate::utils::config::BusterConfig;
-// Import ProgressTracker needed by find_* functions
+// Import ProgressTracker from the new progress module
 use crate::utils::progress::ProgressTracker;
 
 /// Manager for handling all exclusion logic

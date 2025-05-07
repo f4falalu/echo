@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::{Result};
 use async_trait::async_trait;
 use clap::Parser;
 use inquire::{Confirm, Password, Text};
@@ -6,7 +6,7 @@ use thiserror::Error;
 
 use crate::utils::{
     buster::BusterClient,
-    file::buster_credentials::{get_buster_credentials, set_buster_credentials, BusterCredentials},
+    file::buster_credentials::{get_buster_credentials, set_buster_credentials, delete_buster_credentials, BusterCredentials},
 };
 
 const DEFAULT_HOST: &str = "https://api.buster.so";
@@ -19,12 +19,18 @@ pub enum AuthError {
     InvalidApiKey,
     #[error("Failed to validate credentials: {0}")]
     ValidationError(String),
+    #[error("Authentication cancelled by user")]
+    ClearCredentialsFailed(String),
+    #[error("Failed to save credentials: {0}")]
+    SaveCredentialsFailed(String),
+    #[error("Failed to get user input: {0}")]
+    UserInputFailed(String),
 }
 
 #[derive(Parser, Debug)]
 #[command(about = "Authenticate with Buster API")]
 pub struct AuthArgs {
-    /// The Buster API host URL
+    /// The Buster API host UL
     #[arg(long, env = "BUSTER_HOST")]
     pub host: Option<String>,
 
@@ -35,6 +41,10 @@ pub struct AuthArgs {
     /// Don't save credentials to disk
     #[arg(long)]
     pub no_save: bool,
+
+    /// Clear saved credentials
+    #[arg(long)]
+    pub clear: bool,
 }
 
 // --- Credentials Validation Trait ---
@@ -132,8 +142,21 @@ pub async fn check_authentication() -> Result<()> {
     check_authentication_inner(cached_credentials_result, &validator).await
 }
 
-pub async fn auth_with_args(args: AuthArgs) -> Result<()> {
-    // Get existing credentials or create default
+/// Handles the --clear flag logic.
+async fn handle_clear_flag(clear: bool) -> Result<bool> {
+    if clear {
+        delete_buster_credentials().await
+            .map_err(|e| AuthError::ClearCredentialsFailed(e.to_string()))?;
+        println!("Saved credentials cleared successfully.");
+        Ok(true) // Indicate that the command should exit
+    } else {
+        Ok(false) // Indicate that the command should continue
+    }
+}
+
+/// Loads existing credentials or initializes default ones, handling overrides from args/env.
+/// Also prompts for overwrite confirmation if necessary.
+async fn load_and_confirm_credentials(args: &AuthArgs) -> Result<Option<BusterCredentials>> {
     let mut buster_creds = match get_buster_credentials().await {
         Ok(creds) => creds,
         Err(_) => BusterCredentials {
@@ -143,99 +166,147 @@ pub async fn auth_with_args(args: AuthArgs) -> Result<()> {
     };
     let existing_creds_present = !buster_creds.url.is_empty() && !buster_creds.api_key.is_empty();
 
+    // Apply args overrides early - host
+    if let Some(host) = &args.host {
+        buster_creds.url = host.clone();
+    }
+     // Apply args overrides early - api key
+     if let Some(api_key) = &args.api_key {
+        buster_creds.api_key = api_key.clone();
+    }
+
     let host_provided = args.host.is_some();
     let api_key_provided = args.api_key.is_some();
     let fully_provided_via_args = host_provided && api_key_provided;
 
-    // If existing credentials are found and the user hasn't provided everything via args/env,
-    // prompt for confirmation before proceeding with potential overwrites.
+    // Prompt for overwrite confirmation only if existing creds are present *and* not fully overridden by args
     if existing_creds_present && !fully_provided_via_args {
         let confirm = Confirm::new("Existing credentials found. Do you want to overwrite them?")
             .with_default(false)
             .with_help_message("Select 'y' to proceed with entering new credentials, or 'n' to cancel.")
-            .prompt()?;
+            .prompt()
+            .map_err(|e| AuthError::UserInputFailed(e.to_string()))?;
 
         if !confirm {
             println!("Authentication cancelled.");
-            return Ok(());
+            return Ok(None); // Signal cancellation
         }
-        // If confirmed, we will proceed, potentially overwriting existing values below.
+        // If confirmed, proceed with the potentially modified buster_creds
     }
 
-    // Apply host from args or use default
-    if let Some(host) = args.host {
-        buster_creds.url = host;
-    }
+    Ok(Some(buster_creds))
+}
 
-    // Check if API key was provided via args or environment
-    let api_key_from_env_or_args = args.api_key.is_some();
+/// Prompts the user interactively for missing host and API key information.
+async fn prompt_for_missing_credentials(
+    creds: &mut BusterCredentials,
+    args: &AuthArgs,
+    existing_creds_present: bool, // Needed to adjust prompt text
+) -> Result<()> {
+    let host_provided = args.host.is_some();
+    let api_key_provided = args.api_key.is_some();
 
-    // Apply API key from args or environment
-    if let Some(api_key) = args.api_key {
-        buster_creds.api_key = api_key;
-    }
-
-    // Interactive mode for missing values
-    // Only prompt if the value wasn't provided via args/env
-    if !host_provided && buster_creds.url.is_empty() {
+    // Prompt for URL if not provided via args and current URL is default or empty
+    if !host_provided && (creds.url.is_empty() || creds.url == DEFAULT_HOST) {
+         let default_url_to_show = if creds.url.is_empty() { DEFAULT_HOST } else { &creds.url };
         let url_input = Text::new("Enter the URL of your Buster API")
-            .with_default(DEFAULT_HOST)
-            .with_help_message("Press Enter to use the default URL")
+            .with_default(default_url_to_show)
+            .with_help_message("Press Enter to use the displayed default/current URL")
             .prompt()
-            .context("Failed to get URL input")?;
+            .map_err(|e| AuthError::UserInputFailed(e.to_string()))?;
 
-        if url_input.is_empty() {
-            buster_creds.url = DEFAULT_HOST.to_string();
-        } else {
-            buster_creds.url = url_input;
-        }
+         // Update only if input is not empty and different from default/current
+         if !url_input.is_empty() && url_input != default_url_to_show {
+            creds.url = url_input;
+         } else if creds.url.is_empty() { // Ensure default is set if prompt skipped with empty initial value
+             creds.url = DEFAULT_HOST.to_string();
+         }
     }
 
-    // Always prompt for API key if it wasn't found in environment variables or args
-    // unless it's already present from the loaded credentials
-    if !api_key_from_env_or_args {
-        let obfuscated_api_key = if buster_creds.api_key.is_empty() {
-            String::from("None")
+    // Prompt for API key if not provided via args
+    if !api_key_provided {
+        let obfuscated_api_key = if creds.api_key.is_empty() {
+            String::from("[Not Set]")
         } else {
-            format!("{}...", &buster_creds.api_key[0..std::cmp::min(4, buster_creds.api_key.len())]) // Ensure safe slicing
+            format!("{}...", &creds.api_key[0..std::cmp::min(4, creds.api_key.len())])
         };
 
-        let prompt_message = if existing_creds_present && !fully_provided_via_args {
-             format!("Enter new API key (current: [{obfuscated_api_key}]):")
+        let prompt_message = if existing_creds_present {
+             format!("Enter new API key (current: {obfuscated_api_key}):")
         } else {
-             format!("Enter your API key [{obfuscated_api_key}]:")
+             format!("Enter your API key (current: {obfuscated_api_key}):")
         };
 
         let api_key_input = Password::new(&prompt_message)
             .without_confirmation()
-            .with_help_message("Your API key can be found in your Buster dashboard. Leave blank to keep current key.")
+            .with_help_message("Your API key can be found in your Buster dashboard. Leave blank to keep the current key.")
             .prompt()
-            .context("Failed to get API key input")?;
+            .map_err(|e| AuthError::UserInputFailed(e.to_string()))?;
 
-        if api_key_input.is_empty() && buster_creds.api_key.is_empty() {
-             // Only error if no key exists *and* none was entered
-            return Err(AuthError::MissingApiKey.into());
-        } else if !api_key_input.is_empty() {
-            // Update only if new input was provided
-            buster_creds.api_key = api_key_input;
+        // Update only if new input was provided
+        if !api_key_input.is_empty() {
+            creds.api_key = api_key_input;
         }
     }
 
-    // Validate credentials using the trait
-    let validator = RealCredentialsValidator;
-    validator.validate(&buster_creds.url, &buster_creds.api_key).await?;
+    // Final check: Ensure API key is present after args and prompts
+    if creds.api_key.is_empty() {
+        return Err(AuthError::MissingApiKey.into());
+    }
 
-    // Save credentials unless --no-save is specified
-    if !args.no_save {
-        set_buster_credentials(buster_creds).await
-            .context("Failed to save credentials")?;
+    Ok(())
+}
+
+/// Validates the provided credentials using the validator trait.
+async fn validate_credentials(
+    creds: &BusterCredentials,
+    validator: &dyn CredentialsValidator,
+) -> Result<()> {
+    validator.validate(&creds.url, &creds.api_key).await?;
+    Ok(())
+}
+
+/// Saves credentials to disk or prints a success message.
+async fn save_credentials_or_notify(
+    creds: BusterCredentials,
+    no_save: bool,
+) -> Result<()> {
+    if !no_save {
+        set_buster_credentials(creds).await
+            .map_err(|e| AuthError::SaveCredentialsFailed(e.to_string()))?;
         println!("Credentials saved successfully!");
     } else {
-         // Only print success if we actually went through validation.
-         // If validation failed, error would have been returned above.
-         println!("Authentication successful!");
-         println!("Note: Credentials were not saved due to --no-save flag");
+        println!("Authentication successful!");
+        println!("Note: Credentials were not saved due to --no-save flag");
     }
+    Ok(())
+}
+
+/// Main function orchestrating the authentication flow.
+pub async fn auth_with_args(args: AuthArgs) -> Result<()> {
+    // 1. Handle --clear flag
+    if handle_clear_flag(args.clear).await? {
+        return Ok(()); // Exit early if credentials were cleared
+    }
+
+    // 2. Load existing credentials or initialize defaults, confirm overwrite if needed
+    let mut opt_buster_creds = match load_and_confirm_credentials(&args).await? {
+         Some(creds) => creds,
+         None => return Ok(()), // User cancelled overwrite prompt
+    };
+    let existing_creds_present = !opt_buster_creds.url.is_empty() && !opt_buster_creds.api_key.is_empty();
+
+
+    // 3. Prompt for missing credentials interactively
+    prompt_for_missing_credentials(&mut opt_buster_creds, &args, existing_creds_present).await?;
+
+
+    // 4. Validate the final credentials
+    let validator = RealCredentialsValidator;
+    validate_credentials(&opt_buster_creds, &validator).await?;
+
+    // 5. Save credentials or notify
+    save_credentials_or_notify(opt_buster_creds, args.no_save).await?;
 
     Ok(())
 }

@@ -31,9 +31,8 @@ impl UpdateCommand {
     pub async fn execute(&self) -> Result<()> {
         // Check current version and latest version
         let current_version = env!("CARGO_PKG_VERSION");
-        let latest_version = super::version::check_latest_version()
-            .await?
-            .context("Failed to get latest version")?;
+        let latest_version = crate::utils::version::check_latest_version()
+            .await?;
 
         println!("Current version: {}", current_version);
         println!("Latest version: {}", latest_version);
@@ -42,7 +41,7 @@ impl UpdateCommand {
             println!("Debug: Checking GitHub API URL: {}", GITHUB_RELEASES_URL);
         }
 
-        let update_available = super::version::is_update_available(current_version, &latest_version);
+        let update_available = crate::utils::version::is_update_available(current_version, &latest_version);
         
         if !update_available {
             if self.force {

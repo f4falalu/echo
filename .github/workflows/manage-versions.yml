@@ -1,0 +1,315 @@
+name: Manage Versions
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      component:
+        description: 'Component to version bump'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - api
+          - web
+          - cli
+      version_spec:
+        description: 'Version bump type (patch, minor, major) or specific version (e.g., 1.2.3)'
+        required: true
+        default: 'patch'
+        type: string
+
+permissions:
+  contents: write # To push commits and tags
+
+jobs:
+  bump_versions:
+    runs-on: blacksmith
+    if: (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || github.event_name == 'workflow_dispatch'
+    outputs:
+      new_api_version: ${{ steps.bump.outputs.new_api_version }}
+      new_web_version: ${{ steps.bump.outputs.new_web_version }}
+      new_cli_version: ${{ steps.bump.outputs.new_cli_version }}
+      api_tag_created: ${{ steps.tag.outputs.api_tag_created }}
+      web_tag_created: ${{ steps.tag.outputs.web_tag_created }}
+      cli_tag_created: ${{ steps.tag.outputs.cli_tag_created }}
+    steps:
+      - name: Determine Branch Name and SHA
+        id: branch_info
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "branch_name=${{ github.event.pull_request.base.ref }}" >> $GITHUB_OUTPUT
+            echo "checkout_sha=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "branch_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "checkout_sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          else
+            echo "branch_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "checkout_sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install cargo-edit
+        run: cargo install cargo-edit --locked
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Determine Version Spec and Component from Event
+        id: event_params
+        shell: bash
+        run: |
+          VERSION_SPEC=""
+          COMPONENT=""
+          COMMIT_MESSAGE_TEXT=""
+
+          echo "Event name: ${{ github.event_name }}"
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION_SPEC="${{ github.event.inputs.version_spec }}"
+            COMPONENT="${{ github.event.inputs.component }}"
+            echo "Using workflow_dispatch inputs: version_spec='$VERSION_SPEC', component='$COMPONENT'"
+          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | tr '[:upper:]' '[:lower:]')
+            echo "Pull Request title (lowercase): $PR_TITLE"
+            COMPONENT="all"
+
+            if echo "$PR_TITLE" | grep -q -E "breaking change|feat!:"; then
+              VERSION_SPEC="major"
+            elif echo "$PR_TITLE" | grep -q -E "^feat\\([^)]+\\)!:"; then
+              VERSION_SPEC="major"
+            elif echo "$PR_TITLE" | grep -q -E "^feat:"; then
+              VERSION_SPEC="minor"
+            elif echo "$PR_TITLE" | grep -q -E "^fix:"; then
+              VERSION_SPEC="patch"
+            else
+              echo "No major/minor/fix keyword found in PR title. Defaulting to patch for merged PR."
+              VERSION_SPEC="patch"
+            fi
+            echo "Determined for PR merge: version_spec='$VERSION_SPEC', component='$COMPONENT'"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            COMMIT_MESSAGE_TEXT=$(echo "${{ github.event.head_commit.message }}" | tr '[:upper:]' '[:lower:]')
+            echo "Push event. Analyzing commit message (lowercase): $COMMIT_MESSAGE_TEXT"
+            COMPONENT="all"
+
+            if echo "$COMMIT_MESSAGE_TEXT" | grep -q -E "breaking change|feat!:"; then
+              VERSION_SPEC="major"
+            elif echo "$COMMIT_MESSAGE_TEXT" | grep -q -E "^feat\\([^)]+\\)!:"; then
+              VERSION_SPEC="major"
+            elif echo "$COMMIT_MESSAGE_TEXT" | grep -q -E "^feat:"; then
+              VERSION_SPEC="minor"
+            elif echo "$COMMIT_MESSAGE_TEXT" | grep -q -E "^fix:"; then
+              VERSION_SPEC="patch"
+            else
+              echo "No major/minor/fix keyword found in commit message. Defaulting to patch."
+              VERSION_SPEC="patch"
+            fi
+            echo "Determined for push: version_spec='$VERSION_SPEC', component='$COMPONENT'"
+          else
+            echo "Unhandled event type: ${{ github.event_name }}. Defaulting to patch and all."
+            VERSION_SPEC="patch"
+            COMPONENT="all"
+          fi
+
+          if [[ -z "$VERSION_SPEC" ]]; then
+            echo "Warning: VERSION_SPEC is empty after evaluation. Defaulting to patch."
+            VERSION_SPEC="patch"
+          fi
+          if [[ -z "$COMPONENT" ]]; then
+            echo "Warning: COMPONENT is empty after evaluation. Defaulting to all."
+            COMPONENT="all"
+          fi
+
+          echo "Final determined version_spec: $VERSION_SPEC"
+          echo "Final determined component: $COMPONENT"
+
+          echo "version_spec=$VERSION_SPEC" >> $GITHUB_OUTPUT
+          echo "component=$COMPONENT" >> $GITHUB_OUTPUT
+
+      - name: Perform Version Bumps
+        id: bump
+        shell: bash
+        run: |
+          COMPONENT="${{ steps.event_params.outputs.component }}"
+          VERSION_SPEC="${{ steps.event_params.outputs.version_spec }}"
+
+          echo "Component for bump: $COMPONENT"
+          echo "Version spec for bump: $VERSION_SPEC"
+
+          COMMIT_MESSAGE_PREFIX="chore(versions):"
+          COMMIT_CHANGES=false
+
+          NEW_API_VERSION=""
+          NEW_WEB_VERSION=""
+          NEW_CLI_VERSION=""
+
+          if [[ "$COMPONENT" == "all" || "$COMPONENT" == "api" ]]; then
+            echo "Processing API version using spec: $VERSION_SPEC..."
+            cd api/server
+            OLD_API_VERSION=$(cargo read-manifest | jq -r .version)
+            if [[ "$VERSION_SPEC" == "major" || "$VERSION_SPEC" == "minor" || "$VERSION_SPEC" == "patch" ]]; then
+              echo "Bumping API version with --bump $VERSION_SPEC"
+              cargo set-version --bump "$VERSION_SPEC"
+            else
+              CLEANED_VERSION_SPEC=$(echo "$VERSION_SPEC" | sed 's/^v//')
+              echo "Setting API version to $CLEANED_VERSION_SPEC"
+              cargo set-version "$CLEANED_VERSION_SPEC"
+            fi
+            NEW_API_VERSION=$(cargo read-manifest | jq -r .version)
+            echo "API: $OLD_API_VERSION -> $NEW_API_VERSION"
+            cd ../..
+            if [[ "$OLD_API_VERSION" != "$NEW_API_VERSION" ]]; then
+              git add api/server/Cargo.toml
+              COMMIT_MESSAGE_PREFIX="$COMMIT_MESSAGE_PREFIX bump api to v$NEW_API_VERSION;"
+              COMMIT_CHANGES=true
+              echo "new_api_version=$NEW_API_VERSION" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+          if [[ "$COMPONENT" == "all" || "$COMPONENT" == "web" ]]; then
+            echo "Bumping Web version using spec: $VERSION_SPEC..."
+            cd web
+            OLD_WEB_VERSION=$(jq -r .version package.json)
+            npm version "$VERSION_SPEC" --no-git-tag-version --allow-same-version
+            NEW_WEB_VERSION=$(jq -r .version package.json)
+            echo "Web: $OLD_WEB_VERSION -> $NEW_WEB_VERSION"
+            cd ..
+            if [[ "$OLD_WEB_VERSION" != "$NEW_WEB_VERSION" ]]; then
+              git add web/package.json web/package-lock.json
+              COMMIT_MESSAGE_PREFIX="$COMMIT_MESSAGE_PREFIX bump web to v$NEW_WEB_VERSION;"
+              COMMIT_CHANGES=true
+              echo "new_web_version=$NEW_WEB_VERSION" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+          if [[ "$COMPONENT" == "all" || "$COMPONENT" == "cli" ]]; then
+            echo "Processing CLI version using spec: $VERSION_SPEC..."
+            cd cli/cli
+            OLD_CLI_VERSION=$(cargo read-manifest | jq -r .version)
+            if [[ "$VERSION_SPEC" == "major" || "$VERSION_SPEC" == "minor" || "$VERSION_SPEC" == "patch" ]]; then
+              echo "Bumping CLI version with --bump $VERSION_SPEC"
+              cargo set-version --bump "$VERSION_SPEC"
+            else
+              CLEANED_VERSION_SPEC=$(echo "$VERSION_SPEC" | sed 's/^v//')
+              echo "Setting CLI version to $CLEANED_VERSION_SPEC"
+              cargo set-version "$CLEANED_VERSION_SPEC"
+            fi
+            NEW_CLI_VERSION=$(cargo read-manifest | jq -r .version)
+            echo "CLI: $OLD_CLI_VERSION -> $NEW_CLI_VERSION"
+            cd ../..
+            if [[ "$OLD_CLI_VERSION" != "$NEW_CLI_VERSION" ]]; then
+              git add cli/cli/Cargo.toml
+              COMMIT_MESSAGE_PREFIX="$COMMIT_MESSAGE_PREFIX bump cli to v$NEW_CLI_VERSION;"
+              COMMIT_CHANGES=true
+              echo "new_cli_version=$NEW_CLI_VERSION" >> $GITHUB_OUTPUT
+            fi
+          fi
+          
+          if [[ "$COMMIT_CHANGES" == true ]]; then
+            FINAL_COMMIT_MESSAGE=$(echo "$COMMIT_MESSAGE_PREFIX" | sed 's/;$//')
+            echo "Final Commit Message: $FINAL_COMMIT_MESSAGE [skip ci]"
+            echo "COMMIT_MESSAGE_CONTENT=$FINAL_COMMIT_MESSAGE [skip ci]" >> $GITHUB_ENV 
+            echo "commit_message=$FINAL_COMMIT_MESSAGE [skip ci]" >> $GITHUB_OUTPUT
+          else
+            echo "No version changes detected."
+            echo "COMMIT_MESSAGE_CONTENT=" >> $GITHUB_ENV
+            echo "commit_message=" >> $GITHUB_OUTPUT
+          fi
+          echo "New API Version Output: $NEW_API_VERSION"
+          echo "New Web Version Output: $NEW_WEB_VERSION"
+          echo "New CLI Version Output: $NEW_CLI_VERSION"
+
+      - name: Commit version changes
+        if: steps.bump.outputs.commit_message != ''
+        env:
+          COMMIT_MESSAGE_TO_USE: ${{ steps.bump.outputs.commit_message }}
+        run: |
+          git commit -m "$COMMIT_MESSAGE_TO_USE"
+
+      - name: Create and Push Tags
+        if: steps.bump.outputs.commit_message != ''
+        run: |
+          echo "Creating and pushing tags..."
+          TAG_INFO_FILE="tag_info.json"
+          echo "{" > $TAG_INFO_FILE
+          FIRST_TAG=true
+
+          NEW_API_VERSION="${{ steps.bump.outputs.new_api_version }}"
+          NEW_WEB_VERSION="${{ steps.bump.outputs.new_web_version }}"
+          NEW_CLI_VERSION="${{ steps.bump.outputs.new_cli_version }}"
+
+          if [[ -n "$NEW_API_VERSION" ]]; then
+            TAG_NAME="api/v$NEW_API_VERSION"
+            echo "Tagging API: $TAG_NAME"
+            git tag "$TAG_NAME"
+            if [ "$FIRST_TAG" = false ]; then echo "," >> $TAG_INFO_FILE; fi
+            echo "  \"api_tag\": \"$TAG_NAME\"" >> $TAG_INFO_FILE
+            FIRST_TAG=false
+          fi
+          if [[ -n "$NEW_WEB_VERSION" ]]; then
+            TAG_NAME="web/v$NEW_WEB_VERSION"
+            echo "Tagging Web: $TAG_NAME"
+            git tag "$TAG_NAME"
+            if [ "$FIRST_TAG" = false ]; then echo "," >> $TAG_INFO_FILE; fi
+            echo "  \"web_tag\": \"$TAG_NAME\"" >> $TAG_INFO_FILE
+            FIRST_TAG=false
+          fi
+          if [[ -n "$NEW_CLI_VERSION" ]]; then
+            TAG_NAME="cli/v$NEW_CLI_VERSION"
+            echo "Tagging CLI: $TAG_NAME"
+            git tag "$TAG_NAME"
+            if [ "$FIRST_TAG" = false ]; then echo "," >> $TAG_INFO_FILE; fi
+            echo "  \"cli_tag\": \"$TAG_NAME\"" >> $TAG_INFO_FILE
+            FIRST_TAG=false
+          fi
+          
+          echo "}" >> $TAG_INFO_FILE
+          echo "Created tag info file:"
+          cat $TAG_INFO_FILE
+
+          BRANCH_TO_PUSH="${{ steps.branch_info.outputs.branch_name }}"
+          echo "Pushing commit and tags to branch: $BRANCH_TO_PUSH"
+          git push origin HEAD:"refs/heads/$BRANCH_TO_PUSH" --follow-tags
+
+          echo "api_tag_created=$API_TAG_CREATED" >> $GITHUB_OUTPUT
+          echo "web_tag_created=$WEB_TAG_CREATED" >> $GITHUB_OUTPUT
+          echo "cli_tag_created=$CLI_TAG_CREATED" >> $GITHUB_OUTPUT
+
+      - name: Upload Tag Information Artifact
+        if: steps.tag.outputs.api_tag_created == 'true' || steps.tag.outputs.web_tag_created == 'true' || steps.tag.outputs.cli_tag_created == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-tag-info
+          path: tag_info.json
+          retention-days: 1
+
+      - name: Push changes (if only commit, no tags yet or if tag push failed)
+        if: steps.bump.outputs.commit_message != '' && (steps.bump.outputs.new_api_version == '' && steps.bump.outputs.new_web_version == '' && steps.bump.outputs.new_cli_version == '')
+        run: |
+          BRANCH_TO_PUSH="${{ steps.branch_info.outputs.branch_name }}"
+          echo "Pushing commit to branch: $BRANCH_TO_PUSH (changes made but no version tags generated)."
+          git push origin HEAD:"refs/heads/$BRANCH_TO_PUSH" 
