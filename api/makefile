@@ -1,5 +1,5 @@
 dev:
-	cd .. && docker compose up -d redis && cd api && \
+	cd .. && docker run -d --name buster-redis-make -p 6379:6379 -v buster_redis_data:/data redis && cd api && \
 	supabase start
 	supabase db reset 
 	export DATABASE_URL=postgres://postgres:postgres@127.0.0.1:54322/postgres && \
@@ -21,12 +21,12 @@ update-seed:
 	> libs/database/seed.sql
 
 stop:
-	docker compose down && \
-	supabase stop && \
-	pkill ollama
+	docker stop buster-redis-make || true && \
+	docker rm buster-redis-make || true && \
+	cd .. && docker compose down && supabase stop
 
 fast:
-	cd .. && docker compose up -d redis && cd api && \
+	cd .. && docker run -d --name buster-redis-make -p 6379:6379 -v buster_redis_data:/data redis && cd api && \
 	export RUST_LOG=debug && \
 	export CARGO_INCREMENTAL=1 && \
 	nice cargo watch -C server -x run
