@@ -32,7 +32,7 @@ pub fn get_configuration(agent_data: &ModeAgentData, _data_source_syntax: Option
         // Note: This prompt doesn't use {TODAYS_DATE}
 
     // 2. Define the model for this mode
-    let model = "gemini-2.5-pro-exp-03-25".to_string(); // Use gemini-2.5-pro-exp-03-25 as requested
+    let model = "gemini-2.5-flash-preview-04-17".to_string(); // Use gemini-2.5-pro-exp-03-25 as requested
 
     // 3. Define the tool loader closure
     let tool_loader: Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync> = 

@@ -24,7 +24,7 @@ pub fn get_configuration(_agent_data: &ModeAgentData, _data_source_syntax: Optio
     let prompt = REVIEW_PROMPT.to_string(); // Use the correct constant
 
     // 2. Define the model for this mode (From original MODEL const)
-    let model = "gemini-2.5-pro-exp-03-25".to_string();
+    let model = "gemini-2.5-flash-preview-04-17".to_string();
 
     // 3. Define the tool loader closure
     let tool_loader: Box<
