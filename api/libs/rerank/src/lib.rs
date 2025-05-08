@@ -2,15 +2,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
-#[derive(Debug)]
-pub enum RerankerType {
-    Cohere,
-    Mxbai,
-    Jina,
-}
-
 pub struct Reranker {
-    reranker_type: RerankerType,
     api_key: String,
     base_url: String,
     model: String,
@@ -19,23 +11,11 @@ pub struct Reranker {
 
 impl Reranker {
     pub fn new() -> Result<Self, Box<dyn Error>> {
-        let provider = std::env::var("RERANK_PROVIDER")?;
-        let reranker_type = match provider.to_lowercase().as_str() {
-            "cohere" => RerankerType::Cohere,
-            "mxbai" => RerankerType::Mxbai,
-            "jina" => RerankerType::Jina,
-            _ => return Err("Invalid provider specified".into()),
-        };
         let api_key = std::env::var("RERANK_API_KEY")?;
         let model = std::env::var("RERANK_MODEL")?;
-        let base_url = match reranker_type {
-            RerankerType::Cohere => "https://api.cohere.com/v2/rerank",
-            RerankerType::Mxbai => "https://api.mixedbread.ai/v1/rerank",
-            RerankerType::Jina => "https://api.jina.ai/v1/rerank",
-        }.to_string();
+        let base_url = std::env::var("RERANK_BASE_URL")?;
         let client = Client::new();
         Ok(Self {
-            reranker_type,
             api_key,
             base_url,
             model,
