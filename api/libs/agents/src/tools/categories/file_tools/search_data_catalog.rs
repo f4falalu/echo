@@ -1,19 +1,13 @@
 use std::collections::{HashMap, HashSet};
 use std::{env, sync::Arc, time::Instant};
+use database::enums::DataSourceType;
 use tokio::sync::Mutex;
 
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use braintrust::{get_prompt_system_message, BraintrustClient};
-use chrono::{DateTime, Utc};
-use cohere_rust::{
-    api::rerank::{ReRankModel, ReRankRequest},
-    Cohere,
-};
 use database::{
-    enums::DataSourceType,
     pool::get_pg_pool,
-    schema::datasets,
     schema::data_sources,
 };
 use diesel::prelude::*;
@@ -25,12 +19,11 @@ use serde_json::Value;
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 use dataset_security::{get_permissioned_datasets, PermissionedDataset};
-use sqlx::PgPool;
 use stored_values;
 use rerank::Reranker;
 
 // Import SemanticLayerSpec
-use semantic_layer::models::SemanticLayerSpec;
+use semantic_layer::models::Model;
 
 use crate::{agent::Agent, tools::ToolExecutor};
 
@@ -1179,13 +1172,12 @@ fn extract_searchable_dimensions(yml_content: &str) -> Result<Vec<SearchableDime
     let mut searchable_dimensions = Vec::new();
 
     // Try parsing with SemanticLayerSpec first
-    match serde_yaml::from_str::<SemanticLayerSpec>(yml_content) {
-        Ok(spec) => {
+    match serde_yaml::from_str::<Model>(yml_content) {
+        Ok(model) => {
             debug!("Successfully parsed yml_content with SemanticLayerSpec for extract_searchable_dimensions");
-            for model in spec.models {
-                for dimension in model.dimensions {
-                    if dimension.searchable {
-                        searchable_dimensions.push(SearchableDimension {
+            for dimension in model.dimensions {
+                if dimension.searchable {
+                    searchable_dimensions.push(SearchableDimension {
                             model_name: model.name.clone(),
                             dimension_name: dimension.name.clone(),
                             // The dimension_path might need adjustment if its usage relies on the old dynamic structure.
@@ -1193,7 +1185,6 @@ fn extract_searchable_dimensions(yml_content: &str) -> Result<Vec<SearchableDime
                             dimension_path: vec!["models".to_string(), model.name.clone(), "dimensions".to_string(), dimension.name],
                         });
                     }
-                }
             }
         }
         Err(e_spec) => {
@@ -1205,20 +1196,16 @@ fn extract_searchable_dimensions(yml_content: &str) -> Result<Vec<SearchableDime
             let yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
                 .context("Failed to parse dataset YAML content (fallback)")?;
 
-            if let Some(models) = yaml["models"].as_sequence() {
-                for model_val in models {
-                    let model_name = model_val["name"].as_str().unwrap_or("unknown_model").to_string();
-                    if let Some(dimensions) = model_val["dimensions"].as_sequence() {
-                        for dimension_val in dimensions {
-                            if let Some(true) = dimension_val["searchable"].as_bool() {
-                                let dimension_name = dimension_val["name"].as_str().unwrap_or("unknown_dimension").to_string();
-                                searchable_dimensions.push(SearchableDimension {
+            if let Some(dimensions) = yaml["dimensions"].as_sequence() {
+                for dimension_val in dimensions {
+                    let model_name = dimension_val["model"].as_str().unwrap_or("unknown_model").to_string();
+                    if let Some(true) = dimension_val["searchable"].as_bool() {
+                        let dimension_name = dimension_val["name"].as_str().unwrap_or("unknown_dimension").to_string();
+                        searchable_dimensions.push(SearchableDimension {
                                     model_name: model_name.clone(),
                                     dimension_name: dimension_name.clone(),
                                     dimension_path: vec!["models".to_string(), model_name.clone(), "dimensions".to_string(), dimension_name],
                                 });
-                            }
-                        }
                     }
                 }
             }
@@ -1231,13 +1218,12 @@ fn extract_searchable_dimensions(yml_content: &str) -> Result<Vec<SearchableDime
 fn extract_database_info_from_yaml(yml_content: &str) -> Result<HashMap<String, HashMap<String, HashMap<String, Vec<String>>>>> {
     let mut database_info: HashMap<String, HashMap<String, HashMap<String, Vec<String>>>> = HashMap::new();
 
-    match serde_yaml::from_str::<SemanticLayerSpec>(yml_content) {
-        Ok(spec) => {
+    match serde_yaml::from_str::<Model>(yml_content) {
+        Ok(model) => {
             debug!("Successfully parsed yml_content with SemanticLayerSpec for extract_database_info_from_yaml");
-            for model in spec.models {
-                let db_name = model.database.as_deref().unwrap_or("unknown_db").to_string();
-                let sch_name = model.schema.as_deref().unwrap_or("unknown_schema").to_string();
-                let tbl_name = model.name.clone(); // model.name is table name
+            let db_name = model.database.as_deref().unwrap_or("unknown_db").to_string();
+            let sch_name = model.schema.as_deref().unwrap_or("unknown_schema").to_string();
+            let tbl_name = model.name.clone(); // model.name is table name
 
                 let mut columns = Vec::new();
                 for dim in model.dimensions {
@@ -1259,7 +1245,6 @@ fn extract_database_info_from_yaml(yml_content: &str) -> Result<HashMap<String, 
                     .entry(sch_name)
                     .or_default()
                     .insert(tbl_name, columns);
-            }
         }
         Err(e_spec) => {
             warn!(

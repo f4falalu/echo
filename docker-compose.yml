@@ -16,7 +16,7 @@ services:
       retries: 30
 
   api:
-    image: ghcr.io/buster-so/buster/api:latest
+    image: ghcr.io/buster-so/buster/api:latest-arm64
     container_name: buster-api
     env_file:
       - .env
@@ -50,7 +50,7 @@ services:
         condition: service_healthy
 
   web:
-    image: ghcr.io/buster-so/buster/web:latest
+    image: ghcr.io/buster-so/buster/web:latest-arm64
     container_name: buster-web
     env_file:
       - .env
