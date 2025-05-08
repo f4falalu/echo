@@ -25,7 +25,7 @@ use crate::{agent::ModeProvider, Agent, AgentError, AgentExt, AgentThread}; // A
 use litellm::AgentMessage;
 
 // Import the semantic layer models
-use semantic_layer::models::SemanticLayerSpec; // Assuming models.rs is accessible like this
+use semantic_layer::models::Model; // Assuming models.rs is accessible like this
 
 // Import AgentState and determine_agent_state (assuming they are pub in modes/mod.rs or similar)
 // If not, they might need to be moved or re-exported.
@@ -140,23 +140,18 @@ impl BusterMultiAgent {
         let dataset_descriptions: Vec<String> = permissioned_datasets
             .into_iter()
             .filter_map(|ds| ds.yml_content) // Get Some(String), filter out None
-            .map(|content| serde_yaml::from_str::<SemanticLayerSpec>(&content)) // Parse String -> Result<SemanticLayerSpec, Error>
+            .map(|content| serde_yaml::from_str::<Model>(&content)) // Parse String -> Result<SemanticLayerSpec, Error>
             .filter_map(|result| {
                 // Handle Result
                 match result {
-                    Ok(parsed_spec) => {
+                    Ok(model) => {
                         // Extract info from the first model if available
-                        if let Some(model) = parsed_spec.models.first() {
-                            // model.description is Option<String>, handle it
-                            let description = model
-                                .description
-                                .as_deref()
-                                .unwrap_or("No description available");
-                            Some(format!("{}: {}", model.name, description))
-                        } else {
-                            tracing::warn!("Parsed YAML has no models");
-                            None
-                        }
+                        // model.description is Option<String>, handle it
+                        let description = model
+                            .description
+                            .as_deref()
+                            .unwrap_or("No description available");
+                        Some(format!("{}: {}", model.name, description))
                     }
                     Err(e) => {
                         tracing::warn!("Failed to parse dataset YAML: {}", e);

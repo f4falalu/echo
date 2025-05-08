@@ -109,9 +109,7 @@ export const useSaveDashboard = (params?: { updateOnSave?: boolean }) => {
           data
         );
         setOriginalDashboard(data.dashboard);
-        if (variables.update_version) {
-          onSetLatestDashboardVersion(data.dashboard.id, last(data.versions)?.version_number || 0);
-        }
+        onSetLatestDashboardVersion(data.dashboard.id, last(data.versions)?.version_number || 0);
       }
     }
   });
@@ -163,7 +161,8 @@ export const useUpdateDashboard = (params?: {
 export const useUpdateDashboardConfig = () => {
   const { mutateAsync } = useUpdateDashboard({
     saveToServer: false,
-    updateVersion: false
+    updateVersion: false,
+    updateOnSave: true
   });
   const queryClient = useQueryClient();
   const { latestVersionNumber } = useGetDashboardVersionNumber();

@@ -25,12 +25,13 @@ export const DashboardEditTitles: React.FC<{
   });
 
   const onChangeTitle = useMemoizedFn((name: string) => {
-    if (!readOnly) onUpdateDashboard({ name, id: dashboardId });
+    if (!readOnly) onUpdateDashboard({ name, id: dashboardId, description });
   });
 
   const onChangeDashboardDescription = useMemoizedFn(
     (value: React.ChangeEvent<HTMLTextAreaElement>) => {
-      if (!readOnly) onUpdateDashboard({ description: value.target.value, id: dashboardId });
+      if (!readOnly)
+        onUpdateDashboard({ description: value.target.value, id: dashboardId, name: title });
     }
   );
 

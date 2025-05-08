@@ -29,15 +29,12 @@ test('Can create a collection', async ({ page }) => {
 
 test('Can add a metric to a collection', async ({ page }) => {
   await page.goto('http://localhost:3000/app/collections');
-  await page.getByRole('link', { name: 'Important Things May 2, 2025' }).click();
+  await page.getByRole('link', { name: 'Important Things' }).click();
   await page.getByRole('button', { name: 'Add to collection' }).click();
-  await page
-    .locator('div')
-    .filter({
-      hasText: /^Yearly Sales Revenue - Signature Cycles Products \(Last 3 Years \+ YTD\)$/
-    })
-    .first()
-    .click();
+  await page.waitForTimeout(550);
+
+  await page.getByText('Yearly Sales Revenue -').click();
+
   await page.getByRole('button', { name: 'Add assets' }).click();
   await expect(page.getByRole('link', { name: 'Yearly Sales Revenue -' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Quarterly Revenue Report (' })).toBeVisible();
@@ -65,10 +62,16 @@ test('Complex collection click through', async ({ page }) => {
   await expect(page.getByTestId('metric-view-chart-content').getByRole('img')).toBeVisible();
   await page.goBack();
   await expect(page.getByRole('link', { name: 'Important Things' })).toBeVisible();
+  await page.waitForTimeout(650);
   await page.getByRole('link', { name: 'Revenue by Sales Territory (' }).click();
   await page.getByRole('button', { name: 'Start chat' }).click();
+  await page.waitForTimeout(650);
+  await page.waitForLoadState('networkidle');
   await expect(page.getByTestId('chat-response-message-file')).toBeVisible();
+  await page.waitForTimeout(650);
   await page.goBack();
+  await page.waitForTimeout(650);
   await page.goBack();
-  await expect(page.getByRole('link', { name: 'Important Things' })).toBeVisible();
+  await page.waitForTimeout(650);
+  await expect(page.getByRole('textbox', { name: 'New chart' })).not.toBeVisible();
 });

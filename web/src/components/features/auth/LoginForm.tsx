@@ -37,14 +37,14 @@ export const LoginForm: React.FC<{}> = ({}) => {
   const [signUpFlow, setSignUpFlow] = useState(true);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
 
-  const errorFallback = (error: any) => {
+  const errorFallback = useMemoizedFn((error: any) => {
     const errorMessage = rustErrorHandler(error);
     if (errorMessage?.message) {
       setErrorMessages(['Invalid email or password']);
     } else {
       setErrorMessages(['An error occurred']);
     }
-  };
+  });
 
   const onSignInWithUsernameAndPassword = useMemoizedFn(
     async ({ email, password }: { email: string; password: string }) => {

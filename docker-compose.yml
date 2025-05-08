@@ -16,7 +16,7 @@ services:
       retries: 30
 
   api:
-    image: ghcr.io/buster-so/buster/api:latest
+    image: ghcr.io/buster-so/buster/api:latest-arm64
     container_name: buster-api
     env_file:
       - .env
@@ -33,6 +33,12 @@ services:
       - EMBEDDING_MODEL=${EMBEDDING_MODEL}
       - COHERE_API_KEY=${COHERE_API_KEY}
       - ENVIRONMENT=${ENVIRONMENT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - RERANK_API_KEY=${RERANK_API_KEY}
+      - RERANK_MODEL=${RERANK_MODEL}
+      - RERANK_BASE_URL=${RERANK_BASE_URL}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_BASE_URL=${LLM_BASE_URL}
     ports:
       - "3001:3001"
       - "3000:3000"
@@ -50,7 +56,7 @@ services:
         condition: service_healthy
 
   web:
-    image: ghcr.io/buster-so/buster/web:latest
+    image: ghcr.io/buster-so/buster/web:latest-arm64
     container_name: buster-web
     env_file:
       - .env
