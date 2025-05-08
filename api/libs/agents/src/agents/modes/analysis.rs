@@ -49,7 +49,7 @@ pub fn get_configuration(agent_data: &ModeAgentData, data_source_syntax: Option<
     let model = if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
         "o4-mini".to_string()
     } else {
-        "gemini-2.5-pro-exp-03-25".to_string()
+        "o4-mini".to_string()
     };
 
     // 3. Define the tool loader closure
