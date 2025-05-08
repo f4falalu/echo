@@ -31,7 +31,7 @@ pub fn get_configuration(
         if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
             "o4-mini".to_string()
         } else {
-            "gemini-2.5-flash-preview-04-17".to_string()
+            "gemini-2.0-flash-001".to_string()
         };
 
     // 3. Define the tool loader closure
