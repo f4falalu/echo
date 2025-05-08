@@ -11,6 +11,7 @@ use std::time::Duration;
 
 #[derive(RustEmbed)]
 #[folder = "../../"]
+#[include = ".env.example"]
 #[include = "docker-compose.yml"]
 #[include = "supabase/.env.example"]
 #[include = "supabase/**/*"]
@@ -69,8 +70,8 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
         ))
     })?;
 
-    // Initialize .env from supabase/.env.example, which should have been extracted by StaticAssets loop
-    let example_env_src_path = app_base_dir.join("supabase/.env.example");
+    // Initialize .env from .env.example (the one at app_base_dir), which should have been extracted by StaticAssets loop
+    let example_env_src_path = app_base_dir.join(".env.example");
     let main_dot_env_target_path = app_base_dir.join(".env");
 
     if example_env_src_path.exists() {
@@ -83,7 +84,7 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
             ))
         })?;
     } else {
-        // This case should ideally not be hit if supabase/.env.example is correctly embedded and extracted.
+        // This case should ideally not be hit if .env.example is correctly embedded and extracted.
         // If it's missing, it indicates an issue with asset handling.
         return Err(BusterError::CommandError(format!(
             "Critical setup error: {} not found after asset extraction. Cannot initialize main .env file.",

@@ -130,7 +130,7 @@ jobs:
       - name: Extract version from Cargo.toml
         id: get_version
         run: |
-          VERSION=$(grep '^version =' cli/cli/Cargo.toml | sed 's/version = "\\(.*\ astounding\\)"/\\1/')
+          VERSION=$(grep '^version =' cli/cli/Cargo.toml | sed 's/version = "\(.*\)"/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
       - name: Create Release
