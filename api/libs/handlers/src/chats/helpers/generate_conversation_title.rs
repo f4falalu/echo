@@ -71,7 +71,7 @@ pub async fn generate_conversation_title(
 
     // Create the request
     let request = ChatCompletionRequest {
-        model: "gpt-4o-mini".to_string(),
+        model: "gemini-2.0-flash-001".to_string(),
         messages: vec![LiteLLMAgentMessage::User {
             id: None,
             content: prompt,
