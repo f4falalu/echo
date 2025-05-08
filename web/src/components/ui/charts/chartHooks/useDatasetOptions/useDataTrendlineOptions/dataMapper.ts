@@ -10,15 +10,15 @@ type MappedDataResult = [number, number][]; // [x, y] pairs for regression
  * Uses ticks for x-axis values and handles different data types appropriately
  */
 export const dataMapper = (
-  dataset: DatasetOption,
+  data: number[],
+  xAxisColumn: string,
   ticks: Pick<DatasetOptionsWithTicks, 'ticks' | 'ticksKey'>,
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>
 ): MappedDataResult => {
-  const xAxisColumn = dataset.dataKey;
   const xAxisIsDate = isDateColumnType(columnLabelFormats[xAxisColumn]?.columnType);
 
   // Filter out null/undefined values
-  const validDataPoints = dataset.data
+  const validDataPoints = data
     .map((value, index) => ({
       value: Number(value || 0),
       tick: ticks.ticks[index]?.[0] // Use first tick value as x-axis value

@@ -8,6 +8,7 @@ import { isDateColumnType, isNumericColumnType } from '@/lib/messages';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 import { regression } from '@/lib/regression/regression';
 import { dataMapper } from './dataMapper';
+import { TypeToLabel } from '../../../BusterChartJS/hooks/useTrendlines/config';
 
 export const trendlineDatasetCreator: Record<
   Trendline['type'],
@@ -19,11 +20,13 @@ export const trendlineDatasetCreator: Record<
 > = {
   polynomial_regression: (trendline, datasetsWithTicks, columnLabelFormats) => {
     const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+      datasets,
+      trendline,
+      datasetsWithTicks.ticks
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
-
-    const xAxisColumn = selectedDataset.dataKey;
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
     const isXAxisNumeric = isNumericColumnType(
       columnLabelFormats[xAxisColumn]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
@@ -32,9 +35,10 @@ export const trendlineDatasetCreator: Record<
 
     // Get mapped data points using the dataMapper
     const mappedPoints = dataMapper(
-      selectedDataset,
+      validData,
+      xAxisColumn,
       {
-        ticks: getTicks(datasetsWithTicks, selectedDataset),
+        ticks,
         ticksKey: datasetsWithTicks.ticksKey
       },
       columnLabelFormats
@@ -72,7 +76,7 @@ export const trendlineDatasetCreator: Record<
         label: [
           {
             key: 'value',
-            value: `Polynomial Regression (${isXAxisDate ? 'Date' : isXAxisNumeric ? 'Numeric' : 'Categorical'})`
+            value: TypeToLabel[trendline.type]
           }
         ]
       }
@@ -81,11 +85,13 @@ export const trendlineDatasetCreator: Record<
 
   logarithmic_regression: (trendline, datasetsWithTicks, columnLabelFormats) => {
     const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+      datasets,
+      trendline,
+      datasetsWithTicks.ticks
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
-
-    const xAxisColumn = selectedDataset.dataKey;
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
     const isXAxisNumeric = isNumericColumnType(
       columnLabelFormats[xAxisColumn]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
@@ -94,9 +100,10 @@ export const trendlineDatasetCreator: Record<
 
     // Get mapped data points using the dataMapper
     const mappedPoints = dataMapper(
-      selectedDataset,
+      validData,
+      xAxisColumn,
       {
-        ticks: getTicks(datasetsWithTicks, selectedDataset),
+        ticks,
         ticksKey: datasetsWithTicks.ticksKey
       },
       columnLabelFormats
@@ -137,7 +144,7 @@ export const trendlineDatasetCreator: Record<
         label: [
           {
             key: 'value',
-            value: `Logarithmic Regression (${isXAxisDate ? 'Date' : isXAxisNumeric ? 'Numeric' : 'Categorical'})`
+            value: TypeToLabel[trendline.type]
           }
         ]
       }
@@ -146,11 +153,13 @@ export const trendlineDatasetCreator: Record<
 
   exponential_regression: (trendline, datasetsWithTicks, columnLabelFormats) => {
     const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+      datasets,
+      trendline,
+      datasetsWithTicks.ticks
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
-
-    const xAxisColumn = selectedDataset.dataKey;
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
     const isXAxisNumeric = isNumericColumnType(
       columnLabelFormats[xAxisColumn]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
@@ -159,9 +168,10 @@ export const trendlineDatasetCreator: Record<
 
     // Get mapped data points using the dataMapper
     const mappedPoints = dataMapper(
-      selectedDataset,
+      validData,
+      xAxisColumn,
       {
-        ticks: getTicks(datasetsWithTicks, selectedDataset),
+        ticks,
         ticksKey: datasetsWithTicks.ticksKey
       },
       columnLabelFormats
@@ -203,7 +213,7 @@ export const trendlineDatasetCreator: Record<
         label: [
           {
             key: 'value',
-            value: `Exponential Regression (${isXAxisDate ? 'Date' : isXAxisNumeric ? 'Numeric' : 'Categorical'})`
+            value: TypeToLabel[trendline.type]
           }
         ]
       }
@@ -212,14 +222,13 @@ export const trendlineDatasetCreator: Record<
 
   linear_regression: (trendline, datasetsWithTicks, columnLabelFormats) => {
     const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, ticks, xAxisColumn, selectedDatasets } = getValidDataAndTicks(
+      datasets,
+      trendline,
+      datasetsWithTicks.ticks
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
-
-    const validData = selectedDataset.data.filter((value) => value !== null && value !== undefined);
-    if (validData.length === 0) return [];
-
-    const xAxisColumn = selectedDataset.dataKey;
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
     const isXAxisNumeric = isNumericColumnType(
       columnLabelFormats[xAxisColumn]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
@@ -228,9 +237,10 @@ export const trendlineDatasetCreator: Record<
 
     // Get mapped data points using the updated dataMapper
     const mappedPoints = dataMapper(
-      selectedDataset,
+      validData,
+      xAxisColumn,
       {
-        ticks: getTicks(datasetsWithTicks, selectedDataset),
+        ticks: ticks,
         ticksKey: datasetsWithTicks.ticksKey
       },
       columnLabelFormats
@@ -268,7 +278,7 @@ export const trendlineDatasetCreator: Record<
         label: [
           {
             key: 'value',
-            value: `Linear Regression (${isXAxisDate ? 'Date' : isXAxisNumeric ? 'Numeric' : 'Categorical'})`
+            value: TypeToLabel[trendline.type]
           }
         ]
       }
@@ -276,13 +286,15 @@ export const trendlineDatasetCreator: Record<
   },
 
   average: (trendline, datasetsWithTicks) => {
-    const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, selectedDatasets } = getValidDataAndTicks(
+      datasetsWithTicks.datasets,
+      trendline,
+      datasetsWithTicks.ticks
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
-    // Filter out null/undefined values
-    const validData = selectedDataset.data.filter((value) => value !== null && value !== undefined);
+    // Sum all valid values and divide by the count
     if (validData.length === 0) return [];
 
     // Sum all valid values and divide by the count
@@ -306,14 +318,13 @@ export const trendlineDatasetCreator: Record<
   },
 
   min: (trendline, datasetsWithTicks) => {
-    const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, selectedDatasets } = getValidDataAndTicks(
+      datasetsWithTicks.datasets,
+      trendline,
+      datasetsWithTicks.ticks
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
-
-    // Filter out null/undefined values
-    const validData = selectedDataset.data.filter((value) => value !== null && value !== undefined);
-    if (validData.length === 0) return [];
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
     // Use the first valid value as initial accumulator
     const min = validData.reduce<number>((acc, datapoint) => {
@@ -334,14 +345,13 @@ export const trendlineDatasetCreator: Record<
   },
 
   max: (trendline, datasetsWithTicks) => {
-    const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, selectedDatasets } = getValidDataAndTicks(
+      datasetsWithTicks.datasets,
+      trendline,
+      datasetsWithTicks.ticks
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
-
-    // Filter out null/undefined values
-    const validData = selectedDataset.data.filter((value) => value !== null && value !== undefined);
-    if (validData.length === 0) return [];
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
     // Use the first valid value as initial accumulator
     const max = validData.reduce<number>((acc, datapoint) => {
@@ -362,15 +372,16 @@ export const trendlineDatasetCreator: Record<
   },
 
   median: (trendline, datasetsWithTicks) => {
-    const datasets = datasetsWithTicks.datasets;
-    const selectedDataset = datasets.find((dataset) => dataset.id === trendline.columnId);
+    const { validData, selectedDatasets } = getValidDataAndTicks(
+      datasetsWithTicks.datasets,
+      trendline,
+      datasetsWithTicks.ticks
+    );
 
-    if (!selectedDataset?.data || selectedDataset.data.length === 0) return [];
+    if (!selectedDatasets || selectedDatasets.length === 0 || validData.length === 0) return [];
 
     // Sort the data and get the middle value
-    const sortedData = [...selectedDataset.data]
-      .filter((value) => value !== null && value !== undefined)
-      .sort((a, b) => (a as number) - (b as number));
+    const sortedData = [...validData].sort((a, b) => (a as number) - (b as number));
 
     let median: number;
     const midIndex = Math.floor(sortedData.length / 2);
@@ -399,13 +410,63 @@ export const trendlineDatasetCreator: Record<
   }
 };
 
-const getTicks = (
-  datasetsWithTicks: DatasetOptionsWithTicks,
-  dataset: DatasetOption
-): (string | number)[][] => {
-  const isScatterPlot = !!dataset.ticksForScatter && !!dataset.ticksForScatter.length;
-  if (isScatterPlot) {
-    return dataset.ticksForScatter ?? [];
+const getValidDataAndTicks = (
+  datasets: DatasetOptionsWithTicks['datasets'],
+  trendline: Trendline,
+  datasetTicks: DatasetOptionsWithTicks['ticks']
+) => {
+  const selectedDatasets =
+    datasets?.filter((dataset) => dataset.dataKey === trendline.columnId) || [];
+  const xAxisColumn = selectedDatasets[0]?.dataKey;
+
+  // If there's only one dataset, we can skip sorting
+  if (selectedDatasets.length === 1) {
+    const dataset = selectedDatasets[0];
+    const validData: number[] = [];
+    const ticks: (string | number)[][] = [];
+
+    dataset.data.forEach((value, index) => {
+      const isValidData = value !== null && value !== undefined;
+
+      const associatedTick = dataset.ticksForScatter?.[index] || datasetTicks?.[index];
+
+      if (isValidData) {
+        validData.push(value as number);
+        if (associatedTick !== undefined) ticks.push(associatedTick);
+      }
+    });
+
+    return { validData, ticks, selectedDatasets, xAxisColumn };
   }
-  return datasetsWithTicks.ticks;
+
+  // For multiple datasets, collect and sort pairs
+  const pairs = selectedDatasets.reduce<Array<[(string | number)[], number]>>((acc, dataset) => {
+    dataset.data.forEach((value, index) => {
+      const isValidData = value !== null && value !== undefined;
+      const associatedTick = dataset.ticksForScatter?.[index] || datasetTicks?.[index];
+
+      if (isValidData && associatedTick !== undefined) {
+        acc.push([associatedTick, value as number]);
+      }
+    });
+    return acc;
+  }, []);
+
+  // Sort pairs based on tick values
+  pairs.sort(([tickA], [tickB]) => {
+    const a = Array.isArray(tickA) ? tickA[0] : tickA;
+    const b = Array.isArray(tickB) ? tickB[0] : tickB;
+    return (a as number) - (b as number);
+  });
+
+  // Separate sorted pairs back into ticks and values
+  const sortedTicks = pairs.map(([tick]) => tick);
+  const sortedValues = pairs.map(([_, value]) => value);
+
+  return {
+    validData: sortedValues,
+    ticks: sortedTicks,
+    selectedDatasets,
+    xAxisColumn
+  };
 };

@@ -99,7 +99,6 @@ export const BusterChartJSTooltip: React.FC<{
     //I decided to do this because the tooltip really need to be more detailed than the x...
     // const isAutoDateFormat =
     //   columnLabelFormat?.dateFormat === 'auto' && columnLabelFormat?.style === 'date';
-    // console.log(columnLabelFormat);
 
     // if (isAutoDateFormat) {
     //   const unit = (chart.scales.x as TimeScale)._unit;

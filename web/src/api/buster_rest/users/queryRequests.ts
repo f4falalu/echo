@@ -166,13 +166,11 @@ export const prefetchGetUserList = async (
 };
 
 export const useInviteUser = () => {
-  const { openSuccessMessage } = useBusterNotifications();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: inviteUser,
     onSuccess: () => {
-      openSuccessMessage('Invites sent');
       const user = queryClient.getQueryData(queryKeys.userGetUserMyself.queryKey);
       const teamId = user?.organizations?.[0]?.id;
       if (teamId) {

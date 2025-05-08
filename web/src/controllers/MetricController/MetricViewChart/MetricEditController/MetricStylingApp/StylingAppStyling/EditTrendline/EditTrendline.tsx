@@ -1,5 +1,5 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { ChartEncodes, Trendline } from '@/api/asset_interfaces/metric/charts';
 import { v4 as uuidv4 } from 'uuid';
 import { useSet, useMemoizedFn } from '@/hooks';
@@ -18,6 +18,7 @@ import { EditTrendlineShowLine } from './EditTrendlineShowLine';
 import { EditTrendlineOption } from './EditTrendlineOption';
 import { TypeToLabel } from './config';
 import { JOIN_CHARACTER } from '@/components/ui/charts/commonHelpers';
+import isEqual from 'lodash/isEqual';
 
 export interface LoopTrendline extends Trendline {
   id: string;
@@ -40,7 +41,7 @@ export const EditTrendline: React.FC<{
     selectedChartType
   }) => {
     const [trends, _setTrends] = useState<LoopTrendline[]>(
-      trendlines.map((trend) => ({ ...trend, id: uuidv4() }))
+      trendlines.map((trend) => ({ ...trend, id: trend.id || uuidv4() }))
     );
     const [newTrendIds, { add: addNewTrendId }] = useSet<string>();
 
@@ -60,13 +61,30 @@ export const EditTrendline: React.FC<{
     }, []);
 
     const onAddTrendline = useMemoizedFn(() => {
+      const getNewType = () => {
+        const types = [
+          'linear_regression',
+          'polynomial_regression',
+          'exponential_regression',
+          'logarithmic_regression',
+          'average',
+          'min',
+          'max',
+          'median'
+        ] as const;
+        return types[Math.floor(Math.random() * types.length)];
+      };
+
+      const hasLinearRegression = trends.some((trend) => trend.type === 'linear_regression');
+      const type = hasLinearRegression ? getNewType() : ('linear_regression' as const);
+
       const newTrendline: Required<LoopTrendline> = {
         id: uuidv4(),
         show: true,
         showTrendlineLabel: false,
         trendlineLabel: null,
-        type: 'linear_regression',
-        trendLineColor: null,
+        type,
+        trendLineColor: '#FF0000',
         columnId: selectedAxis.y[0] || ''
       };
 
@@ -77,12 +95,8 @@ export const EditTrendline: React.FC<{
     });
 
     const onUpdateTrendlines = useMemoizedFn((trends: LoopTrendline[]) => {
-      const newTrends = trends.map(({ id, ...rest }) => ({
-        ...rest
-      }));
-
       setTimeout(() => {
-        onUpdateChartConfig({ trendlines: newTrends });
+        onUpdateChartConfig({ trendlines: trends });
       }, 30);
     });
 
@@ -120,9 +134,17 @@ export const EditTrendline: React.FC<{
       };
     }, [trends]);
 
+    useEffect(() => {
+      const updatedTrends = trendlines.map((trend) => ({ ...trend, id: trend.id || uuidv4() }));
+
+      if (!isEqual(updatedTrends, trends)) {
+        _setTrends(updatedTrends);
+      }
+    }, [trendlines]);
+
     return (
       <div className="flex flex-col space-y-2.5">
-        <LabelAndInput label="Trend line">
+        <LabelAndInput label="Trend lines">
           <div className="flex items-center justify-end">
             <Button onClick={onAddTrendline} variant="ghost" prefix={<Plus />}>
               Add trend line

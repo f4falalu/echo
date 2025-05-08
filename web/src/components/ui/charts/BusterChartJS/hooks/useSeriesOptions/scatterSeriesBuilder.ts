@@ -38,7 +38,13 @@ export const scatterSeriesBuilder_data = ({
   const isXAxisDate = isDateColumnType(xAxisColumnLabelFormat.columnType);
 
   const hasSizeKeyIndex = sizeOptions !== null && !!sizeOptions.key;
-  const scatterElementConfig = hasSizeKeyIndex
+
+  const useCustomScatterElementConfig =
+    hasSizeKeyIndex ||
+    scatterDotSize?.[0] !== DEFAULT_CHART_CONFIG.scatterDotSize[0] ||
+    scatterDotSize?.[1] !== DEFAULT_CHART_CONFIG.scatterDotSize[1];
+
+  const scatterElementConfig = useCustomScatterElementConfig
     ? {
         point: {
           radius: (context: ScriptableContext<'bubble'>) =>

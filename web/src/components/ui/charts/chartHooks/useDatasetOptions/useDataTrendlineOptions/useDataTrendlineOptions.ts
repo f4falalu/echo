@@ -42,14 +42,16 @@ export const useDataTrendlineOptions = ({
       !hasTrendlines ||
       !datasetOptions ||
       !datasetOptions.datasets.length
-    )
+    ) {
       return [] as TrendlineDataset[];
+    }
 
     const trendlineDatasets: TrendlineDataset[] = [];
 
     trendlines?.forEach((trendline) => {
       try {
         if (!canSupportTrendlineRecord[trendline.type](columnLabelFormats, trendline)) return;
+
         const trendlineDataset = trendlineDatasetCreator[trendline.type](
           trendline,
           datasetOptions,
