@@ -288,8 +288,10 @@ Stderr:
         .arg("docker-compose.yml")
         .arg("up")
         .arg("-d")
-        .arg("--pull") // Ensure latest images are pulled
-        .arg("--force-recreate"); // Recreate containers even if config hasn't changed
+        .arg("--pull")
+        .arg("always")
+        .arg("--force-recreate")
+        .arg("--remove-orphans");
 
     let up_output = up_cmd.output().map_err(|e| BusterError::CommandError(format!("Failed to execute docker compose up: {}", e)))?;
 

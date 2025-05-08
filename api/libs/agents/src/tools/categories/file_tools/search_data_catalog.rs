@@ -27,6 +27,7 @@ use uuid::Uuid;
 use dataset_security::{get_permissioned_datasets, PermissionedDataset};
 use sqlx::PgPool;
 use stored_values;
+use rerank::Reranker;
 
 use crate::{agent::Agent, tools::ToolExecutor};
 
@@ -883,25 +884,29 @@ async fn rerank_datasets(
     if documents.is_empty() || all_datasets.is_empty() {
         return Ok(vec![]);
     }
-    let co = Cohere::default();
 
-    let request = ReRankRequest {
-        query,
-        documents,
-        model: ReRankModel::EnglishV3,
-        top_n: Some(35),
-        ..Default::default()
-    };
+    // Initialize your custom reranker
+    let reranker = Reranker::new()
+        .map_err(|e| anyhow::anyhow!("Failed to initialize custom Reranker: {}", e))?;
 
-    let rerank_results = match co.rerank(&request).await {
+    // Convert documents from Vec<String> to Vec<&str> for the rerank library
+    let doc_slices: Vec<&str> = documents.iter().map(AsRef::as_ref).collect();
+
+    // Define top_n, e.g., 35 as used with Cohere
+    let top_n = 35;
+
+    // Call your custom reranker's rerank method
+    let rerank_results = match reranker.rerank(query, &doc_slices, top_n).await {
         Ok(results) => results,
         Err(e) => {
-            error!(error = %e, query = query, "Cohere rerank API call failed");
-            return Err(anyhow::anyhow!("Cohere rerank failed: {}", e));
+            error!(error = %e, query = query, "Custom reranker API call failed");
+            return Err(anyhow::anyhow!("Custom reranker failed: {}", e));
         }
     };
 
     let mut ranked_datasets = Vec::new();
+    // The structure of RerankResult from your library (index, relevance_score)
+    // is compatible with the existing loop logic.
     for result in rerank_results {
         if let Some(dataset) = all_datasets.get(result.index as usize) {
             ranked_datasets.push(RankedDataset {
@@ -909,17 +914,19 @@ async fn rerank_datasets(
             });
         } else {
             error!(
-                "Invalid dataset index {} from Cohere for query '{}'. Max index: {}",
+                "Invalid dataset index {} from custom reranker for query '{}'. Max index: {}",
                 result.index,
                 query,
-                all_datasets.len() - 1
+                all_datasets.len().saturating_sub(1) // Avoid panic on empty all_datasets (though guarded above)
             );
         }
     }
 
-    let relevant_datasets = ranked_datasets.into_iter().collect::<Vec<_>>();
-
-    Ok(relevant_datasets)
+    // The original code collected into Vec<_> then returned. This is fine.
+    // let relevant_datasets = ranked_datasets.into_iter().collect::<Vec<_>>();
+    // Ok(relevant_datasets)
+    // Simpler:
+    Ok(ranked_datasets)
 }
 
 async fn llm_filter_helper(
