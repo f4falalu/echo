@@ -100,9 +100,9 @@ jobs:
 
           Write-Host "PostgreSQL lib path: $PG_LIB_PATH"
           Write-Host "PostgreSQL bin path added to PATH: $PG_BIN_PATH"
-          Write-Host "Contents of $PG_LIB_PATH:"
+          Write-Host "Contents of ${PG_LIB_PATH}:"
           Get-ChildItem $PG_LIB_PATH
-          Write-Host "Contents of $PG_BIN_PATH:"
+          Write-Host "Contents of ${PG_BIN_PATH}:"
           Get-ChildItem $PG_BIN_PATH
           Write-Host "Updated RUSTFLAGS: $env:RUSTFLAGS"
           Write-Host "Updated PATH: $env:PATH"

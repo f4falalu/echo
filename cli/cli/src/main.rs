@@ -80,6 +80,8 @@ pub enum Commands {
         #[arg(long)]
         path: Option<String>,
     },
+    /// Interactively manage LLM and Reranker configurations
+    Config,
     /// Start the Buster services
     Start,
     /// Stop the Buster services
@@ -142,6 +144,7 @@ async fn main() {
             target_semantic_file,
         } => commands::generate::generate_semantic_models_command(path, target_semantic_file).await,
         Commands::Parse { path } => commands::parse::parse_models_command(path).await,
+        Commands::Config => commands::config::manage_settings_interactive().await.map_err(anyhow::Error::from),
         Commands::Start => run::start().await.map_err(anyhow::Error::from),
         Commands::Stop => run::stop().await.map_err(anyhow::Error::from),
         Commands::Reset => run::reset().await.map_err(anyhow::Error::from),

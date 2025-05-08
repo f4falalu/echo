@@ -1,3 +1,4 @@
+use crate::commands::config_utils;
 use crate::error::BusterError;
 use dirs;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -22,12 +23,9 @@ use std::time::Duration;
 struct StaticAssets;
 
 async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
-    let home_dir = dirs::home_dir().ok_or_else(|| {
-        BusterError::CommandError(
-            "Failed to get home directory. Cannot set up persistent app path.".to_string(),
-        )
+    let app_base_dir = config_utils::get_app_base_dir().map_err(|e| {
+        BusterError::CommandError(format!("Failed to get app base directory: {}", e))
     })?;
-    let app_base_dir = home_dir.join(".buster");
 
     fs::create_dir_all(&app_base_dir).map_err(|e| {
         BusterError::CommandError(format!(
@@ -74,23 +72,31 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
 
     let target_dotenv_path = app_base_dir.join(".env");
 
-    // Always use .env.example from embedded assets
-    let example_env_filename = "supabase/.env.example";
-    let asset = StaticAssets::get(example_env_filename).ok_or_else(|| {
-        BusterError::CommandError(format!(
-            "Failed to get embedded asset: {}",
-            example_env_filename
-        ))
-    })?;
+    // --- BEGIN API Key and Reranker Setup using config_utils ---
+    println!("--- Buster Configuration Setup ---");
 
-    fs::write(&target_dotenv_path, asset.data).map_err(|e| {
+    let llm_api_key = config_utils::prompt_and_manage_openai_api_key(&app_base_dir, false)?;
+    let reranker_config = config_utils::prompt_and_manage_reranker_settings(&app_base_dir, false)?;
+
+    // Update .env file
+    config_utils::update_env_file(
+        &target_dotenv_path,
+        Some(&llm_api_key),
+        Some(&reranker_config.api_key),
+        Some(&reranker_config.model),
+        Some(&reranker_config.base_url),
+        None, // Not prompting for LLM_BASE_URL in this flow yet, example has it.
+    )
+    .map_err(|e| {
         BusterError::CommandError(format!(
-            "Failed to write {} to {}: {}",
-            example_env_filename,
+            "Failed to ensure .env file configurations in {}: {}",
             target_dotenv_path.display(),
             e
         ))
     })?;
+
+    println!("--- Configuration Setup Complete ---");
+    // --- END API Key and Reranker Setup using config_utils ---
 
     // Additionally copy the .env to the supabase subdirectory
     let supabase_dotenv_path = app_base_dir.join("supabase/.env");
@@ -227,7 +233,7 @@ pub async fn reset() -> Result<(), BusterError> {
             .template("{spinner:.blue} {msg}")
             .expect("Failed to set progress bar style"),
     );
-    
+
     // Step 1: Stop services
     pb.set_message("Resetting Buster services (step 1/4): Stopping services...");
 
@@ -283,7 +289,10 @@ Stderr:
             e
         ))
     })?;
-    pb.println(format!("Successfully cleared and recreated database volume: {}", db_volume_path.display()));
+    pb.println(format!(
+        "Successfully cleared and recreated database volume: {}",
+        db_volume_path.display()
+    ));
 
     if storage_volume_path.exists() {
         fs::remove_dir_all(&storage_volume_path).map_err(|e| {
@@ -301,7 +310,10 @@ Stderr:
             e
         ))
     })?;
-    pb.println(format!("Successfully cleared and recreated storage volume: {}", storage_volume_path.display()));
+    pb.println(format!(
+        "Successfully cleared and recreated storage volume: {}",
+        storage_volume_path.display()
+    ));
 
     // Step 3: Identify service images
     pb.set_message("Resetting Buster services (step 3/4): Identifying service images...");
@@ -393,6 +405,8 @@ Stderr:
         }
     }
 
-    pb.finish_with_message("Buster services stopped, volumes cleared, and images removed successfully.");
+    pb.finish_with_message(
+        "Buster services stopped, volumes cleared, and images removed successfully.",
+    );
     Ok(())
 }
