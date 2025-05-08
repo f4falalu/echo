@@ -49,7 +49,9 @@ test('Can click start chat', async ({ page }) => {
   await page.waitForTimeout(500);
 
   await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(5000);
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForLoadState('load');
+  await page.waitForTimeout(8000);
 
   await expect(page).toHaveURL('http://localhost:3000/app/chats', { timeout: 30000 });
 });

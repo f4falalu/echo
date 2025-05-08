@@ -22,4 +22,5 @@ export interface Trendline {
     | 'median'; //default is linear trend
   trendLineColor?: string | null; //OPTIONAL: default is #000000
   columnId: string;
+  id?: string;
 }

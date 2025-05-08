@@ -7,7 +7,6 @@ export interface SeriesBuilderProps {
   colors: string[];
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>;
   xAxisKeys: ChartEncodes['x'];
-
   sizeOptions: {
     key: string;
     minValue: number;

@@ -240,7 +240,8 @@ export const ScatterWithTrendline_NumericalXAxisPolynomialRegression: Story = {
       );
       return {
         index: i + 1,
-        revenue: value
+        revenue: value,
+        category: ['Electronics', 'Books', 'Clothing'][i % 3]
       };
     }),
     scatterAxis: {
@@ -269,6 +270,17 @@ export const ScatterWithTrendline_NumericalXAxisPolynomialRegression: Story = {
         style: 'currency',
         currency: 'USD'
       }
+    }
+  }
+};
+
+export const ScatterWithTrendline_NumericalXAxisPolynomialRegression_CategoryAxis: Story = {
+  args: {
+    ...ScatterWithTrendline_NumericalXAxisPolynomialRegression.args,
+    scatterAxis: {
+      x: ['index'],
+      y: ['revenue'],
+      category: ['category']
     }
   }
 };
@@ -288,7 +300,8 @@ export const ScatterWithTrendline_DateXAxisPolynomialRegression: Story = {
       );
       return {
         date: dayjs('2020-01-01').add(i, 'day').toDate(),
-        revenue: value
+        revenue: value,
+        category: ['Electronics', 'Books', 'Clothing'][i % 3]
       };
     }),
     scatterAxis: {
@@ -322,6 +335,17 @@ export const ScatterWithTrendline_DateXAxisPolynomialRegression: Story = {
   }
 };
 
+export const ScatterWithTrendline_DateXAxisPolynomialRegression_CategoryAxis: Story = {
+  args: {
+    ...ScatterWithTrendline_DateXAxisPolynomialRegression.args,
+    scatterAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: ['category']
+    }
+  }
+};
+
 export const ScatterWithTrendline_NumericalXAxisLinearRegression: Story = {
   args: {
     selectedChartType: ChartType.Scatter,
@@ -337,7 +361,8 @@ export const ScatterWithTrendline_NumericalXAxisLinearRegression: Story = {
       );
       return {
         index: i + 1,
-        revenue: value
+        revenue: value,
+        category: ['Electronics', 'Books', 'Clothing'][i % 3]
       };
     }),
     scatterAxis: {
@@ -366,6 +391,17 @@ export const ScatterWithTrendline_NumericalXAxisLinearRegression: Story = {
         style: 'currency',
         currency: 'USD'
       }
+    }
+  }
+};
+
+export const ScatterWithTrendline_NumericalXAxisLinearRegression_CategoryAxis: Story = {
+  args: {
+    ...ScatterWithTrendline_NumericalXAxisLinearRegression.args,
+    scatterAxis: {
+      x: ['index'],
+      y: ['revenue'],
+      category: ['category']
     }
   }
 };
@@ -385,7 +421,8 @@ export const ScatterWithTrendline_DateXAxisLinearRegression: Story = {
       );
       return {
         date: dayjs('2020-01-01').add(i, 'day').toDate(),
-        revenue: value
+        revenue: value,
+        category: ['Electronics', 'Books', 'Clothing'][i % 3]
       };
     }),
     scatterAxis: {
@@ -419,6 +456,17 @@ export const ScatterWithTrendline_DateXAxisLinearRegression: Story = {
   }
 };
 
+export const ScatterWithTrendline_DateXAxisLinearRegression_CategoryAxis: Story = {
+  args: {
+    ...ScatterWithTrendline_DateXAxisLinearRegression.args,
+    scatterAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: ['category']
+    }
+  }
+};
+
 export const ScatterWithTrendline_NumericalXAxisLogarithmicRegression: Story = {
   args: {
     selectedChartType: ChartType.Scatter,
@@ -434,7 +482,8 @@ export const ScatterWithTrendline_NumericalXAxisLogarithmicRegression: Story = {
       );
       return {
         index: i + 1,
-        revenue: value
+        revenue: value,
+        category: ['Electronics', 'Books', 'Clothing'][i % 3]
       };
     }),
     scatterAxis: {
@@ -467,6 +516,17 @@ export const ScatterWithTrendline_NumericalXAxisLogarithmicRegression: Story = {
   }
 };
 
+export const ScatterWithTrendline_NumericalXAxisLogarithmicRegression_CategoryAxis: Story = {
+  args: {
+    ...ScatterWithTrendline_NumericalXAxisLogarithmicRegression.args,
+    scatterAxis: {
+      x: ['index'],
+      y: ['revenue'],
+      category: ['category']
+    }
+  }
+};
+
 export const ScatterWithTrendline_DateXAxisLogarithmicRegression: Story = {
   args: {
     selectedChartType: ChartType.Scatter,
@@ -482,7 +542,8 @@ export const ScatterWithTrendline_DateXAxisLogarithmicRegression: Story = {
       );
       return {
         date: dayjs('2020-01-01').add(i, 'day').toDate(),
-        revenue: value
+        revenue: value,
+        category: ['Electronics', 'Books', 'Clothing'][i % 3]
       };
     }),
     scatterAxis: {
@@ -512,6 +573,17 @@ export const ScatterWithTrendline_DateXAxisLogarithmicRegression: Story = {
         style: 'currency',
         currency: 'USD'
       }
+    }
+  }
+};
+
+export const ScatterWithTrendline_DateXAxisLogarithmicRegression_CategoryAxis: Story = {
+  args: {
+    ...ScatterWithTrendline_DateXAxisLogarithmicRegression.args,
+    scatterAxis: {
+      x: ['date'],
+      y: ['revenue'],
+      category: ['category']
     }
   }
 };
