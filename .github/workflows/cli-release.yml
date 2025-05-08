@@ -115,6 +115,9 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    outputs:
+      cli_version: ${{ steps.get_version.outputs.version }}
+      cli_tag_name: ${{ steps.create_the_release.outputs.tag_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -131,6 +134,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
       - name: Create Release
+        id: create_the_release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.get_version.outputs.version }}

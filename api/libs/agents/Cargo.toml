@@ -37,6 +37,7 @@ thiserror = { workspace = true }
 raindrop = { path = "../raindrop" }
 sql_analyzer = { path = "../sql_analyzer" }
 rerank = { path = "../rerank" }
+semantic_layer = { path = "../semantic_layer" }
 
 # Development dependencies
 [dev-dependencies]

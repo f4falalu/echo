@@ -29,6 +29,9 @@ use sqlx::PgPool;
 use stored_values;
 use rerank::Reranker;
 
+// Import SemanticLayerSpec
+use semantic_layer::models::SemanticLayerSpec;
+
 use crate::{agent::Agent, tools::ToolExecutor};
 
 // NEW: Structure to represent found values with their source information
@@ -1173,115 +1176,153 @@ async fn generate_embeddings_batch(texts: Vec<String>) -> Result<Vec<(String, Ve
 
 /// Parse YAML content to find models with searchable dimensions
 fn extract_searchable_dimensions(yml_content: &str) -> Result<Vec<SearchableDimension>> {
-    let yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
-        .context("Failed to parse dataset YAML content")?;
-    
     let mut searchable_dimensions = Vec::new();
-    
-    // Check if models field exists
-    if let Some(models) = yaml["models"].as_sequence() {
-        for model in models {
-            let model_name = model["name"].as_str().unwrap_or("unknown_model").to_string();
-            
-            // Check if dimensions field exists
-            if let Some(dimensions) = model["dimensions"].as_sequence() {
-                for dimension in dimensions {
-                    // Check if dimension has searchable: true
-                    if let Some(true) = dimension["searchable"].as_bool() {
-                        let dimension_name = dimension["name"].as_str().unwrap_or("unknown_dimension").to_string();
-                        
-                        // Store this dimension as searchable
+
+    // Try parsing with SemanticLayerSpec first
+    match serde_yaml::from_str::<SemanticLayerSpec>(yml_content) {
+        Ok(spec) => {
+            debug!("Successfully parsed yml_content with SemanticLayerSpec for extract_searchable_dimensions");
+            for model in spec.models {
+                for dimension in model.dimensions {
+                    if dimension.searchable {
                         searchable_dimensions.push(SearchableDimension {
-                            model_name: model_name.clone(), // Clone here to avoid move
-                            dimension_name: dimension_name.clone(),
-                            dimension_path: vec!["models".to_string(), model_name.clone(), "dimensions".to_string(), dimension_name],
+                            model_name: model.name.clone(),
+                            dimension_name: dimension.name.clone(),
+                            // The dimension_path might need adjustment if its usage relies on the old dynamic structure.
+                            // For now, creating a simplified path. This might need review based on how dimension_path is consumed.
+                            dimension_path: vec!["models".to_string(), model.name.clone(), "dimensions".to_string(), dimension.name],
                         });
                     }
                 }
             }
         }
+        Err(e_spec) => {
+            warn!(
+                "Failed to parse yml_content with SemanticLayerSpec (error: {}), falling back to generic serde_yaml::Value for extract_searchable_dimensions. Consider updating YAML to new spec.",
+                e_spec
+            );
+            // Fallback to original dynamic parsing logic
+            let yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
+                .context("Failed to parse dataset YAML content (fallback)")?;
+
+            if let Some(models) = yaml["models"].as_sequence() {
+                for model_val in models {
+                    let model_name = model_val["name"].as_str().unwrap_or("unknown_model").to_string();
+                    if let Some(dimensions) = model_val["dimensions"].as_sequence() {
+                        for dimension_val in dimensions {
+                            if let Some(true) = dimension_val["searchable"].as_bool() {
+                                let dimension_name = dimension_val["name"].as_str().unwrap_or("unknown_dimension").to_string();
+                                searchable_dimensions.push(SearchableDimension {
+                                    model_name: model_name.clone(),
+                                    dimension_name: dimension_name.clone(),
+                                    dimension_path: vec!["models".to_string(), model_name.clone(), "dimensions".to_string(), dimension_name],
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
-    
     Ok(searchable_dimensions)
 }
 
 /// Extract database structure from YAML content based on actual model structure
 fn extract_database_info_from_yaml(yml_content: &str) -> Result<HashMap<String, HashMap<String, HashMap<String, Vec<String>>>>> {
-    let yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
-        .context("Failed to parse dataset YAML content")?;
-    
-    // Structure: database -> schema -> table -> columns
-    let mut database_info = HashMap::new();
-    
-    // Process models
-    if let Some(models) = yaml["models"].as_sequence() {
-        for model in models {
-            // Extract database, schema, and model name (which acts as table name)
-            let database_name = model["database"].as_str().unwrap_or("unknown").to_string();
-            let schema_name = model["schema"].as_str().unwrap_or("public").to_string();
-            let table_name = model["name"].as_str().unwrap_or("unknown_model").to_string();
-            
-            // Initialize the nested structure if needed
-            database_info
-                .entry(database_name.clone())
-                .or_insert_with(HashMap::new)
-                .entry(schema_name.clone())
-                .or_insert_with(HashMap::new);
-            
-            // Collect column names from dimensions, measures, and metrics
-            let mut columns = Vec::new();
-            
-            // Add dimensions
-            if let Some(dimensions) = model["dimensions"].as_sequence() {
-                for dim in dimensions {
-                    if let Some(dim_name) = dim["name"].as_str() {
-                        columns.push(dim_name.to_string());
-                        
-                        // Also add the expression as a potential column to search
-                        if let Some(expr) = dim["expr"].as_str() {
-                            if expr != dim_name {
-                                columns.push(expr.to_string());
+    let mut database_info: HashMap<String, HashMap<String, HashMap<String, Vec<String>>>> = HashMap::new();
+
+    match serde_yaml::from_str::<SemanticLayerSpec>(yml_content) {
+        Ok(spec) => {
+            debug!("Successfully parsed yml_content with SemanticLayerSpec for extract_database_info_from_yaml");
+            for model in spec.models {
+                let db_name = model.database.as_deref().unwrap_or("unknown_db").to_string();
+                let sch_name = model.schema.as_deref().unwrap_or("unknown_schema").to_string();
+                let tbl_name = model.name.clone(); // model.name is table name
+
+                let mut columns = Vec::new();
+                for dim in model.dimensions {
+                    columns.push(dim.name);
+                    // Assuming 'expr' is not directly a column name in SemanticLayerSpec's Dimension for this purpose.
+                    // If dimensions can have expressions that resolve to column names, adjust here.
+                }
+                for measure in model.measures {
+                    columns.push(measure.name);
+                    // Assuming 'expr' is not directly a column name here either.
+                }
+                for metric in model.metrics {
+                    columns.push(metric.name); // Metrics usually have names, expressions might be too complex for simple column list
+                }
+
+                database_info
+                    .entry(db_name)
+                    .or_default()
+                    .entry(sch_name)
+                    .or_default()
+                    .insert(tbl_name, columns);
+            }
+        }
+        Err(e_spec) => {
+            warn!(
+                "Failed to parse yml_content with SemanticLayerSpec (error: {}), falling back to generic serde_yaml::Value for extract_database_info_from_yaml. Consider updating YAML to new spec.",
+                e_spec
+            );
+            let yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
+                .context("Failed to parse dataset YAML content (fallback)")?;
+
+            if let Some(models) = yaml["models"].as_sequence() {
+                for model_val in models {
+                    let database_name = model_val["database"].as_str().unwrap_or("unknown").to_string();
+                    let schema_name = model_val["schema"].as_str().unwrap_or("public").to_string();
+                    let table_name = model_val["name"].as_str().unwrap_or("unknown_model").to_string();
+
+                    database_info
+                        .entry(database_name.clone())
+                        .or_insert_with(HashMap::new)
+                        .entry(schema_name.clone())
+                        .or_insert_with(HashMap::new);
+
+                    let mut columns = Vec::new();
+                    if let Some(dimensions) = model_val["dimensions"].as_sequence() {
+                        for dim in dimensions {
+                            if let Some(dim_name) = dim["name"].as_str() {
+                                columns.push(dim_name.to_string());
+                                if let Some(expr) = dim["expr"].as_str() {
+                                    if expr != dim_name {
+                                        columns.push(expr.to_string());
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
-            
-            // Add measures
-            if let Some(measures) = model["measures"].as_sequence() {
-                for measure in measures {
-                    if let Some(measure_name) = measure["name"].as_str() {
-                        columns.push(measure_name.to_string());
-                        
-                        // Also add the expression as a potential column to search
-                        if let Some(expr) = measure["expr"].as_str() {
-                            if expr != measure_name {
-                                columns.push(expr.to_string());
+                    if let Some(measures) = model_val["measures"].as_sequence() {
+                        for measure in measures {
+                            if let Some(measure_name) = measure["name"].as_str() {
+                                columns.push(measure_name.to_string());
+                                if let Some(expr) = measure["expr"].as_str() {
+                                    if expr != measure_name {
+                                        columns.push(expr.to_string());
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
-            
-            // Add metrics
-            if let Some(metrics) = model["metrics"].as_sequence() {
-                for metric in metrics {
-                    if let Some(metric_name) = metric["name"].as_str() {
-                        columns.push(metric_name.to_string());
+                    if let Some(metrics) = model_val["metrics"].as_sequence() {
+                        for metric in metrics {
+                            if let Some(metric_name) = metric["name"].as_str() {
+                                columns.push(metric_name.to_string());
+                            }
+                        }
                     }
+                    database_info
+                        .get_mut(&database_name)
+                        .unwrap()
+                        .get_mut(&schema_name)
+                        .unwrap()
+                        .insert(table_name, columns);
                 }
             }
-            
-            // Store columns for this model
-            database_info
-                .get_mut(&database_name)
-                .unwrap()
-                .get_mut(&schema_name)
-                .unwrap()
-                .insert(table_name, columns);
         }
     }
-    
     Ok(database_info)
 }
 
