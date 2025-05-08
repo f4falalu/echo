@@ -31,10 +31,10 @@ jobs:
             target: aarch64-apple-darwin
             artifact_name: buster-cli-darwin-arm64.tar.gz
             use_tar: true
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            artifact_name: buster-cli-windows-x86_64.zip
-            use_tar: false
+          # - os: windows-latest
+          #   target: x86_64-pc-windows-msvc
+          #   artifact_name: buster-cli-windows-x86_64.zip
+          #   use_tar: false
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
@@ -71,42 +71,6 @@ jobs:
         env:
           HOMEBREW_NO_INSTALL_CLEANUP: 1 # Recommended for CI to speed up
 
-      - name: Install libpq (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = "Stop"
-          $ProgressPreference = "SilentlyContinue" # Optional: for cleaner logs
-
-          $PG_VERSION = "16.2.0" # Specify the desired PostgreSQL version
-          $PG_TARGET = "x86_64-pc-windows-msvc"
-          $PG_ARCHIVE_NAME = "postgresql-${PG_VERSION}-${PG_TARGET}.tar.gz"
-          $PG_DOWNLOAD_URL = "https://github.com/theseus-rs/postgresql-binaries/releases/download/v${PG_VERSION}/${PG_ARCHIVE_NAME}"
-          $PG_INSTALL_DIR = "C:/pgsql"
-
-          Write-Host "Downloading PostgreSQL binaries from $PG_DOWNLOAD_URL"
-          Invoke-WebRequest -Uri $PG_DOWNLOAD_URL -OutFile $PG_ARCHIVE_NAME
-
-          Write-Host "Extracting PostgreSQL binaries to $PG_INSTALL_DIR"
-          New-Item -ItemType Directory -Force -Path $PG_INSTALL_DIR
-          tar -xzf $PG_ARCHIVE_NAME -C $PG_INSTALL_DIR --strip-components=1 # Assumes archive has a top-level dir
-
-          Write-Host "Setting up environment variables for libpq"
-          $PG_LIB_PATH = Join-Path $PG_INSTALL_DIR "lib"
-          $PG_BIN_PATH = Join-Path $PG_INSTALL_DIR "bin"
-
-          echo "RUSTFLAGS=-L ${PG_LIB_PATH}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "PATH=${PG_BIN_PATH};${env:PATH}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-          Write-Host "PostgreSQL lib path: $PG_LIB_PATH"
-          Write-Host "PostgreSQL bin path added to PATH: $PG_BIN_PATH"
-          Write-Host "Contents of ${PG_LIB_PATH}:"
-          Get-ChildItem $PG_LIB_PATH
-          Write-Host "Contents of ${PG_BIN_PATH}:"
-          Get-ChildItem $PG_BIN_PATH
-          Write-Host "Updated RUSTFLAGS: $env:RUSTFLAGS"
-          Write-Host "Updated PATH: $env:PATH"
-
       - name: Configure Cargo for optimized build
         run: |
           mkdir -p .cargo
@@ -131,14 +95,14 @@ jobs:
           else
             sha256sum ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256
           fi
-      - name: Compress binary (Windows)
-        if: matrix.use_tar == false
-        working-directory: ./cli
-        shell: pwsh
-        run: |
-          cd target/${{ matrix.target }}/release
-          Compress-Archive -Path buster-cli.exe -DestinationPath ${{ matrix.artifact_name }}
-          Get-FileHash -Algorithm SHA256 ${{ matrix.artifact_name }} | Select-Object -ExpandProperty Hash > ${{ matrix.artifact_name }}.sha256
+      # - name: Compress binary (Windows)
+      #   if: matrix.use_tar == false
+      #   working-directory: ./cli
+      #   shell: pwsh
+      #   run: |
+      #     cd target/${{ matrix.target }}/release
+      #     Compress-Archive -Path buster-cli.exe -DestinationPath ${{ matrix.artifact_name }}
+      #     Get-FileHash -Algorithm SHA256 ${{ matrix.artifact_name }} | Select-Object -ExpandProperty Hash > ${{ matrix.artifact_name }}.sha256
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -178,8 +142,8 @@ jobs:
             **/buster-cli-darwin-x86_64.tar.gz.sha256
             **/buster-cli-darwin-arm64.tar.gz
             **/buster-cli-darwin-arm64.tar.gz.sha256
-            **/buster-cli-windows-x86_64.zip
-            **/buster-cli-windows-x86_64.zip.sha256
+            # **/buster-cli-windows-x86_64.zip
+            # **/buster-cli-windows-x86_64.zip.sha256
           draft: false
           prerelease: false
           generate_release_notes: true
