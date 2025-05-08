@@ -84,7 +84,7 @@ impl ToolExecutor for CreatePlanStraightforward {
         serde_json::json!({
             "name": self.get_name(),
             "description": get_create_plan_straightforward_description().await,
-            "strict": false,
+            "strict": true,
             "parameters": {
                 "type": "object",
                 "required": [
