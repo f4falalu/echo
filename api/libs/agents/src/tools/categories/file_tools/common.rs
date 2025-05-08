@@ -163,6 +163,7 @@ pub const METRIC_YML_SCHEMA: &str = r##"
 #   Note: Respond only with the time period, without explanation or additional copy.
 # `sql`: The SQL query for the metric.
 #   - RULE: MUST use the pipe `|` block scalar style to preserve formatting and newlines.
+#   - NOTE: Remember to use fully qualified names: DATABASE_NAME.SCHEMA_NAME.TABLE_NAME for tables and table_alias.column for columns. This applies to all table and column references, including those within Common Table Expressions (CTEs) and when selecting from CTEs.
 #   - Example:
 #     sql: |
 #       SELECT ... 
@@ -231,6 +232,7 @@ properties:
       SQL query using YAML pipe syntax (|).
       The SQL query should be formatted with proper indentation using the YAML pipe (|) syntax.
       This ensures the multi-line SQL is properly parsed while preserving whitespace and newlines.
+      IMPORTANT: Remember to use fully qualified names: DATABASE_NAME.SCHEMA_NAME.TABLE_NAME for tables and table_alias.column for columns. This rule is critical for all table and column references, including those within Common Table Expressions (CTEs) and when selecting from CTEs.
       Example:
         sql: |
           SELECT column1, column2

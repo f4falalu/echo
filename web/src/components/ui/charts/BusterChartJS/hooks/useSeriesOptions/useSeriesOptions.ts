@@ -23,8 +23,6 @@ export interface UseSeriesOptionsProps {
   y2AxisKeys: string[];
   yAxisKeys: string[];
   xAxisKeys: string[];
-  categoryKeys: ScatterAxis['category'];
-  tooltipKeys: string[];
   sizeKey: ScatterAxis['size'];
   columnSettings: NonNullable<BusterChartConfigProps['columnSettings']>;
   columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
@@ -42,7 +40,6 @@ export const useSeriesOptions = ({
   trendlineSeries,
   columnMetadata,
   selectedChartType,
-  tooltipKeys,
   colors,
   yAxisKeys,
   y2AxisKeys,
@@ -53,11 +50,10 @@ export const useSeriesOptions = ({
   sizeKey,
   scatterDotSize,
   lineGroupType,
-  categoryKeys,
   barShowTotalAtTop,
   barGroupType
 }: UseSeriesOptionsProps): ChartProps<ChartJSChartType>['data'] => {
-  const labels: (string | Date)[] | undefined = useMemo(() => {
+  const labels: (string | Date | number)[] | undefined = useMemo(() => {
     return labelsBuilderRecord[selectedChartType]({
       datasetOptions,
       columnLabelFormats,
@@ -139,7 +135,7 @@ export type LabelBuilderProps = {
 
 const labelsBuilderRecord: Record<
   ChartType,
-  (props: LabelBuilderProps) => (string | Date)[] | undefined
+  (props: LabelBuilderProps) => (string | Date | number)[] | undefined
 > = {
   pie: pieSeriesBuilder_labels,
   bar: barSeriesBuilder_labels,

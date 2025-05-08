@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
+use std::env;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ChatCompletionRequest {
@@ -50,7 +51,7 @@ pub struct ChatCompletionRequest {
     pub parallel_tool_calls: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "should_skip_metadata")]
     pub metadata: Option<Metadata>,
 }
 
@@ -1064,4 +1065,18 @@ mod tests {
         assert_eq!(deserialized_resp.usage.completion_tokens, 17);
         assert_eq!(deserialized_resp.usage.total_tokens, 99);
     }
+}
+
+fn should_skip_metadata(metadata: &Option<Metadata>) -> bool {
+    let env_var_condition_met = match env::var("LLM_BASE_URL") {
+        Ok(val) => val == "https://api.openai.com/v1",
+        Err(_) => false, // If env var is not set or any error, condition is not met
+    };
+
+    if env_var_condition_met {
+        return true; // If env var condition is met, always skip
+    }
+
+    // If env var condition is not met, then skip only if metadata is None
+    metadata.is_none()
 }

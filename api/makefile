@@ -1,4 +1,6 @@
 dev:
+	docker stop buster-redis-make || true && \
+	docker rm buster-redis-make || true && \
 	cd .. && docker run -d --name buster-redis-make -p 6379:6379 -v buster_redis_data:/data redis && cd api && \
 	supabase start
 	supabase db reset 
@@ -26,6 +28,8 @@ stop:
 	supabase stop
 
 fast:
+	docker stop buster-redis-make || true && \
+	docker rm buster-redis-make || true && \
 	cd .. && docker run -d --name buster-redis-make -p 6379:6379 -v buster_redis_data:/data redis && cd api && \
 	export RUST_LOG=debug && \
 	export CARGO_INCREMENTAL=1 && \

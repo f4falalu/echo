@@ -101,12 +101,10 @@ export const BusterChartJSComponent = React.memo(
         barShowTotalAtTop,
         datasetOptions,
         xAxisKeys: selectedAxis.x,
-        tooltipKeys,
         sizeKey: (selectedAxis as ScatterAxis).size,
         columnMetadata,
         scatterDotSize,
         lineGroupType,
-        categoryKeys: (selectedAxis as ScatterAxis).category,
         trendlineSeries,
         barGroupType
       });
