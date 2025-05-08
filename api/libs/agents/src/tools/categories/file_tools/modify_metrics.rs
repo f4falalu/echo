@@ -486,7 +486,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
         serde_json::json!({
           "name": self.get_name(),
           "description": get_modify_metrics_description().await,
-          "strict": false,
+          "strict": true,
           "parameters": {
             "type": "object",
             "required": ["files"],

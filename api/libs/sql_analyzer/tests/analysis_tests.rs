@@ -29,6 +29,52 @@ async fn test_simple_query() {
 }
 
 #[tokio::test]
+async fn test_complex_cte_with_date_function() {
+    let sql = "WITH top5 AS (
+        SELECT ptr.product_name, SUM(ptr.metric_producttotalrevenue) AS total_revenue
+        FROM ont_ont.product_total_revenue AS ptr
+        GROUP BY ptr.product_name
+        ORDER BY total_revenue DESC
+        LIMIT 5
+      )
+      SELECT
+        MAKE_DATE(pqs.year::int, ((pqs.quarter - 1) * 3 + 1)::int, 1) AS quarter_start,
+        pqs.product_name,
+        SUM(pqs.metric_productquarterlysales) AS quarterly_revenue
+      FROM ont_ont.product_quarterly_sales AS pqs
+      JOIN top5 ON pqs.product_name = top5.product_name
+      GROUP BY quarter_start, pqs.product_name
+      ORDER BY quarter_start ASC, pqs.product_name;";
+
+    let result = analyze_query(sql.to_string()).await.unwrap();
+
+    // Check CTE
+    assert_eq!(result.ctes.len(), 1);
+    let cte = &result.ctes[0];
+    assert_eq!(cte.name, "top5");
+    assert_eq!(cte.summary.tables.len(), 1);
+    assert_eq!(cte.summary.joins.len(), 0);
+
+    // Check main query tables
+    assert_eq!(result.tables.len(), 2);
+    let table_names: Vec<String> = result.tables.iter().map(|t| t.table_identifier.clone()).collect();
+    assert!(table_names.contains(&"product_quarterly_sales".to_string()));
+    assert!(table_names.contains(&"product_total_revenue".to_string()));
+
+    // Check joins
+    assert_eq!(result.joins.len(), 1);
+    let join = result.joins.iter().next().unwrap();
+    assert_eq!(join.left_table, "product_quarterly_sales");
+    assert_eq!(join.right_table, "product_total_revenue");
+
+    // Check schema identifiers
+    for table in result.tables {
+        assert_eq!(table.schema_identifier, Some("ont_ont".to_string()));
+    }
+}
+
+
+#[tokio::test]
 async fn test_joins() {
     let sql =
         "SELECT u.id, o.order_id FROM schema.users u JOIN schema.orders o ON u.id = o.user_id";
