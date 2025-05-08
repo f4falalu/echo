@@ -99,11 +99,13 @@ export const ChatContainerHeaderDropdown: React.FC<{
   }, [
     chatId,
     isDeleting,
+    isDuplicating,
     currentMessageId,
     deleteChat,
     duplicateChat,
     isFavorited,
-    onFavoriteClick
+    onFavoriteClick,
+    openSuccessMessage
   ]);
 
   return (
