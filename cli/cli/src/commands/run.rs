@@ -12,7 +12,6 @@ use std::time::Duration;
 #[derive(RustEmbed)]
 #[folder = "../../"]
 #[include = "docker-compose.yml"]
-#[include = "litellm_vertex_config.yaml"]
 #[include = "supabase/.env.example"]
 #[include = "supabase/**/*"]
 #[exclude = "supabase/volumes/db/data/**/*"]
@@ -69,6 +68,28 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
             e
         ))
     })?;
+
+    // Initialize .env from supabase/.env.example, which should have been extracted by StaticAssets loop
+    let example_env_src_path = app_base_dir.join("supabase/.env.example");
+    let main_dot_env_target_path = app_base_dir.join(".env");
+
+    if example_env_src_path.exists() {
+        fs::copy(&example_env_src_path, &main_dot_env_target_path).map_err(|e| {
+            BusterError::CommandError(format!(
+                "Failed to initialize {} from {}: {}",
+                main_dot_env_target_path.display(),
+                example_env_src_path.display(),
+                e
+            ))
+        })?;
+    } else {
+        // This case should ideally not be hit if supabase/.env.example is correctly embedded and extracted.
+        // If it's missing, it indicates an issue with asset handling.
+        return Err(BusterError::CommandError(format!(
+            "Critical setup error: {} not found after asset extraction. Cannot initialize main .env file.",
+            example_env_src_path.display()
+        )));
+    }
 
     let target_dotenv_path = app_base_dir.join(".env");
 
@@ -207,6 +228,7 @@ pub async fn reset() -> Result<(), BusterError> {
     println!(
         "This can lead to a complete wipe of the Buster database and any other local service data."
     );
+    println!("The ~/.buster directory will be wiped, except for ~/.buster/credentials.yml if it exists.");
     println!("This action is irreversible.");
     print!("Are you sure you want to proceed with resetting? (y/n): ");
     io::stdout()
@@ -223,7 +245,34 @@ pub async fn reset() -> Result<(), BusterError> {
         return Ok(());
     }
 
-    let persistent_app_dir = setup_persistent_app_environment().await?;
+    let app_base_dir = config_utils::get_app_base_dir().map_err(|e| {
+        BusterError::CommandError(format!("Failed to get app base directory: {}", e))
+    })?;
+    println!("Target application directory for reset: {}", app_base_dir.display());
+
+    // Backup credentials if they exist
+    let credentials_path = app_base_dir.join("credentials.yml");
+    let credentials_backup = fs::read(&credentials_path).ok();
+    if credentials_backup.is_some() {
+        println!("Found credentials.yml at {}, will attempt to preserve it.", credentials_path.display());
+    } else {
+        println!("No credentials.yml found at {} to preserve.", credentials_path.display());
+    }
+
+    // Ensure app_base_dir exists and essential files for Docker commands are present
+    // These files will be wiped later with the rest of app_base_dir.
+    fs::create_dir_all(&app_base_dir).map_err(|e| BusterError::CommandError(format!("Failed to create app base directory {}: {}", app_base_dir.display(), e)))?;
+
+    let dc_filename = "docker-compose.yml";
+    let dc_asset = StaticAssets::get(dc_filename)
+        .ok_or_else(|| BusterError::CommandError(format!("Failed to get embedded asset: {}", dc_filename)))?;
+    fs::write(app_base_dir.join(dc_filename), dc_asset.data.as_ref()).map_err(|e| BusterError::CommandError(format!("Failed to write temporary {}: {}", dc_filename, e)))?;
+
+    // docker-compose.yml references supabase/.env, so ensure it exists (can be empty)
+    let supabase_dir = app_base_dir.join("supabase");
+    fs::create_dir_all(&supabase_dir).map_err(|e| BusterError::CommandError(format!("Failed to create supabase directory in app base dir: {}", e)))?;
+    fs::write(supabase_dir.join(".env"), "").map_err(|e| BusterError::CommandError(format!("Failed to write temporary supabase/.env: {}",e)))?;
+
 
     let pb = ProgressBar::new_spinner();
     pb.enable_steady_tick(Duration::from_millis(120));
@@ -235,16 +284,16 @@ pub async fn reset() -> Result<(), BusterError> {
     );
 
     // Step 1: Stop services
-    pb.set_message("Resetting Buster services (step 1/4): Stopping services...");
+    pb.set_message("Resetting Buster services (1/3): Stopping services...");
 
     let mut down_cmd = Command::new("docker");
     down_cmd
-        .current_dir(&persistent_app_dir)
+        .current_dir(&app_base_dir) // Use the prepared app_base_dir
         .arg("compose")
         .arg("-p")
         .arg("buster")
         .arg("-f")
-        .arg("docker-compose.yml")
+        .arg("docker-compose.yml") // Relative to app_base_dir
         .arg("down");
 
     let down_output = down_cmd.output().map_err(|e| {
@@ -259,72 +308,29 @@ Stdout:
 Stderr:
 {}",
             down_output.status,
-            persistent_app_dir.display(),
+            app_base_dir.display(),
             String::from_utf8_lossy(&down_output.stdout),
             String::from_utf8_lossy(&down_output.stderr)
         );
         pb.abandon_with_message("Error: docker compose down failed. See console for details.");
-        println!("\nDocker Compose Down Error Details:\n{}", err_msg);
+        println!("
+Docker Compose Down Error Details:
+{}", err_msg);
         return Err(BusterError::CommandError(err_msg));
     }
+    pb.println("Services stopped successfully.");
 
-    // Step 2: Clear persistent data volumes
-    pb.set_message("Resetting Buster services (step 2/4): Clearing persistent data volumes...");
-    let db_volume_path = persistent_app_dir.join("supabase/volumes/db/data");
-    let storage_volume_path = persistent_app_dir.join("supabase/volumes/storage");
 
-    if db_volume_path.exists() {
-        fs::remove_dir_all(&db_volume_path).map_err(|e| {
-            BusterError::CommandError(format!(
-                "Failed to remove db volume at {}: {}",
-                db_volume_path.display(),
-                e
-            ))
-        })?;
-    }
-    fs::create_dir_all(&db_volume_path).map_err(|e| {
-        BusterError::CommandError(format!(
-            "Failed to recreate db volume at {}: {}",
-            db_volume_path.display(),
-            e
-        ))
-    })?;
-    pb.println(format!(
-        "Successfully cleared and recreated database volume: {}",
-        db_volume_path.display()
-    ));
-
-    if storage_volume_path.exists() {
-        fs::remove_dir_all(&storage_volume_path).map_err(|e| {
-            BusterError::CommandError(format!(
-                "Failed to remove storage volume at {}: {}",
-                storage_volume_path.display(),
-                e
-            ))
-        })?;
-    }
-    fs::create_dir_all(&storage_volume_path).map_err(|e| {
-        BusterError::CommandError(format!(
-            "Failed to recreate storage volume at {}: {}",
-            storage_volume_path.display(),
-            e
-        ))
-    })?;
-    pb.println(format!(
-        "Successfully cleared and recreated storage volume: {}",
-        storage_volume_path.display()
-    ));
-
-    // Step 3: Identify service images
-    pb.set_message("Resetting Buster services (step 3/4): Identifying service images...");
+    // Step 2: Identify and Remove service images
+    pb.set_message("Resetting Buster services (2/3): Removing service images...");
     let mut config_images_cmd = Command::new("docker");
     config_images_cmd
-        .current_dir(&persistent_app_dir)
+        .current_dir(&app_base_dir) // Use the prepared app_base_dir
         .arg("compose")
         .arg("-p")
         .arg("buster")
         .arg("-f")
-        .arg("docker-compose.yml")
+        .arg("docker-compose.yml") // Relative to app_base_dir
         .arg("config")
         .arg("--images");
 
@@ -343,7 +349,7 @@ Stdout:
 Stderr:
 {}",
             config_images_output.status,
-            persistent_app_dir.display(),
+            app_base_dir.display(),
             String::from_utf8_lossy(&config_images_output.stdout),
             String::from_utf8_lossy(&config_images_output.stderr)
         );
@@ -351,7 +357,9 @@ Stderr:
             "Error: Failed to identify service images. See console for details.",
         );
         println!(
-            "\nDocker Compose Config --images Error Details:\n{}",
+            "
+Docker Compose Config --images Error Details:
+{}",
             err_msg
         );
         return Err(BusterError::CommandError(err_msg));
@@ -363,29 +371,25 @@ Stderr:
         .filter(|line| !line.trim().is_empty())
         .collect();
 
-    // Step 4: Remove service images
     if image_names.is_empty() {
         pb.println(
             "No images identified by docker-compose config --images. Skipping image removal.",
         );
     } else {
-        pb.set_message(format!(
-            "Resetting Buster services (step 4/4): Removing {} service image(s)...",
-            image_names.len()
-        ));
+        pb.println(format!("Found {} image(s) to remove.", image_names.len()));
         for (index, image_name) in image_names.iter().enumerate() {
             let current_image_name = image_name.trim();
             if current_image_name.is_empty() {
                 continue;
             }
             pb.set_message(format!(
-                "Resetting Buster services (step 4/4): Removing image {}/{} ('{}')...",
+                "Resetting Buster services (2/3): Removing image {}/{} ('{}')...",
                 index + 1,
                 image_names.len(),
                 current_image_name
             ));
             let mut rmi_cmd = Command::new("docker");
-            rmi_cmd.arg("image").arg("rm").arg(current_image_name);
+            rmi_cmd.arg("image").arg("rm").arg(current_image_name); // Image names are global
 
             let rmi_output = rmi_cmd.output().map_err(|e| {
                 BusterError::CommandError(format!(
@@ -394,19 +398,44 @@ Stderr:
                 ))
             })?;
 
-            // Log warning on failure but continue, as image might not exist or be in use by other non-project containers
             if !rmi_output.status.success() {
                 let rmi_stderr = String::from_utf8_lossy(&rmi_output.stderr);
                 if !rmi_stderr.trim().is_empty() && !rmi_stderr.contains("No such image") {
-                    // Don't warn if image was already gone
                     pb.println(format!("Warning: Could not remove image '{}'. It might be in use or already removed. Stderr: {}", current_image_name, rmi_stderr.trim()));
                 }
+            } else {
+                pb.println(format!("Successfully removed image: {}", current_image_name));
             }
         }
     }
+    pb.println("Service image removal process complete.");
+
+    // Step 3: Wipe app_base_dir and restore credentials
+    pb.set_message(format!("Resetting Buster services (3/3): Wiping {} and restoring credentials...", app_base_dir.display()));
+
+    if app_base_dir.exists() {
+        fs::remove_dir_all(&app_base_dir).map_err(|e| {
+            BusterError::CommandError(format!("Failed to remove app directory {}: {}", app_base_dir.display(), e))
+        })?;
+        pb.println(format!("Successfully removed directory: {}", app_base_dir.display()));
+    }
+
+    fs::create_dir_all(&app_base_dir).map_err(|e| {
+        BusterError::CommandError(format!("Failed to recreate app directory {}: {}", app_base_dir.display(), e))
+    })?;
+    pb.println(format!("Successfully recreated directory: {}", app_base_dir.display()));
+
+    if let Some(backup_data) = credentials_backup {
+        fs::write(&credentials_path, backup_data).map_err(|e| {
+            BusterError::CommandError(format!("Failed to restore credentials.yml to {}: {}", credentials_path.display(), e))
+        })?;
+        pb.println(format!("Successfully restored: {}", credentials_path.display()));
+    } else {
+        pb.println(format!("No prior credentials.yml to restore for {}.", credentials_path.display()));
+    }
 
     pb.finish_with_message(
-        "Buster services stopped, volumes cleared, and images removed successfully.",
+        format!("Buster reset complete. Docker services stopped, images removed. Directory {} wiped (credentials.yml preserved if found). Run 'buster start' to rebuild.", app_base_dir.display())
     );
     Ok(())
 }
