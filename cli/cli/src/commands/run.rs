@@ -70,14 +70,14 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
         ))
     })?;
 
-    // Initialize .env from .env.example (the one at app_base_dir), which should have been extracted by StaticAssets loop
+    // Initialize .env from .env.example (the root one), which should have been extracted by StaticAssets loop
     let example_env_src_path = app_base_dir.join(".env.example");
-    let main_dot_env_target_path = app_base_dir.join(".env");
+    let main_dot_env_target_path = app_base_dir.join(".env"); // This is the root .env
 
     if example_env_src_path.exists() {
         fs::copy(&example_env_src_path, &main_dot_env_target_path).map_err(|e| {
             BusterError::CommandError(format!(
-                "Failed to initialize {} from {}: {}",
+                "Failed to initialize root .env ({}) from {}: {}",
                 main_dot_env_target_path.display(),
                 example_env_src_path.display(),
                 e
@@ -85,14 +85,31 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
         })?;
     } else {
         // This case should ideally not be hit if .env.example is correctly embedded and extracted.
-        // If it's missing, it indicates an issue with asset handling.
         return Err(BusterError::CommandError(format!(
-            "Critical setup error: {} not found after asset extraction. Cannot initialize main .env file.",
+            "Critical setup error: Root {} not found after asset extraction. Cannot initialize main .env file.",
             example_env_src_path.display()
         )));
     }
 
-    let target_dotenv_path = app_base_dir.join(".env");
+    // Initialize supabase/.env from supabase/.env.example
+    let supabase_example_env_src_path = app_base_dir.join("supabase/.env.example");
+    let supabase_dot_env_target_path = app_base_dir.join("supabase/.env");
+
+    if supabase_example_env_src_path.exists() {
+        fs::copy(&supabase_example_env_src_path, &supabase_dot_env_target_path).map_err(|e| {
+            BusterError::CommandError(format!(
+                "Failed to initialize supabase/.env ({}) from {}: {}",
+                supabase_dot_env_target_path.display(),
+                supabase_example_env_src_path.display(),
+                e
+            ))
+        })?;
+    } else {
+        return Err(BusterError::CommandError(format!(
+            "Critical setup error: Supabase {} not found after asset extraction. Cannot initialize supabase/.env file.",
+            supabase_example_env_src_path.display()
+        )));
+    }
 
     // --- BEGIN API Key and Reranker Setup using config_utils ---
     println!("--- Buster Configuration Setup ---");
@@ -100,9 +117,9 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
     let llm_api_key = config_utils::prompt_and_manage_openai_api_key(&app_base_dir, false)?;
     let reranker_config = config_utils::prompt_and_manage_reranker_settings(&app_base_dir, false)?;
 
-    // Update .env file
+    // Update .env file (this is the root .env)
     config_utils::update_env_file(
-        &target_dotenv_path,
+        &main_dot_env_target_path, // Ensure this targets the root .env
         Some(&llm_api_key),
         Some(&reranker_config.api_key),
         Some(&reranker_config.model),
@@ -112,24 +129,13 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
     .map_err(|e| {
         BusterError::CommandError(format!(
             "Failed to ensure .env file configurations in {}: {}",
-            target_dotenv_path.display(),
+            main_dot_env_target_path.display(), // Use root .env path here
             e
         ))
     })?;
 
     println!("--- Configuration Setup Complete ---");
     // --- END API Key and Reranker Setup using config_utils ---
-
-    // Additionally copy the .env to the supabase subdirectory
-    let supabase_dotenv_path = app_base_dir.join("supabase/.env");
-    fs::copy(&target_dotenv_path, &supabase_dotenv_path).map_err(|e| {
-        BusterError::CommandError(format!(
-            "Failed to copy .env from {} to {}: {}",
-            target_dotenv_path.display(),
-            supabase_dotenv_path.display(),
-            e
-        ))
-    })?;
 
     Ok(app_base_dir)
 }
@@ -313,13 +319,10 @@ Stderr:
             String::from_utf8_lossy(&down_output.stdout),
             String::from_utf8_lossy(&down_output.stderr)
         );
-        pb.abandon_with_message("Error: docker compose down failed. See console for details.");
-        println!("
-Docker Compose Down Error Details:
-{}", err_msg);
-        return Err(BusterError::CommandError(err_msg));
+        pb.println(format!("Warning: {} - Proceeding with reset.", err_msg));
+    } else {
+        pb.println("Services stopped successfully.");
     }
-    pb.println("Services stopped successfully.");
 
 
     // Step 2: Identify and Remove service images
@@ -341,6 +344,8 @@ Docker Compose Down Error Details:
             e
         ))
     })?;
+
+    let mut image_list_str;
     if !config_images_output.status.success() {
         let err_msg = format!(
             "docker compose config --images failed (status: {}). Logs:
@@ -354,19 +359,12 @@ Stderr:
             String::from_utf8_lossy(&config_images_output.stdout),
             String::from_utf8_lossy(&config_images_output.stderr)
         );
-        pb.abandon_with_message(
-            "Error: Failed to identify service images. See console for details.",
-        );
-        println!(
-            "
-Docker Compose Config --images Error Details:
-{}",
-            err_msg
-        );
-        return Err(BusterError::CommandError(err_msg));
+        pb.println(format!("Warning: {} - Skipping image removal and proceeding with reset.", err_msg));
+        image_list_str = String::new(); // Ensure image_names is empty
+    } else {
+        image_list_str = String::from_utf8_lossy(&config_images_output.stdout).to_string();
     }
 
-    let image_list_str = String::from_utf8_lossy(&config_images_output.stdout);
     let image_names: Vec<&str> = image_list_str
         .lines()
         .filter(|line| !line.trim().is_empty())
