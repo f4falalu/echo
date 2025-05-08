@@ -1,4 +1,6 @@
 pub mod auth;
+pub mod config;
+pub mod config_utils;
 pub mod deploy;
 pub mod generate;
 pub mod init;

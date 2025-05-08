@@ -1,6 +1,6 @@
 use anyhow::Result;
 use serde_json::Value;
-use std::collections::HashMap;
+use std::{collections::HashMap, env};
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
@@ -19,12 +19,20 @@ use crate::tools::{
 };
 
 // Function to get the configuration for the Review mode
-pub fn get_configuration(_agent_data: &ModeAgentData, _data_source_syntax: Option<String>) -> ModeConfiguration {
+pub fn get_configuration(
+    _agent_data: &ModeAgentData,
+    _data_source_syntax: Option<String>,
+) -> ModeConfiguration {
     // 1. Get the prompt (doesn't need formatting for this mode)
     let prompt = REVIEW_PROMPT.to_string(); // Use the correct constant
 
     // 2. Define the model for this mode (From original MODEL const)
-    let model = "gemini-2.5-pro-exp-03-25".to_string();
+    let model =
+        if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
+            "o4-mini".to_string()
+        } else {
+            "gemini-2.5-flash-preview-04-17".to_string()
+        };
 
     // 3. Define the tool loader closure
     let tool_loader: Box<

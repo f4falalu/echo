@@ -10,7 +10,10 @@ use futures::stream::{self, StreamExt};
 use litellm::{AgentMessage, ChatCompletionRequest, LiteLLMClient, Metadata, ResponseFormat};
 use middleware::types::AuthenticatedUser;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    env,
+};
 use tracing::{debug, error, info, warn};
 use uuid::Uuid;
 
@@ -318,9 +321,16 @@ async fn filter_datasets_with_llm(
     // Initialize LiteLLM client
     let llm_client = LiteLLMClient::new(None, None);
 
+    let model =
+        if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
+            "gpt-4.1-mini".to_string()
+        } else {
+            "gemini-2.0-flash-001".to_string()
+        };
+
     // Create the request
     let request = ChatCompletionRequest {
-        model: "gemini-2.0-flash-001".to_string(), // Using a small model for cost efficiency
+        model, // Using a small model for cost efficiency
         messages: vec![AgentMessage::User {
             id: None,
             content: prompt,

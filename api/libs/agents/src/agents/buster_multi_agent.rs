@@ -4,6 +4,7 @@ use dataset_security::get_permissioned_datasets;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
+use std::env;
 use std::sync::Arc;
 use tokio::sync::broadcast;
 use uuid::Uuid;
@@ -23,6 +24,9 @@ use crate::{agent::ModeProvider, Agent, AgentError, AgentExt, AgentThread}; // A
 
 use litellm::AgentMessage;
 
+// Import the semantic layer models
+use semantic_layer::models::SemanticLayerSpec; // Assuming models.rs is accessible like this
+
 // Import AgentState and determine_agent_state (assuming they are pub in modes/mod.rs or similar)
 // If not, they might need to be moved or re-exported.
 // For now, let's assume they are accessible via crate::agents::modes::{AgentState, determine_agent_state}
@@ -34,6 +38,7 @@ pub struct BusterSuperAgentOutput {
     pub duration: i64,
     pub thread_id: Uuid,
     pub messages: Vec<AgentMessage>,
+    pub message_id: Option<Uuid>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -114,16 +119,16 @@ impl DatasetWithDescriptions {
 }
 
 // Define structs for YAML parsing
-#[derive(Debug, Deserialize)]
-struct YamlRoot {
-    models: Vec<ModelInfo>,
-}
+// #[derive(Debug, Deserialize)]
+// struct YamlRoot {
+// models: Vec<ModelInfo>,
+// }
 
-#[derive(Debug, Deserialize)]
-struct ModelInfo {
-    name: String,
-    description: String,
-}
+// #[derive(Debug, Deserialize)]
+// struct ModelInfo {
+// name: String,
+// description: String,
+// }
 
 impl BusterMultiAgent {
     pub async fn new(user_id: Uuid, session_id: Uuid, is_follow_up: bool) -> Result<Self> {
@@ -135,14 +140,19 @@ impl BusterMultiAgent {
         let dataset_descriptions: Vec<String> = permissioned_datasets
             .into_iter()
             .filter_map(|ds| ds.yml_content) // Get Some(String), filter out None
-            .map(|content| serde_yaml::from_str::<YamlRoot>(&content)) // Parse String -> Result<YamlRoot, Error>
+            .map(|content| serde_yaml::from_str::<SemanticLayerSpec>(&content)) // Parse String -> Result<SemanticLayerSpec, Error>
             .filter_map(|result| {
                 // Handle Result
                 match result {
-                    Ok(parsed_root) => {
+                    Ok(parsed_spec) => {
                         // Extract info from the first model if available
-                        if let Some(model) = parsed_root.models.first() {
-                            Some(format!("{}: {}", model.name, model.description))
+                        if let Some(model) = parsed_spec.models.first() {
+                            // model.description is Option<String>, handle it
+                            let description = model
+                                .description
+                                .as_deref()
+                                .unwrap_or("No description available");
+                            Some(format!("{}: {}", model.name, description))
                         } else {
                             tracing::warn!("Parsed YAML has no models");
                             None
@@ -165,9 +175,15 @@ impl BusterMultiAgent {
         // Create the mode provider
         let mode_provider = Arc::new(BusterModeProvider { agent_data });
 
+        let model = if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
+            "o4-mini".to_string()
+        } else {
+            "gemini-2.5-pro-exp-03-25".to_string()
+        };
+
         // Create agent, passing the provider
         let agent = Arc::new(Agent::new(
-            "gemini-2.5-pro-exp-03-25".to_string(), // Initial model (can be overridden by first mode)
+            model, // Initial model (can be overridden by first mode)
             user_id,
             session_id,
             "buster_multi_agent".to_string(),

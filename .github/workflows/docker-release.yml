@@ -94,6 +94,16 @@ jobs:
         with:
           ref: ${{ github.sha }}
 
+      - name: Docker meta for API
+        id: meta_api
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ env.API_VERSION }}
+            type=sha,format=short
+            type=raw,value=latest
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -105,16 +115,32 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push API image
+        id: build_api_image_platform
         uses: useblacksmith/build-push-action@v1
         with:
           context: ./api
           file: ./api/Dockerfile
           push: true
           platforms: ${{ matrix.docker_platform }}
-          tags: |
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ env.API_VERSION }}-${{ matrix.platform }}
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:${{ github.sha }}-${{ matrix.platform }}
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}:latest-${{ matrix.platform }}
+          tags: ${{ steps.meta_api.outputs.tags }}
+          labels: ${{ steps.meta_api.outputs.labels }}
+          outputs: type=image,name=${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }},push-by-digest=true,name-canonical=true
+
+      - name: Export API digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest_full="${{ steps.build_api_image_platform.outputs.digest }}"
+          digest_sha="${digest_full#sha256:}"
+          echo "Digest SHA for API ${{ matrix.platform }}: ${digest_sha}"
+          echo "${digest_sha}" > "${{ runner.temp }}/digests/api-${{ matrix.platform }}.sha"
+
+      - name: Upload API digest file
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-digest-${{ matrix.platform }}
+          path: ${{ runner.temp }}/digests/api-${{ matrix.platform }}.sha
+          if-no-files-found: error
+          retention-days: 1
       
       - name: Set API Package Visibility to Public
         env:
@@ -139,6 +165,7 @@ jobs:
     name: Build and Push Web Image
     needs: prepare_docker_release_info
     if: needs.prepare_docker_release_info.outputs.web_version_found == 'true'
+    environment: main
     strategy:
       fail-fast: false
       matrix:
@@ -159,6 +186,16 @@ jobs:
         with:
           ref: ${{ github.sha }}
 
+      - name: Docker meta for Web
+        id: meta_web
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ env.WEB_VERSION }}
+            type=sha,format=short
+            type=raw,value=latest
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -170,21 +207,38 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Web image
+        id: build_web_image_platform
         uses: useblacksmith/build-push-action@v1
         with:
           context: ./web
           file: ./web/Dockerfile
           push: true
           platforms: ${{ matrix.docker_platform }}
-          tags: |
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ env.WEB_VERSION }}-${{ matrix.platform }}
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:${{ github.sha }}-${{ matrix.platform }}
-            ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}:latest-${{ matrix.platform }}
+          tags: ${{ steps.meta_web.outputs.tags }}
+          labels: ${{ steps.meta_web.outputs.labels }}
+          outputs: type=image,name=${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }},push-by-digest=true,name-canonical=true
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
             NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_WEB_SOCKET_URL=${{ secrets.NEXT_PUBLIC_WEB_SOCKET_URL }}
+
+      - name: Export Web digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest_full="${{ steps.build_web_image_platform.outputs.digest }}"
+          digest_sha="${digest_full#sha256:}"
+          echo "Digest SHA for Web ${{ matrix.platform }}: ${digest_sha}"
+          echo "${digest_sha}" > "${{ runner.temp }}/digests/web-${{ matrix.platform }}.sha"
+
+      - name: Upload Web digest file
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-digest-${{ matrix.platform }}
+          path: ${{ runner.temp }}/digests/web-${{ matrix.platform }}.sha
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Set Web Package Visibility to Public
         env:
@@ -204,3 +258,134 @@ jobs:
             echo "Failed to set package $ORG_NAME/${{ env.WEB_IMAGE_NAME }} visibility to public. HTTP Status: $RESPONSE_CODE"
             # Optionally, fail the step: exit 1
           fi
+
+  merge_api_manifests:
+    name: Merge API Manifests
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    needs: [prepare_docker_release_info, build_and_push_api]
+    if: needs.prepare_docker_release_info.outputs.api_version_found == 'true'
+    steps:
+      - name: Download API digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/all_api_digests
+          pattern: api-digest-*
+          merge-multiple: true
+
+      - name: Log in to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker meta for API Manifest
+        id: meta_api_manifest
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.prepare_docker_release_info.outputs.api_version }}
+            type=sha,format=short
+            type=raw,value=latest
+          # Ensure DOCKER_METADATA_OUTPUT_JSON is populated for the next step
+          # outputs: |
+          #   json
+
+      - name: Create and push API manifest list
+        env:
+          API_IMAGE_FULL_NAME: ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.API_IMAGE_NAME }}
+        working-directory: ${{ runner.temp }}/all_api_digests
+        run: |
+          echo "Listing downloaded API digests in $(pwd):"
+          ls -lR .
+
+          TAG_ARGS=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          echo "Generated tag arguments for API manifest: $TAG_ARGS"
+
+          DIGEST_FILES_FOUND=$(find . -type f -name '*.sha' -print)
+          if [ -z "$DIGEST_FILES_FOUND" ]; then
+            echo "Error: No API digest files (*.sha) found."
+            exit 1
+          fi
+
+          IMAGE_PLUS_DIGEST_ARGS=""
+          for digest_file_path in $DIGEST_FILES_FOUND; do
+            sha_value=$(cat "$digest_file_path")
+            IMAGE_PLUS_DIGEST_ARGS="$IMAGE_PLUS_DIGEST_ARGS ${API_IMAGE_FULL_NAME}@sha256:${sha_value}"
+          done
+          echo "API Manifest images with digests: $IMAGE_PLUS_DIGEST_ARGS"
+
+          if [ -z "$IMAGE_PLUS_DIGEST_ARGS" ]; then
+            echo "Error: No API digests were processed to create the manifest."
+            exit 1
+          fi
+          docker buildx imagetools create $TAG_ARGS $IMAGE_PLUS_DIGEST_ARGS
+
+  merge_web_manifests:
+    name: Merge Web Manifests
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    needs: [prepare_docker_release_info, build_and_push_web]
+    if: needs.prepare_docker_release_info.outputs.web_version_found == 'true'
+    steps:
+      - name: Download Web digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/all_web_digests
+          pattern: web-digest-*
+          merge-multiple: true
+
+      - name: Log in to Docker Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker meta for Web Manifest
+        id: meta_web_manifest
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.prepare_docker_release_info.outputs.web_version }}
+            type=sha,format=short
+            type=raw,value=latest
+          # outputs: |
+          #   json
+
+      - name: Create and push Web manifest list
+        env:
+          WEB_IMAGE_FULL_NAME: ${{ env.DOCKER_REGISTRY_OWNER }}/${{ env.WEB_IMAGE_NAME }}
+        working-directory: ${{ runner.temp }}/all_web_digests
+        run: |
+          echo "Listing downloaded Web digests in $(pwd):"
+          ls -lR .
+
+          TAG_ARGS=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          echo "Generated tag arguments for Web manifest: $TAG_ARGS"
+
+          DIGEST_FILES_FOUND=$(find . -type f -name '*.sha' -print)
+          if [ -z "$DIGEST_FILES_FOUND" ]; then
+            echo "Error: No Web digest files (*.sha) found."
+            exit 1
+          fi
+
+          IMAGE_PLUS_DIGEST_ARGS=""
+          for digest_file_path in $DIGEST_FILES_FOUND; do
+            sha_value=$(cat "$digest_file_path")
+            IMAGE_PLUS_DIGEST_ARGS="$IMAGE_PLUS_DIGEST_ARGS ${WEB_IMAGE_FULL_NAME}@sha256:${sha_value}"
+          done
+          echo "Web Manifest images with digests: $IMAGE_PLUS_DIGEST_ARGS"
+
+          if [ -z "$IMAGE_PLUS_DIGEST_ARGS" ]; then
+            echo "Error: No Web digests were processed to create the manifest."
+            exit 1
+          fi
+          docker buildx imagetools create $TAG_ARGS $IMAGE_PLUS_DIGEST_ARGS
