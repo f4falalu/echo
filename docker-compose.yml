@@ -59,5 +59,19 @@ services:
         condition: service_healthy
     network_mode: "service:api"
 
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: buster-litellm
+    ports:
+      - "4001:4001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/health/readiness"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      api:
+        condition: service_healthy
+
 volumes:
   buster_redis_data: 

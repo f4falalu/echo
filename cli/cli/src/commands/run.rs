@@ -159,18 +159,18 @@ pub async fn stop() -> Result<(), BusterError> {
     run_docker_compose_command(&["down"], "Stopping").await
 }
 
-pub async fn restart() -> Result<(), BusterError> {
-    println!("WARNING: This command will stop all Buster services, attempt to remove their current images, and then restart them.");
+pub async fn reset() -> Result<(), BusterError> {
+    println!("WARNING: This command will stop all Buster services, attempt to remove their current images, and then restart them from scratch.");
     println!("This can lead to a complete wipe of the Buster database and any other local service data.");
     println!("This action is irreversible.");
-    print!("Are you sure you want to proceed? (yes/No): ");
+    print!("Are you sure you want to proceed with resetting? (yes/No): ");
     io::stdout().flush().map_err(|e| BusterError::CommandError(format!("Failed to flush stdout: {}", e)))?;
 
     let mut confirmation = String::new();
     io::stdin().read_line(&mut confirmation).map_err(|e| BusterError::CommandError(format!("Failed to read user input: {}", e)))?;
 
     if confirmation.trim().to_lowercase() != "yes" {
-        println!("Restart cancelled by user.");
+        println!("Reset cancelled by user.");
         return Ok(());
     }
 
@@ -185,7 +185,7 @@ pub async fn restart() -> Result<(), BusterError> {
             .expect("Failed to set progress bar style"),
     );
     
-    pb.set_message("Rebuilding Buster services (step 1/4): Stopping services...");
+    pb.set_message("Resetting Buster services (step 1/4): Stopping services...");
 
     let mut down_cmd = Command::new("docker");
     down_cmd.current_dir(&persistent_app_dir)
@@ -215,7 +215,7 @@ Stderr:
         return Err(BusterError::CommandError(err_msg));
     }
 
-    pb.set_message("Rebuilding Buster services (step 2/4): Identifying service images...");
+    pb.set_message("Resetting Buster services (step 2/4): Identifying service images...");
     let mut config_images_cmd = Command::new("docker");
     config_images_cmd.current_dir(&persistent_app_dir)
         .arg("compose")
@@ -251,14 +251,14 @@ Stderr:
     if image_names.is_empty() {
         pb.println("No images identified by docker-compose config --images. Skipping image removal.");
     } else {
-        pb.set_message(format!("Rebuilding Buster services (step 3/4): Removing {} service image(s)...", image_names.len()));
+        pb.set_message(format!("Resetting Buster services (step 3/4): Removing {} service image(s)...", image_names.len()));
         for (index, image_name) in image_names.iter().enumerate() {
             let current_image_name = image_name.trim();
             if current_image_name.is_empty() {
                 continue;
             }
             pb.set_message(format!(
-                "Rebuilding Buster services (step 3/4): Removing image {}/{} ('{}')...",
+                "Resetting Buster services (step 3/4): Removing image {}/{} ('{}')...",
                 index + 1,
                 image_names.len(),
                 current_image_name
@@ -278,7 +278,7 @@ Stderr:
         }
     }
 
-    pb.set_message("Rebuilding Buster services (step 4/4): Starting services (pulling images if needed)...");
+    pb.set_message("Resetting Buster services (step 4/4): Starting services (pulling images if needed)...");
     let mut up_cmd = Command::new("docker");
     up_cmd.current_dir(&persistent_app_dir)
         .arg("compose")
@@ -296,7 +296,7 @@ Stderr:
     let up_output = up_cmd.output().map_err(|e| BusterError::CommandError(format!("Failed to execute docker compose up: {}", e)))?;
 
     if up_output.status.success() {
-        pb.finish_with_message("Buster services rebuilt and started successfully.");
+        pb.finish_with_message("Buster services reset and started successfully.");
         Ok(())
     } else {
         let err_msg = format!(
