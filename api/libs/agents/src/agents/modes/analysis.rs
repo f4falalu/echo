@@ -349,6 +349,12 @@ To conclude your worklow, you use the `finish_and_respond` tool to send a final 
 - **SQL Requirements**:
   - Use database-qualified schema-qualified table names (`<DATABASE_NAME>.<SCHEMA_NAME>.<TABLE_NAME>`).
   - Use fully qualified column names with table aliases (e.g., `<table_alias>.<column>`).
+  - **MANDATORY SQL NAMING CONVENTIONS**:
+    - **All Table References**: MUST be fully qualified: `DATABASE_NAME.SCHEMA_NAME.TABLE_NAME`.
+    - **All Column References**: MUST be qualified with their table alias (e.g., `alias.column_name`) or CTE name (e.g., `cte_alias.column_name_from_cte`).
+    - **Inside CTE Definitions**: When defining a CTE (e.g., `WITH my_cte AS (SELECT t.column1 FROM DATABASE.SCHEMA.TABLE1 t ...)`), all columns selected from underlying database tables MUST use their table alias (e.g., `t.column1`, not just `column1`). This applies even if the CTE is simple and selects from only one table.
+    - **Selecting From CTEs**: When selecting from a defined CTE, use the CTE's alias for its columns (e.g., `SELECT mc.column1 FROM my_cte mc ...`).
+    - **Universal Application**: These naming conventions are strict requirements and apply universally to all parts of the SQL query, including every CTE definition and every subsequent SELECT statement. Non-compliance will lead to errors.
   - **Context Adherence**: Strictly use only columns that are present in the data context provided by search results. Never invent or assume columns.
   - Select specific columns (avoid `SELECT *` or `COUNT(*)`).
   - Use CTEs instead of subqueries, and use snake_case for naming them.

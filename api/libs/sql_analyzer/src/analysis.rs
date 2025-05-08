@@ -4,7 +4,7 @@ use anyhow::Result;
 use rand;
 use sqlparser::ast::{
     Cte, Expr, Join, JoinConstraint, JoinOperator, ObjectName, Query, SelectItem, SetExpr,
-    Statement, TableFactor, Visit, Visitor, WindowSpec,
+    Statement, TableFactor, Visit, Visitor, WindowSpec, TableAlias,
 };
 use sqlparser::dialect::GenericDialect;
 use sqlparser::parser::Parser;
@@ -49,6 +49,7 @@ struct QueryAnalyzer {
     vague_columns: Vec<String>,
     vague_tables: Vec<String>,
     ctes: Vec<CteSummary>,
+    current_select_list_aliases: HashSet<String>,
 }
 
 impl QueryAnalyzer {
@@ -65,6 +66,7 @@ impl QueryAnalyzer {
             current_from_relation_identifier: None,
             current_scope_aliases: HashMap::new(),
             parent_scope_aliases: HashMap::new(),
+            current_select_list_aliases: HashSet::new(),
         }
     }
 
@@ -207,6 +209,7 @@ impl QueryAnalyzer {
     // Process a SELECT query
     fn process_select_query(&mut self, select: &sqlparser::ast::Select) {
         self.current_scope_aliases.clear();
+        self.current_select_list_aliases.clear();
         self.current_from_relation_identifier = None;
 
         let mut join_conditions_to_visit: Vec<&Expr> = Vec::new();
@@ -223,6 +226,14 @@ impl QueryAnalyzer {
             }
         }
 
+        // Populate select list aliases *before* processing expressions in WHERE, GROUP BY, HAVING, or SELECT list itself
+        // This makes them available for resolution in those clauses.
+        for item in &select.projection {
+            if let SelectItem::ExprWithAlias { alias, .. } = item {
+                self.current_select_list_aliases.insert(alias.value.clone());
+            }
+        }
+        
         // Process all parts of the query with collected context
         let combined_aliases_for_visit = self
             .current_scope_aliases
@@ -1031,6 +1042,13 @@ impl QueryAnalyzer {
                 }
             }
             None => {
+                // Check if it's a known select list alias first
+                if self.current_select_list_aliases.contains(column) {
+                    // It's a select list alias, consider it resolved for this scope.
+                    // No need to add to vague_columns or assign to a table.
+                    return;
+                }
+
                 // Special handling for nested fields without qualifier
                 // For example: "SELECT user.device.type" in BigQuery becomes "SELECT user__device__type"
                 if dialect_nested {
@@ -1142,6 +1160,7 @@ impl QueryAnalyzer {
             scope_stack: self.scope_stack.clone(),
             parent_scope_aliases: HashMap::new(),
             current_scope_aliases: HashMap::new(),
+            current_select_list_aliases: HashSet::new(),
             ..QueryAnalyzer::new()
         }
     }
@@ -1172,12 +1191,11 @@ impl Visitor for QueryAnalyzer {
     type Break = ();
 
     fn pre_visit_expr(&mut self, expr: &Expr) -> ControlFlow<Self::Break> {
-        let available_aliases = self
-            .current_scope_aliases
-            .iter()
-            .chain(self.parent_scope_aliases.iter())
-            .map(|(k, v)| (k.clone(), v.clone()))
-            .collect();
+        let mut available_aliases = self.parent_scope_aliases.clone();
+        available_aliases.extend(self.current_scope_aliases.clone());
+        for alias in &self.current_select_list_aliases {
+            available_aliases.insert(alias.clone(), alias.clone()); // Select list aliases map to themselves
+        }
 
         match expr {
             Expr::Identifier(ident) => {
@@ -1222,14 +1240,29 @@ impl QueryAnalyzer {
                     sqlparser::ast::FunctionArg::Unnamed(arg_expr) => {
                         if let sqlparser::ast::FunctionArgExpr::Expr(expr) = arg_expr {
                             self.visit_expr_with_parent_scope(expr, available_aliases);
+                        } else if let sqlparser::ast::FunctionArgExpr::QualifiedWildcard(name) = arg_expr {
+                            // Handle cases like COUNT(table.*)
+                             let qualifier = name.0.first().map(|i| i.value.clone()).unwrap_or_default();
+                             if !qualifier.is_empty() {
+                                 if !available_aliases.contains_key(&qualifier) && // Check against combined available_aliases
+                                    !self.tables.contains_key(&qualifier) &&
+                                    !self.is_known_cte_definition(&qualifier) {
+                                        self.vague_tables.push(qualifier);
+                                 }
+                             }
+                        } else if let sqlparser::ast::FunctionArgExpr::Wildcard = arg_expr {
+                            // Handle COUNT(*) - no specific column to track here
                         }
                     }
-                    sqlparser::ast::FunctionArg::Named { arg: named_arg, .. } => {
+                    sqlparser::ast::FunctionArg::Named { name, arg: named_arg, operator: _ } => {
+                        // Argument name itself might be an identifier (though less common in SQL for this context)
+                        // self.add_column_reference(None, &name.value, &available_aliases);
                         if let sqlparser::ast::FunctionArgExpr::Expr(expr) = named_arg {
                             self.visit_expr_with_parent_scope(expr, available_aliases);
                         }
                     }
-                    sqlparser::ast::FunctionArg::ExprNamed { arg: expr_named_arg, .. } => {
+                    sqlparser::ast::FunctionArg::ExprNamed { name, arg: expr_named_arg, operator: _ } => {
+                        // self.add_column_reference(None, &name.value, &available_aliases);
                         if let sqlparser::ast::FunctionArgExpr::Expr(expr) = expr_named_arg {
                             self.visit_expr_with_parent_scope(expr, available_aliases);
                         }
@@ -1246,16 +1279,41 @@ impl QueryAnalyzer {
             ..
         })) = &function.over
         {
-            for expr in partition_by {
-                self.visit_expr_with_parent_scope(expr, available_aliases);
+            for expr_item in partition_by { // expr_item is &Expr
+                self.visit_expr_with_parent_scope(expr_item, available_aliases);
             }
-            for order_expr in order_by {
-                self.visit_expr_with_parent_scope(&order_expr.expr, available_aliases);
+            for order_expr_item in order_by { // order_expr_item is &OrderByExpr
+                self.visit_expr_with_parent_scope(&order_expr_item.expr, available_aliases);
             }
             if let Some(frame) = window_frame {
-                frame.start_bound.visit(self);
+                // frame.start_bound and frame.end_bound are WindowFrameBound
+                // which can contain Expr that needs visiting.
+                // The default Visitor implementation should handle these if they are Expr.
+                // However, sqlparser::ast::WindowFrameBound is not directly visitable.
+                // We need to manually extract expressions from it.
+
+                // Example for start_bound:
+                match &frame.start_bound {
+                    sqlparser::ast::WindowFrameBound::CurrentRow => {}
+                    sqlparser::ast::WindowFrameBound::Preceding(Some(expr)) |
+                    sqlparser::ast::WindowFrameBound::Following(Some(expr)) => {
+                        self.visit_expr_with_parent_scope(expr, available_aliases);
+                    }
+                    sqlparser::ast::WindowFrameBound::Preceding(None) |
+                    sqlparser::ast::WindowFrameBound::Following(None) => {}
+                }
+                
+                // Example for end_bound:
                 if let Some(end_bound) = &frame.end_bound {
-                    end_bound.visit(self);
+                    match end_bound {
+                        sqlparser::ast::WindowFrameBound::CurrentRow => {}
+                        sqlparser::ast::WindowFrameBound::Preceding(Some(expr)) |
+                        sqlparser::ast::WindowFrameBound::Following(Some(expr)) => {
+                            self.visit_expr_with_parent_scope(expr, available_aliases);
+                        }
+                        sqlparser::ast::WindowFrameBound::Preceding(None) |
+                        sqlparser::ast::WindowFrameBound::Following(None) => {}
+                    }
                 }
             }
         }
