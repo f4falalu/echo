@@ -16,7 +16,7 @@ services:
       retries: 30
 
   api:
-    image: ghcr.io/buster-so/buster/api:latest-arm64
+    image: ghcr.io/buster-so/buster/api:latest
     container_name: buster-api
     env_file:
       - .env
@@ -32,6 +32,7 @@ services:
       - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER}
       - EMBEDDING_MODEL=${EMBEDDING_MODEL}
       - COHERE_API_KEY=${COHERE_API_KEY}
+      - ENVIRONMENT=${ENVIRONMENT}
     ports:
       - "3001:3001"
       - "3000:3000"
@@ -49,7 +50,7 @@ services:
         condition: service_healthy
 
   web:
-    image: ghcr.io/buster-so/buster/web:latest-arm64
+    image: ghcr.io/buster-so/buster/web:latest
     container_name: buster-web
     env_file:
       - .env
@@ -57,6 +58,24 @@ services:
       api:
         condition: service_healthy
     network_mode: "service:api"
+
+  # Pausing this for local deployments until we can build out better multi-model support.
+  # litellm:
+  #   image: ghcr.io/berriai/litellm:main-latest
+  #   container_name: buster-litellm
+  #   volumes:
+  #     - ./litellm_vertex_config.yaml:/litellm_vertex_config.yaml
+  #   command: ["--config", "/litellm_vertex_config.yaml", "--port", "4001"]
+  #   ports:
+  #     - "4001:4001"
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:4001/health/readiness"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #   depends_on:
+  #     api:
+  #       condition: service_healthy
 
 volumes:
   buster_redis_data: 
