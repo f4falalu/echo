@@ -1,9 +1,10 @@
 use anyhow::Result;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::sync::Arc;
-use std::pin::Pin;
+use std::env;
 use std::future::Future;
+use std::pin::Pin;
+use std::sync::Arc;
 
 // Import necessary types from the parent module (modes/mod.rs)
 use super::{ModeAgentData, ModeConfiguration};
@@ -13,102 +14,178 @@ use crate::{Agent, ToolExecutor};
 use crate::tools::{
     categories::{
         file_tools::{
-            CreateDashboardFilesTool,
-            CreateMetricFilesTool,
-            ModifyDashboardFilesTool,
-            ModifyMetricFilesTool,
-            SearchDataCatalogTool,
+            CreateDashboardFilesTool, CreateMetricFilesTool, ModifyDashboardFilesTool,
+            ModifyMetricFilesTool, SearchDataCatalogTool,
         },
-        planning_tools::{
-            CreatePlanInvestigative,
-            CreatePlanStraightforward,
-        },
-        response_tools::{
-            Done,
-            MessageUserClarifyingQuestion,
-        },
+        planning_tools::{CreatePlanInvestigative, CreatePlanStraightforward},
+        response_tools::{Done, MessageUserClarifyingQuestion},
         utility_tools::no_search_needed::NoSearchNeededTool,
     },
     planning_tools::ReviewPlan,
     IntoToolCallExecutor,
 };
 
-
 // Function to get the configuration for the FollowUpInitialization mode
 pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
     // 1. Get the prompt, formatted with current data
     let prompt = FOLLOW_UP_INTIALIZATION_PROMPT
-        .replace("{DATASETS}", &agent_data.dataset_with_descriptions.join("\n\n"))
+        .replace(
+            "{DATASETS}",
+            &agent_data.dataset_with_descriptions.join("\n\n"),
+        )
         .replace("{TODAYS_DATE}", &agent_data.todays_date);
 
     // 2. Define the model for this mode (Using a default, adjust if needed)
-    let model = "gemini-2.5-pro-exp-03-25".to_string(); // Assuming default based on original MODEL = None
+
+    let model =
+        if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
+            "o4-mini".to_string()
+        } else {
+            "gemini-2.5-pro-exp-03-25".to_string()
+        };
 
     // 3. Define the tool loader closure
-    let tool_loader: Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync> = 
-        Box::new(|agent_arc: &Arc<Agent>| {
-            let agent_clone = Arc::clone(agent_arc); // Clone Arc for the async block
-            Box::pin(async move {
-                // Clear existing tools before loading mode-specific ones
-                agent_clone.clear_tools().await;
+    let tool_loader: Box<
+        dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync,
+    > = Box::new(|agent_arc: &Arc<Agent>| {
+        let agent_clone = Arc::clone(agent_arc); // Clone Arc for the async block
+        Box::pin(async move {
+            // Clear existing tools before loading mode-specific ones
+            agent_clone.clear_tools().await;
 
-                // Instantiate all potentially relevant tools for follow-up state
-                let search_data_catalog_tool = SearchDataCatalogTool::new(agent_clone.clone());
-                let no_search_needed_tool = NoSearchNeededTool::new(agent_clone.clone());
-                let create_plan_straightforward_tool = CreatePlanStraightforward::new(agent_clone.clone());
-                let create_plan_investigative_tool = CreatePlanInvestigative::new(agent_clone.clone());
-                let create_metric_files_tool = CreateMetricFilesTool::new(agent_clone.clone());
-                let modify_metric_files_tool = ModifyMetricFilesTool::new(agent_clone.clone());
-                let create_dashboard_files_tool = CreateDashboardFilesTool::new(agent_clone.clone());
-                let modify_dashboard_files_tool = ModifyDashboardFilesTool::new(agent_clone.clone());
-                let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new();
-                let done_tool = Done::new(agent_clone.clone());
-                let review_tool = ReviewPlan::new(agent_clone.clone());
+            // Instantiate all potentially relevant tools for follow-up state
+            let search_data_catalog_tool = SearchDataCatalogTool::new(agent_clone.clone());
+            let no_search_needed_tool = NoSearchNeededTool::new(agent_clone.clone());
+            let create_plan_straightforward_tool =
+                CreatePlanStraightforward::new(agent_clone.clone());
+            let create_plan_investigative_tool = CreatePlanInvestigative::new(agent_clone.clone());
+            let create_metric_files_tool = CreateMetricFilesTool::new(agent_clone.clone());
+            let modify_metric_files_tool = ModifyMetricFilesTool::new(agent_clone.clone());
+            let create_dashboard_files_tool = CreateDashboardFilesTool::new(agent_clone.clone());
+            let modify_dashboard_files_tool = ModifyDashboardFilesTool::new(agent_clone.clone());
+            let message_user_clarifying_question_tool = MessageUserClarifyingQuestion::new();
+            let done_tool = Done::new(agent_clone.clone());
+            let review_tool = ReviewPlan::new(agent_clone.clone());
 
-                // --- Define Conditions based on Agent State (as per original load_tools) ---
-                let search_condition = Some(|state: &HashMap<String, Value>| -> bool {
-                    !state.get("searched_data_catalog").and_then(Value::as_bool).unwrap_or(false)
-                });
-                let planning_condition = Some(|state: &HashMap<String, Value>| -> bool {
-                    let searched = state.get("searched_data_catalog").and_then(Value::as_bool).unwrap_or(false);
-                    let has_context = state.contains_key("data_context"); // Assuming context presence implies adequacy
-                    let has_plan = state.contains_key("plan_available");
-                    searched && has_context && !has_plan
-                });
-                 let analysis_condition = Some(|state: &HashMap<String, Value>| -> bool {
-                    state.contains_key("data_context") && state.contains_key("plan_available")
-                 });
-                 let modify_condition = Some(|state: &HashMap<String, Value>| -> bool {
-                    state.contains_key("metrics_available")
-                 });
-                 let review_condition = Some(|state: &HashMap<String, Value>| -> bool {
-                     state.get("review_needed").and_then(Value::as_bool).unwrap_or(false)
-                 });
-                let always_available = Some(|_state: &HashMap<String, Value>| -> bool { true }); // For done/clarify
+            // --- Define Conditions based on Agent State (as per original load_tools) ---
+            let search_condition = Some(|state: &HashMap<String, Value>| -> bool {
+                !state
+                    .get("searched_data_catalog")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false)
+            });
+            let planning_condition = Some(|state: &HashMap<String, Value>| -> bool {
+                let searched = state
+                    .get("searched_data_catalog")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false);
+                let has_context = state.contains_key("data_context"); // Assuming context presence implies adequacy
+                let has_plan = state.contains_key("plan_available");
+                searched && has_context && !has_plan
+            });
+            let analysis_condition = Some(|state: &HashMap<String, Value>| -> bool {
+                state.contains_key("data_context") && state.contains_key("plan_available")
+            });
+            let modify_condition = Some(|state: &HashMap<String, Value>| -> bool {
+                state.contains_key("metrics_available")
+            });
+            let review_condition = Some(|state: &HashMap<String, Value>| -> bool {
+                state
+                    .get("review_needed")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false)
+            });
+            let always_available = Some(|_state: &HashMap<String, Value>| -> bool { true }); // For done/clarify
 
-                // Add tools with their respective conditions
-                agent_clone.add_tool(search_data_catalog_tool.get_name(), search_data_catalog_tool.into_tool_call_executor(), search_condition.clone()).await;
-                agent_clone.add_tool(no_search_needed_tool.get_name(), no_search_needed_tool.into_tool_call_executor(), search_condition).await;
-                agent_clone.add_tool(create_plan_straightforward_tool.get_name(), create_plan_straightforward_tool.into_tool_call_executor(), planning_condition.clone()).await;
-                agent_clone.add_tool(create_plan_investigative_tool.get_name(), create_plan_investigative_tool.into_tool_call_executor(), planning_condition).await;
-                agent_clone.add_tool(create_metric_files_tool.get_name(), create_metric_files_tool.into_tool_call_executor(), analysis_condition.clone()).await;
-                agent_clone.add_tool(modify_metric_files_tool.get_name(), modify_metric_files_tool.into_tool_call_executor(), modify_condition.clone()).await;
-                agent_clone.add_tool(create_dashboard_files_tool.get_name(), create_dashboard_files_tool.into_tool_call_executor(), analysis_condition.clone()).await;
-                agent_clone.add_tool(modify_dashboard_files_tool.get_name(), modify_dashboard_files_tool.into_tool_call_executor(), modify_condition.clone()).await;
-                agent_clone.add_tool(review_tool.get_name(), review_tool.into_tool_call_executor(), review_condition).await;
-                agent_clone.add_tool(message_user_clarifying_question_tool.get_name(), message_user_clarifying_question_tool.into_tool_call_executor(), always_available.clone()).await;
-                agent_clone.add_tool(done_tool.get_name(), done_tool.into_tool_call_executor(), always_available).await;
+            // Add tools with their respective conditions
+            agent_clone
+                .add_tool(
+                    search_data_catalog_tool.get_name(),
+                    search_data_catalog_tool.into_tool_call_executor(),
+                    search_condition.clone(),
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    no_search_needed_tool.get_name(),
+                    no_search_needed_tool.into_tool_call_executor(),
+                    search_condition,
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    create_plan_straightforward_tool.get_name(),
+                    create_plan_straightforward_tool.into_tool_call_executor(),
+                    planning_condition.clone(),
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    create_plan_investigative_tool.get_name(),
+                    create_plan_investigative_tool.into_tool_call_executor(),
+                    planning_condition,
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    create_metric_files_tool.get_name(),
+                    create_metric_files_tool.into_tool_call_executor(),
+                    analysis_condition.clone(),
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    modify_metric_files_tool.get_name(),
+                    modify_metric_files_tool.into_tool_call_executor(),
+                    modify_condition.clone(),
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    create_dashboard_files_tool.get_name(),
+                    create_dashboard_files_tool.into_tool_call_executor(),
+                    analysis_condition.clone(),
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    modify_dashboard_files_tool.get_name(),
+                    modify_dashboard_files_tool.into_tool_call_executor(),
+                    modify_condition.clone(),
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    review_tool.get_name(),
+                    review_tool.into_tool_call_executor(),
+                    review_condition,
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    message_user_clarifying_question_tool.get_name(),
+                    message_user_clarifying_question_tool.into_tool_call_executor(),
+                    always_available.clone(),
+                )
+                .await;
+            agent_clone
+                .add_tool(
+                    done_tool.get_name(),
+                    done_tool.into_tool_call_executor(),
+                    always_available,
+                )
+                .await;
 
-                Ok(())
-            })
-        });
+            Ok(())
+        })
+    });
 
     // 4. Define terminating tools for this mode
     let terminating_tools = vec![
         // From original load_tools
         // Use hardcoded names if static access isn't available
         "message_user_clarifying_question".to_string(), // Assuming this is the name
-        "finish_and_respond".to_string(), // Assuming this is the name for Done tool
+        "finish_and_respond".to_string(),               // Assuming this is the name for Done tool
     ];
 
     // 5. Construct and return the ModeConfiguration
@@ -119,7 +196,6 @@ pub fn get_configuration(agent_data: &ModeAgentData) -> ModeConfiguration {
         terminating_tools,
     }
 }
-
 
 // Keep the prompt constant, but it's no longer pub
 const FOLLOW_UP_INTIALIZATION_PROMPT: &str = r##"## Overview

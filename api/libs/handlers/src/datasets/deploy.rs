@@ -148,6 +148,9 @@ pub async fn deploy_datasets_handler_core(
             let now = Utc::now();
             let dataset_id = existing_dataset_ids.get(&req.name).copied().unwrap_or_else(|| req.id.unwrap_or_else(Uuid::new_v4));
 
+            // Use req.database as a fallback for database_identifier
+            let final_database_identifier = req.database_identifier.clone().or_else(|| req.database.clone());
+
             let dataset = database::models::Dataset { // Incorrect path
                 id: dataset_id,
                 name: req.name.clone(),
@@ -168,7 +171,7 @@ pub async fn deploy_datasets_handler_core(
                 organization_id: organization_id,
                 model: req.model.clone(),
                 yml_file: req.yml_file.clone(), // Ensure yml_file is included
-                database_identifier: req.database_identifier.clone(), // This was req.database before, ensure it's correct
+                database_identifier: final_database_identifier, // This was req.database before, ensure it's correct
             };
             datasets_to_upsert_map.insert((req.name.clone(), data_source.id), dataset);
         }

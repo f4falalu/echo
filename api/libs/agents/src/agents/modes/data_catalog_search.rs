@@ -1,6 +1,6 @@
 use anyhow::Result;
 use serde_json::Value;
-use std::collections::HashMap;
+use std::{collections::HashMap, env};
 use std::sync::Arc;
 use std::pin::Pin;
 use std::future::Future;
@@ -32,7 +32,12 @@ pub fn get_configuration(agent_data: &ModeAgentData, _data_source_syntax: Option
         // Note: This prompt doesn't use {TODAYS_DATE}
 
     // 2. Define the model for this mode
-    let model = "gemini-2.5-pro-exp-03-25".to_string(); // Use gemini-2.5-pro-exp-03-25 as requested
+
+    let model = if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
+        "o4-mini".to_string()
+    } else {
+        "gemini-2.5-pro-exp-03-25".to_string()
+    };
 
     // 3. Define the tool loader closure
     let tool_loader: Box<dyn Fn(&Arc<Agent>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>> + Send + Sync> = 

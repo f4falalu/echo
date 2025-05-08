@@ -428,7 +428,6 @@ services:
     healthcheck:
       test:
         [
-
           "CMD",
           "wget",
           "--no-verbose",
@@ -484,7 +483,7 @@ services:
       - POOLER_TENANT_ID=${POOLER_TENANT_ID}
       - POOLER_DEFAULT_POOL_SIZE=${POOLER_DEFAULT_POOL_SIZE}
       - POOLER_MAX_CLIENT_CONN=${POOLER_MAX_CLIENT_CONN}
-      - POOLER_POOL_MODE=transaction
+      - POOLER_POOL_MODE=session
     volumes:
       - ./volumes/pooler/pooler.exs:/etc/pooler/pooler.exs:ro
 

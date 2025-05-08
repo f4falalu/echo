@@ -1,6 +1,6 @@
 [package]
 name = "buster-cli"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 build = "build.rs"
 
@@ -51,6 +51,7 @@ once_cell = { workspace = true }
 pathdiff = { workspace = true }
 # Add the shared query engine library
 query_engine = { workspace = true }
+rust-embed = { workspace = true, features = ["include-exclude"] }
 
 litellm = { path = "../../api/libs/litellm" }
 

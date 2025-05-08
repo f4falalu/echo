@@ -7,6 +7,8 @@ services:
     container_name: buster-redis
     ports:
       - "6379:6379"
+    volumes:
+      - buster_redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 1s
@@ -14,38 +16,32 @@ services:
       retries: 30
 
   api:
-    build: 
-      context: ./api
+    image: ghcr.io/buster-so/buster/api:latest-arm64
+    container_name: buster-api
     env_file:
       - .env
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=${REDIS_URL}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - JWT_SECRET=${JWT_SECRET}
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
       - POOLER_URL=${POOLER_URL}
-      - LANGFUSE_API_URL=${LANGFUSE_API_URL}
-      - LANGFUSE_PUBLIC_API_KEY=${LANGFUSE_PUBLIC_API_KEY}
-      - LANGFUSE_PRIVATE_API_KEY=${LANGFUSE_PRIVATE_API_KEY}
-      - EMBED_VEC_LENGTH=${EMBED_VEC_LENGTH}
-      - POSTHOG_API_KEY=${POSTHOG_API_KEY}
-      - RESEND_API_KEY=${RESEND_API_KEY}
       - BUSTER_URL=${BUSTER_URL}
       - BUSTER_WH_TOKEN=${BUSTER_WH_TOKEN}
       - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER}
       - EMBEDDING_MODEL=${EMBEDDING_MODEL}
       - COHERE_API_KEY=${COHERE_API_KEY}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - RERANK_API_KEY=${RERANK_API_KEY}
+      - RERANK_MODEL=${RERANK_MODEL}
+      - RERANK_BASE_URL=${RERANK_BASE_URL}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_BASE_URL=${LLM_BASE_URL}
     ports:
       - "3001:3001"
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-        reservations:
-          memory: 2G
+      - "3000:3000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
@@ -54,28 +50,38 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      db:
+      supavisor:
         condition: service_healthy
-      
+      kong:
+        condition: service_healthy
+
   web:
-    build: 
-      context: ./web
-      args:
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-        - NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL}
-        - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
-        - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-    environment:
-      - NEXT_PRIVATE_SUPABASE_SERVICE_ROLE_KEY=${NEXT_PRIVATE_SUPABASE_SERVICE_ROLE_KEY}
-      - NEXT_PRIVATE_SUPABASE_CONNECT_CLIENT_ID=${NEXT_PRIVATE_SUPABASE_CONNECT_CLIENT_ID}
-      - NEXT_PRIVATE_SUPABASE_CONNECT_CLIENT_SECRET=${NEXT_PRIVATE_SUPABASE_CONNECT_CLIENT_SECRET}
-      - NODE_ENV=production
+    image: ghcr.io/buster-so/buster/web:latest-arm64
+    container_name: buster-web
     env_file:
       - .env
-    ports:
-      - "3000:3000"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    network_mode: "service:api"
+
+  # Pausing this for local deployments until we can build out better multi-model support.
+  # litellm:
+  #   image: ghcr.io/berriai/litellm:main-latest
+  #   container_name: buster-litellm
+  #   volumes:
+  #     - ./litellm_vertex_config.yaml:/litellm_vertex_config.yaml
+  #   command: ["--config", "/litellm_vertex_config.yaml", "--port", "4001"]
+  #   ports:
+  #     - "4001:4001"
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:4001/health/readiness"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #   depends_on:
+  #     api:
+  #       condition: service_healthy
 
 volumes:
-  db_data: 
+  buster_redis_data: 
