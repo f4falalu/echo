@@ -94,48 +94,50 @@ pub async fn auth(mut req: Request, next: Next) -> Result<Response, StatusCode> 
     };
 
     // --- Payment Required Check START ---
-    if let Some(org_membership) = user.organizations.get(0) {
-        let org_id = org_membership.id;
-        let pg_pool = get_pg_pool();
-        let mut conn = match pg_pool.get().await {
-            Ok(conn) => conn,
-            Err(e) => {
-                tracing::error!("Failed to get DB connection for payment check: {}", e);
-                return Err(StatusCode::INTERNAL_SERVER_ERROR);
-            }
-        };
+    if env::var("ENVIRONMENT").unwrap_or_default() == "production" {
+        if let Some(org_membership) = user.organizations.get(0) {
+            let org_id = org_membership.id;
+            let pg_pool = get_pg_pool();
+            let mut conn = match pg_pool.get().await {
+                Ok(conn) => conn,
+                Err(e) => {
+                    tracing::error!("Failed to get DB connection for payment check: {}", e);
+                    return Err(StatusCode::INTERNAL_SERVER_ERROR);
+                }
+            };
 
-        match database::schema::organizations::table
-            .filter(database::schema::organizations::id.eq(org_id))
-            .select(database::schema::organizations::payment_required)
-            .first::<bool>(&mut conn)
-            .await
-        {
-            Ok(payment_required) => {
-                if payment_required {
-                    tracing::warn!(
+            match database::schema::organizations::table
+                .filter(database::schema::organizations::id.eq(org_id))
+                .select(database::schema::organizations::payment_required)
+                .first::<bool>(&mut conn)
+                .await
+            {
+                Ok(payment_required) => {
+                    if payment_required {
+                        tracing::warn!(
+                            user_id = %user.id,
+                            org_id = %org_id,
+                            "Access denied due to payment requirement for organization."
+                        );
+                        return Err(StatusCode::PAYMENT_REQUIRED);
+                    }
+                }
+                Err(diesel::NotFound) => {
+                    tracing::error!(
                         user_id = %user.id,
                         org_id = %org_id,
-                        "Access denied due to payment requirement for organization."
+                        "Organization not found during payment check."
                     );
-                    return Err(StatusCode::PAYMENT_REQUIRED);
+                    return Err(StatusCode::INTERNAL_SERVER_ERROR);
                 }
-            }
-            Err(diesel::NotFound) => {
-                tracing::error!(
-                    user_id = %user.id,
-                    org_id = %org_id,
-                    "Organization not found during payment check."
-                );
-                return Err(StatusCode::INTERNAL_SERVER_ERROR);
-            }
-            Err(e) => {
-                tracing::error!(
-                    user_id = %user.id,
-                    org_id = %org_id,
-                    "Database error during payment check: {}", e
-                );
-                return Err(StatusCode::INTERNAL_SERVER_ERROR);
+                Err(e) => {
+                    tracing::error!(
+                        user_id = %user.id,
+                        org_id = %org_id,
+                        "Database error during payment check: {}", e
+                    );
+                    return Err(StatusCode::INTERNAL_SERVER_ERROR);
+                }
             }
         }
     }

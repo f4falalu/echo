@@ -80,8 +80,12 @@ pub enum Commands {
         #[arg(long)]
         path: Option<String>,
     },
+    /// Start the Buster services
     Start,
+    /// Stop the Buster services
     Stop,
+    /// Restart the Buster services
+    Restart,
 }
 
 #[derive(Parser)]
@@ -140,6 +144,7 @@ async fn main() {
         Commands::Parse { path } => commands::parse::parse_models_command(path).await,
         Commands::Start => run::start().await.map_err(anyhow::Error::from),
         Commands::Stop => run::stop().await.map_err(anyhow::Error::from),
+        Commands::Restart => run::restart().await.map_err(anyhow::Error::from),
     };
 
     if let Err(e) = result {
