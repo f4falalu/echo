@@ -1,20 +1,12 @@
 import { describe, it, expect } from '@jest/globals';
 import { dataMapper } from './dataMapper';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
-import type { DatasetOption } from '../interfaces';
 import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 
 describe('dataMapper', () => {
   it('should handle numeric x-axis values correctly', () => {
-    const dataset: DatasetOption = {
-      id: 'test',
-      data: [10, 20, 30],
-      dataKey: 'xAxis',
-      axisType: 'y',
-      tooltipData: [],
-      label: []
-    };
-
+    const data = [10, 20, 30];
+    const xAxisColumn = 'xAxis';
     const ticks = {
       ticks: [['1'], ['2'], ['3']],
       ticksKey: [{ key: 'xAxis', value: '' }]
@@ -28,7 +20,7 @@ describe('dataMapper', () => {
       }
     };
 
-    const result = dataMapper(dataset, ticks, columnLabelFormats);
+    const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
     expect(result).toEqual([
       [0, 10],
       [1, 20],
@@ -37,15 +29,8 @@ describe('dataMapper', () => {
   });
 
   it('should handle date x-axis values correctly', () => {
-    const dataset: DatasetOption = {
-      id: 'test',
-      data: [100, 200, 300],
-      dataKey: 'date',
-      axisType: 'y',
-      tooltipData: [],
-      label: []
-    };
-
+    const data = [100, 200, 300];
+    const xAxisColumn = 'date';
     const dates = ['2023-01-01', '2023-01-02', '2023-01-03'];
     const ticks = {
       ticks: dates.map((d) => [d]),
@@ -60,7 +45,7 @@ describe('dataMapper', () => {
       }
     };
 
-    const result = dataMapper(dataset, ticks, columnLabelFormats);
+    const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
 
     // Test that we have the right number of data points
     expect(result.length).toBe(3);
@@ -77,15 +62,8 @@ describe('dataMapper', () => {
   });
 
   it('should handle categorical x-axis values by using indices', () => {
-    const dataset: DatasetOption = {
-      id: 'test',
-      data: [15, 25, 35],
-      dataKey: 'category',
-      axisType: 'y',
-      tooltipData: [],
-      label: []
-    };
-
+    const data = [15, 25, 35];
+    const xAxisColumn = 'category';
     const ticks = {
       ticks: [['A'], ['B'], ['C']],
       ticksKey: [{ key: 'category', value: '' }]
@@ -99,7 +77,7 @@ describe('dataMapper', () => {
       }
     };
 
-    const result = dataMapper(dataset, ticks, columnLabelFormats);
+    const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
     expect(result).toEqual([
       [0, 15],
       [1, 25],
@@ -108,15 +86,9 @@ describe('dataMapper', () => {
   });
 
   it('should handle null/undefined values correctly', () => {
-    const dataset: DatasetOption = {
-      id: 'test',
-      data: [10, null, 30, null, 50] as (number | null)[],
-      dataKey: 'xAxis',
-      axisType: 'y',
-      tooltipData: [],
-      label: []
-    };
-
+    const rawData = [10, null, 30, null, 50] as (number | null)[];
+    const data = rawData.map((val) => val ?? 0); // Convert null to 0
+    const xAxisColumn = 'xAxis';
     const ticks = {
       ticks: [['1'], ['2'], ['3'], ['4'], ['5']],
       ticksKey: [{ key: 'xAxis', value: '' }]
@@ -130,7 +102,7 @@ describe('dataMapper', () => {
       }
     };
 
-    const result = dataMapper(dataset, ticks, columnLabelFormats);
+    const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
     expect(result).toEqual([
       [0, 10],
       [1, 0],
@@ -141,15 +113,8 @@ describe('dataMapper', () => {
   });
 
   it('should return empty array for empty dataset', () => {
-    const dataset: DatasetOption = {
-      id: 'test',
-      data: [],
-      dataKey: 'xAxis',
-      axisType: 'y',
-      tooltipData: [],
-      label: []
-    };
-
+    const data: number[] = [];
+    const xAxisColumn = 'xAxis';
     const ticks = {
       ticks: [],
       ticksKey: [{ key: 'xAxis', value: '' }]
@@ -163,20 +128,13 @@ describe('dataMapper', () => {
       }
     };
 
-    const result = dataMapper(dataset, ticks, columnLabelFormats);
+    const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
     expect(result).toEqual([]);
   });
 
   it('should handle missing ticks correctly', () => {
-    const dataset: DatasetOption = {
-      id: 'test',
-      data: [10, 20, 30],
-      dataKey: 'xAxis',
-      axisType: 'y',
-      tooltipData: [],
-      label: []
-    };
-
+    const data = [10, 20, 30];
+    const xAxisColumn = 'xAxis';
     const ticks = {
       ticks: [['1'], [], ['3']], // Missing tick in the middle
       ticksKey: [{ key: 'xAxis', value: '' }]
@@ -190,7 +148,7 @@ describe('dataMapper', () => {
       }
     };
 
-    const result = dataMapper(dataset, ticks, columnLabelFormats);
+    const result = dataMapper(data, xAxisColumn, ticks, columnLabelFormats);
     expect(result).toEqual([
       [0, 10],
       [1, 30]

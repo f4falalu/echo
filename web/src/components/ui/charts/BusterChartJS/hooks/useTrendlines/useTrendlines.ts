@@ -92,7 +92,9 @@ export const useTrendlines = ({
         showTrendlineLabel,
         equation,
         tooltipData,
-        columnId
+        columnId,
+        label,
+        ...rest
       }) => {
         return {
           type: 'line',
@@ -119,8 +121,8 @@ export const useTrendlines = ({
                   return context.dataIndex === datasetLength - 1;
                 },
                 formatter: () => {
-                  const trendlineLabel = trendlineLabelProp ? trendlineLabelProp : equation;
-                  return `${trendlineLabel}`;
+                  const trendlineLabel = trendlineLabelProp ? trendlineLabelProp : label[0].value;
+                  return `${trendlineLabel || 'Trendline'}`;
                 },
                 yAdjust: -10
               }

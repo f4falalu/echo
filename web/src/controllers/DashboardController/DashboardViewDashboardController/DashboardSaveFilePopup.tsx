@@ -11,7 +11,6 @@ export const DashboardSaveFilePopup: React.FC<{ dashboardId: string }> = React.m
     const isFileChanged = useChatIndividualContextSelector((x) => x.isFileChanged);
     const chatId = useChatLayoutContextSelector((x) => x.chatId);
     const { data: dashboardResponse } = useGetDashboard({ id: dashboardId });
-
     const { mutateAsync: onSaveDashboard, isPending: isSaving } = useUpdateDashboard({
       saveToServer: true,
       updateOnSave: true,

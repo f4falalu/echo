@@ -24,7 +24,8 @@ describe('useTrendlines', () => {
     trendlines: [] as TrendlineDataset[],
     columnLabelFormats: {} as Record<string, IColumnLabelFormat | undefined>,
     selectedChartType: 'line' as ChartType,
-    lineGroupType: null
+    lineGroupType: null,
+    barGroupType: null
   };
 
   it('returns the expected structure', () => {
@@ -153,6 +154,7 @@ describe('useTrendlines', () => {
     const columnId = 'col1';
     const props = {
       ...defaultProps,
+
       trendlines: [
         mockTrendlineDataset({
           id: 'test-linear-slope',
