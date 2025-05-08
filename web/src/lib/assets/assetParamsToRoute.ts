@@ -91,12 +91,6 @@ const createMetricRoute = ({
           chatId,
           ...baseParams
         });
-      case 'sql-edit':
-        return createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
-          chatId,
-          ...baseParams
-        });
       case 'version-history':
         return createBusterRoute({
           route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
@@ -126,11 +120,6 @@ const createMetricRoute = ({
     case 'chart-edit':
       return createBusterRoute({
         route: BusterRoutes.APP_METRIC_ID_CHART,
-        ...baseParams
-      });
-    case 'sql-edit':
-      return createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID_RESULTS,
         ...baseParams
       });
     case 'version-history':

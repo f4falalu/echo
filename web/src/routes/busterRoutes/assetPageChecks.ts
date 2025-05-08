@@ -11,7 +11,7 @@ import {
 const assetCheckPages: BusterRoutes[] = [
   BusterRoutes.APP_METRIC_ID_CHART,
   BusterRoutes.APP_METRIC_ID_RESULTS,
-  BusterRoutes.APP_METRIC_ID_FILE,
+  BusterRoutes.APP_METRIC_ID_FILE__HIDDEN,
   BusterRoutes.APP_METRIC_ID_VERSION_NUMBER,
   BusterRoutes.APP_DASHBOARD_ID,
   BusterRoutes.APP_DASHBOARD_ID_FILE,
@@ -32,7 +32,7 @@ const assetCheckPages: BusterRoutes[] = [
 const assetRedirectRecord: Partial<Record<BusterRoutes, BusterRoutes>> = {
   [BusterRoutes.APP_METRIC_ID_CHART]: BusterRoutes.EMBED_METRIC_ID,
   [BusterRoutes.APP_METRIC_ID_RESULTS]: BusterRoutes.EMBED_METRIC_ID,
-  [BusterRoutes.APP_METRIC_ID_FILE]: BusterRoutes.EMBED_METRIC_ID,
+  [BusterRoutes.APP_METRIC_ID_FILE__HIDDEN]: BusterRoutes.EMBED_METRIC_ID,
   [BusterRoutes.APP_METRIC_ID_VERSION_NUMBER]: BusterRoutes.EMBED_METRIC_ID,
   [BusterRoutes.APP_DASHBOARD_ID]: BusterRoutes.EMBED_DASHBOARD_ID,
   [BusterRoutes.APP_DASHBOARD_ID_FILE]: BusterRoutes.EMBED_DASHBOARD_ID,

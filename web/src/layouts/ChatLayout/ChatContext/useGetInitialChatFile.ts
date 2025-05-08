@@ -1,5 +1,4 @@
 import { useMemoizedFn } from '@/hooks/useMemoizedFn';
-import type { FileViewSecondary } from '../ChatLayoutContext/useLayoutConfig/interfaces';
 import { useGetChatMemoized, useGetChatMessageMemoized } from '@/api/buster_rest/chats';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
 import type { BusterChatResponseMessage_file } from '@/api/asset_interfaces/chat/chatMessageInterfaces';
@@ -14,17 +13,17 @@ export const useGetInitialChatFile = () => {
       dashboardId,
       messageId,
       chatId,
-      secondaryView,
       dashboardVersionNumber,
-      metricVersionNumber
+      metricVersionNumber,
+      currentRoute
     }: {
       metricId: string | undefined;
       dashboardId: string | undefined;
       messageId: string | undefined;
       dashboardVersionNumber: number | undefined;
       metricVersionNumber: number | undefined;
-      secondaryView: FileViewSecondary | undefined;
       chatId: string;
+      currentRoute: BusterRoutes;
     }): string | undefined => {
       const isChatOnlyMode = !metricId && !dashboardId && !messageId;
       if (isChatOnlyMode) {
@@ -84,7 +83,11 @@ export const useGetInitialChatFile = () => {
 
       //metric_mode
       if (metricId) {
-        if (!metricVersionNumber) {
+        const isChartRoute =
+          currentRoute === BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART ||
+          currentRoute === BusterRoutes.APP_METRIC_ID_CHART;
+
+        if (!metricVersionNumber && isChartRoute) {
           const lastMatchingMetricInChat = chat?.message_ids.reduce<
             BusterChatResponseMessage_file | undefined
           >((acc, chatMessageId) => {
@@ -106,14 +109,6 @@ export const useGetInitialChatFile = () => {
           }, undefined);
 
           if (lastMatchingMetricInChat) {
-            // const route = assetParamsToRoute({
-            //   chatId,
-            //   assetId: metricId,
-            //   type: 'metric',
-            //   secondaryView,
-            //   versionNumber: lastMatchingMetricInChat.version_number
-            // });
-
             return createBusterRoute({
               route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
               metricId,
