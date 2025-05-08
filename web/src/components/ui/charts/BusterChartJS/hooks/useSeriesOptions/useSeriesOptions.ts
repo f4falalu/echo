@@ -23,8 +23,6 @@ export interface UseSeriesOptionsProps {
   y2AxisKeys: string[];
   yAxisKeys: string[];
   xAxisKeys: string[];
-  categoryKeys: ScatterAxis['category'];
-  tooltipKeys: string[];
   sizeKey: ScatterAxis['size'];
   columnSettings: NonNullable<BusterChartConfigProps['columnSettings']>;
   columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
@@ -42,7 +40,6 @@ export const useSeriesOptions = ({
   trendlineSeries,
   columnMetadata,
   selectedChartType,
-  tooltipKeys,
   colors,
   yAxisKeys,
   y2AxisKeys,
@@ -53,7 +50,6 @@ export const useSeriesOptions = ({
   sizeKey,
   scatterDotSize,
   lineGroupType,
-  categoryKeys,
   barShowTotalAtTop,
   barGroupType
 }: UseSeriesOptionsProps): ChartProps<ChartJSChartType>['data'] => {

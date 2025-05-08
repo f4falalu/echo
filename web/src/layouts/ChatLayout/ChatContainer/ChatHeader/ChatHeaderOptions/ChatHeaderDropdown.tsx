@@ -1,14 +1,17 @@
 import { Dropdown, DropdownItems } from '@/components/ui/dropdown';
 import React, { useMemo } from 'react';
 import { useChatIndividualContextSelector } from '../../../ChatContext';
-import { Copy, Trash, Pencil, DuplicatePlus } from '@/components/ui/icons';
-import { useDeleteChat, useDuplicateChat } from '@/api/buster_rest/chats';
+import { Copy, Trash, Pencil, DuplicatePlus, Star } from '@/components/ui/icons';
+import { Star as StarFilled } from '@/components/ui/icons/NucleoIconFilled';
+import { useDeleteChat, useDuplicateChat, useGetChat } from '@/api/buster_rest/chats';
 import { CHAT_HEADER_TITLE_ID } from '../ChatHeaderTitle';
 import { timeout } from '@/lib';
 import { BusterRoutes } from '@/routes';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { assetParamsToRoute } from '@/lib/assets';
+import { useFavoriteStar } from '@/components/features/list';
+import { ShareAssetType } from '@/api/asset_interfaces/share';
 
 export const ChatContainerHeaderDropdown: React.FC<{
   children: React.ReactNode;
@@ -21,6 +24,13 @@ export const ChatContainerHeaderDropdown: React.FC<{
   const currentMessageId = useChatIndividualContextSelector((state) => state.currentMessageId);
   const selectedFileId = useChatIndividualContextSelector((state) => state.selectedFileId);
   const selectedFileType = useChatIndividualContextSelector((state) => state.selectedFileType);
+  const { data: chatTitle } = useGetChat({ id: chatId || '' }, { select: (x) => x.title, enabled: !!chatId });
+
+  const { isFavorited, onFavoriteClick } = useFavoriteStar({
+    id: chatId || '',
+    type: ShareAssetType.CHAT,
+    name: chatTitle || ''
+  });
 
   const menuItem: DropdownItems = useMemo(() => {
     return [
@@ -78,9 +88,25 @@ export const ChatContainerHeaderDropdown: React.FC<{
             input.select();
           }
         }
+      },
+      {
+        label: isFavorited ? 'Remove from favorites' : 'Add to favorites',
+        value: 'add-to-favorites',
+        icon: isFavorited ? <StarFilled /> : <Star />,
+        onClick: onFavoriteClick
       }
     ];
-  }, [chatId, isDeleting, currentMessageId, deleteChat, duplicateChat]);
+  }, [
+    chatId,
+    isDeleting,
+    isDuplicating,
+    currentMessageId,
+    deleteChat,
+    duplicateChat,
+    isFavorited,
+    onFavoriteClick,
+    openSuccessMessage
+  ]);
 
   return (
     <Dropdown align="end" items={menuItem}>

@@ -99,7 +99,10 @@ test('Bar chart span clicking works', async ({ page }) => {
   await page.waitForTimeout(55);
   await expect(page.getByText('Copy SQLSaveRun')).toBeVisible();
   await page.getByTestId('segmented-trigger-file').click();
-  await page.waitForTimeout(55);
+  await page.waitForTimeout(2500);
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForLoadState('load');
 
   await expect(
     page.getByText('Yearly Sales Revenue - Signature Cycles Products (Last 3 Years + YTD)', {
