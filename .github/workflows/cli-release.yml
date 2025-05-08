@@ -53,24 +53,6 @@ jobs:
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
 
-      - name: Install libpq (macOS and Linux)
-        if: runner.os != 'Windows'
-        run: |
-          if [[ "${{ runner.os }}" == "macOS" ]]; then
-            brew install libpq
-            echo "PKG_CONFIG_PATH=$(brew --prefix libpq)/lib/pkgconfig" >> $GITHUB_ENV
-            echo "LIBRARY_PATH=$(brew --prefix libpq)/lib" >> $GITHUB_ENV
-            echo "LD_LIBRARY_PATH=$(brew --prefix libpq)/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-            # For macOS, we might need to explicitly tell rustc where to find the library.
-            # Adding common libpq paths to rustflags
-            echo "RUSTFLAGS=-L $(brew --prefix libpq)/lib" >> $GITHUB_ENV
-          elif [[ "${{ runner.os }}" == "Linux" ]]; then
-            sudo apt-get update -y
-            sudo apt-get install -y libpq-dev
-          fi
-        env:
-          HOMEBREW_NO_INSTALL_CLEANUP: 1 # Recommended for CI to speed up
-
       - name: Configure Cargo for optimized build
         run: |
           mkdir -p .cargo
@@ -115,6 +97,9 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    outputs: # Outputs for downstream jobs
+      cli_version: ${{ steps.get_version.outputs.version }}
+      cli_tag_name: ${{ steps.create_release.outputs.tag_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -131,6 +116,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
       - name: Create Release
+        id: create_release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
