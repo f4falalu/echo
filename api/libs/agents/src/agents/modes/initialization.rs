@@ -1,6 +1,7 @@
 use anyhow::Result;
 use serde_json::Value;
 use std::collections::HashMap;
+use std::env;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
@@ -18,16 +19,28 @@ use crate::tools::{
 };
 
 // Function to get the configuration for the Initialization mode
-pub fn get_configuration(agent_data: &ModeAgentData, _data_source_syntax: Option<String>) -> ModeConfiguration {
+pub fn get_configuration(
+    agent_data: &ModeAgentData,
+    _data_source_syntax: Option<String>,
+) -> ModeConfiguration {
     // 1. Get the prompt, formatted with current data
     let prompt = INTIALIZATION_PROMPT
-        .replace("{DATASETS}", &agent_data.dataset_with_descriptions.join("\n\n"))
+        .replace(
+            "{DATASETS}",
+            &agent_data.dataset_with_descriptions.join("\n\n"),
+        )
         .replace("{TODAYS_DATE}", &agent_data.todays_date);
 
     // 2. Define the model for this mode (Using a default, adjust if needed)
     //    Since the original MODEL was None, we might use the agent's default
     //    or specify a standard one like "gemini-2.5-pro-exp-03-25". Let's use "gemini-2.5-pro-exp-03-25".
-    let model = "gemini-2.5-pro-exp-03-25".to_string();
+
+    let model =
+        if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
+            "o4-mini".to_string()
+        } else {
+            "gemini-2.5-pro-exp-03-25".to_string()
+        };
 
     // 3. Define the tool loader closure
     let tool_loader: Box<

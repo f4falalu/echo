@@ -411,7 +411,7 @@ fn to_deploy_request(model: &Model, sql_content: String) -> DeployDatasetsReques
         env: "dev".to_string(), // Assuming "dev" environment for now, might need configuration
         type_: "view".to_string(), // Assuming models are deployed as views, might need configuration
         name: model.name.clone(),
-        model: None, // This seems to be for a different kind of model (e.g. Python model), not semantic layer model name itself
+        model: Some(model.name.clone()), // Use the model's name for the 'model' field
         schema,
         database: model.database.clone(),
         description: model.description.clone().unwrap_or_default(),
@@ -639,7 +639,7 @@ pub async fn deploy(path: Option<&str>, dry_run: bool, recursive: bool) -> Resul
          match client.deploy_datasets(deploy_requests_final).await {
             Ok(response) => handle_deploy_response(&response, &mut result, &model_mappings_final, &progress),
             Err(e) => {
-                eprintln!("❌ Critical error during deployment API call: {}", e.to_string().red());
+                eprintln!("❌ Critical error during deployment API call: {}\nDetailed error: {:?}", e.to_string().red(), e);
                 // Populate failures for all models that were attempted if a general API error occurs
                 for mapping in model_mappings_final {
                     result.failures.push((
