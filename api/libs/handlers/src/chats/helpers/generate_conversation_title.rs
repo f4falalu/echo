@@ -69,9 +69,15 @@ pub async fn generate_conversation_title(
     // Set up LiteLLM client
     let llm_client = LiteLLMClient::new(None, None);
 
+    let model = if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
+        "gpt-4.1-mini".to_string()
+    } else {
+        "gemini-2.0-flash-001".to_string()
+    };
+
     // Create the request
     let request = ChatCompletionRequest {
-        model: "gemini-2.0-flash-001".to_string(),
+        model,
         messages: vec![LiteLLMAgentMessage::User {
             id: None,
             content: prompt,

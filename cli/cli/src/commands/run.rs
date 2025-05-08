@@ -11,6 +11,7 @@ use std::time::Duration;
 #[derive(RustEmbed)]
 #[folder = "../../"]
 #[include = "docker-compose.yml"]
+#[include = "litellm_vertex_config.yaml"]
 #[include = "supabase/.env.example"]
 #[include = "supabase/**/*"]
 #[exclude = "supabase/volumes/db/data/**/*"]

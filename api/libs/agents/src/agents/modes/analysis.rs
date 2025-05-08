@@ -1,6 +1,6 @@
 use anyhow::Result;
 use serde_json::Value;
-use std::collections::HashMap;
+use std::{collections::HashMap, env};
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
@@ -45,7 +45,12 @@ pub fn get_configuration(agent_data: &ModeAgentData, data_source_syntax: Option<
         .replace("{SQL_DIALECT_GUIDANCE}", &sql_dialect_guidance);
 
     // 2. Define the model for this mode
-    let model = "gemini-2.5-pro-exp-03-25".to_string();
+
+    let model = if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
+        "o4-mini".to_string()
+    } else {
+        "gemini-2.5-pro-exp-03-25".to_string()
+    };
 
     // 3. Define the tool loader closure
     let tool_loader: Box<

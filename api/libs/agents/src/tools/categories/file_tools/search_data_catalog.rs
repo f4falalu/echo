@@ -984,8 +984,14 @@ async fn llm_filter_helper(
 
     let llm_client = LiteLLMClient::new(None, None);
 
+    let model = if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
+        "gpt-4.1-mini".to_string()
+    } else {
+        "gemini-2.0-flash-001".to_string()
+    };
+
     let request = ChatCompletionRequest {
-        model: "gemini-2.0-flash-001".to_string(),
+        model,
         messages: vec![AgentMessage::User {
             id: None,
             content: prompt,

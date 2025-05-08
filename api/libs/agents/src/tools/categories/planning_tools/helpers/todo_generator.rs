@@ -1,3 +1,5 @@
+use std::env;
+
 use anyhow::Result;
 use litellm::{AgentMessage, ChatCompletionRequest, LiteLLMClient, Metadata, ResponseFormat};
 use serde_json::Value;
@@ -61,8 +63,14 @@ Example Output for the above plan: `["Create line chart visualization 'Daily Tra
         plan
     );
 
+    let model = if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
+        "gpt-4.1-mini".to_string()
+    } else {
+        "gemini-2.0-flash-001".to_string()
+    };
+
     let request = ChatCompletionRequest {
-        model: "gemini-2.0-flash-001".to_string(),
+        model,
         messages: vec![AgentMessage::User { id: None, content: prompt, name: None }],
         stream: Some(false),
         response_format: Some(ResponseFormat { type_: "json_object".to_string(), json_schema: None }),

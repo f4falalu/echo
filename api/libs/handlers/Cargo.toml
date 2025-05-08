@@ -20,6 +20,7 @@ regex = { workspace = true }
 indexmap = { workspace = true }
 async-trait = { workspace = true }
 
+
 # Local dependencies
 database = { path = "../database" }
 agents = { path = "../agents" }
