@@ -23,7 +23,7 @@ update-seed:
 stop:
 	docker stop buster-redis-make || true && \
 	docker rm buster-redis-make || true && \
-	cd .. && docker compose down && supabase stop
+	supabase stop
 
 fast:
 	cd .. && docker run -d --name buster-redis-make -p 6379:6379 -v buster_redis_data:/data redis && cd api && \
