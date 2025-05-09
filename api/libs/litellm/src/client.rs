@@ -4,6 +4,7 @@ use reqwest::{header, Client};
 use std::env;
 use tokio::sync::mpsc;
 use once_cell::sync::Lazy;
+use tracing;
 
 use super::types::*;
 
@@ -29,9 +30,20 @@ impl LiteLLMClient {
     }
     
     pub fn new(api_key: Option<String>, base_url: Option<String>) -> Self {
-        let api_key = api_key.or_else(|| env::var("LLM_API_KEY").ok()).expect(
-            "LLM_API_KEY must be provided either through parameter or environment variable",
-        );
+        // Check for API key - when using LiteLLM with a config file, the API key is typically
+        // already in the config file, so we just need a dummy value here for the client
+        let api_key = api_key
+            .or_else(|| env::var("LLM_API_KEY").ok())
+            .unwrap_or_else(|| {
+                // If we have a LiteLLM config path, we can use a placeholder API key
+                // since auth will be handled by the LiteLLM server using the config
+                if env::var("LITELLM_CONFIG_PATH").is_ok() {
+                    Self::debug_log("Using LiteLLM config from environment");
+                    "dummy-key-not-used".to_string()
+                } else {
+                    panic!("LLM_API_KEY must be provided either through parameter, environment variable, or LITELLM_CONFIG_PATH must be set");
+                }
+            });
 
         let base_url = base_url
             .or_else(|| env::var("LLM_BASE_URL").ok())
@@ -81,16 +93,30 @@ impl LiteLLMClient {
             .post(&url)
             .json(&request)
             .send()
-            .await?;
+            .await
+            .map_err(|e| {
+                tracing::error!("Failed to send chat completion request: {:?}", e);
+                anyhow::Error::from(e)
+            })?;
 
         // Get the raw response text
-        let response_text = response.text().await?;
+        let response_text = response.text().await.map_err(|e| {
+            tracing::error!("Failed to read chat completion response text: {:?}", e);
+            anyhow::Error::from(e)
+        })?;
         if *DEBUG_ENABLED {
             Self::debug_log(&format!("Raw response payload: {}", response_text));
         }
 
         // Parse the response text into the expected type
-        let response: ChatCompletionResponse = serde_json::from_str(&response_text)?;
+        let response: ChatCompletionResponse = serde_json::from_str(&response_text).map_err(|e| {
+            tracing::error!(
+                "Failed to parse chat completion response. Text: {}, Error: {:?}",
+                response_text,
+                e
+            );
+            anyhow::Error::from(e)
+        })?;
 
         // Log tool calls if present and debug is enabled
         if *DEBUG_ENABLED {
@@ -141,7 +167,11 @@ impl LiteLLMClient {
                 ..request
             })
             .send()
-            .await?
+            .await
+            .map_err(|e| {
+                tracing::error!("Failed to send stream chat completion request: {:?}", e);
+                anyhow::Error::from(e)
+            })?
             .bytes_stream();
 
         let (tx, rx) = mpsc::channel(100);
@@ -174,45 +204,55 @@ impl LiteLLMClient {
                                     if debug_enabled {
                                         Self::debug_log("Stream completed with [DONE] signal");
                                     }
-                                    break;
+                                    return;
                                 }
 
-                                if let Ok(response) =
-                                    serde_json::from_str::<ChatCompletionChunk>(data)
-                                {
-                                    // Log tool calls if present and debug is enabled
-                                    if debug_enabled {
-                                        if let Some(tool_calls) = &response.choices[0].delta.tool_calls
-                                        {
-                                            Self::debug_log("Tool calls in stream chunk:");
-                                            for tool_call in tool_calls {
-                                                if let (Some(id), Some(function)) =
-                                                    (tool_call.id.clone(), tool_call.function.clone())
-                                                {
-                                                    Self::debug_log(&format!("Tool Call ID: {}", id));
-                                                    if let Some(name) = function.name {
-                                                        Self::debug_log(&format!("Tool Name: {}", name));
-                                                    }
-                                                    if let Some(arguments) = function.arguments {
-                                                        Self::debug_log(&format!(
-                                                            "Tool Arguments: {}",
-                                                            arguments
-                                                        ));
+                                match serde_json::from_str::<ChatCompletionChunk>(data) {
+                                    Ok(response) => {
+                                        // Log tool calls if present and debug is enabled
+                                        if debug_enabled {
+                                            if let Some(tool_calls) = &response.choices[0].delta.tool_calls
+                                            {
+                                                Self::debug_log("Tool calls in stream chunk:");
+                                                for tool_call in tool_calls {
+                                                    if let (Some(id), Some(function)) =
+                                                        (tool_call.id.clone(), tool_call.function.clone())
+                                                    {
+                                                        Self::debug_log(&format!("Tool Call ID: {}", id));
+                                                        if let Some(name) = function.name {
+                                                            Self::debug_log(&format!("Tool Name: {}", name));
+                                                        }
+                                                        if let Some(arguments) = function.arguments {
+                                                            Self::debug_log(&format!(
+                                                                "Tool Arguments: {}",
+                                                                arguments
+                                                            ));
+                                                        }
                                                     }
                                                 }
                                             }
+                                            Self::debug_log(&format!("Parsed stream chunk: {:?}", response));
                                         }
-                                        Self::debug_log(&format!("Parsed stream chunk: {:?}", response));
+                                        
+                                        // Use try_send instead of send to avoid blocking
+                                        if tx.try_send(Ok(response)).is_err() {
+                                            // If the channel is full, log it but continue processing
+                                            if debug_enabled {
+                                                Self::debug_log("Warning: Channel full, receiver not keeping up");
+                                            }
+                                        }
                                     }
-                                    
-                                    // Use try_send instead of send to avoid blocking
-                                    if tx.try_send(Ok(response)).is_err() {
-                                        // If the channel is full, log it but continue processing
+                                    Err(e) => {
                                         if debug_enabled {
-                                            Self::debug_log("Warning: Channel full, receiver not keeping up");
+                                            Self::debug_log(&format!("Error in stream processing: {:?}", e));
                                         }
+                                        tracing::error!("Error receiving chunk from stream: {:?}", e);
+                                        // Use try_send to avoid blocking
+                                        let _ = tx.try_send(Err(anyhow::Error::from(e)));
                                     }
                                 }
+                            } else if !line.is_empty() {
+                                tracing::warn!("Received unexpected line in stream: {}", line);
                             }
                         }
                     }
@@ -220,6 +260,7 @@ impl LiteLLMClient {
                         if debug_enabled {
                             Self::debug_log(&format!("Error in stream processing: {:?}", e));
                         }
+                        tracing::error!("Error receiving chunk from stream: {:?}", e);
                         // Use try_send to avoid blocking
                         let _ = tx.try_send(Err(anyhow::Error::from(e)));
                     }

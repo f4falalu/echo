@@ -117,6 +117,14 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
     let llm_api_key = config_utils::prompt_and_manage_openai_api_key(&app_base_dir, false)?;
     let reranker_config = config_utils::prompt_and_manage_reranker_settings(&app_base_dir, false)?;
 
+    // Create/update LiteLLM YAML config
+    let litellm_config_path = config_utils::update_litellm_yaml(
+        &app_base_dir,
+        &llm_api_key,
+        Some("https://api.openai.com/v1"),
+    )?;
+    let litellm_config_path_str = litellm_config_path.to_string_lossy();
+    
     // Update .env file (this is the root .env)
     config_utils::update_env_file(
         &main_dot_env_target_path, // Ensure this targets the root .env
@@ -125,6 +133,7 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
         Some(&reranker_config.model),
         Some(&reranker_config.base_url),
         None, // Not prompting for LLM_BASE_URL in this flow yet, example has it.
+        Some(&litellm_config_path_str), // Add LiteLLM config path to env
     )
     .map_err(|e| {
         BusterError::CommandError(format!(
@@ -145,6 +154,81 @@ async fn run_docker_compose_command(
     operation_name: &str,
 ) -> Result<(), BusterError> {
     let persistent_app_dir = setup_persistent_app_environment().await?;
+
+    // Handle LiteLLM config if a start or reset operation is being performed
+    if operation_name == "Starting" || operation_name == "Resetting" {
+        // Check if litellm_config path is in environment
+        let litellm_config_path = if let Ok(path) = std::env::var("LITELLM_CONFIG_PATH") {
+            Some(path)
+        } else {
+            // Try to read from .env file
+            let env_path = persistent_app_dir.join(".env");
+            if env_path.exists() {
+                let content = fs::read_to_string(&env_path).map_err(|e| {
+                    BusterError::CommandError(format!(
+                        "Failed to read .env file at {}: {}",
+                        env_path.display(),
+                        e
+                    ))
+                })?;
+                
+                content.lines()
+                    .find(|line| line.starts_with("LITELLM_CONFIG_PATH="))
+                    .and_then(|line| {
+                        line.split('=').nth(1).map(|s| {
+                            s.trim_matches(|c| c == '"' || c == '\'').to_string()
+                        })
+                    })
+            } else {
+                None
+            }
+        };
+        
+        // If we have a litellm config path, modify docker-compose.yml to use it
+        if let Some(config_path) = litellm_config_path {
+            println!("Using custom LiteLLM configuration: {}", config_path);
+            
+            // Read the docker-compose.yml file
+            let docker_compose_path = persistent_app_dir.join("docker-compose.yml");
+            let docker_compose_content = fs::read_to_string(&docker_compose_path).map_err(|e| {
+                BusterError::CommandError(format!(
+                    "Failed to read docker-compose.yml: {}",
+                    e
+                ))
+            })?;
+            
+            // Create a simple backup
+            fs::write(
+                persistent_app_dir.join("docker-compose.yml.bak"),
+                &docker_compose_content,
+            )
+            .map_err(|e| {
+                BusterError::CommandError(format!(
+                    "Failed to create backup of docker-compose.yml: {}",
+                    e
+                ))
+            })?;
+            
+            // Replace the litellm config path
+            let modified_content = docker_compose_content
+                .replace(
+                    "      - ./litellm_vertex_config.yaml:/litellm_vertex_config.yaml",
+                    &format!("      - {}:/litellm_config.yaml", config_path)
+                )
+                .replace(
+                    "    command: [\"--config\", \"/litellm_vertex_config.yaml\", \"--port\", \"4001\"]",
+                    "    command: [\"--config\", \"/litellm_config.yaml\", \"--port\", \"4001\"]"
+                );
+            
+            // Write the modified docker-compose.yml
+            fs::write(&docker_compose_path, modified_content).map_err(|e| {
+                BusterError::CommandError(format!(
+                    "Failed to update docker-compose.yml with custom LiteLLM config: {}",
+                    e
+                ))
+            })?;
+        }
+    }
 
     let data_db_path = persistent_app_dir.join("supabase/volumes/db/data");
     fs::create_dir_all(&data_db_path).map_err(|e| {

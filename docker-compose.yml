@@ -33,12 +33,13 @@ services:
       - EMBEDDING_MODEL=${EMBEDDING_MODEL}
       - COHERE_API_KEY=${COHERE_API_KEY}
       - ENVIRONMENT=${ENVIRONMENT}
-      - LOG_LEVEL=${LOG_LEVEL}
+      - LOG_LEVEL=DEBUG
       - RERANK_API_KEY=${RERANK_API_KEY}
       - RERANK_MODEL=${RERANK_MODEL}
       - RERANK_BASE_URL=${RERANK_BASE_URL}
       - LLM_API_KEY=${LLM_API_KEY}
       - LLM_BASE_URL=${LLM_BASE_URL}
+      - RUST_LOG=debug
     ports:
       - "3001:3001"
       - "3000:3000"
@@ -66,22 +67,22 @@ services:
     network_mode: "service:api"
 
   # Pausing this for local deployments until we can build out better multi-model support.
-  # litellm:
-  #   image: ghcr.io/berriai/litellm:main-latest
-  #   container_name: buster-litellm
-  #   volumes:
-  #     - ./litellm_vertex_config.yaml:/litellm_vertex_config.yaml
-  #   command: ["--config", "/litellm_vertex_config.yaml", "--port", "4001"]
-  #   ports:
-  #     - "4001:4001"
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:4001/health/readiness"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #   depends_on:
-  #     api:
-  #       condition: service_healthy
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: buster-litellm
+    volumes:
+      - ./litellm_vertex_config.yaml:/litellm_vertex_config.yaml
+    command: ["--config", "/litellm_vertex_config.yaml", "--port", "4001"]
+    ports:
+      - "4001:4001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/health/readiness"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      api:
+        condition: service_healthy
 
 volumes:
-  buster_redis_data: 
+  buster_redis_data:
