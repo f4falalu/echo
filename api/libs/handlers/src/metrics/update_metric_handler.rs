@@ -1,11 +1,11 @@
 use anyhow::{anyhow, bail, Result};
 use chrono::{DateTime, Utc};
 use database::{
-    enums::{AssetPermissionRole, AssetType, IdentityType, Verification},
+    enums::{AssetPermissionRole, AssetType, DataSourceType, IdentityType, Verification},
     helpers::metric_files::fetch_metric_file_with_permissions,
     models::{Dataset, MetricFile, MetricFileToDataset},
     pool::get_pg_pool,
-    schema::{datasets, metric_files, metric_files_to_datasets},
+    schema::{data_sources, datasets, metric_files, metric_files_to_datasets},
     types::{
         ColumnLabelFormat, ColumnMetaData, ColumnType, DataMetadata, MetricYml, SimpleType,
         VersionContent, VersionHistory,
@@ -193,8 +193,18 @@ pub async fn update_metric_handler(
         request.sql.is_some() || request.file.is_some() || request.restore_to_version.is_some();
 
     if requires_revalidation {
+        let data_source_dialect = match data_sources::table
+            .filter(data_sources::id.eq(data_source_id.unwrap()))
+            .select(data_sources::type_)
+            .first::<DataSourceType>(&mut conn)
+            .await
+        {
+            Ok(dialect) => dialect.to_string(),
+            Err(e) => return Err(anyhow!("Failed to fetch data source dialect: {}", e)),
+        };
+
         // 1. Analyze SQL to get table names
-        let analysis_result = analyze_query(final_content.sql.clone()).await?;
+        let analysis_result = analyze_query(final_content.sql.clone(), &data_source_dialect).await?;
         let table_names: Vec<String> = analysis_result
             .tables
             .into_iter()

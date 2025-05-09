@@ -6,13 +6,18 @@ use sqlparser::ast::{
     Cte, Expr, Join, JoinConstraint, JoinOperator, ObjectName, Query, SelectItem, SetExpr,
     Statement, TableFactor, Visit, Visitor, WindowSpec, TableAlias,
 };
-use sqlparser::dialect::GenericDialect;
+use sqlparser::dialect::{
+    AnsiDialect, BigQueryDialect, ClickHouseDialect, DatabricksDialect, Dialect, DuckDbDialect,
+    GenericDialect, HiveDialect, MsSqlDialect, MySqlDialect, PostgreSqlDialect, SQLiteDialect,
+    SnowflakeDialect,
+};
 use sqlparser::parser::Parser;
 use std::collections::{HashMap, HashSet};
 use std::ops::ControlFlow;
 
-pub async fn analyze_query(sql: String) -> Result<QuerySummary, SqlAnalyzerError> {
-    let ast = Parser::parse_sql(&GenericDialect, &sql)?;
+pub async fn analyze_query(sql: String, data_source_dialect: &str) -> Result<QuerySummary, SqlAnalyzerError> {
+    let dialect = get_dialect(data_source_dialect);
+    let ast = Parser::parse_sql(dialect, &sql)?;
     let mut analyzer = QueryAnalyzer::new();
 
     // First, check if all statements are read-only (Query statements)
@@ -34,6 +39,27 @@ pub async fn analyze_query(sql: String) -> Result<QuerySummary, SqlAnalyzerError
     }
 
     analyzer.into_summary()
+}
+
+pub fn get_dialect(data_source_dialect: &str) -> &'static dyn Dialect {
+    match data_source_dialect.to_lowercase().as_str() {
+        "bigquery" => &BigQueryDialect {},
+        "databricks" => &DatabricksDialect {},
+        "mysql" => &MySqlDialect {},
+        "mariadb" => &MySqlDialect {}, // MariaDB uses MySQL dialect
+        "postgres" => &PostgreSqlDialect {},
+        "redshift" => &PostgreSqlDialect {}, // Redshift uses PostgreSQL dialect
+        "snowflake" => &SnowflakeDialect {},
+        "sqlserver" => &MsSqlDialect {}, // SQL Server uses MS SQL dialect
+        "supabase" => &PostgreSqlDialect {}, // Supabase uses PostgreSQL dialect
+        "generic" => &GenericDialect {},
+        "hive" => &HiveDialect {},
+        "sqlite" => &SQLiteDialect {},
+        "clickhouse" => &ClickHouseDialect {},
+        "ansi" => &AnsiDialect {},
+        "duckdb" => &DuckDbDialect {},
+        _ => &GenericDialect {},
+    }
 }
 
 #[derive(Debug, Clone)]
