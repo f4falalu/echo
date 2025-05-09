@@ -18,6 +18,7 @@ services:
   api:
     image: ghcr.io/buster-so/buster/api:latest-arm64
     container_name: buster-api
+    pull_policy: always
     env_file:
       - .env
     environment:
@@ -59,6 +60,7 @@ services:
   web:
     image: ghcr.io/buster-so/buster/web:latest-arm64
     container_name: buster-web
+    pull_policy: always
     env_file:
       - .env
     depends_on:
