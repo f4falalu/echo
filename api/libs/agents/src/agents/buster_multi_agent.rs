@@ -170,12 +170,11 @@ impl BusterMultiAgent {
         // Create the mode provider
         let mode_provider = Arc::new(BusterModeProvider { agent_data });
 
-        let model =
-            if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
-                "o4-mini".to_string()
-            } else {
-                "gemini-2.5-pro-exp-03-25".to_string()
-            };
+        let model = if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
+            "o4-mini".to_string()
+        } else {
+            "o4-mini".to_string()
+        };
 
         // Create agent, passing the provider
         let agent = Arc::new(Agent::new(
