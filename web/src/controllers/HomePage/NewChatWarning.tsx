@@ -16,19 +16,23 @@ export const NewChatWarning = React.memo(({}: ReturnType<typeof useNewChatWarnin
   const progressPercentage = (progress / 2) * 100;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="flex flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="mb-2 flex items-center justify-between">
         <Text className="text-xl font-medium text-gray-800">Setup Checklist</Text>
         <div className="flex items-center gap-2">
           <div className="text-sm font-medium text-gray-500">{progress}/2 completed</div>
-          <div className="h-2 w-20 rounded-full bg-gray-100">
+          <div className="h-2 w-20 rounded-full bg-purple-100">
             <div
-              className="h-full rounded-full bg-gray-500 transition-all duration-500 ease-in-out"
+              className="h-full rounded-full bg-purple-500 transition-all duration-500 ease-in-out"
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
         </div>
       </div>
+
+      <Paragraph className="mb-4 text-sm text-gray-500">
+        In order to ask questions, you need to connect a data source and create a dataset.
+      </Paragraph>
 
       <div className="space-y-4">
         <SetupItem
@@ -96,13 +100,13 @@ const SetupItem = ({ number, status, title, description, link, linkText }: Setup
   return (
     <div
       className={cn(
-        'group relative flex items-start space-x-4 rounded-lg border p-4 transition-all duration-200',
-        status ? 'border-green-700/30 bg-green-50' : 'border-gray-200'
+        'group relative flex items-start space-x-4 rounded-lg border p-4 transition-all duration-200 hover:shadow-sm',
+        status ? 'border-purple-700/30 bg-purple-50' : 'border-gray-200'
       )}>
       <div
         className={cn(
           'text-md flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full font-medium',
-          status ? 'bg-green-200 text-green-700' : 'bg-gray-100 text-gray-500'
+          status ? 'bg-purple-200/60 text-purple-700' : 'bg-gray-100 text-gray-500'
         )}>
         {status ? <CircleCheck title="Complete" /> : number}
       </div>
@@ -111,7 +115,7 @@ const SetupItem = ({ number, status, title, description, link, linkText }: Setup
         <div className="flex items-center justify-between">
           <Text className="font-medium text-gray-800">{title}</Text>
           {status && (
-            <span className="rounded-full bg-green-200 px-2 py-1 text-xs font-medium text-green-700">
+            <span className="rounded-full bg-purple-200/60 px-2 py-1 text-xs font-medium text-purple-700">
               Complete
             </span>
           )}

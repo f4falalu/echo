@@ -7,7 +7,6 @@ export const useNewChatWarning = () => {
   const { data: datasources, isFetched: isDatasourcesFetched } = useListDatasources();
 
   const showWarning = useMemo(() => {
-    return true;
     if (!isDatasetsFetched || !isDatasourcesFetched) return false;
     if (datasets?.length === 0) return true;
     if (datasources?.length === 0) return true;

@@ -20,12 +20,10 @@ export const NewChatInput: React.FC<{}> = () => {
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const newChatWarningProps = useNewChatWarning();
-  const { showWarning } = newChatWarningProps;
 
   const disabledSubmit = useMemo(() => {
-    return !inputHasText(inputValue) || showWarning;
-  }, [inputValue, showWarning]);
+    return !inputHasText(inputValue);
+  }, [inputValue]);
 
   const onSubmit = useMemoizedFn(async (value: string) => {
     if (disabledSubmit) return;
@@ -54,23 +52,20 @@ export const NewChatInput: React.FC<{}> = () => {
   });
 
   return (
-    <div className="flex flex-col space-y-2">
+    <>
       <InputTextAreaButton
-        className={
-          !showWarning ? 'transition-all duration-300 hover:shadow-lg active:shadow-md' : ''
-        }
+        className={'transition-all duration-300 hover:shadow-lg active:shadow-md'}
         placeholder="Ask Buster a question..."
         autoResize={autoResizeConfig}
         onSubmit={onSubmit}
         onChange={onChange}
         onStop={onStop}
         loading={loading}
-        disabled={showWarning}
+        disabled={false}
         disabledSubmit={disabledSubmit}
         autoFocus
         ref={textAreaRef}
       />
-      {newChatWarningProps.showWarning && <NewChatWarning {...newChatWarningProps} />}
-    </div>
+    </>
   );
 };
