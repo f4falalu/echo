@@ -75,6 +75,7 @@ async fn process_metric_file_update(
     duration: i64,
     user_id: &Uuid,
     data_source_id: &Uuid,
+    data_source_dialect: &str,
 ) -> Result<(
     MetricFile,
     MetricYml,
@@ -153,8 +154,7 @@ async fn process_metric_file_update(
                 );
             }
 
-
-            match validate_sql(&new_yml.sql, &data_source_id, user_id).await {
+            match validate_sql(&new_yml.sql, &data_source_id, &data_source_dialect, user_id).await {
                 Ok((message, validation_results, metadata, validated_dataset_ids)) => {
                     // Update file record
                     file.content = new_yml.clone();
@@ -269,6 +269,12 @@ impl ToolExecutor for ModifyMetricFilesTool {
             None => bail!("Data source ID not found in agent state"),
         };
 
+        let data_source_dialect = match self.agent.get_state_value("data_source_syntax").await {
+            Some(Value::String(dialect_str)) => dialect_str,
+            Some(_) => bail!("Data source dialect is not a string"),
+            None => bail!("Data source dialect not found in agent state"),
+        };
+
         // Map to store validated dataset IDs for each successfully updated metric
         let mut validated_dataset_ids_map: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
 
@@ -288,6 +294,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                             let file_update = file_map.get(&file.id)?;
                             let start_time_elapsed = start_time.elapsed().as_millis() as i64;
                             let user_id = self.agent.get_user_id(); // Capture user_id outside async block
+                            let data_source_dialect = data_source_dialect.clone();
                             
                             Some(async move {
                                 let result = process_metric_file_update(
@@ -296,6 +303,7 @@ impl ToolExecutor for ModifyMetricFilesTool {
                                     start_time_elapsed,
                                     &user_id, // Pass user_id reference
                                     &data_source_id,
+                                    &data_source_dialect,
                                 ).await;
                                 
                                 (file.name, result) // Return file name along with result
