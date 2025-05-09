@@ -98,15 +98,11 @@ export const signInWithAzure = async () => {
 
 export const signUp = async ({ email, password }: { email: string; password: string }) => {
   'use server';
-  console.log('signUp', email, password);
   const supabase = await createClient();
-  console.log('supabase', supabase);
   const authURL = createBusterRoute({
     route: BusterRoutes.AUTH_CONFIRM
   });
-  console.log('authURL', authURL);
   const authURLFull = `${process.env.NEXT_PUBLIC_URL}${authURL}`;
-  console.log('authURLFull', authURLFull);
 
   const { error } = await supabase.auth.signUp({
     email,
@@ -115,7 +111,6 @@ export const signUp = async ({ email, password }: { email: string; password: str
       emailRedirectTo: authURLFull
     }
   });
-  console.log('error', error);
   if (error) {
     throw error;
   }
