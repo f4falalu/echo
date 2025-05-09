@@ -37,6 +37,7 @@ use sql_analyzer::{analyze_query, types::TableKind};
 pub async fn validate_sql(
     sql: &str,
     data_source_id: &Uuid,
+    data_source_dialect: &str,
     user_id: &Uuid,
 ) -> Result<(
     String,
@@ -51,7 +52,7 @@ pub async fn validate_sql(
     }
 
     // Analyze the SQL to extract base table names
-    let analysis_result = analyze_query(sql.to_string()).await?;
+    let analysis_result = analyze_query(sql.to_string(), data_source_dialect).await?;
 
     // Extract base table names
     let table_names: Vec<String> = analysis_result
@@ -864,6 +865,7 @@ pub async fn process_metric_file(
     file_name: String,
     yml_content: String,
     data_source_id: Uuid,
+    data_source_dialect: String,
     user_id: &Uuid,
 ) -> Result<
     (
@@ -888,7 +890,7 @@ pub async fn process_metric_file(
 
     // Validate SQL and get results + validated dataset IDs
     let (message, results, metadata, validated_dataset_ids) =
-        match validate_sql(&metric_yml.sql, &data_source_id, user_id).await {
+        match validate_sql(&metric_yml.sql, &data_source_id, &data_source_dialect, user_id).await {
             Ok(results) => results,
             Err(e) => return Err(format!("Invalid SQL query: {}", e)),
         };
@@ -1259,7 +1261,7 @@ mod tests {
     #[tokio::test]
     async fn test_validate_sql_empty() {
         let dataset_id = Uuid::new_v4();
-        let result = validate_sql("", &dataset_id, &Uuid::new_v4()).await;
+        let result = validate_sql("", &dataset_id, "sql", &Uuid::new_v4()).await;
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("cannot be empty"));
     }
@@ -1599,7 +1601,7 @@ async fn process_metric_file_update(
     // Check if SQL or metadata has changed
     if file.content.sql != new_yml.sql {
         // SQL changed or metadata missing, perform validation
-        match validate_sql(&new_yml.sql, data_source_id, user_id).await {
+        match validate_sql(&new_yml.sql, data_source_id, "sql", user_id).await {
             Ok((message, validation_results, metadata, validated_ids)) => {
                 // Update file record
                 file.content = new_yml.clone();

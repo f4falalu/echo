@@ -14,11 +14,11 @@ use database::{
 use diesel::insert_into;
 use diesel_async::RunQueryDsl;
 use futures::future::join_all;
+use indexmap::IndexMap;
+use query_engine::data_types::DataType;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
-use indexmap::IndexMap;
-use query_engine::data_types::DataType;
 
 use crate::{
     agent::Agent,
@@ -93,21 +93,30 @@ impl ToolExecutor for CreateMetricFilesTool {
         let mut failed_files = vec![];
 
         let data_source_id = match self.agent.get_state_value("data_source_id").await {
-            Some(Value::String(id_str)) => Uuid::parse_str(&id_str).map_err(|e| anyhow!("Invalid data source ID format: {}", e))?,
+            Some(Value::String(id_str)) => Uuid::parse_str(&id_str)
+                .map_err(|e| anyhow!("Invalid data source ID format: {}", e))?,
             Some(_) => bail!("Data source ID is not a string"),
             None => bail!("Data source ID not found in agent state"),
+        };
+
+        let data_source_syntax = match self.agent.get_state_value("data_source_syntax").await {
+            Some(Value::String(syntax_str)) => syntax_str,
+            Some(_) => bail!("Data source syntax is not a string"),
+            None => bail!("Data source syntax not found in agent state"),
         };
 
         // Collect results from processing each file concurrently
         let process_futures = files.into_iter().map(|file| {
             let tool_call_id_clone = tool_call_id.clone();
             let user_id = self.agent.get_user_id();
+            let data_source_dialect = data_source_syntax.clone();
             async move {
                 let result = process_metric_file(
                     tool_call_id_clone,
                     file.name.clone(),
                     file.yml_content.clone(),
                     data_source_id,
+                    data_source_dialect,
                     &user_id,
                 )
                 .await;
@@ -120,9 +129,9 @@ impl ToolExecutor for CreateMetricFilesTool {
         let mut successful_processing: Vec<(
             MetricFile,
             MetricYml,
-            String, 
+            String,
             Vec<IndexMap<String, DataType>>,
-            Vec<Uuid> 
+            Vec<Uuid>,
         )> = Vec::new();
         for (file_name, result) in processed_results {
             match result {
@@ -144,7 +153,10 @@ impl ToolExecutor for CreateMetricFilesTool {
             }
         }
 
-        let metric_records: Vec<MetricFile> = successful_processing.iter().map(|(mf, _, _, _, _)| mf.clone()).collect();
+        let metric_records: Vec<MetricFile> = successful_processing
+            .iter()
+            .map(|(mf, _, _, _, _)| mf.clone())
+            .collect();
         let all_validated_dataset_ids: Vec<(Uuid, i32, Vec<Uuid>)> = successful_processing
             .iter()
             .map(|(mf, _, _, _, ids)| (mf.id, 1, ids.clone()))
@@ -219,8 +231,15 @@ impl ToolExecutor for CreateMetricFilesTool {
                     }
                 }
 
-                let metric_ymls: Vec<MetricYml> = successful_processing.iter().map(|(_, yml, _, _, _)| yml.clone()).collect();
-                let results_vec: Vec<(String, Vec<IndexMap<String, DataType>>)> = successful_processing.iter().map(|(_, _, msg, res, _)| (msg.clone(), res.clone())).collect();
+                let metric_ymls: Vec<MetricYml> = successful_processing
+                    .iter()
+                    .map(|(_, yml, _, _, _)| yml.clone())
+                    .collect();
+                let results_vec: Vec<(String, Vec<IndexMap<String, DataType>>)> =
+                    successful_processing
+                        .iter()
+                        .map(|(_, _, msg, res, _)| (msg.clone(), res.clone()))
+                        .collect();
                 for (i, yml) in metric_ymls.into_iter().enumerate() {
                     // Attempt to serialize the YAML content
                     match serde_yaml::to_string(&yml) {
