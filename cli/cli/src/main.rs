@@ -39,6 +39,14 @@ pub enum Commands {
         /// Clear saved credentials
         #[arg(long)]
         clear: bool,
+
+        /// Use local Buster API
+        #[arg(long)]
+        local: bool,
+
+        /// Use cloud Buster API
+        #[arg(long)]
+        cloud: bool,
     },
     /// Update buster-cli to the latest version
     Update {
@@ -111,12 +119,16 @@ async fn main() {
             api_key,
             no_save,
             clear,
+            local,
+            cloud,
         } => {
             commands::auth::auth_with_args(AuthArgs {
                 host,
                 api_key,
                 no_save,
                 clear,
+                local,
+                cloud,
             })
             .await
         }

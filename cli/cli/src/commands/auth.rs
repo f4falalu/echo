@@ -30,8 +30,8 @@ pub enum AuthError {
 #[derive(Parser, Debug)]
 #[command(about = "Authenticate with Buster API")]
 pub struct AuthArgs {
-    /// The Buster API host UL
-    #[arg(long, env = "BUSTER_HOST")]
+    /// The Buster API host URL
+    #[arg(long, env = "BUSTER_HOST", conflicts_with_all = &["local", "cloud"])]
     pub host: Option<String>,
 
     /// Your Buster API key
@@ -45,6 +45,14 @@ pub struct AuthArgs {
     /// Clear saved credentials
     #[arg(long)]
     pub clear: bool,
+
+    /// Use local buster instance (http://localhost:3001)
+    #[arg(long, help = "Use local buster instance (http://localhost:3001)", conflicts_with_all = &["host", "cloud"])]
+    pub local: bool,
+
+    /// Use cloud buster instance (https://api.buster.so)
+    #[arg(long, help = "Use cloud buster instance (https://api.buster.so)", conflicts_with_all = &["host", "local"])]
+    pub cloud: bool,
 }
 
 // --- Credentials Validation Trait ---
@@ -157,57 +165,86 @@ async fn handle_clear_flag(clear: bool) -> Result<bool> {
 /// Loads existing credentials or initializes default ones, handling overrides from args/env.
 /// Also prompts for overwrite confirmation if necessary.
 async fn load_and_confirm_credentials(args: &AuthArgs) -> Result<Option<BusterCredentials>> {
-    let mut buster_creds = match get_buster_credentials().await {
-        Ok(creds) => creds,
-        Err(_) => BusterCredentials {
+    // 1. Load credentials as they are from cache, or use pristine defaults if no cache.
+    let loaded_creds = match get_buster_credentials().await {
+        Ok(creds) => creds, // These are the actual stored credentials
+        Err(_) => BusterCredentials { // These are pristine defaults if nothing is stored
             url: DEFAULT_HOST.to_string(),
             api_key: String::new(),
         },
     };
-    let existing_creds_present = !buster_creds.url.is_empty() && !buster_creds.api_key.is_empty();
 
-    // Apply args overrides early - host
-    if let Some(host) = &args.host {
-        buster_creds.url = host.clone();
-    }
-     // Apply args overrides early - api key
-     if let Some(api_key) = &args.api_key {
-        buster_creds.api_key = api_key.clone();
-    }
+    // 2. Determine if meaningful credentials were found in the cache.
+    //    "Meaningful" here means an API key was actually stored.
+    let meaningful_cached_creds_existed = !loaded_creds.api_key.is_empty();
 
-    let host_provided = args.host.is_some();
-    let api_key_provided = args.api_key.is_some();
-    let fully_provided_via_args = host_provided && api_key_provided;
+    // 3. Prepare the credentials that will be used, starting with cached/default values.
+    //    These will be modified by CLI args.
+    let mut effective_creds = loaded_creds.clone();
 
-    // Prompt for overwrite confirmation only if existing creds are present *and* not fully overridden by args
-    if existing_creds_present && !fully_provided_via_args {
+    // 4. Determine if host and API key are being specified by CLI arguments.
+    //    `conflicts_with_all` ensures only one of `args.local`, `args.cloud`, or `args.host` is active.
+    let host_is_specified_by_cli_args = args.local || args.cloud || args.host.is_some();
+    let api_key_is_specified_by_cli_args = args.api_key.is_some();
+
+    // 5. Decide whether to prompt for overwrite.
+    //    Prompt if meaningful cached credentials existed AND
+    //    the user is NOT providing a full set of overriding credentials (both host and API key) via CLI args.
+    if meaningful_cached_creds_existed && !(host_is_specified_by_cli_args && api_key_is_specified_by_cli_args) {
         let confirm = Confirm::new("Existing credentials found. Do you want to overwrite them?")
             .with_default(false)
-            .with_help_message("Select 'y' to proceed with entering new credentials, or 'n' to cancel.")
+            .with_help_message("Select 'y' to proceed with configuring credentials, or 'n' to cancel.")
             .prompt()
             .map_err(|e| AuthError::UserInputFailed(e.to_string()))?;
 
         if !confirm {
             println!("Authentication cancelled.");
-            return Ok(None); // Signal cancellation
+            return Ok(None); // User cancelled, so don't proceed.
         }
-        // If confirmed, proceed with the potentially modified buster_creds
+        // If user confirms, `effective_creds` (which will have CLI args applied next) will be used.
+    }
+    // If no meaningful cached creds, or if user provided full CLI args, no prompt needed.
+
+    // 6. Apply CLI argument overrides to `effective_creds`.
+    if args.local {
+        effective_creds.url = "http://localhost:3001".to_string();
+    } else if args.cloud {
+        effective_creds.url = DEFAULT_HOST.to_string();
+    } else if let Some(host_arg) = &args.host {
+        effective_creds.url = host_arg.clone();
+    }
+    // If no host arg was provided by CLI (neither --local, --cloud, nor --host) AND
+    // the URL in effective_creds is currently empty (e.g., cache was empty and returned BusterCredentials with empty url),
+    // set it to the default. This ensures URL is not empty before `prompt_for_missing_credentials`
+    // if no host arg was given and cache didn't provide one.
+    else if effective_creds.url.is_empty() { // This case handles if get_buster_credentials somehow returned empty URL or initial default was empty.
+        effective_creds.url = DEFAULT_HOST.to_string();
+    }
+    // If get_buster_credentials returned a specific URL from cache, and no host args are given, it remains that specific URL.
+    // If get_buster_credentials returned the default URL (or cache was empty -> default), and no host args, it remains default.
+
+    if let Some(api_key_arg) = &args.api_key {
+        effective_creds.api_key = api_key_arg.clone();
     }
 
-    Ok(Some(buster_creds))
+    Ok(Some(effective_creds))
 }
 
 /// Prompts the user interactively for missing host and API key information.
 async fn prompt_for_missing_credentials(
     creds: &mut BusterCredentials,
     args: &AuthArgs,
-    existing_creds_present: bool, // Needed to adjust prompt text
+    api_key_is_currently_set: bool, // Reflects if API key is set in `creds` before this prompt
 ) -> Result<()> {
     let host_provided = args.host.is_some();
     let api_key_provided = args.api_key.is_some();
 
-    // Prompt for URL if not provided via args and current URL is default or empty
-    if !host_provided && (creds.url.is_empty() || creds.url == DEFAULT_HOST) {
+    // Prompt for URL if:
+    // - Not using --local.
+    // - Not using --cloud.
+    // - Not using --host.
+    // - AND the current URL in `creds` (after cache/args) is still empty or the default.
+    if !args.local && !args.cloud && args.host.is_none() && (creds.url.is_empty() || creds.url == DEFAULT_HOST) {
          let default_url_to_show = if creds.url.is_empty() { DEFAULT_HOST } else { &creds.url };
         let url_input = Text::new("Enter the URL of your Buster API")
             .with_default(default_url_to_show)
@@ -231,7 +268,7 @@ async fn prompt_for_missing_credentials(
             format!("{}...", &creds.api_key[0..std::cmp::min(4, creds.api_key.len())])
         };
 
-        let prompt_message = if existing_creds_present {
+        let prompt_message = if api_key_is_currently_set { // Use the passed flag
              format!("Enter new API key (current: {obfuscated_api_key}):")
         } else {
              format!("Enter your API key (current: {obfuscated_api_key}):")
@@ -271,13 +308,27 @@ async fn save_credentials_or_notify(
     creds: BusterCredentials,
     no_save: bool,
 ) -> Result<()> {
-    if !no_save {
-        set_buster_credentials(creds).await
-            .map_err(|e| AuthError::SaveCredentialsFailed(e.to_string()))?;
-        println!("Credentials saved successfully!");
+    let masked_api_key = if creds.api_key.is_empty() {
+        "[Not Set]".to_string() // Should ideally not happen if validation passed
     } else {
-        println!("Authentication successful!");
-        println!("Note: Credentials were not saved due to --no-save flag");
+        let api_key_len = creds.api_key.len();
+        let visible_part_start_index = if api_key_len > 6 { api_key_len - 6 } else { 0 };
+        format!("****{}", &creds.api_key[visible_part_start_index..])
+    };
+
+    println!("✅ You've successfully connected to Buster!");
+    println!(); // Newline for separation
+    println!("Connection details:");
+    println!("  host: {}", creds.url);
+    println!("  api_key: {}", masked_api_key);
+
+    if !no_save {
+        set_buster_credentials(creds)
+            .await
+            .map_err(|e| AuthError::SaveCredentialsFailed(e.to_string()))?;
+        println!("\nCredentials saved successfully!");
+    } else {
+        println!("\nNote: Credentials were not saved due to --no-save flag");
     }
     Ok(())
 }
@@ -289,24 +340,43 @@ pub async fn auth_with_args(args: AuthArgs) -> Result<()> {
         return Ok(()); // Exit early if credentials were cleared
     }
 
-    // 2. Load existing credentials or initialize defaults, confirm overwrite if needed
-    let mut opt_buster_creds = match load_and_confirm_credentials(&args).await? {
+    // 2. Load existing credentials or initialize defaults, confirm overwrite if needed, and apply args
+    let mut creds_after_load_and_args = match load_and_confirm_credentials(&args).await? {
          Some(creds) => creds,
          None => return Ok(()), // User cancelled overwrite prompt
     };
-    let existing_creds_present = !opt_buster_creds.url.is_empty() && !opt_buster_creds.api_key.is_empty();
+    
+    // Store the host URL that will be used for connection attempts.
+    // This URL is determined after considering cache, defaults, and CLI args like --local, --cloud, --host.
+    let attempted_host_url = creds_after_load_and_args.url.clone();
 
+    // This flag is for tailoring the prompt text in `prompt_for_missing_credentials`.
+    let api_key_is_present_before_interactive_prompt = !creds_after_load_and_args.api_key.is_empty();
 
     // 3. Prompt for missing credentials interactively
-    prompt_for_missing_credentials(&mut opt_buster_creds, &args, existing_creds_present).await?;
-
+    if let Err(prompt_err) = prompt_for_missing_credentials(
+        &mut creds_after_load_and_args, 
+        &args, 
+        api_key_is_present_before_interactive_prompt
+    ).await {
+        eprintln!("Failed during credential input process.");
+        eprintln!("Intended host for configuration: {}", attempted_host_url);
+        return Err(prompt_err); // Propagate the original error (anyhow::Error)
+    }
 
     // 4. Validate the final credentials
     let validator = RealCredentialsValidator;
-    validate_credentials(&opt_buster_creds, &validator).await?;
+    if let Err(validation_err) = validate_credentials(&creds_after_load_and_args, &validator).await {
+        // validation_err is AuthError. We print its specific message.
+        eprintln!("Authentication failed: {}", validation_err);
+        eprintln!("Attempted to connect to host: {}", attempted_host_url);
+        return Err(validation_err.into()); // Propagate as anyhow::Error
+    }
 
     // 5. Save credentials or notify
-    save_credentials_or_notify(opt_buster_creds, args.no_save).await?;
+    // This function prints connection details (including host) on success internally.
+    // If it errors, it's a save error after successful validation, not a connection/validation error.
+    save_credentials_or_notify(creds_after_load_and_args, args.no_save).await?;
 
     Ok(())
 }
