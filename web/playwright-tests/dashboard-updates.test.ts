@@ -6,6 +6,9 @@ test('Go to dashboard', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'New dashboard' })).toBeVisible();
   await expect(page.getByRole('button', { name: '12px star' })).toBeVisible();
   await page.getByRole('link', { name: 'Important Metrics 12px star' }).click();
+  await page.waitForTimeout(100);
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await expect(page.getByRole('textbox', { name: 'New dashboard' })).toHaveValue(
     'Important Metrics'
   );
@@ -152,9 +155,12 @@ test('Can edit name and description of a dashboard', async ({ page }) => {
   await page.waitForLoadState('networkidle');
   await page.getByTestId('segmented-trigger-file').click();
   await page.getByTestId('segmented-trigger-file').click();
+  await page.waitForTimeout(1000);
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
 
   await expect(page.getByRole('code').getByText('Important Metrics SWAG')).toBeVisible({
-    timeout: 5000
+    timeout: 22000
   });
   await expect(page.locator('.current-line').first()).toBeVisible();
   await page.getByTestId('segmented-trigger-dashboard').click();

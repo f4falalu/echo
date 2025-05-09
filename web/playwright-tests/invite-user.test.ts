@@ -12,11 +12,16 @@ test('Invite User', async ({ page }) => {
     .getByRole('textbox', { name: 'buster@bluthbananas.com,' })
     .fill('nate+integration-test@buser.so');
   await page.getByRole('button', { name: 'Send invites' }).click();
+  await page.waitForTimeout(100);
   await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await expect(page.getByText('Invites sent').first()).toBeVisible({ timeout: 3000 });
 
   await page.getByRole('button').filter({ hasText: /^$/ }).first().click();
   await page.getByRole('link', { name: 'Users' }).click();
+  await page.waitForTimeout(1000);
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await expect(page.getByRole('link', { name: 'nate+integration-test@buser.' })).toBeVisible();
   await expect(page.getByRole('main')).toMatchAriaSnapshot(`
     - img
@@ -24,13 +29,18 @@ test('Invite User', async ({ page }) => {
     `);
 
   await page.getByRole('link', { name: 'nate+integration-test@buser.' }).click();
-
+  await page.waitForTimeout(100);
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await expect(page.getByText('nate+integration-test@buser.so')).toBeVisible();
 });
 
 test('Can change user role', async ({ page }) => {
   await page.goto('http://localhost:3000/app/settings/users');
   await page.getByRole('link', { name: 'B blake blake@buster.so' }).click();
+  await page.waitForTimeout(1000);
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await expect(page.getByText('blake@buster.so')).toBeVisible();
   await expect(page.getByRole('combobox')).toHaveText(/Querier/);
   await page.getByRole('combobox').click();
@@ -51,4 +61,5 @@ test('Can change user role', async ({ page }) => {
   ).toBeVisible();
   await page.waitForTimeout(15);
   await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
 });
