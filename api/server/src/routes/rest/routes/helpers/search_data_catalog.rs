@@ -323,7 +323,7 @@ async fn filter_datasets_with_llm(
 
     let model =
         if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
-            "gpt-4.1-mini".to_string()
+            "gpt-4.1-nano".to_string()
         } else {
             "gemini-2.0-flash-001".to_string()
         };
@@ -341,6 +341,7 @@ async fn filter_datasets_with_llm(
             type_: "json_object".to_string(),
             json_schema: None,
         }),
+        store: Some(true),
         metadata: Some(Metadata {
             generation_name: "filter_data_catalog".to_string(),
             user_id: user.id.to_string(),

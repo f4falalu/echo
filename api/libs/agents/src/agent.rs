@@ -680,7 +680,9 @@ impl Agent {
                     event_id: None, // Raindrop assigns this
                     timestamp: Some(chrono::Utc::now()),
                 };
-                if let Err(e) = client.track_events(vec![event]).await {}
+                if let Err(e) = client.track_events(vec![event]).await {
+                    tracing::error!(agent_name = %user_id, session_id = %session_id, "Error tracking llm_request with Raindrop: {:?}", e);
+                }
             });
         }
         // --- End Track Request ---
@@ -931,7 +933,9 @@ impl Agent {
                     event_id: None, // Raindrop assigns this
                     timestamp: Some(chrono::Utc::now()),
                 };
-                if let Err(e) = client.track_events(vec![event]).await {}
+                if let Err(e) = client.track_events(vec![event]).await {
+                    tracing::error!(agent_name = %user_id, session_id = %session_id, "Error tracking llm_response with Raindrop: {:?}", e);
+                }
             });
         }
         // --- End Track Response ---
