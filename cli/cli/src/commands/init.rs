@@ -736,18 +736,17 @@ async fn generate_semantic_models_from_dbt_catalog(
     println!("\n{}", "⚙️  Generating semantic models from dbt catalog...".dimmed());
 
     // --- 1. Load Catalog & Build Lookup Map ---
-    let catalog_json_path = buster_config_dir.join("target").join("catalog.json");
-    if Confirm::new("Run 'dbt docs generate' to refresh dbt catalog (catalog.json)?")
-        .with_default(true)
-        .prompt()?
-    {
-        match run_dbt_docs_generate(buster_config_dir).await {
-            Ok(_) => {}
-            Err(e) => eprintln!("{}", format!("⚠️ 'dbt docs generate' error. Proceeding with existing catalog if available. Error: {}", e).yellow()),
+    // The user has already confirmed they want to run `dbt docs generate` in the calling function (init or generate_semantic_models_flow).
+    println!("{}", "ℹ️ Attempting to refresh dbt catalog (catalog.json) by running 'dbt docs generate'...".dimmed());
+    match run_dbt_docs_generate(buster_config_dir).await {
+        Ok(_) => {
+            println!("{}", "✅ 'dbt docs generate' completed successfully.".green());
         }
-    } else {
-        println!("{}", "ℹ️ Skipping 'dbt docs generate'. Using existing catalog.json if available.".dimmed());
+        Err(e) => {
+            eprintln!("{}", format!("⚠️ 'dbt docs generate' failed: {}. Proceeding with existing catalog if available.", e).yellow());
+        }
     }
+    let catalog_json_path = buster_config_dir.join("target").join("catalog.json");
 
     if !catalog_json_path.exists() {
         eprintln!("{}", format!("❌ catalog.json not found at {}. Cannot generate models.", catalog_json_path.display()).red());
@@ -891,6 +890,97 @@ async fn generate_semantic_models_from_dbt_catalog(
         // Defaulting to side-by-side for safety, though this indicates a potential config issue handled earlier in init.
         println!("{}", "⚠️ Warning: Semantic model output directory not clearly configured, defaulting to side-by-side generation logic.".yellow());
     }
+
+    // --- .dbtignore update logic for side-by-side generation ---
+    if is_side_by_side_generation {
+        println!("{}", "ℹ️ Side-by-side generation selected. Ensuring .dbtignore is updated...".dimmed());
+        let dbtignore_path = buster_config_dir.join(".dbtignore");
+        let mut dbtignore_content = match fs::read_to_string(&dbtignore_path) {
+            Ok(content) => content,
+            Err(_) => String::new(), // If file doesn't exist or error, start with empty
+        };
+
+        let mut patterns_to_add: HashSet<String> = HashSet::new();
+
+        let mut model_source_dirs: Vec<String> = Vec::new();
+        let mut used_buster_config_paths = false;
+
+        if let Some(projects) = &buster_config.projects {
+            if let Some(first_project) = projects.first() {
+                if let Some(config_model_paths) = &first_project.model_paths {
+                    if config_model_paths.iter().any(|s| !s.trim().is_empty()) {
+                        model_source_dirs.extend(config_model_paths.iter().filter(|s| !s.trim().is_empty()).cloned());
+                        used_buster_config_paths = true;
+                    }
+                }
+            }
+        }
+
+        if !used_buster_config_paths {
+            // Try dbt_project.yml only if buster.yml paths were not used (either not present or all empty)
+            if let Ok(Some(dbt_proj_content)) = parse_dbt_project_file_content(buster_config_dir) {
+                if dbt_proj_content.model_paths.iter().any(|s| !s.trim().is_empty()) {
+                    model_source_dirs.extend(dbt_proj_content.model_paths.into_iter().filter(|s| !s.trim().is_empty()));
+                }
+            }
+        }
+        
+        // If model_source_dirs is still empty after all checks, default to "models"
+        if model_source_dirs.is_empty() {
+             model_source_dirs.push("models".to_string());
+             println!("{}", "ℹ️ No specific model paths found in buster.yml or dbt_project.yml for .dbtignore. Defaulting to 'models/**/*.yml'.".dimmed());
+        }
+
+        for model_dir_str in model_source_dirs {
+            let normalized_model_dir = model_dir_str.trim().trim_end_matches('/');
+            if normalized_model_dir.is_empty() { continue; }
+            let pattern = format!("{}/**/*.yml", normalized_model_dir);
+            patterns_to_add.insert(pattern);
+        }
+
+        let existing_lines: HashSet<String> = dbtignore_content
+            .lines()
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .collect();
+            
+        let mut new_patterns_added_to_content = false;
+        let mut temp_new_content_additions = String::new();
+
+        for pattern in patterns_to_add {
+            if !existing_lines.contains(&pattern) {
+                if !temp_new_content_additions.is_empty() { // Add newline before subsequent new patterns
+                    temp_new_content_additions.push('\n');
+                }
+                temp_new_content_additions.push_str(&pattern);
+                println!("{} Adding pattern to .dbtignore: {}", "+".green(), pattern.cyan());
+                new_patterns_added_to_content = true;
+            } else {
+                println!("{} Pattern already in .dbtignore: {}", "=".dimmed(), pattern.dimmed());
+            }
+        }
+
+        if new_patterns_added_to_content {
+            // Ensure existing content ends with a newline if it's not empty and we're adding more
+            if !dbtignore_content.is_empty() && !dbtignore_content.ends_with('\n') {
+                dbtignore_content.push('\n');
+            }
+            dbtignore_content.push_str(&temp_new_content_additions);
+            // Ensure the final content (after additions) ends with a newline if not empty
+            if !dbtignore_content.is_empty() && !dbtignore_content.ends_with('\n') {
+                dbtignore_content.push('\n');
+            }
+
+            fs::write(&dbtignore_path, &dbtignore_content)
+                .map_err(|e| anyhow!("Failed to write to .dbtignore at {}: {}", dbtignore_path.display(), e))?;
+            println!("{} {}", "✅".green(), format!(".dbtignore updated at {}", dbtignore_path.display()).dimmed());
+        } else if !dbtignore_path.exists() && dbtignore_content.is_empty() {
+             println!("{}", "ℹ️ No new patterns to add and .dbtignore does not exist. Skipping .dbtignore creation.".dimmed());
+        } else {
+             println!("{}", "ℹ️ .dbtignore already contains the necessary patterns or no new patterns were identified. No changes made.".dimmed());
+        }
+    }
+    // --- End .dbtignore update logic ---
 
     // --- 4. Iterate Through SQL Files & Generate YamlModels ---
     let mut yaml_models_generated_count = 0;
