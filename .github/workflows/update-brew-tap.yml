@@ -69,7 +69,7 @@ jobs:
         version="${input_tag#v}"
         echo "Input tag: ${input_tag}, Version: ${version}"
 
-        formula_file="buster.rb" # Name of the formula file in the tap repository
+        formula_file="Formula/buster.rb" # Name of the formula file in the tap repository
 
         echo "Generating ${formula_file}..."
         echo '# typed: false' > "${formula_file}"
