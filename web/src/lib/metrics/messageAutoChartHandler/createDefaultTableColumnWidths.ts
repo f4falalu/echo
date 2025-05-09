@@ -34,7 +34,7 @@ const getDefaultColumnWidth = (
   const longestString = rows.reduce((acc, curr) => {
     const currString = cellFormat(curr[field], field);
     if (!currString) return acc;
-    return acc.length > currString.length ? acc : currString;
+    return String(acc).length > String(currString).length ? acc : currString;
   }, headerString);
   const longestWidth = measureTextWidth(longestString).width + OFFSET;
   return clamp(longestWidth, MIN_COLUMN_WIDTH, MAX_COLUMN_WIDTH);
