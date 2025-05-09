@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use colored::*;
 use glob::{glob, Pattern, PatternError};
 use indicatif::{ProgressBar, ProgressStyle};
-use inquire::{validator::Validation, Confirm, Password, Select, Text, MultiSelect};
+use inquire::{validator::Validation, Confirm, Password, Select, Text, MultiSelect, PasswordDisplayMode};
 use once_cell::sync::Lazy;
 use query_engine::credentials::{
     BigqueryCredentials, Credential, DatabricksCredentials, MySqlCredentials, PostgresCredentials,
@@ -266,8 +266,15 @@ fn prompt_required_text(prompt: &str, help_message: Option<&str>) -> Result<Stri
 }
 
 fn prompt_validated_name(prompt: &str, suggested_name: Option<&str>) -> Result<String> {
+    let base_help_message = "Only alphanumeric characters, dash (-) and underscore (_) allowed";
+    let help_message = if let Some(s_name) = suggested_name {
+        format!("{}. Hit enter to use the default ({}).", base_help_message, s_name)
+    } else {
+        base_help_message.to_string()
+    };
+
     let mut name_prompt = Text::new(prompt)
-        .with_help_message("Only alphanumeric characters, dash (-) and underscore (_) allowed");
+        .with_help_message(&help_message);
 
     if let Some(s_name) = suggested_name {
         name_prompt = name_prompt.with_default(s_name);
@@ -292,6 +299,7 @@ fn prompt_validated_name(prompt: &str, suggested_name: Option<&str>) -> Result<S
 
 fn prompt_password(prompt: &str) -> Result<String> {
     Password::new(prompt)
+        .with_display_mode(PasswordDisplayMode::Masked)
         .with_validator(|input: &str| {
             if input.trim().is_empty() {
                 Ok(Validation::Invalid("Password cannot be empty".into()))
@@ -321,7 +329,7 @@ fn prompt_u16_with_default(prompt: &str, default: &str, help_message: Option<&st
 }
 
 // --- End Input Helper Functions ---
-
+// 
 // --- API Interaction Helper ---
 
 async fn create_data_source_with_progress(
@@ -368,7 +376,7 @@ async fn create_data_source_with_progress(
 // --- End API Interaction Helper ---
 
 pub async fn init(destination_path: Option<&str>) -> Result<()> {
-    println!("\n{}\n", "🚀 Initializing Buster...".bold().green());
+    println!("{}\n", "🚀 Initializing Buster...".bold().green());
 
     // Check for Buster credentials with progress indicator
     let spinner = ProgressBar::new_spinner();
@@ -383,11 +391,13 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
 
     let buster_creds = match get_and_validate_buster_credentials().await {
         Ok(creds) => {
-            spinner.finish_with_message("✅ Buster credentials found and validated.".green().to_string());
+            spinner.finish_and_clear();
+            println!("{}", "✅ Buster credentials found and validated.".green().to_string());
             creds
         }
         Err(_) => {
-            spinner.finish_with_message("❌ No valid Buster credentials found.".red().to_string());
+            spinner.finish_and_clear();
+            println!("{}", "❌ No valid Buster credentials found.".red().to_string());
             println!("Please run {} first.", "buster auth".cyan());
             return Err(anyhow!("No valid Buster credentials found"));
         }
@@ -413,7 +423,7 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
             println!("{}", "ℹ️ Keeping existing buster.yml file. Configuration will be skipped.".yellow());
             match BusterConfig::load(&config_path) {
                 Ok(existing_cfg) => {
-                    if Confirm::new("Do you want to attempt to generate a base semantic layer from your dbt project (using existing buster.yml)?").with_default(true).prompt()? {
+                    if Confirm::new("Would you like to use `dbt docs generate` and build your base yml files?").with_default(true).prompt()? {
                         let mut mutable_existing_cfg = existing_cfg.clone(); // Clone to make it mutable
                         generate_semantic_models_flow(&mut mutable_existing_cfg, &config_path, &dest_path).await?;
                     }
@@ -430,9 +440,9 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
 
     if let Some(name) = &dbt_project_main_name_suggestion {
         println!(
-            "\n{}",
+            "\n{}\n",
             format!(
-                "ℹ️  dbt_project.yml found. Suggesting data source name: '{}'",
+                "ℹ️  dbt_project.yml found ({}). Will use settings for defaults.",
                 name.cyan()
             )
             .dimmed()
@@ -535,24 +545,27 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
         anyhow!("❌ Failed to load buster.yml (path: {}): {}", config_path.display(), e)
     })?;
 
+    // Default directory for semantic models: "" for side-by-side
+    let default_semantic_models_dirs_str = current_buster_config.projects.as_ref()
+        .and_then(|projs| projs.first())
+        .and_then(|proj| proj.semantic_model_paths.as_ref())
+        .filter(|paths| !paths.is_empty()) // Only join if paths exist and are not empty
+        .map(|paths| paths.join(","))
+        .unwrap_or_else(String::new); // Default to empty string for side-by-side
+
+    let semantic_models_dirs_input_str = Text::new("Enter directory/directories for generated semantic model YAML files (comma-separated, leave empty for side-by-side with SQL files):")
+        .with_default(&default_semantic_models_dirs_str)
+        .with_help_message("Example: ./semantic_layer (for dedicated dir) or empty (for side-by-side)")
+        .prompt()?;
+
     // --- Semantic Model Generation --- 
-    if Confirm::new("Do you want to attempt to generate a base semantic layer from your dbt project?")
+    if Confirm::new("Would you like to use `dbt docs generate` and build your base yml files?")
         .with_default(true)
         .prompt()? 
     {
-        // Default directory for semantic models: "" for side-by-side
-        let default_semantic_models_dirs_str = current_buster_config.projects.as_ref()
-            .and_then(|projs| projs.first())
-            .and_then(|proj| proj.semantic_model_paths.as_ref())
-            .filter(|paths| !paths.is_empty()) // Only join if paths exist and are not empty
-            .map(|paths| paths.join(","))
-            .unwrap_or_else(String::new); // Default to empty string for side-by-side
-
-        let semantic_models_dirs_input_str = Text::new("Enter directory/directories for generated semantic model YAML files (comma-separated, leave empty for side-by-side with SQL files):")
-            .with_default(&default_semantic_models_dirs_str)
-            .with_help_message("Example: ./semantic_layer (for dedicated dir) or empty (for side-by-side)")
-            .prompt()?;
-
+        // The original code for defining default_semantic_models_dirs_str and 
+        // prompting for semantic_models_dirs_input_str has been moved above.
+        // Now we use the semantic_models_dirs_input_str that was already prompted.
         let semantic_model_paths_vec = semantic_models_dirs_input_str
             .split(',')
             .map(|s| s.trim().to_string())
@@ -575,14 +588,33 @@ pub async fn init(destination_path: Option<&str>) -> Result<()> {
         }
 
 
-        // Store relative paths in the config
+        // Store relative paths in the config, normalizing them.
+        // Relative paths are assumed to be relative to dest_path.
+        // Absolute paths are made relative to dest_path if possible.
         let relative_semantic_model_paths = semantic_model_paths_vec.iter().map(|p_str| {
             let p_path = PathBuf::from(p_str);
-            match pathdiff::diff_paths(&p_path, &dest_path) {
-                Some(p) => p.to_string_lossy().into_owned(),
-                None => {
-                    eprintln!("{}", format!("⚠️ Could not determine relative path for semantic model directory '{}'. Using path as is.", p_str).yellow());
-                    p_str.clone()
+            if p_path.is_relative() {
+                // Normalize relative paths (e.g., "./foo" to "foo", "foo/./bar" to "foo/bar")
+                // This does not require filesystem access.
+                let normalized_relative_path = p_path.components().collect::<PathBuf>();
+                normalized_relative_path.to_string_lossy().into_owned()
+            } else {
+                // For absolute paths, try to make them relative to dest_path.
+                // This relies on pathdiff and its canonicalization (which needs FS access).
+                match pathdiff::diff_paths(&p_path, &dest_path) {
+                    Some(relative_version_of_absolute_path) => {
+                        relative_version_of_absolute_path.to_string_lossy().into_owned()
+                    }
+                    None => {
+                        eprintln!(
+                            "{}",
+                            format!(
+                                "⚠️ Could not make absolute path '{}' relative to project root '{}', or path does not exist. Using path as is.",
+                                p_path.display(), dest_path.display()
+                            ).yellow()
+                        );
+                        p_str.clone() // Fallback to using the original absolute string
+                    }
                 }
             }
         }).collect::<Vec<String>>();
@@ -646,14 +678,33 @@ async fn generate_semantic_models_flow(buster_config: &mut BusterConfig, config_
         println!("{}", "ℹ️ Semantic models will be generated side-by-side with their SQL counterparts.".dimmed());
     }
     
-    // Store relative paths in the config
+    // Store relative paths in the config, normalizing them.
+    // Relative paths are assumed to be relative to buster_config_dir.
+    // Absolute paths are made relative to buster_config_dir if possible.
     let relative_semantic_model_paths = semantic_model_paths_vec.iter().map(|p_str| {
         let p_path = PathBuf::from(p_str);
-        match pathdiff::diff_paths(&p_path, buster_config_dir) {
-            Some(p) => p.to_string_lossy().into_owned(),
-            None => {
-                eprintln!("{}", format!("⚠️ Could not determine relative path for semantic model directory '{}' relative to '{}'. Using path as is.", p_path.display(), buster_config_dir.display()).yellow());
-                p_str.clone()
+        if p_path.is_relative() {
+            // Normalize relative paths (e.g., "./foo" to "foo", "foo/./bar" to "foo/bar")
+            // This does not require filesystem access.
+            let normalized_relative_path = p_path.components().collect::<PathBuf>();
+            normalized_relative_path.to_string_lossy().into_owned()
+        } else {
+            // For absolute paths, try to make them relative to buster_config_dir.
+            // This relies on pathdiff and its canonicalization (which needs FS access).
+            match pathdiff::diff_paths(&p_path, buster_config_dir) { // Corrected to buster_config_dir
+                Some(relative_version_of_absolute_path) => {
+                    relative_version_of_absolute_path.to_string_lossy().into_owned()
+                }
+                None => {
+                    eprintln!(
+                        "{}",
+                        format!(
+                            "⚠️ Could not make absolute path '{}' relative to project root '{}', or path does not exist. Using path as is.",
+                            p_path.display(), buster_config_dir.display() // Corrected to buster_config_dir
+                        ).yellow()
+                    );
+                    p_str.clone() // Fallback to using the original absolute string
+                }
             }
         }
     }).collect::<Vec<String>>();
@@ -1081,42 +1132,77 @@ fn create_buster_config_file(
                 );
             }
 
+            // --- MODIFIED SECTION FOR CUSTOM OPTION ---
+            let custom_config_sentinel = "___CUSTOM_BUSTER_CONFIG___".to_string();
+            let custom_option_display_name = "Custom Manual Configuration".to_string();
+            let custom_context_option = DbtDerivedContextInfo {
+                display_name: custom_option_display_name.clone(),
+                config_path_segments: vec![custom_config_sentinel.clone()],
+                derived_model_paths: Vec::new(),
+                effective_schema: None,
+                effective_database: String::new(), // Not used for custom
+                dbt_project_name_in_config: custom_config_sentinel.clone(),
+            };
+
+            let mut options_for_multiselect = potential_contexts_info.clone(); // Clone original dbt contexts
+            options_for_multiselect.sort_by(|a, b| a.display_name.cmp(&b.display_name)); // Sort dbt contexts
+            options_for_multiselect.push(custom_context_option.clone()); // Add custom option
+
             if !potential_contexts_info.is_empty() {
-                println!("\n{}", "ℹ️ Found the following potential model configurations in your dbt_project.yml:".dimmed());
-                // Sort for consistent display
-                potential_contexts_info.sort_by(|a, b| a.display_name.cmp(&b.display_name));
+                println!("\n\n{}\n", "ℹ️ Found potential model configurations in dbt_project.yml (plus a 'Custom' option):".dimmed());
+            } else {
+                println!("\n\n{}", "ℹ️ No specific dbt model configurations found. You can choose 'Custom Manual Configuration'.".dimmed());
+            }
 
-                let selected_infos = MultiSelect::new(
-                    "Select dbt model configurations to create project contexts for in buster.yml:",
-                    potential_contexts_info,
-                )
-                .with_help_message("Use space to select, enter to confirm. Selected contexts will have their specific schema, database (if overridden in dbt), and model paths.")
-                .prompt();
+            let selected_options_result = MultiSelect::new(
+                "Select the paths to your models in your dbt project that you want to create semantic models for:",
+                options_for_multiselect,
+            )
+            .with_help_message("Use space to select, enter to confirm. 'Custom Manual Configuration' bypasses dbt-derived contexts for manual path entry.")
+            .prompt();
 
-                match selected_infos {
-                    Ok(infos) => {
-                        if infos.is_empty() {
-                            println!("{}", "No dbt configurations selected. Will prompt for manual model path configuration.".yellow());
-                        }
-                        for selected_info in infos {
+            match selected_options_result {
+                Ok(selected_items) => {
+                    let is_custom_selected = selected_items.iter().any(|item| item.dbt_project_name_in_config == custom_config_sentinel);
+
+                    if is_custom_selected {
+                        println!("{}", "Custom Manual Configuration selected. Proceeding with manual model path configuration...".yellow());
+                        // project_contexts remains empty, which triggers manual setup later
+                    } else {
+                        // Custom not selected, so process any actual dbt contexts that were chosen.
+                        // If selected_items is empty here, project_contexts will also remain empty.
+                        for dbt_info in selected_items {
+                            // This check is technically redundant if is_custom_selected is false,
+                            // but kept for safety in case logic evolves.
+                            if dbt_info.dbt_project_name_in_config == custom_config_sentinel {
+                                continue;
+                            }
                             project_contexts.push(ProjectContext {
                                 name: None, // User wants None
                                 data_source_name: Some(data_source_name_cli.to_string()),
-                                database: Some(selected_info.effective_database.clone()),
-                                schema: selected_info.effective_schema.clone(),
-                                model_paths: Some(selected_info.derived_model_paths.clone()),
+                                database: Some(dbt_info.effective_database.clone()),
+                                schema: dbt_info.effective_schema.clone(),
+                                model_paths: Some(dbt_info.derived_model_paths.clone()),
                                 exclude_files: None,
                                 exclude_tags: None,
                                 // semantic_model_paths will also use these specific dirs for side-by-side
-                                semantic_model_paths: Some(selected_info.derived_model_paths),
+                                semantic_model_paths: Some(dbt_info.derived_model_paths),
                             });
                         }
-                    }
-                    Err(e) => {
-                        eprintln!("Error during dbt configuration selection: {}. Proceeding with manual setup.", e);
+                        // If project_contexts is still empty at this point (e.g., user deselected all dbt options
+                        // or only custom was available and not picked), the later check `if project_contexts.is_empty()`
+                        // will correctly lead to manual configuration.
+                        if project_contexts.is_empty() && !is_custom_selected && !potential_contexts_info.is_empty() {
+                            println!("{}", "No dbt configurations selected. Proceeding with manual model path configuration.".yellow());
+                        }
                     }
                 }
+                Err(e) => {
+                    eprintln!("Error during dbt configuration selection: {}. Proceeding with manual setup.", e);
+                    // project_contexts remains empty by default
+                }
             }
+            // --- END MODIFIED SECTION ---
         }
     }
 
@@ -1132,9 +1218,9 @@ fn create_buster_config_file(
             }
         }
 
-        let model_paths_input = Text::new("Enter root paths to your SQL models (comma-separated):")
+        let model_paths_input = Text::new("Enter paths to your dbt models (comma-separated):")
             .with_default(&suggested_model_paths_str)
-            .with_help_message("Example: ./models,./analytics/models or models (if relative to dbt project root)")
+            .with_help_message("Example: `models`, `models/mart`, or `models` (relative to dbt project root)")
             .prompt()?;
 
         let model_paths_vec_option = if model_paths_input.trim().is_empty() {
@@ -1336,7 +1422,7 @@ async fn setup_redshift(
     let database = prompt_required_text("Enter the default Redshift database:", None)?;
     let schema = prompt_required_text("Enter the default Redshift schema:", None)?;
 
-    if Confirm::new("Do you want to create this data source in Buster Cloud?")
+    if Confirm::new("\nConfirm the connection details and create this data source?")
         .with_default(true)
         .prompt()? 
     {
@@ -1370,7 +1456,7 @@ async fn setup_postgres(
     let database = prompt_required_text("Enter the default PostgreSQL database name:", None)?;
     let schema = prompt_required_text("Enter the default PostgreSQL schema:", None)?;
 
-    if Confirm::new("Do you want to create this data source in Buster Cloud?")
+    if Confirm::new("\nConfirm the connection details and create this data source?")
         .with_default(true)
         .prompt()? 
     {
@@ -1407,7 +1493,7 @@ async fn setup_bigquery(
     let credentials_content = fs::read_to_string(&credentials_path_str).map_err(|e| anyhow!("Failed to read credentials file '{}': {}", credentials_path_str, e))?;
     let credentials_json: serde_json::Value = serde_json::from_str(&credentials_content).map_err(|e| anyhow!("Invalid JSON in credentials file '{}': {}", credentials_path_str, e))?;
     
-    if Confirm::new("Do you want to create this data source in Buster Cloud?")
+    if Confirm::new("\nConfirm the connection details and create this data source?")
         .with_default(true)
         .prompt()? 
     {
@@ -1437,7 +1523,7 @@ async fn setup_mysql(
     let database = prompt_required_text("Enter the default MySQL/MariaDB database name:", None)?;
     // No schema for MySQL
 
-    if Confirm::new("Do you want to create this data source in Buster Cloud?")
+    if Confirm::new("\nConfirm the connection details and create this data source?")
         .with_default(true)
         .prompt()? 
     {
@@ -1467,7 +1553,7 @@ async fn setup_sqlserver(
     let database = prompt_required_text("Enter the default SQL Server database name:", None)?;
     let schema = prompt_required_text("Enter the default SQL Server schema:", None)?;
 
-    if Confirm::new("Do you want to create this data source in Buster Cloud?")
+    if Confirm::new("\nConfirm the connection details and create this data source?")
         .with_default(true)
         .prompt()? 
     {
@@ -1496,7 +1582,7 @@ async fn setup_databricks(
     let catalog = prompt_required_text("Enter the default Databricks catalog:", None)?;
     let schema = prompt_required_text("Enter the default Databricks schema:", None)?;
 
-    if Confirm::new("Do you want to create this data source in Buster Cloud?")
+    if Confirm::new("\nConfirm the connection details and create this data source?")
         .with_default(true)
         .prompt()? 
     {
@@ -1528,7 +1614,7 @@ async fn setup_snowflake(
     let database = prompt_required_text("Enter the default Snowflake database name:", None)?;
     let schema = prompt_required_text("Enter the default Snowflake schema:", None)?;
 
-    if Confirm::new("Do you want to create this data source in Buster Cloud?")
+    if Confirm::new("\nConfirm the connection details and create this data source?")
         .with_default(true)
         .prompt()? 
     {

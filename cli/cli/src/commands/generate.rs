@@ -243,8 +243,31 @@ pub async fn generate_semantic_models_command(
                     break;
                 }
             }
-            let final_suffix = stripped_suffix_for_yaml.unwrap_or_else(|| PathBuf::from(&model_name_from_filename).with_extension("yml"));
-            semantic_output_base_abs_dir.join(final_suffix)
+            let final_suffix_from_stripping = stripped_suffix_for_yaml.unwrap_or_else(|| PathBuf::from(&model_name_from_filename).with_extension("yml"));
+
+            let mut actual_suffix_to_join = final_suffix_from_stripping.clone();
+            // Check if the semantic_output_base_abs_dir might already imply the first part of the stripped suffix.
+            // e.g., base_dir = ".../models/mart", suffix_from_stripping = "mart/model.yml" -> actual_suffix_to_join = "model.yml"
+            // e.g., base_dir = ".../output", suffix_from_stripping = "mart/model.yml" -> actual_suffix_to_join = "mart/model.yml"
+            if let Some(first_component_in_suffix) = final_suffix_from_stripping.components().next() {
+                if semantic_output_base_abs_dir.ends_with(first_component_in_suffix.as_os_str()) {
+                    // If the base output directory ends with the first path component of our stripped suffix
+                    // (e.g., base is ".../mart", suffix starts with "mart/"),
+                    // we should attempt to use the remainder of the suffix.
+                    if final_suffix_from_stripping.components().count() > 1 {
+                        // Only strip if there's more than one component in final_suffix_from_stripping.
+                        // e.g., if suffix is "mart/model.yml", first_component_in_suffix is "mart".
+                        // candidate_shorter_suffix becomes "model.yml". This is what we want.
+                        // If suffix was "model.yml", first_component_in_suffix is "model.yml".
+                        // semantic_output_base_abs_dir might end with "model.yml" (unlikely for a dir, but for robustness).
+                        // components().count() would be 1. We would not strip, correctly joining "model.yml".
+                        if let Ok(candidate_shorter_suffix) = final_suffix_from_stripping.strip_prefix(first_component_in_suffix.as_os_str()) {
+                           actual_suffix_to_join = candidate_shorter_suffix.to_path_buf();
+                        }
+                    }
+                }
+            }
+            semantic_output_base_abs_dir.join(actual_suffix_to_join)
         };
         if let Some(p) = individual_semantic_yaml_path.parent() { fs::create_dir_all(p)?; }
 
