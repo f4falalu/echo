@@ -1,7 +1,7 @@
 use anyhow::{Result};
 use async_trait::async_trait;
 use clap::Parser;
-use inquire::{Confirm, Password, Text};
+use inquire::{Confirm, Password, Text, PasswordDisplayMode};
 use thiserror::Error;
 
 use crate::utils::{
@@ -274,9 +274,15 @@ async fn prompt_for_missing_credentials(
              format!("Enter your API key (current: {obfuscated_api_key}):")
         };
 
-        let api_key_input = Password::new(&prompt_message)
-            .without_confirmation()
-            .with_help_message("Your API key can be found in your Buster dashboard. Leave blank to keep the current key.")
+        let help_message = format!(
+            "Your API key can be found at {}/app/settings/api-keys. Leave blank to keep the current key.",
+            creds.url
+        );
+
+        let api_key_input = Text::new(&prompt_message)
+            // .without_confirmation() // Removed for Text input
+            // .with_display_mode(PasswordDisplayMode::Masked) // Removed for Text input
+            .with_help_message(&help_message)
             .prompt()
             .map_err(|e| AuthError::UserInputFailed(e.to_string()))?;
 
@@ -290,6 +296,8 @@ async fn prompt_for_missing_credentials(
     if creds.api_key.is_empty() {
         return Err(AuthError::MissingApiKey.into());
     }
+
+    println!("\n");
 
     Ok(())
 }
