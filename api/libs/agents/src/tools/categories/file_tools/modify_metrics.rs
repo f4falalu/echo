@@ -271,8 +271,8 @@ impl ToolExecutor for ModifyMetricFilesTool {
 
         let data_source_dialect = match self.agent.get_state_value("data_source_syntax").await {
             Some(Value::String(dialect_str)) => dialect_str,
-            Some(_) => bail!("Data source dialect is not a string"),
-            None => bail!("Data source dialect not found in agent state"),
+            Some(_) => "generic".to_string(),
+            None => "generic".to_string(),
         };
 
         // Map to store validated dataset IDs for each successfully updated metric
