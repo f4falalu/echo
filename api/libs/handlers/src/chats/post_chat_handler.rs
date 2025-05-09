@@ -2714,7 +2714,7 @@ pub async fn generate_conversation_title(
     let llm_client = LiteLLMClient::new(None, None);
 
     let model = if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
-        "gpt-4.1-mini".to_string()
+        "gpt-4.1-nano".to_string()
     } else {
         "gemini-2.0-flash-001".to_string()
     };
@@ -2727,6 +2727,7 @@ pub async fn generate_conversation_title(
             content: prompt,
             name: None,
         }],
+        store: Some(true),
         metadata: Some(Metadata {
             generation_name: "conversation_title".to_string(),
             user_id: user_id.to_string(),

@@ -155,7 +155,8 @@ pub async fn manage_settings_interactive() -> Result<(), BusterError> {
         final_rerank_api_key.as_deref(),
         final_rerank_model.as_deref(),
         final_rerank_base_url.as_deref(),
-        current_llm_base_url.as_deref().or(Some(&llm_base_url_default)) // Ensure LLM_BASE_URL is present
+        current_llm_base_url.as_deref().or(Some(&llm_base_url_default)), // Ensure LLM_BASE_URL is present
+        None,
     )?;
 
     println!("Configuration saved to {}.", target_dotenv_path.display());
