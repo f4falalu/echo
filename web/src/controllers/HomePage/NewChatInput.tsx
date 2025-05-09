@@ -6,6 +6,9 @@ import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { inputHasText } from '@/lib/text';
 import { useMemoizedFn, useMount } from '@/hooks';
 import { ChangeEvent, useMemo, useState } from 'react';
+import { useGetDatasets } from '@/api/buster_rest';
+import { NewChatWarning } from './NewChatWarning';
+import { useNewChatWarning } from './useNewChatWarning';
 
 const autoResizeConfig = {
   minRows: 3,
@@ -49,17 +52,20 @@ export const NewChatInput: React.FC<{}> = () => {
   });
 
   return (
-    <InputTextAreaButton
-      className="transition-all duration-300 hover:shadow-lg active:shadow-md"
-      placeholder="Ask Buster a question..."
-      autoResize={autoResizeConfig}
-      onSubmit={onSubmit}
-      onChange={onChange}
-      onStop={onStop}
-      loading={loading}
-      disabledSubmit={disabledSubmit}
-      autoFocus
-      ref={textAreaRef}
-    />
+    <>
+      <InputTextAreaButton
+        className={'transition-all duration-300 hover:shadow-lg active:shadow-md'}
+        placeholder="Ask Buster a question..."
+        autoResize={autoResizeConfig}
+        onSubmit={onSubmit}
+        onChange={onChange}
+        onStop={onStop}
+        loading={loading}
+        disabled={false}
+        disabledSubmit={disabledSubmit}
+        autoFocus
+        ref={textAreaRef}
+      />
+    </>
   );
 };

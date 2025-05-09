@@ -11,6 +11,7 @@ export const useCloseVersionHistory = () => {
   const metricId = useChatLayoutContextSelector((x) => x.metricId);
   const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
   const messageId = useChatLayoutContextSelector((x) => x.messageId);
+  const currentRoute = useChatLayoutContextSelector((x) => x.currentRoute);
   const getInitialChatFileHref = useGetInitialChatFile();
 
   const href = useMemo(() => {
@@ -37,7 +38,7 @@ export const useCloseVersionHistory = () => {
         metricId,
         dashboardId,
         chatId,
-        secondaryView: null,
+        currentRoute,
         dashboardVersionNumber: undefined,
         metricVersionNumber: undefined,
         messageId

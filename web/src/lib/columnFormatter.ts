@@ -81,7 +81,9 @@ export const formatLabel = (
     if (style === 'currency') {
       formattedText = formatNumber(roundedNumber, {
         currency,
-        compact: compactNumbers
+        compact: compactNumbers,
+        minimumFractionDigits: Math.min(minimumFractionDigits, maximumFractionDigits),
+        maximumFractionDigits: Math.max(minimumFractionDigits, maximumFractionDigits)
       });
     } else {
       formattedText = formatNumber(roundedNumber, {

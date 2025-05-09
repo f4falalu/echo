@@ -203,6 +203,7 @@ test('Can toggle legend', async ({ page }) => {
     .getByRole('switch')
     .click();
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(100);
   await page.waitForLoadState('networkidle');
 
   await page.reload();
@@ -301,6 +302,7 @@ test('Can add a goal line', async ({ page }) => {
   await page.getByRole('button', { name: 'Add goal line' }).click();
 
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(100);
   await page.waitForLoadState('networkidle');
 
   await page.reload();
@@ -346,18 +348,19 @@ test('Can add a trendline', async ({ page }) => {
   await page.getByRole('button', { name: 'Save' }).click();
   await page.waitForTimeout(90);
   await page.waitForLoadState('networkidle');
-
+  await page.goto(
+    'http://localhost:3000/app/metrics/45c17750-2b61-5683-ba8d-ff6c6fefacee/chart?secondary_view=chart-edit'
+  );
   page.reload();
 
   await page.getByTestId('segmented-trigger-Styling').click();
-  await page
-    .locator('div')
-    .filter({ hasText: /^Trend lineAdd trend lineLinear$/ })
-    .getByRole('button')
-    .nth(1)
-    .click();
+  await page.waitForTimeout(50);
+  await expect(page.getByTestId('trendline-Linear').locator('div').nth(1)).toBeVisible();
+  await page.getByText('Styling').click();
+  await page.getByTestId('trendline-Linear').locator('div').nth(1).hover();
+  await page.getByTestId('delete-button').click();
   await page.getByRole('button', { name: 'Save' }).click();
-  await page.waitForTimeout(90);
+  await page.waitForTimeout(50);
   await page.waitForLoadState('networkidle');
 });
 

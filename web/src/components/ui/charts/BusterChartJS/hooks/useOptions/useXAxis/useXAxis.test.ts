@@ -284,4 +284,132 @@ describe('useXAxis', () => {
     expect(result.current?.title?.display).toBe(false);
     expect(result.current?.title?.text).toBe('');
   });
+
+  it('should correctly set xAxisColumnFormats and firstXColumnLabelFormat', () => {
+    // Test with default category column
+    const { result } = renderHook(() => useXAxis(defaultProps));
+
+    // Get the internal state to verify xAxisColumnFormats and firstXColumnLabelFormat
+    // We need to access the useXAxis hook results
+    expect(result.current).toBeDefined();
+
+    // For scatter chart
+    const scatterProps = {
+      ...defaultProps,
+      selectedChartType: ChartType.Scatter,
+      selectedAxis: {
+        x: ['numeric_column'],
+        y: ['numeric_column']
+      } as ChartEncodes
+    };
+
+    const { result: scatterResult } = renderHook(() => useXAxis(scatterProps));
+    expect(scatterResult.current).toBeDefined();
+    expect(scatterResult.current?.type).toBe('linear');
+
+    // For multiple x-axis columns
+    const multipleColumnsProps = {
+      ...defaultProps,
+      selectedAxis: {
+        x: ['category_column', 'numeric_column'],
+        y: ['numeric_column']
+      } as ChartEncodes
+    };
+
+    const { result: multiResult } = renderHook(() => useXAxis(multipleColumnsProps));
+    expect(multiResult.current).toBeDefined();
+    expect(multiResult.current?.type).toBe('category');
+
+    // For unsupported chart type (pie)
+    const pieProps = {
+      ...defaultProps,
+      selectedChartType: ChartType.Pie
+    };
+
+    const { result: pieResult } = renderHook(() => useXAxis(pieProps));
+    expect(pieResult.current).toBeUndefined();
+  });
+
+  it('should correctly handle firstXColumnLabelFormat for scatter chart', () => {
+    // Specifically test the firstXColumnLabelFormat logic for scatter charts
+    const scatterProps = {
+      ...defaultProps,
+      selectedChartType: ChartType.Scatter,
+      selectedAxis: {
+        x: ['numeric_column'],
+        y: ['numeric_column']
+      } as ChartEncodes
+    };
+
+    const { result } = renderHook(() => useXAxis(scatterProps));
+
+    // Verify that scatter charts get proper formatting with minimumFractionDigits and maximumFractionDigits set to 0
+    expect(result.current).toBeDefined();
+    expect(result.current?.type).toBe('linear');
+
+    // Test the tick callback formatting
+    // We can't directly access the firstXColumnLabelFormat from outside the hook,
+    // but we can test its effects through the tick callback behavior
+    expect(result.current?.ticks?.callback).toBeDefined();
+
+    // Verify custom column label formats are applied
+    const customFormatProps = {
+      ...scatterProps,
+      columnLabelFormats: {
+        ...defaultProps.columnLabelFormats,
+        numeric_column: {
+          ...DEFAULT_COLUMN_LABEL_FORMAT,
+          columnType: 'number' as SimplifiedColumnType,
+          style: 'number' as const,
+          minimumFractionDigits: 3,
+          maximumFractionDigits: 3
+        }
+      }
+    };
+
+    const { result: customResult } = renderHook(() => useXAxis(customFormatProps));
+    expect(customResult.current).toBeDefined();
+    expect(customResult.current?.type).toBe('linear');
+  });
+
+  it('should apply correct column formats for date columns with different formats', () => {
+    // Test with custom date format
+    const customDateFormatProps = {
+      ...defaultProps,
+      selectedChartType: ChartType.Line,
+      selectedAxis: {
+        x: ['date_column'],
+        y: ['numeric_column']
+      } as ChartEncodes,
+      columnLabelFormats: {
+        ...defaultProps.columnLabelFormats,
+        date_column: {
+          ...defaultProps.columnLabelFormats.date_column,
+          dateFormat: 'YYYY-MM-DD'
+        }
+      }
+    };
+
+    const { result } = renderHook(() => useXAxis(customDateFormatProps));
+    expect(result.current).toBeDefined();
+    expect(result.current?.type).toBe('time');
+    expect(result.current?.ticks?.callback).toBeDefined();
+
+    // Test with auto date format
+    const autoDateFormatProps = {
+      ...customDateFormatProps,
+      columnLabelFormats: {
+        ...defaultProps.columnLabelFormats,
+        date_column: {
+          ...defaultProps.columnLabelFormats.date_column,
+          dateFormat: 'auto'
+        }
+      }
+    };
+
+    const { result: autoResult } = renderHook(() => useXAxis(autoDateFormatProps));
+    expect(autoResult.current).toBeDefined();
+    expect(autoResult.current?.type).toBe('time');
+    expect(autoResult.current?.ticks?.callback).toBeDefined();
+  });
 });

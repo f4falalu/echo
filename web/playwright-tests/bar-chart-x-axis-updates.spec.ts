@@ -20,6 +20,7 @@ test('X axis config - Title', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Year' }).fill('WOOHOO!');
   await expect(page.getByTestId('select-axis-drop-zone-xAxis')).toContainText('WOOHOO!');
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await page.reload();
@@ -29,6 +30,7 @@ test('X axis config - Title', async ({ page }) => {
   await page.getByRole('textbox', { name: 'WOOHOO!' }).fill('Year');
   await page.waitForTimeout(100);
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(100);
   await page.reload();
@@ -66,8 +68,7 @@ test('X axis config - We can edit the label separator style', async ({ page }) =
   await page.getByRole('combobox').click();
   await page.getByRole('option', { name: '100,000' }).click();
   await page.getByRole('button', { name: 'Save' }).click();
-
-  await page.waitForTimeout(10);
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await expect(page.locator('body')).toMatchAriaSnapshot(`
@@ -83,7 +84,7 @@ test('X axis config - We can edit the label separator style', async ({ page }) =
   await page.getByRole('combobox').click();
   await page.getByRole('option', { name: '100000' }).click();
   await page.getByRole('button', { name: 'Save' }).click();
-
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
   await page.reload();
   await page.getByTestId('select-axis-drop-zone-xAxis').getByRole('button').nth(3).click();
@@ -103,6 +104,7 @@ test('X axis config - We can edit the decimal places', async ({ page }) => {
   await page.getByRole('spinbutton').first().click();
   await page.getByRole('spinbutton').first().fill('2');
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await page.reload();
@@ -117,6 +119,8 @@ test('X axis config - We can edit the decimal places', async ({ page }) => {
   await page.getByRole('spinbutton').first().click();
   await page.getByRole('spinbutton').first().fill('0');
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
+  await page.waitForLoadState('networkidle');
 });
 
 test('X axis config - We can edit the multiply by places', async ({ page }) => {
@@ -127,6 +131,7 @@ test('X axis config - We can edit the multiply by places', async ({ page }) => {
   await page.getByPlaceholder('1').click();
   await page.getByPlaceholder('1').fill('10');
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await page.reload();
@@ -135,6 +140,7 @@ test('X axis config - We can edit the multiply by places', async ({ page }) => {
   await page.getByPlaceholder('1').click();
   await page.getByPlaceholder('1').fill('1');
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 });
 
@@ -155,10 +161,12 @@ test('X axis config - We can edit the prefix', async ({ page }) => {
       - button "Save"
       `);
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
   await page.getByRole('textbox', { name: 'dollars' }).click();
   await page.getByRole('textbox', { name: 'dollars' }).fill('SWAG2');
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
   await expect(page.locator('body')).toMatchAriaSnapshot(`
       - textbox "New chart": Yearly Sales Revenue - Signature Cycles Products (Last 3 Years + YTD)
@@ -174,5 +182,6 @@ test('X axis config - We can edit the prefix', async ({ page }) => {
   await page.getByRole('textbox', { name: 'dollars' }).click();
   await page.getByRole('textbox', { name: 'dollars' }).fill('');
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 });

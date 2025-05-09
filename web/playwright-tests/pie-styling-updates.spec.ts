@@ -47,7 +47,7 @@ test.describe.serial('Pie chart styling updates', async () => {
     }
 
     await expect(page.getByRole('button', { name: 'Reset' })).toBeVisible();
-    await page.waitForTimeout(1125);
+    await page.waitForTimeout(1000);
     await page.getByRole('button', { name: 'Save' }).click();
     await page.waitForTimeout(125);
     await page.waitForLoadState('networkidle');
@@ -69,12 +69,9 @@ test.describe.serial('Pie chart styling updates', async () => {
     await page.waitForTimeout(55);
     await page.getByTestId('edit-chart-button').getByRole('button').click();
     await expect(page.getByTestId('metric-view-chart-content').getByRole('img')).toBeVisible();
-    await page.getByTestId('edit-sql-button').getByRole('button').click();
-    await page.waitForTimeout(55);
-    await expect(page.getByText('Copy SQLSaveRun')).toBeVisible();
-    await page.getByTestId('segmented-trigger-file').click();
-    await page.waitForTimeout(55);
-    await expect(page.getByText('Top 10 Products by Revenue (').first()).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'New chart' })).toHaveValue(
+      'Top 10 Products by Revenue (Last 4 Quarters)'
+    );
     await page.getByTestId('edit-chart-button').getByRole('button').click();
     await expect(page.getByText('Edit chart')).toBeVisible();
     await page

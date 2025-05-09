@@ -64,7 +64,7 @@ export const InputTextAreaButton = forwardRef<HTMLTextAreaElement, InputTextArea
         onClick={onClickBox}
         className={cn(
           inputTextAreaButtonVariants({ variant }),
-          'transition-all duration-500 hover:shadow-md focus:shadow-lg',
+          !disabled && 'transition-all duration-500 hover:shadow-md focus:shadow-lg',
           loading && 'border-border!',
           className
         )}>

@@ -4,8 +4,13 @@ import React, { useMemo } from 'react';
 import { Title } from '@/components/ui/typography';
 import { useUserConfigContextSelector } from '@/context/Users';
 import { NewChatInput } from './NewChatInput';
+import { useNewChatWarning } from './useNewChatWarning';
+import { NewChatWarning } from './NewChatWarning';
 
 export const HomePageController: React.FC<{}> = () => {
+  const newChatWarningProps = useNewChatWarning();
+  const { showWarning } = newChatWarningProps;
+
   const user = useUserConfigContextSelector((state) => state.user);
   const userName = user?.name;
 
@@ -24,18 +29,24 @@ export const HomePageController: React.FC<{}> = () => {
 
   return (
     <div className="flex flex-col items-center justify-center p-4.5">
-      <div className="mt-[150px] flex w-full max-w-[650px] flex-col space-y-6">
-        <div className="flex flex-col justify-center gap-y-1 text-center">
-          <Title as="h1" className="mb-0!">
-            {greeting}
-          </Title>
-          <Title as="h2" variant={'secondary'} className="mb-0! text-4xl!">
-            How can I help you today?
-          </Title>
+      {showWarning ? (
+        <div className="mt-18 flex w-full max-w-[650px] flex-col space-y-6">
+          <NewChatWarning {...newChatWarningProps} />
         </div>
+      ) : (
+        <div className="mt-[150px] flex w-full max-w-[650px] flex-col space-y-6">
+          <div className="flex flex-col justify-center gap-y-1 text-center">
+            <Title as="h1" className="mb-0!">
+              {greeting}
+            </Title>
+            <Title as="h2" variant={'secondary'} className="mb-0! text-4xl!">
+              How can I help you today?
+            </Title>
+          </div>
 
-        <NewChatInput />
-      </div>
+          <NewChatInput />
+        </div>
+      )}
     </div>
   );
 };
