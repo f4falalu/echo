@@ -1168,148 +1168,322 @@ async fn generate_embeddings_batch(texts: Vec<String>) -> Result<Vec<(String, Ve
     Ok(results)
 }
 
+// NEW: Helper function to process a serde_yaml::Value representing a single model (old-style)
+// for searchable dimensions.
+fn process_model_value_for_searchable_dimensions(
+    model_val: &serde_yaml::Value,
+    model_name_from_val: &str, // Name extracted from this model_val
+) -> Vec<SearchableDimension> {
+    let mut dimensions = Vec::new();
+    if let Some(dims_val) = model_val.get("dimensions").and_then(|d| d.as_sequence()) {
+        for dim_val in dims_val {
+            if dim_val.get("searchable").and_then(|s| s.as_bool()).unwrap_or(false) {
+                let dimension_name = dim_val.get("name")
+                    .and_then(|n| n.as_str())
+                    .unwrap_or("unknown_dimension")
+                    .to_string();
+                dimensions.push(SearchableDimension {
+                    model_name: model_name_from_val.to_string(),
+                    dimension_name: dimension_name.clone(),
+                    // Path might need more context if used, but kept simple for now.
+                    dimension_path: vec!["models".to_string(), model_name_from_val.to_string(), "dimensions".to_string(), dimension_name],
+                });
+            }
+        }
+    }
+    dimensions
+}
+
 /// Parse YAML content to find models with searchable dimensions
 fn extract_searchable_dimensions(yml_content: &str) -> Result<Vec<SearchableDimension>> {
     let mut searchable_dimensions = Vec::new();
 
-    // Try parsing with SemanticLayerSpec first
+    // Try parsing with Model (new spec for a single model file)
     match serde_yaml::from_str::<Model>(yml_content) {
-        Ok(model) => {
-            debug!("Successfully parsed yml_content with SemanticLayerSpec for extract_searchable_dimensions");
-            for dimension in model.dimensions {
+        Ok(model_spec) => {
+            debug!("Successfully parsed yml_content with Model for extract_searchable_dimensions (single new-spec model)");
+            for dimension in model_spec.dimensions {
                 if dimension.searchable {
                     searchable_dimensions.push(SearchableDimension {
-                            model_name: model.name.clone(),
-                            dimension_name: dimension.name.clone(),
-                            // The dimension_path might need adjustment if its usage relies on the old dynamic structure.
-                            // For now, creating a simplified path. This might need review based on how dimension_path is consumed.
-                            dimension_path: vec!["models".to_string(), model.name.clone(), "dimensions".to_string(), dimension.name],
-                        });
-                    }
+                        model_name: model_spec.name.clone(),
+                        dimension_name: dimension.name.clone(),
+                        dimension_path: vec!["models".to_string(), model_spec.name.clone(), "dimensions".to_string(), dimension.name.clone()],
+                    });
+                }
             }
         }
-        Err(e_spec) => {
-            warn!(
-                "Failed to parse yml_content with SemanticLayerSpec (error: {}), falling back to generic serde_yaml::Value for extract_searchable_dimensions. Consider updating YAML to new spec.",
-                e_spec
+        Err(e_spec_root) => {
+            // Failed to parse as a single new-spec Model at the root.
+            // Try parsing as generic serde_yaml::Value, which might contain a list or be an old flat model.
+            debug!(
+                "Failed to parse yml_content directly as Model (error: {}), trying generic serde_yaml::Value for extract_searchable_dimensions. YML might be a list or old format.",
+                e_spec_root
             );
-            // Fallback to original dynamic parsing logic
-            let yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
-                .context("Failed to parse dataset YAML content (fallback)")?;
+            let yaml_val: serde_yaml::Value = serde_yaml::from_str(yml_content)
+                .context("Failed to parse dataset YAML content as generic Value after Model parse failed")?;
 
-            if let Some(dimensions) = yaml["dimensions"].as_sequence() {
-                for dimension_val in dimensions {
-                    let model_name = dimension_val["model"].as_str().unwrap_or("unknown_model").to_string();
-                    if let Some(true) = dimension_val["searchable"].as_bool() {
-                        let dimension_name = dimension_val["name"].as_str().unwrap_or("unknown_dimension").to_string();
-                        searchable_dimensions.push(SearchableDimension {
-                                    model_name: model_name.clone(),
-                                    dimension_name: dimension_name.clone(),
-                                    dimension_path: vec!["models".to_string(), model_name.clone(), "dimensions".to_string(), dimension_name],
+            if let Some(models_list) = yaml_val.get("models").and_then(|m| m.as_sequence()) {
+                // Case: yml_content has a "models:" key with a list
+                debug!("Found 'models' list in YAML for extract_searchable_dimensions; processing list items.");
+                for model_item_val in models_list {
+                    // Try to parse each item in the list as a new-spec Model
+                    if let Ok(model_in_list) = serde_yaml::from_value::<Model>(model_item_val.clone()) {
+                        for dimension in model_in_list.dimensions {
+                            if dimension.searchable {
+                                searchable_dimensions.push(SearchableDimension {
+                                    model_name: model_in_list.name.clone(),
+                                    dimension_name: dimension.name.clone(),
+                                    dimension_path: vec!["models".to_string(), model_in_list.name.clone(), "dimensions".to_string(), dimension.name.clone()],
                                 });
+                            }
+                        }
+                    } else {
+                        // Fallback: treat item in list as an old-style map
+                        if let Some(model_name_in_list) = model_item_val.get("name").and_then(|n| n.as_str()) {
+                            searchable_dimensions.extend(process_model_value_for_searchable_dimensions(model_item_val, model_name_in_list));
+                        } else {
+                            warn!("Skipping item in 'models' list for searchable_dimensions due to missing name: {:?}", model_item_val);
+                        }
+                    }
+                }
+            } else {
+                // Case: yml_content is a single model, but not new-spec (e.g., old flat format)
+                // Or it's a new-spec model that failed initial parsing for some subtle reason but is still a valid map.
+                debug!("No 'models' list found in YAML, treating root as a single (possibly old-style) model for extract_searchable_dimensions");
+                if let Some(model_name_at_root) = yaml_val.get("name").and_then(|n| n.as_str()){
+                     searchable_dimensions.extend(process_model_value_for_searchable_dimensions(&yaml_val, model_name_at_root));
+                } else {
+                    warn!("Could not extract searchable dimensions from root YAML object as it has no 'models' list and no 'name' at root: {:?}", yaml_val);
+                }
+            }
+        }
+    }
+    if searchable_dimensions.is_empty() && !yml_content.trim().is_empty() {
+        debug!("extract_searchable_dimensions: No searchable dimensions found in non-empty YML content.");
+    }
+    Ok(searchable_dimensions)
+}
+
+// NEW: Helper function to process a serde_yaml::Value representing a single model (old-style)
+// for database information.
+fn process_model_value_for_database_info(
+    model_val: &serde_yaml::Value,
+    model_name_from_val: &str, // Name extracted from this model_val
+    database_info_map: &mut HashMap<String, HashMap<String, HashMap<String, Vec<String>>>>
+) {
+    let table_name = model_name_from_val.to_string();
+
+    let database_name = model_val
+        .get("database")
+        .and_then(|v| v.as_str())
+        .unwrap_or("unknown_db") // Default if 'database' key is missing or not a string
+        .to_string();
+
+    let schema_name = model_val
+        .get("schema")
+        .and_then(|v| v.as_str())
+        .unwrap_or("unknown_schema") // Default if 'schema' key is missing or not a string
+        .to_string();
+
+    let mut columns = Vec::new();
+    if let Some(dimensions) = model_val.get("dimensions").and_then(|d| d.as_sequence()) {
+        for dim in dimensions {
+            if let Some(dim_name) = dim.get("name").and_then(|n| n.as_str()) {
+                columns.push(dim_name.to_string());
+                // In old style, 'expr' might also represent a column or be the column itself
+                if let Some(expr) = dim.get("expr").and_then(|e| e.as_str()) {
+                    if expr != dim_name { // Avoid duplicates if name and expr are same
+                        columns.push(expr.to_string());
                     }
                 }
             }
         }
     }
-    Ok(searchable_dimensions)
+    if let Some(measures) = model_val.get("measures").and_then(|m| m.as_sequence()) {
+        for measure in measures {
+            if let Some(measure_name) = measure.get("name").and_then(|n| n.as_str()) {
+                columns.push(measure_name.to_string());
+                if let Some(expr) = measure.get("expr").and_then(|e| e.as_str()) {
+                     if expr != measure_name {
+                        columns.push(expr.to_string());
+                    }
+                }
+            }
+        }
+    }
+    if let Some(metrics) = model_val.get("metrics").and_then(|m| m.as_sequence()) {
+        for metric in metrics {
+            // Metrics in old style usually just have a name that might correspond to a concept,
+            // but their 'expr' is complex. We'll take 'name' as a potential reference.
+            if let Some(metric_name) = metric.get("name").and_then(|n| n.as_str()) {
+                columns.push(metric_name.to_string());
+            }
+        }
+    }
+    database_info_map
+        .entry(database_name)
+        .or_default()
+        .entry(schema_name)
+        .or_default()
+        .insert(table_name, columns);
 }
 
 /// Extract database structure from YAML content based on actual model structure
 fn extract_database_info_from_yaml(yml_content: &str) -> Result<HashMap<String, HashMap<String, HashMap<String, Vec<String>>>>> {
     let mut database_info: HashMap<String, HashMap<String, HashMap<String, Vec<String>>>> = HashMap::new();
 
+    // Try parsing with Model (new spec for a single model file)
     match serde_yaml::from_str::<Model>(yml_content) {
-        Ok(model) => {
-            debug!("Successfully parsed yml_content with SemanticLayerSpec for extract_database_info_from_yaml");
-            let db_name = model.database.as_deref().unwrap_or("unknown_db").to_string();
-            let sch_name = model.schema.as_deref().unwrap_or("unknown_schema").to_string();
-            let tbl_name = model.name.clone(); // model.name is table name
+        Ok(model_spec) => {
+            debug!("Successfully parsed yml_content with Model for extract_database_info_from_yaml (single new-spec model)");
+            let db_name = model_spec.database.as_deref().unwrap_or("unknown_db").to_string();
+            let sch_name = model_spec.schema.as_deref().unwrap_or("unknown_schema").to_string();
+            let tbl_name = model_spec.name.clone();
 
-                let mut columns = Vec::new();
-                for dim in model.dimensions {
-                    columns.push(dim.name);
-                    // Assuming 'expr' is not directly a column name in SemanticLayerSpec's Dimension for this purpose.
-                    // If dimensions can have expressions that resolve to column names, adjust here.
-                }
-                for measure in model.measures {
-                    columns.push(measure.name);
-                    // Assuming 'expr' is not directly a column name here either.
-                }
-                for metric in model.metrics {
-                    columns.push(metric.name); // Metrics usually have names, expressions might be too complex for simple column list
-                }
+            let mut columns = Vec::new();
+            // For new spec, dimension/measure/metric names are the primary identifiers
+            for dim in model_spec.dimensions { columns.push(dim.name); }
+            for measure in model_spec.measures { columns.push(measure.name); }
+            for metric in model_spec.metrics { columns.push(metric.name); }
 
-                database_info
-                    .entry(db_name)
-                    .or_default()
-                    .entry(sch_name)
-                    .or_default()
-                    .insert(tbl_name, columns);
+            database_info
+                .entry(db_name)
+                .or_default()
+                .entry(sch_name)
+                .or_default()
+                .insert(tbl_name, columns);
         }
-        Err(e_spec) => {
-            warn!(
-                "Failed to parse yml_content with SemanticLayerSpec (error: {}), falling back to generic serde_yaml::Value for extract_database_info_from_yaml. Consider updating YAML to new spec.",
-                e_spec
+        Err(e_spec_root) => {
+            // Failed to parse as a single new-spec Model at the root.
+            debug!(
+                "Failed to parse yml_content directly as Model (error: {}), trying generic serde_yaml::Value for extract_database_info_from_yaml. YML might be a list or old format.",
+                e_spec_root
             );
-            let yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
-                .context("Failed to parse dataset YAML content (fallback)")?;
+            let yaml_val: serde_yaml::Value = serde_yaml::from_str(yml_content)
+                .context("Failed to parse dataset YAML content as generic Value after Model parse failed (extract_database_info)")?;
 
-            if let Some(models) = yaml["models"].as_sequence() {
-                for model_val in models {
-                    let database_name = model_val["database"].as_str().unwrap_or("unknown").to_string();
-                    let schema_name = model_val["schema"].as_str().unwrap_or("public").to_string();
-                    let table_name = model_val["name"].as_str().unwrap_or("unknown_model").to_string();
-
-                    database_info
-                        .entry(database_name.clone())
-                        .or_insert_with(HashMap::new)
-                        .entry(schema_name.clone())
-                        .or_insert_with(HashMap::new);
-
-                    let mut columns = Vec::new();
-                    if let Some(dimensions) = model_val["dimensions"].as_sequence() {
-                        for dim in dimensions {
-                            if let Some(dim_name) = dim["name"].as_str() {
-                                columns.push(dim_name.to_string());
-                                if let Some(expr) = dim["expr"].as_str() {
-                                    if expr != dim_name {
-                                        columns.push(expr.to_string());
-                                    }
-                                }
-                            }
+            if let Some(models_list) = yaml_val.get("models").and_then(|m| m.as_sequence()) {
+                // Case: yml_content has a "models:" key with a list
+                debug!("Found 'models' list in YAML for extract_database_info_from_yaml; processing list items.");
+                for model_item_val in models_list {
+                    // Try to parse each item in the list as a new-spec Model
+                    if let Ok(model_in_list) = serde_yaml::from_value::<Model>(model_item_val.clone()) {
+                        let db_name = model_in_list.database.as_deref().unwrap_or("unknown_db").to_string();
+                        let sch_name = model_in_list.schema.as_deref().unwrap_or("unknown_schema").to_string();
+                        let tbl_name = model_in_list.name.clone();
+                        let mut columns_in_list_item = Vec::new();
+                        for dim in model_in_list.dimensions { columns_in_list_item.push(dim.name); }
+                        for measure in model_in_list.measures { columns_in_list_item.push(measure.name); }
+                        for metric in model_in_list.metrics { columns_in_list_item.push(metric.name); }
+                        database_info.entry(db_name).or_default().entry(sch_name).or_default().insert(tbl_name, columns_in_list_item);
+                    } else {
+                        // Fallback: treat item in list as an old-style map
+                        if let Some(model_name_in_list) = model_item_val.get("name").and_then(|n| n.as_str()) {
+                            process_model_value_for_database_info(model_item_val, model_name_in_list, &mut database_info);
+                        } else {
+                             warn!("Skipping item in 'models' list for database_info due to missing name: {:?}", model_item_val);
                         }
                     }
-                    if let Some(measures) = model_val["measures"].as_sequence() {
-                        for measure in measures {
-                            if let Some(measure_name) = measure["name"].as_str() {
-                                columns.push(measure_name.to_string());
-                                if let Some(expr) = measure["expr"].as_str() {
-                                    if expr != measure_name {
-                                        columns.push(expr.to_string());
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if let Some(metrics) = model_val["metrics"].as_sequence() {
-                        for metric in metrics {
-                            if let Some(metric_name) = metric["name"].as_str() {
-                                columns.push(metric_name.to_string());
-                            }
-                        }
-                    }
-                    database_info
-                        .get_mut(&database_name)
-                        .unwrap()
-                        .get_mut(&schema_name)
-                        .unwrap()
-                        .insert(table_name, columns);
+                }
+            } else {
+                // Case: yml_content is a single model, but not new-spec (e.g., old flat format)
+                debug!("No 'models' list found, treating YAML root as a single (possibly old-style) model for extract_database_info_from_yaml");
+                 if let Some(model_name_at_root) = yaml_val.get("name").and_then(|n| n.as_str()){
+                    process_model_value_for_database_info(&yaml_val, model_name_at_root, &mut database_info);
+                } else {
+                    warn!("Could not extract database info from root YAML object as it has no 'models' list and no 'name' at root: {:?}", yaml_val);
                 }
             }
         }
     }
+    if database_info.is_empty() && !yml_content.trim().is_empty() {
+        debug!("extract_database_info_from_yaml: No database info extracted from non-empty YML content.");
+    }
     Ok(database_info)
+}
+
+// NEW: Helper function to inject values into a single model represented by serde_yaml::Value
+fn inject_values_into_single_model_yaml(
+    model_yaml: &mut serde_yaml::Value,
+    // Name of the model currently being processed (extracted from model_yaml itself)
+    current_model_name: &str,
+    // Comprehensive database_info for all models in the original YML
+    database_info: &HashMap<String, HashMap<String, HashMap<String, Vec<String>>>>,
+    // Comprehensive searchable_dimensions for all models in the original YML
+    searchable_dimensions: &[SearchableDimension],
+    all_found_values: &[FoundValueInfo],
+) {
+    // Find the database and schema for this specific current_model_name using the comprehensive database_info
+    let mut model_db_details: Option<(&str, &str)> = None; // (database_name, schema_name)
+
+    for (db_name_key, schemas) in database_info {
+        for (schema_name_key, tables) in schemas {
+            if tables.contains_key(current_model_name) {
+                model_db_details = Some((db_name_key, schema_name_key));
+                break;
+            }
+        }
+        if model_db_details.is_some() { break; }
+    }
+
+    let (model_database_name, model_schema_name) = if let Some(details) = model_db_details {
+        details
+    } else {
+         warn!(model=%current_model_name, "inject_values_into_single_model_yaml: Could not find database/schema info for model. Skipping value injection for its dimensions."
+        );
+        return;
+    };
+
+    if let Some(dimensions_yaml_seq) = model_yaml.get_mut("dimensions").and_then(|d| d.as_sequence_mut()) {
+        for dim_yaml_value in dimensions_yaml_seq {
+            let dim_name_opt = dim_yaml_value.get("name").and_then(|n| n.as_str());
+
+            if let Some(dim_name_str) = dim_name_opt {
+                // Check if this dimension (dim_name_str) within this model (current_model_name) is searchable
+                let is_searchable = searchable_dimensions.iter().any(|sd| {
+                    sd.model_name == current_model_name && sd.dimension_name == dim_name_str
+                });
+
+                if !is_searchable {
+                    continue; // Only inject into searchable dimensions
+                }
+
+                let relevant_values_for_dim: Vec<String> = all_found_values
+                    .iter()
+                    .filter(|found_val| {
+                        found_val.database_name.eq_ignore_ascii_case(model_database_name)
+                            && found_val.schema_name.eq_ignore_ascii_case(model_schema_name)
+                            && found_val.table_name.eq_ignore_ascii_case(current_model_name) // model name is table name
+                            && found_val.column_name.eq_ignore_ascii_case(dim_name_str)
+                    })
+                    .map(|found_val| found_val.value.clone())
+                    .collect::<std::collections::HashSet<_>>() // Deduplicate
+                    .into_iter()
+                    .take(20) // Limit to max 20 unique values
+                    .collect();
+
+                if !relevant_values_for_dim.is_empty() {
+                    debug!(
+                        model = %current_model_name,
+                        dimension = %dim_name_str,
+                        values_count = relevant_values_for_dim.len(),
+                        "Injecting relevant_values into YAML dimension"
+                    );
+                    // Add/update relevant_values field in the YAML dimension map
+                    if let Some(dim_map) = dim_yaml_value.as_mapping_mut() {
+                        dim_map.insert(
+                            serde_yaml::Value::String("relevant_values".to_string()),
+                            serde_yaml::Value::Sequence(
+                                relevant_values_for_dim.iter()
+                                    .map(|v| serde_yaml::Value::String(v.clone()))
+                                    .collect()
+                            ),
+                        );
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// Injects relevant values from a pre-compiled list into the YML of a dataset.
@@ -1318,16 +1492,22 @@ async fn inject_prefound_values_into_yml(
     yml_content: &str,
     all_found_values: &[FoundValueInfo], // Use the pre-found values
 ) -> Result<String> {
+    if yml_content.trim().is_empty() {
+        debug!("inject_prefound_values_into_yml: YML content is empty, returning as is.");
+        return Ok(String::new());
+    }
     // Parse YAML for dimension definitions and modification
-    let mut yaml: serde_yaml::Value = serde_yaml::from_str(yml_content)
+    let mut root_yaml_val: serde_yaml::Value = serde_yaml::from_str(yml_content)
         .context("Failed to parse dataset YAML for injecting values")?;
 
     // Extract database structure from YAML (which defines the source for dimensions)
+    // These functions are now enhanced to understand different YML structures.
     let database_info = match extract_database_info_from_yaml(yml_content) {
         Ok(info) => info,
         Err(e) => {
-            warn!(error = %e, "Failed to extract database info from YAML, skipping value injection");
-            return Ok(yml_content.to_string()); // Return original YML if parsing fails
+            warn!(error = %e, "inject_prefound_values_into_yml: Failed to extract comprehensive database info from YAML, attempting to proceed without it for value injection structure but matches might fail.");
+            // If we can't get DB info, value matching will be impaired, but we can still try to modify structure if searchable dims are found
+            HashMap::new()
         }
     };
 
@@ -1335,95 +1515,65 @@ async fn inject_prefound_values_into_yml(
     let searchable_dimensions = match extract_searchable_dimensions(yml_content) {
         Ok(dims) => dims,
         Err(e) => {
-             warn!(error = %e, "Failed to extract searchable dimensions from YAML, skipping value injection");
-            return Ok(yml_content.to_string());
+             warn!(error = %e, "inject_prefound_values_into_yml: Failed to extract comprehensive searchable dimensions from YAML, skipping value injection.");
+            return Ok(yml_content.to_string()); // Return original YML if parsing fails
         }
     };
 
     if searchable_dimensions.is_empty() {
-        debug!("No searchable dimensions found in YAML content for value injection");
+        debug!("inject_prefound_values_into_yml: No searchable dimensions found in YAML content based on comprehensive extraction. Returning original YML.");
+        return Ok(yml_content.to_string());
+    }
+     if all_found_values.is_empty() {
+        debug!("inject_prefound_values_into_yml: No pre-found values provided. Returning original YML.");
         return Ok(yml_content.to_string());
     }
 
-    // Inject values into the mutable YAML structure
-    if let Some(models) = yaml["models"].as_sequence_mut() {
-        for model_yaml in models {
-            // --- Extract immutable info before mutable borrow ---
-            let model_name_opt = model_yaml["name"].as_str();
-            if model_name_opt.is_none() { continue; }
-            let model_name = model_name_opt.unwrap().to_string(); // Clone name to avoid borrow issue
 
-            // Find the database and schema for this model from extracted info
-            let mut model_db_info: Option<(&String, &String)> = None;
-            for (db_name, schemas) in &database_info {
-                for (schema_name, tables) in schemas {
-                    if tables.contains_key(&model_name) {
-                        model_db_info = Some((db_name, schema_name));
-                        break;
-                    }
-                }
-                if model_db_info.is_some() { break; }
-            }
+    // Check if root_yaml_val contains a "models" list and process it
+    if let Some(models_list_yaml_mut) = root_yaml_val.get_mut("models").and_then(|m| m.as_sequence_mut()) {
+        debug!("inject_prefound_values_into_yml: Processing 'models' list structure.");
+        for model_yaml_item_mut in models_list_yaml_mut {
+            // Extract model_name first to drop the immutable borrow on model_yaml_item_mut
+            let model_name_owned: Option<String> = model_yaml_item_mut.get("name").and_then(|n| n.as_str()).map(String::from);
 
-            let (model_database_name, model_schema_name) = if let Some(info) = model_db_info {
-                info
+            if let Some(name_str) = model_name_owned {
+                inject_values_into_single_model_yaml(
+                    model_yaml_item_mut, // Now can be borrowed mutably
+                    &name_str,           // Use the owned string slice
+                    &database_info,
+                    &searchable_dimensions,
+                    all_found_values,
+                );
             } else {
-                 warn!(model=%model_name, "Could not find database/schema info for model in YAML, skipping value injection for its dimensions");
-                 continue;
-            };
-            // --- End immutable info extraction ---
-
-            if let Some(dimensions_yaml) = model_yaml["dimensions"].as_sequence_mut() {
-                for dim_yaml in dimensions_yaml {
-                    let dim_name_opt = dim_yaml["name"].as_str();
-                    if dim_name_opt.is_none() { continue; }
-                    let dim_name = dim_name_opt.unwrap();
-
-                    // Check if this dimension is marked as searchable
-                    let is_searchable = searchable_dimensions.iter().any(|sd| sd.model_name == model_name && sd.dimension_name == dim_name);
-                    if !is_searchable {
-                        continue; // Only inject into searchable dimensions
-                    }
-
-                    // Find values from the pre-found list that match this dimension's source
-                    let relevant_values_for_dim: Vec<String> = all_found_values
-                        .iter()
-                        .filter(|found_val| {
-                            // Match based on db, schema, table (model name), and column (dimension name)
-                            // Case-insensitive comparison
-                            found_val.database_name.to_lowercase() == model_database_name.to_lowercase()
-                                && found_val.schema_name.to_lowercase() == model_schema_name.to_lowercase()
-                                && found_val.table_name.to_lowercase() == model_name.to_lowercase()
-                                && found_val.column_name.to_lowercase() == dim_name.to_lowercase()
-                        })
-                        .map(|found_val| found_val.value.clone())
-                        .collect::<std::collections::HashSet<_>>() // Deduplicate
-                        .into_iter()
-                        .take(20) // Limit to max 20 unique values
-                        .collect();
-
-                    if !relevant_values_for_dim.is_empty() {
-                        debug!(
-                            model = %model_name,
-                            dimension = %dim_name,
-                            values_count = relevant_values_for_dim.len(),
-                            "Injecting relevant values into dimension from pre-found list"
-                        );
-                        // Add/update relevant_values field in the YAML dimension map
-                        dim_yaml["relevant_values"] = serde_yaml::Value::Sequence(
-                            relevant_values_for_dim.iter()
-                                .map(|v| serde_yaml::Value::String(v.clone()))
-                                .collect()
-                        );
-                    }
-                }
+                warn!("inject_prefound_values_into_yml: Skipping model in 'models' list due to missing 'name' field.");
             }
         }
+    } else {
+        // Assume root_yaml_val itself is a single model definition (new spec parsed initially, or old flat style)
+        debug!("inject_prefound_values_into_yml: Processing YAML as a single root model structure.");
+        // Extract model_name first to drop the immutable borrow on root_yaml_val
+        let model_name_owned_root: Option<String> = root_yaml_val.get("name").and_then(|n| n.as_str()).map(String::from);
+
+        if let Some(name_str_root) = model_name_owned_root {
+            inject_values_into_single_model_yaml(
+                &mut root_yaml_val, // Now can be borrowed mutably
+                &name_str_root,     // Use the owned string slice
+                &database_info,
+                &searchable_dimensions,
+                all_found_values,
+            );
+        } else {
+            warn!(
+                "inject_prefound_values_into_yml: Root YAML object is not a 'models' list and lacks a 'name' field. Cannot process as single model. YML: {:?}",
+                root_yaml_val.as_mapping().map(|m| m.keys().collect::<Vec<_>>()) // Log keys if it's a map
+            );
+            // If it's not a models list and not a named model at the root, it's unclear how to proceed.
+            // Return original YML.
+            return Ok(yml_content.to_string());
+        }
     }
-
     // Convert back to YAML string
-    let updated_yml = serde_yaml::to_string(&yaml)
-        .context("Failed to convert updated YAML with injected values back to string")?;
-
-    Ok(updated_yml)
+    serde_yaml::to_string(&root_yaml_val)
+        .context("Failed to convert updated YAML with injected values back to string")
 }
