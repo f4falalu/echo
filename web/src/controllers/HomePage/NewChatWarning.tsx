@@ -1,91 +1,89 @@
-import { useGetDatasets } from '@/api/buster_rest';
-import { useGetDatasource, useListDatasources } from '@/api/buster_rest/data_source';
 import { cn } from '@/lib/classMerge';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useNewChatWarning } from './useNewChatWarning';
-import { ArrowUpRight, CircleCheck, CircleXmark } from '@/components/ui/icons';
+import { ArrowUpRight, CircleCheck } from '@/components/ui/icons';
 import { Paragraph, Text } from '@/components/ui/typography';
 import { Button } from '@/components/ui/buttons';
 import Link from 'next/link';
 
-export const NewChatWarning = React.memo(({}: ReturnType<typeof useNewChatWarning>) => {
-  const hasDatasources = true;
-  const hasDatasets = false;
-  const allCompleted = hasDatasets && hasDatasources;
-  const progress = [hasDatasources, hasDatasets].filter(Boolean).length;
-  const progressPercentage = (progress / 2) * 100;
+export const NewChatWarning = React.memo(
+  ({ hasDatasets, hasDatasources }: ReturnType<typeof useNewChatWarning>) => {
+    const allCompleted = hasDatasets && hasDatasources;
+    const progress = [hasDatasources, hasDatasets].filter(Boolean).length;
+    const progressPercentage = (progress / 2) * 100;
 
-  return (
-    <div className="flex flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <div className="mb-2 flex items-center justify-between">
-        <Text className="text-xl font-medium text-gray-800">Setup Checklist</Text>
-        <div className="flex items-center gap-2">
-          <div className="text-sm font-medium text-gray-500">{progress}/2 completed</div>
-          <div className="h-2 w-20 rounded-full bg-purple-100">
-            <div
-              className="h-full rounded-full bg-purple-500 transition-all duration-500 ease-in-out"
-              style={{ width: `${progressPercentage}%` }}
-            />
+    return (
+      <div className="flex flex-col rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="mb-2 flex items-center justify-between">
+          <Text className="text-xl font-medium text-gray-800">Setup Checklist</Text>
+          <div className="flex items-center gap-2">
+            <div className="text-sm font-medium text-gray-500">{progress}/2 completed</div>
+            <div className="h-2 w-20 rounded-full bg-gray-100">
+              <div
+                className="h-full rounded-full bg-purple-500 transition-all duration-500 ease-in-out"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <Paragraph className="mb-4 text-sm text-gray-500">
+          In order to ask questions, you need to connect a data source and create a dataset.
+        </Paragraph>
+
+        <div className="space-y-4">
+          <SetupItem
+            number="1"
+            status={hasDatasources}
+            title="Connect a Data Source"
+            description="Link files, databases, or websites to enable knowledge retrieval"
+            link="https://docs.buster.so/docs/using-the-cli/init-command"
+            linkText="Go to docs"
+          />
+
+          <SetupItem
+            number="2"
+            status={hasDatasets}
+            title="Create a Dataset"
+            description="Organize your information for efficient querying"
+            link="https://docs.buster.so/docs/using-the-cli/create-dataset"
+            linkText="Go to docs"
+          />
+        </div>
+
+        <div
+          className={cn(
+            'mt-5 flex items-center rounded-lg border p-4',
+            allCompleted ? 'border-gray-200 bg-gray-50' : 'border-gray-200 bg-gray-50'
+          )}>
+          <div
+            className={cn(
+              'mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full',
+              allCompleted ? 'bg-gray-200' : 'bg-gray-200'
+            )}>
+            {allCompleted ? (
+              <CircleCheck fill="#4B5563" title="Complete" />
+            ) : (
+              <div className="h-4 w-4 rounded-full bg-gray-400" />
+            )}
+          </div>
+          <div>
+            <Text className="font-medium text-gray-700">
+              {allCompleted
+                ? "You're all set! Ask questions to get answers from your data."
+                : 'Complete both steps to start querying your information.'}
+            </Text>
+            <Text className="text-sm text-gray-500">
+              {allCompleted
+                ? ' Your data is ready to be explored.'
+                : " Without proper setup, we can't retrieve relevant information."}
+            </Text>
           </div>
         </div>
       </div>
-
-      <Paragraph className="mb-4 text-sm text-gray-500">
-        In order to ask questions, you need to connect a data source and create a dataset.
-      </Paragraph>
-
-      <div className="space-y-4">
-        <SetupItem
-          number="1"
-          status={hasDatasources}
-          title="Connect a Data Source"
-          description="Link files, databases, or websites to enable knowledge retrieval"
-          link="https://docs.buster.so/docs/using-the-cli/init-command"
-          linkText="Go to docs"
-        />
-
-        <SetupItem
-          number="2"
-          status={hasDatasets}
-          title="Create a Dataset"
-          description="Organize your information for efficient querying"
-          link="https://docs.buster.so/docs/using-the-cli/create-dataset"
-          linkText="Go to docs"
-        />
-      </div>
-
-      <div
-        className={cn(
-          'mt-5 flex items-center rounded-lg border p-4',
-          allCompleted ? 'border-gray-200 bg-gray-50' : 'border-gray-200 bg-gray-50'
-        )}>
-        <div
-          className={cn(
-            'mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full',
-            allCompleted ? 'bg-gray-200' : 'bg-gray-200'
-          )}>
-          {allCompleted ? (
-            <CircleCheck fill="#4B5563" title="Complete" />
-          ) : (
-            <div className="h-4 w-4 rounded-full bg-gray-400" />
-          )}
-        </div>
-        <div>
-          <Text className="font-medium text-gray-700">
-            {allCompleted
-              ? "You're all set! Ask questions to get answers from your data."
-              : 'Complete both steps to start querying your information.'}
-          </Text>
-          <Text className="text-sm text-gray-500">
-            {allCompleted
-              ? ' Your data is ready to be explored.'
-              : " Without proper setup, we can't retrieve relevant information."}
-          </Text>
-        </div>
-      </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 interface SetupItemProps {
   number: string;
