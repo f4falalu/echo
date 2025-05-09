@@ -86,7 +86,16 @@ export const SQLContainer: React.FC<{
           </div>
         </>
       );
-    }, [disabledSave, isRunning, onCopySQL, onRunQueryPreflight, onSaveSQL, sql]);
+    }, [
+      disabledSave,
+      isRunning,
+      onCopySQL,
+      onRunQueryPreflight,
+      onSaveSQL,
+      sql,
+      isSaving,
+      onSaveSQLPreflight
+    ]);
 
     return (
       <FileCard
