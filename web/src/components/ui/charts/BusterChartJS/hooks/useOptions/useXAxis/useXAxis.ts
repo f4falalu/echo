@@ -67,6 +67,17 @@ export const useXAxis = ({
     }, {});
   }, [selectedAxis.x, columnLabelFormats, isSupportedType]);
 
+  const firstXColumnLabelFormat = useMemo(() => {
+    if (isScatterChart) {
+      return {
+        ...xAxisColumnFormats[selectedAxis.x[0]],
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      };
+    }
+    return xAxisColumnFormats[selectedAxis.x[0]];
+  }, [isScatterChart, xAxisColumnFormats, selectedAxis.x]);
+
   const stacked = useIsStacked({ selectedChartType, lineGroupType, barGroupType });
 
   const grid: DeepPartial<GridLineOptions> | undefined = useMemo(() => {
@@ -79,10 +90,9 @@ export const useXAxis = ({
   const type: DeepPartial<ScaleChartOptions<'bar'>['scales']['x']['type']> = useMemo(() => {
     const xAxisKeys = Object.keys(xAxisColumnFormats);
     const xAxisKeysLength = xAxisKeys.length;
-    const firstXKey = xAxisKeys[0];
 
     if (xAxisKeysLength === 1) {
-      const xIsDate = xAxisColumnFormats[firstXKey].columnType === 'date';
+      const xIsDate = firstXColumnLabelFormat.columnType === 'date';
 
       if ((isLineChart || isScatterChart) && xIsDate) {
         return 'time';
@@ -101,17 +111,24 @@ export const useXAxis = ({
     }
 
     if (isScatterChart && xAxisKeysLength === 1) {
-      const isNumeric = isNumericColumnType(xAxisColumnFormats[firstXKey]?.columnType);
+      const isNumeric = isNumericColumnType(firstXColumnLabelFormat?.columnType);
       if (isNumeric) return 'linear';
     }
 
     return 'category';
-  }, [isScatterChart, isComboChart, isLineChart, columnSettings, xAxisColumnFormats]);
+  }, [
+    isScatterChart,
+    isComboChart,
+    isLineChart,
+    columnSettings,
+    xAxisColumnFormats,
+    firstXColumnLabelFormat
+  ]);
 
   const derivedTimeUnit = useMemo(() => {
     if (type !== 'time') return false;
 
-    const fmt = xAxisColumnFormats[selectedAxis.x[0]].dateFormat;
+    const fmt = firstXColumnLabelFormat.dateFormat;
     if (!fmt || fmt === 'auto') return false;
 
     // look for patterns in your DATE_FORMATS keys
@@ -122,7 +139,7 @@ export const useXAxis = ({
     if (/H{1,2}/.test(fmt)) return 'hour';
     // fall back
     return false;
-  }, [xAxisColumnFormats, selectedAxis.x]);
+  }, [firstXColumnLabelFormat]);
 
   const title = useXAxisTitle({
     xAxis: selectedAxis.x,
@@ -141,8 +158,7 @@ export const useXAxis = ({
     const rawValue = this.getLabelForValue(value as number);
 
     if (type === 'time' || isDate(rawValue)) {
-      const xKey = selectedAxis.x[0];
-      const xColumnLabelFormat = xAxisColumnFormats[xKey];
+      const xColumnLabelFormat = firstXColumnLabelFormat;
       const isAutoFormat = xColumnLabelFormat.dateFormat === 'auto';
       if (isAutoFormat) {
         const unit = (this.chart.scales['x'] as TimeScale)._unit as
@@ -160,6 +176,11 @@ export const useXAxis = ({
       }
       const res = formatLabel(rawValue, xColumnLabelFormat);
       return truncateText(res, 24);
+    }
+
+    if (isScatterChart) {
+      //raw value does not work for scatter charts, it returns the value as a string
+      return formatLabel(value, firstXColumnLabelFormat);
     }
 
     return DEFAULT_X_AXIS_TICK_CALLBACK.call(this, value, index, this.getLabels() as any);
