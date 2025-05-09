@@ -8,7 +8,9 @@ test.describe.serial('Create a scatter plot with a question', () => {
     await page.getByRole('textbox', { name: 'Ask Buster a question...' }).click();
     await page.getByRole('textbox', { name: 'Ask Buster a question...' }).fill(question);
     await page.getByRole('main').getByRole('button').click();
-    await page.waitForTimeout(5000);
+    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await expect(page.getByRole('link', { name: 'Reasoning link' })).toBeVisible();
     await expect(page.getByTestId('metric-view-chart-content').getByRole('img')).toBeVisible({
       timeout: 240000
@@ -40,7 +42,7 @@ test.describe.serial('Create a scatter plot with a question', () => {
     await page.waitForTimeout(250);
     await page.waitForLoadState('domcontentloaded');
     await page.waitForLoadState('load');
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(1000);
     await expect(page.getByTestId('select-chart-type-scatter')).not.toBeVisible();
     await page.getByTestId('edit-chart-button').getByRole('button').click();
     await page.waitForTimeout(250);

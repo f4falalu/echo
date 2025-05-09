@@ -47,7 +47,7 @@ test.describe.serial('Pie chart styling updates', async () => {
     }
 
     await expect(page.getByRole('button', { name: 'Reset' })).toBeVisible();
-    await page.waitForTimeout(1125);
+    await page.waitForTimeout(1000);
     await page.getByRole('button', { name: 'Save' }).click();
     await page.waitForTimeout(125);
     await page.waitForLoadState('networkidle');

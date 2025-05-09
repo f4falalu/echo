@@ -219,6 +219,7 @@ const EditTrendlineItem: React.FC<{
     <CollapseDelete
       initialOpen={isNewTrend}
       title={title}
+      dataTestId={`trendline-${title}`}
       onDelete={() => onDeleteTrendline(trend.id)}>
       <TrendlineItemContent
         trend={trend}

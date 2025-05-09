@@ -152,7 +152,7 @@ test('Can edit name and description of a dashboard', async ({ page }) => {
   await page.waitForLoadState('networkidle');
   await page.getByTestId('segmented-trigger-file').click();
   await page.getByTestId('segmented-trigger-file').click();
-  await page.waitForTimeout(5000); // Wait up to 2 seconds for the text to appear
+  await page.waitForTimeout(2000); // Wait up to 2 seconds for the text to appear
 
   await expect(page.getByText('Important Metrics SWAG')).toBeVisible({ timeout: 20000 }); // Wait up to 20 seconds for visibility
   await expect(page.locator('.current-line').first()).toBeVisible();
