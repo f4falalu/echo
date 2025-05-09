@@ -9,6 +9,12 @@ on:
     secrets:
       homebrew_tap_rw: # Secret for pushing to buster-so/buster-homebrew
         required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The release tag to use (e.g., v0.1.0)'
+        required: true
+        type: string
 
 permissions:
   contents: write # Allows the workflow to commit to the tap repository if using GITHUB_TOKEN, though homebrew_tap_rw is primary for cross-repo
