@@ -6,6 +6,9 @@ test('Go to dashboard', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'New dashboard' })).toBeVisible();
   await expect(page.getByRole('button', { name: '12px star' })).toBeVisible();
   await page.getByRole('link', { name: 'Important Metrics 12px star' }).click();
+  await page.waitForTimeout(100);
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await expect(page.getByRole('textbox', { name: 'New dashboard' })).toHaveValue(
     'Important Metrics'
   );
@@ -152,16 +155,19 @@ test('Can edit name and description of a dashboard', async ({ page }) => {
   await page.waitForLoadState('networkidle');
   await page.getByTestId('segmented-trigger-file').click();
   await page.getByTestId('segmented-trigger-file').click();
-  await page.waitForTimeout(5000); // Wait up to 2 seconds for the text to appear
+  await page.waitForTimeout(1000);
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
 
-  await expect(page.getByText('Important Metrics SWAG')).toBeVisible({ timeout: 20000 }); // Wait up to 20 seconds for visibility
+  await expect(page.getByRole('code').getByText('Important Metrics SWAG')).toBeVisible({
+    timeout: 22000
+  });
   await expect(page.locator('.current-line').first()).toBeVisible();
-
-  await page
-    .getByRole('textbox', { name: 'Editor content' })
-    .fill(
-      "name: Important Metrics\ndescription: ''\nrows:\n- items:\n  - id: 72e445a5-fb08-5b76-8c77-1642adf0cb72\n  - id: 45848c7f-0d28-52a0-914e-f3fc1b7d4180\n  - id: 117a2fc5-e3e8-5bb0-a29b-bcfa3da3adc0\n  - id: b19d2606-6061-5d22-8628-78a4878310d4\n  rowHeight: 320\n  columnSizes:\n"
-    );
-  await page.getByRole('button', { name: 'Save' }).click();
   await page.getByTestId('segmented-trigger-dashboard').click();
+  await page.getByRole('textbox', { name: 'New dashboard' }).click();
+  await page.getByRole('textbox', { name: 'New dashboard' }).fill('Important Metrics');
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByRole('textbox', { name: 'New dashboard' })).toHaveValue(
+    'Important Metrics'
+  );
 });

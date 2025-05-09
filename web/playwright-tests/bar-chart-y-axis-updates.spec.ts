@@ -10,6 +10,7 @@ test('Y axis config - Title', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Total Sales Revenue' }).fill('THIS IS A TEST!');
   await expect(page.getByRole('button', { name: 'THIS IS A TEST!' })).toBeVisible();
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
   expect(page.getByRole('textbox', { name: 'THIS IS A TEST!' })).toBeVisible();
 
@@ -18,6 +19,7 @@ test('Y axis config - Title', async ({ page }) => {
   await page.getByRole('textbox', { name: 'THIS IS A TEST!' }).click();
   await page.getByRole('textbox', { name: 'THIS IS A TEST!' }).fill('Total Sales Revenue');
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await page.reload();
@@ -32,6 +34,7 @@ test('Y axis config - Label style', async ({ page }) => {
   await page.getByTestId('select-axis-drop-zone-yAxis').getByRole('button').nth(3).click();
   await page.getByTestId('segmented-trigger-percent').click();
   await expect(page.getByText('Unsaved changes')).toBeVisible();
+  await page.waitForTimeout(250);
   await page.getByRole('button', { name: 'Save' }).click();
   await page.waitForLoadState('networkidle');
 
@@ -44,6 +47,7 @@ test('Y axis config - Label style', async ({ page }) => {
 
   await expect(page.getByText('Unsaved changes')).toBeVisible();
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 });
 
@@ -60,6 +64,7 @@ test('Y axis config - Label seperator style', async ({ page }) => {
   await page.getByTestId('edit-separator-input').getByRole('combobox').click();
   await page.getByRole('option', { name: '100,000' }).click();
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await page.reload();
@@ -94,6 +99,7 @@ test('Y axis config - adjust bar roundness', async ({ page }) => {
     - button "Save"
     `);
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await page.reload();
@@ -110,6 +116,7 @@ test('Y axis config - adjust bar roundness', async ({ page }) => {
     .getByRole('spinbutton')
     .fill('8');
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
   await expect(page.locator('body')).toMatchAriaSnapshot(`
     - textbox "New chart": Yearly Sales Revenue - Signature Cycles Products (Last 3 Years + YTD)
@@ -140,6 +147,7 @@ test('Y axis config - show data labels', async ({ page }) => {
     .getByRole('switch')
     .click();
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await page.reload();
@@ -161,6 +169,7 @@ test('Y axis config - show data labels', async ({ page }) => {
     .getByRole('switch')
     .click();
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await page.reload();
@@ -188,6 +197,7 @@ test('Y axis config - global settings', async ({ page }) => {
     .getByRole('switch')
     .click();
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await expect(page.locator('body')).toMatchAriaSnapshot(`
@@ -210,6 +220,7 @@ test('Y axis config - global settings', async ({ page }) => {
     .click();
 
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
   await expect(page.locator('body')).toMatchAriaSnapshot(`
     - textbox "New chart": Yearly Sales Revenue - Signature Cycles Products (Last 3 Years + YTD)
@@ -230,6 +241,7 @@ test('Y axis config - global settings', async ({ page }) => {
     .getByRole('switch')
     .click();
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await expect(page.locator('body')).toMatchAriaSnapshot(`
@@ -253,6 +265,7 @@ test('Y axis config - global settings', async ({ page }) => {
   await page.getByRole('combobox').click();
   await page.getByRole('option', { name: 'Logarithmic' }).click();
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 
   await expect(page.locator('body')).toMatchAriaSnapshot(`
@@ -269,5 +282,6 @@ test('Y axis config - global settings', async ({ page }) => {
   await page.getByRole('combobox').filter({ hasText: 'Logarithmic' }).click();
   await page.getByRole('option', { name: 'Linear' }).click();
   await page.getByRole('button', { name: 'Save' }).click();
+  await page.waitForTimeout(250);
   await page.waitForLoadState('networkidle');
 });

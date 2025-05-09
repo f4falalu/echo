@@ -41,7 +41,7 @@ const PATHNAME_TO_PARENT_ROUTE: Record<string, BusterRoutes> = {
   [BusterRoutes.APP_CHAT_ID_VALUE_ID]: BusterRoutes.APP_CHAT,
   [BusterRoutes.APP_METRIC_ID_CHART]: BusterRoutes.APP_METRIC,
   [BusterRoutes.APP_METRIC_ID_RESULTS]: BusterRoutes.APP_METRIC,
-  [BusterRoutes.APP_METRIC_ID_FILE]: BusterRoutes.APP_METRIC,
+  [BusterRoutes.APP_METRIC_ID_FILE__HIDDEN]: BusterRoutes.APP_METRIC,
   [BusterRoutes.APP_METRIC_ID_VERSION_NUMBER]: BusterRoutes.APP_METRIC,
   [BusterRoutes.APP_DASHBOARD_ID]: BusterRoutes.APP_DASHBOARDS,
   [BusterRoutes.APP_DASHBOARD_ID_FILE]: BusterRoutes.APP_DASHBOARDS,

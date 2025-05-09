@@ -143,6 +143,7 @@ const EditGoalLineItem: React.FC<{
       title={
         goal.showGoalLineLabel ? goal.goalLineLabel || `Goal: ${goal.value}` : `Goal: ${goal.value}`
       }
+      dataTestId={`goal-line-${goal.id}`}
       onDelete={() => onDeleteGoalLine(goal.id)}>
       <GoalLineItemContent goal={goal} onUpdateExisitingGoalLine={onUpdateExisitingGoalLine} />
     </CollapseDelete>

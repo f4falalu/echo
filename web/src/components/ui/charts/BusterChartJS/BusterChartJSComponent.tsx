@@ -1,6 +1,6 @@
 'use client';
 
-import React, { MutableRefObject, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Chart,
   ChartHoverBarPlugin,
