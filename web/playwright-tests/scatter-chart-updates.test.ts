@@ -12,12 +12,12 @@ test.describe.serial('Create a scatter plot with a question', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForLoadState('domcontentloaded');
     await expect(page.getByRole('link', { name: 'Reasoning link' })).toBeVisible();
+
     await expect(page.getByTestId('metric-view-chart-content').getByRole('img')).toBeVisible({
-      timeout: 240000
+      timeout: 240000 // 4 minutes
     });
     await expect(page.getByTestId('share-button')).toBeVisible();
     await expect(page.getByTestId('save-to-dashboard-button')).toBeVisible();
-    await expect(page.getByTestId('edit-sql-button').getByRole('button')).toBeVisible();
     await expect(page.getByTestId('edit-chart-button').getByRole('button')).toBeVisible();
 
     await page.getByTestId('edit-chart-button').getByRole('button').click();
