@@ -49,7 +49,7 @@ test.describe('Asset Route Redirects', () => {
       metricId: 'test-metric-id'
     }),
     metricFile: createBusterRoute({
-      route: BusterRoutes.APP_METRIC_ID_FILE,
+      route: BusterRoutes.APP_METRIC_ID_FILE__HIDDEN,
       metricId: 'test-metric-id'
     }),
     metricVersion: createBusterRoute({

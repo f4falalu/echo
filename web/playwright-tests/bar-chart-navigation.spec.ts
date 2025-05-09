@@ -51,7 +51,7 @@ test('Can click start chat', async ({ page }) => {
   await page.waitForLoadState('networkidle');
   await page.waitForLoadState('domcontentloaded');
   await page.waitForLoadState('load');
-  await page.waitForTimeout(8000);
+  await page.waitForTimeout(400);
 
   await expect(page).toHaveURL('http://localhost:3000/app/chats', { timeout: 30000 });
 });
@@ -69,16 +69,11 @@ test('Can add and remove from favorites', async ({ page }) => {
 
 test('Can open sql editor', async ({ page }) => {
   await page.goto('http://localhost:3000/app/metrics/45c17750-2b61-5683-ba8d-ff6c6fefacee/chart');
-  await page.getByTestId('edit-sql-button').getByRole('button').click();
-  await page.waitForTimeout(50);
-  await page.waitForLoadState('networkidle');
-  await page.waitForLoadState('domcontentloaded');
+  await expect(page.getByTestId('segmented-trigger-sql')).toBeVisible();
+  await page.getByTestId('segmented-trigger-sql').click();
+  await page.goto('http://localhost:3000/app/metrics/45c17750-2b61-5683-ba8d-ff6c6fefacee/sql');
   await expect(page.getByRole('button', { name: 'Run' })).toBeVisible();
-  await page.getByTestId('edit-sql-button').getByRole('button').click();
-  await page.waitForTimeout(250);
-
-  await page.getByTestId('edit-chart-button').getByRole('button').click();
-  await expect(page.locator('div').filter({ hasText: /^Edit chart$/ })).toBeVisible();
+  await expect(page.getByTestId('segmented-trigger-sql')).toHaveAttribute('data-state', 'active');
 });
 
 test('Bar chart span clicking works', async ({ page }) => {
@@ -91,24 +86,22 @@ test('Bar chart span clicking works', async ({ page }) => {
   await page.waitForTimeout(55);
   await page.getByTestId('edit-chart-button').getByRole('button').click();
   await page.waitForTimeout(55);
-  await page.getByTestId('segmented-trigger-results').click();
+  await page.getByTestId('segmented-trigger-sql').click();
   await page.waitForTimeout(55);
   await page.getByTestId('edit-chart-button').getByRole('button').click();
   await expect(page.getByTestId('metric-view-chart-content').getByRole('img')).toBeVisible();
-  await page.getByTestId('edit-sql-button').getByRole('button').click();
+  await page.getByTestId('segmented-trigger-sql').click();
   await page.waitForTimeout(55);
   await expect(page.getByText('Copy SQLSaveRun')).toBeVisible();
-  await page.getByTestId('segmented-trigger-file').click();
-  await page.waitForTimeout(2500);
+  await page.getByTestId('edit-chart-button').getByRole('button').click();
   await page.waitForLoadState('networkidle');
   await page.waitForLoadState('domcontentloaded');
   await page.waitForLoadState('load');
 
-  await expect(
-    page.getByText('Yearly Sales Revenue - Signature Cycles Products (Last 3 Years + YTD)', {
-      exact: true
-    })
-  ).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'New chart' })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'New chart' })).toHaveValue(
+    'Yearly Sales Revenue - Signature Cycles Products (Last 3 Years + YTD)'
+  );
 
   await page.getByTestId('edit-chart-button').getByRole('button').click();
   await expect(page.getByText('Edit chart')).toBeVisible({ timeout: 15000 });

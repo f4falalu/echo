@@ -101,8 +101,8 @@ impl ToolExecutor for CreateMetricFilesTool {
 
         let data_source_syntax = match self.agent.get_state_value("data_source_syntax").await {
             Some(Value::String(syntax_str)) => syntax_str,
-            Some(_) => bail!("Data source syntax is not a string"),
-            None => bail!("Data source syntax not found in agent state"),
+            Some(_) => "generic".to_string(),
+            None => "generic".to_string(),
         };
 
         // Collect results from processing each file concurrently

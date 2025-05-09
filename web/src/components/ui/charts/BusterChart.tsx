@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { doesChartHaveValidAxis } from './helpers';
-import { useMemoizedFn, useMount } from '@/hooks';
+import { useMemoizedFn } from '@/hooks';
 import {
   NoChartData,
   PreparingYourRequestLoader

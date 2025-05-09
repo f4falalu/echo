@@ -3,7 +3,7 @@ import { Card, CardHeader } from '@/components/ui/card/CardBase';
 import { useDashboardMetric } from './useDashboardMetric';
 import { MetricTitle } from './MetricTitle';
 import { createBusterRoute, BusterRoutes } from '@/routes';
-import { useMemoizedFn, useMount } from '@/hooks';
+import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { BusterChart } from '@/components/ui/charts/BusterChart';
 
@@ -70,6 +70,10 @@ const DashboardMetricItemBase: React.FC<{
     setInitialAnimationEnded(metricId);
   });
 
+  const hideChart = useMemo(() => {
+    return isDragOverlay && data && data.length > 50;
+  }, [isDragOverlay, data?.length]);
+
   return (
     <Card
       ref={conatinerRef}
@@ -96,19 +100,23 @@ const DashboardMetricItemBase: React.FC<{
           isTable ? '' : 'p-3',
           isDragOverlay ? 'pointer-events-none' : 'pointer-events-auto'
         )}>
-        {renderChart && chartOptions && (
-          <BusterChart
-            data={data}
-            loading={loading}
-            error={error}
-            onInitialAnimationEnd={onInitialAnimationEndPreflight}
-            animate={!isDragOverlay && animate}
-            animateLegend={false}
-            columnMetadata={metricData?.data_metadata?.column_metadata}
-            readOnly={true}
-            {...chartOptions}
-          />
-        )}
+        {renderChart &&
+          chartOptions &&
+          (!hideChart ? (
+            <BusterChart
+              data={data}
+              loading={loading}
+              error={error}
+              onInitialAnimationEnd={onInitialAnimationEndPreflight}
+              animate={!isDragOverlay && animate}
+              animateLegend={false}
+              columnMetadata={metricData?.data_metadata?.column_metadata}
+              readOnly={true}
+              {...chartOptions}
+            />
+          ) : (
+            <div className="bg-gray-light/10 h-full w-full rounded" />
+          ))}
       </div>
     </Card>
   );

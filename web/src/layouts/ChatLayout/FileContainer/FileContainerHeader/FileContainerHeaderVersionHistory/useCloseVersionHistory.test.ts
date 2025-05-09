@@ -50,10 +50,10 @@ describe('useCloseVersionHistory', () => {
       metricId: 'metric-123',
       dashboardId: 'dashboard-123',
       chatId: 'chat-123',
-      secondaryView: null,
       dashboardVersionNumber: undefined,
       metricVersionNumber: undefined,
-      messageId: 'message-123'
+      messageId: 'message-123',
+      currentRoute: undefined
     });
   });
 

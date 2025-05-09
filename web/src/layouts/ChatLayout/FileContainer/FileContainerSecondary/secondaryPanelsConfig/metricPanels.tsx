@@ -23,12 +23,7 @@ export const MetricSecondaryRecord: Record<
   React.FC<FileContainerSecondaryProps>
 > = {
   'chart-edit': ({ selectedFile }) => <MetricEditController metricId={selectedFile?.id || ''} />,
-  'sql-edit': ({ selectedFile }) => <></>, //because this is a vertical splitter, we don't want to render the sql edit view in the secondary view because it is vertical
   'version-history': ({ selectedFile }) => (
     <VersionHistoryPanel assetId={selectedFile?.id || ''} type="metric" />
   )
-};
-
-export const MetrucSecondaryRenderRecord: Partial<Record<MetricFileViewSecondary, boolean>> = {
-  'sql-edit': false //we don't want to render the sql edit view in the secondary view because it is vertical
 };

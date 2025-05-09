@@ -28,6 +28,7 @@ export const useAutoChangeLayout = ({
   const secondaryView = useChatLayoutContextSelector((x) => x.secondaryView);
   const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
+  const currentRoute = useChatLayoutContextSelector((x) => x.currentRoute);
   const { data: isCompletedStream } = useGetChatMessage(lastMessageId, {
     select: (x) => x?.isCompletedStream
   });
@@ -103,14 +104,14 @@ export const useAutoChangeLayout = ({
         dashboardId,
         messageId,
         chatId,
-        secondaryView,
         dashboardVersionNumber,
-        metricVersionNumber
+        metricVersionNumber,
+        currentRoute
       });
 
       if (href) {
         onChangePage(href);
       }
     }
-  }, [isCompletedStream, hasReasoning, chatId, lastMessageId]);
+  }, [isCompletedStream, hasReasoning, chatId, lastMessageId]); //only use these values to trigger the useEffect
 };

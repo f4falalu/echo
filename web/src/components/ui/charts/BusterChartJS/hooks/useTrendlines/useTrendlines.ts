@@ -69,6 +69,7 @@ export const useTrendlines = ({
             type: 'line',
             borderColor: trendline.trendLineColor || 'black',
             borderWidth: 1.5,
+
             label: {
               content: labelContent,
               display: trendline.showTrendlineLabel,
@@ -111,6 +112,7 @@ export const useTrendlines = ({
           stack: id,
           tension: 0.25,
           order: -1,
+          animation: false,
           datalabels: showTrendlineLabel
             ? {
                 ...defaultLabelOptionConfig,
@@ -124,10 +126,11 @@ export const useTrendlines = ({
                   const trendlineLabel = trendlineLabelProp ? trendlineLabelProp : label[0].value;
                   return `${trendlineLabel || 'Trendline'}`;
                 },
+                //@ts-ignore
                 yAdjust: -10
               }
             : undefined
-        };
+        } satisfies ChartProps<'line'>['data']['datasets'][number];
       }
     );
 

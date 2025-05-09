@@ -77,8 +77,8 @@ export const ThreeDotMenuButton = React.memo(
     const statusSelectMenu = useStatusSelectMenu({ metricId });
     const favoriteMetric = useFavoriteMetricSelectMenu({ metricId });
     const editChartMenu = useEditChartSelectMenu();
-    const resultsViewMenu = useResultsViewSelectMenu();
-    const sqlEditorMenu = useSQLEditorSelectMenu();
+    const resultsViewMenu = useResultsViewSelectMenu({ chatId, metricId });
+    const sqlEditorMenu = useSQLEditorSelectMenu({ chatId, metricId });
     const downloadCSVMenu = useDownloadCSVSelectMenu({ metricId });
     const downloadPNGMenu = useDownloadPNGSelectMenu({ metricId });
     const deleteMetricMenu = useDeleteMetricSelectMenu({ metricId });
@@ -360,40 +360,69 @@ const useEditChartSelectMenu = () => {
   );
 };
 
-const useResultsViewSelectMenu = () => {
-  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
+const useResultsViewSelectMenu = ({
+  chatId,
+  metricId
+}: {
+  chatId: string | undefined;
+  metricId: string;
+}) => {
+  const link = useMemo(() => {
+    if (!chatId) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_RESULTS,
+        metricId: metricId
+      });
+    }
 
-  const onClickButton = useMemoizedFn(() => {
-    onSetFileView({ secondaryView: null, fileView: 'results' });
-  });
+    return createBusterRoute({
+      route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
+      chatId: chatId,
+      metricId: metricId
+    });
+  }, [chatId, metricId]);
 
   return useMemo(
     () => ({
       label: 'Results view',
       value: 'results-view',
-      onClick: onClickButton,
+      link,
       icon: <Table />
     }),
     []
   );
 };
 
-const useSQLEditorSelectMenu = () => {
-  const onSetFileView = useChatLayoutContextSelector((x) => x.onSetFileView);
-  const editableSecondaryView: MetricFileViewSecondary = 'sql-edit';
+const useSQLEditorSelectMenu = ({
+  chatId,
+  metricId
+}: {
+  chatId: string | undefined;
+  metricId: string;
+}) => {
+  const link = useMemo(() => {
+    if (!chatId) {
+      return createBusterRoute({
+        route: BusterRoutes.APP_METRIC_ID_SQL,
+        metricId: metricId
+      });
+    }
 
-  const onClickButton = useMemoizedFn(() => {
-    onSetFileView({ secondaryView: editableSecondaryView, fileView: 'results' });
-  });
+    return createBusterRoute({
+      route: BusterRoutes.APP_CHAT_ID_METRIC_ID_SQL,
+      chatId: chatId,
+      metricId: metricId
+    });
+  }, [chatId, metricId]);
 
   return useMemo(
     () => ({
       label: 'SQL Editor',
       value: 'sql-editor',
-      onClick: onClickButton,
-      icon: <SquareCode />
+      icon: <SquareCode />,
+      link
     }),
-    [onClickButton]
+    []
   );
 };
 

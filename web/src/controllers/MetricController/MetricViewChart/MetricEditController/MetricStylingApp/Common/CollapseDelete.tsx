@@ -35,8 +35,9 @@ export const CollapseDelete = React.forwardRef<
     onDelete?: () => void;
     initialOpen?: boolean;
     draggingProps?: DraggingProps;
+    dataTestId?: string;
   }
->(({ children, title, onDelete, initialOpen = false, draggingProps }, ref) => {
+>(({ children, title, onDelete, initialOpen = false, draggingProps, dataTestId }, ref) => {
   const [open, setOpen] = useState(initialOpen);
 
   const onToggleDropdown = useMemoizedFn(() => {
@@ -44,7 +45,9 @@ export const CollapseDelete = React.forwardRef<
   });
 
   return (
-    <div className={cn('bg-background rounded border', 'flex w-full flex-col')}>
+    <div
+      className={cn('bg-background rounded border', 'flex w-full flex-col')}
+      data-testid={dataTestId}>
       <CollapseDeleteHeader
         ref={ref}
         title={title}
@@ -165,6 +168,7 @@ const DropdownIcon: React.FC<{
         <Button
           size="small"
           onClick={onClickDeletePreflight}
+          data-testid="delete-button"
           className={cn(
             'flex items-center justify-center',
             'opacity-0 duration-200',
@@ -182,6 +186,7 @@ const DropdownIcon: React.FC<{
         size="small"
         className="flex"
         variant="ghost"
+        data-testid="toggle-dropdown-button"
         onClick={onClickToggleDropdown}
         prefix={
           <div

@@ -65,7 +65,7 @@ test('Metric can metric headers', async ({ page }) => {
   await page.getByTestId('edit-metric-subheader-type').click();
   await page.getByRole('option', { name: 'Column value' }).click();
 
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(1000);
   await expect(page.locator('h4')).toBeVisible();
   await page.getByRole('button', { name: 'Reset' }).click();
   await expect(page.locator('h4')).toBeHidden();
