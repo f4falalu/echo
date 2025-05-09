@@ -6,6 +6,9 @@ import { useBusterNewChatContextSelector } from '@/context/Chats';
 import { inputHasText } from '@/lib/text';
 import { useMemoizedFn, useMount } from '@/hooks';
 import { ChangeEvent, useMemo, useState } from 'react';
+import { useGetDatasets } from '@/api/buster_rest';
+import { NewChatWarning } from './NewChatWarning';
+import { useNewChatWarning } from './useNewChatWarning';
 
 const autoResizeConfig = {
   minRows: 3,
@@ -17,10 +20,12 @@ export const NewChatInput: React.FC<{}> = () => {
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const newChatWarningProps = useNewChatWarning();
+  const { showWarning } = newChatWarningProps;
 
   const disabledSubmit = useMemo(() => {
-    return !inputHasText(inputValue);
-  }, [inputValue]);
+    return !inputHasText(inputValue) || showWarning;
+  }, [inputValue, showWarning]);
 
   const onSubmit = useMemoizedFn(async (value: string) => {
     if (disabledSubmit) return;
@@ -49,17 +54,23 @@ export const NewChatInput: React.FC<{}> = () => {
   });
 
   return (
-    <InputTextAreaButton
-      className="transition-all duration-300 hover:shadow-lg active:shadow-md"
-      placeholder="Ask Buster a question..."
-      autoResize={autoResizeConfig}
-      onSubmit={onSubmit}
-      onChange={onChange}
-      onStop={onStop}
-      loading={loading}
-      disabledSubmit={disabledSubmit}
-      autoFocus
-      ref={textAreaRef}
-    />
+    <div className="flex flex-col space-y-2">
+      <InputTextAreaButton
+        className={
+          !showWarning ? 'transition-all duration-300 hover:shadow-lg active:shadow-md' : ''
+        }
+        placeholder="Ask Buster a question..."
+        autoResize={autoResizeConfig}
+        onSubmit={onSubmit}
+        onChange={onChange}
+        onStop={onStop}
+        loading={loading}
+        disabled={showWarning}
+        disabledSubmit={disabledSubmit}
+        autoFocus
+        ref={textAreaRef}
+      />
+      {newChatWarningProps.showWarning && <NewChatWarning {...newChatWarningProps} />}
+    </div>
   );
 };
