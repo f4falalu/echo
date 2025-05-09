@@ -1390,10 +1390,11 @@ async fn inject_prefound_values_into_yml(
                         .iter()
                         .filter(|found_val| {
                             // Match based on db, schema, table (model name), and column (dimension name)
-                            found_val.database_name == *model_database_name
-                                && found_val.schema_name == *model_schema_name
-                                && found_val.table_name == model_name
-                                && found_val.column_name == dim_name
+                            // Case-insensitive comparison
+                            found_val.database_name.to_lowercase() == model_database_name.to_lowercase()
+                                && found_val.schema_name.to_lowercase() == model_schema_name.to_lowercase()
+                                && found_val.table_name.to_lowercase() == model_name.to_lowercase()
+                                && found_val.column_name.to_lowercase() == dim_name.to_lowercase()
                         })
                         .map(|found_val| found_val.value.clone())
                         .collect::<std::collections::HashSet<_>>() // Deduplicate
