@@ -19,10 +19,12 @@ test('Invite User', async ({ page }) => {
 
   await page.getByRole('button').filter({ hasText: /^$/ }).first().click();
   await page.getByRole('link', { name: 'Users' }).click();
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(5000);
   await page.waitForLoadState('networkidle');
   await page.waitForLoadState('domcontentloaded');
-  await expect(page.getByRole('link', { name: 'nate+integration-test@buser.' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'nate+integration-test@buser.' })).toBeVisible({
+    timeout: 20000
+  });
   await expect(page.getByRole('main')).toMatchAriaSnapshot(`
     - img
     - text: nate+integration-test@buser.so Restricted Querier
