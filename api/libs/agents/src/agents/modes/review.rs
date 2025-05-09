@@ -29,7 +29,7 @@ pub fn get_configuration(
     // 2. Define the model for this mode (From original MODEL const)
     let model =
         if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
-            "o4-mini".to_string()
+            "gpt-4.1-mini".to_string()
         } else {
             "gemini-2.0-flash-001".to_string()
         };

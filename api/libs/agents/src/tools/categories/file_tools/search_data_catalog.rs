@@ -981,7 +981,7 @@ async fn llm_filter_helper(
     let llm_client = LiteLLMClient::new(None, None);
 
     let model = if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
-        "gpt-4.1-mini".to_string()
+        "gpt-4.1-nano".to_string()
     } else {
         "gemini-2.0-flash-001".to_string()
     };
@@ -998,6 +998,7 @@ async fn llm_filter_helper(
             type_: "json_object".to_string(),
             json_schema: None,
         }),
+        store: Some(true),
         metadata: Some(Metadata {
             generation_name: format!("filter_data_catalog_{}_agent", generation_name_suffix),
             user_id: user_id.to_string(),

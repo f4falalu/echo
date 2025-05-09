@@ -64,7 +64,7 @@ Example Output for the above plan: `["Create line chart visualization 'Daily Tra
     );
 
     let model = if env::var("ENVIRONMENT").unwrap_or_else(|_| "development".to_string()) == "local" {
-        "gpt-4.1-mini".to_string()
+        "gpt-4.1-nano".to_string()
     } else {
         "gemini-2.0-flash-001".to_string()
     };
@@ -74,6 +74,7 @@ Example Output for the above plan: `["Create line chart visualization 'Daily Tra
         messages: vec![AgentMessage::User { id: None, content: prompt, name: None }],
         stream: Some(false),
         response_format: Some(ResponseFormat { type_: "json_object".to_string(), json_schema: None }),
+        store: Some(true),
         metadata: Some(Metadata {
             generation_name: "generate_todos_from_plan".to_string(),
             user_id: user_id.to_string(),
