@@ -177,13 +177,49 @@ pub fn update_env_file(
     })
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
+pub struct ModelInfo {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mode: Option<String>, // e.g., "embedding", "chat"
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub input_cost_per_token: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub output_cost_per_token: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_tokens: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub base_model: Option<String>, // e.g., "gpt-3.5-turbo"
+    // For any other custom key-value pairs in model_info
+    #[serde(flatten, skip_serializing_if = "Option::is_none")]
+    pub extras: Option<std::collections::HashMap<String, serde_yaml::Value>>,
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct LiteLLMModelConfig {
-    pub model_name: String,
-    pub api_base: Option<String>,
-    pub api_key: Option<String>,
+    pub model_name: String, // Alias for the model, e.g., "my-gpt4"
+
+    // Parameters for LiteLLM to connect to and use the model.
+    // This should be a YAML map including the actual model identifier, API key, base URL, etc.
+    // Example for OpenAI:
+    //   litellm_params:
+    //     model: "gpt-4-turbo"  // or "openai/gpt-4-turbo"
+    //     api_key: "sk-..."
+    //     api_base: "https://api.openai.com/v1"
+    // Example for Ollama:
+    //   litellm_params:
+    //     model: "ollama/mistral"
+    //     api_base: "http://localhost:11434"
+    pub litellm_params: serde_yaml::Value,
+
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub litellm_params: Option<serde_yaml::Value>,
+    pub model_info: Option<ModelInfo>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tpm: Option<u64>, // Tokens Per Minute
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rpm: Option<u64>, // Requests Per Minute
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -223,11 +259,30 @@ pub fn create_litellm_yaml(
     // Build model list
     let model_list: Vec<LiteLLMModelConfig> = OPENAI_MODELS
         .iter()
-        .map(|model_name| LiteLLMModelConfig {
-            model_name: model_name.to_string(),
-            api_base: api_base.map(|s| s.to_string()),
-            api_key: Some(api_key.to_string()),
-            litellm_params: None,
+        .map(|model_name| {
+            let mut params_map = serde_yaml::Mapping::new();
+            params_map.insert(
+                serde_yaml::Value::String("model".to_string()),
+                serde_yaml::Value::String(model_name.to_string()),
+            );
+            params_map.insert(
+                serde_yaml::Value::String("api_key".to_string()),
+                serde_yaml::Value::String(api_key.to_string()),
+            );
+            if let Some(base) = api_base {
+                params_map.insert(
+                    serde_yaml::Value::String("api_base".to_string()),
+                    serde_yaml::Value::String(base.to_string()),
+                );
+            }
+
+            LiteLLMModelConfig {
+                model_name: model_name.to_string(),
+                litellm_params: serde_yaml::Value::Mapping(params_map),
+                model_info: Some(ModelInfo::default()), // Or None if preferred
+                tpm: None,
+                rpm: None,
+            }
         })
         .collect();
 
@@ -310,18 +365,67 @@ pub fn update_litellm_yaml(
         let mut found = false;
         for model_config in &mut config.model_list {
             if &model_config.model_name == model_name {
-                model_config.api_key = Some(api_key.to_string());
-                model_config.api_base = api_base.map(|s| s.to_string());
+                // Ensure litellm_params is a mutable mapping
+                if let serde_yaml::Value::Mapping(params_map) = &mut model_config.litellm_params {
+                    params_map.insert(
+                        serde_yaml::Value::String("api_key".to_string()),
+                        serde_yaml::Value::String(api_key.to_string()),
+                    );
+                    if let Some(base) = api_base {
+                        params_map.insert(
+                            serde_yaml::Value::String("api_base".to_string()),
+                            serde_yaml::Value::String(base.to_string()),
+                        );
+                    } else {
+                        params_map.remove(&serde_yaml::Value::String("api_base".to_string()));
+                    }
+                } else {
+                    // This case should ideally not happen if params are always created as Mappings
+                    // For robustness, one might recreate it:
+                    let mut params_map = serde_yaml::Mapping::new();
+                    params_map.insert(
+                        serde_yaml::Value::String("model".to_string()),
+                        serde_yaml::Value::String(model_name.to_string()),
+                    );
+                     params_map.insert(
+                        serde_yaml::Value::String("api_key".to_string()),
+                        serde_yaml::Value::String(api_key.to_string()),
+                    );
+                    if let Some(base) = api_base {
+                        params_map.insert(
+                            serde_yaml::Value::String("api_base".to_string()),
+                            serde_yaml::Value::String(base.to_string()),
+                        );
+                    }
+                    model_config.litellm_params = serde_yaml::Value::Mapping(params_map);
+                }
                 found = true;
                 break;
             }
         }
         if !found {
+            let mut params_map = serde_yaml::Mapping::new();
+            params_map.insert(
+                serde_yaml::Value::String("model".to_string()),
+                serde_yaml::Value::String(model_name.to_string()),
+            );
+            params_map.insert(
+                serde_yaml::Value::String("api_key".to_string()),
+                serde_yaml::Value::String(api_key.to_string()),
+            );
+            if let Some(base) = api_base {
+                params_map.insert(
+                    serde_yaml::Value::String("api_base".to_string()),
+                    serde_yaml::Value::String(base.to_string()),
+                );
+            }
+
             config.model_list.push(LiteLLMModelConfig {
                 model_name: model_name.to_string(),
-                api_base: api_base.map(|s| s.to_string()),
-                api_key: Some(api_key.to_string()),
-                litellm_params: None,
+                litellm_params: serde_yaml::Value::Mapping(params_map),
+                model_info: Some(ModelInfo::default()), // Or None
+                tpm: None,
+                rpm: None,
             });
         }
     }
