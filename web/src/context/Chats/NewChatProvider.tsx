@@ -111,6 +111,12 @@ export const useBusterNewChat = () => {
         });
       }
 
+      //needed in order to trigger the auto change layout
+      busterSocket.once({
+        route: '/chats/post:initializeChat',
+        callback: initializeNewChatCallback
+      });
+
       await busterSocket.emitAndOnce({
         emitEvent: {
           route: '/chats/post',
