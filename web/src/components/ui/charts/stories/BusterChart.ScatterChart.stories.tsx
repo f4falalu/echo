@@ -256,7 +256,7 @@ export const ScatterWithTrendline_NumericalXAxisPolynomialRegression: Story = {
         show: true,
         showTrendlineLabel: true,
         trendlineLabel: null,
-        trendLineColor: 'red',
+        trendLineColor: 'inherit',
         columnId: 'revenue'
       },
       {

@@ -6,26 +6,30 @@ import { formatLabel } from '@/lib/columnFormatter';
 export const createTrendlineOnSeries = ({
   trendlines,
   yAxisKey,
+  color,
   columnLabelFormats
 }: {
   trendlines: BusterChartProps['trendlines'];
   yAxisKey: string;
+  color: string;
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>;
 }): TrendlineOptions[] | undefined => {
   if (!trendlines || trendlines.length === 0) return undefined;
 
-  const relevantTrendlines = trendlines.filter(({ columnId }) => columnId === yAxisKey);
+  const relevantTrendlines = trendlines.filter(
+    ({ columnId, aggregateAllCategories }) => columnId === yAxisKey && !aggregateAllCategories
+  );
 
   return relevantTrendlines.map(
     ({ type, show, trendlineLabel, trendLineColor, showTrendlineLabel, columnId, ...rest }) => {
       return {
         type,
         show,
-        colorMax: trendLineColor,
-        colorMin: trendLineColor,
-
+        colorMax: trendLineColor === 'inherit' ? color : trendLineColor,
+        colorMin: trendLineColor === 'inherit' ? color : trendLineColor,
         label: showTrendlineLabel
           ? {
+              display: true,
               text: (v) => {
                 if (!trendlineLabel) {
                   let value: number | null = null;
@@ -40,7 +44,6 @@ export const createTrendlineOnSeries = ({
                     value = v.minY;
                   }
 
-                  console.log(v);
                   const formattedValue = value
                     ? formatLabel(value, columnLabelFormats[columnId])
                     : '';
@@ -55,8 +58,7 @@ export const createTrendlineOnSeries = ({
                 }
 
                 return trendlineLabel;
-              }, //
-              display: true
+              }
             }
           : undefined
       } satisfies TrendlineOptions;

@@ -20,7 +20,9 @@ export interface Trendline {
     | 'min'
     | 'max'
     | 'median'; //default is linear trend
-  trendLineColor?: string | null; //OPTIONAL: default is #000000
+  trendLineColor?: string | null | 'inherit'; //OPTIONAL: default is #000000
+  trendlineLabelPositionOffset?: number; //OPTIONAL: default is 0.85. Goes from 0 to 1.
   columnId: string;
+  aggregateAllCategories?: boolean; //OPTIONAL: default is true. if true, the trendline will be calculated for all categories. if false, the trendline will be calculated for the category specified in the columnId.
   id?: string;
 }

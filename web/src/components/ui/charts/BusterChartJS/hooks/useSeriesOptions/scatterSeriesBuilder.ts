@@ -82,6 +82,7 @@ export const scatterSeriesBuilder_data = ({
       xAxisKeys,
       trendline: createTrendlineOnSeries({
         trendlines,
+        color,
         yAxisKey: dataset.dataKey,
         columnLabelFormats
       }),
