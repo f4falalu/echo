@@ -75,7 +75,7 @@ declare module 'chart.js' {
   }
 
   interface ChartDatasetProperties<TType extends ChartType, TData> {
-    trendline?: TrendlineOptions;
+    trendline?: TrendlineOptions[];
   }
 }
 
@@ -654,38 +654,48 @@ const trendlinePlugin: Plugin<'line'> = {
 
     // Original behavior - draw individual trendlines for each dataset
     chart.data.datasets.forEach((dataset, datasetIndex) => {
-      const opts = dataset.trendline;
-      if (!opts || dataset.data.length < 2) {
+      const trendlineOptions = dataset.trendline;
+      if (!trendlineOptions || dataset.data.length < 2) {
         return;
       }
 
-      // Create the appropriate fitter
-      const fitter = createFitter(opts);
+      // Convert to array if it's a single object for backward compatibility
+      const trendlineArray = Array.isArray(trendlineOptions)
+        ? trendlineOptions
+        : [trendlineOptions];
 
-      // Add all data points to the fitter
-      addDataPointsToFitter(dataset, fitter);
+      // Process each trendline option
+      trendlineArray.forEach((opts) => {
+        if (!opts || !opts.type) return;
 
-      // Skip if no valid points were added
-      if (fitter.minx === Infinity || fitter.maxx === -Infinity) {
-        return;
-      }
+        // Create the appropriate fitter
+        const fitter = createFitter(opts);
 
-      // For exponential trendlines, ensure we have valid y values
-      if (opts.type === 'exponential') {
-        // Check if we have valid data (positive y values)
-        const hasValidPoints = dataset.data.some((point: any) => {
-          const y = point[dataset.yAxisID ?? 'y'] ?? point;
-          return typeof y === 'number' && y > 0;
-        });
+        // Add all data points to the fitter
+        addDataPointsToFitter(dataset, fitter);
 
-        if (!hasValidPoints) {
-          console.warn('Exponential trendline requires positive y values');
+        // Skip if no valid points were added
+        if (fitter.minx === Infinity || fitter.maxx === -Infinity) {
           return;
         }
-      }
 
-      const defaultColor = (dataset.borderColor as string) ?? 'rgba(0,0,0,0.3)';
-      drawTrendline(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor);
+        // For exponential trendlines, ensure we have valid y values
+        if (opts.type === 'exponential') {
+          // Check if we have valid data (positive y values)
+          const hasValidPoints = dataset.data.some((point: any) => {
+            const y = point[dataset.yAxisID ?? 'y'] ?? point;
+            return typeof y === 'number' && y > 0;
+          });
+
+          if (!hasValidPoints) {
+            console.warn('Exponential trendline requires positive y values');
+            return;
+          }
+        }
+
+        const defaultColor = (dataset.borderColor as string) ?? 'rgba(0,0,0,0.3)';
+        drawTrendline(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor);
+      });
     });
   }
 };
