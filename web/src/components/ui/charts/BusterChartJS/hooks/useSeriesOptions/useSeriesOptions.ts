@@ -62,7 +62,7 @@ export const useSeriesOptions = ({
       columnSettings,
       trendlineSeries
     });
-  }, [datasetOptions, columnSettings, columnLabelFormats, xAxisKeys, sizeKey]);
+  }, [datasetOptions, columnSettings, columnLabelFormats, xAxisKeys, sizeKey, trendlineSeries]);
 
   const sizeOptions: SeriesBuilderProps['sizeOptions'] = useMemo(() => {
     if (!sizeKey || sizeKey.length === 0) {
