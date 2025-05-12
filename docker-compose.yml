@@ -41,6 +41,8 @@ services:
       - LLM_API_KEY=${LLM_API_KEY}
       - LLM_BASE_URL=${LLM_BASE_URL}
       - RUST_LOG=debug
+      - POSTHOG_TELEMETRY_KEY=${POSTHOG_TELEMETRY_KEY}
+      - TELEMETRY_ENABLED=${TELEMETRY_ENABLED}
     ports:
       - "3001:3001"
       - "3000:3000"
