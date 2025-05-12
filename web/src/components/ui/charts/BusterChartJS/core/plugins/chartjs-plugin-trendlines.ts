@@ -4,7 +4,15 @@ import { Plugin, ChartType } from 'chart.js';
 import { defaultLabelOptionConfig } from '../../hooks/useChartSpecificOptions/labelOptionConfig';
 
 /** The three trendline modes we support */
-export type TrendlineType = 'linear' | 'logarithmic' | 'polynomial' | 'exponential';
+export type TrendlineType =
+  | 'linear'
+  | 'logarithmic'
+  | 'polynomial'
+  | 'exponential'
+  | 'average'
+  | 'max'
+  | 'min'
+  | 'median';
 
 /** Options for the slope label */
 export interface TrendlineLabelOptions {
@@ -215,6 +223,71 @@ class ExponentialFitter extends BaseFitter {
   }
 }
 
+/** Statistical fitter that returns a constant y value (average) */
+class AverageFitter extends BaseFitter {
+  private sum = 0;
+  private count = 0;
+
+  protected addPoint(x: number, y: number) {
+    this.sum += y;
+    this.count++;
+  }
+
+  f(x: number): number {
+    return this.count > 0 ? this.sum / this.count : 0;
+  }
+}
+
+/** Statistical fitter that returns the maximum y value */
+class MaxFitter extends BaseFitter {
+  private maxY = -Infinity;
+
+  protected addPoint(x: number, y: number) {
+    this.maxY = Math.max(this.maxY, y);
+  }
+
+  f(x: number): number {
+    return this.maxY;
+  }
+}
+
+/** Statistical fitter that returns the minimum y value */
+class MinFitter extends BaseFitter {
+  private minY = Infinity;
+
+  protected addPoint(x: number, y: number) {
+    this.minY = Math.min(this.minY, y);
+  }
+
+  f(x: number): number {
+    return this.minY;
+  }
+}
+
+/** Statistical fitter that returns the median y value */
+class MedianFitter extends BaseFitter {
+  private values: number[] = [];
+
+  protected addPoint(x: number, y: number) {
+    this.values.push(y);
+  }
+
+  f(x: number): number {
+    if (this.values.length === 0) return 0;
+
+    // Sort values for median calculation
+    const sorted = [...this.values].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+
+    // If even number of elements, average the middle two
+    if (sorted.length % 2 === 0) {
+      return (sorted[mid - 1] + sorted[mid]) / 2;
+    }
+    // If odd, return the middle element
+    return sorted[mid];
+  }
+}
+
 // Create appropriate fitter based on options
 function createFitter(opts: TrendlineOptions): BaseFitter {
   switch (opts.type) {
@@ -224,6 +297,14 @@ function createFitter(opts: TrendlineOptions): BaseFitter {
       return new LogarithmicFitter();
     case 'exponential':
       return new ExponentialFitter();
+    case 'average':
+      return new AverageFitter();
+    case 'max':
+      return new MaxFitter();
+    case 'min':
+      return new MinFitter();
+    case 'median':
+      return new MedianFitter();
     case 'linear':
     default:
       return new LinearFitter();
@@ -367,8 +448,14 @@ function drawLinePath(
   const x1 = xScale.getPixelForValue(minX);
   const y1 = yScale.getPixelForValue(fitter.f(minX));
 
-  if (lineType === 'linear') {
-    // Simple straight line for linear trendlines
+  if (
+    lineType === 'linear' ||
+    lineType === 'average' ||
+    lineType === 'max' ||
+    lineType === 'min' ||
+    lineType === 'median'
+  ) {
+    // Simple straight line for linear and statistical trendlines
     const x2 = xScale.getPixelForValue(maxX);
     const y2 = yScale.getPixelForValue(fitter.f(maxX));
 
@@ -376,7 +463,7 @@ function drawLinePath(
     ctx.lineTo(x2, y2);
   } else {
     // For non-linear trendlines, use multiple points for a smooth curve
-    const segments = 100;
+    const segments = 80;
     const xStep = (maxX - minX) / segments;
 
     ctx.moveTo(x1, y1);
@@ -563,43 +650,43 @@ const trendlinePlugin: Plugin<'line'> = {
           }
         }
       }
-    } else {
-      // Original behavior - draw individual trendlines for each dataset
-      chart.data.datasets.forEach((dataset, datasetIndex) => {
-        const opts = dataset.trendline;
-        if (!opts || dataset.data.length < 2) {
-          return;
-        }
-
-        // Create the appropriate fitter
-        const fitter = createFitter(opts);
-
-        // Add all data points to the fitter
-        addDataPointsToFitter(dataset, fitter);
-
-        // Skip if no valid points were added
-        if (fitter.minx === Infinity || fitter.maxx === -Infinity) {
-          return;
-        }
-
-        // For exponential trendlines, ensure we have valid y values
-        if (opts.type === 'exponential') {
-          // Check if we have valid data (positive y values)
-          const hasValidPoints = dataset.data.some((point: any) => {
-            const y = point[dataset.yAxisID ?? 'y'] ?? point;
-            return typeof y === 'number' && y > 0;
-          });
-
-          if (!hasValidPoints) {
-            console.warn('Exponential trendline requires positive y values');
-            return;
-          }
-        }
-
-        const defaultColor = (dataset.borderColor as string) ?? 'rgba(0,0,0,0.3)';
-        drawTrendline(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor);
-      });
     }
+
+    // Original behavior - draw individual trendlines for each dataset
+    chart.data.datasets.forEach((dataset, datasetIndex) => {
+      const opts = dataset.trendline;
+      if (!opts || dataset.data.length < 2) {
+        return;
+      }
+
+      // Create the appropriate fitter
+      const fitter = createFitter(opts);
+
+      // Add all data points to the fitter
+      addDataPointsToFitter(dataset, fitter);
+
+      // Skip if no valid points were added
+      if (fitter.minx === Infinity || fitter.maxx === -Infinity) {
+        return;
+      }
+
+      // For exponential trendlines, ensure we have valid y values
+      if (opts.type === 'exponential') {
+        // Check if we have valid data (positive y values)
+        const hasValidPoints = dataset.data.some((point: any) => {
+          const y = point[dataset.yAxisID ?? 'y'] ?? point;
+          return typeof y === 'number' && y > 0;
+        });
+
+        if (!hasValidPoints) {
+          console.warn('Exponential trendline requires positive y values');
+          return;
+        }
+      }
+
+      const defaultColor = (dataset.borderColor as string) ?? 'rgba(0,0,0,0.3)';
+      drawTrendline(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor);
+    });
   }
 };
 
