@@ -310,10 +310,10 @@ pub async fn deploy_datasets_handler_core(
 
                                         if let Err(e) = stored_values_jobs::setup_sync_job(
                                             job_data_source_id,
-                                            current_job_database_name.clone(),
-                                            current_job_schema_name.clone(),
-                                            job_table_name.clone(),
-                                            job_column_name.clone(),
+                                            current_job_database_name.clone().to_lowercase(),
+                                            current_job_schema_name.clone().to_lowercase(),
+                                            job_table_name.clone().to_lowercase(),
+                                            job_column_name.clone().to_lowercase(),
                                         )
                                         .await
                                         {
@@ -326,10 +326,10 @@ pub async fn deploy_datasets_handler_core(
 
                                         match stored_values_jobs::sync_distinct_values_chunk(
                                             job_data_source_id,
-                                            current_job_database_name,
-                                            current_job_schema_name,
-                                            job_table_name,
-                                            job_column_name,
+                                            current_job_database_name.clone().to_lowercase(),
+                                            current_job_schema_name.clone().to_lowercase(),
+                                            job_table_name.clone().to_lowercase(),
+                                            job_column_name.clone().to_lowercase(),
                                         ).await {
                                             Ok(count) => info!(
                                                 "Successfully synced {} distinct values for searchable dimension '{}' (data_source_id: {}).",

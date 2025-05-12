@@ -25,7 +25,6 @@ export const useAutoChangeLayout = ({
   const messageId = useChatLayoutContextSelector((x) => x.messageId);
   const metricId = useChatLayoutContextSelector((x) => x.metricId);
   const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId);
-  const secondaryView = useChatLayoutContextSelector((x) => x.secondaryView);
   const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
   const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
   const currentRoute = useChatLayoutContextSelector((x) => x.currentRoute);

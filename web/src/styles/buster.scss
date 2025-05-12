@@ -15,6 +15,7 @@
     animation-range: 0px 120px;
     animation-timeline: --scrollShadowContainer;
     animation-fill-mode: forwards;
+    z-index: 1;
   }
 
   @keyframes shadowAnimation {
