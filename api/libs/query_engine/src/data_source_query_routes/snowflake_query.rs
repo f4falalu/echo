@@ -3260,5 +3260,264 @@ mod tests {
 
         println!("✓ Verified Struct TIMESTAMP_NTZ(9) processing");
     }
+
+    /// Tests processing Int64 arrays with TIMESTAMP_NTZ metadata and various scales.
+    #[test]
+    fn test_int64_timestamp_ntz_various_scales() {
+        println!("\n=== Testing Int64 TIMESTAMP_NTZ with various scales ===");
+
+        // --- Sample Data ---
+        // Use a consistent base time for easier verification
+        let base_secs = 1700000000i64; // 2023-11-14 22:13:20 UTC
+        // Define expected nanos carefully
+        let expected_nanos = 123456789u32;
+
+        // Calculate Int64 values based on scale
+        let data_scale0 = vec![Some(base_secs)]; // Value is seconds
+        let data_scale6 = vec![Some(base_secs * 1_000_000 + (expected_nanos / 1000) as i64)]; // Value is microseconds
+        let data_scale9 = vec![Some(base_secs * 1_000_000_000 + expected_nanos as i64)]; // Value is nanoseconds
+        let data_null = vec![None::<i64>];
+
+        // --- Array Creation ---
+        let array_scale0 = Int64Array::from(data_scale0);
+        let array_scale6 = Int64Array::from(data_scale6);
+        let array_scale9 = Int64Array::from(data_scale9);
+        let array_null = Int64Array::from(data_null);
+
+        // --- Metadata and Field Creation ---
+        let mut meta_ntz_scale0 = std::collections::HashMap::new();
+        meta_ntz_scale0.insert("logicalType".to_string(), "TIMESTAMP_NTZ".to_string());
+        meta_ntz_scale0.insert("scale".to_string(), "0".to_string());
+        let field_scale0 = Field::new("ts_scale0", ArrowDataType::Int64, true).with_metadata(meta_ntz_scale0);
+
+        let mut meta_ntz_scale6 = std::collections::HashMap::new();
+        meta_ntz_scale6.insert("logicalType".to_string(), "TIMESTAMP_NTZ".to_string());
+        meta_ntz_scale6.insert("scale".to_string(), "6".to_string());
+        let field_scale6 = Field::new("ts_scale6", ArrowDataType::Int64, true).with_metadata(meta_ntz_scale6);
+
+        let mut meta_ntz_scale9 = std::collections::HashMap::new();
+        meta_ntz_scale9.insert("logicalType".to_string(), "TIMESTAMP_NTZ".to_string());
+        meta_ntz_scale9.insert("scale".to_string(), "9".to_string());
+        let field_scale9 = Field::new("ts_scale9", ArrowDataType::Int64, true).with_metadata(meta_ntz_scale9.clone()); // Clone for null field
+
+        // Field for null test (metadata shouldn't matter but use one)
+        let field_null = Field::new("ts_null", ArrowDataType::Int64, true).with_metadata(meta_ntz_scale9);
+
+        // --- Schema and RecordBatch ---
+        let schema = Arc::new(Schema::new(vec![field_scale0, field_scale6, field_scale9, field_null]));
+        let batch = RecordBatch::try_new(
+            schema,
+            vec![
+                Arc::new(array_scale0) as ArrayRef,
+                Arc::new(array_scale6) as ArrayRef,
+                Arc::new(array_scale9) as ArrayRef,
+                Arc::new(array_null) as ArrayRef,
+            ],
+        ).unwrap();
+
+        // --- Process Batch ---
+        let processed_rows = process_record_batch(&batch);
+
+        // --- Assertions ---
+        assert_eq!(processed_rows.len(), 1, "Expected 1 row");
+        let row = &processed_rows[0];
+
+        // Calculate the final expected NaiveDateTime based ONLY on base_secs and expected_nanos
+        // Note: For scale 0, the input data doesn't contain nano precision, so the expected result *should* reflect that loss.
+        let expected_dt_s0 = Utc.timestamp_opt(base_secs, 0).unwrap().naive_utc(); // Scale 0 loses nanos
+        
+        // For scale 6, we only have microsecond precision (the last 3 digits of nanos are truncated)
+        let microsecond_nanos = (expected_nanos / 1000) * 1000; // Truncate to microsecond precision
+        let expected_dt_s6 = Utc.timestamp_opt(base_secs, microsecond_nanos).unwrap().naive_utc();
+        
+        // For scale 9, we have full nanosecond precision
+        let expected_dt_s9 = Utc.timestamp_opt(base_secs, expected_nanos).unwrap().naive_utc();
+
+        // Scale 0 (Seconds) - Loses nanosecond precision from original `expected_nanos`
+        assert_eq!(row["ts_scale0"], DataType::Timestamp(Some(expected_dt_s0)));
+        // Scale 6 (Microseconds) - Should only have microsecond precision (truncated)
+        assert_eq!(row["ts_scale6"], DataType::Timestamp(Some(expected_dt_s6)));
+        // Scale 9 (Nanoseconds) - Should retain full nanosecond precision
+        assert_eq!(row["ts_scale9"], DataType::Timestamp(Some(expected_dt_s9)));
+        // Null value
+        assert_eq!(row["ts_null"], DataType::Null);
+
+        println!("✓ Verified Int64 TIMESTAMP_NTZ with various scales");
+    }
+
+    /// Tests processing Int64 arrays with TIMESTAMP_TZ metadata and scale 3.
+    #[test]
+    fn test_int64_timestamp_tz_scale3() {
+        println!("\n=== Testing Int64 TIMESTAMP_TZ with scale 3 ===");
+
+        // --- Sample Data ---
+        let base_secs = 1700000000i64;
+        let base_millis = 123i64;
+        let data_millis = vec![Some(base_secs * 1000 + base_millis)]; // Milliseconds since epoch
+        let data_null = vec![None::<i64>];
+
+        // --- Array Creation ---
+        let array_data = Int64Array::from(data_millis);
+        let array_null = Int64Array::from(data_null);
+
+        // --- Metadata and Field Creation ---
+        let mut meta_tz_scale3 = std::collections::HashMap::new();
+        meta_tz_scale3.insert("logicalType".to_string(), "TIMESTAMP_TZ".to_string());
+        meta_tz_scale3.insert("scale".to_string(), "3".to_string());
+        let field_data = Field::new("ts_tz_scale3", ArrowDataType::Int64, true).with_metadata(meta_tz_scale3.clone());
+        let field_null = Field::new("ts_null", ArrowDataType::Int64, true).with_metadata(meta_tz_scale3);
+
+        // --- Schema and RecordBatch ---
+        let schema = Arc::new(Schema::new(vec![field_data, field_null]));
+        let batch = RecordBatch::try_new(
+            schema,
+            vec![
+                Arc::new(array_data) as ArrayRef,
+                Arc::new(array_null) as ArrayRef,
+            ],
+        ).unwrap();
+
+        // --- Process Batch ---
+        let processed_rows = process_record_batch(&batch);
+
+        // --- Assertions ---
+        assert_eq!(processed_rows.len(), 1, "Expected 1 row");
+        let row = &processed_rows[0];
+
+        let expected_dt_utc = Utc.timestamp_millis_opt(base_secs * 1000 + base_millis).unwrap();
+
+        // TZ Scale 3 (Milliseconds)
+        assert_eq!(row["ts_tz_scale3"], DataType::Timestamptz(Some(expected_dt_utc)));
+        // Null value
+        assert_eq!(row["ts_null"], DataType::Null);
+
+        println!("✓ Verified Int64 TIMESTAMP_TZ with scale 3");
+    }
+
+    /// Tests processing Struct timestamps with various scales and TZ/NTZ metadata.
+    #[test]
+    fn test_struct_timestamp_various_scales_and_tz() {
+        println!("\n=== Testing Struct Timestamps with various scales and TZ/NTZ ===");
+
+        // Helper function to create test structs with different scales
+        fn create_test_case(epoch_value: i64, fraction_value: i32, scale: i32, is_tz: bool) -> (StructArray, Field) {
+            let epoch_array = Int64Array::from(vec![epoch_value]);
+            let fraction_array = Int32Array::from(vec![fraction_value]);
+
+            let struct_fields = Fields::from(vec![
+                Arc::new(Field::new("epoch", ArrowDataType::Int64, false)),
+                Arc::new(Field::new("fraction", ArrowDataType::Int32, false)),
+            ]);
+
+            let struct_array = StructArray::from(vec![
+                (
+                    Arc::new(Field::new("epoch", ArrowDataType::Int64, false)),
+                    Arc::new(epoch_array) as arrow::array::ArrayRef,
+                ),
+                (
+                    Arc::new(Field::new("fraction", ArrowDataType::Int32, false)),
+                    Arc::new(fraction_array) as arrow::array::ArrayRef,
+                ),
+            ]);
+
+            // Create field with metadata indicating this is a timestamp
+            let mut struct_metadata = std::collections::HashMap::new();
+            struct_metadata.insert("scale".to_string(), scale.to_string());
+            struct_metadata.insert(
+                "logicalType".to_string(),
+                if is_tz {
+                    "TIMESTAMP_TZ".to_string()
+                } else {
+                    "TIMESTAMP_NTZ".to_string()
+                },
+            );
+
+            let struct_field = Field::new(
+                "TIMESTAMP_STRUCT",
+                ArrowDataType::Struct(struct_fields),
+                false,
+            ).with_metadata(struct_metadata);
+
+            (struct_array, struct_field)
+        }
+
+        // Base timestamp values for testing
+        let base_secs = 1700000000i64; // 2023-11-14 22:13:20 UTC
+        
+        // Test cases for different scales
+        // (epoch, fraction, scale, is_tz, expected_subsec_nanos)
+        let test_cases = vec![
+            // Scale 3 (milliseconds)
+            (base_secs, 123, 3, false, 123_000_000), // 123 milliseconds → 123,000,000 nanos
+            (base_secs, 123, 3, true, 123_000_000),  // Same with TZ
+
+            // Scale 6 (microseconds)
+            (base_secs, 123456, 6, false, 123_456_000), // 123,456 microseconds → 123,456,000 nanos
+            (base_secs, 123456, 6, true, 123_456_000),  // Same with TZ
+
+            // Scale 9 (nanoseconds) - most important case to test
+            (base_secs, 123456789, 9, false, 123_456_789), // 123,456,789 nanoseconds directly
+            (base_secs, 123456789, 9, true, 123_456_789),  // Same with TZ
+
+            // Edge cases
+            (base_secs, 0, 9, false, 0), // Zero fraction
+            (base_secs, 999_999_999, 9, false, 999_999_999), // Max nanoseconds
+        ];
+
+        // Process each test case
+        for (idx, (epoch, fraction, scale, is_tz, expected_nanos)) in test_cases.iter().enumerate() {
+            println!("\nTest case {}: epoch={}, fraction={}, scale={}, tz={}", 
+                     idx, epoch, fraction, scale, is_tz);
+
+            let (struct_array, struct_field) = create_test_case(*epoch, *fraction, *scale, *is_tz);
+            
+            // Test direct function call
+            let dt_result = handle_snowflake_timestamp_struct(&struct_array, 0, Some(*scale));
+            
+            // Verify result
+            assert!(dt_result.is_some(), 
+                   "handle_snowflake_timestamp_struct returned None for case {}", idx);
+            
+            let dt = dt_result.unwrap();
+            let expected_dt = Utc.timestamp_opt(*epoch, *expected_nanos).unwrap();
+            
+            assert_eq!(dt.timestamp(), expected_dt.timestamp(), 
+                       "Incorrect timestamp seconds for case {}", idx);
+            assert_eq!(dt.timestamp_subsec_nanos(), *expected_nanos, 
+                       "Incorrect nanoseconds for case {}: got {} expected {}", 
+                       idx, dt.timestamp_subsec_nanos(), expected_nanos);
+            
+            // Additionally test through handle_struct_array
+            let struct_array_ref = Arc::new(struct_array) as arrow::array::ArrayRef;
+            let result = handle_struct_array(
+                struct_array_ref.as_any().downcast_ref::<StructArray>().unwrap(),
+                0,
+                &struct_field,
+            );
+            
+            // Check result type and value
+            if *is_tz {
+                match &result {
+                    DataType::Timestamptz(Some(result_dt)) => {
+                        assert_eq!(result_dt.timestamp(), expected_dt.timestamp());
+                        assert_eq!(result_dt.timestamp_subsec_nanos(), *expected_nanos);
+                    }
+                    _ => panic!("Expected DataType::Timestamptz, got: {:?}", result),
+                }
+            } else {
+                match &result {
+                    DataType::Timestamp(Some(result_naive_dt)) => {
+                        assert_eq!(result_naive_dt.and_utc().timestamp(), expected_dt.timestamp());
+                        assert_eq!(result_naive_dt.and_utc().timestamp_subsec_nanos(), *expected_nanos);
+                    }
+                    _ => panic!("Expected DataType::Timestamp, got: {:?}", result),
+                }
+            }
+            
+            println!("✓ Test case {} passed", idx);
+        }
+
+        println!("✓ Verified Struct Timestamps with various scales and TZ/NTZ");
+    }
 }
 
