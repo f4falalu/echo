@@ -6,10 +6,8 @@ import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_i
 import { addOpacityToColor } from '@/lib/colors';
 import { isDateColumnType } from '@/lib/messages';
 import { createDayjsDate } from '@/lib/date';
-import { lineSeriesBuilder_labels } from './lineSeriesBuilder';
 import { formatLabelForDataset } from '../../../commonHelpers';
-import { TrendlineOptions } from '../../core/plugins/chartjs-plugin-trendlines';
-import { createTrendlineOnSeries } from './createTrendlineOnSeries';
+import { createTrendlineOnSeries } from './createTrendlines';
 
 declare module 'chart.js' {
   interface BubbleDataPoint {
@@ -82,7 +80,7 @@ export const scatterSeriesBuilder_data = ({
       xAxisKeys,
       trendline: createTrendlineOnSeries({
         trendlines,
-        color,
+        datasetColor: color,
         yAxisKey: dataset.dataKey,
         columnLabelFormats
       }),

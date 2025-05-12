@@ -167,7 +167,8 @@ export const BusterChartJSComponent = React.memo(
         animate,
         disableTooltip,
         xAxisTimeInterval,
-        numberOfDataPoints
+        numberOfDataPoints,
+        trendlines
       });
 
       const type = useMemo(() => {

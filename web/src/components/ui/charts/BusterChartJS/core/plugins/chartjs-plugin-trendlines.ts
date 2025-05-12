@@ -73,7 +73,7 @@ export interface TrendlineOptions {
   label?: TrendlineLabelOptions;
 }
 
-type AggregateMultiple = TrendlineOptions & { yAxisKey: string; yAxisID: string };
+export type AggregateMultiple = TrendlineOptions & { yAxisKey: string; yAxisID: string };
 
 /** Plugin-level options */
 export interface TrendlinePluginOptions {
@@ -607,12 +607,10 @@ const trendlinePlugin: Plugin<'line'> = {
             if (aggregateConfig.label?.display) {
               queueTrendlineLabel(
                 ctx,
-                chartArea,
                 xScale,
                 yScale,
                 fitter,
                 aggregateConfig,
-                defaultColor,
                 labelPositions,
                 labelDrawingQueue
               );
@@ -667,18 +665,15 @@ const trendlinePlugin: Plugin<'line'> = {
 
         // Draw only the trendline first (not labels)
         drawTrendlinePath(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor);
-
         // Queue label for later drawing if needed
         if (opts.label?.display) {
           const labelIndices = { datasetIndex, trendlineIndex };
           queueTrendlineLabel(
             ctx,
-            chartArea,
             xScale,
             yScale,
             fitter,
             opts,
-            defaultColor,
             labelPositions,
             labelDrawingQueue,
             labelIndices
@@ -694,15 +689,26 @@ const trendlinePlugin: Plugin<'line'> = {
   }
 };
 
+// Helper function to check if two rectangles overlap
+function doRectsOverlap(
+  rect1: { x: number; y: number; width: number; height: number },
+  rect2: { x: number; y: number; width: number; height: number }
+): boolean {
+  return (
+    rect1.x < rect2.x + rect2.width &&
+    rect1.x + rect1.width > rect2.x &&
+    rect1.y < rect2.y + rect2.height &&
+    rect1.y + rect1.height > rect2.y
+  );
+}
+
 // Helper function to queue a label for later drawing
 function queueTrendlineLabel(
   ctx: CanvasRenderingContext2D,
-  chartArea: { bottom: number },
   xScale: any,
   yScale: any,
   fitter: BaseFitter,
   opts: TrendlineOptions,
-  defaultColor: string,
   labelPositions: Array<{ x: number; y: number; width: number; height: number }> = [],
   labelDrawingQueue: Array<{
     ctx: CanvasRenderingContext2D;
@@ -717,7 +723,6 @@ function queueTrendlineLabel(
 
   let minX = opts.projection ? (xScale.min as number) : fitter.minx;
   const maxX = opts.projection ? (xScale.max as number) : fitter.maxx;
-  const maxYFitter = fitter.maxx;
 
   // For logarithmic trendlines, ensure minX is positive
   if (opts.type === 'logarithmic_regression' && minX <= 0) {
@@ -737,7 +742,9 @@ function queueTrendlineLabel(
 
   // Handle text as either string or callback function
   let textContent: string;
+  console.log('lbl.text', typeof lbl.text, lbl.text);
   if (typeof lbl.text === 'function') {
+    console.log('lbl.text', lbl);
     // Call the function with the slope value
     textContent = lbl.text({
       slope,
@@ -769,7 +776,7 @@ function queueTrendlineLabel(
   if (labelIndices) {
     // Use dataset index and trendline index to create a staggered effect
     // The formula below creates an increasing offset for each label
-    const baseOffset = 8; // Base offset in pixels
+    const baseOffset = 0; // Base offset in pixels
     const additionalOffset = baseOffset * (labelIndices.datasetIndex + labelIndices.trendlineIndex);
     offsetY -= additionalOffset;
   }
@@ -793,9 +800,18 @@ function queueTrendlineLabel(
     height: labelHeight
   };
 
+  // Check if this label overlaps with any existing labels
+  for (const existingLabel of labelPositions) {
+    if (doRectsOverlap(labelRect, existingLabel)) {
+      // Label would overlap, so skip adding it
+      return;
+    }
+  }
+
   // Store this label's position for future collision detection
   labelPositions.push(labelRect);
 
+  console.log('labelText', labelText);
   // Queue the label for drawing later (to ensure it's on top of all lines)
   labelDrawingQueue.push({
     ctx,
