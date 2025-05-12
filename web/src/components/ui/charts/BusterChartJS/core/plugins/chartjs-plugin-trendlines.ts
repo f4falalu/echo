@@ -306,7 +306,7 @@ class MedianFitter extends BaseFitter {
 }
 
 // Create appropriate fitter based on options
-function createFitter(opts: TrendlineOptions): BaseFitter {
+const createFitter = (opts: TrendlineOptions): BaseFitter => {
   switch (opts.type) {
     case 'polynomial_regression':
       return new PolynomialFitter(opts.polynomialOrder ?? 2);
@@ -326,15 +326,15 @@ function createFitter(opts: TrendlineOptions): BaseFitter {
     default:
       return new LinearFitter();
   }
-}
+};
 
 // Process padding options
-function processPadding(
+const processPadding = (
   labelPadding:
     | number
     | { top?: number; bottom?: number; left?: number; right?: number }
     | undefined
-): { top: number; right: number; bottom: number; left: number } {
+): { top: number; right: number; bottom: number; left: number } => {
   const defaultPadding = defaultLabelOptionConfig.padding;
 
   if (typeof labelPadding === 'number') {
@@ -354,10 +354,10 @@ function processPadding(
     bottom: defaultPadding.bottom,
     left: defaultPadding.left
   };
-}
+};
 
 // Set line style based on options
-function setLineStyle(ctx: CanvasRenderingContext2D, lineStyle?: string, lineWidth: number = 2) {
+const setLineStyle = (ctx: CanvasRenderingContext2D, lineStyle?: string, lineWidth: number = 2) => {
   ctx.lineWidth = lineWidth;
 
   switch (lineStyle) {
@@ -373,16 +373,16 @@ function setLineStyle(ctx: CanvasRenderingContext2D, lineStyle?: string, lineWid
     default:
       ctx.setLineDash([]);
   }
-}
+};
 
 // Draw a label with background
-function drawLabel(
+const drawLabel = (
   ctx: CanvasRenderingContext2D,
   text: string,
   x: number,
   y: number,
   options: TrendlineLabelOptions
-) {
+) => {
   // Apply defaults from defaultLabelOptionConfig
   const fontSize = options.font?.size ?? defaultLabelOptionConfig.font.size;
   const fontFamily = options.font?.family ?? 'sans-serif';
@@ -455,10 +455,10 @@ function drawLabel(
 
   ctx.fillText(text, textX, textY);
   ctx.restore();
-}
+};
 
 // Draw curved or straight line path
-function drawLinePath(
+const drawLinePath = (
   ctx: CanvasRenderingContext2D,
   xScale: any,
   yScale: any,
@@ -466,7 +466,7 @@ function drawLinePath(
   minX: number,
   maxX: number,
   lineType: TrendlineType
-) {
+) => {
   const x1 = xScale.getPixelForValue(minX);
   const y1 = yScale.getPixelForValue(fitter.f(minX));
 
@@ -501,10 +501,10 @@ function drawLinePath(
       }
     }
   }
-}
+};
 
 // Fill area under the trendline
-function fillUnderLine(
+const fillUnderLine = (
   ctx: CanvasRenderingContext2D,
   xScale: any,
   yScale: any,
@@ -514,7 +514,7 @@ function fillUnderLine(
   lineType: TrendlineType,
   fillStyle: string,
   chartBottom: number
-) {
+) => {
   ctx.fillStyle = fillStyle;
   ctx.beginPath();
 
@@ -528,10 +528,10 @@ function fillUnderLine(
   ctx.lineTo(x1, chartBottom);
   ctx.closePath();
   ctx.fill();
-}
+};
 
 // Process data points from a dataset
-function addDataPointsToFitter(dataset: any, fitter: BaseFitter, yAxisID?: string) {
+const addDataPointsToFitter = (dataset: any, fitter: BaseFitter, yAxisID?: string) => {
   dataset.data.forEach((point: any, i: number) => {
     const x = point['x'] ?? i;
     const y = point[yAxisID ?? dataset.yAxisID ?? 'y'] ?? point;
@@ -539,7 +539,7 @@ function addDataPointsToFitter(dataset: any, fitter: BaseFitter, yAxisID?: strin
       fitter.add(x, y);
     }
   });
-}
+};
 
 const trendlinePlugin: Plugin<'line'> = {
   id: 'chartjs-plugin-trendline-ts',
@@ -690,20 +690,20 @@ const trendlinePlugin: Plugin<'line'> = {
 };
 
 // Helper function to check if two rectangles overlap
-function doRectsOverlap(
+const doRectsOverlap = (
   rect1: { x: number; y: number; width: number; height: number },
   rect2: { x: number; y: number; width: number; height: number }
-): boolean {
+): boolean => {
   return (
     rect1.x < rect2.x + rect2.width &&
     rect1.x + rect1.width > rect2.x &&
     rect1.y < rect2.y + rect2.height &&
     rect1.y + rect1.height > rect2.y
   );
-}
+};
 
 // Helper function to queue a label for later drawing
-function queueTrendlineLabel(
+const queueTrendlineLabel = (
   ctx: CanvasRenderingContext2D,
   xScale: any,
   yScale: any,
@@ -718,7 +718,7 @@ function queueTrendlineLabel(
     opts: TrendlineLabelOptions;
   }>,
   labelIndices?: { datasetIndex: number; trendlineIndex: number }
-) {
+) => {
   if (!opts.label?.display) return;
 
   let minX = opts.projection ? (xScale.min as number) : fitter.minx;
@@ -820,10 +820,10 @@ function queueTrendlineLabel(
     y: finalY,
     opts: lbl
   });
-}
+};
 
 // Helper function to draw just the trendline path (without labels)
-function drawTrendlinePath(
+const drawTrendlinePath = (
   ctx: CanvasRenderingContext2D,
   chartArea: { bottom: number },
   xScale: any,
@@ -831,7 +831,7 @@ function drawTrendlinePath(
   fitter: BaseFitter,
   opts: TrendlineOptions,
   defaultColor: string
-) {
+) => {
   // project if requested
   let minX = opts.projection ? (xScale.min as number) : fitter.minx;
   const maxX = opts.projection ? (xScale.max as number) : fitter.maxx;
@@ -881,6 +881,6 @@ function drawTrendlinePath(
 
   // cleanup
   ctx.restore();
-}
+};
 
 export default trendlinePlugin;
