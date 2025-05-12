@@ -152,8 +152,39 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
 async fn run_docker_compose_command(
     args: &[&str],
     operation_name: &str,
+    no_track: bool,
 ) -> Result<(), BusterError> {
     let persistent_app_dir = setup_persistent_app_environment().await?;
+
+    // --- BEGIN Telemetry Update --- 
+    if operation_name == "Starting" && no_track {
+        let main_dot_env_target_path = persistent_app_dir.join(".env");
+        if main_dot_env_target_path.exists() {
+            let mut content = fs::read_to_string(&main_dot_env_target_path).map_err(|e| {
+                BusterError::CommandError(format!(
+                    "Failed to read root .env file for telemetry update: {}",
+                    e
+                ))
+            })?;
+
+            let original_content = content.clone();
+            content = content.replace("TELEMETRY_ENABLED=\"true\"", "TELEMETRY_ENABLED=\"false\"");
+            content = content.replace("TELEMETRY_ENABLED=true", "TELEMETRY_ENABLED=false"); // Also handle without quotes
+
+            if content != original_content {
+                fs::write(&main_dot_env_target_path, content).map_err(|e| {
+                    BusterError::CommandError(format!(
+                        "Failed to write updated .env file for telemetry update: {}",
+                        e
+                    ))
+                })?;
+                println!("Telemetry disabled in {}", main_dot_env_target_path.display());
+            }
+        } else {
+            println!("Warning: Root .env file not found at {}. Could not disable telemetry.", main_dot_env_target_path.display());
+        }
+    }
+    // --- END Telemetry Update --- 
 
     // Handle LiteLLM config if a start or reset operation is being performed
     if operation_name == "Starting" || operation_name == "Resetting" {
@@ -306,12 +337,13 @@ async fn run_docker_compose_command(
     }
 }
 
-pub async fn start() -> Result<(), BusterError> {
-    run_docker_compose_command(&["up", "-d"], "Starting").await
+pub async fn start(no_track: bool) -> Result<(), BusterError> {
+    run_docker_compose_command(&["up", "-d"], "Starting", no_track).await
 }
 
 pub async fn stop() -> Result<(), BusterError> {
-    run_docker_compose_command(&["down"], "Stopping").await
+    // Pass false for no_track as it's irrelevant for 'stop'
+    run_docker_compose_command(&["down"], "Stopping", false).await
 }
 
 pub async fn reset() -> Result<(), BusterError> {

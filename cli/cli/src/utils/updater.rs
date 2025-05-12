@@ -96,7 +96,11 @@ pub async fn check_for_updates() {
         (Err(e), _) => {
             eprintln!(
                 "{}",
-                format!("Failed to parse current version ({}): {}", CURRENT_VERSION, e).yellow()
+                format!(
+                    "Failed to parse current version ({}): {}",
+                    CURRENT_VERSION, e
+                )
+                .yellow()
             );
         }
         (_, Err(e)) => {
@@ -111,4 +115,7 @@ pub async fn check_for_updates() {
             );
         }
     }
-} 
+
+    println!("\n");
+
+}

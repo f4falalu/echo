@@ -39,6 +39,14 @@ pub enum Commands {
         /// Clear saved credentials
         #[arg(long)]
         clear: bool,
+
+        /// Use local Buster API
+        #[arg(long, group = "api_mode")]
+        local: bool,
+
+        /// Use cloud Buster API
+        #[arg(long, group = "api_mode")]
+        cloud: bool,
     },
     /// Update buster-cli to the latest version
     Update {
@@ -83,7 +91,11 @@ pub enum Commands {
     /// Interactively manage LLM and Reranker configurations
     Config,
     /// Start the Buster services
-    Start,
+    Start {
+        /// Disable telemetry tracking
+        #[arg(long, default_value_t = false)]
+        no_track: bool,
+    },
     /// Stop the Buster services
     Stop,
     /// Restart the Buster services
@@ -111,12 +123,16 @@ async fn main() {
             api_key,
             no_save,
             clear,
+            local,
+            cloud,
         } => {
             commands::auth::auth_with_args(AuthArgs {
                 host,
                 api_key,
                 no_save,
                 clear,
+                local,
+                cloud,
             })
             .await
         }
@@ -145,7 +161,7 @@ async fn main() {
         } => commands::generate::generate_semantic_models_command(path, target_semantic_file).await,
         Commands::Parse { path } => commands::parse::parse_models_command(path).await,
         Commands::Config => commands::config::manage_settings_interactive().await.map_err(anyhow::Error::from),
-        Commands::Start => run::start().await.map_err(anyhow::Error::from),
+        Commands::Start { no_track } => run::start(no_track).await.map_err(anyhow::Error::from),
         Commands::Stop => run::stop().await.map_err(anyhow::Error::from),
         Commands::Reset => run::reset().await.map_err(anyhow::Error::from),
     };
