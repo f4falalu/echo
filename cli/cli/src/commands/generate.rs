@@ -383,7 +383,6 @@ for (unique_id, node) in &dbt_catalog.nodes {
             &model_name_from_filename
         ) {
             Some((node, match_type, key)) => {
-                println!("   🔍 Found model via {}: {}", match_type, key.purple());
                 node
             },
             None => {
@@ -400,11 +399,6 @@ for (unique_id, node) in &dbt_catalog.nodes {
         // actual_model_name_in_yaml is from catalog metadata.name
         let actual_model_name_in_yaml = table_meta.name.clone(); 
 
-        println!("➡️ Processing: SQL '{}' -> Catalog Model '{}' (UniqueID: {})", 
-            sql_file_abs_path.display().to_string().cyan(), 
-            actual_model_name_in_yaml.purple(),
-            catalog_node.unique_id.as_deref().unwrap_or("N/A").dimmed()
-        );
         sql_models_successfully_processed_from_catalog_count += 1; // Increment here
         
         let relative_sql_path_str = pathdiff::diff_paths(&sql_file_abs_path, &buster_config_dir)
@@ -459,10 +453,6 @@ for (unique_id, node) in &dbt_catalog.nodes {
 
         match existing_yaml_model_opt {
             Some(mut existing_model) => {
-                // Model already exists, skip processing as per user request.
-                println!("   {} Semantic model already exists, skipping: {}", "⏭️".dimmed(), individual_semantic_yaml_path.display().to_string().dimmed());
-                // No updates or reconciliation will happen here.
-                // The counters for updated/removed/added columns are not relevant in this branch anymore.
             }
             None => { // New semantic model
                 let mut dimensions = Vec::new();
