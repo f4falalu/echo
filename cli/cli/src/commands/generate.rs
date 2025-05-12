@@ -466,7 +466,7 @@ for (unique_id, node) in &dbt_catalog.nodes {
                 }
 
                 // Preserve manual description, otherwise update from catalog if catalog has one.
-                let placeholder_desc = "Description missing - please update.".to_string();
+                let placeholder_desc = "{DESCRIPTION_NEEDED}".to_string();
                 match &existing_model.description {
                     Some(existing_desc) if existing_desc != &placeholder_desc => {
                         // Manual description exists and is not the placeholder, do nothing to preserve it.
@@ -525,7 +525,7 @@ for (unique_id, node) in &dbt_catalog.nodes {
                             }
 
                             // Preserve manual description if Some and not placeholder, otherwise update from catalog.
-                            let placeholder_col_desc = "Description missing - please update.".to_string();
+                            let placeholder_col_desc = "{DESCRIPTION_NEEDED}.".to_string();
                             match &updated_dim.description {
                                 Some(existing_col_desc) if existing_col_desc != &placeholder_col_desc => {
                                     // Manual description exists and is not placeholder, do nothing.
@@ -574,7 +574,7 @@ for (unique_id, node) in &dbt_catalog.nodes {
                             }
 
                             // Preserve manual description if Some and not placeholder, otherwise update from catalog.
-                            let placeholder_col_desc = "Description missing - please update.".to_string();
+                            let placeholder_col_desc = "{DESCRIPTION_NEEDED}.".to_string();
                             match &updated_measure.description {
                                 Some(existing_col_desc) if existing_col_desc != &placeholder_col_desc => {
                                     // Manual description exists and is not placeholder, do nothing.
@@ -607,13 +607,13 @@ for (unique_id, node) in &dbt_catalog.nodes {
                     if crate::commands::init::is_measure_type(&dbt_col.type_) { 
                         current_measures.push(YamlMeasure { 
                             name: dbt_col.name.clone(), 
-                            description: dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
+                            description: dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("{DESCRIPTION_NEEDED}.".to_string())), 
                             type_: Some(dbt_col.type_.clone()) 
                         });
                     } else {
                         current_dims.push(YamlDimension { 
                             name: dbt_col.name.clone(), 
-                            description: dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
+                            description: dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("{DESCRIPTION_NEEDED}.".to_string())), 
                             type_: Some(dbt_col.type_.clone()), 
                             searchable: false, // Ensure searchable is false 
                             options: None 
@@ -640,13 +640,13 @@ for (unique_id, node) in &dbt_catalog.nodes {
                     if crate::commands::init::is_measure_type(&col_meta.type_) { // type_ is String
                         measures.push(YamlMeasure { 
                             name: col_meta.name.clone(), 
-                            description: col_meta.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
+                            description: col_meta.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("{DESCRIPTION_NEEDED}.".to_string())), 
                             type_: Some(col_meta.type_.clone()) 
                         });
                     } else {
                         dimensions.push(YamlDimension { 
                             name: col_meta.name.clone(), 
-                            description: col_meta.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
+                            description: col_meta.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("{DESCRIPTION_NEEDED}.".to_string())), 
                             type_: Some(col_meta.type_.clone()), 
                             searchable: false, // Ensure searchable is false
                             options: None 
