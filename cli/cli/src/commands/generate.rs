@@ -58,17 +58,122 @@ pub async fn generate_semantic_models_command(
         }
     };
 
-    let catalog_nodes_by_name: HashMap<String, &CatalogNode> = dbt_catalog.nodes.values()
-        .filter_map(|node| {
-            if node.derived_resource_type.as_deref() == Some("model") {
-                node.derived_model_name_from_file.as_ref().map(|name| (name.clone(), node))
-            } else { None }
-        })
-        .collect();
+    // Enhance catalog node lookup to use path information from unique_id
+let mut catalog_nodes_lookup: HashMap<String, &CatalogNode> = HashMap::new();
 
-    if catalog_nodes_by_name.is_empty() {
+// Function to extract path components from unique_id
+fn extract_path_components(unique_id: &str) -> Option<(String, String, String)> {
+    let parts: Vec<&str> = unique_id.split('.').collect();
+    // Format: model.project_name.directory_path.model_name
+    // Or: source.project_name.schema.table
+    if parts.len() >= 4 {
+        let resource_type = parts[0].to_string();
+        let project_name = parts[1].to_string();
+
+        // For models, combine all middle parts as directory path
+        // For sources, use the schema
+        let schema_or_path = if resource_type == "model" && parts.len() > 4 {
+            parts[2..parts.len()-1].join(".")
+        } else {
+            parts[2].to_string()
+        };
+
+        // Last part is always the model/table name
+        let name = parts[parts.len()-1].to_string();
+
+        return Some((project_name, schema_or_path, name));
+    }
+    None
+}
+
+// Populate the lookup table with multiple keys for each node
+for (unique_id, node) in &dbt_catalog.nodes {
+    // Always include the full unique_id as a lookup key
+    catalog_nodes_lookup.insert(unique_id.clone(), node);
+
+    if let Some((project, path_or_schema, name)) = extract_path_components(unique_id) {
+        // Add project.path.name as a lookup key
+        let project_path_key = format!("{}.{}.{}", project, path_or_schema, name);
+        catalog_nodes_lookup.insert(project_path_key, node);
+
+        // Add project.name as a lookup key
+        let project_name_key = format!("{}.{}", project, name);
+        catalog_nodes_lookup.insert(project_name_key, node);
+
+        // Add path.name as a lookup key
+        let path_name_key = format!("{}.{}", path_or_schema, name);
+        catalog_nodes_lookup.insert(path_name_key, node);
+    }
+
+    // For backward compatibility, also index by simple name
+    if let Some(derived_name) = &node.derived_model_name_from_file {
+        // Check if this name already exists in the lookup to avoid collisions
+        if !catalog_nodes_lookup.contains_key(derived_name) {
+            catalog_nodes_lookup.insert(derived_name.clone(), node);
+        } else {
+            println!("{}", format!("⚠️ Warning: Multiple models with name '{}' found in catalog. Using path information for disambiguation.", derived_name).yellow());
+        }
+    }
+}
+
+    if catalog_nodes_lookup.is_empty() {
         println!("{}", "ℹ️ No models found in dbt catalog. Nothing to generate/update.".yellow());
         return Ok(());
+    }
+
+    // Helper function to extract path components from SQL file paths
+    fn extract_sql_file_path_components(
+        sql_file_path: &Path,
+        project_root: &Path,
+        model_roots: &[PathBuf]
+    ) -> Vec<String> {
+        // First try to strip the project root to get a relative path
+        if let Ok(rel_path) = sql_file_path.strip_prefix(project_root) {
+            // Now try to strip any of the model roots to find the most specific path
+            for model_root in model_roots {
+                // Handle both absolute and relative model roots
+                let abs_model_root = if model_root.is_absolute() {
+                    model_root.clone()
+                } else {
+                    project_root.join(model_root)
+                };
+
+                // Try to strip the model root from the SQL file path
+                if let Ok(path_from_model_root) = rel_path.strip_prefix(&model_root) {
+                    // Split the remaining path into components
+                    let components: Vec<String> = path_from_model_root
+                        .parent()
+                        .map(|p| p.components().map(|c| c.as_os_str().to_string_lossy().into_owned()).collect())
+                        .unwrap_or_default();
+
+                    // If we found components, add the model name (filename without extension)
+                    let mut result = components;
+                    if let Some(file_name) = sql_file_path.file_stem() {
+                        result.push(file_name.to_string_lossy().into_owned());
+                    }
+                    return result;
+                }
+
+                // Try with absolute model root as well
+                if let Ok(path_from_abs_model_root) = sql_file_path.strip_prefix(&abs_model_root) {
+                    let components: Vec<String> = path_from_abs_model_root
+                        .parent()
+                        .map(|p| p.components().map(|c| c.as_os_str().to_string_lossy().into_owned()).collect())
+                        .unwrap_or_default();
+
+                    let mut result = components;
+                    if let Some(file_name) = sql_file_path.file_stem() {
+                        result.push(file_name.to_string_lossy().into_owned());
+                    }
+                    return result;
+                }
+            }
+        }
+
+        // Fallback: Just return the file name without extension
+        sql_file_path.file_stem()
+            .map(|s| vec![s.to_string_lossy().into_owned()])
+            .unwrap_or_default()
     }
 
     // --- 2. Determine SQL Files to Process (based on path_arg or buster.yml model_paths) ---
@@ -202,6 +307,54 @@ pub async fn generate_semantic_models_command(
     let proj_default_schema = buster_config.projects.as_ref()
         .and_then(|p| p.first()).and_then(|pc| pc.schema.as_deref());
 
+    // Helper function to find the best matching catalog node
+    fn find_matching_catalog_node<'a>(
+        lookup: &'a HashMap<String, &'a CatalogNode>,
+        project_name: &str,
+        path_components: &[String],
+        model_name: &str
+    ) -> Option<(&'a CatalogNode, String, String)> {
+        // If path components are available, try increasingly specific lookups
+        if !path_components.is_empty() {
+            // Try most specific lookup first: full path with project
+            // Format: project.path1.path2.name
+            if path_components.len() > 1 {
+                let path_without_name = &path_components[0..path_components.len()-1];
+                let path_str = path_without_name.join(".");
+                let full_key = format!("{}.{}.{}", project_name, path_str, model_name);
+                if let Some(node) = lookup.get(&full_key) {
+                    return Some((node, "full path".to_string(), full_key));
+                }
+
+                // Try with just the path and name (no project prefix)
+                let path_name_key = format!("{}.{}", path_str, model_name);
+                if let Some(node) = lookup.get(&path_name_key) {
+                    return Some((node, "path and name".to_string(), path_name_key));
+                }
+            }
+
+            // Try with direct parent directory and name
+            if path_components.len() > 1 {
+                let direct_parent = &path_components[path_components.len()-2];
+                let parent_name_key = format!("{}.{}", direct_parent, model_name);
+                if let Some(node) = lookup.get(&parent_name_key) {
+                    return Some((node, "parent directory and name".to_string(), parent_name_key));
+                }
+            }
+
+            // Try project and name without middle path
+            let project_name_key = format!("{}.{}", project_name, model_name);
+            if let Some(node) = lookup.get(&project_name_key) {
+                return Some((node, "project and name".to_string(), project_name_key));
+            }
+        }
+
+        // Fallback to simple name lookup
+        lookup.get(model_name).map(|&node|
+            (node, "simple name".to_string(), model_name.to_string())
+        )
+    }
+
     for sql_file_abs_path in sql_files_to_process {
         let model_name_from_filename = sql_file_abs_path.file_stem().map_or_else(String::new, |s| s.to_string_lossy().into_owned());
         if model_name_from_filename.is_empty() {
@@ -209,9 +362,34 @@ pub async fn generate_semantic_models_command(
             continue;
         }
 
-        let Some(catalog_node) = catalog_nodes_by_name.get(&model_name_from_filename) else {
-            eprintln!("{}", format!("ℹ️ Info: SQL model file '{}' found, but no corresponding entry ('{}') in dbt catalog. Skipping.", sql_file_abs_path.display(), model_name_from_filename).dimmed());
-            continue;
+        // Extract path components from SQL file path
+        let path_components = extract_sql_file_path_components(
+            &sql_file_abs_path,
+            &buster_config_dir,
+            &dbt_project_model_roots_for_stripping
+        );
+
+        // Get the first project name from configs, defaulting to "default" if not found
+        let project_name = buster_config.projects.as_ref()
+            .and_then(|p| p.first())
+            .and_then(|p| p.name.as_ref())
+            .map_or(String::from("default"), |v| v.clone());
+
+        // Try to find the matching catalog node using a prioritized approach
+        let catalog_node = match find_matching_catalog_node(
+            &catalog_nodes_lookup,
+            &project_name,
+            &path_components,
+            &model_name_from_filename
+        ) {
+            Some((node, match_type, key)) => {
+                node
+            },
+            None => {
+                eprintln!("{}", format!("ℹ️ Info: SQL model file '{}' found, but no corresponding entry in dbt catalog. Skipping.\nTried looking up with components: {:?}",
+                    sql_file_abs_path.display(), path_components).dimmed());
+                continue;
+            }
         };
 
         let Some(ref table_meta) = catalog_node.metadata else {
@@ -221,11 +399,6 @@ pub async fn generate_semantic_models_command(
         // actual_model_name_in_yaml is from catalog metadata.name
         let actual_model_name_in_yaml = table_meta.name.clone(); 
 
-        println!("➡️ Processing: SQL '{}' -> Catalog Model '{}' (UniqueID: {})", 
-            sql_file_abs_path.display().to_string().cyan(), 
-            actual_model_name_in_yaml.purple(),
-            catalog_node.unique_id.as_deref().unwrap_or("N/A").dimmed()
-        );
         sql_models_successfully_processed_from_catalog_count += 1; // Increment here
         
         let relative_sql_path_str = pathdiff::diff_paths(&sql_file_abs_path, &buster_config_dir)
@@ -243,8 +416,31 @@ pub async fn generate_semantic_models_command(
                     break;
                 }
             }
-            let final_suffix = stripped_suffix_for_yaml.unwrap_or_else(|| PathBuf::from(&model_name_from_filename).with_extension("yml"));
-            semantic_output_base_abs_dir.join(final_suffix)
+            let final_suffix_from_stripping = stripped_suffix_for_yaml.unwrap_or_else(|| PathBuf::from(&model_name_from_filename).with_extension("yml"));
+
+            let mut actual_suffix_to_join = final_suffix_from_stripping.clone();
+            // Check if the semantic_output_base_abs_dir might already imply the first part of the stripped suffix.
+            // e.g., base_dir = ".../models/mart", suffix_from_stripping = "mart/model.yml" -> actual_suffix_to_join = "model.yml"
+            // e.g., base_dir = ".../output", suffix_from_stripping = "mart/model.yml" -> actual_suffix_to_join = "mart/model.yml"
+            if let Some(first_component_in_suffix) = final_suffix_from_stripping.components().next() {
+                if semantic_output_base_abs_dir.ends_with(first_component_in_suffix.as_os_str()) {
+                    // If the base output directory ends with the first path component of our stripped suffix
+                    // (e.g., base is ".../mart", suffix starts with "mart/"),
+                    // we should attempt to use the remainder of the suffix.
+                    if final_suffix_from_stripping.components().count() > 1 {
+                        // Only strip if there's more than one component in final_suffix_from_stripping.
+                        // e.g., if suffix is "mart/model.yml", first_component_in_suffix is "mart".
+                        // candidate_shorter_suffix becomes "model.yml". This is what we want.
+                        // If suffix was "model.yml", first_component_in_suffix is "model.yml".
+                        // semantic_output_base_abs_dir might end with "model.yml" (unlikely for a dir, but for robustness).
+                        // components().count() would be 1. We would not strip, correctly joining "model.yml".
+                        if let Ok(candidate_shorter_suffix) = final_suffix_from_stripping.strip_prefix(first_component_in_suffix.as_os_str()) {
+                           actual_suffix_to_join = candidate_shorter_suffix.to_path_buf();
+                        }
+                    }
+                }
+            }
+            semantic_output_base_abs_dir.join(actual_suffix_to_join)
         };
         if let Some(p) = individual_semantic_yaml_path.parent() { fs::create_dir_all(p)?; }
 
@@ -257,179 +453,6 @@ pub async fn generate_semantic_models_command(
 
         match existing_yaml_model_opt {
             Some(mut existing_model) => {
-                let mut model_was_updated = false;
-                // Update name if it differs (dbt catalog is source of truth for relation name)
-                if existing_model.name != actual_model_name_in_yaml {
-                    existing_model.name = actual_model_name_in_yaml.clone(); model_was_updated = true;
-                }
-
-                // Preserve manual description, otherwise update from catalog if catalog has one.
-                let placeholder_desc = "Description missing - please update.".to_string();
-                match &existing_model.description {
-                    Some(existing_desc) if existing_desc != &placeholder_desc => {
-                        // Manual description exists and is not the placeholder, do nothing to preserve it.
-                    }
-                    _ => { // Existing is None or is the placeholder
-                        if table_meta.comment.is_some() && existing_model.description != table_meta.comment {
-                            existing_model.description = table_meta.comment.clone();
-                            model_was_updated = true;
-                        }
-                    }
-                }
-
-                // Preserve manual database override, otherwise update from catalog.
-                if existing_model.database.is_none() {
-                    let cat_db_from_meta = &table_meta.database; // Option<String>
-                    let new_yaml_db = cat_db_from_meta.as_ref()
-                        .filter(|cat_db_val_str_ref| proj_default_database != Some(cat_db_val_str_ref.as_str()))
-                        .cloned();
-                    if existing_model.database != new_yaml_db { // Check if it actually changes
-                        existing_model.database = new_yaml_db;
-                        model_was_updated = true;
-                    }
-                } // If Some, it's preserved.
-
-                // Preserve manual schema override, otherwise update from catalog.
-                if existing_model.schema.is_none() {
-                    let cat_schema_from_meta = &table_meta.schema; // String
-                    let new_yaml_schema = if proj_default_schema.as_deref() == Some(cat_schema_from_meta.as_str()) {
-                        None
-                    } else {
-                        Some(cat_schema_from_meta.clone())
-                    };
-                    if existing_model.schema != new_yaml_schema { // Check if it actually changes
-                        existing_model.schema = new_yaml_schema;
-                        model_was_updated = true;
-                    }
-                } // If Some, it's preserved.
-
-                // Reconcile columns
-                let mut current_dims: Vec<YamlDimension> = Vec::new();
-                let mut current_measures: Vec<YamlMeasure> = Vec::new();
-                let mut dbt_columns_map: HashMap<String, &ColumnMetadata> = catalog_node.columns.values().map(|c| (c.name.clone(), c)).collect();
-
-                for existing_dim in std::mem::take(&mut existing_model.dimensions) {
-                    if let Some(dbt_col) = dbt_columns_map.get(&existing_dim.name) { // Use .get() to keep it in map for measure pass
-                        let mut updated_dim = existing_dim.clone();
-                        let mut dim_col_updated = false;
-
-                        if !crate::commands::init::is_measure_type(&dbt_col.type_) { // Still a dimension
-                            // Preserve manual type if Some, otherwise update from catalog.
-                            if updated_dim.type_.is_none() {
-                                if updated_dim.type_.as_deref() != Some(&dbt_col.type_) { // Check if it actually changes
-                                    updated_dim.type_ = Some(dbt_col.type_.clone());
-                                    dim_col_updated = true;
-                                }
-                            }
-
-                            // Preserve manual description if Some and not placeholder, otherwise update from catalog.
-                            let placeholder_col_desc = "Description missing - please update.".to_string();
-                            match &updated_dim.description {
-                                Some(existing_col_desc) if existing_col_desc != &placeholder_col_desc => {
-                                    // Manual description exists and is not placeholder, do nothing.
-                                }
-                                _ => { // Existing is None or is placeholder
-                                    let new_description_from_catalog = dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned();
-                                    if updated_dim.description != new_description_from_catalog {
-                                        updated_dim.description = new_description_from_catalog.or_else(|| Some(placeholder_col_desc));
-                                        dim_col_updated = true;
-                                    }
-                                }
-                            }
-
-                            // Preserve existing_dim.searchable and existing_dim.options, so no changes needed here for them.
-                            // If updated_dim.searchable was true, it remains true.
-                            // If updated_dim.options was Some, it remains Some.
-
-                            if dim_col_updated { columns_updated_count +=1; model_was_updated = true; }
-                            current_dims.push(updated_dim);
-                            dbt_columns_map.remove(&existing_dim.name); // Consume it now that it's processed as a dim
-                        } else { // Was a dimension, but is now a measure according to dbt_col type
-                            println!("{}", format!("   ✏️ Column '{}' changed from Dimension to Measure. It will be re-added as Measure.", existing_dim.name).yellow());
-                            columns_removed_count += 1; // Count as removed dimension
-                            model_was_updated = true;
-                            // Do not remove from dbt_columns_map yet, it will be picked up as a new measure.
-                        }
-                    } else { // Dimension no longer in catalog
-                        println!("{}", format!("   ➖ Dimension '{}' removed (not in catalog).", existing_dim.name).yellow());
-                        columns_removed_count += 1; model_was_updated = true;
-                        // dbt_columns_map.remove(&existing_dim.name); // Not needed, it's not in the map
-                    }
-                }
-
-                for existing_measure in std::mem::take(&mut existing_model.measures) {
-                    if let Some(dbt_col) = dbt_columns_map.get(&existing_measure.name) { // Use .get() initially
-                        let mut updated_measure = existing_measure.clone();
-                        let mut measure_col_updated = false;
-
-                        if crate::commands::init::is_measure_type(&dbt_col.type_) { // Still a measure
-                            // Preserve manual type if Some, otherwise update from catalog.
-                            if updated_measure.type_.is_none() {
-                                if updated_measure.type_.as_deref() != Some(&dbt_col.type_) { // Check if it actually changes
-                                    updated_measure.type_ = Some(dbt_col.type_.clone());
-                                    measure_col_updated = true;
-                                }
-                            }
-
-                            // Preserve manual description if Some and not placeholder, otherwise update from catalog.
-                            let placeholder_col_desc = "Description missing - please update.".to_string();
-                            match &updated_measure.description {
-                                Some(existing_col_desc) if existing_col_desc != &placeholder_col_desc => {
-                                    // Manual description exists and is not placeholder, do nothing.
-                                }
-                                _ => { // Existing is None or is placeholder
-                                    let new_description_from_catalog = dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned();
-                                    if updated_measure.description != new_description_from_catalog {
-                                        updated_measure.description = new_description_from_catalog.or_else(|| Some(placeholder_col_desc));
-                                        measure_col_updated = true;
-                                    }
-                                }
-                            }
-
-                            if measure_col_updated { columns_updated_count +=1; model_was_updated = true; }
-                            current_measures.push(updated_measure);
-                            dbt_columns_map.remove(&existing_measure.name); // Consume it
-                        } else { // Was a measure, but is now a dimension
-                            println!("{}", format!("   ✏️ Column '{}' changed from Measure to Dimension. It will be re-added as Dimension.", existing_measure.name).cyan());
-                            columns_removed_count += 1; // Count as removed measure
-                            model_was_updated = true;
-                            // Do not remove from dbt_columns_map yet, it will be picked up as a new dimension.
-                        }
-                    } else { // Measure no longer in catalog
-                        println!("{}", format!("   ➖ Measure '{}' removed (not in catalog).", existing_measure.name).yellow());
-                        columns_removed_count += 1; model_was_updated = true;
-                        // dbt_columns_map.remove(&existing_measure.name); // Not needed
-                    }
-                }
-                for (_col_name, dbt_col) in dbt_columns_map { // Remaining are new columns
-                    if crate::commands::init::is_measure_type(&dbt_col.type_) { 
-                        current_measures.push(YamlMeasure { 
-                            name: dbt_col.name.clone(), 
-                            description: dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
-                            type_: Some(dbt_col.type_.clone()) 
-                        });
-                    } else {
-                        current_dims.push(YamlDimension { 
-                            name: dbt_col.name.clone(), 
-                            description: dbt_col.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
-                            type_: Some(dbt_col.type_.clone()), 
-                            searchable: false, // Ensure searchable is false 
-                            options: None 
-                        });
-                    }
-                    columns_added_count += 1; model_was_updated = true;
-                }
-                existing_model.dimensions = current_dims;
-                existing_model.measures = current_measures;
-                
-                if model_was_updated {
-                    models_updated_count += 1;
-                    let yaml_string = serde_yaml::to_string(&existing_model)?;
-                    fs::write(&individual_semantic_yaml_path, yaml_string)?;
-                    println!("   {} Updated semantic model: {}", "✅".cyan(), individual_semantic_yaml_path.display().to_string().cyan());
-                } else {
-                    println!("   {} No changes needed for existing model: {}", "➖".dimmed(), individual_semantic_yaml_path.display().to_string().dimmed());
-                }
             }
             None => { // New semantic model
                 let mut dimensions = Vec::new();
@@ -438,13 +461,13 @@ pub async fn generate_semantic_models_command(
                     if crate::commands::init::is_measure_type(&col_meta.type_) { // type_ is String
                         measures.push(YamlMeasure { 
                             name: col_meta.name.clone(), 
-                            description: col_meta.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
+                            description: col_meta.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("{DESCRIPTION_NEEDED}.".to_string())), 
                             type_: Some(col_meta.type_.clone()) 
                         });
                     } else {
                         dimensions.push(YamlDimension { 
                             name: col_meta.name.clone(), 
-                            description: col_meta.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("Description missing - please update.".to_string())), 
+                            description: col_meta.comment.as_ref().filter(|s| !s.is_empty()).cloned().or_else(|| Some("{DESCRIPTION_NEEDED}.".to_string())), 
                             type_: Some(col_meta.type_.clone()), 
                             searchable: false, // Ensure searchable is false
                             options: None 
