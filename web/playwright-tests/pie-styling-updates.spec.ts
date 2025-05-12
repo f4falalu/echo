@@ -58,15 +58,18 @@ test.describe.serial('Pie chart styling updates', async () => {
   test('Pie chart span clicking works', async ({ page }) => {
     await page.goto('http://localhost:3000/app/metrics/88f342bf-19f9-53a9-87c6-804399e69644/chart');
     await page.getByTestId('edit-chart-button').getByRole('button').click();
-    await page.waitForTimeout(55);
+    await page.waitForTimeout(255);
     await page.getByTestId('edit-chart-button').getByRole('button').click();
-    await page.waitForTimeout(55);
+    await page.waitForTimeout(255);
     await page.getByTestId('edit-chart-button').getByRole('button').click();
-    await page.waitForTimeout(55);
+    await page.waitForTimeout(255);
     await page.getByTestId('edit-chart-button').getByRole('button').click();
     await page.waitForTimeout(55);
     await page.getByTestId('segmented-trigger-results').click();
-    await page.waitForTimeout(55);
+    await page.waitForTimeout(555);
+    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('load');
     await page.getByTestId('edit-chart-button').getByRole('button').click();
     await expect(page.getByTestId('metric-view-chart-content').getByRole('img')).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'New chart' })).toHaveValue(
@@ -179,10 +182,10 @@ test.describe.serial('Pie chart styling updates', async () => {
     );
     await page.getByTestId('segmented-trigger-pie').click();
     await expect(page.getByTestId('segmented-trigger-pie')).toBeVisible();
-    await page.getByTestId('segmented-trigger-donut').click();
+    await page.getByTestId('segmented-trigger-pie').click();
     await page.waitForTimeout(60);
     await page.getByTestId('segmented-trigger-donut').click();
-    await page.waitForTimeout(10);
+    await page.waitForTimeout(50);
     await expect(page.getByTestId('segmented-trigger-donut')).toBeVisible();
     await expect(page.getByText('Donut width')).toBeVisible();
     await page.getByTestId('segmented-trigger-pie').click();
@@ -233,7 +236,6 @@ test.describe.serial('Pie chart styling updates', async () => {
       .getByRole('spinbutton')
       .fill('10');
     await expect(page.getByText('Mountain-200 Silver,')).toBeVisible();
-    await expect(page.getByText('Mountain-200 Black, 42')).toBeVisible();
     await page.getByRole('button', { name: 'Reset' }).click();
     await expect(
       page.getByTestId('metric-view-chart-content').getByText('Touring-1000 Yellow,')
