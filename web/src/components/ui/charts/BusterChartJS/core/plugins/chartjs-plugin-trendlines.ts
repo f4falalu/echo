@@ -1,14 +1,6 @@
 // chartjs-plugin-trendline.ts
 
-import {
-  Chart,
-  Plugin,
-  ScriptableContext,
-  Scale,
-  ChartMeta,
-  ChartTypeRegistry,
-  ChartType
-} from 'chart.js';
+import { Plugin, ChartType } from 'chart.js';
 import { defaultLabelOptionConfig } from '../../hooks/useChartSpecificOptions/labelOptionConfig';
 
 /** The three trendline modes we support */
@@ -63,8 +55,8 @@ export interface TrendlineOptions {
   label?: TrendlineLabelOptions;
 
   /** Override data key names if you use custom parsing */
-  xAxisKey?: string;
-  yAxisKey?: string;
+  xAxisKey?: string; //default is 'x'
+  yAxisKey?: string; //default is 'y'
 }
 
 // still in chartjs-plugin-trendline.ts
@@ -257,13 +249,38 @@ const trendlinePlugin: Plugin<'line'> = {
       });
 
       // project if requested
-      const minX = opts.projection ? (xScale.min as number) : fitter.minx;
+      let minX = opts.projection ? (xScale.min as number) : fitter.minx;
       const maxX = opts.projection ? (xScale.max as number) : fitter.maxx;
+
+      // For logarithmic trendlines, ensure minX is positive
+      if (opts.type === 'logarithmic' && minX <= 0) {
+        // Use the smallest positive x value or 0.1 as a fallback
+        minX = Math.max(
+          0.1,
+          dataset.data.reduce((min: number, point: any) => {
+            const x = point[opts.xAxisKey ?? 'x'] ?? 0;
+            return typeof x === 'number' && x > 0 && x < min ? x : min;
+          }, fitter.maxx || 1)
+        );
+      }
 
       const x1 = xScale.getPixelForValue(minX);
       const y1 = yScale.getPixelForValue(fitter.f(minX));
       const x2 = xScale.getPixelForValue(maxX);
       const y2 = yScale.getPixelForValue(fitter.f(maxX));
+
+      console.log('minX', minX);
+      console.log('maxX', maxX);
+      console.log('x1', x1);
+      console.log('y1', y1);
+      console.log('x2', x2);
+      console.log('y2', y2);
+
+      // Skip drawing if we have invalid coordinates
+      if (isNaN(y1) || isNaN(y2)) {
+        console.warn('Skipping trendline drawing due to invalid logarithmic values');
+        return;
+      }
 
       // === DRAWING LOGIC ===
       ctx.save();
@@ -295,18 +312,67 @@ const trendlinePlugin: Plugin<'line'> = {
 
       // 3) stroke the trendline
       ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
+
+      // Draw curves properly for non-linear trendlines
+      if (opts.type === 'linear') {
+        // Simple straight line for linear trendlines
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+      } else {
+        // For logarithmic and polynomial, use multiple points to create a smooth curve
+        const segments = 100; // Number of line segments to create a smooth curve
+        const xStep = (maxX - minX) / segments;
+
+        ctx.moveTo(x1, y1);
+
+        for (let i = 1; i <= segments; i++) {
+          const currX = minX + i * xStep;
+          const xPos = xScale.getPixelForValue(currX);
+          const yPos = yScale.getPixelForValue(fitter.f(currX));
+
+          // Skip any NaN or infinite values that might occur
+          if (!isNaN(yPos) && isFinite(yPos)) {
+            ctx.lineTo(xPos, yPos);
+          }
+        }
+      }
+
       ctx.stroke();
 
       // 4) optional fill under the line
       if (opts.fillColor) {
         ctx.fillStyle = opts.fillColor === true ? cMin : opts.fillColor;
         ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.lineTo(x2, yBottom);
-        ctx.lineTo(x1, yBottom);
+
+        if (opts.type === 'linear') {
+          // Simple polygon for linear trendlines
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.lineTo(x2, yBottom);
+          ctx.lineTo(x1, yBottom);
+        } else {
+          // For logarithmic and polynomial, create a curved filled area
+          const segments = 100;
+          const xStep = (maxX - minX) / segments;
+
+          ctx.moveTo(x1, y1);
+
+          // Draw the curve
+          for (let i = 1; i <= segments; i++) {
+            const currX = minX + i * xStep;
+            const xPos = xScale.getPixelForValue(currX);
+            const yPos = yScale.getPixelForValue(fitter.f(currX));
+
+            if (!isNaN(yPos) && isFinite(yPos)) {
+              ctx.lineTo(xPos, yPos);
+            }
+          }
+
+          // Complete the polygon for filling
+          ctx.lineTo(x2, yBottom);
+          ctx.lineTo(x1, yBottom);
+        }
+
         ctx.closePath();
         ctx.fill();
       }
