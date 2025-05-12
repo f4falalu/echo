@@ -1645,7 +1645,7 @@ fn prepare_query(query: &str) -> String {
 }
 
 fn process_record_batch(batch: &RecordBatch) -> Vec<IndexMap<String, DataType>> {
-    // println!("Processing record batch with {:?} rows", batch);
+    println!("Processing record batch with {:?} rows", batch);
 
     let mut rows = Vec::with_capacity(batch.num_rows());
     let schema = batch.schema();
