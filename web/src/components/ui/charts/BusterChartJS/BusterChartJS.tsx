@@ -32,6 +32,8 @@ export const BusterChartJS: React.FC<BusterChartComponentProps> = ({
 
   const { lineGroupType, pieMinimumSlicePercentage, barGroupType, datasetOptions } = props;
 
+  console.log(props.trendlines);
+
   const onChartReady = useMemoizedFn(() => {
     setChartMounted(true);
     if (chartRef.current) onChartMounted?.(chartRef.current);

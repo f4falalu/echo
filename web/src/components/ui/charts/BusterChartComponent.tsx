@@ -57,7 +57,8 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
       tooltipKeys,
       hasMismatchedTooltipsAndMeasures,
       isDownsampled,
-      numberOfDataPoints
+      numberOfDataPoints,
+      trendlines
     }),
     [
       props,

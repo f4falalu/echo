@@ -5,20 +5,31 @@ import { defaultLabelOptionConfig } from '../../hooks/useChartSpecificOptions/la
 
 /** The three trendline modes we support */
 export type TrendlineType =
-  | 'linear'
-  | 'logarithmic'
-  | 'polynomial'
-  | 'exponential'
   | 'average'
-  | 'max'
+  | 'linear_regression'
+  | 'logarithmic_regression'
+  | 'exponential_regression'
+  | 'polynomial_regression'
   | 'min'
+  | 'max'
   | 'median';
 
 /** Options for the slope label */
 export interface TrendlineLabelOptions {
   display?: boolean;
-  text?: string;
-  displayValue?: boolean;
+  /** Label text or a callback that receives the slope value and returns a string */
+  text?:
+    | string
+    | ((d: {
+        slope: number;
+        minY: number;
+        maxY: number;
+        minX: number;
+        maxX: number;
+        averageY: number;
+        medianY: number;
+      }) => string);
+  /** Whether to display the numeric value of the slope */
   offset?: number;
   percentage?: boolean;
   font?: {
@@ -37,6 +48,7 @@ export interface TrendlineLabelOptions {
 
 /** The full set of options available on each dataset */
 export interface TrendlineOptions {
+  show?: boolean;
   /** Which regression to use */
   type: TrendlineType;
 
@@ -51,8 +63,8 @@ export interface TrendlineOptions {
   lineStyle?: 'solid' | 'dotted' | 'dashed' | 'dashdot';
 
   /** Gradient endpoints */
-  colorMin?: string;
-  colorMax?: string;
+  colorMin?: string | null;
+  colorMax?: string | null;
 
   /** Fill under the trendline (color or `true` for default) */
   fillColor?: string | boolean;
@@ -83,6 +95,10 @@ declare module 'chart.js' {
 abstract class BaseFitter {
   public minx = Infinity;
   public maxx = -Infinity;
+  public maxY = -Infinity;
+  public minY = Infinity;
+  public averageY = 0;
+  public medianY = 0;
 
   add(x: number, y: number) {
     this.addPoint(x, y);
@@ -234,14 +250,13 @@ class AverageFitter extends BaseFitter {
   }
 
   f(x: number): number {
-    return this.count > 0 ? this.sum / this.count : 0;
+    this.averageY = this.count > 0 ? this.sum / this.count : 0;
+    return this.averageY;
   }
 }
 
 /** Statistical fitter that returns the maximum y value */
 class MaxFitter extends BaseFitter {
-  private maxY = -Infinity;
-
   protected addPoint(x: number, y: number) {
     this.maxY = Math.max(this.maxY, y);
   }
@@ -253,8 +268,6 @@ class MaxFitter extends BaseFitter {
 
 /** Statistical fitter that returns the minimum y value */
 class MinFitter extends BaseFitter {
-  private minY = Infinity;
-
   protected addPoint(x: number, y: number) {
     this.minY = Math.min(this.minY, y);
   }
@@ -281,21 +294,25 @@ class MedianFitter extends BaseFitter {
 
     // If even number of elements, average the middle two
     if (sorted.length % 2 === 0) {
-      return (sorted[mid - 1] + sorted[mid]) / 2;
+      const value = (sorted[mid - 1] + sorted[mid]) / 2;
+      this.medianY = value;
+      return value;
     }
     // If odd, return the middle element
-    return sorted[mid];
+    const value = sorted[mid];
+    this.medianY = value;
+    return value;
   }
 }
 
 // Create appropriate fitter based on options
 function createFitter(opts: TrendlineOptions): BaseFitter {
   switch (opts.type) {
-    case 'polynomial':
+    case 'polynomial_regression':
       return new PolynomialFitter(opts.polynomialOrder ?? 2);
-    case 'logarithmic':
+    case 'logarithmic_regression':
       return new LogarithmicFitter();
-    case 'exponential':
+    case 'exponential_regression':
       return new ExponentialFitter();
     case 'average':
       return new AverageFitter();
@@ -305,7 +322,7 @@ function createFitter(opts: TrendlineOptions): BaseFitter {
       return new MinFitter();
     case 'median':
       return new MedianFitter();
-    case 'linear':
+    case 'linear_regression':
     default:
       return new LinearFitter();
   }
@@ -374,8 +391,13 @@ function drawLabel(
   const color = options.color ?? defaultLabelOptionConfig.color;
   const backgroundColor = options.backgroundColor ?? defaultLabelOptionConfig.backgroundColor;
   const borderColor = options.borderColor ?? defaultLabelOptionConfig.borderColor;
-  const borderWidth = options.borderWidth ?? defaultLabelOptionConfig.borderWidth;
-  const borderRadius = options.borderRadius ?? defaultLabelOptionConfig.borderRadius;
+  const borderWidth = options.borderWidth ?? defaultLabelOptionConfig.borderWidth + 0.2;
+
+  // Apply a scaling factor to make the border radius less intense
+  const borderRadiusScale = 0.55; // Reduce to 40% of original value
+  const baseBorderRadius = options.borderRadius ?? defaultLabelOptionConfig.borderRadius;
+  const borderRadius = Math.max(2, Math.floor(baseBorderRadius * borderRadiusScale)); // Ensure minimum of 2px
+
   const padding = processPadding(options.padding);
 
   // Text measurement
@@ -449,7 +471,7 @@ function drawLinePath(
   const y1 = yScale.getPixelForValue(fitter.f(minX));
 
   if (
-    lineType === 'linear' ||
+    lineType === 'linear_regression' ||
     lineType === 'average' ||
     lineType === 'max' ||
     lineType === 'min' ||
@@ -519,8 +541,273 @@ function addDataPointsToFitter(dataset: any, fitter: BaseFitter, yAxisID?: strin
   });
 }
 
-// Helper function to draw a trendline
-function drawTrendline(
+const trendlinePlugin: Plugin<'line'> = {
+  id: 'chartjs-plugin-trendline-ts',
+
+  afterDatasetsDraw(chart) {
+    const ctx = chart.ctx;
+    const pluginOptions = chart.options.plugins?.trendline as TrendlinePluginOptions | undefined;
+    const { chartArea } = chart;
+
+    // get horizontal (x) and vertical (y) scales
+    const xScale = Object.values(chart.scales).find((s) => s.isHorizontal())!;
+    const yScale = Object.values(chart.scales).find((s) => !s.isHorizontal())!;
+
+    // Track label positions to prevent overlap
+    const labelPositions: Array<{ x: number; y: number; width: number; height: number }> = [];
+
+    // Store all label drawing operations for later execution (to ensure higher z-index)
+    const labelDrawingQueue: Array<{
+      ctx: CanvasRenderingContext2D;
+      text: string;
+      x: number;
+      y: number;
+      opts: TrendlineLabelOptions;
+    }> = [];
+
+    // Check if we should create an aggregated trendline
+    if (pluginOptions?.aggregateMultiple && pluginOptions.aggregateMultiple.length > 0) {
+      // Process each aggregate trendline configuration
+      for (const aggregateConfig of pluginOptions.aggregateMultiple) {
+        const yAxisAggregateKey = aggregateConfig.yAxisKey;
+        const yAxisID = aggregateConfig.yAxisID;
+
+        // Find datasets that match the yAxisKey for this aggregation
+        const datasetsWithTrendline = chart.data.datasets.filter(
+          (ds) => ds.data.length >= 2 && ds.yAxisKey === yAxisAggregateKey && !ds.isTrendline
+        );
+
+        if (datasetsWithTrendline.length > 0) {
+          // Get the first trendline options to use as default for aggregated trendline
+          const firstDatasetWithTrendline = datasetsWithTrendline[0];
+
+          // Create fitter based on the aggregate config
+          const fitter = createFitter(aggregateConfig);
+
+          // Collect all data points from all datasets that match this yAxisKey
+          for (const dataset of datasetsWithTrendline) {
+            addDataPointsToFitter(dataset, fitter, yAxisID);
+          }
+
+          // Draw the aggregated trendline if we have valid data points
+          if (fitter.minx !== Infinity && fitter.maxx !== -Infinity) {
+            const defaultColor =
+              (firstDatasetWithTrendline.borderColor as string) ?? 'rgba(0,0,0,0.3)';
+            drawTrendlinePath(
+              ctx,
+              chartArea,
+              xScale,
+              yScale,
+              fitter,
+              aggregateConfig,
+              defaultColor
+            );
+
+            // Queue label for later drawing if needed
+            if (aggregateConfig.label?.display) {
+              queueTrendlineLabel(
+                ctx,
+                chartArea,
+                xScale,
+                yScale,
+                fitter,
+                aggregateConfig,
+                defaultColor,
+                labelPositions,
+                labelDrawingQueue
+              );
+            }
+          }
+        }
+      }
+    }
+
+    // Original behavior - draw individual trendlines for each dataset
+    chart.data.datasets.forEach((dataset, datasetIndex) => {
+      const trendlineOptions = dataset.trendline;
+      if (!trendlineOptions || dataset.data.length < 2) {
+        return;
+      }
+
+      // Convert to array if it's a single object for backward compatibility
+      const trendlineArray = Array.isArray(trendlineOptions)
+        ? trendlineOptions
+        : [trendlineOptions];
+
+      // Process each trendline option
+      trendlineArray.forEach((opts, trendlineIndex) => {
+        if (!opts || !opts.type || !opts.show) return;
+
+        // Create the appropriate fitter
+        const fitter = createFitter(opts);
+
+        // Add all data points to the fitter
+        addDataPointsToFitter(dataset, fitter);
+
+        // Skip if no valid points were added
+        if (fitter.minx === Infinity || fitter.maxx === -Infinity) {
+          return;
+        }
+
+        // For exponential trendlines, ensure we have valid y values
+        if (opts.type === 'exponential_regression') {
+          // Check if we have valid data (positive y values)
+          const hasValidPoints = dataset.data.some((point: any) => {
+            const y = point[dataset.yAxisID ?? 'y'] ?? point;
+            return typeof y === 'number' && y > 0;
+          });
+
+          if (!hasValidPoints) {
+            console.warn('Exponential trendline requires positive y values');
+            return;
+          }
+        }
+
+        const defaultColor = (dataset.borderColor as string) ?? 'rgba(0,0,0,0.3)';
+
+        // Draw only the trendline first (not labels)
+        drawTrendlinePath(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor);
+
+        // Queue label for later drawing if needed
+        if (opts.label?.display) {
+          const labelIndices = { datasetIndex, trendlineIndex };
+          queueTrendlineLabel(
+            ctx,
+            chartArea,
+            xScale,
+            yScale,
+            fitter,
+            opts,
+            defaultColor,
+            labelPositions,
+            labelDrawingQueue,
+            labelIndices
+          );
+        }
+      });
+    });
+
+    // After all trendlines are drawn, draw all labels on top
+    labelDrawingQueue.forEach((item) => {
+      drawLabel(item.ctx, item.text, item.x, item.y, item.opts);
+    });
+  }
+};
+
+// Helper function to queue a label for later drawing
+function queueTrendlineLabel(
+  ctx: CanvasRenderingContext2D,
+  chartArea: { bottom: number },
+  xScale: any,
+  yScale: any,
+  fitter: BaseFitter,
+  opts: TrendlineOptions,
+  defaultColor: string,
+  labelPositions: Array<{ x: number; y: number; width: number; height: number }> = [],
+  labelDrawingQueue: Array<{
+    ctx: CanvasRenderingContext2D;
+    text: string;
+    x: number;
+    y: number;
+    opts: TrendlineLabelOptions;
+  }>,
+  labelIndices?: { datasetIndex: number; trendlineIndex: number }
+) {
+  if (!opts.label?.display) return;
+
+  let minX = opts.projection ? (xScale.min as number) : fitter.minx;
+  const maxX = opts.projection ? (xScale.max as number) : fitter.maxx;
+  const maxYFitter = fitter.maxx;
+
+  // For logarithmic trendlines, ensure minX is positive
+  if (opts.type === 'logarithmic_regression' && minX <= 0) {
+    // Use the smallest positive x value or 0.1 as a fallback
+    minX = Math.max(0.1, fitter.minx);
+  }
+
+  const x1 = xScale.getPixelForValue(minX);
+  const y1 = yScale.getPixelForValue(fitter.f(minX));
+  const x2 = xScale.getPixelForValue(maxX);
+  const y2 = yScale.getPixelForValue(fitter.f(maxX));
+
+  const lbl = opts.label;
+  // compute slope (delta y / delta x)
+  const slope = (fitter.f(maxX) - fitter.f(minX)) / (maxX - minX);
+  const val = lbl.percentage ? `${(slope * 100).toFixed(2)}%` : slope.toFixed(2);
+
+  // Handle text as either string or callback function
+  let textContent: string;
+  if (typeof lbl.text === 'function') {
+    // Call the function with the slope value
+    textContent = lbl.text({
+      slope,
+      minX,
+      maxX,
+      averageY: fitter.averageY,
+      medianY: fitter.medianY,
+      minY: fitter.minY,
+      maxY: fitter.maxY
+    });
+  } else {
+    // Use the string value or empty string if undefined
+    textContent = lbl.text || '';
+  }
+
+  // Only add the value if displayValue is true and text doesn't already include it
+  const labelText = `${textContent}`.trim();
+
+  // Position along the trendline segment based on positionRatio
+  const t = lbl.positionRatio ?? 0.85; // Default to 85% along the line
+  const targetX = x1 + t * (x2 - x1);
+  const targetY = y1 + t * (y2 - y1);
+
+  // Apply base offset
+  let offsetX = lbl.offset ?? 0;
+  let offsetY = lbl.offset ?? 0;
+
+  // Apply additional offsets based on dataset and trendline indices if provided
+  if (labelIndices) {
+    // Use dataset index and trendline index to create a staggered effect
+    // The formula below creates an increasing offset for each label
+    const baseOffset = 8; // Base offset in pixels
+    const additionalOffset = baseOffset * (labelIndices.datasetIndex + labelIndices.trendlineIndex);
+    offsetY -= additionalOffset;
+  }
+
+  const finalX = targetX + offsetX;
+  const finalY = targetY - offsetY; // Y increases downwards, so subtract for upward offset
+
+  // Measure text to calculate label size
+  ctx.font = `${lbl.font?.weight ?? defaultLabelOptionConfig.font.weight} ${lbl.font?.size ?? defaultLabelOptionConfig.font.size}px ${lbl.font?.family ?? 'sans-serif'}`;
+  const textMetrics = ctx.measureText(labelText);
+  const padding = processPadding(lbl.padding);
+  const labelWidth = textMetrics.width + padding.left + padding.right;
+  const labelHeight =
+    (lbl.font?.size ?? defaultLabelOptionConfig.font.size) + padding.top + padding.bottom;
+
+  // Check for collisions with existing labels
+  const labelRect = {
+    x: finalX - labelWidth / 2,
+    y: finalY - labelHeight / 2,
+    width: labelWidth,
+    height: labelHeight
+  };
+
+  // Store this label's position for future collision detection
+  labelPositions.push(labelRect);
+
+  // Queue the label for drawing later (to ensure it's on top of all lines)
+  labelDrawingQueue.push({
+    ctx,
+    text: labelText,
+    x: finalX,
+    y: finalY,
+    opts: lbl
+  });
+}
+
+// Helper function to draw just the trendline path (without labels)
+function drawTrendlinePath(
   ctx: CanvasRenderingContext2D,
   chartArea: { bottom: number },
   xScale: any,
@@ -535,7 +822,7 @@ function drawTrendline(
   const yBottom = chartArea.bottom;
 
   // For logarithmic trendlines, ensure minX is positive
-  if (opts.type === 'logarithmic' && minX <= 0) {
+  if (opts.type === 'logarithmic_regression' && minX <= 0) {
     // Use the smallest positive x value or 0.1 as a fallback
     minX = Math.max(0.1, fitter.minx);
   }
@@ -576,128 +863,8 @@ function drawTrendline(
     fillUnderLine(ctx, xScale, yScale, fitter, minX, maxX, opts.type, fillColor, yBottom);
   }
 
-  // 5) optional slope label
-  if (opts.label?.display) {
-    const lbl = opts.label;
-    // compute slope (delta y / delta x)
-    const slope = (fitter.f(maxX) - fitter.f(minX)) / (maxX - minX);
-    const val = lbl.displayValue
-      ? lbl.percentage
-        ? `${(slope * 100).toFixed(2)}%`
-        : slope.toFixed(2)
-      : '';
-    const labelText = [lbl.text, val].filter(Boolean).join(' ');
-
-    // Position along the trendline segment based on positionRatio
-    const t = lbl.positionRatio ?? 0.85; // Default to 85% along the line
-    const targetX = x1 + t * (x2 - x1);
-    const targetY = y1 + t * (y2 - y1);
-
-    // Apply offset
-    const offsetX = lbl.offset ?? 0;
-    const offsetY = lbl.offset ?? 0;
-    const finalX = targetX + offsetX;
-    const finalY = targetY - offsetY; // Y increases downwards, so subtract for upward offset
-
-    drawLabel(ctx, labelText, finalX, finalY, lbl);
-  }
-
   // cleanup
   ctx.restore();
 }
-
-const trendlinePlugin: Plugin<'line'> = {
-  id: 'chartjs-plugin-trendline-ts',
-
-  afterDatasetsDraw(chart) {
-    const ctx = chart.ctx;
-    const pluginOptions = chart.options.plugins?.trendline as TrendlinePluginOptions | undefined;
-    const { chartArea } = chart;
-
-    // get horizontal (x) and vertical (y) scales
-    const xScale = Object.values(chart.scales).find((s) => s.isHorizontal())!;
-    const yScale = Object.values(chart.scales).find((s) => !s.isHorizontal())!;
-
-    // Check if we should create an aggregated trendline
-    if (pluginOptions?.aggregateMultiple && pluginOptions.aggregateMultiple.length > 0) {
-      // Process each aggregate trendline configuration
-      for (const aggregateConfig of pluginOptions.aggregateMultiple) {
-        const yAxisAggregateKey = aggregateConfig.yAxisKey;
-        const yAxisID = aggregateConfig.yAxisID;
-
-        // Find datasets that match the yAxisKey for this aggregation
-        const datasetsWithTrendline = chart.data.datasets.filter(
-          (ds) => ds.data.length >= 2 && ds.yAxisKey === yAxisAggregateKey && !ds.isTrendline
-        );
-
-        if (datasetsWithTrendline.length > 0) {
-          // Get the first trendline options to use as default for aggregated trendline
-          const firstDatasetWithTrendline = datasetsWithTrendline[0];
-
-          // Create fitter based on the aggregate config
-          const fitter = createFitter(aggregateConfig);
-
-          // Collect all data points from all datasets that match this yAxisKey
-          for (const dataset of datasetsWithTrendline) {
-            addDataPointsToFitter(dataset, fitter, yAxisID);
-          }
-
-          // Draw the aggregated trendline if we have valid data points
-          if (fitter.minx !== Infinity && fitter.maxx !== -Infinity) {
-            const defaultColor =
-              (firstDatasetWithTrendline.borderColor as string) ?? 'rgba(0,0,0,0.3)';
-            drawTrendline(ctx, chartArea, xScale, yScale, fitter, aggregateConfig, defaultColor);
-          }
-        }
-      }
-    }
-
-    // Original behavior - draw individual trendlines for each dataset
-    chart.data.datasets.forEach((dataset, datasetIndex) => {
-      const trendlineOptions = dataset.trendline;
-      if (!trendlineOptions || dataset.data.length < 2) {
-        return;
-      }
-
-      // Convert to array if it's a single object for backward compatibility
-      const trendlineArray = Array.isArray(trendlineOptions)
-        ? trendlineOptions
-        : [trendlineOptions];
-
-      // Process each trendline option
-      trendlineArray.forEach((opts) => {
-        if (!opts || !opts.type) return;
-
-        // Create the appropriate fitter
-        const fitter = createFitter(opts);
-
-        // Add all data points to the fitter
-        addDataPointsToFitter(dataset, fitter);
-
-        // Skip if no valid points were added
-        if (fitter.minx === Infinity || fitter.maxx === -Infinity) {
-          return;
-        }
-
-        // For exponential trendlines, ensure we have valid y values
-        if (opts.type === 'exponential') {
-          // Check if we have valid data (positive y values)
-          const hasValidPoints = dataset.data.some((point: any) => {
-            const y = point[dataset.yAxisID ?? 'y'] ?? point;
-            return typeof y === 'number' && y > 0;
-          });
-
-          if (!hasValidPoints) {
-            console.warn('Exponential trendline requires positive y values');
-            return;
-          }
-        }
-
-        const defaultColor = (dataset.borderColor as string) ?? 'rgba(0,0,0,0.3)';
-        drawTrendline(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor);
-      });
-    });
-  }
-};
 
 export default trendlinePlugin;

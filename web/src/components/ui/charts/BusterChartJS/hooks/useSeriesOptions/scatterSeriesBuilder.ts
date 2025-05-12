@@ -8,6 +8,8 @@ import { isDateColumnType } from '@/lib/messages';
 import { createDayjsDate } from '@/lib/date';
 import { lineSeriesBuilder_labels } from './lineSeriesBuilder';
 import { formatLabelForDataset } from '../../../commonHelpers';
+import { TrendlineOptions } from '../../core/plugins/chartjs-plugin-trendlines';
+import { createTrendlineOnSeries } from './createTrendlineOnSeries';
 
 declare module 'chart.js' {
   interface BubbleDataPoint {
@@ -31,7 +33,8 @@ export const scatterSeriesBuilder_data = ({
   columnLabelFormats,
   xAxisKeys,
   sizeOptions,
-  datasetOptions
+  datasetOptions,
+  trendlines
 }: SeriesBuilderProps): ChartProps<'bubble'>['data']['datasets'] => {
   const xAxisKey = xAxisKeys[0];
   const xAxisColumnLabelFormat = columnLabelFormats[xAxisKey] || DEFAULT_COLUMN_LABEL_FORMAT;
@@ -77,19 +80,11 @@ export const scatterSeriesBuilder_data = ({
       tooltipData: dataset.tooltipData,
       yAxisKey: dataset.dataKey,
       xAxisKeys,
-      trendline: {
-        type: 'logarithmic',
-        polynomialOrder: 2,
-        width: 2,
-        lineStyle: 'dotted',
-        colorMin: 'red',
-        colorMax: 'orange',
-        projection: true,
-        label: {
-          text: '3rd-order fit',
-          display: true
-        }
-      },
+      trendline: createTrendlineOnSeries({
+        trendlines,
+        yAxisKey: dataset.dataKey,
+        columnLabelFormats
+      }),
       data: dataset.data.reduce<BubbleDataPoint[]>((acc, yData, index) => {
         if (yData !== null) {
           acc.push({
@@ -156,44 +151,7 @@ const computeSizeRatio = (
 };
 
 export const scatterSeriesBuilder_labels = (props: LabelBuilderProps) => {
-  const { trendlineSeries, datasetOptions, columnLabelFormats, xAxisKeys } = props;
+  const { datasetOptions, columnLabelFormats, xAxisKeys } = props;
 
-  if (!trendlineSeries.length) return undefined;
-
-  // Create a Set of relevant yAxisKeys for O(1) lookup
-  const relevantYAxisKeys = new Set(trendlineSeries.map((t) => t.yAxisKey));
-
-  // Get X-axis format information once
-  const xColumnLabelFormat = columnLabelFormats[xAxisKeys[0]] || DEFAULT_COLUMN_LABEL_FORMAT;
-  const useDateLabels =
-    xAxisKeys.length === 1 &&
-    datasetOptions.ticks[0]?.length === 1 &&
-    xColumnLabelFormat.columnType === 'date' &&
-    xColumnLabelFormat.style === 'date';
-
-  if (useDateLabels) {
-    // Process date labels directly without extra iterations
-    return datasetOptions.ticks.flatMap((item) =>
-      item.map<Date>((dateItem) => createDayjsDate(dateItem as string).toDate())
-    );
-  }
-
-  // Only process relevant datasets
-  const relevantDatasets = datasetOptions.datasets.filter((dataset) =>
-    relevantYAxisKeys.has(dataset.dataKey)
-  );
-
-  // Early return for no relevant datasets
-  if (!relevantDatasets.length) return undefined;
-
-  // Collect all ticks without deduplication
-  const allTicks: (string | number)[][] = [];
-  relevantDatasets.forEach((dataset) => {
-    dataset.ticksForScatter?.forEach((tick) => {
-      allTicks.push(tick);
-    });
-  });
-
-  // Sort and flatten
-  return allTicks.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).flat();
+  return undefined;
 };

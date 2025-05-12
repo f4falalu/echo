@@ -69,6 +69,7 @@ export const BusterChartJSComponent = React.memo(
         disableTooltip,
         xAxisTimeInterval,
         numberOfDataPoints,
+        trendlines,
         //TODO
         xAxisDataZoom,
         ...rest
@@ -83,20 +84,13 @@ export const BusterChartJSComponent = React.memo(
         selectedChartType
       });
 
-      const { trendlineAnnotations, trendlineSeries } = useTrendlines({
-        trendlines: dataTrendlineOptions,
-        columnLabelFormats,
-        selectedChartType,
-        lineGroupType,
-        barGroupType
-      });
-
       const data: ChartProps<ChartJSChartType>['data'] = useSeriesOptions({
         selectedChartType,
         y2AxisKeys,
         yAxisKeys,
         columnSettings,
         columnLabelFormats,
+        trendlines,
         colors,
         barShowTotalAtTop,
         datasetOptions,
@@ -105,7 +99,6 @@ export const BusterChartJSComponent = React.memo(
         columnMetadata,
         scatterDotSize,
         lineGroupType,
-        trendlineSeries,
         barGroupType
       });
       const previousData = usePreviousRef(data);
@@ -139,7 +132,6 @@ export const BusterChartJSComponent = React.memo(
 
       const options: ChartOptions<ChartJSChartType> = useOptions({
         goalLinesAnnotations,
-        trendlineAnnotations,
         colors,
         selectedChartType,
         columnLabelFormats,

@@ -255,7 +255,15 @@ export const ScatterWithTrendline_NumericalXAxisPolynomialRegression: Story = {
         type: 'polynomial_regression',
         show: true,
         showTrendlineLabel: true,
-        trendlineLabel: 'Polynomial Growth Pattern',
+        trendlineLabel: null,
+        trendLineColor: 'red',
+        columnId: 'revenue'
+      },
+      {
+        type: 'max',
+        show: false,
+        showTrendlineLabel: true,
+        trendlineLabel: null,
         trendLineColor: 'red',
         columnId: 'revenue'
       }

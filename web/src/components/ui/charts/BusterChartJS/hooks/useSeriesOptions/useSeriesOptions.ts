@@ -32,12 +32,11 @@ export interface UseSeriesOptionsProps {
   columnMetadata: ColumnMetaData[];
   lineGroupType: BusterChartProps['lineGroupType'];
   barGroupType: BusterChartProps['barGroupType'];
-  trendlineSeries: ChartProps<'line'>['data']['datasets'][number][];
+  trendlines: BusterChartProps['trendlines'];
   barShowTotalAtTop: BusterChartProps['barShowTotalAtTop'];
 }
 
 export const useSeriesOptions = ({
-  trendlineSeries,
   columnMetadata,
   selectedChartType,
   colors,
@@ -51,7 +50,8 @@ export const useSeriesOptions = ({
   scatterDotSize,
   lineGroupType,
   barShowTotalAtTop,
-  barGroupType
+  barGroupType,
+  trendlines
 }: UseSeriesOptionsProps): ChartProps<ChartJSChartType>['data'] => {
   const labels: (string | Date | number)[] | undefined = useMemo(() => {
     return labelsBuilderRecord[selectedChartType]({
@@ -59,10 +59,9 @@ export const useSeriesOptions = ({
       columnLabelFormats,
       xAxisKeys,
       sizeKey,
-      columnSettings,
-      trendlineSeries
+      columnSettings
     });
-  }, [datasetOptions, columnSettings, columnLabelFormats, xAxisKeys, sizeKey, trendlineSeries]);
+  }, [datasetOptions, columnSettings, columnLabelFormats, xAxisKeys, sizeKey]);
 
   const sizeOptions: SeriesBuilderProps['sizeOptions'] = useMemo(() => {
     if (!sizeKey || sizeKey.length === 0) {
@@ -97,9 +96,11 @@ export const useSeriesOptions = ({
       barGroupType,
       barShowTotalAtTop,
       yAxisKeys,
-      y2AxisKeys
+      y2AxisKeys,
+      trendlines
     });
   }, [
+    trendlines,
     datasetOptions,
     columnSettings,
     colors,
@@ -115,8 +116,8 @@ export const useSeriesOptions = ({
   ]);
 
   const datasets: ChartProps<ChartJSChartType>['data']['datasets'] = useMemo(() => {
-    return [...datasetSeries, ...trendlineSeries];
-  }, [datasetSeries, trendlineSeries]);
+    return datasetSeries;
+  }, [datasetSeries]);
 
   return {
     labels,
@@ -130,7 +131,6 @@ export type LabelBuilderProps = {
   xAxisKeys: ChartEncodes['x'];
   sizeKey: ScatterAxis['size'];
   columnSettings: NonNullable<BusterChartProps['columnSettings']>;
-  trendlineSeries: ChartProps<'line'>['data']['datasets'][number][];
 };
 
 const labelsBuilderRecord: Record<
