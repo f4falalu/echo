@@ -214,9 +214,7 @@ export const useBusterChartJSLegend = ({
 
     // Defer visual updates to prevent UI blocking
     requestAnimationFrame(() => {
-      const datasets = chartjs.data.datasets.filter(
-        (dataset) => !dataset.hidden && !dataset.isTrendline
-      );
+      const datasets = chartjs.data.datasets.filter((dataset) => !dataset.hidden);
       const hasMultipleDatasets = datasets?.length > 1;
       const assosciatedDatasetIndex = datasets?.findIndex((dataset) => dataset.label === item.id);
 

@@ -43,7 +43,6 @@ export const barSeriesBuilder = ({
         const shownDatasets = context.chart.data.datasets.filter(
           (dataset, index) =>
             !dataset.hidden &&
-            !dataset.isTrendline &&
             //this means that it is hidden via the legend
             !chart.getDatasetMeta(index).hidden
         );

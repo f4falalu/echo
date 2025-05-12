@@ -12,7 +12,6 @@ import { Options } from 'chartjs-plugin-datalabels/types';
 declare module 'chart.js' {
   interface ChartDatasetProperties<TType extends ChartType, TData> {
     tooltipHoverBar?: ChartHoverBarPluginOptions;
-    isTrendline?: boolean;
     tooltipData: {
       key: string;
       value: string | number | boolean | null;

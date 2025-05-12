@@ -574,7 +574,7 @@ const trendlinePlugin: Plugin<'line'> = {
 
         // Find datasets that match the yAxisKey for this aggregation
         const datasetsWithTrendline = chart.data.datasets.filter(
-          (ds) => ds.data.length >= 2 && ds.yAxisKey === yAxisAggregateKey && !ds.isTrendline
+          (ds) => ds.data.length >= 2 && ds.yAxisKey === yAxisAggregateKey
         );
 
         if (datasetsWithTrendline.length > 0) {

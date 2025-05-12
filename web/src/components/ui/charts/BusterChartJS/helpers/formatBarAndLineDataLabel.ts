@@ -12,9 +12,7 @@ export const formatBarAndLineDataLabel = (
     return formatLabel(value, columnLabelFormat);
   }
 
-  const shownDatasets = context.chart.data.datasets.filter(
-    (dataset) => !dataset.hidden && !dataset.isTrendline
-  );
+  const shownDatasets = context.chart.data.datasets.filter((dataset) => !dataset.hidden);
   const hasMultipleDatasets = shownDatasets.length > 1;
 
   const useStackTotal = hasMultipleDatasets || percentageMode === 'stacked';
