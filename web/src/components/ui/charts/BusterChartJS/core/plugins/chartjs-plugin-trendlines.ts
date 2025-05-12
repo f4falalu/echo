@@ -4,7 +4,7 @@ import { Plugin, ChartType } from 'chart.js';
 import { defaultLabelOptionConfig } from '../../hooks/useChartSpecificOptions/labelOptionConfig';
 
 /** The three trendline modes we support */
-export type TrendlineType = 'linear' | 'logarithmic' | 'polynomial';
+export type TrendlineType = 'linear' | 'logarithmic' | 'polynomial' | 'exponential';
 
 /** Options for the slope label */
 export interface TrendlineLabelOptions {
@@ -207,6 +207,27 @@ class PolynomialFitter implements Fitter {
   }
 }
 
+/** Fit y = a·e^(b·x) */
+class ExponentialFitter implements Fitter {
+  private lin = new LinearFitter();
+
+  public minx = Infinity;
+  public maxx = -Infinity;
+
+  add(x: number, y: number) {
+    if (y > 0) {
+      const ly = Math.log(y);
+      this.lin.add(x, ly);
+      this.minx = Math.min(this.minx, x);
+      this.maxx = Math.max(this.maxx, x);
+    }
+  }
+
+  f(x: number): number {
+    return Math.exp(this.lin.f(x));
+  }
+}
+
 const trendlinePlugin: Plugin<'line'> = {
   id: 'chartjs-plugin-trendline-ts',
 
@@ -233,6 +254,9 @@ const trendlinePlugin: Plugin<'line'> = {
           break;
         case 'logarithmic':
           fitter = new LogarithmicFitter();
+          break;
+        case 'exponential':
+          fitter = new ExponentialFitter();
           break;
         case 'linear':
         default:
@@ -262,6 +286,20 @@ const trendlinePlugin: Plugin<'line'> = {
             return typeof x === 'number' && x > 0 && x < min ? x : min;
           }, fitter.maxx || 1)
         );
+      }
+
+      // For exponential trendlines, ensure we have valid y values
+      if (opts.type === 'exponential') {
+        // Check if we have valid data (positive y values)
+        const hasValidPoints = dataset.data.some((point: any) => {
+          const y = point[opts.yAxisKey ?? 'y'] ?? point;
+          return typeof y === 'number' && y > 0;
+        });
+
+        if (!hasValidPoints) {
+          console.warn('Exponential trendline requires positive y values');
+          return;
+        }
       }
 
       const x1 = xScale.getPixelForValue(minX);
