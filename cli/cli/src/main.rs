@@ -41,11 +41,11 @@ pub enum Commands {
         clear: bool,
 
         /// Use local Buster API
-        #[arg(long)]
+        #[arg(long, group = "api_mode")]
         local: bool,
 
         /// Use cloud Buster API
-        #[arg(long)]
+        #[arg(long, group = "api_mode")]
         cloud: bool,
     },
     /// Update buster-cli to the latest version

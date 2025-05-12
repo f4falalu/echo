@@ -2,7 +2,6 @@ dev:
 	docker stop buster-redis-make || true && \
 	docker rm buster-redis-make || true && \
 	docker run -d --name buster-redis-make -p 6379:6379 -v buster_redis_data:/data redis && \
-	supabase db reset || true && \
 	supabase start || true && \
 	supabase db reset || true && \
 	export DATABASE_URL=postgres://postgres:postgres@127.0.0.1:54322/postgres && \
