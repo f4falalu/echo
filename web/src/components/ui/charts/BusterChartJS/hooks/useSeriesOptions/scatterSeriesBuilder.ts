@@ -77,6 +77,19 @@ export const scatterSeriesBuilder_data = ({
       tooltipData: dataset.tooltipData,
       yAxisKey: dataset.dataKey,
       xAxisKeys,
+      trendline: {
+        type: 'logarithmic',
+        polynomialOrder: 2,
+        width: 2,
+        lineStyle: 'dotted',
+        colorMin: 'red',
+        colorMax: 'orange',
+        projection: true,
+        label: {
+          text: '3rd-order fit',
+          display: true
+        }
+      },
       data: dataset.data.reduce<BubbleDataPoint[]>((acc, yData, index) => {
         if (yData !== null) {
           acc.push({

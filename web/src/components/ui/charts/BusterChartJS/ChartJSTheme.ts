@@ -26,11 +26,13 @@ import { ChartMountedPlugin } from './core/plugins';
 import ChartDeferred from 'chartjs-plugin-deferred';
 import ChartJsAnnotationPlugin from 'chartjs-plugin-annotation';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import ChartTrendlinePlugin from './core/plugins/chartjs-plugin-trendlines';
 import { DEFAULT_CHART_THEME } from '@/api/asset_interfaces/metric/charts/configColors';
 import { isServer } from '@tanstack/react-query';
 import { truncateText } from '@/lib/text';
 import './core/plugins/chartjs-plugin-dayjs';
 import './core/plugins/chartjs-scale-tick-duplicate';
+import './core/plugins/chartjs-plugin-trendlines';
 
 const fontFamily = isServer
   ? 'Roobert_Pro'
@@ -69,7 +71,8 @@ ChartJS.register(
   LogarithmicScale,
   TimeScale,
   TimeSeriesScale,
-  ChartDataLabels
+  ChartDataLabels,
+  ChartTrendlinePlugin
 );
 
 ChartJS.defaults.responsive = true;

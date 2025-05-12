@@ -7,7 +7,6 @@ import {
 } from 'chart.js';
 import { OutLabelsOptions, TextCenterPluginOptions } from '../BusterPieChartJs/plugins';
 import { ChartHoverBarPluginOptions } from '../core/plugins';
-import { TrendlineLinearOptions } from '../core/plugins/chartjs-plugin-trendline';
 import { Options } from 'chartjs-plugin-datalabels/types';
 
 declare module 'chart.js' {
