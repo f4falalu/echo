@@ -248,7 +248,6 @@ impl BusterConfig {
     pub fn load_from_dir(dir: &Path) -> Result<Option<Self>> {
         let config_path = dir.join("buster.yml");
         if config_path.exists() {
-            println!("ℹ️  Found buster.yml at {}", config_path.display());
             let content = std::fs::read_to_string(&config_path)
                 .map_err(|e| anyhow!("Failed to read buster.yml: {}", e))?;
 
@@ -283,22 +282,6 @@ impl BusterConfig {
             if let Some(ref paths) = config.model_paths {
                 println!("ℹ️  Global Model paths: {:?}", paths);
             }
-
-            // Log project-specific details if present
-            if let Some(ref projects) = config.projects {
-                println!("ℹ️  Found {} project context(s):", projects.len());
-                for (i, project) in projects.iter().enumerate() {
-                    let project_id = project.identifier(); // Use new identifier
-                    println!("   - Project {}: {}", i + 1, project_id);
-                    if let Some(ref ds) = project.data_source_name { println!("     Data Source: {}", ds); }
-                    if let Some(ref db) = project.database { println!("     Database: {}", db); }
-                    if let Some(ref sc) = project.schema { println!("     Schema: {}", sc); }
-                    if let Some(ref mp) = project.model_paths { println!("     Model Paths: {:?}", mp); }
-                    if let Some(ref ef) = project.exclude_files { println!("     Exclude Files: {:?}", ef); }
-                    if let Some(ref et) = project.exclude_tags { println!("     Exclude Tags: {:?}", et); }
-                }
-            }
-            // --- End Logging ---
 
             Ok(Some(config))
         } else {

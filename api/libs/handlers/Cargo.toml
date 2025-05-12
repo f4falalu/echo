@@ -19,6 +19,7 @@ futures = { workspace = true }
 regex = { workspace = true }
 indexmap = { workspace = true }
 async-trait = { workspace = true }
+posthog-rs = { workspace = true }
 
 
 # Local dependencies

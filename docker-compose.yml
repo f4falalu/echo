@@ -18,6 +18,7 @@ services:
   api:
     image: ghcr.io/buster-so/buster/api:latest-arm64
     container_name: buster-api
+    pull_policy: always
     env_file:
       - .env
     environment:
@@ -40,6 +41,8 @@ services:
       - LLM_API_KEY=${LLM_API_KEY}
       - LLM_BASE_URL=${LLM_BASE_URL}
       - RUST_LOG=debug
+      - POSTHOG_TELEMETRY_KEY=${POSTHOG_TELEMETRY_KEY}
+      - TELEMETRY_ENABLED=${TELEMETRY_ENABLED}
     ports:
       - "3001:3001"
       - "3000:3000"
@@ -59,6 +62,7 @@ services:
   web:
     image: ghcr.io/buster-so/buster/web:latest-arm64
     container_name: buster-web
+    pull_policy: always
     env_file:
       - .env
     depends_on:

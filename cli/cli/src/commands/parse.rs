@@ -251,6 +251,49 @@ pub async fn parse_models_command(path_arg: Option<String>) -> Result<()> {
                                 model_errors.push("schema could not be resolved.".to_string());
                             }
 
+                            // Check for placeholder description in the model itself
+                            if let Some(desc) = &model.description {
+                                if desc.contains("{DESCRIPTION_NEEDED}") {
+                                    model_errors.push("Model description contains placeholder '{DESCRIPTION_NEEDED}'. Please provide a description.".to_string());
+                                }
+                            }
+
+                            // Check descriptions in dimensions
+                            for dimension in &model.dimensions {
+                                if let Some(desc) = &dimension.description {
+                                    if desc.contains("{DESCRIPTION_NEEDED}") {
+                                        model_errors.push(format!("Dimension '{}' description contains placeholder '{{DESCRIPTION_NEEDED}}'. Please provide a description.", dimension.name));
+                                    }
+                                }
+                            }
+
+                            // Check descriptions in measures
+                            for measure in &model.measures {
+                                if let Some(desc) = &measure.description {
+                                    if desc.contains("{DESCRIPTION_NEEDED}") {
+                                        model_errors.push(format!("Measure '{}' description contains placeholder '{{DESCRIPTION_NEEDED}}'. Please provide a description.", measure.name));
+                                    }
+                                }
+                            }
+
+                            // Check descriptions in metrics
+                            for metric in &model.metrics {
+                                if let Some(desc) = &metric.description {
+                                    if desc.contains("{DESCRIPTION_NEEDED}") {
+                                        model_errors.push(format!("Metric '{}' description contains placeholder '{{DESCRIPTION_NEEDED}}'. Please provide a description.", metric.name));
+                                    }
+                                }
+                            }
+
+                            // Check descriptions in filters
+                            for filter in &model.filters {
+                                if let Some(desc) = &filter.description {
+                                    if desc.contains("{DESCRIPTION_NEEDED}") {
+                                        model_errors.push(format!("Filter '{}' description contains placeholder '{{DESCRIPTION_NEEDED}}'. Please provide a description.", filter.name));
+                                    }
+                                }
+                            }
+
                             if !model_errors.is_empty() {
                                 progress.errors.push((
                                     progress.current_file.clone(),
