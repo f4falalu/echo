@@ -188,7 +188,6 @@ const LoginOptions: React.FC<{
   });
 
   const onSubmitClickPreflight = useMemoizedFn(async (d: { email: string; password: string }) => {
-    clearAllCookies();
     onSubmitClick(d);
   });
 
@@ -256,7 +255,8 @@ const LoginOptions: React.FC<{
         className="space-y-3"
         onSubmit={(v) => {
           v.preventDefault();
-          onSubmitClickPreflight({
+          clearAllCookies();
+          onSubmitClick({
             email,
             password
           });
