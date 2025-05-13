@@ -902,7 +902,10 @@ const trendlinePlugin: Plugin<'line'> = {
                 aggregateConfig,
                 labelSpatialIndex,
                 labelDrawingQueue,
-                coords
+                coords,
+                undefined, // No label indices for aggregate
+                xScale,
+                yScale
               );
             }
           }
@@ -976,7 +979,9 @@ const trendlinePlugin: Plugin<'line'> = {
             labelSpatialIndex,
             labelDrawingQueue,
             coords,
-            labelIndices
+            labelIndices,
+            xScale,
+            yScale
           );
         }
       });
@@ -1020,7 +1025,9 @@ const queueTrendlineLabel = (
     opts: TrendlineLabelOptions;
   }>,
   coords: TrendlineCoordinates,
-  labelIndices?: { datasetIndex: number; trendlineIndex: number }
+  labelIndices?: { datasetIndex: number; trendlineIndex: number },
+  xScale?: Scale,
+  yScale?: Scale
 ) => {
   if (!opts.label?.display) return;
 
@@ -1055,26 +1062,48 @@ const queueTrendlineLabel = (
 
   // Position along the trendline segment based on positionRatio
   const t = lbl.positionRatio ?? 0.85; // Default to 85% along the line
-  const targetX = x1 + t * (x2 - x1);
-  const targetY = y1 + t * (y2 - y1);
 
-  // Apply user-defined offset only, no default offset to keep label on the line
-  // A value of 0 places the label directly on the line
-  let offsetX = lbl.offset ?? 0;
-  let offsetY = lbl.offset ?? -7; // Now default to 0 to place directly on the line
+  let targetX: number;
+  let targetY: number;
+
+  // If we have scales, use them to calculate exact curve position
+  if (xScale && yScale) {
+    // Calculate the X position along the line based on the ratio
+    const interpolatedX = minX + t * (maxX - minX);
+
+    // Constrain the interpolatedX to be within the actual data range regardless of projection
+    // This ensures the label never goes beyond the last data point
+    const constrainedX = Math.max(fitter.minx, Math.min(fitter.maxx, interpolatedX));
+
+    // Get the actual Y value ON the curve using the fitter for this X position
+    const interpolatedY = fitter.f(constrainedX);
+
+    // Convert to pixel coordinates
+    targetX = xScale.getPixelForValue(constrainedX);
+    targetY = yScale.getPixelForValue(interpolatedY);
+  } else {
+    // Fallback to linear interpolation if scales aren't provided
+    targetX = x1 + t * (x2 - x1);
+    targetY = y1 + t * (y2 - y1);
+  }
+
+  // Apply user-defined offset (perpendicular to the line)
+  const offsetValue = lbl.offset ?? 0;
+
+  // Apply offset
+  let offsetX = 0;
+  let offsetY = offsetValue;
+
   // Apply additional offsets based on dataset and trendline indices if provided
-  if (labelIndices) {
-    // Use dataset index and trendline index to create a staggered effect only if explicitly defined
-    if (lbl.offset !== undefined) {
-      const baseOffset = 0; // Base offset in pixels
-      const additionalOffset =
-        baseOffset * (labelIndices.datasetIndex + labelIndices.trendlineIndex);
-      offsetY -= additionalOffset;
-    }
+  if (labelIndices && offsetValue !== 0) {
+    // Use dataset index and trendline index to create a staggered effect
+    const additionalOffset =
+      offsetValue * 0.5 * (labelIndices.datasetIndex + labelIndices.trendlineIndex);
+    offsetY += additionalOffset;
   }
 
   const finalX = targetX + offsetX;
-  const finalY = targetY + offsetY; // Changed to addition instead of subtraction to place on the line
+  const finalY = targetY + offsetY;
 
   // Measure text to calculate label size
   ctx.font = `${lbl.font?.weight ?? defaultLabelOptionConfig.font.weight} ${lbl.font?.size ?? defaultLabelOptionConfig.font.size}px ${lbl.font?.family ?? 'sans-serif'}`;

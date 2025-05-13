@@ -342,10 +342,10 @@ const TrendlineItemContent: React.FC<{
                 onUpdateExisitingTrendline={onUpdateExisitingTrendline}
               />
 
-              {/* <TrendlineLabelPositionOffset
+              <TrendlineLabelPositionOffset
                 trend={trend}
                 onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-              /> */}
+              />
             </div>
           </>
         )}
