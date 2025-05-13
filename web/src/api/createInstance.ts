@@ -4,6 +4,7 @@ import { AxiosRequestHeaders } from 'axios';
 import { isServer } from '@tanstack/react-query';
 import { getSupabaseTokenFromCookies } from './createServerInstance';
 import { SupabaseContextReturnType } from '@/context/Supabase/SupabaseContextProvider';
+import { BusterRoutes, createBusterRoute } from '@/routes';
 
 const AXIOS_TIMEOUT = 120000; // 2 minutes
 
@@ -21,6 +22,14 @@ export const createInstance = (baseURL: string) => {
       return resp;
     },
     (error: AxiosError) => {
+      const errorCode = error.response?.status;
+      //402 is the payment required error code
+      if (errorCode === 402) {
+        window.location.href = createBusterRoute({
+          route: BusterRoutes.INFO_GETTING_STARTED
+        });
+      }
+
       return Promise.reject(rustErrorHandler(error));
     }
   );
