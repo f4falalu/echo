@@ -93,7 +93,9 @@ jobs:
             -e RUST_LOG='debug' \
             -e OPENAI_API_KEY='${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}' \
             -e RESEND_API_KEY='${{ secrets.GH_ACTIONS_RESEND_API_KEY }}' \
-            -e COHERE_API_KEY='${{ secrets.GH_ACTIONS_COHERE_API_KEY }}' \
+            -e RERANK_API_KEY='${{ secrets.GH_ACTIONS_COHERE_API_KEY }}' \
+            -e RERANK_MODEL='rerank-v3.5' \
+            -e RERANK_BASE_URL='https://api.cohere.com/v2/rerank' \
             -e LLM_API_KEY='${{ secrets.GH_ACTIONS_LLM_API_KEY }}' \
             -e LLM_BASE_URL='${{ secrets.GH_ACTIONS_LLM_BASE_URL }}' \
             local-api-test:latest

@@ -91,13 +91,6 @@ impl BusterClient {
         // The API expects a single object, not an array, but also our endpoint accepts bulk
         // Let's stick with the current approach but make sure we're sending the data correctly
 
-        // Debug log the request body
-        println!(
-            "DEBUG: post_data_sources request body: {}",
-            serde_json::to_string_pretty(&req_body)
-                .unwrap_or_else(|_| "Failed to serialize request".to_string())
-        );
-
         match self
             .client
             .post(format!("{}/api/v1/data_sources", self.base_url))

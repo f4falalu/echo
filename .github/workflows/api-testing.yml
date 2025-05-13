@@ -64,9 +64,11 @@ jobs:
           # Sensitive values from Secrets
           OPENAI_API_KEY: ${{ secrets.GH_ACTIONS_OPENAI_API_KEY }}
           RESEND_API_KEY: ${{ secrets.GH_ACTIONS_RESEND_API_KEY }}
-          COHERE_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
           LLM_API_KEY: ${{ secrets.GH_ACTIONS_LLM_API_KEY }}
           LLM_BASE_URL: ${{ secrets.GH_ACTIONS_LLM_BASE_URL }}
+          RERANK_API_KEY: ${{ secrets.GH_ACTIONS_COHERE_API_KEY }}
+          RERANK_MODEL: rerank-v3.5
+          RERANK_BASE_URL: https://api.cohere.com/v2/rerank
 
       - name: Stop Supabase # Use the cleanup action
         uses: ./.github/actions/stop-supabase
