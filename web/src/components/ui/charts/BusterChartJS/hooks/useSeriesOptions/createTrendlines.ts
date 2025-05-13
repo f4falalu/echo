@@ -46,6 +46,7 @@ export const createTrendlineOnSeries = ({
         showTrendlineLabel,
         columnId,
         projection,
+        offset,
         trendlineLabelPositionOffset,
         ...rest
       }) => {
@@ -61,9 +62,9 @@ export const createTrendlineOnSeries = ({
             ? {
                 positionRatio: trendlineLabelPositionOffset,
                 display: true,
+                offset: offset ?? (type === 'logarithmic_regression' ? -3 : 0),
                 text: (v) => {
                   let value: number | null = null;
-
                   if (type === 'average') {
                     value = v.averageY;
                   } else if (type === 'median') {
@@ -78,11 +79,11 @@ export const createTrendlineOnSeries = ({
                     ? formatLabel(value, columnLabelFormats[columnId])
                     : '';
 
-                  const trendlineLabel = TypeToLabel[type];
+                  const defaultLabel = trendlineLabel || TypeToLabel[type];
                   const labelContent =
-                    trendlineLabel && formattedValue
-                      ? `${trendlineLabel}: ${formattedValue}`
-                      : trendlineLabel;
+                    !trendlineLabel && formattedValue
+                      ? `${defaultLabel}: ${formattedValue}`
+                      : defaultLabel;
 
                   return labelContent;
                 }

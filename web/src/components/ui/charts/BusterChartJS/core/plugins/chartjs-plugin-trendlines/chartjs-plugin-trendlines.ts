@@ -1,6 +1,6 @@
 // chartjs-plugin-trendline.ts
 
-import { Plugin, ChartType, ChartDataset, Point } from 'chart.js';
+import { Plugin, ChartType, ChartDataset, Point, Scale } from 'chart.js';
 import { defaultLabelOptionConfig } from '../../../hooks/useChartSpecificOptions/labelOptionConfig';
 
 /** The three trendline modes we support */
@@ -607,8 +607,8 @@ const drawLabel = (
 // Improved curved or straight line path drawing with fewer calculations
 const drawLinePath = (
   ctx: CanvasRenderingContext2D,
-  xScale: any,
-  yScale: any,
+  xScale: Scale,
+  yScale: Scale,
   fitter: BaseFitter,
   minX: number,
   maxX: number,
@@ -664,8 +664,8 @@ const drawLinePath = (
 // Fill area under the trendline
 const fillUnderLine = (
   ctx: CanvasRenderingContext2D,
-  xScale: any,
-  yScale: any,
+  xScale: Scale,
+  yScale: Scale,
   fitter: BaseFitter,
   minX: number,
   maxX: number,
@@ -723,8 +723,8 @@ const addDataPointsToFitter = (
 
 // Calculate trendline coordinates once to avoid duplication
 const calculateTrendlineCoordinates = (
-  xScale: any,
-  yScale: any,
+  xScale: Scale,
+  yScale: Scale,
   fitter: BaseFitter,
   opts: TrendlineOptions
 ): TrendlineCoordinates => {
@@ -898,8 +898,6 @@ const trendlinePlugin: Plugin<'line'> = {
             if (aggregateConfig.label?.display) {
               queueTrendlineLabel(
                 ctx,
-                xScale,
-                yScale,
                 fitter,
                 aggregateConfig,
                 labelSpatialIndex,
@@ -947,8 +945,10 @@ const trendlinePlugin: Plugin<'line'> = {
         // For exponential trendlines, ensure we have valid y values
         if (opts.type === 'exponential_regression') {
           // Check if we have valid data (positive y values)
-          const hasValidPoints = dataset.data.some((point: any) => {
-            const y = point[dataset.yAxisID ?? 'y'] ?? point;
+          const hasValidPoints = dataset.data.some((point) => {
+            if (!point) return false;
+            else if (typeof point === 'number') return point > 0;
+            const y = point[(dataset.yAxisID ?? 'y') as 'y'] ?? point;
             return typeof y === 'number' && y > 0;
           });
 
@@ -971,8 +971,6 @@ const trendlinePlugin: Plugin<'line'> = {
           const labelIndices = { datasetIndex, trendlineIndex };
           queueTrendlineLabel(
             ctx,
-            xScale,
-            yScale,
             fitter,
             opts,
             labelSpatialIndex,
@@ -1011,8 +1009,6 @@ const doRectsOverlap = (
 // Helper function to queue a label for later drawing
 const queueTrendlineLabel = (
   ctx: CanvasRenderingContext2D,
-  xScale: any,
-  yScale: any,
   fitter: BaseFitter,
   opts: TrendlineOptions,
   spatialIndex: SpatialIndex,
@@ -1062,21 +1058,23 @@ const queueTrendlineLabel = (
   const targetX = x1 + t * (x2 - x1);
   const targetY = y1 + t * (y2 - y1);
 
-  // Apply base offset
+  // Apply user-defined offset only, no default offset to keep label on the line
+  // A value of 0 places the label directly on the line
   let offsetX = lbl.offset ?? 0;
-  let offsetY = lbl.offset ?? 0;
-
+  let offsetY = lbl.offset ?? -7; // Now default to 0 to place directly on the line
   // Apply additional offsets based on dataset and trendline indices if provided
   if (labelIndices) {
-    // Use dataset index and trendline index to create a staggered effect
-    // The formula below creates an increasing offset for each label
-    const baseOffset = 0; // Base offset in pixels
-    const additionalOffset = baseOffset * (labelIndices.datasetIndex + labelIndices.trendlineIndex);
-    offsetY -= additionalOffset;
+    // Use dataset index and trendline index to create a staggered effect only if explicitly defined
+    if (lbl.offset !== undefined) {
+      const baseOffset = 0; // Base offset in pixels
+      const additionalOffset =
+        baseOffset * (labelIndices.datasetIndex + labelIndices.trendlineIndex);
+      offsetY -= additionalOffset;
+    }
   }
 
   const finalX = targetX + offsetX;
-  const finalY = targetY - offsetY; // Y increases downwards, so subtract for upward offset
+  const finalY = targetY + offsetY; // Changed to addition instead of subtraction to place on the line
 
   // Measure text to calculate label size
   ctx.font = `${lbl.font?.weight ?? defaultLabelOptionConfig.font.weight} ${lbl.font?.size ?? defaultLabelOptionConfig.font.size}px ${lbl.font?.family ?? 'sans-serif'}`;
@@ -1117,8 +1115,8 @@ const queueTrendlineLabel = (
 const drawTrendlinePath = (
   ctx: CanvasRenderingContext2D,
   chartArea: { bottom: number; top: number; left: number; right: number },
-  xScale: any,
-  yScale: any,
+  xScale: Scale,
+  yScale: Scale,
   fitter: BaseFitter,
   opts: TrendlineOptions,
   defaultColor: string,

@@ -25,6 +25,7 @@ export interface Trendline {
   columnId: string;
   projection?: boolean; //OPTIONAL: default is false. if true, the trendline will be projected to the end of the chart.
   lineStyle?: 'solid' | 'dotted' | 'dashed' | 'dashdot';
+  offset?: number; //OPTIONAL: default is -15. if true, the trendline will be projected to the end of the chart.
   polynomialOrder?: number;
   aggregateAllCategories?: boolean; //OPTIONAL: default is true. if true, the trendline will be calculated for all categories. if false, the trendline will be calculated for the category specified in the columnId.
   id?: string;
