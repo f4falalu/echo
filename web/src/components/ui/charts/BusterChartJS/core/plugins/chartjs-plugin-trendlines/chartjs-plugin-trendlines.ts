@@ -2,6 +2,7 @@
 
 import { Plugin, ChartType, ChartDataset, Point, Scale } from 'chart.js';
 import { defaultLabelOptionConfig } from '../../../hooks/useChartSpecificOptions/labelOptionConfig';
+import { DEFAULT_TRENDLINE_CONFIG } from '@/api/asset_interfaces/metric/defaults';
 
 /** The three trendline modes we support */
 export type TrendlineType =
@@ -468,7 +469,7 @@ const processPadding = (
 const createFitter = (opts: TrendlineOptions): BaseFitter => {
   switch (opts.type) {
     case 'polynomial_regression':
-      return new PolynomialFitter(opts.polynomialOrder ?? 2);
+      return new PolynomialFitter(opts.polynomialOrder ?? DEFAULT_TRENDLINE_CONFIG.polynomialOrder);
     case 'logarithmic_regression':
       return new LogarithmicFitter();
     case 'exponential_regression':
@@ -721,6 +722,15 @@ const addDataPointsToFitter = (
   fitter.computeStatistics();
 };
 
+const projectionDefaultType: TrendlineType[] = [
+  'average',
+  'max',
+  'min',
+  'median',
+  'linear_regression',
+  'polynomial_regression'
+];
+
 // Calculate trendline coordinates once to avoid duplication
 const calculateTrendlineCoordinates = (
   xScale: Scale,
@@ -728,8 +738,9 @@ const calculateTrendlineCoordinates = (
   fitter: BaseFitter,
   opts: TrendlineOptions
 ): TrendlineCoordinates => {
-  let minX = opts.projection ? (xScale.min as number) : fitter.minx;
-  const maxX = opts.projection ? (xScale.max as number) : fitter.maxx;
+  const shouldUseProjection = opts.projection !== false;
+  let minX = shouldUseProjection ? (xScale.min as number) : fitter.minx;
+  const maxX = shouldUseProjection ? (xScale.max as number) : fitter.maxx;
 
   // For logarithmic trendlines, ensure minX is positive
   if (opts.type === 'logarithmic_regression' && minX <= 0) {
@@ -822,182 +833,6 @@ class SpatialIndex {
   }
 }
 
-const trendlinePlugin: Plugin<'line'> = {
-  id: 'chartjs-plugin-trendline-ts',
-
-  afterDatasetsDraw(chart) {
-    const ctx = chart.ctx;
-    const pluginOptions = chart.options.plugins?.trendline as TrendlinePluginOptions | undefined;
-    const { chartArea } = chart;
-    const labels = chart.data.labels as string[] | Date[] | undefined;
-
-    // get horizontal (x) and vertical (y) scales
-    const xScale = Object.values(chart.scales).find((s) => s.isHorizontal())!;
-    const yScale = Object.values(chart.scales).find((s) => !s.isHorizontal())!;
-
-    // Use spatial index for faster collision detection
-    const labelSpatialIndex = new SpatialIndex();
-
-    // Store all label drawing operations for later execution (to ensure higher z-index)
-    const labelDrawingQueue: Array<{
-      ctx: CanvasRenderingContext2D;
-      text: string;
-      x: number;
-      y: number;
-      opts: TrendlineLabelOptions;
-    }> = [];
-
-    // Reset line style cache
-    lineStyleCache.currentStyle = '';
-    lineStyleCache.currentWidth = 0;
-
-    // Check if we should create an aggregated trendline
-    if (pluginOptions?.aggregateMultiple && pluginOptions.aggregateMultiple.length > 0) {
-      // Process each aggregate trendline configuration
-      for (const aggregateConfig of pluginOptions.aggregateMultiple) {
-        const yAxisAggregateKey = aggregateConfig.yAxisKey;
-        const yAxisID = aggregateConfig.yAxisID;
-
-        // Find datasets that match the yAxisKey for this aggregation
-        const datasetsWithTrendline = chart.data.datasets.filter(
-          (ds) => ds.data.length >= 2 && ds.yAxisKey === yAxisAggregateKey
-        );
-
-        if (datasetsWithTrendline.length > 0) {
-          // Get the first trendline options to use as default for aggregated trendline
-          const firstDatasetWithTrendline = datasetsWithTrendline[0];
-
-          // Create fitter based on the aggregate config
-          const fitter = createFitter(aggregateConfig);
-
-          // Collect all data points from all datasets that match this yAxisKey
-          for (const dataset of datasetsWithTrendline) {
-            addDataPointsToFitter(dataset, labels, fitter, yAxisID);
-          }
-
-          // Draw the aggregated trendline if we have valid data points
-          if (fitter.minx !== Infinity && fitter.maxx !== -Infinity) {
-            const defaultColor =
-              (firstDatasetWithTrendline.borderColor as string) ?? 'rgba(0,0,0,0.3)';
-
-            // Calculate coordinates once
-            const coords = calculateTrendlineCoordinates(xScale, yScale, fitter, aggregateConfig);
-
-            drawTrendlinePath(
-              ctx,
-              chartArea,
-              xScale,
-              yScale,
-              fitter,
-              aggregateConfig,
-              defaultColor,
-              coords
-            );
-
-            // Queue label for later drawing if needed
-            if (aggregateConfig.label?.display) {
-              queueTrendlineLabel(
-                ctx,
-                fitter,
-                aggregateConfig,
-                labelSpatialIndex,
-                labelDrawingQueue,
-                coords,
-                undefined, // No label indices for aggregate
-                xScale,
-                yScale
-              );
-            }
-          }
-        }
-      }
-    }
-
-    // Original behavior - draw individual trendlines for each dataset
-    chart.data.datasets.forEach((dataset, datasetIndex) => {
-      const trendlineOptions = dataset.trendline;
-      if (
-        !trendlineOptions ||
-        dataset.data.length < 2 ||
-        dataset.hidden ||
-        !chart.isDatasetVisible(datasetIndex)
-      ) {
-        return;
-      }
-
-      // Convert to array if it's a single object for backward compatibility
-      const trendlineArray = Array.isArray(trendlineOptions)
-        ? trendlineOptions
-        : [trendlineOptions];
-
-      // Process each trendline option
-      trendlineArray.forEach((opts, trendlineIndex) => {
-        if (!opts || !opts.type || !opts.show) return;
-
-        // Create the appropriate fitter
-        const fitter = createFitter(opts);
-
-        // Add all data points to the fitter
-        addDataPointsToFitter(dataset, labels, fitter);
-
-        // Skip if no valid points were added
-        if (fitter.minx === Infinity || fitter.maxx === -Infinity) {
-          return;
-        }
-
-        // For exponential trendlines, ensure we have valid y values
-        if (opts.type === 'exponential_regression') {
-          // Check if we have valid data (positive y values)
-          const hasValidPoints = dataset.data.some((point) => {
-            if (!point) return false;
-            else if (typeof point === 'number') return point > 0;
-            const y = point[(dataset.yAxisID ?? 'y') as 'y'] ?? point;
-            return typeof y === 'number' && y > 0;
-          });
-
-          if (!hasValidPoints) {
-            console.warn('Exponential trendline requires positive y values');
-            return;
-          }
-        }
-
-        const defaultColor = (dataset.borderColor as string) ?? 'rgba(0,0,0,0.3)';
-
-        // Calculate coordinates once
-        const coords = calculateTrendlineCoordinates(xScale, yScale, fitter, opts);
-
-        // Draw only the trendline first (not labels)
-        drawTrendlinePath(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor, coords);
-
-        // Queue label for later drawing if needed
-        if (opts.label?.display) {
-          const labelIndices = { datasetIndex, trendlineIndex };
-          queueTrendlineLabel(
-            ctx,
-            fitter,
-            opts,
-            labelSpatialIndex,
-            labelDrawingQueue,
-            coords,
-            labelIndices,
-            xScale,
-            yScale
-          );
-        }
-      });
-    });
-
-    // After all trendlines are drawn, draw all labels on top - do this in a batch
-    if (labelDrawingQueue.length > 0) {
-      ctx.save();
-      labelDrawingQueue.forEach((item) => {
-        drawLabel(item.ctx, item.text, item.x, item.y, item.opts);
-      });
-      ctx.restore();
-    }
-  }
-};
-
 // Helper function to check if two rectangles overlap
 const doRectsOverlap = (
   rect1: { x: number; y: number; width: number; height: number },
@@ -1061,7 +896,7 @@ const queueTrendlineLabel = (
   const labelText = `${textContent}`.trim();
 
   // Position along the trendline segment based on positionRatio
-  const t = lbl.positionRatio ?? 0.85; // Default to 85% along the line
+  const t = (lbl.positionRatio ?? DEFAULT_TRENDLINE_CONFIG.trendlineLabelPositionOffset) / 100; // Default to 85% along the line
 
   let targetX: number;
   let targetY: number;
@@ -1200,6 +1035,182 @@ const drawTrendlinePath = (
 
   // cleanup
   ctx.restore();
+};
+
+const trendlinePlugin: Plugin<'line'> = {
+  id: 'chartjs-plugin-trendline-ts',
+
+  afterDatasetsDraw(chart) {
+    const ctx = chart.ctx;
+    const pluginOptions = chart.options.plugins?.trendline as TrendlinePluginOptions | undefined;
+    const { chartArea } = chart;
+    const labels = chart.data.labels as string[] | Date[] | undefined;
+
+    // get horizontal (x) and vertical (y) scales
+    const xScale = Object.values(chart.scales).find((s) => s.isHorizontal())!;
+    const yScale = Object.values(chart.scales).find((s) => !s.isHorizontal())!;
+
+    // Use spatial index for faster collision detection
+    const labelSpatialIndex = new SpatialIndex();
+
+    // Store all label drawing operations for later execution (to ensure higher z-index)
+    const labelDrawingQueue: Array<{
+      ctx: CanvasRenderingContext2D;
+      text: string;
+      x: number;
+      y: number;
+      opts: TrendlineLabelOptions;
+    }> = [];
+
+    // Reset line style cache
+    lineStyleCache.currentStyle = '';
+    lineStyleCache.currentWidth = 0;
+
+    // Check if we should create an aggregated trendline
+    if (pluginOptions?.aggregateMultiple && pluginOptions.aggregateMultiple.length > 0) {
+      // Process each aggregate trendline configuration
+      for (const aggregateConfig of pluginOptions.aggregateMultiple) {
+        const yAxisAggregateKey = aggregateConfig.yAxisKey;
+        const yAxisID = aggregateConfig.yAxisID;
+
+        // Find datasets that match the yAxisKey for this aggregation
+        const datasetsWithTrendline = chart.data.datasets.filter(
+          (ds) => ds.data.length >= 1 && ds.yAxisKey === yAxisAggregateKey
+        );
+
+        if (datasetsWithTrendline.length > 0) {
+          // Get the first trendline options to use as default for aggregated trendline
+          const firstDatasetWithTrendline = datasetsWithTrendline[0];
+
+          // Create fitter based on the aggregate config
+          const fitter = createFitter(aggregateConfig);
+
+          // Collect all data points from all datasets that match this yAxisKey
+          for (const dataset of datasetsWithTrendline) {
+            addDataPointsToFitter(dataset, labels, fitter, yAxisID);
+          }
+
+          // Draw the aggregated trendline if we have valid data points
+          if (fitter.minx !== Infinity && fitter.maxx !== -Infinity) {
+            const defaultColor =
+              (firstDatasetWithTrendline.borderColor as string) ?? 'rgba(0,0,0,0.3)';
+
+            // Calculate coordinates once
+            const coords = calculateTrendlineCoordinates(xScale, yScale, fitter, aggregateConfig);
+
+            drawTrendlinePath(
+              ctx,
+              chartArea,
+              xScale,
+              yScale,
+              fitter,
+              aggregateConfig,
+              defaultColor,
+              coords
+            );
+
+            // Queue label for later drawing if needed
+            if (aggregateConfig.label?.display) {
+              queueTrendlineLabel(
+                ctx,
+                fitter,
+                aggregateConfig,
+                labelSpatialIndex,
+                labelDrawingQueue,
+                coords,
+                undefined, // No label indices for aggregate
+                xScale,
+                yScale
+              );
+            }
+          }
+        }
+      }
+    }
+
+    // Original behavior - draw individual trendlines for each dataset
+    chart.data.datasets.forEach((dataset, datasetIndex) => {
+      const trendlineOptions = dataset.trendline;
+      if (
+        !trendlineOptions ||
+        dataset.data.length < 1 ||
+        dataset.hidden ||
+        !chart.isDatasetVisible(datasetIndex)
+      ) {
+        return;
+      }
+
+      // Convert to array if it's a single object for backward compatibility
+      const trendlineArray = Array.isArray(trendlineOptions)
+        ? trendlineOptions
+        : [trendlineOptions];
+
+      // Process each trendline option
+      trendlineArray.forEach((opts, trendlineIndex) => {
+        if (!opts || !opts.type || !opts.show) return;
+
+        // Create the appropriate fitter
+        const fitter = createFitter(opts);
+
+        // Add all data points to the fitter
+        addDataPointsToFitter(dataset, labels, fitter);
+
+        // Skip if no valid points were added
+        if (fitter.minx === Infinity || fitter.maxx === -Infinity) {
+          return;
+        }
+
+        // For exponential trendlines, ensure we have valid y values
+        if (opts.type === 'exponential_regression') {
+          // Check if we have valid data (positive y values)
+          const hasValidPoints = dataset.data.some((point) => {
+            if (!point) return false;
+            else if (typeof point === 'number') return point > 0;
+            const y = point[(dataset.yAxisID ?? 'y') as 'y'] ?? point;
+            return typeof y === 'number' && y > 0;
+          });
+
+          if (!hasValidPoints) {
+            console.warn('Exponential trendline requires positive y values');
+            return;
+          }
+        }
+
+        const defaultColor = (dataset.borderColor as string) ?? 'rgba(0,0,0,0.3)';
+
+        // Calculate coordinates once
+        const coords = calculateTrendlineCoordinates(xScale, yScale, fitter, opts);
+
+        // Draw only the trendline first (not labels)
+        drawTrendlinePath(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor, coords);
+
+        // Queue label for later drawing if needed
+        if (opts.label?.display) {
+          const labelIndices = { datasetIndex, trendlineIndex };
+          queueTrendlineLabel(
+            ctx,
+            fitter,
+            opts,
+            labelSpatialIndex,
+            labelDrawingQueue,
+            coords,
+            labelIndices,
+            xScale,
+            yScale
+          );
+        }
+      });
+    });
+
+    // After all trendlines are drawn, draw all labels on top - do this in a batch
+    if (labelDrawingQueue.length > 0) {
+      ctx.save();
+      labelDrawingQueue.forEach((item) => {
+        drawLabel(item.ctx, item.text, item.x, item.y, item.opts);
+      });
+      ctx.restore();
+    }
+  }
 };
 
 export default trendlinePlugin;

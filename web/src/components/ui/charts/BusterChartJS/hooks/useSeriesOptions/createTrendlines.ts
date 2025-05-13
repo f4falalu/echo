@@ -1,4 +1,8 @@
-import type { BusterChartProps, ChartEncodes } from '@/api/asset_interfaces';
+import {
+  DEFAULT_TRENDLINE_CONFIG,
+  type BusterChartProps,
+  type ChartEncodes
+} from '@/api/asset_interfaces/metric';
 import {
   AggregateMultiple,
   TrendlineOptions,
@@ -56,8 +60,14 @@ export const createTrendlineOnSeries = ({
           projection,
           lineStyle,
           polynomialOrder,
-          colorMax: trendLineColor === 'inherit' ? datasetColor || '#000000' : trendLineColor,
-          colorMin: trendLineColor === 'inherit' ? datasetColor || '#000000' : trendLineColor,
+          colorMax:
+            trendLineColor === 'inherit'
+              ? datasetColor || DEFAULT_TRENDLINE_CONFIG.trendLineColor
+              : trendLineColor,
+          colorMin:
+            trendLineColor === 'inherit'
+              ? datasetColor || DEFAULT_TRENDLINE_CONFIG.trendLineColor
+              : trendLineColor,
           label: showTrendlineLabel
             ? {
                 positionRatio: trendlineLabelPositionOffset,

@@ -1,11 +1,12 @@
 'use client';
 
-import { forwardRef, useCallback, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { PopoverRoot, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/inputs';
 import { useDebounceFn } from '@/hooks';
 import { cva } from 'class-variance-authority';
+import { cn } from '@/lib/classMerge';
 
 interface ColorPickerProps {
   value: string | null | undefined;
@@ -16,6 +17,10 @@ interface ColorPickerProps {
   size?: 'default' | 'small' | 'tall';
   name?: string;
   className?: string;
+  children?: React.ReactNode;
+  showInput?: boolean;
+  showPicker?: boolean;
+  pickerBackgroundImage?: string;
 }
 
 const colorPickerWrapperVariants = cva('border p-0.5 rounded cursor-pointer shadow', {
@@ -32,71 +37,114 @@ const colorPickerWrapperVariants = cva('border p-0.5 rounded cursor-pointer shad
   }
 });
 
-const ColorPicker = forwardRef<HTMLInputElement, ColorPickerProps>(
-  (
-    {
-      disabled,
-      onChangeComplete,
-      size = 'default',
-      value: valueProp = '#000000',
-      onChange,
-      name,
-      className = '',
-      ...props
+const ColorPicker = ({
+  disabled,
+  onChangeComplete,
+  size = 'default',
+  value: valueProp = '#000000',
+  onChange,
+  name,
+  className = '',
+  children,
+  showInput = true,
+  showPicker = true,
+  pickerBackgroundImage,
+  ...props
+}: ColorPickerProps) => {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(valueProp);
+
+  const parsedValue = useMemo(() => {
+    return value || '#000000';
+  }, [value]);
+
+  const { run: debouncedOnChangeComplete } = useDebounceFn(
+    (value: string) => {
+      onChangeComplete?.(value);
     },
-    forwardedRef
-  ) => {
-    const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(valueProp);
+    { wait: 150 }
+  );
 
-    const parsedValue = useMemo(() => {
-      return value || '#000000';
-    }, [value]);
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setValue(e?.currentTarget?.value);
+      onChange?.(e?.currentTarget?.value);
+      debouncedOnChangeComplete?.(e?.currentTarget?.value);
+    },
+    [onChange, debouncedOnChangeComplete]
+  );
 
-    const { run: debouncedOnChangeComplete } = useDebounceFn(
-      (value: string) => {
-        onChangeComplete?.(value);
-      },
-      { wait: 150 }
-    );
+  const handleHexColorPickerChange = useCallback(
+    (color: string) => {
+      setValue(color);
+      onChange?.(color);
+      debouncedOnChangeComplete?.(color);
+    },
+    [onChange, debouncedOnChangeComplete]
+  );
 
-    const handleInputChange = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(e?.currentTarget?.value);
-        onChange?.(e?.currentTarget?.value);
-        debouncedOnChangeComplete?.(e?.currentTarget?.value);
-      },
-      [onChange, debouncedOnChangeComplete]
-    );
+  useEffect(() => {
+    setValue(valueProp);
+  }, [valueProp]);
 
-    const handleHexColorPickerChange = useCallback(
-      (color: string) => {
-        setValue(color);
-        onChange?.(color);
-        debouncedOnChangeComplete?.(color);
-      },
-      [onChange, debouncedOnChangeComplete]
-    );
-    return (
-      <PopoverRoot onOpenChange={setOpen} open={open}>
-        <PopoverTrigger asChild disabled={disabled}>
-          <div className={colorPickerWrapperVariants({ size, disabled })}>
-            <div className="h-full w-full rounded-sm" style={{ backgroundColor: parsedValue }} />
-          </div>
-        </PopoverTrigger>
-        <PopoverContent className="w-full" align="end" side="bottom">
-          <HexColorPicker color={parsedValue} onChange={handleHexColorPickerChange} />
-          <Input
-            className="mt-2.5"
-            maxLength={7}
-            onChange={handleInputChange}
-            value={parsedValue}
+  return (
+    <PopoverRoot onOpenChange={setOpen} open={open}>
+      <PopoverTrigger asChild disabled={disabled}>
+        <div>
+          <ColorPickerInputBox
+            parsedValue={parsedValue}
+            size={size}
+            disabled={disabled}
+            pickerBackgroundImage={pickerBackgroundImage}
           />
-        </PopoverContent>
-      </PopoverRoot>
-    );
-  }
-);
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="w-full" align="end" side="bottom">
+        <div>
+          {showPicker && (
+            <HexColorPicker color={parsedValue} onChange={handleHexColorPickerChange} />
+          )}
+          {showInput && (
+            <Input
+              className="mt-2.5"
+              maxLength={7}
+              onChange={handleInputChange}
+              value={parsedValue}
+            />
+          )}
+          {children && <div className={cn((showInput || showPicker) && 'mt-2.5')}>{children}</div>}
+        </div>
+      </PopoverContent>
+    </PopoverRoot>
+  );
+};
 ColorPicker.displayName = 'ColorPicker';
+
+const ColorPickerInputBox = ({
+  parsedValue,
+  size,
+  disabled,
+  pickerBackgroundImage
+}: {
+  parsedValue: string;
+  size: 'default' | 'small' | 'tall';
+  disabled: boolean | undefined;
+  pickerBackgroundImage: string | undefined;
+}) => {
+  const backgroundStyle =
+    parsedValue === 'inherit' || pickerBackgroundImage
+      ? {
+          backgroundImage:
+            pickerBackgroundImage ||
+            'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)'
+        }
+      : { backgroundColor: parsedValue };
+
+  return (
+    <div className={colorPickerWrapperVariants({ size, disabled })}>
+      <div className="h-full w-full rounded-sm" style={backgroundStyle} />
+    </div>
+  );
+};
 
 export { ColorPicker };

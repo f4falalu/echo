@@ -5,6 +5,8 @@ import { LabelAndInput } from '../../Common';
 import { LoopTrendline } from './EditTrendline';
 import { trendlineOptions } from './config';
 import { useMemoizedFn } from '@/hooks';
+import { TrendlineOffset } from './TrendlineOffset';
+import { TrendlineLabelPositionOffset } from './TrendlineLabelPositionOffset';
 
 export const TrendlineLabel = React.memo(
   ({
@@ -41,14 +43,26 @@ export const TrendlineLabel = React.memo(
         </LabelAndInput>
 
         {showTrendlineLabel && (
-          <LabelAndInput label="Label">
-            <Input
-              value={trendlineLabel || ''}
-              className="w-full"
-              placeholder={trendlineLabelPlaceholder as string}
-              onChange={onChangeInput}
+          <>
+            <LabelAndInput label="Label">
+              <Input
+                value={trendlineLabel || ''}
+                className="w-full"
+                placeholder={trendlineLabelPlaceholder as string}
+                onChange={onChangeInput}
+              />
+            </LabelAndInput>
+
+            <TrendlineOffset
+              trend={trend}
+              onUpdateExisitingTrendline={onUpdateExisitingTrendline}
             />
-          </LabelAndInput>
+
+            <TrendlineLabelPositionOffset
+              trend={trend}
+              onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+            />
+          </>
         )}
       </>
     );
