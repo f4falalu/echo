@@ -64,7 +64,7 @@ test.describe.serial('Pie chart styling updates', async () => {
     await page.getByTestId('edit-chart-button').getByRole('button').click();
     await page.waitForTimeout(255);
     await page.getByTestId('edit-chart-button').getByRole('button').click();
-    await page.waitForTimeout(55);
+    await page.waitForTimeout(255);
     await page.getByTestId('segmented-trigger-results').click();
     await page.waitForTimeout(555);
     await page.waitForLoadState('networkidle');
@@ -75,7 +75,11 @@ test.describe.serial('Pie chart styling updates', async () => {
     await expect(page.getByRole('textbox', { name: 'New chart' })).toHaveValue(
       'Top 10 Products by Revenue (Last 4 Quarters)'
     );
+    await page.waitForTimeout(555);
     await page.getByTestId('edit-chart-button').getByRole('button').click();
+    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('load');
     await expect(page.getByText('Edit chart')).toBeVisible();
     await page
       .locator('div')
