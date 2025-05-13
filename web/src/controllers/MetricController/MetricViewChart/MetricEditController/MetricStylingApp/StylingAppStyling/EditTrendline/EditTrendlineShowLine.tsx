@@ -7,15 +7,15 @@ import { useMemoizedFn } from '@/hooks';
 export const EditTrendlineShowLine = React.memo(
   ({
     trend,
-    onUpdateExisitingTrendline
+    onUpdateExistingTrendline
   }: {
     trend: LoopTrendline;
-    onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+    onUpdateExistingTrendline: (trend: LoopTrendline) => void;
   }) => {
     const { show } = trend;
 
     const onChange = useMemoizedFn((checked: boolean) => {
-      onUpdateExisitingTrendline({ ...trend, show: checked });
+      onUpdateExistingTrendline({ ...trend, show: checked });
     });
 
     return (

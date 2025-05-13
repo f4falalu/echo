@@ -37,7 +37,7 @@ export const BusterChartJSTooltip: React.FC<{
   const isPie = selectedChartType === ChartType.Pie;
   const isComboChart = selectedChartType === ChartType.Combo;
   const datasets = chart.data.datasets;
-  const dataPoints = dataPointsProp.filter((item) => !item.dataset.isTrendline);
+  const dataPoints = dataPointsProp;
 
   const percentageMode: undefined | 'stacked' = useMemo(() => {
     if (isBar) {
@@ -51,8 +51,7 @@ export const BusterChartJSTooltip: React.FC<{
 
   const tooltipItems: ITooltipItem[] = useMemo(() => {
     if (isBar || isLine || isComboChart) {
-      const hasMultipleShownDatasets =
-        datasets.filter((dataset) => !dataset.hidden && !dataset.isTrendline).length > 1;
+      const hasMultipleShownDatasets = datasets.filter((dataset) => !dataset.hidden).length > 1;
 
       return barAndLineTooltipHelper(
         dataPoints,

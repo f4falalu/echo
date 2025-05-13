@@ -453,6 +453,56 @@ for (unique_id, node) in &dbt_catalog.nodes {
 
         match existing_yaml_model_opt {
             Some(mut existing_model) => {
+                // --- Reconciliation Logic for Existing Model ---
+                let mut model_updated = false;
+                let original_dim_count = existing_model.dimensions.len();
+                let original_measure_count = existing_model.measures.len();
+
+                // Get the set of column names from the dbt catalog for this model
+                let catalog_column_names: HashSet<String> = catalog_node.columns
+                    .keys()
+                    .cloned()
+                    .collect();
+
+                // Remove dimensions that are no longer in the catalog
+                existing_model.dimensions.retain(|dim| {
+                    let keep = catalog_column_names.contains(&dim.name);
+                    if !keep {
+                        columns_removed_count += 1;
+                        model_updated = true;
+                        println!("    - Removing dimension '{}' (not in catalog)", dim.name.yellow());
+                    }
+                    keep
+                });
+
+                // Remove measures that are no longer in the catalog
+                existing_model.measures.retain(|measure| {
+                    let keep = catalog_column_names.contains(&measure.name);
+                    if !keep {
+                        columns_removed_count += 1;
+                        model_updated = true;
+                        println!("    - Removing measure '{}' (not in catalog)", measure.name.yellow());
+                    }
+                    keep
+                });
+
+                // Note: We do NOT remove metrics, filters, or relationships automatically
+                // as they might represent derived logic or explicitly defined connections
+                // not directly tied 1:1 with current physical columns.
+
+                // TODO: Add logic here to ADD new columns from the catalog as dimensions/measures
+                // if they don't already exist in the existing_model.
+
+                if model_updated {
+                    let yaml_string = serde_yaml::to_string(&existing_model)?;
+                    fs::write(&individual_semantic_yaml_path, yaml_string)?;
+                    models_updated_count += 1;
+                    println!("   {} Updated existing semantic model: {}", "🔄".cyan(), individual_semantic_yaml_path.display().to_string().cyan());
+                } else {
+                    // If no columns were removed, maybe check if columns need *adding* later?
+                    // For now, just indicate no changes needed based on removal.
+                    // println!("   {} No column removals needed for: {}", "✅".dimmed(), individual_semantic_yaml_path.display().to_string().dimmed());
+                }
             }
             None => { // New semantic model
                 let mut dimensions = Vec::new();

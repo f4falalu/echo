@@ -17,17 +17,12 @@ export const getMyUserInfo_server = async ({
   jwtToken
 }: {
   jwtToken: string | undefined;
-}): Promise<BusterUserResponse | undefined> => {
+}): Promise<BusterUserResponse | null> => {
   if (!jwtToken) {
-    try {
-      //If Anonymous user, it will fail, so we catch the error and return undefined
-      const res = await serverFetch<BusterUserResponse>(`/users`, {
-        method: 'GET'
-      });
-      return res;
-    } catch (error) {
-      return undefined;
-    }
+    //If Anonymous user, it will fail, so we catch the error and return undefined
+    return await serverFetch<BusterUserResponse>(`/users`, {
+      method: 'GET'
+    });
   }
 
   //use fetch instead of serverFetch because...
@@ -37,16 +32,17 @@ export const getMyUserInfo_server = async ({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${jwtToken}`
     }
-  })
-    .then((response) => {
-      if (!response.ok) {
-        return undefined;
-      }
-      return response.json();
-    })
-    .catch((error) => {
-      return undefined;
-    });
+  }).then(async (response) => {
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw {
+        status: response.status,
+        statusText: response.statusText,
+        ...errorData
+      };
+    }
+    return response.json();
+  });
 };
 
 export const getUser = async ({ userId }: { userId: string }) => {

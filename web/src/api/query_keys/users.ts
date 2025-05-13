@@ -19,7 +19,7 @@ const favoritesGetList = queryOptions<BusterUserFavorite[]>({
   initialDataUpdatedAt: 0
 });
 
-const userGetUserMyself = queryOptions<BusterUserResponse>({
+const userGetUserMyself = queryOptions<BusterUserResponse | null>({
   queryKey: ['myself'] as const,
   staleTime: 1000 * 60 * 60 // 1 hour
 });

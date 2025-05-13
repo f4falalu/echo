@@ -1,5 +1,5 @@
 import type { BusterChartProps } from '@/api/asset_interfaces/metric';
-import type { DatasetOption, DatasetOptionsWithTicks } from '../interfaces';
+import type { DatasetOptionsWithTicks } from '../interfaces';
 import { isDateColumnType } from '@/lib/messages';
 import { createDayjsDate } from '@/lib/date';
 

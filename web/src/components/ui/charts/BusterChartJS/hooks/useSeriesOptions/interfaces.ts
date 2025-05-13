@@ -18,6 +18,5 @@ export interface SeriesBuilderProps {
   barGroupType: BusterChartProps['barGroupType'];
   yAxisKeys: string[];
   y2AxisKeys: string[];
-  // selectedChartType: BusterChartProps['selectedChartType'];
-  // categoryKeys: ScatterAxis['category'];
+  trendlines: BusterChartProps['trendlines'];
 }

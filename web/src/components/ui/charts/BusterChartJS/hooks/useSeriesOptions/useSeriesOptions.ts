@@ -32,12 +32,11 @@ export interface UseSeriesOptionsProps {
   columnMetadata: ColumnMetaData[];
   lineGroupType: BusterChartProps['lineGroupType'];
   barGroupType: BusterChartProps['barGroupType'];
-  trendlineSeries: ChartProps<'line'>['data']['datasets'][number][];
+  trendlines: BusterChartProps['trendlines'];
   barShowTotalAtTop: BusterChartProps['barShowTotalAtTop'];
 }
 
 export const useSeriesOptions = ({
-  trendlineSeries,
   columnMetadata,
   selectedChartType,
   colors,
@@ -51,7 +50,8 @@ export const useSeriesOptions = ({
   scatterDotSize,
   lineGroupType,
   barShowTotalAtTop,
-  barGroupType
+  barGroupType,
+  trendlines
 }: UseSeriesOptionsProps): ChartProps<ChartJSChartType>['data'] => {
   const labels: (string | Date | number)[] | undefined = useMemo(() => {
     return labelsBuilderRecord[selectedChartType]({
@@ -59,8 +59,7 @@ export const useSeriesOptions = ({
       columnLabelFormats,
       xAxisKeys,
       sizeKey,
-      columnSettings,
-      trendlineSeries
+      columnSettings
     });
   }, [datasetOptions, columnSettings, columnLabelFormats, xAxisKeys, sizeKey]);
 
@@ -84,7 +83,7 @@ export const useSeriesOptions = ({
     };
   }, [sizeKey]);
 
-  const datasetSeries: ChartProps<ChartJSChartType>['data']['datasets'] = useMemo(() => {
+  const datasets: ChartProps<ChartJSChartType>['data']['datasets'] = useMemo(() => {
     return dataBuilderRecord[selectedChartType]({
       datasetOptions,
       columnSettings,
@@ -97,9 +96,11 @@ export const useSeriesOptions = ({
       barGroupType,
       barShowTotalAtTop,
       yAxisKeys,
-      y2AxisKeys
+      y2AxisKeys,
+      trendlines
     });
   }, [
+    trendlines,
     datasetOptions,
     columnSettings,
     colors,
@@ -114,10 +115,6 @@ export const useSeriesOptions = ({
     y2AxisKeys
   ]);
 
-  const datasets: ChartProps<ChartJSChartType>['data']['datasets'] = useMemo(() => {
-    return [...datasetSeries, ...trendlineSeries];
-  }, [datasetSeries, trendlineSeries]);
-
   return {
     labels,
     datasets
@@ -130,7 +127,7 @@ export type LabelBuilderProps = {
   xAxisKeys: ChartEncodes['x'];
   sizeKey: ScatterAxis['size'];
   columnSettings: NonNullable<BusterChartProps['columnSettings']>;
-  trendlineSeries: ChartProps<'line'>['data']['datasets'][number][];
+  trendlineSeries?: Array<{ yAxisKey: string }>;
 };
 
 const labelsBuilderRecord: Record<

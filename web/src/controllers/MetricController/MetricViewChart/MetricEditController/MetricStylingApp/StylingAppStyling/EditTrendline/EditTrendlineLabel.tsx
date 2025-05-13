@@ -5,15 +5,17 @@ import { LabelAndInput } from '../../Common';
 import { LoopTrendline } from './EditTrendline';
 import { trendlineOptions } from './config';
 import { useMemoizedFn } from '@/hooks';
+import { TrendlineOffset } from './TrendlineOffset';
+import { TrendlineLabelPositionOffset } from './TrendlineLabelPositionOffset';
 
 export const TrendlineLabel = React.memo(
   ({
     trend,
 
-    onUpdateExisitingTrendline
+    onUpdateExistingTrendline
   }: {
     trend: LoopTrendline;
-    onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+    onUpdateExistingTrendline: (trend: LoopTrendline) => void;
   }) => {
     const { showTrendlineLabel, trendlineLabel, type } = trend;
 
@@ -25,11 +27,11 @@ export const TrendlineLabel = React.memo(
     }, [type]);
 
     const onChangeSwitch = useMemoizedFn((checked: boolean) => {
-      onUpdateExisitingTrendline({ ...trend, showTrendlineLabel: checked });
+      onUpdateExistingTrendline({ ...trend, showTrendlineLabel: checked });
     });
 
     const onChangeInput = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
-      onUpdateExisitingTrendline({ ...trend, trendlineLabel: e.target.value || null });
+      onUpdateExistingTrendline({ ...trend, trendlineLabel: e.target.value || null });
     });
 
     return (
@@ -41,14 +43,23 @@ export const TrendlineLabel = React.memo(
         </LabelAndInput>
 
         {showTrendlineLabel && (
-          <LabelAndInput label="Label">
-            <Input
-              value={trendlineLabel || ''}
-              className="w-full"
-              placeholder={trendlineLabelPlaceholder as string}
-              onChange={onChangeInput}
+          <>
+            <LabelAndInput label="Label">
+              <Input
+                value={trendlineLabel || ''}
+                className="w-full"
+                placeholder={trendlineLabelPlaceholder as string}
+                onChange={onChangeInput}
+              />
+            </LabelAndInput>
+
+            <TrendlineOffset trend={trend} onUpdateExistingTrendline={onUpdateExistingTrendline} />
+
+            <TrendlineLabelPositionOffset
+              trend={trend}
+              onUpdateExistingTrendline={onUpdateExistingTrendline}
             />
-          </LabelAndInput>
+          </>
         )}
       </>
     );

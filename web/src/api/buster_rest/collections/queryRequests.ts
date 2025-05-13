@@ -25,7 +25,7 @@ import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsPro
 import { create } from 'mutative';
 import type { BusterCollection } from '@/api/asset_interfaces/collection';
 import { RustApiError } from '../errors';
-import { isQueryStale } from '@/lib';
+import { hasOrganizationId, isQueryStale } from '@/lib';
 
 export const useGetCollectionsList = (
   filters: Omit<Parameters<typeof collectionsGetList>[0], 'page_token' | 'page_size'>,
@@ -51,7 +51,7 @@ export const prefetchGetCollectionsList = async (
 ) => {
   const options = collectionQueryKeys.collectionsGetList(params);
   const isStale = isQueryStale(options, queryClient);
-  if (!isStale) return queryClient;
+  if (!isStale || !hasOrganizationId(queryClient)) return queryClient;
 
   const lastQueryKey = options.queryKey[options.queryKey.length - 1];
   const compiledParams = lastQueryKey as Parameters<typeof collectionsGetList>[0];

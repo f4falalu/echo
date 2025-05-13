@@ -2231,3 +2231,39 @@ async fn test_bigquery_count_with_interval() {
     assert!(table.columns.contains("message_id"), "Missing 'message_id' column");
     assert!(table.columns.contains("created_at"), "Missing 'created_at' column");
 }
+
+#[tokio::test]
+async fn test_postgres_cte_with_date_trunc() {
+    let sql = r#"
+    WITH recent_data AS (
+        SELECT
+          tsr.year AS sales_year,
+          tsr.month AS sales_month,
+          tsr.metric_totalsalesrevenue AS total_revenue
+        FROM postgres.ont_ont.total_sales_revenue tsr
+        WHERE cast(concat(tsr.year, '-', tsr.month, '-01') AS date)
+          >= date_trunc('month', CURRENT_DATE) - INTERVAL '5 months'
+      )
+      SELECT
+        DATE_TRUNC('month', cast(concat(sales_year, '-', sales_month, '-01') AS date)) AS month_start,
+        COALESCE(total_revenue, 0) AS total_revenue
+      FROM recent_data
+      ORDER BY month_start ASC;
+    "#;
+
+    let result = analyze_query(sql.to_string(), "postgres").await.unwrap();
+
+    // Check CTE detection
+    assert_eq!(result.ctes.len(), 1, "Should detect one CTE");
+    let cte = &result.ctes[0];
+    assert_eq!(cte.name, "recent_data", "CTE should be named 'recent_data'");
+
+    // Check base table detection
+    assert_eq!(result.tables.iter().filter(|t| t.kind == TableKind::Base).count(), 1, "Should detect one base table");
+    let table = result.tables.iter()
+        .find(|t| t.kind == TableKind::Base && t.table_identifier == "total_sales_revenue")
+        .expect("Base table 'total_sales_revenue' not found in result.tables");
+
+    assert_eq!(table.database_identifier, Some("postgres".to_string()));
+}
+
