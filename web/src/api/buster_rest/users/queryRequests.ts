@@ -123,14 +123,12 @@ export const useCreateUserOrganization = () => {
   const onCreateUserOrganization = useMemoizedFn(
     async ({ name, company }: { name: string; company: string }) => {
       const alreadyHasOrganization = !!userResponse?.organizations?.[0];
-
-      if (!alreadyHasOrganization) await createOrganization({ name: company });
       if (userResponse)
         await updateUserInfo({
           userId: userResponse.user.id,
           name
         });
-
+      if (!alreadyHasOrganization) await createOrganization({ name: company });
       await refetchUserResponse();
     }
   );
