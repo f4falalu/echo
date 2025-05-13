@@ -10,7 +10,7 @@ export interface GoalLine {
 export interface Trendline {
   show: boolean; //OPTIONAL: default is true. this should only be used if the user explicitly requests a trendline
   showTrendlineLabel: boolean; //OPTIONAL: default is true
-  trendlineLabel: string | null; //OPTIONAL: if showTrendlineLabel is true, this will be the label. default is "Slope".
+  trendlineLabel: string | null; //OPTIONAL: if showTrendlineLabel is true, this will be the label
   type:
     | 'average'
     | 'linear_regression'
@@ -20,7 +20,7 @@ export interface Trendline {
     | 'min'
     | 'max'
     | 'median'; //default is linear trend
-  trendLineColor?: string | null | 'inherit'; //OPTIONAL: default is #000000
+  trendLineColor?: string | null | 'inherit'; //OPTIONAL: default is #000000, inherit will inherit the color from the line/bar
   columnId: string;
   trendlineLabelPositionOffset?: number; //OPTIONAL: default is 0.85. Goes from 0 to 1.
   projection?: boolean; //OPTIONAL: default is false. if true, the trendline will be projected to the end of the chart.

@@ -121,11 +121,8 @@ export const DEFAULT_COLUMN_LABEL_FORMAT: Required<ColumnLabelFormat> = {
 };
 
 export const ENABLED_DOTS_ON_LINE = 3.5;
-
 export const DEFAULT_CHART_CONFIG_ENTRIES = Object.entries(DEFAULT_CHART_CONFIG);
-
 export const DEFAULT_BAR_ROUNDNESS = DEFAULT_COLUMN_SETTINGS.barRoundness;
-
 export const MIN_DONUT_WIDTH = 15;
 
 export const DEFAULT_DAY_OF_WEEK_FORMAT = 'ddd';
@@ -134,7 +131,6 @@ export const DEFAULT_DATE_FORMAT_MONTH_OF_YEAR = 'MMMM';
 export const DEFAULT_DATE_FORMAT_QUARTER = 'YYYY [Q]Q';
 
 export const ENABLED_DOTS_ON_LINE_SIZE = 4;
-
 export const DEFAULT_COLUMN_METADATA: ColumnMetaData[] = [];
 
 export const DEFAULT_IBUSTER_METRIC: Required<IBusterMetric> = {
@@ -170,4 +166,20 @@ export const DEFAULT_IBUSTER_METRIC: Required<IBusterMetric> = {
   publicly_accessible: false,
   public_password: null,
   versions: []
+};
+
+export const DEFAULT_TRENDLINE_CONFIG: Required<IBusterMetricChartConfig['trendlines'][number]> = {
+  id: 'DEFAULT_ID',
+  columnId: '',
+  show: true,
+  showTrendlineLabel: false,
+  trendlineLabel: null,
+  type: 'linear_regression',
+  trendLineColor: '#FF0000',
+  trendlineLabelPositionOffset: 0,
+  projection: false,
+  lineStyle: 'solid',
+  polynomialOrder: 2,
+  aggregateAllCategories: true,
+  offset: 0
 };

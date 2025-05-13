@@ -1,4 +1,4 @@
-import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import { DEFAULT_TRENDLINE_CONFIG, IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useEffect, useMemo, useState } from 'react';
 import type { ChartEncodes, ScatterAxis, Trendline } from '@/api/asset_interfaces/metric/charts';
 import { v4 as uuidv4 } from 'uuid';
@@ -85,19 +85,10 @@ export const EditTrendline: React.FC<{
       const type = hasLinearRegression ? getNewType() : ('linear_regression' as const);
 
       const newTrendline: Required<LoopTrendline> = {
+        ...DEFAULT_TRENDLINE_CONFIG,
         id: uuidv4(),
-        show: true,
-        showTrendlineLabel: false,
-        trendlineLabel: null,
         type,
-        trendLineColor: '#FF0000',
-        columnId: selectedAxis.y[0] || '',
-        trendlineLabelPositionOffset: 0,
-        projection: false,
-        lineStyle: 'solid',
-        polynomialOrder: 2,
-        aggregateAllCategories: true,
-        offset: 0
+        columnId: selectedAxis.y[0] || ''
       };
 
       addNewTrendId(newTrendline.id);
@@ -283,48 +274,52 @@ const TrendlineItemContent: React.FC<{
             onUpdateExisitingTrendline={onUpdateExisitingTrendline}
           />
 
-          <TrendlineColumnId
-            trend={trend}
-            columnMetadata={columnMetadata}
-            columnLabelFormats={columnLabelFormats}
-            yAxisEncodes={yAxisEncodes}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-          />
+          {show && (
+            <>
+              <TrendlineColumnId
+                trend={trend}
+                columnMetadata={columnMetadata}
+                columnLabelFormats={columnLabelFormats}
+                yAxisEncodes={yAxisEncodes}
+                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+              />
 
-          <EditTrendlineOption
-            trend={trend}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-            yAxisEncodes={yAxisEncodes}
-            xAxisEncodes={xAxisEncodes}
-            columnLabelFormats={columnLabelFormats}
-            selectedChartType={selectedChartType}
-          />
+              <EditTrendlineOption
+                trend={trend}
+                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+                yAxisEncodes={yAxisEncodes}
+                xAxisEncodes={xAxisEncodes}
+                columnLabelFormats={columnLabelFormats}
+                selectedChartType={selectedChartType}
+              />
 
-          <TrendlineLineStyle
-            trend={trend}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-          />
+              <TrendlineLineStyle
+                trend={trend}
+                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+              />
 
-          <TrendlinePolynomialOrder
+              {/* <TrendlinePolynomialOrder
             trend={trend}
             onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-          />
+          /> */}
 
-          <TrendlineProjection
+              {/* <TrendlineProjection
             trend={trend}
             onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-          />
+          /> */}
 
-          <TrendlineAggregateAllCategories
-            trend={trend}
-            categoryEncodes={categoryEncodes}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-          />
+              <TrendlineAggregateAllCategories
+                trend={trend}
+                categoryEncodes={categoryEncodes}
+                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+              />
 
-          <TrendlineColorPicker
-            trend={trend}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-          />
+              <TrendlineColorPicker
+                trend={trend}
+                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+              />
+            </>
+          )}
         </div>
 
         {show && (

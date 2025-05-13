@@ -2,6 +2,7 @@ import React from 'react';
 import { LabelAndInput } from '../../Common';
 import { LoopTrendline } from './EditTrendline';
 import { useMemoizedFn } from '@/hooks';
+import { Slider } from '@/components/ui/slider';
 
 interface TrendlineOffsetProps {
   trend: LoopTrendline;
@@ -24,11 +25,12 @@ export const TrendlineOffset: React.FC<TrendlineOffsetProps> = React.memo(
     return (
       <LabelAndInput label="Label offset">
         <div className="flex w-full justify-end">
-          <input
-            type="number"
-            className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-            value={trend.offset ?? 0}
-            onChange={handleChange}
+          <Slider
+            value={[trend.offset ?? 0]}
+            min={-75}
+            max={75}
+            step={1}
+            onValueChange={(value) => onUpdateExisitingTrendline({ ...trend, offset: value[0] })}
           />
         </div>
       </LabelAndInput>
