@@ -12,6 +12,9 @@ interface TrendlineOffsetProps {
 export const TrendlineOffset: React.FC<TrendlineOffsetProps> = React.memo(
   ({ trend, onUpdateExisitingTrendline }) => {
     const [value, setValue] = useState(trend.offset ?? 0);
+    useEffect(() => {
+      setValue(trend.offset ?? 0);
+    }, [trend.offset]);
 
     const onChange = useMemoizedFn((value: number[]) => {
       onUpdateExisitingTrendline({ ...trend, offset: value[0] });
