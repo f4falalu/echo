@@ -253,7 +253,7 @@ export const ScatterWithTrendline_NumericalXAxisPolynomialRegression: Story = {
     trendlines: [
       {
         type: 'polynomial_regression',
-        show: false,
+        show: true,
         showTrendlineLabel: false,
         trendlineLabel: 'HUH?',
         trendLineColor: 'brown',
@@ -264,7 +264,7 @@ export const ScatterWithTrendline_NumericalXAxisPolynomialRegression: Story = {
       },
       {
         type: 'max',
-        show: true,
+        show: false,
         showTrendlineLabel: true,
         trendlineLabel: 'correct!',
         trendLineColor: 'inherit',
@@ -273,7 +273,7 @@ export const ScatterWithTrendline_NumericalXAxisPolynomialRegression: Story = {
       },
       {
         type: 'max',
-        show: false,
+        show: true,
         showTrendlineLabel: true,
         trendlineLabel: null,
         trendLineColor: 'inherit',

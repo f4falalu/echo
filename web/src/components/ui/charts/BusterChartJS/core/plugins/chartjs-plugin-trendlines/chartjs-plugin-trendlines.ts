@@ -91,6 +91,17 @@ declare module 'chart.js' {
   }
 }
 
+/** Type for trendline coordinate points */
+interface TrendlineCoordinates {
+  minX: number;
+  maxX: number;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  slope: number;
+}
+
 /** Minimal interface to fit points and predict y for any x */
 abstract class BaseFitter {
   public minx = Infinity;
@@ -99,16 +110,50 @@ abstract class BaseFitter {
   public minY = Infinity;
   public averageY = 0;
   public medianY = 0;
+  protected computed = false;
+  protected cache: Map<number, number> = new Map();
 
   add(x: number, y: number) {
     this.addPoint(x, y);
-
+    this.computed = false;
     this.minx = Math.min(this.minx, x);
     this.maxx = Math.max(this.maxx, x);
+    this.minY = Math.min(this.minY, y);
+    this.maxY = Math.max(this.maxY, y);
   }
 
   protected abstract addPoint(x: number, y: number): void;
-  abstract f(x: number): number;
+
+  f(x: number): number {
+    // Check if value is in cache
+    const cachedValue = this.cache.get(x);
+    if (cachedValue !== undefined) {
+      return cachedValue;
+    }
+
+    if (!this.computed) {
+      this.computeStatistics();
+    }
+
+    // Calculate value and store in cache
+    const value = this.calculateValue(x);
+    this.cache.set(x, value);
+    return value;
+  }
+
+  // To be implemented by derived classes
+  protected abstract calculateValue(x: number): number;
+
+  // Pre-compute any statistics needed (to be called once after all points are added)
+  public computeStatistics(): void {
+    this.computed = true;
+  }
+
+  // Clear cache when data changes
+  clearCache(): void {
+    this.cache.clear();
+    this.computed = false;
+  }
 }
 
 /** 1st-order least squares */
@@ -118,6 +163,8 @@ class LinearFitter extends BaseFitter {
   private sumx2 = 0;
   private sumxy = 0;
   private count = 0;
+  private _slope: number | null = null;
+  private _intercept: number | null = null;
 
   protected addPoint(x: number, y: number) {
     this.sumx += x;
@@ -125,18 +172,32 @@ class LinearFitter extends BaseFitter {
     this.sumx2 += x * x;
     this.sumxy += x * y;
     this.count++;
+    this._slope = null;
+    this._intercept = null;
+  }
+
+  public computeStatistics(): void {
+    super.computeStatistics();
+    this.slope();
+    this.intercept();
   }
 
   private slope(): number {
-    const denom = this.count * this.sumx2 - this.sumx * this.sumx;
-    return (this.count * this.sumxy - this.sumx * this.sumy) / denom;
+    if (this._slope === null) {
+      const denom = this.count * this.sumx2 - this.sumx * this.sumx;
+      this._slope = (this.count * this.sumxy - this.sumx * this.sumy) / denom;
+    }
+    return this._slope;
   }
 
   private intercept(): number {
-    return (this.sumy - this.slope() * this.sumx) / this.count;
+    if (this._intercept === null) {
+      this._intercept = (this.sumy - this.slope() * this.sumx) / this.count;
+    }
+    return this._intercept;
   }
 
-  f(x: number): number {
+  protected calculateValue(x: number): number {
     return this.slope() * x + this.intercept();
   }
 }
@@ -152,7 +213,12 @@ class LogarithmicFitter extends BaseFitter {
     }
   }
 
-  f(x: number): number {
+  public computeStatistics(): void {
+    super.computeStatistics();
+    this.lin.computeStatistics();
+  }
+
+  protected calculateValue(x: number): number {
     if (x <= 0) return NaN;
     return this.lin.f(Math.log(x));
   }
@@ -174,19 +240,40 @@ class PolynomialFitter extends BaseFitter {
     this.coeffs = null; // invalidate previous fit
   }
 
+  public computeStatistics(): void {
+    super.computeStatistics();
+    if (!this.coeffs) this.fit();
+  }
+
   /** Build and solve the normal equations A·a = b */
   private fit(): void {
     const m = this.order;
-    const n = this.xs.length;
+
+    // Pre-compute powers of x for performance
+    const xPowers: number[][] = [];
+    for (const x of this.xs) {
+      const powers = [1]; // x^0 = 1
+      for (let p = 1; p <= 2 * m; p++) {
+        powers.push(powers[p - 1] * x);
+      }
+      xPowers.push(powers);
+    }
+
     // build matrix A (size (m+1)x(m+1)) of ∑ x^(i+j)
     const A: number[][] = Array.from({ length: m + 1 }, () => Array(m + 1).fill(0));
     const b: number[] = Array(m + 1).fill(0);
 
+    // Fill the matrix more efficiently using the pre-computed powers
     for (let i = 0; i <= m; i++) {
       for (let j = 0; j <= m; j++) {
-        A[i][j] = this.xs.reduce((s, x) => s + Math.pow(x, i + j), 0);
+        for (let k = 0; k < this.xs.length; k++) {
+          A[i][j] += xPowers[k][i + j];
+        }
       }
-      b[i] = this.ys.reduce((s, y, idx) => s + y * Math.pow(this.xs[idx], i), 0);
+
+      for (let k = 0; k < this.xs.length; k++) {
+        b[i] += this.ys[k] * xPowers[k][i];
+      }
     }
 
     // Gaussian elimination (in-place)
@@ -217,9 +304,15 @@ class PolynomialFitter extends BaseFitter {
     this.coeffs = a;
   }
 
-  f(x: number): number {
+  protected calculateValue(x: number): number {
     if (!this.coeffs) this.fit();
-    return this.coeffs!.reduce((sum, c, idx) => sum + c * Math.pow(x, idx), 0);
+
+    // Use Horner's method for polynomial evaluation (more efficient)
+    let result = this.coeffs![this.coeffs!.length - 1];
+    for (let i = this.coeffs!.length - 2; i >= 0; i--) {
+      result = result * x + this.coeffs![i];
+    }
+    return result;
   }
 }
 
@@ -234,7 +327,12 @@ class ExponentialFitter extends BaseFitter {
     }
   }
 
-  f(x: number): number {
+  public computeStatistics(): void {
+    super.computeStatistics();
+    this.lin.computeStatistics();
+  }
+
+  protected calculateValue(x: number): number {
     return Math.exp(this.lin.f(x));
   }
 }
@@ -249,8 +347,12 @@ class AverageFitter extends BaseFitter {
     this.count++;
   }
 
-  f(x: number): number {
+  public computeStatistics(): void {
+    super.computeStatistics();
     this.averageY = this.count > 0 ? this.sum / this.count : 0;
+  }
+
+  protected calculateValue(x: number): number {
     return this.averageY;
   }
 }
@@ -261,7 +363,7 @@ class MaxFitter extends BaseFitter {
     this.maxY = Math.max(this.maxY, y);
   }
 
-  f(x: number): number {
+  protected calculateValue(x: number): number {
     return this.maxY;
   }
 }
@@ -272,7 +374,7 @@ class MinFitter extends BaseFitter {
     this.minY = Math.min(this.minY, y);
   }
 
-  f(x: number): number {
+  protected calculateValue(x: number): number {
     return this.minY;
   }
 }
@@ -280,30 +382,87 @@ class MinFitter extends BaseFitter {
 /** Statistical fitter that returns the median y value */
 class MedianFitter extends BaseFitter {
   private values: number[] = [];
+  private sortedValues: number[] | null = null;
 
   protected addPoint(x: number, y: number) {
     this.values.push(y);
+    this.sortedValues = null;
   }
 
-  f(x: number): number {
-    if (this.values.length === 0) return 0;
-
-    // Sort values for median calculation
-    const sorted = [...this.values].sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-
-    // If even number of elements, average the middle two
-    if (sorted.length % 2 === 0) {
-      const value = (sorted[mid - 1] + sorted[mid]) / 2;
-      this.medianY = value;
-      return value;
+  public computeStatistics(): void {
+    super.computeStatistics();
+    if (this.values.length === 0) {
+      this.medianY = 0;
+      return;
     }
-    // If odd, return the middle element
-    const value = sorted[mid];
-    this.medianY = value;
-    return value;
+
+    // Sort values for median calculation (only once)
+    this.sortedValues = [...this.values].sort((a, b) => a - b);
+    const mid = Math.floor(this.sortedValues.length / 2);
+
+    // Calculate median
+    if (this.sortedValues.length % 2 === 0) {
+      this.medianY = (this.sortedValues[mid - 1] + this.sortedValues[mid]) / 2;
+    } else {
+      this.medianY = this.sortedValues[mid];
+    }
+  }
+
+  protected calculateValue(x: number): number {
+    return this.medianY;
   }
 }
+
+// Cache for processed padding to avoid recalculating for each label
+const paddingCache = new Map<
+  string,
+  { top: number; right: number; bottom: number; left: number }
+>();
+
+// Process padding options with caching
+const processPadding = (
+  labelPadding:
+    | number
+    | { top?: number; bottom?: number; left?: number; right?: number }
+    | undefined
+): { top: number; right: number; bottom: number; left: number } => {
+  // Create a cache key based on the input
+  const cacheKey =
+    labelPadding === undefined
+      ? 'undefined'
+      : typeof labelPadding === 'number'
+        ? `num:${labelPadding}`
+        : `obj:${labelPadding.top ?? ''}:${labelPadding.right ?? ''}:${labelPadding.bottom ?? ''}:${labelPadding.left ?? ''}`;
+
+  // Check if we have a cached result
+  const cached = paddingCache.get(cacheKey);
+  if (cached) return cached;
+
+  const defaultPadding = defaultLabelOptionConfig.padding;
+  let result;
+
+  if (typeof labelPadding === 'number') {
+    result = { top: labelPadding, right: labelPadding, bottom: labelPadding, left: labelPadding };
+  } else if (labelPadding) {
+    result = {
+      top: labelPadding.top ?? defaultPadding.top,
+      right: labelPadding.right ?? defaultPadding.right,
+      bottom: labelPadding.bottom ?? defaultPadding.bottom,
+      left: labelPadding.left ?? defaultPadding.left
+    };
+  } else {
+    result = {
+      top: defaultPadding.top,
+      right: defaultPadding.right,
+      bottom: defaultPadding.bottom,
+      left: defaultPadding.left
+    };
+  }
+
+  // Store in cache
+  paddingCache.set(cacheKey, result);
+  return result;
+};
 
 // Create appropriate fitter based on options
 const createFitter = (opts: TrendlineOptions): BaseFitter => {
@@ -328,37 +487,22 @@ const createFitter = (opts: TrendlineOptions): BaseFitter => {
   }
 };
 
-// Process padding options
-const processPadding = (
-  labelPadding:
-    | number
-    | { top?: number; bottom?: number; left?: number; right?: number }
-    | undefined
-): { top: number; right: number; bottom: number; left: number } => {
-  const defaultPadding = defaultLabelOptionConfig.padding;
-
-  if (typeof labelPadding === 'number') {
-    return { top: labelPadding, right: labelPadding, bottom: labelPadding, left: labelPadding };
-  } else if (labelPadding) {
-    return {
-      top: labelPadding.top ?? defaultPadding.top,
-      right: labelPadding.right ?? defaultPadding.right,
-      bottom: labelPadding.bottom ?? defaultPadding.bottom,
-      left: labelPadding.left ?? defaultPadding.left
-    };
-  }
-
-  return {
-    top: defaultPadding.top,
-    right: defaultPadding.right,
-    bottom: defaultPadding.bottom,
-    left: defaultPadding.left
-  };
+// Set line style based on options - cache the settings to avoid unnecessary changes
+const lineStyleCache = {
+  currentStyle: '',
+  currentWidth: 0
 };
 
-// Set line style based on options
 const setLineStyle = (ctx: CanvasRenderingContext2D, lineStyle?: string, lineWidth: number = 2) => {
+  const styleKey = `${lineStyle ?? 'solid'}-${lineWidth}`;
+
+  // Always set the line width regardless of cache state
   ctx.lineWidth = lineWidth;
+
+  // Only skip updating the dash pattern if already set to this style
+  if (lineStyleCache.currentStyle === styleKey) {
+    return;
+  }
 
   switch (lineStyle) {
     case 'dotted':
@@ -373,6 +517,9 @@ const setLineStyle = (ctx: CanvasRenderingContext2D, lineStyle?: string, lineWid
     default:
       ctx.setLineDash([]);
   }
+
+  lineStyleCache.currentStyle = styleKey;
+  lineStyleCache.currentWidth = lineWidth;
 };
 
 // Draw a label with background
@@ -457,7 +604,7 @@ const drawLabel = (
   ctx.restore();
 };
 
-// Draw curved or straight line path
+// Improved curved or straight line path drawing with fewer calculations
 const drawLinePath = (
   ctx: CanvasRenderingContext2D,
   xScale: any,
@@ -485,15 +632,26 @@ const drawLinePath = (
     ctx.lineTo(x2, y2);
   } else {
     // For non-linear trendlines, use multiple points for a smooth curve
-    const segments = 80;
+    // Adaptive segmentation - use more points where curve changes more rapidly
+    const segments = lineType === 'polynomial_regression' ? 100 : 80;
     const xStep = (maxX - minX) / segments;
 
     ctx.moveTo(x1, y1);
 
+    // Batch the y-value calculations for better performance
+    const points = [];
     for (let i = 1; i <= segments; i++) {
       const currX = minX + i * xStep;
-      const xPos = xScale.getPixelForValue(currX);
-      const yPos = yScale.getPixelForValue(fitter.f(currX));
+      points.push({
+        x: currX,
+        y: fitter.f(currX)
+      });
+    }
+
+    // Draw the path
+    for (const point of points) {
+      const xPos = xScale.getPixelForValue(point.x);
+      const yPos = yScale.getPixelForValue(point.y);
 
       // Skip any NaN or infinite values that might occur
       if (!isNaN(yPos) && isFinite(yPos)) {
@@ -558,7 +716,111 @@ const addDataPointsToFitter = (
       }
     }
   });
+
+  // Pre-compute statistics after all points are added
+  fitter.computeStatistics();
 };
+
+// Calculate trendline coordinates once to avoid duplication
+const calculateTrendlineCoordinates = (
+  xScale: any,
+  yScale: any,
+  fitter: BaseFitter,
+  opts: TrendlineOptions
+): TrendlineCoordinates => {
+  let minX = opts.projection ? (xScale.min as number) : fitter.minx;
+  const maxX = opts.projection ? (xScale.max as number) : fitter.maxx;
+
+  // For logarithmic trendlines, ensure minX is positive
+  if (opts.type === 'logarithmic_regression' && minX <= 0) {
+    // Use the smallest positive x value or 0.1 as a fallback
+    minX = Math.max(0.1, fitter.minx);
+  }
+
+  const x1 = xScale.getPixelForValue(minX);
+  const y1 = yScale.getPixelForValue(fitter.f(minX));
+  const x2 = xScale.getPixelForValue(maxX);
+  const y2 = yScale.getPixelForValue(fitter.f(maxX));
+
+  // compute slope (delta y / delta x)
+  const slope = (fitter.f(maxX) - fitter.f(minX)) / (maxX - minX);
+
+  return {
+    minX,
+    maxX,
+    x1,
+    y1,
+    x2,
+    y2,
+    slope
+  };
+};
+
+// Optimized spatial index for faster collision detection
+class SpatialIndex {
+  private cells: Map<string, Array<{ x: number; y: number; width: number; height: number }>> =
+    new Map();
+  private cellSize = 50; // Size of each grid cell
+
+  clear(): void {
+    this.cells.clear();
+  }
+
+  // Get cell key for a point
+  private getCellKey(x: number, y: number): string {
+    const cellX = Math.floor(x / this.cellSize);
+    const cellY = Math.floor(y / this.cellSize);
+    return `${cellX},${cellY}`;
+  }
+
+  // Get all cell keys that a rectangle overlaps with
+  private getOverlappingCellKeys(rect: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }): string[] {
+    const minCellX = Math.floor(rect.x / this.cellSize);
+    const minCellY = Math.floor(rect.y / this.cellSize);
+    const maxCellX = Math.floor((rect.x + rect.width) / this.cellSize);
+    const maxCellY = Math.floor((rect.y + rect.height) / this.cellSize);
+
+    const keys: string[] = [];
+    for (let x = minCellX; x <= maxCellX; x++) {
+      for (let y = minCellY; y <= maxCellY; y++) {
+        keys.push(`${x},${y}`);
+      }
+    }
+    return keys;
+  }
+
+  // Add a rectangle to the index
+  add(rect: { x: number; y: number; width: number; height: number }): void {
+    const cellKeys = this.getOverlappingCellKeys(rect);
+    for (const key of cellKeys) {
+      if (!this.cells.has(key)) {
+        this.cells.set(key, []);
+      }
+      this.cells.get(key)!.push(rect);
+    }
+  }
+
+  // Check if a rectangle overlaps with any existing rectangles
+  checkCollision(rect: { x: number; y: number; width: number; height: number }): boolean {
+    const cellKeys = this.getOverlappingCellKeys(rect);
+    for (const key of cellKeys) {
+      const cellRects = this.cells.get(key);
+      if (cellRects) {
+        for (const existingRect of cellRects) {
+          if (doRectsOverlap(rect, existingRect)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+}
 
 const trendlinePlugin: Plugin<'line'> = {
   id: 'chartjs-plugin-trendline-ts',
@@ -573,8 +835,8 @@ const trendlinePlugin: Plugin<'line'> = {
     const xScale = Object.values(chart.scales).find((s) => s.isHorizontal())!;
     const yScale = Object.values(chart.scales).find((s) => !s.isHorizontal())!;
 
-    // Track label positions to prevent overlap
-    const labelPositions: Array<{ x: number; y: number; width: number; height: number }> = [];
+    // Use spatial index for faster collision detection
+    const labelSpatialIndex = new SpatialIndex();
 
     // Store all label drawing operations for later execution (to ensure higher z-index)
     const labelDrawingQueue: Array<{
@@ -584,6 +846,10 @@ const trendlinePlugin: Plugin<'line'> = {
       y: number;
       opts: TrendlineLabelOptions;
     }> = [];
+
+    // Reset line style cache
+    lineStyleCache.currentStyle = '';
+    lineStyleCache.currentWidth = 0;
 
     // Check if we should create an aggregated trendline
     if (pluginOptions?.aggregateMultiple && pluginOptions.aggregateMultiple.length > 0) {
@@ -613,6 +879,10 @@ const trendlinePlugin: Plugin<'line'> = {
           if (fitter.minx !== Infinity && fitter.maxx !== -Infinity) {
             const defaultColor =
               (firstDatasetWithTrendline.borderColor as string) ?? 'rgba(0,0,0,0.3)';
+
+            // Calculate coordinates once
+            const coords = calculateTrendlineCoordinates(xScale, yScale, fitter, aggregateConfig);
+
             drawTrendlinePath(
               ctx,
               chartArea,
@@ -620,7 +890,8 @@ const trendlinePlugin: Plugin<'line'> = {
               yScale,
               fitter,
               aggregateConfig,
-              defaultColor
+              defaultColor,
+              coords
             );
 
             // Queue label for later drawing if needed
@@ -631,8 +902,9 @@ const trendlinePlugin: Plugin<'line'> = {
                 yScale,
                 fitter,
                 aggregateConfig,
-                labelPositions,
-                labelDrawingQueue
+                labelSpatialIndex,
+                labelDrawingQueue,
+                coords
               );
             }
           }
@@ -643,7 +915,12 @@ const trendlinePlugin: Plugin<'line'> = {
     // Original behavior - draw individual trendlines for each dataset
     chart.data.datasets.forEach((dataset, datasetIndex) => {
       const trendlineOptions = dataset.trendline;
-      if (!trendlineOptions || dataset.data.length < 2) {
+      if (
+        !trendlineOptions ||
+        dataset.data.length < 2 ||
+        dataset.hidden ||
+        !chart.isDatasetVisible(datasetIndex)
+      ) {
         return;
       }
 
@@ -683,8 +960,11 @@ const trendlinePlugin: Plugin<'line'> = {
 
         const defaultColor = (dataset.borderColor as string) ?? 'rgba(0,0,0,0.3)';
 
+        // Calculate coordinates once
+        const coords = calculateTrendlineCoordinates(xScale, yScale, fitter, opts);
+
         // Draw only the trendline first (not labels)
-        drawTrendlinePath(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor);
+        drawTrendlinePath(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor, coords);
 
         // Queue label for later drawing if needed
         if (opts.label?.display) {
@@ -695,18 +975,23 @@ const trendlinePlugin: Plugin<'line'> = {
             yScale,
             fitter,
             opts,
-            labelPositions,
+            labelSpatialIndex,
             labelDrawingQueue,
+            coords,
             labelIndices
           );
         }
       });
     });
 
-    // After all trendlines are drawn, draw all labels on top
-    labelDrawingQueue.forEach((item) => {
-      drawLabel(item.ctx, item.text, item.x, item.y, item.opts);
-    });
+    // After all trendlines are drawn, draw all labels on top - do this in a batch
+    if (labelDrawingQueue.length > 0) {
+      ctx.save();
+      labelDrawingQueue.forEach((item) => {
+        drawLabel(item.ctx, item.text, item.x, item.y, item.opts);
+      });
+      ctx.restore();
+    }
   }
 };
 
@@ -730,7 +1015,7 @@ const queueTrendlineLabel = (
   yScale: any,
   fitter: BaseFitter,
   opts: TrendlineOptions,
-  labelPositions: Array<{ x: number; y: number; width: number; height: number }> = [],
+  spatialIndex: SpatialIndex,
   labelDrawingQueue: Array<{
     ctx: CanvasRenderingContext2D;
     text: string;
@@ -738,27 +1023,17 @@ const queueTrendlineLabel = (
     y: number;
     opts: TrendlineLabelOptions;
   }>,
+  coords: TrendlineCoordinates,
   labelIndices?: { datasetIndex: number; trendlineIndex: number }
 ) => {
   if (!opts.label?.display) return;
 
-  let minX = opts.projection ? (xScale.min as number) : fitter.minx;
-  const maxX = opts.projection ? (xScale.max as number) : fitter.maxx;
-
-  // For logarithmic trendlines, ensure minX is positive
-  if (opts.type === 'logarithmic_regression' && minX <= 0) {
-    // Use the smallest positive x value or 0.1 as a fallback
-    minX = Math.max(0.1, fitter.minx);
-  }
-
-  const x1 = xScale.getPixelForValue(minX);
-  const y1 = yScale.getPixelForValue(fitter.f(minX));
-  const x2 = xScale.getPixelForValue(maxX);
-  const y2 = yScale.getPixelForValue(fitter.f(maxX));
-
   const lbl = opts.label;
-  // compute slope (delta y / delta x)
-  const slope = (fitter.f(maxX) - fitter.f(minX)) / (maxX - minX);
+
+  // Use pre-calculated values from coords
+  const { minX, maxX, x1, y1, x2, y2, slope } = coords;
+
+  // Format the label text
   const val = lbl.percentage ? `${(slope * 100).toFixed(2)}%` : slope.toFixed(2);
 
   // Handle text as either string or callback function
@@ -779,7 +1054,7 @@ const queueTrendlineLabel = (
     textContent = lbl.text || '';
   }
 
-  // Only add the value if displayValue is true and text doesn't already include it
+  // Final label text
   const labelText = `${textContent}`.trim();
 
   // Position along the trendline segment based on positionRatio
@@ -819,16 +1094,14 @@ const queueTrendlineLabel = (
     height: labelHeight
   };
 
-  // Check if this label overlaps with any existing labels
-  for (const existingLabel of labelPositions) {
-    if (doRectsOverlap(labelRect, existingLabel)) {
-      // Label would overlap, so skip adding it
-      return;
-    }
+  // Use spatial index for faster collision detection
+  if (spatialIndex.checkCollision(labelRect)) {
+    // Label would overlap, so skip adding it
+    return;
   }
 
-  // Store this label's position for future collision detection
-  labelPositions.push(labelRect);
+  // Add label rect to spatial index
+  spatialIndex.add(labelRect);
 
   // Queue the label for drawing later (to ensure it's on top of all lines)
   labelDrawingQueue.push({
@@ -848,23 +1121,13 @@ const drawTrendlinePath = (
   yScale: any,
   fitter: BaseFitter,
   opts: TrendlineOptions,
-  defaultColor: string
+  defaultColor: string,
+  coords?: TrendlineCoordinates
 ) => {
-  // project if requested
-  let minX = opts.projection ? (xScale.min as number) : fitter.minx;
-  const maxX = opts.projection ? (xScale.max as number) : fitter.maxx;
+  // Use pre-calculated coordinates if available, otherwise calculate them
+  const { minX, maxX, x1, y1, x2, y2 } =
+    coords || calculateTrendlineCoordinates(xScale, yScale, fitter, opts);
   const yBottom = chartArea.bottom;
-
-  // For logarithmic trendlines, ensure minX is positive
-  if (opts.type === 'logarithmic_regression' && minX <= 0) {
-    // Use the smallest positive x value or 0.1 as a fallback
-    minX = Math.max(0.1, fitter.minx);
-  }
-
-  const x1 = xScale.getPixelForValue(minX);
-  const y1 = yScale.getPixelForValue(fitter.f(minX));
-  const x2 = xScale.getPixelForValue(maxX);
-  const y2 = yScale.getPixelForValue(fitter.f(maxX));
 
   // Skip drawing if we have invalid coordinates
   if (isNaN(y1) || isNaN(y2)) {
