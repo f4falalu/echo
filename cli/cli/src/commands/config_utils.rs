@@ -5,6 +5,8 @@ use serde_yaml;
 use std::fs;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
+use colored::*;
+use inquire::{Confirm, Password, Select, Text, PasswordDisplayMode, validator::Validation};
 
 // Moved from run.rs
 pub fn prompt_for_input(
@@ -493,60 +495,77 @@ pub fn prompt_and_manage_openai_api_key(
     app_base_dir: &Path,
     force_prompt: bool,
 ) -> Result<String, BusterError> {
-    let cache_file = ".openai_api_key";
-    let mut current_key = get_cached_value(app_base_dir, cache_file)?;
+    // --- Add BUSTER ASCII Art Header ---
+    // Always print the main header
+    println!("\n{}", r"
+██████╗░██╗░░░██╗███████╗████████╗███████╗██████╗░
+██╔══██╗██║░░░██║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
+██████╦╝██║░░░██║███████╗░░░██║░░░█████╗░░██████╔╝
+██╔══██╗██║░░░██║╚════██║░░░██║░░░██╔══╝░░██╔══██╗
+██████╦╝╚██████╔╝███████║░░░██║░░░███████╗██║░░██║
+╚═════╝░░╚═════╝░╚══════╝░░░╚═╝░░░╚══════╝╚═╝░░╚═╝
+    ".cyan().bold());
 
-    if force_prompt || current_key.is_none() {
-        if current_key.is_some() {
-            let key_display = current_key.as_ref().map_or("", |k| {
-                if k.len() > 4 {
-                    &k[k.len() - 4..]
-                } else {
-                    "****"
-                }
-            });
-            let update_choice = prompt_for_input(
-                &format!("Current OpenAI API key ends with ...{}. Update? (y/n)", key_display),
-                Some("n"),
-                false,
-            )?
-            .to_lowercase();
-            if update_choice != "y" {
-                return Ok(current_key.unwrap());
-            }
+    let cache_file = ".openai_api_key";
+    let current_key_opt = get_cached_value(app_base_dir, cache_file)?;
+    let default_api_base = "https://api.openai.com/v1";
+
+    // Decide if prompting is necessary: Force flag OR key is missing
+    let needs_prompt = force_prompt || current_key_opt.is_none();
+
+    if needs_prompt {
+         // Only print sub-header when actually prompting
+        println!("{}", "--- OpenAI API Key ---".green());
+
+        // If forcing prompt and key exists, mention it
+        if force_prompt && current_key_opt.is_some() {
+             let key_display = current_key_opt.as_ref().map_or("****", |k| {
+                if k.len() > 4 { &k[k.len() - 4..] } else { "****" }
+             });
+             println!("{} Current key ends with ...{}. You chose to force update.", "ℹ️".yellow(), key_display);
         }
 
-        let new_key = prompt_for_input("Enter your OpenAI API Key:", None, true)?;
-        let api_base_choice = prompt_for_input(
-            "Use custom API base URL? (y/n):",
-            Some("n"),
-            false,
-        )?
-        .to_lowercase();
-        let api_base = if api_base_choice == "y" {
-            Some(
-                prompt_for_input(
-                    "Enter the API base URL:",
-                    Some("https://api.openai.com/v1"),
-                    false,
-                )?,
-            )
-        } else {
-            Some("https://api.openai.com/v1".to_string())
-        };
+        // Use inquire::Password for masked input
+        let new_key = inquire::Password::new("Enter your OpenAI API Key:")
+            .with_display_mode(inquire::PasswordDisplayMode::Masked)
+             .with_validator(|input: &str| {
+                if input.trim().is_empty() {
+                    Ok(inquire::validator::Validation::Invalid("API Key cannot be empty".into()))
+                } else {
+                    Ok(inquire::validator::Validation::Valid)
+                }
+            })
+            .without_confirmation() // Don\'t ask to confirm password
+            .prompt()
+            .map_err(|e| BusterError::CommandError(format!("Failed to prompt for API key: {}", e)))?;
 
         // Update LiteLLM config first (borrows new_key)
-        update_litellm_yaml(app_base_dir, &new_key, api_base.as_deref())?;
+        match update_litellm_yaml(app_base_dir, &new_key, Some(default_api_base)) {
+             Ok(config_path) => {
+                 println!("{} {}", "✅".green(), format!("LiteLLM configuration updated successfully at {}", config_path.display()).green());
+             }
+             Err(e) => {
+                 eprintln!("{}", format!("⚠️ Failed to update LiteLLM config: {}. Proceeding to cache key.", e).yellow());
+             }
+         }
 
-        // Cache the key after successful update
+        // Cache the new key
         cache_value(app_base_dir, cache_file, &new_key)?;
-        current_key = Some(new_key);
-        println!("LiteLLM configuration file updated successfully.");
-    }
+        println!("{} {}", "✅".green(), "OpenAI API Key cached.".green());
+        Ok(new_key)
 
-    current_key.ok_or_else(|| {
-        BusterError::CommandError("OpenAI API Key setup failed.".to_string())
-    })
+    } else {
+        // Key exists and force_prompt is false, use existing key
+        let existing_key = current_key_opt.unwrap();
+        // Still ensure LiteLLM config reflects the existing key
+        if let Err(e) = update_litellm_yaml(app_base_dir, &existing_key, Some(default_api_base)) {
+            println!("{}", format!("⚠️ Warning: Failed to verify/update LiteLLM config for existing key: {}", e).yellow());
+        } else {
+            // Optionally print a quieter message confirming usage
+            // println!("{}", "✅ Using cached OpenAI API key.".dimmed());
+        }
+        Ok(existing_key)
+    }
 }
 
 pub struct RerankerConfig {
@@ -565,140 +584,142 @@ pub fn prompt_and_manage_reranker_settings(
     let model_cache = ".reranker_model";
     let url_cache = ".reranker_base_url";
 
-    let mut current_provider = get_cached_value(app_base_dir, provider_cache)?;
-    let mut current_key = get_cached_value(app_base_dir, key_cache)?;
-    let mut current_model = get_cached_value(app_base_dir, model_cache)?;
-    let mut current_url = get_cached_value(app_base_dir, url_cache)?;
+    let current_provider = get_cached_value(app_base_dir, provider_cache)?;
+    let current_key = get_cached_value(app_base_dir, key_cache)?;
+    let current_model = get_cached_value(app_base_dir, model_cache)?;
+    let current_url = get_cached_value(app_base_dir, url_cache)?;
 
-    let mut needs_update = force_prompt;
-    if !needs_update
-        && (current_provider.is_none()
-            || current_key.is_none()
-            || current_model.is_none()
-            || current_url.is_none())
-    {
-        needs_update = true; // If any part is missing, force update flow for initial setup
-    }
+    // Check if *all* required settings are cached
+    let all_settings_cached = current_provider.is_some()
+        && current_key.is_some()
+        && current_model.is_some()
+        && current_url.is_some();
 
-    if needs_update {
-        if !force_prompt && current_provider.is_some() && current_model.is_some() {
-            // Already prompted if force_prompt is true
-            let update_choice = prompt_for_input(
-                &format!(
-                    "Current Reranker: {} (Model: {}). Update settings? (y/n)",
-                    current_provider.as_ref().unwrap_or(&"N/A".to_string()),
-                    current_model.as_ref().unwrap_or(&"N/A".to_string())
-                ),
-                Some("n"),
-                false,
-            )?
-            .to_lowercase();
-            if update_choice != "y"
-                && current_provider.is_some()
-                && current_key.is_some()
-                && current_model.is_some()
-                && current_url.is_some()
-            {
-                return Ok(RerankerConfig {
-                    provider: current_provider.unwrap(),
-                    api_key: current_key.unwrap(),
-                    model: current_model.unwrap(),
-                    base_url: current_url.unwrap(),
-                });
-            }
-        } else if force_prompt && current_provider.is_some() && current_model.is_some() {
-            let update_choice = prompt_for_input(
-                &format!(
-                    "Current Reranker: {} (Model: {}). Update settings? (y/n)",
-                    current_provider.as_ref().unwrap_or(&"N/A".to_string()),
-                    current_model.as_ref().unwrap_or(&"N/A".to_string())
-                ),
-                Some("n"),
-                false,
-            )?
-            .to_lowercase();
-            if update_choice != "y"
-                && current_provider.is_some()
-                && current_key.is_some()
-                && current_model.is_some()
-                && current_url.is_some()
-            {
-                return Ok(RerankerConfig {
-                    provider: current_provider.unwrap(),
-                    api_key: current_key.unwrap(),
-                    model: current_model.unwrap(),
-                    base_url: current_url.unwrap(),
-                });
+    // Decide if prompting is necessary: Force flag OR not all settings are cached
+    let needs_prompt = force_prompt || !all_settings_cached;
+
+    if needs_prompt {
+        println!("\n{}", "--- Reranker Setup ---".bold().green());
+
+        if force_prompt && all_settings_cached {
+             println!("{} Current Reranker: {} (Model: {}). You chose to force update.",
+                "ℹ️".yellow(),
+                current_provider.as_ref().unwrap().cyan(),
+                current_model.as_ref().unwrap().cyan()
+             );
+        } else if !all_settings_cached {
+             println!("{}", "Some reranker settings are missing. Please configure.".yellow());
+        }
+
+        // Define provider options for Select
+        #[derive(Debug, Clone)]
+        enum ProviderOption {
+            Cohere, Mixedbread, Jina, None
+        }
+        impl std::fmt::Display for ProviderOption {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                match self {
+                    ProviderOption::Cohere => write!(f, "Cohere"),
+                    ProviderOption::Mixedbread => write!(f, "Mixedbread"),
+                    ProviderOption::Jina => write!(f, "Jina"),
+                    ProviderOption::None => write!(f, "None (Skip reranker setup)"),
+                }
             }
         }
 
-        println!("--- Reranker Setup ---");
-        println!("Choose your reranker provider:");
-        println!("1: Cohere");
-        println!("2: Mixedbread");
-        println!("3: Jina");
-        let provider_choice = loop {
-            match prompt_for_input("Enter choice (1-3):", Some("1"), false)?.parse::<u32>() {
-                Ok(choice @ 1..=3) => break choice,
-                _ => println!("Invalid choice. Please enter a number between 1 and 3."),
-            }
+        let options = vec![
+            ProviderOption::Cohere,
+            ProviderOption::Mixedbread,
+            ProviderOption::Jina,
+            ProviderOption::None,
+        ];
+
+        // Use inquire::Select
+        let selected_provider_opt = Select::new("Choose your reranker provider:", options)
+             // Start selection intelligently based on current state
+            .with_starting_cursor(if all_settings_cached { 3 } else { 0 }) // Start at None if configured, else Cohere
+            .prompt()
+            .map_err(|e| BusterError::CommandError(format!("Failed to select provider: {}", e)))?;
+
+        if matches!(selected_provider_opt, ProviderOption::None) {
+            println!("{}", "ℹ️ Skipping reranker setup.".yellow());
+             // Clear existing cached values if skipping
+             let _ = fs::remove_file(app_base_dir.join(provider_cache));
+             let _ = fs::remove_file(app_base_dir.join(key_cache));
+             let _ = fs::remove_file(app_base_dir.join(model_cache));
+             let _ = fs::remove_file(app_base_dir.join(url_cache));
+             // Return an error specifically indicating skip, handled in run.rs
+             return Err(BusterError::CommandError("Reranker setup skipped by user.".to_string()));
+        }
+
+        let (new_provider, default_model, default_url) = match selected_provider_opt {
+             ProviderOption::Cohere => (
+                 "Cohere",
+                 "rerank-v3.5",
+                 "https://api.cohere.com/v2/rerank",
+             ),
+             ProviderOption::Mixedbread => (
+                 "Mixedbread",
+                 "mixedbread-ai/mxbai-rerank-xsmall-v1",
+                 "https://api.mixedbread.ai/v1/reranking",
+             ),
+             ProviderOption::Jina => (
+                 "Jina",
+                 "jina-reranker-v1-base-en",
+                 "https://api.jina.ai/v1/rerank",
+             ),
+             ProviderOption::None => unreachable!(), // Handled above
         };
 
-        let (new_provider, default_model, default_url) = match provider_choice {
-            1 => (
-                "Cohere",
-                "rerank-english-v3.0",
-                "https://api.cohere.com/v1/rerank",
-            ), // user asked for v3.5 but official docs say v3.0 for rerank model
-            2 => (
-                "Mixedbread",
-                "mixedbread-ai/mxbai-rerank-xsmall-v1",
-                "https://api.mixedbread.ai/v1/reranking",
-            ),
-            3 => (
-                "Jina",
-                "jina-reranker-v1-base-en",
-                "https://api.jina.ai/v1/rerank",
-            ),
-            _ => unreachable!(),
-        };
+        // Use inquire::Password for the API key
+        let new_key_val = Password::new(&format!("Enter your {} API Key:", new_provider))
+            .with_display_mode(PasswordDisplayMode::Masked)
+            .with_validator(|input: &str| {
+                if input.trim().is_empty() { Ok(Validation::Invalid("API Key cannot be empty".into())) }
+                else { Ok(Validation::Valid) }
+            })
+            .without_confirmation()
+            .prompt()
+            .map_err(|e| BusterError::CommandError(format!("Failed to prompt for API key: {}", e)))?;
 
-        let new_key_val =
-            prompt_for_input(&format!("Enter your {} API Key:", new_provider), None, true)?;
-        let new_model_val = prompt_for_input(
-            &format!("Enter {} model name:", new_provider),
-            Some(default_model),
-            false,
-        )?;
-        let new_url_val = prompt_for_input(
-            &format!("Enter {} rerank base URL:", new_provider),
-            Some(default_url),
-            false,
-        )?;
+        // Use inquire::Text for model and URL, with defaults
+        let new_model_val = Text::new(&format!("Enter {} model name:", new_provider))
+            .with_default(default_model)
+            .with_help_message("Press Enter to use the default.")
+            .prompt()
+            .map_err(|e| BusterError::CommandError(format!("Failed to prompt for model name: {}", e)))?;
+
+        let new_url_val = Text::new(&format!("Enter {} rerank base URL:", new_provider))
+            .with_default(default_url)
+            .with_help_message("Press Enter to use the default.")
+            .prompt()
+            .map_err(|e| BusterError::CommandError(format!("Failed to prompt for base URL: {}", e)))?;
 
         cache_value(app_base_dir, provider_cache, new_provider)?;
         cache_value(app_base_dir, key_cache, &new_key_val)?;
         cache_value(app_base_dir, model_cache, &new_model_val)?;
         cache_value(app_base_dir, url_cache, &new_url_val)?;
 
-        current_provider = Some(new_provider.to_string());
-        current_key = Some(new_key_val);
-        current_model = Some(new_model_val);
-        current_url = Some(new_url_val);
-    }
+        println!("{} Reranker settings updated successfully for {}.
+", "✅".green(), new_provider.cyan());
 
-    if let (Some(prov), Some(key), Some(model), Some(url)) =
-        (current_provider, current_key, current_model, current_url)
-    {
+        // Construct the result from the newly prompted values
         Ok(RerankerConfig {
-            provider: prov,
-            api_key: key,
-            model,
-            base_url: url,
+            provider: new_provider.to_string(),
+            api_key: new_key_val,
+            model: new_model_val,
+            base_url: new_url_val,
         })
+
     } else {
-        Err(BusterError::CommandError(
-            "Reranker configuration setup failed. Some values are missing.".to_string(),
-        ))
+        // All settings cached and force_prompt is false, use existing
+        // Optionally print a quieter message
+        // println!("{}", "✅ Using cached Reranker settings.".dimmed());
+        Ok(RerankerConfig {
+            provider: current_provider.unwrap(),
+            api_key: current_key.unwrap(),
+            model: current_model.unwrap(),
+            base_url: current_url.unwrap(),
+        })
     }
 }
