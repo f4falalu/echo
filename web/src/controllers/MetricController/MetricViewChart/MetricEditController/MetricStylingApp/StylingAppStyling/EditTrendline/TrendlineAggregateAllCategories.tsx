@@ -2,6 +2,8 @@ import React from 'react';
 import { LabelAndInput } from '../../Common';
 import { LoopTrendline } from './EditTrendline';
 import { Switch } from '@/components/ui/switch';
+import { Text } from '@/components/ui/typography';
+import { CircleInfo } from '@/components/ui/icons';
 
 interface TrendlineAggregateAllCategoriesProps {
   trend: LoopTrendline;
@@ -25,7 +27,9 @@ export const TrendlineAggregateAllCategories: React.FC<TrendlineAggregateAllCate
     };
 
     return (
-      <LabelAndInput label="Aggregate">
+      <LabelAndInput
+        label={'Aggregate'}
+        labelInfoTooltip="Aggregate all categories into a single trendline">
         <div className="flex w-full justify-end">
           <Switch checked={trend.aggregateAllCategories ?? true} onCheckedChange={handleChange} />
         </div>
