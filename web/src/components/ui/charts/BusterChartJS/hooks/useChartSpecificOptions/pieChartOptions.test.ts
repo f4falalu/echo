@@ -4,9 +4,6 @@ import type { ChartSpecificOptionsProps } from './interfaces';
 import type { ChartData } from 'chart.js';
 
 jest.mock('@/lib/colors');
-jest.mock('@tanstack/react-query', () => ({
-  isServer: true
-}));
 
 const mockChartData: ChartData = {
   labels: ['Test'],
