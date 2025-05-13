@@ -20,11 +20,11 @@ import { TypeToLabel } from './config';
 import { JOIN_CHARACTER } from '@/components/ui/charts/commonHelpers';
 import isEqual from 'lodash/isEqual';
 import { TrendlineLabelPositionOffset } from './TrendlineLabelPositionOffset';
-import { TrendlineProjection } from './TrendlineProjection';
 import { TrendlineLineStyle } from './TrendlineLineStyle';
 import { TrendlineOffset } from './TrendlineOffset';
-import { TrendlinePolynomialOrder } from './TrendlinePolynomialOrder';
 import { TrendlineAggregateAllCategories } from './TrendlineAggregateAllCategories';
+// import { TrendlineProjection } from './TrendlineProjection';
+// import { TrendlinePolynomialOrder } from './TrendlinePolynomialOrder';
 
 export interface LoopTrendline extends Trendline {
   id: string;
@@ -32,6 +32,7 @@ export interface LoopTrendline extends Trendline {
 
 export const EditTrendline: React.FC<{
   trendlines: IBusterMetricChartConfig['trendlines'];
+  colors: string[];
   onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
   selectedAxis: ChartEncodes;
   columnMetadata: ColumnMetaData[];
@@ -40,6 +41,7 @@ export const EditTrendline: React.FC<{
 }> = React.memo(
   ({
     trendlines,
+    colors,
     onUpdateChartConfig,
     selectedAxis,
     columnMetadata,
@@ -175,6 +177,7 @@ export const EditTrendline: React.FC<{
                 onDeleteTrendline={onDeleteTrendline}
                 onUpdateExisitingTrendline={onUpdateExisitingTrendline}
                 isNewTrend={newTrendIds.has(trend.id)}
+                colors={colors}
               />
             </motion.div>
           ))}
@@ -193,6 +196,7 @@ const EditTrendlineItem: React.FC<{
   yAxisEncodes: string[];
   xAxisEncodes: string[];
   categoryEncodes: string[] | undefined;
+  colors: string[];
   selectedChartType: IBusterMetricChartConfig['selectedChartType'];
   onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
   onDeleteTrendline: (id: string) => void;
@@ -205,6 +209,7 @@ const EditTrendlineItem: React.FC<{
     yAxisEncodes,
     xAxisEncodes,
     categoryEncodes,
+    colors,
     selectedChartType,
     onUpdateExisitingTrendline,
     onDeleteTrendline
@@ -234,6 +239,7 @@ const EditTrendlineItem: React.FC<{
           columnLabelFormats={columnLabelFormats}
           yAxisEncodes={yAxisEncodes}
           xAxisEncodes={xAxisEncodes}
+          colors={colors}
           categoryEncodes={categoryEncodes}
           selectedChartType={selectedChartType}
           onUpdateExisitingTrendline={onUpdateExisitingTrendline}
@@ -249,6 +255,7 @@ const TrendlineItemContent: React.FC<{
   columnMetadata: ColumnMetaData[];
   yAxisEncodes: string[];
   xAxisEncodes: string[];
+  colors: string[];
   categoryEncodes: string[] | undefined;
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
   selectedChartType: IBusterMetricChartConfig['selectedChartType'];
@@ -256,6 +263,7 @@ const TrendlineItemContent: React.FC<{
 }> = React.memo(
   ({
     trend,
+    colors,
     categoryEncodes,
     yAxisEncodes,
     xAxisEncodes,
@@ -316,6 +324,7 @@ const TrendlineItemContent: React.FC<{
 
               <TrendlineColorPicker
                 trend={trend}
+                colors={colors}
                 onUpdateExisitingTrendline={onUpdateExisitingTrendline}
               />
             </>

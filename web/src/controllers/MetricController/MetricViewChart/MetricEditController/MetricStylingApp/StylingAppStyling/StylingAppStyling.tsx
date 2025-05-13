@@ -72,7 +72,8 @@ export const StylingAppStyling: React.FC<
   barShowTotalAtTop,
   yAxisShowAxisTitle,
   rowCount,
-  pieSortBy
+  pieSortBy,
+  colors
 }) => {
   const { onUpdateMetricChartConfig } = useUpdateMetricChart();
 
@@ -175,6 +176,7 @@ export const StylingAppStyling: React.FC<
         lineGroupType={lineGroupType}
         barGroupType={barGroupType}
         onUpdateChartConfig={onUpdateChartConfig}
+        colors={colors}
       />
     </div>
   );
@@ -477,7 +479,8 @@ const EtcSettings: React.FC<
   columnMetadata,
   columnLabelFormats,
   lineGroupType,
-  barGroupType
+  barGroupType,
+  colors
 }) => {
   const isScatterChart = selectedChartType === 'scatter';
   const isPieChart = selectedChartType === 'pie';
@@ -546,6 +549,7 @@ const EtcSettings: React.FC<
           columnMetadata={columnMetadata}
           selectedChartType={selectedChartType}
           onUpdateChartConfig={onUpdateChartConfig}
+          colors={colors}
         />
       )
     }

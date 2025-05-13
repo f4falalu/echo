@@ -20,6 +20,7 @@ interface ColorPickerProps {
   children?: React.ReactNode;
   showInput?: boolean;
   showPicker?: boolean;
+  pickerBackgroundImage?: string;
 }
 
 const colorPickerWrapperVariants = cva('border p-0.5 rounded cursor-pointer shadow', {
@@ -47,6 +48,7 @@ const ColorPicker = ({
   children,
   showInput = true,
   showPicker = true,
+  pickerBackgroundImage,
   ...props
 }: ColorPickerProps) => {
   const [open, setOpen] = useState(false);
@@ -89,7 +91,12 @@ const ColorPicker = ({
     <PopoverRoot onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild disabled={disabled}>
         <div>
-          <ColorPickerInputBox parsedValue={parsedValue} size={size} disabled={disabled} />
+          <ColorPickerInputBox
+            parsedValue={parsedValue}
+            size={size}
+            disabled={disabled}
+            pickerBackgroundImage={pickerBackgroundImage}
+          />
         </div>
       </PopoverTrigger>
       <PopoverContent className="w-full" align="end" side="bottom">
@@ -116,16 +123,19 @@ ColorPicker.displayName = 'ColorPicker';
 const ColorPickerInputBox = ({
   parsedValue,
   size,
-  disabled
+  disabled,
+  pickerBackgroundImage
 }: {
   parsedValue: string;
   size: 'default' | 'small' | 'tall';
   disabled: boolean | undefined;
+  pickerBackgroundImage: string | undefined;
 }) => {
   const backgroundStyle =
-    parsedValue === 'inherit'
+    parsedValue === 'inherit' || pickerBackgroundImage
       ? {
           backgroundImage:
+            pickerBackgroundImage ||
             'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)'
         }
       : { backgroundColor: parsedValue };
