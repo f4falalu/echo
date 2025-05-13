@@ -8,6 +8,9 @@ import { ChatLayoutContextProvider, useChatLayoutContext } from '../ChatLayoutCo
 import { ChatContextProvider } from '../ChatContext/ChatContext';
 import { DEFAULT_CHAT_OPTION_SIDEBAR_SIZE } from '../ChatLayoutContext/config';
 import { useMount } from '@/hooks';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { CREATE_LANGFUSE_SESSION_URL } from '@/routes/externalRoutes';
+import { useBusterNotifications } from '@/context/BusterNotifications';
 
 interface ChatSplitterProps {
   children?: React.ReactNode;
@@ -15,6 +18,7 @@ interface ChatSplitterProps {
 
 export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
+  const { openErrorNotification } = useBusterNotifications();
   const [mounted, setMounted] = useState(false);
 
   const chatLayoutProps = useChatLayoutContext({ appSplitterRef });
@@ -29,6 +33,23 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   useMount(() => {
     setMounted(true); //we need to wait for the app splitter to be mounted because this is nested in the app splitter
   });
+
+  useHotkeys(
+    'meta+l',
+    (e) => {
+      e.stopPropagation();
+      const chatId = chatLayoutProps.chatId;
+      if (!chatId) {
+        openErrorNotification('No chat id found');
+        return;
+      }
+      const link = CREATE_LANGFUSE_SESSION_URL(chatId);
+      window.open(link, '_blank');
+    },
+    {
+      preventDefault: true
+    }
+  );
 
   return (
     <ChatLayoutContextProvider chatLayoutProps={chatLayoutProps}>
