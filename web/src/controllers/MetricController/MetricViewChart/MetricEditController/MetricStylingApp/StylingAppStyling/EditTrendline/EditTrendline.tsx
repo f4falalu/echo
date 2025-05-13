@@ -89,7 +89,8 @@ export const EditTrendline: React.FC<{
         ...DEFAULT_TRENDLINE_CONFIG,
         id: uuidv4(),
         type,
-        columnId: selectedAxis.y[0] || ''
+        columnId: selectedAxis.y[0] || '',
+        aggregateAllCategories: ((selectedAxis as ScatterAxis).category || []).length >= 1
       };
 
       addNewTrendId(newTrendline.id);
