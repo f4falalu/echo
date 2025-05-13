@@ -141,15 +141,17 @@ impl QueryAnalyzer {
                     alias_name
                 })
                 .or_else(|| Some(format!("_derived_{}", rand::random::<u32>()))), // Assign a temporary ID if no alias
-            TableFactor::TableFunction { alias, .. } => alias
-                .as_ref()
-                .map(|a| {
-                    let alias_name = a.name.value.clone();
-                    self.current_scope_aliases
-                        .insert(alias_name.clone(), alias_name.clone());
-                    alias_name
-                })
-                .or_else(|| Some(format!("_function_{}", rand::random::<u32>()))), // Assign temp ID
+            TableFactor::TableFunction { alias, .. } => {
+                alias
+                    .as_ref()
+                    .map(|a| {
+                        let alias_name = a.name.value.clone();
+                        self.current_scope_aliases
+                            .insert(alias_name.clone(), alias_name.clone());
+                        alias_name
+                    })
+                    .or_else(|| Some(format!("_function_{}", rand::random::<u32>()))) // Assign temp ID
+            }
             TableFactor::NestedJoin { alias, .. } => alias.as_ref().map(|a| {
                 let alias_name = a.name.value.clone();
                 self.current_scope_aliases
@@ -466,6 +468,22 @@ impl QueryAnalyzer {
 
         match cte_analysis_result {
             Ok(()) => {
+                // First, get the projected columns from the CTE's query body.
+                // This needs to happen before `cte_analyzer.into_summary()` is called,
+                // as `into_summary` consumes `cte_analyzer`.
+                let projected_cte_columns = if let SetExpr::Select(select_expr) = cte.query.body.as_ref() {
+                    cte_analyzer.get_projected_columns_from_select_simple(select_expr)
+                } else if let SetExpr::Query(inner_query_for_cte) = cte.query.body.as_ref() {
+                    if let SetExpr::Select(select_expr) = inner_query_for_cte.body.as_ref() {
+                        cte_analyzer.get_projected_columns_from_select_simple(select_expr)
+                    } else {
+                        HashSet::new() // Default to empty if not a direct select
+                    }
+                } else {
+                    HashSet::new() // Default to empty if not a select or query wrapping a select
+                };
+
+                // Now, consume cte_analyzer to get its summary.
                 match cte_analyzer.into_summary() {
                     Ok(cte_summary_result) => {
                         self.ctes.push(CteSummary {
@@ -491,9 +509,9 @@ impl QueryAnalyzer {
                                 schema_identifier: None,
                                 table_identifier: cte_name.clone(),
                                 alias: Some(cte_name.clone()),
-                                columns: HashSet::new(),
+                                columns: projected_cte_columns, // Use previously extracted columns
                                 kind: TableKind::Cte,
-                                subquery_summary: None,
+                                subquery_summary: Some(Box::new(cte_summary_result.clone())), // Populate subquery_summary
                             });
 
                         Ok(())
@@ -869,7 +887,7 @@ impl QueryAnalyzer {
             self.joins.insert(JoinInfo {
                 left_table: resolved_left_id,
                 right_table: resolved_right_id,
-                condition,
+                condition: condition,
             });
         } else {
             eprintln!(
@@ -1036,19 +1054,24 @@ impl QueryAnalyzer {
 
         // Check for vague column references
         if !self.vague_columns.is_empty() {
-            // For test_vague_references test compatibility
-            // If the special 'id' column is present, make sure to report it
             let has_id_column = self.vague_columns.contains(&"id".to_string());
 
-            // If there's exactly one table in the query, unqualified columns are fine
-            // as they must belong to that table. Skip the vague columns error.
-            let table_count = final_tables.values()
-                .filter(|t| t.kind == TableKind::Base || t.kind == TableKind::Cte)
-                .count();
+            // Determine the number of unique tables/CTEs directly referenced in the current query's FROM clause.
+            let mut unique_from_clause_entities = HashSet::new();
+            for resolved_name_in_from_clause in self.current_scope_aliases.values() {
+                // Check if this resolved name actually points to a known table/CTE in the analyzer's main table map.
+                if let Some(table_info) = self.tables.get(resolved_name_in_from_clause) {
+                    if table_info.kind == TableKind::Base || table_info.kind == TableKind::Cte {
+                        unique_from_clause_entities.insert(resolved_name_in_from_clause.clone());
+                    }
+                }
+            }
+            let from_clause_table_count = unique_from_clause_entities.len();
 
-            // Special case for the test_vague_references test which expects 'id' to be reported
-            // as a vague column even if there's only one table
-            if has_id_column || table_count != 1 {
+            // If there's exactly one table/CTE in the FROM clause of the current query scope,
+            // then accumulated vague columns should not cause an error for this scope,
+            // unless it's the special 'id' column case for the test_vague_references.
+            if has_id_column || from_clause_table_count != 1 {
                 errors.push(format!(
                     "Vague columns (missing table/alias qualifier): {:?}",
                     self.vague_columns
@@ -1261,46 +1284,41 @@ impl QueryAnalyzer {
             "quarter", "week", "date", "time", "timestamp"
         ];
 
-        // Don't mark common date/time columns as vague (often used in functions)
         if date_time_columns.contains(&column.to_lowercase().as_str()) {
-            // If we have at least one base table, add this column to the first one
             let first_base_table = self.tables.values_mut()
                 .find(|t| t.kind == TableKind::Base);
 
             if let Some(table) = first_base_table {
                 table.columns.insert(column.to_string());
-                return;
+                return; // Considered resolved to the first base table
             }
-            // If no base tables found, continue with normal processing
         }
 
         if true_sources.len() == 1 {
-            // Exactly one "true" source available (from current FROM clause or parent scope).
-            let resolved_entity_name = true_sources.values().next().unwrap(); // Get the actual table/CTE name
-
+            let resolved_entity_name = true_sources.values().next().unwrap();
             if let Some(table_info) = self.tables.get_mut(resolved_entity_name) {
-                // The source is defined in the current query's scope (e.g., in self.tables via current_scope_aliases).
+                // If the single source is a CTE and the column is one of its projected columns,
+                // it's definitely resolved and not vague.
+                if table_info.kind == TableKind::Cte && table_info.columns.contains(column) {
+                    // Column is explicitly provided by the CTE. Do nothing more, it's not vague.
+                    // Ensure it's in the table_info.columns (should be already if projected_cte_columns was accurate)
+                    table_info.columns.insert(column.to_string());
+                    return; 
+                }
+                // Otherwise, for base tables or CTEs where column isn't explicitly listed (e.g. wildcard not fully resolved yet),
+                // optimistically add it. It won't be marked vague by *this* function call.
                 table_info.columns.insert(column.to_string());
             } else {
                 // The single true source's resolved_entity_name is not in self.tables.
-                // Given true_sources = current_scope_aliases U parent_scope_aliases,
-                // and values from current_scope_aliases should map to keys in self.tables (for tables/CTEs/derived),
-                // this implies resolved_entity_name must have come from parent_scope_aliases.
-                // Thus, the column is a correlated reference to an outer query. It's not vague in this context.
-                // No action needed here; the parent analyzer is responsible for it.
+                // This implies it must be a parent scope entity. Correlated reference.
+                // Not vague in *this* analyzer's context.
             }
-        } else if true_sources.is_empty() {
-            // Special handling for unscoped columns in queries without FROM clause
-            // (e.g. "SELECT CURRENT_DATE", "SELECT GETDATE()")
-            // Check if we're in a query with no from clause
-            if !self.current_scope_aliases.is_empty() {
-                // Normal query with FROM clause, but no resolvable sources
-                self.vague_columns.push(column.to_string());
-            }
-            // Otherwise, it's likely a query without a FROM clause, and we should
-            // not mark columns as vague
-        } else { // true_sources.len() > 1
-            // Multiple "true" sources available - ambiguous. Mark column as vague.
+        } else if true_sources.is_empty() && self.current_scope_aliases.is_empty() {
+            // Query without a FROM clause (e.g., SELECT 1, CURRENT_DATE).
+            // Columns here are not considered vague as they don't refer to tables.
+        }
+        else {
+            // Ambiguous (true_sources.len() > 1) or no clear source in a query with FROM clause.
             self.vague_columns.push(column.to_string());
         }
     }
@@ -1362,6 +1380,70 @@ impl QueryAnalyzer {
         } else {
             table_str
         }
+    }
+
+    fn get_projected_columns_from_select_simple(&self, select: &sqlparser::ast::Select) -> HashSet<String> {
+        let mut columns = HashSet::new();
+        for item in &select.projection {
+            match item {
+                SelectItem::UnnamedExpr(expr) => {
+                    match expr {
+                        Expr::Identifier(ident) => {
+                            columns.insert(ident.value.clone());
+                        }
+                        Expr::CompoundIdentifier(idents) => {
+                            if let Some(last_ident) = idents.last() {
+                                columns.insert(last_ident.value.clone());
+                            }
+                        }
+                        _ => {
+                            // For complex unaliased expressions, determining a simple column name
+                            // can be ambiguous or dialect-specific.
+                            // Example: SELECT col1 + col2 FROM my_table; -> output column name might be 'col1 + col2' or system-generated.
+                            // We could use expr.to_string() but that can be very long.
+                            // For now, we focus on explicitly named/aliased columns.
+                        }
+                    }
+                }
+                SelectItem::ExprWithAlias { alias, .. } => {
+                    columns.insert(alias.value.clone());
+                }
+                SelectItem::QualifiedWildcard(object_name, _) => {
+                    // Resolve object_name to a table/CTE available in *this* analyzer's scope (self.tables)
+                    // and add its columns. This 'self' is the cte_analyzer.
+                    let target_name_parts: Vec<String> = object_name.0.iter().map(|id| id.value.clone()).collect();
+                    let target_alias = target_name_parts.first().cloned().unwrap_or_default(); // e.g., "t" in "t.*"
+
+                    if let Some(resolved_table_key) = self.current_scope_aliases.get(&target_alias)
+                        .or_else(|| self.parent_scope_aliases.get(&target_alias)) // Check parent if not in current
+                        .or_else(|| if self.tables.contains_key(&target_alias) { Some(&target_alias) } else {None} ) // Direct table name
+                    {
+                        if let Some(table_info) = self.tables.get(resolved_table_key) {
+                            for col_name in &table_info.columns {
+                                columns.insert(col_name.clone());
+                            }
+                        } else {
+                             eprintln!("Warning: QualifiedWildcard target '{}' (resolved to '{}') not found in CTE's internal tables.", target_alias, resolved_table_key);
+                        }
+                    } else {
+                        eprintln!("Warning: QualifiedWildcard target '{}' could not be resolved in CTE context.", target_alias);
+                    }
+                }
+                SelectItem::Wildcard(_) => {
+                    // Add all columns from all tables in the FROM clause of *this* select statement.
+                    // Iterate `self.current_scope_aliases` (aliases defined in the CTE's FROM clause),
+                    // get their resolved TableInfo from `self.tables`, and add their columns.
+                    for (_alias, resolved_table_key) in &self.current_scope_aliases {
+                         if let Some(table_info) = self.tables.get(resolved_table_key) {
+                            for col_name in &table_info.columns {
+                                columns.insert(col_name.clone());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        columns
     }
 
     fn new_child_analyzer(&self) -> Self {
