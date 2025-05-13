@@ -90,7 +90,8 @@ export const EditTrendline: React.FC<{
         projection: false,
         lineStyle: 'solid',
         polynomialOrder: 2,
-        aggregateAllCategories: true
+        aggregateAllCategories: true,
+        offset: 0
       };
 
       addNewTrendId(newTrendline.id);
@@ -261,6 +262,15 @@ const TrendlineItemContent: React.FC<{
     onUpdateExisitingTrendline
   }) => {
     const { show } = trend;
+
+    /*
+  trendlineLabelPositionOffset?: number; //OPTIONAL: default is 0.85. Goes from 0 to 1.
+  projection?: boolean; //OPTIONAL: default is false. if true, the trendline will be projected to the end of the chart.
+  lineStyle?: 'solid' | 'dotted' | 'dashed' | 'dashdot';
+  offset?: number; //OPTIONAL: default is -15. if true, the trendline will be projected to the end of the chart.
+  polynomialOrder?: number;
+  aggregateAllCategories?: boolean; //OPTIONAL: default is true. if true, the trendline will be calculated for all categories. if false, the trendline will be calculated for the category specified in the columnId.
+    */
 
     return (
       <div className="flex w-full flex-col overflow-hidden">
