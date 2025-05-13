@@ -843,7 +843,7 @@ const queueTrendlineLabel = (
 // Helper function to draw just the trendline path (without labels)
 const drawTrendlinePath = (
   ctx: CanvasRenderingContext2D,
-  chartArea: { bottom: number },
+  chartArea: { bottom: number; top: number; left: number; right: number },
   xScale: any,
   yScale: any,
   fitter: BaseFitter,
@@ -874,6 +874,16 @@ const drawTrendlinePath = (
 
   // === DRAWING LOGIC ===
   ctx.save();
+
+  // Apply clipping to restrict drawing within chart area
+  ctx.beginPath();
+  ctx.rect(
+    chartArea.left,
+    chartArea.top,
+    chartArea.right - chartArea.left,
+    chartArea.bottom - chartArea.top
+  );
+  ctx.clip();
 
   // 1) stroke style: gradient or solid
   const cMin = opts.colorMin ?? defaultColor;
