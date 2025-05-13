@@ -15,7 +15,6 @@ import { useColors } from '../chartHooks';
 import { useGoalLines, useOptions, useSeriesOptions } from './hooks';
 import { useChartSpecificOptions } from './hooks/useChartSpecificOptions';
 import type { BusterChartTypeComponentProps } from '../interfaces/chartComponentInterfaces';
-import { useTrendlines } from './hooks/useTrendlines';
 import type { ScatterAxis } from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn, useMount, usePreviousRef } from '@/hooks';
 
@@ -51,7 +50,6 @@ export const BusterChartJSComponent = React.memo(
         yAxisKeys,
         y2AxisKeys,
         datasetOptions,
-        dataTrendlineOptions,
         yAxisShowAxisTitle,
         xAxisShowAxisTitle,
         columnMetadata = [],
@@ -69,6 +67,7 @@ export const BusterChartJSComponent = React.memo(
         disableTooltip,
         xAxisTimeInterval,
         numberOfDataPoints,
+        trendlines,
         //TODO
         xAxisDataZoom,
         ...rest
@@ -83,20 +82,13 @@ export const BusterChartJSComponent = React.memo(
         selectedChartType
       });
 
-      const { trendlineAnnotations, trendlineSeries } = useTrendlines({
-        trendlines: dataTrendlineOptions,
-        columnLabelFormats,
-        selectedChartType,
-        lineGroupType,
-        barGroupType
-      });
-
       const data: ChartProps<ChartJSChartType>['data'] = useSeriesOptions({
         selectedChartType,
         y2AxisKeys,
         yAxisKeys,
         columnSettings,
         columnLabelFormats,
+        trendlines,
         colors,
         barShowTotalAtTop,
         datasetOptions,
@@ -105,7 +97,6 @@ export const BusterChartJSComponent = React.memo(
         columnMetadata,
         scatterDotSize,
         lineGroupType,
-        trendlineSeries,
         barGroupType
       });
       const previousData = usePreviousRef(data);
@@ -139,7 +130,6 @@ export const BusterChartJSComponent = React.memo(
 
       const options: ChartOptions<ChartJSChartType> = useOptions({
         goalLinesAnnotations,
-        trendlineAnnotations,
         colors,
         selectedChartType,
         columnLabelFormats,
@@ -175,7 +165,8 @@ export const BusterChartJSComponent = React.memo(
         animate,
         disableTooltip,
         xAxisTimeInterval,
-        numberOfDataPoints
+        numberOfDataPoints,
+        trendlines
       });
 
       const type = useMemo(() => {

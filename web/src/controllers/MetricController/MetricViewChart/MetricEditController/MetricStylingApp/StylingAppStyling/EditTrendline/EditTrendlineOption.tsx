@@ -12,14 +12,14 @@ import { TriangleWarning } from '@/components/ui/icons';
 export const EditTrendlineOption = React.memo(
   ({
     trend,
-    onUpdateExisitingTrendline,
+    onUpdateExistingTrendline,
     columnLabelFormats,
     xAxisEncodes,
     yAxisEncodes,
     selectedChartType
   }: {
     trend: LoopTrendline;
-    onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+    onUpdateExistingTrendline: (trend: LoopTrendline) => void;
     yAxisEncodes: string[];
     xAxisEncodes: string[];
     columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
@@ -88,7 +88,7 @@ export const EditTrendlineOption = React.memo(
     }, [allowedOptions, type]);
 
     const onChangeSelect = (value: Trendline['type']) => {
-      onUpdateExisitingTrendline({
+      onUpdateExistingTrendline({
         ...trend,
         type: value as unknown as LoopTrendline['type']
       });

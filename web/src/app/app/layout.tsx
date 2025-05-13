@@ -10,6 +10,9 @@ import { AppProviders } from '@/context/AppProviders';
 import { headers } from 'next/headers';
 import { queryKeys } from '@/api/query_keys';
 
+const newUserRoute = createBusterRoute({ route: BusterRoutes.NEW_USER });
+const loginRoute = createBusterRoute({ route: BusterRoutes.AUTH_LOGIN });
+
 export default async function Layout({
   children
 }: Readonly<{
@@ -32,8 +35,6 @@ export default async function Layout({
   }
 
   const userInfo = queryClient.getQueryData(queryKeys.userGetUserMyself.queryKey);
-  const newUserRoute = createBusterRoute({ route: BusterRoutes.NEW_USER });
-  const loginRoute = createBusterRoute({ route: BusterRoutes.AUTH_LOGIN });
 
   if (
     (supabaseContext.user?.is_anonymous && pathname !== loginRoute) ||

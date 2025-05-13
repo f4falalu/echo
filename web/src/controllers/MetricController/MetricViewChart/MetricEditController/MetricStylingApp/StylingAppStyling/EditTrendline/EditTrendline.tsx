@@ -1,6 +1,6 @@
-import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import { DEFAULT_TRENDLINE_CONFIG, IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useEffect, useMemo, useState } from 'react';
-import type { ChartEncodes, Trendline } from '@/api/asset_interfaces/metric/charts';
+import type { ChartEncodes, ScatterAxis, Trendline } from '@/api/asset_interfaces/metric/charts';
 import { v4 as uuidv4 } from 'uuid';
 import { useSet, useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../../Common';
@@ -19,6 +19,11 @@ import { EditTrendlineOption } from './EditTrendlineOption';
 import { TypeToLabel } from './config';
 import { JOIN_CHARACTER } from '@/components/ui/charts/commonHelpers';
 import isEqual from 'lodash/isEqual';
+import { TrendlineLineStyle } from './TrendlineLineStyle';
+import { TrendlineAggregateAllCategories } from './TrendlineAggregateAllCategories';
+import { TrendlinePolynomialOrder } from './TrendlinePolynomialOrder';
+// import { TrendlineProjection } from './TrendlineProjection';
+// import { TrendlinePolynomialOrder } from './TrendlinePolynomialOrder';
 
 export interface LoopTrendline extends Trendline {
   id: string;
@@ -26,6 +31,7 @@ export interface LoopTrendline extends Trendline {
 
 export const EditTrendline: React.FC<{
   trendlines: IBusterMetricChartConfig['trendlines'];
+  colors: string[];
   onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
   selectedAxis: ChartEncodes;
   columnMetadata: ColumnMetaData[];
@@ -34,6 +40,7 @@ export const EditTrendline: React.FC<{
 }> = React.memo(
   ({
     trendlines,
+    colors,
     onUpdateChartConfig,
     selectedAxis,
     columnMetadata,
@@ -79,13 +86,11 @@ export const EditTrendline: React.FC<{
       const type = hasLinearRegression ? getNewType() : ('linear_regression' as const);
 
       const newTrendline: Required<LoopTrendline> = {
+        ...DEFAULT_TRENDLINE_CONFIG,
         id: uuidv4(),
-        show: true,
-        showTrendlineLabel: false,
-        trendlineLabel: null,
         type,
-        trendLineColor: '#FF0000',
-        columnId: selectedAxis.y[0] || ''
+        columnId: selectedAxis.y[0] || '',
+        aggregateAllCategories: ((selectedAxis as ScatterAxis).category || []).length >= 1
       };
 
       addNewTrendId(newTrendline.id);
@@ -106,7 +111,7 @@ export const EditTrendline: React.FC<{
       });
     });
 
-    const onUpdateExisitingTrendline = useMemoizedFn((trend: LoopTrendline) => {
+    const onUpdateExistingTrendline = useMemoizedFn((trend: LoopTrendline) => {
       setTrends((prev) => {
         return prev.map((t) => (t.id === trend.id ? trend : t));
       });
@@ -167,10 +172,12 @@ export const EditTrendline: React.FC<{
                 columnLabelFormats={columnLabelFormats}
                 yAxisEncodes={selectedAxis.y}
                 xAxisEncodes={selectedAxis.x}
+                categoryEncodes={(selectedAxis as ScatterAxis).category}
                 selectedChartType={selectedChartType}
                 onDeleteTrendline={onDeleteTrendline}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
                 isNewTrend={newTrendIds.has(trend.id)}
+                colors={colors}
               />
             </motion.div>
           ))}
@@ -188,51 +195,59 @@ const EditTrendlineItem: React.FC<{
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
   yAxisEncodes: string[];
   xAxisEncodes: string[];
+  categoryEncodes: string[] | undefined;
+  colors: string[];
   selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+  onUpdateExistingTrendline: (trend: LoopTrendline) => void;
   onDeleteTrendline: (id: string) => void;
-}> = ({
-  trend,
-  isNewTrend,
-  columnLabelFormats,
-  columnMetadata,
-  yAxisEncodes,
-  xAxisEncodes,
-  selectedChartType,
-  onUpdateExisitingTrendline,
-  onDeleteTrendline
-}) => {
-  const title = useMemo(() => {
-    if (trend.trendlineLabel) return trend.trendlineLabel;
-    const hasMultipleColumns = yAxisEncodes.length > 1;
-    const trendType = TypeToLabel[trend.type] || 'Trend';
-    const labels = [trendType];
-    if (hasMultipleColumns) {
-      const columnLabelFormat = columnLabelFormats[trend.columnId];
-      const formattedLabel = formatLabel(trend.columnId || 'Trend', columnLabelFormat, true);
-      labels.push(formattedLabel);
-    }
-    return labels.join(JOIN_CHARACTER);
-  }, [trend.type, trend.trendlineLabel, trend.columnId, columnLabelFormats, yAxisEncodes]);
+}> = React.memo(
+  ({
+    trend,
+    isNewTrend,
+    columnLabelFormats,
+    columnMetadata,
+    yAxisEncodes,
+    xAxisEncodes,
+    categoryEncodes,
+    colors,
+    selectedChartType,
+    onUpdateExistingTrendline,
+    onDeleteTrendline
+  }) => {
+    const title = useMemo(() => {
+      if (trend.trendlineLabel) return trend.trendlineLabel;
+      const hasMultipleColumns = yAxisEncodes.length > 1;
+      const trendType = TypeToLabel[trend.type] || 'Trend';
+      const labels = [trendType];
+      if (hasMultipleColumns) {
+        const columnLabelFormat = columnLabelFormats[trend.columnId];
+        const formattedLabel = formatLabel(trend.columnId || 'Trend', columnLabelFormat, true);
+        labels.push(formattedLabel);
+      }
+      return labels.join(JOIN_CHARACTER);
+    }, [trend.type, trend.trendlineLabel, trend.columnId, columnLabelFormats, yAxisEncodes]);
 
-  return (
-    <CollapseDelete
-      initialOpen={isNewTrend}
-      title={title}
-      dataTestId={`trendline-${title}`}
-      onDelete={() => onDeleteTrendline(trend.id)}>
-      <TrendlineItemContent
-        trend={trend}
-        columnMetadata={columnMetadata}
-        columnLabelFormats={columnLabelFormats}
-        yAxisEncodes={yAxisEncodes}
-        xAxisEncodes={xAxisEncodes}
-        selectedChartType={selectedChartType}
-        onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-      />
-    </CollapseDelete>
-  );
-};
+    return (
+      <CollapseDelete
+        initialOpen={isNewTrend}
+        title={title}
+        dataTestId={`trendline-${title}`}
+        onDelete={() => onDeleteTrendline(trend.id)}>
+        <TrendlineItemContent
+          trend={trend}
+          columnMetadata={columnMetadata}
+          columnLabelFormats={columnLabelFormats}
+          yAxisEncodes={yAxisEncodes}
+          xAxisEncodes={xAxisEncodes}
+          colors={colors}
+          categoryEncodes={categoryEncodes}
+          selectedChartType={selectedChartType}
+          onUpdateExistingTrendline={onUpdateExistingTrendline}
+        />
+      </CollapseDelete>
+    );
+  }
+);
 EditTrendlineItem.displayName = 'EditTrendlineItem';
 
 const TrendlineItemContent: React.FC<{
@@ -240,18 +255,22 @@ const TrendlineItemContent: React.FC<{
   columnMetadata: ColumnMetaData[];
   yAxisEncodes: string[];
   xAxisEncodes: string[];
+  colors: string[];
+  categoryEncodes: string[] | undefined;
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
   selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+  onUpdateExistingTrendline: (trend: LoopTrendline) => void;
 }> = React.memo(
   ({
     trend,
+    colors,
+    categoryEncodes,
     yAxisEncodes,
     xAxisEncodes,
     columnMetadata,
     columnLabelFormats,
     selectedChartType,
-    onUpdateExisitingTrendline
+    onUpdateExistingTrendline
   }) => {
     const { show } = trend;
 
@@ -260,30 +279,56 @@ const TrendlineItemContent: React.FC<{
         <div className="flex flex-col space-y-2.5 p-2.5">
           <EditTrendlineShowLine
             trend={trend}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+            onUpdateExistingTrendline={onUpdateExistingTrendline}
           />
 
-          <TrendlineColumnId
-            trend={trend}
-            columnMetadata={columnMetadata}
-            columnLabelFormats={columnLabelFormats}
-            yAxisEncodes={yAxisEncodes}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-          />
+          {show && (
+            <>
+              <TrendlineColumnId
+                trend={trend}
+                columnMetadata={columnMetadata}
+                columnLabelFormats={columnLabelFormats}
+                yAxisEncodes={yAxisEncodes}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
+              />
 
-          <EditTrendlineOption
-            trend={trend}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-            yAxisEncodes={yAxisEncodes}
-            xAxisEncodes={xAxisEncodes}
-            columnLabelFormats={columnLabelFormats}
-            selectedChartType={selectedChartType}
-          />
+              <EditTrendlineOption
+                trend={trend}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
+                yAxisEncodes={yAxisEncodes}
+                xAxisEncodes={xAxisEncodes}
+                columnLabelFormats={columnLabelFormats}
+                selectedChartType={selectedChartType}
+              />
 
-          <TrendlineColorPicker
+              <TrendlineLineStyle
+                trend={trend}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
+              />
+
+              <TrendlinePolynomialOrder
+                trend={trend}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
+              />
+
+              {/* <TrendlineProjection
             trend={trend}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-          />
+            onUpdateExistingTrendline={onUpdateExistingTrendline}
+          /> */}
+
+              <TrendlineAggregateAllCategories
+                trend={trend}
+                categoryEncodes={categoryEncodes}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
+              />
+
+              <TrendlineColorPicker
+                trend={trend}
+                colors={colors}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
+              />
+            </>
+          )}
         </div>
 
         {show && (
@@ -291,10 +336,7 @@ const TrendlineItemContent: React.FC<{
             <Separator className="mb-1!" />
 
             <div className="flex flex-col space-y-2.5 p-2.5">
-              <TrendlineLabel
-                trend={trend}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-              />
+              <TrendlineLabel trend={trend} onUpdateExistingTrendline={onUpdateExistingTrendline} />
             </div>
           </>
         )}

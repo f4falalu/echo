@@ -22,6 +22,7 @@ import {
   TOOLTIP_THRESHOLD
 } from '../../../config';
 import { useAnimations } from './useAnimations';
+import { createAggregrateTrendlines } from '../useSeriesOptions/createTrendlines';
 
 interface UseOptionsProps {
   colors: string[];
@@ -58,10 +59,10 @@ interface UseOptionsProps {
   yAxisScaleType: BusterChartProps['yAxisScaleType'];
   animate: boolean;
   goalLinesAnnotations: AnnotationPluginOptions['annotations'];
-  trendlineAnnotations: AnnotationPluginOptions['annotations'];
   disableTooltip: boolean;
   xAxisTimeInterval: BusterChartProps['xAxisTimeInterval'];
   numberOfDataPoints: number;
+  trendlines: BusterChartProps['trendlines'];
 }
 
 export const useOptions = ({
@@ -98,8 +99,8 @@ export const useOptions = ({
   y2AxisStartAxisAtZero,
   yAxisScaleType,
   animate,
+  trendlines,
   goalLinesAnnotations,
-  trendlineAnnotations,
   disableTooltip: disableTooltipProp,
   xAxisTimeInterval,
   numberOfDataPoints
@@ -193,6 +194,14 @@ export const useOptions = ({
     colors
   });
 
+  const trendlineOptions = useMemo(() => {
+    return createAggregrateTrendlines({
+      trendlines,
+      columnLabelFormats,
+      selectedAxis
+    });
+  }, [trendlines, columnLabelFormats, selectedAxis.y, (selectedAxis as { y2: string[] }).y2]);
+
   const options: ChartProps<ChartJSChartType>['options'] = useMemo(() => {
     const chartAnnotations = chartPlugins?.annotation?.annotations;
     const isLargeDataset = numberOfDataPoints > LINE_DECIMATION_THRESHOLD;
@@ -208,13 +217,14 @@ export const useOptions = ({
         tooltip: tooltipOptions,
         ...chartPlugins,
         annotation: {
-          annotations: { ...goalLinesAnnotations, ...chartAnnotations, ...trendlineAnnotations }
+          annotations: { ...goalLinesAnnotations, ...chartAnnotations }
         },
         decimation: {
           enabled: isLargeDataset,
           algorithm: 'lttb',
           samples: LINE_DECIMATION_SAMPLES
-        }
+        },
+        trendline: trendlineOptions
       },
       animation,
       ...chartOptions
@@ -231,8 +241,8 @@ export const useOptions = ({
     onInitialAnimationEnd,
     isHorizontalBar,
     goalLinesAnnotations,
-    trendlineAnnotations,
-    tooltipOptions
+    tooltipOptions,
+    trendlineOptions
   ]);
 
   return options;

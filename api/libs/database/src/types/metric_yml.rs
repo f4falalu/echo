@@ -548,6 +548,27 @@ pub struct Trendline {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(alias = "trend_line_color")]
     pub trend_line_color: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "trendline_label_position_offset")]
+    pub trendline_label_position_offset: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "projection")]
+    pub projection: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "line_style")]
+    pub line_style: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "offset")]
+    pub offset: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "polynomial_order")]
+    pub polynomial_order: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "aggregate_all_categories")]
+    pub aggregate_all_categories: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(alias = "id")]
+    pub id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -705,7 +726,7 @@ pub enum MetricValueAggregate {
     Count,
     Max,
     Min,
-    First
+    First,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

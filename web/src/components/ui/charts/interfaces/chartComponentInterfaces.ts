@@ -8,7 +8,6 @@ export interface BusterChartTypeComponentProps
     | 'loading'
     | 'showLegend'
     | 'showLegendHeadline'
-    | 'trendlines'
     | 'barSortBy'
     | 'onChartMounted'
     | 'animateLegend'
@@ -19,7 +18,7 @@ export interface BusterChartTypeComponentProps
 export interface BusterChartComponentProps
   extends Omit<
       Required<BusterChartRenderComponentProps>,
-      'selectedAxis' | 'barSortBy' | 'pieSortBy' | 'trendlines' | 'data'
+      'selectedAxis' | 'barSortBy' | 'pieSortBy' | 'data'
     >,
     ReturnType<typeof useDatasetOptions> {
   selectedAxis: ChartEncodes;

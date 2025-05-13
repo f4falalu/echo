@@ -177,6 +177,7 @@ export const MetricStylingApp: React.FC<{
             barShowTotalAtTop={barShowTotalAtTop}
             rowCount={rowCount}
             pieSortBy={pieSortBy}
+            colors={colors}
           />
         )}
 

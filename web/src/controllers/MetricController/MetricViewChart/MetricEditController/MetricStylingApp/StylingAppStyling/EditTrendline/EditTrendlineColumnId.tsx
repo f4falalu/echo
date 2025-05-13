@@ -9,14 +9,14 @@ export const TrendlineColumnId = React.memo(
   ({
     trend,
     columnMetadata,
-    onUpdateExisitingTrendline,
+    onUpdateExistingTrendline,
     columnLabelFormats,
     yAxisEncodes
   }: {
     trend: LoopTrendline;
     columnMetadata: ColumnMetaData[];
     columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
-    onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+    onUpdateExistingTrendline: (trend: LoopTrendline) => void;
     yAxisEncodes: string[];
   }) => {
     const options = useMemo(() => {
@@ -41,7 +41,7 @@ export const TrendlineColumnId = React.memo(
           className="w-full overflow-hidden"
           items={options}
           value={defaultSelected?.value}
-          onChange={(value) => onUpdateExisitingTrendline({ ...trend, columnId: value })}
+          onChange={(value) => onUpdateExistingTrendline({ ...trend, columnId: value })}
         />
       </LabelAndInput>
     );

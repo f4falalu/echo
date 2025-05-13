@@ -12,6 +12,7 @@ import {
 } from '@/api/asset_interfaces/metric/defaults';
 import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 import { formatBarAndLineDataLabel } from '../../helpers';
+import { createTrendlineOnSeries } from './createTrendlines';
 
 Chart.register(Filler);
 
@@ -23,7 +24,8 @@ export const lineSeriesBuilder = ({
   columnLabelFormats,
   lineGroupType,
   datasetOptions,
-  xAxisKeys
+  xAxisKeys,
+  trendlines
 }: SeriesBuilderProps): ChartProps<'line'>['data']['datasets'][number][] => {
   return datasetOptions.datasets.map<ChartProps<'line'>['data']['datasets'][number]>(
     (dataset, index) => {
@@ -34,7 +36,8 @@ export const lineSeriesBuilder = ({
         columnSettings,
         columnLabelFormats,
         index,
-        xAxisKeys
+        xAxisKeys,
+        trendlines
       });
     }
   );
@@ -43,7 +46,12 @@ export const lineSeriesBuilder = ({
 export const lineBuilder = (
   props: Pick<
     SeriesBuilderProps,
-    'colors' | 'columnSettings' | 'columnLabelFormats' | 'lineGroupType' | 'xAxisKeys'
+    | 'colors'
+    | 'columnSettings'
+    | 'columnLabelFormats'
+    | 'lineGroupType'
+    | 'xAxisKeys'
+    | 'trendlines'
   > & {
     index: number;
     yAxisID?: string;
@@ -60,7 +68,8 @@ export const lineBuilder = (
     yAxisID,
     order,
     dataset,
-    xAxisKeys
+    xAxisKeys,
+    trendlines
   } = props;
   const { dataKey } = dataset;
   const yKey = dataKey;
@@ -111,6 +120,12 @@ export const lineBuilder = (
     pointHoverRadius: hoverRadius,
     pointBorderWidth: 1.2,
     pointHoverBorderWidth: 1.65,
+    trendline: createTrendlineOnSeries({
+      trendlines,
+      datasetColor: color,
+      yAxisKey: dataset.dataKey,
+      columnLabelFormats
+    }),
     datalabels: {
       clamp: true,
       display: showDataLabels

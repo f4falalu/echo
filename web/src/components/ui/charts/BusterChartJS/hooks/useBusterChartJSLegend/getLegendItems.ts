@@ -46,8 +46,7 @@ export const getLegendItems = ({
     });
   }
 
-  const datasets =
-    data.datasets?.filter((dataset) => !dataset.hidden && !dataset.isTrendline) || [];
+  const datasets = data.datasets?.filter((dataset) => !dataset.hidden) || [];
 
   return datasets.map<BusterChartLegendItem>((dataset, index) => ({
     color: colors[index % colors.length],
