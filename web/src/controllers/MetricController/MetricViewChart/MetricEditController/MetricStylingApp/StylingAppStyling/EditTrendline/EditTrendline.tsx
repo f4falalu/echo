@@ -1,6 +1,6 @@
 import { IBusterMetricChartConfig } from '@/api/asset_interfaces';
 import React, { useEffect, useMemo, useState } from 'react';
-import type { ChartEncodes, Trendline } from '@/api/asset_interfaces/metric/charts';
+import type { ChartEncodes, ScatterAxis, Trendline } from '@/api/asset_interfaces/metric/charts';
 import { v4 as uuidv4 } from 'uuid';
 import { useSet, useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../../Common';
@@ -19,6 +19,12 @@ import { EditTrendlineOption } from './EditTrendlineOption';
 import { TypeToLabel } from './config';
 import { JOIN_CHARACTER } from '@/components/ui/charts/commonHelpers';
 import isEqual from 'lodash/isEqual';
+import { TrendlineLabelPositionOffset } from './TrendlineLabelPositionOffset';
+import { TrendlineProjection } from './TrendlineProjection';
+import { TrendlineLineStyle } from './TrendlineLineStyle';
+import { TrendlineOffset } from './TrendlineOffset';
+import { TrendlinePolynomialOrder } from './TrendlinePolynomialOrder';
+import { TrendlineAggregateAllCategories } from './TrendlineAggregateAllCategories';
 
 export interface LoopTrendline extends Trendline {
   id: string;
@@ -173,6 +179,7 @@ export const EditTrendline: React.FC<{
                 columnLabelFormats={columnLabelFormats}
                 yAxisEncodes={selectedAxis.y}
                 xAxisEncodes={selectedAxis.x}
+                categoryEncodes={(selectedAxis as ScatterAxis).category}
                 selectedChartType={selectedChartType}
                 onDeleteTrendline={onDeleteTrendline}
                 onUpdateExisitingTrendline={onUpdateExisitingTrendline}
@@ -194,6 +201,7 @@ const EditTrendlineItem: React.FC<{
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
   yAxisEncodes: string[];
   xAxisEncodes: string[];
+  categoryEncodes: string[] | undefined;
   selectedChartType: IBusterMetricChartConfig['selectedChartType'];
   onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
   onDeleteTrendline: (id: string) => void;
@@ -205,6 +213,7 @@ const EditTrendlineItem: React.FC<{
     columnMetadata,
     yAxisEncodes,
     xAxisEncodes,
+    categoryEncodes,
     selectedChartType,
     onUpdateExisitingTrendline,
     onDeleteTrendline
@@ -234,6 +243,7 @@ const EditTrendlineItem: React.FC<{
           columnLabelFormats={columnLabelFormats}
           yAxisEncodes={yAxisEncodes}
           xAxisEncodes={xAxisEncodes}
+          categoryEncodes={categoryEncodes}
           selectedChartType={selectedChartType}
           onUpdateExisitingTrendline={onUpdateExisitingTrendline}
         />
@@ -248,12 +258,14 @@ const TrendlineItemContent: React.FC<{
   columnMetadata: ColumnMetaData[];
   yAxisEncodes: string[];
   xAxisEncodes: string[];
+  categoryEncodes: string[] | undefined;
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
   selectedChartType: IBusterMetricChartConfig['selectedChartType'];
   onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
 }> = React.memo(
   ({
     trend,
+    categoryEncodes,
     yAxisEncodes,
     xAxisEncodes,
     columnMetadata,
@@ -262,15 +274,6 @@ const TrendlineItemContent: React.FC<{
     onUpdateExisitingTrendline
   }) => {
     const { show } = trend;
-
-    /*
-  trendlineLabelPositionOffset?: number; //OPTIONAL: default is 0.85. Goes from 0 to 1.
-  projection?: boolean; //OPTIONAL: default is false. if true, the trendline will be projected to the end of the chart.
-  lineStyle?: 'solid' | 'dotted' | 'dashed' | 'dashdot';
-  offset?: number; //OPTIONAL: default is -15. if true, the trendline will be projected to the end of the chart.
-  polynomialOrder?: number;
-  aggregateAllCategories?: boolean; //OPTIONAL: default is true. if true, the trendline will be calculated for all categories. if false, the trendline will be calculated for the category specified in the columnId.
-    */
 
     return (
       <div className="flex w-full flex-col overflow-hidden">
@@ -297,6 +300,27 @@ const TrendlineItemContent: React.FC<{
             selectedChartType={selectedChartType}
           />
 
+          <TrendlineLineStyle
+            trend={trend}
+            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+          />
+
+          <TrendlinePolynomialOrder
+            trend={trend}
+            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+          />
+
+          <TrendlineProjection
+            trend={trend}
+            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+          />
+
+          <TrendlineAggregateAllCategories
+            trend={trend}
+            categoryEncodes={categoryEncodes}
+            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+          />
+
           <TrendlineColorPicker
             trend={trend}
             onUpdateExisitingTrendline={onUpdateExisitingTrendline}
@@ -312,6 +336,16 @@ const TrendlineItemContent: React.FC<{
                 trend={trend}
                 onUpdateExisitingTrendline={onUpdateExisitingTrendline}
               />
+
+              <TrendlineOffset
+                trend={trend}
+                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+              />
+
+              {/* <TrendlineLabelPositionOffset
+                trend={trend}
+                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+              /> */}
             </div>
           </>
         )}

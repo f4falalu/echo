@@ -21,8 +21,8 @@ export interface Trendline {
     | 'max'
     | 'median'; //default is linear trend
   trendLineColor?: string | null | 'inherit'; //OPTIONAL: default is #000000
-  trendlineLabelPositionOffset?: number; //OPTIONAL: default is 0.85. Goes from 0 to 1.
   columnId: string;
+  trendlineLabelPositionOffset?: number; //OPTIONAL: default is 0.85. Goes from 0 to 1.
   projection?: boolean; //OPTIONAL: default is false. if true, the trendline will be projected to the end of the chart.
   lineStyle?: 'solid' | 'dotted' | 'dashed' | 'dashdot';
   offset?: number; //OPTIONAL: default is -15. if true, the trendline will be projected to the end of the chart.
