@@ -1,6 +1,6 @@
 // chartjs-plugin-trendline.ts
 
-import { Plugin, ChartType } from 'chart.js';
+import { Plugin, ChartType, ChartDataset, Point } from 'chart.js';
 import { defaultLabelOptionConfig } from '../../../hooks/useChartSpecificOptions/labelOptionConfig';
 
 /** The three trendline modes we support */
@@ -531,12 +531,31 @@ const fillUnderLine = (
 };
 
 // Process data points from a dataset
-const addDataPointsToFitter = (dataset: any, fitter: BaseFitter, yAxisID?: string) => {
-  dataset.data.forEach((point: any, i: number) => {
-    const x = point['x'] ?? i;
-    const y = point[yAxisID ?? dataset.yAxisID ?? 'y'] ?? point;
-    if (typeof x === 'number' && typeof y === 'number') {
-      fitter.add(x, y);
+const addDataPointsToFitter = (
+  dataset: ChartDataset<'line', (number | Point | null)[]>,
+  labels: undefined | string[] | Date[],
+  fitter: BaseFitter,
+  yAxisID?: string
+) => {
+  dataset.data.forEach((point, i: number) => {
+    if (!point) return;
+    else if (typeof point === 'number') {
+      let x: number | Date | undefined | string = i;
+      const y = point;
+
+      if (typeof labels?.[i] === 'object' && labels?.[i] instanceof Date) {
+        x = labels?.[i]?.getTime();
+      }
+
+      if (typeof x === 'number' && typeof y === 'number') {
+        fitter.add(x, y);
+      }
+    } else if (point) {
+      const x = point['x'] ?? i;
+      const y = point[(yAxisID ?? dataset.yAxisID ?? 'y') as 'y'] ?? point;
+      if (typeof x === 'number' && typeof y === 'number') {
+        fitter.add(x, y);
+      }
     }
   });
 };
@@ -548,6 +567,7 @@ const trendlinePlugin: Plugin<'line'> = {
     const ctx = chart.ctx;
     const pluginOptions = chart.options.plugins?.trendline as TrendlinePluginOptions | undefined;
     const { chartArea } = chart;
+    const labels = chart.data.labels as string[] | Date[] | undefined;
 
     // get horizontal (x) and vertical (y) scales
     const xScale = Object.values(chart.scales).find((s) => s.isHorizontal())!;
@@ -586,7 +606,7 @@ const trendlinePlugin: Plugin<'line'> = {
 
           // Collect all data points from all datasets that match this yAxisKey
           for (const dataset of datasetsWithTrendline) {
-            addDataPointsToFitter(dataset, fitter, yAxisID);
+            addDataPointsToFitter(dataset, labels, fitter, yAxisID);
           }
 
           // Draw the aggregated trendline if we have valid data points
@@ -640,9 +660,7 @@ const trendlinePlugin: Plugin<'line'> = {
         const fitter = createFitter(opts);
 
         // Add all data points to the fitter
-        addDataPointsToFitter(dataset, fitter);
-
-        console.log(fitter, dataset, chart);
+        addDataPointsToFitter(dataset, labels, fitter);
 
         // Skip if no valid points were added
         if (fitter.minx === Infinity || fitter.maxx === -Infinity) {
