@@ -85,7 +85,12 @@ export const EditTrendline: React.FC<{
         trendlineLabel: null,
         type,
         trendLineColor: '#FF0000',
-        columnId: selectedAxis.y[0] || ''
+        columnId: selectedAxis.y[0] || '',
+        trendlineLabelPositionOffset: 0,
+        projection: false,
+        lineStyle: 'solid',
+        polynomialOrder: 2,
+        aggregateAllCategories: true
       };
 
       addNewTrendId(newTrendline.id);
@@ -191,48 +196,50 @@ const EditTrendlineItem: React.FC<{
   selectedChartType: IBusterMetricChartConfig['selectedChartType'];
   onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
   onDeleteTrendline: (id: string) => void;
-}> = ({
-  trend,
-  isNewTrend,
-  columnLabelFormats,
-  columnMetadata,
-  yAxisEncodes,
-  xAxisEncodes,
-  selectedChartType,
-  onUpdateExisitingTrendline,
-  onDeleteTrendline
-}) => {
-  const title = useMemo(() => {
-    if (trend.trendlineLabel) return trend.trendlineLabel;
-    const hasMultipleColumns = yAxisEncodes.length > 1;
-    const trendType = TypeToLabel[trend.type] || 'Trend';
-    const labels = [trendType];
-    if (hasMultipleColumns) {
-      const columnLabelFormat = columnLabelFormats[trend.columnId];
-      const formattedLabel = formatLabel(trend.columnId || 'Trend', columnLabelFormat, true);
-      labels.push(formattedLabel);
-    }
-    return labels.join(JOIN_CHARACTER);
-  }, [trend.type, trend.trendlineLabel, trend.columnId, columnLabelFormats, yAxisEncodes]);
+}> = React.memo(
+  ({
+    trend,
+    isNewTrend,
+    columnLabelFormats,
+    columnMetadata,
+    yAxisEncodes,
+    xAxisEncodes,
+    selectedChartType,
+    onUpdateExisitingTrendline,
+    onDeleteTrendline
+  }) => {
+    const title = useMemo(() => {
+      if (trend.trendlineLabel) return trend.trendlineLabel;
+      const hasMultipleColumns = yAxisEncodes.length > 1;
+      const trendType = TypeToLabel[trend.type] || 'Trend';
+      const labels = [trendType];
+      if (hasMultipleColumns) {
+        const columnLabelFormat = columnLabelFormats[trend.columnId];
+        const formattedLabel = formatLabel(trend.columnId || 'Trend', columnLabelFormat, true);
+        labels.push(formattedLabel);
+      }
+      return labels.join(JOIN_CHARACTER);
+    }, [trend.type, trend.trendlineLabel, trend.columnId, columnLabelFormats, yAxisEncodes]);
 
-  return (
-    <CollapseDelete
-      initialOpen={isNewTrend}
-      title={title}
-      dataTestId={`trendline-${title}`}
-      onDelete={() => onDeleteTrendline(trend.id)}>
-      <TrendlineItemContent
-        trend={trend}
-        columnMetadata={columnMetadata}
-        columnLabelFormats={columnLabelFormats}
-        yAxisEncodes={yAxisEncodes}
-        xAxisEncodes={xAxisEncodes}
-        selectedChartType={selectedChartType}
-        onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-      />
-    </CollapseDelete>
-  );
-};
+    return (
+      <CollapseDelete
+        initialOpen={isNewTrend}
+        title={title}
+        dataTestId={`trendline-${title}`}
+        onDelete={() => onDeleteTrendline(trend.id)}>
+        <TrendlineItemContent
+          trend={trend}
+          columnMetadata={columnMetadata}
+          columnLabelFormats={columnLabelFormats}
+          yAxisEncodes={yAxisEncodes}
+          xAxisEncodes={xAxisEncodes}
+          selectedChartType={selectedChartType}
+          onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+        />
+      </CollapseDelete>
+    );
+  }
+);
 EditTrendlineItem.displayName = 'EditTrendlineItem';
 
 const TrendlineItemContent: React.FC<{

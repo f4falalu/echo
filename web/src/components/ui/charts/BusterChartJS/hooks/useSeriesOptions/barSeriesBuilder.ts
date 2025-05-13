@@ -20,6 +20,7 @@ import {
   type IColumnLabelFormat
 } from '@/api/asset_interfaces/metric';
 import { formatLabel } from '@/lib';
+import { createTrendlineOnSeries } from './createTrendlines';
 
 export const barSeriesBuilder = ({
   datasetOptions,
@@ -30,7 +31,8 @@ export const barSeriesBuilder = ({
   barGroupType,
   yAxisKeys,
   y2AxisKeys,
-  xAxisKeys
+  xAxisKeys,
+  trendlines
 }: SeriesBuilderProps): ChartProps<'bar'>['data']['datasets'] => {
   const dataLabelOptions: Options['labels'] = {};
 
@@ -89,7 +91,8 @@ export const barSeriesBuilder = ({
         index,
         dataLabelOptions,
         barGroupType,
-        xAxisKeys
+        xAxisKeys,
+        trendlines
       });
     }
   );
@@ -121,7 +124,8 @@ export const barBuilder = ({
   order,
   dataLabelOptions,
   barGroupType,
-  xAxisKeys
+  xAxisKeys,
+  trendlines
 }: Pick<SeriesBuilderProps, 'colors' | 'columnSettings' | 'columnLabelFormats' | 'xAxisKeys'> & {
   dataset: DatasetOption;
   index: number;
@@ -129,6 +133,7 @@ export const barBuilder = ({
   order?: number;
   dataLabelOptions?: Options['labels'];
   barGroupType: BusterChartProps['barGroupType'];
+  trendlines: BusterChartProps['trendlines'];
 }): ChartProps<'bar'>['data']['datasets'][number] => {
   const yKey = dataset.dataKey;
   const columnSetting = columnSettings[yKey];
@@ -137,6 +142,7 @@ export const barBuilder = ({
   const isPercentageStackedBar =
     barGroupType === 'percentage-stack' ||
     (barGroupType === 'stack' && columnSetting?.showDataLabelsAsPercentage);
+  const color = colors[index % colors.length];
 
   const percentageMode = isPercentageStackedBar
     ? 'stacked'
@@ -151,10 +157,16 @@ export const barBuilder = ({
     order,
     yAxisKey: yKey,
     data: dataset.data,
-    backgroundColor: colors[index % colors.length],
+    backgroundColor: color,
     borderRadius: (columnSetting?.barRoundness || 0) / 2,
     tooltipData: dataset.tooltipData,
     xAxisKeys,
+    trendline: createTrendlineOnSeries({
+      trendlines,
+      datasetColor: color,
+      yAxisKey: dataset.dataKey,
+      columnLabelFormats
+    }),
     datalabels: showLabels
       ? ({
           clamp: false,

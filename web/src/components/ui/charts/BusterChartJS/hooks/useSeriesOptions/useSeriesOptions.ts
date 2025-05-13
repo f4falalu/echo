@@ -83,7 +83,7 @@ export const useSeriesOptions = ({
     };
   }, [sizeKey]);
 
-  const datasetSeries: ChartProps<ChartJSChartType>['data']['datasets'] = useMemo(() => {
+  const datasets: ChartProps<ChartJSChartType>['data']['datasets'] = useMemo(() => {
     return dataBuilderRecord[selectedChartType]({
       datasetOptions,
       columnSettings,
@@ -114,10 +114,6 @@ export const useSeriesOptions = ({
     yAxisKeys,
     y2AxisKeys
   ]);
-
-  const datasets: ChartProps<ChartJSChartType>['data']['datasets'] = useMemo(() => {
-    return datasetSeries;
-  }, [datasetSeries]);
 
   return {
     labels,

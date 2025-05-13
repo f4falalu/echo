@@ -4,8 +4,9 @@ import {
   TrendlineOptions,
   TrendlinePluginOptions
 } from '../../core/plugins/chartjs-plugin-trendlines';
-import { TypeToLabel } from '../useTrendlines/config';
+import { TypeToLabel } from '../../core/plugins/chartjs-plugin-trendlines/config';
 import { formatLabel } from '@/lib/columnFormatter';
+import { canSupportTrendlineRecord } from '../../core/plugins/chartjs-plugin-trendlines/canSupportTrendline';
 
 export const createTrendlineOnSeries = ({
   trendlines,
@@ -22,15 +23,16 @@ export const createTrendlineOnSeries = ({
 }): TrendlineOptions[] | undefined => {
   if (!trendlines || trendlines.length === 0) return undefined;
 
-  const relevantTrendlines = trendlines.filter(({ columnId, aggregateAllCategories }) =>
-    columnId === yAxisKey && useAggregateTrendlines
+  const relevantTrendlines = trendlines.filter((trendline) => {
+    const { columnId, type, aggregateAllCategories } = trendline;
+    return columnId === yAxisKey &&
+      canSupportTrendlineRecord[type]?.(columnLabelFormats, trendline) &&
+      useAggregateTrendlines
       ? aggregateAllCategories
-      : !aggregateAllCategories
-  );
+      : !aggregateAllCategories;
+  });
 
   if (relevantTrendlines.length === 0) return undefined;
-
-  if (useAggregateTrendlines) console.log('relevantTrendlines', relevantTrendlines);
 
   return relevantTrendlines
     .map(
@@ -82,8 +84,6 @@ export const createTrendlineOnSeries = ({
                       ? `${trendlineLabel}: ${formattedValue}`
                       : trendlineLabel;
 
-                  console.log('labelContent', { labelContent, v, value, formattedValue });
-
                   return labelContent;
                 }
               }
@@ -124,8 +124,6 @@ export const createAggregrateTrendlines = ({
 
     return acc;
   }, []);
-
-  console.log('trendlineOptions', trendlineOptions);
 
   return {
     aggregateMultiple: trendlineOptions

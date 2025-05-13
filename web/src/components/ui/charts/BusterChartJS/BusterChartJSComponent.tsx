@@ -15,7 +15,6 @@ import { useColors } from '../chartHooks';
 import { useGoalLines, useOptions, useSeriesOptions } from './hooks';
 import { useChartSpecificOptions } from './hooks/useChartSpecificOptions';
 import type { BusterChartTypeComponentProps } from '../interfaces/chartComponentInterfaces';
-import { useTrendlines } from './hooks/useTrendlines';
 import type { ScatterAxis } from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn, useMount, usePreviousRef } from '@/hooks';
 
@@ -51,7 +50,6 @@ export const BusterChartJSComponent = React.memo(
         yAxisKeys,
         y2AxisKeys,
         datasetOptions,
-        dataTrendlineOptions,
         yAxisShowAxisTitle,
         xAxisShowAxisTitle,
         columnMetadata = [],

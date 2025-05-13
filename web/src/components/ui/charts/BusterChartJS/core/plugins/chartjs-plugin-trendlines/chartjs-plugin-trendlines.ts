@@ -1,7 +1,7 @@
 // chartjs-plugin-trendline.ts
 
 import { Plugin, ChartType } from 'chart.js';
-import { defaultLabelOptionConfig } from '../../hooks/useChartSpecificOptions/labelOptionConfig';
+import { defaultLabelOptionConfig } from '../../../hooks/useChartSpecificOptions/labelOptionConfig';
 
 /** The three trendline modes we support */
 export type TrendlineType =
@@ -642,6 +642,8 @@ const trendlinePlugin: Plugin<'line'> = {
         // Add all data points to the fitter
         addDataPointsToFitter(dataset, fitter);
 
+        console.log(fitter, dataset, chart);
+
         // Skip if no valid points were added
         if (fitter.minx === Infinity || fitter.maxx === -Infinity) {
           return;
@@ -665,6 +667,7 @@ const trendlinePlugin: Plugin<'line'> = {
 
         // Draw only the trendline first (not labels)
         drawTrendlinePath(ctx, chartArea, xScale, yScale, fitter, opts, defaultColor);
+
         // Queue label for later drawing if needed
         if (opts.label?.display) {
           const labelIndices = { datasetIndex, trendlineIndex };
@@ -742,9 +745,7 @@ const queueTrendlineLabel = (
 
   // Handle text as either string or callback function
   let textContent: string;
-  console.log('lbl.text', typeof lbl.text, lbl.text);
   if (typeof lbl.text === 'function') {
-    console.log('lbl.text', lbl);
     // Call the function with the slope value
     textContent = lbl.text({
       slope,
@@ -811,7 +812,6 @@ const queueTrendlineLabel = (
   // Store this label's position for future collision detection
   labelPositions.push(labelRect);
 
-  console.log('labelText', labelText);
   // Queue the label for drawing later (to ensure it's on top of all lines)
   labelDrawingQueue.push({
     ctx,
@@ -860,6 +860,7 @@ const drawTrendlinePath = (
   // 1) stroke style: gradient or solid
   const cMin = opts.colorMin ?? defaultColor;
   const cMax = opts.colorMax ?? cMin;
+
   const stroke = ctx.createLinearGradient(x1, y1, x2, y2);
   stroke.addColorStop(0, cMin);
   stroke.addColorStop(1, cMax);
