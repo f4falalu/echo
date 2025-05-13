@@ -25,7 +25,7 @@ import { useMemo } from 'react';
 import last from 'lodash/last';
 import { prefetchGetMetricDataClient } from '../metrics/queryRequests';
 import { useBusterNotifications } from '@/context/BusterNotifications';
-import { useGetUserFavorites } from '../users/queryRequests';
+import { useGetUserFavorites } from '../users/queryRequestFavorites';
 import {
   useAddAssetToCollection,
   useRemoveAssetFromCollection

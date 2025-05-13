@@ -127,6 +127,7 @@ export type LabelBuilderProps = {
   xAxisKeys: ChartEncodes['x'];
   sizeKey: ScatterAxis['size'];
   columnSettings: NonNullable<BusterChartProps['columnSettings']>;
+  trendlineSeries?: Array<{ yAxisKey: string }>;
 };
 
 const labelsBuilderRecord: Record<

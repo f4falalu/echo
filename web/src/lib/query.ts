@@ -1,5 +1,5 @@
 import { RustApiError } from '@/api/buster_rest/errors';
-import { queryKeys } from '@/api/query_keys';
+import { userQueryKeys } from '@/api/query_keys/users';
 import { QueryClient, queryOptions } from '@tanstack/react-query';
 
 export const isQueryStale = (
@@ -18,7 +18,7 @@ export const isQueryStale = (
 };
 
 export const hasOrganizationId = (queryClient: QueryClient): boolean => {
-  const organizationId = queryClient.getQueryData(queryKeys.userGetUserMyself.queryKey)
+  const organizationId = queryClient.getQueryData(userQueryKeys.userGetUserMyself.queryKey)
     ?.organizations?.[0]?.id;
   return !!organizationId;
 };
