@@ -10,10 +10,24 @@ export const ListEmptyStateWithButton: React.FC<{
   description: string;
   onClick?: () => void;
   buttonText: string;
+  buttonPrefix?: React.ReactNode;
+  buttonSuffix?: React.ReactNode;
   loading?: boolean;
   linkButton?: string;
+  linkButtonTarget?: '_blank' | '_self';
 }> = React.memo(
-  ({ isAdmin = true, linkButton, title, buttonText, description, onClick, loading = false }) => {
+  ({
+    isAdmin = true,
+    buttonPrefix,
+    buttonSuffix,
+    linkButton,
+    title,
+    buttonText,
+    description,
+    onClick,
+    loading = false,
+    linkButtonTarget
+  }) => {
     return (
       <div className="flex h-full w-full flex-col">
         <div
@@ -21,7 +35,7 @@ export const ListEmptyStateWithButton: React.FC<{
           style={{
             marginTop: '25vh'
           }}>
-          <div className="flex w-[350px] flex-col justify-center space-y-3">
+          <div className="flex w-full max-w-[450px] min-w-[350px] flex-col justify-center space-y-3">
             <Title as="h4" className="leading-1.3 text-center [text-wrap:balance]">
               {title}
             </Title>
@@ -30,8 +44,13 @@ export const ListEmptyStateWithButton: React.FC<{
           </div>
 
           {isAdmin && (
-            <ButtonWrapper href={linkButton}>
-              <Button variant="default" prefix={<Plus />} loading={loading} onClick={onClick}>
+            <ButtonWrapper href={linkButton} target={linkButtonTarget}>
+              <Button
+                variant="default"
+                prefix={buttonPrefix || <Plus />}
+                suffix={buttonSuffix}
+                loading={loading}
+                onClick={onClick}>
                 {buttonText}
               </Button>
             </ButtonWrapper>
@@ -45,9 +64,14 @@ export const ListEmptyStateWithButton: React.FC<{
 const ButtonWrapper: React.FC<{
   children: React.ReactNode;
   href?: string;
-}> = ({ children, href }) => {
+  target?: '_blank' | '_self';
+}> = ({ children, href, target }) => {
   if (!href) return <>{children}</>;
-  return <Link href={href}>{children}</Link>;
+  return (
+    <Link href={href} target={target || '_self'}>
+      {children}
+    </Link>
+  );
 };
 
 ListEmptyStateWithButton.displayName = 'ListEmptyStateWithButton';

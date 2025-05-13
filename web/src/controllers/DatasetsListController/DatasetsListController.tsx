@@ -48,7 +48,7 @@ export const DatasetsListController: React.FC<{}> = ({}) => {
         />
       }>
       <DatasetListContent
-        datasetsList={datasetsList || []}
+        datasetsList={[]}
         isFetchedDatasets={isFetchedDatasets}
         isAdmin={isAdmin}
         setOpenNewDatasetModal={setOpenDatasetModal}

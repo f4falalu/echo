@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { AppPageLayoutContent } from '@/components/ui/layouts/AppPageLayoutContent';
 import { Avatar } from '@/components/ui/avatar';
 import { formatDate } from '@/lib';
 import { BusterList, BusterListColumn, BusterListRow } from '@/components/ui/list';
-import { BusterRoutes, createBusterRoute } from '@/routes';
+import { BUSTER_DOCS_QUICKSTART, BusterRoutes, createBusterRoute } from '@/routes';
 import type { BusterDatasetListItem } from '@/api/asset_interfaces';
 import { ListEmptyStateWithButton } from '@/components/ui/list';
 import { useMemoizedFn } from '@/hooks';
 import { DatasetSelectedOptionPopup } from './DatasetSelectedPopup';
+import { ArrowUpRight, ExternalLink } from '@/components/ui/icons';
 
 const columns: BusterListColumn[] = [
   {
@@ -91,9 +91,13 @@ export const DatasetListContent: React.FC<{
               <ListEmptyStateWithButton
                 isAdmin={isAdmin}
                 title="You don't have any datasets yet."
-                buttonText="New dataset"
-                description="Datasets help you organize your data. Datasets will appear here when you create them."
-                onClick={onClickEmptyState}
+                buttonText="Link to docs"
+                linkButton={BUSTER_DOCS_QUICKSTART}
+                buttonPrefix={<></>}
+                buttonSuffix={<ArrowUpRight />}
+                linkButtonTarget="_blank"
+                description="Datasets help you organize your data and Buster uses them to help answer questions. Datasets will appear here when you create them. Currently, you can only create datasets through our CLI tool which you can read more about in our docs."
+                //  onClick={onClickEmptyState}
               />
             ),
           [isFetchedDatasets, isAdmin, onClickEmptyState]
