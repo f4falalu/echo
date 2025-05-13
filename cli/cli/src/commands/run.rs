@@ -5,9 +5,10 @@ use indicatif::{ProgressBar, ProgressStyle};
 use rust_embed::RustEmbed;
 use std::fs;
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Duration;
+use colored::*;
 
 #[derive(RustEmbed)]
 #[folder = "../../"]
@@ -27,134 +28,163 @@ async fn setup_persistent_app_environment() -> Result<PathBuf, BusterError> {
         BusterError::CommandError(format!("Failed to get app base directory: {}", e))
     })?;
 
-    fs::create_dir_all(&app_base_dir).map_err(|e| {
-        BusterError::CommandError(format!(
-            "Failed to create persistent app directory at {}: {}",
-            app_base_dir.display(),
-            e
-        ))
-    })?;
+    // --- Check if core config files exist --- 
+    let main_dot_env_path = app_base_dir.join(".env");
+    let docker_compose_path = app_base_dir.join("docker-compose.yml");
+    let supabase_dot_env_path = app_base_dir.join("supabase/.env");
+    let litellm_config_path = app_base_dir.join("litellm_config/config.yaml");
 
-    for filename_cow in StaticAssets::iter() {
-        let filename = filename_cow.as_ref();
-        let asset = StaticAssets::get(filename).ok_or_else(|| {
-            BusterError::CommandError(format!("Failed to get embedded asset: {}", filename))
+    let initial_setup_needed = !main_dot_env_path.exists()
+        || !docker_compose_path.exists()
+        || !supabase_dot_env_path.exists()
+        || !litellm_config_path.exists();
+    // --- End Check --- 
+
+    if initial_setup_needed {
+        println!("Performing initial setup for Buster environment in {}", app_base_dir.display());
+
+        // --- Begin Initial Setup Block (Asset Extraction, Directory Creation) ---
+        fs::create_dir_all(&app_base_dir).map_err(|e| {
+            BusterError::CommandError(format!(
+                "Failed to create persistent app directory at {}: {}",
+                app_base_dir.display(),
+                e
+            ))
         })?;
-        let target_file_path = app_base_dir.join(filename);
 
-        if let Some(parent) = target_file_path.parent() {
-            fs::create_dir_all(parent).map_err(|e| {
+        for filename_cow in StaticAssets::iter() {
+            let filename = filename_cow.as_ref();
+            let asset = StaticAssets::get(filename).ok_or_else(|| {
+                BusterError::CommandError(format!("Failed to get embedded asset: {}", filename))
+            })?;
+            let target_file_path = app_base_dir.join(filename);
+
+            if let Some(parent) = target_file_path.parent() {
+                fs::create_dir_all(parent).map_err(|e| {
+                    BusterError::CommandError(format!(
+                        "Failed to create directory {}: {}",
+                        parent.display(),
+                        e
+                    ))
+                })?;
+            }
+
+            fs::write(&target_file_path, asset.data).map_err(|e| {
                 BusterError::CommandError(format!(
-                    "Failed to create directory {}: {}",
-                    parent.display(),
+                    "Failed to write embedded file {} to {}: {}",
+                    filename,
+                    target_file_path.display(),
                     e
                 ))
             })?;
         }
 
-        fs::write(&target_file_path, asset.data).map_err(|e| {
+        let supabase_volumes_functions_path = app_base_dir.join("supabase/volumes/functions");
+        fs::create_dir_all(supabase_volumes_functions_path).map_err(|e| {
             BusterError::CommandError(format!(
-                "Failed to write embedded file {} to {}: {}",
-                filename,
-                target_file_path.display(),
+                "Failed to create supabase/volumes/functions in persistent app dir: {}",
                 e
             ))
         })?;
-    }
 
-    let supabase_volumes_functions_path = app_base_dir.join("supabase/volumes/functions");
-    fs::create_dir_all(supabase_volumes_functions_path).map_err(|e| {
-        BusterError::CommandError(format!(
-            "Failed to create supabase/volumes/functions in persistent app dir: {}",
-            e
-        ))
-    })?;
+        // Initialize .env from .env.example (root)
+        let example_env_src_path = app_base_dir.join(".env.example");
+        if example_env_src_path.exists() {
+            fs::copy(&example_env_src_path, &main_dot_env_path).map_err(|e| {
+                BusterError::CommandError(format!(
+                    "Failed to initialize root .env ({}) from {}: {}",
+                    main_dot_env_path.display(),
+                    example_env_src_path.display(),
+                    e
+                ))
+            })?;
+        } else {
+            return Err(BusterError::CommandError(format!(
+                "Critical setup error: Root {} not found after asset extraction. Cannot initialize main .env file.",
+                example_env_src_path.display()
+            )));
+        }
 
-    // Initialize .env from .env.example (the root one), which should have been extracted by StaticAssets loop
-    let example_env_src_path = app_base_dir.join(".env.example");
-    let main_dot_env_target_path = app_base_dir.join(".env"); // This is the root .env
+        // Initialize supabase/.env from supabase/.env.example
+        let supabase_example_env_src_path = app_base_dir.join("supabase/.env.example");
+        if supabase_example_env_src_path.exists() {
+            fs::copy(&supabase_example_env_src_path, &supabase_dot_env_path).map_err(|e| {
+                BusterError::CommandError(format!(
+                    "Failed to initialize supabase/.env ({}) from {}: {}",
+                    supabase_dot_env_path.display(),
+                    supabase_example_env_src_path.display(),
+                    e
+                ))
+            })?;
+        } else {
+            return Err(BusterError::CommandError(format!(
+                "Critical setup error: Supabase {} not found after asset extraction. Cannot initialize supabase/.env file.",
+                supabase_example_env_src_path.display()
+            )));
+        }
+        // --- End Initial Setup Block --- 
 
-    if example_env_src_path.exists() {
-        fs::copy(&example_env_src_path, &main_dot_env_target_path).map_err(|e| {
-            BusterError::CommandError(format!(
-                "Failed to initialize root .env ({}) from {}: {}",
-                main_dot_env_target_path.display(),
-                example_env_src_path.display(),
-                e
-            ))
-        })?;
     } else {
-        // This case should ideally not be hit if .env.example is correctly embedded and extracted.
-        return Err(BusterError::CommandError(format!(
-            "Critical setup error: Root {} not found after asset extraction. Cannot initialize main .env file.",
-            example_env_src_path.display()
-        )));
+        println!("Core configuration files found. Skipping initial asset extraction.");
     }
 
-    // Initialize supabase/.env from supabase/.env.example
-    let supabase_example_env_src_path = app_base_dir.join("supabase/.env.example");
-    let supabase_dot_env_target_path = app_base_dir.join("supabase/.env");
-
-    if supabase_example_env_src_path.exists() {
-        fs::copy(&supabase_example_env_src_path, &supabase_dot_env_target_path).map_err(|e| {
-            BusterError::CommandError(format!(
-                "Failed to initialize supabase/.env ({}) from {}: {}",
-                supabase_dot_env_target_path.display(),
-                supabase_example_env_src_path.display(),
-                e
-            ))
-        })?;
-    } else {
-        return Err(BusterError::CommandError(format!(
-            "Critical setup error: Supabase {} not found after asset extraction. Cannot initialize supabase/.env file.",
-            supabase_example_env_src_path.display()
-        )));
-    }
-
-    // --- BEGIN API Key and Reranker Setup using config_utils ---
-    println!("--- Buster Configuration Setup ---");
-
+    // --- Configuration Checks/Updates (Always Run) ---
+    // NOTE: These functions handle their own caching and prompting logic internally.
+    // They also print their own headers/messages.
     let llm_api_key = config_utils::prompt_and_manage_openai_api_key(&app_base_dir, false)?;
-    let reranker_config = config_utils::prompt_and_manage_reranker_settings(&app_base_dir, false)?;
+    let reranker_config_result = config_utils::prompt_and_manage_reranker_settings(&app_base_dir, false);
 
-    // Create/update LiteLLM YAML config
-    let litellm_config_path = config_utils::update_litellm_yaml(
+    // Handle potential skip of reranker setup
+    let (rerank_api_key_opt, rerank_model_opt, rerank_base_url_opt) = match reranker_config_result {
+        Ok(config) => (Some(config.api_key), Some(config.model), Some(config.base_url)),
+        Err(BusterError::CommandError(msg)) if msg.contains("skipped by user") => {
+            println!("Reranker setup was skipped. Ensuring related .env variables are not present.");
+            (None, None, None)
+        },
+        Err(e) => return Err(e), // Propagate other errors
+    };
+
+    // Update LiteLLM YAML config - use the confirmed LLM key, handle base URL appropriately
+    // We pass None for api_base here because prompt_and_manage_openai_api_key defaults to OpenAI and doesn't handle custom base URLs yet.
+    // update_env_file will handle LLM_BASE_URL if needed.
+    let updated_litellm_config_path = config_utils::update_litellm_yaml(
         &app_base_dir,
         &llm_api_key,
-        Some("https://api.openai.com/v1"),
+        None, // Let .env handle LLM_BASE_URL if set
     )?;
-    let litellm_config_path_str = litellm_config_path.to_string_lossy();
-    
-    // Update .env file (this is the root .env)
+    let litellm_config_path_str = updated_litellm_config_path.to_string_lossy();
+
+    // Update root .env file with potentially new/confirmed keys and paths
     config_utils::update_env_file(
-        &main_dot_env_target_path, // Ensure this targets the root .env
+        &main_dot_env_path, 
         Some(&llm_api_key),
-        Some(&reranker_config.api_key),
-        Some(&reranker_config.model),
-        Some(&reranker_config.base_url),
-        None, // Not prompting for LLM_BASE_URL in this flow yet, example has it.
-        Some(&litellm_config_path_str), // Add LiteLLM config path to env
+        rerank_api_key_opt.as_deref(), // Use Option::as_deref
+        rerank_model_opt.as_deref(),
+        rerank_base_url_opt.as_deref(),
+        None, // LLM_BASE_URL not explicitly managed here, relies on .env default or user manual edit
+        Some(&litellm_config_path_str),
     )
     .map_err(|e| {
         BusterError::CommandError(format!(
             "Failed to ensure .env file configurations in {}: {}",
-            main_dot_env_target_path.display(), // Use root .env path here
+            main_dot_env_path.display(),
             e
         ))
     })?;
 
-    println!("--- Configuration Setup Complete ---");
-    // --- END API Key and Reranker Setup using config_utils ---
+    println!("--- Configuration Setup/Check Complete ---");
+    // --- END Configuration Checks/Updates --- 
 
     Ok(app_base_dir)
 }
 
 async fn run_docker_compose_command(
+    app_base_dir: &Path,
     args: &[&str],
     operation_name: &str,
     no_track: bool,
 ) -> Result<(), BusterError> {
-    let persistent_app_dir = setup_persistent_app_environment().await?;
+    let persistent_app_dir = app_base_dir;
 
     // --- BEGIN Telemetry Update --- 
     if operation_name == "Starting" && no_track {
@@ -318,6 +348,10 @@ async fn run_docker_compose_command(
             "Buster services {} successfully.",
             operation_name.to_lowercase()
         ));
+        // Add port information specifically after starting
+        if operation_name == "Starting" {
+            println!("\n{}", format!("✅ Buster is now available at: {}", "http://localhost:3000".cyan()).bold());
+        }
         Ok(())
     } else {
         let err_msg = format!(
@@ -338,12 +372,19 @@ async fn run_docker_compose_command(
 }
 
 pub async fn start(no_track: bool) -> Result<(), BusterError> {
-    run_docker_compose_command(&["up", "-d"], "Starting", no_track).await
+    // First, run the setup/check which includes printing headers/prompts if needed
+    let app_base_dir = setup_persistent_app_environment().await?;
+    // Then, run the docker command in that directory
+    run_docker_compose_command(&app_base_dir, &["up", "-d"], "Starting", no_track).await
 }
 
 pub async fn stop() -> Result<(), BusterError> {
-    // Pass false for no_track as it's irrelevant for 'stop'
-    run_docker_compose_command(&["down"], "Stopping", false).await
+    // Get the app dir path directly, skipping setup/checks
+    let app_base_dir = config_utils::get_app_base_dir().map_err(|e| {
+        BusterError::CommandError(format!("Failed to get app base directory: {}", e))
+    })?;
+    // Run the docker command in that directory
+    run_docker_compose_command(&app_base_dir, &["down"], "Stopping", false).await
 }
 
 pub async fn reset() -> Result<(), BusterError> {
@@ -368,12 +409,13 @@ pub async fn reset() -> Result<(), BusterError> {
         return Ok(());
     }
 
+    // Get app_base_dir directly at the start
     let app_base_dir = config_utils::get_app_base_dir().map_err(|e| {
         BusterError::CommandError(format!("Failed to get app base directory: {}", e))
     })?;
     println!("Target application directory for reset: {}", app_base_dir.display());
 
-    // Backup credentials if they exist
+    // Backup credentials if they exist (uses app_base_dir)
     let credentials_path = app_base_dir.join("credentials.yml");
     let credentials_backup = fs::read(&credentials_path).ok();
     if credentials_backup.is_some() {
@@ -382,20 +424,21 @@ pub async fn reset() -> Result<(), BusterError> {
         println!("No credentials.yml found at {} to preserve.", credentials_path.display());
     }
 
-    // Ensure app_base_dir exists and essential files for Docker commands are present
-    // These files will be wiped later with the rest of app_base_dir.
+    // Ensure app_base_dir exists and temporary docker-compose.yml for commands
     fs::create_dir_all(&app_base_dir).map_err(|e| BusterError::CommandError(format!("Failed to create app base directory {}: {}", app_base_dir.display(), e)))?;
-
     let dc_filename = "docker-compose.yml";
-    let dc_asset = StaticAssets::get(dc_filename)
-        .ok_or_else(|| BusterError::CommandError(format!("Failed to get embedded asset: {}", dc_filename)))?;
-    fs::write(app_base_dir.join(dc_filename), dc_asset.data.as_ref()).map_err(|e| BusterError::CommandError(format!("Failed to write temporary {}: {}", dc_filename, e)))?;
-
-    // docker-compose.yml references supabase/.env, so ensure it exists (can be empty)
+    // Ensure docker-compose.yml exists for the down command, even if basic
+    if !app_base_dir.join(dc_filename).exists() {
+        let dc_asset = StaticAssets::get(dc_filename)
+            .ok_or_else(|| BusterError::CommandError(format!("Failed to get embedded asset: {}", dc_filename)))?;
+        fs::write(app_base_dir.join(dc_filename), dc_asset.data.as_ref()).map_err(|e| BusterError::CommandError(format!("Failed to write temporary {}: {}", dc_filename, e)))?;
+    }
+    // Ensure supabase/.env exists for docker-compose down (can be empty)
     let supabase_dir = app_base_dir.join("supabase");
     fs::create_dir_all(&supabase_dir).map_err(|e| BusterError::CommandError(format!("Failed to create supabase directory in app base dir: {}", e)))?;
-    fs::write(supabase_dir.join(".env"), "").map_err(|e| BusterError::CommandError(format!("Failed to write temporary supabase/.env: {}",e)))?;
-
+    if !supabase_dir.join(".env").exists() {
+        fs::write(supabase_dir.join(".env"), "").map_err(|e| BusterError::CommandError(format!("Failed to write temporary supabase/.env: {}",e)))?;
+    }
 
     let pb = ProgressBar::new_spinner();
     pb.enable_steady_tick(Duration::from_millis(120));
@@ -406,12 +449,11 @@ pub async fn reset() -> Result<(), BusterError> {
             .expect("Failed to set progress bar style"),
     );
 
-    // Step 1: Stop services
+    // Step 1: Stop services (Execute docker compose down directly)
     pb.set_message("Resetting Buster services (1/3): Stopping services...");
-
     let mut down_cmd = Command::new("docker");
     down_cmd
-        .current_dir(&app_base_dir) // Use the prepared app_base_dir
+        .current_dir(&app_base_dir) // Use the obtained app_base_dir
         .arg("compose")
         .arg("-p")
         .arg("buster")
@@ -424,12 +466,7 @@ pub async fn reset() -> Result<(), BusterError> {
     })?;
     if !down_output.status.success() {
         let err_msg = format!(
-            "docker compose down failed (status: {}). Logs:
-Working directory: {}
-Stdout:
-{}
-Stderr:
-{}",
+            "docker compose down failed (status: {}). Logs:\nWorking directory: {}\nStdout:\n{}\nStderr:\n{}",
             down_output.status,
             app_base_dir.display(),
             String::from_utf8_lossy(&down_output.stdout),
@@ -440,12 +477,11 @@ Stderr:
         pb.println("Services stopped successfully.");
     }
 
-
-    // Step 2: Identify and Remove service images
+    // Step 2: Identify and Remove service images (uses app_base_dir)
     pb.set_message("Resetting Buster services (2/3): Removing service images...");
     let mut config_images_cmd = Command::new("docker");
     config_images_cmd
-        .current_dir(&app_base_dir) // Use the prepared app_base_dir
+        .current_dir(&app_base_dir) // Use the obtained app_base_dir
         .arg("compose")
         .arg("-p")
         .arg("buster")
@@ -525,7 +561,7 @@ Stderr:
     }
     pb.println("Service image removal process complete.");
 
-    // Step 3: Wipe app_base_dir and restore credentials
+    // Step 3: Wipe app_base_dir and restore credentials (uses app_base_dir)
     pb.set_message(format!("Resetting Buster services (3/3): Wiping {} and restoring credentials...", app_base_dir.display()));
 
     if app_base_dir.exists() {
