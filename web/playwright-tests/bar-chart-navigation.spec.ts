@@ -24,6 +24,8 @@ test('Can click start chat', async ({ page }) => {
   await page.getByRole('button', { name: 'Start chat' }).click();
   await page.waitForTimeout(100);
   await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForLoadState('load');
   await expect(
     page.getByText('Yearly Sales Revenue - Signature Cycles Products (Last 3 Years + YTD) has been')
   ).toBeVisible();
