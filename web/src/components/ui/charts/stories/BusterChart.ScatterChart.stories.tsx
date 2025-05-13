@@ -254,9 +254,54 @@ export const ScatterWithTrendline_NumericalXAxisPolynomialRegression: Story = {
       {
         type: 'polynomial_regression',
         show: true,
+        showTrendlineLabel: false,
+        trendlineLabel: 'HUH?',
+        trendLineColor: 'brown',
+        columnId: 'revenue',
+        aggregateAllCategories: true,
+        lineStyle: 'dotted',
+        trendlineLabelPositionOffset: 0.15
+      },
+      {
+        type: 'max',
+        show: false,
         showTrendlineLabel: true,
-        trendlineLabel: 'Polynomial Growth Pattern',
-        trendLineColor: 'red',
+        trendlineLabel: 'correct!',
+        trendLineColor: 'inherit',
+        columnId: 'revenue',
+        aggregateAllCategories: true
+      },
+      {
+        type: 'max',
+        show: true,
+        showTrendlineLabel: true,
+        trendlineLabel: null,
+        trendLineColor: 'inherit',
+        columnId: 'revenue',
+        aggregateAllCategories: false
+      },
+      {
+        type: 'min',
+        show: false,
+        showTrendlineLabel: true,
+        trendlineLabel: null,
+        trendLineColor: 'inherit',
+        columnId: 'revenue'
+      },
+      {
+        type: 'median',
+        show: false,
+        showTrendlineLabel: true,
+        trendlineLabel: null,
+        trendLineColor: 'inherit',
+        columnId: 'revenue'
+      },
+      {
+        type: 'average',
+        show: false,
+        showTrendlineLabel: true,
+        trendlineLabel: null,
+        trendLineColor: 'inherit',
         columnId: 'revenue'
       }
     ],

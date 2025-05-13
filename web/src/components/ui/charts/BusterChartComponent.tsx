@@ -26,7 +26,6 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
   const {
     numberOfDataPoints,
     datasetOptions,
-    dataTrendlineOptions,
     y2AxisKeys,
     yAxisKeys,
     tooltipKeys,
@@ -51,19 +50,18 @@ export const BusterChartComponent: React.FC<BusterChartRenderComponentProps> = (
       ...props,
       datasetOptions,
       pieMinimumSlicePercentage,
-      dataTrendlineOptions,
       y2AxisKeys,
       yAxisKeys,
       tooltipKeys,
       hasMismatchedTooltipsAndMeasures,
       isDownsampled,
-      numberOfDataPoints
+      numberOfDataPoints,
+      trendlines
     }),
     [
       props,
       pieMinimumSlicePercentage,
       datasetOptions,
-      dataTrendlineOptions,
       y2AxisKeys,
       yAxisKeys,
       hasMismatchedTooltipsAndMeasures,

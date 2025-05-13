@@ -32,6 +32,7 @@ type RenderBuilderProps = Pick<
   | 'xAxisKeys'
   | 'lineGroupType'
   | 'barGroupType'
+  | 'trendlines'
 > & {
   index: number;
   dataset: DatasetOption;

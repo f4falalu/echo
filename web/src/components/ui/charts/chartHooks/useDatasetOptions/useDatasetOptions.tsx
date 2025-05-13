@@ -16,7 +16,6 @@ import type {
 import uniq from 'lodash/uniq';
 import { sortLineBarData } from './datasetHelpers_BarLinePie';
 import { downsampleAndSortScatterData } from './datasetHelpers_Scatter';
-import { type TrendlineDataset, useDataTrendlineOptions } from './useDataTrendlineOptions';
 import type { DatasetOptionsWithTicks } from './interfaces';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 import { DOWNSIZE_SAMPLE_THRESHOLD } from '../../config';
@@ -26,7 +25,6 @@ import isEmpty from 'lodash/isEmpty';
 
 type DatasetHookResult = {
   datasetOptions: DatasetOptionsWithTicks;
-  dataTrendlineOptions: TrendlineDataset[];
   yAxisKeys: string[];
   y2AxisKeys: string[];
   tooltipKeys: string[];
@@ -209,14 +207,6 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
     selectedChartType
   ]);
 
-  const dataTrendlineOptions = useDataTrendlineOptions({
-    datasetOptions,
-    trendlines,
-    selectedAxis,
-    selectedChartType,
-    columnLabelFormats
-  });
-
   const numberOfDataPoints = useMemo(() => {
     return datasetOptions.datasets.reduce((acc, dataset) => acc + dataset.data.length, 0);
   }, [datasetOptions]);
@@ -224,7 +214,6 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   return {
     numberOfDataPoints,
     datasetOptions,
-    dataTrendlineOptions,
     yAxisKeys,
     y2AxisKeys,
     tooltipKeys,

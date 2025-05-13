@@ -109,3 +109,22 @@ test('Bar chart span clicking works', async ({ page }) => {
   await page.getByTestId('edit-chart-button').getByRole('button').click();
   await expect(page.getByText('Edit chart')).toBeVisible({ timeout: 15000 });
 });
+
+test('Can navigate to bar chart from favorites', async ({ page }) => {
+  await page.goto('http://localhost:3000/app/metrics/45c17750-2b61-5683-ba8d-ff6c6fefacee/chart');
+  await page.getByTestId('three-dot-menu-button').click();
+  await expect(page.getByText('Add to favorites')).toBeVisible();
+  await page.getByRole('menuitem', { name: 'Add to favorites' }).click();
+  await expect(page.getByRole('link', { name: 'Yearly Sales Revenue -' })).toBeVisible();
+  await page.getByRole('link', { name: 'Home' }).click();
+  await page.reload();
+  await page.waitForTimeout(55);
+  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForLoadState('load');
+  await page.getByRole('link', { name: 'Yearly Sales Revenue -' }).click();
+  await expect(page.getByTestId('metric-view-chart-content')).toBeVisible();
+  await page.getByRole('link', { name: 'Yearly Sales Revenue -' }).getByRole('button').click();
+  await page.waitForTimeout(55);
+  await page.waitForLoadState('networkidle');
+});
