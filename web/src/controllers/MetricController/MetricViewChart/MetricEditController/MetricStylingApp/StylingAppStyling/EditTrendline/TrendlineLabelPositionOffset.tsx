@@ -18,13 +18,13 @@ export const TrendlineLabelPositionOffset: React.FC<TrendlineLabelPositionOffset
     };
 
     return (
-      <LabelAndInput label="Label Position">
+      <LabelAndInput label="Label position">
         <div className="w-full px-2">
           <Slider
-            defaultValue={[trend.trendlineLabelPositionOffset ?? 0.85]}
-            step={0.01}
+            defaultValue={[trend.trendlineLabelPositionOffset ?? 85]}
+            step={1}
             min={0}
-            max={1}
+            max={100}
             onValueChange={handleChange}
           />
         </div>

@@ -19,10 +19,9 @@ import { EditTrendlineOption } from './EditTrendlineOption';
 import { TypeToLabel } from './config';
 import { JOIN_CHARACTER } from '@/components/ui/charts/commonHelpers';
 import isEqual from 'lodash/isEqual';
-import { TrendlineLabelPositionOffset } from './TrendlineLabelPositionOffset';
 import { TrendlineLineStyle } from './TrendlineLineStyle';
-import { TrendlineOffset } from './TrendlineOffset';
 import { TrendlineAggregateAllCategories } from './TrendlineAggregateAllCategories';
+import { TrendlinePolynomialOrder } from './TrendlinePolynomialOrder';
 // import { TrendlineProjection } from './TrendlineProjection';
 // import { TrendlinePolynomialOrder } from './TrendlinePolynomialOrder';
 
@@ -306,10 +305,10 @@ const TrendlineItemContent: React.FC<{
                 onUpdateExisitingTrendline={onUpdateExisitingTrendline}
               />
 
-              {/* <TrendlinePolynomialOrder
-            trend={trend}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-          /> */}
+              <TrendlinePolynomialOrder
+                trend={trend}
+                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+              />
 
               {/* <TrendlineProjection
             trend={trend}
@@ -337,16 +336,6 @@ const TrendlineItemContent: React.FC<{
 
             <div className="flex flex-col space-y-2.5 p-2.5">
               <TrendlineLabel
-                trend={trend}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-              />
-
-              <TrendlineOffset
-                trend={trend}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-              />
-
-              <TrendlineLabelPositionOffset
                 trend={trend}
                 onUpdateExisitingTrendline={onUpdateExisitingTrendline}
               />
