@@ -111,7 +111,7 @@ export const EditTrendline: React.FC<{
       });
     });
 
-    const onUpdateExisitingTrendline = useMemoizedFn((trend: LoopTrendline) => {
+    const onUpdateExistingTrendline = useMemoizedFn((trend: LoopTrendline) => {
       setTrends((prev) => {
         return prev.map((t) => (t.id === trend.id ? trend : t));
       });
@@ -175,7 +175,7 @@ export const EditTrendline: React.FC<{
                 categoryEncodes={(selectedAxis as ScatterAxis).category}
                 selectedChartType={selectedChartType}
                 onDeleteTrendline={onDeleteTrendline}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
                 isNewTrend={newTrendIds.has(trend.id)}
                 colors={colors}
               />
@@ -198,7 +198,7 @@ const EditTrendlineItem: React.FC<{
   categoryEncodes: string[] | undefined;
   colors: string[];
   selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+  onUpdateExistingTrendline: (trend: LoopTrendline) => void;
   onDeleteTrendline: (id: string) => void;
 }> = React.memo(
   ({
@@ -211,7 +211,7 @@ const EditTrendlineItem: React.FC<{
     categoryEncodes,
     colors,
     selectedChartType,
-    onUpdateExisitingTrendline,
+    onUpdateExistingTrendline,
     onDeleteTrendline
   }) => {
     const title = useMemo(() => {
@@ -242,7 +242,7 @@ const EditTrendlineItem: React.FC<{
           colors={colors}
           categoryEncodes={categoryEncodes}
           selectedChartType={selectedChartType}
-          onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+          onUpdateExistingTrendline={onUpdateExistingTrendline}
         />
       </CollapseDelete>
     );
@@ -259,7 +259,7 @@ const TrendlineItemContent: React.FC<{
   categoryEncodes: string[] | undefined;
   columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
   selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+  onUpdateExistingTrendline: (trend: LoopTrendline) => void;
 }> = React.memo(
   ({
     trend,
@@ -270,7 +270,7 @@ const TrendlineItemContent: React.FC<{
     columnMetadata,
     columnLabelFormats,
     selectedChartType,
-    onUpdateExisitingTrendline
+    onUpdateExistingTrendline
   }) => {
     const { show } = trend;
 
@@ -279,7 +279,7 @@ const TrendlineItemContent: React.FC<{
         <div className="flex flex-col space-y-2.5 p-2.5">
           <EditTrendlineShowLine
             trend={trend}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+            onUpdateExistingTrendline={onUpdateExistingTrendline}
           />
 
           {show && (
@@ -289,12 +289,12 @@ const TrendlineItemContent: React.FC<{
                 columnMetadata={columnMetadata}
                 columnLabelFormats={columnLabelFormats}
                 yAxisEncodes={yAxisEncodes}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
               />
 
               <EditTrendlineOption
                 trend={trend}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
                 yAxisEncodes={yAxisEncodes}
                 xAxisEncodes={xAxisEncodes}
                 columnLabelFormats={columnLabelFormats}
@@ -303,29 +303,29 @@ const TrendlineItemContent: React.FC<{
 
               <TrendlineLineStyle
                 trend={trend}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
               />
 
               <TrendlinePolynomialOrder
                 trend={trend}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
               />
 
               {/* <TrendlineProjection
             trend={trend}
-            onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+            onUpdateExistingTrendline={onUpdateExistingTrendline}
           /> */}
 
               <TrendlineAggregateAllCategories
                 trend={trend}
                 categoryEncodes={categoryEncodes}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
               />
 
               <TrendlineColorPicker
                 trend={trend}
                 colors={colors}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+                onUpdateExistingTrendline={onUpdateExistingTrendline}
               />
             </>
           )}
@@ -336,10 +336,7 @@ const TrendlineItemContent: React.FC<{
             <Separator className="mb-1!" />
 
             <div className="flex flex-col space-y-2.5 p-2.5">
-              <TrendlineLabel
-                trend={trend}
-                onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-              />
+              <TrendlineLabel trend={trend} onUpdateExistingTrendline={onUpdateExistingTrendline} />
             </div>
           </>
         )}

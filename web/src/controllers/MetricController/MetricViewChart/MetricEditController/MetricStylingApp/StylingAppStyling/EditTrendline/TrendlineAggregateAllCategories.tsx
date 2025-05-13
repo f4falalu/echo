@@ -7,12 +7,12 @@ import { CircleInfo } from '@/components/ui/icons';
 
 interface TrendlineAggregateAllCategoriesProps {
   trend: LoopTrendline;
-  onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+  onUpdateExistingTrendline: (trend: LoopTrendline) => void;
   categoryEncodes: string[] | undefined;
 }
 
 export const TrendlineAggregateAllCategories: React.FC<TrendlineAggregateAllCategoriesProps> =
-  React.memo(({ trend, onUpdateExisitingTrendline, categoryEncodes }) => {
+  React.memo(({ trend, onUpdateExistingTrendline, categoryEncodes }) => {
     const hasCategoryEncodes = categoryEncodes && categoryEncodes.length > 0;
 
     if (!hasCategoryEncodes) {
@@ -20,7 +20,7 @@ export const TrendlineAggregateAllCategories: React.FC<TrendlineAggregateAllCate
     }
 
     const handleChange = (checked: boolean) => {
-      onUpdateExisitingTrendline({
+      onUpdateExistingTrendline({
         ...trend,
         aggregateAllCategories: checked
       });

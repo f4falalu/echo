@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LabelAndInput } from '../../Common';
 import { LoopTrendline } from './EditTrendline';
 import { useMemoizedFn } from '@/hooks';
@@ -6,18 +6,18 @@ import { Slider } from '@/components/ui/slider';
 
 interface TrendlineOffsetProps {
   trend: LoopTrendline;
-  onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+  onUpdateExistingTrendline: (trend: LoopTrendline) => void;
 }
 
 export const TrendlineOffset: React.FC<TrendlineOffsetProps> = React.memo(
-  ({ trend, onUpdateExisitingTrendline }) => {
+  ({ trend, onUpdateExistingTrendline }) => {
     const [value, setValue] = useState(trend.offset ?? 0);
     useEffect(() => {
       setValue(trend.offset ?? 0);
     }, [trend.offset]);
 
     const onChange = useMemoizedFn((value: number[]) => {
-      onUpdateExisitingTrendline({ ...trend, offset: value[0] });
+      onUpdateExistingTrendline({ ...trend, offset: value[0] });
       setValue(value[0]);
     });
 

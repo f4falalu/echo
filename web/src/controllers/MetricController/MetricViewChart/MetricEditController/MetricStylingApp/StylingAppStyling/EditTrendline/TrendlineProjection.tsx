@@ -5,11 +5,11 @@ import { Switch } from '@/components/ui/switch';
 
 interface TrendlineProjectionProps {
   trend: LoopTrendline;
-  onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+  onUpdateExistingTrendline: (trend: LoopTrendline) => void;
 }
 
 export const TrendlineProjection: React.FC<TrendlineProjectionProps> = React.memo(
-  ({ trend, onUpdateExisitingTrendline }) => {
+  ({ trend, onUpdateExistingTrendline }) => {
     // Only show for these regression types
     if (
       ![
@@ -23,7 +23,7 @@ export const TrendlineProjection: React.FC<TrendlineProjectionProps> = React.mem
     }
 
     const handleChange = (checked: boolean) => {
-      onUpdateExisitingTrendline({
+      onUpdateExistingTrendline({
         ...trend,
         projection: checked
       });

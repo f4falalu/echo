@@ -5,11 +5,11 @@ import { SliderWithInputNumber } from '@/components/ui/slider';
 
 interface TrendlinePolynomialOrderProps {
   trend: LoopTrendline;
-  onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+  onUpdateExistingTrendline: (trend: LoopTrendline) => void;
 }
 
 export const TrendlinePolynomialOrder: React.FC<TrendlinePolynomialOrderProps> = React.memo(
-  ({ trend, onUpdateExisitingTrendline }) => {
+  ({ trend, onUpdateExistingTrendline }) => {
     const [value, setValue] = useState(trend.polynomialOrder ?? 2);
 
     useEffect(() => {
@@ -24,7 +24,7 @@ export const TrendlinePolynomialOrder: React.FC<TrendlinePolynomialOrderProps> =
     }
 
     const handleChange = (value: number) => {
-      onUpdateExisitingTrendline({
+      onUpdateExistingTrendline({
         ...trend,
         polynomialOrder: value
       });

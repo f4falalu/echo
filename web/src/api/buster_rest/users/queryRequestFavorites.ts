@@ -70,7 +70,8 @@ export const useUpdateUserFavorites = () => {
       queryClient.setQueryData(userQueryKeys.favoritesGetList.queryKey, (prev) => {
         return prev?.filter((fav, index) => {
           const id = fav.id;
-          const favorite = (prev || []).find((f) => f.id === id)!;
+          const favorite = (prev || []).find((f) => f.id === id);
+          if (!favorite) return false;
           return { ...favorite, index };
         });
       });

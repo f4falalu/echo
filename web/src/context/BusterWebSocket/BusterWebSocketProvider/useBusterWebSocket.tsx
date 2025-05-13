@@ -38,12 +38,12 @@ const useBusterWebSocketHook = ({
   socketURL,
   accessToken,
   checkTokenValidity,
-  organizationId
+  isAnonymousUser
 }: {
   socketURL: string;
   accessToken: string | undefined;
   checkTokenValidity: SupabaseContextReturnType['checkTokenValidity'];
-  organizationId: string | undefined;
+  isAnonymousUser: boolean;
 }) => {
   const { openErrorNotification } = useBusterNotifications();
 
@@ -80,7 +80,7 @@ const useBusterWebSocketHook = ({
   const { sendJSONMessage, connectionStatus } = useWebSocket({
     url: socketURL,
     onMessage,
-    canConnect: !!accessToken && !!organizationId,
+    canConnect: !!accessToken && !isAnonymousUser,
     checkTokenValidity
   });
 
@@ -200,14 +200,13 @@ export const BusterWebSocketProvider: React.FC<{
   children: React.ReactNode;
 }> = React.memo(({ children }) => {
   const accessToken = useSupabaseContext((state) => state.accessToken);
+  const isAnonymousUser = useSupabaseContext((x) => x.isAnonymousUser);
   const checkTokenValidity = useSupabaseContext((state) => state.checkTokenValidity);
-  const organizationId = useUserConfigContextSelector((state) => state.userOrganizations?.id);
-
   const busterSocketHook = useBusterWebSocketHook({
     socketURL: BUSTER_WS_URL,
+    isAnonymousUser,
     accessToken,
-    checkTokenValidity,
-    organizationId
+    checkTokenValidity
   });
 
   return <BusterWebSocket.Provider value={busterSocketHook}>{children}</BusterWebSocket.Provider>;

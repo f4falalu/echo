@@ -6,11 +6,11 @@ import { LineDashed } from '@/components/ui/icons';
 
 interface TrendlineLineStyleProps {
   trend: LoopTrendline;
-  onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+  onUpdateExistingTrendline: (trend: LoopTrendline) => void;
 }
 
 export const TrendlineLineStyle: React.FC<TrendlineLineStyleProps> = React.memo(
-  ({ trend, onUpdateExisitingTrendline }) => {
+  ({ trend, onUpdateExistingTrendline }) => {
     const lineStyles: SelectItem<'solid' | 'dotted' | 'dashed' | 'dashdot'>[] = [
       { value: 'solid', label: 'Solid' },
       { value: 'dotted', label: 'Dotted' },
@@ -19,7 +19,7 @@ export const TrendlineLineStyle: React.FC<TrendlineLineStyleProps> = React.memo(
     ];
 
     const handleChange = (value: 'solid' | 'dotted' | 'dashed' | 'dashdot') => {
-      onUpdateExisitingTrendline({
+      onUpdateExistingTrendline({
         ...trend,
         lineStyle: value
       });

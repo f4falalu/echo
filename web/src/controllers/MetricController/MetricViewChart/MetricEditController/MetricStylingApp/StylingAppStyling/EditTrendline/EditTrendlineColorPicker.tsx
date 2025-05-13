@@ -10,10 +10,10 @@ export const TrendlineColorPicker = React.memo(
   ({
     trend,
     colors,
-    onUpdateExisitingTrendline
+    onUpdateExistingTrendline
   }: {
     trend: LoopTrendline;
-    onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+    onUpdateExistingTrendline: (trend: LoopTrendline) => void;
     colors: string[];
   }) => {
     const { aggregateAllCategories, trendLineColor } = trend;
@@ -22,11 +22,11 @@ export const TrendlineColorPicker = React.memo(
 
     const onChangeComplete = useMemoizedFn((color: string) => {
       const hexColor = color;
-      onUpdateExisitingTrendline({ ...trend, trendLineColor: hexColor });
+      onUpdateExistingTrendline({ ...trend, trendLineColor: hexColor });
     });
 
     const handleInheritColorChange = useMemoizedFn((checked: boolean) => {
-      onUpdateExisitingTrendline({ ...trend, trendLineColor: checked ? 'inherit' : '#000000' });
+      onUpdateExistingTrendline({ ...trend, trendLineColor: checked ? 'inherit' : '#000000' });
     });
 
     const pickerBackgroundImage = useMemo(() => {

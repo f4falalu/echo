@@ -5,13 +5,13 @@ import { Slider } from '@/components/ui/slider';
 
 interface TrendlineLabelPositionOffsetProps {
   trend: LoopTrendline;
-  onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+  onUpdateExistingTrendline: (trend: LoopTrendline) => void;
 }
 
 export const TrendlineLabelPositionOffset: React.FC<TrendlineLabelPositionOffsetProps> = React.memo(
-  ({ trend, onUpdateExisitingTrendline }) => {
+  ({ trend, onUpdateExistingTrendline }) => {
     const handleChange = (value: number[]) => {
-      onUpdateExisitingTrendline({
+      onUpdateExistingTrendline({
         ...trend,
         trendlineLabelPositionOffset: value[0]
       });

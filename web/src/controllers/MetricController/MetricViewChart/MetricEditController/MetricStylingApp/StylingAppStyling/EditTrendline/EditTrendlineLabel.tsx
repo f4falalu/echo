@@ -12,10 +12,10 @@ export const TrendlineLabel = React.memo(
   ({
     trend,
 
-    onUpdateExisitingTrendline
+    onUpdateExistingTrendline
   }: {
     trend: LoopTrendline;
-    onUpdateExisitingTrendline: (trend: LoopTrendline) => void;
+    onUpdateExistingTrendline: (trend: LoopTrendline) => void;
   }) => {
     const { showTrendlineLabel, trendlineLabel, type } = trend;
 
@@ -27,11 +27,11 @@ export const TrendlineLabel = React.memo(
     }, [type]);
 
     const onChangeSwitch = useMemoizedFn((checked: boolean) => {
-      onUpdateExisitingTrendline({ ...trend, showTrendlineLabel: checked });
+      onUpdateExistingTrendline({ ...trend, showTrendlineLabel: checked });
     });
 
     const onChangeInput = useMemoizedFn((e: React.ChangeEvent<HTMLInputElement>) => {
-      onUpdateExisitingTrendline({ ...trend, trendlineLabel: e.target.value || null });
+      onUpdateExistingTrendline({ ...trend, trendlineLabel: e.target.value || null });
     });
 
     return (
@@ -53,14 +53,11 @@ export const TrendlineLabel = React.memo(
               />
             </LabelAndInput>
 
-            <TrendlineOffset
-              trend={trend}
-              onUpdateExisitingTrendline={onUpdateExisitingTrendline}
-            />
+            <TrendlineOffset trend={trend} onUpdateExistingTrendline={onUpdateExistingTrendline} />
 
             <TrendlineLabelPositionOffset
               trend={trend}
-              onUpdateExisitingTrendline={onUpdateExisitingTrendline}
+              onUpdateExistingTrendline={onUpdateExistingTrendline}
             />
           </>
         )}
