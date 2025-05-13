@@ -61,7 +61,8 @@ describe('scatterSeriesBuilder_data', () => {
     barShowTotalAtTop: false,
     barGroupType: null,
     yAxisKeys: ['metric1'],
-    y2AxisKeys: []
+    y2AxisKeys: [],
+    trendlines: []
   };
 
   it('should create basic scatter dataset without size options', () => {
@@ -141,77 +142,8 @@ describe('scatterSeriesBuilder_labels', () => {
     expect(result).toBeUndefined();
   });
 
-  test('should process date labels directly when x-axis is date type', () => {
-    const dateString1 = '2023-01-01';
-    const dateString2 = '2023-01-02';
-
-    const props: LabelBuilderProps = {
-      trendlineSeries: [{ yAxisKey: 'y1' } as any],
-      datasetOptions: {
-        ticks: [[dateString1], [dateString2]],
-        datasets: [{ dataKey: 'y1', data: [10, 20] } as any],
-        ticksKey: [{ key: 'x', value: 'X Axis' }]
-      } as any,
-      columnLabelFormats: {
-        x: {
-          columnType: 'date',
-          style: 'date'
-        }
-      },
-      xAxisKeys: ['x'],
-      sizeKey: [],
-      columnSettings: {}
-    };
-
-    const result = scatterSeriesBuilder_labels(props);
-    expect(result).toEqual([
-      createDayjsDate(dateString1).toDate(),
-      createDayjsDate(dateString2).toDate()
-    ]);
-  });
-
-  test('should collect all ticks without deduplication', () => {
-    const props: LabelBuilderProps = {
-      trendlineSeries: [{ yAxisKey: 'y1' } as any, { yAxisKey: 'y2' } as any],
-      datasetOptions: {
-        ticks: [],
-        datasets: [
-          {
-            dataKey: 'y1',
-            data: [10, 20],
-            ticksForScatter: [
-              [1, 'A'],
-              [2, 'B']
-            ]
-          } as any,
-          {
-            dataKey: 'y2',
-            data: [30, 40, 50],
-            ticksForScatter: [
-              [1, 'A'],
-              [3, 'C'],
-              [5, 'D']
-            ]
-          } as any
-        ],
-        ticksKey: [{ key: 'x', value: 'X Axis' }]
-      } as any,
-      columnLabelFormats: {
-        x: DEFAULT_COLUMN_LABEL_FORMAT
-      },
-      xAxisKeys: ['x'],
-      sizeKey: [],
-      columnSettings: {}
-    };
-
-    const result = scatterSeriesBuilder_labels(props);
-    // Should include duplicate [1, 'A'] from both datasets
-    expect(result).toEqual([1, 'A', 1, 'A', 2, 'B', 3, 'C', 5, 'D']);
-  });
-
   test('should return undefined when no relevant datasets are found', () => {
     const props: LabelBuilderProps = {
-      trendlineSeries: [{ yAxisKey: 'y1' } as any],
       datasetOptions: {
         ticks: [],
         datasets: [

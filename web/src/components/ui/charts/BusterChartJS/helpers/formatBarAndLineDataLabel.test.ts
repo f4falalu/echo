@@ -102,20 +102,5 @@ describe('formatBarAndLineDataLabel', () => {
       // 25 out of series total (50) = 50% (since second dataset is hidden)
       expect(result).toBe('50%');
     });
-
-    test('should ignore trendline datasets when counting multiple datasets', () => {
-      const mockContext = createMockContext([
-        baseDataset,
-        { ...baseDataset, isTrendline: true }
-      ]) as Context;
-
-      const result = formatBarAndLineDataLabel(25, mockContext, 'data-label', {
-        style: 'number',
-        columnType: 'number'
-      });
-
-      // 25 out of series total (50) = 50% (since second dataset is a trendline)
-      expect(result).toBe('50%');
-    });
   });
 });

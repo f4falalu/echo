@@ -43,7 +43,7 @@ import { useGetLatestMetricVersionMemoized } from '../metrics';
 import { useBusterAssetsContextSelector } from '@/context/Assets/BusterAssetsProvider';
 import last from 'lodash/last';
 import { createDashboardFullConfirmModal } from './confirmModals';
-import { isQueryStale } from '@/lib';
+import { hasOrganizationId, isQueryStale } from '@/lib';
 
 export const useGetDashboard = <TData = BusterDashboardResponse>(
   {
@@ -751,7 +751,7 @@ export const prefetchGetDashboardsList = async (
 ) => {
   const options = dashboardQueryKeys.dashboardGetList(params);
   const isStale = isQueryStale(options, queryClient);
-  if (!isStale) return queryClient;
+  if (!isStale || !hasOrganizationId(queryClient)) return queryClient;
 
   const lastQueryKey = options.queryKey[options.queryKey.length - 1];
   const compiledParams = lastQueryKey as Parameters<typeof dashboardsGetList>[0];

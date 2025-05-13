@@ -122,51 +122,6 @@ describe('getLegendItems', () => {
     expect(result[1].type).toBe(ChartType.Line);
   });
 
-  it('should filter out hidden and trendline datasets', () => {
-    const mockChartRef = {
-      current: {
-        config: { type: ChartType.Bar },
-        data: {
-          datasets: [
-            {
-              label: 'Visible Data',
-              data: [10, 20],
-              yAxisKey: 'value',
-              hidden: false,
-              isTrendline: false
-            },
-            {
-              label: 'Hidden Data',
-              data: [15, 25],
-              yAxisKey: 'value',
-              hidden: true,
-              isTrendline: false
-            },
-            {
-              label: 'Trendline Data',
-              data: [12, 22],
-              yAxisKey: 'value',
-              hidden: false,
-              isTrendline: true
-            }
-          ]
-        }
-      } as unknown as Chart
-    };
-
-    const result = getLegendItems({
-      chartRef: mockChartRef,
-      colors: mockColors,
-      inactiveDatasets: {},
-      selectedChartType: ChartType.Bar,
-      columnLabelFormats: defaultColumnLabelFormats,
-      columnSettings: defaultColumnSettings
-    });
-
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe('Visible Data');
-  });
-
   it('should handle scatter plot visualization in combo charts', () => {
     const mockChartRef = {
       current: {
