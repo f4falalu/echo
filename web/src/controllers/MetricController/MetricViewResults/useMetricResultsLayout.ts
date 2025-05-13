@@ -1,24 +1,21 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useMemoizedFn, useUpdateLayoutEffect } from '@/hooks';
 import { type AppSplitterRef } from '@/components/ui/layouts';
 import Cookies from 'js-cookie';
 import { createAutoSaveId } from '@/components/ui/layouts/AppSplitter/helper';
 
-const defaultSqlOpenLayout = ['30%', 'auto'];
+const defaultSqlOpenLayout = ['80%', 'auto'];
 const defaultSqlLayout = ['0px', 'auto'];
 
 export const useMetricResultsLayout = ({
-  selectedFileViewSecondary,
+  useSQL,
   appSplitterRef,
   autoSaveId
 }: {
-  selectedFileViewSecondary: null | string;
+  useSQL: boolean;
   appSplitterRef: React.RefObject<AppSplitterRef | null>;
   autoSaveId: string;
 }) => {
-  const [renderSecondary, setRenderSecondary] = useState<boolean>(!!selectedFileViewSecondary);
-
-  const isOpenSecondary = !!selectedFileViewSecondary;
   const defaultOpenLayout = defaultSqlOpenLayout;
   const defaultOriginalLayout = defaultSqlLayout;
 
@@ -39,7 +36,7 @@ export const useMetricResultsLayout = ({
   }, []);
 
   const defaultLayout: [string, string] = useMemo(() => {
-    if (isOpenSecondary) {
+    if (useSQL) {
       return secondaryLayoutDimensions;
     }
     return defaultOriginalLayout as [string, string];
@@ -56,12 +53,10 @@ export const useMetricResultsLayout = ({
   });
 
   useUpdateLayoutEffect(() => {
-    if (!renderSecondary) setRenderSecondary(isOpenSecondary);
-    animateOpenSplitter(isOpenSecondary ? 'both' : 'metric');
-  }, [isOpenSecondary]);
+    animateOpenSplitter(useSQL ? 'both' : 'metric');
+  }, [useSQL]);
 
   return {
-    renderSecondary,
     defaultLayout
   };
 };

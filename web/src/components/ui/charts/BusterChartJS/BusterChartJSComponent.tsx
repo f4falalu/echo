@@ -1,6 +1,6 @@
 'use client';
 
-import React, { MutableRefObject, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Chart,
   ChartHoverBarPlugin,
@@ -232,9 +232,7 @@ const ChartMountedWrapper = ({ children }: { children: React.ReactNode }) => {
   });
 
   if (!isMounted) {
-    return (
-      <div className="to-bg-gradient-to-r to-border/15 h-full w-full bg-gradient-to-b from-transparent" />
-    );
+    return <div className="bg-transparent" />;
   }
 
   return children;

@@ -7,8 +7,9 @@ export enum BusterAppRoutes {
   APP_METRIC = '/app/metrics',
   APP_METRIC_ID_CHART = '/app/metrics/:metricId/chart?secondary_view=:secondaryView',
   APP_METRIC_ID_VERSION_NUMBER = '/app/metrics/:metricId/chart?metric_version_number=:versionNumber&secondary_view=:secondaryView',
-  APP_METRIC_ID_FILE = '/app/metrics/:metricId/file',
+  APP_METRIC_ID_FILE__HIDDEN = '/app/metrics/:metricId/file',
   APP_METRIC_ID_RESULTS = '/app/metrics/:metricId/results?secondary_view=:secondaryView&metric_version_number=:versionNumber',
+  APP_METRIC_ID_SQL = '/app/metrics/:metricId/sql',
   APP_DASHBOARDS = '/app/dashboards',
   APP_DASHBOARD_ID = '/app/dashboards/:dashboardId?secondary_view=:secondaryView',
   APP_DASHBOARD_ID_VERSION_NUMBER = '/app/dashboards/:dashboardId?dashboard_version_number=:versionNumber&secondary_view=:secondaryView',
@@ -33,7 +34,8 @@ export enum BusterAppRoutes {
   APP_CHAT_ID_METRIC_ID_CHART = '/app/chats/:chatId/metrics/:metricId/chart?secondary_view=:secondaryView',
   APP_CHAT_ID_METRIC_ID_VERSION_NUMBER = '/app/chats/:chatId/metrics/:metricId/chart?metric_version_number=:versionNumber&secondary_view=:secondaryView',
   APP_CHAT_ID_METRIC_ID_FILE = '/app/chats/:chatId/metrics/:metricId/file',
-  APP_CHAT_ID_METRIC_ID_RESULTS = '/app/chats/:chatId/metrics/:metricId/results?secondary_view=:secondaryView&metric_version_number=:versionNumber',
+  APP_CHAT_ID_METRIC_ID_SQL = '/app/chats/:chatId/metrics/:metricId/sql',
+  APP_CHAT_ID_METRIC_ID_RESULTS = '/app/chats/:chatId/metrics/:metricId/results',
   APP_CHAT_ID_COLLECTION_ID = '/app/chats/:chatId/collections/:collectionId',
   APP_CHAT_ID_DASHBOARD_ID = '/app/chats/:chatId/dashboards/:dashboardId?secondary_view=:secondaryView&dashboard_version_number=:versionNumber',
   APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER = '/app/chats/:chatId/dashboards/:dashboardId?dashboard_version_number=:versionNumber&secondary_view=:secondaryView',
@@ -64,8 +66,12 @@ export type BusterAppRoutesWithArgs = {
     versionNumber?: number;
     secondaryView?: MetricFileViewSecondary;
   };
-  [BusterAppRoutes.APP_METRIC_ID_FILE]: {
-    route: BusterAppRoutes.APP_METRIC_ID_FILE;
+  [BusterAppRoutes.APP_METRIC_ID_FILE__HIDDEN]: {
+    route: BusterAppRoutes.APP_METRIC_ID_FILE__HIDDEN;
+    metricId: string;
+  };
+  [BusterAppRoutes.APP_METRIC_ID_SQL]: {
+    route: BusterAppRoutes.APP_METRIC_ID_SQL;
     metricId: string;
   };
   [BusterAppRoutes.APP_METRIC_ID_RESULTS]: {
@@ -126,7 +132,11 @@ export type BusterAppRoutesWithArgs = {
     chatId: string;
     metricId: string;
   };
-
+  [BusterAppRoutes.APP_CHAT_ID_METRIC_ID_SQL]: {
+    route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_SQL;
+    chatId: string;
+    metricId: string;
+  };
   [BusterAppRoutes.APP_CHAT_ID_METRIC_ID_CHART]: {
     route: BusterAppRoutes.APP_CHAT_ID_METRIC_ID_CHART;
     chatId: string;
@@ -151,7 +161,6 @@ export type BusterAppRoutesWithArgs = {
     chatId: string;
     metricId: string;
     versionNumber?: number;
-    secondaryView?: MetricFileViewSecondary;
   };
   [BusterAppRoutes.APP_CHAT_ID_COLLECTION_ID]: {
     route: BusterAppRoutes.APP_CHAT_ID_COLLECTION_ID;

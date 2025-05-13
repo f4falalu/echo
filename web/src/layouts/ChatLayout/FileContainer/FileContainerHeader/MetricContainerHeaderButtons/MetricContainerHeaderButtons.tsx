@@ -42,7 +42,6 @@ export const MetricContainerHeaderButtons: React.FC<FileContainerButtonsProps> =
     return (
       <FileButtonContainer>
         {isEditor && !isViewingOldVersion && <EditChartButton metricId={metricId} />}
-        {isEffectiveOwner && !isViewingOldVersion && <EditSQLButton metricId={metricId} />}
         <SaveToCollectionButton metricId={metricId} />
         <SaveToDashboardButton metricId={metricId} />
         {isEffectiveOwner && !isViewingOldVersion && <ShareMetricButton metricId={metricId} />}
@@ -121,78 +120,6 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
   );
 });
 EditChartButton.displayName = 'EditChartButton';
-
-const EditSQLButton = React.memo(({ metricId }: { metricId: string }) => {
-  const selectedFileViewSecondary = useChatLayoutContextSelector(
-    (x) => x.selectedFileViewSecondary
-  );
-  const onChangePage = useAppLayoutContextSelector((x) => x.onChangePage);
-  const chatId = useChatIndividualContextSelector((x) => x.chatId);
-  const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
-  const editableSecondaryView: MetricFileViewSecondary = 'sql-edit';
-  const isSelectedView = selectedFileViewSecondary === editableSecondaryView;
-
-  const href = useMemo(() => {
-    if (!isSelectedView) {
-      if (chatId) {
-        return createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
-          versionNumber: metricVersionNumber,
-          metricId,
-          secondaryView: 'sql-edit',
-          chatId
-        });
-      }
-
-      return createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID_RESULTS,
-        versionNumber: metricVersionNumber,
-        metricId,
-        secondaryView: 'sql-edit'
-      });
-    }
-
-    if (chatId) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
-        versionNumber: metricVersionNumber,
-        metricId,
-        chatId
-      });
-    }
-
-    return createBusterRoute({
-      route: BusterRoutes.APP_METRIC_ID_RESULTS,
-      versionNumber: metricVersionNumber,
-      metricId
-    });
-  }, [chatId, metricId, metricVersionNumber, isSelectedView]);
-
-  //I HAVE NO IDEA WHY... but onClickButton is called twice if wrapped in a link
-  const onClickButton = useMemoizedFn(() => {
-    onChangePage(href, { shallow: true });
-  });
-
-  return (
-    <Link
-      href={href}
-      prefetch={true}
-      shallow={true}
-      data-testid="edit-sql-button"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-      onMouseDown={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onClickButton();
-      }}>
-      <SelectableButton tooltipText="SQL editor" icon={<SquareCode />} selected={isSelectedView} />
-    </Link>
-  );
-});
-EditSQLButton.displayName = 'EditSQLButton';
 
 const SaveToCollectionButton = React.memo(({ metricId }: { metricId: string }) => {
   const { data: collections } = useGetMetric(

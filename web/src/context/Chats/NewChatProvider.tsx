@@ -89,6 +89,8 @@ export const useBusterNewChat = () => {
       const currentChat = getChatMemoized(chatId);
       const currentMessage = getChatMessageMemoized(messageId);
       const currentRequestMessage = currentMessage?.request_message!;
+      const messageIndex = currentChat?.message_ids.findIndex((mId) => mId === messageId);
+
       onUpdateChatMessage({
         id: messageId,
         request_message: create(currentRequestMessage, (draft) => {
@@ -101,10 +103,6 @@ export const useBusterNewChat = () => {
         isCompletedStream: false
       });
 
-      const messageIndex = currentChat?.message_ids.findIndex(
-        (messageId) => messageId === messageId
-      );
-
       if (messageIndex !== -1 && typeof messageIndex === 'number') {
         const updatedMessageIds = currentChat?.message_ids.slice(0, messageIndex + 1);
         onUpdateChat({
@@ -112,6 +110,12 @@ export const useBusterNewChat = () => {
           message_ids: updatedMessageIds
         });
       }
+
+      //needed in order to trigger the auto change layout
+      busterSocket.once({
+        route: '/chats/post:initializeChat',
+        callback: initializeNewChatCallback
+      });
 
       await busterSocket.emitAndOnce({
         emitEvent: {

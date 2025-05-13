@@ -1,7 +1,7 @@
 import type { FileType } from '@/api/asset_interfaces/chat';
 import type { FileContainerSecondaryProps } from '../interfaces';
 import React from 'react';
-import { MetricSecondaryRecord, MetrucSecondaryRenderRecord } from './metricPanels';
+import { MetricSecondaryRecord } from './metricPanels';
 import { DashboardSecondaryRecord } from './dashboardPanels';
 
 export const SelectedFileSecondaryRecord: Record<
@@ -14,6 +14,4 @@ export const SelectedFileSecondaryRecord: Record<
 };
 
 export const SelectedFileSecondaryRenderRecord: Partial<Record<FileType, Record<string, boolean>>> =
-  {
-    metric: MetrucSecondaryRenderRecord
-  };
+  {};

@@ -48,7 +48,6 @@ describe('assetParamsToRoute', () => {
       chatId: mockChatId,
       assetId: mockAssetId,
       type: 'metric' as FileType,
-      secondaryView: 'sql-edit',
       versionNumber: 1
     });
     expect(result).toBe(
@@ -56,25 +55,7 @@ describe('assetParamsToRoute', () => {
         route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
         chatId: mockChatId,
         metricId: mockAssetId,
-        versionNumber: 1,
-        secondaryView: 'sql-edit'
-      })
-    );
-  });
-
-  test('metric with chatId and sql-edit secondary view without version number', () => {
-    const result = assetParamsToRoute({
-      chatId: mockChatId,
-      assetId: mockAssetId,
-      type: 'metric' as FileType,
-      secondaryView: 'sql-edit'
-    });
-    expect(result).toBe(
-      createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
-        chatId: mockChatId,
-        metricId: mockAssetId,
-        secondaryView: 'sql-edit'
+        versionNumber: 1
       })
     );
   });
@@ -158,22 +139,6 @@ describe('assetParamsToRoute', () => {
         route: BusterRoutes.APP_METRIC_ID_CHART,
         metricId: mockAssetId,
         secondaryView: 'chart-edit'
-      })
-    );
-  });
-
-  test('metric without chatId and sql-edit secondary view', () => {
-    const result = assetParamsToRoute({
-      chatId: undefined,
-      assetId: mockAssetId,
-      type: 'metric' as FileType,
-      secondaryView: 'sql-edit'
-    });
-    expect(result).toBe(
-      createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID_RESULTS,
-        metricId: mockAssetId,
-        secondaryView: 'sql-edit'
       })
     );
   });

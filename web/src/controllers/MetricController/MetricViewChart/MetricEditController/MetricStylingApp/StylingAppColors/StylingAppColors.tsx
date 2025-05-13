@@ -24,9 +24,9 @@ export const StylingAppColors: React.FC<{
 
   return (
     <div className="mt-3 flex flex-col space-y-2">
-      <div className={className}>
+      {/* <div className={className}>
         <SelectColorApp selectedTab={selectedTab} onChange={setSelectedTab} />
-      </div>
+      </div> */}
 
       <div className={cn(className, 'mb-12')}>
         <AnimatePresence mode="wait" initial={false}>

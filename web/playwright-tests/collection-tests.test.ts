@@ -21,9 +21,10 @@ test('Can create a collection', async ({ page }) => {
   await page.getByRole('button').filter({ hasText: /^$/ }).nth(2).click();
   await page.getByRole('menuitem', { name: 'Delete collection' }).click();
   await page.getByRole('button', { name: 'Submit' }).click();
-  await page.waitForTimeout(50);
+  await page.waitForTimeout(1000);
   await page.waitForLoadState('networkidle');
   await page.waitForLoadState('domcontentloaded');
+  await page.waitForLoadState('load');
   expect(page.url()).toBe('http://localhost:3000/app/collections');
 });
 

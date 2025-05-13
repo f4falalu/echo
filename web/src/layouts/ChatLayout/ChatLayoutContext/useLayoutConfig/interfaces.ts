@@ -21,7 +21,7 @@ export type FileView =
   | CollectionFileView
   | ReasoningFileView;
 
-export type MetricFileView = 'chart' | 'results' | 'file';
+export type MetricFileView = 'chart' | 'results' | 'file' | 'sql';
 export type DashboardFileView = 'dashboard' | 'file';
 export type TermFileView = 'file';
 export type ValueFileView = 'file';
@@ -29,6 +29,6 @@ export type DatasetFileView = 'file';
 export type CollectionFileView = 'file' | 'results';
 export type ReasoningFileView = 'reasoning';
 
-export type MetricFileViewSecondary = 'chart-edit' | 'sql-edit' | 'version-history';
+export type MetricFileViewSecondary = 'chart-edit' | 'version-history';
 export type DashboardFileViewSecondary = 'version-history';
 export type FileViewSecondary = null | MetricFileViewSecondary | DashboardFileViewSecondary;

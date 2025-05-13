@@ -14,7 +14,7 @@ test.skip('Can add dashboard to collection', async ({ page }) => {
     .click();
 
   const url = 'http://localhost:3000/app/collections/0ac43ae2-beda-4007-9574-71a17425da0a';
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(1000);
   await page.waitForLoadState('networkidle');
   await page.waitForLoadState('domcontentloaded');
   await expect(page.url()).toBe(url);

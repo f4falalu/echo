@@ -12,7 +12,7 @@ describe('getFileViewFromRoute', () => {
   });
 
   test('should return file view for file-related routes', () => {
-    expect(getFileViewFromRoute(BusterRoutes.APP_METRIC_ID_FILE)).toBe('file');
+    expect(getFileViewFromRoute(BusterRoutes.APP_METRIC_ID_FILE__HIDDEN)).toBe('file');
     expect(getFileViewFromRoute(BusterRoutes.APP_CHAT_ID_METRIC_ID_FILE)).toBe('file');
     expect(getFileViewFromRoute(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE)).toBe('file');
     expect(getFileViewFromRoute(BusterRoutes.APP_DASHBOARD_ID_FILE)).toBe('file');
