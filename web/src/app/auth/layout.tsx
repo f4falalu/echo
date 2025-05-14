@@ -14,7 +14,7 @@ const LoginLayout: React.FC<PropsWithChildren<{}>> = async ({ children }) => {
           <div className="hidden w-1/2 bg-gray-50 md:flex dark:bg-gray-900">
             <WelcomeToBuster hasUser={true} />
           </div>
-          <div className="w-1/2 bg-white dark:bg-black">{children}</div>
+          <div className="w-full bg-white md:w-1/2 dark:bg-black">{children}</div>
         </div>
       </div>
     </section>
