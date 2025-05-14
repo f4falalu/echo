@@ -33,6 +33,5 @@ export interface SidebarProps {
   header: React.ReactNode;
   content: SidebarContent[];
   footer?: React.ReactNode;
-  activeItem: string;
   isSortable?: boolean;
 }
