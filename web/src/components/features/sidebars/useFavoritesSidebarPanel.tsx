@@ -3,7 +3,6 @@ import { ISidebarGroup } from '@/components/ui/sidebar';
 import { assetTypeToIcon, assetTypeToRoute } from '../config/assetIcons';
 import { useMemoizedFn } from '@/hooks';
 import {
-  updateUserFavorites,
   useDeleteUserFavorite,
   useGetUserFavorites,
   useUpdateUserFavorites
@@ -42,6 +41,7 @@ export const useFavoriteSidebarPanel = () => {
       case ShareAssetType.COLLECTION:
         return id === collectionId;
       default:
+        const _exhaustiveCheck: never = assetType;
         return false;
     }
   });
@@ -49,6 +49,10 @@ export const useFavoriteSidebarPanel = () => {
   const favoritedPageType: ShareAssetType | null = useMemo(() => {
     if (chatId && (metricId || dashboardId || collectionId)) {
       return null;
+    }
+
+    if (chatId && favorites.some((f) => f.id === chatId)) {
+      return ShareAssetType.CHAT;
     }
 
     if (metricId && favorites.some((f) => f.id === metricId)) {
