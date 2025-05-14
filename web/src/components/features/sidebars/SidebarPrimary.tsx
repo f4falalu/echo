@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Sidebar } from '@/components/ui/sidebar/Sidebar';
 import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import type { ISidebarGroup, ISidebarList, SidebarProps } from '@/components/ui/sidebar';
-import { BookOpen4, Flag, Gear, House4, Table, UnorderedList2, Plus } from '@/components/ui/icons';
+import { Flag, Gear, House4, Table, UnorderedList2, Plus } from '@/components/ui/icons';
 import { PencilSquareIcon } from '@/components/ui/icons/customIcons/Pencil_Square';
-import { ASSET_ICONS, assetTypeToIcon, assetTypeToRoute } from '../config/assetIcons';
-import type { BusterUserFavorite } from '@/api/asset_interfaces/users';
+import { ASSET_ICONS } from '../config/assetIcons';
 import { Button } from '@/components/ui/buttons';
 import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import Link from 'next/link';
@@ -21,58 +20,75 @@ import { SupportModal } from '../modal/SupportModal';
 import { InvitePeopleModal } from '../modal/InvitePeopleModal';
 import { useMemoizedFn } from '@/hooks';
 import { SidebarUserFooter } from './SidebarUserFooter/SidebarUserFooter';
-import {
-  useDeleteUserFavorite,
-  useGetUserFavorites,
-  useUpdateUserFavorites
-} from '@/api/buster_rest';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useInviteModalStore } from '@/context/BusterAppLayout';
+import { useFavoriteSidebarPanel } from './useFavoritesSidebarPanel';
+import { ShareAssetType } from '@/api/asset_interfaces/share';
 
-const topItems: ISidebarList = {
-  id: 'top-items',
-  items: [
-    {
-      label: 'Home',
-      icon: <House4 />,
-      route: BusterRoutes.APP_HOME,
-      id: BusterRoutes.APP_HOME
-    },
-    {
-      label: 'Chat history',
-      icon: <ASSET_ICONS.chats />,
-      route: BusterRoutes.APP_CHAT,
-      id: BusterRoutes.APP_CHAT
-    }
-  ]
+const topItems = (
+  currentParentRoute: BusterRoutes,
+  favoritedPageType: ShareAssetType | null
+): ISidebarList => {
+  const isActiveCheck = (type: ShareAssetType, route: BusterRoutes) => currentParentRoute === route;
+
+  return {
+    id: 'top-items',
+    items: [
+      {
+        label: 'Home',
+        icon: <House4 />,
+        route: BusterRoutes.APP_HOME,
+        id: BusterRoutes.APP_HOME,
+        active: currentParentRoute === BusterRoutes.APP_HOME
+      },
+      {
+        label: 'Chat history',
+        icon: <ASSET_ICONS.chats />,
+        route: BusterRoutes.APP_CHAT,
+        id: BusterRoutes.APP_CHAT,
+        active: isActiveCheck(ShareAssetType.CHAT, BusterRoutes.APP_CHAT)
+      }
+    ]
+  };
 };
 
-const yourStuff: ISidebarGroup = {
-  label: 'Your stuff',
-  id: 'your-stuff',
-  items: [
-    {
-      label: 'Metrics',
-      icon: <ASSET_ICONS.metrics />,
-      route: BusterRoutes.APP_METRIC,
-      id: BusterRoutes.APP_METRIC
-    },
-    {
-      label: 'Dashboards',
-      icon: <ASSET_ICONS.dashboards />,
-      route: BusterRoutes.APP_DASHBOARDS,
-      id: BusterRoutes.APP_DASHBOARDS
-    },
-    {
-      label: 'Collections',
-      icon: <ASSET_ICONS.collections />,
-      route: BusterRoutes.APP_COLLECTIONS,
-      id: BusterRoutes.APP_COLLECTIONS
-    }
-  ]
+const yourStuff = (
+  currentParentRoute: BusterRoutes,
+  favoritedPageType: ShareAssetType | null
+): ISidebarGroup => {
+  const isActiveCheck = (type: ShareAssetType, route: BusterRoutes) =>
+    favoritedPageType !== type && favoritedPageType === null && currentParentRoute === route;
+
+  return {
+    label: 'Your stuff',
+    id: 'your-stuff',
+    items: [
+      {
+        label: 'Metrics',
+        icon: <ASSET_ICONS.metrics />,
+        route: BusterRoutes.APP_METRIC,
+        id: BusterRoutes.APP_METRIC,
+        active: isActiveCheck(ShareAssetType.METRIC, BusterRoutes.APP_METRIC)
+      },
+      {
+        label: 'Dashboards',
+        icon: <ASSET_ICONS.dashboards />,
+        route: BusterRoutes.APP_DASHBOARDS,
+        id: BusterRoutes.APP_DASHBOARDS,
+        active: isActiveCheck(ShareAssetType.DASHBOARD, BusterRoutes.APP_DASHBOARDS)
+      },
+      {
+        label: 'Collections',
+        icon: <ASSET_ICONS.collections />,
+        route: BusterRoutes.APP_COLLECTIONS,
+        id: BusterRoutes.APP_COLLECTIONS,
+        active: isActiveCheck(ShareAssetType.COLLECTION, BusterRoutes.APP_COLLECTIONS)
+      }
+    ]
+  };
 };
 
-const adminTools: ISidebarGroup = {
+const adminTools = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
   label: 'Admin tools',
   id: 'admin-tools',
   items: [
@@ -94,8 +110,11 @@ const adminTools: ISidebarGroup = {
       route: BusterRoutes.APP_DATASETS,
       id: BusterRoutes.APP_DATASETS
     }
-  ]
-};
+  ].map((x) => ({
+    ...x,
+    active: x.route === currentParentRoute
+  }))
+});
 
 const tryGroup = (
   onClickInvitePeople: () => void,
@@ -126,36 +145,46 @@ const tryGroup = (
 export const SidebarPrimary = React.memo(() => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
   const isUserRegistered = useUserConfigContextSelector((x) => x.isUserRegistered);
-  const { data: favorites } = useGetUserFavorites();
   const currentParentRoute = useAppLayoutContextSelector((x) => x.currentParentRoute);
   const onToggleInviteModal = useInviteModalStore((s) => s.onToggleInviteModal);
   const onOpenContactSupportModal = useContactSupportModalStore((s) => s.onOpenContactSupportModal);
-  const { mutateAsync: updateUserFavorites } = useUpdateUserFavorites();
-  const { mutateAsync: deleteUserFavorite } = useDeleteUserFavorite();
 
-  const onFavoritesReorder = useMemoizedFn((itemIds: string[]) => {
-    updateUserFavorites(itemIds);
-  });
+  const { favoritesDropdownItems, favoritedPageType } = useFavoriteSidebarPanel();
+
+  const topItemsItems = useMemo(
+    () => topItems(currentParentRoute, favoritedPageType),
+    [currentParentRoute, favoritedPageType]
+  );
+
+  const adminToolsItems = useMemo(() => {
+    if (!isAdmin) return null;
+    return adminTools(currentParentRoute);
+  }, [isAdmin, currentParentRoute]);
+
+  const yourStuffItems = useMemo(
+    () => yourStuff(currentParentRoute, favoritedPageType),
+    [currentParentRoute, favoritedPageType]
+  );
 
   const sidebarItems: SidebarProps['content'] = useMemo(() => {
     if (!isUserRegistered) return [];
 
-    const items = [topItems];
+    const items = [topItemsItems];
 
-    if (isAdmin) {
-      items.push(adminTools);
+    if (adminToolsItems) {
+      items.push(adminToolsItems);
     }
 
-    items.push(yourStuff);
+    items.push(yourStuffItems);
 
-    if (favorites && favorites.length > 0) {
-      items.push(favoritesDropdown(favorites, { deleteUserFavorite, onFavoritesReorder }));
+    if (favoritesDropdownItems) {
+      items.push(favoritesDropdownItems);
     }
 
     items.push(tryGroup(onToggleInviteModal, () => onOpenContactSupportModal('feedback'), isAdmin));
 
     return items;
-  }, [isAdmin, isUserRegistered, favorites, currentParentRoute, onFavoritesReorder]);
+  }, [isUserRegistered, adminToolsItems, yourStuffItems, favoritesDropdownItems]);
 
   const onCloseSupportModal = useMemoizedFn(() => onOpenContactSupportModal(false));
 
@@ -167,12 +196,7 @@ export const SidebarPrimary = React.memo(() => {
 
   return (
     <>
-      <Sidebar
-        content={sidebarItems}
-        header={HeaderMemoized}
-        activeItem={currentParentRoute}
-        footer={FooterMemoized}
-      />
+      <Sidebar content={sidebarItems} header={HeaderMemoized} footer={FooterMemoized} />
 
       <GlobalModals onCloseSupportModal={onCloseSupportModal} />
     </>
@@ -233,32 +257,3 @@ const GlobalModals = ({ onCloseSupportModal }: { onCloseSupportModal: () => void
   );
 };
 GlobalModals.displayName = 'GlobalModals';
-
-const favoritesDropdown = (
-  favorites: BusterUserFavorite[],
-  {
-    onFavoritesReorder,
-    deleteUserFavorite
-  }: {
-    onFavoritesReorder: (itemIds: string[]) => void;
-    deleteUserFavorite: (itemIds: string[]) => void;
-  }
-): ISidebarGroup => {
-  return {
-    label: 'Favorites',
-    id: 'favorites',
-    isSortable: true,
-    onItemsReorder: onFavoritesReorder,
-    items: favorites.map((favorite) => {
-      const Icon = assetTypeToIcon(favorite.asset_type);
-      const route = assetTypeToRoute(favorite.asset_type, favorite.id);
-      return {
-        label: favorite.name,
-        icon: <Icon />,
-        route,
-        id: favorite.id,
-        onRemove: () => deleteUserFavorite([favorite.id])
-      };
-    })
-  };
-};
