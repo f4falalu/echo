@@ -14,9 +14,9 @@ export const createChatRecord = <T extends ListItem>(
   ALL_OTHERS: T[];
 } => {
   const today = getNow();
-  const yesterday = today.subtract(2, 'day');
+  const yesterday = today.subtract(1, 'day');
   const weekStartDate = today.subtract(8, 'day').startOf('day');
-  const twoDaysAgo = today.subtract(2, 'day').startOf('day');
+  const twoDaysAgo = today.subtract(1, 'day').startOf('day');
 
   const TODAY: T[] = [];
   const YESTERDAY: T[] = [];
