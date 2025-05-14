@@ -458,7 +458,8 @@ const DropdownItem = <T,>({
         checked={selected}
         disabled={disabled}
         onClick={onClickItem}
-        closeOnSelect={closeOnSelect}>
+        closeOnSelect={closeOnSelect}
+        dataTestId={`dropdown-checkbox-${value}`}>
         {renderContent()}
       </DropdownMenuCheckboxItemMultiple>
     );

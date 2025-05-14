@@ -163,12 +163,23 @@ const DropdownMenuCheckboxItemMultiple = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem> & {
     closeOnSelect?: boolean;
     selectType?: boolean;
+    dataTestId?: string;
   }
 >(
   (
-    { className, children, onClick, checked = false, closeOnSelect = true, selectType, ...props },
+    {
+      className,
+      children,
+      onClick,
+      checked = false,
+      closeOnSelect = true,
+      selectType,
+      dataTestId,
+      ...props
+    },
     ref
   ) => {
+    console.log('dataTestId', dataTestId);
     return (
       <DropdownMenuPrimitive.CheckboxItem
         ref={ref}
@@ -181,6 +192,7 @@ const DropdownMenuCheckboxItemMultiple = React.forwardRef<
           }
           onClick?.(e);
         }}
+        data-testid={dataTestId}
         {...props}>
         <span
           className={cn(
