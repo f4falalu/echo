@@ -9,7 +9,7 @@ import { useUserConfigContextSelector } from '@/context/Users';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { SidebarUserFooter } from './SidebarUserFooter/SidebarUserFooter';
 
-const accountItems: ISidebarGroup = {
+const accountItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
   label: 'Account',
   variant: 'icon',
   id: 'account',
@@ -18,12 +18,13 @@ const accountItems: ISidebarGroup = {
     {
       label: 'Profile',
       route: createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE }),
-      id: createBusterRoute({ route: BusterRoutes.SETTINGS_PROFILE })
+      id: BusterRoutes.SETTINGS_PROFILE,
+      active: currentParentRoute === BusterRoutes.SETTINGS_PROFILE
     }
   ]
-};
+});
 
-const workspaceItems: ISidebarGroup = {
+const workspaceItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
   label: 'Workspace',
   variant: 'icon',
   id: 'workspace',
@@ -32,17 +33,20 @@ const workspaceItems: ISidebarGroup = {
     {
       label: 'API Keys',
       route: createBusterRoute({ route: BusterRoutes.SETTINGS_API_KEYS }),
-      id: createBusterRoute({ route: BusterRoutes.SETTINGS_API_KEYS })
+      id: BusterRoutes.SETTINGS_API_KEYS
     },
     {
       label: 'Data Sources',
       route: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES }),
-      id: createBusterRoute({ route: BusterRoutes.SETTINGS_DATASOURCES })
+      id: BusterRoutes.SETTINGS_DATASOURCES
     }
-  ]
-};
+  ].map((item) => ({
+    ...item,
+    active: currentParentRoute === item.id
+  }))
+});
 
-const permissionAndSecurityItems: ISidebarGroup = {
+const permissionAndSecurityItems = (currentParentRoute: BusterRoutes): ISidebarGroup => ({
   label: 'Permission & Security',
   variant: 'icon',
   id: 'permission-and-security',
@@ -63,21 +67,24 @@ const permissionAndSecurityItems: ISidebarGroup = {
       route: createBusterRoute({ route: BusterRoutes.SETTINGS_PERMISSION_GROUPS }),
       id: createBusterRoute({ route: BusterRoutes.SETTINGS_PERMISSION_GROUPS })
     }
-  ]
-};
+  ].map((item) => ({
+    ...item,
+    active: currentParentRoute === item.id
+  }))
+});
 
 export const SidebarSettings: React.FC<{}> = React.memo(({}) => {
   const isAdmin = useUserConfigContextSelector((x) => x.isAdmin);
   const currentParentRoute = useAppLayoutContextSelector((x) => x.currentParentRoute);
 
   const content = useMemo(() => {
-    const items = [accountItems];
+    const items = [accountItems(currentParentRoute)];
     if (isAdmin) {
-      items.push(workspaceItems);
-      items.push(permissionAndSecurityItems);
+      items.push(workspaceItems(currentParentRoute));
+      items.push(permissionAndSecurityItems(currentParentRoute));
     }
     return items;
-  }, [isAdmin]);
+  }, [isAdmin, currentParentRoute]);
 
   return (
     <Sidebar
@@ -88,7 +95,6 @@ export const SidebarSettings: React.FC<{}> = React.memo(({}) => {
         ),
         []
       )}
-      activeItem={currentParentRoute}
       footer={useMemo(
         () => (
           <SidebarUserFooter />

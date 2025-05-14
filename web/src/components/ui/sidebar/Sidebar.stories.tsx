@@ -72,8 +72,7 @@ export const Default: Story = {
     content: mockGroupedContent,
     footer: (
       <div className="flex h-full items-center justify-center text-sm text-gray-500">Footer</div>
-    ),
-    activeItem: '1'
+    )
   }
 };
 
@@ -88,27 +87,25 @@ export const WithLongContent: Story = {
           id: `item-${i}`,
           label: `Menu Item ${i + 1}`,
           icon: <Window width="1.25em" height="1.25em" />,
-          route: BusterRoutes.APP_HOME
+          route: BusterRoutes.APP_HOME,
+          active: i === 0
         }))
       }
     ],
-    footer: <div className="text-sm text-gray-500">Sticky Footer</div>,
-    activeItem: 'item-1'
+    footer: <div className="text-sm text-gray-500">Sticky Footer</div>
   }
 };
 
 export const NoFooter: Story = {
   args: {
     header: <div className="text-xl font-semibold">My App</div>,
-    content: mockGroupedContent,
-    activeItem: '1'
+    content: mockGroupedContent
   }
 };
 
 export const ScrollAndTruncationTest: Story = {
   args: {
     header: <div className="text-xl font-semibold">Scroll & Truncation Test</div>,
-    activeItem: 'long-4',
     content: [
       {
         id: 'default-items',
@@ -121,7 +118,8 @@ export const ScrollAndTruncationTest: Story = {
           id: `short-${i}`,
           label: `Item ${i + 1}`,
           icon: <Window width="1.25em" height="1.25em" />,
-          route: BusterRoutes.APP_HOME
+          route: BusterRoutes.APP_HOME,
+          active: i === 4
         }))
       },
       {
@@ -175,7 +173,6 @@ export const WithRemovableItems: Story = {
         items: mockItems
       }
     ],
-    activeItem: '1',
     footer: <div className="text-sm text-gray-500">Footer</div>
   }
 };
