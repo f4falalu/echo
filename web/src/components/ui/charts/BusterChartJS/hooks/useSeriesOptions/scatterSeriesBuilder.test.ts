@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { type IColumnLabelFormat } from '@/api/asset_interfaces/metric';
 import { scatterSeriesBuilder_data, scatterSeriesBuilder_labels } from './scatterSeriesBuilder';
 import { createDayjsDate } from '@/lib/date';
@@ -124,7 +125,7 @@ describe('scatterSeriesBuilder_data', () => {
 });
 
 describe('scatterSeriesBuilder_labels', () => {
-  test('should return undefined when trendlineSeries is empty', () => {
+  it('should return undefined when trendlineSeries is empty', () => {
     const props: LabelBuilderProps = {
       trendlineSeries: [],
       datasetOptions: {
@@ -141,8 +142,7 @@ describe('scatterSeriesBuilder_labels', () => {
     const result = scatterSeriesBuilder_labels(props);
     expect(result).toBeUndefined();
   });
-
-  test('should return undefined when no relevant datasets are found', () => {
+  it('should return undefined when no relevant datasets are found', () => {
     const props: LabelBuilderProps = {
       datasetOptions: {
         ticks: [],

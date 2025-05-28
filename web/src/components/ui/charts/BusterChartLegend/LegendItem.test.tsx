@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { LegendItem } from './LegendItem';
@@ -38,7 +39,7 @@ describe('LegendItem', () => {
   });
 
   it('handles click events', () => {
-    const onClickMock = jest.fn();
+    const onClickMock = vi.fn();
     render(<LegendItem item={mockItem} onClickItem={onClickMock} />);
 
     fireEvent.click(screen.getByText('Test Item'));
@@ -46,7 +47,7 @@ describe('LegendItem', () => {
   });
 
   it('handles hover events', () => {
-    const onHoverMock = jest.fn();
+    const onHoverMock = vi.fn();
     render(<LegendItem item={mockItem} onHoverItem={onHoverMock} />);
 
     const element = screen.getByText('Test Item').parentElement?.parentElement;
@@ -60,7 +61,7 @@ describe('LegendItem', () => {
   });
 
   it('handles focus events', () => {
-    const onFocusMock = jest.fn();
+    const onFocusMock = vi.fn();
     render(<LegendItem item={mockItem} onFocusItem={onFocusMock} />);
 
     // First trigger hover to show the focus target

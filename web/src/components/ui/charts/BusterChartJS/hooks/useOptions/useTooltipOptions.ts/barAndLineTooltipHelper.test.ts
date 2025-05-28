@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { barAndLineTooltipHelper } from './barAndLineTooltipHelper';
 import type {
   Chart,

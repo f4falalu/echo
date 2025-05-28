@@ -11,6 +11,7 @@ import {
   SnowflakeCredentials
 } from './interfaces';
 import { z } from 'zod/v4-mini';
+import { describe, it, expect } from 'vitest';
 
 // Helper function to test validation
 const testValidation = (
@@ -54,12 +55,12 @@ describe('DataSourceSchema', () => {
     updated_at: validISODate
   };
 
-  test('should validate a valid DataSource with Postgres credentials', () => {
+  it('should validate a valid DataSource with Postgres credentials', () => {
     const result = testValidation(DataSourceSchema, validDataSource);
     expect(result.success).toBe(true);
   });
 
-  test('should validate a valid DataSource with MySQL credentials', () => {
+  it('should validate a valid DataSource with MySQL credentials', () => {
     const mysqlDataSource = {
       ...validDataSource,
       credentials: {
@@ -75,7 +76,7 @@ describe('DataSourceSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  test('should validate a valid DataSource with BigQuery credentials', () => {
+  it('should validate a valid DataSource with BigQuery credentials', () => {
     const bigQueryDataSource = {
       ...validDataSource,
       credentials: {
@@ -91,7 +92,7 @@ describe('DataSourceSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  test('should validate a valid DataSource with Snowflake credentials', () => {
+  it('should validate a valid DataSource with Snowflake credentials', () => {
     const snowflakeDataSource = {
       ...validDataSource,
       credentials: {
@@ -111,7 +112,7 @@ describe('DataSourceSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  test('should fail validation with invalid ISO date format', () => {
+  it('should fail validation with invalid ISO date format', () => {
     const invalidDateDataSource = {
       ...validDataSource,
       created_at: '2024-07-18' // Not in ISO format
@@ -120,7 +121,7 @@ describe('DataSourceSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  test('should fail validation with invalid port number', () => {
+  it('should fail validation with invalid port number', () => {
     const invalidPortDataSource = {
       ...validDataSource,
       credentials: {
@@ -137,7 +138,7 @@ describe('DataSourceSchema', () => {
     expect(testMessage.errors[0][0].message).toBe('Port must be greater than 0');
   });
 
-  test('should fail validation with missing required fields', () => {
+  it('should fail validation with missing required fields', () => {
     const missingFieldsDataSource = {
       ...validDataSource,
       name: undefined // Required field
@@ -146,7 +147,7 @@ describe('DataSourceSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  test('should fail validation with invalid data_sets array', () => {
+  it('should fail validation with invalid data_sets array', () => {
     const invalidDataSetsDataSource = {
       ...validDataSource,
       data_sets: [{ id: '1' }] // Missing name field
@@ -155,7 +156,7 @@ describe('DataSourceSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  test('should fail validation with incorrect credential type', () => {
+  it('should fail validation with incorrect credential type', () => {
     const invalidCredentialTypeDataSource = {
       ...validDataSource,
       credentials: {
@@ -167,7 +168,7 @@ describe('DataSourceSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  test('should fail validation when credential type does not match DataSource type', () => {
+  it('should fail validation when credential type does not match DataSource type', () => {
     const mismatchedTypeDataSource = {
       ...validDataSource,
       credentials: validPostgresCredentials,
@@ -186,7 +187,7 @@ describe('DataSourceSchema', () => {
 
 // Test credential schemas individually
 describe('CredentialSchemas', () => {
-  test('PostgresCredentialsSchema should validate valid credentials', () => {
+  it('PostgresCredentialsSchema should validate valid credentials', () => {
     const validCredentials = {
       name: 'Test Postgres',
       type: 'postgres' as const,
@@ -201,7 +202,7 @@ describe('CredentialSchemas', () => {
     expect(result.success).toBe(true);
   });
 
-  test('MySQLCredentialsSchema should validate valid credentials', () => {
+  it('MySQLCredentialsSchema should validate valid credentials', () => {
     const validCredentials = {
       name: 'Test MySQL',
       type: 'mysql' as const,
@@ -213,7 +214,7 @@ describe('CredentialSchemas', () => {
     expect(result.success).toBe(false);
   });
 
-  test('BigQueryCredentialsSchema should validate valid credentials', () => {
+  it('BigQueryCredentialsSchema should validate valid credentials', () => {
     const validCredentials = {
       name: 'Test BigQuery',
       type: 'bigquery' as const,
@@ -225,7 +226,7 @@ describe('CredentialSchemas', () => {
     expect(result.success).toBe(true);
   });
 
-  test('SnowflakeCredentialsSchema should validate valid credentials with null role', () => {
+  it('SnowflakeCredentialsSchema should validate valid credentials with null role', () => {
     const validCredentials = {
       name: 'Test Snowflake',
       type: 'snowflake' as const,
@@ -255,12 +256,12 @@ describe('SnowflakeCredentialsSchema', () => {
     name: 'd'
   } satisfies SnowflakeCredentials;
 
-  test('should validate valid credentials', () => {
+  it('should validate valid credentials', () => {
     const result = testValidation(SnowflakeCredentialsSchema, testCredentials);
     expect(result.success).toBe(true);
   });
 
-  test('should fail validation when name is missing', () => {
+  it('should fail validation when name is missing', () => {
     const testCredentialsMissingName = {
       ...testCredentials,
       name: undefined

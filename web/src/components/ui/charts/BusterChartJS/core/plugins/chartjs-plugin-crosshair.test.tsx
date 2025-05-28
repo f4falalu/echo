@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { Chart, ChartEvent } from 'chart.js';
 import crosshairPlugin, { CrosshairPluginOptions } from './chartjs-plugin-crosshair';
 

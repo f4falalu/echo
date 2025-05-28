@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import { dataMapper } from './dataMapper';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';

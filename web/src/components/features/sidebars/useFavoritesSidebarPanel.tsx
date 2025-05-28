@@ -1,3 +1,4 @@
+import React from 'react';
 import type { BusterUserFavorite } from '@/api/asset_interfaces/users';
 import { ISidebarGroup } from '@/components/ui/sidebar';
 import { assetTypeToIcon, assetTypeToRoute } from '../config/assetIcons';
