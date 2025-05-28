@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest';
 import { Chart } from 'chart.js';
 import { ChartHoverBarPlugin } from './chartjs-plugin-hover-bar';
 
@@ -5,9 +6,9 @@ describe('ChartHoverBarPlugin', () => {
   it('should draw a hover bar when tooltip is active', () => {
     // Mock chart instance
     const mockCtx = {
-      save: jest.fn(),
-      fillRect: jest.fn(),
-      restore: jest.fn()
+      save: vi.fn(),
+      fillRect: vi.fn(),
+      restore: vi.fn()
     };
 
     const mockChart = {

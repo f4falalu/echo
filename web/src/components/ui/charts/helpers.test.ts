@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { doesChartHaveValidAxis } from './helpers';
 import { ChartType, ChartEncodes } from '@/api/asset_interfaces/metric/charts';
 

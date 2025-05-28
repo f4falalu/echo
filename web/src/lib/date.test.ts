@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { formatDate } from './date';
 import dayjs from 'dayjs';
 import { numberDateFallback } from './date';
@@ -143,12 +144,12 @@ describe('formatDate', () => {
 describe('numberDateFallback', () => {
   beforeEach(() => {
     // Mock the current date to ensure consistent test results
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2024-01-15T00:00:00.000Z'));
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-15T00:00:00.000Z'));
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should convert day of week number correctly', () => {

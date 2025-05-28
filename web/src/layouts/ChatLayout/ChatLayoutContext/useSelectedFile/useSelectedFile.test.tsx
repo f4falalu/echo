@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useSelectedFile } from './useSelectedFile';
 import { createSelectedFile } from './createSelectedFile';
@@ -8,23 +9,23 @@ import { BusterRoutes } from '@/routes';
 import type { FileViewSecondary } from '../useLayoutConfig';
 
 // Mock dependencies
-jest.mock('./createSelectedFile');
+vi.mock('./createSelectedFile');
 
 // Mock the BusterAppLayout context
-const mockOnChangePage = jest.fn();
-jest.mock('@/context/BusterAppLayout', () => ({
-  useAppLayoutContextSelector: jest.fn((selector) => mockOnChangePage)
+const mockOnChangePage = vi.fn();
+vi.mock('@/context/BusterAppLayout', () => ({
+  useAppLayoutContextSelector: vi.fn((selector) => mockOnChangePage)
 }));
 
-const mockCreateSelectedFile = createSelectedFile as jest.MockedFunction<typeof createSelectedFile>;
+const mockCreateSelectedFile = createSelectedFile as anyedFunction<typeof createSelectedFile>;
 
 describe('useSelectedFile', () => {
-  const mockAnimateOpenSplitter = jest.fn();
+  const mockAnimateOpenSplitter = vi.fn();
   const mockAppSplitterRef = {
     current: {
-      isSideClosed: jest.fn((side: 'left' | 'right') => false),
-      setSplitSizes: jest.fn(),
-      animateWidth: jest.fn(),
+      isSideClosed: vi.fn((side: 'left' | 'right') => false),
+      setSplitSizes: vi.fn(),
+      animateWidth: vi.fn(),
       sizes: [0, 0, 0]
     } as AppSplitterRef
   };
@@ -43,7 +44,7 @@ describe('useSelectedFile', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should initialize with null selected file when no chat params are provided', () => {
