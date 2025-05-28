@@ -1,4 +1,3 @@
-import * as v from 'valibot';
 import { DataSource, DataSourceSchema, DataSourceTypes } from '@/api/asset_interfaces/datasources';
 import { getDatasource } from './requests';
 import mainApi from '../instances';
@@ -11,9 +10,12 @@ jest.mock('../instances', () => ({
   }
 }));
 
-jest.mock('valibot', () => ({
-  ...jest.requireActual('valibot'),
-  parse: jest.fn().mockImplementation((schema, data) => data)
+// Mock the DataSourceSchema
+jest.mock('@/api/asset_interfaces/datasources', () => ({
+  ...jest.requireActual('@/api/asset_interfaces/datasources'),
+  DataSourceSchema: {
+    parse: jest.fn()
+  }
 }));
 
 describe('data_source requests', () => {
@@ -51,11 +53,13 @@ describe('data_source requests', () => {
         data: mockDataSource
       });
 
+      // Setup schema validation mock
+      (DataSourceSchema.parse as jest.Mock).mockReturnValue(mockDataSource);
+
       const result = await getDatasource('test-id');
 
-      expect(true).toBe(true);
       expect(mainApi.get).toHaveBeenCalledWith('/data_sources/test-id');
-      expect(v.parse).toHaveBeenCalledWith(DataSourceSchema, mockDataSource);
+      expect(DataSourceSchema.parse).toHaveBeenCalledWith(mockDataSource);
       expect(result).toEqual(mockDataSource);
     });
 
@@ -77,14 +81,14 @@ describe('data_source requests', () => {
 
       // Setup validation error
       const validationError = new Error('Validation failed');
-      jest.spyOn(v, 'parse').mockImplementation(() => {
+      (DataSourceSchema.parse as jest.Mock).mockImplementation(() => {
         throw validationError;
       });
 
       // Call and expect error
       await expect(getDatasource('test-id')).rejects.toThrow('Validation failed');
       expect(mainApi.get).toHaveBeenCalledWith('/data_sources/test-id');
-      expect(v.parse).toHaveBeenCalled();
+      expect(DataSourceSchema.parse).toHaveBeenCalled();
     });
   });
 });

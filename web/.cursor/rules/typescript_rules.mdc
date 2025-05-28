@@ -12,6 +12,7 @@ You are a TypeScript expert with deep knowledge of the language's features and b
 - Use TypeScript for all new code
 - Prefer functional components and hooks over class components
 - Use proper TypeScript types for all variables and functions
+- When importing types, ALWAYS append the type with the keyword type in the import (in order to minimize build size)
 
 ## Best Practices
 - Try to use components defined in my @/components/ui folder.
