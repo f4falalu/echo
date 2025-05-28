@@ -150,9 +150,9 @@ export const DatabricksCredentialsSchema = z.object({
 export type DatabricksCredentials = z.infer<typeof DatabricksCredentialsSchema>;
 
 export const SQLServerCredentialsSchema = z.object({
-  name: z.string(),
+  name: z.string().check(z.minLength(1, 'Name must not be empty')),
   type: z.literal('sqlserver'),
-  host: z.string(),
+  host: z.string().check(z.minLength(1, 'Host must not be empty')),
   port: z
     .number()
     .check(
@@ -161,8 +161,8 @@ export const SQLServerCredentialsSchema = z.object({
     ),
   username: z.string().check(z.minLength(1, 'Username must not be empty')),
   password: z.string().check(z.minLength(1, 'Password must not be empty')),
-  default_database: z.string(),
-  default_schema: z.string()
+  default_database: z.string().check(z.minLength(1, 'Database must not be empty')),
+  default_schema: z.string().check(z.minLength(1, 'Schema must not be empty'))
 });
 
 export type SQLServerCredentials = z.infer<typeof SQLServerCredentialsSchema>;
