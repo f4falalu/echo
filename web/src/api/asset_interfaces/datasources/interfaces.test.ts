@@ -1,4 +1,3 @@
-import * as v from 'valibot';
 import {
   DataSourceSchema,
   DataSourceTypes,
@@ -11,20 +10,18 @@ import {
   SQLServerCredentialsSchema,
   SnowflakeCredentials
 } from './interfaces';
+import { z } from 'zod/v4-mini';
 
 // Helper function to test validation
 const testValidation = (
-  schema: any,
+  schema: z.ZodMiniObject<any>,
   value: any
-): { success: boolean; issues?: v.ValiError<any>['issues'] } => {
-  try {
-    v.parse(schema, value);
+): { success: boolean; issues?: z.core.$ZodIssue[] } => {
+  const result = schema.safeParse(value);
+  if (result.success) {
     return { success: true };
-  } catch (error) {
-    if (error instanceof v.ValiError) {
-      return { success: false, issues: error.issues };
-    }
-    throw error;
+  } else {
+    return { success: false, issues: result.error.issues };
   }
 };
 
@@ -134,7 +131,10 @@ describe('DataSourceSchema', () => {
     const result = testValidation(DataSourceSchema, invalidPortDataSource);
     expect(result.success).toBe(false);
     expect(result.issues).toBeDefined();
-    expect(result.issues![0].message).toBe('Port must be greater than 0');
+    expect(result.issues![0].message).toBe('Invalid input');
+
+    const testMessage = result.issues![0] as z.core.$ZodIssueInvalidUnion;
+    expect(testMessage.errors[0][0].message).toBe('Port must be greater than 0');
   });
 
   test('should fail validation with missing required fields', () => {
