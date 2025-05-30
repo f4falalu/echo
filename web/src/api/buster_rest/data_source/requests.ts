@@ -10,8 +10,8 @@ import type {
   SQLServerCredentials
 } from '@/api/asset_interfaces/datasources';
 import { DataSourceSchema } from '@/api/asset_interfaces/datasources';
-import mainApi from '../instances';
 import { serverFetch } from '@/api/createServerInstance';
+import mainApi from '../instances';
 
 export const listDatasources = async () => {
   return await mainApi.get<DataSourceListItem[]>('/data_sources').then((res) => res.data);

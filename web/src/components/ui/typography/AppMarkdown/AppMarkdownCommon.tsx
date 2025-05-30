@@ -1,8 +1,8 @@
-import React from 'react';
-import { type ExtraProps } from 'react-markdown';
-import { AppCodeBlock } from '../AppCodeBlock/AppCodeBlock';
 import { cva } from 'class-variance-authority';
+import type React from 'react';
+import type { ExtraProps } from 'react-markdown';
 import { cn } from '../../../../lib/classMerge';
+import { AppCodeBlock } from '../AppCodeBlock/AppCodeBlock';
 
 export interface ExtraPropsExtra extends ExtraProps {
   numberOfLineMarkdown: number;
@@ -86,7 +86,7 @@ export const CustomHeading: React.FC<
     stripFormatting?: boolean;
   } & ExtraPropsExtra
 > = ({ level, children, markdown, stripFormatting = false, showLoader, ...rest }) => {
-  const HeadingTag = `h${level}` as any;
+  const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
   return (
     <HeadingTag
       className={cn(

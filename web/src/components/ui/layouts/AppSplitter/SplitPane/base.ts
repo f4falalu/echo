@@ -49,7 +49,7 @@ export function classNames(...args) {
         continue;
       }
       for (const key in arg) {
-        if (Object.hasOwnProperty.call(arg, key) && arg[key]) {
+        if (Object.hasOwn(arg, key) && arg[key]) {
           classList.push(key);
         }
       }
@@ -70,7 +70,7 @@ export function classNames(...args) {
 export function assertsSize(
   size: string | number | undefined,
   sum: number,
-  defaultValue = Infinity
+  defaultValue = Number.POSITIVE_INFINITY
 ) {
   if (typeof size === 'undefined') return defaultValue;
   if (typeof size === 'number') return size;

@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useGetFileLink } from './useGetFileLink';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
 import { assetParamsToRoute } from '@/lib/assets';
+import { useGetFileLink } from './useGetFileLink';
 
 // Mock dependencies
 vi.mock('@/layouts/ChatLayout', () => ({
@@ -25,7 +25,7 @@ describe('useGetFileLink', () => {
     vi.clearAllMocks();
 
     // Mock useChatLayoutContextSelector to return our test values
-    (useChatLayoutContextSelector as any).mockImplementation((selector) => {
+    (useChatLayoutContextSelector as any).mockImplementation((selector: any) => {
       const contextValues = {
         metricVersionNumber: mockMetricVersionNumber,
         dashboardVersionNumber: mockDashboardVersionNumber,
@@ -38,12 +38,24 @@ describe('useGetFileLink', () => {
 
     // Mock assetParamsToRoute to return predictable values for testing
     (assetParamsToRoute as any).mockImplementation(
-      ({ assetId, type, versionNumber, secondaryView }) => {
+      ({
+        assetId,
+        type,
+        versionNumber,
+        secondaryView
+      }: {
+        assetId: string;
+        type: string;
+        versionNumber: number;
+        secondaryView: string;
+      }) => {
         if (type === 'metric') {
           return `/metrics/${assetId}${versionNumber ? `/v${versionNumber}` : ''}${secondaryView ? `/${secondaryView}` : ''}`;
-        } else if (type === 'dashboard') {
+        }
+        if (type === 'dashboard') {
           return `/dashboards/${assetId}${versionNumber ? `/v${versionNumber}` : ''}${secondaryView ? `/${secondaryView}` : ''}`;
-        } else if (type === 'reasoning') {
+        }
+        if (type === 'reasoning') {
           return `/reasoning/${assetId}`;
         }
         return '';
@@ -241,7 +253,7 @@ describe('useGetFileLink', () => {
       });
 
       expect(meta).toEqual({
-        link: `/metrics/different-metric/v999`,
+        link: '/metrics/different-metric/v999',
         isSelected: false,
         selectedVersionNumber: mockMetricVersionNumber
       });

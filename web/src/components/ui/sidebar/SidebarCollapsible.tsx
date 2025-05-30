@@ -1,36 +1,36 @@
 'use client';
 
-import React, { useEffect } from 'react';
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger
-} from '../collapsible/CollapsibleBase';
-import { type ISidebarGroup } from './interfaces';
-import { SidebarItem } from './SidebarItem';
-import { CaretDown } from '../icons/NucleoIconFilled';
-import { cn } from '@/lib/classMerge';
-import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
+  DragOverlay,
+  type DragStartEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
-  useSensors,
-  DragOverlay,
-  DragStartEvent,
-  DragEndEvent
+  useSensors
 } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable
+  useSortable,
+  verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import React, { useEffect } from 'react';
 import { useMemoizedFn } from '@/hooks';
+import { cn } from '@/lib/classMerge';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from '../collapsible/CollapsibleBase';
+import { CaretDown } from '../icons/NucleoIconFilled';
+import type { ISidebarGroup } from './interfaces';
+import { SidebarItem } from './SidebarItem';
 
 const modifiers = [restrictToVerticalAxis];
 
@@ -160,7 +160,7 @@ export const SidebarCollapsible: React.FC<
       <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-0.5">
         {variant === 'collapsible' && (
           <CollapsibleTrigger asChild className="w-full">
-            <button className="w-full text-left">
+            <button type="button" className="w-full text-left">
               <SidebarTrigger label={label} isOpen={isOpen} />
             </button>
           </CollapsibleTrigger>

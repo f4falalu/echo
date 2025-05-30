@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useChatInputFlow } from './useChatInputFlow';
-import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useBusterNewChatContextSelector } from '@/context/Chats';
+import { useChatIndividualContextSelector } from '@/layouts/ChatLayout/ChatContext';
+import { useChatInputFlow } from './useChatInputFlow';
 
 // Mock the context selectors
 vi.mock('@/layouts/ChatLayout/ChatContext', () => ({
@@ -30,7 +30,7 @@ describe('useChatInputFlow', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useBusterNewChatContextSelector as any).mockImplementation((selector) => {
+    (useBusterNewChatContextSelector as any).mockImplementation((selector: any) => {
       const state = {
         onStartNewChat: mockOnStartNewChat,
         onFollowUpChat: mockOnFollowUpChat,
@@ -50,7 +50,7 @@ describe('useChatInputFlow', () => {
   };
 
   it('should handle followup-chat flow', async () => {
-    (useChatIndividualContextSelector as any).mockImplementation((selector) => {
+    (useChatIndividualContextSelector as any).mockImplementation((selector: any) => {
       const state = {
         hasChat: true,
         chatId: 'test-chat-id',
@@ -75,7 +75,7 @@ describe('useChatInputFlow', () => {
   });
 
   it('should handle followup-metric flow', async () => {
-    (useChatIndividualContextSelector as any).mockImplementation((selector) => {
+    (useChatIndividualContextSelector as any).mockImplementation((selector: any) => {
       const state = {
         hasChat: false,
         chatId: 'test-chat-id',
@@ -101,7 +101,7 @@ describe('useChatInputFlow', () => {
   });
 
   it('should handle followup-dashboard flow', async () => {
-    (useChatIndividualContextSelector as any).mockImplementation((selector) => {
+    (useChatIndividualContextSelector as any).mockImplementation((selector: any) => {
       const state = {
         hasChat: false,
         chatId: 'test-chat-id',
@@ -127,7 +127,7 @@ describe('useChatInputFlow', () => {
   });
 
   it('should handle new chat flow', async () => {
-    (useChatIndividualContextSelector as any).mockImplementation((selector) => {
+    (useChatIndividualContextSelector as any).mockImplementation((selector: any) => {
       const state = {
         hasChat: false,
         chatId: 'test-chat-id',
@@ -151,7 +151,7 @@ describe('useChatInputFlow', () => {
   });
 
   it('should handle stop chat', () => {
-    (useChatIndividualContextSelector as any).mockImplementation((selector) => {
+    (useChatIndividualContextSelector as any).mockImplementation((selector: any) => {
       const state = {
         hasChat: true,
         chatId: 'test-chat-id',
@@ -175,7 +175,7 @@ describe('useChatInputFlow', () => {
   });
 
   it('should not submit when disabled', async () => {
-    (useChatIndividualContextSelector as any).mockImplementation((selector) => {
+    (useChatIndividualContextSelector as any).mockImplementation((selector: any) => {
       const state = {
         hasChat: true,
         chatId: 'test-chat-id',
@@ -196,7 +196,7 @@ describe('useChatInputFlow', () => {
   });
 
   it('should stop chat when loading', async () => {
-    (useChatIndividualContextSelector as any).mockImplementation((selector) => {
+    (useChatIndividualContextSelector as any).mockImplementation((selector: any) => {
       const state = {
         hasChat: true,
         chatId: 'test-chat-id',

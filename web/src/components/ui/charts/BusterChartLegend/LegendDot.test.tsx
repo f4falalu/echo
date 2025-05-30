@@ -1,8 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { LegendItemDot } from './LegendDot';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import { LegendItemDot } from './LegendDot';
 
 describe('LegendItemDot', () => {
   const defaultProps = {

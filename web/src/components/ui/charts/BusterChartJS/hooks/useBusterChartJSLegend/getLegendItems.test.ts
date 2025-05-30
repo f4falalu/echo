@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import type { Chart } from 'chart.js';
+import { describe, expect, it } from 'vitest';
 import { ChartType } from '@/api/asset_interfaces/metric/charts';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts/columnInterfaces';
+import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import type { SimplifiedColumnType } from '@/api/asset_interfaces/metric/interfaces';
 import { getLegendItems } from './getLegendItems';
-import type { Chart } from 'chart.js';
 
 describe('getLegendItems', () => {
   const mockColors = ['#FF0000', '#00FF00', '#0000FF'];

@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useXAxisTitle } from './useXAxisTitle';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SimplifiedColumnType } from '@/api/asset_interfaces/metric';
+import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
-import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
-import type { SimplifiedColumnType } from '@/api/asset_interfaces/metric';
+import { useXAxisTitle } from './useXAxisTitle';
 
 // Mock the dependencies
 vi.mock('@/lib/columnFormatter', () => ({
@@ -44,8 +44,8 @@ describe('useXAxisTitle', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default mock implementations
-    (formatLabel as any).mockImplementation((value) => `formatted_${value}`);
-    (truncateWithEllipsis as any).mockImplementation((text) => text);
+    (formatLabel as any).mockImplementation((value: string) => `formatted_${value}`);
+    (truncateWithEllipsis as any).mockImplementation((text: string) => text);
   });
 
   it('should return empty string when chart type is not supported', () => {
@@ -117,10 +117,10 @@ describe('useXAxisTitle', () => {
     const { result } = renderHook(() => useXAxisTitle(modifiedProps));
 
     // Should format each x-axis column
-    expect(formatLabel).toHaveBeenCalledWith('date', defaultProps.columnLabelFormats['date'], true);
+    expect(formatLabel).toHaveBeenCalledWith('date', defaultProps.columnLabelFormats.date, true);
     expect(formatLabel).toHaveBeenCalledWith(
       'category',
-      defaultProps.columnLabelFormats['category'],
+      defaultProps.columnLabelFormats.category,
       true
     );
 
@@ -145,7 +145,7 @@ describe('useXAxisTitle', () => {
 
     const { result } = renderHook(() => useXAxisTitle(singleAxisProps));
 
-    expect(formatLabel).toHaveBeenCalledWith('date', defaultProps.columnLabelFormats['date'], true);
+    expect(formatLabel).toHaveBeenCalledWith('date', defaultProps.columnLabelFormats.date, true);
     expect(truncateWithEllipsis).toHaveBeenCalledWith('Formatted Date');
     expect(result.current).toBe('Formatted Date');
   });

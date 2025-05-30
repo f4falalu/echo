@@ -1,10 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { computeHiddenShowItems } from './helpers';
-import { BusterChartLegendItem } from './interfaces';
-import { renderToString } from 'react-dom/server';
-import { LegendItem } from './LegendItem';
-import React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import { computeHiddenShowItems } from './helpers';
+import type { BusterChartLegendItem } from './interfaces';
 
 // Mock the DOM elements and methods
 const mockGetBoundingClientRect = vi.fn();

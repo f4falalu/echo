@@ -1,7 +1,7 @@
-import { Xmark } from '@/components/ui/icons';
-import { Text } from '@/components/ui/typography';
 import React from 'react';
+import { Xmark } from '@/components/ui/icons';
 import { PopupContainer, PopupSplitter } from '@/components/ui/popup/PopupContainer';
+import { Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
 
 export const BusterListSelectedOptionPopupContainer: React.FC<{
@@ -20,6 +20,7 @@ export const BusterListSelectedOptionPopupContainer: React.FC<{
         {buttons.length > 0 && <PopupSplitter />}
 
         {buttons.map((button, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: we need to use the index as the key for the fragment
           <React.Fragment key={index}>{button}</React.Fragment>
         ))}
       </div>

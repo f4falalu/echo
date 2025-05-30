@@ -1,11 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 /**
  * @jest-environment jsdom
  */
 
-import { Chart, ChartConfiguration, ChartTypeRegistry } from 'chart.js';
+import { Chart } from 'chart.js';
 import { ChartTotalizerPlugin } from './chartjs-plugin-totalizer';
-import { ChartType } from 'chart.js';
 
 // Mock canvas and Chart.js setup
 beforeAll(() => {

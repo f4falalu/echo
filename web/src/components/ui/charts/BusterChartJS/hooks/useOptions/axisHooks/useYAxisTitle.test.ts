@@ -1,11 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useYAxisTitle } from './useYAxisTitle';
-import { AXIS_TITLE_SEPARATOR } from '../../../../commonHelpers/axisHelper';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SimplifiedColumnType } from '@/api/asset_interfaces/metric';
+import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
 import { truncateWithEllipsis } from '../../../../commonHelpers/titleHelpers';
-import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
-import type { SimplifiedColumnType } from '@/api/asset_interfaces/metric';
+import { useYAxisTitle } from './useYAxisTitle';
 
 // Mock the dependencies
 vi.mock('@/lib/columnFormatter', () => ({
@@ -49,8 +48,8 @@ describe('useYAxisTitle', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default mock implementations
-    (formatLabel as any).mockImplementation((value) => `formatted_${value}`);
-    (truncateWithEllipsis as any).mockImplementation((text) => text);
+    (formatLabel as any).mockImplementation((value: string) => `formatted_${value}`);
+    (truncateWithEllipsis as any).mockImplementation((text: string) => text);
   });
 
   it('should return empty string when chart type is not supported', () => {
@@ -109,16 +108,8 @@ describe('useYAxisTitle', () => {
     const { result } = renderHook(() => useYAxisTitle(modifiedProps));
 
     // Should format each y-axis column
-    expect(formatLabel).toHaveBeenCalledWith(
-      'value',
-      defaultProps.columnLabelFormats['value'],
-      true
-    );
-    expect(formatLabel).toHaveBeenCalledWith(
-      'count',
-      defaultProps.columnLabelFormats['count'],
-      true
-    );
+    expect(formatLabel).toHaveBeenCalledWith('value', defaultProps.columnLabelFormats.value, true);
+    expect(formatLabel).toHaveBeenCalledWith('count', defaultProps.columnLabelFormats.count, true);
 
     // Should generate title with separator
     expect(truncateWithEllipsis).toHaveBeenCalledWith('Formatted Value | Formatted Count');
@@ -141,11 +132,7 @@ describe('useYAxisTitle', () => {
 
     const { result } = renderHook(() => useYAxisTitle(singleAxisProps));
 
-    expect(formatLabel).toHaveBeenCalledWith(
-      'value',
-      defaultProps.columnLabelFormats['value'],
-      true
-    );
+    expect(formatLabel).toHaveBeenCalledWith('value', defaultProps.columnLabelFormats.value, true);
     expect(truncateWithEllipsis).toHaveBeenCalledWith('Formatted Value');
     expect(result.current).toBe('Formatted Value');
   });
@@ -231,16 +218,8 @@ describe('useYAxisTitle', () => {
     const { result } = renderHook(() => useYAxisTitle(differentAxisProps));
 
     // Should use selectedAxis.y for formatting, not yAxis
-    expect(formatLabel).toHaveBeenCalledWith(
-      'value',
-      defaultProps.columnLabelFormats['value'],
-      true
-    );
-    expect(formatLabel).toHaveBeenCalledWith(
-      'count',
-      defaultProps.columnLabelFormats['count'],
-      true
-    );
+    expect(formatLabel).toHaveBeenCalledWith('value', defaultProps.columnLabelFormats.value, true);
+    expect(formatLabel).toHaveBeenCalledWith('count', defaultProps.columnLabelFormats.count, true);
     expect(truncateWithEllipsis).toHaveBeenCalledWith('Formatted Value | Formatted Count');
     expect(result.current).toBe('Formatted Value | Formatted Count');
   });

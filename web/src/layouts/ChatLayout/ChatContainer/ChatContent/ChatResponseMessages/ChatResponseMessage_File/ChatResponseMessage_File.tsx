@@ -1,20 +1,19 @@
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
-import { ChatResponseMessageProps } from '../ChatResponseMessageSelector';
 import type {
   BusterChatResponseMessage_file,
   BusterChatResponseMessage_fileMetadata
 } from '@/api/asset_interfaces';
-import { Text } from '@/components/ui/typography';
+import { useGetChatMessage } from '@/api/buster_rest/chats';
 import { StatusIndicator } from '@/components/ui/indicators';
 import { StreamingMessage_File } from '@/components/ui/streaming/StreamingMessage_File';
-import { useGetChatMessage } from '@/api/buster_rest/chats';
-import { useMemoizedFn, useMount } from '@/hooks';
-import { useChatLayoutContextSelector } from '@/layouts/ChatLayout';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Text } from '@/components/ui/typography';
 import { TextAndVersionPill } from '@/components/ui/typography/TextAndVersionPill';
-import { useGetIsSelectedFile } from './useGetIsSelectedFile';
+import { useMount } from '@/hooks';
+import type { ChatResponseMessageProps } from '../ChatResponseMessageSelector';
 import { useGetFileHref } from './useGetFileHref';
+import { useGetIsSelectedFile } from './useGetIsSelectedFile';
 
 export const ChatResponseMessage_File: React.FC<ChatResponseMessageProps> = React.memo(
   ({ isCompletedStream, chatId, responseMessageId, messageId }) => {
@@ -65,7 +64,10 @@ const ChatResponseMessageBody: React.FC<{
   return (
     <div className="flex w-full flex-col items-center space-y-0.5 px-2.5 py-2">
       {metadata.map((metadata, index) => (
-        <MetadataItem metadata={metadata} key={index} />
+        <MetadataItem
+          metadata={metadata}
+          key={`${metadata.message}-${metadata.status}-${metadata.timestamp}-${index}`}
+        />
       ))}
     </div>
   );

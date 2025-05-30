@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { assetParamsToRoute } from './assetParamsToRoute';
+import { describe, expect, it, vi } from 'vitest';
+import type { FileType } from '@/api/asset_interfaces/chat';
 import { BusterRoutes, createBusterRoute } from '@/routes/busterRoutes';
-import { FileType } from '@/api/asset_interfaces/chat';
+import { assetParamsToRoute } from './assetParamsToRoute';
 
 describe('assetParamsToRoute', () => {
   const mockChatId = 'chat123';
@@ -211,7 +211,7 @@ describe('assetParamsToRoute', () => {
     );
   });
   it('unsupported file type', () => {
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation();
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const result = assetParamsToRoute({
       chatId: mockChatId,
       assetId: mockAssetId,

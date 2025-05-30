@@ -1,7 +1,6 @@
-import { BusterChartLegendItem } from './interfaces';
-import { LegendItem } from './LegendItem';
 import { renderToString } from 'react-dom/server';
-import React from 'react';
+import type { BusterChartLegendItem } from './interfaces';
+import { LegendItem } from './LegendItem';
 
 const WIDTH_OF_OVERFLOW = 79;
 

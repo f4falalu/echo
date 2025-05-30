@@ -1,10 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useAppLayout } from './AppLayoutProvider';
-import { useRouter, usePathname, useParams } from 'next/navigation';
-import { BusterRoutesWithArgsRoute } from '@/routes/busterRoutes';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { BusterRoutesWithArgsRoute } from '@/routes/busterRoutes';
 import { BusterAppRoutes } from '@/routes/busterRoutes/busterAppRoutes';
-import { DashboardSecondaryRecord } from '@/layouts/ChatLayout/FileContainer/FileContainerSecondary/secondaryPanelsConfig/dashboardPanels';
+import { useAppLayout } from './AppLayoutProvider';
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
@@ -31,7 +30,7 @@ describe('useAppLayout - onChangePage', () => {
     originalHistory = window.history;
 
     // Mock window.location
-    delete (window as any).location;
+    (window as any).location = undefined;
     window.location = {
       ...originalLocation,
       href: 'http://localhost:3000',
@@ -41,7 +40,7 @@ describe('useAppLayout - onChangePage', () => {
     } as Location;
 
     // Mock window.history
-    delete (window as any).history;
+    (window as any).history = undefined;
     window.history = {
       ...originalHistory,
       pushState: mockPushState
@@ -243,7 +242,7 @@ describe('useAppLayout - onChangeQueryParams', () => {
     originalHistory = window.history;
 
     // Mock window.location
-    delete (window as any).location;
+    (window as any).location = undefined;
     window.location = {
       ...originalLocation,
       href: 'http://localhost:3000',
@@ -253,7 +252,7 @@ describe('useAppLayout - onChangeQueryParams', () => {
     } as Location;
 
     // Mock window.history
-    delete (window as any).history;
+    (window as any).history = undefined;
     window.history = {
       ...originalHistory,
       pushState: mockPushState

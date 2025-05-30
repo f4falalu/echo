@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { ChartType } from '@/api/asset_interfaces/metric';
+import type { DatasetOption, DatasetOptionsWithTicks } from './interfaces';
 import { modifyDatasets } from './modifyDatasets';
-import { DatasetOption, DatasetOptionsWithTicks } from './interfaces';
 
 describe('modifyDatasets - pieMinimumSlicePercentage tests', () => {
   // Basic dataset setup
@@ -1388,6 +1388,8 @@ describe('modifyDatasets - percentage stack tests', () => {
   });
   it('should convert bar chart values to percentages for percentage-stack mode', () => {
     const datasets = createBarDatasets();
+    expect(datasets.datasets[0].data).toEqual([100, 200, 300]);
+    expect(datasets.datasets[1].data).toEqual([50, 150, 250]);
     const { datasets: result } = modifyDatasets({
       datasets,
       pieMinimumSlicePercentage: undefined,

@@ -1,17 +1,15 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { canSupportTrendlineRecord } from './canSupportTrendline';
-import { isNumericColumnType } from '@/lib/messages';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 import type { BusterChartProps, Trendline } from '@/api/asset_interfaces/metric/charts';
+import { isNumericColumnType } from '@/lib/messages';
+import { canSupportTrendlineRecord } from './canSupportTrendline';
 
 // Mock the isNumericColumnType function
 vi.mock('@/lib/messages', () => ({
   isNumericColumnType: vi.fn()
 }));
 
-const mockedIsNumericColumnType = isNumericColumnType as anyedFunction<
-  typeof isNumericColumnType
->;
+const mockedIsNumericColumnType = vi.mocked(isNumericColumnType);
 
 describe('canSupportTrendlineRecord', () => {
   const trendlineTypes: Trendline['type'][] = [

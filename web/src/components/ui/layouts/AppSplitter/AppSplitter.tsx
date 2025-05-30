@@ -1,15 +1,16 @@
 'use client';
 
-import { useMemoizedFn, useMount, useSize } from '@/hooks';
+import Cookies from 'js-cookie';
 import React, {
-  useEffect,
-  useMemo,
-  useState,
   forwardRef,
+  useEffect,
   useImperativeHandle,
-  useRef
+  useMemo,
+  useRef,
+  useState
 } from 'react';
-import SplitPane, { Pane } from './SplitPane';
+import { useMemoizedFn, useSize } from '@/hooks';
+import { cn } from '@/lib/classMerge';
 import {
   convertPxToPercentage,
   createAutoSaveId,
@@ -18,8 +19,7 @@ import {
   parseWidthValue,
   setAppSplitterCookie
 } from './helper';
-import Cookies from 'js-cookie';
-import { cn } from '@/lib/classMerge';
+import SplitPane, { Pane } from './SplitPane';
 import './splitterStyles.css';
 import { timeout } from '@/lib';
 
@@ -203,10 +203,10 @@ export const AppSplitter = React.memo(
           const currentSizeNumber = getCurrentSizePercentage(currentSize, otherSize, container);
 
           if (
-            currentSizeNumber === Infinity ||
-            currentSizeNumber === -Infinity ||
-            targetPercentage === Infinity ||
-            targetPercentage === -Infinity
+            currentSizeNumber === Number.POSITIVE_INFINITY ||
+            currentSizeNumber === Number.NEGATIVE_INFINITY ||
+            targetPercentage === Number.POSITIVE_INFINITY ||
+            targetPercentage === Number.NEGATIVE_INFINITY
           ) {
             return;
           }

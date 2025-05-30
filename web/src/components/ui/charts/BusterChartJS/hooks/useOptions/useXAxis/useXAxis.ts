@@ -1,22 +1,22 @@
+import type { GridLineOptions, Scale, ScaleChartOptions, TimeScale } from 'chart.js';
+import { Chart as ChartJS } from 'chart.js';
+import isDate from 'lodash/isDate';
+import { useMemo } from 'react';
+import type { DeepPartial } from 'utility-types';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 import {
-  BusterChartConfigProps,
-  ChartEncodes,
+  type BusterChartConfigProps,
+  type BusterChartProps,
+  type ChartEncodes,
   ChartType,
-  BusterChartProps,
-  IColumnLabelFormat,
-  ComboChartAxis,
-  XAxisConfig
+  type ComboChartAxis,
+  type IColumnLabelFormat,
+  type XAxisConfig
 } from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
-import { useMemo } from 'react';
-import { DeepPartial } from 'utility-types';
-import type { ScaleChartOptions, Scale, GridLineOptions, TimeScale } from 'chart.js';
+import { formatLabel, isNumericColumnType, truncateText } from '@/lib';
 import { useXAxisTitle } from '../axisHooks/useXAxisTitle';
 import { useIsStacked } from '../useIsStacked';
-import { formatLabel, isNumericColumnType, truncateText } from '@/lib';
-import isDate from 'lodash/isDate';
-import { Chart as ChartJS } from 'chart.js';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 import { AUTO_DATE_FORMATS } from './config';
 
 const DEFAULT_X_AXIS_TICK_CALLBACK = ChartJS.defaults.scales.category?.ticks?.callback;
@@ -161,7 +161,7 @@ export const useXAxis = ({
       const xColumnLabelFormat = firstXColumnLabelFormat;
       const isAutoFormat = xColumnLabelFormat.dateFormat === 'auto';
       if (isAutoFormat) {
-        const unit = (this.chart.scales['x'] as TimeScale)._unit as
+        const unit = (this.chart.scales.x as TimeScale)._unit as
           | 'millisecond'
           | 'second'
           | 'minute'
@@ -183,6 +183,7 @@ export const useXAxis = ({
       return formatLabel(value, firstXColumnLabelFormat);
     }
 
+    // biome-ignore lint/suspicious/noExplicitAny: I had a devil of a time trying to type this... This is a hack to get the type to work
     return DEFAULT_X_AXIS_TICK_CALLBACK.call(this, value, index, this.getLabels() as any);
   });
 
@@ -239,7 +240,7 @@ export const useXAxis = ({
           maxTicksLimit: type === 'time' ? (timeUnit === 'month' ? 18 : 18) : undefined,
           //  sampleSize: type === 'time' ? 28 : undefined, //DO NOT USE THIS. IT BREAK TIME SCALES
           display: xAxisShowAxisLabel,
-          callback: customTickCallback as any, //I need to use null for auto date
+          callback: customTickCallback,
           //@ts-ignore
           time: {
             unit: timeUnit

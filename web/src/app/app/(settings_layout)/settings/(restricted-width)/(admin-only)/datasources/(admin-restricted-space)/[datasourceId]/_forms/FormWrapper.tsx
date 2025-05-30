@@ -1,10 +1,7 @@
 'use client';
 
-import React from 'react';
+import type React from 'react';
 import { WhiteListBlock } from './WhiteListBlock';
-import { FormApi } from '@tanstack/react-form';
-import { Button } from '@/components/ui/buttons';
-import { SubscribeButton } from '@/components/ui/form/FormBase';
 
 // Common field interface properties
 interface FieldComponentProps {
@@ -25,20 +22,13 @@ export interface BusterFormApi {
     isDirty: boolean;
   };
   AppForm: React.ComponentType<{ children?: React.ReactNode }>;
-  AppField: any; // Using any for AppField to avoid type complexity
+  // biome-ignore lint/suspicious/noExplicitAny: I am just using any here because it was a pain to type this out
+  AppField: any;
   SubscribeButton: React.ComponentType<{
     submitLabel: string;
     disableIfNotChanged?: boolean;
     useResetButton?: boolean;
   }>;
-}
-
-// Field interface representing what's available inside the field prop
-interface FieldInterface {
-  TextField: React.FC<FieldComponentProps>;
-  NumberField: React.FC<FieldComponentProps>;
-  PasswordField: React.FC<FieldComponentProps>;
-  name: string;
 }
 
 // Use a typed approach for the form

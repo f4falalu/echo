@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { comboSeriesBuilder_data } from './comboSeriesBuilder';
+import { describe, expect, it } from 'vitest';
 import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces/metric';
+import { comboSeriesBuilder_data } from './comboSeriesBuilder';
 
 describe('comboSeriesBuilder_data', () => {
   const mockColors = ['#000000', '#111111'];
@@ -44,7 +44,8 @@ describe('comboSeriesBuilder_data', () => {
       scatterDotSize: [5, 10] as [number, number],
       barShowTotalAtTop: false,
       yAxisKeys: ['metric1'],
-      y2AxisKeys: ['metric2']
+      y2AxisKeys: ['metric2'],
+      trendlines: []
     };
 
     const result = comboSeriesBuilder_data(props);
@@ -82,7 +83,8 @@ describe('comboSeriesBuilder_data', () => {
       scatterDotSize: [5, 10] as [number, number],
       barShowTotalAtTop: false,
       yAxisKeys: ['metric1'],
-      y2AxisKeys: []
+      y2AxisKeys: [],
+      trendlines: []
     };
 
     const result = comboSeriesBuilder_data(props);

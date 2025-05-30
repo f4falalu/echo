@@ -1,17 +1,17 @@
 import React, { useMemo } from 'react';
-import { ChartEncodes, ChartType } from '@/api/asset_interfaces/metric/charts';
-import { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartEncodes, ChartType } from '@/api/asset_interfaces/metric/charts';
 import { AppTooltip } from '@/components/ui/tooltip';
-import { CHART_ICON_LIST, ChartIconType, DETERMINE_SELECTED_CHART_TYPE_ORDER } from './config';
-import {
-  selectedChartTypeMethod,
-  DetermineSelectedChartType,
-  disableTypeMethod
-} from './SelectedChartTypeMethod';
-import { useMemoizedFn, useUnmount } from '@/hooks';
+import { useUpdateMetricChart } from '@/context/Metrics';
+import { useMemoizedFn } from '@/hooks';
 import { addOpacityToColor, NUMBER_TYPES } from '@/lib';
 import { cn } from '@/lib/classMerge';
-import { useUpdateMetricChart } from '@/context/Metrics';
+import { CHART_ICON_LIST, ChartIconType, DETERMINE_SELECTED_CHART_TYPE_ORDER } from './config';
+import {
+  DetermineSelectedChartType,
+  disableTypeMethod,
+  selectedChartTypeMethod
+} from './SelectedChartTypeMethod';
 
 export interface SelectChartTypeProps {
   selectedChartType: ChartType;
@@ -142,6 +142,7 @@ const ChartButton: React.FC<{
     return (
       <AppTooltip title={tooltipText} delayDuration={650}>
         <button
+          type="button"
           key={id}
           disabled={disabled}
           data-testid={`select-chart-type-${id}`}

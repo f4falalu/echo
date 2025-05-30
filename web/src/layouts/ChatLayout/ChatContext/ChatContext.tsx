@@ -1,12 +1,12 @@
-import React, { PropsWithChildren } from 'react';
+import { useQueries } from '@tanstack/react-query';
+import React, { type PropsWithChildren } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
+import type { IBusterChatMessage } from '@/api/asset_interfaces/chat';
+import { useGetChat } from '@/api/buster_rest/chats';
+import { queryKeys } from '@/api/query_keys';
+import { useChatLayoutContextSelector } from '..';
 import type { SelectedFile } from '../interfaces';
 import { useAutoChangeLayout } from './useAutoChangeLayout';
-import { useGetChat } from '@/api/buster_rest/chats';
-import { useQueries } from '@tanstack/react-query';
-import { queryKeys } from '@/api/query_keys';
-import { IBusterChatMessage } from '@/api/asset_interfaces/chat';
-import { useChatLayoutContextSelector } from '..';
 import { useIsFileChanged } from './useIsFileChanged';
 
 const useChatIndividualContext = ({
@@ -90,7 +90,7 @@ const IndividualChatContext = createContext<ReturnType<typeof useChatIndividualC
   {} as ReturnType<typeof useChatIndividualContext>
 );
 
-export const ChatContextProvider = React.memo(({ children }: PropsWithChildren<{}>) => {
+export const ChatContextProvider = React.memo(({ children }: PropsWithChildren) => {
   const chatId = useChatLayoutContextSelector((x) => x.chatId);
   const selectedFile = useChatLayoutContextSelector((x) => x.selectedFile);
   const useChatContextValue = useChatIndividualContext({

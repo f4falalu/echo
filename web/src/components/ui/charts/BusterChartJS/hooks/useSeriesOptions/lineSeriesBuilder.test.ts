@@ -1,22 +1,20 @@
-import { describe, it, expect, vi } from 'vitest';
-import { lineBuilder, lineSeriesBuilder_labels } from './lineSeriesBuilder';
+import type { ChartDataset, ScriptableContext } from 'chart.js';
+import { describe, expect, it, vi } from 'vitest';
+import type {
+  BusterChartProps,
+  ChartEncodes,
+  ColumnSettings,
+  IColumnLabelFormat,
+  ScatterAxis
+} from '@/api/asset_interfaces/metric';
 import {
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS
 } from '@/api/asset_interfaces/metric/defaults';
+import { createDayjsDate, formatLabel } from '@/lib';
 import type { DatasetOption, DatasetOptionsWithTicks, KV } from '../../../chartHooks';
-import { formatLabelForDataset, JOIN_CHARACTER } from '../../../commonHelpers';
-import { addOpacityToColor, createDayjsDate, formatLabel } from '@/lib';
 import { formatBarAndLineDataLabel } from '../../helpers';
-import type {
-  BusterChartProps,
-  ChartEncodes,
-  ScatterAxis,
-  IColumnLabelFormat,
-  ColumnSettings
-} from '@/api/asset_interfaces/metric';
-import type { ScriptableContext, LineControllerDatasetOptions, ChartDataset } from 'chart.js';
-import type { ChartProps } from '../../core';
+import { lineBuilder, lineSeriesBuilder_labels } from './lineSeriesBuilder';
 
 // Use NonNullable utility type for potentially nullable map types
 type ColumnLabelFormatMap = NonNullable<BusterChartProps['columnLabelFormats']>;
@@ -48,7 +46,7 @@ const mockContext = (
   dataIndex: number,
   datasetIndex: number,
   datasetData: any[],
-  scaleType: string = 'linear',
+  scaleType = 'linear',
   chartDatasets: any[] = [{ data: datasetData, hidden: false }]
 ) =>
   ({
@@ -123,6 +121,7 @@ describe('lineSeriesBuilder', () => {
       xAxisKeys: ['category'] as ChartEncodes['x'],
       lineGroupType: undefined,
       index: 0,
+      trendlines: [],
       dataset: {
         id: 'm1',
         axisType: 'y' as const,

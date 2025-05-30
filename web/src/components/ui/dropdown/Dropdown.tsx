@@ -1,31 +1,28 @@
 'use client';
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
+import Link from 'next/link';
 import React, { useEffect, useMemo } from 'react';
-import { DropdownMenuHeaderSearch } from './DropdownMenuHeaderSearch';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { useDebounceSearch, useMemoizedFn } from '@/hooks';
+import { cn } from '@/lib/classMerge';
+import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItemMultiple,
+  DropdownMenuCheckboxItemSingle,
   DropdownMenuContent,
-  DropdownMenuGroup, //Do I need this?
-  DropdownMenuLabel, //Do I need this?
   DropdownMenuItem,
+  DropdownMenuLink,
   DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItemSingle,
-  DropdownMenuCheckboxItemMultiple,
-  DropdownMenuLink
+  DropdownMenuTrigger
 } from './DropdownBase';
-import { CircleSpinnerLoader } from '../loaders/CircleSpinnerLoader';
-import { useMemoizedFn } from '@/hooks';
-import { cn } from '@/lib/classMerge';
-import { useDebounceSearch } from '@/hooks';
-import Link from 'next/link';
-import { useHotkeys } from 'react-hotkeys-hook';
+import { DropdownMenuHeaderSearch } from './DropdownMenuHeaderSearch';
 
 export interface DropdownItem<T = string> {
   label: React.ReactNode | string;
@@ -105,12 +102,7 @@ export const DropdownBase = <T,>({
   showEmptyState = true
 }: DropdownProps<T>) => {
   return (
-    <DropdownMenu
-      open={open}
-      defaultOpen={open}
-      onOpenChange={onOpenChange}
-      dir={dir}
-      modal={modal}>
+    <DropdownMenu open={open} defaultOpen={open} onOpenChange={onOpenChange} dir={dir}>
       <DropdownMenuTrigger asChild disabled={disabled}>
         <span className="dropdown-trigger">{children}</span>
       </DropdownMenuTrigger>
@@ -315,6 +307,7 @@ const DropdownItemSelector = React.memo(
   }: {
     item: DropdownItems<T>[number];
     index: number;
+    // biome-ignore lint/suspicious/noExplicitAny: I had a devil of a time trying to type this... This is a hack to get the type to work
     onSelect?: (value: any) => void; // Using any here to resolve the type mismatch
     onSelectItem: (index: number) => void;
     closeOnSelect: boolean;

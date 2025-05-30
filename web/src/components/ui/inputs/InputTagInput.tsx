@@ -1,9 +1,9 @@
 'use client';
 
+import type { VariantProps } from 'class-variance-authority';
 import * as React from 'react';
-import { type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
 import { useMemoizedFn } from '@/hooks';
+import { cn } from '@/lib/utils';
 import { inputVariants } from './Input';
 import { InputTag } from './InputTag';
 
@@ -40,7 +40,7 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
     ref
   ) => {
     const [inputValue, setInputValue] = React.useState('');
-    const containerRef = React.useRef<HTMLDivElement>(null);
+    const containerRef = React.useRef<HTMLButtonElement>(null);
     const scrollRef = React.useRef<HTMLDivElement>(null);
 
     const addMultipleTags = useMemoizedFn((value: string) => {
@@ -123,7 +123,8 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
     const isDisabledInput = disabled || (maxTags !== undefined && tags.length >= maxTags);
 
     return (
-      <div
+      <button
+        type="button"
         ref={containerRef}
         className={cn(
           inputVariants({ variant, size }),
@@ -140,11 +141,12 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
           )}>
           {tags.map((tag, index) => (
             <InputTag
-              key={`${tag}-${index}`}
+              key={`${tag}-${index.toString()}`}
               value={tag}
               label={tag}
               onRemove={() => onTagRemove?.(index)}
-              disabled={isDisabledTags}></InputTag>
+              disabled={isDisabledTags}
+            />
           ))}
           <input
             ref={ref}
@@ -160,7 +162,7 @@ const InputTagInput = React.forwardRef<HTMLInputElement, TagInputProps>(
             disabled={isDisabledInput}
           />
         </div>
-      </div>
+      </button>
     );
   }
 );

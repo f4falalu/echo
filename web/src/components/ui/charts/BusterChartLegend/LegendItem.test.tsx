@@ -1,9 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { LegendItem } from './LegendItem';
-import { type BusterChartLegendItem } from './interfaces';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartLegendItem } from './interfaces';
+import { LegendItem } from './LegendItem';
 
 describe('LegendItem', () => {
   const mockItem: BusterChartLegendItem = {

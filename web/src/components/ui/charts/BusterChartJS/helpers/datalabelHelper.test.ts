@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { dataLabelFontColorContrast } from './datalabelHelper';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { determineFontColorContrast } from '@/lib/colors';
+import { dataLabelFontColorContrast } from './datalabelHelper';
 
 // Mock the determineFontColorContrast function
 vi.mock('@/lib/colors', () => ({

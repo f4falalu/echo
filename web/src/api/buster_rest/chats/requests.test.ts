@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { BusterChatListItem } from '@/api/asset_interfaces/chat/chatInterfaces';
 import { mainApi } from '../instances';
-import { BusterChatListItem } from '@/api/asset_interfaces/chat/chatInterfaces';
 
 // Mock the mainApi
 vi.mock('../instances', () => ({

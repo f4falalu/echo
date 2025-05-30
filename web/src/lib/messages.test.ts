@@ -1,15 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  simplifyColumnType,
-  isNumericColumnType,
-  isNumericColumnStyle,
+  DATE_TYPES,
   isDateColumnType,
+  isNumericColumnStyle,
+  isNumericColumnType,
   NUMBER_TYPES,
-  TEXT_TYPES,
-  DATE_TYPES
+  simplifyColumnType,
+  TEXT_TYPES
 } from './messages';
-import type { SimplifiedColumnType } from '@/api/asset_interfaces/metric/';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 
 describe('simplifyColumnType', () => {
   it('should return "number" for numeric types', () => {

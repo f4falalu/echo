@@ -1,13 +1,5 @@
-import {
-  ChartType,
-  Plugin,
-  CartesianScaleTypeRegistry,
-  ScaleOptionsByType,
-  ChartTypeRegistry
-} from 'chart.js';
-import { OutLabelsOptions, TextCenterPluginOptions } from '../BusterPieChartJs/plugins';
-import { ChartHoverBarPluginOptions } from '../core/plugins';
-import { Options } from 'chartjs-plugin-datalabels/types';
+import type { ChartType } from 'chart.js';
+import type { ChartHoverBarPluginOptions } from '../core/plugins';
 
 declare module 'chart.js' {
   interface ChartDatasetProperties<TType extends ChartType, TData> {

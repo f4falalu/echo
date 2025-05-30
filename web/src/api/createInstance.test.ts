@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import axios, { AxiosError, InternalAxiosRequestConfig, AxiosHeaders } from 'axios';
-import { createInstance, defaultRequestHandler } from './createInstance';
+import axios, { type AxiosError, AxiosHeaders, type InternalAxiosRequestConfig } from 'axios';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { rustErrorHandler } from './buster_rest/errors';
+import { createInstance, defaultRequestHandler } from './createInstance';
 
 // Mock dependencies
 vi.mock('axios');
@@ -95,7 +95,7 @@ describe('defaultRequestHandler', () => {
       checkTokenValidity: () => Promise.resolve(mockCheckTokenValidity())
     });
 
-    expect(result.headers['Authorization']).toBe(`Bearer ${mockToken}`);
+    expect(result.headers.Authorization).toBe(`Bearer ${mockToken}`);
   });
 
   it('handles empty token gracefully', async () => {
@@ -108,7 +108,7 @@ describe('defaultRequestHandler', () => {
       checkTokenValidity: () => Promise.resolve(mockCheckTokenValidity())
     });
 
-    expect(result.headers['Authorization']).toBe('Bearer ');
+    expect(result.headers.Authorization).toBe('Bearer ');
   });
 
   it('preserves existing config properties', async () => {

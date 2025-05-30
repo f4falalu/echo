@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import type { BusterChartConfigProps, ChartType } from '@/api/asset_interfaces/metric/charts';
 import { useInteractions } from './useInteractions';
-import type { ChartType, BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
 
 describe('useInteractions', () => {
   it('should return correct interactions for scatter chart', () => {

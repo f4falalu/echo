@@ -1,13 +1,13 @@
+import { DialogTitle } from '@radix-ui/react-dialog';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/buttons';
 import { Xmark } from '@/components/ui/icons';
 import { AppPageLayout } from '@/components/ui/layouts';
 import { Dialog, DialogContent } from '@/components/ui/modal/ModalBase';
-import { cn } from '@/lib/classMerge';
-import React, { useEffect, useMemo, useState } from 'react';
-import { AppVerticalDiffCodeSplitter } from '../layouts/AppVerticalCodeSplitter/AppVerticalDiffCodeSplitter';
-import { DialogTitle } from '@radix-ui/react-dialog';
-import { useMemoizedFn } from '@/hooks';
 import { Text, Title } from '@/components/ui/typography';
+import { useMemoizedFn } from '@/hooks';
+import { cn } from '@/lib/classMerge';
+import { AppVerticalDiffCodeSplitter } from '../layouts/AppVerticalCodeSplitter/AppVerticalDiffCodeSplitter';
 
 interface DashboardFilterDiffModallProps {
   open: boolean;
@@ -106,7 +106,8 @@ const SidebarItem: React.FC<{
   onSelectMetric: (metricId: string) => void;
 }> = ({ className, metric, selectedMetricId, onSelectMetric }) => {
   return (
-    <div
+    <button
+      type="button"
       onClick={() => onSelectMetric(metric.id)}
       className={cn(
         'hover:bg-item-hover flex h-11 cursor-pointer flex-col space-y-0.5 rounded px-2 py-1.5',
@@ -117,7 +118,7 @@ const SidebarItem: React.FC<{
       <Text size={'sm'} truncate variant={'secondary'}>
         {metric.description}
       </Text>
-    </div>
+    </button>
   );
 };
 

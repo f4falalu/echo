@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { useLayoutConfig } from './useLayoutConfig';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { FileType } from '@/api/asset_interfaces/chat';
 import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { BusterRoutes } from '@/routes';
-import { FileType } from '@/api/asset_interfaces/chat';
-import { SelectedFile } from '../../interfaces';
-import { FileViewSecondary } from './interfaces';
+import type { SelectedFile } from '../../interfaces';
+import type { FileViewSecondary } from './interfaces';
+import { useLayoutConfig } from './useLayoutConfig';
 
 // Mock dependencies
 vi.mock('@/context/BusterAppLayout', () => ({
@@ -32,7 +32,7 @@ describe('useLayoutConfig', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useAppLayoutContextSelector as any).mockImplementation((selector) => {
+    (useAppLayoutContextSelector as any).mockImplementation((selector: any) => {
       const state = {
         onChangePage: mockOnChangePage,
         onChangeQueryParams: mockOnChangeQueryParams
