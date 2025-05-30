@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useLayoutEffect, useMemo, useRef } from 'react';
-import { FileContainerHeader } from './FileContainerHeader';
-import { AppPageLayout, AppSplitter, AppSplitterRef } from '@/components/ui/layouts';
-import { useChatLayoutContextSelector } from '../ChatLayoutContext';
-import { createAutoSaveId } from '@/components/ui/layouts/AppSplitter/helper';
 import Cookies from 'js-cookie';
+import type React from 'react';
+import { useMemo, useRef } from 'react';
+import { AppPageLayout, AppSplitter, type AppSplitterRef } from '@/components/ui/layouts';
+import { createAutoSaveId } from '@/components/ui/layouts/AppSplitter/helper';
 import { useDebounce, useMemoizedFn, useUpdateLayoutEffect } from '@/hooks';
+import { useChatLayoutContextSelector } from '../ChatLayoutContext';
+import { FileContainerHeader } from './FileContainerHeader';
 import { FileContainerSecondary } from './FileContainerSecondary';
 
 interface FileContainerProps {
@@ -56,6 +57,7 @@ export const FileContainer: React.FC<FileContainerProps> = ({ children }) => {
       return secondaryLayoutDimensions;
     }
     return defaulClosedLayout;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animateOpenSplitter = useMemoizedFn(async (side: 'open' | 'closed') => {

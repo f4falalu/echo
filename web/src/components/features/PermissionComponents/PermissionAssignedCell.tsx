@@ -1,5 +1,5 @@
-import { Select, SelectItem } from '@/components/ui/select';
 import React from 'react';
+import { Select, type SelectItem } from '@/components/ui/select';
 
 export const PERMISSION_OPTIONS_INCLUDED: SelectItem<'true' | 'false'>[] = [
   {
@@ -33,7 +33,8 @@ export const PermissionAssignedCell: React.FC<{
   const assignedValue = assigned ? 'true' : 'false';
 
   return (
-    <div
+    <button
+      type="button"
       className="flex items-center space-x-5"
       onClick={(e) => {
         e.preventDefault();
@@ -48,7 +49,7 @@ export const PermissionAssignedCell: React.FC<{
           onSelect({ id, assigned: value === 'true' });
         }}
       />
-    </div>
+    </button>
   );
 });
 

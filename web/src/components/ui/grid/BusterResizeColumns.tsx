@@ -2,13 +2,13 @@
 
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
-import { BusterSortableItemDragContainer } from './_BusterSortableItemDragContainer';
-import { ResizeableGridDragItem } from './interfaces';
 import { useMemoizedFn, useMouse } from '@/hooks';
-import { BusterDragColumnMarkers } from './_BusterDragColumnMarkers';
-import { calculateColumnSpan, columnSpansToPercent } from './helpers';
-import SplitPane, { Pane } from '../layouts/AppSplitter/SplitPane';
 import { cn } from '@/lib/classMerge';
+import SplitPane, { Pane } from '../layouts/AppSplitter/SplitPane';
+import { BusterDragColumnMarkers } from './_BusterDragColumnMarkers';
+import { BusterSortableItemDragContainer } from './_BusterSortableItemDragContainer';
+import { calculateColumnSpan, columnSpansToPercent } from './helpers';
+import type { ResizeableGridDragItem } from './interfaces';
 import '../layouts/AppSplitter/splitterStyles.css';
 
 type ContainerProps = {
@@ -113,7 +113,7 @@ export const BusterResizeColumns: React.FC<ContainerProps> = ({
     const srcElement = e.target as HTMLElement;
     const idOrSrcElement = srcElement?.id;
     if (idOrSrcElement) {
-      const parsedId = parseInt(idOrSrcElement);
+      const parsedId = Number.parseInt(idOrSrcElement);
       if (typeof parsedId === 'number') {
         setIsDraggingResizeColumn(parsedId);
       }

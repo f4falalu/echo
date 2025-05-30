@@ -1,9 +1,9 @@
 'use client';
 
-import { cn } from '@/lib/classMerge';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CircleWarning, Xmark } from '../icons';
 import React, { useEffect, useState } from 'react';
+import { cn } from '@/lib/classMerge';
+import { CircleWarning, Xmark } from '../icons';
 
 export const ErrorClosableContainer: React.FC<{
   error: string;
@@ -34,6 +34,7 @@ export const ErrorClosableContainer: React.FC<{
               <span>{error}</span>
             </div>
             <button
+              type="button"
               onClick={() => {
                 onClose?.();
                 setClosed(true);

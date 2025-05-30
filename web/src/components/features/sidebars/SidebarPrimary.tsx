@@ -1,29 +1,29 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { Sidebar } from '@/components/ui/sidebar/Sidebar';
-import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
-import { BusterRoutes, createBusterRoute } from '@/routes';
-import type { ISidebarGroup, ISidebarList, SidebarProps } from '@/components/ui/sidebar';
-import { Flag, Gear, House4, Table, UnorderedList2, Plus } from '@/components/ui/icons';
-import { PencilSquareIcon } from '@/components/ui/icons/customIcons/Pencil_Square';
-import { ASSET_ICONS } from '../config/assetIcons';
-import { Button } from '@/components/ui/buttons';
-import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import Link from 'next/link';
-import { useUserConfigContextSelector } from '@/context/Users';
+import React, { useMemo } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { BusterLogoWithText } from '@/assets/svg/BusterLogoWithText';
+import { Button } from '@/components/ui/buttons';
+import { Flag, Gear, House4, Plus, Table, UnorderedList2 } from '@/components/ui/icons';
+import { PencilSquareIcon } from '@/components/ui/icons/customIcons/Pencil_Square';
+import type { ISidebarGroup, ISidebarList, SidebarProps } from '@/components/ui/sidebar';
+import { Sidebar } from '@/components/ui/sidebar/Sidebar';
+import { Tooltip } from '@/components/ui/tooltip/Tooltip';
 import {
   useAppLayoutContextSelector,
-  useContactSupportModalStore
+  useContactSupportModalStore,
+  useInviteModalStore
 } from '@/context/BusterAppLayout';
-import { SupportModal } from '../modal/SupportModal';
-import { InvitePeopleModal } from '../modal/InvitePeopleModal';
+import { useUserConfigContextSelector } from '@/context/Users';
 import { useMemoizedFn } from '@/hooks';
+import { BusterRoutes, createBusterRoute } from '@/routes';
+import { ASSET_ICONS } from '../config/assetIcons';
+import { InvitePeopleModal } from '../modal/InvitePeopleModal';
+import { SupportModal } from '../modal/SupportModal';
 import { SidebarUserFooter } from './SidebarUserFooter/SidebarUserFooter';
-import { useHotkeys } from 'react-hotkeys-hook';
-import { useInviteModalStore } from '@/context/BusterAppLayout';
 import { useFavoriteSidebarPanel } from './useFavoritesSidebarPanel';
-import { ShareAssetType } from '@/api/asset_interfaces/share';
 
 const topItems = (
   currentParentRoute: BusterRoutes,
