@@ -47,21 +47,20 @@ const keySpecificHandlers: Partial<
 
     // Single loop through column settings
     for (const [key, value] of Object.entries(typedColumnSettings)) {
-      const changedSettings: ColumnSettings = {};
+      const changedSettings: Partial<ColumnSettings> = {};
       let hasChanges = false;
 
       // Check each default setting
       for (const [settingKey, defaultValue] of DEFAULT_COLUMN_SETTINGS_ENTRIES) {
         const columnSettingValue = value?.[settingKey as keyof ColumnSettings];
         if (!isEqual(defaultValue, columnSettingValue)) {
-          //@ts-ignore
-          changedSettings[settingKey as keyof ColumnSettings] = columnSettingValue as unknown;
+          (changedSettings as Record<string, unknown>)[settingKey] = columnSettingValue;
           hasChanges = true;
         }
       }
 
       if (hasChanges) {
-        diff[key] = changedSettings;
+        diff[key] = changedSettings as ColumnSettings;
       }
     }
 
@@ -83,8 +82,8 @@ const keySpecificHandlers: Partial<
       for (const [settingKey, defaultValue] of DEFAULT_COLUMN_LABEL_FORMATS_ENTRIES) {
         const columnSettingValue = value[settingKey as keyof ColumnLabelFormat];
         if (!isEqual(defaultValue, columnSettingValue)) {
-          //@ts-ignore
-          changedSettings[settingKey as keyof ColumnLabelFormat] = columnSettingValue;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- this is a workaround to avoid type errors
+          changedSettings[settingKey as keyof ColumnLabelFormat] = columnSettingValue as any;
           hasChanges = true;
         }
       }
@@ -112,15 +111,15 @@ export const getChangesFromDefaultChartConfig = (newMetric: IBusterMetric) => {
     if (handler) {
       const valueToUse = handler(chartConfigValue);
       if (valueToUse && Object.keys(valueToUse).length > 0) {
-        //@ts-ignore
-        diff[key] = valueToUse;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- this is a workaround to avoid type errors
+        diff[key] = valueToUse as any;
       }
       continue;
     }
 
     if (!isEqual(chartConfigValue, defaultValue)) {
-      //@ts-ignore
-      diff[key] = chartConfigValue as unknown;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- this is a workaround to avoid type errors
+      diff[key] = chartConfigValue as any;
     }
   }
 

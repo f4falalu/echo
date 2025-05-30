@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // chartjs-plugin-trendline.ts
 
 import type { ChartDataset, ChartType, Plugin, Point, Scale } from 'chart.js';
@@ -243,7 +244,6 @@ class PolynomialFitter extends BaseFitter {
 
   public computeStatistics(): void {
     super.computeStatistics();
-    // biome-ignore lint: It is okay to focus this test
     if (!this.coeffs) this.fit();
   }
 
@@ -307,7 +307,6 @@ class PolynomialFitter extends BaseFitter {
   }
 
   protected calculateValue(x: number): number {
-    // biome-ignore lint: This is a test
     if (!this.coeffs) this.fit();
 
     // Use Horner's method for polynomial evaluation (more efficient)

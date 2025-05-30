@@ -68,8 +68,7 @@ export interface DropdownProps<T = string> extends DropdownMenuProps {
   showEmptyState?: boolean;
 }
 
-export interface DropdownContentProps<T = string>
-  extends Omit<DropdownProps<T>, 'align' | 'side'> {}
+export type DropdownContentProps<T = string> = Omit<DropdownProps<T>, 'align' | 'side'>;
 
 const dropdownItemKey = <T,>(item: DropdownItems<T>[number], index: number): string => {
   if ((item as DropdownDivider).type === 'divider') return `divider-${index}`;
@@ -307,7 +306,7 @@ const DropdownItemSelector = React.memo(
   }: {
     item: DropdownItems<T>[number];
     index: number;
-    // biome-ignore lint/suspicious/noExplicitAny: I had a devil of a time trying to type this... This is a hack to get the type to work
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- I had a devil of a time trying to type this... This is a hack to get the type to work
     onSelect?: (value: any) => void; // Using any here to resolve the type mismatch
     onSelectItem: (index: number) => void;
     closeOnSelect: boolean;

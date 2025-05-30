@@ -125,8 +125,7 @@ export const ThreeDotMenuButton = React.memo(
         deleteMetricMenu,
         downloadCSVMenu,
         downloadPNGMenu,
-        openSuccessMessage,
-        onSetSelectedFile,
+        isViewingOldVersion,
         versionHistoryItems,
         favoriteMetric,
         statusSelectMenu,
@@ -236,7 +235,7 @@ const useVersionHistorySelectMenu = ({ metricId }: { metricId: string }) => {
         </React.Fragment>
       ]
     }),
-    [versionHistoryItems]
+    [reverseVersionHistoryItems]
   );
 };
 
@@ -287,7 +286,7 @@ const useCollectionSelectMenu = ({ metricId }: { metricId: string }) => {
         </React.Fragment>
       ]
     }),
-    [CollectionSubMenu]
+    [CollectionSubMenu, ModalComponent]
   );
 
   return collectionDropdownItem;
@@ -319,7 +318,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
       icon: <StatusBadgeIndicator status={metricStatus || VerificationStatus.NOT_REQUESTED} />,
       items: [<React.Fragment key="status-sub-menu">{statusSubMenu}</React.Fragment>]
     }),
-    [statusSubMenu]
+    [statusSubMenu, metricStatus]
   );
 
   return statusDropdownItem;
@@ -359,7 +358,7 @@ const useEditChartSelectMenu = () => {
       onClick: onClickButton,
       icon: <SquareChartPen />
     }),
-    []
+    [onClickButton]
   );
 };
 
@@ -392,7 +391,7 @@ const useResultsViewSelectMenu = ({
       link,
       icon: <Table />
     }),
-    []
+    [link]
   );
 };
 
@@ -425,7 +424,7 @@ const useSQLEditorSelectMenu = ({
       icon: <SquareCode />,
       link
     }),
-    []
+    [link]
   );
 };
 
@@ -482,7 +481,7 @@ const useDownloadPNGSelectMenu = ({ metricId }: { metricId: string }) => {
         openErrorMessage('Failed to download PNG');
       }
     }),
-    [canDownload]
+    [canDownload, metricId, name, openErrorMessage]
   );
 };
 
@@ -500,7 +499,7 @@ const useDeleteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
         onChangePage({ route: BusterRoutes.APP_METRIC });
       }
     }),
-    [metricId]
+    [metricId, onChangePage, deleteMetric]
   );
 };
 
@@ -521,7 +520,7 @@ const useRenameMetricSelectMenu = ({ metricId }: { metricId: string }) => {
         }
       }
     }),
-    [metricId]
+    [onSetFileView]
   );
 };
 

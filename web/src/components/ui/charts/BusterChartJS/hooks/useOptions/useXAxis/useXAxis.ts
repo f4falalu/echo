@@ -122,7 +122,8 @@ export const useXAxis = ({
     isLineChart,
     columnSettings,
     xAxisColumnFormats,
-    firstXColumnLabelFormat
+    firstXColumnLabelFormat,
+    selectedAxis
   ]);
 
   const derivedTimeUnit = useMemo(() => {
@@ -183,7 +184,7 @@ export const useXAxis = ({
       return formatLabel(value, firstXColumnLabelFormat);
     }
 
-    // biome-ignore lint/suspicious/noExplicitAny: I had a devil of a time trying to type this... This is a hack to get the type to work
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- I had a devil of a time trying to type this... This is a hack to get the type to work
     return DEFAULT_X_AXIS_TICK_CALLBACK.call(this, value, index, this.getLabels() as any);
   });
 
@@ -241,7 +242,7 @@ export const useXAxis = ({
           //  sampleSize: type === 'time' ? 28 : undefined, //DO NOT USE THIS. IT BREAK TIME SCALES
           display: xAxisShowAxisLabel,
           callback: customTickCallback,
-          //@ts-ignore
+          // @ts-expect-error - time is not type for some reason!
           time: {
             unit: timeUnit
           }
@@ -252,14 +253,13 @@ export const useXAxis = ({
       timeUnit,
       offset,
       title,
-      isScatterChart,
+      xAxisTimeInterval,
       isPieChart,
       customTickCallback,
       xAxisShowAxisLabel,
       stacked,
       type,
       grid,
-      timeUnit,
       rotation
     ]);
 
