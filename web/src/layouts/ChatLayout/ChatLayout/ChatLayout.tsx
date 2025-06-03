@@ -20,12 +20,6 @@ interface ChatSplitterProps {
   children?: React.ReactNode;
 }
 
-const CHAT_SPLITTER_STORAGE_ID = 'chat-splitter';
-
-const createCombinedId = (chatId: string | undefined, metricId: string | undefined) => {
-  return (chatId || '') + (metricId || '');
-};
-
 export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
   const appSplitterRef = useRef<AppSplitterRef>(null);
   const { openErrorNotification } = useBusterNotifications();
@@ -33,13 +27,6 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
 
   const chatLayoutProps = useChatLayoutContext({ appSplitterRef });
   const { selectedLayout, selectedFile } = chatLayoutProps;
-  const [previousSeenCombinedId, setPreviousSeenCombinedId] = useLocalStorageState<string | null>(
-    `combined-id`,
-    {
-      defaultValue: null,
-      bustStorageOnInit: false
-    }
-  );
 
   const defaultSplitterLayout = useMemo(() => {
     if (selectedLayout === 'chat-only') return ['auto', '0px'];
@@ -49,16 +36,6 @@ export const ChatLayout: React.FC<ChatSplitterProps> = ({ children }) => {
 
   const autoSaveId = useMemo(() => {
     return `chat-splitter-${chatLayoutProps.chatId}-${chatLayoutProps.metricId}`;
-  }, [chatLayoutProps.chatId, chatLayoutProps.metricId]);
-
-  const bustStorageOnInit = useMemo(() => {
-    return (
-      createCombinedId(chatLayoutProps.chatId, chatLayoutProps.metricId) !== previousSeenCombinedId
-    );
-  }, []);
-
-  useEffect(() => {
-    setPreviousSeenCombinedId(createCombinedId(chatLayoutProps.chatId, chatLayoutProps.metricId));
   }, [chatLayoutProps.chatId, chatLayoutProps.metricId]);
 
   useMount(() => {
