@@ -135,7 +135,12 @@ export const PermissionListUsersContainer: React.FC<{
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
         useRowClickSelectChange={false}
-        emptyState={useMemo(() => <EmptyStateList text="No users found" />, [])}
+        emptyState={useMemo(
+          () => (
+            <EmptyStateList text="No users found" />
+          ),
+          []
+        )}
       />
     </InfiniteListContainer>
   );
@@ -149,9 +154,8 @@ const PermissionGroupAssignedCell: React.FC<{
   onSelect: (value: { id: string; assigned: boolean }) => void;
 }> = ({ id, assigned, onSelect }) => {
   return (
-    <button
-      type="button"
-      className="flex"
+    <div
+      className="flex cursor-pointer"
       onClick={(e) => e.stopPropagation()}
       onKeyUp={(e) => e.stopPropagation()}>
       <Select
@@ -161,6 +165,6 @@ const PermissionGroupAssignedCell: React.FC<{
           onSelect({ id, assigned: value === 'included' });
         }}
       />
-    </button>
+    </div>
   );
 };
