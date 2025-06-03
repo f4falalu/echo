@@ -26,7 +26,8 @@ describe('useSelectedFile', () => {
       isSideClosed: vi.fn((side: 'left' | 'right') => false),
       setSplitSizes: vi.fn(),
       animateWidth: vi.fn(),
-      sizes: [0, 0, 0]
+      sizes: [0, 0, 0],
+      getSizesInPixels: vi.fn()
     } as AppSplitterRef
   };
   const mockChatParams = {

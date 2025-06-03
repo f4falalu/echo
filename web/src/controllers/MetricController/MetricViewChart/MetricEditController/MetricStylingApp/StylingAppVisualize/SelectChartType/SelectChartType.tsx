@@ -1,28 +1,18 @@
 import React, { useMemo } from 'react';
-import type { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { ChartEncodes, ChartType } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnMetaData } from '@/api/asset_interfaces';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { addOpacityToColor, NUMBER_TYPES } from '@/lib';
 import { cn } from '@/lib/classMerge';
-import { CHART_ICON_LIST, ChartIconType, DETERMINE_SELECTED_CHART_TYPE_ORDER } from './config';
 import {
-  DetermineSelectedChartType,
   disableTypeMethod,
-  selectedChartTypeMethod
-} from './SelectedChartTypeMethod';
-
-export interface SelectChartTypeProps {
-  selectedChartType: ChartType;
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  barLayout: IBusterMetricChartConfig['barLayout'];
-  colors: string[];
-  columnMetadata: ColumnMetaData[];
-  columnSettings: IBusterMetricChartConfig['columnSettings'];
-  selectedAxis: ChartEncodes;
-}
+  getSelectedChartTypeIcon,
+  selectedChartTypeMethod,
+  type SelectChartTypeProps,
+  ChartIconType,
+  CHART_ICON_LIST
+} from '@/lib/metrics/selectedChartType';
 
 export const SelectChartType: React.FC<SelectChartTypeProps> = ({
   selectedChartType,
@@ -41,17 +31,13 @@ export const SelectChartType: React.FC<SelectChartTypeProps> = ({
   }, [selectedChartType, selectedAxis, columnSettings]);
 
   const selectedChartTypeIcon: ChartIconType = useMemo(() => {
-    return (
-      DETERMINE_SELECTED_CHART_TYPE_ORDER.find((id) =>
-        DetermineSelectedChartType[id]({
-          selectedChartType,
-          lineGroupType,
-          barGroupType,
-          barLayout,
-          hasAreaStyle
-        })
-      ) || ChartIconType.TABLE
-    );
+    return getSelectedChartTypeIcon({
+      selectedChartType,
+      lineGroupType,
+      barGroupType,
+      barLayout,
+      hasAreaStyle
+    });
   }, [hasAreaStyle, selectedChartType, barLayout, barGroupType, lineGroupType]);
 
   const onSelectChartType = useMemoizedFn((chartIconType: ChartIconType) => {
@@ -149,12 +135,13 @@ const ChartButton: React.FC<{
           onClick={() => !disabled && onSelectChartType(id)}
           data-state={isSelected ? 'selected' : 'not-selected'}
           className={cn(
-            'flex aspect-square h-[35px] w-full items-center justify-center hover:transition-none',
-            'hover:bg-item-hover cursor-pointer rounded',
+            'hover:bg-item-hover flex aspect-square h-[35px] w-full cursor-pointer items-center justify-center rounded hover:transition-none',
             isSelected && 'bg-background hover:bg-background border',
             disabled && 'cursor-not-allowed! bg-transparent!'
           )}>
-          <Icon colors={colors} disabled={disabled} />
+          <div className="text-[22px]">
+            <Icon colors={colors} disabled={disabled} />
+          </div>
         </button>
       </AppTooltip>
     );
