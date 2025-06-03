@@ -171,13 +171,13 @@ const CollapseToggleIcon = React.memo(
           className
         )}
         onClick={onClick}>
-        <AnimatePresence mode="sync">
+        <AnimatePresence mode="sync" initial={false}>
           {showChevron && (
             <motion.div
               key="chevron"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.12, ease: 'easeInOut' }}
               className={cn(
                 'text-icon-color absolute inset-0 flex h-5 w-5 items-center justify-center transition-transform duration-200',
@@ -189,9 +189,9 @@ const CollapseToggleIcon = React.memo(
           {showDefaultIcon && (
             <motion.div
               key="default"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.12, ease: 'easeInOut' }}
               className="text-icon-color absolute inset-0 flex h-5 w-5 items-center justify-center">
               {collapseDefaultIcon}
