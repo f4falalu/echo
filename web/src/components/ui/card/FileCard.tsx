@@ -171,7 +171,7 @@ const CollapseToggleIcon = React.memo(
           className
         )}
         onClick={onClick}>
-        <AnimatePresence mode="sync">
+        <AnimatePresence mode="sync" initial={false}>
           {showChevron && (
             <motion.div
               key="chevron"

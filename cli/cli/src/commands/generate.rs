@@ -349,6 +349,14 @@ for (unique_id, node) in &dbt_catalog.nodes {
             }
         }
 
+        // Try wildcard lookup: find any key ending with .model_name
+        let model_suffix = format!(".{}", model_name);
+        for (key, &node) in lookup {
+            if key.ends_with(&model_suffix) {
+                return Some((node, "wildcard match".to_string(), key.clone()));
+            }
+        }
+
         // Fallback to simple name lookup
         lookup.get(model_name).map(|&node|
             (node, "simple name".to_string(), model_name.to_string())
