@@ -443,27 +443,8 @@ for (unique_id, node) in &dbt_catalog.nodes {
             let individual_semantic_yaml_path: PathBuf = if is_side_by_side_generation {
                 sql_file_abs_path.with_extension("yml")
             } else {
-                let mut stripped_suffix_for_yaml: Option<PathBuf> = None;
-                for dbt_root in &dbt_project_model_roots_for_stripping {
-                    let abs_dbt_root = buster_config_dir.join(dbt_root);
-                    if let Ok(stripped) = sql_file_abs_path.strip_prefix(&abs_dbt_root) {
-                        stripped_suffix_for_yaml = Some(stripped.with_extension("yml"));
-                        break;
-                    }
-                }
-                let final_suffix_from_stripping = stripped_suffix_for_yaml.unwrap_or_else(|| PathBuf::from(&model_name_from_filename).with_extension("yml"));
-
-                let mut actual_suffix_to_join = final_suffix_from_stripping.clone();
-                if let Some(first_component_in_suffix) = final_suffix_from_stripping.components().next() {
-                    if semantic_output_base_abs_dir.ends_with(first_component_in_suffix.as_os_str()) {
-                        if final_suffix_from_stripping.components().count() > 1 {
-                            if let Ok(candidate_shorter_suffix) = final_suffix_from_stripping.strip_prefix(first_component_in_suffix.as_os_str()) {
-                               actual_suffix_to_join = candidate_shorter_suffix.to_path_buf();
-                            }
-                        }
-                    }
-                }
-                semantic_output_base_abs_dir.join(actual_suffix_to_join)
+                // Write directly to semantic_model_paths without preserving directory structure
+                semantic_output_base_abs_dir.join(format!("{}.yml", model_name_from_filename))
             };
             
             if let Some(p) = individual_semantic_yaml_path.parent() { 
