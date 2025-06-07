@@ -38,7 +38,7 @@ pub async fn redshift_query(
                 "INT8" => DataType::Int8(row.try_get::<Option<i64>, _>(i).unwrap_or(None)),
                 "INT4" => DataType::Int4(row.try_get::<Option<i32>, _>(i).unwrap_or(None)),
                 "INT2" => DataType::Int2(row.try_get::<Option<i16>, _>(i).unwrap_or(None)),
-                "TEXT" | "VARCHAR" => DataType::Text(row.try_get::<Option<String>, _>(i).unwrap_or(None)),
+                "TEXT" | "VARCHAR" | "CHARACTER VARYING" => DataType::Text(row.try_get::<Option<String>, _>(i).unwrap_or(None)),
                 "FLOAT4" => DataType::Float4(row.try_get::<Option<f32>, _>(i).unwrap_or(None)),
                 "FLOAT8" => DataType::Float8(row.try_get::<Option<f64>, _>(i).unwrap_or(None)),
                 "NUMERIC" => {
