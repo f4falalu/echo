@@ -31,10 +31,10 @@ jobs:
             target: aarch64-apple-darwin
             artifact_name: buster-cli-darwin-arm64.tar.gz
             use_tar: true
-          # - os: windows-latest
-          #   target: x86_64-pc-windows-msvc
-          #   artifact_name: buster-cli-windows-x86_64.zip
-          #   use_tar: false
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: buster-cli-windows-x86_64.zip
+            use_tar: false
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
@@ -71,6 +71,18 @@ jobs:
         env:
           HOMEBREW_NO_INSTALL_CLEANUP: 1 # Recommended for CI to speed up
 
+      - name: Install libpq (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          # Install PostgreSQL binaries which include libpq
+          choco install postgresql --params '/Password:root' -y
+          # Add PostgreSQL bin and lib to PATH and environment
+          $env:PATH += ";C:\Program Files\PostgreSQL\16\bin;C:\Program Files\PostgreSQL\15\bin;C:\Program Files\PostgreSQL\14\bin"
+          echo "PATH=$env:PATH" >> $env:GITHUB_ENV
+          echo "PQ_LIB_DIR=C:\Program Files\PostgreSQL\16\lib;C:\Program Files\PostgreSQL\15\lib;C:\Program Files\PostgreSQL\14\lib" >> $env:GITHUB_ENV
+          echo "PQ_LIB_STATIC=1" >> $env:GITHUB_ENV
+
       - name: Configure Cargo for optimized build
         run: |
           mkdir -p .cargo
@@ -95,14 +107,15 @@ jobs:
           else
             sha256sum ${{ matrix.artifact_name }} > ${{ matrix.artifact_name }}.sha256
           fi
-      # - name: Compress binary (Windows)
-      #   if: matrix.use_tar == false
-      #   working-directory: ./cli
-      #   shell: pwsh
-      #   run: |
-      #     cd target/${{ matrix.target }}/release
-      #     Compress-Archive -Path buster-cli.exe -DestinationPath ${{ matrix.artifact_name }}
-      #     Get-FileHash -Algorithm SHA256 ${{ matrix.artifact_name }} | Select-Object -ExpandProperty Hash > ${{ matrix.artifact_name }}.sha256
+
+      - name: Compress binary (Windows)
+        if: matrix.use_tar == false
+        working-directory: ./cli
+        shell: pwsh
+        run: |
+          cd target/${{ matrix.target }}/release
+          Compress-Archive -Path buster-cli.exe -DestinationPath ${{ matrix.artifact_name }}
+          Get-FileHash -Algorithm SHA256 ${{ matrix.artifact_name }} | Select-Object -ExpandProperty Hash > ${{ matrix.artifact_name }}.sha256
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -146,8 +159,8 @@ jobs:
             **/buster-cli-darwin-x86_64.tar.gz.sha256
             **/buster-cli-darwin-arm64.tar.gz
             **/buster-cli-darwin-arm64.tar.gz.sha256
-            # **/buster-cli-windows-x86_64.zip
-            # **/buster-cli-windows-x86_64.zip.sha256
+            **/buster-cli-windows-x86_64.zip
+            **/buster-cli-windows-x86_64.zip.sha256
           draft: false
           prerelease: false
           generate_release_notes: true
@@ -184,14 +197,17 @@ jobs:
           SHA_ARM64=$(cat buster-cli-darwin-arm64.tar.gz.sha256 | awk '{print $1}')
           SHA_INTEL=$(cat buster-cli-darwin-x86_64.tar.gz.sha256 | awk '{print $1}')
           SHA_LINUX=$(cat buster-cli-linux-x86_64.tar.gz.sha256 | awk '{print $1}')
+          SHA_WINDOWS=$(cat buster-cli-windows-x86_64.zip.sha256 | awk '{print $1}')
 
           echo "SHA_ARM64=$SHA_ARM64" >> $GITHUB_ENV
           echo "SHA_INTEL=$SHA_INTEL" >> $GITHUB_ENV
           echo "SHA_LINUX=$SHA_LINUX" >> $GITHUB_ENV
+          echo "SHA_WINDOWS=$SHA_WINDOWS" >> $GITHUB_ENV
 
           echo "ARM64 SHA: $SHA_ARM64"
           echo "Intel SHA: $SHA_INTEL"
           echo "Linux SHA: $SHA_LINUX"
+          echo "Windows SHA: $SHA_WINDOWS"
 
       - name: Checkout Homebrew tap repository
         uses: actions/checkout@v4
