@@ -31,7 +31,7 @@ jobs:
             target: aarch64-apple-darwin
             artifact_name: buster-cli-darwin-arm64.tar.gz
             use_tar: true
-          - os: windows-latest
+          - os: windows-2022
             target: x86_64-pc-windows-msvc
             artifact_name: buster-cli-windows-x86_64.zip
             use_tar: false
@@ -52,6 +52,17 @@ jobs:
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
+
+      - name: Cache vcpkg (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.workspace }}/vcpkg
+            ${{ env.VCPKG_INSTALLATION_ROOT }}/installed
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/*.vcpkg') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-
 
       - name: Install libpq (macOS and Linux)
         if: runner.os != 'Windows'
@@ -75,13 +86,15 @@ jobs:
         if: runner.os == 'Windows'
         shell: powershell
         run: |
-          # Install PostgreSQL binaries which include libpq
-          choco install postgresql --params '/Password:root' -y
-          # Add PostgreSQL bin and lib to PATH and environment
-          $env:PATH += ";C:\Program Files\PostgreSQL\16\bin;C:\Program Files\PostgreSQL\15\bin;C:\Program Files\PostgreSQL\14\bin"
-          echo "PATH=$env:PATH" >> $env:GITHUB_ENV
-          echo "PQ_LIB_DIR=C:\Program Files\PostgreSQL\16\lib;C:\Program Files\PostgreSQL\15\lib;C:\Program Files\PostgreSQL\14\lib" >> $env:GITHUB_ENV
+          # Use vcpkg for faster, more reliable PostgreSQL installation
+          vcpkg install libpq:x64-windows-static
+          
+          # Set environment variables for pq-sys
+          $vcpkgRoot = $env:VCPKG_INSTALLATION_ROOT
+          echo "PQ_LIB_DIR=$vcpkgRoot\installed\x64-windows-static\lib" >> $env:GITHUB_ENV
           echo "PQ_LIB_STATIC=1" >> $env:GITHUB_ENV
+          echo "VCPKGRS_DYNAMIC=0" >> $env:GITHUB_ENV
+          echo "RUSTFLAGS=-L $vcpkgRoot\installed\x64-windows-static\lib" >> $env:GITHUB_ENV
 
       - name: Configure Cargo for optimized build
         run: |
@@ -92,9 +105,17 @@ jobs:
           echo 'panic = "abort"' >> .cargo/config.toml
           echo 'opt-level = 3' >> .cargo/config.toml
           echo 'strip = true' >> .cargo/config.toml
+        shell: bash
       - name: Build optimized release
         working-directory: ./cli
-        run: cargo build --release --target ${{ matrix.target }}
+        run: |
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            # Use parallel compilation on Windows
+            cargo build --release --target ${{ matrix.target }} --jobs $(nproc)
+          else
+            cargo build --release --target ${{ matrix.target }}
+          fi
+        shell: bash
 
       - name: Compress binary (Unix)
         if: matrix.use_tar
