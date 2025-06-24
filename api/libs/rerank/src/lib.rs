@@ -9,32 +9,22 @@ pub struct Reranker {
     base_url: String,
     model: String,
     client: Client,
-    environment: String,
 }
 
 impl Reranker {
     pub fn new() -> Result<Self, Box<dyn Error>> {
         dotenv().ok();
-        let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "production".to_string());
-
-        // If local environment, we don't need these values
-        let (api_key, model, base_url) = if environment == "local" {
-            (String::new(), String::new(), String::new())
-        } else {
-            (
-                env::var("RERANK_API_KEY")?,
-                env::var("RERANK_MODEL")?,
-                env::var("RERANK_BASE_URL")?,
-            )
-        };
-
+        
+        let api_key = env::var("RERANK_API_KEY")?;
+        let model = env::var("RERANK_MODEL")?;
+        let base_url = env::var("RERANK_BASE_URL")?;
+        
         let client = Client::new();
         Ok(Self {
             api_key,
             base_url,
             model,
             client,
-            environment,
         })
     }
 
@@ -44,13 +34,13 @@ impl Reranker {
         documents: &[&str],
         top_n: usize,
     ) -> Result<Vec<RerankResult>, Box<dyn Error>> {
-        // Otherwise use the remote API
         let request_body = RerankRequest {
             query: query.to_string(),
             documents: documents.iter().map(|s| s.to_string()).collect(),
             top_n,
             model: self.model.clone(),
         };
+        
         let response = self
             .client
             .post(&self.base_url)
@@ -58,6 +48,7 @@ impl Reranker {
             .json(&request_body)
             .send()
             .await?;
+            
         let response_body: RerankResponse = response.json().await?;
         Ok(response_body.results)
     }
