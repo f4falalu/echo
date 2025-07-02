@@ -4,7 +4,6 @@
             - staging
         paths:
             - apps/api/**
-            - .github/workflows/porter_app_staging_3155.yml
 name: Deploy to staging
 jobs:
   porter-deploy:
