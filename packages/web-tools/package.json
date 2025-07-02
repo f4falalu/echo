@@ -1,0 +1,21 @@
+{
+  "name": "@buster-tools/web-tools",
+  "version": "0.1.0",
+  "description": "Web scraping and research tools using Firecrawl and other services",
+  "type": "module",
+  "module": "src/index.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "lint": "biome check",
+    "test": "vitest run",
+    "test:coverage": "vitest --coverage",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@buster/typescript-config": "workspace:*",
+    "@buster/vitest-config": "workspace:*",
+    "@mendable/firecrawl-js": "^1.26.0"
+  }
+}

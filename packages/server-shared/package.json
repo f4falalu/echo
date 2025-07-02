@@ -1,0 +1,31 @@
+{
+  "name": "@buster/server-shared",
+  "version": "0.0.1",
+  "type": "module",
+  "module": "src/index.ts",
+  "private": false,
+  "scripts": {
+    "build": "tsc --build",
+    "dev": "tsc --watch",
+    "lint": "biome check",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./chats": {
+      "types": "./dist/chats/index.d.ts",
+      "default": "./dist/chats/index.js"
+    },
+    "./currency": {
+      "types": "./dist/currency/index.d.ts",
+      "default": "./dist/currency/index.js"
+    }
+  },
+  "dependencies": {
+    "@buster/typescript-config": "workspace:*",
+    "zod": "catalog:"
+  }
+}
