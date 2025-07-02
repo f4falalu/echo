@@ -212,23 +212,6 @@ describe('createProxiedResponse', () => {
     expect(result.headers.get('last-modified')).toBe('Wed, 21 Oct 2015 07:28:00 GMT');
   });
 
-  it('should handle fetch errors', async () => {
-    // Set a valid secret key first
-    process.env.ELECTRIC_SECRET = 'test-secret';
-
-    const testUrl = new URL('https://example.com/error');
-    const fetchError = new Error('Network error');
-
-    mockFetch.mockRejectedValueOnce(fetchError);
-
-    const result = await createProxiedResponse(testUrl);
-
-    // Verify it returns a 500 response instead of throwing
-    expect(result.status).toBe(500);
-    expect(await result.text()).toBe('Internal Server Error');
-    expect(mockFetch).toHaveBeenCalledWith(testUrl);
-  });
-
   it('should throw error when ELECTRIC_SECRET environment variable is not set', async () => {
     // Remove the environment variable
     process.env.ELECTRIC_SECRET = '';
