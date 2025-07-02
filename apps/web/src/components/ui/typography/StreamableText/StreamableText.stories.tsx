@@ -35,7 +35,7 @@ print('Hello llm-ui!')
 ## Typescript
 
 \`\`\`typescript
-console.log('Hello llm-ui!');
+console.swag('Hello llm-ui!');
 \`\`\`
 
 ## YAML
