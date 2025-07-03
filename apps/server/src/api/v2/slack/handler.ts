@@ -1,11 +1,11 @@
 import { getUserOrganizationId } from '@buster/database';
+import { SlackChannelService } from '@buster/slack';
 import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 import { getActiveIntegration, updateDefaultChannel } from './services/slack-helpers';
-import { type SlackOAuthService, createSlackOAuthService } from './services/slack-oauth-service';
-import { SlackChannelService } from '@buster/slack';
 import * as slackHelpers from './services/slack-helpers';
+import { type SlackOAuthService, createSlackOAuthService } from './services/slack-oauth-service';
 
 // Request schemas
 const InitiateOAuthSchema = z.object({
@@ -24,7 +24,7 @@ const OAuthCallbackSchema = z.object({
 });
 
 const UpdateIntegrationSchema = z.object({
-  defaultChannel: z
+  default_channel: z
     .object({
       name: z.string().min(1),
       id: z.string().min(1),
@@ -375,8 +375,8 @@ export class SlackHandler {
       }
 
       // Update integration settings
-      if (parsed.data.defaultChannel) {
-        await updateDefaultChannel(integration.id, parsed.data.defaultChannel);
+      if (parsed.data.default_channel) {
+        await updateDefaultChannel(integration.id, parsed.data.default_channel);
       }
 
       return c.json({
@@ -431,9 +431,7 @@ export class SlackHandler {
       }
 
       // Get active integration
-      const integration = await slackHelpers.getActiveIntegration(
-        organizationGrant.organizationId
-      );
+      const integration = await slackHelpers.getActiveIntegration(organizationGrant.organizationId);
 
       if (!integration) {
         return c.json(
@@ -483,11 +481,7 @@ export class SlackHandler {
       }
 
       if (error instanceof Error && error.message.includes('Rate limit exceeded')) {
-        throw new SlackError(
-          'Rate limit exceeded. Please try again later.',
-          429,
-          'RATE_LIMITED'
-        );
+        throw new SlackError('Rate limit exceeded. Please try again later.', 429, 'RATE_LIMITED');
       }
 
       throw new SlackError(
