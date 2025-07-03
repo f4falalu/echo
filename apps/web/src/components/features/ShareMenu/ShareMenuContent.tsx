@@ -24,14 +24,14 @@ export const ShareMenuContent: React.FC<{
 
   const onCopyLink = useMemoizedFn(() => {
     let url = '';
-    if (assetType === ShareAssetType.METRIC && assetId) {
+    if (assetType === 'metric' && assetId) {
       url = createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: assetId });
-    } else if (assetType === ShareAssetType.DASHBOARD && assetId) {
+    } else if (assetType === 'dashboard' && assetId) {
       url = createBusterRoute({
         route: BusterRoutes.APP_DASHBOARD_ID,
         dashboardId: assetId
       });
-    } else if (assetType === ShareAssetType.COLLECTION && assetId) {
+    } else if (assetType === 'collection' && assetId) {
       url = createBusterRoute({
         route: BusterRoutes.APP_COLLECTIONS_ID,
         collectionId: assetId

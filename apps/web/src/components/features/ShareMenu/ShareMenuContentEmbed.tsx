@@ -20,14 +20,14 @@ export const ShareMenuContentEmbed: React.FC<ShareMenuContentBodyProps> = React.
     const embedURL = useMemo(() => {
       let url = '';
 
-      if (assetType === ShareAssetType.METRIC) {
+      if (assetType === 'metric') {
         url = createBusterRoute({
           route: BusterRoutes.EMBED_METRIC_ID,
           metricId: assetId
         });
       }
 
-      if (assetType === ShareAssetType.DASHBOARD) {
+      if (assetType === 'dashboard') {
         url = createBusterRoute({
           route: BusterRoutes.EMBED_DASHBOARD_ID,
           dashboardId: assetId
@@ -80,11 +80,11 @@ export const ShareMenuContentEmbedFooter = ({
         publicly_accessible: true
       }
     };
-    if (assetType === ShareAssetType.METRIC) {
+    if (assetType === 'metric') {
       await onShareMetric(payload);
-    } else if (assetType === ShareAssetType.DASHBOARD) {
+    } else if (assetType === 'dashboard') {
       await onShareDashboard(payload);
-    } else if (assetType === ShareAssetType.COLLECTION) {
+    } else if (assetType === 'collection') {
       await onShareCollection(payload);
     }
     openSuccessMessage('Succuessfully published');

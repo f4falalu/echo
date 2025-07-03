@@ -75,8 +75,8 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
       columnLabelFormat: Partial<ColumnLabelFormat>;
     }) => {
       const currentMetric = getMetricMemoized(metricId);
-      const existingColumnLabelFormats: Record<string, ColumnLabelFormat> = currentMetric
-        .chart_config.columnLabelFormats as Record<string, ColumnLabelFormat>;
+      const existingColumnLabelFormats: Record<string, ColumnLabelFormat> =
+        currentMetric.chart_config.columnLabelFormats;
       const existingColumnLabelFormat = existingColumnLabelFormats[columnId];
       const newColumnLabelFormat: ColumnLabelFormat = {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
@@ -98,14 +98,14 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
   const onUpdateColumnSetting = useMemoizedFn(
     ({ columnId, columnSetting }: { columnId: string; columnSetting: Partial<ColumnSettings> }) => {
       const currentMetric = getMetricMemoized(metricId);
-      const existingColumnSettings: Record<string, ColumnSettings> | undefined =
+      const existingColumnSettings: Record<string, ColumnSettings> =
         currentMetric.chart_config.columnSettings;
 
       const existingColumnSetting = currentMetric.chart_config.columnSettings[columnId];
       const newColumnSetting: Required<ColumnSettings> = {
         ...existingColumnSetting,
         ...columnSetting
-      } as ColumnSettings;
+      };
       const newColumnSettings: Record<string, Required<ColumnSettings>> = {
         ...existingColumnSettings,
         [columnId]: newColumnSetting

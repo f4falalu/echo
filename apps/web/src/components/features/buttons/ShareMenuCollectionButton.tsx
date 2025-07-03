@@ -14,7 +14,7 @@ export const ShareCollectionButton = React.memo(({ collectionId }: { collectionI
     <ShareMenu
       shareAssetConfig={collectionResponse || null}
       assetId={collectionId}
-      assetType={ShareAssetType.COLLECTION}>
+      assetType={'collection'}>
       <ShareButton />
     </ShareMenu>
   );

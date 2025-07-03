@@ -145,7 +145,7 @@ export const createMockMetric = (id: string): BusterMetric => {
     dataset_name: 'Mock Dataset',
     error: null,
     data_metadata: dataMetadata,
-    status: VerificationStatus.NOT_REQUESTED,
+    status: 'notRequested',
     evaluation_score: 'Moderate',
     versions: [],
     evaluation_summary: `Predictable evaluation summary for ${id} showing consistent performance metrics and data quality indicators.`,
@@ -264,6 +264,6 @@ export const createMockListMetric = (id: string): BusterMetricListItem => ({
   created_by_name: `User ${id}`,
   created_by_email: generatePredictableEmail(id),
   created_by_avatar: `https://avatar.example.com/${id}`,
-  status: VerificationStatus.VERIFIED,
+  status: 'verified',
   is_shared: true
 });

@@ -1,4 +1,4 @@
-import type { BusterShare, ShareAssetType, ShareRole } from '../share';
+import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
 
 export type BusterCollectionListItem = {
   id: string;
@@ -33,7 +33,7 @@ export type BusterCollection = {
   sharing_key: string;
   updated_at: string;
   updated_by: string;
-} & BusterShare;
+} & ShareConfig;
 
 export type BusterCollectionItemAsset = {
   asset_type: ShareAssetType;

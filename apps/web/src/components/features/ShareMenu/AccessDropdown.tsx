@@ -159,10 +159,10 @@ const collectionItems: DropdownItem<ShareRole>[] = [
 ];
 
 const itemsRecord: Record<ShareAssetType, DropdownItem<ShareRole>[]> = {
-  [ShareAssetType.DASHBOARD]: dashboardItems,
-  [ShareAssetType.METRIC]: metricItems,
-  [ShareAssetType.COLLECTION]: collectionItems,
-  [ShareAssetType.CHAT]: collectionItems
+  ['dashboard']: dashboardItems,
+  ['metric']: metricItems,
+  ['collection']: collectionItems,
+  ['chat']: collectionItems
 };
 
 const OWNER_ITEM: DropdownItem<DropdownValue> = {

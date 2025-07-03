@@ -26,12 +26,8 @@ export const ChartConfigPropsSchema = z.object({
   selectedChartType: ChartTypeSchema,
   // COLUMN SETTINGS
   // OPTIONAL because the defaults will be determined by the UI
-  columnSettings: z
-    .record(z.string(), z.optional(ColumnSettingsSchema))
-    .default({}),
-  columnLabelFormats: z
-    .record(z.string(), z.optional(ColumnLabelFormatSchema))
-    .default({}),
+  columnSettings: z.record(z.string(), ColumnSettingsSchema).default({}),
+  columnLabelFormats: z.record(z.string(), ColumnLabelFormatSchema).default({}),
   // OPTIONAL: default is the buster color palette
   colors: z.array(z.string()).default(DEFAULT_CHART_THEME),
   // OPTIONAL: default is null and will be true if there are multiple Y axes or if a category axis is used

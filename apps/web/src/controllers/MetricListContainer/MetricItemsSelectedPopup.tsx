@@ -205,7 +205,7 @@ const StatusButton: React.FC<{
 
   return (
     <StatusBadgeButton
-      status={VerificationStatus.NOT_REQUESTED}
+      status={'notRequested'}
       id={selectedRowKeys}
       onVerify={onVerify}
       isAdmin={isAdmin}
@@ -244,7 +244,7 @@ const ThreeDotButton: React.FC<{
 }> = React.memo(({ selectedRowKeys, onSelectChange }) => {
   const dropdownOptions = useThreeDotFavoritesOptions({
     itemIds: selectedRowKeys,
-    assetType: ShareAssetType.METRIC,
+    assetType: 'metric',
     onFinish: () => onSelectChange([])
   });
 

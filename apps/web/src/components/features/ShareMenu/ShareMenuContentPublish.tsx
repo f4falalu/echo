@@ -46,11 +46,11 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
 
     const url = useMemo(() => {
       let url = '';
-      if (assetType === ShareAssetType.METRIC) {
+      if (assetType === 'metric') {
         url = createBusterRoute({ route: BusterRoutes.APP_METRIC_ID_CHART, metricId: assetId });
-      } else if (assetType === ShareAssetType.DASHBOARD) {
+      } else if (assetType === 'dashboard') {
         url = createBusterRoute({ route: BusterRoutes.APP_DASHBOARD_ID, dashboardId: assetId });
-      } else if (assetType === ShareAssetType.COLLECTION) {
+      } else if (assetType === 'collection') {
         url = createBusterRoute({ route: BusterRoutes.APP_COLLECTIONS });
       }
       return window.location.origin + url;
@@ -66,11 +66,11 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
           public_expiry_date: linkExp
         }
       };
-      if (assetType === ShareAssetType.METRIC) {
+      if (assetType === 'metric') {
         await onShareMetric(payload);
-      } else if (assetType === ShareAssetType.DASHBOARD) {
+      } else if (assetType === 'dashboard') {
         await onShareDashboard(payload);
-      } else if (assetType === ShareAssetType.COLLECTION) {
+      } else if (assetType === 'collection') {
         await onShareCollection(payload);
       }
     });
@@ -88,11 +88,11 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         }
       };
 
-      if (assetType === ShareAssetType.METRIC) {
+      if (assetType === 'metric') {
         await onShareMetric(payload);
-      } else if (assetType === ShareAssetType.DASHBOARD) {
+      } else if (assetType === 'dashboard') {
         await onShareDashboard(payload);
-      } else if (assetType === ShareAssetType.COLLECTION) {
+      } else if (assetType === 'collection') {
         await onShareCollection(payload);
       }
       _setPassword(password || '');
@@ -109,11 +109,11 @@ export const ShareMenuContentPublish: React.FC<ShareMenuContentBodyProps> = Reac
         }
       };
 
-      if (assetType === ShareAssetType.METRIC) {
+      if (assetType === 'metric') {
         await onShareMetric(payload);
-      } else if (assetType === ShareAssetType.DASHBOARD) {
+      } else if (assetType === 'dashboard') {
         await onShareDashboard(payload);
-      } else if (assetType === ShareAssetType.COLLECTION) {
+      } else if (assetType === 'collection') {
         await onShareCollection(payload);
       }
     });

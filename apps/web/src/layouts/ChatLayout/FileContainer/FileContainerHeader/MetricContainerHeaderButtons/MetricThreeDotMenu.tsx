@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces/share';
+import { VerificationStatus } from '@buster/server-shared/share';
 import {
   useAddMetricsToDashboard,
   useRemoveMetricsFromDashboard
@@ -304,7 +304,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
 
   const dropdownProps = useStatusDropdownContent({
     isAdmin,
-    selectedStatus: metricStatus || VerificationStatus.NOT_REQUESTED,
+    selectedStatus: metricStatus || 'notRequested',
     onChangeStatus
   });
 
@@ -316,7 +316,7 @@ const useStatusSelectMenu = ({ metricId }: { metricId: string }) => {
     () => ({
       label: 'Status',
       value: 'status',
-      icon: <StatusBadgeIndicator status={metricStatus || VerificationStatus.NOT_REQUESTED} />,
+      icon: <StatusBadgeIndicator status={metricStatus || 'notRequested'} />,
       items: [<React.Fragment key="status-sub-menu">{statusSubMenu}</React.Fragment>]
     }),
     [statusSubMenu, metricStatus]
@@ -329,7 +329,7 @@ const useFavoriteMetricSelectMenu = ({ metricId }: { metricId: string }) => {
   const { data: name } = useGetMetric({ id: metricId }, { select: (x) => x.name });
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: metricId,
-    type: ShareAssetType.METRIC,
+    type: 'metric',
     name: name || ''
   });
 
@@ -533,7 +533,7 @@ export const useShareMenuSelectMenu = ({ metricId }: { metricId: string }) => {
                 key={metricId}
                 shareAssetConfig={shareAssetConfig}
                 assetId={metricId}
-                assetType={ShareAssetType.METRIC}
+                assetType={'metric'}
               />
             ]
           : undefined

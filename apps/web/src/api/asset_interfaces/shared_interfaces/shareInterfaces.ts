@@ -1,4 +1,4 @@
-import type { ShareRole } from '../share/shareInterfaces';
+import type { ShareRole } from '@buster/server-shared/share';
 
 /**
  * Type defining the sharing permissions and settings for a dashboard

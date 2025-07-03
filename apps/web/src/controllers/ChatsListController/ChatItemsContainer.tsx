@@ -172,7 +172,7 @@ const TitleCell = React.memo<{ name: string; chatId: string }>(({ name, chatId }
       <div className="mr-2 flex items-center" onClick={onFavoriteDivClick}>
         <FavoriteStar
           id={chatId}
-          type={ShareAssetType.CHAT}
+          type={'chat'}
           iconStyle="tertiary"
           title={name}
           className="opacity-0 group-hover:opacity-100"

@@ -65,11 +65,9 @@ export const generateMockDashboard = (
     } else {
       // Add a row with 1 column
       rows.push(
-        createMockDashboardRow(
-          rows.length + 1,
-          metricIds.slice(currentIndex, currentIndex + 1),
-          [12]
-        )
+        createMockDashboardRow(rows.length + 1, metricIds.slice(currentIndex, currentIndex + 1), [
+          12
+        ])
       );
       currentIndex += 1;
     }
@@ -103,7 +101,7 @@ refresh_interval: 300`,
     updated_at: null,
     updated_by: 'user-123',
     deleted_at: null,
-    status: VerificationStatus.NOT_REQUESTED,
+    status: 'notRequested',
     config: {
       rows
     }

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { ShareAssetType } from '@buster/server-shared/share';
 import {
   useAddDashboardToCollection,
   useDeleteDashboards,
@@ -202,7 +202,7 @@ const useFavoriteDashboardSelectMenu = ({ dashboardId }: { dashboardId: string }
   );
   const { isFavorited, onFavoriteClick } = useFavoriteStar({
     id: dashboardId,
-    type: ShareAssetType.DASHBOARD,
+    type: 'dashboard',
     name: title || ''
   });
 
@@ -320,7 +320,7 @@ export const useShareMenuSelectMenu = ({ dashboardId }: { dashboardId: string })
                 key={dashboardId}
                 shareAssetConfig={dashboard}
                 assetId={dashboardId}
-                assetType={ShareAssetType.DASHBOARD}
+                assetType={'dashboard'}
               />
             ]
           : undefined

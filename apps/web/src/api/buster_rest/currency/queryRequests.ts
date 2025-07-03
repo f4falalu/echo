@@ -7,7 +7,7 @@ export const useGetCurrencies = () => {
   return useQuery({
     ...queryKeys.getCurrencies,
     queryFn: async () => {
-      return mainApiV2.get<Currency[]>('/api/currency').then(async (res) => res.data);
+      return mainApiV2.get<Currency[]>('/currency').then(async (res) => res.data);
     }
   });
 };

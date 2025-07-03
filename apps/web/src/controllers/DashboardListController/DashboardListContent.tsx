@@ -30,7 +30,7 @@ const columns: BusterListColumn[] = [
           <Text truncate>{name}</Text>
           <FavoriteStar
             id={id}
-            type={ShareAssetType.DASHBOARD}
+            type={'dashboard'}
             iconStyle="tertiary"
             title={name}
             className="opacity-0 group-hover:opacity-100"

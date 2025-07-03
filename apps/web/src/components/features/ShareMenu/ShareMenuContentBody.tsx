@@ -114,11 +114,11 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
         ]
       };
 
-      if (assetType === ShareAssetType.METRIC) {
+      if (assetType === 'metric') {
         await onShareMetric(payload);
-      } else if (assetType === ShareAssetType.DASHBOARD) {
+      } else if (assetType === 'dashboard') {
         await onShareDashboard(payload);
-      } else if (assetType === ShareAssetType.COLLECTION) {
+      } else if (assetType === 'collection') {
         await onShareCollection(payload);
       }
 
@@ -138,11 +138,11 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
             ]
           }
         };
-        if (assetType === ShareAssetType.METRIC) {
+        if (assetType === 'metric') {
           await onUpdateMetricShare(payload);
-        } else if (assetType === ShareAssetType.DASHBOARD) {
+        } else if (assetType === 'dashboard') {
           await onUpdateDashboardShare(payload);
-        } else if (assetType === ShareAssetType.COLLECTION) {
+        } else if (assetType === 'collection') {
           await onUpdateCollectionShare(payload);
         }
       } else {
@@ -150,11 +150,11 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
           id: assetId,
           data: [email]
         };
-        if (assetType === ShareAssetType.METRIC) {
+        if (assetType === 'metric') {
           await onUnshareMetric(payload);
-        } else if (assetType === ShareAssetType.DASHBOARD) {
+        } else if (assetType === 'dashboard') {
           await onUnshareDashboard(payload);
-        } else if (assetType === ShareAssetType.COLLECTION) {
+        } else if (assetType === 'collection') {
           await onUnshareCollection(payload);
         }
       }

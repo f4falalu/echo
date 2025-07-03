@@ -166,7 +166,7 @@ const CollectionIconRecord: Record<string, React.ReactNode> = {
 };
 
 const createAssetLink = (asset: BusterCollectionItemAsset, collectionId: string) => {
-  if (asset.asset_type === ShareAssetType.METRIC) {
+  if (asset.asset_type === 'metric') {
     return createBusterRoute({
       route: BusterRoutes.APP_METRIC_ID_CHART,
       metricId: asset.id

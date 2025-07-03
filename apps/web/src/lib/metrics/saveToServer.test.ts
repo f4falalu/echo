@@ -12,7 +12,7 @@ const createMockMetric = (overrides?: Partial<IBusterMetric>): IBusterMetric =>
   ({
     id: '123',
     name: 'Test Metric',
-    status: VerificationStatus.NOT_REQUESTED,
+    status: 'notRequested',
     sql: 'SELECT * FROM test',
     file: 'test.yaml',
     // Add other required properties with default values
@@ -61,11 +61,11 @@ describe('getChangedTopLevelMessageValues', () => {
 
   it('should detect changes in status property', () => {
     const oldMetric = createMockMetric();
-    const newMetric = createMockMetric({ status: VerificationStatus.VERIFIED });
+    const newMetric = createMockMetric({ status: 'verified' });
 
     const result = getChangedTopLevelMessageValues(newMetric, oldMetric);
 
-    expect(result).toEqual({ status: VerificationStatus.VERIFIED });
+    expect(result).toEqual({ status: 'verified' });
   });
 
   it('should detect changes in sql property', () => {
@@ -90,7 +90,7 @@ describe('getChangedTopLevelMessageValues', () => {
     const oldMetric = createMockMetric();
     const newMetric = createMockMetric({
       name: 'Updated Name',
-      status: VerificationStatus.VERIFIED,
+      status: 'verified',
       sql: 'SELECT count(*) FROM orders'
     });
 
@@ -98,7 +98,7 @@ describe('getChangedTopLevelMessageValues', () => {
 
     expect(result).toEqual({
       name: 'Updated Name',
-      status: VerificationStatus.VERIFIED,
+      status: 'verified',
       sql: 'SELECT count(*) FROM orders'
     });
   });

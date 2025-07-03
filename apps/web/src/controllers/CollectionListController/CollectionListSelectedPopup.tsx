@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces/share';
+import { ShareAssetType } from '@buster/server-shared/share';
 import { useDeleteCollection } from '@/api/buster_rest/collections';
 import { useThreeDotFavoritesOptions } from '@/components/features/dropdowns/useThreeDotFavoritesOptions';
 import { Button } from '@/components/ui/buttons';
@@ -65,7 +65,7 @@ const ThreeDotButton: React.FC<{
 }> = ({ selectedRowKeys, onSelectChange }) => {
   const dropdownOptions = useThreeDotFavoritesOptions({
     itemIds: selectedRowKeys,
-    assetType: ShareAssetType.COLLECTION,
+    assetType: 'collection',
     onFinish: () => onSelectChange([])
   });
 

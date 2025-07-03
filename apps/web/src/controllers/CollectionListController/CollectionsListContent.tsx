@@ -62,7 +62,7 @@ const columns: BusterListColumn[] = [
           <Text truncate>{v}</Text>
           <FavoriteStar
             id={id}
-            type={ShareAssetType.COLLECTION}
+            type={'collection'}
             iconStyle="tertiary"
             title={v}
             className="opacity-0 group-hover:opacity-100"
