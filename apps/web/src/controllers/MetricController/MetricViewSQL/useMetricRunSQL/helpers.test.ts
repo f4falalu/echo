@@ -1,15 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type {
   ColumnMetaData,
-  IBusterMetric,
-  IBusterMetricChartConfig
-} from '../../../../api/asset_interfaces';
-import {
-  DEFAULT_CHART_CONFIG,
-  DEFAULT_COLUMN_LABEL_FORMAT
-} from '../../../../api/asset_interfaces';
-import type { ColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts';
+  ChartConfigProps,
+  ColumnLabelFormat
+} from '@buster/server-shared/metrics';
+import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import { didColumnDataChange, simplifyChatConfigForSQLChange } from './helpers';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 
 const createColumnMetaData = (
   name: string,
@@ -67,20 +64,17 @@ describe('didColumnDataChange', () => {
 
 describe('simplifyChatConfigForSQLChange', () => {
   it('should handle empty metadata', () => {
-    const chartConfig: Partial<IBusterMetricChartConfig> = {
+    const chartConfig: Partial<ChartConfigProps> = {
       ...DEFAULT_CHART_CONFIG,
       columnLabelFormats: {}
     };
-    const data_metadata: IBusterMetric['data_metadata'] = {
+    const data_metadata: BusterMetric['data_metadata'] = {
       column_count: 0,
       column_metadata: [],
       row_count: 0
     };
 
-    const result = simplifyChatConfigForSQLChange(
-      chartConfig as IBusterMetricChartConfig,
-      data_metadata
-    );
+    const result = simplifyChatConfigForSQLChange(chartConfig as ChartConfigProps, data_metadata);
     expect(result.columnLabelFormats).toEqual({});
   });
 
@@ -112,7 +106,7 @@ describe('simplifyChatConfigForSQLChange', () => {
       columnLabelFormats
     };
 
-    const data_metadata: IBusterMetric['data_metadata'] = {
+    const data_metadata: BusterMetric['data_metadata'] = {
       column_count: 1,
       column_metadata: [createColumnMetaData('col1', 'text')],
       row_count: 1
@@ -146,21 +140,18 @@ describe('simplifyChatConfigForSQLChange', () => {
       }
     };
 
-    const chartConfig: Partial<IBusterMetricChartConfig> = {
+    const chartConfig: Partial<ChartConfigProps> = {
       ...DEFAULT_CHART_CONFIG,
       columnLabelFormats
     };
 
-    const data_metadata: IBusterMetric['data_metadata'] = {
+    const data_metadata: BusterMetric['data_metadata'] = {
       column_count: 1,
       column_metadata: [createColumnMetaData('col1', 'number')],
       row_count: 1
     };
 
-    const result = simplifyChatConfigForSQLChange(
-      chartConfig as IBusterMetricChartConfig,
-      data_metadata
-    );
+    const result = simplifyChatConfigForSQLChange(chartConfig as ChartConfigProps, data_metadata);
     expect(result.columnLabelFormats?.col1).toEqual({
       ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number',

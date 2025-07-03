@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { BusterTableChart } from '../TableChart/BusterTableChart';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 // Helper functions for generating sample data
 const generateProductName = (index: number) => `Product ${index + 1}`;
@@ -44,28 +44,28 @@ export const Default: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         displayName: 'SALES'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -85,27 +85,27 @@ export const WithTableColumnOrder: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -131,27 +131,27 @@ export const WithTableColumnWidths: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -171,27 +171,27 @@ export const ReadOnly: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -210,27 +210,27 @@ export const LargeDataset: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -250,27 +250,27 @@ export const CustomClassname: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   },
   render: (args) => {

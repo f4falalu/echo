@@ -1,18 +1,17 @@
 import { create } from 'mutative';
+import { isDateColumnType, isNumericColumnType, simplifyColumnType } from '@/lib/messages';
 import {
+  type ChartConfigProps,
   type ColumnLabelFormat,
   type ColumnMetaData,
   DEFAULT_COLUMN_LABEL_FORMAT,
-  type BusterMetricChartConfig,
-  type ColumnLabelFormat,
   type SimplifiedColumnType
-} from '@/api/asset_interfaces/metric';
-import { isDateColumnType, isNumericColumnType, simplifyColumnType } from '@/lib/messages';
+} from '@buster/server-shared/metrics';
 
 export const createDefaultColumnLabelFormats = (
   columnLabelFormats: Record<string, ColumnLabelFormat> | undefined,
   columnsMetaData: ColumnMetaData[] | undefined
-): BusterMetricChartConfig['columnLabelFormats'] => {
+): ChartConfigProps['columnLabelFormats'] => {
   if (!columnsMetaData) return {};
 
   return columnsMetaData.reduce(
@@ -25,7 +24,7 @@ export const createDefaultColumnLabelFormats = (
       });
       return acc;
     },
-    {} as BusterMetricChartConfig['columnLabelFormats']
+    {} as ChartConfigProps['columnLabelFormats']
   );
 };
 

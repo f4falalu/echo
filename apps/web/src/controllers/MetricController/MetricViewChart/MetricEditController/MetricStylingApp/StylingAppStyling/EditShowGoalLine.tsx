@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import type { ColumnMetaData, BusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { ChartEncodes, GoalLine } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnMetaData, ChartConfigProps } from '@buster/server-shared/metrics';
+import type { ChartEncodes, GoalLine } from '@buster/server-shared/metrics';
 import { Button } from '@/components/ui/buttons';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { Plus } from '@/components/ui/icons';
@@ -18,8 +18,8 @@ interface LoopGoalLine extends GoalLine {
 }
 
 export const EditGoalLine: React.FC<{
-  goalLines: BusterMetricChartConfig['goalLines'];
-  onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
+  goalLines: ChartConfigProps['goalLines'];
+  onUpdateChartConfig: (config: Partial<ChartConfigProps>) => void;
   columnMetadata: ColumnMetaData[] | undefined;
   selectedAxis: ChartEncodes;
 }> = React.memo(({ goalLines, onUpdateChartConfig, columnMetadata, selectedAxis }) => {

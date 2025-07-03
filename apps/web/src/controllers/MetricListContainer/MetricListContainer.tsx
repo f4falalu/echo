@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import type { VerificationStatus } from '@/api/asset_interfaces';
+import type { VerificationStatus } from '@buster/server-shared/share';
 import { useGetMetricsList } from '@/api/buster_rest/metrics';
 import { AppPageLayout } from '@/components/ui/layouts';
 import { MetricItemsContainer } from './MetricItemsContainer';
@@ -15,7 +15,9 @@ export const MetricListContainer: React.FC = React.memo(() => {
     <AppPageLayout
       headerSizeVariant="list"
       header={useMemo(
-        () => <MetricListHeader filters={filters} onSetFilters={setFilters} />,
+        () => (
+          <MetricListHeader filters={filters} onSetFilters={setFilters} />
+        ),
         [filters]
       )}>
       <MetricItemsContainer

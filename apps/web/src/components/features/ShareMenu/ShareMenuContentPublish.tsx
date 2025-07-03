@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces';
 import { useUpdateCollectionShare } from '@/api/buster_rest/collections';
 import { useUpdateDashboardShare } from '@/api/buster_rest/dashboards';
 import { useUpdateMetricShare } from '@/api/buster_rest/metrics';

@@ -1,10 +1,12 @@
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { ColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
-import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
 import type { BusterChart } from '../BusterChart';
 import { sharedMeta } from './BusterChartShared';
-import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
+  type ColumnLabelFormat
+} from '@buster/server-shared/metrics';
 
 interface ComboChartDataPoint {
   date: string;
@@ -88,28 +90,29 @@ export const DualAxisCombo: Story = {
     },
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM D, YYYY'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       orders: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       averageOrderValue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
-    } satisfies Record<keyof ComboChartData, ColumnLabelFormat>,
+      } as ColumnLabelFormat
+    } as any,
     yAxisAxisTitle: 'Revenue',
     y2AxisAxisTitle: 'Average Order Value',
     gridLines: true,
@@ -146,24 +149,24 @@ export const RevenueAndOrders: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM D, YYYY'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       orders: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       averageOrderValue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     } satisfies Record<keyof ComboChartData, ColumnLabelFormat>,
     yAxisAxisTitle: 'Revenue',
     y2AxisAxisTitle: 'Number of Orders',
@@ -203,24 +206,24 @@ export const DualLineChart: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM D, YYYY'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       orders: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       averageOrderValue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     } satisfies Record<keyof ComboChartData, ColumnLabelFormat>,
     yAxisAxisTitle: 'Revenue',
     y2AxisAxisTitle: 'Average Order Value',
@@ -256,24 +259,24 @@ export const DualBarChart: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM D, YYYY'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       orders: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       averageOrderValue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     } satisfies Record<keyof ComboChartData, ColumnLabelFormat>,
     yAxisAxisTitle: 'Revenue',
     y2AxisAxisTitle: 'Number of Orders',
@@ -311,24 +314,24 @@ export const CompactView: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM D'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       orders: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       averageOrderValue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     } satisfies Record<keyof ComboChartData, ColumnLabelFormat>,
     yAxisAxisTitle: 'Revenue',
     y2AxisAxisTitle: 'Average Order Value',
@@ -366,24 +369,24 @@ export const NoLegendNoGrid: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM D, YYYY'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       orders: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       averageOrderValue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     } satisfies Record<keyof ComboChartData, ColumnLabelFormat>,
     yAxisAxisTitle: 'Revenue',
     y2AxisAxisTitle: 'Average Order Value',
@@ -421,24 +424,24 @@ export const LargeDataset: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM D, YYYY'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       orders: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       averageOrderValue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     } satisfies Record<keyof ComboChartData, ColumnLabelFormat>,
     yAxisAxisTitle: 'Revenue',
     y2AxisAxisTitle: 'Average Order Value',
@@ -487,31 +490,31 @@ export const MultipleY2Axes: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       customerRating: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
         suffix: ' ★'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       stockLevel: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
         suffix: ' units'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       returnRate: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
         suffix: '%'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     },
     yAxisAxisTitle: 'Sales Revenue',
     y2AxisAxisTitle: 'Multiple Metrics',
@@ -526,6 +529,7 @@ export const ProblematicData: Story = {
     selectedChartType: 'combo',
     columnLabelFormats: {
       quarter_date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         numberSeparatorStyle: null,
@@ -533,6 +537,7 @@ export const ProblematicData: Story = {
         dateFormat: '[Q]Q YYYY'
       },
       discount_percentage: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'percent',
         numberSeparatorStyle: ',',
@@ -542,6 +547,7 @@ export const ProblematicData: Story = {
         replaceMissingDataWith: 0
       },
       orders_with_discount: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
@@ -550,6 +556,7 @@ export const ProblematicData: Story = {
         replaceMissingDataWith: 0
       },
       metric_discountimpact: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         numberSeparatorStyle: ',',

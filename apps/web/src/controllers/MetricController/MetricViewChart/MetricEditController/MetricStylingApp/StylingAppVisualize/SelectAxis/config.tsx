@@ -1,5 +1,5 @@
 import type React from 'react';
-import { ChartType, type ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ChartType, ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { Calendar, CurrencyDollar, Numbers, Percentage, Typography } from '@/components/ui/icons';
 
 export const ColumnTypeIcon: Record<

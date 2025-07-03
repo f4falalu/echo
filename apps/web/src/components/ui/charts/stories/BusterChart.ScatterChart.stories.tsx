@@ -3,8 +3,6 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { Slider } from '@/components/ui/slider';
 import { useDebounceFn } from '@/hooks';
-import type { ColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
-import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
 import { generateScatterChartData } from '../../../../mocks/chart/chartMocks';
 import { BusterChart } from '../BusterChart';
 import { sharedMeta } from './BusterChartShared';
@@ -14,6 +12,7 @@ import {
   scatterData_problematic2,
   scatterDataProblematic1
 } from './scatterData_problematic1';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 type ScatterChartData = ReturnType<typeof generateScatterChartData>;
 
@@ -38,29 +37,31 @@ export const Default: Story = {
     },
     columnLabelFormats: {
       x: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       y: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       size: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       category: {
         columnType: 'text',
         style: 'string',
         prefix: '🔥 ',
         suffix: ' 🔥'
-      } satisfies ColumnLabelFormat
-    } satisfies Record<keyof ScatterChartData, ColumnLabelFormat>,
+      } as ColumnLabelFormat
+    },
     className: 'w-[400px] h-[400px] max-w-[400px] max-h-[400px]'
   }
 };
@@ -351,10 +352,12 @@ export const ScatterWithTrendline_NumericalXAxisPolynomialRegression: Story = {
     ],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -422,11 +425,13 @@ export const ScatterWithTrendline_DateXAxisPolynomialRegression: Story = {
     ],
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -494,10 +499,12 @@ export const ScatterWithTrendline_NumericalXAxisLinearRegression: Story = {
     ],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -565,11 +572,13 @@ export const ScatterWithTrendline_DateXAxisLinearRegression: Story = {
     ],
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -637,10 +646,12 @@ export const ScatterWithTrendline_NumericalXAxisLogarithmicRegression: Story = {
     ],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -708,11 +719,13 @@ export const ScatterWithTrendline_DateXAxisLogarithmicRegression: Story = {
     ],
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -764,6 +777,7 @@ export const ProblematicDatasetWithLinearRegression: Story = {
     selectedChartType: 'scatter',
     columnLabelFormats: {
       total_cost: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         displayName: '',
@@ -780,6 +794,7 @@ export const ProblematicDatasetWithLinearRegression: Story = {
         useRelativeTime: false
       },
       total_revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         displayName: '',

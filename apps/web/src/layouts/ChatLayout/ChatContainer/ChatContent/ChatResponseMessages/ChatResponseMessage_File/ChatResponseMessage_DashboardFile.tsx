@@ -10,7 +10,7 @@ import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useMount } from '@/hooks';
 import { useChatLayoutContextSelector } from '@/layouts/ChatLayout/ChatLayoutContext';
-import { ChartType, DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric';
+import { ChartType, DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import { useGetMetricMemoized } from '@/context/Metrics';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { getSelectedChartTypeConfig } from '@/lib/metrics/selectedChartType';

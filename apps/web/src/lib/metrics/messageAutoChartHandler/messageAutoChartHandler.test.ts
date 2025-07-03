@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  ChartType,
+  type ChartType,
   type DataMetadata,
-  DEFAULT_CHART_CONFIG,
-  type IBusterMetricChartConfig
-} from '@/api/asset_interfaces/metric';
+  type ChartConfigProps,
+  DEFAULT_CHART_CONFIG
+} from '@buster/server-shared/metrics';
 import { createDefaultChartConfig } from '.';
 
 describe('createDefaultChartConfig', () => {
@@ -114,7 +114,7 @@ describe('createDefaultChartConfig', () => {
           makeLabelHumanReadable: true
         }
       }
-    } satisfies IBusterMetricChartConfig;
+    } satisfies ChartConfigProps;
 
     expect(config).toEqual(expected);
   });

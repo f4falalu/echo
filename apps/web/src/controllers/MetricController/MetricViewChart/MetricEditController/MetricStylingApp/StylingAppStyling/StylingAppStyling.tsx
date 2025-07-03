@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces/metric';
-import { type BarAndLineAxis, ChartType } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps, BarAndLineAxis, ChartType } from '@buster/server-shared/metrics';
 import { Separator } from '@/components/ui/seperator';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
@@ -78,16 +77,16 @@ export const StylingAppStyling: React.FC<
   const { onUpdateMetricChartConfig } = useUpdateMetricChart();
 
   const onUpdateDataLabel = useMemoizedFn((v: boolean) => {
-    const newColumnSettings: BusterMetricChartConfig['columnSettings'] = Object.keys(
+    const newColumnSettings: ChartConfigProps['columnSettings'] = Object.keys(
       columnSettings
-    ).reduce<BusterMetricChartConfig['columnSettings']>((acc, curr) => {
+    ).reduce<ChartConfigProps['columnSettings']>((acc, curr) => {
       acc[curr] = { ...columnSettings[curr], showDataLabels: v };
       return acc;
     }, {});
     onUpdateChartConfig({ columnSettings: newColumnSettings });
   });
 
-  const onUpdateChartConfig = useMemoizedFn((chartConfig: Partial<BusterMetricChartConfig>) => {
+  const onUpdateChartConfig = useMemoizedFn((chartConfig: Partial<ChartConfigProps>) => {
     onUpdateMetricChartConfig({ chartConfig });
   });
 
@@ -185,9 +184,9 @@ export const StylingAppStyling: React.FC<
 const GlobalSettings: React.FC<
   {
     className: string;
-    columnSettings: BusterMetricChartConfig['columnSettings'];
-    yAxisShowAxisTitle: BusterMetricChartConfig['yAxisShowAxisTitle'];
-    yAxisShowAxisLabel: BusterMetricChartConfig['yAxisShowAxisLabel'];
+    columnSettings: ChartConfigProps['columnSettings'];
+    yAxisShowAxisTitle: ChartConfigProps['yAxisShowAxisTitle'];
+    yAxisShowAxisLabel: ChartConfigProps['yAxisShowAxisLabel'];
   } & Parameters<typeof EditShowLegend>[0] &
     Parameters<typeof EditGridLines>[0] &
     Omit<Parameters<typeof EditHideYAxis>[0], 'hideYAxis'> &
@@ -294,9 +293,9 @@ const GlobalSettings: React.FC<
 const ChartSpecificSettings: React.FC<
   {
     className: string;
-    columnSettings: BusterMetricChartConfig['columnSettings'];
-    selectedChartType: BusterMetricChartConfig['selectedChartType'];
-    columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
+    columnSettings: ChartConfigProps['columnSettings'];
+    selectedChartType: ChartConfigProps['selectedChartType'];
+    columnLabelFormats: ChartConfigProps['columnLabelFormats'];
   } & Parameters<typeof EditBarRoundnessGlobal>[0] &
     Parameters<typeof EditBarSorting>[0] &
     Parameters<typeof EditPieSorting>[0] &
@@ -567,7 +566,7 @@ const EtcSettings: React.FC<
 const PieSettings: React.FC<
   {
     className: string;
-    pieDonutWidth: BusterMetricChartConfig['pieDonutWidth'];
+    pieDonutWidth: ChartConfigProps['pieDonutWidth'];
   } & Parameters<typeof EditPieShowInnerLabel>[0] &
     Parameters<typeof EditPieInnerLabel>[0]
 > = React.memo(

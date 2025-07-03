@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import type { ColumnMetaData, SimplifiedColumnType } from '@/api/asset_interfaces/metric';
 import {
-  ChartType,
   type ColumnLabelFormat,
-  type ShowLegendHeadline
-} from '@/api/asset_interfaces/metric/charts';
+  type ShowLegendHeadline,
+  type ColumnMetaData,
+  type SimplifiedColumnType,
+  DEFAULT_COLUMN_LABEL_FORMAT
+} from '@buster/server-shared/metrics';
 import type { DatasetOptionsWithTicks } from '../chartHooks/useDatasetOptions/interfaces';
 import type { BusterChartLegendItem } from './interfaces';
 import { addLegendHeadlines } from './legendHeadlineHelpers';
@@ -41,10 +42,12 @@ describe('legendHeadlineHelpers', () => {
 
   const mockColumnLabelFormats: Record<string, ColumnLabelFormat> = {
     timestamp: {
+      ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'timestamp' as SimplifiedColumnType,
       style: 'date'
     },
     value: {
+      ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number' as SimplifiedColumnType,
       style: 'number'
     }
@@ -240,6 +243,7 @@ describe('legendHeadlineHelpers', () => {
       const currencyColumnLabelFormats: Record<string, ColumnLabelFormat> = {
         ...mockColumnLabelFormats,
         revenue: {
+          ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'number' as SimplifiedColumnType,
           style: 'currency'
         }
@@ -277,6 +281,7 @@ describe('legendHeadlineHelpers', () => {
       const prefixColumnLabelFormats: Record<string, ColumnLabelFormat> = {
         ...mockColumnLabelFormats,
         users: {
+          ...DEFAULT_COLUMN_LABEL_FORMAT,
           columnType: 'number' as SimplifiedColumnType,
           style: 'number',
           prefix: '👥 '

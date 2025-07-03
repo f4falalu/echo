@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
-import type { BusterChartProps, Trendline } from '@/api/asset_interfaces/metric/charts';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type Trendline } from '@buster/server-shared/metrics';
 import { isNumericColumnType } from '@/lib/messages';
 import { canSupportTrendlineRecord } from './canSupportTrendline';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric';
 
 // Mock the isNumericColumnType function
 vi.mock('@/lib/messages', () => ({
@@ -26,6 +26,7 @@ describe('canSupportTrendlineRecord', () => {
   const columnId = 'test-column';
   const mockColumnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']> = {
     [columnId]: {
+      ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number',
       style: 'number'
     }

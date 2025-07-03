@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
-import type { ColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
-import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ColumnLabelFormat,
+  type ColumnSettings,
+  type Trendline
+} from '@buster/server-shared/metrics';
 import { addNoise, generateLineChartData } from '../../../../mocks/chart/chartMocks';
 import type { BusterChart } from '../BusterChart';
 import { sharedMeta } from './BusterChartShared';
-import type { ColumnSettings, Trendline } from '@/api/asset_interfaces';
 
 type LineChartData = ReturnType<typeof generateLineChartData>;
 
@@ -29,26 +32,27 @@ export const Default: Story = {
     className: 'resize overflow-auto min-w-[250px] h-[400px]',
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
-    } satisfies Record<keyof LineChartData, ColumnLabelFormat>
+      } as ColumnLabelFormat
+    }
   }
 };
 
@@ -71,12 +75,12 @@ export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths: Sto
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -127,12 +131,12 @@ export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -183,12 +187,12 @@ export const AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -239,7 +243,7 @@ export const FixedDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths: St
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -253,7 +257,7 @@ export const FixedDateFormat_TimeIntervalTest_MonthWithAutoUnit_ManyMonths: Stor
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -268,7 +272,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit_ManyMonths:
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -282,7 +286,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_ManyMonths: S
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -296,7 +300,7 @@ export const FixedDateFormat_TimeIntervalTest_MonthWithAutoUnit_BUSTED: Story = 
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -311,7 +315,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -325,7 +329,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_BUSTED: Story
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -344,7 +348,7 @@ export const FixedDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD, YYYY'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -359,7 +363,7 @@ export const FixedDateFormat_TimeIntervalTest_Days_WithForcedUnit_UnevenDays: St
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -373,7 +377,7 @@ export const FixedDateFormat_TimeIntervalTest_Days_WithAutoUnit_UnevenDays: Stor
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -392,7 +396,7 @@ export const XAxisTimeIntervalWithMismatchingData_Days: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -411,7 +415,7 @@ export const XAxisTimeIntervalWithMismatchingData_Months: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -437,11 +441,11 @@ export const NumericXY: Story = {
       score: {
         columnType: 'number',
         style: 'number'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -466,7 +470,7 @@ export const NumericXYThatCorrespondToAMonth: Story = {
         style: 'date',
         dateFormat: 'MMM',
         convertNumberTo: 'month_of_year'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -492,11 +496,11 @@ export const CategoricalXNumericY: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -523,11 +527,11 @@ export const MultiYearDate: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto' // Show only year for multi-year view
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -567,22 +571,22 @@ export const MultipleYAxes: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       satisfaction: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -622,13 +626,13 @@ export const UnevenlySpacedDates: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto' // Full date format to show uneven spacing clearly
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -660,13 +664,13 @@ export const CloselySpacedDates: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto' // Full date format to show spacing clearly
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -700,16 +704,16 @@ export const WithCategory: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       region: {
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -785,22 +789,22 @@ export const MultipleYAxesWithCategory: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       satisfaction: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -837,17 +841,17 @@ export const NumericMonthX: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -870,17 +874,17 @@ export const PercentageStackedLineSingle: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -903,17 +907,17 @@ export const PercentageStackedLineMultiple: Story = {
         dateFormat: 'lll',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -941,17 +945,17 @@ export const PercentageStackedLineSingleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'EUR'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -985,22 +989,22 @@ export const StackedAreaLineMultipleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1028,17 +1032,17 @@ export const StackedAreaLineSingleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'EUR'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1072,22 +1076,22 @@ export const PercentageStackedLineMultipleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1117,13 +1121,13 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataZero: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         replaceMissingDataWith: 0
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1153,13 +1157,13 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataNull: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         replaceMissingDataWith: null
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1194,17 +1198,17 @@ export const HasMixedNullAndNumberValuesSingleMultiLine: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     }
   }
 };
@@ -1247,7 +1251,7 @@ export const HasNullValuesWithCategoryMultiLine: Story = {
         currency: 'USD',
         replaceMissingDataWith: 0
       }
-    }
+    } as any
   }
 };
 
@@ -1309,7 +1313,7 @@ export const WithTrendline_MaxMinAverageMedian: Story = {
         style: 'currency',
         currency: 'USD'
       }
-    }
+    } as any
   }
 };
 
@@ -1347,7 +1351,7 @@ export const WithTrendline_DateXAxisLinearRegression: Story = {
         style: 'currency',
         currency: 'USD'
       }
-    }
+    } as any
   }
 };
 
@@ -1376,10 +1380,12 @@ export const WithTrendline_NumericalXAxisLinearRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1413,10 +1419,12 @@ export const WithTrendline_StringXAxisLinearRegression: Story = {
     ],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1461,11 +1469,13 @@ export const WithTrendline_DateXAxisExponentialRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1510,10 +1520,12 @@ export const WithTrendline_NumericalXAxisExponentialRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1558,10 +1570,12 @@ export const WithTrendline_StringXAxisExponentialRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1606,11 +1620,13 @@ export const WithTrendline_DateXAxisLogarithmicRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1655,10 +1671,12 @@ export const WithTrendline_NumericalXAxisLogarithmicRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1703,10 +1721,12 @@ export const WithTrendline_StringXAxisLogarithmicRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1741,14 +1761,14 @@ export const ExponentialDecreaseWithTrendline: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     },
     trendlines: [
       {
@@ -1798,11 +1818,13 @@ export const WithTrendline_DateXAxisPolynomialRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1847,10 +1869,12 @@ export const WithTrendline_NumericalXAxisPolynomialRegression: Story = {
     ],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1895,10 +1919,12 @@ export const WithTrendline_StringXAxisPolynomialRegression: Story = {
     ] as Trendline[],
     columnLabelFormats: {
       index: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
       },
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
@@ -1918,6 +1944,7 @@ export const With2ThousandPoints: Story = {
     },
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
@@ -1937,6 +1964,7 @@ export const With5ThousandPoints: Story = {
     },
     columnLabelFormats: {
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'

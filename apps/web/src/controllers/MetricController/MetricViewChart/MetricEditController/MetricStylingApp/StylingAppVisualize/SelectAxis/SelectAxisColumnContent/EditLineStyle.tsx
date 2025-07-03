@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { ENABLED_DOTS_ON_LINE_SIZE } from '@/api/asset_interfaces';
-import type { ChartConfigProps, ColumnSettings } from '@/api/asset_interfaces/metric/charts';
+import { ENABLED_DOTS_ON_LINE_SIZE } from '@buster/server-shared/metrics';
+import type { ChartConfigProps, ColumnSettings } from '@buster/server-shared/metrics';
 import { ChartArea, ChartCombo, ChartLine, ChartStep } from '@/components/ui/icons';
 import type { SegmentedItem } from '@/components/ui/segmented';
 import { AppSegmented } from '@/components/ui/segmented';

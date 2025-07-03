@@ -1,4 +1,4 @@
-import type { ShareAssetType } from '@/api/asset_interfaces/share';
+import type { ShareAssetType } from '@buster/server-shared/share';
 import type {
   BusterUserFavorite,
   BusterUserListItem,

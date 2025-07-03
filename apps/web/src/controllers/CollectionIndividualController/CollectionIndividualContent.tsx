@@ -6,7 +6,7 @@ import type {
   BusterCollectionItemAsset,
   BusterCollectionListItem
 } from '@/api/asset_interfaces';
-import { ShareAssetType } from '@/api/asset_interfaces';
+import { ShareAssetType } from '@buster/server-shared/share';
 import { ASSET_ICONS } from '@/components/features/config/assetIcons';
 import { AddToCollectionModal } from '@/components/features/modal/AddToCollectionModal';
 import { Avatar } from '@/components/ui/avatar';

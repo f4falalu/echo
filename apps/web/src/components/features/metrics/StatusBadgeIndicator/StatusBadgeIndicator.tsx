@@ -1,5 +1,6 @@
 import React from 'react';
-import { type BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
+import { type BusterMetricListItem } from '@/api/asset_interfaces';
+import type { VerificationStatus } from '@buster/server-shared/share';
 import { StatusNotRequestedIcon } from '@/components/ui/icons/customIcons/Status_NotRequested';
 import { CircleCheck, CircleXmark } from '@/components/ui/icons/NucleoIconFilled';
 import { AppTooltip } from '@/components/ui/tooltip';

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnSettings } from '@buster/server-shared/metrics';
 import { Switch } from '@/components/ui/switch';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../../../Common/LabelAndInput';

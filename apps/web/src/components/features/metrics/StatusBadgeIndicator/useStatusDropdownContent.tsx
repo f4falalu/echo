@@ -1,10 +1,16 @@
 import { useMemo } from 'react';
-import { VerificationStatus } from '@/api/asset_interfaces';
+import type { VerificationStatus } from '@buster/server-shared/share';
 import type { DropdownItem, DropdownProps } from '@/components/ui/dropdown';
 import { getTooltipText } from './helpers';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
 
-const statuses = ['notRequested', 'requested', 'inReview', 'verified', 'backlogged'];
+const statuses: VerificationStatus[] = [
+  'notRequested',
+  'requested',
+  'inReview',
+  'verified',
+  'backlogged'
+];
 
 const requiresAdminItems = ['inReview', 'verified', 'backlogged'];
 

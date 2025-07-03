@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { VerificationStatus } from '@/api/asset_interfaces';
 import type { SegmentedItem } from '@/components/ui/segmented';
 import { AppSegmented } from '@/components/ui/segmented';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
+import type { VerificationStatus } from '@buster/server-shared/share';
 
 export const MetricListHeader: React.FC<{
   filters: VerificationStatus[];

@@ -1,6 +1,6 @@
 import uniq from 'lodash/uniq';
 import React, { useState } from 'react';
-import { ShareAssetType, VerificationStatus } from '@/api/asset_interfaces';
+import type { ShareAssetType, VerificationStatus } from '@buster/server-shared/share';
 import {
   useAddMetricsToDashboard,
   useRemoveMetricsFromDashboard

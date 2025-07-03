@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';
 import { isDateColumnType, isNumericColumnType } from '@/lib';

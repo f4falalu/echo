@@ -1,10 +1,6 @@
 import type { Active } from '@dnd-kit/core';
 import { useState } from 'react';
-import type {
-  ChartEncodes,
-  ChartType,
-  ColumnLabelFormat
-} from '@/api/asset_interfaces/metric/charts';
+import type { ChartEncodes, ChartType, ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { isNumericColumnStyle, isNumericColumnType } from '@/lib';
 import { SelectAxisContainerId } from '../config';

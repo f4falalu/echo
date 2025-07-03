@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import type { IDataResult } from '@/api/asset_interfaces';
+import type { DataResult } from '@buster/server-shared/metrics';
 import { useGetMetric, useGetMetricData } from '@/api/buster_rest/metrics';
 import { AppVerticalCodeSplitter } from '@/components/features/layouts/AppVerticalCodeSplitter';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
@@ -44,7 +44,7 @@ export const MetricViewSQLController: React.FC<{
   const [sql, setSQL] = useState(metric?.sql || '');
 
   const dataSourceId = metric?.data_source_id || '';
-  const data: IDataResult = metricData?.dataFromRerun || metricData?.data || null;
+  const data: DataResult | null = metricData?.dataFromRerun || metricData?.data || null;
 
   const disableSave = useMemo(() => {
     return !sql || isRunningSQL || sql === metric?.sql;
@@ -102,7 +102,7 @@ export const MetricViewSQLController: React.FC<{
         runSQLError={runSQLError || saveMetricError}
         onRunQuery={onRunQuery}
         onSaveSQL={onSaveSQL}
-        data={data}
+        data={data || []}
         disabledSave={disableSave}
         fetchingData={isRunningSQL || isSavingMetric || !isFetchedInitialData}
         defaultLayout={defaultLayout}

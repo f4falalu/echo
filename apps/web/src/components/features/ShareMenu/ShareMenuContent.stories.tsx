@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { type BusterShare, ShareAssetType, ShareRole } from '@/api/asset_interfaces';
+import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
 import { ShareMenuContent } from './ShareMenuContent';
 
 const meta: Meta<typeof ShareMenuContent> = {
@@ -14,16 +14,16 @@ const meta: Meta<typeof ShareMenuContent> = {
 export default meta;
 type Story = StoryObj<typeof ShareMenuContent>;
 
-const mockShareConfig: BusterShare = {
+const mockShareConfig: ShareConfig = {
   individual_permissions: [
     {
       email: 'test_with_a_long_name_like_super_long_name@test.com',
-      role: ShareRole.CAN_VIEW,
+      role: 'canView',
       name: 'Test User'
     },
     {
       email: 'test2@test.com',
-      role: ShareRole.FULL_ACCESS,
+      role: 'fullAccess',
       name: 'Test User 2 with a long name like super long name'
     }
   ],
@@ -31,7 +31,7 @@ const mockShareConfig: BusterShare = {
   public_enabled_by: null,
   publicly_accessible: false,
   public_password: null,
-  permission: ShareRole.OWNER
+  permission: 'owner'
 };
 
 export const MetricShare: Story = {
@@ -75,7 +75,7 @@ export const ViewerPermission: Story = {
     assetType: 'metric',
     shareAssetConfig: {
       ...mockShareConfig,
-      permission: ShareRole.CAN_VIEW
+      permission: 'canView'
     }
   }
 };

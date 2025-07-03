@@ -1,6 +1,6 @@
 import { validate } from 'email-validator';
 import React from 'react';
-import { type BusterShare, ShareAssetType, ShareRole } from '@/api/asset_interfaces';
+import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
 import {
   useShareCollection,
   useUnshareCollection,
@@ -27,7 +27,7 @@ import type { ShareMenuTopBarOptions } from './ShareMenuTopBar';
 export const ShareMenuContentBody: React.FC<{
   selectedOptions: ShareMenuTopBarOptions;
   onCopyLink: () => void;
-  shareAssetConfig: BusterShare;
+  shareAssetConfig: ShareConfig;
   assetId: string;
   assetType: ShareAssetType;
   canEditPermissions: boolean;
@@ -82,9 +82,8 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     const isInviting = isInvitingMetric || isInvitingDashboard || isInvitingCollection;
 
     const [inputValue, setInputValue] = React.useState<string>('');
-    const [defaultPermissionLevel, setDefaultPermissionLevel] = React.useState<ShareRole>(
-      ShareRole.CAN_VIEW
-    );
+    const [defaultPermissionLevel, setDefaultPermissionLevel] =
+      React.useState<ShareRole>('canView');
     const disableSubmit = !inputHasText(inputValue) || !validate(inputValue);
     const hasIndividualPermissions = !!individual_permissions?.length;
 
@@ -211,7 +210,7 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
                 {...permission}
                 onUpdateShareRole={onUpdateShareRole}
                 assetType={assetType}
-                disabled={!canEditPermissions || permission.role === ShareRole.OWNER}
+                disabled={!canEditPermissions || permission.role === 'owner'}
               />
             ))}
           </div>
@@ -224,7 +223,7 @@ ShareMenuContentShare.displayName = 'ShareMenuContentShare';
 
 export interface ShareMenuContentBodyProps {
   onCopyLink: () => void;
-  individual_permissions: BusterShare['individual_permissions'];
+  individual_permissions: ShareConfig['individual_permissions'];
   publicly_accessible: boolean;
   publicExpirationDate: string | null | undefined;
   password: string | null | undefined;

@@ -1,6 +1,6 @@
 import first from 'lodash/last';
 import React, { useMemo } from 'react';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { useMemoizedFn } from '@/hooks';
 import { formatDate, getNow } from '@/lib/date';

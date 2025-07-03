@@ -1,5 +1,5 @@
 import { forwardRef, useMemo } from 'react';
-import type { IDataResult } from '@/api/asset_interfaces';
+import type { DataResult } from '@buster/server-shared/metrics';
 import { AppSplitter, type AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { DataContainer } from './DataContainer';
 import { SQLContainer } from './SQLContainer';
@@ -9,7 +9,7 @@ export interface AppVerticalCodeSplitterProps {
   setSQL: (sql: string) => void;
   runSQLError: string | undefined;
   onRunQuery: () => Promise<void>;
-  data: IDataResult;
+  data: DataResult;
   fetchingData: boolean;
   defaultLayout: [string, string];
   autoSaveId: string;

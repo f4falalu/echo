@@ -1,6 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import React from 'react';
-import type { IDataResult } from '@/api/asset_interfaces';
+import type { DataResult } from '@buster/server-shared/metrics';
 import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import { Text } from '@/components/ui/typography';
 import { ShimmerText } from '@/components/ui/typography/ShimmerText';
@@ -9,7 +9,7 @@ import { useMemoizedFn } from '@/hooks';
 
 export const OverviewData: React.FC<{
   datasetId: string;
-  data: IDataResult;
+  data: DataResult;
   isFetchedDatasetData: boolean;
 }> = React.memo(({ data, isFetchedDatasetData }) => {
   const isAdmin = useUserConfigContextSelector((state) => state.isAdmin);

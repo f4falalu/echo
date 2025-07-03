@@ -1,9 +1,9 @@
 import React from 'react';
-import type { ShareAssetType, ShareRole } from '@/api/asset_interfaces';
 import { Avatar } from '@/components/ui/avatar';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
 import { AccessDropdown } from './AccessDropdown';
+import type { ShareAssetType, ShareRole } from '@buster/server-shared/share';
 
 export const IndividualSharePerson: React.FC<{
   name?: string;

@@ -1,5 +1,4 @@
 import React from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces';
 import { useGetDashboard } from '@/api/buster_rest/dashboards';
 import { ShareMenu } from '../ShareMenu';
 import { getShareAssetConfig } from '../ShareMenu/helpers';

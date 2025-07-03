@@ -2,16 +2,16 @@ import {
   ChartEncodes,
   ChartType,
   ColumnMetaData,
-  BusterMetricChartConfig
-} from '@/api/asset_interfaces/metric';
+  ChartConfigProps
+} from '@buster/server-shared/metrics';
 
 export interface SelectChartTypeProps {
   selectedChartType: ChartType;
-  lineGroupType: BusterMetricChartConfig['lineGroupType'];
-  barGroupType: BusterMetricChartConfig['barGroupType'];
-  barLayout: BusterMetricChartConfig['barLayout'];
+  lineGroupType: ChartConfigProps['lineGroupType'];
+  barGroupType: ChartConfigProps['barGroupType'];
+  barLayout: ChartConfigProps['barLayout'];
   colors: string[];
   columnMetadata: ColumnMetaData[];
-  columnSettings: BusterMetricChartConfig['columnSettings'];
+  columnSettings: ChartConfigProps['columnSettings'];
   selectedAxis: ChartEncodes;
 }

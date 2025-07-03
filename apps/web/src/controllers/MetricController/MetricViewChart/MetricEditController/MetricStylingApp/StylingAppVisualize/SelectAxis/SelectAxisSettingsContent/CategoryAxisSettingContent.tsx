@@ -1,5 +1,5 @@
 import React from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { useSelectAxisContextSelector } from '../useSelectAxisContext';
@@ -18,7 +18,7 @@ export const CategoryAxisSettingContent: React.FC = React.memo(() => {
     contextOnUpdateMetricChartConfig({ chartConfig: { categoryAxisTitle: value } });
   });
 
-  const onUpdateChartConfig = useMemoizedFn((chartConfig: Partial<BusterMetricChartConfig>) => {
+  const onUpdateChartConfig = useMemoizedFn((chartConfig: Partial<ChartConfigProps>) => {
     contextOnUpdateMetricChartConfig({ chartConfig });
   });
 

@@ -1,5 +1,5 @@
-import type { ColumnMetaData, SimplifiedColumnType } from '@/api/asset_interfaces/metric/';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnMetaData, SimplifiedColumnType } from '@buster/server-shared/metrics';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 type ColumnDataType = ColumnMetaData['type'];
 
@@ -45,7 +45,7 @@ export const isNumericColumnType = (type: SimplifiedColumnType) => {
   return type === 'number';
 };
 
-export const isNumericColumnStyle = (style: ColumnLabelFormat['style']) => {
+export const isNumericColumnStyle = (style: ColumnLabelFormat['style'] | undefined) => {
   return style === 'number' || style === 'percent' || style === 'currency';
 };
 

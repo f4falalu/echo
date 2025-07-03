@@ -5,7 +5,8 @@ export const createBusterRoute = ({ route, ...args }: BusterRoutesWithArgsRoute)
   if (!args) return route;
 
   // Split the route into base path and query template if it exists
-  const [basePath, queryTemplate] = route.split('?');
+
+  const [basePath, queryTemplate] = (route as string).split('?');
 
   // Replace path parameters
   const resultPath = Object.entries(args).reduce<string>((acc, [key, value]) => {

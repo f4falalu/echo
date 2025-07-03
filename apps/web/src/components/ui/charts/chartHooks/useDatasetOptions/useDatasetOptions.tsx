@@ -7,7 +7,6 @@ import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type {
   BarSortBy,
   ChartConfigProps,
-  BusterChartProps,
   ChartEncodes,
   ChartType,
   ComboChartAxis,
@@ -15,13 +14,14 @@ import type {
   PieSortBy,
   ScatterAxis,
   Trendline
-} from '@/api/asset_interfaces/metric/charts';
+} from '@buster/server-shared/metrics';
 import { DOWNSIZE_SAMPLE_THRESHOLD } from '../../config';
 import { aggregateAndCreateDatasets } from './aggregateAndCreateDatasets';
 import { sortLineBarData } from './datasetHelpers_BarLinePie';
 import { downsampleAndSortScatterData } from './datasetHelpers_Scatter';
 import type { DatasetOptionsWithTicks } from './interfaces';
 import { modifyDatasets } from './modifyDatasets';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric';
 
 type DatasetHookResult = {
   datasetOptions: DatasetOptionsWithTicks;

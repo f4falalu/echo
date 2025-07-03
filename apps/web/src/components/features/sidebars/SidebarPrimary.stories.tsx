@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
-import { ShareAssetType } from '../../../api/asset_interfaces/share';
 import { BusterRoutes, createBusterRoute } from '../../../routes';
 import { SidebarPrimary } from './SidebarPrimary';
 

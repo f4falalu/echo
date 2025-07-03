@@ -1,5 +1,5 @@
 import React from 'react';
-import type { VerificationStatus } from '@/api/asset_interfaces';
+import type { VerificationStatus } from '@buster/server-shared/share';
 import { Dropdown } from '@/components/ui/dropdown';
 import { useStatusDropdownContent } from './useStatusDropdownContent';
 

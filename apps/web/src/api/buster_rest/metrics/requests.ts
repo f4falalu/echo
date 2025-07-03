@@ -4,7 +4,7 @@ import type {
   BusterMetricListItem
 } from '@/api/asset_interfaces/metric';
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
-import type { VerificationStatus } from '@/api/asset_interfaces/share';
+import type { VerificationStatus } from '@buster/server-shared/share';
 import type {
   ShareDeleteRequest,
   SharePostRequest,

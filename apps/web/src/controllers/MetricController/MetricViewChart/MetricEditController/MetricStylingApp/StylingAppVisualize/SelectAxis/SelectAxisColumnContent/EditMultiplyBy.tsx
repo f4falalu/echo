@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { InputNumber } from '@/components/ui/inputs';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 

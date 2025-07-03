@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { ColumnMetaData } from '@/api/asset_interfaces';
+import type { ColumnMetaData } from '@buster/server-shared/metrics';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';

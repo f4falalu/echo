@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { VerificationStatus } from '@/api/asset_interfaces';
+import { VerificationStatusSchema, type ShareAssetType } from '@buster/server-shared/share';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
 
 const meta = {
@@ -17,7 +17,7 @@ const meta = {
   argTypes: {
     status: {
       control: 'select',
-      options: Object.values(VerificationStatus),
+      options: Object.values(VerificationStatusSchema.enum),
       description: 'The verification status of the badge'
     },
     size: {

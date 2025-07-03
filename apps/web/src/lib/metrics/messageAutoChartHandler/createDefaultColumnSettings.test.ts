@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { type ColumnMetaData, DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces/metric';
-import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnMetaData, ColumnSettings } from '@buster/server-shared/metrics';
+import { DEFAULT_COLUMN_SETTINGS } from '@buster/server-shared/metrics';
 import { createDefaultColumnSettings } from './createDefaultColumnSettings';
 
 describe('createDefaultColumnSettings', () => {

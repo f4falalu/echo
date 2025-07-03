@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { Text } from '@/components/ui/typography';
 import { formatLabel } from '@/lib';
 import { cn } from '@/lib/classMerge';

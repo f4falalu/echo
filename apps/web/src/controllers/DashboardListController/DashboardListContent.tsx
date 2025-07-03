@@ -2,7 +2,6 @@
 
 import React, { useMemo, useState } from 'react';
 import type { BusterDashboardListItem } from '@/api/asset_interfaces';
-import { ShareAssetType } from '@/api/asset_interfaces';
 import { FavoriteStar } from '@/components/features/list';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator/helpers';
 import { NewDashboardModal } from '@/components/features/modal/NewDashboardModal';

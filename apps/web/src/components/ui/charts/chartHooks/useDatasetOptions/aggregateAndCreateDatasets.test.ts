@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@/api/asset_interfaces';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { aggregateAndCreateDatasets } from './aggregateAndCreateDatasets';
 
 describe('aggregateAndCreateDatasets', () => {

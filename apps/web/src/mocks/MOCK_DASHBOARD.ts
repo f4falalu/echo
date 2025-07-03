@@ -1,9 +1,4 @@
-import {
-  type BusterDashboard,
-  type BusterDashboardResponse,
-  ShareRole,
-  VerificationStatus
-} from '@/api/asset_interfaces';
+import { type BusterDashboard, type BusterDashboardResponse } from '@/api/asset_interfaces';
 import { createMockMetric } from './metric';
 
 interface DashboardMockResponse {
@@ -108,10 +103,10 @@ refresh_interval: 300`,
   };
 
   const response: BusterDashboardResponse = {
-    access: ShareRole.CAN_EDIT,
+    access: 'canEdit',
     metrics: Object.fromEntries(metrics.map((metric) => [metric.id, metric])),
     dashboard,
-    permission: ShareRole.CAN_EDIT,
+    permission: 'canEdit',
     public_password: null,
     individual_permissions: null,
     public_expiry_date: null,

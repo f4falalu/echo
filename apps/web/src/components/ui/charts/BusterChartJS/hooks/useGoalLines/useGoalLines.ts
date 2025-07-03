@@ -18,7 +18,7 @@ import type {
   ChartType,
   ColumnLabelFormat,
   GoalLine
-} from '@/api/asset_interfaces/metric/charts';
+} from '@buster/server-shared/metrics';
 import { formatLabel } from '@/lib/columnFormatter';
 import { yAxisSimilar } from '../../../commonHelpers';
 import { defaultLabelOptionConfig } from '../useChartSpecificOptions/labelOptionConfig';
@@ -89,6 +89,7 @@ export const useGoalLines = ({
       return columnLabelFormats[key] || DEFAULT_COLUMN_LABEL_FORMAT;
     }
     return {
+      ...DEFAULT_COLUMN_LABEL_FORMAT,
       columnType: 'number',
       style: 'number'
     };

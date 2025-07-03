@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces';
+import { ShareAssetType } from '@buster/server-shared/share';
 import type { SegmentedItem } from '@/components/ui/segmented';
 import { AppSegmented } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';

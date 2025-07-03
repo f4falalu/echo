@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { type BusterCollectionListItem, ShareAssetType } from '@/api/asset_interfaces';
+import { type BusterCollectionListItem } from '@/api/asset_interfaces';
 import { FavoriteStar } from '@/components/features/list';
 import { NewCollectionModal } from '@/components/features/modal/NewCollectionModal';
 import { Avatar } from '@/components/ui/avatar';

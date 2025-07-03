@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { ColumnMetaData } from '@/api/asset_interfaces/metric';
-import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric';
+import type { ColumnMetaData } from '@buster/server-shared/metrics';
+import { DEFAULT_CHART_CONFIG } from '@buster/server-shared/metrics';
 import {
   createDefaultBarAndLineAxis,
   createDefaultPieAxis,

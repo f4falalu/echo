@@ -1,18 +1,18 @@
 import React, { useMemo } from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { EditAxisScale } from '../StylingAppVisualize/SelectAxis/SelectAxisSettingsContent/EditAxisScale';
 
 export const EditYAxisScaleGlobal: React.FC<{
-  yAxisScaleType: BusterMetricChartConfig['yAxisScaleType'];
-  y2AxisScaleType: BusterMetricChartConfig['y2AxisScaleType'];
-  onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
+  yAxisScaleType: ChartConfigProps['yAxisScaleType'];
+  y2AxisScaleType: ChartConfigProps['y2AxisScaleType'];
+  onUpdateChartConfig: (config: Partial<ChartConfigProps>) => void;
 }> = React.memo(({ yAxisScaleType, y2AxisScaleType, onUpdateChartConfig }) => {
   const mostPermissiveScale = useMemo(() => {
     return yAxisScaleType === y2AxisScaleType ? yAxisScaleType : 'linear';
   }, [yAxisScaleType, y2AxisScaleType]);
 
-  const onChangeAxisScale = useMemoizedFn((value: BusterMetricChartConfig['yAxisScaleType']) => {
+  const onChangeAxisScale = useMemoizedFn((value: ChartConfigProps['yAxisScaleType']) => {
     onUpdateChartConfig({
       yAxisScaleType: value,
       y2AxisScaleType: value

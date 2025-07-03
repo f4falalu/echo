@@ -1,4 +1,5 @@
-import { type BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
+import type { MetricListItem } from '@buster/server-shared/metrics';
+import type { VerificationStatus } from '@buster/server-shared/share';
 
 const statusRecordText: Record<VerificationStatus, string> = {
   ['verified']: 'Verified',
@@ -13,7 +14,7 @@ export const getTooltipText = (status: VerificationStatus) => {
   return statusRecordText[status] || statusRecordText['notRequested'];
 };
 
-export const getShareStatus = ({ is_shared }: { is_shared: BusterMetricListItem['is_shared'] }) => {
+export const getShareStatus = ({ is_shared }: { is_shared: MetricListItem['is_shared'] }) => {
   if (is_shared) return 'Shared';
   return 'Private';
 };

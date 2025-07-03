@@ -1,23 +1,21 @@
 import isEqual from 'lodash/isEqual';
-import type { DataMetadata, BusterMetric } from '@/api/asset_interfaces/metric';
-import {
-  DEFAULT_CHART_CONFIG_ENTRIES,
-  DEFAULT_COLUMN_LABEL_FORMAT,
-  DEFAULT_COLUMN_SETTINGS,
-  type BusterMetricChartConfig
-} from '@/api/asset_interfaces/metric';
-import type {
-  BarAndLineAxis,
-  ChartConfigProps,
-  ColumnLabelFormat,
-  ColumnSettings,
-  ComboChartAxis,
-  PieChartAxis,
-  ScatterAxis
-} from '@/api/asset_interfaces/metric/charts';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import type { updateMetric } from '@/api/buster_rest/metrics';
 import { getChangedValues } from '@/lib/objects';
 import { createDefaultChartConfig } from './messageAutoChartHandler';
+import {
+  DEFAULT_COLUMN_SETTINGS,
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ChartConfigProps,
+  type BarAndLineAxis,
+  type ScatterAxis,
+  type PieChartAxis,
+  type ComboChartAxis,
+  type ColumnSettings,
+  type ColumnLabelFormat,
+  DEFAULT_CHART_CONFIG_ENTRIES,
+  type DataMetadata
+} from '@buster/server-shared/metrics';
 
 const DEFAULT_COLUMN_SETTINGS_ENTRIES = Object.entries(DEFAULT_COLUMN_SETTINGS);
 const DEFAULT_COLUMN_LABEL_FORMATS_ENTRIES = Object.entries(DEFAULT_COLUMN_LABEL_FORMAT);
@@ -30,9 +28,7 @@ export const getChangedTopLevelMessageValues = (
   return changes;
 };
 
-const keySpecificHandlers: Partial<
-  Record<keyof BusterMetricChartConfig, (value: unknown) => unknown>
-> = {
+const keySpecificHandlers: Partial<Record<keyof ChartConfigProps, (value: unknown) => unknown>> = {
   barAndLineAxis: (value: unknown) => value as BarAndLineAxis,
   scatterAxis: (value: unknown) => value as ScatterAxis,
   pieChartAxis: (value: unknown) => value as PieChartAxis,
@@ -75,7 +71,7 @@ const keySpecificHandlers: Partial<
 
     // Single loop through column label formats
     for (const [key, value] of Object.entries(typedColumnLabelFormats)) {
-      const changedSettings: ColumnLabelFormat = {};
+      const changedSettings: Partial<ColumnLabelFormat> = {};
       let hasChanges = false;
 
       // Check each default setting
@@ -89,7 +85,7 @@ const keySpecificHandlers: Partial<
       }
 
       if (hasChanges) {
-        diff[key] = changedSettings;
+        diff[key] = changedSettings as ColumnLabelFormat;
       }
     }
 
@@ -101,10 +97,10 @@ export const getChangesFromDefaultChartConfig = (newMetric: BusterMetric) => {
   const chartConfig = newMetric.chart_config;
   if (!chartConfig) return {} as ChartConfigProps;
 
-  const diff: Partial<BusterMetricChartConfig> = {};
+  const diff: Partial<ChartConfigProps> = {};
 
   for (const [_key, defaultValue] of DEFAULT_CHART_CONFIG_ENTRIES) {
-    const key = _key as keyof BusterMetricChartConfig;
+    const key = _key as keyof ChartConfigProps;
     const chartConfigValue = chartConfig[key];
     const handler = keySpecificHandlers[key];
 

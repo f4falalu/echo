@@ -1,7 +1,6 @@
 'use client';
 
 import React, { memo, useMemo, useRef, useState } from 'react';
-import { ShareAssetType } from '@/api/asset_interfaces';
 import type { ChatListItem } from '@buster/server-shared/chats';
 import { FavoriteStar } from '@/components/features/list';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator';

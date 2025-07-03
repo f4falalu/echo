@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ChartConfigProps } from '@/api/asset_interfaces/metric/charts';
+import { type ChartConfigProps } from '@buster/server-shared/metrics';
 import { getPieInnerLabelTitle, InnerLabelTitleRecord } from './pieLabelHelpers';
 
 describe('pieLabelHelpers', () => {
@@ -25,7 +25,7 @@ describe('pieLabelHelpers', () => {
     });
 
     it('should return the aggregate title when pieInnerLabelTitle is not provided', () => {
-      const pieInnerLabelTitle = undefined;
+      const pieInnerLabelTitle = undefined as any;
       const pieInnerLabelAggregate: ChartConfigProps['pieInnerLabelAggregate'] = 'average';
 
       const result = getPieInnerLabelTitle(pieInnerLabelTitle, pieInnerLabelAggregate);
@@ -34,8 +34,8 @@ describe('pieLabelHelpers', () => {
     });
 
     it('should default to "sum" aggregate when pieInnerLabelAggregate is not provided', () => {
-      const pieInnerLabelTitle = undefined;
-      const pieInnerLabelAggregate = undefined;
+      const pieInnerLabelTitle = undefined as any;
+      const pieInnerLabelAggregate = undefined as any;
 
       const result = getPieInnerLabelTitle(pieInnerLabelTitle, pieInnerLabelAggregate);
 
@@ -62,7 +62,7 @@ describe('pieLabelHelpers', () => {
       ];
 
       testCases.forEach((aggregate) => {
-        const result = getPieInnerLabelTitle(undefined, aggregate);
+        const result = getPieInnerLabelTitle(undefined as any, aggregate);
         expect(result).toBe(InnerLabelTitleRecord[aggregate]);
       });
     });

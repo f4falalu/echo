@@ -1,6 +1,7 @@
 import { serverFetch } from '@/api/createServerInstance';
-import type { BusterDataset, BusterDatasetListItem, IDataResult } from '../../asset_interfaces';
+import type { BusterDataset, BusterDatasetListItem } from '../../asset_interfaces';
 import { mainApi } from '../instances';
+import type { DataResult } from '@buster/server-shared/metrics';
 
 export const getDatasets = async (params?: {
   /** Current page number */
@@ -47,7 +48,7 @@ export const getDatasetMetadata_server = async (datasetId: string) => {
 
 export const getDatasetDataSample = async (datasetId: string) => {
   return await mainApi
-    .get<IDataResult>(`/datasets/${datasetId}/data/sample`)
+    .get<DataResult>(`/datasets/${datasetId}/data/sample`)
     .then((res) => res.data);
 };
 

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useState } from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
@@ -11,13 +11,13 @@ import { PaletteApp } from './PaletteApp';
 
 export const StylingAppColors: React.FC<{
   className: string;
-  colors: BusterMetricChartConfig['colors'];
+  colors: ChartConfigProps['colors'];
 }> = React.memo(({ className, colors }) => {
   const [selectedTab, setSelectedTab] = useState<StylingAppColorsTab>(StylingAppColorsTab.Colors);
 
   const { onUpdateMetricChartConfig } = useUpdateMetricChart();
 
-  const onUpdateChartConfig = useMemoizedFn((chartConfig: Partial<BusterMetricChartConfig>) => {
+  const onUpdateChartConfig = useMemoizedFn((chartConfig: Partial<ChartConfigProps>) => {
     onUpdateMetricChartConfig({ chartConfig });
   });
 

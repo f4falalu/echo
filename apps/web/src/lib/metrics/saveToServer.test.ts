@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import type { IBusterMetric } from '@/api/asset_interfaces/metric';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import type { ChartType } from '@buster/server-shared/metrics';
-import { VerificationStatus } from '@/api/asset_interfaces/share/verificationInterfaces';
 import {
   getChangedTopLevelMessageValues,
   getChangesFromDefaultChartConfig
 } from './saveToServerHelpers';
 
 // Mock minimal metric objects for testing
-const createMockMetric = (overrides?: Partial<IBusterMetric>): IBusterMetric =>
+const createMockMetric = (overrides?: Partial<BusterMetric>): BusterMetric =>
   ({
     id: '123',
     name: 'Test Metric',
@@ -38,7 +37,7 @@ const createMockMetric = (overrides?: Partial<IBusterMetric>): IBusterMetric =>
     collections: [],
     versions: [],
     ...overrides
-  }) as IBusterMetric;
+  }) as BusterMetric;
 
 describe('getChangedTopLevelMessageValues', () => {
   it('should return empty object when no values have changed', () => {

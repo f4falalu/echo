@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type BusterShare, ShareAssetType } from '@/api/asset_interfaces';
+import type { ShareAssetType, ShareConfig } from '@buster/server-shared/share';
 import { useBusterNotifications } from '@/context/BusterNotifications';
 import { useMemoizedFn } from '@/hooks';
 import { getIsEffectiveOwner } from '@/lib/share';
@@ -9,7 +9,7 @@ import { ShareMenuContentEmbedFooter } from './ShareMenuContentEmbed';
 import { ShareMenuTopBar, ShareMenuTopBarOptions } from './ShareMenuTopBar';
 
 export const ShareMenuContent: React.FC<{
-  shareAssetConfig: BusterShare;
+  shareAssetConfig: ShareConfig;
   assetId: string;
   assetType: ShareAssetType;
 }> = React.memo(({ assetId, assetType, shareAssetConfig }) => {

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { LabelAndInput } from '../../../Common';
 

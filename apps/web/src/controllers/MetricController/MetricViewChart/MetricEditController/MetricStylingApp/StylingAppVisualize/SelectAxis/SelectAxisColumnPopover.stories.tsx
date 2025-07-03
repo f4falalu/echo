@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { HttpResponse, http } from 'msw';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { Button } from '@/components/ui/buttons/Button';
 import { SelectAxisContainerId } from './config';
 import {
@@ -70,7 +70,7 @@ const mockProps: SelectAxisColumnPopoverProps = {
     lineType: 'normal' as const,
     lineSymbolSize: 0,
     barRoundness: 8
-  } satisfies BusterMetricChartConfig['columnSettings'][string],
+  } satisfies ChartConfigProps['columnSettings'][string],
   id: 'test-id',
   selectedChartType: 'bar',
   barGroupType: 'group',

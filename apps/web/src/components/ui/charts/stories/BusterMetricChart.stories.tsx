@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { BusterMetricChart } from '../MetricChart/BusterMetricChart';
 
 const meta: Meta<typeof BusterMetricChart> = {
@@ -21,14 +20,15 @@ export const Basic: Story = {
     metricColumnId: 'value',
     columnLabelFormats: {
       value: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     },
     metricHeader: 'Total Count',
     animate: true
@@ -46,14 +46,16 @@ export const WithCurrency: Story = {
     metricColumnId: 'revenue',
     columnLabelFormats: {
       revenue: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       month: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     },
     metricHeader: 'Monthly Revenue',
     metricSubHeader: 'January 2024',
@@ -78,14 +80,16 @@ export const WithAggregate: Story = {
     metricValueAggregate: 'sum',
     columnLabelFormats: {
       sales: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       region: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     },
     metricHeader: 'Total Sales',
     metricSubHeader: 'All Regions',
@@ -106,14 +110,17 @@ export const WithDynamicHeaders: Story = {
     metricSubHeader: { columnId: 'date', useValue: true, aggregate: 'sum' },
     columnLabelFormats: {
       count: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
       } satisfies ColumnLabelFormat,
       category: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
       } satisfies ColumnLabelFormat,
       date: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
@@ -134,12 +141,14 @@ export const NoAnimation: Story = {
     metricColumnId: 'value',
     columnLabelFormats: {
       value: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'percent',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       unit: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
       } satisfies ColumnLabelFormat
@@ -161,13 +170,15 @@ export const CustomValueLabel: Story = {
     metricValueLabel: '1.5K',
     columnLabelFormats: {
       value: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
         style: 'number'
-      } satisfies ColumnLabelFormat,
+      } as ColumnLabelFormat,
       type: {
+        ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
         style: 'string'
-      } satisfies ColumnLabelFormat
+      } as ColumnLabelFormat
     },
     metricHeader: 'User Growth',
     metricSubHeader: 'Last Month',

@@ -1,9 +1,10 @@
 import React from 'react';
-import { type BusterMetricListItem, VerificationStatus } from '@/api/asset_interfaces';
+import { type BusterMetricListItem } from '@/api/asset_interfaces';
 import { Button } from '@/components/ui/buttons';
 import { useMemoizedFn } from '@/hooks';
 import { StatusBadgeIndicator } from './StatusBadgeIndicator';
 import { StatusDropdownContent } from './StatusDropdownContent';
+import type { VerificationStatus } from '@buster/server-shared/share';
 
 export const StatusBadgeButton: React.FC<{
   status: BusterMetricListItem['status'];
