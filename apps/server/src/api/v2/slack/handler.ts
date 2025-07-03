@@ -20,9 +20,13 @@ const OAuthCallbackSchema = z.object({
   state: z.string(),
 });
 
-const UpdateDefaultChannelSchema = z.object({
-  name: z.string().min(1),
-  id: z.string().min(1),
+const UpdateIntegrationSchema = z.object({
+  defaultChannel: z
+    .object({
+      name: z.string().min(1),
+      id: z.string().min(1),
+    })
+    .optional(),
 });
 
 // Custom error class
@@ -317,10 +321,10 @@ export class SlackHandler {
   }
 
   /**
-   * PUT /api/v2/slack/integration/default-channel
-   * Update default channel for Slack integration
+   * PUT /api/v2/slack/integration
+   * Update Slack integration settings
    */
-  async updateDefaultChannel(c: Context) {
+  async updateIntegration(c: Context) {
     try {
       // Get service instance (lazy initialization)
       const slackOAuthService = this.getSlackOAuthService();
@@ -350,7 +354,7 @@ export class SlackHandler {
 
       // Parse request body
       const body = await c.req.json();
-      const parsed = UpdateDefaultChannelSchema.safeParse(body);
+      const parsed = UpdateIntegrationSchema.safeParse(body);
 
       if (!parsed.success) {
         throw new SlackError(
@@ -361,21 +365,19 @@ export class SlackHandler {
       }
 
       // Get active integration
-      const { getActiveIntegration, updateDefaultChannel } = await import(
-        './services/slack-helpers'
-      );
+      const { getActiveIntegration, updateIntegration } = await import('./services/slack-helpers');
       const integration = await getActiveIntegration(organizationGrant.organizationId);
 
       if (!integration) {
         throw new SlackError('No active Slack integration found', 404, 'INTEGRATION_NOT_FOUND');
       }
 
-      // Update default channel
-      await updateDefaultChannel(integration.id, parsed.data);
+      // Update integration settings
+      await updateIntegration(integration.id, parsed.data);
 
       return c.json({
-        message: 'Default channel updated successfully',
-        defaultChannel: parsed.data,
+        message: 'Integration updated successfully',
+        ...parsed.data,
       });
     } catch (error) {
       console.error('Failed to update default channel:', error);
