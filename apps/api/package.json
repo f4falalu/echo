@@ -1,0 +1,12 @@
+{
+  "name": "@buster-app/api-legacy",
+  "version": "0.0.1",
+  "description": "Legacy API for Buster. This package.json is just used to make the build and dev work.",
+  "type": "module",
+  "scripts": {
+    "dev": "make fast-no-migrations"
+  },
+  "dependencies": {
+    "@buster/database": "workspace:*"
+  }
+}

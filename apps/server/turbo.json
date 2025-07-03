@@ -1,0 +1,23 @@
+{
+  "extends": ["//"],
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["@buster/database#dev", "^build"],
+      "with": [
+        "@buster/ai#dev",
+        "@buster/server-shared#dev",
+        "@buster/access-controls#dev",
+        "@buster/data-source#dev",
+        "@buster-app/trigger#dev",
+        "@buster-app/electric-server#dev"
+      ]
+    }
+  }
+}

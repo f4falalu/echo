@@ -1,0 +1,56 @@
+{
+  "name": "buster",
+  "private": false,
+  "scripts": {
+    "ai:dev": "pnpm --filter @buster/ai dev",
+    "build": "turbo build",
+    "check": "biome check ${1:-.}",
+    "check:fix": "biome check --write ${1:-.}",
+    "ci:check": "pnpm run check && pnpm run typecheck",
+    "db:check": "pnpm --filter @buster/database run db:check",
+    "db:generate": "pnpm --filter @buster/database run db:generate",
+    "db:init": "pnpm run --filter @buster/database dev:init",
+    "db:introspect": "pnpm --filter @buster/database run db:introspect",
+    "db:migrate": "pnpm --filter @buster/database run db:migrate",
+    "db:pull": "pnpm --filter @buster/database run db:pull",
+    "db:push": "pnpm --filter @buster/database run db:push",
+    "db:seed": "pnpm --filter @buster/database run db:setup",
+    "db:start-supabase": "pnpm --filter @buster/database run db:start-supabase",
+    "db:stop": "pnpm --filter @buster/database run db:stop",
+    "db:studio": "pnpm --filter @buster/database run db:studio",
+    "dev": "turbo dev",
+    "dev:no-web": "turbo dev --filter \"!@buster-app/web\"",
+    "dev:server": "turbo run dev --filter \"@buster-app/server\"",
+    "dev:server:reset": "pnpm run dev:db-init && turbo run dev --filter \"@buster-app/server\"",
+    "evals": "bash scripts/evals.sh",
+    "format": "biome format ${1:-.}",
+    "format:fix": "biome format --write ${1:-.}",
+    "lint": "turbo lint",
+    "new:package": "bun run scripts/new-package.ts",
+    "test": "dotenv -e .env -- turbo test",
+    "test:coverage": "turbo test:coverage",
+    "test:ui": "vitest --ui",
+    "test:watch": "turbo test:watch",
+    "trigger:deploy": "pnpm --filter @buster/trigger run deploy",
+    "trigger:dev": "dotenv -e .env -- pnpm --filter @buster/trigger run dev",
+    "trigger:test": "pnpm --filter @buster/trigger run test",
+    "trigger:test:integration": "pnpm --filter @buster/trigger run test:integration",
+    "typecheck": "turbo typecheck",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "dotenv-cli": "^8.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^20.17.57",
+    "turbo": "^2.5.4",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "bun": "^1.2.15",
+    "typescript": "^5"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
