@@ -1,7 +1,7 @@
-import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 
 export const InnerLabelTitleRecord: Record<
-  NonNullable<BusterChartConfigProps['pieInnerLabelAggregate']>,
+  NonNullable<ChartConfigProps['pieInnerLabelAggregate']>,
   string
 > = {
   sum: 'Total',
@@ -13,8 +13,8 @@ export const InnerLabelTitleRecord: Record<
 };
 
 export const getPieInnerLabelTitle = (
-  pieInnerLabelTitle: BusterChartConfigProps['pieInnerLabelTitle'],
-  pieInnerLabelAggregate: BusterChartConfigProps['pieInnerLabelAggregate'] = 'sum'
+  pieInnerLabelTitle: ChartConfigProps['pieInnerLabelTitle'],
+  pieInnerLabelAggregate: ChartConfigProps['pieInnerLabelAggregate'] = 'sum'
 ) => {
   return pieInnerLabelTitle ?? InnerLabelTitleRecord[pieInnerLabelAggregate];
 };

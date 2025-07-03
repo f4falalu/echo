@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ColumnMetaData, BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { formatLabel } from '@/lib';
 import { LabelAndInput } from '../../Common';
@@ -15,7 +15,7 @@ export const TrendlineColumnId = React.memo(
   }: {
     trend: LoopTrendline;
     columnMetadata: ColumnMetaData[];
-    columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
+    columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
     onUpdateExistingTrendline: (trend: LoopTrendline) => void;
     yAxisEncodes: string[];
   }) => {

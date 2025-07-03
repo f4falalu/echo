@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { AXIS_TITLE_SEPARATOR } from '@/components/ui/charts/commonHelpers/axisHelper';
 import { useUpdateMetricChart } from '@/context/Metrics';
@@ -60,7 +60,7 @@ export const XAxisSettingContent: React.FC = React.memo(() => {
   });
 
   const onChangeLabelRotation = useMemoizedFn(
-    (xAxisLabelRotation: IBusterMetricChartConfig['xAxisLabelRotation']) => {
+    (xAxisLabelRotation: BusterMetricChartConfig['xAxisLabelRotation']) => {
       onUpdateMetricChartConfig({
         chartConfig: {
           xAxisLabelRotation

@@ -1,11 +1,11 @@
 import first from 'lodash/first';
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../Common';
 
-const options: SelectItem<IBusterMetricChartConfig['showLegendHeadline'] | 'false'>[] = [
+const options: SelectItem<BusterMetricChartConfig['showLegendHeadline'] | 'false'>[] = [
   { label: 'None', value: 'false' },
   { label: 'Total', value: 'total' },
   { label: 'Average', value: 'average' },
@@ -21,11 +21,11 @@ const pieOptions: SelectItem<'false' | 'current'>[] = [
 ];
 
 export const EditShowHeadline: React.FC<{
-  showLegendHeadline: IBusterMetricChartConfig['showLegendHeadline'];
-  onUpdateChartConfig: (config: Partial<IBusterMetricChartConfig>) => void;
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
+  showLegendHeadline: BusterMetricChartConfig['showLegendHeadline'];
+  onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
+  lineGroupType: BusterMetricChartConfig['lineGroupType'];
+  barGroupType: BusterMetricChartConfig['barGroupType'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
 }> = React.memo(
   ({ showLegendHeadline, onUpdateChartConfig, lineGroupType, barGroupType, selectedChartType }) => {
     const isStackPercentage =
@@ -56,7 +56,7 @@ export const EditShowHeadline: React.FC<{
 
       onUpdateChartConfig({
         showLegend: true,
-        showLegendHeadline: transformedValue as IBusterMetricChartConfig['showLegendHeadline']
+        showLegendHeadline: transformedValue as BusterMetricChartConfig['showLegendHeadline']
       });
     });
 

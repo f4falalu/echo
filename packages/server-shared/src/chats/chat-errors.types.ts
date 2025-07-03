@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 /**
  * Error codes for chat operations
@@ -35,7 +35,7 @@ export type ChatErrorCode = (typeof ChatErrorCode)[keyof typeof ChatErrorCode];
 export const ChatErrorResponseSchema = z.object({
   code: z.string(),
   message: z.string(),
-  details: z.record(z.unknown()).optional(),
+  details: z.record(z.string(), z.any()).optional(),
 });
 
 export type ChatErrorResponse = z.infer<typeof ChatErrorResponseSchema>;

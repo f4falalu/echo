@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { DEFAULT_COLUMN_SETTINGS } from '@/api/asset_interfaces';
 import { ChartType, type DerivedMetricTitle } from '@/api/asset_interfaces/metric/charts';
 import { Button } from '@/components/ui/buttons';
@@ -15,15 +15,15 @@ import type { createColumnFieldOptions } from './helpers';
 
 export const EditMetricField: React.FC<{
   label?: string;
-  columnId: IBusterMetricChartConfig['metricColumnId'];
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
+  columnId: BusterMetricChartConfig['metricColumnId'];
+  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
   columnFieldOptions: ReturnType<typeof createColumnFieldOptions>;
   rowCount: number;
   onUpdateMetricField: (config: {
     metricColumnId: string;
     metricValueAggregate?: DerivedMetricTitle['aggregate'];
   }) => void;
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
+  onUpdateChartConfig: (chartConfig: Partial<BusterMetricChartConfig>) => void;
 }> = React.memo(
   ({
     columnId,
@@ -82,9 +82,9 @@ export const EditMetricField: React.FC<{
 EditMetricField.displayName = 'EditMetricField';
 
 const StylingPopover: React.FC<{
-  metricColumnId: IBusterMetricChartConfig['metricColumnId'];
-  columnLabelFormat: IBusterMetricChartConfig['columnLabelFormats'][string];
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
+  metricColumnId: BusterMetricChartConfig['metricColumnId'];
+  columnLabelFormat: BusterMetricChartConfig['columnLabelFormats'][string];
+  onUpdateChartConfig: (chartConfig: Partial<BusterMetricChartConfig>) => void;
   rowCount: number;
 }> = React.memo(({ metricColumnId, columnLabelFormat, rowCount }) => {
   return (

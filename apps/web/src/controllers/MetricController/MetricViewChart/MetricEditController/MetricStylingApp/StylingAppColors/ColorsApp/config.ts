@@ -1,4 +1,3 @@
-import { DEFAULT_CHART_THEME } from '@/api/asset_interfaces/metric/charts/configColors';
 import {
   BLUE_THEME,
   BLUE_TO_ORANGE_GRADIENT,

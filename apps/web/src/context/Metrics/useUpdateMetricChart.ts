@@ -5,7 +5,7 @@ import { useState } from 'react';
 import {
   type ColumnSettings,
   DEFAULT_CHART_CONFIG,
-  type IBusterMetricChartConfig,
+  type BusterMetricChartConfig,
   type IColumnLabelFormat
 } from '@/api/asset_interfaces/metric';
 import { useUpdateMetric } from '@/api/buster_rest/metrics';
@@ -39,7 +39,7 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
       chartConfig,
       ignoreUndoRedo
     }: {
-      chartConfig: Partial<IBusterMetricChartConfig>;
+      chartConfig: Partial<BusterMetricChartConfig>;
       ignoreUndoRedo?: boolean;
     }) => {
       const currentMetric = getMetricMemoized(metricId);
@@ -52,7 +52,7 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
         // });
       }
 
-      const newChartConfig: IBusterMetricChartConfig = {
+      const newChartConfig: BusterMetricChartConfig = {
         ...DEFAULT_CHART_CONFIG,
         ...currentMetric.chart_config,
         ...chartConfig
@@ -129,10 +129,10 @@ export const useUpdateMetricChart = (props?: { metricId?: string; chatId?: strin
   });
 
   const onInitializeTableColumnWidths = useMemoizedFn(
-    (tableColumnWidths: IBusterMetricChartConfig['tableColumnWidths']) => {
+    (tableColumnWidths: BusterMetricChartConfig['tableColumnWidths']) => {
       const originalMetric = getOriginalMetric(metricId);
       if (originalMetric) {
-        const newChartConfig: IBusterMetricChartConfig = {
+        const newChartConfig: BusterMetricChartConfig = {
           ...DEFAULT_CHART_CONFIG,
           ...originalMetric.chart_config,
           tableColumnWidths

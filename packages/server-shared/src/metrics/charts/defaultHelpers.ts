@@ -1,13 +1,11 @@
 import type { z } from 'zod/v4';
-import { type ChartConfigProps, ChartConfigPropsSchema } from './chartConfigProps';
-import { DEFAULT_CHART_THEME } from './configColors';
 
 /**
  * Extracts all default values from a Zod schema.
  * This function creates a partial version of the schema where all fields are optional,
  * then parses an empty object to get all the default values.
  */
-function getDefaults<T extends z.ZodObject<z.ZodRawShape>>(schema: T): z.infer<T> {
+export function getDefaults<T extends z.ZodObject<z.ZodRawShape>>(schema: T): z.infer<T> {
   // Create a partial version of the schema where all fields are optional
   const partialSchema = schema.partial();
 
@@ -37,5 +35,3 @@ export function getDefaultsPartial<T extends z.ZodObject<z.ZodRawShape>>(
   const partialSchema = schema.partial();
   return partialSchema.parse({}) as Partial<z.infer<T>>;
 }
-
-export const DEFAULT_CHART_CONFIG: ChartConfigProps = getDefaults(ChartConfigPropsSchema);

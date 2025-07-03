@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   DEFAULT_CHART_CONFIG,
-  type IBusterMetricChartConfig,
+  type BusterMetricChartConfig,
   MIN_DONUT_WIDTH
 } from '@/api/asset_interfaces';
 import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
@@ -23,9 +23,9 @@ export const EditPieAppearance = React.memo(
     onUpdateChartConfig,
     pieChartAxis
   }: {
-    pieDonutWidth: IBusterMetricChartConfig['pieDonutWidth'];
-    onUpdateChartConfig: (config: Partial<IBusterMetricChartConfig>) => void;
-    pieChartAxis: IBusterMetricChartConfig['pieChartAxis'];
+    pieDonutWidth: BusterMetricChartConfig['pieDonutWidth'];
+    onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
+    pieChartAxis: BusterMetricChartConfig['pieChartAxis'];
   }) => {
     const [showDonutWidthSelector, setShowDonutWidthSelector] = useState(pieDonutWidth > 0);
     const [value, setValue] = useState(pieDonutWidth);

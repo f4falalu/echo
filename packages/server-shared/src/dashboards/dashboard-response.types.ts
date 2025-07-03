@@ -1,4 +1,4 @@
-import type { Metric } from '../metric';
+import type { Metric } from '../metrics';
 import type { ShareConfig, ShareRole } from '../share';
 import type { Dashboard } from './dashboard.types';
 

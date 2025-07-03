@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import {
   type BusterChartPropsBase,
   DEFAULT_CHART_CONFIG,
-  type IBusterMetricChartConfig
+  type BusterMetricChartConfig
 } from '@/api/asset_interfaces/metric';
 import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import { useUpdateMetricChart } from '@/context/Metrics';
@@ -30,7 +30,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
 }) => {
   const { onUpdateMetricChartConfig, onInitializeTableColumnWidths } = useUpdateMetricChart();
 
-  const onChangeConfig = useMemoizedFn((config: Partial<IBusterMetricChartConfig>) => {
+  const onChangeConfig = useMemoizedFn((config: Partial<BusterMetricChartConfig>) => {
     if (readOnly) return;
     onUpdateMetricChartConfig({ chartConfig: config });
     if (
@@ -42,7 +42,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
   });
 
   const onUpdateTableColumnOrder = useMemoizedFn((columns: string[]) => {
-    const config: Partial<IBusterMetricChartConfig> = {
+    const config: Partial<BusterMetricChartConfig> = {
       tableColumnOrder: columns
     };
 
@@ -51,7 +51,7 @@ const BusterTableChartBase: React.FC<BusterTableChartProps> = ({
 
   const onUpdateTableColumnSize = useMemoizedFn((columns: { key: string; size: number }[]) => {
     if (readOnly) return;
-    const config: Partial<IBusterMetricChartConfig> = {
+    const config: Partial<BusterMetricChartConfig> = {
       tableColumnWidths: columns.reduce<Record<string, number>>((acc, { key, size }) => {
         acc[key] = Number(size.toFixed(1));
         return acc;

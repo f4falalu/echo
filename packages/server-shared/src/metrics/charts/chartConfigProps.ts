@@ -1,30 +1,37 @@
-import { z } from 'zod/v4';
-import { GoalLineSchema, TrendlineSchema } from './annotationInterfaces';
-import { ColumnSettingsSchema } from './columnInterfaces';
-import { IColumnLabelFormatSchema } from './columnLabelInterfaces';
-import { ChartTypeSchema } from './enum';
-import { ShowLegendHeadlineSchema } from './etcInterfaces';
+import { z } from "zod/v4";
+import { GoalLineSchema, TrendlineSchema } from "./annotationInterfaces";
+import { BarChartPropsSchema } from "./barChartProps";
+import { ColumnSettingsSchema } from "./columnInterfaces";
+import { ColumnLabelFormatSchema } from "./columnLabelInterfaces";
+import { ComboChartPropsSchema } from "./comboChartProps";
+import { DEFAULT_CHART_THEME } from "./configColors";
+import { ChartTypeSchema } from "./enum";
+import { ShowLegendHeadlineSchema } from "./etcInterfaces";
+import { LineChartPropsSchema } from "./lineChartProps";
+import {
+  DerivedMetricTitleSchema,
+  MetricChartPropsSchema,
+} from "./metricChartProps";
+import { PieChartPropsSchema } from "./pieChartProps";
+import { ScatterChartPropsSchema } from "./scatterChartProps";
+import { TableChartPropsSchema } from "./tableChartProps";
 import {
   CategoryAxisStyleConfigSchema,
   XAxisConfigSchema,
   Y2AxisConfigSchema,
-  YAxisConfigSchema
-} from './tickInterfaces';
-import { DEFAULT_CHART_THEME } from './configColors';
-import { BarChartPropsSchema } from './barChartProps';
-import { LineChartPropsSchema } from './lineChartProps';
-import { ScatterChartPropsSchema } from './scatterChartProps';
-import { PieChartPropsSchema } from './pieChartProps';
-import { TableChartPropsSchema } from './tableChartProps';
-import { ComboChartPropsSchema } from './comboChartProps';
-import { MetricChartPropsSchema, DerivedMetricTitleSchema } from './metricChartProps';
+  YAxisConfigSchema,
+} from "./tickInterfaces";
 
-export const BusterChartConfigPropsSchema = z.object({
+export const ChartConfigPropsSchema = z.object({
   selectedChartType: ChartTypeSchema,
   // COLUMN SETTINGS
   // OPTIONAL because the defaults will be determined by the UI
-  columnSettings: z.record(z.string(), z.optional(ColumnSettingsSchema)).default({}),
-  columnLabelFormats: z.record(z.string(), z.optional(IColumnLabelFormatSchema)).default({}),
+  columnSettings: z
+    .record(z.string(), z.optional(ColumnSettingsSchema))
+    .default({}),
+  columnLabelFormats: z
+    .record(z.string(), z.optional(ColumnLabelFormatSchema))
+    .default({}),
   // OPTIONAL: default is the buster color palette
   colors: z.array(z.string()).default(DEFAULT_CHART_THEME),
   // OPTIONAL: default is null and will be true if there are multiple Y axes or if a category axis is used
@@ -50,7 +57,7 @@ export const BusterChartConfigPropsSchema = z.object({
   ...PieChartPropsSchema.shape,
   ...TableChartPropsSchema.shape,
   ...ComboChartPropsSchema.shape,
-  ...MetricChartPropsSchema.shape
+  ...MetricChartPropsSchema.shape,
 });
 
 // Re-export schemas for backward compatibility
@@ -62,11 +69,11 @@ export {
   TableChartPropsSchema,
   ComboChartPropsSchema,
   MetricChartPropsSchema,
-  DerivedMetricTitleSchema
+  DerivedMetricTitleSchema,
 };
 
 // Export original types for backward compatibility
-export type BusterChartConfigProps = z.infer<typeof BusterChartConfigPropsSchema>;
+export type ChartConfigProps = z.infer<typeof ChartConfigPropsSchema>;
 export type DerivedMetricTitle = z.infer<typeof DerivedMetricTitleSchema>;
 export type MetricChartProps = z.infer<typeof MetricChartPropsSchema>;
 export type BarChartProps = z.infer<typeof BarChartPropsSchema>;

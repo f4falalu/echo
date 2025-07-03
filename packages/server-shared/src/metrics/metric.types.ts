@@ -1,10 +1,8 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { ShareConfigSchema, VerificationStatusSchema } from '../share';
-import { type ChartConfigProps, ChartConfigPropsSchema } from './charts';
+import { ChartConfigPropsSchema } from './charts';
 import { DEFAULT_CHART_CONFIG } from './charts/chatConfig.defaults';
 import { DataMetadataSchema } from './metadata.type';
-
-ChartConfigPropsSchema.optional();
 
 export const MetricSchema = z.object({
   id: z.string(),
@@ -18,7 +16,7 @@ export const MetricSchema = z.object({
   data_source_id: z.string(),
   dataset_name: z.string().nullable(),
   error: z.string().nullable(),
-  chart_config: z.custom<ChartConfigProps>().default(DEFAULT_CHART_CONFIG),
+  chart_config: ChartConfigPropsSchema.default(DEFAULT_CHART_CONFIG),
   data_metadata: DataMetadataSchema,
   status: VerificationStatusSchema,
   evaluation_score: z.enum(['Moderate', 'High', 'Low']),

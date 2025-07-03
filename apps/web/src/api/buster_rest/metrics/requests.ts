@@ -1,9 +1,9 @@
 import type {
-  BusterChartConfigProps,
   BusterMetric,
   BusterMetricData,
   BusterMetricListItem
 } from '@/api/asset_interfaces/metric';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import type { VerificationStatus } from '@/api/asset_interfaces/share';
 import type {
   ShareDeleteRequest,
@@ -72,7 +72,7 @@ export const updateMetric = async (params: {
   /** SQL query associated with the metric */
   sql?: string;
   /** chart_config to update */
-  chart_config?: BusterChartConfigProps;
+  chart_config?: ChartConfigProps;
   /** file in yaml format to update */
   file?: string;
   /** update the version number of the metric - default is true */

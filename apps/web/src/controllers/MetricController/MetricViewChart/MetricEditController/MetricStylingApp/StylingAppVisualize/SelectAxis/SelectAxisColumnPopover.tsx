@@ -1,5 +1,5 @@
 import React from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { Popover } from '@/components/ui/popover/Popover';
 import type { SelectAxisContainerId } from './config';
@@ -7,12 +7,12 @@ import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
 
 export interface SelectAxisColumnPopoverProps {
   columnLabelFormat: IColumnLabelFormat;
-  columnSetting: IBusterMetricChartConfig['columnSettings'][string];
+  columnSetting: BusterMetricChartConfig['columnSettings'][string];
   children: React.ReactNode;
   id: string;
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
+  barGroupType: BusterMetricChartConfig['barGroupType'];
+  lineGroupType: BusterMetricChartConfig['lineGroupType'];
   zoneId: SelectAxisContainerId;
   selectedAxis: ChartEncodes | null;
   rowCount: number;

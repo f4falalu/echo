@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { create } from 'mutative';
-import type { IBusterMetric } from '@/api/asset_interfaces/metric';
+import type { BusterMetric } from '@/api/asset_interfaces/metric';
 import { collectionQueryKeys } from '@/api/query_keys/collection';
 import { metricsQueryKeys } from '@/api/query_keys/metric';
 import { useOriginalMetricStore } from '@/context/Metrics/useOriginalMetricStore';
@@ -225,9 +225,9 @@ export const useShareMetric = () => {
         variables.id,
         selectedVersionNumber
       ).queryKey;
-      queryClient.setQueryData(queryKey, (previousData: IBusterMetric | undefined) => {
+      queryClient.setQueryData(queryKey, (previousData: BusterMetric | undefined) => {
         if (!previousData) return previousData;
-        return create(previousData, (draft: IBusterMetric) => {
+        return create(previousData, (draft: BusterMetric) => {
           draft.individual_permissions = [
             ...variables.params,
             ...(draft.individual_permissions || [])
@@ -260,9 +260,9 @@ export const useUnshareMetric = () => {
         variables.id,
         selectedVersionNumber
       ).queryKey;
-      queryClient.setQueryData(queryKey, (previousData: IBusterMetric | undefined) => {
+      queryClient.setQueryData(queryKey, (previousData: BusterMetric | undefined) => {
         if (!previousData) return previousData;
-        return create(previousData, (draft: IBusterMetric) => {
+        return create(previousData, (draft: BusterMetric) => {
           draft.individual_permissions =
             draft.individual_permissions?.filter((t) => !variables.data.includes(t.email)) || [];
         });
@@ -293,9 +293,9 @@ export const useUpdateMetricShare = () => {
         variables.id,
         selectedVersionNumber
       ).queryKey;
-      queryClient.setQueryData(queryKey, (previousData: IBusterMetric | undefined) => {
+      queryClient.setQueryData(queryKey, (previousData: BusterMetric | undefined) => {
         if (!previousData) return previousData;
-        return create(previousData, (draft: IBusterMetric) => {
+        return create(previousData, (draft: BusterMetric) => {
           draft.individual_permissions =
             draft.individual_permissions?.map((t) => {
               const found = variables.params.users?.find((v) => v.email === t.email);
@@ -330,7 +330,7 @@ export const useUpdateMetric = (params: {
   const { selectedVersionNumber } = useGetMetricVersionNumber();
 
   const saveMetricToServer = useMemoizedFn(
-    async (newMetric: IBusterMetric, prevMetric: IBusterMetric) => {
+    async (newMetric: BusterMetric, prevMetric: BusterMetric) => {
       const changedValues = prepareMetricUpdateMetric(newMetric, prevMetric);
       if (changedValues) {
         await saveMetric({ ...changedValues, update_version: updateVersion });
@@ -342,7 +342,7 @@ export const useUpdateMetric = (params: {
     ({
       id: metricId,
       ...newMetricPartial
-    }: Omit<Partial<IBusterMetric>, 'status'> & { id: string }) => {
+    }: Omit<Partial<BusterMetric>, 'status'> & { id: string }) => {
       const options = metricsQueryKeys.metricsGetMetric(metricId, selectedVersionNumber);
       const prevMetric = getOriginalMetric(metricId);
       const newMetric = create(prevMetric, (draft) => {
@@ -358,7 +358,7 @@ export const useUpdateMetric = (params: {
   );
 
   const mutationFn = useMemoizedFn(
-    async (newMetricPartial: Omit<Partial<IBusterMetric>, 'status'> & { id: string }) => {
+    async (newMetricPartial: Omit<Partial<BusterMetric>, 'status'> & { id: string }) => {
       const { newMetric, prevMetric } = combineAndSaveMetric(newMetricPartial);
 
       if (newMetric && prevMetric && saveToServer) {
@@ -389,13 +389,13 @@ export const useBulkUpdateMetricVerificationStatus = () => {
     onMutate: (variables) => {
       for (const metric of variables) {
         const latestVersionNumber = getLatestMetricVersion(metric.id);
-        const foundMetric = queryClient.getQueryData<IBusterMetric>(
+        const foundMetric = queryClient.getQueryData<BusterMetric>(
           metricsQueryKeys.metricsGetMetric(metric.id, latestVersionNumber).queryKey
         );
         if (foundMetric) {
           queryClient.setQueryData(
             metricsQueryKeys.metricsGetMetric(metric.id, latestVersionNumber).queryKey,
-            create(foundMetric, (draft: IBusterMetric) => {
+            create(foundMetric, (draft: BusterMetric) => {
               draft.status = metric.status;
             })
           );

@@ -7,3 +7,4 @@ export * from './columnLabelInterfaces';
 export * from './enum';
 export * from './etcInterfaces';
 export * from './tickInterfaces';
+export * from './chatConfig.defaults';

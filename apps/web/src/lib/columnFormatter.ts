@@ -1,10 +1,10 @@
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import {
-  type ColumnLabelFormat,
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_DATE_FORMAT_DAY_OF_WEEK,
   DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
   DEFAULT_DATE_FORMAT_QUARTER
-} from '@/api/asset_interfaces/metric';
+} from '@buster/server-shared/metrics';
 import { formatDate } from './date';
 import { formatNumber, roundNumber } from './numbers';
 import { makeHumanReadble } from './text';

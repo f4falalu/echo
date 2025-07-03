@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { type ChartEncodes, type ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { useGetCurrencies } from '@/api/buster_rest/currency';
@@ -28,14 +28,14 @@ import { EditSuffix } from './EditSuffix';
 import { EditTitle } from './EditTitle';
 
 export const SelectAxisDropdownContent: React.FC<{
-  columnSetting: IBusterMetricChartConfig['columnSettings'][string];
+  columnSetting: BusterMetricChartConfig['columnSettings'][string];
   columnLabelFormat: IColumnLabelFormat;
   selectedAxis: ChartEncodes | null;
   id: string;
   className?: string;
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
+  barGroupType: BusterMetricChartConfig['barGroupType'];
+  lineGroupType: BusterMetricChartConfig['lineGroupType'];
   zoneId: SelectAxisContainerId;
   hideTitle?: boolean;
   classNames?: {
@@ -115,13 +115,13 @@ const ColumnSettingComponent: React.FC<{
   formattedTitle: string;
   onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
   onUpdateColumnSettingConfig: (columnSetting: Partial<ColumnSettings>) => void;
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
   selectedAxis: ChartEncodes | null;
-  columnSetting: IBusterMetricChartConfig['columnSettings'][string];
+  columnSetting: BusterMetricChartConfig['columnSettings'][string];
   columnLabelFormat: IColumnLabelFormat;
   zoneId: SelectAxisContainerId;
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
+  lineGroupType: BusterMetricChartConfig['lineGroupType'];
+  barGroupType: BusterMetricChartConfig['barGroupType'];
   rowCount: number;
 }> = ({
   formattedTitle,
@@ -274,7 +274,7 @@ const LabelSettings: React.FC<{
   onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
   id: string;
   zoneId: SelectAxisContainerId;
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
 }> = ({
   columnLabelFormat,
   onUpdateColumnConfig,

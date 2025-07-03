@@ -13,7 +13,7 @@ export const YAxisConfigSchema = z.object({
   // Whether to start the axis at zero. Defaults to null.
   yAxisStartAxisAtZero: z.nullable(z.boolean()).default(null),
   // The scale type for the Y-axis. @default "linear"
-  yAxisScaleType: z.enum(['log', 'linear']).default('linear')
+  yAxisScaleType: z.enum(['log', 'linear']).default('linear'),
 });
 
 //The y2 (or right axis) Y-axis is used for secondary Y-axes in a combo chart.
@@ -30,7 +30,7 @@ export const Y2AxisConfigSchema = z.object({
   // Whether to start the axis at zero. Defaults to true.
   y2AxisStartAxisAtZero: z.boolean().default(true),
   // The scale type for the secondary Y-axis. @default "linear"
-  y2AxisScaleType: z.enum(['log', 'linear']).default('linear')
+  y2AxisScaleType: z.enum(['log', 'linear']).default('linear'),
 });
 
 /**
@@ -50,7 +50,7 @@ export const XAxisConfigSchema = z.object({
     .union([z.literal(0), z.literal(45), z.literal(90), z.literal('auto')])
     .default('auto'),
   // Whether to enable data zooming on the X-axis. Should only be set to true by the user. @default false
-  xAxisDataZoom: z.boolean().default(false)
+  xAxisDataZoom: z.boolean().default(false),
 });
 
 //The category axis works differently than the other axes. It is used to color and group the data.
@@ -60,7 +60,7 @@ export const XAxisConfigSchema = z.object({
  */
 export const CategoryAxisStyleConfigSchema = z.object({
   // The title of the category axis. @default null
-  categoryAxisTitle: z.nullable(z.string()).default(null)
+  categoryAxisTitle: z.nullable(z.string()).default(null),
 });
 
 // Export inferred types

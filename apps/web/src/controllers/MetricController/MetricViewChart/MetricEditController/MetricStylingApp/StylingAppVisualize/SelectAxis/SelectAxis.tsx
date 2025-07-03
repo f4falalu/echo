@@ -1,6 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import type {
   CategoryAxisStyleConfig,
   ChartEncodes,
@@ -46,7 +46,7 @@ export const SelectAxis: React.FC<
       return Object.assign(acc, { [axis]: zone.items });
     }, {} as ChartEncodes);
 
-    const newChartConfig: Partial<IBusterMetricChartConfig> = {
+    const newChartConfig: Partial<BusterMetricChartConfig> = {
       [selectedAxisToEdit]: newChartEncodes
     };
 

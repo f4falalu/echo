@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { ChartType, type ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 import { ChartBarAxisX, ChartLine, ChartScatter } from '@/components/ui/icons';
 import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
@@ -40,7 +40,7 @@ const options = [
 export const EditDisplayAs: React.FC<{
   columnVisualization: Required<ColumnSettings>['columnVisualization'];
   onUpdateColumnSettingConfig: (columnSettings: Partial<ColumnSettings>) => void;
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
 }> = React.memo(({ columnVisualization, onUpdateColumnSettingConfig, selectedChartType }) => {
   const selectedOption = useMemo(() => {
     if (selectedChartType === 'bar') return 'bar';

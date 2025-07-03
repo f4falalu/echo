@@ -1,4 +1,4 @@
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces/metric';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces/metric';
 import type { BusterChartProps, ShowLegendHeadline } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
 import { ArrayOperations } from '@/lib/math';
@@ -11,7 +11,7 @@ export const addLegendHeadlines = (
   showLegendHeadline: ShowLegendHeadline,
   columnMetadata: NonNullable<BusterChartProps['columnMetadata']>,
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>,
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'],
+  selectedChartType: BusterMetricChartConfig['selectedChartType'],
   xAxisKeys: string[]
 ) => {
   const isScatterChart = selectedChartType === 'scatter';

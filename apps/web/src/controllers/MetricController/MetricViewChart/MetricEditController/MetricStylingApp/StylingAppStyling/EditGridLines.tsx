@@ -1,11 +1,11 @@
 import React from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { Switch } from '@/components/ui/switch';
 import { LabelAndInput } from '../Common';
 
 export const EditGridLines: React.FC<{
-  gridLines: IBusterMetricChartConfig['gridLines'];
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
+  gridLines: BusterMetricChartConfig['gridLines'];
+  onUpdateChartConfig: (chartConfig: Partial<BusterMetricChartConfig>) => void;
 }> = React.memo(({ gridLines, onUpdateChartConfig }) => {
   return (
     <LabelAndInput label={'Grid lines'}>

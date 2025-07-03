@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/utils';
@@ -8,7 +8,7 @@ import { MetricStylingAppSegments } from './config';
 export const MetricStylingAppSegment: React.FC<{
   segment: MetricStylingAppSegments;
   setSegment: (segment: MetricStylingAppSegments) => void;
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
   className?: string;
 }> = React.memo(({ segment, setSegment, selectedChartType, className = '' }) => {
   const isTable = selectedChartType === 'table';

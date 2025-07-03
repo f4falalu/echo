@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const ColumnMetaDataSchema = z.object({
   name: z.string(),
@@ -47,5 +47,10 @@ export const DataMetadataSchema = z
   })
   .nullable();
 
+export const DataResultSchema = z.array(
+  z.record(z.string(), z.union([z.number(), z.string(), z.null()]))
+);
+
+export type DataResult = z.infer<typeof DataResultSchema>;
 export type ColumnMetaData = z.infer<typeof ColumnMetaDataSchema>;
 export type DataMetadata = z.infer<typeof DataMetadataSchema>;

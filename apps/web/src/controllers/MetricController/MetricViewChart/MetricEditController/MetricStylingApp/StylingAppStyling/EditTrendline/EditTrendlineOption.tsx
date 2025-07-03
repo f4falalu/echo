@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { ChartType, Trendline } from '@/api/asset_interfaces/metric/charts';
 import { TriangleWarning } from '@/components/ui/icons';
 import { Select, type SelectItem } from '@/components/ui/select';
@@ -22,7 +22,7 @@ export const EditTrendlineOption = React.memo(
     onUpdateExistingTrendline: (trend: LoopTrendline) => void;
     yAxisEncodes: string[];
     xAxisEncodes: string[];
-    columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
+    columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
     selectedChartType: ChartType;
   }) => {
     const { type } = trend;
