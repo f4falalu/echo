@@ -27,6 +27,7 @@ const LOW_PRIORITY_ROUTES = [
   BusterRoutes.APP_DATASETS,
   BusterRoutes.SETTINGS,
   BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
+  BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
   BusterRoutes.SETTINGS_USERS
 ];
 

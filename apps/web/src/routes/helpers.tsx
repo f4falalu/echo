@@ -71,7 +71,13 @@ const PATHNAME_TO_PARENT_ROUTE: Record<string, BusterRoutes> = {
   [BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART]: BusterRoutes.APP_CHAT,
   [BusterRoutes.APP_CHAT_ID_METRIC_ID_FILE]: BusterRoutes.APP_CHAT,
   [BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS]: BusterRoutes.APP_CHAT,
-  [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE]: BusterRoutes.APP_CHAT
+  [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_FILE]: BusterRoutes.APP_CHAT,
+  [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID]: BusterRoutes.APP_CHAT,
+  [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART]: BusterRoutes.APP_CHAT,
+  [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_RESULTS]: BusterRoutes.APP_CHAT,
+  [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_FILE]: BusterRoutes.APP_CHAT,
+  [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL]: BusterRoutes.APP_CHAT,
+  [BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_VERSION_NUMBER]: BusterRoutes.APP_CHAT
 };
 
 export const pathNameToParentRoute = (

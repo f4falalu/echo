@@ -2,7 +2,6 @@
 
 import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
-import { useAppLayoutContextSelector } from '@/context/BusterAppLayout';
 import { pathNameToRoute } from '@/routes/helpers';
 import type { FileViewSecondary } from './useLayoutConfig';
 
@@ -31,7 +30,6 @@ export const useGetChatParams = () => {
   const queryDashboardVersionNumber = searchParams.get('dashboard_version_number');
   const secondaryView = searchParams.get('secondary_view') as FileViewSecondary | undefined;
   const currentRoute = pathNameToRoute(pathname, params);
-  const iCurrentRoute = useAppLayoutContextSelector((x) => x.currentRoute);
 
   const metricVersionNumber = useMemo(() => {
     if (!metricId) return undefined;
