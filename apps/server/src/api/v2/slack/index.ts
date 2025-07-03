@@ -10,6 +10,7 @@ const app = new Hono()
   // Protected endpoints
   .get('/integration', requireAuth, (c) => slackHandler.getIntegration(c))
   .delete('/integration', requireAuth, (c) => slackHandler.removeIntegration(c))
+  .put('/integration/default-channel', requireAuth, (c) => slackHandler.updateDefaultChannel(c))
   // Error handling
   .onError((e, c) => {
     if (e instanceof SlackError) {

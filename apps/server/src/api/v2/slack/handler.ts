@@ -20,12 +20,17 @@ const OAuthCallbackSchema = z.object({
   state: z.string(),
 });
 
+const UpdateDefaultChannelSchema = z.object({
+  name: z.string().min(1),
+  id: z.string().min(1),
+});
+
 // Custom error class
 export class SlackError extends Error {
   constructor(
     message: string,
     public statusCode: 500 | 400 | 401 | 403 | 404 | 409 | 503 = 500,
-    public code?: string
+    public code?: string,
   ) {
     super(message);
     this.name = 'SlackError';
@@ -72,7 +77,7 @@ export class SlackHandler {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
           },
-          503
+          503,
         );
       }
 
@@ -83,7 +88,7 @@ export class SlackHandler {
             error: 'Slack integration is not enabled',
             code: 'INTEGRATION_DISABLED',
           },
-          503
+          503,
         );
       }
 
@@ -131,14 +136,14 @@ export class SlackHandler {
         throw new SlackError(
           'Organization already has an active Slack integration',
           409,
-          'INTEGRATION_EXISTS'
+          'INTEGRATION_EXISTS',
         );
       }
 
       throw new SlackError(
         error instanceof Error ? error.message : 'Failed to initiate OAuth',
         500,
-        'OAUTH_INIT_ERROR'
+        'OAUTH_INIT_ERROR',
       );
     }
   }
@@ -193,7 +198,7 @@ export class SlackHandler {
       console.error('OAuth callback error:', error);
       const errorMessage = error instanceof Error ? error.message : 'callback_failed';
       return c.redirect(
-        `/settings/integrations?status=error&error=${encodeURIComponent(errorMessage)}`
+        `/settings/integrations?status=error&error=${encodeURIComponent(errorMessage)}`,
       );
     }
   }
@@ -214,7 +219,7 @@ export class SlackHandler {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
           },
-          503
+          503,
         );
       }
 
@@ -243,7 +248,7 @@ export class SlackHandler {
       throw new SlackError(
         error instanceof Error ? error.message : 'Failed to get integration status',
         500,
-        'GET_INTEGRATION_ERROR'
+        'GET_INTEGRATION_ERROR',
       );
     }
   }
@@ -264,7 +269,7 @@ export class SlackHandler {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
           },
-          503
+          503,
         );
       }
 
@@ -282,14 +287,14 @@ export class SlackHandler {
 
       const result = await slackOAuthService.removeIntegration(
         organizationGrant.organizationId,
-        user.id
+        user.id,
       );
 
       if (!result.success) {
         throw new SlackError(
           result.error || 'Failed to remove integration',
           404,
-          'INTEGRATION_NOT_FOUND'
+          'INTEGRATION_NOT_FOUND',
         );
       }
 
@@ -306,7 +311,83 @@ export class SlackHandler {
       throw new SlackError(
         error instanceof Error ? error.message : 'Failed to remove integration',
         500,
-        'REMOVE_INTEGRATION_ERROR'
+        'REMOVE_INTEGRATION_ERROR',
+      );
+    }
+  }
+
+  /**
+   * PUT /api/v2/slack/integration/default-channel
+   * Update default channel for Slack integration
+   */
+  async updateDefaultChannel(c: Context) {
+    try {
+      // Get service instance (lazy initialization)
+      const slackOAuthService = this.getSlackOAuthService();
+
+      // Check if service is available
+      if (!slackOAuthService) {
+        return c.json(
+          {
+            error: 'Slack integration is not configured',
+            code: 'INTEGRATION_NOT_CONFIGURED',
+          },
+          503,
+        );
+      }
+
+      const user = c.get('busterUser');
+
+      if (!user) {
+        throw new HTTPException(401, { message: 'Authentication required' });
+      }
+
+      const organizationGrant = await getUserOrganizationId(user.id);
+
+      if (!organizationGrant) {
+        throw new HTTPException(400, { message: 'Organization not found' });
+      }
+
+      // Parse request body
+      const body = await c.req.json();
+      const parsed = UpdateDefaultChannelSchema.safeParse(body);
+
+      if (!parsed.success) {
+        throw new SlackError(
+          `Invalid request body: ${parsed.error.errors.map((e) => e.message).join(', ')}`,
+          400,
+          'INVALID_REQUEST_BODY',
+        );
+      }
+
+      // Get active integration
+      const { getActiveIntegration, updateDefaultChannel } = await import(
+        './services/slack-helpers'
+      );
+      const integration = await getActiveIntegration(organizationGrant.organizationId);
+
+      if (!integration) {
+        throw new SlackError('No active Slack integration found', 404, 'INTEGRATION_NOT_FOUND');
+      }
+
+      // Update default channel
+      await updateDefaultChannel(integration.id, parsed.data);
+
+      return c.json({
+        message: 'Default channel updated successfully',
+        defaultChannel: parsed.data,
+      });
+    } catch (error) {
+      console.error('Failed to update default channel:', error);
+
+      if (error instanceof HTTPException || error instanceof SlackError) {
+        throw error;
+      }
+
+      throw new SlackError(
+        error instanceof Error ? error.message : 'Failed to update default channel',
+        500,
+        'UPDATE_DEFAULT_CHANNEL_ERROR',
       );
     }
   }
