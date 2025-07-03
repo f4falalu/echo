@@ -610,7 +610,7 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 
 ### Linting Rules
 - Always use `pnpm run check` or `pnpm run check:fix`
-- **Rule: `i dont' want caldue to ever run a biome lint fix only biome lint`**
+- **Rule: `I don't want Claude to ever run a biome lint fix only biome lint`**
   - This means ONLY use `pnpm run check` (linting without auto-fixing)
   - Do NOT use `pnpm run check:fix`
   - Claude should understand to ONLY run lint checks, never auto-fix
