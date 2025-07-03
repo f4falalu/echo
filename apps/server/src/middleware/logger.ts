@@ -1,61 +1,48 @@
 import { pinoLogger } from 'hono-pino';
 import pino from 'pino';
-import 'pino-pretty';
 
 const isDev = process.env.NODE_ENV !== 'production';
 const logLevel = process.env.LOG_LEVEL || 'info';
 
-let isPinoPrettyAvailable = true;
+// Create base pino instance
+const createBaseLogger = () => {
+  if (isDev) {
+    try {
+      // Only use pino-pretty transport in development
+      return pino({
+        level: logLevel,
+        transport: {
+          target: 'pino-pretty',
+          options: { colorize: true },
+        },
+      });
+    } catch (error) {
+      console.warn('pino-pretty not available, falling back to JSON logging');
+      console.error(error);
+    }
+  }
 
-// Create base pino instance for console capture
-const baseLogger = pino({
-  level: logLevel,
-  transport: isDev && isPinoPrettyAvailable
-    ? {
-        target: 'pino-pretty',
-        options: { colorize: true },
-      }
-    : undefined,
-});
+  // Production or fallback: use standard JSON logging
+  return pino({
+    level: logLevel,
+  });
+};
+
+const baseLogger = createBaseLogger();
 
 // Simple console capture - only override if LOG_LEVEL is set
 if (process.env.LOG_LEVEL) {
-  const originalConsole = {
-    info: console.info,
-    warn: console.warn,
-    error: console.error,
-  };
+  console.info = (...args) => baseLogger.info(...args);
+  console.warn = (...args) => baseLogger.warn(...args);
+  console.error = (...args) => baseLogger.error(...args);
 
-  console.info = (...args) => baseLogger.info(args.join(' '));
-  console.warn = (...args) => baseLogger.warn(args.join(' '));
-  console.error = (...args) => baseLogger.error(args.join(' '));
-  
   // Suppress debug logs when LOG_LEVEL is info or higher
   if (logLevel !== 'debug' && logLevel !== 'trace') {
     console.debug = () => {};
   }
 }
 
-// Create logger with fallback for pino-pretty failures
-function createLogger() {
-  // Try pino-pretty in development
-  if (isDev && isPinoPrettyAvailable) {
-    try {
-      return pinoLogger({
-        pino: baseLogger,
-      });
-    } catch (error) {
-      console.error('pino-pretty not available, falling back to JSON logging', error);
-      isPinoPrettyAvailable = false;
-    }
-  }
-
-  // Fallback to simple JSON logging
-  return pinoLogger({
-    pino: {
-      level: logLevel,
-    },
-  });
-}
-
-export const loggerMiddleware = createLogger();
+// Create logger middleware
+export const loggerMiddleware = pinoLogger({
+  pino: baseLogger,
+});

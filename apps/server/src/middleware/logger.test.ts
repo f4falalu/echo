@@ -10,19 +10,7 @@ describe('logger middleware', () => {
     debug: typeof console.debug;
   };
 
-  beforeEach(() => {
-    // Save original env and console
-    originalEnv = { ...process.env };
-    originalConsole = {
-      info: console.info,
-      warn: console.warn,
-      error: console.error,
-      debug: console.debug,
-    };
-
-    // Clear module cache to reload logger with new env
-    vi.resetModules();
-  });
+  import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
   afterEach(() => {
     // Restore original env and console
