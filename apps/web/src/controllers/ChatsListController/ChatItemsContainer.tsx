@@ -1,7 +1,8 @@
 'use client';
 
 import React, { memo, useMemo, useRef, useState } from 'react';
-import { type BusterChatListItem, ShareAssetType } from '@/api/asset_interfaces';
+import { ShareAssetType } from '@/api/asset_interfaces';
+import type { ChatListItem } from '@buster/server-shared/chats';
 import { FavoriteStar } from '@/components/features/list';
 import { getShareStatus } from '@/components/features/metrics/StatusBadgeIndicator';
 import { Avatar } from '@/components/ui/avatar';
@@ -16,7 +17,7 @@ import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
 import { assetParamsToRoute } from '@/lib/assets';
 
 export const ChatItemsContainer: React.FC<{
-  chats: BusterChatListItem[];
+  chats: ChatListItem[];
   className?: string;
   loading: boolean;
   type: 'logs' | 'chats';
@@ -32,7 +33,7 @@ export const ChatItemsContainer: React.FC<{
 
   const logsRecord = useCreateListByDate({ data: chats });
 
-  const getLink = useMemoizedFn((chat: BusterChatListItem) => {
+  const getLink = useMemoizedFn((chat: ChatListItem) => {
     return assetParamsToRoute({
       chatId: chat.id,
       assetId: chat.latest_file_id || '',
