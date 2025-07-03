@@ -4,16 +4,11 @@ import {
   type BackoffOptions,
   type Row,
   type ChangeMessage,
-  ShapeStream,
-  type ShapeStreamOptions,
-  type GetExtensions,
-  type Message,
-  type Offset
+  type Message
 } from '@electric-sql/client';
 import { ELECTRIC_BASE_URL } from './config';
 import { useSupabaseContext } from '@/context/Supabase';
 import { useEffect, useMemo, useRef } from 'react';
-import { useMount } from '@/hooks';
 
 export type ElectricShapeOptions<T extends Row<unknown> = Row<unknown>> = Omit<
   Parameters<typeof useElectricShape<T>>[0],

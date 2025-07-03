@@ -13,6 +13,7 @@ import { useMemoizedFn } from '@/hooks';
 import { formatDate, makeHumanReadble } from '@/lib';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { ChatSelectedOptionPopup } from './ChatItemsSelectedPopup';
+import { assetParamsToRoute } from '@/lib/assets';
 
 export const ChatItemsContainer: React.FC<{
   chats: BusterChatListItem[];
@@ -32,53 +33,11 @@ export const ChatItemsContainer: React.FC<{
   const logsRecord = useCreateListByDate({ data: chats });
 
   const getLink = useMemoizedFn((chat: BusterChatListItem) => {
-    if (chat.latest_file_id) {
-      switch (chat.latest_file_type) {
-        case 'metric': {
-          const latestVersionNumber = chat.latest_version_number;
-
-          if (latestVersionNumber) {
-            return createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
-              chatId: chat.id,
-              metricId: chat.latest_file_id,
-              versionNumber: latestVersionNumber
-            });
-          }
-
-          return createBusterRoute({
-            route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
-            chatId: chat.id,
-            metricId: chat.latest_file_id
-          });
-        }
-        case 'dashboard': {
-          const latestVersionNumber = chat.latest_version_number;
-
-          if (latestVersionNumber) {
-            return createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
-              chatId: chat.id,
-              dashboardId: chat.latest_file_id,
-              versionNumber: latestVersionNumber
-            });
-          }
-
-          return createBusterRoute({
-            route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
-            chatId: chat.id,
-            dashboardId: chat.latest_file_id
-          });
-        }
-        default: {
-          const _exhaustiveCheck: never = chat.latest_file_type;
-        }
-      }
-    }
-
-    return createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID,
-      chatId: chat.id
+    return assetParamsToRoute({
+      chatId: chat.id,
+      assetId: chat.latest_file_id || '',
+      type: chat.latest_file_type,
+      versionNumber: chat.latest_version_number
     });
   });
 

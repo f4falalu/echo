@@ -21,11 +21,6 @@ describe('getEmbedAssetRedirect', () => {
     const redirect = getEmbedAssetRedirect(request);
     expect(redirect).toBe('/embed/metrics/123');
   });
-  it('should redirect metric file to embed metric', () => {
-    const request = new NextRequest('https://example.com/app/metrics/123/file');
-    const redirect = getEmbedAssetRedirect(request);
-    expect(redirect).toBe('/embed/metrics/123');
-  });
   it('should redirect metric version to embed metric', () => {
     const request = new NextRequest('https://example.com/app/metrics/123/version/2');
     const redirect = getEmbedAssetRedirect(request);

@@ -212,15 +212,15 @@ describe('useAppLayout - onChangePage', () => {
     const { result } = renderHook(() => useAppLayout());
 
     await result.current.onChangePage({
-      route: BusterAppRoutes.APP_DASHBOARD_ID_VERSION_NUMBER,
+      route: BusterAppRoutes.APP_DASHBOARD_ID,
       dashboardId: '123',
-      versionNumber: 2,
+      dashboardVersionNumber: 2,
       secondaryView: 'version-history'
     });
 
     expect(mockPush).toHaveBeenCalled();
     expect(mockPush).toHaveBeenCalledWith(
-      '/app/dashboards/123?dashboard_version_number=2&secondary_view=version-history'
+      '/app/dashboards/123?secondary_view=version-history&dashboard_version_number=2'
     );
   });
 });
