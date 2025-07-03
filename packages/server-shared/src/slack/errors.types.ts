@@ -2,7 +2,7 @@
 export class SlackError extends Error {
   constructor(
     message: string,
-    public statusCode: 500 | 400 | 401 | 403 | 404 | 409 | 429 | 503 = 500,
+    public status_code: 500 | 400 | 401 | 403 | 404 | 409 | 429 | 503 = 500,
     public code?: string
   ) {
     super(message);

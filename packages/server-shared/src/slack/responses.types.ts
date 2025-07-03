@@ -6,7 +6,7 @@ export interface SlackErrorResponse {
 
 // POST /api/v2/slack/auth/init
 export interface InitiateOAuthResponse {
-  authUrl: string;
+  auth_url: string;
   state: string;
 }
 
@@ -18,10 +18,10 @@ export interface GetIntegrationResponse {
   connected: boolean;
   integration?: {
     id: string;
-    teamName: string;
-    teamDomain?: string;
-    installedAt: string;
-    lastUsedAt?: string;
+    team_name: string;
+    team_domain?: string;
+    installed_at: string;
+    last_used_at?: string;
   };
 }
 
@@ -50,15 +50,15 @@ export interface GetChannelsResponse {
 // OAuth callback result (used internally)
 export interface OAuthCallbackResult {
   success: boolean;
-  integrationId: string;
+  integration_id: string;
   metadata?: {
-    returnUrl?: string;
+    return_url?: string;
     source?: string;
-    projectId?: string;
-    initiatedAt?: string;
-    ipAddress?: string;
+    project_id?: string;
+    initiated_at?: string;
+    ip_address?: string;
   };
-  teamName?: string;
+  team_name?: string;
   error?: string;
 }
 

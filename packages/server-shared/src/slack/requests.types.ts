@@ -4,9 +4,9 @@ import { z } from 'zod';
 export const InitiateOAuthSchema = z.object({
   metadata: z
     .object({
-      returnUrl: z.string().optional(),
+      return_url: z.string().optional(),
       source: z.string().optional(),
-      projectId: z.string().uuid().optional(),
+      project_id: z.string().uuid().optional(),
     })
     .optional(),
 });
@@ -35,11 +35,11 @@ export type UpdateIntegrationRequest = z.infer<typeof UpdateIntegrationSchema>;
 
 // OAuth metadata schema (used internally)
 export const OAuthMetadataSchema = z.object({
-  returnUrl: z.string().optional(),
+  return_url: z.string().optional(),
   source: z.string().optional(),
-  projectId: z.string().uuid().optional(),
-  initiatedAt: z.string().datetime().optional(),
-  ipAddress: z.string().optional(),
+  project_id: z.string().uuid().optional(),
+  initiated_at: z.string().datetime().optional(),
+  ip_address: z.string().optional(),
 });
 
 export type OAuthMetadata = z.infer<typeof OAuthMetadataSchema>;
