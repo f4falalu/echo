@@ -354,7 +354,7 @@ export class SlackHandler {
       }
 
       // Parse request body
-      const body = await c.req.json();
+      const body = await c.req.json().catch(() => ({}));
       const parsed = UpdateIntegrationSchema.safeParse(body);
 
       if (!parsed.success) {
