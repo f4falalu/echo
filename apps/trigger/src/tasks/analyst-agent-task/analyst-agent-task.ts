@@ -272,7 +272,7 @@ export const analystAgentTask: ReturnType<
   >
 > = schemaTask({
   id: 'analyst-agent-task',
-  machine: 'medium-2x',
+  machine: 'small-2x',
   schema: AnalystAgentTaskInputSchema,
   maxDuration: 600, // 10 minutes for complex analysis
   run: async (payload): Promise<AnalystAgentTaskOutput> => {
