@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { requireAuth } from '../../../middleware/auth';
-import { SlackError, slackHandler } from './handler';
+import { slackHandler } from './handler';
+import { SlackError } from '@buster/server-shared/slack';
 
 const app = new Hono()
   // Public endpoints (no auth required for OAuth flow)

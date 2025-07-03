@@ -1,55 +1,17 @@
 import { getUserOrganizationId } from '@buster/database';
+import {
+  InitiateOAuthSchema,
+  OAuthCallbackSchema,
+  SlackError,
+  SlackErrorCodes,
+  UpdateIntegrationSchema,
+} from '@buster/server-shared/slack';
 import { SlackChannelService } from '@buster/slack';
 import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { z } from 'zod';
 import { getActiveIntegration, updateDefaultChannel } from './services/slack-helpers';
 import * as slackHelpers from './services/slack-helpers';
 import { type SlackOAuthService, createSlackOAuthService } from './services/slack-oauth-service';
-
-// Request schemas
-const InitiateOAuthSchema = z.object({
-  metadata: z
-    .object({
-      returnUrl: z.string().optional(),
-      source: z.string().optional(),
-      projectId: z.string().uuid().optional(),
-    })
-    .optional(),
-});
-
-const OAuthCallbackSchema = z.object({
-  code: z.string(),
-  state: z.string(),
-});
-
-const UpdateIntegrationSchema = z.object({
-  default_channel: z
-    .object({
-      name: z.string().min(1),
-      id: z.string().min(1),
-    })
-    .optional(),
-});
-
-// Custom error class
-export class SlackError extends Error {
-  constructor(
-    message: string,
-    public statusCode: 500 | 400 | 401 | 403 | 404 | 409 | 429 | 503 = 500,
-    public code?: string
-  ) {
-    super(message);
-    this.name = 'SlackError';
-  }
-
-  toResponse() {
-    return {
-      error: this.message,
-      code: this.code,
-    };
-  }
-}
 
 export class SlackHandler {
   private slackOAuthService: SlackOAuthService | null = null;
