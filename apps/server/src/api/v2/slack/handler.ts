@@ -3,6 +3,8 @@ import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 import { type SlackOAuthService, createSlackOAuthService } from './services/slack-oauth-service';
+import { SlackChannelService } from '@buster/slack';
+import * as slackHelpers from './services/slack-helpers';
 
 // Request schemas
 const InitiateOAuthSchema = z.object({
@@ -24,7 +26,7 @@ const OAuthCallbackSchema = z.object({
 export class SlackError extends Error {
   constructor(
     message: string,
-    public statusCode: 500 | 400 | 401 | 403 | 404 | 409 | 503 = 500,
+    public statusCode: 500 | 400 | 401 | 403 | 404 | 409 | 429 | 503 = 500,
     public code?: string
   ) {
     super(message);
@@ -307,6 +309,106 @@ export class SlackHandler {
         error instanceof Error ? error.message : 'Failed to remove integration',
         500,
         'REMOVE_INTEGRATION_ERROR'
+      );
+    }
+  }
+
+  /**
+   * GET /api/v2/slack/channels
+   * Get public channels for the current integration
+   */
+  async getChannels(c: Context) {
+    try {
+      // Get service instance (lazy initialization)
+      const slackOAuthService = this.getSlackOAuthService();
+
+      // Check if service is available
+      if (!slackOAuthService) {
+        return c.json(
+          {
+            error: 'Slack integration is not configured',
+            code: 'INTEGRATION_NOT_CONFIGURED',
+          },
+          503
+        );
+      }
+
+      const busterUser = c.get('busterUser');
+
+      if (!busterUser) {
+        throw new HTTPException(401, { message: 'Authentication required' });
+      }
+
+      const organizationGrant = await getUserOrganizationId(busterUser.id);
+
+      if (!organizationGrant) {
+        throw new HTTPException(400, { message: 'Organization not found' });
+      }
+
+      // Get active integration
+      const integration = await slackHelpers.getActiveIntegration(
+        organizationGrant.organizationId
+      );
+
+      if (!integration) {
+        return c.json(
+          {
+            error: 'No active Slack integration found',
+            code: 'INTEGRATION_NOT_FOUND',
+          },
+          404
+        );
+      }
+
+      // Get token from vault
+      const token = await slackOAuthService.getTokenFromVault(integration.id);
+
+      if (!token) {
+        throw new SlackError(
+          'Failed to retrieve authentication token',
+          500,
+          'TOKEN_RETRIEVAL_ERROR'
+        );
+      }
+
+      // Fetch channels using the SlackChannelService
+      const channelService = new SlackChannelService();
+      const channels = await channelService.getAvailableChannels(token, false);
+
+      // Update last used timestamp
+      await slackHelpers.updateLastUsedAt(integration.id);
+
+      // Return only id and name as requested
+      return c.json({
+        channels: channels.map((channel) => ({
+          id: channel.id,
+          name: channel.name,
+        })),
+      });
+    } catch (error) {
+      console.error('Failed to get channels:', error);
+
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+
+      // Handle Slack-specific errors
+      if (error instanceof Error && error.message.includes('Invalid or expired access token')) {
+        throw new SlackError('Invalid or expired access token', 401, 'INVALID_TOKEN');
+      }
+
+      if (error instanceof Error && error.message.includes('Rate limit exceeded')) {
+        throw new SlackError(
+          'Rate limit exceeded. Please try again later.',
+          429,
+          'RATE_LIMITED'
+        );
+      }
+
+      throw new SlackError(
+        error instanceof Error ? error.message : 'Failed to get channels',
+        500,
+        'GET_CHANNELS_ERROR'
       );
     }
   }
