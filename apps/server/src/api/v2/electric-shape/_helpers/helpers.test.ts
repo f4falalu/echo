@@ -7,7 +7,8 @@ describe('getElectricShapeUrl', () => {
 
   beforeEach(() => {
     // Clean up environment variable before each test
-    process.env.ELECTRIC_PROXY_URL = undefined;
+    process.env.ELECTRIC_PROXY_URL = 'http://localhost:3000';
+    process.env.ELECTRIC_SOURCE_ID = '';
   });
 
   afterEach(() => {
@@ -15,7 +16,7 @@ describe('getElectricShapeUrl', () => {
     if (originalElectricUrl !== undefined) {
       process.env.ELECTRIC_PROXY_URL = originalElectricUrl;
     } else {
-      process.env.ELECTRIC_PROXY_URL = undefined;
+      process.env.ELECTRIC_PROXY_URL = '';
     }
   });
 

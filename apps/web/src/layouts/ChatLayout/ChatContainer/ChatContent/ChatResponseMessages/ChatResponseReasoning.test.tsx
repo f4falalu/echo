@@ -156,7 +156,13 @@ describe('ChatResponseReasoning', () => {
       return { data: null };
     });
 
-    render(<ChatResponseReasoning {...defaultProps} isCompletedStream={true} />);
+    render(
+      <ChatResponseReasoning
+        {...defaultProps}
+        finalReasoningMessage="Final reasoning message"
+        isCompletedStream={true}
+      />
+    );
 
     expect(screen.getByText('Final reasoning message')).toBeInTheDocument();
   });
@@ -191,6 +197,6 @@ describe('ChatResponseReasoning', () => {
 
     render(<ChatResponseReasoning {...defaultProps} />);
 
-    expect(screen.getByText('Thinking...')).toBeInTheDocument();
+    expect(screen.getByText('Getting started...')).toBeInTheDocument();
   });
 });
