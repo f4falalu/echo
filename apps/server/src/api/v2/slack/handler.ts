@@ -2,6 +2,7 @@ import { getUserOrganizationId } from '@buster/database';
 import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
+import { getActiveIntegration, updateDefaultChannel } from './services/slack-helpers';
 import { type SlackOAuthService, createSlackOAuthService } from './services/slack-oauth-service';
 import { SlackChannelService } from '@buster/slack';
 import * as slackHelpers from './services/slack-helpers';
@@ -20,6 +21,15 @@ const InitiateOAuthSchema = z.object({
 const OAuthCallbackSchema = z.object({
   code: z.string(),
   state: z.string(),
+});
+
+const UpdateIntegrationSchema = z.object({
+  defaultChannel: z
+    .object({
+      name: z.string().min(1),
+      id: z.string().min(1),
+    })
+    .optional(),
 });
 
 // Custom error class
@@ -309,6 +319,81 @@ export class SlackHandler {
         error instanceof Error ? error.message : 'Failed to remove integration',
         500,
         'REMOVE_INTEGRATION_ERROR'
+      );
+    }
+  }
+
+  /**
+   * PUT /api/v2/slack/integration
+   * Update Slack integration settings
+   */
+  async updateIntegration(c: Context) {
+    try {
+      // Get service instance (lazy initialization)
+      const slackOAuthService = this.getSlackOAuthService();
+
+      // Check if service is available
+      if (!slackOAuthService) {
+        return c.json(
+          {
+            error: 'Slack integration is not configured',
+            code: 'INTEGRATION_NOT_CONFIGURED',
+          },
+          503
+        );
+      }
+
+      const user = c.get('busterUser');
+
+      if (!user) {
+        throw new HTTPException(401, { message: 'Authentication required' });
+      }
+
+      const organizationGrant = await getUserOrganizationId(user.id);
+
+      if (!organizationGrant) {
+        throw new HTTPException(400, { message: 'Organization not found' });
+      }
+
+      // Parse request body
+      const body = await c.req.json().catch(() => ({}));
+      const parsed = UpdateIntegrationSchema.safeParse(body);
+
+      if (!parsed.success) {
+        throw new SlackError(
+          `Invalid request body: ${parsed.error.errors.map((e) => e.message).join(', ')}`,
+          400,
+          'INVALID_REQUEST_BODY'
+        );
+      }
+
+      // Get active integration
+      const integration = await getActiveIntegration(organizationGrant.organizationId);
+
+      if (!integration) {
+        throw new SlackError('No active Slack integration found', 404, 'INTEGRATION_NOT_FOUND');
+      }
+
+      // Update integration settings
+      if (parsed.data.defaultChannel) {
+        await updateDefaultChannel(integration.id, parsed.data.defaultChannel);
+      }
+
+      return c.json({
+        message: 'Integration updated successfully',
+        ...parsed.data,
+      });
+    } catch (error) {
+      console.error('Failed to update default channel:', error);
+
+      if (error instanceof HTTPException || error instanceof SlackError) {
+        throw error;
+      }
+
+      throw new SlackError(
+        error instanceof Error ? error.message : 'Failed to update default channel',
+        500,
+        'UPDATE_DEFAULT_CHANNEL_ERROR'
       );
     }
   }
