@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT, type IColumnLabelFormat } from '@/api/asset_interfaces';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@/api/asset_interfaces';
 import { aggregateAndCreateDatasets } from './aggregateAndCreateDatasets';
 
 describe('aggregateAndCreateDatasets', () => {
@@ -45,7 +45,7 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'South', category: 'B', sales: 250, profit: 50 }
     ];
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       sales: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         style: 'currency',
@@ -97,7 +97,7 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'South', sales: 250 }
     ];
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       sales: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         style: 'currency',
@@ -177,7 +177,7 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'South', category: 'B', sales: 250, profit: 50 }
     ];
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       sales: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         style: 'currency',
@@ -229,7 +229,7 @@ describe('aggregateAndCreateDatasets', () => {
       { region: 'South', sales: 250 }
     ];
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       sales: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         style: 'currency',
@@ -764,7 +764,7 @@ describe('aggregateAndCreateDatasets', () => {
       { x: 3, y: undefined, size: null }
     ];
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       y: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         replaceMissingDataWith: 0
@@ -823,7 +823,7 @@ describe('aggregateAndCreateDatasets', () => {
       { id: 3, metric1: 120, metric2: null }
     ];
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       metric1: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         replaceMissingDataWith: 0
@@ -874,7 +874,7 @@ describe('aggregateAndCreateDatasets', () => {
       { x: 3, y: 200 }
     ];
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       y: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         replaceMissingDataWith: null

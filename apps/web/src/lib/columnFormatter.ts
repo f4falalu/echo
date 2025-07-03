@@ -13,7 +13,7 @@ const DEFAULT_DATE_FORMAT = 'll';
 
 export const formatLabel = (
   textProp: string | number | Date | null | undefined | boolean,
-  props: ColumnLabelFormat = DEFAULT_COLUMN_LABEL_FORMAT,
+  props: Partial<ColumnLabelFormat> = DEFAULT_COLUMN_LABEL_FORMAT,
   useKeyFormatter = false
 ): string => {
   const {
@@ -105,7 +105,7 @@ export const formatLabel = (
   );
 };
 
-const autoFormats = (convertNumberTo: ColumnLabelFormat['convertNumberTo']) => {
+const autoFormats = (convertNumberTo: Partial<ColumnLabelFormat>['convertNumberTo']) => {
   if (!convertNumberTo) return DEFAULT_DATE_FORMAT;
   if (convertNumberTo === 'day_of_week') return DEFAULT_DATE_FORMAT_DAY_OF_WEEK;
   if (convertNumberTo === 'month_of_year') return DEFAULT_DATE_FORMAT_MONTH_OF_YEAR;
@@ -115,7 +115,9 @@ const autoFormats = (convertNumberTo: ColumnLabelFormat['convertNumberTo']) => {
 
 const formatLabelDate = (
   text: string | number | Date,
-  props: Pick<ColumnLabelFormat, 'dateFormat' | 'useRelativeTime' | 'isUTC' | 'convertNumberTo'>
+  props: Partial<
+    Pick<ColumnLabelFormat, 'dateFormat' | 'useRelativeTime' | 'isUTC' | 'convertNumberTo'>
+  >
 ): string => {
   const {
     dateFormat: dateFormatProp = DEFAULT_DATE_FORMAT,

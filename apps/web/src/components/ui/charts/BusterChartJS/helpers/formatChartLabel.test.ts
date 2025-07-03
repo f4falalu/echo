@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { formatChartLabel } from './formatChartLabel';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 describe('formatChartLabel', () => {
   const columnLabelFormats = {
@@ -51,7 +52,7 @@ describe('formatChartLabel', () => {
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,
       makeLabelHumanReadable: true
-    },
+    } as ColumnLabelFormat,
     text_field: {
       style: 'string',
       compactNumbers: false,
@@ -61,7 +62,7 @@ describe('formatChartLabel', () => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
       makeLabelHumanReadable: true
-    },
+    } as ColumnLabelFormat,
     custom_field: {
       style: 'number',
       compactNumbers: true,
@@ -73,7 +74,7 @@ describe('formatChartLabel', () => {
       prefix: '(',
       suffix: ')',
       makeLabelHumanReadable: true
-    }
+    } as ColumnLabelFormat
   } satisfies NonNullable<BusterChartProps['columnLabelFormats']>;
 
   it('should format a date label correctly', () => {

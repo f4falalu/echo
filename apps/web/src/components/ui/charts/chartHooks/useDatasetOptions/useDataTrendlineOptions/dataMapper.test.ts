@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
+import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { dataMapper } from './dataMapper';
 
 describe('dataMapper', () => {
@@ -12,7 +12,7 @@ describe('dataMapper', () => {
       ticksKey: [{ key: 'xAxis', value: '' }]
     };
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       xAxis: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
@@ -37,7 +37,7 @@ describe('dataMapper', () => {
       ticksKey: [{ key: 'date', value: '' }]
     };
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       date: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'date',
@@ -69,7 +69,7 @@ describe('dataMapper', () => {
       ticksKey: [{ key: 'category', value: '' }]
     };
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       category: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'text',
@@ -94,7 +94,7 @@ describe('dataMapper', () => {
       ticksKey: [{ key: 'xAxis', value: '' }]
     };
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       xAxis: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
@@ -120,7 +120,7 @@ describe('dataMapper', () => {
       ticksKey: [{ key: 'xAxis', value: '' }]
     };
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       xAxis: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',
@@ -140,7 +140,7 @@ describe('dataMapper', () => {
       ticksKey: [{ key: 'xAxis', value: '' }]
     };
 
-    const columnLabelFormats: Record<string, IColumnLabelFormat> = {
+    const columnLabelFormats: Record<string, ColumnLabelFormat> = {
       xAxis: {
         ...DEFAULT_COLUMN_LABEL_FORMAT,
         columnType: 'number',

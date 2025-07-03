@@ -8,7 +8,7 @@ import {
 } from '@/api/asset_interfaces/metric';
 import type {
   BarAndLineAxis,
-  BusterChartConfigProps,
+  ChartConfigProps,
   ColumnLabelFormat,
   ColumnSettings,
   ComboChartAxis,
@@ -39,7 +39,7 @@ const keySpecificHandlers: Partial<
   comboChartAxis: (value: unknown) => value as ComboChartAxis,
   colors: (value: unknown) => value as string[],
   columnSettings: (columnSettings: unknown) => {
-    const typedColumnSettings = columnSettings as BusterChartConfigProps['columnSettings'];
+    const typedColumnSettings = columnSettings as ChartConfigProps['columnSettings'];
     // Early return if no column settings
     if (!typedColumnSettings) return {};
 
@@ -99,7 +99,7 @@ const keySpecificHandlers: Partial<
 
 export const getChangesFromDefaultChartConfig = (newMetric: BusterMetric) => {
   const chartConfig = newMetric.chart_config;
-  if (!chartConfig) return {} as BusterChartConfigProps;
+  if (!chartConfig) return {} as ChartConfigProps;
 
   const diff: Partial<BusterMetricChartConfig> = {};
 
@@ -123,7 +123,7 @@ export const getChangesFromDefaultChartConfig = (newMetric: BusterMetric) => {
     }
   }
 
-  return diff as BusterChartConfigProps;
+  return diff as ChartConfigProps;
 };
 
 export const combineChangeFromDefaultChartConfig = (

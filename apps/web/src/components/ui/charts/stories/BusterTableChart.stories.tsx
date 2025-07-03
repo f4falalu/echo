@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { BusterTableChart } from '../TableChart/BusterTableChart';
 
 // Helper functions for generating sample data
@@ -44,28 +44,28 @@ export const Default: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         displayName: 'SALES'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -85,27 +85,27 @@ export const WithTableColumnOrder: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -131,27 +131,27 @@ export const WithTableColumnWidths: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -171,27 +171,27 @@ export const ReadOnly: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -210,27 +210,27 @@ export const LargeDataset: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   },
   render: (args) => {
@@ -250,27 +250,27 @@ export const CustomClassname: Story = {
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       date: {
         columnType: 'date',
         style: 'date',
         dateFormat: 'LL'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   },
   render: (args) => {

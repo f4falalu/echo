@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { Slider } from '@/components/ui/slider';
 import { useDebounceFn } from '@/hooks';
-import type { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
 import { generateScatterChartData } from '../../../../mocks/chart/chartMocks';
 import { BusterChart } from '../BusterChart';
@@ -42,25 +42,25 @@ export const Default: Story = {
         style: 'number',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       y: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       size: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       category: {
         columnType: 'text',
         style: 'string',
         prefix: '🔥 ',
         suffix: ' 🔥'
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof ScatterChartData, IColumnLabelFormat>,
+      } satisfies ColumnLabelFormat
+    } satisfies Record<keyof ScatterChartData, ColumnLabelFormat>,
     className: 'w-[400px] h-[400px] max-w-[400px] max-h-[400px]'
   }
 };

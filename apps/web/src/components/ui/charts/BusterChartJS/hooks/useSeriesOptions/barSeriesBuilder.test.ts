@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_COLUMN_SETTINGS, type BusterChartProps } from '@/api/asset_interfaces/metric';
-import { ChartType } from '@/api/asset_interfaces/metric/charts/enum';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  DEFAULT_COLUMN_SETTINGS,
+  type ColumnLabelFormat
+} from '@buster/server-shared/metrics';
 import type { DatasetOption } from '../../../chartHooks';
 import type { DatasetOptionsWithTicks } from '../../../chartHooks/useDatasetOptions/interfaces';
 import { barSeriesBuilder } from './barSeriesBuilder';
@@ -46,7 +50,7 @@ describe('barSeriesBuilder', () => {
           suffix: '',
           replaceMissingDataWith: 0,
           makeLabelHumanReadable: true
-        }
+        } as ColumnLabelFormat
       },
       barShowTotalAtTop: false,
       barGroupType: 'group',
@@ -127,7 +131,7 @@ describe('barSeriesBuilder', () => {
           suffix: '',
           replaceMissingDataWith: 0,
           makeLabelHumanReadable: true
-        },
+        } as ColumnLabelFormat,
         sales2023: {
           columnType: 'number',
           style: 'number',
@@ -138,7 +142,7 @@ describe('barSeriesBuilder', () => {
           suffix: '',
           replaceMissingDataWith: 0,
           makeLabelHumanReadable: true
-        }
+        } as ColumnLabelFormat
       },
       barShowTotalAtTop: false,
       barGroupType: 'group',
@@ -215,7 +219,7 @@ describe('barSeriesBuilder', () => {
           suffix: '%',
           replaceMissingDataWith: 0,
           makeLabelHumanReadable: true
-        }
+        } as ColumnLabelFormat
       },
       barShowTotalAtTop: false,
       barGroupType: 'group',

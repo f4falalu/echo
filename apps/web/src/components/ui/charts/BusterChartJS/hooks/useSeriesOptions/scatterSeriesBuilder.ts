@@ -1,5 +1,4 @@
 import type { BubbleDataPoint, ScriptableContext } from 'chart.js';
-import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
 import { addOpacityToColor } from '@/lib/colors';
 import { createDayjsDate } from '@/lib/date';
 import { isDateColumnType } from '@/lib/messages';
@@ -8,6 +7,7 @@ import type { ChartProps } from '../../core';
 import { createTrendlineOnSeries } from './createTrendlines';
 import type { SeriesBuilderProps } from './interfaces';
 import type { LabelBuilderProps } from './useSeriesOptions';
+import { DEFAULT_CHART_CONFIG, DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 
 declare module 'chart.js' {
   interface BubbleDataPoint {

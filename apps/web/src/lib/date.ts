@@ -10,11 +10,11 @@ import isDate from 'lodash/isDate';
 import isNumber from 'lodash/isNumber';
 import isString from 'lodash/isString';
 import {
-  type ColumnLabelFormat,
   DEFAULT_DATE_FORMAT_MONTH_OF_YEAR,
   DEFAULT_DATE_FORMAT_QUARTER,
-  DEFAULT_DAY_OF_WEEK_FORMAT
-} from '@/api/asset_interfaces/metric';
+  DEFAULT_DAY_OF_WEEK_FORMAT,
+  type ColumnLabelFormat
+} from '@buster/server-shared/metrics';
 import { SupportedLanguages } from '../config/languages';
 import { getBrowserLanguage } from './language';
 import { isNumeric } from './numbers';

@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { ChartType } from '@/api/asset_interfaces/metric';
+import type { ChartType } from '@buster/server-shared/metrics';
 import { LegendItemDot } from '../BusterChartLegend';
 
 export const TooltipTitle: React.FC<{

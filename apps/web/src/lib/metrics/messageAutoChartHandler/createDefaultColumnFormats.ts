@@ -4,13 +4,13 @@ import {
   type ColumnMetaData,
   DEFAULT_COLUMN_LABEL_FORMAT,
   type BusterMetricChartConfig,
-  type IColumnLabelFormat,
+  type ColumnLabelFormat,
   type SimplifiedColumnType
 } from '@/api/asset_interfaces/metric';
 import { isDateColumnType, isNumericColumnType, simplifyColumnType } from '@/lib/messages';
 
 export const createDefaultColumnLabelFormats = (
-  columnLabelFormats: Record<string, IColumnLabelFormat> | undefined,
+  columnLabelFormats: Record<string, ColumnLabelFormat> | undefined,
   columnsMetaData: ColumnMetaData[] | undefined
 ): BusterMetricChartConfig['columnLabelFormats'] => {
   if (!columnsMetaData) return {};
@@ -56,7 +56,7 @@ const createDefaulColumnLabel = (
 
 const createDefaultColumnLabelStyle = (
   columnType: SimplifiedColumnType
-): IColumnLabelFormat['style'] => {
+): ColumnLabelFormat['style'] => {
   if (isDateColumnType(columnType)) return 'date';
   if (isNumericColumnType(columnType)) return 'number';
   return 'string';

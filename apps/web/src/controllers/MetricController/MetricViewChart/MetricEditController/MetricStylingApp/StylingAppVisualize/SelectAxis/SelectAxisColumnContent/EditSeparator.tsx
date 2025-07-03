@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 
@@ -15,8 +15,8 @@ const options: SelectItem[] = [
 ];
 
 export const EditSeparator: React.FC<{
-  numberSeparatorStyle: IColumnLabelFormat['numberSeparatorStyle'];
-  onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
+  numberSeparatorStyle: ColumnLabelFormat['numberSeparatorStyle'];
+  onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
 }> = React.memo(({ numberSeparatorStyle, onUpdateColumnConfig }) => {
   const selectedSeparator = useMemo(() => {
     if (numberSeparatorStyle === null) {

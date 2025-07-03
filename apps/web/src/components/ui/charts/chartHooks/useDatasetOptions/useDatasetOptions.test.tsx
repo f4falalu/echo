@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type {
   ChartType,
-  IColumnLabelFormat
+  ColumnLabelFormat
 } from '../../../../../api/asset_interfaces/metric/charts';
 import { useDatasetOptions } from './useDatasetOptions';
 
@@ -13,7 +13,7 @@ describe('useDatasetOptions', () => {
     { month: 'Mar', sales: 300, profit: 150 }
   ];
 
-  const mockColumnLabelFormats: Record<string, IColumnLabelFormat> = {
+  const mockColumnLabelFormats: Record<string, ColumnLabelFormat> = {
     sales: { columnType: 'number', style: 'number' },
     profit: { columnType: 'number', style: 'number' },
     month: { columnType: 'text', style: 'string' }

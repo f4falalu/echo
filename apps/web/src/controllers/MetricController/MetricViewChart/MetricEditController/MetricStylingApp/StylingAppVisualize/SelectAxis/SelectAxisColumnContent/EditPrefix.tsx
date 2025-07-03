@@ -1,11 +1,11 @@
 import React from 'react';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { Input } from '@/components/ui/inputs';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 
 export const EditPrefix: React.FC<{
-  prefix: IColumnLabelFormat['prefix'];
-  onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
+  prefix: ColumnLabelFormat['prefix'];
+  onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
 }> = React.memo(({ prefix, onUpdateColumnConfig }) => {
   return (
     <LabelAndInput label="Prefix" dataTestId="edit-prefix-input">

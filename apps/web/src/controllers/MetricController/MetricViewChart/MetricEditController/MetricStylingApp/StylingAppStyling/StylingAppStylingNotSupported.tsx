@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
-import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import type { ChartType } from '@buster/server-shared/metrics';
 import { Text } from '@/components/ui/typography';
 
 export const StylingAppStylingNotSupported = React.memo(

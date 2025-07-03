@@ -1,18 +1,18 @@
 import type { GridLineOptions, Scale, ScaleChartOptions } from 'chart.js';
 import { useMemo } from 'react';
 import type { DeepPartial } from 'utility-types';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
-import {
-  type BusterChartConfigProps,
-  type BusterChartProps,
-  type ChartEncodes,
-  ChartType,
-  type IColumnLabelFormat
-} from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
 import { formatYAxisLabel, yAxisSimilar } from '../../../commonHelpers';
 import { useYAxisTitle } from './axisHooks/useYAxisTitle';
 import { useIsStacked } from './useIsStacked';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ChartConfigProps,
+  type ChartEncodes,
+  type ChartType,
+  type ColumnLabelFormat
+} from '@buster/server-shared/metrics';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric';
 
 export const useYAxis = ({
   columnLabelFormats,
@@ -28,7 +28,7 @@ export const useYAxis = ({
   yAxisScaleType,
   gridLines
 }: {
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
+  columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   selectedAxis: ChartEncodes;
   selectedChartType: ChartType;
   columnMetadata: NonNullable<BusterChartProps['columnMetadata']> | undefined;
@@ -60,10 +60,10 @@ export const useYAxis = ({
     return false;
   }, [lineGroupType, selectedChartType, barGroupType, isSupportedType]);
 
-  const yAxisColumnFormats: Record<string, IColumnLabelFormat> = useMemo(() => {
+  const yAxisColumnFormats: Record<string, ColumnLabelFormat> = useMemo(() => {
     if (!isSupportedType) return {};
 
-    return selectedAxis.y.reduce<Record<string, IColumnLabelFormat>>((acc, y) => {
+    return selectedAxis.y.reduce<Record<string, ColumnLabelFormat>>((acc, y) => {
       acc[y] = columnLabelFormats[y] || DEFAULT_COLUMN_LABEL_FORMAT;
       return acc;
     }, {});

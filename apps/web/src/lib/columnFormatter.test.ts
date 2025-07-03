@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric';
 import { formatLabel } from './columnFormatter';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 describe('formatLabel', () => {
   describe('number formatting', () => {

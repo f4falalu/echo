@@ -1,6 +1,6 @@
 import type { Context } from 'chartjs-plugin-datalabels';
 import { describe, expect, it } from 'vitest';
-import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 import { formatBarAndLineDataLabel } from './formatBarAndLineDataLabel';
 
 describe('formatBarAndLineDataLabel', () => {
@@ -12,7 +12,7 @@ describe('formatBarAndLineDataLabel', () => {
       numberSeparatorStyle: ',',
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
-    };
+    } as ColumnLabelFormat;
 
     const mockContext = {
       chart: {

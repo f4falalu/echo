@@ -25,6 +25,7 @@ import {
   VIBRANT_RAINBOW_THEME
 } from '@/components/ui/charts/config/configColors';
 import type { IColorTheme } from '../Common/interfaces';
+import { DEFAULT_CHART_THEME } from '@buster/server-shared/metrics';
 
 export enum ColorAppSegments {
   Colorful = 'Colorful',

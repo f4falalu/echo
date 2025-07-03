@@ -3,8 +3,8 @@
 import type { Chart } from 'chart.js';
 import isEmpty from 'lodash/isEmpty';
 import React, { useMemo } from 'react';
-import { type BusterChartProps, type ChartEncodes } from '@/api/asset_interfaces/metric/charts';
-import { DEFAULT_CHART_CONFIG } from '@/api/asset_interfaces/metric/defaults';
+import { type BusterChartProps } from '@/api/asset_interfaces/metric/charts';
+import { DEFAULT_CHART_CONFIG, type ChartEncodes } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
 import { BusterChartComponent } from './BusterChartComponent';
 import { BusterChartErrorWrapper } from './BusterChartErrorWrapper';

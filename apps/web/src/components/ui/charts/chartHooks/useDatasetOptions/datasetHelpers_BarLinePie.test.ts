@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ColumnMetaData } from '@/api/asset_interfaces/metric';
+import type { ColumnMetaData } from '@buster/server-shared/metrics';
 import { sortLineBarData } from './datasetHelpers_BarLinePie';
 
 describe('sortLineBarData', () => {

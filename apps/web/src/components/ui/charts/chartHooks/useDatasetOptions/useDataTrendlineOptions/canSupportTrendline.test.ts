@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type { BusterChartProps, Trendline } from '@/api/asset_interfaces/metric/charts';
 import { isNumericColumnType } from '@/lib/messages';
 import { canSupportTrendlineRecord } from './canSupportTrendline';

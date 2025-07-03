@@ -3,15 +3,15 @@
 import isEmpty from 'lodash/isEmpty';
 import uniq from 'lodash/uniq';
 import { useMemo } from 'react';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type {
   BarSortBy,
-  BusterChartConfigProps,
+  ChartConfigProps,
   BusterChartProps,
   ChartEncodes,
   ChartType,
   ComboChartAxis,
-  IColumnLabelFormat,
+  ColumnLabelFormat,
   PieSortBy,
   ScatterAxis,
   Trendline
@@ -41,7 +41,7 @@ type DatasetHookParams = {
   selectedAxis: ChartEncodes;
   selectedChartType: ChartType;
   pieMinimumSlicePercentage: NonNullable<BusterChartProps['pieMinimumSlicePercentage']> | undefined;
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
+  columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   barGroupType: BusterChartProps['barGroupType'] | undefined;
   lineGroupType: BusterChartProps['lineGroupType'];
   trendlines: Trendline[] | undefined;
@@ -87,7 +87,7 @@ export const useDatasetOptions = (params: DatasetHookParams): DatasetHookResult 
   const sizeFieldString = useMemo(() => sizeField?.join(','), [sizeField]);
   const tooltipFieldsString = useMemo(() => tooltipFields.join(','), [tooltipFields]);
 
-  const xFieldColumnLabelFormatColumnTypes: IColumnLabelFormat['columnType'][] = useMemo(() => {
+  const xFieldColumnLabelFormatColumnTypes: ColumnLabelFormat['columnType'][] = useMemo(() => {
     return xFields.map(
       (field) => columnLabelFormats[field]?.columnType || DEFAULT_COLUMN_LABEL_FORMAT.columnType
     );

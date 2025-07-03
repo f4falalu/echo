@@ -1,6 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
-import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import type { ChartType } from '@buster/server-shared/metrics';
 import { SelectAxisContainerId } from './config';
 import type { DropZone } from './SelectAxisDragContainer/interfaces';
 

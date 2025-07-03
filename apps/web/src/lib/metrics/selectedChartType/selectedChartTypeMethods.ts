@@ -1,6 +1,6 @@
 import omit from 'lodash/omit';
 import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
-import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import type { ChartType } from '@buster/server-shared/metrics';
 import { CHART_ICON_LIST, ChartIconType, DETERMINE_SELECTED_CHART_TYPE_ORDER } from './config';
 import type { SelectChartTypeProps } from './chartIcon.types';
 import { DetermineSelectedChartTypeRecord } from './chartTypeMethodConfig';

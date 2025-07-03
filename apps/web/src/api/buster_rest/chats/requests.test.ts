@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BusterChatListItem } from '@/api/asset_interfaces/chat/chatInterfaces';
 import { mainApi } from '../instances';
+import type { ChatListItem } from '@buster/server-shared/chats';
 
 // Mock the mainApi
 vi.mock('../instances', () => ({
@@ -17,7 +17,7 @@ describe('Chat API Requests', () => {
   describe('getListChats', () => {
     it('should fetch list of chats with default pagination parameters', async () => {
       // Mock data
-      const mockChats: BusterChatListItem[] = [
+      const mockChats: ChatListItem[] = [
         {
           id: 'test-chat-1',
           title: 'Test Chat 1',

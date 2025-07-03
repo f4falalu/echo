@@ -1,6 +1,6 @@
 import first from 'lodash/last';
 import React, { useMemo } from 'react';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { useMemoizedFn } from '@/hooks';
 import { formatDate, getNow } from '@/lib/date';
@@ -14,10 +14,10 @@ import {
 } from './dateConfig';
 
 export const EditDateFormat: React.FC<{
-  dateFormat: IColumnLabelFormat['dateFormat'];
-  convertNumberTo: IColumnLabelFormat['convertNumberTo'];
-  columnType: IColumnLabelFormat['columnType'];
-  onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
+  dateFormat: ColumnLabelFormat['dateFormat'];
+  convertNumberTo: ColumnLabelFormat['convertNumberTo'];
+  columnType: ColumnLabelFormat['columnType'];
+  onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
 }> = React.memo(({ dateFormat, columnType, convertNumberTo, onUpdateColumnConfig }) => {
   const now = useMemo(() => getNow().toDate(), []);
 
@@ -52,7 +52,7 @@ export const EditDateFormat: React.FC<{
     return selectOptions.find((option) => option.value === dateFormat) || first(selectOptions);
   }, [dateFormat, selectOptions]);
 
-  const onChange = useMemoizedFn((value: IColumnLabelFormat['dateFormat']) => {
+  const onChange = useMemoizedFn((value: ColumnLabelFormat['dateFormat']) => {
     if (value === NO_FORMATTING_ITEM.value) {
       onUpdateColumnConfig({
         dateFormat: ''

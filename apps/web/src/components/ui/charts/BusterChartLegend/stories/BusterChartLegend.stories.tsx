@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ChartType } from '../../../../../api/asset_interfaces/metric/charts';
 import { BusterChartLegend } from '../BusterChartLegend';
 import type { BusterChartLegendItem } from '../interfaces';
 

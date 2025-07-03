@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ColumnMetaData, IColumnLabelFormat } from '@/api/asset_interfaces/metric';
+import type { ColumnMetaData, ColumnLabelFormat } from '@/api/asset_interfaces/metric';
 import { createDefaultColumnLabelFormats } from './createDefaultColumnFormats';
 
 describe('createDefaultColumnFormats', () => {
@@ -72,7 +72,7 @@ describe('createDefaultColumnFormats', () => {
       }
     ];
 
-    const existingLabelFormats: Record<string, IColumnLabelFormat> = {
+    const existingLabelFormats: Record<string, ColumnLabelFormat> = {
       number_column: {
         style: 'currency',
         suffix: '%',
@@ -145,7 +145,7 @@ describe('createDefaultColumnFormats', () => {
       }
     ];
 
-    const existingLabelFormats: Record<string, IColumnLabelFormat> = {
+    const existingLabelFormats: Record<string, ColumnLabelFormat> = {
       existing_column: {
         style: 'percent',
         columnType: 'number',

@@ -1,8 +1,5 @@
 import type { Chart, ChartTypeRegistry, TooltipItem } from 'chart.js';
-import type {
-  BusterChartConfigProps,
-  BusterChartProps
-} from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 import { percentageFormatter } from './helpers';
@@ -10,7 +7,7 @@ import { percentageFormatter } from './helpers';
 export const pieTooltipHelper = (
   dataPoints: TooltipItem<keyof ChartTypeRegistry>[],
   chart: Chart,
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>,
+  columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>,
   keyToUsePercentage: string[]
 ): ITooltipItem[] => {
   const tooltipItems = dataPoints.flatMap<ITooltipItem>((dataPoint) => {

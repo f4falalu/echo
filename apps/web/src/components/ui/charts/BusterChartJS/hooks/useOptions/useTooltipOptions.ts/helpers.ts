@@ -1,6 +1,7 @@
 import type { Chart } from 'chart.js';
 import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { formatLabel } from '@/lib/columnFormatter';
+import { DEFAULT_COLUMN_LABEL_FORMAT, type ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 export const getPercentage = (
   rawValue: number,
@@ -50,7 +51,8 @@ export const percentageFormatter = (
   yAxisKey: string,
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>
 ) => {
-  let columnLabelFormat = columnLabelFormats[yAxisKey];
+  let columnLabelFormat: Partial<ColumnLabelFormat> =
+    columnLabelFormats[yAxisKey] || DEFAULT_COLUMN_LABEL_FORMAT;
   const isPercentage = columnLabelFormat?.style === 'percent';
   if (!isPercentage) {
     columnLabelFormat = {

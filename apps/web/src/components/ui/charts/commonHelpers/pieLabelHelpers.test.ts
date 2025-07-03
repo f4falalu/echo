@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@/api/asset_interfaces/metric/charts';
 import { getPieInnerLabelTitle, InnerLabelTitleRecord } from './pieLabelHelpers';
 
 describe('pieLabelHelpers', () => {
@@ -17,7 +17,7 @@ describe('pieLabelHelpers', () => {
   describe('getPieInnerLabelTitle', () => {
     it('should return the provided title when pieInnerLabelTitle is provided', () => {
       const pieInnerLabelTitle = 'Custom Title';
-      const pieInnerLabelAggregate: BusterChartConfigProps['pieInnerLabelAggregate'] = 'sum';
+      const pieInnerLabelAggregate: ChartConfigProps['pieInnerLabelAggregate'] = 'sum';
 
       const result = getPieInnerLabelTitle(pieInnerLabelTitle, pieInnerLabelAggregate);
 
@@ -26,7 +26,7 @@ describe('pieLabelHelpers', () => {
 
     it('should return the aggregate title when pieInnerLabelTitle is not provided', () => {
       const pieInnerLabelTitle = undefined;
-      const pieInnerLabelAggregate: BusterChartConfigProps['pieInnerLabelAggregate'] = 'average';
+      const pieInnerLabelAggregate: ChartConfigProps['pieInnerLabelAggregate'] = 'average';
 
       const result = getPieInnerLabelTitle(pieInnerLabelTitle, pieInnerLabelAggregate);
 
@@ -43,8 +43,8 @@ describe('pieLabelHelpers', () => {
     });
 
     it('should fall back to aggregate title when pieInnerLabelTitle is null', () => {
-      const pieInnerLabelTitle = null as unknown as BusterChartConfigProps['pieInnerLabelTitle'];
-      const pieInnerLabelAggregate: BusterChartConfigProps['pieInnerLabelAggregate'] = 'median';
+      const pieInnerLabelTitle = null as unknown as ChartConfigProps['pieInnerLabelTitle'];
+      const pieInnerLabelAggregate: ChartConfigProps['pieInnerLabelAggregate'] = 'median';
 
       const result = getPieInnerLabelTitle(pieInnerLabelTitle, pieInnerLabelAggregate);
 
@@ -52,7 +52,7 @@ describe('pieLabelHelpers', () => {
     });
 
     it('should work with each type of aggregate', () => {
-      const testCases: Array<NonNullable<BusterChartConfigProps['pieInnerLabelAggregate']>> = [
+      const testCases: Array<NonNullable<ChartConfigProps['pieInnerLabelAggregate']>> = [
         'sum',
         'average',
         'median',

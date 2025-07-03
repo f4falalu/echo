@@ -2,12 +2,7 @@
 
 import type React from 'react';
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces/metric';
-import type {
-  BusterChartProps,
-  ChartEncodes,
-  ChartType
-} from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { useDebounceFn, useMemoizedFn, useUpdateDebounceEffect } from '@/hooks';
 import { timeout } from '@/lib';
 import {
@@ -20,6 +15,7 @@ import type { DatasetOptionsWithTicks } from '../../../chartHooks';
 import { LEGEND_ANIMATION_THRESHOLD } from '../../../config';
 import type { ChartJSOrUndefined } from '../../core/types';
 import { getLegendItems } from './getLegendItems';
+import type { ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 
 interface UseBusterChartJSLegendProps {
   chartRef: React.RefObject<ChartJSOrUndefined | null>;
@@ -28,7 +24,7 @@ interface UseBusterChartJSLegendProps {
   selectedChartType: ChartType;
   chartMounted: boolean;
   selectedAxis: ChartEncodes | undefined;
-  showLegendHeadline: BusterMetricChartConfig['showLegendHeadline'] | undefined;
+  showLegendHeadline: BusterChartProps['showLegendHeadline'] | undefined;
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>;
   loading: boolean;
   lineGroupType: BusterChartProps['lineGroupType'];

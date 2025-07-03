@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
-import type { IColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '../../../../api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { ChartType } from '../../../../api/asset_interfaces/metric/charts/enum';
 import { addNoise, generateLineChartData } from '../../../../mocks/chart/chartMocks';
 import type { BusterChart } from '../BusterChart';
@@ -32,23 +32,23 @@ export const Default: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
-    } satisfies Record<keyof LineChartData, IColumnLabelFormat>
+      } satisfies ColumnLabelFormat
+    } satisfies Record<keyof LineChartData, ColumnLabelFormat>
   }
 };
 
@@ -71,12 +71,12 @@ export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths: Sto
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -127,12 +127,12 @@ export const AutoDateFormat_TimeIntervalTest_MonthWithForcedUnit: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -183,12 +183,12 @@ export const AutoDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -239,7 +239,7 @@ export const FixedDateFormat_TimeIntervalTest_MonthWithForcedUnit_ManyMonths: St
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -253,7 +253,7 @@ export const FixedDateFormat_TimeIntervalTest_MonthWithAutoUnit_ManyMonths: Stor
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -268,7 +268,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit_ManyMonths:
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -282,7 +282,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_ManyMonths: S
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -296,7 +296,7 @@ export const FixedDateFormat_TimeIntervalTest_MonthWithAutoUnit_BUSTED: Story = 
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -311,7 +311,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsForcedUnit: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -325,7 +325,7 @@ export const FixedDateFormat_TimeIntervalTest_UnevenMonthsAutoUnit_BUSTED: Story
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -344,7 +344,7 @@ export const FixedDateFormat_TimeIntervalTest_Days_WithForcedUnit: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD, YYYY'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -359,7 +359,7 @@ export const FixedDateFormat_TimeIntervalTest_Days_WithForcedUnit_UnevenDays: St
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -373,7 +373,7 @@ export const FixedDateFormat_TimeIntervalTest_Days_WithAutoUnit_UnevenDays: Stor
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -392,7 +392,7 @@ export const XAxisTimeIntervalWithMismatchingData_Days: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -411,7 +411,7 @@ export const XAxisTimeIntervalWithMismatchingData_Months: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -437,11 +437,11 @@ export const NumericXY: Story = {
       score: {
         columnType: 'number',
         style: 'number'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -466,7 +466,7 @@ export const NumericXYThatCorrespondToAMonth: Story = {
         style: 'date',
         dateFormat: 'MMM',
         convertNumberTo: 'month_of_year'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -492,11 +492,11 @@ export const CategoricalXNumericY: Story = {
       category: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -523,11 +523,11 @@ export const MultiYearDate: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto' // Show only year for multi-year view
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -567,22 +567,22 @@ export const MultipleYAxes: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       units: {
         columnType: 'number',
         style: 'number'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       satisfaction: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -622,13 +622,13 @@ export const UnevenlySpacedDates: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto' // Full date format to show uneven spacing clearly
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -660,13 +660,13 @@ export const CloselySpacedDates: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto' // Full date format to show spacing clearly
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -700,16 +700,16 @@ export const WithCategory: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       region: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -785,22 +785,22 @@ export const MultipleYAxesWithCategory: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'auto'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       satisfaction: {
         columnType: 'number',
         style: 'number',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       product: {
         columnType: 'text',
         style: 'string'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -837,17 +837,17 @@ export const NumericMonthX: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -870,17 +870,17 @@ export const PercentageStackedLineSingle: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -903,17 +903,17 @@ export const PercentageStackedLineMultiple: Story = {
         dateFormat: 'lll',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -941,17 +941,17 @@ export const PercentageStackedLineSingleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'EUR'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -985,22 +985,22 @@ export const StackedAreaLineMultipleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -1028,17 +1028,17 @@ export const StackedAreaLineSingleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'EUR'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -1072,22 +1072,22 @@ export const PercentageStackedLineMultipleWithDataLabels: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       sales: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       customers: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ','
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -1117,13 +1117,13 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataZero: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         replaceMissingDataWith: 0
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -1153,13 +1153,13 @@ export const HasMixedNullAndNumberValuesSingleLineWithMissingDataNull: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD',
         replaceMissingDataWith: null
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -1194,17 +1194,17 @@ export const HasMixedNullAndNumberValuesSingleMultiLine: Story = {
         dateFormat: 'auto',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       revenue: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       profit: {
         columnType: 'number',
         style: 'currency',
         currency: 'USD'
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     }
   }
 };
@@ -1741,14 +1741,14 @@ export const ExponentialDecreaseWithTrendline: Story = {
         columnType: 'date',
         style: 'date',
         dateFormat: 'MMM DD'
-      } satisfies IColumnLabelFormat,
+      } satisfies ColumnLabelFormat,
       value: {
         columnType: 'number',
         style: 'number',
         numberSeparatorStyle: ',',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      } satisfies IColumnLabelFormat
+      } satisfies ColumnLabelFormat
     },
     trendlines: [
       {

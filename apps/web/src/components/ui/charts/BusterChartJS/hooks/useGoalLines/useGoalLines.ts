@@ -12,9 +12,9 @@
 
 import type { AnnotationOptions, AnnotationPluginOptions } from 'chartjs-plugin-annotation';
 import { useMemo } from 'react';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
+import { DEFAULT_COLUMN_LABEL_FORMAT } from '@buster/server-shared/metrics';
 import type {
-  BusterChartConfigProps,
+  ChartConfigProps,
   ChartType,
   ColumnLabelFormat,
   GoalLine
@@ -30,17 +30,17 @@ interface UseGoalLinesParams {
   /** The type of chart being rendered */
   selectedChartType: ChartType;
   /** Format configurations for column labels */
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>;
+  columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>;
   /** Array of keys for the y-axis */
   yAxisKeys: string[];
   /** Optional array of keys for the secondary y-axis */
   y2AxisKeys: string[] | undefined;
   /** Type of line grouping */
-  lineGroupType: BusterChartConfigProps['lineGroupType'];
+  lineGroupType: ChartConfigProps['lineGroupType'];
   /** Layout configuration for bar charts */
-  barLayout: BusterChartConfigProps['barLayout'];
+  barLayout: ChartConfigProps['barLayout'];
   /** Type of bar grouping */
-  barGroupType: BusterChartConfigProps['barGroupType'];
+  barGroupType: ChartConfigProps['barGroupType'];
 }
 
 /**

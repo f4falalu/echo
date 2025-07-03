@@ -1,5 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
-import { type ChartEncodes, ChartType } from '@/api/asset_interfaces/metric/charts';
+import { type ChartEncodes, ChartType } from '@buster/server-shared/metrics';
 
 const defaultAxisCheck = (selectedAxis: ChartEncodes) => {
   if (isEmpty(selectedAxis.x) || isEmpty(selectedAxis.y)) return false;

@@ -1,8 +1,9 @@
 import type { AnimationOptions, ChartType as ChartTypeJS } from 'chart.js';
 import { useMemo } from 'react';
-import type { BusterChartProps, ChartType } from '@/api/asset_interfaces/metric';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric';
 import { ANIMATION_DURATION, ANIMATION_THRESHOLD } from '../../../config';
 import { barDelayAnimation } from '../../core/animations/barDelayAnimation';
+import type { ChartType } from '@buster/server-shared/metrics';
 
 export const useAnimations = ({
   animate,

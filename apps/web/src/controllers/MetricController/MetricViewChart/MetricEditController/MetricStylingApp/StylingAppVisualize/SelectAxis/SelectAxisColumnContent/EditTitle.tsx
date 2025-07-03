@@ -1,12 +1,12 @@
 import React from 'react';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { Input } from '@/components/ui/inputs';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 
 export const EditTitle: React.FC<{
-  displayName: IColumnLabelFormat['displayName'];
+  displayName: ColumnLabelFormat['displayName'];
   formattedTitle: string;
-  onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
+  onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
 }> = React.memo(({ displayName, formattedTitle, onUpdateColumnConfig }) => {
   return (
     <LabelAndInput label="Title">

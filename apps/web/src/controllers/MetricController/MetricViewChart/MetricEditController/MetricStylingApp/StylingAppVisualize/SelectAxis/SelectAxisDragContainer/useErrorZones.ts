@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type {
   ChartEncodes,
   ChartType,
-  IColumnLabelFormat
+  ColumnLabelFormat
 } from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
 import { isNumericColumnStyle, isNumericColumnType } from '@/lib';
@@ -68,7 +68,7 @@ const zoneErrorRecord: Record<
   (
     targetZone: DropZoneInternal,
     sourceZone: DropZoneInternal,
-    columnLabelFormat: Required<IColumnLabelFormat>,
+    columnLabelFormat: Required<ColumnLabelFormat>,
     selectedChartType: ChartType,
     axis: Parameters<typeof checkForError>[5],
     activeItemOriginalId: string
@@ -185,7 +185,7 @@ const checkForError = (
   targetZone: DropZoneInternal,
   sourceZone: DropZoneInternal,
   activeItemOriginalId: string,
-  columnLabelFormat: Required<IColumnLabelFormat>,
+  columnLabelFormat: Required<ColumnLabelFormat>,
   selectedChartType: ChartType,
   axis: ChartEncodes | null
 ): ZoneError | null => {

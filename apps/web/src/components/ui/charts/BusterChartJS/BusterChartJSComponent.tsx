@@ -2,7 +2,7 @@
 
 import type { ChartType as ChartJSChartType, ChartOptions, Plugin, UpdateMode } from 'chart.js';
 import React, { useMemo, useState } from 'react';
-import type { ScatterAxis } from '@/api/asset_interfaces/metric/charts';
+import type { ScatterAxis } from '@buster/server-shared/metrics';
 import { useMemoizedFn, useMount, usePreviousRef } from '@/hooks';
 import { useColors } from '../chartHooks';
 import type { BusterChartTypeComponentProps } from '../interfaces/chartComponentInterfaces';

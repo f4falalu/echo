@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ChartType } from '@/api/asset_interfaces/metric';
+import type { ChartType } from '@buster/server-shared/metrics';
 import type { DatasetOption } from './useDatasetOptions';
 
 export const useColors = ({

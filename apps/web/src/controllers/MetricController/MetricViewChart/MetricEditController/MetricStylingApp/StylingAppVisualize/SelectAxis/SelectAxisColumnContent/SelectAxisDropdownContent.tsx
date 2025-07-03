@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { type ChartEncodes, type ColumnSettings } from '@/api/asset_interfaces/metric/charts';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
+import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts/columnLabelInterfaces';
 import { useGetCurrencies } from '@/api/buster_rest/currency';
 import { ErrorBoundary } from '@/components/ui/error';
 import { Text } from '@/components/ui/typography';
@@ -29,7 +29,7 @@ import { EditTitle } from './EditTitle';
 
 export const SelectAxisDropdownContent: React.FC<{
   columnSetting: BusterMetricChartConfig['columnSettings'][string];
-  columnLabelFormat: IColumnLabelFormat;
+  columnLabelFormat: ColumnLabelFormat;
   selectedAxis: ChartEncodes | null;
   id: string;
   className?: string;
@@ -65,7 +65,7 @@ export const SelectAxisDropdownContent: React.FC<{
     return formatLabel(id, columnLabelFormat, true);
   }, [displayName]);
 
-  const onUpdateColumnConfig = useMemoizedFn((columnLabelFormat: Partial<IColumnLabelFormat>) => {
+  const onUpdateColumnConfig = useMemoizedFn((columnLabelFormat: Partial<ColumnLabelFormat>) => {
     onUpdateColumnLabelFormat({
       columnLabelFormat,
       columnId: id
@@ -113,12 +113,12 @@ export const SelectAxisDropdownContent: React.FC<{
 const ColumnSettingComponent: React.FC<{
   className?: string;
   formattedTitle: string;
-  onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
+  onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
   onUpdateColumnSettingConfig: (columnSetting: Partial<ColumnSettings>) => void;
   selectedChartType: BusterMetricChartConfig['selectedChartType'];
   selectedAxis: ChartEncodes | null;
   columnSetting: BusterMetricChartConfig['columnSettings'][string];
-  columnLabelFormat: IColumnLabelFormat;
+  columnLabelFormat: ColumnLabelFormat;
   zoneId: SelectAxisContainerId;
   lineGroupType: BusterMetricChartConfig['lineGroupType'];
   barGroupType: BusterMetricChartConfig['barGroupType'];
@@ -270,8 +270,8 @@ const ColumnSettingComponent: React.FC<{
 
 const LabelSettings: React.FC<{
   className?: string;
-  columnLabelFormat: IColumnLabelFormat;
-  onUpdateColumnConfig: (columnLabelFormat: Partial<IColumnLabelFormat>) => void;
+  columnLabelFormat: ColumnLabelFormat;
+  onUpdateColumnConfig: (columnLabelFormat: Partial<ColumnLabelFormat>) => void;
   id: string;
   zoneId: SelectAxisContainerId;
   selectedChartType: BusterMetricChartConfig['selectedChartType'];

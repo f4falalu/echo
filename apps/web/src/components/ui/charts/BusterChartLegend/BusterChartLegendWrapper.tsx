@@ -1,5 +1,4 @@
 import React from 'react';
-import type { ShowLegendHeadline } from '@/api/asset_interfaces/metric/charts';
 import { cn } from '@/lib/classMerge';
 import { CircleSpinnerLoader } from '../../loaders';
 import {
@@ -8,6 +7,7 @@ import {
 } from '../chartHooks/useChartWrapperProvider';
 import { BusterChartLegend, type BusterChartLegendItem } from '.';
 import { DownsampleAlert } from './DownsampleAlert';
+import type { ShowLegendHeadline } from '@buster/server-shared/metrics';
 
 export type BusterChartLegendWrapper = {
   children: React.ReactNode;

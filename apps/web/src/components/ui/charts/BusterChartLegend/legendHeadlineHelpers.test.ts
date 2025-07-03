@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { ColumnMetaData, SimplifiedColumnType } from '@/api/asset_interfaces/metric';
 import {
   ChartType,
-  type IColumnLabelFormat,
+  type ColumnLabelFormat,
   type ShowLegendHeadline
 } from '@/api/asset_interfaces/metric/charts';
 import type { DatasetOptionsWithTicks } from '../chartHooks/useDatasetOptions/interfaces';
@@ -39,7 +39,7 @@ describe('legendHeadlineHelpers', () => {
     }
   ];
 
-  const mockColumnLabelFormats: Record<string, IColumnLabelFormat> = {
+  const mockColumnLabelFormats: Record<string, ColumnLabelFormat> = {
     timestamp: {
       columnType: 'timestamp' as SimplifiedColumnType,
       style: 'date'
@@ -237,7 +237,7 @@ describe('legendHeadlineHelpers', () => {
         }
       ];
 
-      const currencyColumnLabelFormats: Record<string, IColumnLabelFormat> = {
+      const currencyColumnLabelFormats: Record<string, ColumnLabelFormat> = {
         ...mockColumnLabelFormats,
         revenue: {
           columnType: 'number' as SimplifiedColumnType,
@@ -274,7 +274,7 @@ describe('legendHeadlineHelpers', () => {
         }
       ];
 
-      const prefixColumnLabelFormats: Record<string, IColumnLabelFormat> = {
+      const prefixColumnLabelFormats: Record<string, ColumnLabelFormat> = {
         ...mockColumnLabelFormats,
         users: {
           columnType: 'number' as SimplifiedColumnType,

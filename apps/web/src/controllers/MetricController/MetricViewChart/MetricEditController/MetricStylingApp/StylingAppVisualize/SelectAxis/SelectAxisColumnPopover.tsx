@@ -1,12 +1,12 @@
 import React from 'react';
 import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ChartEncodes, ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { Popover } from '@/components/ui/popover/Popover';
 import type { SelectAxisContainerId } from './config';
 import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
 
 export interface SelectAxisColumnPopoverProps {
-  columnLabelFormat: IColumnLabelFormat;
+  columnLabelFormat: ColumnLabelFormat;
   columnSetting: BusterMetricChartConfig['columnSettings'][string];
   children: React.ReactNode;
   id: string;

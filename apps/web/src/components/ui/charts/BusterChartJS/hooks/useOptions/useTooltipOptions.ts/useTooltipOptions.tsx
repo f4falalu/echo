@@ -4,17 +4,17 @@ import type { TooltipOptions } from 'chart.js';
 import { useEffect, useMemo, useRef } from 'react';
 import { renderToString } from 'react-dom/server';
 import type { DeepPartial } from 'utility-types';
-import { DEFAULT_COLUMN_LABEL_FORMAT } from '@/api/asset_interfaces/metric';
-import type {
-  BusterChartProps,
-  ChartEncodes,
-  ComboChartAxis
-} from '@/api/asset_interfaces/metric/charts';
+import type { BusterChartProps } from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn, useUnmount } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { isNumericColumnType } from '@/lib/messages';
 import type { ChartJSOrUndefined } from '../../../core/types';
 import { BusterChartJSTooltip } from './BusterChartJSTooltip';
+import {
+  DEFAULT_COLUMN_LABEL_FORMAT,
+  type ChartEncodes,
+  type ComboChartAxis
+} from '@buster/server-shared/metrics';
 
 type TooltipContext = Parameters<TooltipOptions['external']>[0];
 

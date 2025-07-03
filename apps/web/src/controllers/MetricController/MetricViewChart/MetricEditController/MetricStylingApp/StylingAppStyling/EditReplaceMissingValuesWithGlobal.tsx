@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
-import type { IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { ColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
 import { EditReplaceMissingData } from '../StylingAppVisualize/SelectAxis/SelectAxisColumnContent/EditReplaceMissingData';
 
@@ -16,7 +16,7 @@ export const EditReplaceMissingValuesWithGlobal: React.FC<{
       : (0 as const);
   }, [columnLabelFormats]);
 
-  const onUpdateColumnLabel = useMemoizedFn((config: Partial<IColumnLabelFormat>) => {
+  const onUpdateColumnLabel = useMemoizedFn((config: Partial<ColumnLabelFormat>) => {
     const newColumnLabelFormats: BusterMetricChartConfig['columnLabelFormats'] = Object.entries(
       columnLabelFormats
     ).reduce<BusterMetricChartConfig['columnLabelFormats']>((acc, [key, value]) => {
@@ -37,8 +37,8 @@ export const EditReplaceMissingValuesWithGlobal: React.FC<{
 EditReplaceMissingValuesWithGlobal.displayName = 'EditReplaceMissingValuesWithGlobal';
 
 const EditReplaceMissingValuesWithColumn: React.FC<{
-  replaceMissingDataWith: Required<IColumnLabelFormat>['replaceMissingDataWith'];
-  onUpdateColumnLabel: (config: Partial<IColumnLabelFormat>) => void;
+  replaceMissingDataWith: Required<ColumnLabelFormat>['replaceMissingDataWith'];
+  onUpdateColumnLabel: (config: Partial<ColumnLabelFormat>) => void;
 }> = React.memo(({ replaceMissingDataWith, onUpdateColumnLabel }) => {
   return (
     <EditReplaceMissingData

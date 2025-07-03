@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { barOptionsHandler, barPluginsHandler } from './barChartOptions';
 import type { ChartSpecificOptionsProps } from './interfaces';
-import type { ColumnSettings } from '@/api/asset_interfaces';
+import type { ColumnSettings } from '@buster/server-shared/metrics';
 
 type BarGroupType = 'stack' | 'group' | 'percentage-stack' | null;
 

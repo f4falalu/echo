@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ENABLED_DOTS_ON_LINE_SIZE } from '@/api/asset_interfaces';
-import type { BusterChartConfigProps, ColumnSettings } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps, ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 import { ChartArea, ChartCombo, ChartLine, ChartStep } from '@/components/ui/icons';
 import type { SegmentedItem } from '@/components/ui/segmented';
 import { AppSegmented } from '@/components/ui/segmented';
@@ -46,7 +46,7 @@ const options: { icon: React.ReactNode; value: LineValue }[] = [
 type LineValue = 'area' | 'dot-line' | 'line' | 'step';
 
 export const EditLineStyle: React.FC<{
-  selectedChartType: BusterChartConfigProps['selectedChartType'];
+  selectedChartType: ChartConfigProps['selectedChartType'];
   lineStyle: Required<ColumnSettings>['lineStyle'];
   lineType: Required<ColumnSettings>['lineType'];
   lineSymbolSize: Required<ColumnSettings>['lineSymbolSize'];

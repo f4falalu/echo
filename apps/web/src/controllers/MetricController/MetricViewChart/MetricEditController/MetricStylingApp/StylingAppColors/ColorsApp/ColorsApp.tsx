@@ -1,6 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import React, { useMemo, useState } from 'react';
-import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { useMemoizedFn } from '@/hooks';
 import type { IColorTheme } from '../Common';
 import { ThemeList } from '../Common/ThemeList';
@@ -8,8 +8,8 @@ import { ColorStyleSegments } from './ColorStyleSegments';
 import { COLORFUL_THEMES, ColorAppSegments, MONOCHROME_THEMES } from './config';
 
 export const ColorsApp: React.FC<{
-  colors: BusterMetricChartConfig['colors'];
-  onUpdateChartConfig: (chartConfig: Partial<BusterMetricChartConfig>) => void;
+  colors: ChartConfigProps['colors'];
+  onUpdateChartConfig: (chartConfig: Partial<ChartConfigProps>) => void;
 }> = ({ colors, onUpdateChartConfig }) => {
   const initialSelectedSegment = useMemo(() => {
     const isFromColorfulThemes = COLORFUL_THEMES.some((theme) => isEqual(theme.colors, colors));
@@ -44,7 +44,7 @@ export const ColorsApp: React.FC<{
 
 const ColorPicker: React.FC<{
   selectedSegmentColors: IColorTheme[];
-  colors: BusterMetricChartConfig['colors'];
+  colors: ChartConfigProps['colors'];
   onChangeColorTheme: (theme: IColorTheme) => void;
 }> = React.memo(({ selectedSegmentColors, colors, onChangeColorTheme }) => {
   const themes = useMemo(() => {
