@@ -2,6 +2,7 @@ import { getUserOrganizationId } from '@buster/database';
 import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
+import { getActiveIntegration, updateDefaultChannel } from './services/slack-helpers';
 import { type SlackOAuthService, createSlackOAuthService } from './services/slack-oauth-service';
 
 // Request schemas
@@ -34,7 +35,7 @@ export class SlackError extends Error {
   constructor(
     message: string,
     public statusCode: 500 | 400 | 401 | 403 | 404 | 409 | 503 = 500,
-    public code?: string,
+    public code?: string
   ) {
     super(message);
     this.name = 'SlackError';
@@ -81,7 +82,7 @@ export class SlackHandler {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
           },
-          503,
+          503
         );
       }
 
@@ -92,7 +93,7 @@ export class SlackHandler {
             error: 'Slack integration is not enabled',
             code: 'INTEGRATION_DISABLED',
           },
-          503,
+          503
         );
       }
 
@@ -140,14 +141,14 @@ export class SlackHandler {
         throw new SlackError(
           'Organization already has an active Slack integration',
           409,
-          'INTEGRATION_EXISTS',
+          'INTEGRATION_EXISTS'
         );
       }
 
       throw new SlackError(
         error instanceof Error ? error.message : 'Failed to initiate OAuth',
         500,
-        'OAUTH_INIT_ERROR',
+        'OAUTH_INIT_ERROR'
       );
     }
   }
@@ -202,7 +203,7 @@ export class SlackHandler {
       console.error('OAuth callback error:', error);
       const errorMessage = error instanceof Error ? error.message : 'callback_failed';
       return c.redirect(
-        `/settings/integrations?status=error&error=${encodeURIComponent(errorMessage)}`,
+        `/settings/integrations?status=error&error=${encodeURIComponent(errorMessage)}`
       );
     }
   }
@@ -223,7 +224,7 @@ export class SlackHandler {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
           },
-          503,
+          503
         );
       }
 
@@ -252,7 +253,7 @@ export class SlackHandler {
       throw new SlackError(
         error instanceof Error ? error.message : 'Failed to get integration status',
         500,
-        'GET_INTEGRATION_ERROR',
+        'GET_INTEGRATION_ERROR'
       );
     }
   }
@@ -273,7 +274,7 @@ export class SlackHandler {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
           },
-          503,
+          503
         );
       }
 
@@ -291,14 +292,14 @@ export class SlackHandler {
 
       const result = await slackOAuthService.removeIntegration(
         organizationGrant.organizationId,
-        user.id,
+        user.id
       );
 
       if (!result.success) {
         throw new SlackError(
           result.error || 'Failed to remove integration',
           404,
-          'INTEGRATION_NOT_FOUND',
+          'INTEGRATION_NOT_FOUND'
         );
       }
 
@@ -315,7 +316,7 @@ export class SlackHandler {
       throw new SlackError(
         error instanceof Error ? error.message : 'Failed to remove integration',
         500,
-        'REMOVE_INTEGRATION_ERROR',
+        'REMOVE_INTEGRATION_ERROR'
       );
     }
   }
@@ -336,7 +337,7 @@ export class SlackHandler {
             error: 'Slack integration is not configured',
             code: 'INTEGRATION_NOT_CONFIGURED',
           },
-          503,
+          503
         );
       }
 
@@ -360,12 +361,11 @@ export class SlackHandler {
         throw new SlackError(
           `Invalid request body: ${parsed.error.errors.map((e) => e.message).join(', ')}`,
           400,
-          'INVALID_REQUEST_BODY',
+          'INVALID_REQUEST_BODY'
         );
       }
 
       // Get active integration
-      const { getActiveIntegration, updateIntegration } = await import('./services/slack-helpers');
       const integration = await getActiveIntegration(organizationGrant.organizationId);
 
       if (!integration) {
@@ -373,7 +373,9 @@ export class SlackHandler {
       }
 
       // Update integration settings
-      await updateIntegration(integration.id, parsed.data);
+      if (parsed.data.defaultChannel) {
+        await updateDefaultChannel(integration.id, parsed.data.defaultChannel);
+      }
 
       return c.json({
         message: 'Integration updated successfully',
@@ -389,7 +391,7 @@ export class SlackHandler {
       throw new SlackError(
         error instanceof Error ? error.message : 'Failed to update default channel',
         500,
-        'UPDATE_DEFAULT_CHANNEL_ERROR',
+        'UPDATE_DEFAULT_CHANNEL_ERROR'
       );
     }
   }

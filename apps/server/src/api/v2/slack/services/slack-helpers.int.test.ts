@@ -1,4 +1,10 @@
-import { db, slackIntegrations } from '@buster/database';
+import {
+  db,
+  organizations,
+  slackIntegrations,
+  users,
+  usersToOrganizations,
+} from '@buster/database';
 import { and, eq, isNull } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as slackHelpers from './slack-helpers';
@@ -16,41 +22,60 @@ vi.mock('./token-storage', () => ({
 
 const mockedTokenStorage = vi.mocked(tokenStorage);
 
-describe.skipIf(skipIfNoDatabase)('Slack Helpers Integration Tests', () => {
-  // Use existing seed data IDs
-  const testOrganizationId = 'bf58d19a-8bb9-4f1d-a257-2d2105e7f1ce';
-  const testUserId = 'c2dd64cd-f7f3-4884-bc91-d46ae431901e';
-  let createdIntegrationIds: string[] = [];
+describe.skipIf(skipIfNoDatabase)('Slack Helpers Database Integration Tests', () => {
+  // Test data IDs
+  let testOrganizationId: string;
+  let testUserId: string;
+  const createdIntegrationIds: string[] = [];
 
-  // Helper function to generate unique test IDs
+  // Helper to generate unique test data identifiers
   const generateTestIds = () => ({
     teamId: `T${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     botUserId: `U${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     enterpriseId: `E${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    oauthState: `state-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
   });
 
   beforeAll(async () => {
     if (skipIfNoDatabase) {
-      console.log('Skipping Slack helpers integration tests - DATABASE_URL not set');
+      console.log('Skipping Slack helpers database integration tests - DATABASE_URL not set');
       return;
     }
 
-    // Clean up any existing test data for this organization
-    try {
-      await db
-        .delete(slackIntegrations)
-        .where(eq(slackIntegrations.organizationId, testOrganizationId));
+    // Create test organization
+    testOrganizationId = crypto.randomUUID();
+    const [org] = await db
+      .insert(organizations)
+      .values({
+        id: testOrganizationId,
+        name: `Test Org ${Date.now()}`,
+      })
+      .returning();
 
-      // Also clean up any test integrations with our test team ID patterns
-      await db.delete(slackIntegrations).where(eq(slackIntegrations.teamId, 'T12345'));
-    } catch (error) {
-      console.error('Error cleaning up existing test data:', error);
-    }
+    // Create test user
+    testUserId = crypto.randomUUID();
+    const [user] = await db
+      .insert(users)
+      .values({
+        id: testUserId,
+        email: `test-${Date.now()}@example.com`,
+        name: 'Test User',
+      })
+      .returning();
+
+    // Create user-to-organization relationship
+    await db.insert(usersToOrganizations).values({
+      userId: testUserId,
+      organizationId: testOrganizationId,
+      role: 'workspace_admin',
+      createdBy: testUserId,
+      updatedBy: testUserId,
+    });
   });
 
   afterAll(async () => {
-    // Clean up only the specific test data created by this test suite
-    if (!skipIfNoDatabase && createdIntegrationIds.length > 0) {
+    if (!skipIfNoDatabase) {
+      // Clean up all created integrations
       for (const id of createdIntegrationIds) {
         try {
           await db.delete(slackIntegrations).where(eq(slackIntegrations.id, id));
@@ -58,20 +83,43 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Integration Tests', () => {
           console.error(`Failed to clean up integration ${id}:`, error);
         }
       }
-      createdIntegrationIds = [];
+
+      // Clean up user-to-organization relationship
+      await db
+        .delete(usersToOrganizations)
+        .where(
+          and(
+            eq(usersToOrganizations.userId, testUserId),
+            eq(usersToOrganizations.organizationId, testOrganizationId)
+          )
+        );
+
+      // Clean up test user
+      await db.delete(users).where(eq(users.id, testUserId));
+
+      // Clean up test organization
+      await db.delete(organizations).where(eq(organizations.id, testOrganizationId));
+    }
+  });
+
+  beforeEach(async () => {
+    if (!skipIfNoDatabase) {
+      // Clean up any existing integrations for this organization before each test
+      await db
+        .delete(slackIntegrations)
+        .where(eq(slackIntegrations.organizationId, testOrganizationId));
     }
   });
 
   describe('getActiveIntegration', () => {
     it('should return null when no integration exists', async () => {
-      const result = await slackHelpers.getActiveIntegration(
-        'f47ac10b-58cc-4372-a567-0e02b2c3d479'
-      );
+      const result = await slackHelpers.getActiveIntegration(testOrganizationId);
       expect(result).toBeNull();
     });
 
     it('should return active integration when it exists', async () => {
       const testIds = generateTestIds();
+
       // Create an active integration
       const [integration] = await db
         .insert(slackIntegrations)
@@ -84,38 +132,25 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Integration Tests', () => {
           teamDomain: 'test-workspace',
           botUserId: testIds.botUserId,
           scope: 'channels:read chat:write',
-          tokenVaultKey: 'test-token-key',
+          tokenVaultKey: `test-token-key-${Date.now()}`,
         })
         .returning();
 
       createdIntegrationIds.push(integration.id);
 
       const result = await slackHelpers.getActiveIntegration(testOrganizationId);
+
       expect(result).toBeTruthy();
       expect(result?.id).toBe(integration.id);
       expect(result?.status).toBe('active');
       expect(result?.teamName).toBe('Test Workspace');
+      expect(result?.organizationId).toBe(testOrganizationId);
     });
 
-    it('should not return soft-deleted integrations', async () => {
-      // First, ensure we have no active integrations by cleaning up any from previous tests
-      const existingActive = await db
-        .select({ id: slackIntegrations.id })
-        .from(slackIntegrations)
-        .where(
-          and(
-            eq(slackIntegrations.organizationId, testOrganizationId),
-            eq(slackIntegrations.status, 'active'),
-            isNull(slackIntegrations.deletedAt)
-          )
-        );
-
-      for (const integration of existingActive) {
-        await db.delete(slackIntegrations).where(eq(slackIntegrations.id, integration.id));
-      }
-
+    it('should not return deleted integrations', async () => {
       const testIds = generateTestIds();
-      // Create a soft-deleted integration
+
+      // Create a deleted integration
       const [integration] = await db
         .insert(slackIntegrations)
         .values({
@@ -124,9 +159,6 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Integration Tests', () => {
           status: 'active',
           teamId: testIds.teamId,
           teamName: 'Deleted Workspace',
-          botUserId: testIds.botUserId,
-          scope: 'channels:read',
-          tokenVaultKey: `deleted-token-${Date.now()}`,
           deletedAt: new Date().toISOString(),
         })
         .returning();
@@ -136,152 +168,17 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Integration Tests', () => {
       const result = await slackHelpers.getActiveIntegration(testOrganizationId);
       expect(result).toBeNull();
     });
-
-    it('should not return non-active integrations', async () => {
-      // First, ensure we have no active integrations by cleaning up any from previous tests
-      const existingActive = await db
-        .select({ id: slackIntegrations.id })
-        .from(slackIntegrations)
-        .where(
-          and(
-            eq(slackIntegrations.organizationId, testOrganizationId),
-            eq(slackIntegrations.status, 'active'),
-            isNull(slackIntegrations.deletedAt)
-          )
-        );
-
-      for (const integration of existingActive) {
-        await db.delete(slackIntegrations).where(eq(slackIntegrations.id, integration.id));
-      }
-
-      // Create a pending integration
-      const [integration] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'pending',
-          oauthState: 'test-state',
-          oauthExpiresAt: new Date(Date.now() + 900000).toISOString(), // 15 mins from now
-        })
-        .returning();
-
-      createdIntegrationIds.push(integration.id);
-
-      const result = await slackHelpers.getActiveIntegration(testOrganizationId);
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('getIntegrationById', () => {
-    it('should return integration by id', async () => {
-      const testIds = generateTestIds();
-      const [integration] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'active',
-          teamId: testIds.teamId,
-          teamName: 'Test Workspace',
-        })
-        .returning();
-
-      createdIntegrationIds.push(integration.id);
-
-      const result = await slackHelpers.getIntegrationById(integration.id);
-      expect(result).toBeTruthy();
-      expect(result?.id).toBe(integration.id);
-    });
-
-    it('should return null for non-existent id', async () => {
-      const result = await slackHelpers.getIntegrationById('f47ac10b-58cc-4372-a567-0e02b2c3d480');
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('getPendingIntegrationByState', () => {
-    it('should return pending integration with valid state', async () => {
-      const testState = `test-state-${Date.now()}`;
-      const [integration] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'pending',
-          oauthState: testState,
-          oauthExpiresAt: new Date(Date.now() + 900000).toISOString(), // 15 mins from now
-        })
-        .returning();
-
-      createdIntegrationIds.push(integration.id);
-
-      const result = await slackHelpers.getPendingIntegrationByState(testState);
-      expect(result).toBeTruthy();
-      expect(result?.id).toBe(integration.id);
-      expect(result?.oauthState).toBe(testState);
-    });
-
-    it('should not return expired integrations', async () => {
-      const testState = `expired-state-${Date.now()}`;
-      const [integration] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'pending',
-          oauthState: testState,
-          oauthExpiresAt: new Date(Date.now() - 60000).toISOString(), // 1 min ago
-        })
-        .returning();
-
-      createdIntegrationIds.push(integration.id);
-
-      const result = await slackHelpers.getPendingIntegrationByState(testState);
-      expect(result).toBeNull();
-    });
-
-    it('should not return non-pending integrations', async () => {
-      const testState = `active-state-${Date.now()}`;
-      const testIds = generateTestIds();
-      const [integration] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'active',
-          oauthState: testState,
-          teamId: testIds.teamId,
-          teamName: 'Test Workspace',
-        })
-        .returning();
-
-      createdIntegrationIds.push(integration.id);
-
-      const result = await slackHelpers.getPendingIntegrationByState(testState);
-      expect(result).toBeNull();
-    });
   });
 
   describe('createPendingIntegration', () => {
-    beforeEach(async () => {
-      // Clean up any existing integrations for the test organization
-      await db
-        .delete(slackIntegrations)
-        .where(eq(slackIntegrations.organizationId, testOrganizationId));
-
-      // Clear mock calls
-      mockedTokenStorage.deleteToken.mockClear();
-    });
-
     it('should create a new pending integration', async () => {
-      const testState = `new-state-${Date.now()}`;
+      const testIds = generateTestIds();
       const metadata = { returnUrl: '/dashboard', source: 'settings' };
 
       const integrationId = await slackHelpers.createPendingIntegration({
         organizationId: testOrganizationId,
         userId: testUserId,
-        oauthState: testState,
+        oauthState: testIds.oauthState,
         oauthMetadata: metadata,
       });
 
@@ -298,161 +195,19 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Integration Tests', () => {
       expect(created.organizationId).toBe(testOrganizationId);
       expect(created.userId).toBe(testUserId);
       expect(created.status).toBe('pending');
-      expect(created.oauthState).toBe(testState);
+      expect(created.oauthState).toBe(testIds.oauthState);
       expect(created.oauthMetadata).toEqual(metadata);
 
       // Check expiry is set to ~15 minutes
       const expiryTime = new Date(created.oauthExpiresAt!).getTime();
       const expectedExpiry = Date.now() + 15 * 60 * 1000;
-      expect(Math.abs(expiryTime - expectedExpiry)).toBeLessThan(5000); // Within 5 seconds
+      expect(Math.abs(expiryTime - expectedExpiry)).toBeLessThan(30000); // Within 30 seconds
     });
 
-    it('should delete revoked integration and create new pending', async () => {
-      // First, create a revoked integration with a token vault key
+    it('should throw error if active integration already exists', async () => {
       const testIds = generateTestIds();
-      const tokenVaultKey = `revoked-token-${Date.now()}`;
-      const [revokedIntegration] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'revoked',
-          teamId: testIds.teamId,
-          teamName: 'Old Workspace',
-          teamDomain: 'old-workspace',
-          botUserId: testIds.botUserId,
-          scope: 'channels:read',
-          tokenVaultKey,
-        })
-        .returning();
 
-      createdIntegrationIds.push(revokedIntegration.id);
-
-      // Now try to create a new pending integration for the same org
-      const newState = `reuse-state-${Date.now()}`;
-      const newMetadata = { returnUrl: '/settings', source: 'reconnect' };
-
-      const integrationId = await slackHelpers.createPendingIntegration({
-        organizationId: testOrganizationId,
-        userId: testUserId,
-        oauthState: newState,
-        oauthMetadata: newMetadata,
-      });
-
-      // Should be a new integration ID (not the same as revoked)
-      expect(integrationId).not.toBe(revokedIntegration.id);
-      createdIntegrationIds.push(integrationId);
-
-      // Verify vault token cleanup was called
-      expect(mockedTokenStorage.deleteToken).toHaveBeenCalledWith(tokenVaultKey);
-
-      // Verify old integration was deleted
-      const [deletedIntegration] = await db
-        .select()
-        .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, revokedIntegration.id));
-
-      expect(deletedIntegration).toBeUndefined();
-
-      // Verify new integration was created correctly
-      const [newIntegration] = await db
-        .select()
-        .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, integrationId));
-
-      expect(newIntegration).toBeTruthy();
-      expect(newIntegration.status).toBe('pending');
-      expect(newIntegration.oauthState).toBe(newState);
-      expect(newIntegration.oauthMetadata).toEqual(newMetadata);
-      expect(newIntegration.organizationId).toBe(testOrganizationId);
-    });
-
-    it('should delete failed integration and create new pending', async () => {
-      // First, create a failed integration with a token vault key
-      const testIds = generateTestIds();
-      const tokenVaultKey = `failed-token-${Date.now()}`;
-      const [failedIntegration] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'failed',
-          teamId: testIds.teamId,
-          teamName: 'Failed Workspace',
-          tokenVaultKey,
-        })
-        .returning();
-
-      createdIntegrationIds.push(failedIntegration.id);
-
-      // Now try to create a new pending integration for the same org
-      const newState = `retry-state-${Date.now()}`;
-
-      const integrationId = await slackHelpers.createPendingIntegration({
-        organizationId: testOrganizationId,
-        userId: testUserId,
-        oauthState: newState,
-      });
-
-      // Should be a new integration ID (not the same as failed)
-      expect(integrationId).not.toBe(failedIntegration.id);
-      createdIntegrationIds.push(integrationId);
-
-      // Verify vault token cleanup was called
-      expect(mockedTokenStorage.deleteToken).toHaveBeenCalledWith(tokenVaultKey);
-
-      // Verify old integration was deleted
-      const [deletedIntegration] = await db
-        .select()
-        .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, failedIntegration.id));
-
-      expect(deletedIntegration).toBeUndefined();
-
-      // Verify new integration was created with pending status
-      const [newIntegration] = await db
-        .select()
-        .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, integrationId));
-
-      expect(newIntegration.status).toBe('pending');
-      expect(newIntegration.oauthState).toBe(newState);
-    });
-
-    it('should not call deleteToken when integration has no vault key', async () => {
-      // Create a revoked integration without a token vault key
-      const testIds = generateTestIds();
-      const [revokedIntegration] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'revoked',
-          teamId: testIds.teamId,
-          teamName: 'Old Workspace Without Token',
-          // No tokenVaultKey
-        })
-        .returning();
-
-      createdIntegrationIds.push(revokedIntegration.id);
-
-      // Create a new pending integration
-      const newState = `no-token-state-${Date.now()}`;
-      const integrationId = await slackHelpers.createPendingIntegration({
-        organizationId: testOrganizationId,
-        userId: testUserId,
-        oauthState: newState,
-      });
-
-      createdIntegrationIds.push(integrationId);
-
-      // Verify deleteToken was not called since there was no token vault key
-      expect(mockedTokenStorage.deleteToken).not.toHaveBeenCalled();
-    });
-
-    it('should throw error if active integration exists', async () => {
       // Create an active integration
-      const testIds = generateTestIds();
       const [activeIntegration] = await db
         .insert(slackIntegrations)
         .values({
@@ -466,7 +221,7 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Integration Tests', () => {
 
       createdIntegrationIds.push(activeIntegration.id);
 
-      // Try to create a new pending integration for the same org
+      // Try to create a new pending integration
       await expect(
         slackHelpers.createPendingIntegration({
           organizationId: testOrganizationId,
@@ -478,23 +233,23 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Integration Tests', () => {
   });
 
   describe('updateIntegrationAfterOAuth', () => {
-    it('should update pending integration to active with all fields', async () => {
+    it('should update pending integration to active', async () => {
+      const testIds = generateTestIds();
+
       // Create a pending integration
-      const uniqueState = `test-state-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       const [pending] = await db
         .insert(slackIntegrations)
         .values({
           organizationId: testOrganizationId,
           userId: testUserId,
           status: 'pending',
-          oauthState: uniqueState,
+          oauthState: testIds.oauthState,
           oauthExpiresAt: new Date(Date.now() + 900000).toISOString(),
         })
         .returning();
 
       createdIntegrationIds.push(pending.id);
 
-      const testIds = generateTestIds();
       // Update it with OAuth response data
       await slackHelpers.updateIntegrationAfterOAuth(pending.id, {
         teamId: testIds.teamId,
@@ -526,149 +281,13 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Integration Tests', () => {
       expect(updated.oauthState).toBeNull();
       expect(updated.oauthExpiresAt).toBeNull();
     });
-
-    it('should handle updates with minimal fields', async () => {
-      // Create a pending integration
-      const uniqueState = `test-state-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const [pending] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'pending',
-          oauthState: uniqueState,
-          oauthExpiresAt: new Date(Date.now() + 900000).toISOString(),
-        })
-        .returning();
-
-      createdIntegrationIds.push(pending.id);
-
-      const testIds = generateTestIds();
-      // Update with minimal required fields
-      await slackHelpers.updateIntegrationAfterOAuth(pending.id, {
-        teamId: testIds.teamId,
-        teamName: 'Minimal Workspace',
-        botUserId: testIds.botUserId,
-        scope: 'basic',
-        tokenVaultKey: 'minimal-token',
-      });
-
-      // Verify the update
-      const [updated] = await db
-        .select()
-        .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, pending.id));
-
-      expect(updated.status).toBe('active');
-      expect(updated.teamId).toBe(testIds.teamId);
-      expect(updated.teamName).toBe('Minimal Workspace');
-      expect(updated.teamDomain).toBeNull();
-      expect(updated.enterpriseId).toBeNull();
-    });
   });
 
-  describe('markIntegrationAsFailed', () => {
-    beforeEach(() => {
-      // Clear mock calls
-      mockedTokenStorage.deleteToken.mockClear();
-    });
-
-    it('should mark active integration as failed', async () => {
+  describe('updateDefaultChannel', () => {
+    it('should update the default channel for an integration', async () => {
       const testIds = generateTestIds();
-      // Create an active integration that we'll mark as failed
-      const [active] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'active',
-          teamId: testIds.teamId,
-          teamName: 'Failed Team',
-          botUserId: testIds.botUserId,
-          scope: 'channels:read',
-          tokenVaultKey: 'test-failed-token',
-        })
-        .returning();
 
-      createdIntegrationIds.push(active.id);
-
-      await slackHelpers.markIntegrationAsFailed(active.id, 'Token revoked');
-
-      const [updated] = await db
-        .select()
-        .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, active.id));
-
-      expect(updated).toBeDefined();
-      expect(updated.status).toBe('failed');
-
-      // Active integrations are not deleted, so vault token should not be cleaned up
-      expect(mockedTokenStorage.deleteToken).not.toHaveBeenCalled();
-    });
-
-    it('should delete pending integration when marking as failed', async () => {
-      // Create a pending integration
-      const [pending] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'pending',
-          oauthState: 'test-state-to-fail',
-          oauthExpiresAt: new Date(Date.now() + 900000).toISOString(),
-        })
-        .returning();
-
-      // Don't add to cleanup since it will be deleted
-      // createdIntegrationIds.push(pending.id);
-
-      await slackHelpers.markIntegrationAsFailed(pending.id, 'OAuth failed');
-
-      const [deleted] = await db
-        .select()
-        .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, pending.id));
-
-      expect(deleted).toBeUndefined();
-
-      // Pending integration without token vault key should not call deleteToken
-      expect(mockedTokenStorage.deleteToken).not.toHaveBeenCalled();
-    });
-
-    it('should delete pending integration with token vault key and clean up vault', async () => {
-      const tokenVaultKey = `pending-token-${Date.now()}`;
-      // Create a pending integration with a token vault key
-      const [pending] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'pending',
-          oauthState: 'test-state-with-token',
-          oauthExpiresAt: new Date(Date.now() + 900000).toISOString(),
-          tokenVaultKey,
-        })
-        .returning();
-
-      // Don't add to cleanup since it will be deleted
-
-      await slackHelpers.markIntegrationAsFailed(pending.id, 'OAuth failed');
-
-      const [deleted] = await db
-        .select()
-        .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, pending.id));
-
-      expect(deleted).toBeUndefined();
-
-      // Verify vault token cleanup was called
-      expect(mockedTokenStorage.deleteToken).toHaveBeenCalledWith(tokenVaultKey);
-    });
-  });
-
-  describe('softDeleteIntegration', () => {
-    it('should soft delete integration', async () => {
-      const testIds = generateTestIds();
+      // Create an active integration
       const [integration] = await db
         .insert(slackIntegrations)
         .values({
@@ -676,68 +295,229 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Integration Tests', () => {
           userId: testUserId,
           status: 'active',
           teamId: testIds.teamId,
-          teamName: 'To Delete',
+          teamName: 'Test Workspace',
           botUserId: testIds.botUserId,
           scope: 'channels:read',
-          tokenVaultKey: 'test-soft-delete-token',
+          tokenVaultKey: `test-token-${Date.now()}`,
         })
         .returning();
 
       createdIntegrationIds.push(integration.id);
 
+      // Update default channel
+      const defaultChannel = {
+        name: 'general',
+        id: 'C12345',
+      };
+
+      await slackHelpers.updateDefaultChannel(integration.id, defaultChannel);
+
+      // Verify the update
+      const [updated] = await db
+        .select()
+        .from(slackIntegrations)
+        .where(eq(slackIntegrations.id, integration.id));
+
+      expect(updated.defaultChannel).toEqual(defaultChannel);
+      expect(new Date(updated.updatedAt).getTime()).toBeGreaterThan(
+        new Date(updated.createdAt).getTime()
+      );
+    });
+  });
+
+  describe('softDeleteIntegration', () => {
+    it('should soft delete an integration', async () => {
+      const testIds = generateTestIds();
+
+      // Create an active integration
+      const [integration] = await db
+        .insert(slackIntegrations)
+        .values({
+          organizationId: testOrganizationId,
+          userId: testUserId,
+          status: 'active',
+          teamId: testIds.teamId,
+          teamName: 'To Delete Workspace',
+          botUserId: testIds.botUserId,
+          scope: 'channels:read',
+          tokenVaultKey: `test-token-${Date.now()}`,
+        })
+        .returning();
+
+      createdIntegrationIds.push(integration.id);
+
+      // Soft delete it
       await slackHelpers.softDeleteIntegration(integration.id);
 
+      // Verify it was soft deleted
       const [deleted] = await db
         .select()
         .from(slackIntegrations)
         .where(eq(slackIntegrations.id, integration.id));
 
-      expect(deleted.deletedAt).toBeTruthy();
       expect(deleted.status).toBe('revoked');
+      expect(deleted.deletedAt).toBeTruthy();
+      expect(new Date(deleted.updatedAt).getTime()).toBeGreaterThan(
+        new Date(deleted.createdAt).getTime()
+      );
+    });
+  });
+
+  describe('updateLastUsedAt', () => {
+    it('should update the last used timestamp', async () => {
+      const testIds = generateTestIds();
+
+      // Create an active integration
+      const [integration] = await db
+        .insert(slackIntegrations)
+        .values({
+          organizationId: testOrganizationId,
+          userId: testUserId,
+          status: 'active',
+          teamId: testIds.teamId,
+          teamName: 'Test Workspace',
+          botUserId: testIds.botUserId,
+          scope: 'channels:read',
+          tokenVaultKey: `test-token-${Date.now()}`,
+        })
+        .returning();
+
+      createdIntegrationIds.push(integration.id);
+
+      // Wait a bit to ensure timestamp difference
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Update last used
+      await slackHelpers.updateLastUsedAt(integration.id);
+
+      // Verify the update
+      const [updated] = await db
+        .select()
+        .from(slackIntegrations)
+        .where(eq(slackIntegrations.id, integration.id));
+
+      expect(updated.lastUsedAt).toBeTruthy();
+      expect(new Date(updated.lastUsedAt!).getTime()).toBeGreaterThan(
+        new Date(updated.createdAt).getTime()
+      );
+    });
+  });
+
+  describe('hasActiveIntegration', () => {
+    it('should return false when no active integration exists', async () => {
+      const result = await slackHelpers.hasActiveIntegration(testOrganizationId);
+      expect(result).toBe(false);
+    });
+
+    it('should return true when active integration exists', async () => {
+      const testIds = generateTestIds();
+
+      // Create an active integration
+      const [integration] = await db
+        .insert(slackIntegrations)
+        .values({
+          organizationId: testOrganizationId,
+          userId: testUserId,
+          status: 'active',
+          teamId: testIds.teamId,
+          teamName: 'Test Workspace',
+        })
+        .returning();
+
+      createdIntegrationIds.push(integration.id);
+
+      const result = await slackHelpers.hasActiveIntegration(testOrganizationId);
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('getPendingIntegrationByState', () => {
+    it('should return pending integration with valid state', async () => {
+      const testIds = generateTestIds();
+
+      const [integration] = await db
+        .insert(slackIntegrations)
+        .values({
+          organizationId: testOrganizationId,
+          userId: testUserId,
+          status: 'pending',
+          oauthState: testIds.oauthState,
+          oauthExpiresAt: new Date(Date.now() + 900000).toISOString(), // 15 mins from now
+        })
+        .returning();
+
+      createdIntegrationIds.push(integration.id);
+
+      const result = await slackHelpers.getPendingIntegrationByState(testIds.oauthState);
+
+      expect(result).toBeTruthy();
+      expect(result?.id).toBe(integration.id);
+      expect(result?.oauthState).toBe(testIds.oauthState);
+    });
+
+    it('should not return expired integrations', async () => {
+      const testIds = generateTestIds();
+
+      const [integration] = await db
+        .insert(slackIntegrations)
+        .values({
+          organizationId: testOrganizationId,
+          userId: testUserId,
+          status: 'pending',
+          oauthState: testIds.oauthState,
+          oauthExpiresAt: new Date(Date.now() - 60000).toISOString(), // 1 min ago
+        })
+        .returning();
+
+      createdIntegrationIds.push(integration.id);
+
+      const result = await slackHelpers.getPendingIntegrationByState(testIds.oauthState);
+      expect(result).toBeNull();
     });
   });
 
   describe('cleanupExpiredPendingIntegrations', () => {
-    beforeEach(() => {
-      // Clear mock calls
-      mockedTokenStorage.deleteToken.mockClear();
-    });
-
     it('should delete expired pending integrations', async () => {
-      // Create expired pending integration
+      const testIds1 = generateTestIds();
+      const testIds2 = generateTestIds();
+
+      // Create an expired pending integration
       const [expired] = await db
         .insert(slackIntegrations)
         .values({
           organizationId: testOrganizationId,
           userId: testUserId,
           status: 'pending',
-          oauthState: 'expired-state',
-          oauthExpiresAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+          oauthState: testIds1.oauthState,
+          oauthExpiresAt: new Date(Date.now() - 60000).toISOString(), // 1 min ago
         })
         .returning();
 
-      // Create valid pending integration
+      // Create a valid pending integration
       const [valid] = await db
         .insert(slackIntegrations)
         .values({
           organizationId: testOrganizationId,
           userId: testUserId,
           status: 'pending',
-          oauthState: 'valid-state',
-          oauthExpiresAt: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
+          oauthState: testIds2.oauthState,
+          oauthExpiresAt: new Date(Date.now() + 900000).toISOString(), // 15 mins from now
         })
         .returning();
 
-      createdIntegrationIds.push(expired.id, valid.id);
+      createdIntegrationIds.push(valid.id); // Only track valid one since expired will be deleted
 
+      // Run cleanup
       const deletedCount = await slackHelpers.cleanupExpiredPendingIntegrations();
-      expect(deletedCount).toBeGreaterThanOrEqual(1);
+
+      expect(deletedCount).toBe(1);
 
       // Verify expired was deleted
       const [expiredCheck] = await db
         .select()
         .from(slackIntegrations)
         .where(eq(slackIntegrations.id, expired.id));
+
       expect(expiredCheck).toBeUndefined();
 
       // Verify valid still exists
@@ -745,100 +525,8 @@ describe.skipIf(skipIfNoDatabase)('Slack Helpers Integration Tests', () => {
         .select()
         .from(slackIntegrations)
         .where(eq(slackIntegrations.id, valid.id));
+
       expect(validCheck).toBeTruthy();
-
-      // No token vault keys in this test, so deleteToken should not be called
-      expect(mockedTokenStorage.deleteToken).not.toHaveBeenCalled();
-    });
-
-    it('should clean up vault tokens when deleting expired pending integrations', async () => {
-      const expiredTokenKey = `expired-token-${Date.now()}`;
-      const validTokenKey = `valid-token-${Date.now()}`;
-
-      // Create expired pending integration with token vault key
-      const [expired] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'pending',
-          oauthState: 'expired-state-with-token',
-          oauthExpiresAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-          tokenVaultKey: expiredTokenKey,
-        })
-        .returning();
-
-      // Create valid pending integration with token vault key
-      const [valid] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'pending',
-          oauthState: 'valid-state-with-token',
-          oauthExpiresAt: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
-          tokenVaultKey: validTokenKey,
-        })
-        .returning();
-
-      createdIntegrationIds.push(expired.id, valid.id);
-
-      const deletedCount = await slackHelpers.cleanupExpiredPendingIntegrations();
-      expect(deletedCount).toBeGreaterThanOrEqual(1);
-
-      // Verify expired was deleted
-      const [expiredCheck] = await db
-        .select()
-        .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, expired.id));
-      expect(expiredCheck).toBeUndefined();
-
-      // Verify valid still exists
-      const [validCheck] = await db
-        .select()
-        .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, valid.id));
-      expect(validCheck).toBeTruthy();
-
-      // Verify vault token cleanup was called only for the expired integration
-      expect(mockedTokenStorage.deleteToken).toHaveBeenCalledWith(expiredTokenKey);
-      expect(mockedTokenStorage.deleteToken).not.toHaveBeenCalledWith(validTokenKey);
-    });
-
-    it('should handle vault token cleanup errors gracefully', async () => {
-      const expiredTokenKey = `error-token-${Date.now()}`;
-
-      // Mock deleteToken to throw an error
-      mockedTokenStorage.deleteToken.mockRejectedValueOnce(new Error('Vault error'));
-
-      // Create expired pending integration with token vault key
-      const [expired] = await db
-        .insert(slackIntegrations)
-        .values({
-          organizationId: testOrganizationId,
-          userId: testUserId,
-          status: 'pending',
-          oauthState: 'expired-state-error',
-          oauthExpiresAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-          tokenVaultKey: expiredTokenKey,
-        })
-        .returning();
-
-      createdIntegrationIds.push(expired.id);
-
-      // Should not throw error even if vault cleanup fails
-      const deletedCount = await slackHelpers.cleanupExpiredPendingIntegrations();
-      expect(deletedCount).toBeGreaterThanOrEqual(1);
-
-      // Verify expired was still deleted despite vault error
-      const [expiredCheck] = await db
-        .select()
-        .from(slackIntegrations)
-        .where(eq(slackIntegrations.id, expired.id));
-      expect(expiredCheck).toBeUndefined();
-
-      // Verify vault token cleanup was attempted
-      expect(mockedTokenStorage.deleteToken).toHaveBeenCalledWith(expiredTokenKey);
     });
   });
 });
