@@ -22,7 +22,7 @@ export const ChatHeaderTitle: React.FC<{
   const { mutateAsync: updateChat } = useUpdateChat();
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="wait" initial={!isCompletedStream}>
       <motion.div
         {...(!isCompletedStream ? animation : {})}
         key={chatTitle}
