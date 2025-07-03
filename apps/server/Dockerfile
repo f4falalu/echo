@@ -36,7 +36,7 @@ RUN START=$(date +%s) && \
 RUN START=$(date +%s) && \
     echo "=== Starting application build ===" && \
     cd apps/server && \
-    time bun build src/index.ts --outdir ./dist --target bun && \
+    time bun build src/index.ts --outdir ./dist --target bun --external pino-pretty && \
     echo "Build complete - output:" && \
     ls -la dist/ && \
     END=$(date +%s) && \

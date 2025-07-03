@@ -1,37 +1,48 @@
 import { pinoLogger } from 'hono-pino';
-import 'pino-pretty';
+import pino from 'pino';
 
 const isDev = process.env.NODE_ENV !== 'production';
+const logLevel = process.env.LOG_LEVEL || 'info';
 
-let isPinoPrettyAvailable = true;
-
-// Create logger with fallback for pino-pretty failures
-function createLogger() {
-  console.log('in logger middleware NODE_ENV', process.env.NODE_ENV);
-  // Try pino-pretty in development
-  if (isDev && isPinoPrettyAvailable) {
+// Create base pino instance
+const createBaseLogger = () => {
+  if (isDev) {
     try {
-      return pinoLogger({
-        pino: {
-          level: 'info',
-          transport: {
-            target: 'pino-pretty',
-            options: { colorize: true },
-          },
+      // Only use pino-pretty transport in development
+      return pino({
+        level: logLevel,
+        transport: {
+          target: 'pino-pretty',
+          options: { colorize: true },
         },
       });
     } catch (error) {
-      console.error('pino-pretty not available, falling back to JSON logging', error);
-      isPinoPrettyAvailable = false;
+      console.warn('pino-pretty not available, falling back to JSON logging');
+      console.error(error);
     }
   }
 
-  // Fallback to simple JSON logging
-  return pinoLogger({
-    pino: {
-      level: isDev ? 'info' : 'debug',
-    },
+  // Production or fallback: use standard JSON logging
+  return pino({
+    level: logLevel,
   });
+};
+
+const baseLogger = createBaseLogger();
+
+// Simple console capture - only override if LOG_LEVEL is set
+if (process.env.LOG_LEVEL) {
+  console.info = (...args) => baseLogger.info(...args);
+  console.warn = (...args) => baseLogger.warn(...args);
+  console.error = (...args) => baseLogger.error(...args);
+
+  // Suppress debug logs when LOG_LEVEL is info or higher
+  if (logLevel !== 'debug' && logLevel !== 'trace') {
+    console.debug = () => {};
+  }
 }
 
-export const loggerMiddleware = createLogger();
+// Create logger middleware
+export const loggerMiddleware = pinoLogger({
+  pino: baseLogger,
+});
