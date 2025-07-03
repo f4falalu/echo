@@ -32,9 +32,9 @@ const baseLogger = createBaseLogger();
 
 // Simple console capture - only override if LOG_LEVEL is set
 if (process.env.LOG_LEVEL) {
-  console.info = (...args) => baseLogger.info(args.join(' '));
-  console.warn = (...args) => baseLogger.warn(args.join(' '));
-  console.error = (...args) => baseLogger.error(args.join(' '));
+  console.info = (...args) => baseLogger.info(...args);
+  console.warn = (...args) => baseLogger.warn(...args);
+  console.error = (...args) => baseLogger.error(...args);
 
   // Suppress debug logs when LOG_LEVEL is info or higher
   if (logLevel !== 'debug' && logLevel !== 'trace') {
