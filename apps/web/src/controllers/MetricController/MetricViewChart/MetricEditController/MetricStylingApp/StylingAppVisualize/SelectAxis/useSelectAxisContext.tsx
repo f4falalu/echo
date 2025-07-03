@@ -1,7 +1,7 @@
 import type React from 'react';
 import type { PropsWithChildren } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
-import type { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ColumnMetaData, BusterMetricChartConfig } from '@/api/asset_interfaces';
 import type {
   CategoryAxisStyleConfig,
   ChartEncodes,
@@ -16,19 +16,19 @@ export interface ISelectAxisContext
     Required<Omit<XAxisConfig, 'xAxisTimeInterval'>>,
     Required<CategoryAxisStyleConfig> {
   selectedAxis: ChartEncodes | null;
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
+  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
   columnMetadata: ColumnMetaData[];
-  columnSettings: IBusterMetricChartConfig['columnSettings'];
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  showLegend: IBusterMetricChartConfig['showLegend'];
-  showLegendHeadline: IBusterMetricChartConfig['showLegendHeadline'];
-  gridLines: IBusterMetricChartConfig['gridLines'];
-  goalLines: IBusterMetricChartConfig['goalLines'];
-  trendlines: IBusterMetricChartConfig['trendlines'];
-  barShowTotalAtTop: IBusterMetricChartConfig['barShowTotalAtTop'];
-  disableTooltip: IBusterMetricChartConfig['disableTooltip'];
+  columnSettings: BusterMetricChartConfig['columnSettings'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
+  lineGroupType: BusterMetricChartConfig['lineGroupType'];
+  barGroupType: BusterMetricChartConfig['barGroupType'];
+  showLegend: BusterMetricChartConfig['showLegend'];
+  showLegendHeadline: BusterMetricChartConfig['showLegendHeadline'];
+  gridLines: BusterMetricChartConfig['gridLines'];
+  goalLines: BusterMetricChartConfig['goalLines'];
+  trendlines: BusterMetricChartConfig['trendlines'];
+  barShowTotalAtTop: BusterMetricChartConfig['barShowTotalAtTop'];
+  disableTooltip: BusterMetricChartConfig['disableTooltip'];
   rowCount: number;
 }
 

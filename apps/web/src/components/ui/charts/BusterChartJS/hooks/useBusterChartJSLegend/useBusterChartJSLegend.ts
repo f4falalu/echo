@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces/metric';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces/metric';
 import type {
   BusterChartProps,
   ChartEncodes,
@@ -28,7 +28,7 @@ interface UseBusterChartJSLegendProps {
   selectedChartType: ChartType;
   chartMounted: boolean;
   selectedAxis: ChartEncodes | undefined;
-  showLegendHeadline: IBusterMetricChartConfig['showLegendHeadline'] | undefined;
+  showLegendHeadline: BusterMetricChartConfig['showLegendHeadline'] | undefined;
   columnLabelFormats: NonNullable<BusterChartProps['columnLabelFormats']>;
   loading: boolean;
   lineGroupType: BusterChartProps['lineGroupType'];

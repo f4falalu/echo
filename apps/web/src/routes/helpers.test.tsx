@@ -18,11 +18,4 @@ describe('pathNameToRoute', () => {
     const result = pathNameToRoute(pathName, {});
     expect(result).toBe(BusterRoutes.APP_HOME);
   });
-  it('/app/metrics/70d34bca-79a2-5532-9d51-8fd2f2525f81/file', () => {
-    const pathName = '/app/metrics/70d34bca-79a2-5532-9d51-8fd2f2525f81/file';
-    const result = pathNameToRoute(pathName, {
-      metricId: '70d34bca-79a2-5532-9d51-8fd2f2525f81'
-    });
-    expect(result).toBe(BusterRoutes.APP_METRIC_ID_FILE__HIDDEN);
-  });
 });

@@ -3,7 +3,7 @@ import isEqual from 'lodash/isEqual';
 import React, { useEffect, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type { ColumnMetaData } from '@/api/asset_interfaces';
-import { DEFAULT_TRENDLINE_CONFIG, type IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import { DEFAULT_TRENDLINE_CONFIG, type BusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { ChartEncodes, ScatterAxis, Trendline } from '@/api/asset_interfaces/metric/charts';
 import { Button } from '@/components/ui/buttons';
 import { JOIN_CHARACTER } from '@/components/ui/charts/commonHelpers';
@@ -30,13 +30,13 @@ export interface LoopTrendline extends Trendline {
 }
 
 export const EditTrendline: React.FC<{
-  trendlines: IBusterMetricChartConfig['trendlines'];
+  trendlines: BusterMetricChartConfig['trendlines'];
   colors: string[];
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
+  onUpdateChartConfig: (chartConfig: Partial<BusterMetricChartConfig>) => void;
   selectedAxis: ChartEncodes;
   columnMetadata: ColumnMetaData[];
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
+  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
 }> = React.memo(
   ({
     trendlines,
@@ -189,12 +189,12 @@ const EditTrendlineItem: React.FC<{
   trend: LoopTrendline;
   isNewTrend: boolean;
   columnMetadata: ColumnMetaData[];
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
+  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
   yAxisEncodes: string[];
   xAxisEncodes: string[];
   categoryEncodes: string[] | null | undefined;
   colors: string[];
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
   onUpdateExistingTrendline: (trend: LoopTrendline) => void;
   onDeleteTrendline: (id: string) => void;
 }> = React.memo(
@@ -254,8 +254,8 @@ const TrendlineItemContent: React.FC<{
   xAxisEncodes: string[];
   colors: string[];
   categoryEncodes: string[] | null | undefined;
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'];
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
+  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
   onUpdateExistingTrendline: (trend: LoopTrendline) => void;
 }> = React.memo(
   ({

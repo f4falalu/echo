@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useState } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
@@ -11,13 +11,13 @@ import { PaletteApp } from './PaletteApp';
 
 export const StylingAppColors: React.FC<{
   className: string;
-  colors: IBusterMetricChartConfig['colors'];
+  colors: BusterMetricChartConfig['colors'];
 }> = React.memo(({ className, colors }) => {
   const [selectedTab, setSelectedTab] = useState<StylingAppColorsTab>(StylingAppColorsTab.Colors);
 
   const { onUpdateMetricChartConfig } = useUpdateMetricChart();
 
-  const onUpdateChartConfig = useMemoizedFn((chartConfig: Partial<IBusterMetricChartConfig>) => {
+  const onUpdateChartConfig = useMemoizedFn((chartConfig: Partial<BusterMetricChartConfig>) => {
     onUpdateMetricChartConfig({ chartConfig });
   });
 

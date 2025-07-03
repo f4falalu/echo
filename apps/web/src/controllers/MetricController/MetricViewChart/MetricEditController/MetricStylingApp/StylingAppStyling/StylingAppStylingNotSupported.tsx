@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { ChartType } from '@/api/asset_interfaces/metric/charts';
 import { Text } from '@/components/ui/typography';
 
 export const StylingAppStylingNotSupported = React.memo(
-  ({ selectedChartType }: { selectedChartType: IBusterMetricChartConfig['selectedChartType'] }) => {
+  ({ selectedChartType }: { selectedChartType: BusterMetricChartConfig['selectedChartType'] }) => {
     const title = useMemo(() => {
       if (selectedChartType === 'table') {
         return 'Styling for tables charts is coming soon';

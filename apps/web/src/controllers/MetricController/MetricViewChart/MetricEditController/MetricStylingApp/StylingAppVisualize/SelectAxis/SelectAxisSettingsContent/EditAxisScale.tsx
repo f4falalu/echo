@@ -1,18 +1,16 @@
 import React from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { Select } from '@/components/ui/select';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 
-const options: { label: string; value: IBusterMetricChartConfig['yAxisScaleType'] }[] = [
+const options: { label: string; value: BusterMetricChartConfig['yAxisScaleType'] }[] = [
   { label: 'Linear', value: 'linear' },
   { label: 'Logarithmic', value: 'log' }
 ];
 
 export const EditAxisScale: React.FC<{
-  scaleType:
-    | IBusterMetricChartConfig['yAxisScaleType']
-    | IBusterMetricChartConfig['y2AxisScaleType'];
-  onChangeAxisScale: (value: IBusterMetricChartConfig['yAxisScaleType']) => void;
+  scaleType: BusterMetricChartConfig['yAxisScaleType'] | BusterMetricChartConfig['y2AxisScaleType'];
+  onChangeAxisScale: (value: BusterMetricChartConfig['yAxisScaleType']) => void;
 }> = React.memo(({ scaleType, onChangeAxisScale }) => {
   return (
     <LabelAndInput label="Scale">

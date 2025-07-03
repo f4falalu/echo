@@ -78,8 +78,9 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
         chatId,
         assetId: metricId,
         type: 'metric',
-        secondaryView: null,
-        versionNumber: metricVersionNumber
+        secondaryView: undefined,
+        versionNumber: metricVersionNumber,
+        page: 'chart'
       });
     }
 
@@ -88,7 +89,8 @@ const EditChartButton = React.memo(({ metricId }: { metricId: string }) => {
       assetId: metricId,
       type: 'metric',
       secondaryView: 'chart-edit',
-      versionNumber: metricVersionNumber
+      versionNumber: metricVersionNumber,
+      page: 'chart'
     });
   }, [chatId, metricId, isSelectedView, metricVersionNumber]);
 

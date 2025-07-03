@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { PieSortBy } from '@/api/asset_interfaces/metric/charts';
 import { Empty, SortAlphaAscending, SortNumAscending } from '@/components/ui/icons';
 import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
@@ -25,8 +25,8 @@ const options: SegmentedItem<NonNullable<PieSortBy> | 'none'>[] = [
 ];
 
 export const EditPieSorting: React.FC<{
-  pieSortBy: IBusterMetricChartConfig['pieSortBy'];
-  onUpdateChartConfig: (v: Partial<IBusterMetricChartConfig>) => void;
+  pieSortBy: BusterMetricChartConfig['pieSortBy'];
+  onUpdateChartConfig: (v: Partial<BusterMetricChartConfig>) => void;
 }> = React.memo(({ pieSortBy, onUpdateChartConfig }) => {
   const selectedOption = useMemo(() => {
     return (

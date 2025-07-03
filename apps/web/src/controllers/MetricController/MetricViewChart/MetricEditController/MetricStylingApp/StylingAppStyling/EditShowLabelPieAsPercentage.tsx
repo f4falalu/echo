@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../Common';
@@ -14,8 +14,8 @@ export const EditShowLabelPieAsPercentage = React.memo(
     pieDisplayLabelAs,
     onUpdateChartConfig
   }: {
-    pieDisplayLabelAs: IBusterMetricChartConfig['pieDisplayLabelAs'];
-    onUpdateChartConfig: (config: Partial<IBusterMetricChartConfig>) => void;
+    pieDisplayLabelAs: BusterMetricChartConfig['pieDisplayLabelAs'];
+    onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
   }) => {
     const selectedValue = useMemo(() => {
       return options.find((option) => option.value === pieDisplayLabelAs)?.value || 'number';

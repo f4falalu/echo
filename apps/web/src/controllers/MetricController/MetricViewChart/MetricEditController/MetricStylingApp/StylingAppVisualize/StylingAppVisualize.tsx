@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import {
   type CategoryAxisStyleConfig,
   type ChartEncodes,
@@ -17,11 +17,11 @@ import { StylingMetric } from './StylingMetric';
 
 export const StylingAppVisualize: React.FC<
   {
-    barLayout: IBusterMetricChartConfig['barLayout'];
+    barLayout: BusterMetricChartConfig['barLayout'];
     selectedAxis: ChartEncodes;
     className?: string;
     colors: string[];
-    disableTooltip: IBusterMetricChartConfig['disableTooltip'];
+    disableTooltip: BusterMetricChartConfig['disableTooltip'];
   } & Required<YAxisConfig> &
     Required<CategoryAxisStyleConfig> &
     Required<Y2AxisConfig> &

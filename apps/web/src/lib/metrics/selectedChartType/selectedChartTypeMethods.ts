@@ -1,5 +1,5 @@
 import omit from 'lodash/omit';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { ChartType } from '@/api/asset_interfaces/metric/charts';
 import { CHART_ICON_LIST, ChartIconType, DETERMINE_SELECTED_CHART_TYPE_ORDER } from './config';
 import type { SelectChartTypeProps } from './chartIcon.types';
@@ -37,7 +37,7 @@ export const getSelectedChartTypeConfig = (
 
 const chartTypeMethod: Record<
   ChartIconType,
-  () => Partial<IBusterMetricChartConfig> & {
+  () => Partial<BusterMetricChartConfig> & {
     hasAreaStyle?: boolean;
   }
 > = {
@@ -130,14 +130,14 @@ export const disableTypeMethod: Record<
 
 export const selectedChartTypeMethod = (
   chartIconType: ChartIconType,
-  columnSettings: IBusterMetricChartConfig['columnSettings']
-): Partial<IBusterMetricChartConfig> => {
+  columnSettings: BusterMetricChartConfig['columnSettings']
+): Partial<BusterMetricChartConfig> => {
   const fullRes = chartTypeMethod[chartIconType]();
   const hasAreaStyle = !!fullRes.hasAreaStyle;
   const resOmitted = omit(fullRes, 'hasAreaStyle');
 
   if (resOmitted.selectedChartType === 'line') {
-    const newColumnSettings: IBusterMetricChartConfig['columnSettings'] = Object.fromEntries(
+    const newColumnSettings: BusterMetricChartConfig['columnSettings'] = Object.fromEntries(
       Object.entries(columnSettings).map(([key, value]) => [
         key,
         {

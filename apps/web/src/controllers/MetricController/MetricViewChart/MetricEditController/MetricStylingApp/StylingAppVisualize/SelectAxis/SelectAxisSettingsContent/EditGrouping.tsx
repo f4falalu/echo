@@ -1,28 +1,28 @@
 import React, { useMemo, useState } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../../../Common/LabelAndInput';
 
-const barGroupingOptions: SelectItem<NonNullable<IBusterMetricChartConfig['barGroupType']>>[] = [
+const barGroupingOptions: SelectItem<NonNullable<BusterMetricChartConfig['barGroupType']>>[] = [
   { label: 'Grouped', value: 'group' },
   { label: 'Stacked', value: 'stack' }
 ];
 
 const lineGroupingOptions: SelectItem<
-  NonNullable<IBusterMetricChartConfig['lineGroupType']> | 'default'
+  NonNullable<BusterMetricChartConfig['lineGroupType']> | 'default'
 >[] = [
   { label: 'Default', value: 'default' },
   { label: 'Stacked', value: 'stack' }
 ];
 
 export const EditGrouping: React.FC<{
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  onUpdateChartConfig: (value: Partial<IBusterMetricChartConfig>) => void;
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  barShowTotalAtTop: IBusterMetricChartConfig['barShowTotalAtTop'];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
+  onUpdateChartConfig: (value: Partial<BusterMetricChartConfig>) => void;
+  lineGroupType: BusterMetricChartConfig['lineGroupType'];
+  barGroupType: BusterMetricChartConfig['barGroupType'];
+  barShowTotalAtTop: BusterMetricChartConfig['barShowTotalAtTop'];
 }> = React.memo(
   ({ selectedChartType, onUpdateChartConfig, lineGroupType, barGroupType, barShowTotalAtTop }) => {
     const isBarChart = selectedChartType === 'bar';
@@ -30,9 +30,7 @@ export const EditGrouping: React.FC<{
       isBarChart ? barGroupType === 'stack' : lineGroupType === 'stack'
     );
     const [value, setValue] = useState<
-      | IBusterMetricChartConfig['lineGroupType']
-      | 'default'
-      | IBusterMetricChartConfig['barGroupType']
+      BusterMetricChartConfig['lineGroupType'] | 'default' | BusterMetricChartConfig['barGroupType']
     >(isBarChart ? barGroupType : lineGroupType);
 
     const showTotal = useMemo(() => {
@@ -62,21 +60,21 @@ export const EditGrouping: React.FC<{
 
     const onChangeGroupType = useMemoizedFn(
       (
-        value: IBusterMetricChartConfig['lineGroupType'] | IBusterMetricChartConfig['barGroupType']
+        value: BusterMetricChartConfig['lineGroupType'] | BusterMetricChartConfig['barGroupType']
       ) => {
         if (selectedChartType === 'bar') {
-          const barGroupType = value as IBusterMetricChartConfig['barGroupType'];
+          const barGroupType = value as BusterMetricChartConfig['barGroupType'];
           onUpdateChartConfig({ barGroupType });
         } else {
-          const lineGroupType = value as IBusterMetricChartConfig['lineGroupType'];
+          const lineGroupType = value as BusterMetricChartConfig['lineGroupType'];
           onUpdateChartConfig({ lineGroupType });
         }
       }
     );
 
     const onChangeGrouping = (value: string) => {
-      setValue(value as IBusterMetricChartConfig['barGroupType']);
-      onChangeGroupType(value as IBusterMetricChartConfig['barGroupType']);
+      setValue(value as BusterMetricChartConfig['barGroupType']);
+      onChangeGroupType(value as BusterMetricChartConfig['barGroupType']);
     };
 
     return (

@@ -175,7 +175,7 @@ const Content: React.FC<{
               route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
               chatId,
               metricId: metric.id,
-              versionNumber: metric.version_number
+              metricVersionNumber: metric.version_number
             }),
             isSelectedMetric: metric.id === metricId,
             icon: selectedChartIconConfig?.icon ? <selectedChartIconConfig.icon /> : null,
@@ -238,10 +238,10 @@ const SelectDashboardButtonAndText: React.FC<{
       </Text>
       <Link
         href={createBusterRoute({
-          route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+          route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
           chatId,
           dashboardId,
-          versionNumber
+          dashboardVersionNumber: versionNumber
         })}>
         <Button size={'small'} variant={'default'} className="min-w-fit">
           View dashboard

@@ -39,6 +39,7 @@ export const useGetInitialChatFile = () => {
         if (messageExists) {
           return;
         }
+
         return createBusterRoute({
           route: BusterRoutes.APP_CHAT_ID,
           chatId
@@ -71,9 +72,9 @@ export const useGetInitialChatFile = () => {
 
           if (lastMatchingDashboardInChat) {
             return createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_VERSION_NUMBER,
+              route: BusterRoutes.APP_CHAT_ID_DASHBOARD_ID,
               dashboardId: lastMatchingDashboardInChat.id,
-              versionNumber: lastMatchingDashboardInChat.version_number,
+              dashboardVersionNumber: lastMatchingDashboardInChat.version_number,
               chatId
             });
           }
@@ -110,9 +111,9 @@ export const useGetInitialChatFile = () => {
 
           if (lastMatchingMetricInChat) {
             return createBusterRoute({
-              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_VERSION_NUMBER,
+              route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
               metricId,
-              versionNumber: lastMatchingMetricInChat.version_number,
+              metricVersionNumber: lastMatchingMetricInChat.version_number,
               chatId
             });
           }

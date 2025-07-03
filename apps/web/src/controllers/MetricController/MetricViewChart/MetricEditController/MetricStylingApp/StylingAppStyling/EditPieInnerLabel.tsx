@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { Input } from '@/components/ui/inputs';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { LabelAndInput } from '../Common';
@@ -10,9 +10,9 @@ export const EditPieInnerLabel = React.memo(
     pieInnerLabelTitle,
     onUpdateChartConfig
   }: {
-    pieInnerLabelAggregate: IBusterMetricChartConfig['pieInnerLabelAggregate'];
-    pieInnerLabelTitle: IBusterMetricChartConfig['pieInnerLabelTitle'];
-    onUpdateChartConfig: (config: Partial<IBusterMetricChartConfig>) => void;
+    pieInnerLabelAggregate: BusterMetricChartConfig['pieInnerLabelAggregate'];
+    pieInnerLabelTitle: BusterMetricChartConfig['pieInnerLabelTitle'];
+    onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
   }) => {
     return (
       <>
@@ -31,7 +31,7 @@ export const EditPieInnerLabel = React.memo(
 );
 EditPieInnerLabel.displayName = 'EditPieInnerLabel';
 
-const options: SelectItem<IBusterMetricChartConfig['pieInnerLabelAggregate']>[] = [
+const options: SelectItem<BusterMetricChartConfig['pieInnerLabelAggregate']>[] = [
   { label: 'Sum', value: 'sum' },
   { label: 'Average', value: 'average' },
   { label: 'Median', value: 'median' },
@@ -41,8 +41,8 @@ const options: SelectItem<IBusterMetricChartConfig['pieInnerLabelAggregate']>[] 
 ];
 
 const EditPieInnerLabelAggregate: React.FC<{
-  pieInnerLabelAggregate: IBusterMetricChartConfig['pieInnerLabelAggregate'];
-  onUpdateChartConfig: (config: Partial<IBusterMetricChartConfig>) => void;
+  pieInnerLabelAggregate: BusterMetricChartConfig['pieInnerLabelAggregate'];
+  onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
 }> = ({ pieInnerLabelAggregate, onUpdateChartConfig }) => {
   const selectedOption = useMemo(() => {
     return options.find((option) => option.value === pieInnerLabelAggregate) || options[0];
@@ -56,7 +56,7 @@ const EditPieInnerLabelAggregate: React.FC<{
         onChange={(value) => {
           const label = options.find((option) => option.value === value)?.label;
           onUpdateChartConfig({
-            pieInnerLabelAggregate: value as IBusterMetricChartConfig['pieInnerLabelAggregate'],
+            pieInnerLabelAggregate: value as BusterMetricChartConfig['pieInnerLabelAggregate'],
             pieInnerLabelTitle: label as string
           });
         }}
@@ -66,8 +66,8 @@ const EditPieInnerLabelAggregate: React.FC<{
 };
 
 const EditPieInnerLabelTitle: React.FC<{
-  pieInnerLabelTitle: IBusterMetricChartConfig['pieInnerLabelTitle'];
-  onUpdateChartConfig: (config: Partial<IBusterMetricChartConfig>) => void;
+  pieInnerLabelTitle: BusterMetricChartConfig['pieInnerLabelTitle'];
+  onUpdateChartConfig: (config: Partial<BusterMetricChartConfig>) => void;
 }> = ({ pieInnerLabelTitle, onUpdateChartConfig }) => {
   return (
     <LabelAndInput label="Title">

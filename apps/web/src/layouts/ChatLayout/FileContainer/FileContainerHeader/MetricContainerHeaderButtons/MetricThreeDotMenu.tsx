@@ -58,6 +58,7 @@ import { timeout } from '@/lib';
 import { downloadElementToImage, exportJSONToCSV } from '@/lib/exportUtils';
 import { canEdit, getIsEffectiveOwner, getIsOwner } from '@/lib/share';
 import { BusterRoutes, createBusterRoute } from '@/routes';
+import { assetParamsToRoute } from '@/lib/assets';
 
 export const ThreeDotMenuButton = React.memo(
   ({
@@ -370,17 +371,11 @@ const useResultsViewSelectMenu = ({
   metricId: string;
 }) => {
   const link = useMemo(() => {
-    if (!chatId) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID_RESULTS,
-        metricId: metricId
-      });
-    }
-
-    return createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_METRIC_ID_RESULTS,
-      chatId: chatId,
-      metricId: metricId
+    return assetParamsToRoute({
+      type: 'metric',
+      chatId,
+      assetId: metricId,
+      page: 'results'
     });
   }, [chatId, metricId]);
 
@@ -403,17 +398,11 @@ const useSQLEditorSelectMenu = ({
   metricId: string;
 }) => {
   const link = useMemo(() => {
-    if (!chatId) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_METRIC_ID_SQL,
-        metricId: metricId
-      });
-    }
-
-    return createBusterRoute({
-      route: BusterRoutes.APP_CHAT_ID_METRIC_ID_SQL,
-      chatId: chatId,
-      metricId: metricId
+    return assetParamsToRoute({
+      type: 'metric',
+      chatId,
+      assetId: metricId,
+      page: 'sql'
     });
   }, [chatId, metricId]);
 
@@ -565,16 +554,12 @@ const useOpenFullScreenMetric = ({
       label: 'Open in metric page',
       value: 'open-in-full-screen',
       icon: <ArrowUpRight />,
-      link: versionNumber
-        ? createBusterRoute({
-            route: BusterRoutes.APP_METRIC_ID_VERSION_NUMBER,
-            metricId,
-            versionNumber
-          })
-        : createBusterRoute({
-            route: BusterRoutes.APP_METRIC_ID_CHART,
-            metricId
-          })
+      link: assetParamsToRoute({
+        type: 'metric',
+        assetId: metricId,
+        page: 'chart',
+        versionNumber
+      })
     }),
     [metricId, versionNumber]
   );

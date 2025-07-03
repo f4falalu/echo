@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
-import type { BusterMetricData, DataMetadata, IBusterMetric } from '@/api/asset_interfaces/metric';
-import { ChartType } from '@/api/asset_interfaces/metric/charts';
+import type { BusterMetricData, BusterMetric } from '@/api/asset_interfaces/metric';
+import type { DataMetadata } from '@buster/server-shared/metrics';
 import { BusterChart } from '@/components/ui/charts';
 import { cn } from '@/lib/classMerge';
 import { METRIC_CHART_CONTAINER_ID } from './config';
 
 interface MetricViewChartContentProps {
   className?: string;
-  chartConfig: IBusterMetric['chart_config'];
+  chartConfig: BusterMetric['chart_config'];
   metricData: BusterMetricData['data'];
   dataMetadata: DataMetadata | undefined;
   fetchedData: boolean;

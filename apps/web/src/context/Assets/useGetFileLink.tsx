@@ -29,7 +29,8 @@ export const useGetFileLink = () => {
         assetId: fileId,
         type: fileType,
         versionNumber,
-        secondaryView: useVersionHistoryMode ? 'version-history' : undefined
+        secondaryView: useVersionHistoryMode ? 'version-history' : undefined,
+        page: undefined
       });
     }
   );

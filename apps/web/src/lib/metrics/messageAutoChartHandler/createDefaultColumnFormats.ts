@@ -3,7 +3,7 @@ import {
   type ColumnLabelFormat,
   type ColumnMetaData,
   DEFAULT_COLUMN_LABEL_FORMAT,
-  type IBusterMetricChartConfig,
+  type BusterMetricChartConfig,
   type IColumnLabelFormat,
   type SimplifiedColumnType
 } from '@/api/asset_interfaces/metric';
@@ -12,7 +12,7 @@ import { isDateColumnType, isNumericColumnType, simplifyColumnType } from '@/lib
 export const createDefaultColumnLabelFormats = (
   columnLabelFormats: Record<string, IColumnLabelFormat> | undefined,
   columnsMetaData: ColumnMetaData[] | undefined
-): IBusterMetricChartConfig['columnLabelFormats'] => {
+): BusterMetricChartConfig['columnLabelFormats'] => {
   if (!columnsMetaData) return {};
 
   return columnsMetaData.reduce(
@@ -25,7 +25,7 @@ export const createDefaultColumnLabelFormats = (
       });
       return acc;
     },
-    {} as IBusterMetricChartConfig['columnLabelFormats']
+    {} as BusterMetricChartConfig['columnLabelFormats']
   );
 };
 

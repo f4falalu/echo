@@ -1,7 +1,3 @@
-import { MetricViewFile } from '@/controllers/MetricController/MetricViewFile';
+import MetricFilePage from '@metrics/file/page';
 
-export default async function FilePage({ params }: { params: Promise<{ metricId: string }> }) {
-  const { metricId } = await params;
-
-  return <MetricViewFile metricId={metricId} />;
-}
+export default MetricFilePage;

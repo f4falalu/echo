@@ -1,7 +1,7 @@
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import React from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { Button } from '@/components/ui/buttons';
 import { DotsVertical } from '@/components/ui/icons';
@@ -59,10 +59,10 @@ export const SelectAxisItemAvailableContainer = React.memo(
 const ThreeDotMenu: React.FC<{
   isDragging?: boolean;
   columnLabelFormat: IColumnLabelFormat;
-  columnSetting: IBusterMetricChartConfig['columnSettings'][string];
-  selectedChartType: IBusterMetricChartConfig['selectedChartType'];
-  barGroupType: IBusterMetricChartConfig['barGroupType'];
-  lineGroupType: IBusterMetricChartConfig['lineGroupType'];
+  columnSetting: BusterMetricChartConfig['columnSettings'][string];
+  selectedChartType: BusterMetricChartConfig['selectedChartType'];
+  barGroupType: BusterMetricChartConfig['barGroupType'];
+  lineGroupType: BusterMetricChartConfig['lineGroupType'];
   zoneId: SelectAxisContainerId;
   selectedAxis: ChartEncodes | null;
   id: string;

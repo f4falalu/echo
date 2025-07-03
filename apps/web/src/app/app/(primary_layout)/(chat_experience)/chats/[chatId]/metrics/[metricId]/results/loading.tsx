@@ -1,5 +1,3 @@
-import { FileIndeterminateLoader } from '@/components/features/FileIndeterminateLoader';
+import LoadingMetric from '@metrics/results/loading';
 
-export default function Loading() {
-  return <FileIndeterminateLoader />;
-}
+export default LoadingMetric;

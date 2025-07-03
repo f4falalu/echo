@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { ColumnSettings } from '@/api/asset_interfaces/metric/charts';
 import { useMemoizedFn } from '@/hooks';
 import { EditBarRoundness } from '../StylingAppVisualize/SelectAxis/SelectAxisColumnContent/EditBarRoundness';
 
 export const EditBarRoundnessGlobal: React.FC<{
-  columnSettings: IBusterMetricChartConfig['columnSettings'];
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
+  columnSettings: BusterMetricChartConfig['columnSettings'];
+  onUpdateChartConfig: (chartConfig: Partial<BusterMetricChartConfig>) => void;
 }> = React.memo(({ columnSettings, onUpdateChartConfig }) => {
   const mostPermissiveBarRoundness = useMemo(() => {
     return Object.values(columnSettings).reduce((acc, curr) => {
@@ -15,9 +15,9 @@ export const EditBarRoundnessGlobal: React.FC<{
   }, []);
 
   const onUpdateBarRoundness = useMemoizedFn((v: Partial<ColumnSettings>) => {
-    const newColumnSettings: IBusterMetricChartConfig['columnSettings'] = Object.keys(
+    const newColumnSettings: BusterMetricChartConfig['columnSettings'] = Object.keys(
       columnSettings
-    ).reduce<IBusterMetricChartConfig['columnSettings']>((acc, curr) => {
+    ).reduce<BusterMetricChartConfig['columnSettings']>((acc, curr) => {
       acc[curr] = { ...columnSettings[curr], ...v };
       return acc;
     }, {});

@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { HttpResponse, http } from 'msw';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
-import { type IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { Button } from '@/components/ui/buttons/Button';
 import { SelectAxisContainerId } from './config';
 import {
   SelectAxisColumnPopover,
   type SelectAxisColumnPopoverProps
 } from './SelectAxisColumnPopover';
+import type { ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 const meta: Meta<typeof SelectAxisColumnPopover> = {
   title: 'Controllers/EditMetricController/SelectAxisColumnPopover',
@@ -60,7 +60,7 @@ const mockProps: SelectAxisColumnPopoverProps = {
     replaceMissingDataWith: null,
     makeLabelHumanReadable: true,
     compactNumbers: false
-  } satisfies IColumnLabelFormat,
+  } satisfies ColumnLabelFormat,
   columnSetting: {
     showDataLabels: false,
     showDataLabelsAsPercentage: false,
@@ -70,7 +70,7 @@ const mockProps: SelectAxisColumnPopoverProps = {
     lineType: 'normal' as const,
     lineSymbolSize: 0,
     barRoundness: 8
-  } satisfies IBusterMetricChartConfig['columnSettings'][string],
+  } satisfies BusterMetricChartConfig['columnSettings'][string],
   id: 'test-id',
   selectedChartType: 'bar',
   barGroupType: 'group',

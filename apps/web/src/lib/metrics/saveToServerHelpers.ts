@@ -1,10 +1,10 @@
 import isEqual from 'lodash/isEqual';
-import type { DataMetadata, IBusterMetric } from '@/api/asset_interfaces/metric';
+import type { DataMetadata, BusterMetric } from '@/api/asset_interfaces/metric';
 import {
   DEFAULT_CHART_CONFIG_ENTRIES,
   DEFAULT_COLUMN_LABEL_FORMAT,
   DEFAULT_COLUMN_SETTINGS,
-  type IBusterMetricChartConfig
+  type BusterMetricChartConfig
 } from '@/api/asset_interfaces/metric';
 import type {
   BarAndLineAxis,
@@ -23,15 +23,15 @@ const DEFAULT_COLUMN_SETTINGS_ENTRIES = Object.entries(DEFAULT_COLUMN_SETTINGS);
 const DEFAULT_COLUMN_LABEL_FORMATS_ENTRIES = Object.entries(DEFAULT_COLUMN_LABEL_FORMAT);
 
 export const getChangedTopLevelMessageValues = (
-  newMetric: IBusterMetric,
-  oldMetric: IBusterMetric
+  newMetric: BusterMetric,
+  oldMetric: BusterMetric
 ) => {
   const changes = getChangedValues(oldMetric, newMetric, ['name', 'status', 'sql', 'file']);
   return changes;
 };
 
 const keySpecificHandlers: Partial<
-  Record<keyof IBusterMetricChartConfig, (value: unknown) => unknown>
+  Record<keyof BusterMetricChartConfig, (value: unknown) => unknown>
 > = {
   barAndLineAxis: (value: unknown) => value as BarAndLineAxis,
   scatterAxis: (value: unknown) => value as ScatterAxis,
@@ -97,14 +97,14 @@ const keySpecificHandlers: Partial<
   }
 };
 
-export const getChangesFromDefaultChartConfig = (newMetric: IBusterMetric) => {
+export const getChangesFromDefaultChartConfig = (newMetric: BusterMetric) => {
   const chartConfig = newMetric.chart_config;
   if (!chartConfig) return {} as BusterChartConfigProps;
 
-  const diff: Partial<IBusterMetricChartConfig> = {};
+  const diff: Partial<BusterMetricChartConfig> = {};
 
   for (const [_key, defaultValue] of DEFAULT_CHART_CONFIG_ENTRIES) {
-    const key = _key as keyof IBusterMetricChartConfig;
+    const key = _key as keyof BusterMetricChartConfig;
     const chartConfigValue = chartConfig[key];
     const handler = keySpecificHandlers[key];
 
@@ -127,7 +127,7 @@ export const getChangesFromDefaultChartConfig = (newMetric: IBusterMetric) => {
 };
 
 export const combineChangeFromDefaultChartConfig = (
-  newMetric: IBusterMetric,
+  newMetric: BusterMetric,
   dataMetadata: DataMetadata
 ) => {
   const chartConfig = createDefaultChartConfig({
@@ -138,8 +138,8 @@ export const combineChangeFromDefaultChartConfig = (
 };
 
 export const prepareMetricUpdateMetric = (
-  newMetric: IBusterMetric,
-  prevMetric: IBusterMetric
+  newMetric: BusterMetric,
+  prevMetric: BusterMetric
 ): Parameters<typeof updateMetric>[0] | null => {
   const changedTopLevelValues = getChangedTopLevelMessageValues(
     newMetric,

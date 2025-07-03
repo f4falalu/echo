@@ -1,11 +1,11 @@
 import type { ChartTypeRegistry, TooltipItem } from 'chart.js';
-import type { BusterChartConfigProps } from '@/api/asset_interfaces/metric/charts';
+import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import { formatLabel } from '@/lib/columnFormatter';
 import type { ITooltipItem } from '../../../../BusterChartTooltip/interfaces';
 
 export const scatterTooltipHelper = (
   dataPoints: TooltipItem<keyof ChartTypeRegistry>[],
-  columnLabelFormats: NonNullable<BusterChartConfigProps['columnLabelFormats']>
+  columnLabelFormats: NonNullable<ChartConfigProps['columnLabelFormats']>
 ): ITooltipItem[] => {
   return dataPoints.slice(0, 1).flatMap<ITooltipItem>((dataPoint) => {
     const dataPointDataset = dataPoint.dataset;

@@ -1,11 +1,11 @@
-import type { ColumnMetaData, IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { ColumnMetaData, BusterMetricChartConfig } from '@/api/asset_interfaces';
 import type { SelectItem } from '@/components/ui/select';
 import { formatLabel } from '@/lib';
 import { ColumnTypeIcon } from '../SelectAxis/config';
 
 export const createColumnFieldOptions = (
   columnMetadata: ColumnMetaData[],
-  columnLabelFormats: IBusterMetricChartConfig['columnLabelFormats'],
+  columnLabelFormats: BusterMetricChartConfig['columnLabelFormats'],
   iconClass: string
 ): SelectItem<string>[] => {
   return columnMetadata.map<SelectItem<string>>((column) => {

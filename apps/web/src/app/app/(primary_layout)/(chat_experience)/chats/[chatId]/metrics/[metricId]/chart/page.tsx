@@ -1,7 +1,3 @@
-import { MetricViewChart } from '@/controllers/MetricController/MetricViewChart';
+import MetricChartPage from '@metrics/chart/page';
 
-export default async function ChartPage({ params }: { params: Promise<{ metricId: string }> }) {
-  const { metricId } = await params;
-
-  return <MetricViewChart metricId={metricId} />;
-}
+export default MetricChartPage;

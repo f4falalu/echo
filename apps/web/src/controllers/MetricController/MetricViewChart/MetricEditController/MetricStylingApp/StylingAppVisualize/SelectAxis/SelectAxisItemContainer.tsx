@@ -1,7 +1,6 @@
 import type { DraggableAttributes } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 import React, { useMemo } from 'react';
-import type { ChartEncodes, IColumnLabelFormat } from '@/api/asset_interfaces/metric/charts';
 import { ErrorBoundary } from '@/components/ui/error';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
@@ -10,6 +9,7 @@ import { chartTypeToAxis, type SelectAxisContainerId, zoneIdToAxis } from './con
 import { SelectAxisDropdownContent } from './SelectAxisColumnContent';
 import { SelectAxisItemLabel } from './SelectAxisItemLabel';
 import { useSelectAxisContextSelector } from './useSelectAxisContext';
+import type { ChartEncodes, ColumnLabelFormat } from '@buster/server-shared/metrics';
 
 interface SelectAxisItemContainerProps {
   id: string;
@@ -25,7 +25,7 @@ interface SelectAxisItemContainerProps {
 export const SelectAxisItemContainer = React.memo(
   React.forwardRef<HTMLDivElement, SelectAxisItemContainerProps>(
     ({ id, zoneId, isPlaceholder, ...draggingProps }, ref) => {
-      const columnLabelFormat: undefined | IColumnLabelFormat = useSelectAxisContextSelector(
+      const columnLabelFormat: undefined | ColumnLabelFormat = useSelectAxisContextSelector(
         (x) => x.columnLabelFormats[id]
       );
       const selectedAxis = useSelectAxisContextSelector((x) => x.selectedAxis);

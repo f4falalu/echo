@@ -1,7 +1,3 @@
-import { MetricViewSQLController } from '@/controllers/MetricController/MetricViewSQL';
+import MetricSQLPage from '@metrics/sql/page';
 
-export default async function ResultsPage({ params }: { params: Promise<{ metricId: string }> }) {
-  const { metricId } = await params;
-
-  return <MetricViewSQLController metricId={metricId} />;
-}
+export default MetricSQLPage;

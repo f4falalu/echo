@@ -1,5 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { ChartType } from '@/api/asset_interfaces/metric/charts';
 import { SelectAxisContainerId } from './config';
 import type { DropZone } from './SelectAxisDragContainer/interfaces';
@@ -60,11 +60,11 @@ const makeY2AxisDropZone = (y2Items: string[] | null | undefined): DropZone =>
   makeDropZone(SelectAxisContainerId.Y2Axis, y2Items ?? EMPTY_ARRAY);
 
 export const chartTypeToDropZones: Record<
-  IBusterMetricChartConfig['selectedChartType'],
+  BusterMetricChartConfig['selectedChartType'],
   (selectedAxis: Parameters<typeof getChartTypeDropZones>[0]['selectedAxis']) => DropZone[]
 > = {
   ['bar']: (selectedAxis) => {
-    const _selectedAxis = selectedAxis as IBusterMetricChartConfig['barAndLineAxis'];
+    const _selectedAxis = selectedAxis as BusterMetricChartConfig['barAndLineAxis'];
     return [
       makeXAxisDropZone(_selectedAxis.x),
       makeYAxisDropZone(_selectedAxis.y),
@@ -73,7 +73,7 @@ export const chartTypeToDropZones: Record<
     ];
   },
   ['line']: (selectedAxis) => {
-    const _selectedAxis = selectedAxis as IBusterMetricChartConfig['barAndLineAxis'];
+    const _selectedAxis = selectedAxis as BusterMetricChartConfig['barAndLineAxis'];
     return [
       makeXAxisDropZone(_selectedAxis.x),
       makeYAxisDropZone(_selectedAxis.y),
@@ -82,7 +82,7 @@ export const chartTypeToDropZones: Record<
     ];
   },
   ['scatter']: (selectedAxis) => {
-    const _selectedAxis = selectedAxis as IBusterMetricChartConfig['scatterAxis'];
+    const _selectedAxis = selectedAxis as BusterMetricChartConfig['scatterAxis'];
     return [
       makeXAxisDropZone(_selectedAxis.x),
       makeYAxisDropZone(_selectedAxis.y),
@@ -92,7 +92,7 @@ export const chartTypeToDropZones: Record<
     ];
   },
   ['pie']: (selectedAxis) => {
-    const _selectedAxis = selectedAxis as IBusterMetricChartConfig['pieChartAxis'];
+    const _selectedAxis = selectedAxis as BusterMetricChartConfig['pieChartAxis'];
     return [
       makeXAxisDropZone(_selectedAxis.x),
       makeYAxisDropZone(_selectedAxis.y),
@@ -100,7 +100,7 @@ export const chartTypeToDropZones: Record<
     ];
   },
   ['combo']: (selectedAxis) => {
-    const _selectedAxis = selectedAxis as IBusterMetricChartConfig['comboChartAxis'];
+    const _selectedAxis = selectedAxis as BusterMetricChartConfig['comboChartAxis'];
     return [
       makeXAxisDropZone(_selectedAxis.x),
       makeYComboAxisDropZone(_selectedAxis.y),
@@ -122,12 +122,12 @@ export const getChartTypeDropZones = ({
   chartType,
   selectedAxis
 }: {
-  chartType: IBusterMetricChartConfig['selectedChartType'];
+  chartType: BusterMetricChartConfig['selectedChartType'];
   selectedAxis:
-    | IBusterMetricChartConfig['comboChartAxis']
-    | IBusterMetricChartConfig['pieChartAxis']
-    | IBusterMetricChartConfig['scatterAxis']
-    | IBusterMetricChartConfig['barAndLineAxis'];
+    | BusterMetricChartConfig['comboChartAxis']
+    | BusterMetricChartConfig['pieChartAxis']
+    | BusterMetricChartConfig['scatterAxis']
+    | BusterMetricChartConfig['barAndLineAxis'];
 }): DropZone[] => {
   return chartTypeToDropZones[chartType](selectedAxis);
 };

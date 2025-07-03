@@ -2,11 +2,11 @@ import type {
   BusterCollection,
   BusterDashboardResponse,
   BusterShare,
-  IBusterMetric
+  BusterMetric
 } from '@/api/asset_interfaces';
 
 export const getShareAssetConfig = (
-  message: IBusterMetric | BusterDashboardResponse | BusterCollection | null
+  message: BusterMetric | BusterDashboardResponse | BusterCollection | null
 ): BusterShare | null => {
   if (!message) return null;
 

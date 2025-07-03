@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { IBusterMetricChartConfig } from '@/api/asset_interfaces';
+import type { BusterMetricChartConfig } from '@/api/asset_interfaces';
 import { Select, type SelectItem } from '@/components/ui/select';
 import { useMemoizedFn } from '@/hooks';
 import { LabelAndInput } from '../../Common';
@@ -26,11 +26,11 @@ const allOptions: SelectItem<'custom' | 'columnTitle' | 'columnValue' | 'none'>[
 const onlyCustomOptions = [allOptions[0], allOptions[1]];
 
 export const EditMetricHeader: React.FC<{
-  header: IBusterMetricChartConfig['metricHeader'] | IBusterMetricChartConfig['metricSubHeader'];
+  header: BusterMetricChartConfig['metricHeader'] | BusterMetricChartConfig['metricSubHeader'];
   type: 'header' | 'subHeader';
   firstColumnId: string;
   hideDerivedMetricOption: boolean;
-  onUpdateChartConfig: (chartConfig: Partial<IBusterMetricChartConfig>) => void;
+  onUpdateChartConfig: (chartConfig: Partial<BusterMetricChartConfig>) => void;
 }> = React.memo(({ header, type, firstColumnId, hideDerivedMetricOption, onUpdateChartConfig }) => {
   const selectedOption = useMemo(() => {
     if (header === null) return 'none';

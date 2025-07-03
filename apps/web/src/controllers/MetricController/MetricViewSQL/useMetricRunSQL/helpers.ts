@@ -1,7 +1,7 @@
 import type {
   ColumnMetaData,
-  IBusterMetric,
-  IBusterMetricChartConfig
+  BusterMetric,
+  BusterMetricChartConfig
 } from '@/api/asset_interfaces/metric';
 import type {
   BusterChartConfigProps,
@@ -57,9 +57,9 @@ export const didColumnDataChange = (
  * @returns A new chart configuration suitable for the changed SQL data
  */
 export const simplifyChatConfigForSQLChange = (
-  chartConfig: IBusterMetricChartConfig,
-  data_metadata: IBusterMetric['data_metadata']
-): IBusterMetricChartConfig => {
+  chartConfig: BusterMetricChartConfig,
+  data_metadata: BusterMetric['data_metadata']
+): BusterMetricChartConfig => {
   // Create a new mapping of column name to format settings
   // This preserves existing format settings only when the column type hasn't changed
   const columnLabelFormats = data_metadata?.column_metadata?.reduce<

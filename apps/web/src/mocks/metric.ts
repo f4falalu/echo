@@ -1,12 +1,12 @@
 import {
   type BusterMetricListItem,
   ChartType,
-  type DataMetadata,
   DEFAULT_CHART_CONFIG,
-  type IBusterMetric,
-  type IBusterMetricChartConfig
+  type BusterMetric,
+  type BusterMetricChartConfig
 } from '@/api/asset_interfaces/metric';
 import { ShareRole, VerificationStatus } from '@/api/asset_interfaces/share';
+import type { DataMetadata } from '@buster/server-shared/metrics';
 
 // Utility functions for predictable mock data generation
 const CHART_TYPES: ChartType[] = ['bar', 'table', 'line', 'pie', 'scatter', 'metric'];
@@ -62,7 +62,7 @@ const generatePredictableEmail = (id: string): string => {
   return `${name}.${hash % 100}@${domain}`;
 };
 
-const createMockChartConfig = (id: string): IBusterMetricChartConfig => {
+const createMockChartConfig = (id: string): BusterMetricChartConfig => {
   const hash = Array.from(id).reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const chartType: ChartType = CHART_TYPES[hash % CHART_TYPES.length];
 
@@ -126,7 +126,7 @@ const dataMetadata: DataMetadata = {
   row_count: 10
 };
 
-export const createMockMetric = (id: string): IBusterMetric => {
+export const createMockMetric = (id: string): BusterMetric => {
   const chart_config = createMockChartConfig(id);
 
   return {
