@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import type { ChartConfigProps } from '@buster/server-shared/metrics';
 import type { BusterMetricData } from '@/api/asset_interfaces/metric';
 import type { RunSQLResponse } from '@/api/asset_interfaces/sql';
-import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest';
+import { useRunSQL as useRunSQLQuery } from '@/api/buster_rest/sql';
 import { useGetLatestMetricVersionMemoized, useUpdateMetric } from '@/api/buster_rest/metrics';
 import { queryKeys } from '@/api/query_keys';
 import { useBusterNotifications } from '@/context/BusterNotifications';

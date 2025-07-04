@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useDatasetUpdatePermissionUsers } from '@/api/buster_rest';
+import { useDatasetUpdatePermissionUsers } from '@/api/buster_rest/datasets';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, type DropdownProps } from '@/components/ui/dropdown';
 import { CheckDouble, Xmark } from '@/components/ui/icons';

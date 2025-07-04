@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDeleteDataset } from '@/api/buster_rest';
+import { useDeleteDataset } from '@/api/buster_rest/datasets';
 import { Button } from '@/components/ui/buttons';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useBusterNotifications } from '@/context/BusterNotifications';

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useGetDatasets } from '@/api/buster_rest';
+import { useGetDatasets } from '@/api/buster_rest/datasets';
 import { useListDatasources } from '@/api/buster_rest/data_source';
 import { useUserConfigContextSelector } from '@/context/Users';
 

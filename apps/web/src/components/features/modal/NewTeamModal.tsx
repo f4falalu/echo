@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useCreateTeam } from '@/api/buster_rest';
+import { useCreateTeam } from '@/api/buster_rest/teams';
 import { Input } from '@/components/ui/inputs';
 import { AppModal } from '@/components/ui/modal';
 import { useMemoizedFn } from '@/hooks';
