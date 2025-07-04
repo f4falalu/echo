@@ -1,7 +1,7 @@
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/query_keys';
+import { userQueryKeys } from '@/api/query_keys/users';
 import { useMemoizedFn } from '@/hooks';
-import { useCreateOrganization } from '../organizations';
+import { useCreateOrganization } from '../organizations/queryRequests';
 import {
   getMyUserInfo,
   getMyUserInfo_server,
@@ -15,7 +15,7 @@ import {
 
 export const useGetMyUserInfo = () => {
   return useQuery({
-    ...queryKeys.userGetUserMyself,
+    ...userQueryKeys.userGetUserMyself,
     queryFn: getMyUserInfo,
     enabled: false //This is a server only query
   });
@@ -27,7 +27,7 @@ export const prefetchGetMyUserInfo = async (
 ) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
-    ...queryKeys.userGetUserMyself,
+    ...userQueryKeys.userGetUserMyself,
     queryFn: () => getMyUserInfo_server(params)
   });
   return queryClient;
@@ -36,7 +36,7 @@ export const prefetchGetMyUserInfo = async (
 export const useGetUser = (params: Parameters<typeof getUser>[0]) => {
   const queryFn = useMemoizedFn(() => getUser(params));
   return useQuery({
-    ...queryKeys.userGetUser(params.userId),
+    ...userQueryKeys.userGetUser(params.userId),
     queryFn
   });
 };
@@ -44,7 +44,7 @@ export const useGetUser = (params: Parameters<typeof getUser>[0]) => {
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   const mutationFn = useMemoizedFn(async (params: Parameters<typeof updateOrganizationUser>[0]) => {
-    const options = queryKeys.userGetUser(params.userId);
+    const options = userQueryKeys.userGetUser(params.userId);
     queryClient.setQueryData(options.queryKey, (oldData) => {
       if (!oldData) return oldData;
       return {
@@ -64,7 +64,7 @@ export const useUpdateUser = () => {
 export const prefetchGetUser = async (userId: string, queryClientProp?: QueryClient) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
-    ...queryKeys.userGetUser(userId),
+    ...userQueryKeys.userGetUser(userId),
     queryFn: () => getUser_server({ userId })
   });
   return queryClient;
@@ -74,7 +74,7 @@ export const useGetUserList = (params: Parameters<typeof getUserList>[0]) => {
   const queryFn = useMemoizedFn(() => getUserList(params));
 
   return useQuery({
-    ...queryKeys.userGetUserList(params),
+    ...userQueryKeys.userGetUserList(params),
     queryFn
   });
 };
@@ -85,7 +85,7 @@ export const prefetchGetUserList = async (
 ) => {
   const queryClient = queryClientProp || new QueryClient();
   await queryClient.prefetchQuery({
-    ...queryKeys.userGetUserList(params),
+    ...userQueryKeys.userGetUserList(params),
     queryFn: () => getUserList_server(params)
   });
   return queryClient;
@@ -97,11 +97,11 @@ export const useInviteUser = () => {
   return useMutation({
     mutationFn: inviteUser,
     onSuccess: () => {
-      const user = queryClient.getQueryData(queryKeys.userGetUserMyself.queryKey);
+      const user = queryClient.getQueryData(userQueryKeys.userGetUserMyself.queryKey);
       const teamId = user?.organizations?.[0]?.id;
       if (teamId) {
         queryClient.invalidateQueries({
-          queryKey: [queryKeys.userGetUserList({ team_id: teamId }).queryKey],
+          queryKey: [userQueryKeys.userGetUserList({ team_id: teamId }).queryKey],
           refetchType: 'all'
         });
       }
