@@ -1,7 +1,7 @@
+import { canUserAccessChatCached } from '@buster/access-controls';
 import {
   type User,
   chats,
-  checkChatPermission,
   createMessage,
   db,
   generateAssetMessages,
@@ -9,7 +9,6 @@ import {
   getMessagesForChat,
   messages,
 } from '@buster/database';
-import { eq, and, gte, isNull } from 'drizzle-orm';
 import type { Chat, Message } from '@buster/database';
 import type {
   ChatMessage,
@@ -23,6 +22,7 @@ import {
   ReasoningMessageSchema,
   ResponseMessageSchema,
 } from '@buster/server-shared/chats';
+import { and, eq, gte, isNull } from 'drizzle-orm';
 
 // Optimized: Generic function to handle both response and reasoning messages
 function buildMessages<T extends { id: string }>(
@@ -188,7 +188,10 @@ export async function handleExistingChat(
     throw new ChatError(ChatErrorCode.CHAT_NOT_FOUND, 'Chat not found', 404);
   }
 
-  const hasPermission = await checkChatPermission(chatId, user.id);
+  const hasPermission = await canUserAccessChatCached({
+    userId: user.id,
+    chatId,
+  });
   if (!hasPermission) {
     throw new ChatError(
       ChatErrorCode.PERMISSION_DENIED,

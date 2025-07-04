@@ -165,25 +165,6 @@ export async function createMessage(input: CreateMessageInput): Promise<Message>
 }
 
 /**
- * Check if a user has permission to access a chat
- */
-export async function checkChatPermission(chatId: string, userId: string): Promise<boolean> {
-  const chat = await db
-    .select()
-    .from(chats)
-    .where(and(eq(chats.id, chatId), isNull(chats.deletedAt)))
-    .limit(1);
-
-  if (!chat.length) {
-    return false;
-  }
-
-  // For now, only check if user is the creator
-  // TODO: Add more sophisticated permission checking with asset_permissions table
-  return chat[0]?.createdBy === userId;
-}
-
-/**
  * Get all messages for a chat
  */
 export async function getMessagesForChat(chatId: string): Promise<Message[]> {
@@ -219,7 +200,7 @@ export async function updateChat(
     }
 
     // Build update object with only provided fields
-    const updateData: any = {
+    const updateData: Partial<UpdateableChatFields> & { updatedAt: string } = {
       updatedAt: new Date().toISOString(),
     };
 
