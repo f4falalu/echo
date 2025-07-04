@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useDeleteDataset } from '@/api/buster_rest';
+import { useDeleteDataset } from '@/api/buster_rest/datasets';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, type DropdownItems } from '@/components/ui/dropdown';
 import { Dots, Trash } from '@/components/ui/icons';

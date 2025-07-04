@@ -4,7 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 import type React from 'react';
 import { useMemo, useRef, useState } from 'react';
 import type { DataResult } from '@buster/server-shared/metrics';
-import { useRunSQL } from '@/api/buster_rest';
+import { useRunSQL } from '@/api/buster_rest/sql';
 import { AppVerticalCodeSplitter } from '@/components/features/layouts/AppVerticalCodeSplitter';
 import type { AppSplitterRef } from '@/components/ui/layouts/AppSplitter';
 import { useMemoizedFn, useRequest } from '@/hooks';

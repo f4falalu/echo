@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDatasetUpdateDatasetGroups } from '@/api/buster_rest';
+import { useDatasetUpdateDatasetGroups } from '@/api/buster_rest/datasets';
 import { PermissionAssignedButton } from '@/components/features/PermissionComponents';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
 import { useMemoizedFn } from '@/hooks';

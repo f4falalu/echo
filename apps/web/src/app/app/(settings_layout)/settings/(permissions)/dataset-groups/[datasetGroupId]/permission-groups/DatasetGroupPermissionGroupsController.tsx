@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { useMemo, useState } from 'react';
-import { useGetDatasetGroupPermissionGroups } from '@/api/buster_rest';
+import { useGetDatasetGroupPermissionGroups } from '@/api/buster_rest/dataset_groups';
 import {
   NewDatasetGroupModal,
   PermissionSearchAndListWrapper

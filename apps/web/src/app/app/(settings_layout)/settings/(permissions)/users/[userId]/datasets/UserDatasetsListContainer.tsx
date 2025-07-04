@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import type { BusterUserDataset, BusterUserPermissionGroup } from '@/api/asset_interfaces';
-import { useUpdateUserDatasets } from '@/api/buster_rest';
+import { useUpdateUserDatasets } from '@/api/buster_rest/users/permissions';
 import { PermissionAssignedCell } from '@/components/features/PermissionComponents';
 import {
   type BusterListColumn,
@@ -134,7 +134,12 @@ export const UserDatasetsListContainer: React.FC<{
         useRowClickSelectChange={false}
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
-        emptyState={useMemo(() => <EmptyStateList text="No datasets found" />, [])}
+        emptyState={useMemo(
+          () => (
+            <EmptyStateList text="No datasets found" />
+          ),
+          []
+        )}
       />
     </InfiniteListContainer>
   );

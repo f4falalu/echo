@@ -2,7 +2,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { cache } from 'react';
 import type React from 'react';
-import { prefetchGetUser } from '@/api/buster_rest';
+import { prefetchGetUser } from '@/api/buster_rest/users';
 import { LayoutHeaderAndSegment, UsersBackButton } from './_LayoutHeaderAndSegment';
 import { queryKeys } from '@/api/query_keys';
 

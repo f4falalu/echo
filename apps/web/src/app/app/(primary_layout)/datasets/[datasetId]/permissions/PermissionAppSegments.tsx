@@ -5,7 +5,7 @@ import {
   useDatasetListDatasetGroups,
   useDatasetListPermissionGroups,
   useDatasetListPermissionUsers
-} from '@/api/buster_rest';
+} from '@/api/buster_rest/datasets';
 import { AppSegmented, type SegmentedItem } from '@/components/ui/segmented';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { PermissionApps } from './config';

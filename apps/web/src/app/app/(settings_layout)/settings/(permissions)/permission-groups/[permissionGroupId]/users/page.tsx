@@ -1,5 +1,5 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { prefetchPermissionGroupUsers } from '@/api/buster_rest';
+import { prefetchPermissionGroupUsers } from '@/api/buster_rest/permission_groups';
 import { PermissionGroupUsersController } from './_PermissionGroupUsersController';
 
 export default async function Page(props: { params: Promise<{ permissionGroupId: string }> }) {

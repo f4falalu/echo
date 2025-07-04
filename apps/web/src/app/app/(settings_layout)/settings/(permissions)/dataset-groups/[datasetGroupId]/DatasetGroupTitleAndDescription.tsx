@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useGetDatasetGroup, useUpdateDatasetGroup } from '@/api/buster_rest';
+import { useGetDatasetGroup, useUpdateDatasetGroup } from '@/api/buster_rest/dataset_groups';
 import { EditableTitle } from '@/components/ui/typography/EditableTitle';
 import { useMemoizedFn } from '@/hooks';
 
