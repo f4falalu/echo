@@ -1,4 +1,5 @@
 import { z } from 'zod/v4';
+import { getDefaults } from '../defaultHelpers';
 
 export const LineColumnSettingsSchema = z.object({
   // OPTIONAL: default is 2. This will only apply if the columnVisualization is set to 'line'.
@@ -16,7 +17,7 @@ export const LineColumnSettingsSchema = z.object({
     .number()
     .min(0, 'Line symbol size must be at least 0')
     .max(10, 'Line symbol size must be at most 10')
-    .default(0)
+    .default(0),
 });
 
 export const BarColumnSettingsSchema = z.object({
@@ -25,7 +26,7 @@ export const BarColumnSettingsSchema = z.object({
     .number()
     .min(0, 'Bar roundness must be at least 0')
     .max(50, 'Bar roundness must be at most 50')
-    .default(8)
+    .default(8),
 });
 
 export const DotColumnSettingsSchema = z.object({
@@ -34,7 +35,7 @@ export const DotColumnSettingsSchema = z.object({
     .number()
     .min(1, 'Dot symbol size must be at least 1')
     .max(50, 'Dot symbol size must be at most 50')
-    .default(10)
+    .default(10),
 });
 
 export const ColumnSettingsSchema = z.object({
@@ -67,8 +68,10 @@ export const ColumnSettingsSchema = z.object({
     .number()
     .min(0, 'Bar roundness must be at least 0')
     .max(50, 'Bar roundness must be at most 50')
-    .default(8)
+    .default(8),
 });
+
+export const DEFAULT_COLUMN_SETTINGS: ColumnSettings = getDefaults(ColumnSettingsSchema);
 
 // Export inferred types
 export type LineColumnSettings = z.infer<typeof LineColumnSettingsSchema>;

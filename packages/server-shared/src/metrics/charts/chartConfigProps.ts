@@ -1,26 +1,24 @@
-import { z } from "zod/v4";
-import { GoalLineSchema, TrendlineSchema } from "./annotationInterfaces";
-import { BarChartPropsSchema } from "./barChartProps";
-import { ColumnSettingsSchema } from "./columnInterfaces";
-import { ColumnLabelFormatSchema } from "./columnLabelInterfaces";
-import { ComboChartPropsSchema } from "./comboChartProps";
-import { DEFAULT_CHART_THEME } from "./configColors";
-import { ChartTypeSchema } from "./enum";
-import { ShowLegendHeadlineSchema } from "./etcInterfaces";
-import { LineChartPropsSchema } from "./lineChartProps";
-import {
-  DerivedMetricTitleSchema,
-  MetricChartPropsSchema,
-} from "./metricChartProps";
-import { PieChartPropsSchema } from "./pieChartProps";
-import { ScatterChartPropsSchema } from "./scatterChartProps";
-import { TableChartPropsSchema } from "./tableChartProps";
+import { z } from 'zod/v4';
+import { getDefaults } from '../defaultHelpers';
+import { GoalLineSchema, TrendlineSchema } from './annotationInterfaces';
+import { BarChartPropsSchema } from './barChartProps';
+import { ColumnSettingsSchema } from './columnInterfaces';
+import { ColumnLabelFormatSchema } from './columnLabelInterfaces';
+import { ComboChartPropsSchema } from './comboChartProps';
+import { DEFAULT_CHART_THEME } from './configColors';
+import { ChartTypeSchema } from './enum';
+import { ShowLegendHeadlineSchema } from './etcInterfaces';
+import { LineChartPropsSchema } from './lineChartProps';
+import { DerivedMetricTitleSchema, MetricChartPropsSchema } from './metricChartProps';
+import { PieChartPropsSchema } from './pieChartProps';
+import { ScatterChartPropsSchema } from './scatterChartProps';
+import { TableChartPropsSchema } from './tableChartProps';
 import {
   CategoryAxisStyleConfigSchema,
   XAxisConfigSchema,
   Y2AxisConfigSchema,
   YAxisConfigSchema,
-} from "./tickInterfaces";
+} from './tickInterfaces';
 
 export const ChartConfigPropsSchema = z.object({
   selectedChartType: ChartTypeSchema,
@@ -55,6 +53,10 @@ export const ChartConfigPropsSchema = z.object({
   ...ComboChartPropsSchema.shape,
   ...MetricChartPropsSchema.shape,
 });
+
+export const DEFAULT_CHART_CONFIG: ChartConfigProps = getDefaults(ChartConfigPropsSchema);
+
+export const DEFAULT_CHART_CONFIG_ENTRIES = Object.entries(DEFAULT_CHART_CONFIG);
 
 // Re-export schemas for backward compatibility
 export {

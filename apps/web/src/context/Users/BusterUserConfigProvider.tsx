@@ -15,9 +15,10 @@ export const useUserConfigProvider = () => {
   const userOrganizations = userResponse?.organizations?.[0];
   const userRole = userOrganizations?.role;
   const isUserRegistered =
-    !!userResponse && !!userResponse?.organizations?.[0]?.id && !!userResponse?.user?.name;
-  //&&
-  //  !isAnonymousUser;
+    !!userResponse &&
+    !!userResponse?.organizations?.[0]?.id &&
+    !!userResponse?.user?.name &&
+    !isAnonymousUser;
 
   const isAdmin = checkIfUserIsAdmin(userResponse);
 
