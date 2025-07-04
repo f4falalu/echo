@@ -1,6 +1,6 @@
-import { validate } from 'email-validator';
 import React from 'react';
 import type { ShareAssetType, ShareConfig, ShareRole } from '@buster/server-shared/share';
+import { isValidEmail } from '@/lib/email';
 import {
   useShareCollection,
   useUnshareCollection,
@@ -84,12 +84,12 @@ const ShareMenuContentShare: React.FC<ShareMenuContentBodyProps> = React.memo(
     const [inputValue, setInputValue] = React.useState<string>('');
     const [defaultPermissionLevel, setDefaultPermissionLevel] =
       React.useState<ShareRole>('canView');
-    const disableSubmit = !inputHasText(inputValue) || !validate(inputValue);
+    const disableSubmit = !inputHasText(inputValue) || !isValidEmail(inputValue);
     const hasIndividualPermissions = !!individual_permissions?.length;
 
     const onSubmitNewEmail = useMemoizedFn(async () => {
-      const isValidEmail = validate(inputValue);
-      if (!isValidEmail) {
+      const emailIsValid = isValidEmail(inputValue);
+      if (!emailIsValid) {
         openErrorMessage('Invalid email address');
         return;
       }

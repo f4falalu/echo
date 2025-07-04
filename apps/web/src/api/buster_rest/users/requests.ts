@@ -5,7 +5,7 @@ import type {
   BusterUserResponse,
   OrganizationUser
 } from '@/api/asset_interfaces/users';
-import { BASE_URL } from '@/api/buster_rest/config';
+import { BASE_URL } from '../config';
 import { serverFetch } from '../../createServerInstance';
 import { mainApi } from '../instances';
 
