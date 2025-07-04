@@ -1,16 +1,13 @@
 import isEmpty from 'lodash/isEmpty';
 import React, { useCallback } from 'react';
-import {
-  DEFAULT_CHART_CONFIG,
-  type BusterChartPropsBase,
-  type ChartConfigProps
-} from '@buster/server-shared/metrics';
+import { DEFAULT_CHART_CONFIG, type ChartConfigProps } from '@buster/server-shared/metrics';
 import { AppDataGrid } from '@/components/ui/table/AppDataGrid';
 import { useUpdateMetricChart } from '@/context/Metrics';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
 import { formatLabel } from '@/lib/columnFormatter';
 import type { BusterTableChartConfig } from './interfaces';
+import type { BusterChartPropsBase } from '@/api/asset_interfaces/metric';
 
 export interface BusterTableChartProps extends BusterTableChartConfig, BusterChartPropsBase {}
 

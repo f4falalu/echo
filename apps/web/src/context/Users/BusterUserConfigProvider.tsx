@@ -2,7 +2,7 @@
 
 import React, { type PropsWithChildren } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
-import { useGetMyUserInfo } from '@/api/buster_rest/users';
+import { useGetMyUserInfo } from '@/api/buster_rest/users/queryRequests';
 import { checkIfUserIsAdmin } from '@/lib/user';
 import { useSupabaseContext } from '../Supabase';
 
@@ -15,10 +15,9 @@ export const useUserConfigProvider = () => {
   const userOrganizations = userResponse?.organizations?.[0];
   const userRole = userOrganizations?.role;
   const isUserRegistered =
-    !!userResponse &&
-    !!userResponse?.organizations?.[0]?.id &&
-    !!userResponse?.user?.name &&
-    !isAnonymousUser;
+    !!userResponse && !!userResponse?.organizations?.[0]?.id && !!userResponse?.user?.name;
+  //&&
+  //  !isAnonymousUser;
 
   const isAdmin = checkIfUserIsAdmin(userResponse);
 

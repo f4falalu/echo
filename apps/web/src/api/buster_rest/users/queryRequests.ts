@@ -1,6 +1,6 @@
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { userQueryKeys } from '@/api/query_keys/users';
-import { useMemoizedFn } from '@/hooks';
+import { useMemoizedFn } from '@/hooks/useMemoizedFn';
 import { useCreateOrganization } from '../organizations/queryRequests';
 import {
   getMyUserInfo,

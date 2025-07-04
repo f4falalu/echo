@@ -15,7 +15,7 @@ import {
   DEFAULT_DAY_OF_WEEK_FORMAT,
   type ColumnLabelFormat
 } from '@buster/server-shared/metrics';
-import { SupportedLanguages } from '../config/languages';
+import { SupportedLanguages } from '@/config/languages';
 import { getBrowserLanguage } from './language';
 import { isNumeric } from './numbers';
 
@@ -307,10 +307,6 @@ export const keysWithDate = (
 
 export const formatTime = (date: string | Date, format: string, isUTC: boolean) => {
   return isUTC ? dayjs.utc(date).format(format) : dayjs(date).format(format || 'h:mm A');
-};
-
-export const millisecondsFromUnixTimestamp = (timestamp = 0) => {
-  return (timestamp - dayjs().unix()) * 1000;
 };
 
 export enum DEFAULT_TIME_ENCODE_FORMATS {

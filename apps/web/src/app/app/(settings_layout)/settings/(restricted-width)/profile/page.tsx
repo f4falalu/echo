@@ -2,21 +2,17 @@
 
 import { Avatar } from '@/components/ui/avatar';
 import { Text, Title } from '@/components/ui/typography';
-import { useUserConfigContextSelector } from '@/context/Users';
+import { useUserConfigContextSelector } from '@/context/Users/BusterUserConfigProvider';
 import { formatDate } from '@/lib/date';
 import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
 
 export default function ProfilePage() {
   const user = useUserConfigContextSelector((state) => state.user);
-
   if (!user) return null;
-
   const { name, email, created_at } = user;
-
   return (
     <div>
       <SettingsPageHeader title="Profile" description="Manage your profile & information" />
-
       <div className="bg-background rounded-lg border shadow">
         {/* Header Section */}
         <div className="border-border/30 flex flex-col items-center gap-4 border-b p-6 sm:flex-row sm:items-start">
@@ -28,14 +24,12 @@ export default function ProfilePage() {
             <Text className="text-gray-light mt-1">{email}</Text>
           </div>
         </div>
-
         {/* Info Section */}
         <div className="space-y-4 p-6">
           <div className="flex items-center justify-between">
             <Text variant="secondary">Member Since</Text>
             <Text className="font-medium">{formatDate({ date: created_at, format: 'll' })}</Text>
           </div>
-
           <div className="flex items-center justify-between">
             <Text variant="secondary">Account Status</Text>
             <div className="flex items-center gap-2">
