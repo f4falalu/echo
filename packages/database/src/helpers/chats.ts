@@ -219,7 +219,7 @@ export async function updateChat(
 		}
 
 		// Build update object with only provided fields
-		const updateData: any = {
+		const updateData: Partial<UpdateableChatFields> & { updatedAt: string } = {
 			updatedAt: new Date().toISOString(),
 		};
 
