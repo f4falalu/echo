@@ -2,7 +2,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import type { InferSelectModel } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../connection';
-import { chats, messages, userFavorites, users } from '../schema';
+import { chats, messages, userFavorites, users, usersToOrganizations } from '../schema';
 
 // Type inference from schema
 export type Chat = InferSelectModel<typeof chats>;
@@ -178,9 +178,42 @@ export async function checkChatPermission(chatId: string, userId: string): Promi
     return false;
   }
 
-  // For now, only check if user is the creator
+  // Check if user is the creator
+  if (chat[0]?.createdBy === userId) {
+    return true;
+  }
+
+  // Check if user is an admin in the same organization as the chat
+  const chatOrganizationId = chat[0]?.organizationId;
+  if (!chatOrganizationId) {
+    return false;
+  }
+
+  // Check user's role in the organization
+  const userOrgRole = await db
+    .select({
+      role: usersToOrganizations.role,
+    })
+    .from(usersToOrganizations)
+    .where(
+      and(
+        eq(usersToOrganizations.userId, userId),
+        eq(usersToOrganizations.organizationId, chatOrganizationId),
+        isNull(usersToOrganizations.deletedAt)
+      )
+    )
+    .limit(1);
+
+  if (userOrgRole.length > 0 && userOrgRole[0]) {
+    const role = userOrgRole[0].role;
+    // Check if user has admin role (workspace_admin or data_admin)
+    if (role === 'workspace_admin' || role === 'data_admin') {
+      return true;
+    }
+  }
+
   // TODO: Add more sophisticated permission checking with asset_permissions table
-  return chat[0]?.createdBy === userId;
+  return false;
 }
 
 /**
