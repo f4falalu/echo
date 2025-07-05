@@ -8,6 +8,7 @@ import { cn } from '@/lib/classMerge';
 import { BusterRoutes, createBusterRoute } from '@/routes';
 import { MetricTitle } from './MetricTitle';
 import { useDashboardMetric } from './useDashboardMetric';
+import { assetParamsToRoute } from '@/lib/assets';
 
 const DashboardMetricItemBase: React.FC<{
   metricId: string;
@@ -55,18 +56,14 @@ const DashboardMetricItemBase: React.FC<{
   );
 
   const metricLink = useMemo(() => {
-    if (chatId) {
-      return createBusterRoute({
-        route: BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART,
-        chatId,
-        metricId
-      });
-    }
-    return createBusterRoute({
-      route: BusterRoutes.APP_METRIC_ID_CHART,
-      metricId: metricId
+    return assetParamsToRoute({
+      type: 'metric',
+      assetId: metricId,
+      chatId,
+      dashboardId,
+      page: 'chart'
     });
-  }, [metricId, chatId]);
+  }, [metricId, chatId, dashboardId]);
 
   const onInitialAnimationEndPreflight = useMemoizedFn(() => {
     setInitialAnimationEnded(metricId);

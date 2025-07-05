@@ -3,6 +3,7 @@ import type { MetricFileViewSecondary } from '../../layouts/ChatLayout/ChatLayou
 
 export type MetricRouteParams = {
   assetId: string;
+  dashboardId?: string;
   chatId?: string;
   secondaryView?: MetricFileViewSecondary;
   versionNumber?: number;
@@ -14,6 +15,7 @@ export const createMetricRoute = ({
   assetId: metricId,
   chatId,
   secondaryView,
+  dashboardId,
   versionNumber: metricVersionNumber,
   page = 'chart'
 }: Omit<MetricRouteParams, 'type'>) => {
