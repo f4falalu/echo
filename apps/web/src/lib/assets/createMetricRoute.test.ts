@@ -232,6 +232,144 @@ describe('createMetricRoute', () => {
     });
   });
 
+  describe('Dashboard route tests', () => {
+    describe('Dashboard with chart page', () => {
+      it('should create dashboard metric chart route with all parameters', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          dashboardId: 'dashboard-789',
+          secondaryView: 'chart-edit',
+          versionNumber: 5,
+          page: 'chart'
+        });
+
+        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART);
+        expect(result).toContain('chatId=chat-456');
+        expect(result).toContain('dashboardId=dashboard-789');
+        expect(result).toContain('metricId=metric-123');
+        expect(result).toContain('metricVersionNumber=5');
+        expect(result).toContain('secondaryView=chart-edit');
+      });
+
+      it('should create dashboard metric chart route with version history view', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          dashboardId: 'dashboard-789',
+          secondaryView: 'version-history',
+          page: 'chart'
+        });
+
+        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART);
+        expect(result).toContain('chatId=chat-456');
+        expect(result).toContain('dashboardId=dashboard-789');
+        expect(result).toContain('metricId=metric-123');
+        expect(result).toContain('secondaryView=version-history');
+      });
+
+      it('should prioritize dashboard route over regular chat route', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          dashboardId: 'dashboard-789',
+          page: 'chart'
+        });
+
+        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_CHART);
+        expect(result).not.toContain(BusterRoutes.APP_CHAT_ID_METRIC_ID_CHART);
+      });
+    });
+
+    describe('Dashboard with results page', () => {
+      it('should create dashboard metric results route', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          dashboardId: 'dashboard-789',
+          versionNumber: 3,
+          page: 'results'
+        });
+
+        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_RESULTS);
+        expect(result).toContain('chatId=chat-456');
+        expect(result).toContain('dashboardId=dashboard-789');
+        expect(result).toContain('metricId=metric-123');
+        expect(result).toContain('metricVersionNumber=3');
+      });
+
+      it('should require both chatId and dashboardId for dashboard results route', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          dashboardId: 'dashboard-789',
+          page: 'results'
+        });
+
+        // Should fall back to non-chat route when chatId is missing
+        expect(result).toContain(BusterRoutes.APP_METRIC_ID_CHART);
+        expect(result).not.toContain('dashboardId');
+      });
+    });
+
+    describe('Dashboard with SQL page', () => {
+      it('should create dashboard metric SQL route', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          dashboardId: 'dashboard-789',
+          versionNumber: 7,
+          page: 'sql'
+        });
+
+        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL);
+        expect(result).toContain('chatId=chat-456');
+        expect(result).toContain('dashboardId=dashboard-789');
+        expect(result).toContain('metricId=metric-123');
+        expect(result).toContain('metricVersionNumber=7');
+      });
+
+      it('should create dashboard metric SQL route without version number', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          chatId: 'chat-456',
+          dashboardId: 'dashboard-789',
+          page: 'sql'
+        });
+
+        expect(result).toContain(BusterRoutes.APP_CHAT_ID_DASHBOARD_ID_METRIC_ID_SQL);
+        expect(result).toContain('chatId=chat-456');
+        expect(result).toContain('dashboardId=dashboard-789');
+        expect(result).toContain('metricId=metric-123');
+      });
+    });
+
+    describe('Dashboard edge cases', () => {
+      it('should handle dashboardId without chatId for chart page', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          dashboardId: 'dashboard-789',
+          page: 'chart'
+        });
+
+        // Should fall back to non-chat route
+        expect(result).toContain(BusterRoutes.APP_METRIC_ID_CHART);
+        expect(result).not.toContain('dashboardId');
+      });
+
+      it('should handle dashboardId without chatId for sql page', () => {
+        const result = createMetricRoute({
+          assetId: 'metric-123',
+          dashboardId: 'dashboard-789',
+          page: 'sql'
+        });
+
+        // Should fall back to non-chat route
+        expect(result).toContain(BusterRoutes.APP_METRIC_ID_SQL);
+        expect(result).not.toContain('dashboardId');
+      });
+    });
+  });
+
   describe('Parameter combinations', () => {
     it('should handle all optional parameters being undefined', () => {
       const result = createMetricRoute({
