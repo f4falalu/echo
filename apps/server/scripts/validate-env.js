@@ -2,11 +2,11 @@
 
 // Build-time environment validation
 
-console.log('🔍 Validating environment variables...');
+console.info('🔍 Validating environment variables...');
 
 // Skip validation during Docker builds (environment variables are only available at runtime)
 if (process.env.DOCKER_BUILD || process.env.CI || process.env.NODE_ENV === 'production') {
-  console.log(
+  console.info(
     '🐳 Docker/CI build detected - skipping environment validation (will validate at runtime)'
   );
   process.exit(0);
@@ -38,14 +38,14 @@ for (const [envKey, value] of Object.entries(env)) {
     console.error(`❌ Missing required environment variable: ${envKey}`);
     hasErrors = true;
   } else {
-    console.log(`✅ ${envKey} is set`);
+    console.info(`✅ ${envKey} is set`);
   }
 }
 
 // Check Slack variables only if integration is enabled
 if (slackEnv.SLACK_INTEGRATION_ENABLED === 'true') {
-  console.log('');
-  console.log('🔍 Slack integration is enabled. Validating Slack environment variables...');
+  console.info('');
+  console.info('🔍 Slack integration is enabled. Validating Slack environment variables...');
 
   const requiredSlackVars = [
     'SLACK_CLIENT_ID',
@@ -59,11 +59,11 @@ if (slackEnv.SLACK_INTEGRATION_ENABLED === 'true') {
       console.error(`❌ Missing required Slack environment variable: ${envKey}`);
       hasErrors = true;
     } else {
-      console.log(`✅ ${envKey} is set`);
+      console.info(`✅ ${envKey} is set`);
     }
   }
 } else {
-  console.log('ℹ️  Slack integration is disabled (SLACK_INTEGRATION_ENABLED != true)');
+  console.info('ℹ️  Slack integration is disabled (SLACK_INTEGRATION_ENABLED != true)');
 }
 
 if (hasErrors) {
@@ -73,4 +73,4 @@ if (hasErrors) {
   process.exit(1);
 }
 
-console.log('✅ All required environment variables are present');
+console.info('✅ All required environment variables are present');

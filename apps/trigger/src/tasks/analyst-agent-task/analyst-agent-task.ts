@@ -1,4 +1,4 @@
-import { logger, schemaTask } from '@trigger.dev/sdk';
+import { logger, schemaTask, tasks } from '@trigger.dev/sdk/v3';
 import { initLogger, wrapTraced } from 'braintrust';
 import { AnalystAgentTaskInputSchema, type AnalystAgentTaskOutput } from './types';
 
@@ -18,6 +18,8 @@ import { RuntimeContext } from '@mastra/core/runtime-context';
 // Task 3: Runtime Context Setup Function
 // Database helper output types
 import type { MessageContextOutput, OrganizationDataSourceOutput } from '@buster/database';
+
+import type { messagePostProcessingTask } from '../message-post-processing/message-post-processing';
 
 /**
  * Task 3: Setup runtime context from Task 2 database helper outputs
@@ -475,6 +477,19 @@ export const analystAgentTask: ReturnType<
           totalWorkflowTimeMs: totalWorkflowTime,
         },
       });
+
+      // Fire off message post-processing task (fire-and-forget)
+      tasks
+        .trigger<typeof messagePostProcessingTask>('message-post-processing', {
+          messageId: payload.message_id,
+        })
+        .catch((error) => {
+          // Log error but don't fail the current task
+          logger.error('Failed to trigger message post-processing task', {
+            messageId: payload.message_id,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+        });
 
       // Allow Braintrust a brief moment to clean up its trace, but don't block unnecessarily
       // Use a much shorter timeout with a race condition to avoid excessive delays

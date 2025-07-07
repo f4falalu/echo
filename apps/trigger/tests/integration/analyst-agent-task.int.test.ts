@@ -41,7 +41,7 @@ describe('Analyst Agent Task Integration Tests', () => {
     // Initialize Braintrust logging for observability
     initLogger({
       apiKey: process.env.BRAINTRUST_KEY,
-      projectName: 'ANALYST-AGENT-TASK-INTEGRATION',
+      projectName: process.env.ENVIRONMENT || 'development',
     });
 
     // Verify required environment variables
