@@ -137,7 +137,7 @@ const thinkAndPrepExecution = async ({
 
   // Get workflow start time from runtime context
   const workflowStartTime = runtimeContext.get('workflowStartTime');
-  
+
   const chunkProcessor = new ChunkProcessor(
     messageId,
     [],
@@ -203,7 +203,10 @@ const thinkAndPrepExecution = async ({
                   // Set finished = true for respondWithoutAnalysis and messageUserClarifyingQuestion
                   // submitThoughts should abort but not finish so workflow can continue
                   const finishingToolName = chunkProcessor.getFinishingToolName();
-                  if (finishingToolName === 'respondWithoutAnalysis' || finishingToolName === 'messageUserClarifyingQuestion') {
+                  if (
+                    finishingToolName === 'respondWithoutAnalysis' ||
+                    finishingToolName === 'messageUserClarifyingQuestion'
+                  ) {
                     finished = true;
                   }
                 },

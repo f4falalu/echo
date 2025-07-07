@@ -1,16 +1,16 @@
-import { beforeAll, afterAll, describe, it, expect } from 'vitest';
-import {
-  setupTestEnvironment,
-  cleanupTestEnvironment,
-  createTestChat,
-  cleanupTestChats,
-  createTestMessage,
-  cleanupTestMessages,
-  createTestDataSource,
-} from '@buster/test-utils';
-import { trackFileAssociations } from './file-tracking-helper';
-import { db, messagesToFiles, eq, metricFiles, dataSources } from '@buster/database';
 import { randomUUID } from 'node:crypto';
+import { dataSources, db, eq, messagesToFiles, metricFiles } from '@buster/database';
+import {
+  cleanupTestChats,
+  cleanupTestEnvironment,
+  cleanupTestMessages,
+  createTestChat,
+  createTestDataSource,
+  createTestMessage,
+  setupTestEnvironment,
+} from '@buster/test-utils';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { trackFileAssociations } from './file-tracking-helper';
 
 describe('file-tracking-helper integration', () => {
   let testChatId: string;
@@ -23,20 +23,16 @@ describe('file-tracking-helper integration', () => {
 
   beforeAll(async () => {
     await setupTestEnvironment();
-    
+
     // Create test data
     const { chatId, userId, organizationId } = await createTestChat();
     testChatId = chatId;
     testUserId = userId;
     testOrganizationId = organizationId;
-    
-    const messageId = await createTestMessage(
-      testChatId,
-      testUserId,
-      {
-        requestMessage: 'Test message for file tracking'
-      }
-    );
+
+    const messageId = await createTestMessage(testChatId, testUserId, {
+      requestMessage: 'Test message for file tracking',
+    });
     testMessageId = messageId;
 
     // Create a test data source
@@ -50,7 +46,7 @@ describe('file-tracking-helper integration', () => {
     // Create test metric files that we can reference
     testMetricFileId1 = randomUUID();
     testMetricFileId2 = randomUUID();
-    
+
     await db.insert(metricFiles).values([
       {
         id: testMetricFileId1,
@@ -77,14 +73,14 @@ describe('file-tracking-helper integration', () => {
     // Cleanup test data
     // First, cleanup any message-to-file associations
     await db.delete(messagesToFiles).where(eq(messagesToFiles.messageId, testMessageId));
-    
+
     // Then cleanup the metric files
     await db.delete(metricFiles).where(eq(metricFiles.id, testMetricFileId1));
     await db.delete(metricFiles).where(eq(metricFiles.id, testMetricFileId2));
-    
+
     // Cleanup data source
     await db.delete(dataSources).where(eq(dataSources.id, testDataSourceId));
-    
+
     // Finally cleanup messages and chats
     await cleanupTestMessages([testMessageId]);
     await cleanupTestChats([testChatId]);
@@ -109,10 +105,10 @@ describe('file-tracking-helper integration', () => {
       .where(eq(messagesToFiles.messageId, testMessageId));
 
     expect(records).toHaveLength(2);
-    
-    const record1 = records.find(r => r.fileId === testMetricFileId1);
-    const record2 = records.find(r => r.fileId === testMetricFileId2);
-    
+
+    const record1 = records.find((r) => r.fileId === testMetricFileId1);
+    const record2 = records.find((r) => r.fileId === testMetricFileId2);
+
     expect(record1).toBeDefined();
     expect(record1).toMatchObject({
       messageId: testMessageId,
@@ -120,7 +116,7 @@ describe('file-tracking-helper integration', () => {
       versionNumber: 1,
       isDuplicate: false,
     });
-    
+
     expect(record2).toBeDefined();
     expect(record2).toMatchObject({
       messageId: testMessageId,
@@ -178,7 +174,7 @@ describe('file-tracking-helper integration', () => {
       .from(messagesToFiles)
       .where(eq(messagesToFiles.messageId, testMessageId));
 
-    const matchingRecord = records.find(r => r.fileId === testMetricFileId3);
+    const matchingRecord = records.find((r) => r.fileId === testMetricFileId3);
     expect(matchingRecord).toBeDefined();
     expect(matchingRecord?.versionNumber).toBe(1);
 

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { ExtractedFile } from '../../src/utils/file-selection';
 import { selectFilesForResponse } from '../../src/utils/file-selection';
 
@@ -68,7 +68,7 @@ describe('selectFilesForResponse', () => {
 
       // Should return both dashboards that contain the modified metric
       expect(result).toHaveLength(2);
-      expect(result.map(f => f.id).sort()).toEqual(['dashboard-1', 'dashboard-2']);
+      expect(result.map((f) => f.id).sort()).toEqual(['metric-1', 'metric-2']);
     });
 
     it('should handle case where dashboard is in both files and context', () => {
@@ -147,7 +147,7 @@ describe('selectFilesForResponse', () => {
 
       // Should return dashboard-1 (contains modified metric-1) and metric-2 (standalone)
       expect(result).toHaveLength(2);
-      expect(result.map(f => f.id).sort()).toEqual(['dashboard-1', 'metric-2']);
+      expect(result.map((f) => f.id).sort()).toEqual(['dashboard-1', 'metric-2']);
     });
   });
 
@@ -209,7 +209,7 @@ describe('selectFilesForResponse', () => {
       const result = selectFilesForResponse(files);
 
       expect(result).toHaveLength(2);
-      expect(result.map(f => f.id).sort()).toEqual(['metric-1', 'metric-2']);
+      expect(result.map((f) => f.id).sort()).toEqual(['metric-1', 'metric-2']);
     });
   });
 

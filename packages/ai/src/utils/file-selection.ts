@@ -283,7 +283,7 @@ export function selectFilesForResponse(
             lookingForMetricId: metric.id,
             metricIdInDashboard: contextDashboard.metricIds.includes(metric.id),
           });
-          
+
           if (contextDashboard.metricIds.includes(metric.id)) {
             console.info('[File Selection] Modified metric found in dashboard:', {
               metricId: metric.id,
@@ -323,7 +323,7 @@ export function selectFilesForResponse(
   if (contextDashboardsToInclude.length > 0) {
     console.info('[File Selection] Adding context dashboards:', {
       count: contextDashboardsToInclude.length,
-      dashboards: contextDashboardsToInclude.map(d => ({ id: d.id, name: d.fileName })),
+      dashboards: contextDashboardsToInclude.map((d) => ({ id: d.id, name: d.fileName })),
     });
     selectedFiles.push(...contextDashboardsToInclude);
   } else {

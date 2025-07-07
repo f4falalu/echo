@@ -349,35 +349,35 @@ export function checkQueryIsReadOnly(sql: string, dataSourceSyntax?: string): Qu
   try {
     // Parse SQL into AST with the appropriate dialect
     const ast = parser.astify(sql, { database: dialect });
-    
+
     // Handle single statement or array of statements
     const statements = Array.isArray(ast) ? ast : [ast];
-    
+
     // Check each statement
     for (const statement of statements) {
       // Check if statement has a type property
       if ('type' in statement && statement.type) {
         const queryType = statement.type.toLowerCase();
-        
+
         // Only allow SELECT statements
         if (queryType !== 'select') {
           return {
             isReadOnly: false,
             queryType: statement.type,
-            error: `Query type '${statement.type}' is not allowed. Only SELECT statements are permitted for read-only access.`
+            error: `Query type '${statement.type}' is not allowed. Only SELECT statements are permitted for read-only access.`,
           };
         }
       }
     }
-    
+
     return {
       isReadOnly: true,
-      queryType: 'select'
+      queryType: 'select',
     };
   } catch (error) {
     return {
       isReadOnly: false,
-      error: `Failed to parse SQL for query type check: ${error instanceof Error ? error.message : 'Unknown error'}`
+      error: `Failed to parse SQL for query type check: ${error instanceof Error ? error.message : 'Unknown error'}`,
     };
   }
 }

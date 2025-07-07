@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  extractPhysicalTables,
-  parseTableReference,
-  normalizeTableIdentifier,
-  tablesMatch,
-  extractTablesFromYml,
+  type ParsedTable,
   checkQueryIsReadOnly,
-  type ParsedTable
+  extractPhysicalTables,
+  extractTablesFromYml,
+  normalizeTableIdentifier,
+  parseTableReference,
+  tablesMatch,
 } from './sql-parser-helpers';
 
 describe('SQL Parser Helpers', () => {
@@ -15,7 +15,7 @@ describe('SQL Parser Helpers', () => {
       const result = parseTableReference('users');
       expect(result).toEqual({
         table: 'users',
-        fullName: 'users'
+        fullName: 'users',
       });
     });
 
@@ -24,7 +24,7 @@ describe('SQL Parser Helpers', () => {
       expect(result).toEqual({
         schema: 'public',
         table: 'users',
-        fullName: 'public.users'
+        fullName: 'public.users',
       });
     });
 
@@ -34,7 +34,7 @@ describe('SQL Parser Helpers', () => {
         database: 'mydb',
         schema: 'public',
         table: 'users',
-        fullName: 'mydb.public.users'
+        fullName: 'mydb.public.users',
       });
     });
 
@@ -43,7 +43,7 @@ describe('SQL Parser Helpers', () => {
       expect(result).toEqual({
         schema: 'my schema',
         table: 'my table',
-        fullName: 'my schema.my table'
+        fullName: 'my schema.my table',
       });
     });
 
@@ -53,7 +53,7 @@ describe('SQL Parser Helpers', () => {
         database: 'catalog',
         schema: 'schema',
         table: 'table',
-        fullName: 'catalog.schema.table'
+        fullName: 'catalog.schema.table',
       });
     });
   });
@@ -70,7 +70,7 @@ describe('SQL Parser Helpers', () => {
       const sql = 'SELECT u.id, o.order_id FROM users u JOIN orders o ON u.id = o.user_id';
       const tables = extractPhysicalTables(sql);
       expect(tables).toHaveLength(2);
-      expect(tables.map(t => t.table)).toEqual(['users', 'orders']);
+      expect(tables.map((t) => t.table)).toEqual(['users', 'orders']);
     });
 
     it('should extract schema-qualified tables', () => {
@@ -92,7 +92,7 @@ describe('SQL Parser Helpers', () => {
       `;
       const tables = extractPhysicalTables(sql);
       expect(tables).toHaveLength(2);
-      expect(tables.map(t => t.table)).toEqual(['orders', 'users']);
+      expect(tables.map((t) => t.table)).toEqual(['orders', 'users']);
       // user_stats is a CTE and should not be included
     });
 
@@ -127,7 +127,7 @@ describe('SQL Parser Helpers', () => {
       `;
       const tables = extractPhysicalTables(sql);
       expect(tables).toHaveLength(2);
-      expect(tables.map(t => t.table).sort()).toEqual(['orders', 'users']);
+      expect(tables.map((t) => t.table).sort()).toEqual(['orders', 'users']);
     });
 
     it('should handle UNION queries', () => {
@@ -138,7 +138,7 @@ describe('SQL Parser Helpers', () => {
       `;
       const tables = extractPhysicalTables(sql);
       expect(tables).toHaveLength(2);
-      expect(tables.map(t => t.table).sort()).toEqual(['contractors', 'employees']);
+      expect(tables.map((t) => t.table).sort()).toEqual(['contractors', 'employees']);
     });
 
     it('should deduplicate tables', () => {
@@ -164,11 +164,11 @@ describe('SQL Parser Helpers', () => {
     });
 
     it('should normalize database.schema.table', () => {
-      const table: ParsedTable = { 
-        database: 'MyDB', 
-        schema: 'Public', 
-        table: 'Users', 
-        fullName: 'MyDB.Public.Users' 
+      const table: ParsedTable = {
+        database: 'MyDB',
+        schema: 'Public',
+        table: 'Users',
+        fullName: 'MyDB.Public.Users',
       };
       expect(normalizeTableIdentifier(table)).toBe('mydb.public.users');
     });
@@ -188,16 +188,16 @@ describe('SQL Parser Helpers', () => {
     });
 
     it('should match when query has more qualification', () => {
-      const query: ParsedTable = { 
-        database: 'mydb', 
-        schema: 'public', 
-        table: 'users', 
-        fullName: 'mydb.public.users' 
+      const query: ParsedTable = {
+        database: 'mydb',
+        schema: 'public',
+        table: 'users',
+        fullName: 'mydb.public.users',
       };
-      const permission: ParsedTable = { 
-        schema: 'public', 
-        table: 'users', 
-        fullName: 'public.users' 
+      const permission: ParsedTable = {
+        schema: 'public',
+        table: 'users',
+        fullName: 'public.users',
       };
       expect(tablesMatch(query, permission)).toBe(true);
     });
@@ -210,13 +210,21 @@ describe('SQL Parser Helpers', () => {
 
     it('should not match different schemas', () => {
       const query: ParsedTable = { schema: 'public', table: 'users', fullName: 'public.users' };
-      const permission: ParsedTable = { schema: 'private', table: 'users', fullName: 'private.users' };
+      const permission: ParsedTable = {
+        schema: 'private',
+        table: 'users',
+        fullName: 'private.users',
+      };
       expect(tablesMatch(query, permission)).toBe(false);
     });
 
     it('should not match when query lacks required schema', () => {
       const query: ParsedTable = { table: 'users', fullName: 'users' };
-      const permission: ParsedTable = { schema: 'public', table: 'users', fullName: 'public.users' };
+      const permission: ParsedTable = {
+        schema: 'public',
+        table: 'users',
+        fullName: 'public.users',
+      };
       expect(tablesMatch(query, permission)).toBe(false);
     });
   });
@@ -234,7 +242,7 @@ database: postgres
         database: 'postgres',
         schema: 'ont_ont',
         table: 'customer',
-        fullName: 'postgres.ont_ont.customer'
+        fullName: 'postgres.ont_ont.customer',
       });
     });
 
@@ -249,7 +257,7 @@ description: User data table
       expect(tables[0]).toMatchObject({
         schema: 'public',
         table: 'users',
-        fullName: 'public.users'
+        fullName: 'public.users',
       });
     });
 
@@ -264,7 +272,7 @@ version: 2
       expect(tables[0]).toMatchObject({
         database: 'analytics',
         table: 'orders',
-        fullName: 'analytics.orders'
+        fullName: 'analytics.orders',
       });
     });
 
@@ -287,19 +295,19 @@ models:
         database: 'postgres',
         schema: 'ont_ont',
         table: 'customer',
-        fullName: 'postgres.ont_ont.customer'
+        fullName: 'postgres.ont_ont.customer',
       });
       expect(tables[1]).toMatchObject({
         database: 'postgres',
         schema: 'ont_ont',
         table: 'currency',
-        fullName: 'postgres.ont_ont.currency'
+        fullName: 'postgres.ont_ont.currency',
       });
       expect(tables[2]).toMatchObject({
         database: 'postgres',
         schema: 'catalog',
         table: 'product',
-        fullName: 'postgres.catalog.product'
+        fullName: 'postgres.catalog.product',
       });
     });
 
@@ -320,17 +328,17 @@ models:
         database: 'postgres',
         schema: 'ont_ont',
         table: 'customer',
-        fullName: 'postgres.ont_ont.customer'
+        fullName: 'postgres.ont_ont.customer',
       });
       expect(tables[1]).toMatchObject({
         schema: 'public',
         table: 'users',
-        fullName: 'public.users'
+        fullName: 'public.users',
       });
       expect(tables[2]).toMatchObject({
         database: 'warehouse',
         table: 'analytics_fact',
-        fullName: 'warehouse.analytics_fact'
+        fullName: 'warehouse.analytics_fact',
       });
     });
 
@@ -346,17 +354,17 @@ models:
 `;
       const tables = extractTablesFromYml(yml);
       expect(tables).toHaveLength(2);
-      expect(tables[0]).toMatchObject({ 
+      expect(tables[0]).toMatchObject({
         database: 'primary',
-        schema: 'public', 
+        schema: 'public',
         table: 'users',
-        fullName: 'primary.public.users'
+        fullName: 'primary.public.users',
       });
-      expect(tables[1]).toMatchObject({ 
+      expect(tables[1]).toMatchObject({
         database: 'analytics',
-        schema: 'sales', 
+        schema: 'sales',
         table: 'orders',
-        fullName: 'analytics.sales.orders'
+        fullName: 'analytics.sales.orders',
       });
     });
 
@@ -375,11 +383,11 @@ models:
 `;
       const tables = extractTablesFromYml(yml);
       expect(tables).toHaveLength(1);
-      expect(tables[0]).toMatchObject({ 
+      expect(tables[0]).toMatchObject({
         database: 'postgres',
-        schema: 'public', 
+        schema: 'public',
         table: 'users',
-        fullName: 'postgres.public.users'
+        fullName: 'postgres.public.users',
       });
     });
 
@@ -397,7 +405,7 @@ models:
       expect(tables[0]).toMatchObject({
         schema: 'public',
         table: 'users',
-        fullName: 'public.users'
+        fullName: 'public.users',
       });
     });
 
@@ -421,7 +429,9 @@ models:
     });
 
     it('should allow SELECT with JOIN', () => {
-      const result = checkQueryIsReadOnly('SELECT u.id, o.total FROM users u JOIN orders o ON u.id = o.user_id');
+      const result = checkQueryIsReadOnly(
+        'SELECT u.id, o.total FROM users u JOIN orders o ON u.id = o.user_id'
+      );
       expect(result.isReadOnly).toBe(true);
     });
 
@@ -437,7 +447,9 @@ models:
     });
 
     it('should reject INSERT statements', () => {
-      const result = checkQueryIsReadOnly('INSERT INTO users (name, email) VALUES ("John", "john@example.com")');
+      const result = checkQueryIsReadOnly(
+        'INSERT INTO users (name, email) VALUES ("John", "john@example.com")'
+      );
       expect(result.isReadOnly).toBe(false);
       expect(result.queryType).toBe('insert');
       expect(result.error).toContain("Query type 'insert' is not allowed");
