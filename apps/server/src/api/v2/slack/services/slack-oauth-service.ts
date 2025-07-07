@@ -48,7 +48,6 @@ export class SlackOAuthService {
             'chat:write',
             'chat:write.public',
             'commands',
-            'channels:join',
             'users:read',
             'users:read.email',
           ],
