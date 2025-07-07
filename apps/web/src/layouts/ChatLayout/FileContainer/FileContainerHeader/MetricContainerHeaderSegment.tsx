@@ -46,8 +46,6 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
             chatId,
             dashboardId,
             assetId: metricId,
-            metricVersionNumber: metricVersionNumber,
-            dashboardVersionNumber,
             type: 'metric'
           })
         },
@@ -59,8 +57,6 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
             chatId,
             dashboardId,
             assetId: metricId,
-            metricVersionNumber,
-            dashboardVersionNumber,
             type: 'metric'
           })
         },
@@ -72,8 +68,6 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
             chatId,
             dashboardId,
             assetId: metricId,
-            metricVersionNumber,
-            dashboardVersionNumber,
             type: 'metric'
           })
         }
