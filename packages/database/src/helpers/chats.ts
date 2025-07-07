@@ -207,7 +207,7 @@ export async function updateChat(
     // Only add fields that are actually provided (not undefined)
     for (const [key, value] of Object.entries(fields)) {
       if (value !== undefined && key !== 'id' && key !== 'createdAt' && key !== 'deletedAt') {
-        updateData[key] = value;
+        (updateData as Record<string, unknown>)[key] = value;
       }
     }
 
