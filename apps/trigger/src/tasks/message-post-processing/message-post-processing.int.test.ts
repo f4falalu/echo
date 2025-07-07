@@ -125,7 +125,7 @@ describe.skipIf(skipIntegrationTests)('messagePostProcessingTask integration', (
 
   it('should handle message with no conversation history', async () => {
     // Use prepopulated message ID
-    const messageId = 'a3206f20-35d1-4a6c-84a7-48f8f222c39f';
+    const messageId = '203744bd-439f-4b3c-9ea2-ddfe243c5afe';
 
     // Execute task
     const result = await tasks.triggerAndPoll<typeof messagePostProcessingTask>(

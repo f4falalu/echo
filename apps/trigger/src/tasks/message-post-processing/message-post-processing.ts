@@ -180,7 +180,14 @@ export const messagePostProcessingTask: ReturnType<
 
       // Handle branch results - the result will have one of the branch step IDs as a key
       let validatedOutput: PostProcessingWorkflowOutput;
-      const branchResult = workflowResult.result as any; // Type assertion needed for branch results
+
+      // Define the expected shape of branch results
+      type BranchResult = {
+        'format-follow-up-message'?: PostProcessingWorkflowOutput;
+        'format-initial-message'?: PostProcessingWorkflowOutput;
+      };
+
+      const branchResult = workflowResult.result as BranchResult;
 
       if ('format-follow-up-message' in branchResult && branchResult['format-follow-up-message']) {
         validatedOutput = branchResult['format-follow-up-message'] as PostProcessingWorkflowOutput;
@@ -191,6 +198,11 @@ export const messagePostProcessingTask: ReturnType<
         validatedOutput = branchResult['format-initial-message'] as PostProcessingWorkflowOutput;
       } else {
         logger.error('Unexpected workflow result structure', {
+          messageId: payload.messageId,
+          resultKeys: Object.keys(branchResult),
+          result: branchResult,
+        });
+        console.error('Unexpected workflow result structure:', {
           messageId: payload.messageId,
           resultKeys: Object.keys(branchResult),
           result: branchResult,
@@ -214,53 +226,93 @@ export const messagePostProcessingTask: ReturnType<
         messageId: payload.messageId,
       });
 
-      const db = getDb();
-
       const dbData = extractDbFields(validatedOutput, messageContext.userName);
-      await db
-        .update(messages)
-        .set({
-          postProcessingMessage: dbData,
-          updatedAt: new Date().toISOString(),
-        })
-        .where(eq(messages.id, payload.messageId));
+
+      try {
+        const db = getDb();
+        await db
+          .update(messages)
+          .set({
+            postProcessingMessage: dbData,
+            updatedAt: new Date().toISOString(),
+          })
+          .where(eq(messages.id, payload.messageId));
+
+        logger.log('Database update successful', {
+          messageId: payload.messageId,
+        });
+      } catch (dbError) {
+        const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown database error';
+        logger.error('Failed to update database with post-processing result', {
+          messageId: payload.messageId,
+          error: errorMessage,
+        });
+        console.error('Failed to update database with post-processing result:', {
+          messageId: payload.messageId,
+          error: errorMessage,
+          stack: dbError instanceof Error ? dbError.stack : undefined,
+        });
+        // Throw the error to ensure the task fails when database update fails
+        throw new Error(`Database update failed: ${errorMessage}`);
+      }
 
       // Step 6: Send Slack notification if conditions are met
-      logger.log('Checking Slack notification conditions', {
-        messageId: payload.messageId,
-        organizationId: messageContext.organizationId,
-        summaryTitle: dbData.summaryTitle,
-        summaryMessage: dbData.summaryMessage,
-        formattedMessage: dbData.formattedMessage,
-        toolCalled: dbData.toolCalled,
-      });
+      let slackNotificationSent = false;
 
-      const slackResult = await sendSlackNotification({
-        organizationId: messageContext.organizationId,
-        userName: messageContext.userName,
-        summaryTitle: dbData.summaryTitle,
-        summaryMessage: dbData.summaryMessage,
-        formattedMessage: dbData.formattedMessage,
-        toolCalled: dbData.toolCalled,
-        message: dbData.message,
-      });
-
-      if (slackResult.sent) {
-        logger.log('Slack notification sent successfully', {
+      try {
+        logger.log('Checking Slack notification conditions', {
           messageId: payload.messageId,
           organizationId: messageContext.organizationId,
+          summaryTitle: dbData.summaryTitle,
+          summaryMessage: dbData.summaryMessage,
+          formattedMessage: dbData.formattedMessage,
+          toolCalled: dbData.toolCalled,
         });
-      } else {
-        logger.log('Slack notification not sent', {
+
+        const slackResult = await sendSlackNotification({
+          organizationId: messageContext.organizationId,
+          userName: messageContext.userName,
+          summaryTitle: dbData.summaryTitle,
+          summaryMessage: dbData.summaryMessage,
+          formattedMessage: dbData.formattedMessage,
+          toolCalled: dbData.toolCalled,
+          message: dbData.message,
+        });
+
+        if (slackResult.sent) {
+          slackNotificationSent = true;
+          logger.log('Slack notification sent successfully', {
+            messageId: payload.messageId,
+            organizationId: messageContext.organizationId,
+          });
+        } else {
+          logger.log('Slack notification not sent', {
+            messageId: payload.messageId,
+            organizationId: messageContext.organizationId,
+            reason: slackResult.error,
+          });
+        }
+      } catch (slackError) {
+        const errorMessage =
+          slackError instanceof Error ? slackError.message : 'Unknown Slack error';
+        logger.error('Failed to send Slack notification', {
           messageId: payload.messageId,
           organizationId: messageContext.organizationId,
-          reason: slackResult.error,
+          error: errorMessage,
         });
+        console.error('Failed to send Slack notification:', {
+          messageId: payload.messageId,
+          organizationId: messageContext.organizationId,
+          error: errorMessage,
+          stack: slackError instanceof Error ? slackError.stack : undefined,
+        });
+        // Don't throw - this is a non-critical error
       }
 
       logger.log('Message post-processing completed successfully', {
         messageId: payload.messageId,
         executionTimeMs: Date.now() - startTime,
+        slackNotificationSent,
       });
 
       // Wait 500ms to allow Braintrust to clean up its trace before completing
@@ -282,6 +334,13 @@ export const messagePostProcessingTask: ReturnType<
       logger.error('Post-processing task execution failed', {
         messageId: payload.messageId,
         error: errorMessage,
+        executionTimeMs: Date.now() - startTime,
+      });
+
+      console.error('Post-processing task execution failed:', {
+        messageId: payload.messageId,
+        error: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined,
         executionTimeMs: Date.now() - startTime,
       });
 
