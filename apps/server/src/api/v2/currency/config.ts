@@ -165,7 +165,6 @@ const codeToFlag = {
   DEFAULT: '🏳️',
 };
 
-
 export const CURRENCIES_MAP: Currency[] = [
   {
     code: 'AED',

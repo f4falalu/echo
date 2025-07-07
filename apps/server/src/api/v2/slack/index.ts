@@ -1,8 +1,8 @@
+import { SlackError } from '@buster/server-shared/slack';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { requireAuth } from '../../../middleware/auth';
 import { slackHandler } from './handler';
-import { SlackError } from '@buster/server-shared/slack';
 
 const app = new Hono()
   // Public endpoints (no auth required for OAuth flow)
@@ -16,7 +16,7 @@ const app = new Hono()
   // Error handling
   .onError((e, c) => {
     if (e instanceof SlackError) {
-      return c.json(e.toResponse(), e.statusCode);
+      return c.json(e.toResponse(), e.status_code);
     }
     if (e instanceof HTTPException) {
       return e.getResponse();

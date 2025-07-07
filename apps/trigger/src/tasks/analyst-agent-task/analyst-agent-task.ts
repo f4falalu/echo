@@ -351,7 +351,7 @@ export const analystAgentTask: ReturnType<
         dataSourceId: dataSource.dataSourceId,
         dataSourceSyntax: dataSource.dataSourceSyntax,
         dashboardFilesCount: dashboardFiles.length,
-        dashboardFiles: dashboardFiles.map(d => ({
+        dashboardFiles: dashboardFiles.map((d) => ({
           id: d.id,
           name: d.name,
           versionNumber: d.versionNumber,
