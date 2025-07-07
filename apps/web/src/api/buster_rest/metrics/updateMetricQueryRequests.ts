@@ -229,7 +229,7 @@ export const useShareMetric = () => {
         if (!previousData) return previousData;
         return create(previousData, (draft: BusterMetric) => {
           draft.individual_permissions = [
-            ...variables.params,
+            ...variables.params.map((p) => ({ ...p, avatar_url: null })),
             ...(draft.individual_permissions || [])
           ];
         });
@@ -299,7 +299,7 @@ export const useUpdateMetricShare = () => {
           draft.individual_permissions =
             draft.individual_permissions?.map((t) => {
               const found = variables.params.users?.find((v) => v.email === t.email);
-              if (found) return found;
+              if (found) return { ...t, ...found };
               return t;
             }) || [];
 

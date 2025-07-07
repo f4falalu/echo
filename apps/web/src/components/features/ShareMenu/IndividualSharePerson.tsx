@@ -9,11 +9,11 @@ export const IndividualSharePerson: React.FC<{
   name?: string;
   email: string;
   role: ShareRole;
-  avatarURL: string | null;
+  avatar_url: string | null;
   onUpdateShareRole: (email: string, role: ShareRole | null) => void;
   assetType: ShareAssetType;
   disabled: boolean;
-}> = React.memo(({ name, onUpdateShareRole, email, avatarURL, role, assetType, disabled }) => {
+}> = React.memo(({ name, onUpdateShareRole, email, avatar_url, role, assetType, disabled }) => {
   const isSameEmailName = name === email;
 
   const onChangeShareLevel = useMemoizedFn((v: ShareRole | null) => {
@@ -26,7 +26,7 @@ export const IndividualSharePerson: React.FC<{
       data-testid={`share-person-${email}`}>
       <div className="flex h-full items-center space-x-1.5 overflow-hidden">
         <div className="flex h-full flex-col items-center justify-center">
-          <Avatar className="h-[24px] w-[24px]" name={name || email} image={avatarURL} />
+          <Avatar className="h-[24px] w-[24px]" name={name || email} image={avatar_url} />
         </div>
         <div className="flex flex-col space-y-0 overflow-hidden">
           <Text truncate className="leading-1.3">
