@@ -34,7 +34,6 @@ export {
   updateChat,
   getChatWithDetails,
   createMessage,
-  checkChatPermission,
   getMessagesForChat,
   CreateChatInputSchema,
   GetChatInputSchema,

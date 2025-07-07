@@ -25,6 +25,7 @@
     "build:commonjs:watch": "npm run build:commonjs && tsc --module commonjs --moduleResolution node --watch",
     "db:check": "drizzle-kit check",
     "db:generate": "drizzle-kit generate",
+    "db:generate:custom": "drizzle-kit generate --custom",
     "db:introspect": "drizzle-kit introspect",
     "db:migrate": "drizzle-kit migrate",
     "db:pull": "drizzle-kit pull",

@@ -12,11 +12,6 @@ import type { AnalystRuntimeContext } from '../workflows/analyst-workflow';
 
 const inputSchema = thinkAndPrepWorkflowInputSchema;
 
-// Agent output schema - only for extracting values
-const extractValuesAgentOutputSchema = z.object({
-  values: z.array(z.string()).describe('The values that the agent will search for.'),
-});
-
 // Step output schema - what the step returns after performing the search
 export const extractValuesSearchOutputSchema = z.object({
   values: z.array(z.string()).describe('The values that the agent will search for.'),
@@ -35,7 +30,7 @@ export const extractValuesSearchOutputSchema = z.object({
         name: z.string(),
         versionNumber: z.number(),
         metricIds: z.array(z.string()),
-      }),
+      })
     )
     .optional(),
 });
@@ -93,7 +88,7 @@ Focus only on extracting meaningful, specific values that could be searched for 
  * Organizes search results by schema.table structure with columns and their values
  */
 function organizeResultsBySchemaTable(
-  results: StoredValueResult[],
+  results: StoredValueResult[]
 ): Record<string, Record<string, string[]>> {
   const organized: Record<string, Record<string, string[]>> = {};
 
@@ -149,7 +144,7 @@ function formatSearchResults(results: StoredValueResult[]): string {
  */
 async function searchStoredValues(
   values: string[],
-  dataSourceId: string,
+  dataSourceId: string
 ): Promise<{
   searchResults: string;
   foundValues: Record<string, Record<string, string[]>>;
@@ -173,7 +168,7 @@ async function searchStoredValues(
       } catch (error) {
         console.error(
           `[StoredValues] Failed to generate embedding for "${value}":`,
-          error instanceof Error ? error.message : 'Unknown error',
+          error instanceof Error ? error.message : 'Unknown error'
         );
         return null;
       }
@@ -181,7 +176,7 @@ async function searchStoredValues(
 
     const embeddingResults = await Promise.all(embeddingPromises);
     const validEmbeddings = embeddingResults.filter(
-      (result): result is { value: string; embedding: number[] } => result !== null,
+      (result): result is { value: string; embedding: number[] } => result !== null
     );
 
     if (validEmbeddings.length === 0) {
@@ -196,12 +191,12 @@ async function searchStoredValues(
     // Search for values using each embedding concurrently with individual error handling
     const searchPromises = validEmbeddings.map(async ({ value, embedding }) => {
       try {
-        const results = await searchValuesByEmbedding(dataSourceId, embedding, { limit: 30 });
+        const results = await searchValuesByEmbedding(dataSourceId, embedding, { limit: 100 });
         return results;
       } catch (error) {
         console.error(
           `[StoredValues] Failed to search stored values for "${value}":`,
-          error instanceof Error ? error.message : 'Unknown error',
+          error instanceof Error ? error.message : 'Unknown error'
         );
         return [];
       }
@@ -278,7 +273,7 @@ const extractValuesSearchStepExecution = async ({
         },
         {
           name: 'Extract Values',
-        },
+        }
       );
 
       extractedValues = await tracedValuesExtraction();

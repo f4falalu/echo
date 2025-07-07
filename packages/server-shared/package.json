@@ -36,6 +36,10 @@
     "./currency": {
       "types": "./dist/currency/index.d.ts",
       "default": "./dist/currency/index.js"
+    },
+    "./slack": {
+      "types": "./dist/slack/index.d.ts",
+      "default": "./dist/slack/index.js"
     }
   },
   "dependencies": {

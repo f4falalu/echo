@@ -1,8 +1,8 @@
 "on":
     push:
         branches:
-            - main
-name: Deploy to main-hono-server
+            - staging
+name: Deploy to staging-hono-server
 jobs:
     porter-deploy:
         runs-on: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
               timeout-minutes: 30
               run: exec porter apply
               env:
-                PORTER_APP_NAME: main-hono-server
+                PORTER_APP_NAME: staging-hono-server
                 PORTER_CLUSTER: "3155"
                 PORTER_DEPLOYMENT_TARGET_ID: 7f44813f-4b0c-4be7-add0-94ebb61256bf
                 PORTER_HOST: https://dashboard.porter.run

@@ -9,7 +9,7 @@ export type SlackIntegration = InferSelectModel<typeof slackIntegrations>;
  * Get active Slack integration for an organization
  */
 export async function getActiveIntegration(
-  organizationId: string
+  organizationId: string,
 ): Promise<SlackIntegration | null> {
   try {
     const [integration] = await db
@@ -19,8 +19,8 @@ export async function getActiveIntegration(
         and(
           eq(slackIntegrations.organizationId, organizationId),
           eq(slackIntegrations.status, 'active'),
-          isNull(slackIntegrations.deletedAt)
-        )
+          isNull(slackIntegrations.deletedAt),
+        ),
       )
       .limit(1);
 
@@ -28,7 +28,9 @@ export async function getActiveIntegration(
   } catch (error) {
     console.error('Failed to get active Slack integration:', error);
     throw new Error(
-      `Failed to get active Slack integration: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to get active Slack integration: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     );
   }
 }
@@ -37,7 +39,7 @@ export async function getActiveIntegration(
  * Get pending integration by OAuth state
  */
 export async function getPendingIntegrationByState(
-  state: string
+  state: string,
 ): Promise<SlackIntegration | null> {
   try {
     const [integration] = await db
@@ -47,8 +49,8 @@ export async function getPendingIntegrationByState(
         and(
           eq(slackIntegrations.oauthState, state),
           eq(slackIntegrations.status, 'pending'),
-          gt(slackIntegrations.oauthExpiresAt, new Date().toISOString())
-        )
+          gt(slackIntegrations.oauthExpiresAt, new Date().toISOString()),
+        ),
       )
       .limit(1);
 
@@ -56,7 +58,9 @@ export async function getPendingIntegrationByState(
   } catch (error) {
     console.error('Failed to get pending integration by state:', error);
     throw new Error(
-      `Failed to get pending integration: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to get pending integration: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     );
   }
 }
@@ -118,7 +122,9 @@ export async function createPendingIntegration(params: {
   } catch (error) {
     console.error('Failed to create pending Slack integration:', error);
     throw new Error(
-      `Failed to create pending integration: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to create pending integration: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     );
   }
 }
@@ -137,7 +143,7 @@ export async function updateIntegrationAfterOAuth(
     scope: string;
     tokenVaultKey: string;
     installedBySlackUserId?: string;
-  }
+  },
 ): Promise<void> {
   try {
     await db
@@ -155,7 +161,7 @@ export async function updateIntegrationAfterOAuth(
   } catch (error) {
     console.error('Failed to update integration after OAuth:', error);
     throw new Error(
-      `Failed to activate integration: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to activate integration: ${error instanceof Error ? error.message : 'Unknown error'}`,
     );
   }
 }
@@ -165,7 +171,7 @@ export async function updateIntegrationAfterOAuth(
  */
 export async function markIntegrationAsFailed(
   integrationId: string,
-  _error?: string
+  _error?: string,
 ): Promise<void> {
   try {
     // Due to database constraint, we cannot mark a pending integration as failed
@@ -206,7 +212,9 @@ export async function markIntegrationAsFailed(
   } catch (error) {
     console.error('Failed to mark integration as failed:', error);
     throw new Error(
-      `Failed to mark integration as failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to mark integration as failed: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     );
   }
 }
@@ -227,7 +235,9 @@ export async function softDeleteIntegration(integrationId: string): Promise<void
   } catch (error) {
     console.error('Failed to soft delete integration:', error);
     throw new Error(
-      `Failed to soft delete integration: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to soft delete integration: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     );
   }
 }
@@ -247,7 +257,9 @@ export async function updateLastUsedAt(integrationId: string): Promise<void> {
   } catch (error) {
     console.error('Failed to update last used timestamp:', error);
     throw new Error(
-      `Failed to update last used timestamp: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to update last used timestamp: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     );
   }
 }
@@ -267,7 +279,9 @@ export async function getIntegrationById(integrationId: string): Promise<SlackIn
   } catch (error) {
     console.error('Failed to get integration by ID:', error);
     throw new Error(
-      `Failed to get integration by ID: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to get integration by ID: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     );
   }
 }
@@ -282,7 +296,9 @@ export async function hasActiveIntegration(organizationId: string): Promise<bool
   } catch (error) {
     console.error('Failed to check active integration:', error);
     throw new Error(
-      `Failed to check active integration: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to check active integration: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     );
   }
 }
@@ -291,7 +307,7 @@ export async function hasActiveIntegration(organizationId: string): Promise<bool
  * Get any existing integration for an organization (active, revoked, or failed)
  */
 export async function getExistingIntegration(
-  organizationId: string
+  organizationId: string,
 ): Promise<SlackIntegration | null> {
   try {
     // Get the most recent non-deleted integration for this organization
@@ -306,7 +322,34 @@ export async function getExistingIntegration(
   } catch (error) {
     console.error('Failed to get existing Slack integration:', error);
     throw new Error(
-      `Failed to get existing Slack integration: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to get existing Slack integration: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
+    );
+  }
+}
+
+/**
+ * Update default channel for Slack integration
+ */
+export async function updateDefaultChannel(
+  integrationId: string,
+  defaultChannel: { name: string; id: string },
+): Promise<void> {
+  try {
+    await db
+      .update(slackIntegrations)
+      .set({
+        defaultChannel,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(slackIntegrations.id, integrationId));
+  } catch (error) {
+    console.error('Failed to update default channel:', error);
+    throw new Error(
+      `Failed to update default channel: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     );
   }
 }
@@ -323,8 +366,8 @@ export async function cleanupExpiredPendingIntegrations(): Promise<number> {
       .where(
         and(
           eq(slackIntegrations.status, 'pending'),
-          lt(slackIntegrations.oauthExpiresAt, new Date().toISOString())
-        )
+          lt(slackIntegrations.oauthExpiresAt, new Date().toISOString()),
+        ),
       );
 
     // Clean up vault tokens for each expired integration
@@ -345,8 +388,8 @@ export async function cleanupExpiredPendingIntegrations(): Promise<number> {
       .where(
         and(
           eq(slackIntegrations.status, 'pending'),
-          lt(slackIntegrations.oauthExpiresAt, new Date().toISOString())
-        )
+          lt(slackIntegrations.oauthExpiresAt, new Date().toISOString()),
+        ),
       )
       .returning({ id: slackIntegrations.id });
 
@@ -354,7 +397,9 @@ export async function cleanupExpiredPendingIntegrations(): Promise<number> {
   } catch (error) {
     console.error('Failed to cleanup expired pending integrations:', error);
     throw new Error(
-      `Failed to cleanup expired integrations: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to cleanup expired integrations: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
     );
   }
 }
