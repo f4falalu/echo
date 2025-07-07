@@ -5,14 +5,14 @@ import { Card, CardHeader } from '@/components/ui/card/CardBase';
 import { BusterChart } from '@/components/ui/charts/BusterChart';
 import { useMemoizedFn } from '@/hooks';
 import { cn } from '@/lib/classMerge';
-import { BusterRoutes, createBusterRoute } from '@/routes';
 import { MetricTitle } from './MetricTitle';
 import { useDashboardMetric } from './useDashboardMetric';
 import { assetParamsToRoute } from '@/lib/assets';
 
 const DashboardMetricItemBase: React.FC<{
   metricId: string;
-  versionNumber: number | undefined;
+  metricVersionNumber: number | undefined;
+  dashboardVersionNumber: number | undefined;
   chatId: string | undefined;
   dashboardId: string;
   numberOfMetrics: number;
@@ -22,12 +22,13 @@ const DashboardMetricItemBase: React.FC<{
 }> = ({
   readOnly,
   dashboardId,
-  versionNumber,
+  metricVersionNumber,
   className = '',
   metricId,
   isDragOverlay = false,
   numberOfMetrics,
-  chatId
+  chatId,
+  dashboardVersionNumber
 }) => {
   const {
     conatinerRef,
@@ -39,7 +40,7 @@ const DashboardMetricItemBase: React.FC<{
     isFetchedMetricData,
     metricError,
     metricDataError
-  } = useDashboardMetric({ metricId, versionNumber });
+  } = useDashboardMetric({ metricId, versionNumber: metricVersionNumber });
 
   const loadingMetricData = !!metric && !isFetchedMetricData;
   const chartOptions = metric?.chart_config;
@@ -61,9 +62,10 @@ const DashboardMetricItemBase: React.FC<{
       assetId: metricId,
       chatId,
       dashboardId,
-      page: 'chart'
+      page: 'chart',
+      metricVersionNumber
     });
-  }, [metricId, chatId, dashboardId]);
+  }, [metricId, chatId, dashboardId, metricVersionNumber]);
 
   const onInitialAnimationEndPreflight = useMemoizedFn(() => {
     setInitialAnimationEnded(metricId);

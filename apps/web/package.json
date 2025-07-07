@@ -33,7 +33,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@electric-sql/client": "^1.0.6",
-    "@electric-sql/react": "^1.0.5",
+    "@electric-sql/react": "^1.0.6",
     "@faker-js/faker": "^9.9.0",
     "@llm-ui/code": "^0.13.3",
     "@llm-ui/markdown": "^0.13.3",

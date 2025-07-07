@@ -32,6 +32,8 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
   ({ selectedFileView, chatId }) => {
     const metricId = useChatLayoutContextSelector((x) => x.metricId) || '';
     const dashboardId = useChatLayoutContextSelector((x) => x.dashboardId) || '';
+    const metricVersionNumber = useChatLayoutContextSelector((x) => x.metricVersionNumber);
+    const dashboardVersionNumber = useChatLayoutContextSelector((x) => x.dashboardVersionNumber);
     const { error } = useGetMetric({ id: metricId });
 
     const segmentOptions: SegmentedItem<FileView>[] = React.useMemo(() => {
@@ -44,6 +46,8 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
             chatId,
             dashboardId,
             assetId: metricId,
+            metricVersionNumber: metricVersionNumber,
+            dashboardVersionNumber,
             type: 'metric'
           })
         },
@@ -55,6 +59,8 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
             chatId,
             dashboardId,
             assetId: metricId,
+            metricVersionNumber,
+            dashboardVersionNumber,
             type: 'metric'
           })
         },
@@ -66,11 +72,13 @@ const MetricSegments: React.FC<FileContainerSegmentProps> = React.memo(
             chatId,
             dashboardId,
             assetId: metricId,
+            metricVersionNumber,
+            dashboardVersionNumber,
             type: 'metric'
           })
         }
       ];
-    }, [chatId, error, metricId, dashboardId]);
+    }, [chatId, error, metricId, dashboardId, metricVersionNumber, dashboardVersionNumber]);
 
     return <AppSegmented type="button" options={segmentOptions} value={selectedFileView} />;
   }

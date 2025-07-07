@@ -207,8 +207,8 @@ importers:
         specifier: ^1.0.6
         version: 1.0.6
       '@electric-sql/react':
-        specifier: ^1.0.5
-        version: 1.0.5(react@18.3.1)
+        specifier: ^1.0.6
+        version: 1.0.6(react@18.3.1)
       '@faker-js/faker':
         specifier: ^9.9.0
         version: 9.9.0
@@ -2005,14 +2005,11 @@ packages:
   '@electric-sql/client@1.0.0-beta.1':
     resolution: {integrity: sha512-Ei9jN3pDoGzc+a/bGqnB5ajb52IvSv7/n2btuyzUlcOHIR2kM9fqtYTJXPwZYKLkGZlHWlpHgWyRtrinkP2nHg==}
 
-  '@electric-sql/client@1.0.5':
-    resolution: {integrity: sha512-DO7dvfCbZU6k33vr3ymBCXER6kPpoBODoRBru7oI16B4/ZXlxhMBpsmzmd8p9dQrPICCpQm6bBkNI6qI3oUAIQ==}
-
   '@electric-sql/client@1.0.6':
     resolution: {integrity: sha512-W3vrQhpKeMrOwErnrurC+aXJI8o6g4hSvHdFv10vES4Y+u3zBQoee88otr25GYX8cdleTXlczvh7XQhn4ywRBA==}
 
-  '@electric-sql/react@1.0.5':
-    resolution: {integrity: sha512-mNabbjw0BGV8nw6JUQF6OecQU5IQW8RbJ4SiwQ4LGJ2G0jRIT6cnQsNdXU4amoMnbchRhXFDGb8FJxnEVczn3Q==}
+  '@electric-sql/react@1.0.6':
+    resolution: {integrity: sha512-r+45jTP0o4urpn5LF94vIgqcvnBD6MJFi7QwYUjQLVU46gu+43Sudl503Klier10j473emZHIdvrI6FxRWH/Zw==}
     peerDependencies:
       react: '>=18.3.1 <20.0.0'
     peerDependenciesMeta:
@@ -13493,21 +13490,15 @@ snapshots:
     optionalDependencies:
       '@rollup/rollup-darwin-arm64': 4.44.2
 
-  '@electric-sql/client@1.0.5':
-    dependencies:
-      '@microsoft/fetch-event-source': 2.0.1
-    optionalDependencies:
-      '@rollup/rollup-darwin-arm64': 4.44.2
-
   '@electric-sql/client@1.0.6':
     dependencies:
       '@microsoft/fetch-event-source': 2.0.1
     optionalDependencies:
       '@rollup/rollup-darwin-arm64': 4.44.2
 
-  '@electric-sql/react@1.0.5(react@18.3.1)':
+  '@electric-sql/react@1.0.6(react@18.3.1)':
     dependencies:
-      '@electric-sql/client': 1.0.5
+      '@electric-sql/client': 1.0.6
       use-sync-external-store: 1.5.0(react@18.3.1)
     optionalDependencies:
       react: 18.3.1

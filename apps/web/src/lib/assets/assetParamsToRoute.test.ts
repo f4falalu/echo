@@ -6,15 +6,13 @@ import { createDashboardRoute } from './createDashboardRoute';
 import { createReasoningRoute } from './createReasoningRoute';
 import { createDatasetRoute } from './createDatasetRoute';
 
-// Mock all the route creation functions
-vi.mock('@/routes/busterRoutes', () => ({
-  BusterRoutes: {
-    APP_CHAT_ID: '/app/chats/:chatId',
-    APP_COLLECTIONS_ID: '/app/collections/:collectionId',
-    APP_TERMS_ID: '/app/terms/:termId'
-  },
-  createBusterRoute: vi.fn()
-}));
+vi.mock('@/routes/busterRoutes', async () => {
+  const actual = await vi.importActual('@/routes/busterRoutes');
+  return {
+    ...actual,
+    createBusterRoute: vi.fn()
+  };
+});
 
 vi.mock('./createMetricRoute', () => ({
   createMetricRoute: vi.fn()
@@ -92,7 +90,7 @@ describe('assetParamsToRoute', () => {
           assetId: 'metric-123',
           chatId: 'chat-456',
           secondaryView: 'chart-edit',
-          versionNumber: 2,
+          metricVersionNumber: 2,
           page: 'chart'
         });
         expect(result).toBe('/mock/metric/route');
@@ -122,7 +120,7 @@ describe('assetParamsToRoute', () => {
           assetId: 'dashboard-123',
           chatId: 'chat-456',
           type: 'dashboard',
-          versionNumber: 3,
+          dashboardVersionNumber: 3,
           page: 'file',
           secondaryView: 'version-history'
         });
@@ -130,7 +128,7 @@ describe('assetParamsToRoute', () => {
         expect(mockCreateDashboardRoute).toHaveBeenCalledWith({
           assetId: 'dashboard-123',
           chatId: 'chat-456',
-          versionNumber: 3,
+          dashboardVersionNumber: 3,
           page: 'file',
           secondaryView: 'version-history'
         });

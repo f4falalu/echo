@@ -40,10 +40,11 @@ export const DashboardContentController: React.FC<{
     metrics = DEFAULT_EMPTY_METRICS,
     onUpdateDashboardConfig
   }) => {
+    const [draggingId, setDraggingId] = useState<string | null>(null);
+    const dashboardVersionNumber = dashboard?.version_number;
     const dashboardConfig = dashboard?.config || DEFAULT_EMPTY_CONFIG;
     const configRows = dashboardConfig?.rows || DEFAULT_EMPTY_ROWS;
     const hasMetrics = !isEmpty(metrics);
-    const [draggingId, setDraggingId] = useState<string | null>(null);
     const numberOfMetrics = Object.values(metrics).length;
 
     const remapMetrics = useMemo(() => {
@@ -65,7 +66,8 @@ export const DashboardContentController: React.FC<{
             isDragOverlay
             numberOfMetrics={numberOfMetrics}
             chatId={undefined}
-            versionNumber={metrics[draggingId]?.version_number}
+            dashboardVersionNumber={dashboardVersionNumber}
+            metricVersionNumber={metrics[draggingId]?.version_number}
           />
         )
       );
@@ -79,7 +81,7 @@ export const DashboardContentController: React.FC<{
             ...row,
             items: row.items.map((item) => {
               const selectedMetric = metrics[item.id];
-              const versionNumber = selectedMetric.version_number;
+              const metricVersionNumber = selectedMetric.version_number;
 
               return {
                 ...item,
@@ -91,7 +93,8 @@ export const DashboardContentController: React.FC<{
                     readOnly={readOnly}
                     chatId={chatId}
                     numberOfMetrics={numberOfMetrics}
-                    versionNumber={versionNumber}
+                    metricVersionNumber={metricVersionNumber}
+                    dashboardVersionNumber={dashboardVersionNumber}
                   />
                 )
               };

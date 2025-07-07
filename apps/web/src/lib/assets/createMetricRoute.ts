@@ -6,9 +6,11 @@ export type MetricRouteParams = {
   dashboardId?: string;
   chatId?: string;
   secondaryView?: MetricFileViewSecondary;
-  versionNumber?: number;
+  metricVersionNumber?: number;
+  dashboardVersionNumber?: number;
   type: 'metric';
   page?: 'chart' | 'results' | 'sql' | undefined;
+  versionNumber?: number; //will first try and use metricVersionNumber assuming it is a metric, then dashboardVersionNumber assuming it is a dashboard, then versionNumber
 };
 
 export const createMetricRoute = ({
@@ -16,10 +18,13 @@ export const createMetricRoute = ({
   chatId,
   secondaryView,
   dashboardId,
-  versionNumber: metricVersionNumber,
+  metricVersionNumber: _metricVersionNumber,
+  dashboardVersionNumber,
+  versionNumber,
   page = 'chart'
 }: Omit<MetricRouteParams, 'type'>) => {
-  const baseParams = { metricVersionNumber, metricId, secondaryView };
+  const metricVersionNumber = _metricVersionNumber || versionNumber;
+  const baseParams = { metricVersionNumber, dashboardVersionNumber, metricId, secondaryView };
 
   if (page === 'chart') {
     // Check for dashboardId first (requires chatId as well)

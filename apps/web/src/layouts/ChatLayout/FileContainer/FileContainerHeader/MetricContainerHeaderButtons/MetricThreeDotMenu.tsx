@@ -71,10 +71,8 @@ export const ThreeDotMenuButton = React.memo(
     versionNumber: number | undefined;
   }) => {
     const chatId = useChatIndividualContextSelector((x) => x.chatId);
-    const { openSuccessMessage } = useBusterNotifications();
     const { data: permission } = useGetMetric({ id: metricId }, { select: (x) => x.permission });
     const openFullScreenMetric = useOpenFullScreenMetric({ metricId, versionNumber });
-    const onSetSelectedFile = useChatLayoutContextSelector((x) => x.onSetSelectedFile);
     const dashboardSelectMenu = useDashboardSelectMenu({ metricId });
     const versionHistoryItems = useVersionHistorySelectMenu({ metricId });
     const collectionSelectMenu = useCollectionSelectMenu({ metricId });
@@ -88,6 +86,8 @@ export const ThreeDotMenuButton = React.memo(
     const deleteMetricMenu = useDeleteMetricSelectMenu({ metricId });
     const renameMetricMenu = useRenameMetricSelectMenu({ metricId });
     const shareMenu = useShareMenuSelectMenu({ metricId });
+
+    console.log(permission);
 
     const isEditor = canEdit(permission);
     const isOwnerEffective = getIsEffectiveOwner(permission);

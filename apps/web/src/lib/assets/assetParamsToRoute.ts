@@ -13,9 +13,13 @@ import { createDatasetRoute } from './createDatasetRoute';
 type UnionOfFileTypes = FileType | ReasoningFileType | ReasoingMessage_ThoughtFileType;
 
 type OtherRouteParams = {
-  assetId: string | undefined;
   chatId: string | undefined;
-  versionNumber?: number;
+  assetId: string | undefined; //will first try and use metricId assuming it is a metric, then dashboardId assuming it is a dashboard, then assetId
+  metricId?: string; //if this is provided, it will be used instead of assetId
+  dashboardId?: string; //if this is provided, it will be used instead of assetId
+  versionNumber?: number; //will first try and use metricVersionNumber assuming it is a metric, then dashboardVersionNumber assuming it is a dashboard, then versionNumber
+  metricVersionNumber?: number; //if this is provided, it will be used instead of versionNumber
+  dashboardVersionNumber?: number; //if this is provided, it will be used instead of versionNumber
   page?: undefined;
   secondaryView?: undefined | null | string;
   type: Exclude<UnionOfFileTypes, 'metric' | 'dashboard'>;
@@ -27,10 +31,14 @@ export const assetParamsToRoute = ({
   chatId,
   assetId,
   type,
-  versionNumber,
   page,
-  secondaryView
+  secondaryView,
+  ...rest
 }: BaseParams): string => {
+  const { versionNumber } = rest as OtherRouteParams;
+  const { metricVersionNumber, dashboardVersionNumber } = rest as MetricRouteParams;
+  const { metricId, dashboardId } = rest as OtherRouteParams;
+
   if (!assetId && chatId) {
     return createBusterRoute({
       route: BusterRoutes.APP_CHAT_ID,
@@ -44,19 +52,22 @@ export const assetParamsToRoute = ({
 
   if (type === 'metric') {
     return createMetricRoute({
-      assetId,
+      assetId: metricId || assetId,
+      metricVersionNumber: metricVersionNumber || versionNumber,
       chatId,
       secondaryView: secondaryView as MetricFileViewSecondary,
-      versionNumber,
+      dashboardVersionNumber,
+      dashboardId,
       page: page as MetricRouteParams['page']
     });
   }
 
   if (type === 'dashboard') {
     return createDashboardRoute({
-      assetId,
+      assetId: dashboardId || assetId,
+      dashboardVersionNumber: dashboardVersionNumber || versionNumber,
+      metricVersionNumber,
       chatId,
-      versionNumber,
       page,
       secondaryView: secondaryView as DashboardFileViewSecondary
     });
