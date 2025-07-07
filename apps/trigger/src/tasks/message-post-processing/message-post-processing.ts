@@ -380,7 +380,7 @@ function getErrorCode(error: unknown): string {
     }
 
     // Workflow errors
-    if (error.message.includes('workflow')) {
+    if (error instanceof WorkflowExecutionError) {
       return 'WORKFLOW_EXECUTION_ERROR';
     }
 
