@@ -5,9 +5,9 @@ import type { PostHogConfig } from 'posthog-js';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
 import React, { type PropsWithChildren, useEffect } from 'react';
-import type { BusterUserTeam } from '@/api/asset_interfaces';
 import { isDev } from '@/config';
 import { useUserConfigContextSelector } from '../Users';
+import type { Team } from '@buster/server-shared/teams';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const DEBUG_POSTHOG = false;
@@ -44,7 +44,7 @@ const PosthogWrapper: React.FC<PropsWithChildren> = ({ children }) => {
   const user = useUserConfigContextSelector((state) => state.user);
   const userTeams = useUserConfigContextSelector((state) => state.userTeams);
   const userOrganizations = useUserConfigContextSelector((state) => state.userOrganizations);
-  const team: BusterUserTeam | undefined = userTeams?.[0];
+  const team: Team | undefined = userTeams?.[0];
 
   useEffect(() => {
     if (POSTHOG_KEY && !isServer && user && posthog && team) {

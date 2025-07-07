@@ -1,7 +1,7 @@
 import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { ShareAssetType } from '@buster/server-shared/share';
-import type { BusterUserFavorite } from '@/api/asset_interfaces/users';
+import type { UserFavorite } from '@buster/server-shared/user';
 import {
   useDeleteUserFavorite,
   useGetUserFavorites,
@@ -27,7 +27,7 @@ export const useFavoriteSidebarPanel = () => {
     updateUserFavorites(itemIds);
   });
 
-  const isAssetActive = useMemoizedFn((favorite: BusterUserFavorite) => {
+  const isAssetActive = useMemoizedFn((favorite: UserFavorite) => {
     const assetType = favorite.asset_type;
     const id = favorite.id;
 

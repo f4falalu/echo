@@ -6,9 +6,10 @@ export const OrganizationUserStatusText: Record<OrganizationUser['status'], stri
 };
 
 export const OrganizationUserRoleText: Record<OrganizationUser['role'], string> = {
-  dataAdmin: 'Data Admin',
-  workspaceAdmin: 'Workspace Admin',
+  data_admin: 'Data Admin',
+  workspace_admin: 'Workspace Admin',
   querier: 'Querier',
-  restrictedQuerier: 'Restricted Querier',
-  viewer: 'Viewer'
+  restricted_querier: 'Restricted Querier',
+  viewer: 'Viewer',
+  none: 'None'
 };

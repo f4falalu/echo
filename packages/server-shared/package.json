@@ -40,11 +40,24 @@
     "./slack": {
       "types": "./dist/slack/index.d.ts",
       "default": "./dist/slack/index.js"
+    },
+    "./user": {
+      "types": "./dist/user/index.d.ts",
+      "default": "./dist/user/index.js"
+    },
+    "./organization": {
+      "types": "./dist/organization/index.d.ts",
+      "default": "./dist/organization/index.js"
+    },
+    "./teams": {
+      "types": "./dist/teams/index.d.ts",
+      "default": "./dist/teams/index.js"
     }
   },
   "dependencies": {
     "@buster/vitest-config": "workspace:*",
     "@buster/typescript-config": "workspace:*",
+    "@buster/database": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

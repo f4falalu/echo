@@ -30,7 +30,8 @@ export const SidebarUserFooter: React.FC = () => {
   const handleSignOut = useSignOut();
   if (!user) return null;
 
-  const { name, email } = user;
+  console.log(user);
+  const { name, email, avatar_url } = user;
 
   if (!name || !email) return null;
 
@@ -41,6 +42,7 @@ export const SidebarUserFooter: React.FC = () => {
           <AvatarUserButton
             username={name}
             email={email}
+            avatarUrl={avatar_url}
             className={cn(COLLAPSED_HIDDEN, 'w-full')}
           />
         </div>

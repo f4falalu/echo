@@ -766,6 +766,9 @@ importers:
 
   packages/server-shared:
     dependencies:
+      '@buster/database':
+        specifier: workspace:*
+        version: link:../database
       '@buster/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config

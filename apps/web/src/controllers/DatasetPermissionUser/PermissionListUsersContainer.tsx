@@ -38,7 +38,7 @@ export const PermissionListUsersContainer: React.FC<{
         dataIndex: 'name',
         width: 270,
         render: (name: string, user: ListPermissionUsersResponse) => {
-          return <ListUserItem name={name} email={user.email} />;
+          return <ListUserItem name={name} email={user.email} avatarURL={user.avatar_url} />;
         }
       },
       {

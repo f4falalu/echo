@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  BusterOrganizationRole,
-  BusterOrganizationRoleLabels,
-  type BusterUser,
-  type OrganizationUser
-} from '@/api/asset_interfaces';
+import { BusterOrganizationRoleLabels, type OrganizationUser } from '@/api/asset_interfaces';
 import { useUpdateUser } from '@/api/buster_rest/users';
 import {
   Card,
@@ -17,11 +12,12 @@ import { Select, type SelectItem } from '@/components/ui/select';
 import { AppTooltip } from '@/components/ui/tooltip';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';
+import { User } from '@buster/server-shared/user';
 
 export const UserDefaultAccess: React.FC<{
   user: OrganizationUser;
   isAdmin: boolean;
-  myUser: BusterUser;
+  myUser: User;
   refetchUser: () => void;
 }> = ({ user, isAdmin, myUser, refetchUser }) => {
   const { mutateAsync } = useUpdateUser();
@@ -45,17 +41,17 @@ export const UserDefaultAccess: React.FC<{
 };
 
 const accessOptions: SelectItem<OrganizationUser['role']>[] = [
-  { label: BusterOrganizationRoleLabels.dataAdmin, value: BusterOrganizationRole.DATA_ADMIN },
+  { label: BusterOrganizationRoleLabels.data_admin, value: 'data_admin' },
   {
-    label: BusterOrganizationRoleLabels.workspaceAdmin,
-    value: BusterOrganizationRole.WORKSPACE_ADMIN
+    label: BusterOrganizationRoleLabels.workspace_admin,
+    value: 'workspace_admin'
   },
-  { label: BusterOrganizationRoleLabels.querier, value: BusterOrganizationRole.QUERIER },
+  { label: BusterOrganizationRoleLabels.querier, value: 'querier' },
   {
-    label: BusterOrganizationRoleLabels.restrictedQuerier,
-    value: BusterOrganizationRole.RESTRICTED_QUERIER
+    label: BusterOrganizationRoleLabels.restricted_querier,
+    value: 'restricted_querier'
   },
-  { label: BusterOrganizationRoleLabels.viewer, value: BusterOrganizationRole.VIEWER }
+  { label: BusterOrganizationRoleLabels.viewer, value: 'viewer' }
 ];
 
 const DefaultAccessCard = React.memo(
