@@ -579,7 +579,8 @@ export const ProblematicData: Story = {
       category: [],
       x: ['quarter_date'],
       y: ['metric_discountimpact', 'orders_with_discount'],
-      y2: []
+      y2: [],
+      tooltip: null
     },
     columnMetadata: [
       {
