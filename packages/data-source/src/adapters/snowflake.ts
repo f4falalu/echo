@@ -99,8 +99,8 @@ export class SnowflakeAdapter extends BaseAdapter {
     try {
       connection = await this.pool.acquire();
 
-      // Set query timeout if specified (default: 60 seconds)
-      const timeoutMs = timeout || 60000;
+      // Set query timeout if specified (default: 120 seconds)
+      const timeoutMs = timeout || 120000;
 
       // If no maxRows specified, use regular query
       if (!maxRows || maxRows <= 0) {

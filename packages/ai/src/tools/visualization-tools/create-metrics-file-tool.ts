@@ -1294,7 +1294,7 @@ async function validateSql(
 
     // Retry configuration for SQL validation
     const MAX_RETRIES = 3;
-    const TIMEOUT_MS = 30000; // 30 seconds per attempt
+    const TIMEOUT_MS = 120000; // 120 seconds (2 minutes) per attempt
     const RETRY_DELAYS = [1000, 3000, 6000]; // 1s, 3s, 6s
 
     // Attempt execution with retries
