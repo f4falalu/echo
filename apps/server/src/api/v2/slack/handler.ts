@@ -137,7 +137,7 @@ export class SlackHandler {
         hasCode: !!query.code,
         hasState: !!query.state,
         hasError: !!query.error,
-        paramCount: Object.keys(query).length
+        paramCount: Object.keys(query).length,
       });
       const parsed = OAuthCallbackSchema.safeParse(query);
 
@@ -151,7 +151,7 @@ export class SlackHandler {
         console.error('Invalid OAuth callback parameters:', {
           errors: parsed.error.errors,
           providedKeys: Object.keys(query),
-          expectedKeys: ['code', 'state']
+          expectedKeys: ['code', 'state'],
         });
         return c.redirect('/settings/integrations?status=error&error=invalid_parameters');
       }
@@ -167,7 +167,7 @@ export class SlackHandler {
         console.error('OAuth callback failed:', {
           error: result.error,
           hasError: !!result.error,
-          resultKeys: Object.keys(result)
+          resultKeys: Object.keys(result),
         });
         const errorParam = encodeURIComponent(result.error || 'unknown_error');
         return c.redirect(`/settings/integrations?status=error&error=${errorParam}`);
@@ -185,7 +185,7 @@ export class SlackHandler {
         errorType: error?.constructor?.name || 'Unknown',
         message: error instanceof Error ? error.message : 'Unknown error',
         isSlackError: error instanceof SlackError,
-        hasStack: !!(error instanceof Error && error.stack)
+        hasStack: !!(error instanceof Error && error.stack),
       });
       const errorMessage = error instanceof Error ? error.message : 'callback_failed';
       return c.redirect(

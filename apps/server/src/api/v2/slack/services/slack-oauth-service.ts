@@ -46,7 +46,18 @@ export class SlackOAuthService {
         oauthStateStorage
       );
     } catch (error) {
-      console.error('Failed to initialize SlackOAuthService:', error);
+      console.error('Failed to initialize SlackOAuthService:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        timestamp: new Date().toISOString(),
+        environment: {
+          hasClientId: !!process.env.SLACK_CLIENT_ID,
+          hasClientSecret: !!process.env.SLACK_CLIENT_SECRET,
+          hasRedirectUri: !!process.env.SLACK_REDIRECT_URI,
+          integrationEnabled: process.env.SLACK_INTEGRATION_ENABLED,
+        },
+      });
       throw new Error(
         `Failed to initialize Slack OAuth service: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
@@ -99,7 +110,15 @@ export class SlackOAuthService {
 
       return { authUrl, state };
     } catch (error) {
-      console.error('Failed to initiate OAuth:', error);
+      console.error('Failed to initiate OAuth:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        organizationId: params.organizationId,
+        userId: params.userId,
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        timestamp: new Date().toISOString(),
+        integrationEnabled: this.isEnabled(),
+      });
       throw error; // Re-throw to maintain existing error handling in handler
     }
   }
@@ -165,25 +184,43 @@ export class SlackOAuthService {
         teamName: tokenResponse.teamName,
       };
     } catch (error) {
-      console.error('OAuth callback error:', error);
+      // Enhanced error logging with structured data
+      console.error('OAuth callback error:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        code: params.code ? '[REDACTED]' : 'missing', // Don't log sensitive data
+        state: params.state ? `${params.state.substring(0, 8)}...` : 'missing', // Partial state for debugging
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        timestamp: new Date().toISOString(),
+      });
 
       // Try to get integration for cleanup
-      const integration = await slackHelpers.getPendingIntegrationByState(params.state);
-      if (integration) {
-        await slackHelpers.markIntegrationAsFailed(
-          integration.id,
-          error instanceof Error ? error.message : 'Unknown error'
-        );
-        return {
-          success: false,
-          integrationId: integration.id,
-          error: error instanceof Error ? error.message : 'Unknown error occurred',
-        };
+      let integrationId = '';
+      try {
+        const integration = await slackHelpers.getPendingIntegrationByState(params.state);
+        if (integration) {
+          integrationId = integration.id;
+          await slackHelpers.markIntegrationAsFailed(
+            integration.id,
+            error instanceof Error ? error.message : 'Unknown error'
+          );
+          return {
+            success: false,
+            integrationId: integration.id,
+            error: error instanceof Error ? error.message : 'Unknown error occurred',
+          };
+        }
+      } catch (cleanupError) {
+        console.error('Failed to cleanup after OAuth error:', {
+          originalError: error instanceof Error ? error.message : String(error),
+          cleanupError: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+          state: params.state ? `${params.state.substring(0, 8)}...` : 'missing',
+        });
       }
 
       return {
         success: false,
-        integrationId: '',
+        integrationId,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
@@ -243,7 +280,13 @@ export class SlackOAuthService {
         },
       };
     } catch (error) {
-      console.error('Failed to get integration status:', error);
+      console.error('Failed to get integration status:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        organizationId,
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        timestamp: new Date().toISOString(),
+      });
       throw error;
     }
   }
@@ -270,7 +313,14 @@ export class SlackOAuthService {
         try {
           await tokenStorage.deleteToken(integration.tokenVaultKey);
         } catch (error) {
-          console.error('Failed to delete token from vault:', error);
+          console.error('Failed to delete token from vault:', {
+            error: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+            tokenVaultKey: integration.tokenVaultKey,
+            integrationId: integration.id,
+            errorType: error instanceof Error ? error.constructor.name : typeof error,
+            timestamp: new Date().toISOString(),
+          });
           // Continue with integration removal even if token deletion fails
         }
       }
@@ -280,7 +330,13 @@ export class SlackOAuthService {
 
       return { success: true };
     } catch (error) {
-      console.error('Failed to remove integration:', error);
+      console.error('Failed to remove integration:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        organizationId,
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        timestamp: new Date().toISOString(),
+      });
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to remove integration',
@@ -300,7 +356,13 @@ export class SlackOAuthService {
 
       return await tokenStorage.getToken(integration.tokenVaultKey);
     } catch (error) {
-      console.error('Failed to get token from vault:', error);
+      console.error('Failed to get token from vault:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        integrationId,
+        errorType: error instanceof Error ? error.constructor.name : typeof error,
+        timestamp: new Date().toISOString(),
+      });
       return null;
     }
   }
