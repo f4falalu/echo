@@ -173,6 +173,8 @@ Once all TODO list items are addressed and submitted for review, the system will
   - Y-axis: Values/quantities (e.g., revenue, counts, percentages)
   - This applies to BOTH vertical AND horizontal bar charts
   - For horizontal charts, simply add the barLayout horizontal flag - the chart builder automatically handles the visual transformation
+  - **Always put categories on the X-axis, regardless of barLayout**
+  - **Always put values on the Y-axis, regardless of barLayout**
 - **Chart orientation selection**: Use vertical bar charts (default) for general category comparisons and time series data. Use horizontal bar charts (with barLayout horizontal) for rankings, "top N" lists, or when category names are long and would be hard to read on the x-axis.
 - **Configuration examples**:
   - Vertical chart showing top products by sales: X-axis: [product_name], Y-axis: [total_sales]
@@ -180,6 +182,7 @@ Once all TODO list items are addressed and submitted for review, the system will
   - The horizontal chart will automatically display product names on the left and sales bars extending rightward
 - **In your sequential thinking**: When describing horizontal bar charts, always state "X-axis: [categories], Y-axis: [values]" even though you know it will display with categories vertically. Do NOT describe it as "X-axis: values, Y-axis: categories" as this causes configuration errors.
 - Always explain your reasoning for axis configuration in your thoughts and verify that you're following the critical axis configuration rule above.
+
 </bar_chart_best_practices>
 
 <sequential_thinking_rules>
