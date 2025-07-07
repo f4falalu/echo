@@ -32,9 +32,27 @@ const baseLogger = createBaseLogger();
 
 // Simple console capture - only override if LOG_LEVEL is set
 if (process.env.LOG_LEVEL) {
-  console.info = (...args) => baseLogger.info(...args);
-  console.warn = (...args) => baseLogger.warn(...args);
-  console.error = (...args) => baseLogger.error(...args);
+  console.info = (obj, ...args) => {
+    if (typeof obj === 'string') {
+      baseLogger.info(obj, ...args);
+    } else {
+      baseLogger.info({ data: obj }, ...args);
+    }
+  };
+  console.warn = (obj, ...args) => {
+    if (typeof obj === 'string') {
+      baseLogger.warn(obj, ...args);
+    } else {
+      baseLogger.warn({ data: obj }, ...args);
+    }
+  };
+  console.error = (obj, ...args) => {
+    if (typeof obj === 'string') {
+      baseLogger.error(obj, ...args);
+    } else {
+      baseLogger.error({ data: obj }, ...args);
+    }
+  };
 
   // Suppress debug logs when LOG_LEVEL is info or higher
   if (logLevel !== 'debug' && logLevel !== 'trace') {
@@ -45,4 +63,5 @@ if (process.env.LOG_LEVEL) {
 // Create logger middleware
 export const loggerMiddleware = pinoLogger({
   pino: baseLogger,
+  http: false, // Disable automatic HTTP request logging
 });
