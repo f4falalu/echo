@@ -5,12 +5,10 @@ import { ArrowUpRight, CircleCheck, AlertWarning } from '@/components/ui/icons';
 import { Paragraph, Text } from '@/components/ui/typography';
 import { cn } from '@/lib/classMerge';
 import type { useNewChatWarning } from './useNewChatWarning';
-import {
-  BusterOrganizationRoleLabels,
-  type BusterOrganizationRole
-} from '@/api/asset_interfaces/organizations';
+import { BusterOrganizationRoleLabels } from '@/api/asset_interfaces/organizations';
+import type { OrganizationRole } from '@buster/server-shared/organization';
 
-const translateRole = (role: BusterOrganizationRole) => {
+const translateRole = (role: OrganizationRole) => {
   return BusterOrganizationRoleLabels[role];
 };
 
@@ -157,7 +155,7 @@ const SetupItem = ({ number, status, title, description, link, linkText }: Setup
 };
 
 interface ContactAdminCardProps {
-  userRole?: BusterOrganizationRole;
+  userRole?: OrganizationRole;
 }
 
 const ContactAdminCard = ({ userRole }: ContactAdminCardProps) => {

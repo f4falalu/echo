@@ -19,12 +19,14 @@ const mockShareConfig: ShareConfig = {
     {
       email: 'test_with_a_long_name_like_super_long_name@test.com',
       role: 'canView',
-      name: 'Test User'
+      name: 'Test User',
+      avatar_url: null
     },
     {
       email: 'test2@test.com',
       role: 'fullAccess',
-      name: 'Test User 2 with a long name like super long name'
+      name: 'Test User 2 with a long name like super long name',
+      avatar_url: null
     }
   ],
   public_expiry_date: null,

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 // POST /api/v2/slack/auth/init
 export const InitiateOAuthSchema = z.object({

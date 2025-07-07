@@ -13,7 +13,7 @@ const baseMockProps: ChartSpecificOptionsProps = {
   pieLabelPosition: 'outside',
   pieDisplayLabelAs: 'number',
   columnLabelFormats: {},
-  selectedAxis: { x: [], y: [], y2: [], category: [] },
+  selectedAxis: { x: [], y: [], y2: [], category: [], tooltip: null },
   barShowTotalAtTop: false,
   columnSettings: {},
   barGroupType: null,

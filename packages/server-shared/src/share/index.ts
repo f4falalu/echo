@@ -1,2 +1,2 @@
-export * from './shareInterfaces';
-export * from './verificationInterfaces';
+export * from './share-interfaces.types';
+export * from './verification.types';

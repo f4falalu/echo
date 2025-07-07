@@ -11,9 +11,10 @@ export const ShareRoleSchema = z.enum([
 export const ShareAssetTypeSchema = z.enum(['metric', 'dashboard', 'collection', 'chat']);
 
 export const ShareIndividualSchema = z.object({
-  email: z.string().email(),
+  email: z.string(),
   role: ShareRoleSchema,
   name: z.string().optional(),
+  avatar_url: z.string().nullable(),
 });
 
 export const ShareConfigSchema = z.object({

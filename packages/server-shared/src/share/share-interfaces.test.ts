@@ -4,7 +4,7 @@ import {
   ShareConfigSchema,
   ShareIndividualSchema,
   ShareRoleSchema,
-} from './shareInterfaces';
+} from './share-interfaces.types';
 
 describe('ShareRoleSchema', () => {
   it('should accept valid role values', () => {

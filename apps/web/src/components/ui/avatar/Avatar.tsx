@@ -6,7 +6,7 @@ import { Tooltip } from '../tooltip/Tooltip';
 import { Avatar as AvatarBase, AvatarFallback, AvatarImage } from './AvatarBase';
 
 export interface AvatarProps {
-  image?: string | null;
+  image?: string | null | undefined;
   name?: string | null;
   className?: string;
   fallbackClassName?: string;

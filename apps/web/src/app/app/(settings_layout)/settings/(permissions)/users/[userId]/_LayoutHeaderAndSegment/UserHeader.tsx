@@ -16,7 +16,7 @@ UserHeader.displayName = 'UserHeader';
 const UserInfo: React.FC<{ user: OrganizationUser }> = ({ user }) => {
   return (
     <div className="flex items-center space-x-3">
-      <Avatar size={32} fallbackClassName="text-base" name={user.name} />
+      <Avatar size={32} fallbackClassName="text-base" name={user.name} image={user.avatar_url} />
       <div className="flex flex-col space-y-0.5">
         <Title as="h4">{user.name}</Title>
         <Text size="sm" variant="secondary">

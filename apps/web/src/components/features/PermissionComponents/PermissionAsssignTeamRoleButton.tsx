@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { TeamRole } from '@/api/asset_interfaces';
+import type { TeamRole } from '@buster/server-shared/teams';
 import { Button } from '@/components/ui/buttons';
 import { Dropdown, type DropdownProps } from '@/components/ui/dropdown';
 import { CheckDouble } from '@/components/ui/icons';
