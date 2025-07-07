@@ -27,7 +27,7 @@
     "@mastra/core": "catalog:",
     "@trigger.dev/sdk": "4.0.0-v4-beta.22",
     "ai": "catalog:",
-    "braintrust": "^0.0.209",
+    "braintrust": "^0.0.206",
     "vitest": "catalog:",
     "zod": "catalog:"
   },
