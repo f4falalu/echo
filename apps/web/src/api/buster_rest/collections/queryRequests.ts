@@ -179,7 +179,10 @@ export const useShareCollection = () => {
       queryClient.setQueryData(queryKey, (previousData) => {
         if (!previousData) return previousData;
         return create(previousData, (draft: BusterCollection) => {
-          draft.individual_permissions = [...params, ...(draft.individual_permissions || [])];
+          draft.individual_permissions = [
+            ...params.map((p) => ({ ...p, avatar_url: null })),
+            ...(draft.individual_permissions || [])
+          ];
         });
       });
     },
@@ -227,7 +230,7 @@ export const useUpdateCollectionShare = () => {
           draft.individual_permissions =
             draft.individual_permissions?.map((t) => {
               const found = params.users?.find((v) => v.email === t.email);
-              if (found) return found;
+              if (found) return { ...t, ...found };
               return t;
             }) || [];
 

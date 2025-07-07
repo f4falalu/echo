@@ -34,7 +34,7 @@ export const PermissionGroupUsersListContainer: React.FC<{
         title: 'Name',
         dataIndex: 'name',
         render: (name: string, user: GetPermissionGroupUsersResponse) => {
-          return <ListUserItem name={name} email={user.email} />;
+          return <ListUserItem name={name} email={user.email} avatarURL={user.avatar_url} />;
         }
       },
       {

@@ -24,7 +24,7 @@ export const ListUsersComponent: React.FC<{
         title: 'Name',
         dataIndex: 'name',
         render: (name: string, user: OrganizationUser) => {
-          return <ListUserItem name={name} email={user.email} />;
+          return <ListUserItem name={name} email={user.email} avatarURL={user.avatar_url} />;
         }
       },
       {

@@ -4,7 +4,7 @@ import type { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useState } from 'react';
-import type { BusterUserResponse } from '@/api/asset_interfaces/users';
+import type { UserResponse } from '@buster/server-shared/user';
 import { Button } from '@/components/ui/buttons';
 import { SuccessCard } from '@/components/ui/card/SuccessCard';
 import { Input } from '@/components/ui/inputs';
@@ -17,7 +17,7 @@ import { PolicyCheck } from './PolicyCheck';
 
 export const ResetPasswordForm: React.FC<{
   supabaseUser: User;
-  busterUser: BusterUserResponse;
+  busterUser: UserResponse;
   resetPassword: (d: { password: string }) => Promise<{ error: string } | undefined>;
 }> = ({ supabaseUser, busterUser, resetPassword }) => {
   const [loading, setLoading] = useState(false);

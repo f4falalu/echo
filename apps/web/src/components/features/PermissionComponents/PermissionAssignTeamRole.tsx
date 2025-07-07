@@ -1,19 +1,19 @@
 import React from 'react';
-import { TeamRole } from '@/api/asset_interfaces';
 import { Select, type SelectItem } from '@/components/ui/select';
+import type { TeamRole } from '@buster/server-shared/teams';
 
 export const TEAM_ROLE_OPTIONS: SelectItem<TeamRole>[] = [
   {
     label: 'Manager',
-    value: TeamRole.MANAGER
+    value: 'manager'
   },
   {
     label: 'Member',
-    value: TeamRole.MEMBER
+    value: 'member'
   },
   {
     label: 'Not a Member',
-    value: TeamRole.NONE
+    value: 'none'
   }
 ];
 

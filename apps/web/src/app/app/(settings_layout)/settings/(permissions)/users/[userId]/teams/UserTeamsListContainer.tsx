@@ -2,7 +2,7 @@
 
 import pluralize from 'pluralize';
 import React, { useMemo, useState } from 'react';
-import type { BusterUserTeamListItem, TeamRole } from '@/api/asset_interfaces';
+import type { BusterUserTeamListItem } from '@/api/asset_interfaces';
 import { useUpdateUserTeams } from '@/api/buster_rest/users/permissions';
 import { PermissionAssignTeamRole } from '@/components/features/PermissionComponents';
 import {
@@ -11,6 +11,7 @@ import {
   EmptyStateList,
   InfiniteListContainer
 } from '@/components/ui/list';
+import type { TeamRole } from '@buster/server-shared/teams';
 import { BusterInfiniteList } from '@/components/ui/list/BusterInfiniteList';
 import { Text } from '@/components/ui/typography';
 import { useMemoizedFn } from '@/hooks';

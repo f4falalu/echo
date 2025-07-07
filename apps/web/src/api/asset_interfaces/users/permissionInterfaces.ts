@@ -1,4 +1,4 @@
-import type { TeamRole } from './interfaces';
+import type { TeamRole } from '@buster/server-shared/teams';
 
 export interface BusterUserDatasetGroup {
   id: string;

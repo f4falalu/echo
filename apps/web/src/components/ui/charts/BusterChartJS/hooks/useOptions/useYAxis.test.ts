@@ -13,7 +13,8 @@ describe('useYAxis', () => {
     selectedAxis: {
       y: ['value1'],
       x: ['date'],
-      category: []
+      category: [],
+      tooltip: null
     } as ChartEncodes,
     selectedChartType: 'bar',
     columnMetadata: undefined,

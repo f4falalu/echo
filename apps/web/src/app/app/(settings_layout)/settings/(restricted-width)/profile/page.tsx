@@ -9,14 +9,19 @@ import { SettingsPageHeader } from '../../_components/SettingsPageHeader';
 export default function ProfilePage() {
   const user = useUserConfigContextSelector((state) => state.user);
   if (!user) return null;
-  const { name, email, created_at } = user;
+  const { name, email, created_at, avatar_url } = user;
   return (
     <div>
       <SettingsPageHeader title="Profile" description="Manage your profile & information" />
       <div className="bg-background rounded-lg border shadow">
         {/* Header Section */}
         <div className="border-border/30 flex flex-col items-center gap-4 border-b p-6 sm:flex-row sm:items-start">
-          <Avatar name={name} className="h-12 w-12" fallbackClassName="text-2xl" />
+          <Avatar
+            name={name}
+            image={user.avatar_url}
+            className="h-12 w-12"
+            fallbackClassName="text-2xl"
+          />
           <div className="flex flex-col justify-center gap-1">
             <Title as="h3" className="text-foreground">
               {name}

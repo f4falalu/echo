@@ -7,7 +7,7 @@ export const AvatarUserButton = React.forwardRef<
   HTMLDivElement,
   {
     username?: string;
-    avatarUrl?: string;
+    avatarUrl?: string | null;
     email?: string;
     className?: string;
   }

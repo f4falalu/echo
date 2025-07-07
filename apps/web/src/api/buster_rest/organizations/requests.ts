@@ -1,7 +1,7 @@
-import type { BusterOrganization } from '@/api/asset_interfaces/organizations';
 import type { OrganizationUser } from '@/api/asset_interfaces/users';
 import { serverFetch } from '../../createServerInstance';
 import { mainApi } from '../instances';
+import type { Organization } from '@buster/server-shared/organization';
 
 export const getOrganizationUsers = async ({
   organizationId
@@ -22,5 +22,5 @@ export const getOrganizationUsers_server = async ({
 };
 
 export const createOrganization = async (organization: { name: string }) => {
-  return mainApi.post<BusterOrganization>('/organizations', organization).then((res) => res.data);
+  return mainApi.post<Organization>('/organizations', organization).then((res) => res.data);
 };

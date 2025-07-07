@@ -1,25 +1,10 @@
-export interface BusterOrganization {
-  created_at: string;
-  id: string;
-  deleted_at: string | null;
-  domain: string;
-  name: string;
-  updated_at: string;
-  role: BusterOrganizationRole;
-}
+import type { OrganizationRole } from '@buster/server-shared/organization';
 
-export enum BusterOrganizationRole {
-  WORKSPACE_ADMIN = 'workspaceAdmin',
-  DATA_ADMIN = 'dataAdmin',
-  QUERIER = 'querier',
-  RESTRICTED_QUERIER = 'restrictedQuerier',
-  VIEWER = 'viewer'
-}
-
-export const BusterOrganizationRoleLabels = {
-  [BusterOrganizationRole.WORKSPACE_ADMIN]: 'Workspace Admin',
-  [BusterOrganizationRole.DATA_ADMIN]: 'Data Admin',
-  [BusterOrganizationRole.QUERIER]: 'Querier',
-  [BusterOrganizationRole.RESTRICTED_QUERIER]: 'Restricted Querier',
-  [BusterOrganizationRole.VIEWER]: 'Viewer'
+export const BusterOrganizationRoleLabels: Record<OrganizationRole, string> = {
+  workspace_admin: 'Workspace Admin',
+  data_admin: 'Data Admin',
+  querier: 'Querier',
+  restricted_querier: 'Restricted Querier',
+  viewer: 'Viewer',
+  none: 'None'
 };

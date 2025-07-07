@@ -114,7 +114,8 @@ describe('doesChartHaveValidAxis', () => {
     const validAxis: ChartEncodes = {
       x: ['date'],
       y: ['value1', 'value2'],
-      category: []
+      category: [],
+      tooltip: null
     } as ChartEncodes;
     expect(
       doesChartHaveValidAxis({

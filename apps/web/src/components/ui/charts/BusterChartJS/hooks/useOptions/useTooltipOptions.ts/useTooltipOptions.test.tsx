@@ -31,7 +31,8 @@ describe('useTooltipOptions', () => {
     selectedAxis: {
       x: [],
       y: ['test'],
-      category: ['category']
+      category: ['category'],
+      tooltip: null
     } as ChartEncodes,
     hasMismatchedTooltipsAndMeasures: false,
     disableTooltip: false,

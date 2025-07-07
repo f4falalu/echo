@@ -1,7 +1,6 @@
-import { BusterOrganizationRole } from '@/api/asset_interfaces/organizations';
-import type { BusterUserResponse } from '@/api/asset_interfaces/users';
+import type { UserResponse } from '@buster/server-shared/user';
 
-export const checkIfUserIsAdmin = (userInfo?: BusterUserResponse | null): boolean => {
+export const checkIfUserIsAdmin = (userInfo?: UserResponse | null): boolean => {
   if (!userInfo) return false;
 
   const userOrganization = userInfo?.organizations?.[0];
@@ -10,8 +9,5 @@ export const checkIfUserIsAdmin = (userInfo?: BusterUserResponse | null): boolea
 
   const userRole = userOrganization.role;
 
-  return (
-    userRole === BusterOrganizationRole.DATA_ADMIN ||
-    userRole === BusterOrganizationRole.WORKSPACE_ADMIN
-  );
+  return userRole === 'data_admin' || userRole === 'workspace_admin';
 };

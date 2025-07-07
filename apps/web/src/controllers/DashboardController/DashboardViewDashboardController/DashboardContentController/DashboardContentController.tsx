@@ -131,8 +131,9 @@ export const DashboardContentController: React.FC<{
       }
     }, [dashboard?.id, remapMetrics]);
 
+    //overflow visible is needed to allow dropzones to be visible
     return (
-      <div className="dashboard-content-controller overflow-hidden">
+      <div className="dashboard-content-controller overflow-visible">
         {hasMetrics && !!dashboardRows.length && !!dashboard ? (
           <DashboardContentControllerProvider dashboard={dashboard}>
             <BusterResizeableGrid

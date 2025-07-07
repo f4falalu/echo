@@ -104,7 +104,12 @@ export const PermissionListUserContainer: React.FC<{
           rows={rows}
           showHeader={false}
           showSelectAll={false}
-          emptyState={useMemo(() => <EmptyStateList text="No users found" />, [])}
+          emptyState={useMemo(
+            () => (
+              <EmptyStateList text="No users found" />
+            ),
+            []
+          )}
         />
       </InfiniteListContainer>
     </>
@@ -113,7 +118,7 @@ export const PermissionListUserContainer: React.FC<{
 PermissionListUserContainer.displayName = 'PermissionListUserContainer';
 
 const UserInfoCell = React.memo(({ user }: { user: DatasetPermissionOverviewUser }) => {
-  return <ListUserItem name={user.name} email={user.email} />;
+  return <ListUserItem name={user.name} email={user.email} avatarURL={user.avatar_url} />;
 });
 UserInfoCell.displayName = 'UserInfoCell';
 

@@ -352,7 +352,7 @@ export const useShareDashboard = () => {
         if (!previousData) return previousData;
         return create(previousData, (draft) => {
           draft.individual_permissions = [
-            ...variables.params,
+            ...variables.params.map((p) => ({ ...p, avatar_url: null })),
             ...(draft.individual_permissions || [])
           ];
         });
@@ -405,7 +405,7 @@ export const useUpdateDashboardShare = () => {
           draft.individual_permissions =
             draft.individual_permissions?.map((t) => {
               const found = params.users?.find((v) => v.email === t.email);
-              if (found) return found;
+              if (found) return { ...t, ...found };
               return t;
             }) || [];
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { TeamRole } from '@/api/asset_interfaces';
+import type { TeamRole } from '@buster/server-shared/teams';
 import { useUpdateUserTeams } from '@/api/buster_rest/users/permissions';
 import { PermissionAssignTeamRoleButton } from '@/components/features/PermissionComponents';
 import { BusterListSelectedOptionPopupContainer } from '@/components/ui/list';
