@@ -200,6 +200,10 @@ export class SlackOAuthService {
       teamDomain?: string;
       installedAt: string;
       lastUsedAt?: string;
+      defaultChannel?: {
+        id: string;
+        name: string;
+      };
     };
   }> {
     try {
@@ -209,6 +213,19 @@ export class SlackOAuthService {
         return { connected: false };
       }
 
+      // Cast defaultChannel to the expected type
+      const defaultChannel = integration.defaultChannel as
+        | { id: string; name: string }
+        | Record<string, never>
+        | null;
+
+      // Check if defaultChannel has content
+      const hasDefaultChannel =
+        defaultChannel &&
+        typeof defaultChannel === 'object' &&
+        'id' in defaultChannel &&
+        'name' in defaultChannel;
+
       return {
         connected: true,
         integration: {
@@ -217,6 +234,12 @@ export class SlackOAuthService {
           ...(integration.teamDomain != null && { teamDomain: integration.teamDomain }),
           installedAt: integration.installedAt || integration.createdAt,
           ...(integration.lastUsedAt != null && { lastUsedAt: integration.lastUsedAt }),
+          ...(hasDefaultChannel && {
+            defaultChannel: {
+              id: defaultChannel.id,
+              name: defaultChannel.name,
+            },
+          }),
         },
       };
     } catch (error) {

@@ -1,69 +1,117 @@
-// Error response type
-export interface SlackErrorResponse {
-  error: string;
-  code?: string;
-}
+import { z } from 'zod';
+
+// Error response schema
+export const SlackErrorResponseSchema = z.object({
+  error: z.string(),
+  code: z.string().optional(),
+});
+
+export type SlackErrorResponse = z.infer<typeof SlackErrorResponseSchema>;
 
 // POST /api/v2/slack/auth/init
-export interface InitiateOAuthResponse {
-  auth_url: string;
-  state: string;
-}
+export const InitiateOAuthResponseSchema = z.object({
+  auth_url: z.string(),
+  state: z.string(),
+});
+
+export type InitiateOAuthResponse = z.infer<typeof InitiateOAuthResponseSchema>;
 
 // GET /api/v2/slack/auth/callback
 // This endpoint returns a redirect, not JSON
 
 // GET /api/v2/slack/integration
-export interface GetIntegrationResponse {
-  connected: boolean;
-  integration?: {
-    id: string;
-    team_name: string;
-    team_domain?: string;
-    installed_at: string;
-    last_used_at?: string;
-  };
-}
+export const GetIntegrationResponseSchema = z.object({
+  connected: z.boolean(),
+  integration: z
+    .object({
+      id: z.string(),
+      team_name: z.string(),
+      team_domain: z.string().optional(),
+      installed_at: z.string(),
+      last_used_at: z.string().optional(),
+      default_channel: z
+        .object({
+          id: z.string(),
+          name: z.string(),
+        })
+        .optional(),
+    })
+    .optional(),
+});
+
+export type GetIntegrationResponse = z.infer<typeof GetIntegrationResponseSchema>;
 
 // DELETE /api/v2/slack/integration
-export interface RemoveIntegrationResponse {
-  message: string;
-}
+export const RemoveIntegrationResponseSchema = z.object({
+  message: z.string(),
+});
+
+export type RemoveIntegrationResponse = z.infer<typeof RemoveIntegrationResponseSchema>;
 
 // PUT /api/v2/slack/integration
-export interface UpdateIntegrationResponse {
-  message: string;
-  default_channel?: {
-    name: string;
-    id: string;
-  };
-}
+export const UpdateIntegrationResponseSchema = z.object({
+  message: z.string(),
+  default_channel: z
+    .object({
+      name: z.string(),
+      id: z.string(),
+    })
+    .optional(),
+});
+
+export type UpdateIntegrationResponse = z.infer<typeof UpdateIntegrationResponseSchema>;
 
 // GET /api/v2/slack/channels
-export interface GetChannelsResponse {
-  channels: Array<{
-    id: string;
-    name: string;
-  }>;
-}
+export const GetChannelsResponseSchema = z.object({
+  channels: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+    })
+  ),
+});
+
+export type GetChannelsResponse = z.infer<typeof GetChannelsResponseSchema>;
 
 // OAuth callback result (used internally)
-export interface OAuthCallbackResult {
-  success: boolean;
-  integration_id: string;
-  metadata?: {
-    return_url?: string;
-    source?: string;
-    project_id?: string;
-    initiated_at?: string;
-    ip_address?: string;
-  };
-  team_name?: string;
-  error?: string;
-}
+export const OAuthCallbackResultSchema = z.object({
+  success: z.boolean(),
+  integration_id: z.string(),
+  metadata: z
+    .object({
+      return_url: z.string().optional(),
+      source: z.string().optional(),
+      project_id: z.string().optional(),
+      initiated_at: z.string().optional(),
+      ip_address: z.string().optional(),
+    })
+    .optional(),
+  team_name: z.string().optional(),
+  error: z.string().optional(),
+});
+
+export type OAuthCallbackResult = z.infer<typeof OAuthCallbackResultSchema>;
 
 // Remove integration result (used internally)
-export interface RemoveIntegrationResult {
-  success: boolean;
-  error?: string;
-}
+export const RemoveIntegrationResultSchema = z.object({
+  success: z.boolean(),
+  error: z.string().optional(),
+});
+
+export type RemoveIntegrationResult = z.infer<typeof RemoveIntegrationResultSchema>;
+
+// Example usage for type validation:
+// const response: GetIntegrationResponse = GetIntegrationResponseSchema.parse({
+//   connected: true,
+//   integration: {
+//     id: 'integration-123',
+//     team_name: 'My Team',
+//     team_domain: 'my-team',
+//     installed_at: '2025-01-01T00:00:00Z',
+//     last_used_at: '2025-01-02T00:00:00Z',
+//     default_channel: {
+//       id: 'C04RCNXL75J',
+//       name: 'general'
+//     }
+//   }
+// });
