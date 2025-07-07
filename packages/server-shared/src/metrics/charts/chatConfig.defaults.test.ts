@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
-import { ChartConfigPropsSchema } from "./chartConfigProps";
-import { DEFAULT_CHART_THEME } from "./configColors";
+import { describe, expect, it } from 'vitest';
+import { ChartConfigPropsSchema } from './chartConfigProps';
+import { DEFAULT_CHART_THEME } from './configColors';
 
-describe("DEFAULT_CHART_CONFIG", () => {
-  it("should conform to BusterChartConfigPropsSchema and have expected default values", () => {
+describe('DEFAULT_CHART_CONFIG', () => {
+  it('should conform to BusterChartConfigPropsSchema and have expected default values', () => {
     // Verify that DEFAULT_CHART_CONFIG is valid according to the schema
     const parseResult = ChartConfigPropsSchema.safeParse({});
     expect(parseResult.success).toBe(true);
@@ -21,9 +21,9 @@ describe("DEFAULT_CHART_CONFIG", () => {
       expect(config.columnSettings).toEqual({});
       expect(config.columnLabelFormats).toEqual({});
       expect(config.showLegend).toBeNull();
-      expect(config.barLayout).toBe("vertical");
+      expect(config.barLayout).toBe('vertical');
       expect(config.barSortBy).toEqual([]);
-      expect(config.barGroupType).toBe("group");
+      expect(config.barGroupType).toBe('group');
       expect(config.barShowTotalAtTop).toBe(false);
       expect(config.lineGroupType).toBeNull();
       expect(config.scatterAxis).toEqual({
@@ -40,7 +40,7 @@ describe("DEFAULT_CHART_CONFIG", () => {
       });
 
       // Verify the config is a complete object with all required properties
-      expect(typeof config).toBe("object");
+      expect(typeof config).toBe('object');
       expect(config).not.toBeNull();
 
       // Verify it has a selectedChartType (required field)

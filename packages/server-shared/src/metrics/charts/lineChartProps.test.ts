@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { LineChartPropsSchema, type LineChartProps } from './lineChartProps';
+import { describe, expect, it } from 'vitest';
+import { type LineChartProps, LineChartPropsSchema } from './lineChartProps';
 
 describe('LineChartPropsSchema', () => {
   describe('valid inputs', () => {
@@ -81,17 +81,17 @@ describe('LineChartPropsSchema', () => {
   describe('type inference', () => {
     it('should correctly infer LineChartProps type', () => {
       const validData: LineChartProps = {
-        lineGroupType: 'stack'
+        lineGroupType: 'stack',
       };
       expect(LineChartPropsSchema.parse(validData)).toEqual(validData);
 
       const validDataWithNull: LineChartProps = {
-        lineGroupType: null
+        lineGroupType: null,
       };
       expect(LineChartPropsSchema.parse(validDataWithNull)).toEqual(validDataWithNull);
 
       const validDataWithPercentage: LineChartProps = {
-        lineGroupType: 'percentage-stack'
+        lineGroupType: 'percentage-stack',
       };
       expect(LineChartPropsSchema.parse(validDataWithPercentage)).toEqual(validDataWithPercentage);
     });

@@ -1,10 +1,7 @@
-import {
-  getLatestMessageForChat,
-  updateMessageFields,
-} from '@buster/database/src/helpers/messages';
+import { getLatestMessageForChat, updateMessageFields } from '@buster/database';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { createTestMessageWithContext } from '../../src';
-import { cleanupTestEnvironment, setupTestEnvironment } from './helpers';
+import { cleanupTestEnvironment, setupTestEnvironment } from '../../src/envHelpers/env-helpers';
 
 describe('updateMessageFields', () => {
   beforeEach(async () => {

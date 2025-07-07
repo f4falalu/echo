@@ -9,13 +9,13 @@ export const BarAndLineAxisSchema = z
     // the column ids to use for the category axis. If multiple column ids are provided, they will be grouped together. THE LLM SHOULD NEVER SET MULTIPLE CATEGORY COLUMNS. ONLY THE USER CAN SET THIS.
     category: z.array(z.string()).default([]),
     // if null the y axis will automatically be used, the y axis will be used for the tooltip.
-    tooltip: z.nullable(z.array(z.string())).default(null).optional()
+    tooltip: z.nullable(z.array(z.string())).default(null).optional(),
   })
   .default({
     x: [],
     y: [],
     category: [],
-    tooltip: null
+    tooltip: null,
   });
 
 export const ScatterAxisSchema = z
@@ -29,14 +29,14 @@ export const ScatterAxisSchema = z
     // the column id to use for the size range of the dots. ONLY one column id should be provided.
     size: z.tuple([z.string()]).or(z.array(z.string()).length(0)).default([]),
     // if null the y axis will automatically be used, the y axis will be used for the tooltip.
-    tooltip: z.nullable(z.array(z.string())).default(null)
+    tooltip: z.nullable(z.array(z.string())).default(null),
   })
   .default({
     x: [],
     y: [],
     size: [],
     category: [],
-    tooltip: null
+    tooltip: null,
   });
 
 export const ComboChartAxisSchema = z
@@ -50,14 +50,14 @@ export const ComboChartAxisSchema = z
     // the column ids to use for the category axis. If multiple column ids are provided, they will be grouped together. THE LLM SHOULD NEVER SET MULTIPLE CATEGORY COLUMNS. ONLY THE USER CAN SET THIS.
     category: z.array(z.string()).default([]),
     // if null the y axis will automatically be used, the y axis will be used for the tooltip.
-    tooltip: z.nullable(z.array(z.string())).default(null).optional()
+    tooltip: z.nullable(z.array(z.string())).default(null).optional(),
   })
   .default({
     x: [],
     y: [],
     y2: [],
     category: [],
-    tooltip: null
+    tooltip: null,
   });
 
 export const PieChartAxisSchema = z
@@ -67,19 +67,19 @@ export const PieChartAxisSchema = z
     // the column ids to use for the y axis. If multiple column ids are provided, they will appear as rings. The LLM should NEVER set multiple y axis columns. Only the user can set this.
     y: z.array(z.string()).default([]),
     // if null the y axis will automatically be used, the y axis will be used for the tooltip.
-    tooltip: z.nullable(z.array(z.string())).default(null)
+    tooltip: z.nullable(z.array(z.string())).default(null),
   })
   .default({
     x: [],
     y: [],
-    tooltip: null
+    tooltip: null,
   });
 
 export const ChartEncodesSchema = z.union([
   BarAndLineAxisSchema,
   ScatterAxisSchema,
   PieChartAxisSchema,
-  ComboChartAxisSchema
+  ComboChartAxisSchema,
 ]);
 
 // Export inferred types

@@ -12,7 +12,7 @@ export const BarChartPropsSchema = z.object({
   // OPTIONAL: default is group. This will only apply if the columnVisualization is set to 'bar'.
   barGroupType: z.nullable(z.enum(['stack', 'group', 'percentage-stack'])).default('group'),
   // OPTIONAL: default is false. This will only apply if is is stacked and there is either a category or multiple y axis applie to the series.
-  barShowTotalAtTop: z.boolean().default(false)
+  barShowTotalAtTop: z.boolean().default(false),
 });
 
 export type BarChartProps = z.infer<typeof BarChartPropsSchema>;

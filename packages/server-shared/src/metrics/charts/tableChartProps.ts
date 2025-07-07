@@ -5,7 +5,7 @@ export const TableChartPropsSchema = z.object({
   tableColumnWidths: z.nullable(z.record(z.string(), z.number())).default(null),
   tableHeaderBackgroundColor: z.nullable(z.string()).default(null),
   tableHeaderFontColor: z.nullable(z.string()).default(null),
-  tableColumnFontColor: z.nullable(z.string()).default(null)
+  tableColumnFontColor: z.nullable(z.string()).default(null),
 });
 
 export type TableChartProps = z.infer<typeof TableChartPropsSchema>;
