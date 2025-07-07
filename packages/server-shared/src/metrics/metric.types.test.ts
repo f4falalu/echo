@@ -30,7 +30,7 @@ describe('MetricSchema', () => {
           },
         ],
       },
-      status: 'approved',
+      status: 'verified',
       evaluation_score: 'High',
       evaluation_summary: 'Excellent metric quality',
       file: 'metric:\n  name: Revenue\n  sql: SELECT * FROM revenue',
@@ -52,6 +52,11 @@ describe('MetricSchema', () => {
     };
 
     const result = MetricSchema.safeParse(validMetric);
+
+    if (!result.success) {
+      console.error('Validation errors:', JSON.stringify(result.error.format(), null, 2));
+    }
+
     expect(result.success).toBe(true);
 
     if (result.success) {
@@ -88,7 +93,7 @@ describe('MetricSchema', () => {
           },
         ],
       },
-      status: 'pending',
+      status: 'notRequested',
       evaluation_score: 'Moderate',
       evaluation_summary: 'Good metric',
       file: 'metric content',
@@ -106,11 +111,16 @@ describe('MetricSchema', () => {
       public_enabled_by: null,
       publicly_accessible: false,
       public_password: null,
-      permission: 'viewer',
+      permission: 'canView',
       // chart_config is omitted, should get default
     };
 
     const result = MetricSchema.safeParse(metricWithoutChartConfig);
+
+    if (!result.success) {
+      console.error('Test 2 - Validation errors:', JSON.stringify(result.error.format(), null, 2));
+    }
+
     expect(result.success).toBe(true);
 
     if (result.success) {
@@ -162,7 +172,7 @@ describe('MetricSchema', () => {
           },
         ],
       },
-      status: 'approved',
+      status: 'verified',
       evaluation_score: 'High',
       evaluation_summary: 'Great metric',
       file: 'custom metric content',
@@ -180,10 +190,15 @@ describe('MetricSchema', () => {
       public_enabled_by: null,
       publicly_accessible: false,
       public_password: null,
-      permission: 'editor',
+      permission: 'canEdit',
     };
 
     const result = MetricSchema.safeParse(metricWithCustomConfig);
+
+    if (!result.success) {
+      console.error('Test 3 - Validation errors:', JSON.stringify(result.error.format(), null, 2));
+    }
+
     expect(result.success).toBe(true);
 
     if (result.success) {
@@ -240,7 +255,7 @@ describe('MetricSchema', () => {
           },
         ],
       },
-      status: 'rejected',
+      status: 'notVerified',
       evaluation_score: 'Low',
       evaluation_summary: 'Needs improvement',
       file: 'partial config content',
@@ -315,7 +330,7 @@ describe('MetricSchema', () => {
         column_count: 0,
         column_metadata: [],
       },
-      status: 'pending',
+      status: 'notRequested',
       evaluation_score: 'Moderate',
       evaluation_summary: 'Test with nulls',
       file: 'null content',
