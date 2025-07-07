@@ -85,9 +85,6 @@ export class SlackAuthService {
       // Exchange code for tokens
       const tokenResponse = await this.exchangeCodeForTokens(code);
 
-      // Log the raw response for debugging
-      console.info('Slack OAuth raw response:', JSON.stringify(tokenResponse, null, 2));
-
       // Validate response
       const oauthData = validateWithSchema(
         SlackOAuthResponseSchema,
@@ -216,18 +213,6 @@ export class SlackAuthService {
       }
 
       const data = await response.json();
-
-      // Check if Slack returned an error in the response body
-      const responseData = data as { ok?: boolean; error?: string; error_description?: string };
-      if (responseData.ok === false || responseData.error) {
-        console.error('Slack OAuth error response:', {
-          ok: responseData.ok,
-          error: responseData.error,
-          error_description: responseData.error_description,
-          fullResponse: data,
-        });
-      }
-
       return data;
     } catch (error) {
       if (error instanceof SlackIntegrationError) {

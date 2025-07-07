@@ -17,14 +17,6 @@ export function validateWithSchema<T>(
   const result = schema.safeParse(data);
 
   if (!result.success) {
-    // Log detailed validation errors for debugging
-    console.error('Schema validation failed:', {
-      message: errorMessage,
-      errors: result.error.errors,
-      flattened: result.error.flatten(),
-      receivedData: data,
-    });
-
     throw new SlackIntegrationError('UNKNOWN_ERROR', errorMessage, false, {
       zodError: result.error.flatten(),
     });
